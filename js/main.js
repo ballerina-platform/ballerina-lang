@@ -91,7 +91,7 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'breadcrumbs', 'file_b
             this.tabController.render();
             log.debug("end: rendering tab controller");
 
-            this.tabController.newTab();
+            var tab = this.tabController.newTab();
             this.tabController.newTab();
         }
 

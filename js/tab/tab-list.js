@@ -213,6 +213,10 @@ define(['log', 'jquery', 'lodash', 'backbone', './tab', 'bootstrap'], function (
                 var newTab = new this.TabModel(tabOptions);
                 this.addTab(newTab);
                 newTab.render();
+                // this is the first tab, so activate it by default
+                if (_.isEqual(this._tabs.length, 1 )){
+                    this.setActiveTab(newTab);
+                }
                 if (_.has(opts, 'switchToNewTab')) {
                     if (_.isBoolean(_.get(opts, 'switchToNewTab')) && _.get(opts, 'switchToNewTab')) {
                         this.setActiveTab(newTab);

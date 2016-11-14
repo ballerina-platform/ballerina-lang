@@ -33,6 +33,10 @@ define(['log', 'jquery', 'lodash', './tab-list', './service-tab'],
         },
         render: function() {
             TabList.prototype.render.call(this);
+        },
+        newTab: function(opts) {
+            var options = opts || {};
+            TabList.prototype.newTab.call(this, options);
         }
     });
 

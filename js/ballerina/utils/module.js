@@ -16,13 +16,23 @@
  * under the License.
  */
 
-define(['./processor-factory', 'app/ballerina/models/life-line'],
-
-    function (ProcessorFactory, LifeLine) {
+define(['require' ],
+    function (require) {
         var utils = {};
-        utils.ProcessorFactory = ProcessorFactory;
+        // loading on demand so the utils module will not create cyclic deps and crash app load
+        utils.getProcessorFactory = function(){
+            return  require('app/ballerina/utils/processor-factory');
+        };
+
+        utils.createPoint = function (x, y) {
+            // loading on demand so the utils module will not create cyclic deps and crash app load
+            var Point = require('app/diagram-core/models/point');
+            return new Point({'x': x, 'y': y});
+        };
 
         utils.createLifeLine = function (title, center, cssClass, utils, parameters, textModel, type) {
+            // loading on demand so the utils module will not create cyclic deps and crash app load
+            var LifeLine = require('app/ballerina/models/life-line');
             return new LifeLine({
                 title: title,
                 centerPoint: center,
@@ -33,5 +43,6 @@ define(['./processor-factory', 'app/ballerina/models/life-line'],
                 type: type
             });
         };
+
         return utils;
 });

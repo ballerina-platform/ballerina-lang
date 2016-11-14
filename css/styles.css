@@ -45,7 +45,9 @@ svg text::selection { background: none; }
     user-select: none;
 }
 
-.gradient-pattern {
+.canvas-container
+{
+    opacity: 100%;
     background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAHUlEQVQYV2NkYGAwBuKzQIwXMBJSAJMfVUidcAQAnUQBC6jEGBUAAAAASUVORK5CYII=');
     background-color: white;
     box-shadow: 0 0 2px lightgray;

@@ -18,11 +18,11 @@
 
 define(['./child', './children', './message', './life-line', './processor', './message-point', './message-link',
         './unit-processor', './complex-processor', './dynamic-containable-processor',
-       './custom-processor', './containable-processor-element', './containable-processor-elements', './resource', './service'],
+       './custom-processor', './action-processor', './containable-processor-element', './containable-processor-elements', './resource', './service'],
 
     function (Child, Children, Message, Processor, LifeLine, MessagePoint, MessageLink,
               UnitProcessor, ComplexProcessor, DynamicContainableProcessor,
-              CustomProcessor, ContainableProcessorElement, ContainableProcessorElements, Resource, Service) {
+              CustomProcessor, ActionProcessor, ContainableProcessorElement, ContainableProcessorElements, Resource, Service) {
 
         var models = {};
         // set models
@@ -36,6 +36,7 @@ define(['./child', './children', './message', './life-line', './processor', './m
         models.UnitProcessor = UnitProcessor;
         models.ComplexProcessor = ComplexProcessor;
         models.DynamicContainableProcessor = DynamicContainableProcessor;
+        models.ActionProcessor = ActionProcessor;
         models.CustomProcessor = CustomProcessor;
         models.ContainableProcessorElement = ContainableProcessorElement;
         models.ContainableProcessorElements = ContainableProcessorElements;

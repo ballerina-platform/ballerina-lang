@@ -16,7 +16,7 @@
  * under the License.
  */
 
-define(['require', 'jquery', 'd3', 'backbone', 'lodash'], function (require, $, d3, Backbone, _) {
+define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'd3utils'], function (require, $, d3, Backbone, _, D3Utils) {
 
     var toolView = Backbone.View.extend({
 
@@ -30,20 +30,20 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash'], function (require, $, 
             var validator = document.getElementById("validator");
 
             //Visual feedback on invalid drops on endpoints
-            if(eventManager.invalid){
-                validator.innerText="X";
-                validator.className = "tool-validator";
-                validator.style.display="block";
-            }
-            else{
-                validator.style.display="none";
-            }
+            //if(eventManager.invalid){
+            //    validator.innerText="X";
+            //    validator.className = "tool-validator";
+            //    validator.style.display="block";
+            //}
+            //else{
+            //    validator.style.display="none";
+            //}
         },
 
         handleDragStartEvent : function(event,ui){
             var elm = $(ui.draggable).clone();
-            eventManager.currentType(event.currentTarget.lastChild.id);
-            eventManager.draggedElement(elm);
+            //eventManager.currentType(event.currentTarget.lastChild.id);
+            //eventManager.draggedElement(elm);
 
         },
 
@@ -84,5 +84,4 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash'], function (require, $, 
     });
 
     return toolView;
-
 });

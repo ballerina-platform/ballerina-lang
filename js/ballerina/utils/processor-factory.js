@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['app/ballerina/models/models'], function (Models) {
+define(['app/ballerina/models/module'], function (Models) {
 
     var ProcessorFactory = function (title, center, type, model, viewAttributes, parameters, utils, textModel) {
         var processor;
@@ -60,6 +60,17 @@ define(['app/ballerina/models/models'], function (Models) {
                 viewAttributes: viewAttributes,
                 parameters: parameters,
                 utils: utils
+            });
+        } else if (type === "Action") {
+            processor = new Models.ActionProcessor({
+                title: title,
+                centerPoint: center,
+                type: type,
+                model: model,
+                viewAttributes: viewAttributes,
+                parameters: parameters,
+                utils: utils,
+                textModel : textModel
             });
         }
 

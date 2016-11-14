@@ -15,19 +15,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'jquery', 'd3', 'd3utils', 'backbone', 'lodash', 'diagram_core', 'main_elements',
+define(['require', 'log', 'jquery', 'd3', 'd3utils', 'backbone', 'lodash', 'diagram_core', 'main_elements',
         './service-preview', 'processors', './life-line',
         'ballerina_models/containable-processor-element', 'ballerina_models/life-line',  'ballerina_models/message-point',
-        'ballerina_models/message-link', 'svg_pan_zoom'],
+        'ballerina_models/message-link', 'ballerina_models/service', 'app/ballerina/utils/module',
+        'app/ballerina/utils/processor-factory', 'svg_pan_zoom'],
 
-function (require, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements, DiagramPreview, Processors, LifeLineView,
-          ContainableProcessorElement, LifeLine, MessagePoint, MessageLink
-
+function (require, log, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements, DiagramPreview, Processors, LifeLineView,
+          ContainableProcessorElement, LifeLine, MessagePoint, MessageLink, Service, utils, ProcessorFactory
 
 ) {
-
-    var createPoint = function (x, y) {
-        return new DiagramCore.Models.Point({'x': x, 'y': y});
+    var createLifeLine = function (title, center, cssClass, utils, parameters, textModel, type) {
+        return new LifeLine({
+            title: title,
+            centerPoint: center,
+            cssClass: cssClass,
+            utils: utils,
+            parameters: parameters,
+            textModel: textModel,
+            type: type
+        });
     };
 
     var ServiceView = Backbone.View.extend(
@@ -39,9 +46,7 @@ function (require, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements, Diag
              * @class ServiceView Represents the view for the ballerina service
              * @param {Object} options Rendering options for the view
              */
-            initialize: function (options) {
-                var opts = options.options || {};
-                opts.selector = opts.selector || ".editor";
+            initialize: function (opts) {
                 opts.diagram = opts.diagram || {};
                 opts.diagram.height = opts.diagram.height || "100%";
                 opts.diagram.width = opts.diagram.width || "100%";
@@ -58,13 +63,18 @@ function (require, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements, Diag
                 opts.diagram.grid.height = opts.diagram.grid.height || 25;
                 opts.diagram.grid.width = opts.diagram.grid.width || 25;
                 this.options = opts;
+                // create a new service model if not passed
+                if(_.isUndefined(this.model)){
+                    this.model = new Service();
+                    this.addInitialElements();
+                }
 
                 this.model.on("messageDrawStart", this.onMessageDrawStart, this);
                 this.model.on("messageDrawEnd", this.onMessageDrawEnd, this);
 
-                var container = d3.select(this.options.selector);
-                if (_.isUndefined(container)) {
-                    throw this.options.selector + " is not a valid query selector for container";
+                var container = d3.select(this.options.container);
+                if (_.isUndefined(this.options.container)) {
+                    log.error("options.container is not defined");
                 }
                 // wrap d3 with custom drawing apis
                 container = D3Utils.decorate(container);
@@ -284,7 +294,7 @@ function (require, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements, Diag
 
                 //Blocking the mousewheel event
                 document.onmousewheel = function (e) {
-                    defaultView.stopWheel();
+                    this.stopWheel();
                 };
                 if (document.addEventListener) {
                     document.addEventListener('DOMMouseScroll', this.stopWheel, false);
@@ -395,7 +405,6 @@ function (require, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements, Diag
                             y2: height + wrapperBBx.y + this.options.diagram.padding
                         };
                         this.panAndZoom.limits = newlimits;
-                        console.log(newlimits);
                         this.trigger("viewBoxLimitsUpdated", newlimits);
                     }
                 }
@@ -465,106 +474,104 @@ function (require, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements, Diag
                 containableProcessorElem.type = 'ContainableProcessorElement';
                 processor.containableProcessorElements().add(containableProcessorElem);
             },
+            createDropHandler: function(serviceView){
+                function dropHandler(event, ui) {
+                    // Check for invalid drops on endpoints
+                    if (true) {
+                        var newDraggedElem = $(ui.draggable).clone();
+                        var txt = serviceView.model;
+                        var id = ui.draggable.context.lastChild.id;
+                        var position = new DiagramCore.Models.Point({x: ui.offset.left.x, y: ui.offset.top});
+                        //convert drop position to relative svg coordinates
+                        position = serviceView.toViewBoxCoordinates(position);
 
-            currentDiagramView: function (view1) {
-                if (_.isUndefined(view1)) {
-                    return defaultView;
-                } else {
-                    defaultView = view1;
+                        if (Processors.manipulators[id] && txt.selectedNode) {
+                            //manipulators are unit processors
+                            var processor = txt.selectedNode.createProcessor(
+                                Processors.manipulators[id].title,
+                                position,
+                                Processors.manipulators[id].id,
+                                {
+                                    type: Processors.manipulators[id].type || "UnitProcessor",
+                                    initMethod: Processors.manipulators[id].init
+                                },
+                                {colour: Processors.manipulators[id].colour},
+                                Processors.manipulators[id].parameters,
+                                Processors.manipulators[id].utils
+                            );
+                            txt.selectedNode.addChild(processor);
 
-                }
-            },
-            handleDropEvent: function (event, ui) {
-                // Check for invalid drops on endpoints
-                if(eventManager.invalid==false){
-                    var newDraggedElem = $(ui.draggable).clone();
-                    var txt = defaultView.model;
-                    var id = ui.draggable.context.lastChild.id;
-                    var position = new DiagramCore.Models.Point({x: ui.offset.left.x, y: ui.offset.top});
-                    //convert drop position to relative svg coordinates
-                    position = defaultView.toViewBoxCoordinates(position);
+                            serviceView.render();
+                        } else if (Processors.flowControllers[id] && txt.selectedNode) {
+                            var processor = txt.selectedNode.createProcessor(
+                                Processors.flowControllers[id].title,
+                                position,
+                                Processors.flowControllers[id].id,
+                                {
+                                    type: Processors.flowControllers[id].type,
+                                    initMethod: Processors.flowControllers[id].init
+                                },
+                                {colour: Processors.flowControllers[id].colour},
+                                Processors.flowControllers[id].parameters,
+                                Processors.flowControllers[id].utils
+                            );
+                            txt.selectedNode.addChild(processor);
 
-                    if (Processors.manipulators[id] && txt.selectedNode) {
-                        //manipulators are unit processors
-                        var processor = txt.selectedNode.createProcessor(
-                            Processors.manipulators[id].title,
-                            position,
-                            Processors.manipulators[id].id,
-                            {
-                                type: Processors.manipulators[id].type || "UnitProcessor",
-                                initMethod: Processors.manipulators[id].init
-                            },
-                            {colour: Processors.manipulators[id].colour},
-                            Processors.manipulators[id].parameters,
-                            Processors.manipulators[id].utils
-                        );
-                        txt.selectedNode.addChild(processor);
+                            if (Processors.flowControllers[id].type == "ComplexProcessor") {
+                                (Processors.flowControllers[id].containableElements).forEach(function (elm) {
+                                    (elm.children).forEach(function (child) {
+                                        var containableProcessorElem = new ContainableProcessorElement();
+                                        containableProcessorElem.type = 'ContainableProcessorElement';
+                                        containableProcessorElem.set('title', child.title);
+                                        containableProcessorElem.set('utils', processor.get('utils'));
+                                        containableProcessorElem.parent(processor);
+                                        processor.containableProcessorElements().add(containableProcessorElem);
 
-                        defaultView.render();
-                    } else if (Processors.flowControllers[id] && txt.selectedNode) {
-                        var processor = txt.selectedNode.createProcessor(
-                            Processors.flowControllers[id].title,
-                            position,
-                            Processors.flowControllers[id].id,
-                            {type: Processors.flowControllers[id].type, initMethod: Processors.flowControllers[id].init},
-                            {colour: Processors.flowControllers[id].colour},
-                            Processors.flowControllers[id].parameters,
-                            Processors.flowControllers[id].utils
-                        );
-                        txt.selectedNode.addChild(processor);
-
-                        if (Processors.flowControllers[id].type == "ComplexProcessor") {
-                            (Processors.flowControllers[id].containableElements).forEach(function (elm) {
-                                (elm.children).forEach(function (child) {
-                                    var containableProcessorElem = new ContainableProcessorElement();
-                                    containableProcessorElem.type = 'ContainableProcessorElement';
-                                    containableProcessorElem.set('title', child.title);
-                                    containableProcessorElem.set('utils', processor.get('utils'));
-                                    containableProcessorElem.parent(processor);
-                                    processor.containableProcessorElements().add(containableProcessorElem);
-
+                                    });
                                 });
-                            });
-                        }
+                            }
 
-                        defaultView.render();
-                    } else if (id == "EndPoint") {
-                        var countOfEndpoints = txt.endpointLifeLineCounter();
-                        //only one endpoint is allowed in this version TODO:
-                        if(countOfEndpoints === 0){
-                            ++countOfEndpoints;
-                            defaultView.renderMainElement(id, countOfEndpoints, MainElements.lifelines.get('EndPoint'));
-                            txt.endpointLifeLineCounter(countOfEndpoints);
-                        }//validation check for number of endpoints in a tab
-                        else{
-                            $('#endpointModal').modal('show');
-                        }
+                            serviceView.render();
+                        } else if (id == "EndPoint") {
+                            var countOfEndpoints = txt.endpointLifeLineCounter();
+                            //only one endpoint is allowed in this version TODO:
+                            if (countOfEndpoints === 0) {
+                                ++countOfEndpoints;
+                                serviceView.renderMainElement(id, countOfEndpoints, _.get(MainElements, 'lifelines.EndPoint'));
+                                txt.endpointLifeLineCounter(countOfEndpoints);
+                            }//validation check for number of endpoints in a tab
+                            else {
+                                $('#endpointModal').modal('show');
+                            }
 
 
-                    } else if (id == "Resource") {
-                        var countOfResources = txt.resourceLifeLineCounter();
-                        //if no resource elements added to this tab view, as only one resource element is allowed in a tab
-                        if (countOfResources === 0) {
-                            ++countOfResources;
-                            defaultView.renderMainElement(id, countOfResources, MainElements.lifelines.get('Resource'));
-                            txt.resourceLifeLineCounter(countOfResources);
-                        }
+                        } else if (id == "Resource") {
+                            var countOfResources = txt.resourceLifeLineCounter();
+                            //if no resource elements added to this tab view, as only one resource element is allowed in a tab
+                            if (countOfResources === 0) {
+                                ++countOfResources;
+                                serviceView.renderMainElement(id, countOfResources,  _.get(MainElements, 'lifelines.Resource'));
+                                txt.resourceLifeLineCounter(countOfResources);
+                            }
 
-                    } else if (id == "Source") {
-                        var countOfSources = txt.sourceLifeLineCounter();
-                        if (countOfSources === 0) {
-                            ++countOfSources;
-                            defaultView.renderMainElement(id, countOfSources, MainElements.lifelines.get('Source'));
-                            txt.sourceLifeLineCounter(countOfSources);
+                        } else if (id == "Source") {
+                            var countOfSources = txt.sourceLifeLineCounter();
+                            if (countOfSources === 0) {
+                                ++countOfSources;
+                                serviceView.renderMainElement(id, countOfSources,  _.get(MainElements, 'lifelines.Source'));
+                                txt.sourceLifeLineCounter(countOfSources);
+                            }
+                        } else if (id == "Worker") {
+                            var countOfWorkers = txt.workerLifeLineCounter();
+                            countOfWorkers += 1;
+                            serviceView.renderMainElement(id, countOfWorkers,  _.get(MainElements, 'lifelines.Worker'),
+                                {utils: MainElements.lifelines.get('Worker').utils});
+                            txt.workerLifeLineCounter(countOfWorkers);
                         }
-                    } else if (id == "Worker") {
-                        var countOfWorkers = txt.workerLifeLineCounter();
-                        countOfWorkers += 1;
-                        defaultView.renderMainElement(id, countOfWorkers, MainElements.lifelines.get('Worker'),
-                            {utils: MainElements.lifelines.get('Worker').utils});
-                        txt.workerLifeLineCounter(countOfWorkers);
-                    }
-                } //for invalid check
+                    } //for invalid check
+                }
+
+                return dropHandler;
             },
 
             render: function () {
@@ -584,9 +591,9 @@ function (require, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements, Diag
                 this.d3el = mainGroup;
                 this.el = mainGroup.node();
                 this.calculateViewBoxLimits();
-                this.htmlDiv = $(this.options.selector);
+                this.htmlDiv = $(this.options.container);
                 this.htmlDiv.droppable({
-                    drop: this.handleDropEvent,
+                    drop: this.createDropHandler(this),
                     tolerance: "pointer"
                 });
 
@@ -597,8 +604,8 @@ function (require, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements, Diag
                         var lifeLine = this.model.attributes.diagramSourceElements.models[id];
                         var lifeLineView = new LifeLineView({
                             model: lifeLine,
-                            canvas: this,
-                            options: {class: MainElements.lifelines.get('Source').class}
+                            serviceView: this,
+                            class:  _.get(MainElements, 'lifelines.Source.class')
                         });
                         lifeLineViews.push(lifeLineView);
                     }
@@ -609,8 +616,8 @@ function (require, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements, Diag
                         var lifeLine = this.model.attributes.diagramResourceElements.models[id];
                         var lifeLineView = new LifeLineView({
                             model: lifeLine,
-                            canvas: this,
-                            options: {class: MainElements.lifelines.get('Resource').class}
+                            serviceView: this,
+                            class: _.get(MainElements, 'lifelines.Resource.class')
                         });
                         lifeLineViews.push(lifeLineView);
                     }
@@ -621,8 +628,8 @@ function (require, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements, Diag
                         var lifeLine = this.model.attributes.diagramEndpointElements.models[id];
                         var lifeLineView = new LifeLineView({
                             model: lifeLine,
-                            canvas: this,
-                            options: {class: MainElements.lifelines.get('Endpoint').class}
+                            serviceView: this,
+                            class: _.get(MainElements, 'lifelines.Endpoint.class')
                         });
                         lifeLineViews.push(lifeLineView);
                     }
@@ -634,8 +641,8 @@ function (require, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements, Diag
                             lifeLine = this.model.attributes.diagramWorkerElements.models[id];
                             var lifeLineView = new LifeLineView({
                                 model: lifeLine,
-                                canvas: this,
-                                options: {class: MainElements.lifelines.get('Worker').class}
+                                serviceView: this,
+                                class: _.get(MainElements, 'lifelines.Worker.class')
                             });
                             lifeLineViews.push(lifeLineView);
                         }
@@ -656,6 +663,50 @@ function (require, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements, Diag
 
                 this.trigger("renderCompleted", this.d3svg.node());
                 return mainGroup;
+            },
+
+            addInitialElements: function(){
+
+                var centerPoint = utils.createPoint(100, 50);
+                var type = "Source";
+                var lifeLineDef = _.get(MainElements, 'lifelines.Source');
+
+                var resourceCenterPoint = utils.createPoint(380, 50);
+                var resourceType = "Resource";
+                var resourceLifeLineDef =_.get(MainElements, 'lifelines.Resource');
+
+                var resourceLifeline = createLifeLine("Resource", resourceCenterPoint, resourceLifeLineDef.class, resourceLifeLineDef.utils,
+                    resourceLifeLineDef.parameters, resourceLifeLineDef.textModel, resourceType, resourceLifeLineDef);
+
+                this.model.addElement(resourceLifeline, {class: MainElements.lifelines.Resource.class });
+                this.model.resourceLifeLineCounter(1);
+
+                var lifeline = createLifeLine("Source", centerPoint, lifeLineDef.class, lifeLineDef.utils,
+                    lifeLineDef.parameters, lifeLineDef.textModel, type, lifeLineDef);
+                this.model.addElement(lifeline, {class: MainElements.lifelines.Source.class });
+                this.model.sourceLifeLineCounter(1);
+
+                var position =  utils.createPoint(0,0);
+                var processor = new ProcessorFactory(Processors.actions.StartAction.title,
+                    position,
+                    Processors.actions.StartAction.type,
+                    {
+                        type: Processors.actions.StartAction.type,
+                        initMethod: Processors.actions.StartAction.init
+                    },
+                    {
+                        colour: Processors.actions.StartAction.colour
+                    },
+                    Processors.actions.StartAction.parameters,
+                    Processors.actions.StartAction.utils,
+                    Processors.actions.StartAction.textModel,
+                    Processors.actions.StartAction.width,
+                    Processors.actions.StartAction.height);
+
+                resourceLifeline.addChild(processor);
+
+                //tabListView.addInitArrow(currentSource,processor,defaultView);
+
             },
 
             shiftEndpointsRight: function () {
@@ -683,38 +734,39 @@ function (require, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements, Diag
                 // In order to make the logic clear both ENDPOINT and the WORKER checks are enclosed seperately without
                 // Merging both together in to one, for future reference
                 if(lifelineName == "Source") {
-                    centerPoint = createPoint(200, 50);
+                    centerPoint = utils.createPoint(200, 50);
                     type = "Source";
                 } else if (lifelineName == "Resource") {
-                    centerPoint = createPoint(380, 50);
+                    centerPoint = utils.createPoint(380, 50);
                     type = "Resource";
                 } else if (lifelineName == "EndPoint") {
                     type = "EndPoint";
                     if (numberOfEndpointElements > 0) {
                         var lastEpLifeLine = this.model.attributes.diagramEndpointElements.models[numberOfEndpointElements - 1];
-                        centerPoint = createPoint(lastEpLifeLine.rightLowerCorner().x + 115, 50);
+                        centerPoint = utils.createPoint(lastEpLifeLine.rightLowerCorner().x + 115, 50);
                     } else if (numberOfWorkerElements > 0) {
                         var lastWorkerLifeLine = this.model.attributes.diagramWorkerElements.models[numberOfWorkerElements - 1];
-                        centerPoint = createPoint(lastWorkerLifeLine.rightLowerCorner().x + 115, 50);
+                        centerPoint = utils.createPoint(lastWorkerLifeLine.rightLowerCorner().x + 115, 50);
                     } else {
                         var resourceLifeLine = this.model.attributes.diagramResourceElements.models[numberOfResourceElements - 1];
-                        centerPoint = createPoint(resourceLifeLine.rightLowerCorner().x + 115, 50);
+                        //centerPoint = utils.createPoint(resourceLifeLine.rightLowerCorner().x + 115, 50);
+                        centerPoint = utils.createPoint(115, 50);
                     }
                 } else if (lifelineName == "Worker") {
                     type = "Worker";
                     if (numberOfEndpointElements > 0) {
                         var firstEpLifeLine = this.model.attributes.diagramEndpointElements.models[0];
-                        centerPoint = createPoint(firstEpLifeLine.get('centerPoint').x(), 50);
+                        centerPoint = utils.createPoint(firstEpLifeLine.get('centerPoint').x(), 50);
                         // Shift the existing Endpoints
                         this.shiftEndpointsRight();
                     } else if (numberOfWorkerElements > 0) {
                         var lastWorkerLifeLine = this.model.attributes.diagramWorkerElements.models[numberOfWorkerElements - 1];
-                        centerPoint = createPoint(lastWorkerLifeLine.rightLowerCorner().x + 115, 50);
+                        centerPoint = utils.createPoint(lastWorkerLifeLine.rightLowerCorner().x + 115, 50);
                         // Shift existing endpoints
                         this.shiftEndpointsRight();
                     } else {
                         var resourceLifeLine = this.model.attributes.diagramResourceElements.models[numberOfResourceElements - 1];
-                        centerPoint = createPoint(resourceLifeLine.rightLowerCorner().x + 115, 50);
+                        centerPoint = utils.createPoint(resourceLifeLine.rightLowerCorner().x + 115, 50);
                     }
                 }
 

@@ -15,23 +15,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+define(['./start-action'],
+    function (StartAction) {
 
-define(['require','log', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', 'tree_node', './life-line', './message-point'],
+    var actions = {};
 
-    function (require, log, $, d3, Backbone, _, DiagramCore, TreeNode, LifeLine, MessagePoint) {
+    actions[StartAction.id] = StartAction;
 
-    var Resource = Backbone.Model.extend(
-    /** @lends Resource.prototype */
-    {
-        /**
-         * @augments Backbone.Model
-         * @constructs
-         * @class Resource represents the model for a resource in a ballerina Service.
-         */
-        initialize: function (attrs, options) {
-
-        }
-    });
-    return Resource;
-
+    return actions;
 });
+

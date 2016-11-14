@@ -34,33 +34,39 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './proc
              * @class LifeLineView Represents the view for lifeline components in Sequence Diagrams.
              * @param {Object} options Rendering options for the view
              */
-            initialize: function (opts) {
-                // set default options for the life-lines
-                var lifeLineOptions = opts.options || {};
-                lifeLineOptions.class = opts.options.class || "lifeline";
-                // Lifeline rectangle options
-                lifeLineOptions.rect = opts.options.rect || {};
-                lifeLineOptions.rect.width = opts.options.rect.width || 100;
-                lifeLineOptions.rect.height = opts.options.rect.height || 30;
-                lifeLineOptions.rect.roundX = opts.options.rect.roundX || 20;
-                lifeLineOptions.rect.roundY = opts.options.rect.roundY || 20;
-                lifeLineOptions.rect.class = opts.options.rect.class || "lifeline-rect";
-                // Lifeline middle-rect options
-                lifeLineOptions.middleRect = opts.options.middleRect || {};
-                lifeLineOptions.middleRect.width = opts.options.middleRect || 100;
-                lifeLineOptions.middleRect.height = opts.options.middleRect || 300;
-                lifeLineOptions.middleRect.roundX = opts.options.middleRect || 1;
-                lifeLineOptions.middleRect.roundY = opts.options.middleRect || 1;
-                lifeLineOptions.middleRect.class = opts.options.middleRect || "lifeline-middleRect";
-                // Lifeline options
-                lifeLineOptions.line = opts.options.line || {};
-                lifeLineOptions.line.height = opts.options.line.height || 300;
-                lifeLineOptions.line.class = opts.options.line.class || "lifeline-line";
-                // Lifeline text options
-                lifeLineOptions.text = opts.options.text || {};
-                lifeLineOptions.text.class = opts.options.text.class || "lifeline-title";
+            initialize: function (options) {
 
-                DiagramCore.Views.ShapeView.prototype.initialize.call(this, opts);
+                // set default options for the life-lines
+                var lifeLineOptions = options || {};
+                lifeLineOptions.class = options.class || "lifeline";
+                // Lifeline rectangle options
+                lifeLineOptions.rect = options.rect || {};
+                lifeLineOptions.rect.width = options.rect.width || 100;
+                lifeLineOptions.rect.height = options.rect.height || 30;
+                lifeLineOptions.rect.roundX = options.rect.roundX || 20;
+                lifeLineOptions.rect.roundY = options.rect.roundY || 20;
+                lifeLineOptions.rect.class = options.rect.class || "lifeline-rect";
+                // Lifeline middle-rect options
+                lifeLineOptions.middleRect = options.middleRect || {};
+                lifeLineOptions.middleRect.width = options.middleRect.width  || 100;
+                lifeLineOptions.middleRect.height = options.middleRect.height || 300;
+                lifeLineOptions.middleRect.roundX = options.middleRect.roundX || 1;
+                lifeLineOptions.middleRect.roundY = options.middleRect.roundY || 1;
+                lifeLineOptions.middleRect.class = options.middleRect.class || "lifeline-middleRect";
+                // Lifeline options
+                lifeLineOptions.line = options.line || {};
+                lifeLineOptions.line.height = options.line.height || 300;
+                lifeLineOptions.line.class = options.line.class || "lifeline-line";
+                // Lifeline text options
+                lifeLineOptions.text = options.text || {};
+                lifeLineOptions.text.class = options.text.class || "lifeline-title";
+
+                if(!_.has(options, 'parent')){
+                  throw "config parent is not provided.";
+                }
+                this.options = lifeLineOptions;
+                options.canvas =  this.serviceView = _.get(options, 'serviceView');
+                DiagramCore.Views.ShapeView.prototype.initialize.call(this, options);
                 this.listenTo(this.model, 'change:title', this.renderTitle);
             },
 
@@ -163,15 +169,15 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './proc
                 }
 
                 var totalHeight = totalIncrementedHeight + initialHeight;
-                if (!_.isUndefined(diagram.highestLifeline) && diagram.highestLifeline !== null && diagram.highestLifeline.getHeight() > totalHeight) {
-                    totalHeight = diagram.highestLifeline.getHeight();
+                if (!_.isUndefined(this.serviceView.model.highestLifeline) && this.serviceView.model.highestLifeline !== null && this.serviceView.model.highestLifeline.getHeight() > totalHeight) {
+                    totalHeight = this.serviceView.model.highestLifeline.getHeight();
                 }
                 this.model.setHeight(totalHeight);
                 this.adjustHeight(this.d3el, totalHeight - initialHeight);
 
-                if (diagram.highestLifeline == undefined || diagram.highestLifeline.getHeight() < this.model.getHeight()) {
-                    diagram.highestLifeline = this.model;
-                    defaultView.render();
+                if (this.serviceView.model.highestLifeline == undefined || this.serviceView.model.highestLifeline.getHeight() < this.model.getHeight()) {
+                    this.serviceView.model.highestLifeline = this.model;
+                    this.serviceView.render();
                     return false;
                 }
                 return this.d3el;
@@ -185,7 +191,7 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './proc
                             model: messagePoint.message(),
                             options: {class: "message"}
                         });
-                        linkView.render("#" + defaultView.options.diagram.wrapperId, "messages");
+                        linkView.render("#" + this.serviceView.model.wrapperId, "messages");
                     }
                 }
             },
@@ -201,12 +207,10 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './proc
 
             drawLifeLine: function (center, title, prefs, colour) {
                 var d3Ref = this.getD3Ref();
-                this.diagram = prefs.diagram;
                 var viewObj = this;
-                var group = d3Ref.draw.group()
+                var group = d3Ref.draw.group(d3Ref)
                     .classed(this.model.viewAttributes.class, true);
                 this.group = group;
-                this.prefs = prefs;
                 this.center = center;
                 this.title = title;
 
@@ -316,15 +320,13 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './proc
 
                 var viewObj = this;
                 middleRect.on('mouseover', function () {
-                    //setting current tab view based diagram model
-                    diagram = defaultView.model;
-                    diagram.selectedNode = viewObj.model;
+                    viewObj.serviceView.model.selectedNode = viewObj.model;
                     d3.select(this).style("fill", "green").style("fill-opacity", 0.1);
                     // Update event manager with current active element type for validation
                     eventManager.isActivated(diagram.selectedNode.attributes.title);
                 }).on('mouseout', function () {
-                    diagram.destinationLifeLine = diagram.selectedNode;
-                    diagram.selectedNode = null;
+                    serviceView.model.destinationLifeLine = diagram.selectedNode;
+                    viewObj.serviceView.model.selectedNode = null;
                     d3.select(this).style("fill-opacity", 0.01);
                     // Update event manager with out of focus on active element
                     eventManager.isActivated("none");
@@ -334,12 +336,11 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './proc
 
                 drawMessageRect.on('mouseover', function () {
                     //setting current tab view based diagram model
-                    diagram = defaultView.model;
-                    diagram.selectedNode = viewObj.model;
+                    viewObj.serviceView.model.selectedNode = viewObj.model;
                     d3.select(this).style("fill", "black").style("fill-opacity", 0.2)
                         .style("cursor", 'url(images/BlackHandwriting.cur), pointer');
                     // Update event manager with current active element type for validation
-                    eventManager.isActivated(diagram.selectedNode.attributes.title);
+                    eventManager.isActivated(viewObj.serviceView.model.selectedNode.attributes.title);
                 }).on('mouseout', function () {
                     d3.select(this).style("fill-opacity", 0.0);
                     // Update event manager with out of focus on active element
@@ -348,41 +349,41 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './proc
                 });
 
                 rect.on("click", (function () {
-                    defaultView.model.selectedNode = viewObj.model;
+                    viewObj.serviceView.model.selectedNode = viewObj.model;
                     if (optionsMenuGroup.classed("option-menu-hide")) {
                         optionsMenuGroup.classed("option-menu-hide", false);
                         optionsMenuGroup.classed("option-menu-show", true);
 
-                        if (diagram.selectedOptionsGroup) {
-                            diagram.selectedOptionsGroup.classed("option-menu-hide", true);
-                            diagram.selectedOptionsGroup.classed("option-menu-show", false);
+                        if (viewObj.serviceView.model.selectedOptionsGroup) {
+                            viewObj.serviceView.model.selectedOptionsGroup.classed("option-menu-hide", true);
+                            viewObj.serviceView.model.selectedOptionsGroup.classed("option-menu-show", false);
                         }
-                        if (diagram.propertyWindow) {
-                            diagram.propertyWindow = false;
-                            defaultView.enableDragZoomOptions();
+                        if (viewObj.serviceView.model.propertyWindow) {
+                            viewObj.serviceView.model.propertyWindow = false;
+                            viewObj.serviceView.enableDragZoomOptions();
                             $('#property-pane-svg').empty();
                         }
-                        diagram.selectedOptionsGroup = optionsMenuGroup;
+                        viewObj.serviceView.model.selectedOptionsGroup = optionsMenuGroup;
 
                     } else {
                         optionsMenuGroup.classed("option-menu-hide", true);
                         optionsMenuGroup.classed("option-menu-show", false);
-                        diagram.propertyWindow = false;
-                        defaultView.enableDragZoomOptions();
-                        diagram.selectedOptionsGroup = null;
-                        defaultView.render();
+                        viewObj.serviceView.model.propertyWindow = false;
+                        viewObj.serviceView.enableDragZoomOptions();
+                        viewObj.serviceView.model.selectedOptionsGroup = null;
+                        viewObj.serviceView.render();
                     }
                 }));
 
                 editOption.on("click", function () {
 
-                    if (diagram.propertyWindow) {
-                        diagram.propertyWindow = false;
-                        defaultView.enableDragZoomOptions();
-                        defaultView.render();
+                    if (viewObj.serviceView.model.propertyWindow) {
+                        viewObj.serviceView.model.propertyWindow = false;
+                        viewObj.serviceView.enableDragZoomOptions();
+                        viewObj.serviceView.render();
 
                     } else {
-                        diagram.selectedMainElementText = {
+                        viewObj.serviceView.model.selectedMainElementText = {
                             top: viewObj.d3el.svgTitle,
                             bottom: viewObj.d3el.svgTitleBottom
                         };
@@ -392,9 +393,9 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './proc
                             y: parseFloat(this.getAttribute("y")) + 21
                         };
 
-                        defaultView.selectedNode = viewObj.model;
+                        viewObj.serviceView.selectedNode = viewObj.model;
 
-                        defaultView.drawPropertiesPane(d3Ref, options,
+                        viewObj.serviceView.drawPropertiesPane(d3Ref, options,
                             viewObj.model.get("utils").getMyParameters(viewObj.model),
                             viewObj.model.get('utils').getMyPropertyPaneSchema(
                                 viewObj.model));
@@ -404,26 +405,26 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './proc
                 deleteOption.on("click", function () {
                     //Get the parent of the model and delete it from the parent
                     if (~viewObj.model.get("title").indexOf("Resource")) {
-                        var resourceElements = defaultView.model.get("diagramResourceElements").models;
+                        var resourceElements =  viewObj.serviceView.model.get("diagramResourceElements").models;
                         for (var itr = 0; itr < resourceElements.length; itr++) {
                             if (resourceElements[itr].cid === viewObj.model.cid) {
                                 resourceElements.splice(itr, 1);
-                                var currentResources = defaultView.model.resourceLifeLineCounter();
-                                defaultView.model.resourceLifeLineCounter(currentResources - 1);
-                                defaultView.model.get("diagramResourceElements").length -= 1;
-                                defaultView.render();
+                                var currentResources =  viewObj.serviceView.model.resourceLifeLineCounter();
+                                viewObj.serviceView.model.resourceLifeLineCounter(currentResources - 1);
+                                viewObj.serviceView.model.get("diagramResourceElements").length -= 1;
+                                viewObj.serviceView.render();
                                 break;
                             }
                         }
                     } else {
-                        var endpointElements = defaultView.model.get("diagramEndpointElements").models;
+                        var endpointElements =  viewObj.serviceView.model.get("diagramEndpointElements").models;
                         for (var itr = 0; itr < endpointElements.length; itr++) {
                             if (endpointElements[itr].cid === viewObj.model.cid) {
                                 endpointElements.splice(itr, 1);
                                 var currentEndpoints = defaultView.model.endpointLifeLineCounter();
-                                defaultView.model.endpointLifeLineCounter(currentEndpoints - 1);
-                                defaultView.model.get("diagramEndpointElements").length -= 1;
-                                defaultView.render();
+                                viewObj.serviceView.model.endpointLifeLineCounter(currentEndpoints - 1);
+                                viewObj.serviceView.model.get("diagramEndpointElements").length -= 1;
+                                viewObj.serviceView.render();
                                 break;
                             }
                         }

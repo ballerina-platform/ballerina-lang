@@ -15,19 +15,33 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'jquery', 'lodash', './tab'], function (require, jquery, _, Tab) {
-    var  resourceTab;
+define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'main_elements', 'diagram_core'],
+    function (require, log, jquery, _, Tab, Ballerina, MainElements, DiagramCore) {
+    var  ServiceTab;
 
-    resourceTab = Tab.extend({
+    ServiceTab = Tab.extend({
         initialize: function (options) {
             Tab.prototype.initialize.call(this, options);
         },
         render: function () {
             Tab.prototype.render.call(this);
+
+            var canvasContainer = this.$el.find(_.get(this.options, 'canvas.container'));
+            if(!canvasContainer.length > 0){
+                var errMsg = 'cannot find container to render svg';
+                log.error(errMsg);
+                throw errMsg;
+            }
+            var serviceViewOpts = {};
+            _.set(serviceViewOpts, 'container', canvasContainer.get(0));
+            var serviceView = new Ballerina.Views.ServiceView(serviceViewOpts);
+
+            serviceView.render();
+
         }
     });
 
-    return resourceTab;
+    return ServiceTab;
 });
 
 //app.createToolPalette = function(){

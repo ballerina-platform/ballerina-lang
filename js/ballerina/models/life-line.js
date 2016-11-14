@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core'], function (require, $, d3, Backbone, _, DiagramCore) {
+define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './children', './processor'], function (require, $, d3, Backbone, _, DiagramCore, Children, Processor) {
 
     var LifeLine = DiagramCore.Models.Shape.extend(
         /** @lends LifeLine.prototype */
@@ -111,7 +111,7 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core'], functi
                 //this.children().add(element, opts);
 
                 element.parent(this);
-                if (element instanceof SequenceD.Models.Processor) {
+                if (element instanceof Processor) {
                     var position = this.calculateIndex(element, element.get('centerPoint').get('y'));
                     var index = position.index;
                     this.children().add(element, {at: index});

@@ -21,8 +21,7 @@ define(['./message','./activation', './life-line', './processor', './message-lin
         './unit-processor', './complex-processor', './dynamic-containable-processor', './custom-processor',
         './resource', './service', './service-preview'],
     function (MessageView, ActivationView, LifeLineView, ProcessorView, MessageLinkView,
-              ContainableProcessorElementView, DiagramView, DiagramPreview,
-              UnitProcessorView, ComplexProcessorView, DynamicContainableProcessorView, CustomProcessorView,
+              ContainableProcessorElementView, UnitProcessorView, ComplexProcessorView, DynamicContainableProcessorView, CustomProcessorView,
                 ResourceView, ServiceView, ServicePreview) {
         var views = {};
         views.MessageView = MessageView;

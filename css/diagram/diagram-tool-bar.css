@@ -46,22 +46,22 @@
 }
 
 .tool-container {
-    width: 110px;
-    height: 110px;
+    width: 28px;
+    height: 28px;
     margin: 3px;
     float: left;
     cursor: pointer;
     border-style: solid;
     border-color: #8d8d8d;
     border-width: 1px;
-    padding: 5px;
+    padding: 3px;
     white-space: nowrap;
     text-align: center;
 }
 
 .tool-image {
-    max-width:60px;
-    max-height:75px;
+    max-width:14px;
+    max-height:14px;
     display : block;
     margin : auto;
 }
@@ -69,7 +69,7 @@
 .tool-title {
     padding-top:0px;
     color: white;
-    display : block;
+    display : none;
     margin : auto;
 }
 .tool-validator{

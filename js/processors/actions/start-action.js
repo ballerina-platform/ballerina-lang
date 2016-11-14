@@ -16,22 +16,18 @@
  * under the License.
  */
 
-define(['require','log', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', 'tree_node', './life-line', './message-point'],
+define([], function () {
 
-    function (require, log, $, d3, Backbone, _, DiagramCore, TreeNode, LifeLine, MessagePoint) {
+    //Start action definition
+    var StartAction = {
+        id: "StartAction",
+        title: "Start",
+        colour : "#ffffff",
+        type : "Action",
+        height: 30,
+        width: 130
+    };
 
-    var Resource = Backbone.Model.extend(
-    /** @lends Resource.prototype */
-    {
-        /**
-         * @augments Backbone.Model
-         * @constructs
-         * @class Resource represents the model for a resource in a ballerina Service.
-         */
-        initialize: function (attrs, options) {
-
-        }
-    });
-    return Resource;
+   return StartAction;
 
 });

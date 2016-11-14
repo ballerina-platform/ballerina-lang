@@ -16,9 +16,9 @@
  * under the License.
  */
 
-define(['require','logger', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', 'tree_node', './life-line', './message-point'],
+define(['require','log', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', 'tree_node', './life-line', './message-point'],
 
-    function (require, logger, $, d3, Backbone, _, DiagramCore, TreeNode, LifeLine, MessagePoint) {
+    function (require, log, $, d3, Backbone, _, DiagramCore, TreeNode, LifeLine, MessagePoint) {
 
     var Service = Backbone.Model.extend(
         /** @lends Service.prototype */
@@ -128,15 +128,24 @@ define(['require','logger', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core'
             addElement: function (element, opts) {
                 //this.trigger("addElement", element, opts);
 
-                if (element instanceof LifeLine) {
-                    if(element.attributes.title.startsWith("Resource")) {
-                        this.diagramResourceElements().add(element, opts);
-                    } else if (element.attributes.title.startsWith("Source")) {
-                        this.diagramSourceElements().add(element, opts);
-                    } else if (element.attributes.title.startsWith("Worker")) {
-                        this.diagramWorkerElements().add(element, opts);
-                    } else {
-                        this.diagramEndpointElements().add(element, opts);
+                if (_.has(element, 'attributes.type')) {
+                    var type = _.get(element, 'attributes.type');
+
+                    switch (type) {
+                        case "Resource":
+                            this.diagramResourceElements().add(element, opts);
+                            break;
+                        case "Source":
+                            this.diagramSourceElements().add(element, opts);
+                            break;
+                        case "Worker":
+                            this.diagramWorkerElements().add(element, opts);
+                            break;
+                        case "Endpoint":
+                            this.diagramEndpointElements().add(element, opts);
+                            break;
+                        default:
+
                     }
                     this.lifeLineMap[element.attributes.centerPoint.attributes.x] = element;
                 } else{
@@ -259,7 +268,7 @@ define(['require','logger', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core'
                             rootNode.getChildren().push((mediator.get('utils')).getMySubTree(mediator));
                         }
                     }
-                    logger.debug(rootNode);
+                    log.debug(rootNode);
                     return rootNode;
                 };
 
@@ -299,19 +308,19 @@ define(['require','logger', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core'
 
                     return finalSource;
                 };
-                TreeRoot = buildTree(defaultView.model.get('diagramResourceElements').models[0]);
-                includeConstants(defaultView.model.get('diagramResourceElements').models[0]);
+                TreeRoot = buildTree(this.get('diagramResourceElements').models[0]);
+                includeConstants(this.get('diagramResourceElements').models[0]);
                 return traverse((TreeRoot), finalSource);
             },
 
             reloadDiagramArea: function () {
-                defaultView.model.resourceLifeLineCounter(0);
-                defaultView.model.endpointLifeLineCounter(0);
-                defaultView.model.workerLifeLineCounter(0);
-                defaultView.model.attributes.diagramResourceElements.models = [];
-                defaultView.model.attributes.diagramResourceElements.length = 0;
-                defaultView.model.attributes.diagramEndpointElements.models = [];
-                defaultView.model.attributes.diagramEndpointElements.length = 0;
+                this.resourceLifeLineCounter(0);
+                this.endpointLifeLineCounter(0);
+                this.workerLifeLineCounter(0);
+                this.attributes.diagramResourceElements.models = [];
+                this.attributes.diagramResourceElements.length = 0;
+                this.attributes.diagramEndpointElements.models = [];
+                this.attributes.diagramEndpointElements.length = 0;
             },
 
             defaults: {
