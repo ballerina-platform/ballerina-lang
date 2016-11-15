@@ -69,6 +69,8 @@ function (require, log, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements,
                     this.addInitialElements();
                 }
 
+                this.application = opts.application;
+
                 this.model.on("messageDrawStart", this.onMessageDrawStart, this);
                 this.model.on("messageDrawEnd", this.onMessageDrawEnd, this);
 
@@ -602,11 +604,13 @@ function (require, log, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements,
                 for (var id in this.model.attributes.diagramSourceElements.models) {
                     if (this.model.attributes.diagramSourceElements.models[id] instanceof LifeLine) {
                         var lifeLine = this.model.attributes.diagramSourceElements.models[id];
-                        var lifeLineView = new LifeLineView({
+                        var lifelineOpts = {
                             model: lifeLine,
                             serviceView: this,
-                            class:  _.get(MainElements, 'lifelines.Source.class')
-                        });
+                            class:  _.get(MainElements, 'lifelines.Source.class'),
+                            application: this.application
+                        };
+                        var lifeLineView = new LifeLineView(lifelineOpts);
                         lifeLineViews.push(lifeLineView);
                     }
                 }
@@ -614,11 +618,13 @@ function (require, log, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements,
                 for (var id in this.model.attributes.diagramResourceElements.models) {
                     if (this.model.attributes.diagramResourceElements.models[id] instanceof LifeLine) {
                         var lifeLine = this.model.attributes.diagramResourceElements.models[id];
-                        var lifeLineView = new LifeLineView({
+                        var lifelineOpts = {
                             model: lifeLine,
                             serviceView: this,
-                            class: _.get(MainElements, 'lifelines.Resource.class')
-                        });
+                            class:  _.get(MainElements, 'lifelines.Resource.class'),
+                            application: this.application
+                        };
+                        var lifeLineView = new LifeLineView(lifelineOpts);
                         lifeLineViews.push(lifeLineView);
                     }
                 }
@@ -626,11 +632,13 @@ function (require, log, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements,
                 for (var id in this.model.attributes.diagramEndpointElements.models) {
                     if (this.model.attributes.diagramEndpointElements.models[id] instanceof LifeLine) {
                         var lifeLine = this.model.attributes.diagramEndpointElements.models[id];
-                        var lifeLineView = new LifeLineView({
+                        var lifelineOpts = {
                             model: lifeLine,
                             serviceView: this,
-                            class: _.get(MainElements, 'lifelines.Endpoint.class')
-                        });
+                            class:  _.get(MainElements, 'lifelines.Endpoint.class'),
+                            application: this.application
+                        };
+                        var lifeLineView = new LifeLineView(lifelineOpts);
                         lifeLineViews.push(lifeLineView);
                     }
                 }
@@ -639,11 +647,13 @@ function (require, log, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements,
                     for (var id in this.model.attributes.diagramWorkerElements.models) {
                         if (this.model.attributes.diagramWorkerElements.models[id] instanceof LifeLine) {
                             lifeLine = this.model.attributes.diagramWorkerElements.models[id];
-                            var lifeLineView = new LifeLineView({
+                            var lifelineOpts = {
                                 model: lifeLine,
                                 serviceView: this,
-                                class: _.get(MainElements, 'lifelines.Worker.class')
-                            });
+                                class:  _.get(MainElements, 'lifelines.Worker.class'),
+                                application: this.application
+                            };
+                            var lifeLineView = new LifeLineView(lifelineOpts);
                             lifeLineViews.push(lifeLineView);
                         }
                     }

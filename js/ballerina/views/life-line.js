@@ -64,6 +64,15 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './proc
                 if(!_.has(options, 'serviceView')){
                   throw "config parent is not provided.";
                 }
+
+                // Check whether the application reference have been provided
+                if(!_.has(options, 'application')){
+                    throw "config parent is not provided.";
+                }
+
+                this.application = options.application;
+                this.eventManager = this.application.eventManager;
+
                 this.options = lifeLineOptions;
                 options.canvas =  this.serviceView = _.get(options, 'serviceView');
                 DiagramCore.Views.ShapeView.prototype.initialize.call(this, options);
@@ -214,6 +223,8 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './proc
                 this.center = center;
                 this.title = title;
 
+                var eventManager = viewObj.eventManager;
+
                 var textModel = this.model.attributes.textModel;
                 if (textModel.dynamicRectWidth() === undefined) {
                     textModel.dynamicRectWidth(130);
@@ -323,13 +334,13 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './proc
                     viewObj.serviceView.model.selectedNode = viewObj.model;
                     d3.select(this).style("fill", "green").style("fill-opacity", 0.1);
                     // Update event manager with current active element type for validation
-                    eventManager.isActivated(diagram.selectedNode.attributes.title);
+                    eventManager.isActivated('Source');
                 }).on('mouseout', function () {
-                    serviceView.model.destinationLifeLine = diagram.selectedNode;
+                    viewObj.serviceView.model.destinationLifeLine = viewObj.serviceView.model.selectedNode;
                     viewObj.serviceView.model.selectedNode = null;
                     d3.select(this).style("fill-opacity", 0.01);
                     // Update event manager with out of focus on active element
-                    eventManager.isActivated("none");
+                    // eventManager.isActivated("none");
                 }).on('mouseup', function (data) {
 
                 });
