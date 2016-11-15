@@ -2,6 +2,9 @@ body{
     background: #232323;
 }
 
+#alerts-container{
+  display:none
+}
 #right-container{
     background-color: #232323;
 }
@@ -13,7 +16,7 @@ body{
 }
 
 .header {
-    background-color: #272c30;
+    background-color: #1e1e1e;
 }
 
 #editor-container{
@@ -62,6 +65,12 @@ svg text::selection { background: none; }
     border-bottom-style: solid;
     border-bottom-color: #8d8d8d;
 }
+.tab-headers{
+    background-color: #e4e4e4;
+    height: 22px;
+    border-bottom-color:darkgray;
+}
+
 .navbar-default .navbar-nav > li a:hover {
     background: #8d8d8d;
 }
@@ -73,12 +82,12 @@ svg text::selection { background: none; }
 }
 
 .nav-tabs > li, .nav-tabs > li > a {
-    height:42px;
+    height:22px;
 }
 
 .nav-tabs > li > a{
-    border-right: 1px solid #1e1e1e;
-    border-bottom: 1px solid #8d8d8d;
+    border-right: 1px solid darkgrey;
+    border-bottom: 1px solid white;
 }
 
 .nav-tabs > li > span {
@@ -92,14 +101,14 @@ svg text::selection { background: none; }
 
 .nav-tabs > li > a {
     padding-right: 32px;
+    padding-top: 1px;
     margin: 0;
-    font-size: 1.2em;
+    font-size: 0.8em;
     border-radius: 0;
 }
 
-.nav-tabs > li  {
-    color: #7e7e7e;
-    background-color: #323335;
+.nav-tabs > li {
+    background-color: #f8f8f8;
 }
 
 .nav-tabs{
@@ -190,10 +199,14 @@ span.tree-action{
     text-transform: none;
     font-size: 14px;
     padding: 16px;
-    background-color: #232323;
+    background-color: #f1f1f1;
+    float:left;
 }
 #breadcrumbRow{
     border-bottom: 2px solid #1e1e1e;
+}
+#breadcrumb-container{
+    background-color:#f1f1f1;
 }
 /** Breadcrumbs related styles | -> End**/
 /*//////////////////////////////////////////////////*/

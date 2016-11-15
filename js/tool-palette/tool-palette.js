@@ -36,6 +36,7 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
                 throw errMsg;
             }
             this._$parent_el = container;
+            this._options = options;
             this._initTools();
         },
 
@@ -44,7 +45,7 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
             var _toolGroups = [];
             // Create main tool group
             var mainToolGroup = new ToolGroup({
-                toolGroupName: "Main Elements",
+                toolGroupName: "Elements",
                 toolGroupID: "main-tool-group",
                 toolDefinitions: MainElements.lifelines
             });
@@ -64,9 +65,20 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
         render: function () {
             var self = this;
             var toolPaletteDiv = $('<div></div>');
+            //Adding search bar to tool-palette
+            var searchBarDiv = $('<div></div>');
+            searchBarDiv.addClass(_.get(this._options, 'search_bar.cssClass.search_box'));
+            var searchInput = $('<input>');
+            searchInput.addClass(_.get(this._options, 'search_bar.cssClass.search_input'));
+            searchInput.attr('id','search-field').attr('placeholder','Search').attr('type','text');
+            var searchIcon = $('<i></i>');
+            searchIcon.addClass(_.get(this._options, 'search_bar.cssClass.search_icon'));
+            searchBarDiv.append(searchIcon);
+            searchBarDiv.append(searchInput);
+            toolPaletteDiv.append(searchBarDiv);
+            // End of adding search bar
             this._$parent_el.append(toolPaletteDiv);
             this.$el = toolPaletteDiv;
-
             this._toolGroups.forEach(function (group) {
                 var groupView = new ToolGroupView({model: group});
                 groupView.render(self.$el);

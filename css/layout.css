@@ -68,6 +68,8 @@ div[class*="col-sm-"] {
 #left-container{
     height: 100%;
     padding: 0;
+    /*Adjust when implementing file explorer*/
+    width:20px;
 }
 
 #right-container{
@@ -216,6 +218,10 @@ div[class*="col-sm-"] {
     display: inline-block;
 }
 
+#tabs-container{
+  height:100%;
+    width:1700px;
+}
 #tab-container{
     height: 42px;
     border-bottom-width: 1px;
