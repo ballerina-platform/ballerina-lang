@@ -203,10 +203,10 @@ function (require, log, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements,
                         y: 0,
 
                         // the width of the viewBox
-                        width: parseFloat(getComputedStyle(this.d3svg.node()).width) || this.options.diagram.viewBoxWidth,
+                        width:  this.options.diagram.viewBoxWidth,
 
                         // the height of the viewBox
-                        height: parseFloat(getComputedStyle(this.d3svg.node()).height) || this.options.diagram.viewBoxHeight
+                        height: this.options.diagram.viewBoxHeight
                     }
                 });
                 $(svg.node()).dblclick({view: this}, function (evt) {
