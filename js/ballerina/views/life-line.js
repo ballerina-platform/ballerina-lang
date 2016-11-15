@@ -61,7 +61,7 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './proc
                 lifeLineOptions.text = options.text || {};
                 lifeLineOptions.text.class = options.text.class || "lifeline-title";
 
-                if(!_.has(options, 'parent')){
+                if(!_.has(options, 'serviceView')){
                   throw "config parent is not provided.";
                 }
                 this.options = lifeLineOptions;
