@@ -143,10 +143,10 @@ define(['d3', 'lodash', 'backbone', 'd3utils', 'app/diagram-core/models/point'],
                     if (_.isUndefined(this.canvas)) {
                         throw "Paper is not defined for rendering svg.";
                     } else {
-                        return this.canvas;
+                        return D3Utils.decorate(this.canvas);
                     }
                 }
-                return D3Utils.decorate(d3.select(paperSelector))
+                return D3Utils.decorate(this.canvas);
             }
         });
 

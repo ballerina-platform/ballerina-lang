@@ -95,6 +95,22 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core'], functi
             width : 130,
             height : 60,
             title: "Processor"
+        },
+
+        inputConnector: function (inputConnector){
+            if(_.isUndefined(inputConnector)){
+                return this.get('inputConnector');
+            }
+            inputConnector.parent(this);
+            this.set('inputConnector', inputConnector);
+        },
+
+        outputConnector: function (outputConnector) {
+            if(_.isUndefined(outputConnector)){
+                return this.get('outputConnector');
+            }
+            outputConnector.parent(this);
+            this.set('outputConnector', outputConnector);
         }
     });
 

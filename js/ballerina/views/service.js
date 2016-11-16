@@ -17,7 +17,7 @@
  */
 define(['require', 'log', 'jquery', 'd3', 'd3utils', 'backbone', 'lodash', 'diagram_core', 'main_elements',
         './service-preview', 'processors', './life-line',
-        'ballerina_models/containable-processor-element', 'ballerina_models/life-line',  'ballerina_models/message-point',
+        'ballerina_models/containable-processor-element', 'ballerina_models/life-line',  'app/ballerina/models/message-point',
         'ballerina_models/message-link', 'ballerina_models/service', 'app/ballerina/utils/module',
         'app/ballerina/utils/processor-factory', 'svg_pan_zoom'],
 
@@ -715,7 +715,7 @@ function (require, log, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements,
 
                 resourceLifeline.addChild(processor);
 
-                //tabListView.addInitArrow(currentSource,processor,defaultView);
+                this.addInitArrow(lifeline,resourceLifeline);
 
             },
 
@@ -884,6 +884,31 @@ function (require, log, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements,
                     diagView.model.trigger("messageDrawEnd", sourceModel, sourcePoint, destinationPoint);
 
                 });
+            },
+
+            addInitArrow:function(source,destination){
+                var centerS = utils.createPoint(200, 50);
+                var centerR = utils.createPoint(380, 50);
+                var sourcePoint = new MessagePoint({
+                    model: {type: "messagePoint"},
+                    x: centerS.x(),
+                    y: centerS.y(),
+                    direction: "outbound"
+                });
+                var destinationPoint = new MessagePoint({
+                    model: {type: "messagePoint"},
+                    x: centerR.x(),
+                    y: centerR.y(),
+                    direction: "inbound"
+                });
+                var messageLink = new MessageLink({
+                    source: sourcePoint,
+                    destination: destinationPoint
+                });
+                var messageOptionsInbound = {'class': 'messagePoint', 'direction': 'inbound'};
+                var messageOptionsOutbound = {'class': 'messagePoint', 'direction': 'outbound'};
+                source.addChild(sourcePoint, messageOptionsOutbound);
+                destination.inputConnector(destinationPoint);
             }
         });
 

@@ -181,6 +181,22 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core',
 
             setHeight: function (height) {
                 this.set('height', height);
+            },
+
+            inputConnector: function (inputConnector){
+                if(_.isUndefined(inputConnector)){
+                    return this.get('inputConnector');
+                }
+                inputConnector.parent(this);
+                this.set('inputConnector', inputConnector);
+            },
+
+            outputConnector: function (outputConnector) {
+                if(_.isUndefined(outputConnector)){
+                    return this.get('outputConnector');
+                }
+                outputConnector.parent(this);
+                this.set('outputConnector', outputConnector);
             }
 
         });

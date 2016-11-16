@@ -200,7 +200,8 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './proc
                     if ((messagePoint instanceof MessagePoint)) {
                         var linkView = new MessageLinkView({
                             model: messagePoint.message(),
-                            options: {class: "message"}
+                            options: {class: "message"},
+                            serviceView: this.serviceView
                         });
                         linkView.render("#" + this.serviceView.model.wrapperId, "messages");
                     }

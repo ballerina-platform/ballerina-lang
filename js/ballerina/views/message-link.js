@@ -32,6 +32,8 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core'], functi
              * @param {Object} options Rendering options for the view
              */
             initialize: function (options) {
+                this.serviceView = _.get(options, 'serviceView');
+                options.canvas = this.serviceView.d3el;
                 DiagramCore.Views.DiagramElementView.prototype.initialize.call(this, options);
             },
 

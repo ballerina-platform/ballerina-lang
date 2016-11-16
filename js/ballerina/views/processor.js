@@ -221,7 +221,6 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './cont
 
                 // On click of the mediator show/hide the options menu
                 processorTitleRect.on("click", function () {
-                    window.console.log(serviceView.model);
                     if (optionsMenuGroup.classed("option-menu-hide")) {
                         optionsMenuGroup.classed("option-menu-hide", false);
                         optionsMenuGroup.classed("option-menu-show", true);
@@ -308,7 +307,6 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './cont
                     var m = d3.mouse(this);
                     this.mouseDown(prefs, center.x(), m[1]);
                 }).on('mouseover', function () {
-                    console.log("middle rect detected");
                     diagram.selectedNode = viewObj.model;
                     d3.select(this).style("fill", "green").style("fill-opacity", 0.1);
                 }).on('mouseout', function () {
@@ -317,7 +315,6 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './cont
                     d3.select(this).style("fill-opacity", 0.01);
                 }).on('mouseup', function (data) {
                 });
-                console.log(middleRect);
                 group.rect = rectBottomXXX;
                 group.middleRect = middleRect;
 
@@ -337,8 +334,6 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './cont
 
 
             } else if (this.model.model.type === "ComplexProcessor") {
-
-                console.log("Processor added");
 
                 var containableProcessorElementViewArray = [];
 
@@ -399,6 +394,35 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './cont
                     this.viewRoot = group;
                     this.model.set('centerPoint', center);
                     this.model.get('utils').init(this, d3Ref);
+                }
+            } else if (this.model.model.type === 'Action') {
+                var height = 0;
+                height = this.model.getHeight() - 30;
+                var width = this.model.getWidth();
+
+                var processorTitleRect = d3Ref.draw.rect((center.x() - this.model.getWidth()/2),
+                    (center.y() - height/2),
+                    this.model.getWidth(),
+                    30,
+                    0,
+                    0,
+                    group,
+                    this.modelAttr('viewAttributes').colour
+                );
+
+                var mediatorText = d3Ref.draw.textElement(center.x(),
+                    (center.y() + 15 - height/2),
+                    title,
+                    group)
+                    .classed("mediator-title", true);
+
+                group.rect = rectBottomXXX;
+                group.title = mediatorText;
+
+                var inputMessagePoint = this.model.inputConnector();
+                if(!_.isUndefined(inputMessagePoint)){
+                    inputMessagePoint.x(center.x() - width/2);
+                    inputMessagePoint.y(center.y());
                 }
             }
 
