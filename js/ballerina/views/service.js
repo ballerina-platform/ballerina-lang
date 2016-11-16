@@ -483,7 +483,7 @@ function (require, log, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements,
                         var newDraggedElem = $(ui.draggable).clone();
                         var txt = serviceView.model;
                         var id = ui.draggable.context.lastChild.id;
-                        var position = new DiagramCore.Models.Point({x: ui.offset.left.x, y: ui.offset.top});
+                        var position = new DiagramCore.Models.Point({x: ui.offset.left, y: ui.offset.top});
                         //convert drop position to relative svg coordinates
                         position = serviceView.toViewBoxCoordinates(position);
 

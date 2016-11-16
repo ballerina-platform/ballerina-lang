@@ -34,7 +34,14 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './cont
          */
         initialize: function (options) {
             DiagramCore.Views.ShapeView.prototype.initialize.call(this, options);
-            _.extend(this, _.pick(options, ["center"]))
+            _.extend(this, _.pick(options, ["center"]));
+            this.application = options.application;
+
+            if(!_.has(options, 'serviceView')){
+                throw "config parent [serviceView] is not provided.";
+            }
+
+            this.serviceView = _.get(options, 'serviceView');
         },
 
         verticalDrag: function () {
@@ -91,9 +98,10 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './cont
 
         drawProcessor: function (center, title, prefs) {
             var d3Ref = this.getD3Ref();
-            var group = d3Ref.draw.group();
+            var group = d3Ref.append('g');
             var optionsMenuGroup = group.append("g").attr("class", "option-menu option-menu-hide");
             var viewObj = this;
+            var serviceView = this.serviceView;
 
             if (this.model.model.type === "UnitProcessor") {
 
@@ -156,6 +164,14 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './cont
                         optionMenuWrapper.attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: 0.5; cursor: pointer");
                     });
 
+                var rectBottomXXX = d3Ref.draw.centeredRect(center,
+                    this.model.getWidth(),
+                    height,//prefs.rect.height,
+                    0,
+                    0,
+                    group, //element.viewAttributes.colour
+                    this.modelAttr('viewAttributes').colour
+                );
                 var processorTitleRect = d3Ref.draw.rect((center.x() - this.model.getWidth()/2),
                     (center.y() - height/2),
                     this.model.getWidth(),
@@ -163,15 +179,6 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './cont
                     0,
                     0,
                     group,
-                    this.modelAttr('viewAttributes').colour
-                );
-
-                var rectBottomXXX = d3Ref.draw.centeredRect(center,
-                    this.model.getWidth(),
-                    height,//prefs.rect.height,
-                    0,
-                    0,
-                    group, //element.viewAttributes.colour
                     this.modelAttr('viewAttributes').colour
                 );
                 var mediatorText = d3Ref.draw.textElement(center.x(),
@@ -207,65 +214,44 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './cont
                         "black",
                         group
                     );
-
-                    orderedElements = [rectBottomXXX,
-                        processorTitleRect,
-                        mediatorText,
-                        inputText,
-                        outputText,
-                        inputTri,
-                        outputTri,
-                        dashedSeparator,
-                        optionsMenuGroup
-                    ];
-                } else {
-                    orderedElements = [rectBottomXXX,
-                        processorTitleRect,
-                        mediatorText,
-                        inputText,
-                        inputTri,
-                        optionsMenuGroup
-                    ];
                 }
 
                 group.rect = rectBottomXXX;
                 group.title = mediatorText;
 
-                var newGroup = d3Ref.draw.regroup(orderedElements);
-                group.remove();
-
                 // On click of the mediator show/hide the options menu
                 processorTitleRect.on("click", function () {
+                    window.console.log(serviceView.model);
                     if (optionsMenuGroup.classed("option-menu-hide")) {
                         optionsMenuGroup.classed("option-menu-hide", false);
                         optionsMenuGroup.classed("option-menu-show", true);
 
-                        if (diagram.selectedOptionsGroup) {
-                            diagram.selectedOptionsGroup.classed("option-menu-hide", true);
-                            diagram.selectedOptionsGroup.classed("option-menu-show", false);
+                        if (serviceView.model.get('selectedOptionsGroup')) {
+                            serviceView.model.get('selectedOptionsGroup').classed("option-menu-hide", true);
+                            serviceView.model.get('selectedOptionsGroup').classed("option-menu-show", false);
                         }
-                        if (diagram.propertyWindow) {
-                            diagram.propertyWindow = false;
-                            defaultView.enableDragZoomOptions();
+                        if (serviceView.model.propertyWindow) {
+                            serviceView.model.propertyWindow = false;
+                            serviceView.model.enableDragZoomOptions();
                             $('#property-pane-svg').empty();
                         }
-                        diagram.selectedOptionsGroup = optionsMenuGroup;
+                        serviceView.model.selectedOptionsGroup = optionsMenuGroup;
 
                     } else {
                         optionsMenuGroup.classed("option-menu-hide", true);
                         optionsMenuGroup.classed("option-menu-show", false);
                         diagram.propertyWindow = false;
-                        defaultView.enableDragZoomOptions();
-                        defaultView.render();
+                        serviceView.enableDragZoomOptions();
+                        serviceView.render();
                     }
                 });
 
                 // On click of the edit icon will show the properties to to edit
                 editOption.on("click", function () {
-                    if (diagram.propertyWindow) {
+                    if (serviceView.model.propertyWindow) {
                         diagram.propertyWindow = false;
-                        defaultView.enableDragZoomOptions();
-                        defaultView.render();
+                        serviceView.enableDragZoomOptions();
+                        serviceView.render();
 
                     } else {
                         var options = {
@@ -273,8 +259,8 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './cont
                             y: parseFloat(this.getAttribute("y")) + 21
                         };
 
-                        defaultView.selectedNode = viewObj.model;
-                        defaultView.drawPropertiesPane(d3Ref, options,
+                        serviceView.model.selectedNode = viewObj.model;
+                        serviceView.drawPropertiesPane(d3Ref, options,
                             viewObj.model.get('utils').getMyParameters(
                                 viewObj.model),
                             viewObj.model.get('utils').getMyPropertyPaneSchema(
@@ -290,7 +276,7 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './cont
                         if (parentModelChildren[itr].cid === viewObj.model.cid) {
 
                             parentModelChildren.splice(itr, 1);
-                            defaultView.render();
+                            serviceView.render();
                             break;
                         }
                     }
@@ -305,7 +291,6 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './cont
                 //this.renderViewForElement(element, opts);
             } else if (this.model.model.type === "DynamicContainableProcessor") {
 
-                console.log("Processor added");
                 var rectBottomXXX = d3Ref.draw.rectWithTitle(center,
                     60,
                     prefs.rect.height,
@@ -317,7 +302,6 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './cont
                     this.modelAttr('viewAttributes').colour,
                     this.modelAttr('title')
                 );
-                console.log("started");
                 var middleRect = d3Ref.draw.centeredBasicRect(createPoint(center.x(),
                     center.y()+75), 150, 200 - prefs.rect.height, 0, 0, group);
                 middleRect.on("mousedown", function () {

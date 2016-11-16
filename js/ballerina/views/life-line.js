@@ -74,7 +74,8 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './proc
                 this.eventManager = this.application.eventManager;
 
                 this.options = lifeLineOptions;
-                options.canvas =  this.serviceView = _.get(options, 'serviceView');
+                this.serviceView = _.get(options, 'serviceView');
+                options.canvas = this.serviceView.d3el;
                 DiagramCore.Views.ShapeView.prototype.initialize.call(this, options);
                 this.listenTo(this.model, 'change:title', this.renderTitle);
             },
@@ -145,7 +146,8 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './proc
                         var processorView = new ProcessorView({
                             model: processor,
                             center: new DiagramCore.Models.Point({x: xValue, y: yValue}),
-                            canvas: this.canvas
+                            canvas: this.canvas,
+                            serviceView: this.serviceView
                         });
                         processorView.render();
                         processor.setY(yValue);

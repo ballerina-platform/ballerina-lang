@@ -15,7 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './children', './processor'], function (require, $, d3, Backbone, _, DiagramCore, Children, Processor) {
+define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core',
+    'app/ballerina/models/children', 'app/ballerina/models/processor', 'app/ballerina/utils/processor-factory'],
+    function (require, $, d3, Backbone, _, DiagramCore, Children, Processor, ProcessorFactory) {
 
     var LifeLine = DiagramCore.Models.Shape.extend(
         /** @lends LifeLine.prototype */
@@ -103,7 +105,6 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './chil
             },
 
             createProcessor: function (title, center, type, model, viewAttributes, parameters, utils, textModel) {
-                var ProcessorFactory = require('app/ballerina-diagram/utils/processor-factory');
                 return new ProcessorFactory(title, center, model.type, model, viewAttributes, parameters, utils, textModel);
             },
 

@@ -15,13 +15,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['app/ballerina/models/module'], function (Models) {
+define(['app/ballerina/models/unit-processor', 'app/ballerina/models/complex-processor', 'app/ballerina/models/dynamic-containable-processor',
+    'app/ballerina/models/custom-processor', 'app/ballerina/models/action-processor'],
+    function (UnitProcessor, ComplexProcessor, DynamicContainableProcessor, CustomProcessor, ActionProcessor) {
 
     var ProcessorFactory = function (title, center, type, model, viewAttributes, parameters, utils, textModel) {
         var processor;
 
         if (type === "UnitProcessor") {
-            processor = new Models.UnitProcessor({
+            processor = new UnitProcessor({
                 title: title,
                 centerPoint: center,
                 type: type,
@@ -32,7 +34,7 @@ define(['app/ballerina/models/module'], function (Models) {
                 textModel : textModel
             });
         } else if (type === "ComplexProcessor") {
-            processor = new Models.ComplexProcessor({
+            processor = new ComplexProcessor({
                 title: title,
                 centerPoint: center,
                 type: type,
@@ -42,7 +44,7 @@ define(['app/ballerina/models/module'], function (Models) {
                 utils: utils
             });
         } else if (type === "DynamicContainableProcessor") {
-            processor = new Models.DynamicContainableProcessor({
+            processor = new DynamicContainableProcessor({
                 title: title,
                 centerPoint: center,
                 type: type,
@@ -52,7 +54,7 @@ define(['app/ballerina/models/module'], function (Models) {
                 utils: utils
             });
         } else if (type === "CustomProcessor") {
-            processor = new Models.CustomProcessor({
+            processor = new CustomProcessor({
                 title: title,
                 centerPoint: center,
                 type: type,
@@ -62,7 +64,7 @@ define(['app/ballerina/models/module'], function (Models) {
                 utils: utils
             });
         } else if (type === "Action") {
-            processor = new Models.ActionProcessor({
+            processor = new ActionProcessor({
                 title: title,
                 centerPoint: center,
                 type: type,
