@@ -131,10 +131,16 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './proc
             },
 
             renderProcessors: function () {
+                // Minimum length for a Lifeline
+                var minimumLength = 250;
+                // Distance from lifeline's center point to first processor.
+                var initDistance = 90;
+                // Space between two processors
+                var distanceBetweenProcessors = 20;
                 var centerPoint = this.modelAttr('centerPoint');
                 var xValue = centerPoint.x();
                 var yValue = centerPoint.y();
-                yValue += 60;
+                yValue += initDistance;
 
                 var initialHeight = parseInt(this.d3el.line.attr("y2")) - parseInt(this.d3el.line.attr("y1"));
                 var totalIncrementedHeight = 0;
@@ -153,8 +159,7 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './proc
                         var processorView = new ProcessorView(processorViewOptions);
                         processorView.render();
                         processor.setY(yValue);
-                        yValue += processor.getHeight() + 30;
-                        totalIncrementedHeight = totalIncrementedHeight + processor.getHeight() + 30;
+                        yValue += processor.getHeight() + distanceBetweenProcessors;
                     } else {
                         var messagePoint = this.modelAttr("children").models[id];
                         if (messagePoint.direction() == "outbound") {
@@ -181,14 +186,20 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './proc
                     }
                 }
 
-                var totalHeight = totalIncrementedHeight + initialHeight;
-                if (!_.isUndefined(this.serviceView.model.highestLifeline) && this.serviceView.model.highestLifeline !== null && this.serviceView.model.highestLifeline.getHeight() > totalHeight) {
-                    totalHeight = this.serviceView.model.highestLifeline.getHeight();
+                var totalHeight = parseInt(yValue) - parseInt(this.d3el.line.attr("y1"));
+                if (totalHeight < minimumLength) {
+                    totalHeight = minimumLength;
+                }
+                if (!_.isUndefined(this.serviceView.model.highestLifeline) && this.serviceView.model.highestLifeline !== null) {
+                    if (this.serviceView.model.highestLifeline.getHeight() > totalHeight) {
+                        totalHeight = this.serviceView.model.highestLifeline.getHeight();
+                    }
+                    var maxHeight = this.serviceView.model.highestLifeline.getHeight();
                 }
                 this.model.setHeight(totalHeight);
                 this.adjustHeight(this.d3el, totalHeight - initialHeight);
 
-                if (this.serviceView.model.highestLifeline == undefined || this.serviceView.model.highestLifeline.getHeight() < this.model.getHeight()) {
+                if (this.serviceView.model.highestLifeline == undefined || maxHeight < this.model.getHeight()) {
                     this.serviceView.model.highestLifeline = this.model;
                     this.serviceView.render();
                     return false;
@@ -242,19 +253,6 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './proc
                 var middleRect = d3Ref.draw.centeredBasicRect(createPoint(center.get('x'), center.get('y') + prefs.rect.height / 2 + prefs.line.height / 2), prefs.middleRect.width, prefs.middleRect.height, 0, 0, group)
                     .classed(prefs.middleRect.class, true);
 
-                /*var drawMessageRect = d3Ref.draw.centeredBasicRect(createPoint(center.get('x'), center.get('y') + prefs.rect.height / 2 + prefs.line.height / 2), (prefs.middleRect.width * 0.4), prefs.middleRect.height, 0, 0, group)
-                    .on("mousedown", function () {
-                        d3.event.preventDefault();
-                        d3.event.stopPropagation();
-                        var m = d3.mouse(this);
-                        prefs.diagram.clickedLifeLine = viewObj.model;
-                        prefs.diagram.trigger("messageDrawStart", viewObj.model, new DiagramCore.Models.Point({
-                            'x': center.x(),
-                            'y': m[1]
-                        }));
-
-                    });*/
-
                 var rectBottom = d3Ref.draw.genericCenteredRect(createPoint(center.get('x'), center.get('y') + prefs.line.height), prefs.rect.width + 30, prefs.rect.height, 0, 0, group, '', textModel)
                     .classed(prefs.rect.class, true).classed("genericR", true);
 
@@ -264,7 +262,6 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './proc
                     .classed(prefs.text.class, true).classed("genericT", true);
                 var textBottom = d3Ref.draw.genericCenteredText(createPoint(center.get('x'), center.get('y') + prefs.line.height), title, group, textModel)
                     .classed(prefs.text.class, true).classed("genericT", true);
-
 
                 group.rect = rect;
                 group.rectBottom = rectBottom;
