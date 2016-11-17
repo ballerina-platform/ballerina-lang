@@ -497,7 +497,8 @@ function (require, log, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements,
                                     type: Processors.manipulators[id].type || "UnitProcessor",
                                     initMethod: Processors.manipulators[id].init,
                                     editable: Processors.manipulators[id].editable,
-                                    deletable: Processors.manipulators[id].deletable
+                                    deletable: Processors.manipulators[id].deletable,
+                                    hasOutputConnection : Processors.manipulators[id].hasOutputConnection
                                 },
                                 {colour: Processors.manipulators[id].colour},
                                 Processors.manipulators[id].parameters,
@@ -833,7 +834,7 @@ function (require, log, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements,
                     if (sourceModel.canConnect(destinationModel)) {
                         var messageOptionsInbound = {'class': 'messagePoint', 'direction': 'inbound'};
                         var messageOptionsOutbound = {'class': 'messagePoint', 'direction': 'outbound'};
-                        sourceModel.addChild(sourcePoint, messageOptionsOutbound);
+                        sourceModel.outputConnector(sourcePoint);
                         destinationModel.addChild(destinationPoint, messageOptionsInbound);
                     }
                 }
@@ -842,7 +843,7 @@ function (require, log, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements,
 
             onMessageDrawStart: function (sourceModel, startPoint, calcNewStartPoint, onMessageDrawEndCallback) {
 
-                var diagView = defaultView;
+                var serviceView = this;
 
                 var line = this.d3svg.append("line")
                     .attr("x1", startPoint.x())
@@ -865,8 +866,8 @@ function (require, log, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements,
 
                 this.d3svg.on("mouseup", function () {
                     // unbind current listeners
-                    diagView.d3svg.on("mousemove", null);
-                    diagView.d3svg.on("mouseup", null);
+                    serviceView.d3svg.on("mousemove", null);
+                    serviceView.d3svg.on("mouseup", null);
                     var startPoint = new DiagramCore.Models.Point({x: line.attr("x1"), y: line.attr("y1")}),
                         endpoint = new DiagramCore.Models.Point({x: line.attr("x2"), y: line.attr("y2")});
                     line.remove();
@@ -887,8 +888,7 @@ function (require, log, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements,
                         source: sourcePoint,
                         destination: destinationPoint
                     });
-                    diagView.model.trigger("messageDrawEnd", sourceModel, sourcePoint, destinationPoint);
-
+                    serviceView.model.trigger("messageDrawEnd", sourceModel, sourcePoint, destinationPoint);
                 });
             },
 

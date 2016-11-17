@@ -70,7 +70,6 @@ define(['lodash', 'diagram_core'], function ( _, DiagramCore) {
                     this.modelAttr('viewAttributes').colour,
                     this.modelAttr('title')
                 );
-                console.log("started");
                 var height = (200 - prefs.rect.height);
                 var middleRect = d3Ref.draw.centeredBasicRect( new DiagramCore.Models.Point({'x': center.x(), 'y':  center.y()+100}), 150, height, 0, 0);
                 middleRect.on("mousedown", function () {
@@ -85,8 +84,8 @@ define(['lodash', 'diagram_core'], function ( _, DiagramCore) {
                     d3.select(this).style("fill-opacity", 0.01);
                 }).on('mouseup', function (data) {
                 });
-                console.log(middleRect);
-                var drawMessageRect = d3Ref.draw.centeredBasicRect(new DiagramCore.Models.Point({'x': center.x(), 'y': center.y()+100}), (prefs.middleRect.width * 0.4), height, 0, 0, d3Ref)
+
+                /*var drawMessageRect = d3Ref.draw.centeredBasicRect(new DiagramCore.Models.Point({'x': center.x(), 'y': center.y()+100}), (prefs.middleRect.width * 0.4), height, 0, 0, d3Ref)
                     .on("mousedown", function () {
                         d3.event.preventDefault();
                         d3.event.stopPropagation();
@@ -101,10 +100,10 @@ define(['lodash', 'diagram_core'], function ( _, DiagramCore) {
                             .style("cursor", 'url(images/BlackHandwriting.cur), pointer');
                     }).on('mouseout', function () {
                         d3.select(this).style("fill-opacity", 0.0);
-                    });
+                    });*/
 
                 group.middleRect = middleRect;
-                group.drawMessageRect = drawMessageRect;
+                // group.drawMessageRect = drawMessageRect;
                 group.rect = rectBottomXXX.containerRect;
                 group.titleRect = rectBottomXXX.titleRect;
                 group.text = rectBottomXXX.text;
@@ -124,7 +123,14 @@ define(['lodash', 'diagram_core'], function ( _, DiagramCore) {
                 for (var id in this.modelAttr("children").models) {
                     var processor = this.modelAttr("children").models[id];
                     var ProcessorView = require('app/ballerina-diagram/views/processor'); //TODO: fix this
-                    var processorView = new ProcessorView({model: processor});
+                    var processorViewOptions = {
+                        model: processor,
+                        center: new DiagramCore.Models.Point({x: xValue, y: yValue}),
+                        canvas: this.canvas,
+                        serviceView: this.serviceView,
+                        application: this.application
+                    };
+                    var processorView = new ProcessorView(processorViewOptions);
                     //TODO : Please remove this if else with a proper implementation
                     if(processor.type == "messagePoint"){
                         yValue = yValue-20;
@@ -157,7 +163,7 @@ define(['lodash', 'diagram_core'], function ( _, DiagramCore) {
                 middleRect.attr("height", totalHeight-30);
                 middleRect.attr("width", totalWidth);
                 middleRect.attr("x", parseInt(middleRect.attr("x")) - deviation);
-                drawMessageRect.attr("height", totalHeight-30);
+                // drawMessageRect.attr("height", totalHeight-30);
 
                 if (viewObj.model.get("title") === "Try" || viewObj.model.get("title") === "If") {
                     var optionsMenuGroup = group.append("g").attr("class", "option-menu option-menu-hide");

@@ -33,14 +33,6 @@ define(['require', 'jquery', 'd3'], function (require, $, d3) {
         checkbox_checkbox: 35
     };
 
-    var circle = function (cx, cy, r, parent) {
-        parent = parent || d3Ref;
-        return parent.append("circle")
-            .attr("cx", cx)
-            .attr("cy", cy)
-            .attr("r", r);
-    };
-
     var circleOnPoint = function (point, r, parent) {
         parent = parent || d3Ref;
         return parent.draw.circle(point.x(), point.y(), r);
@@ -264,6 +256,17 @@ define(['require', 'jquery', 'd3'], function (require, $, d3) {
             .attr("stroke-dasharray", "4, 3");
     };
 
+    var circle = function (x, y, radius, parent, colour) {
+        parent = parent || d3Ref;
+
+        var circle = parent.append("circle")
+            .attr("cx", x )
+            .attr("cy", y )
+            .attr("r", radius)
+            .attr("fill-opacity", 0)
+            .attr("fill", colour);
+        return circle;
+    };
 
     var centeredText = function (center, textContent, parent) {
         parent = parent || d3Ref;

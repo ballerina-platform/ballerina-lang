@@ -35,7 +35,16 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './cont
         initialize: function (options) {
             DiagramCore.Views.ShapeView.prototype.initialize.call(this, options);
             _.extend(this, _.pick(options, ["center"]));
+
+            if(!_.has(options, 'application')){
+                throw "config parent [application] is not provided.";
+            }
             this.application = options.application;
+
+            if(!_.has(this.application, 'eventManager')){
+                throw "Eventmanager is not provided.";
+            }
+            this.eventManager = this.application.eventManager;
 
             if(!_.has(options, 'serviceView')){
                 throw "config parent [serviceView] is not provided.";
@@ -323,11 +332,11 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './cont
                     var m = d3.mouse(this);
                     this.mouseDown(prefs, center.x(), m[1]);
                 }).on('mouseover', function () {
-                    diagram.selectedNode = viewObj.model;
+                    viewObj.serviceView.model.selectedNode = viewObj.model;
                     d3.select(this).style("fill", "green").style("fill-opacity", 0.1);
                 }).on('mouseout', function () {
-                    diagram.destinationLifeLine = diagram.selectedNode;
-                    diagram.selectedNode = null;
+                    viewObj.serviceView.model.destinationLifeLine = viewObj.serviceView.model.selectedNode;
+                    viewObj.serviceView.model.selectedNode = null;
                     d3.select(this).style("fill-opacity", 0.01);
                 }).on('mouseup', function (data) {
                 });
@@ -341,19 +350,24 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './cont
                 yValue += 60;
                 for (var id in this.modelAttr("children").models) {
                     var processor = this.modelAttr("children").models[id];
-                    var processorView = new ProcessorView({model: processor});
+                    var processorViewOptions = {
+                        model: processor,
+                        center: new DiagramCore.Models.Point({x: xValue, y: yValue}),
+                        canvas: this.canvas,
+                        serviceView: this.serviceView,
+                        application: this.application
+                    };
+                    var processorView = new ProcessorView(processorViewOptions);
                     var processorCenterPoint = createPoint(xValue, yValue);
-                    processorView.render("#" + defaultView.options.diagram.wrapperId, processorCenterPoint, "processors");
+                    processorView.render("#" + this.serviceView.model.options.diagram.wrapperId,
+                        processorCenterPoint, "processors");
                     processor.setY(yValue);
                     yValue += processor.getHeight()+ 30;
                 }
 
-
             } else if (this.model.model.type === "ComplexProcessor") {
 
                 var containableProcessorElementViewArray = [];
-
-
                 var centerPoint = center;
                 var xValue = centerPoint.x();
                 var yValue = centerPoint.y();
@@ -366,7 +380,7 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './cont
                     var containableProcessorElement = this.modelAttr("containableProcessorElements").models[id];
                     var containableProcessorElementView = new ContainableProcessorElementView({model: containableProcessorElement});
                     var processorCenterPoint = createPoint(xValue, yValue);
-                    var elemView = containableProcessorElementView.render("#" + defaultView.options.diagram.wrapperId, processorCenterPoint);
+                    var elemView = containableProcessorElementView.render("#" + viewObj.serviceView.options.diagram.wrapperId, processorCenterPoint);
                     containableProcessorElementViewArray.push(elemView);
                     yValue = yValue+containableProcessorElement.getHeight();
                     totalHeight+=containableProcessorElement.getHeight();
@@ -380,7 +394,6 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './cont
                         maximumWidth = containableProcessorElement.getWidth();
                     }
                 }
-
 
                 var arrayLength = containableProcessorElementViewArray.length;
                 for (var i = 0; i < arrayLength; i++) {
@@ -416,16 +429,48 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './cont
                 var height = 0;
                 height = this.model.getHeight() - 30;
                 var width = this.model.getWidth();
+                var x = (center.x() - this.model.getWidth()/2);
+                var y = (center.y() - height/2);
+                var rectHeight = 30;
+                var rectWidth = this.model.getWidth();
 
-                var processorTitleRect = d3Ref.draw.rect((center.x() - this.model.getWidth()/2),
-                    (center.y() - height/2),
-                    this.model.getWidth(),
-                    30,
+                var processorTitleRect = d3Ref.draw.rect(x,
+                    y,
+                    rectWidth,
+                    rectHeight,
                     0,
                     0,
                     group,
                     this.modelAttr('viewAttributes').colour
                 );
+
+                // We need connection staring point only for the processors which have outbound connections.
+                if(!_.isUndefined(this.model.model.hasOutputConnection) && this.model.model.hasOutputConnection) {
+                    var circle = d3Ref.draw.circle(x + rectWidth, y + rectHeight / 2, rectHeight / 3, group, "#2c3e50");
+
+                    circle.on("mousedown", function () {
+                        d3.event.preventDefault();
+                        d3.event.stopPropagation();
+                        var m = d3.mouse(this);
+                        viewObj.serviceView.model.clickedLifeLine = viewObj.model;
+                        viewObj.serviceView.model.trigger("messageDrawStart", viewObj.model,
+                            new DiagramCore.Models.Point({x: (x + rectWidth), y: m[1]}));
+                    }).on('mouseover', function () {
+                        viewObj.serviceView.model.selectedNode = viewObj.model;
+                        d3.select(this).style("fill", "red").style("fill-opacity", 0.6)
+                            .style("cursor", 'url(images/BlackHandwriting.cur), pointer');
+                        // Update event manager with current active element type for validation
+                        viewObj.eventManager.isActivated(viewObj.serviceView.model.selectedNode.attributes.title);
+                    }).on('mouseout', function () {
+                        //diagram.destinationLifeLine = diagram.selectedNode;
+                        viewObj.serviceView.model.selectedNode = null;
+                        d3.select(this).style("fill-opacity", 0.01);
+                        // Update event manager with out of focus on active element
+                        viewObj.eventManager.isActivated("none");
+                    }).on('mouseup', function (data) {
+
+                    });
+                }
 
                 var mediatorText = d3Ref.draw.textElement(center.x(),
                     (center.y() + 15 - height/2),
@@ -441,11 +486,18 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './cont
 
                 group.rect = rectBottomXXX;
                 group.title = mediatorText;
+                group.circle = circle;
 
                 var inputMessagePoint = this.model.inputConnector();
                 if(!_.isUndefined(inputMessagePoint)){
                     inputMessagePoint.x(center.x() - width/2);
                     inputMessagePoint.y(center.y());
+                }
+
+                var outputMessagePoint = this.model.outputConnector();
+                if(!_.isUndefined(outputMessagePoint)){
+                    outputMessagePoint.x(center.x() + width/2);
+                    outputMessagePoint.y(center.y());
                 }
             }
 

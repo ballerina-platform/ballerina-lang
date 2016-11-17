@@ -22,8 +22,9 @@ define(['d3', 'tree_node'], function (d3, TreeNode) {
         id: "InvokeMediator",
         title: "Invoke",
         icon: "images/tool-icons/invoke.svg",
-        colour : "#2c3e50",
-        type : "Custom",
+        colour : "#ffffff",
+        type : "Action",
+        hasOutputConnection : true,
         dragCursorOffset : { left: 50, top: -5 },
         createCloneCallback : function(view){
             function cloneCallBack() {
@@ -136,7 +137,7 @@ define(['d3', 'tree_node'], function (d3, TreeNode) {
         ],
         utils: {
             getMyPropertyPaneSchema : function () {
-                return Processors.flowControllers.InvokeMediator.propertyPaneSchema;
+                return Processors.manipulators.InvokeMediator.propertyPaneSchema;
             },
             getMyParameters: function (model) {
                 return model.attributes.parameters;
@@ -168,6 +169,9 @@ define(['d3', 'tree_node'], function (d3, TreeNode) {
                     }
                 });
                 return new TreeNode("InvokeMediator", "InvokeMediator", ("response = invoke(endpointKey=" + endpoint + ", messageKey=m)"), ";");
+            },
+            canConnectTo: function () {
+                return ['EndPoint'];
             }
         }
     };

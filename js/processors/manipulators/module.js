@@ -16,9 +16,10 @@
  * under the License.
  */
 define(['./fork-processor', './header-processor', './log-mediator',
-        './payload-factory-mediator', './payload-processor', './reply-processor'],
+        './payload-factory-mediator', './payload-processor', './reply-processor', './invoke-mediator'],
 
-    function (ForkProcessor, HeaderProcessor, LogMediator, PayloadFactoryMediator, PayloadProcessor, ReplyProcessor) {
+    function (ForkProcessor, HeaderProcessor, LogMediator, PayloadFactoryMediator, PayloadProcessor, ReplyProcessor,
+              InvokeMediator) {
 
     var manipulators = {};
 
@@ -28,6 +29,7 @@ define(['./fork-processor', './header-processor', './log-mediator',
     manipulators[PayloadFactoryMediator.id] = PayloadFactoryMediator;
     manipulators[PayloadProcessor.id] = PayloadProcessor;
     manipulators[ReplyProcessor.id] = ReplyProcessor;
+    manipulators[InvokeMediator.id] = InvokeMediator;
 
     return manipulators;
 });

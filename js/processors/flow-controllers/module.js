@@ -15,15 +15,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['./if-else-mediator',
-    './invoke-mediator',
-    './switch-mediator',
-    './try-block-mediator'], function (IfElseMediator, InvokeMediator, SwitchMediator, TryBlockMediator) {
+define(['./if-else-mediator', './switch-mediator',
+    './try-block-mediator'], function (IfElseMediator, SwitchMediator, TryBlockMediator) {
 
     var flowControllers = {};
 
     flowControllers[IfElseMediator.id] = IfElseMediator;
-    flowControllers[InvokeMediator.id] = InvokeMediator;
     flowControllers[SwitchMediator.id] = SwitchMediator;
     flowControllers[TryBlockMediator.id] = TryBlockMediator;
 

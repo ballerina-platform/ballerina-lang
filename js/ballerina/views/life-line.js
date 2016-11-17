@@ -143,12 +143,14 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './proc
 
                     if (this.modelAttr("children").models[id] instanceof Processor) {
                         var processor = this.modelAttr("children").models[id];
-                        var processorView = new ProcessorView({
+                        var processorViewOptions = {
                             model: processor,
                             center: new DiagramCore.Models.Point({x: xValue, y: yValue}),
                             canvas: this.canvas,
-                            serviceView: this.serviceView
-                        });
+                            serviceView: this.serviceView,
+                            application: this.application
+                        };
+                        var processorView = new ProcessorView(processorViewOptions);
                         processorView.render();
                         processor.setY(yValue);
                         yValue += processor.getHeight() + 30;
@@ -212,7 +214,7 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './proc
                 lifeLine.rectBottom.attr("y", parseInt(lifeLine.rectBottom.attr("y")) + difference);
                 lifeLine.line.attr("y2", parseInt(lifeLine.line.attr("y2")) + difference);
                 lifeLine.textBottom.attr("y", parseInt(lifeLine.textBottom.attr("y")) + difference);
-                lifeLine.drawMessageRect.attr("height", parseInt(lifeLine.drawMessageRect.attr("height")) + difference);
+                // lifeLine.drawMessageRect.attr("height", parseInt(lifeLine.drawMessageRect.attr("height")) + difference);
                 lifeLine.middleRect.attr("height", parseInt(lifeLine.middleRect.attr("height")) + difference);
 
             },
@@ -239,7 +241,7 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './proc
                 var middleRect = d3Ref.draw.centeredBasicRect(createPoint(center.get('x'), center.get('y') + prefs.rect.height / 2 + prefs.line.height / 2), prefs.middleRect.width, prefs.middleRect.height, 0, 0, group)
                     .classed(prefs.middleRect.class, true);
 
-                var drawMessageRect = d3Ref.draw.centeredBasicRect(createPoint(center.get('x'), center.get('y') + prefs.rect.height / 2 + prefs.line.height / 2), (prefs.middleRect.width * 0.4), prefs.middleRect.height, 0, 0, group)
+                /*var drawMessageRect = d3Ref.draw.centeredBasicRect(createPoint(center.get('x'), center.get('y') + prefs.rect.height / 2 + prefs.line.height / 2), (prefs.middleRect.width * 0.4), prefs.middleRect.height, 0, 0, group)
                     .on("mousedown", function () {
                         d3.event.preventDefault();
                         d3.event.stopPropagation();
@@ -250,7 +252,7 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './proc
                             'y': m[1]
                         }));
 
-                    });
+                    });*/
 
                 var rectBottom = d3Ref.draw.genericCenteredRect(createPoint(center.get('x'), center.get('y') + prefs.line.height), prefs.rect.width + 30, prefs.rect.height, 0, 0, group, '', textModel)
                     .classed(prefs.rect.class, true).classed("genericR", true);
@@ -267,7 +269,7 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './proc
                 group.rectBottom = rectBottom;
                 group.line = line;
                 group.middleRect = middleRect;
-                group.drawMessageRect = drawMessageRect;
+                // group.drawMessageRect = drawMessageRect;
                 group.textBottom = textBottom;
                 group.svgTitle = text;
                 group.svgTitleBottom = textBottom;
@@ -348,7 +350,7 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './proc
 
                 });
 
-                drawMessageRect.on('mouseover', function () {
+                /*drawMessageRect.on('mouseover', function () {
                     //setting current tab view based diagram model
                     viewObj.serviceView.model.selectedNode = viewObj.model;
                     d3.select(this).style("fill", "black").style("fill-opacity", 0.2)
@@ -360,7 +362,7 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './proc
                     // Update event manager with out of focus on active element
                     eventManager.isActivated("none");
                 }).on('mouseup', function (data) {
-                });
+                });*/
 
                 rect.on("click", (function () {
                     viewObj.serviceView.model.selectedNode = viewObj.model;

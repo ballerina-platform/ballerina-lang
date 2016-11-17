@@ -90,16 +90,21 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core'], functi
                         this.model.destination().centerPoint().y(this.model.priority().centerPoint().y());
                     }
 
-                    var line = d3ref.draw.lineFromPoints(this.model.source().centerPoint(), this.model.destination().centerPoint(), group)
-                        .classed(this.options.class, true);
-
                     // TODO : If we are drawing an arrow from pipeline to an endpoint, we need a reverse arrow as well.
                     // But this needs to be fixed as we need to support OUT_ONLY messages.
                     if (this.model.destination().get('parent').get('cssClass') === "endpoint") {
-                        var lineDestinationCenterPoint = createPoint(this.model.destination().centerPoint().x(), Math.round(this.model.destination().centerPoint().y()) + 20);
-                        var lineSourceCenterPoint = createPoint(this.model.source().centerPoint().x(), Math.round(this.model.source().centerPoint().y()) + 20);
+                        var lineDestinationCenterPoint = createPoint(this.model.destination().centerPoint().x(), Math.round(this.model.destination().centerPoint().y()) -5);
+                        var lineSourceCenterPoint = createPoint(this.model.source().centerPoint().x(), Math.round(this.model.source().centerPoint().y()) - 5);
+                        var line = d3ref.draw.lineFromPoints(lineSourceCenterPoint, lineDestinationCenterPoint, group)
+                            .classed(this.options.class, true);
 
-                        var line2 = d3ref.draw.lineFromPoints(lineDestinationCenterPoint, lineSourceCenterPoint, group)
+                        var line2DestinationCenterPoint = createPoint(this.model.destination().centerPoint().x(), Math.round(this.model.destination().centerPoint().y()) + 10);
+                        var line2SourceCenterPoint = createPoint(this.model.source().centerPoint().x(), Math.round(this.model.source().centerPoint().y()) + 10);
+
+                        var line2 = d3ref.draw.lineFromPoints(line2DestinationCenterPoint, line2SourceCenterPoint, group)
+                                                        .classed(this.options.class, true);
+                    } else{
+                        var line = d3ref.draw.lineFromPoints(this.model.source().centerPoint(), this.model.destination().centerPoint(), group)
                             .classed(this.options.class, true);
                     }
 
