@@ -96,6 +96,133 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './cont
             return line;
         },
 
+        addEditableAndDeletable: function(d3Ref, optionsMenuGroup, processorTitleRect,
+                                          center, height, width, viewObj) {
+
+            var serviceView = this.serviceView;
+
+            var optionMenuWrapper = d3Ref.draw.rect((center.x() + 10 + width/2),
+                (center.y() - height/2),
+                30,
+                58,
+                0,
+                0,
+                optionsMenuGroup, "#f8f8f3").
+            attr("style", "stroke: #ede9dc; stroke-width: 1; opacity:0.5; cursor: pointer").
+            on("mouseover", function () {
+                d3.select(this).attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: .7; cursor: pointer");
+            }).
+            on("mouseout", function () {
+                d3.select(this).attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: 0.5; cursor: pointer");
+            });
+
+            var deleteOption = d3Ref.draw.rect((center.x() + 13 + width/2),
+                (center.y() + 3 - height/2),
+                24,
+                24,
+                0,
+                0,
+                optionsMenuGroup, "url(#delIcon)").
+            attr("style", "opacity:0.5; cursor: pointer").
+            on("mouseover", function () {
+                d3.select(this).attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: 1; cursor: pointer");
+                optionMenuWrapper.attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: .7");
+            }).
+            on("mouseout", function () {
+                d3.select(this).attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: 0.5; cursor: pointer");
+                optionMenuWrapper.attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: 0.5; cursor: pointer");
+            });
+
+            var editOption = d3Ref.draw.rect((center.x() + 13 + width/2),
+                (center.y() + 31 - height/2),
+                24,
+                24,
+                0,
+                0,
+                optionsMenuGroup, "url(#editIcon)").
+            attr("style", "opacity:0.5; cursor: pointer").
+            on("mouseover", function () {
+                d3.select(this).attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: 1; cursor: pointer");
+                optionMenuWrapper.attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: .7; cursor: pointer");
+            }).
+            on("mouseout", function () {
+                d3.select(this).attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: 0.5; cursor: pointer");
+                optionMenuWrapper.attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: 0.5; cursor: pointer");
+            });
+
+            // On click of the mediator show/hide the options menu
+            processorTitleRect.on("click", function () {
+                if (optionsMenuGroup.classed("option-menu-hide")) {
+                    optionsMenuGroup.classed("option-menu-hide", false);
+                    optionsMenuGroup.classed("option-menu-show", true);
+
+                    if (serviceView.model.selectedOptionsGroup &&
+                        (serviceView.model.selectedOptionsGroup !== optionsMenuGroup)) {
+                        serviceView.model.selectedOptionsGroup.classed("option-menu-hide", true);
+                        serviceView.model.selectedOptionsGroup.classed("option-menu-show", false);
+                    }
+                    if (serviceView.model.propertyWindow) {
+                        serviceView.model.propertyWindow = false;
+                        serviceView.model.enableDragZoomOptions();
+                        $('#property-pane-svg').empty();
+                    }
+                    diagram.selectedOptionsGroup = optionsMenuGroup;
+
+                } else {
+                    optionsMenuGroup.classed("option-menu-hide", true);
+                    optionsMenuGroup.classed("option-menu-show", false);
+                    diagram.propertyWindow = false;
+                    serviceView.enableDragZoomOptions();
+                    serviceView.render();
+                }
+                d3.event.preventDefault();
+                d3.event.stopPropagation();
+            });
+
+            // On click of the edit icon will show the properties to to edit
+            editOption.on("click", function () {
+                if (serviceView.model.propertyWindow) {
+                    diagram.propertyWindow = false;
+                    serviceView.enableDragZoomOptions();
+                    serviceView.render();
+
+                } else {
+                    var options = {
+                        x: parseFloat(this.getAttribute("x")) + 6,
+                        y: parseFloat(this.getAttribute("y")) + 21
+                    };
+
+                    serviceView.selectedNode = viewObj.model;
+                    serviceView.drawPropertiesPane(d3Ref, options,
+                        viewObj.model.get('utils').getMyParameters(
+                            viewObj.model),
+                        viewObj.model.get('utils').getMyPropertyPaneSchema(
+                            viewObj.model));
+                }
+                d3.event.preventDefault();
+                d3.event.stopPropagation();
+            });
+
+            // On click of the delete icon will delete the processor
+            deleteOption.on("click", function () {
+                // Get the parent of the model and delete it from the parent
+                var parentModelChildren = viewObj.model.get("parent").get("children").models;
+                for (var itr = 0; itr < parentModelChildren.length; itr ++) {
+                    if (parentModelChildren[itr].cid === viewObj.model.cid) {
+
+                        parentModelChildren.splice(itr, 1);
+                        serviceView.render();
+                        break;
+                    }
+                }
+            });
+
+            var getPropertyPaneSchema = function (model) {
+                return ;
+            };
+
+        },
+
         drawProcessor: function (center, title, prefs) {
             var d3Ref = this.getD3Ref();
             var group = d3Ref.append('g');
@@ -115,55 +242,6 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './cont
 
                 var orderedElements = [];
 
-                var optionMenuWrapper = d3Ref.draw.rect((center.x() + 10 + width/2),
-                    (center.y() - height/2),
-                    30,
-                    58,
-                    0,
-                    0,
-                    optionsMenuGroup, "#f8f8f3").
-                    attr("style", "stroke: #ede9dc; stroke-width: 1; opacity:0.5; cursor: pointer").
-                    on("mouseover", function () {
-                        d3.select(this).attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: .7; cursor: pointer");
-                    }).
-                    on("mouseout", function () {
-                        d3.select(this).attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: 0.5; cursor: pointer");
-                    });
-
-                var deleteOption = d3Ref.draw.rect((center.x() + 13 + width/2),
-                    (center.y() + 3 - height/2),
-                    24,
-                    24,
-                    0,
-                    0,
-                    optionsMenuGroup, "url(#delIcon)").
-                    attr("style", "opacity:0.5; cursor: pointer").
-                    on("mouseover", function () {
-                        d3.select(this).attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: 1; cursor: pointer");
-                        optionMenuWrapper.attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: .7");
-                    }).
-                    on("mouseout", function () {
-                        d3.select(this).attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: 0.5; cursor: pointer");
-                        optionMenuWrapper.attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: 0.5; cursor: pointer");
-                    });
-
-                var editOption = d3Ref.draw.rect((center.x() + 13 + width/2),
-                    (center.y() + 31 - height/2),
-                    24,
-                    24,
-                    0,
-                    0,
-                    optionsMenuGroup, "url(#editIcon)").
-                    attr("style", "opacity:0.5; cursor: pointer").
-                    on("mouseover", function () {
-                        d3.select(this).attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: 1; cursor: pointer");
-                        optionMenuWrapper.attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: .7; cursor: pointer");
-                    }).
-                    on("mouseout", function () {
-                        d3.select(this).attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: 0.5; cursor: pointer");
-                        optionMenuWrapper.attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: 0.5; cursor: pointer");
-                    });
-
                 var rectBottomXXX = d3Ref.draw.centeredRect(center,
                     this.model.getWidth(),
                     height,//prefs.rect.height,
@@ -172,6 +250,7 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './cont
                     group, //element.viewAttributes.colour
                     this.modelAttr('viewAttributes').colour
                 );
+
                 var processorTitleRect = d3Ref.draw.rect((center.x() - this.model.getWidth()/2),
                     (center.y() - height/2),
                     this.model.getWidth(),
@@ -181,16 +260,22 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './cont
                     group,
                     this.modelAttr('viewAttributes').colour
                 );
+
+                this.addEditableAndDeletable(d3Ref, optionsMenuGroup, processorTitleRect,
+                    center, height, width, viewObj);
+
                 var mediatorText = d3Ref.draw.textElement(center.x(),
                     (center.y() + 15 - height/2),
                     title,
                     group)
                     .classed("mediator-title", true);
+
                 var inputText = d3Ref.draw.textElement(center.x() + 20 - this.model.getWidth()/2,
                     (center.y() + 35 - height/2),
                     this.generateInputOutputString(this.model.get('utils').getInputParams(this.model)),
                     group)
                     .classed("input-output-text", true);
+
                 var inputTri = d3Ref.draw.inputTriangle(center.x() + 5 - this.model.getWidth()/2,
                     (center.y() + 30 - height/2),
                     group);
@@ -215,75 +300,6 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './cont
                         group
                     );
                 }
-
-                group.rect = rectBottomXXX;
-                group.title = mediatorText;
-
-                // On click of the mediator show/hide the options menu
-                processorTitleRect.on("click", function () {
-                    if (optionsMenuGroup.classed("option-menu-hide")) {
-                        optionsMenuGroup.classed("option-menu-hide", false);
-                        optionsMenuGroup.classed("option-menu-show", true);
-
-                        if (serviceView.model.get('selectedOptionsGroup')) {
-                            serviceView.model.get('selectedOptionsGroup').classed("option-menu-hide", true);
-                            serviceView.model.get('selectedOptionsGroup').classed("option-menu-show", false);
-                        }
-                        if (serviceView.model.propertyWindow) {
-                            serviceView.model.propertyWindow = false;
-                            serviceView.model.enableDragZoomOptions();
-                            $('#property-pane-svg').empty();
-                        }
-                        serviceView.model.selectedOptionsGroup = optionsMenuGroup;
-
-                    } else {
-                        optionsMenuGroup.classed("option-menu-hide", true);
-                        optionsMenuGroup.classed("option-menu-show", false);
-                        diagram.propertyWindow = false;
-                        serviceView.enableDragZoomOptions();
-                        serviceView.render();
-                    }
-                });
-
-                // On click of the edit icon will show the properties to to edit
-                editOption.on("click", function () {
-                    if (serviceView.model.propertyWindow) {
-                        diagram.propertyWindow = false;
-                        serviceView.enableDragZoomOptions();
-                        serviceView.render();
-
-                    } else {
-                        var options = {
-                            x: parseFloat(this.getAttribute("x")) + 6,
-                            y: parseFloat(this.getAttribute("y")) + 21
-                        };
-
-                        serviceView.model.selectedNode = viewObj.model;
-                        serviceView.drawPropertiesPane(d3Ref, options,
-                            viewObj.model.get('utils').getMyParameters(
-                                viewObj.model),
-                            viewObj.model.get('utils').getMyPropertyPaneSchema(
-                                viewObj.model));
-                    }
-                });
-
-                // On click of the delete icon will delete the processor
-                deleteOption.on("click", function () {
-                    // Get the parent of the model and delete it from the parent
-                    var parentModelChildren = viewObj.model.get("parent").get("children").models;
-                    for (var itr = 0; itr < parentModelChildren.length; itr ++) {
-                        if (parentModelChildren[itr].cid === viewObj.model.cid) {
-
-                            parentModelChildren.splice(itr, 1);
-                            serviceView.render();
-                            break;
-                        }
-                    }
-                });
-
-                var getPropertyPaneSchema = function (model) {
-                    return ;
-                };
 
                 group.rect = rectBottomXXX;
                 group.title = mediatorText;
@@ -396,6 +412,7 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './cont
                     this.model.get('utils').init(this, d3Ref);
                 }
             } else if (this.model.model.type === 'Action') {
+                var optionsMenuGroup = group.append("g").attr("class", "option-menu option-menu-hide");
                 var height = 0;
                 height = this.model.getHeight() - 30;
                 var width = this.model.getWidth();
@@ -415,6 +432,12 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './cont
                     title,
                     group)
                     .classed("mediator-title", true);
+
+                //We will add edit and delete buttons if we have set editable and deletable to true in the processor definition.
+                if(!_.isUndefined(this.model.model.editable) && !_.isUndefined(this.model.model.deletable)
+                    && this.model.model.editable && this.model.model.deletable) {
+                    this.addEditableAndDeletable(d3Ref, optionsMenuGroup, processorTitleRect, center, height, width, viewObj);
+                }
 
                 group.rect = rectBottomXXX;
                 group.title = mediatorText;

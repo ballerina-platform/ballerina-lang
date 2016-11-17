@@ -18,7 +18,7 @@
 define(['require', 'log', 'jquery', 'd3', 'd3utils', 'backbone', 'lodash', 'diagram_core', 'main_elements',
         './service-preview', 'processors', './life-line',
         'ballerina_models/containable-processor-element', 'ballerina_models/life-line',  'app/ballerina/models/message-point',
-        'ballerina_models/message-link', 'ballerina_models/service', 'app/ballerina/utils/module',
+        'app/ballerina/models/message-link', 'ballerina_models/service', 'app/ballerina/utils/module',
         'app/ballerina/utils/processor-factory', 'svg_pan_zoom'],
 
 function (require, log, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements, DiagramPreview, Processors, LifeLineView,
@@ -495,12 +495,18 @@ function (require, log, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements,
                                 Processors.manipulators[id].id,
                                 {
                                     type: Processors.manipulators[id].type || "UnitProcessor",
-                                    initMethod: Processors.manipulators[id].init
+                                    initMethod: Processors.manipulators[id].init,
+                                    editable: Processors.manipulators[id].editable,
+                                    deletable: Processors.manipulators[id].deletable
                                 },
                                 {colour: Processors.manipulators[id].colour},
                                 Processors.manipulators[id].parameters,
                                 Processors.manipulators[id].utils
                             );
+
+                            if(typeof Processors.manipulators[id].init !== "undefined") {
+                                Processors.manipulators[id].init(txt, processor);
+                            }
                             txt.selectedNode.addChild(processor);
 
                             serviceView.render();
@@ -903,7 +909,8 @@ function (require, log, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements,
                 });
                 var messageLink = new MessageLink({
                     source: sourcePoint,
-                    destination: destinationPoint
+                    destination: destinationPoint,
+                    priority: destinationPoint
                 });
                 var messageOptionsInbound = {'class': 'messagePoint', 'direction': 'inbound'};
                 var messageOptionsOutbound = {'class': 'messagePoint', 'direction': 'outbound'};

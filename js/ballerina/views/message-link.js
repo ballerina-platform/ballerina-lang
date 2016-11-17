@@ -83,6 +83,13 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core'], functi
                             optionMenuWrapper.attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: 0.5; cursor: pointer");
                         });
 
+                    // When we have unequal y coordinates in source and destination message points, we need to set them to a common value
+                    // as we need a horizontal line always. Here we will use priority point and set that y value to both points.
+                    if(!_.isUndefined(this.model.priority())) {
+                        this.model.source().centerPoint().y(this.model.priority().centerPoint().y());
+                        this.model.destination().centerPoint().y(this.model.priority().centerPoint().y());
+                    }
+
                     var line = d3ref.draw.lineFromPoints(this.model.source().centerPoint(), this.model.destination().centerPoint(), group)
                         .classed(this.options.class, true);
 

@@ -15,9 +15,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['./fork-processor', './header-processor', './log-mediator', './payload-factory-mediator', './payload-processor'],
+define(['./fork-processor', './header-processor', './log-mediator',
+        './payload-factory-mediator', './payload-processor', './reply-processor'],
 
-    function (ForkProcessor, HeaderProcessor, LogMediator, PayloadFactoryMediator, PayloadProcessor) {
+    function (ForkProcessor, HeaderProcessor, LogMediator, PayloadFactoryMediator, PayloadProcessor, ReplyProcessor) {
 
     var manipulators = {};
 
@@ -26,6 +27,7 @@ define(['./fork-processor', './header-processor', './log-mediator', './payload-f
     manipulators[LogMediator.id] = LogMediator;
     manipulators[PayloadFactoryMediator.id] = PayloadFactoryMediator;
     manipulators[PayloadProcessor.id] = PayloadProcessor;
+    manipulators[ReplyProcessor.id] = ReplyProcessor;
 
     return manipulators;
 });
