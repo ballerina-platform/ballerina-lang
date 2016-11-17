@@ -26,6 +26,8 @@ define(['d3', 'tree_node'], function (d3, TreeNode) {
         type : "Action",
         hasOutputConnection : true,
         dragCursorOffset : { left: 50, top: -5 },
+        // For inout type message link value is 2
+        messageLinkType : 2,
         createCloneCallback : function(view){
             function cloneCallBack() {
                 var div = view.createContainerForDraggable();

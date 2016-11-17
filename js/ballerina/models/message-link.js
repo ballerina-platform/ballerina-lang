@@ -31,6 +31,7 @@ define(['lodash', 'diagram_core'], function ( _, DiagramCore) {
                 this.set('destinationPoint', attrs.destination);
                 this.source().message(this);
                 this.destination().message(this);
+                this.type(attrs.type);
             },
 
             modelName: "MessageLink",
@@ -62,6 +63,14 @@ define(['lodash', 'diagram_core'], function ( _, DiagramCore) {
                     this.set('priority', messagePoint);
                 } else {
                     return this.get('priority');
+                }
+            },
+
+            type: function (type) {
+                if (type) {
+                    this.set('type', type);
+                } else {
+                    return this.get('type');
                 }
             }
 

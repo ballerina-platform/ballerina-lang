@@ -203,7 +203,8 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './proc
                         var linkView = new MessageLinkView({
                             model: messagePoint.message(),
                             options: {class: "message"},
-                            serviceView: this.serviceView
+                            serviceView: this.serviceView,
+                            application: this.application
                         });
                         linkView.render("#" + this.serviceView.model.wrapperId, "messages");
                     }

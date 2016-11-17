@@ -32,6 +32,13 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core'], functi
              * @param {Object} options Rendering options for the view
              */
             initialize: function (options) {
+                if(!_.has(options, 'application')){
+                    throw "config parent [Application] is not provided.";
+                }
+                if(!_.has(options, 'serviceView')){
+                    throw "config parent [serviceView] is not provided.";
+                }
+                this.application = _.get(options, 'application');
                 this.serviceView = _.get(options, 'serviceView');
                 options.canvas = this.serviceView.d3el;
                 DiagramCore.Views.DiagramElementView.prototype.initialize.call(this, options);
@@ -48,11 +55,13 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core'], functi
                     var group = d3ref.draw.group();
                     var viewObj = this;
                     var optionsMenuGroup = group.append("g").attr("class", "option-menu option-menu-hide");
-                    var delXPosition = ((Math.round(this.model.source().centerPoint().get('x'))) +
-                        Math.round(this.model.destination().centerPoint().get('x')))/2;
+                    var destinationCenterPoint = this.model.destination().centerPoint();
+                    var sourceCenterPoint = this.model.source().centerPoint();
+                    var delXPosition = ((Math.round(sourceCenterPoint.get('x'))) +
+                        Math.round(destinationCenterPoint.get('x')))/2;
 
                     var optionMenuWrapper = d3ref.draw.rect(Math.round(delXPosition) - 15,
-                        Math.round(this.model.source().centerPoint().get('y')) + 10,
+                        Math.round(sourceCenterPoint.get('y')) + 10,
                         30,
                         30,
                         0,
@@ -67,7 +76,7 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core'], functi
                         });
 
                     var deleteOption = d3ref.draw.rect(Math.round(delXPosition) - 12,
-                        Math.round(this.model.source().centerPoint().get('y')) + 13,
+                        Math.round(sourceCenterPoint.get('y')) + 13,
                         24,
                         24,
                         0,
@@ -86,30 +95,27 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core'], functi
                     // When we have unequal y coordinates in source and destination message points, we need to set them to a common value
                     // as we need a horizontal line always. Here we will use priority point and set that y value to both points.
                     if(!_.isUndefined(this.model.priority())) {
-                        this.model.source().centerPoint().y(this.model.priority().centerPoint().y());
-                        this.model.destination().centerPoint().y(this.model.priority().centerPoint().y());
+                        sourceCenterPoint.y(this.model.priority().centerPoint().y());
+                        destinationCenterPoint.y(this.model.priority().centerPoint().y());
                     }
 
-                    // TODO : If we are drawing an arrow from pipeline to an endpoint, we need a reverse arrow as well.
-                    // But this needs to be fixed as we need to support OUT_ONLY messages.
-                    if (this.model.destination().get('parent').get('cssClass') === "endpoint") {
-                        var lineDestinationCenterPoint = createPoint(this.model.destination().centerPoint().x(), Math.round(this.model.destination().centerPoint().y()) -5);
-                        var lineSourceCenterPoint = createPoint(this.model.source().centerPoint().x(), Math.round(this.model.source().centerPoint().y()) - 5);
+                    if(this.model.type() === this.application.applicationConstants().messageLinkType.InOut){
+                        // Drawing an IN_OUT message.
+                        var lineDestinationCenterPoint = createPoint(destinationCenterPoint.x(), Math.round(destinationCenterPoint.y()) -5);
+                        var lineSourceCenterPoint = createPoint(sourceCenterPoint.x(), Math.round(sourceCenterPoint.y()) - 5);
                         var line = d3ref.draw.lineFromPoints(lineSourceCenterPoint, lineDestinationCenterPoint, group)
                             .classed(this.options.class, true);
 
-                        var line2DestinationCenterPoint = createPoint(this.model.destination().centerPoint().x(), Math.round(this.model.destination().centerPoint().y()) + 10);
-                        var line2SourceCenterPoint = createPoint(this.model.source().centerPoint().x(), Math.round(this.model.source().centerPoint().y()) + 10);
+                        var line2DestinationCenterPoint = createPoint(destinationCenterPoint.x(), Math.round(destinationCenterPoint.y()) + 10);
+                        var line2SourceCenterPoint = createPoint(sourceCenterPoint.x(), Math.round(sourceCenterPoint.y()) + 10);
 
                         var line2 = d3ref.draw.lineFromPoints(line2DestinationCenterPoint, line2SourceCenterPoint, group)
-                                                        .classed(this.options.class, true);
-                    } else{
-                        var line = d3ref.draw.lineFromPoints(this.model.source().centerPoint(), this.model.destination().centerPoint(), group)
+                            .classed(this.options.class, true);
+                    }else{
+                        // Drawing an OUT_ONLY message.
+                        var line = d3ref.draw.lineFromPoints(sourceCenterPoint, destinationCenterPoint, group)
                             .classed(this.options.class, true);
                     }
-
-                    //this.model.source().on("connectingPointChanged", this.sourceMoved, this);
-                    //this.model.destination().on("connectingPointChanged", this.destinationMoved, this);
 
                     line.on("click", function () {
                         if (optionsMenuGroup.classed("option-menu-hide")) {
@@ -139,7 +145,7 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core'], functi
                             }
                         });
 
-                        defaultView.render();
+                        this.serviceView.render();
                     });
 
                     this.d3el = group;

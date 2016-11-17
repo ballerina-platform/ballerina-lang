@@ -63,13 +63,14 @@ function (require, log, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements,
                 opts.diagram.grid.height = opts.diagram.grid.height || 25;
                 opts.diagram.grid.width = opts.diagram.grid.width || 25;
                 this.options = opts;
+
+                this.application = opts.application;
+
                 // create a new service model if not passed
                 if(_.isUndefined(this.model)){
                     this.model = new Service();
                     this.addInitialElements();
                 }
-
-                this.application = opts.application;
 
                 this.model.on("messageDrawStart", this.onMessageDrawStart, this);
                 this.model.on("messageDrawEnd", this.onMessageDrawEnd, this);
@@ -476,7 +477,7 @@ function (require, log, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements,
                 containableProcessorElem.type = 'ContainableProcessorElement';
                 processor.containableProcessorElements().add(containableProcessorElem);
             },
-            createDropHandler: function(serviceView){
+            createDropHandler: function(serviceView, application){
                 function dropHandler(event, ui) {
                     // Check for invalid drops on endpoints
                     if (true) {
@@ -498,7 +499,8 @@ function (require, log, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements,
                                     initMethod: Processors.manipulators[id].init,
                                     editable: Processors.manipulators[id].editable,
                                     deletable: Processors.manipulators[id].deletable,
-                                    hasOutputConnection : Processors.manipulators[id].hasOutputConnection
+                                    hasOutputConnection : Processors.manipulators[id].hasOutputConnection,
+                                    messageLinkType : application.applicationConstants().messageLinkType
                                 },
                                 {colour: Processors.manipulators[id].colour},
                                 Processors.manipulators[id].parameters,
@@ -602,7 +604,7 @@ function (require, log, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements,
                 this.calculateViewBoxLimits();
                 this.htmlDiv = $(this.options.container);
                 this.htmlDiv.droppable({
-                    drop: this.createDropHandler(this),
+                    drop: this.createDropHandler(this, this.application),
                     tolerance: "pointer"
                 });
 
@@ -886,7 +888,8 @@ function (require, log, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements,
                     });
                     var messageLink = new MessageLink({
                         source: sourcePoint,
-                        destination: destinationPoint
+                        destination: destinationPoint,
+                        type : sourceModel.model.messageLinkType
                     });
                     serviceView.model.trigger("messageDrawEnd", sourceModel, sourcePoint, destinationPoint);
                 });
@@ -910,7 +913,8 @@ function (require, log, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements,
                 var messageLink = new MessageLink({
                     source: sourcePoint,
                     destination: destinationPoint,
-                    priority: destinationPoint
+                    priority: destinationPoint,
+                    type : this.application.applicationConstants().messageLinkType.OutOnly
                 });
                 var messageOptionsInbound = {'class': 'messagePoint', 'direction': 'inbound'};
                 var messageOptionsOutbound = {'class': 'messagePoint', 'direction': 'outbound'};

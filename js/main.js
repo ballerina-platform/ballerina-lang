@@ -94,6 +94,17 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'breadcrumbs', 'file_b
 
             var tab = this.tabController.newTab();
             this.tabController.newTab();
+        },
+
+        applicationConstants: function() {
+            var constants = {
+                messageLinkType: {
+                    OutOnly : 1,
+                    InOut : 2
+                }
+            };
+
+            return constants;
         }
 
     });
