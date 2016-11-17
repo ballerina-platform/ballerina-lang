@@ -89,6 +89,7 @@ public class ClientRequestWorker implements Runnable {
                 MessagingException messagingException = new MessagingException(msg, failedCause, 101503);
                 carbonMessage.setMessagingException(messagingException);
                 carbonCallback.done(carbonMessage);
+                return;
             } finally {
                 if (channel != null) {
                     targetChannel.setChannel(channel);
@@ -112,6 +113,7 @@ public class ClientRequestWorker implements Runnable {
                 MessagingException messagingException = new MessagingException(msg, 101503);
                 carbonMessage.setMessagingException(messagingException);
                 carbonCallback.done(carbonMessage);
+                return;
             }
 
             boolean written = false;
