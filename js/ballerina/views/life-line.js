@@ -240,6 +240,10 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './proc
                 var lifeLineTopRectGroup = group.append("g");
                 var topShape;
                 var bottomShape;
+                var middleRect;
+                var line;
+                var polygonYOffset = 30;
+                var polygonXOffset = 35;
                 this.group = group;
                 this.center = center;
                 this.title = title;
@@ -258,19 +262,34 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './proc
                         0, 0, lifeLineTopRectGroup, '#FFFFFF', textModel)
                         .classed(prefs.rect.class, true).classed("genericR",true);
                 } else if (viewObj.model.definition.shape == 'polygon') {
-                    var points = "" + center.x() + "," + (center.y() + 30) +
-                        " " + (center.x() + 35) + "," + center.y() +
-                        " " + center.x() + "," + (center.y() - 30) +
-                        " " + (center.x() - 35) + "," + center.y();
+                    var points = "" + center.x() + "," + (center.y() + polygonYOffset) +
+                        " " + (center.x() + polygonXOffset) + "," + center.y() +
+                        " " + center.x() + "," + (center.y() - polygonYOffset) +
+                        " " + (center.x() - polygonXOffset) + "," + center.y();
                     topShape = d3Ref.draw.polygon(points, lifeLineTopRectGroup, textModel, center);
                     topShape.classed(viewObj.model.definition.class, true);
                 }
 
-                var middleRect = d3Ref.draw.centeredBasicRect(createPoint(center.get('x'), center.get('y') + prefs.rect.height / 2 + prefs.line.height / 2), prefs.middleRect.width, prefs.middleRect.height, 0, 0, group)
-                    .classed(prefs.middleRect.class, true);
+                if (viewObj.model.definition.shape == 'rect') {
+                    middleRect = d3Ref.draw.centeredBasicRect(createPoint(center.get('x'),
+                            center.get('y') + prefs.rect.height / 2 + prefs.line.height / 2),
+                        prefs.middleRect.width, prefs.middleRect.height, 0, 0, group,textModel)
+                        .classed(prefs.middleRect.class, true);
+                    line = d3Ref.draw.verticalLine(createPoint(center.get('x'),
+                        center.get('y') + prefs.rect.height / 2), prefs.line.height - prefs.rect.height, group,textModel)
+                        .classed(prefs.line.class, true);
+                } else if (viewObj.model.definition.shape == 'polygon') {
+                    var lenNew = prefs.line.height - 2*polygonYOffset;
+                    middleRect = d3Ref.draw.centeredBasicRect(createPoint(center.get('x'),
+                            center.get('y') + lenNew/2 + polygonYOffset),
+                        prefs.middleRect.width, lenNew, 0, 0, group,textModel)
+                        .classed(prefs.middleRect.class, true);
+                    line = d3Ref.draw.verticalLine(createPoint(center.get('x'),
+                        center.get('y') + polygonYOffset), lenNew, group,textModel)
+                        .classed(prefs.line.class, true);
+                }
 
-                var line = d3Ref.draw.verticalLine(createPoint(center.get('x'), center.get('y') + prefs.rect.height / 2), prefs.line.height - prefs.rect.height, group)
-                    .classed(prefs.line.class, true);
+                middleRect.attr('style', 'cursor: pointer');
                 var text = d3Ref.draw.genericCenteredText(center, title, group, textModel)
                     .classed(prefs.text.class, true).classed("genericT", true);
                 var lifeLineBottomRectGroup = group.append("g");
