@@ -15,7 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './containable-processor-element'],
+define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core',
+        './containable-processor-element'],
 
     function (require, $, d3, Backbone, _, DiagramCore, ContainableProcessorElementView) {
 
@@ -51,6 +52,8 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './cont
             }
 
             this.serviceView = _.get(options, 'serviceView');
+
+            this.options = options;
         },
 
         verticalDrag: function () {

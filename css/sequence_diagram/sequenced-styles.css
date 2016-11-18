@@ -6,24 +6,25 @@
 
 .lifeline-line{
     stroke: #000000;
-    stroke-dasharray: 4,3;
-    stroke-width: 2px;
+    stroke-width: 1px;
+}
+
+.outer-dashed {
+    stroke-dasharray: 3,2;
 }
 
 .lifeline-tool-line{
     stroke: #000000;
-    stroke-dasharray: 4,3;
-    stroke-width: 2px;
+    stroke-width: 1px;
 }
 
 .lifeline-tool-rect{
-    fill: #4682B4;
+    fill: #FFFFFF;
     fill-opacity: 1;
 }
 
 .tool > line {
-    stroke-dasharray: 4,3;
-    stroke-width: 2px;
+    stroke-width: 1px;
 }
 .tool > rect {
     fill-opacity: 1;
@@ -59,7 +60,7 @@
 }
 
 .lifeline-rect{
-    fill: #4682B4;
+    fill: #ffffff;
 }
 
 .try-block-mediator-tool > rect{
@@ -103,7 +104,7 @@
 }
 .message{
     stroke: #000000;
-    stroke-width: 2px;
+    stroke-width: 1px;
     marker-end: url('#markerArrow');
 }
 
@@ -129,4 +130,10 @@
 
 .input-output-text {
     font-size: 10px;
+}
+
+.source > polygon {
+    fill: #FFFFFF;
+    stroke-width: 1;
+    stroke: #000000;
 }

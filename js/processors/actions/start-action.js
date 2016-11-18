@@ -25,7 +25,8 @@ define([], function () {
         colour : "#ffffff",
         type : "Action",
         height: 30,
-        width: 130
+        width: 130,
+        textModel : "undefined"
     };
 
    return StartAction;

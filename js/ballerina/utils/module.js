@@ -30,7 +30,7 @@ define(['require' ],
             return new Point({'x': x, 'y': y});
         };
 
-        utils.createLifeLine = function (title, center, cssClass, utils, parameters, textModel, type) {
+        utils.createLifeLine = function (title, center, cssClass, utils, parameters, textModel, type, definition) {
             // loading on demand so the utils module will not create cyclic deps and crash app load
             var LifeLine = require('app/ballerina/models/life-line');
             return new LifeLine({
@@ -40,7 +40,8 @@ define(['require' ],
                 utils: utils,
                 parameters: parameters,
                 textModel: textModel,
-                type: type
+                type: type,
+                definition: definition
             });
         };
 

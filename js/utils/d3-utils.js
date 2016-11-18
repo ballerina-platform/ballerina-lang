@@ -56,7 +56,7 @@ define(['require', 'jquery', 'd3'], function (require, $, d3) {
             .attr("height", containerHeight)
             .attr("fill", "#ffffff")
             .attr("stroke", "black")
-            .attr("stroke-width", 2)
+            .attr("stroke-width", 1)
             .attr("rx", rx)
             .attr("fill-opacity",.4)
             .attr("ry", ry);
@@ -68,7 +68,7 @@ define(['require', 'jquery', 'd3'], function (require, $, d3) {
             .attr("height", height)
             .attr("fill", "#ffffff")
             .attr("stroke", "black")
-            .attr("stroke-width", 2)
+            .attr("stroke-width", 1)
             .attr("fill-opacity", 1)
             .attr("rx", rx)
             .attr("ry", ry);
@@ -83,6 +83,23 @@ define(['require', 'jquery', 'd3'], function (require, $, d3) {
         return composite;
     };
 
+    var polygon = function (points, parent, textModel, center) {
+
+        // get TextModel and if dynamicRectWidth is not 130 add that as width
+        var modelId = textModel.cid;
+        var x = center.x() - 15;
+        var y = center.y();
+        var height = 30;
+        var width = 30;
+
+        return parent.append('polygon')
+            .attr('points', points)
+            .attr('stroke-width', 1)
+            .attr('fill', "#ffffff")
+            .attr('stroke', "#000000")
+            .attr('stroke-linejoin', 'round');
+    };
+
     var basicRect = function (x, y, width, height, rx, ry, parent) {
         parent = parent || d3Ref;
         rx = rx || 0;
@@ -93,8 +110,7 @@ define(['require', 'jquery', 'd3'], function (require, $, d3) {
             .attr("width", width)
             .attr("height", height)
             .attr("fill-opacity", 0.01)
-            .attr("stroke-width", 2)
-            //.style("filter", "url(#drop-shadow)")
+            .attr("stroke-width", 1)
             .attr("rx", rx)
             .attr("ry", ry);
     };
@@ -115,7 +131,7 @@ define(['require', 'jquery', 'd3'], function (require, $, d3) {
             .attr("height", height)
             .attr("fill", colour || "steelblue")
             .attr("stroke", "black")
-            .attr("stroke-width", 2)
+            .attr("stroke-width", 1)
             .attr("rx", rx)
             .attr("ry", ry)
             .attr("id",modelId);
@@ -149,7 +165,7 @@ define(['require', 'jquery', 'd3'], function (require, $, d3) {
             .attr("height", height)
             .attr("fill", colour || "#000000")
             .attr("stroke", "black")
-            .attr("stroke-width", 2)
+            .attr("stroke-width", 1)
             .attr("rx", rx)
             .attr("ry", ry);
     };
@@ -252,7 +268,7 @@ define(['require', 'jquery', 'd3'], function (require, $, d3) {
             .attr("x2", x2)
             .attr("y2", y2)
             .attr("stroke", color)
-            .attr("stroke-width",.5)
+            .attr("stroke-width", 1)
             .attr("stroke-dasharray", "4, 3");
     };
 
@@ -554,6 +570,7 @@ define(['require', 'jquery', 'd3'], function (require, $, d3) {
         draw.inputTriangle = inputTriangle;
         draw.outputTriangle = outputTriangle;
         draw.dashedLine = dashedLine;
+        draw.polygon = polygon;
 
         var d3Proto = Object.getPrototypeOf(d3ref);
         d3Proto.draw = draw;

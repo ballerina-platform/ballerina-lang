@@ -22,6 +22,7 @@ define(['d3'], function (d3) {
         title: "Pipe Line",
         icon: "images/tool-icons/lifeline.svg",
         class : "resource",
+        shape: 'rect',
         dragCursorOffset : { left: 50, top: 50 },
         createCloneCallback : function(view){
             function cloneCallBack() {

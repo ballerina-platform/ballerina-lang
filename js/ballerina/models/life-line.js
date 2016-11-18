@@ -33,6 +33,7 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core',
                 var children = new Children([], {diagram: this});
                 this.children(children);
                 this.type = attrs.type;
+                this.definition = attrs.definition;
 
                 this.viewAttributes = {
                     class: attrs.cssClass
@@ -51,7 +52,8 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core',
                 title: "Lifeline",
                 width : 0,
                 height : 300,
-                viewAttributes: {colour: "#ffffff"}
+                viewAttributes: {colour: "#ffffff"},
+                definition: undefined
             },
 
             // Processors can override this method on order to define the behavior of drawing the messages from
@@ -100,8 +102,8 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core',
                 return new DiagramCore.Models.Point({'x': x, 'y': y});
             },
 
-            createLifeLine: function (title, center, colour, type) {
-                return new LifeLine({title: title, centerPoint: center, colour: colour, type: type});
+            createLifeLine: function (title, center, colour, type, definition) {
+                return new LifeLine({title: title, centerPoint: center, colour: colour, type: type, definition: definition});
             },
 
             createProcessor: function (title, center, type, model, viewAttributes, parameters, utils, textModel) {

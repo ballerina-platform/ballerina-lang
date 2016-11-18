@@ -25,7 +25,7 @@ function (require, log, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements,
           ContainableProcessorElement, LifeLine, MessagePoint, MessageLink, Service, utils, ProcessorFactory
 
 ) {
-    var createLifeLine = function (title, center, cssClass, utils, parameters, textModel, type) {
+    var createLifeLine = function (title, center, cssClass, utils, parameters, textModel, type, definition) {
         return new LifeLine({
             title: title,
             centerPoint: center,
@@ -33,7 +33,8 @@ function (require, log, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements,
             utils: utils,
             parameters: parameters,
             textModel: textModel,
-            type: type
+            type: type,
+            definition: definition
         });
     };
 
@@ -794,7 +795,7 @@ function (require, log, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements,
                     title += counter;
                 }
                 var lifeline = createLifeLine(title, centerPoint, lifeLineDef.class, lifeLineDef.utils,
-                    lifeLineDef.parameters, lifeLineDef.textModel, type);
+                    lifeLineDef.parameters, lifeLineDef.textModel, type, lifeLineDef);
                 this.model.addElement(lifeline);
                 this.render();
             },

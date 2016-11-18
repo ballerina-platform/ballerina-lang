@@ -75,13 +75,6 @@ define(['require','log', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', '
                     this.set('CurrentDiagram', diagram);
                 }
             },
-            ////create a diagram view  for new tab
-            //createDiagramView: function (diagram, opts) {
-            //    var view = new Diagrams.Views.DiagramView({model: diagram, options: opts});
-            //    view.render();
-            //    return view;
-            //
-            //},
             //set current view as diagram view
             setCurrentView: function (view1) {
                 view1.currentDiagramView(view1);
@@ -215,8 +208,9 @@ define(['require','log', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', '
                 return new DiagramCore.Models.Point({'x': x, 'y': y});
             },
 
-            createLifeLine: function (title, center, colour, type) {
-                return new LifeLine({title: title, centerPoint: center, colour: colour, type: type});
+            createLifeLine: function (title, center, colour, type, definition) {
+                return new LifeLine({title: title, centerPoint: center, colour: colour,
+                    type: type, definition: definition});
             },
 
             getNearestLifeLine: function (xPosition) {

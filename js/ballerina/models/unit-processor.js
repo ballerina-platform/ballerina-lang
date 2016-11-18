@@ -29,6 +29,10 @@ define(['diagram_core', './processor'], function (DiagramCore, Processor) {
              */
             initialize: function (attrs, options) {
                 Processor.prototype.initialize.call(this, attrs, options);
+                if (!_.isUndefined(attrs.width) && !_.isUndefined(attrs.height)) {
+                    this.width = attrs.width;
+                    this.height = attrs.height;
+                }
             },
 
             modelName: "UnitProcessor",

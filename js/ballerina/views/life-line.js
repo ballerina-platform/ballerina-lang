@@ -223,10 +223,11 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './proc
             },
 
             adjustHeight: function (lifeLine, difference) {
-                lifeLine.rectBottom.attr("y", parseInt(lifeLine.rectBottom.attr("y")) + difference);
+                var t = 'translate(0,' + difference + ')';
+                lifeLine.bottomShape.attr('transform', t);
                 lifeLine.line.attr("y2", parseInt(lifeLine.line.attr("y2")) + difference);
                 lifeLine.textBottom.attr("y", parseInt(lifeLine.textBottom.attr("y")) + difference);
-                // lifeLine.drawMessageRect.attr("height", parseInt(lifeLine.drawMessageRect.attr("height")) + difference);
+                //lifeLine.drawMessageRect.attr("height", parseInt(lifeLine.drawMessageRect.attr("height")) + difference);
                 lifeLine.middleRect.attr("height", parseInt(lifeLine.middleRect.attr("height")) + difference);
 
             },
@@ -236,6 +237,9 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './proc
                 var viewObj = this;
                 var group = d3Ref.draw.group(d3Ref)
                     .classed(this.model.viewAttributes.class, true);
+                var lifeLineTopRectGroup = group.append("g");
+                var topShape;
+                var bottomShape;
                 this.group = group;
                 this.center = center;
                 this.title = title;
@@ -247,32 +251,56 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './proc
                     textModel.dynamicRectWidth(130);
                 }
 
-                var rect = d3Ref.draw.genericCenteredRect(center, prefs.rect.width + 30, prefs.rect.height, 0, 0, group, '', textModel)
-                    .classed(prefs.rect.class, true).classed("genericR", true);
+                lifeLineTopRectGroup.attr('style', 'cursor: pointer');
+
+                if (viewObj.model.definition.shape == 'rect') {
+                    topShape = d3Ref.draw.genericCenteredRect(center, prefs.rect.width + 30, prefs.rect.height,
+                        0, 0, lifeLineTopRectGroup, '#FFFFFF', textModel)
+                        .classed(prefs.rect.class, true).classed("genericR",true);
+                } else if (viewObj.model.definition.shape == 'polygon') {
+                    var points = "" + center.x() + "," + (center.y() + 30) +
+                        " " + (center.x() + 35) + "," + center.y() +
+                        " " + center.x() + "," + (center.y() - 30) +
+                        " " + (center.x() - 35) + "," + center.y();
+                    topShape = d3Ref.draw.polygon(points, lifeLineTopRectGroup, textModel, center);
+                    topShape.classed(viewObj.model.definition.class, true);
+                }
 
                 var middleRect = d3Ref.draw.centeredBasicRect(createPoint(center.get('x'), center.get('y') + prefs.rect.height / 2 + prefs.line.height / 2), prefs.middleRect.width, prefs.middleRect.height, 0, 0, group)
                     .classed(prefs.middleRect.class, true);
-
-                var rectBottom = d3Ref.draw.genericCenteredRect(createPoint(center.get('x'), center.get('y') + prefs.line.height), prefs.rect.width + 30, prefs.rect.height, 0, 0, group, '', textModel)
-                    .classed(prefs.rect.class, true).classed("genericR", true);
 
                 var line = d3Ref.draw.verticalLine(createPoint(center.get('x'), center.get('y') + prefs.rect.height / 2), prefs.line.height - prefs.rect.height, group)
                     .classed(prefs.line.class, true);
                 var text = d3Ref.draw.genericCenteredText(center, title, group, textModel)
                     .classed(prefs.text.class, true).classed("genericT", true);
+                var lifeLineBottomRectGroup = group.append("g");
+                if (viewObj.model.definition.shape == 'rect') {
+                    bottomShape = d3Ref.draw.genericCenteredRect(createPoint(center.get('x'),
+                            center.get('y') + prefs.line.height), prefs.rect.width + 30,
+                        prefs.rect.height, 0, 0, lifeLineBottomRectGroup,'',textModel)
+                        .classed(prefs.rect.class, true).classed("genericR",true);
+                } else if (viewObj.model.definition.shape == 'polygon') {
+                    var points = "" + center.x() + "," + (center.get('y') + prefs.line.height + 30) +
+                        " " + (center.x() + 35) + "," + (center.get('y') + prefs.line.height) +
+                        " " + center.x() + "," + (center.get('y') + prefs.line.height - 30) +
+                        " " + (center.x() - 35) + "," + (center.get('y') + prefs.line.height);
+                    bottomShape = d3Ref.draw.polygon(points, lifeLineTopRectGroup, textModel, center);
+                }
                 var textBottom = d3Ref.draw.genericCenteredText(createPoint(center.get('x'), center.get('y') + prefs.line.height), title, group, textModel)
                     .classed(prefs.text.class, true).classed("genericT", true);
 
-                group.rect = rect;
-                group.rectBottom = rectBottom;
+                if (this.model.type == "EndPoint") {
+                    topShape.classed("outer-dashed", true);
+                    bottomShape.classed("outer-dashed", true);
+                }
+
+                group.topShape = topShape;
+                group.bottomShape = bottomShape;
                 group.line = line;
                 group.middleRect = middleRect;
-                // group.drawMessageRect = drawMessageRect;
                 group.textBottom = textBottom;
                 group.svgTitle = text;
                 group.svgTitleBottom = textBottom;
-                //Object.getPrototypeOf(group).title = text;
-                //Object.getPrototypeOf(group).titleBottom = textBottom;
                 group.translate = function (dx, dy) {
                     this.attr("transform", function () {
                         return "translate(" + [dx, dy] + ")"
@@ -348,21 +376,7 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './proc
 
                 });
 
-                /*drawMessageRect.on('mouseover', function () {
-                    //setting current tab view based diagram model
-                    viewObj.serviceView.model.selectedNode = viewObj.model;
-                    d3.select(this).style("fill", "black").style("fill-opacity", 0.2)
-                        .style("cursor", 'url(images/BlackHandwriting.cur), pointer');
-                    // Update event manager with current active element type for validation
-                    eventManager.isActivated(viewObj.serviceView.model.selectedNode.attributes.title);
-                }).on('mouseout', function () {
-                    d3.select(this).style("fill-opacity", 0.0);
-                    // Update event manager with out of focus on active element
-                    eventManager.isActivated("none");
-                }).on('mouseup', function (data) {
-                });*/
-
-                rect.on("click", (function () {
+                lifeLineTopRectGroup.on("click", (function () {
                     viewObj.serviceView.model.selectedNode = viewObj.model;
                     if (optionsMenuGroup.classed("option-menu-hide")) {
                         optionsMenuGroup.classed("option-menu-hide", false);
