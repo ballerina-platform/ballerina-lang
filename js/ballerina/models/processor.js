@@ -64,6 +64,14 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core'], functi
             this.set('height', height);
         },
 
+        setX: function (x) {
+            this.get('centerPoint').set('x', x);
+        },
+
+        getX: function () {
+            this.get('centerPoint').get('x');
+        },
+
         // Processors can override this method on order to define the behavior of drawing the messages from
         // the particular processor to the destination model (lifeline or any other processor)
         canConnect: function (destinationModel) {

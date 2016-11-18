@@ -579,6 +579,7 @@ function (require, log, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements,
                             serviceView.renderMainElement(id, countOfWorkers,  _.get(MainElements, 'lifelines.Worker'),
                                 {utils: MainElements.lifelines.get('Worker').utils});
                             txt.workerLifeLineCounter(countOfWorkers);
+                            this.render();
                         }
                     } //for invalid check
                 }
