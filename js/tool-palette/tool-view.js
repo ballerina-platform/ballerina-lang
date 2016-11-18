@@ -21,38 +21,39 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'd3utils'], function (r
     var toolView = Backbone.View.extend({
 
         toolTemplate: _.template("<div id=\"<%=id%>\" class=\"tool-container\"> <img src=\"<%=icon%>\" class=\"tool-image\"  /><p class=\"tool-title\"><%=title%></p></div>"),
-        handleDragStopEvent: function (event, ui) {
 
+        initialize: function (options) {
+            _.extend(this, _.pick(options, ["toolPalette"]));
         },
-        handleOnDragEvent : function(event,ui){
+
+        createHandleDragStopEvent: function (event, ui) {
+            this.toolPalette.dragDropManager.reset();
+        },
+
+        createHndleOnDragEvent : function(event,ui){
             var helperElm = ui.helper;
             var span = helperElm[0].childNodes;
             var validator = document.getElementById("validator");
 
-            //Visual feedback on invalid drops on endpoints
-            //if(eventManager.invalid){
-            //    validator.innerText="X";
-            //    validator.className = "tool-validator";
-            //    validator.style.display="block";
-            //}
-            //else{
-            //    validator.style.display="none";
-            //}
+            //Visual feedback on invalid drop targets
+            if(!this.toolPalette.dragDropManager.isAtValidDropTarget()){
+                validator.innerText="X";
+                validator.className = "tool-validator";
+                validator.style.display="block";
+            }
+            else{
+                validator.style.display="none";
+            }
         },
 
-        handleDragStartEvent : function(event,ui){
-            var elm = $(ui.draggable).clone();
-            //eventManager.currentType(event.currentTarget.lastChild.id);
-            //eventManager.draggedElement(elm);
-
-        },
-
-        initialize: function () {
+        createHandleDragStartEvent : function(){
+            var toolView = this;
+            return function(event,ui){
+                toolView.toolPalette.dragDropManager.setTypeBeingDragged(this.model);
+            }
         },
 
         render: function (parent) {
-            var id = this.model.attributes.id;
-            var icon = this.model.attributes.icon;
             var createCloneCallback = this.model.get("createCloneCallback");
             var dragCursorOffset = this.model.get("dragCursorOffset");
             var self = this;
@@ -64,9 +65,9 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'd3utils'], function (r
                 cursor: 'move',
                 cursorAt: _.isUndefined(dragCursorOffset) ?  { left: -2, top: -2 } : dragCursorOffset,
                 zIndex: 10001,
-                stop: this.handleDragStopEvent,
-                start : this.handleDragStartEvent,
-                drag:this.handleOnDragEvent
+                stop: this.createHandleDragStartEvent(),
+                start : this.createHandleDragStartEvent(),
+                drag:this.createHandleDragStartEvent()
             });
 
             return this;

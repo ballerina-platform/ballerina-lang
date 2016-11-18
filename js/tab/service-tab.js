@@ -34,7 +34,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'main_elemen
             }
             var serviceViewOpts = {};
             _.set(serviceViewOpts, 'container', canvasContainer.get(0));
-            _.set(serviceViewOpts, 'application', this.options.application);
+            _.set(serviceViewOpts, 'toolPalette', this.getParent().options.toolPalette);
             var serviceView = new Ballerina.Views.ServiceView(serviceViewOpts);
 
             serviceView.render();

@@ -19,11 +19,13 @@ define(['require','log', 'jquery', 'd3', 'backbone', './tool-view'], function (r
 
     var toolGroupView = Backbone.View.extend({
 
-        initialize: function () {
+        initialize: function (options) {
             log.debug("toolGroupview init");
+            _.extend(this, _.pick(options, ["toolPalette"]));
         },
 
         render: function (parent) {
+            var self = this;
             var groupDiv = $('<div></div>');
             parent.append(groupDiv);
             groupDiv.attr('id', "tool-group-" + this.model.attributes.toolGroupID);
@@ -47,7 +49,7 @@ define(['require','log', 'jquery', 'd3', 'backbone', './tool-view'], function (r
             groupBodyDiv.attr('class', "tool-group-body");
 
             this.model.tools.forEach(function (tool) {
-                var toolView = new ToolView({model: tool});
+                var toolView = new ToolView({model: tool, toolPalette: self.toolPalette});
                 toolView.render(groupBodyDiv);
             });
 

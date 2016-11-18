@@ -15,11 +15,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'log', 'jquery', 'lodash', 'backbone', 'breadcrumbs', 'file_browser', 'tab/service-tab-list', 'app/tool-palette/tool-palette', 'event',
+define(['require', 'log', 'jquery', 'lodash', 'backbone', 'breadcrumbs', 'file_browser', 'tab/service-tab-list', 'app/tool-palette/tool-palette',
 
     /* void modules */ 'jquery_ui', 'bootstrap'],
 
-    function (require, log, $, _, Backbone, BreadcrumbController, FileBrowser, TabController, ToolPalette, Event) {
+    function (require, log, $, _, Backbone, BreadcrumbController, FileBrowser, TabController, ToolPalette) {
 
     var Application = Backbone.View.extend(
     /** @lends Application.prototype */
@@ -55,7 +55,6 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'breadcrumbs', 'file_b
             _.set(tabControlOpts, 'application', this);
             // tab controller will take care of rendering tool palette
             _.set(tabControlOpts, 'toolPalette', this.toolPalette);
-            this.eventManager = new Event();
             this.tabController = new TabController(tabControlOpts);
         },
 
@@ -94,17 +93,6 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'breadcrumbs', 'file_b
 
             var tab = this.tabController.newTab();
             this.tabController.newTab();
-        },
-
-        applicationConstants: function() {
-            var constants = {
-                messageLinkType: {
-                    OutOnly : 1,
-                    InOut : 2
-                }
-            };
-
-            return constants;
         }
 
     });

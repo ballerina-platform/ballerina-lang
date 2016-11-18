@@ -37,21 +37,17 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core',
             DiagramCore.Views.ShapeView.prototype.initialize.call(this, options);
             _.extend(this, _.pick(options, ["center"]));
 
-            if(!_.has(options, 'application')){
-                throw "config parent [application] is not provided.";
-            }
-            this.application = options.application;
-
-            if(!_.has(this.application, 'eventManager')){
-                throw "Eventmanager is not provided.";
-            }
-            this.eventManager = this.application.eventManager;
-
             if(!_.has(options, 'serviceView')){
                 throw "config parent [serviceView] is not provided.";
             }
 
             this.serviceView = _.get(options, 'serviceView');
+
+            if(!_.has(this.serviceView, 'toolPalette.dragDropManager')){
+                throw "dragDropManager is not provided.";
+            }
+            this.dragDropManager = this.serviceView.toolPalette.dragDropManager;
+
 
             this.options = options;
         },

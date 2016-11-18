@@ -32,14 +32,16 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core'], functi
              * @param {Object} options Rendering options for the view
              */
             initialize: function (options) {
-                if(!_.has(options, 'application')){
-                    throw "config parent [Application] is not provided.";
-                }
                 if(!_.has(options, 'serviceView')){
                     throw "config parent [serviceView] is not provided.";
                 }
-                this.application = _.get(options, 'application');
                 this.serviceView = _.get(options, 'serviceView');
+
+                if(!_.has(this.serviceView, 'toolPalette.dragDropManager')){
+                    throw "dragDropManager is not provided.";
+                }
+                this.dragDropManager = this.serviceView.toolPalette.dragDropManager;
+
                 options.canvas = this.serviceView.d3el;
                 DiagramCore.Views.DiagramElementView.prototype.initialize.call(this, options);
             },
@@ -99,7 +101,7 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core'], functi
                         destinationCenterPoint.y(this.model.priority().centerPoint().y());
                     }
 
-                    if(this.model.type() === this.application.applicationConstants().messageLinkType.InOut){
+                    if(this.model.type() === 2 /** FIXME: use a constant **/){
                         // Drawing an IN_OUT message.
                         var lineDestinationCenterPoint = createPoint(destinationCenterPoint.x(), Math.round(destinationCenterPoint.y()) -5);
                         var lineSourceCenterPoint = createPoint(sourceCenterPoint.x(), Math.round(sourceCenterPoint.y()) - 5);

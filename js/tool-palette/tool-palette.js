@@ -16,9 +16,9 @@
  * under the License.
  */
 define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-group',
-        'main_elements', 'processors'],
+        'main_elements', 'processors', './drag-drop-manager'],
     function (require, log, $, Backbone, ToolGroupView, ToolGroup,
-              MainElements, Processors) {
+              MainElements, Processors, DragDropManager) {
 
     var ToolPalette = Backbone.View.extend({
         initialize: function (options) {
@@ -38,6 +38,7 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
             this._$parent_el = container;
             this._options = options;
             this._initTools();
+            this.dragDropManager = new DragDropManager();
         },
 
         _initTools: function(){
@@ -80,7 +81,7 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
             this._$parent_el.append(toolPaletteDiv);
             this.$el = toolPaletteDiv;
             this._toolGroups.forEach(function (group) {
-                var groupView = new ToolGroupView({model: group});
+                var groupView = new ToolGroupView({model: group, toolPalette: self});
                 groupView.render(self.$el);
                 self.$el.addClass('non-user-selectable');
             });

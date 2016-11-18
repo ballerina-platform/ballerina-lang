@@ -65,16 +65,12 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './proc
                   throw "config parent is not provided.";
                 }
 
-                // Check whether the application reference have been provided
-                if(!_.has(options, 'application')){
-                    throw "config parent is not provided.";
-                }
 
-                this.application = options.application;
-                this.eventManager = this.application.eventManager;
 
                 this.options = lifeLineOptions;
                 this.serviceView = _.get(options, 'serviceView');
+
+                this.dragDropManager = this.serviceView.toolPalette.dragDropManager;
                 options.canvas = this.serviceView.d3el;
                 DiagramCore.Views.ShapeView.prototype.initialize.call(this, options);
                 this.listenTo(this.model, 'change:title', this.renderTitle);
@@ -154,8 +150,7 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './proc
                             model: processor,
                             center: new DiagramCore.Models.Point({x: xValue, y: yValue}),
                             canvas: this.canvas,
-                            serviceView: this.serviceView,
-                            application: this.application
+                            serviceView: this.serviceView
                         };
                         var processorView = new ProcessorView(processorViewOptions);
                         processorView.render();
@@ -216,8 +211,7 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './proc
                         var linkView = new MessageLinkView({
                             model: messagePoint.message(),
                             options: {class: "message"},
-                            serviceView: this.serviceView,
-                            application: this.application
+                            serviceView: this.serviceView
                         });
                         linkView.render("#" + this.serviceView.model.wrapperId, "messages");
                     }
@@ -249,8 +243,6 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './proc
                 this.group = group;
                 this.center = center;
                 this.title = title;
-
-                var eventManager = viewObj.eventManager;
 
                 var textModel = this.model.attributes.textModel;
                 if (textModel.dynamicRectWidth() === undefined) {
@@ -385,14 +377,14 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './proc
                 middleRect.on('mouseover', function () {
                     viewObj.serviceView.model.selectedNode = viewObj.model;
                     d3.select(this).style("fill", "green").style("fill-opacity", 0.1);
-                    // Update event manager with current active element type for validation
-                    eventManager.isActivated('Source');
+
+                    viewObj.dragDropManager.setActivatedDropTarget(viewObj.model);
                 }).on('mouseout', function () {
                     viewObj.serviceView.model.destinationLifeLine = viewObj.serviceView.model.selectedNode;
                     viewObj.serviceView.model.selectedNode = null;
                     d3.select(this).style("fill-opacity", 0.01);
-                    // Update event manager with out of focus on active element
-                    // eventManager.isActivated("none");
+
+                    viewObj.dragDropManager.clearActivatedDropTarget();
                 }).on('mouseup', function (data) {
 
                 });

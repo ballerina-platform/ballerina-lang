@@ -65,7 +65,7 @@ function (require, log, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements,
                 opts.diagram.grid.width = opts.diagram.grid.width || 25;
                 this.options = opts;
 
-                this.application = opts.application;
+                _.extend(this, _.pick(opts, ['toolPalette']));
 
                 // create a new service model if not passed
                 if(_.isUndefined(this.model)){
@@ -478,7 +478,7 @@ function (require, log, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements,
                 containableProcessorElem.type = 'ContainableProcessorElement';
                 processor.containableProcessorElements().add(containableProcessorElem);
             },
-            createDropHandler: function(serviceView, application){
+            createDropHandler: function(serviceView){
                 function dropHandler(event, ui) {
                     // Check for invalid drops on endpoints
                     if (true) {
@@ -501,7 +501,12 @@ function (require, log, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements,
                                     editable: Processors.manipulators[id].editable,
                                     deletable: Processors.manipulators[id].deletable,
                                     hasOutputConnection : Processors.manipulators[id].hasOutputConnection,
-                                    messageLinkType : application.applicationConstants().messageLinkType
+                                    messageLinkType : {
+                                        messageLinkType: {
+                                            OutOnly : 1,
+                                            InOut : 2
+                                        }
+                                    }
                                 },
                                 {colour: Processors.manipulators[id].colour},
                                 Processors.manipulators[id].parameters,
@@ -606,7 +611,7 @@ function (require, log, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements,
                 this.calculateViewBoxLimits();
                 this.htmlDiv = $(this.options.container);
                 this.htmlDiv.droppable({
-                    drop: this.createDropHandler(this, this.application),
+                    drop: this.createDropHandler(this),
                     tolerance: "pointer"
                 });
 
@@ -618,8 +623,7 @@ function (require, log, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements,
                         var lifelineOpts = {
                             model: lifeLine,
                             serviceView: this,
-                            class:  _.get(MainElements, 'lifelines.Source.class'),
-                            application: this.application
+                            class:  _.get(MainElements, 'lifelines.Source.class')
                         };
                         var lifeLineView = new LifeLineView(lifelineOpts);
                         lifeLineViews.push(lifeLineView);
@@ -632,8 +636,7 @@ function (require, log, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements,
                         var lifelineOpts = {
                             model: lifeLine,
                             serviceView: this,
-                            class:  _.get(MainElements, 'lifelines.Resource.class'),
-                            application: this.application
+                            class:  _.get(MainElements, 'lifelines.Resource.class')
                         };
                         var lifeLineView = new LifeLineView(lifelineOpts);
                         lifeLineViews.push(lifeLineView);
@@ -646,8 +649,7 @@ function (require, log, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements,
                         var lifelineOpts = {
                             model: lifeLine,
                             serviceView: this,
-                            class:  _.get(MainElements, 'lifelines.Endpoint.class'),
-                            application: this.application
+                            class:  _.get(MainElements, 'lifelines.Endpoint.class')
                         };
                         var lifeLineView = new LifeLineView(lifelineOpts);
                         lifeLineViews.push(lifeLineView);
@@ -661,8 +663,7 @@ function (require, log, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements,
                             var lifelineOpts = {
                                 model: lifeLine,
                                 serviceView: this,
-                                class:  _.get(MainElements, 'lifelines.Worker.class'),
-                                application: this.application
+                                class:  _.get(MainElements, 'lifelines.Worker.class')
                             };
                             var lifeLineView = new LifeLineView(lifelineOpts);
                             lifeLineViews.push(lifeLineView);
@@ -916,7 +917,12 @@ function (require, log, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements,
                     source: sourcePoint,
                     destination: destinationPoint,
                     priority: destinationPoint,
-                    type : this.application.applicationConstants().messageLinkType.OutOnly
+                    type : {
+                        messageLinkType: {
+                            OutOnly: 1,
+                            InOut: 2
+                        }
+                    }
                 });
                 var messageOptionsInbound = {'class': 'messagePoint', 'direction': 'inbound'};
                 var messageOptionsOutbound = {'class': 'messagePoint', 'direction': 'outbound'};
