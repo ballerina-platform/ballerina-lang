@@ -35,10 +35,11 @@ define(['lodash', 'diagram_core'], function ( _, DiagramCore) {
             },
 
             render: function (paperID, centerPoint) {
-                var thisModel = this.model;
+                var model = this.model;
                 DiagramCore.Views.ShapeView.prototype.render.call(this, paperID);
 
-                var unitProcessorElement = this.drawUnitProcessor(centerPoint, this.modelAttr('title'), this.options);
+                var unitProcessorElement = this.drawUnitProcessor(centerPoint,
+                    this.modelAttr('title'), this.options, model);
                 var viewObj = this;
 
                 this.d3el = unitProcessorElement;
@@ -46,7 +47,7 @@ define(['lodash', 'diagram_core'], function ( _, DiagramCore) {
                 return unitProcessorElement;
             },
 
-            drawUnitProcessor: function (center, title, prefs) {
+            drawUnitProcessor: function (center, title, prefs, model) {
 
                 var d3Ref = this.getD3Ref();
                 var group = d3Ref.draw.group()
@@ -56,6 +57,7 @@ define(['lodash', 'diagram_core'], function ( _, DiagramCore) {
                 var path = undefined;
                 var height = prefs.rect.height;
                 var width = prefs.rect.width;
+                var modelHeight = model.getHeight();
 
 
                 var rectBottomXXX = d3Ref.draw.rectWithTitle(
@@ -63,14 +65,14 @@ define(['lodash', 'diagram_core'], function ( _, DiagramCore) {
                     60,
                     prefs.rect.height,
                     150,
-                    200,
+                    model.getHeight(),
                     0,
                     0,
                     d3Ref,
                     this.modelAttr('viewAttributes').colour,
                     this.modelAttr('title')
                 );
-                var height = (200 - prefs.rect.height);
+                var height = (model.getHeight() - prefs.rect.height);
                 var middleRect = d3Ref.draw.centeredBasicRect( new DiagramCore.Models.Point({'x': center.x(), 'y':  center.y()+100}), 150, height, 0, 0);
                 middleRect.on("mousedown", function () {
                     var m = d3.mouse(this);
@@ -85,25 +87,7 @@ define(['lodash', 'diagram_core'], function ( _, DiagramCore) {
                 }).on('mouseup', function (data) {
                 });
 
-                /*var drawMessageRect = d3Ref.draw.centeredBasicRect(new DiagramCore.Models.Point({'x': center.x(), 'y': center.y()+100}), (prefs.middleRect.width * 0.4), height, 0, 0, d3Ref)
-                    .on("mousedown", function () {
-                        d3.event.preventDefault();
-                        d3.event.stopPropagation();
-                        var m = d3.mouse(this);
-
-                        prefs.diagram.clickedLifeLine = viewObj.model;
-                        prefs.diagram.trigger("messageDrawStart", viewObj.model,  new DiagramCore.Models.Point({'x': center.x(), 'y': m[1]}));
-
-                    }).on('mouseover', function () {
-                        defaultView.model.selectedNode = viewObj.model;
-                        d3.select(this).style("fill", "black").style("fill-opacity", 0.2)
-                            .style("cursor", 'url(images/BlackHandwriting.cur), pointer');
-                    }).on('mouseout', function () {
-                        d3.select(this).style("fill-opacity", 0.0);
-                    });*/
-
                 group.middleRect = middleRect;
-                // group.drawMessageRect = drawMessageRect;
                 group.rect = rectBottomXXX.containerRect;
                 group.titleRect = rectBottomXXX.titleRect;
                 group.text = rectBottomXXX.text;
@@ -111,7 +95,6 @@ define(['lodash', 'diagram_core'], function ( _, DiagramCore) {
                 var centerPoint = center;
                 var xValue = centerPoint.x();
                 var yValue = centerPoint.y();
-                //lifeLine.call(drag);
 
                 var totalHeight = 60;
                 var totalWidth = 150;
@@ -152,14 +135,17 @@ define(['lodash', 'diagram_core'], function ( _, DiagramCore) {
                 }
 
                 var deviation = (totalWidth - initWidth)/2;
+                var newX = parseInt(rectBottomXXX.containerRect.attr("x")) - deviation;
 
                 rectBottomXXX.containerRect.attr("height", totalHeight);
                 rectBottomXXX.containerRect.attr("width", totalWidth);
-                rectBottomXXX.containerRect.attr("x", parseInt(rectBottomXXX.containerRect.attr("x")) - deviation);
+                rectBottomXXX.containerRect.attr("x", newX);
                 rectBottomXXX.titleRect.attr("x", parseInt(rectBottomXXX.titleRect.attr("x")) - deviation);
                 rectBottomXXX.text.attr("x", parseInt(rectBottomXXX.text.attr("x")) - deviation);
                 this.model.setHeight(totalHeight);
+                this.model.get("parent").setHeight(this.model.get("parent").getHeight() + totalHeight - modelHeight);
                 this.model.setWidth(totalWidth);
+                this.model.setX(newX);
                 middleRect.attr("height", totalHeight-30);
                 middleRect.attr("width", totalWidth);
                 middleRect.attr("x", parseInt(middleRect.attr("x")) - deviation);

@@ -113,8 +113,7 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core',
 
             var serviceView = this.serviceView;
 
-            var optionMenuWrapper = d3Ref.draw.rect((center.x() + 10 + width/2),
-                (center.y() - height/2),
+            var optionMenuWrapper = d3Ref.draw.rect((center.x() + 10 + width/2), center.y(),
                 30,
                 58,
                 0,
@@ -129,7 +128,7 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core',
             });
 
             var deleteOption = d3Ref.draw.rect((center.x() + 13 + width/2),
-                (center.y() + 3 - height/2),
+                (center.y() + 3),
                 24,
                 24,
                 0,
@@ -146,7 +145,7 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core',
             });
 
             var editOption = d3Ref.draw.rect((center.x() + 13 + width/2),
-                (center.y() + 31 - height/2),
+                (center.y() + 31),
                 24,
                 24,
                 0,
@@ -246,25 +245,22 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core',
 
                 var height = 0;
                 if (this.model.get('utils').outputs) {
-                    height = this.model.getHeight();
+                    height = this.model.getHeight() + 20;
                 } else {
-                    height = this.model.getHeight() - 20;
+                    height = this.model.getHeight();
                 }
                 var width = this.model.getWidth();
 
-                var orderedElements = [];
-
                 var rectBottomXXX = d3Ref.draw.centeredRect(center,
                     this.model.getWidth(),
-                    height,//prefs.rect.height,
+                    height,
                     0,
                     0,
-                    group, //element.viewAttributes.colour
+                    group,
                     this.modelAttr('viewAttributes').colour
                 );
 
-                var processorTitleRect = d3Ref.draw.rect((center.x() - this.model.getWidth()/2),
-                    (center.y() - height/2),
+                var processorTitleRect = d3Ref.draw.rect((center.x() - this.model.getWidth()/2), center.y(),
                     this.model.getWidth(),
                     20,
                     0,
@@ -277,19 +273,19 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core',
                     center, height, width, viewObj);
 
                 var mediatorText = d3Ref.draw.textElement(center.x(),
-                    (center.y() + 15 - height/2),
+                    (center.y() + 15),
                     title,
                     group)
                     .classed("mediator-title", true);
 
                 var inputText = d3Ref.draw.textElement(center.x() + 20 - this.model.getWidth()/2,
-                    (center.y() + 35 - height/2),
+                    (center.y() + 35),
                     this.generateInputOutputString(this.model.get('utils').getInputParams(this.model)),
                     group)
                     .classed("input-output-text", true);
 
                 var inputTri = d3Ref.draw.inputTriangle(center.x() + 5 - this.model.getWidth()/2,
-                    (center.y() + 30 - height/2),
+                    (center.y() + 30),
                     group);
 
                 //this.generateInputOutputString(this.model.get('utils').utils.getInputParams());
@@ -386,6 +382,8 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core',
                     var containableProcessorElementView = new ContainableProcessorElementView({model: containableProcessorElement});
                     var processorCenterPoint = createPoint(xValue, yValue);
                     var elemView = containableProcessorElementView.render("#" + viewObj.serviceView.options.diagram.wrapperId, processorCenterPoint);
+                    containableProcessorElement.setY(yValue);
+                    containableProcessorElement.setX(xValue);
                     containableProcessorElementViewArray.push(elemView);
                     yValue = yValue+containableProcessorElement.getHeight();
                     totalHeight+=containableProcessorElement.getHeight();
@@ -409,7 +407,7 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core',
                     }
 
                     if (destinationX != 0 && sourceX != 0) {
-                        deltaDistance = (destinationX - sourceX);
+                        deltaDistance = (destinationX - sourceX) + 30;
                     }
 
                     if(maximumWidth < containableProcessorElement.getWidth()){
@@ -454,7 +452,7 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core',
                 height = this.model.getHeight() - 30;
                 var width = this.model.getWidth();
                 var x = (center.x() - this.model.getWidth()/2);
-                var y = (center.y() - height/2);
+                var y = center.y();
                 var rectHeight = 30;
                 var rectWidth = this.model.getWidth();
 
@@ -515,13 +513,13 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core',
                 var inputMessagePoint = this.model.inputConnector();
                 if(!_.isUndefined(inputMessagePoint)){
                     inputMessagePoint.x(center.x() - width/2);
-                    inputMessagePoint.y(center.y());
+                    inputMessagePoint.y(center.y() + height/2);
                 }
 
                 var outputMessagePoint = this.model.outputConnector();
                 if(!_.isUndefined(outputMessagePoint)){
                     outputMessagePoint.x(center.x() + width/2);
-                    outputMessagePoint.y(center.y());
+                    outputMessagePoint.y(center.y() + height/2);
                 }
             }
 

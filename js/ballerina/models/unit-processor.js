@@ -42,7 +42,7 @@ define(['diagram_core', './processor'], function (DiagramCore, Processor) {
             defaults: {
                 centerPoint: new DiagramCore.Models.Point({x: 0, y: 0}),
                 width: 130,
-                height: 65,
+                height: 40,
                 title: "UnitProcessor"
             }
         });

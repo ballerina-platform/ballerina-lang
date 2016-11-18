@@ -43,8 +43,8 @@ define(['require', 'jquery', 'd3'], function (require, $, d3) {
 
         var composite = {};
 
-        x = center.x() - containerWidth / 2;
-        y = center.y() - height / 2;
+        var x = center.x() - containerWidth / 2;
+        var y = center.y();
 
         rx = rx || 0;
         ry = ry || 0;
@@ -147,8 +147,8 @@ define(['require', 'jquery', 'd3'], function (require, $, d3) {
     var genericTextRect = function (center,width,height,rx,ry,textContent,x,y,parent,colour, textModel){
         parent = parent || d3Ref;
 
-        var rect =parent.draw.genericRect(center.x() - width / 2, center.y() - height / 2, width, height, rx, ry, parent, colour, textModel);
-        var text = rect.draw.genericTextElement(center.x(), center.y(), textContent, rect,txtModel)
+        var rect =parent.draw.genericRect(center.x() - width / 2, center.y(), width, height, rx, ry, parent, colour, textModel);
+        var text = rect.draw.genericTextElement(center.x(), center.y(), textContent, rect,textModel)
             .attr('text-anchor', 'middle').attr('dominant-baseline', 'middle');
         return parent;
     };
@@ -174,7 +174,7 @@ define(['require', 'jquery', 'd3'], function (require, $, d3) {
         parent = parent || d3Ref;
         rx = rx || 0;
         ry = ry || 0;
-        return parent.draw.rect(center.x() - width / 2, center.y() - height / 2, width, height, rx, ry, parent, colour);
+        return parent.draw.rect(center.x() - width / 2, center.y(), width, height, rx, ry, parent, colour);
     };
 
 
@@ -182,7 +182,7 @@ define(['require', 'jquery', 'd3'], function (require, $, d3) {
         parent = parent || d3Ref;
         rx = rx || 0;
         ry = ry || 0;
-        return parent.draw.basicRect(center.x() - width / 2, center.y() - height / 2, width, height, rx, ry, parent);
+        return parent.draw.basicRect(center.x() - width / 2, center.y(), width, height, rx, ry, parent);
     };
 
     var line = function (x1, y1, x2, y2, parent) {
@@ -536,7 +536,7 @@ define(['require', 'jquery', 'd3'], function (require, $, d3) {
         parent = parent || d3Ref;
         rx = rx || 0;
         ry = ry || 0;
-        return parent.draw.rect(center.x() - width / 2, center.y() - height / 2, width, height, rx, ry, parent, colour);
+        return parent.draw.rect(center.x() - width / 2, center.y(), width, height, rx, ry, parent, colour);
     };
 
     var decorate = function (d3ref) {

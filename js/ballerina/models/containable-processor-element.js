@@ -42,7 +42,7 @@ define(['require', 'diagram_core', './children'], function (require, DiagramCore
                 centerPoint: new DiagramCore.Models.Point({x: 0, y: 0}),
                 title: "ContainableProcessorElement",
                 width: 130,
-                height: 30,
+                height: 60,
                 viewAttributes: {colour: "#998844"}
             },
 

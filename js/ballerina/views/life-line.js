@@ -134,9 +134,9 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './proc
                 // Minimum length for a Lifeline
                 var minimumLength = 250;
                 // Distance from lifeline's center point to first processor.
-                var initDistance = 90;
+                var initDistance = 60;
                 // Space between two processors
-                var distanceBetweenProcessors = 20;
+                var distanceBetweenProcessors = 30;
                 var centerPoint = this.modelAttr('centerPoint');
                 var xValue = centerPoint.x();
                 var yValue = centerPoint.y();
@@ -144,6 +144,7 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './proc
 
                 var initialHeight = parseInt(this.d3el.line.attr("y2")) - parseInt(this.d3el.line.attr("y1"));
                 var totalIncrementedHeight = 0;
+                var previousHeight = 0;
 
                 for (var id in this.modelAttr("children").models) {
 
@@ -160,6 +161,7 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './proc
                         processorView.render();
                         processor.setY(yValue);
                         yValue += processor.getHeight() + distanceBetweenProcessors;
+                        previousHeight = processor.getHeight();
                     } else {
                         var messagePoint = this.modelAttr("children").models[id];
                         if (messagePoint.direction() == "outbound") {
@@ -272,7 +274,7 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './proc
 
                 if (viewObj.model.definition.shape == 'rect') {
                     middleRect = d3Ref.draw.centeredBasicRect(createPoint(center.get('x'),
-                            center.get('y') + prefs.rect.height / 2 + prefs.line.height / 2),
+                            center.get('y') + prefs.rect.height / 2),
                         prefs.middleRect.width, prefs.middleRect.height, 0, 0, group,textModel)
                         .classed(prefs.middleRect.class, true);
                     line = d3Ref.draw.verticalLine(createPoint(center.get('x'),
@@ -281,7 +283,7 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './proc
                 } else if (viewObj.model.definition.shape == 'polygon') {
                     var lenNew = prefs.line.height - 2*polygonYOffset;
                     middleRect = d3Ref.draw.centeredBasicRect(createPoint(center.get('x'),
-                            center.get('y') + lenNew/2 + polygonYOffset),
+                            center.get('y')+ polygonYOffset),
                         prefs.middleRect.width, lenNew, 0, 0, group,textModel)
                         .classed(prefs.middleRect.class, true);
                     line = d3Ref.draw.verticalLine(createPoint(center.get('x'),
