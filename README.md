@@ -1,6 +1,4 @@
-# Welcome to Ballerina
-
-Hello, I'm Ballerina.
+# Hello, I'm Ballerina.
 
 Ballerina is a new programming language for integration built on a sequence diagram metaphor. Ballerina is:
 - Simple
