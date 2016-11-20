@@ -510,7 +510,10 @@ function (require, log, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements,
                                 },
                                 {colour: Processors.manipulators[id].colour},
                                 Processors.manipulators[id].parameters,
-                                Processors.manipulators[id].utils
+                                Processors.manipulators[id].utils,
+                                undefined,
+                                Processors.manipulators[id].width,
+                                Processors.manipulators[id].height
                             );
 
                             if(typeof Processors.manipulators[id].init !== "undefined") {
@@ -899,8 +902,8 @@ function (require, log, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements,
             },
 
             addInitArrow:function(source,destination){
-                var centerS = utils.createPoint(200, 50);
-                var centerR = utils.createPoint(380, 50);
+                var centerS = utils.createPoint(200, 125);
+                var centerR = utils.createPoint(315, 125);
                 var sourcePoint = new MessagePoint({
                     model: {type: "messagePoint"},
                     x: centerS.x(),

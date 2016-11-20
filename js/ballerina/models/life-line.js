@@ -106,8 +106,8 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core',
                 return new LifeLine({title: title, centerPoint: center, colour: colour, type: type, definition: definition});
             },
 
-            createProcessor: function (title, center, type, model, viewAttributes, parameters, utils, textModel) {
-                return new ProcessorFactory(title, center, model.type, model, viewAttributes, parameters, utils, textModel);
+            createProcessor: function (title, center, type, model, viewAttributes, parameters, utils, textModel, width, height) {
+                return new ProcessorFactory(title, center, model.type, model, viewAttributes, parameters, utils, textModel, width, height);
             },
 
             addChild: function (element, opts) {
