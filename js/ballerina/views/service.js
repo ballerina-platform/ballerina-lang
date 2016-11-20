@@ -527,8 +527,6 @@ function (require, log, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements,
                                 Processors.flowControllers[id].parameters,
                                 Processors.flowControllers[id].utils
                             );
-                            txt.selectedNode.addChild(processor);
-
                             if (Processors.flowControllers[id].type == "ComplexProcessor") {
                                 (Processors.flowControllers[id].containableElements).forEach(function (elm) {
                                     (elm.children).forEach(function (child) {
@@ -542,6 +540,8 @@ function (require, log, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements,
                                     });
                                 });
                             }
+
+                            txt.selectedNode.addChild(processor);
 
                             serviceView.render();
                         } else if (id == "EndPoint") {

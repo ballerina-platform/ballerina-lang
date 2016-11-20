@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['backbone', './containable-processor-element'], function (Backbone, ContainableProcessorElement) {
+define(['backbone'], function (Backbone) {
 
     var ContainableProcessorElements = Backbone.Collection.extend(
         /** @lends ContainableProcessorElements.prototype */
@@ -28,9 +28,7 @@ define(['backbone', './containable-processor-element'], function (Backbone, Cont
             initialize: function (models, options) {
             },
 
-            modelName: "ContainableProcessorElements",
-
-            model: ContainableProcessorElement
+            modelName: "ContainableProcessorElements"
 
         });
 

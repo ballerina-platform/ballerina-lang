@@ -23,11 +23,8 @@ define(['./fork-processor', './header-processor', './log-mediator',
 
     var manipulators = {};
 
-    manipulators[ForkProcessor.id] = ForkProcessor;
     manipulators[HeaderProcessor.id] = HeaderProcessor;
     manipulators[LogMediator.id] = LogMediator;
-    manipulators[PayloadFactoryMediator.id] = PayloadFactoryMediator;
-    manipulators[PayloadProcessor.id] = PayloadProcessor;
     manipulators[ReplyProcessor.id] = ReplyProcessor;
     manipulators[InvokeMediator.id] = InvokeMediator;
 

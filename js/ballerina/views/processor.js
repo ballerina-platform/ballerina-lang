@@ -379,7 +379,13 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core',
                 for (var id in this.modelAttr("containableProcessorElements").models) {
 
                     var containableProcessorElement = this.modelAttr("containableProcessorElements").models[id];
-                    var containableProcessorElementView = new ContainableProcessorElementView({model: containableProcessorElement});
+                    var opts = {
+                        serviceView: this.serviceView,
+                        canvas:this.serviceView.d3el,
+                        application: this.application,
+                        model: containableProcessorElement
+                    };
+                    var containableProcessorElementView = new ContainableProcessorElementView(opts);
                     var processorCenterPoint = createPoint(xValue, yValue);
                     var elemView = containableProcessorElementView.render("#" + viewObj.serviceView.options.diagram.wrapperId, processorCenterPoint);
                     containableProcessorElement.setY(yValue);

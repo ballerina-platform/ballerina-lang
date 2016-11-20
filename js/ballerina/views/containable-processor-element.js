@@ -28,6 +28,15 @@ define(['lodash', 'diagram_core'], function ( _, DiagramCore) {
              */
             initialize: function (options) {
                 DiagramCore.Views.ShapeView.prototype.initialize.call(this, options);
+                if(!_.has(options, 'serviceView')){
+                    throw "config parent [ServiceView] is not provided.";
+                }
+                this.serviceView = _.get(options, 'serviceView');
+
+                if(!_.has(options, 'application')){
+                    throw "config parent [application] is not provided.";
+                }
+                this.application = _.get(options, 'application');
             },
 
             verticalDrag: function () {
@@ -50,20 +59,19 @@ define(['lodash', 'diagram_core'], function ( _, DiagramCore) {
             drawUnitProcessor: function (center, title, prefs, model) {
 
                 var d3Ref = this.getD3Ref();
-                var group = d3Ref.draw.group()
-                    .classed(prefs.class, true);
+                var group = d3Ref.draw.group();
                 var viewObj = this;
                 //var deleteIconGroup = undefined;
                 var path = undefined;
-                var height = prefs.rect.height;
-                var width = prefs.rect.width;
+                var height = model.getHeight();
+                var width = model.getWidth();
                 var modelHeight = model.getHeight();
 
 
                 var rectBottomXXX = d3Ref.draw.rectWithTitle(
                     center,
                     60,
-                    prefs.rect.height,
+                    30,
                     150,
                     model.getHeight(),
                     0,
@@ -72,17 +80,17 @@ define(['lodash', 'diagram_core'], function ( _, DiagramCore) {
                     this.modelAttr('viewAttributes').colour,
                     this.modelAttr('title')
                 );
-                var height = (model.getHeight() - prefs.rect.height);
+                // var height = (model.getHeight() - prefs.rect.height);
                 var middleRect = d3Ref.draw.centeredBasicRect( new DiagramCore.Models.Point({'x': center.x(), 'y':  center.y()+100}), 150, height, 0, 0);
                 middleRect.on("mousedown", function () {
                     var m = d3.mouse(this);
                     prefs.diagram.trigger("messageDrawStart", viewObj.model,  new DiagramCore.Models.Point({'x': center.x(), 'y': m[1]}));
                 }).on('mouseover', function () {
-                    defaultView.model.selectedNode = viewObj.model;
+                    viewObj.serviceView.model.selectedNode = viewObj.model;
                     d3.select(this).style("fill", "green").style("fill-opacity", 0.1);
                 }).on('mouseout', function () {
-                    defaultView.model.destinationLifeLine = defaultView.model.selectedNode;
-                    defaultView.model.selectedNode = null;
+                    viewObj.serviceView.model.destinationLifeLine = defaultView.model.selectedNode;
+                    viewObj.serviceView.model.selectedNode = null;
                     d3.select(this).style("fill-opacity", 0.01);
                 }).on('mouseup', function (data) {
                 });
@@ -154,7 +162,7 @@ define(['lodash', 'diagram_core'], function ( _, DiagramCore) {
                 if (viewObj.model.get("title") === "Try" || viewObj.model.get("title") === "If") {
                     var optionsMenuGroup = group.append("g").attr("class", "option-menu option-menu-hide");
                     var optionMenuStartX = center.x() + 80;
-                    var optionMenuStartY = center.y() - prefs.rect.height/2;
+                    var optionMenuStartY = center.y() - model.getHeight()/2;
 
                     var optionMenuWrapper = d3Ref.draw.rect(optionMenuStartX + 8,
                         optionMenuStartY,
