@@ -30,6 +30,8 @@ The structure of a file in Ballerina is as follow:
 (ResourceDefinition | FunctionDefinition)+
 ```
 
+### Resources and Functions
+
 Resources are externally invokable whereas functions are internal subroutines that can only be invoked form a resource or based on a schedule.
 
 The overall structure of a resource is as follows:
@@ -57,6 +59,8 @@ function FunctionName ((TypeName VariableName)*) (TypeName*)
 }
 ```
 All functions are public. Functions can be invoked from a resource or a function in the same file. It may also be invoked from another file by either importing it first or by using its fully qualified name.
+
+### Variables & Types
 
 A VariableDeclaration has the following structure:
 
@@ -90,9 +94,12 @@ Array types can be defined by using the array constructor as follows:
 - string[]
 - TypeName[]
 
-All arrays are unbounded in length and support 0 based indexing. Array length can be determined by checking the ".length" property of the array typed variable.
+All arrays are unbounded in length and support 0 based indexing. Array length can be determined by checking the `.length` property of the array typed variable.
+
+### Statements
 
 A Statement may be one of the following:
+- assignment statement
 - if statement
 - switch statement
 - foreach statement
@@ -102,7 +109,12 @@ A Statement may be one of the following:
 - return statement
 - reply statement
 
-A foreach statement provides a way to iterate through a list in order. A foreach statement has the following structure:
+Assignment statements look like the following:
+```
+VariableName = Expression;
+```
+
+A `foreach` statement provides a way to iterate through a list in order. A `foreach` statement has the following structure:
 ```
 foreach (VariableName : ValueList) {
   VariableDeclaration*
