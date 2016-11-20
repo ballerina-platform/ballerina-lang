@@ -116,7 +116,7 @@ VariableName = Expression;
 
 A `foreach` statement provides a way to iterate through a list in order. A `foreach` statement has the following structure:
 ```
-foreach (VariableName : ValueList) {
+foreach (VariableType VariableName : ValueList) {
   VariableDeclaration*
   Statement+
 }
