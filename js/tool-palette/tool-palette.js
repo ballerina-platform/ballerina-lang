@@ -56,7 +56,7 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
             var mediatorsToolGroup = new ToolGroup({
                 toolGroupName: "Mediators",
                 toolGroupID: "mediators-tool-group",
-                toolDefinitions: _.assign(Processors.manipulators, Processors.flowControllers)
+                toolDefinitions: _.assign({},Processors.manipulators, Processors.flowControllers)
             });
             _toolGroups.push(mediatorsToolGroup);
 

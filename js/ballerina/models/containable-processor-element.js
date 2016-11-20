@@ -29,7 +29,7 @@ define(['require', 'diagram_core', './children'], function (require, DiagramCore
             initialize: function (attrs, options) {
                 DiagramCore.Models.Shape.prototype.initialize.call(this, attrs, options);
                 var children = new Children([], {diagram: this});
-                this.type = attrs.type;
+                this.type = "ContainableProcessorElement";
                 this.children(children);
                 this.widestChild = null;
             },

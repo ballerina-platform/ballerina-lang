@@ -21,7 +21,6 @@ define(['./if-else-mediator', './switch-mediator',
     var flowControllers = {};
 
     flowControllers[IfElseMediator.id] = IfElseMediator;
-    flowControllers[SwitchMediator.id] = SwitchMediator;
     flowControllers[TryBlockMediator.id] = TryBlockMediator;
 
     return flowControllers;

@@ -28,6 +28,7 @@ define(['diagram_core', './processor'], function (DiagramCore, Processor) {
          */
         initialize: function (attrs, options) {
             Processor.prototype.initialize.call(this, attrs, options);
+            var ContainableProcessorElements = require('app/ballerina/models/containable-processor-elements');
             var containableProcessorElements = new ContainableProcessorElements([], {diagram: this});
             this.containableProcessorElements(containableProcessorElements);
         },
