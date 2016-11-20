@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'diagram_core'], function ( _, DiagramCore) {
+define(['lodash', 'd3', 'diagram_core'], function ( _, d3, DiagramCore) {
 
     var ContainableProcessorElementView = DiagramCore.Views.ShapeView.extend(
         /** @lends ContainableProcessorElement.prototype */
@@ -81,15 +81,15 @@ define(['lodash', 'diagram_core'], function ( _, DiagramCore) {
                     this.modelAttr('title')
                 );
                 // var height = (model.getHeight() - prefs.rect.height);
-                var middleRect = d3Ref.draw.centeredBasicRect( new DiagramCore.Models.Point({'x': center.x(), 'y':  center.y()+100}), 150, height, 0, 0);
+                var middleRect = d3Ref.draw.centeredBasicRect( new DiagramCore.Models.Point({'x': center.x(), 'y':  center.y()+30}), 150, height, 0, 0);
                 middleRect.on("mousedown", function () {
                     var m = d3.mouse(this);
-                    prefs.diagram.trigger("messageDrawStart", viewObj.model,  new DiagramCore.Models.Point({'x': center.x(), 'y': m[1]}));
+                    viewObj.serviceView.model.trigger("messageDrawStart", viewObj.model,  new DiagramCore.Models.Point({'x': center.x(), 'y': m[1]}));
                 }).on('mouseover', function () {
                     viewObj.serviceView.model.selectedNode = viewObj.model;
                     d3.select(this).style("fill", "green").style("fill-opacity", 0.1);
                 }).on('mouseout', function () {
-                    viewObj.serviceView.model.destinationLifeLine = defaultView.model.selectedNode;
+                    viewObj.serviceView.model.destinationLifeLine = viewObj.serviceView.model.selectedNode;
                     viewObj.serviceView.model.selectedNode = null;
                     d3.select(this).style("fill-opacity", 0.01);
                 }).on('mouseup', function (data) {
@@ -113,7 +113,7 @@ define(['lodash', 'diagram_core'], function ( _, DiagramCore) {
                 yValue += 60;
                 for (var id in this.modelAttr("children").models) {
                     var processor = this.modelAttr("children").models[id];
-                    var ProcessorView = require('app/ballerina-diagram/views/processor'); //TODO: fix this
+                    var ProcessorView = require('app/ballerina/views/processor'); //TODO: fix this
                     var processorViewOptions = {
                         model: processor,
                         center: new DiagramCore.Models.Point({x: xValue, y: yValue}),
@@ -128,7 +128,8 @@ define(['lodash', 'diagram_core'], function ( _, DiagramCore) {
                     }
                     var processorCenterPoint =  new DiagramCore.Models.Point({'x': xValue, 'y': yValue});
 
-                    processorView.render("#" + defaultView.options.diagram.wrapperId, processorCenterPoint, "processors");
+                    //TODO: Remove the wrapper ID param from the render method
+                    processorView.render("#", processorCenterPoint, "processors");
                     processor.setY(yValue);
                     totalHeight = totalHeight + this.model.getHeight() + processor.getHeight();
                     yValue += processor.getHeight()+ 30;
@@ -157,7 +158,6 @@ define(['lodash', 'diagram_core'], function ( _, DiagramCore) {
                 middleRect.attr("height", totalHeight-30);
                 middleRect.attr("width", totalWidth);
                 middleRect.attr("x", parseInt(middleRect.attr("x")) - deviation);
-                // drawMessageRect.attr("height", totalHeight-30);
 
                 if (viewObj.model.get("title") === "Try" || viewObj.model.get("title") === "If") {
                     var optionsMenuGroup = group.append("g").attr("class", "option-menu option-menu-hide");
@@ -215,40 +215,40 @@ define(['lodash', 'diagram_core'], function ( _, DiagramCore) {
 
                     // On click of the mediator show/hide the delete icon
                     rectBottomXXX.containerRect.on("click", function () {
-                        defaultView.model.selectedNode = viewObj.model;
+                        viewObj.serviceView.model.selectedNode = viewObj.model;
 
                         if (optionsMenuGroup.classed("option-menu-hide")) {
                             optionsMenuGroup.classed("option-menu-hide", false);
                             optionsMenuGroup.classed("option-menu-show", true);
 
-                            if (diagram.selectedOptionsGroup) {
-                                diagram.selectedOptionsGroup.classed("option-menu-hide", true);
-                                diagram.selectedOptionsGroup.classed("option-menu-show", false);
+                            if (viewObj.serviceView.model.selectedOptionsGroup) {
+                                viewObj.serviceView.model.selectedOptionsGroup.classed("option-menu-hide", true);
+                                viewObj.serviceView.model.selectedOptionsGroup.classed("option-menu-show", false);
                             }
-                            if (diagram.propertyWindow) {
-                                diagram.propertyWindow = false;
-                                defaultView.enableDragZoomOptions();
+                            if (viewObj.serviceView.model.propertyWindow) {
+                                viewObj.serviceView.model.propertyWindow = false;
+                                viewObj.serviceView.enableDragZoomOptions();
                                 $('#property-pane-svg').empty();
                             }
-                            diagram.selectedOptionsGroup = optionsMenuGroup;
+                            viewObj.serviceView.model.selectedOptionsGroup = optionsMenuGroup;
 
                         } else {
                             optionsMenuGroup.classed("option-menu-hide", true);
                             optionsMenuGroup.classed("option-menu-show", false);
-                            if (diagram.propertyWindow) {
-                                diagram.propertyWindow = false;
-                                defaultView.enableDragZoomOptions();
-                                defaultView.render();
+                            if (viewObj.serviceView.model.propertyWindow) {
+                                viewObj.serviceView.model.propertyWindow = false;
+                                viewObj.serviceView.enableDragZoomOptions();
+                                viewObj.serviceView.render();
                             }
-                            diagram.selectedOptionsGroup = null;
+                            viewObj.serviceView.model.selectedOptionsGroup = null;
                         }
                     });
 
                     editOption.on("click", function () {
-                        if (diagram.propertyWindow) {
-                            diagram.propertyWindow = false;
-                            defaultView.enableDragZoomOptions();
-                            defaultView.render();
+                        if (viewObj.serviceView.model.propertyWindow) {
+                            viewObj.serviceView.model.propertyWindow = false;
+                            viewObj.serviceView.enableDragZoomOptions();
+                            viewObj.serviceView.render();
 
                         } else {
                             var options = {
@@ -256,8 +256,8 @@ define(['lodash', 'diagram_core'], function ( _, DiagramCore) {
                                 y: parseFloat(this.getAttribute("y")) + 21
                             };
 
-                            defaultView.selectedNode = viewObj.model.attributes.parent;
-                            defaultView.drawPropertiesPane(d3Ref, options,
+                            viewObj.serviceView.model.selectedNode = viewObj.model.attributes.parent;
+                            viewObj.serviceView.drawPropertiesPane(d3Ref, options,
                                 viewObj.model.get('parent').attributes.parameters,
                                 viewObj.model.attributes.parent.get("utils").getMyPropertyPaneSchema());
                         }
@@ -269,15 +269,11 @@ define(['lodash', 'diagram_core'], function ( _, DiagramCore) {
                         for (var itr = 0; itr < parentModelChildren.length; itr ++) {
                             if (parentModelChildren[itr].cid === viewObj.model.get("parent").cid) {
                                 parentModelChildren.splice(itr, 1);
-                                defaultView.render();
+                                viewObj.serviceView.render();
                                 break;
                             }
                         }
                     });
-
-                    //group.remove();
-                    //
-                    //return newGroup;
                 }
 
                 return group;

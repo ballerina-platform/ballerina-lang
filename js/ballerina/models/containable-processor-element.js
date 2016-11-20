@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'diagram_core', './children'], function (require, DiagramCore, Children) {
+define(['require', 'diagram_core', './children', 'app/ballerina/utils/processor-factory'], function (require, DiagramCore, Children, ProcessorFactory) {
 
     var ContainableProcessorElement = DiagramCore.Models.Shape.extend(
         /** @lends ContainableProcessorElement.prototype */
@@ -113,7 +113,6 @@ define(['require', 'diagram_core', './children'], function (require, DiagramCore
             },
 
             createProcessor: function (title, center, type, model, viewAttributes, parameters, utils) {
-                var ProcessorFactory = require('app/ballerina-diagram/utils/processor-factory');
                 return new ProcessorFactory(title, center, model.type, model, viewAttributes, parameters, utils);
             },
 
