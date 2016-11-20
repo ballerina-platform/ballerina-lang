@@ -454,7 +454,7 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core',
             } else if (this.model.model.type === 'Action') {
                 var optionsMenuGroup = group.append("g").attr("class", "option-menu option-menu-hide");
                 var height = 0;
-                height = this.model.getHeight() - 30;
+                height = this.model.getHeight();
                 var width = this.model.getWidth();
                 var x = (center.x() - this.model.getWidth()/2);
                 var y = center.y();
@@ -500,7 +500,7 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core',
                 }
 
                 var mediatorText = d3Ref.draw.textElement(center.x(),
-                    (center.y() + 15 - height/2),
+                    (center.y() + height/2),
                     title,
                     group)
                     .classed("mediator-title", true);

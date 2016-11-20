@@ -28,6 +28,8 @@ define(['d3', 'tree_node', 'app/ballerina/utils/module', 'app/ballerina/models/m
         editable : true,
         deletable: true,
         dragCursorOffset : { left: 24, top: -5 },
+        width: 130,
+        height: 30,
         createCloneCallback : function(view){
             function cloneCallBack() {
                 var div = view.createContainerForDraggable();
