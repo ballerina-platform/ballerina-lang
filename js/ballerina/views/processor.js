@@ -358,8 +358,7 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core',
                     };
                     var processorView = new ProcessorView(processorViewOptions);
                     var processorCenterPoint = createPoint(xValue, yValue);
-                    processorView.render("#" + this.serviceView.model.options.diagram.wrapperId,
-                        processorCenterPoint, "processors");
+                    processorView.render("#", processorCenterPoint, "processors");
                     processor.setY(yValue);
                     yValue += processor.getHeight()+ 30;
                 }
