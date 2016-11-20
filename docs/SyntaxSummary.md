@@ -38,7 +38,8 @@ The overall structure of a resource is as follows:
 @Annotation+
 resource ResourceName (Message VariableName
         [, (@Context | @QueryParam | @PathParam) VariableName]*) {
-    Statement;+
+    VariableDeclaration*
+    Statement+
 }*
 ```
 
@@ -51,5 +52,61 @@ A file may also contain functions who’s structure is as follows:
 ```
 function FunctionName ((TypeName VariableName)*) (TypeName*)
         [throws ExceptionName [, ExceptionName]*] {
+    VariableDeclaration*
+    Statement+
 }
 ```
+All functions are public. Functions can be invoked from a resource or a function in the same file. It may also be invoked from another file by either importing it first or by using its fully qualified name.
+
+A VariableDeclaration has the following structure:
+
+```
+var TypeName VariableName;
+```
+A TypeName is one of the following built in types or a user defined type name.
+- int
+- long
+- float
+- double
+- string
+
+There are also built in types to represent XML and JSON valued objects. XMLElement and JSON objects may be further typed by indicating an XML Schema or JSON Schema, respectively.
+- XMLDocument
+- XMLElement
+- JSON
+
+User defined types are defined using a TypeDefinition as follows:
+```
+type TypeName {
+    TypeName VariableName;+
+}
+```
+
+Array types can be defined by using the array constructor as follows:
+- int[]
+- long[]
+- float[]
+- double[]
+- string[]
+- TypeName[]
+
+All arrays are unbounded in length and support 0 based indexing. Array length can be determined by checking the ".length" property of the array typed variable.
+
+A Statement may be one of the following:
+- if statement
+- switch statement
+- foreach statement
+- fork/join statement
+- invocation statement
+- try/catch statement
+- return statement
+- reply statement
+
+A foreach statement provides a way to iterate through a list in order. A foreach statement has the following structure:
+```
+foreach (VariableName : ValueList) {
+  VariableDeclaration*
+  Statement+
+}
+```
+A ValueList may be an array or any object which supports iteration.
