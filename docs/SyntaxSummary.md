@@ -27,12 +27,12 @@ The structure of a file in Ballerina is as follow:
 
 (VariableDeclaration | TypeDefinition)*
 
-(ResourceDefinition | FunctionDefinition)+
+(ResourceDefinition | FunctionDefinition | ActionDefinition)+
 ```
 
-### Resources and Functions
+### Resources, Functions and Actions
 
-Resources are externally invokable whereas functions are internal subroutines that can only be invoked form a resource.
+Resources are externally invokable whereas functions are internal subroutines that can only be invoked form a resource. Actions are subroutines that are associated with an actor. 
 
 The overall structure of a resource is as follows:
 
@@ -58,7 +58,22 @@ function FunctionName ((TypeName VariableName)*) (TypeName*)
     Statement+
 }
 ```
-All functions are public. Functions can be invoked from a resource or a function in the same file. It may also be invoked from another file by either importing it first or by using its fully qualified name.
+
+All functions are public. Functions can be invoked from a resource or a function in the same package without an import. It may also be invoked from another package by either importing it first or by using its fully qualified name.
+
+The overall structure of a action is as follows:
+
+```
+action ActionName (TypeName ActorVariableName, (TypeName VariableName)*) (TypeName*)
+        [throws ExceptionName [, ExceptionName]*] {
+    VariableDeclaration*
+    Statement+
+}
+```
+
+First input parameter of an action should be associated with an actor.
+
+All actions are public. Actions can be invoked from a resource or a function in the same package without an import. It may also be invoked from another file by either importing it first or by using its fully qualified name.
 
 ### Variables & Types
 
