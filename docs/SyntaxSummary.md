@@ -68,14 +68,14 @@ All functions are public. Functions can be invoked from a resource or a function
 The overall structure of an action is as follows:
 
 ```
-action ActionName (TypeName ActorVariableName, (TypeName VariableName)*) (TypeName*)
+action ActionName (TypeName ActorName, (TypeName VariableName)*) (TypeName*)
         [throws ExceptionName [, ExceptionName]*] {
     VariableDeclaration*
     Statement+
 }
 ```
 
-First input parameter of an action should be associated with an actor.
+First argument of an action should be associated with an actor.
 
 All actions are public. Actions can be invoked from a resource or a function in the same package without an import. It may also be invoked from another file by either importing it first or by using its fully qualified name.
 
@@ -118,6 +118,16 @@ Array types can be defined by using the array constructor as follows:
 - TypeName[]
 
 All arrays are unbounded in length and support 0 based indexing. Array length can be determined by checking the `.length` property of the array typed variable.
+
+### Actor Declaration
+
+TODO: What is an actor? Representation of an external system. 
+
+A ActorDeclaration has the following structure:
+
+```
+actor TypeName ActorName;
+```
 
 ### Statements
 
