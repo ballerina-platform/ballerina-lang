@@ -137,15 +137,46 @@ A Statement may be one of the following:
 - switch statement
 - foreach statement
 - fork/join statement
-- invocation statement
 - try/catch statement
 - return statement
 - reply statement
+
+#### Assignment statement
 
 Assignment statements look like the following:
 ```
 VariableName = Expression;
 ```
+
+#### If statement
+
+Provides a way to perform conditional execution.
+```
+if (condition) {
+  VariableDeclaration*
+  Statement+	
+} 
+[else if (condition){
+  VariableDeclaration*
+  Statement+
+}]* 
+  else {
+  VariableDeclaration*
+  Statement+
+}
+```
+
+#### Switch statement
+
+Provides a way to perform conditional execution.
+```
+switch (predicate) {
+        (case valueX:)+
+	default:
+}*
+```
+
+#### Foreach statement
 
 A `foreach` statement provides a way to iterate through a list in order. A `foreach` statement has the following structure:
 ```
@@ -155,3 +186,43 @@ foreach (VariableType VariableName : ValueList) {
 }
 ```
 A ValueList may be an array or any object which supports iteration.
+
+#### Fork/join statement 
+
+TODO: Fix the following definition
+
+```
+fork forkGroupIdentifier (messageVariableName) {
+        worker workerName (message variableName) {
+            reply res_nyse;
+        }+       
+}*
+```
+
+#### Try/catch statement
+
+
+```
+try {
+  VariableDeclaration*
+  Statement+
+} catch (exception e) { 
+  VariableDeclaration*
+  Statement+
+} finally {
+  VariableDeclaration*
+  Statement+
+}
+```
+
+#### Return statement
+
+```
+return (VariableName)*
+```
+
+#### Reply statement
+
+```
+reply 
+```
