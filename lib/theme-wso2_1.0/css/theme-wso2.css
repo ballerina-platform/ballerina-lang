@@ -724,7 +724,7 @@ body.inverse .fade-edge:after {
  * ======================================================================== */
 header {
   background: #024675;
-  min-height: 50px;
+  min-height: 35px;
   position: relative;
 }
 
@@ -750,7 +750,7 @@ header .brand h1 {
   color: #ffffff;
   padding: 6px 0 0 0;
   font-style: normal;
-  text-transform: uppercase;
+  text-transform: capitalize;
 }
 
 header .auth {
@@ -1226,8 +1226,8 @@ ul.sidebar-messages > li {
   text-transform: uppercase;
   background: #282828;
   color: #ffffff;
-  min-height: 30px;
-  padding: 5px 15px;
+  min-height: 25px;
+  padding: 3px 15px;
   -webkit-border-radius: 0;
   -moz-border-radius: 0;
   border-radius: 0;

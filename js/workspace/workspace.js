@@ -150,8 +150,8 @@ define(['jquery', 'lodash', 'backbone', 'file_browser', 'logger', 'bootstrap'], 
 
         this.toggleSource = function toggleSource() {
             var editorMain = document.getElementById("sourceViewTab");
-            var leftContainer = document.getElementById("left-container");
-            var rightContainer = document.getElementById("right-container");
+            var tabContainer = document.getElementById("tab-container");
+            var editorContainer = document.getElementById("editor-view");
 
             //Reset ace editor content
             mainEditor.setValue("");
@@ -170,29 +170,25 @@ define(['jquery', 'lodash', 'backbone', 'file_browser', 'logger', 'bootstrap'], 
 
             //Source not loaded yet
             if (editorMain.style.display == "none") {
-                // hide tool pallette
-                leftContainer.style.display = "none";
-                // hide design view
-                rightContainer.style.display = "none";
-                // show source view
+                // hide design editor area
+                editorContainer.style.display = "none";
+                // show tab area
+                tabContainer.style.display = "block";
+                //show ace editor
                 editorMain.style.display = "block";
-                // update link heading to Design:TODO
-                $('#sourceId').html('DESIGN');
+
                 var treeResult = diagram.parseTree();
                 var formattedValue = formatter(treeResult, {indent_size: 3});
                 sourceConfig += formattedValue;
                 mainEditor.session.setValue(sourceConfig);
-                console.log("editor content" + mainEditor.getValue());
             }
             //source already loaded, hence need to load the design view
             else {
                 // Hide source view
                 editorMain.style.display = "none";
 
-                // Left container is temporarily not showing since we have disabled the file explorer at the moment
-                // leftContainer.style.display = "block";
-                rightContainer.style.display = "block";
-                $('#sourceId').html('SOURCE');
+                //show design editor area
+                editorContainer.style.display = "block";
             }
         };
 

@@ -29,16 +29,13 @@ html{
     max-height: 100vh;
 }
 
-.header {
-    padding: 2px 10px 2px 15px;
-}
-
 #main-navbar{
     border-width: 2px 0 2px 0;
 }
 
 #editor-container{
     height: 100%;
+    width:1106px;
 }
 
 #navbar-wrapper{
@@ -105,7 +102,8 @@ div[class*="col-sm-"] {
     margin: 0;
     padding: 0;
     overflow: hidden;
-    margin-right: 50px;
+    float:right;
+    height:25px;
 }
 
 #serviceAndSourceButtons li {
@@ -114,14 +112,14 @@ div[class*="col-sm-"] {
 
 #serviceAndSourceButtons li a {
     display: block;
-    color: white;
+    color: black;
     text-align: center;
-    padding: 16px;
+    padding-right: 20px;
     text-decoration: none;
 }
 
 #serviceAndSourceButtons li a:hover {
-    background-color: #111111;
+    /*background-color: #111111;*/
 }
 /*//////////////////////////////////////////////////*/
 /** Service/Source buttons related styles | End -> **/
@@ -223,8 +221,10 @@ div[class*="col-sm-"] {
     width:1700px;
 }
 #tab-container{
-    height: 42px;
+    height: 25px;
     border-bottom-width: 1px;
+    background-color: #e4e4e4;
+    width:1540px;
 }
 
 .series{
@@ -237,11 +237,11 @@ div[class*="col-sm-"] {
 
 /*//////////////////////////////////////////////////*/
 /** Breadcrumbs related styles | Start -> **/
-.breadcrumb{
-    padding-left: 50px;
-    display: inline-block;
-    float: right;
-}
+/*.breadcrumb{*/
+    /*padding-left: 50px;*/
+    /*display: inline-block;*/
+    /*float: right;*/
+/*}*/
 /** Breadcrumbs related styles | -> End **/
 /*//////////////////////////////////////////////////*/
 
