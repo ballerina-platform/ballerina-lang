@@ -462,7 +462,7 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './proc
                         for (var itr = 0; itr < endpointElements.length; itr++) {
                             if (endpointElements[itr].cid === viewObj.model.cid) {
                                 endpointElements.splice(itr, 1);
-                                var currentEndpoints = defaultView.model.endpointLifeLineCounter();
+                                var currentEndpoints = viewObj.serviceView.model.endpointLifeLineCounter();
                                 viewObj.serviceView.model.endpointLifeLineCounter(currentEndpoints - 1);
                                 viewObj.serviceView.model.get("diagramEndpointElements").length -= 1;
                                 viewObj.serviceView.render();

@@ -134,7 +134,7 @@ define(['require','log', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', '
                         case "Worker":
                             this.diagramWorkerElements().add(element, opts);
                             break;
-                        case "Endpoint":
+                        case "EndPoint":
                             this.diagramEndpointElements().add(element, opts);
                             break;
                         default:

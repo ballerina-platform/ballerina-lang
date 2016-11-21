@@ -774,8 +774,8 @@ function (require, log, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements,
                         centerPoint = utils.createPoint(lastWorkerLifeLine.rightLowerCorner().x + 115, 50);
                     } else {
                         var resourceLifeLine = this.model.attributes.diagramResourceElements.models[numberOfResourceElements - 1];
-                        //centerPoint = utils.createPoint(resourceLifeLine.rightLowerCorner().x + 115, 50);
-                        centerPoint = utils.createPoint(115, 50);
+                        var rightCorner = resourceLifeLine.get('centerPoint').x() + resourceLifeLine.get('textModel').get('dynamicRectWidth')/2;
+                        centerPoint = utils.createPoint(rightCorner + 115, 50);
                     }
                 } else if (lifelineName == "Worker") {
                     type = "Worker";
