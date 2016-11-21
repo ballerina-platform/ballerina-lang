@@ -174,6 +174,29 @@ define(['d3', 'tree_node'], function (d3, TreeNode) {
             },
             canConnectTo: function () {
                 return ['EndPoint'];
+            },
+            createMyModel : function (model) {
+                var position = createPoint(0, 0);
+                var processor = model.createProcessor(
+                    Processors.manipulators.InvokeMediator.title,
+                    position,
+                    Processors.manipulators.InvokeMediator.id,
+
+                    {
+                        type: Processors.manipulators.InvokeMediator.type,
+                        initMethod: Processors.manipulators.InvokeMediator.init,
+                        editable: Processors.manipulators.InvokeMediator.editable,
+                        deletable: Processors.manipulators.InvokeMediator.deletable,
+                        hasOutputConnection : Processors.manipulators.InvokeMediator.hasOutputConnection,
+                        messageLinkType : Processors.manipulators.InvokeMediator.messageLinkType
+                    },
+                    {colour: Processors.manipulators.InvokeMediator.colour},
+                    Processors.manipulators.InvokeMediator.parameters,
+                    Processors.manipulators.InvokeMediator.utils
+                );
+                Processors.manipulators.InvokeMediator.init(model, processor);
+                model.addChild(processor);
+                return processor;
             }
         }
     };

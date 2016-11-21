@@ -93,6 +93,20 @@ define(['d3'], function (d3) {
             canConnectTo: function () {
                 return ['Worker', 'Resource', 'ContainableProcessorElement'];
             },
+            createMyModel: function (model, title, centerPoint, parameters) {
+                var lifeline = createLifeLine(title, centerPoint, MainElements.lifelines.EndPointLifeline.class,
+                    MainElements.lifelines.EndPointLifeline.utils,
+                    parameters, MainElements.lifelines.EndPointLifeline.textModel, "Endpoint",
+                    MainElements.lifelines.EndPointLifeline);
+                var endpointLifeLineOptions = {
+                    class: MainElements.lifelines.EndPointLifeline.class,
+                    diagram: model
+                };
+                model.addElement(lifeline, endpointLifeLineOptions);
+                var endpointCount = model.endpointLifeLineCounter();
+                endpointCount++;
+                model.endpointLifeLineCounter(endpointCount);
+            },
             textModel : "undefined"
         }
     };

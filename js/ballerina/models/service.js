@@ -318,10 +318,6 @@ define(['require','log', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', '
             },
 
             defaults: {
-                path: '',
-                get: false,
-                put: false,
-                post: false
             }
 
         });
