@@ -216,6 +216,30 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core',
                 var parentModelChildren = parentModel.get("children").models;
                 for (var itr = 0; itr < parentModelChildren.length; itr ++) {
                     if (parentModelChildren[itr].cid === viewObj.model.cid) {
+                        if(!_.isUndefined(viewObj.model.inputConnector()) || !_.isUndefined(viewObj.model.outputConnector())) {
+                            var inboundId, messagePoints;
+                            if(!_.isUndefined(viewObj.model.inputConnector())) {
+                                inboundId = viewObj.model.inputConnector().message().destination().cid;
+                                messagePoints = serviceView.model.get("diagramSourceElements").models[0].get("children").models;
+                                for (var i = 0; i < messagePoints.length; i++) {
+                                    if (messagePoints[i].cid === inboundId) {
+                                        messagePoints.splice(i, 1);
+                                    }
+                                }
+                            }
+                            else if (!_.isUndefined(viewObj.model.outputConnector())) {
+                                inboundId = viewObj.model.outputConnector().message().destination().cid;
+                                var endpoints = serviceView.model.get("diagramEndpointElements").models;
+                                for(var i = 0; i < endpoints.length; i++) {
+                                    messagePoints = endpoints[i].get("children").models;
+                                    for (var j = 0; j < messagePoints.length; j++) {
+                                        if (messagePoints[j].cid === inboundId) {
+                                            messagePoints.splice(j, 1);
+                                        }
+                                    }
+                                }
+                            }
+                        }
                         //reset parent height
                         parentModel.setHeight(parentModel.getHeight() - parentModelChildren[itr].getHeight);
                         parentModelChildren.splice(itr, 1);
