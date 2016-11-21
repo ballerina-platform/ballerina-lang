@@ -60,6 +60,17 @@ define(['require', 'jquery', 'd3'], function (require, $, d3) {
             .attr("rx", rx)
             .attr("fill-opacity",.4)
             .attr("ry", ry);
+        var middleRect = parent.append("rect")
+            .attr("id", "middleRect")
+            .attr("x", x)
+            .attr("y", y + height)
+            .attr("width", containerWidth)
+            .attr("height", containerHeight)
+            .attr("fill", "#ffffff")
+            .attr("stroke-width", 1)
+            .attr("rx", rx)
+            .attr("fill-opacity",.4)
+            .attr("ry", ry);
         var titleRect = parent.append("rect")
             .attr("id", "titleRect")
             .attr("x", x)
@@ -80,6 +91,7 @@ define(['require', 'jquery', 'd3'], function (require, $, d3) {
         composite.containerRect = containerRect;
         composite.titleRect = titleRect;
         composite.text = text;
+        composite.middleRect = middleRect;
         return composite;
     };
 
