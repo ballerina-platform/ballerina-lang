@@ -17,10 +17,17 @@ package org.wso2.integration.tooling.service.workspace.app;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.apache.commons.cli.*;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.integration.tooling.service.workspace.Constants;
+import org.wso2.integration.tooling.service.workspace.rest.FileServer;
 import org.wso2.integration.tooling.service.workspace.rest.WorkspaceService;
 import org.wso2.msf4j.MicroservicesRunner;
 
@@ -60,5 +67,20 @@ public class WorkspaceServiceRunner {
         new MicroservicesRunner(Integer.getInteger("http.port", 8289))
                 .deploy(injector.getInstance(WorkspaceService.class))
                 .start();
+
+
+        String contextRoot = System.getProperty("web.context");
+        int port = Integer.getInteger("http.editor.port", 8288);
+        if (contextRoot == null) {
+            contextRoot = "web";
+        }
+        FileServer fileServer = new FileServer();
+        fileServer.setContextRoot(contextRoot);
+        new MicroservicesRunner(port)
+                .deploy(fileServer)
+                .start();
+        if (!isCloudMode) {
+            logger.info("Ballerina Editor URL: http://localhost:" + port);
+        }
     }
 }
