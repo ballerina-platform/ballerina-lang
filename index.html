@@ -24,6 +24,7 @@
 
     <link rel="stylesheet" type="text/css" href="css/sequence_diagram/sequenced-styles.css"/>
     <link rel="stylesheet" type="text/css" href="css/tool-palette.css"/>
+    <link rel="stylesheet" type="text/css" href="css/file-explorer.css"/>
     <link rel="stylesheet" type="text/css" href="css/diagram/preview-pane.css"/>
     <link rel="stylesheet" type="text/css" href="css/styles.css"/>
     <title>Integration Server Tooling</title>
@@ -342,7 +343,14 @@
                 underscore: "lodash",
                 jQuery: "jquery"
             }
-        }
+        },
+        packages: [
+            {
+                name: 'tree_view',
+                location: 'js/file-browser/tree-view',
+                main: 'module'
+            }
+        ]
     });
 
     require(['app/main'], function(Application) {
@@ -424,7 +432,11 @@
                 }
             },
             file_browser: {
-                container: "#file-browser"
+                container: "#file-browser",
+                cssClass: {
+                    activateBtn: 'fw fw-file-browse file-explorer-activate-btn',
+                    sliderContainer: 'slider-container'
+                }
             }
         };
         app = new Application(config);

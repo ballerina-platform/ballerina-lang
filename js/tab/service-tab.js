@@ -22,6 +22,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'main_elemen
     ServiceTab = Tab.extend({
         initialize: function (options) {
             Tab.prototype.initialize.call(this, options);
+
         },
         render: function () {
             Tab.prototype.render.call(this);
