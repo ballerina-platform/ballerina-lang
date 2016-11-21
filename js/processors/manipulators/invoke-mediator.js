@@ -157,20 +157,14 @@ define(['d3', 'tree_node'], function (d3, TreeNode) {
                 ];
             },
             getMySubTree: function (model) {
-                var messageLinks = model.get('children').models;
-                var endpoint = undefined;
+                var epTitle = undefined;
                 var uri = undefined;
-                messageLinks.forEach(function (child) {
-                    if (_.isEqual(child.get('direction'), "inbound")) {
-                        endpoint = child.get('message').get('source').get('parent').attributes.parameters[0].value;
-                        uri = child.get('message').get('source').get('parent').attributes.parameters[1].value;
-                        // When we define the properties, need to extract the endpoint from the property
-                        definedConstants["HTTPEP"] = {name: endpoint, value: uri};
-                    } else {
-                        endpoint = "anonymous";
-                    }
-                });
-                return new TreeNode("InvokeMediator", "InvokeMediator", ("response = invoke(endpointKey=" + endpoint + ", messageKey=m)"), ";");
+
+                var endpoint = model.get('outputConnector').get('message').get('destination').get('parent');
+                uri = endpoint.get('parameters')[1].value;
+                epTitle = endpoint.get('parameters')[0].value;
+                definedConstants["HTTPEP"] = {name: epTitle, value: uri};
+                return new TreeNode("InvokeMediator", "InvokeMediator", ("response = invoke(endpointKey=" + epTitle + ", messageKey=m)"), ";");
             },
             canConnectTo: function () {
                 return ['EndPoint'];

@@ -107,8 +107,8 @@ define(['d3', 'tree_node', 'app/ballerina/utils/module', 'app/ballerina/models/m
             },
             getMySubTree: function (model) {
                 var parameters = model.attributes.parameters;
-                var log_configStart = "log(level=\"" + parameters[1].value + "\"," + "status=\"" + parameters[0].value + "\"";
-                return new TreeNode("LogMediator", "LogMediator", log_configStart, ");");
+                var reply_configStart = "reply " + parameters[0].value;
+                return new TreeNode("ReplyMediator", "ReplyMediator", reply_configStart, ";");
             },
             outputs: false,
             getInputParams: function (model) {
