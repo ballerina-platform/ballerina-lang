@@ -284,6 +284,20 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './proc
                 }
 
                 middleRect.attr('style', 'cursor: pointer');
+                middleRect.on('mouseover', function () {
+                    viewObj.serviceView.model.selectedNode = viewObj.model;
+                    d3.select(this).style("fill", "green").style("fill-opacity", 0.1);
+
+                    viewObj.dragDropManager.setActivatedDropTarget(viewObj.model);
+                }).on('mouseout', function () {
+                    viewObj.serviceView.model.destinationLifeLine = viewObj.serviceView.model.selectedNode;
+                    viewObj.serviceView.model.selectedNode = null;
+                    d3.select(this).style("fill-opacity", 0.01);
+
+                    viewObj.dragDropManager.clearActivatedDropTarget();
+                }).on('mouseup', function (data) {
+
+                });
                 var text = d3Ref.draw.genericCenteredText(center, title, group, textModel)
                     .classed(prefs.text.class, true).classed("genericT", true);
                 var lifeLineBottomRectGroup = group.append("g");
@@ -384,20 +398,6 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './proc
                 });
 
                 var viewObj = this;
-                middleRect.on('mouseover', function () {
-                    viewObj.serviceView.model.selectedNode = viewObj.model;
-                    d3.select(this).style("fill", "green").style("fill-opacity", 0.1);
-
-                    viewObj.dragDropManager.setActivatedDropTarget(viewObj.model);
-                }).on('mouseout', function () {
-                    viewObj.serviceView.model.destinationLifeLine = viewObj.serviceView.model.selectedNode;
-                    viewObj.serviceView.model.selectedNode = null;
-                    d3.select(this).style("fill-opacity", 0.01);
-
-                    viewObj.dragDropManager.clearActivatedDropTarget();
-                }).on('mouseup', function (data) {
-
-                });
 
                 lifeLineTopRectGroup.on("click", (function () {
                     viewObj.serviceView.model.selectedNode = viewObj.model;

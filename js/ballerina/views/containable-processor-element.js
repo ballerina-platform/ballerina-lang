@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'd3', 'diagram_core'], function ( _, d3, DiagramCore) {
+define(['lodash', 'd3', 'diagram_core', 'app/ballerina/models/life-line'], function ( _, d3, DiagramCore, LifeLine) {
 
     var ContainableProcessorElementView = DiagramCore.Views.ShapeView.extend(
         /** @lends ContainableProcessorElement.prototype */
@@ -261,9 +261,18 @@ define(['lodash', 'd3', 'diagram_core'], function ( _, d3, DiagramCore) {
 
                     deleteOption.on("click", function () {
                         //Get the parent of the model and delete it from the parent
-                        var parentModelChildren = viewObj.model.get("parent").get("parent").get("children").models;
+                        var parentModel = viewObj.model.get("parent").get("parent");
+                        var parentModelChildren = parentModel.get("children").models;
                         for (var itr = 0; itr < parentModelChildren.length; itr ++) {
                             if (parentModelChildren[itr].cid === viewObj.model.get("parent").cid) {
+                                //reset parent height
+                                parentModel.setHeight(parentModel.getHeight() - parentModelChildren[itr].getHeight);
+                                var parentElement = parentModel;
+                                //Find the most recent Lifeline parent and adjust height
+                                while(!(parentElement instanceof LifeLine)){
+                                    parentElement = parentElement.get("parent")
+                                }
+                                parentElement.setHeight(parentElement.getHeight - parentModelChildren[itr].getHeight);
                                 parentModelChildren.splice(itr, 1);
                                 viewObj.serviceView.render();
                                 break;
