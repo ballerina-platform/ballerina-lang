@@ -30,7 +30,7 @@ The structure of a file in Ballerina is as follow:
 (ResourceDefinition | FunctionDefinition | ActionDefinition)+
 ```
 
-### Resources, Functions and Actions
+### Resource Definition
 
 Resources are externally invokable whereas functions are internal subroutines that can only be invoked form a resource. Actions are subroutines that are associated with an actor. 
 
@@ -49,6 +49,8 @@ The visual representation of this (without the annotations) is as follows:
 
 ![bal-resource-skeleton.png]()
 
+### Function Definition
+
 A file may also contain functions who’s structure is as follows:
 
 ```
@@ -60,6 +62,8 @@ function FunctionName ((TypeName VariableName)*) (TypeName*)
 ```
 
 All functions are public. Functions can be invoked from a resource or a function in the same package without an import. It may also be invoked from another package by either importing it first or by using its fully qualified name.
+
+### Action Definition
 
 The overall structure of an action is as follows:
 
@@ -75,7 +79,7 @@ First input parameter of an action should be associated with an actor.
 
 All actions are public. Actions can be invoked from a resource or a function in the same package without an import. It may also be invoked from another file by either importing it first or by using its fully qualified name.
 
-### Variables & Types
+### Variable Declaration
 
 A VariableDeclaration has the following structure:
 
@@ -94,12 +98,16 @@ There are also built in types to represent XML and JSON valued objects. XMLEleme
 - XMLElement
 - JSON
 
+### Type Definition
+
 User defined types are defined using a TypeDefinition as follows:
 ```
 type TypeName {
     TypeName VariableName;+
 }
 ```
+
+### Array Types
 
 Array types can be defined by using the array constructor as follows:
 - int[]
