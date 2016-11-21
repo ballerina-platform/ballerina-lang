@@ -1,5 +1,9 @@
 package ballerina.net;
 
+type HttpEndpoint {
+  string uri;
+}
+
 native function setHeader (string name, value);
 native function getHeader (string name) (string[] values);
 
@@ -12,7 +16,11 @@ native function executeMethod (string httpVerb, string path, Message m)
     (Message) throws IOException;
 
 // non-blocking method initiation
-native function sendGet (string path) (int) throws IOException;
+native function sendGet (HttpEndpoint e, string path) (int) throws IOException;
+native function sendGet (actor HttpEndpoint e, string path) (int) throws IOException;
+native action sendGet (actor HttpEndpoint e, string path) (int) throws IOException;
+native action sendGet (HttpEndpoint e, string path) (int) throws IOException;
+
 native function sendPut (string path) (int) throws IOException;
 native function sendPost (string path) (int) throws IOException;
 native function sendDelete (string path) (int) throws IOException;

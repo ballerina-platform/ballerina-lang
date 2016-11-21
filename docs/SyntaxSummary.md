@@ -32,7 +32,7 @@ The structure of a file in Ballerina is as follow:
 
 ### Resources and Functions
 
-Resources are externally invokable whereas functions are internal subroutines that can only be invoked form a resource or based on a schedule.
+Resources are externally invokable whereas functions are internal subroutines that can only be invoked form a resource.
 
 The overall structure of a resource is as follows:
 
