@@ -217,7 +217,7 @@ div[class*="col-sm-"] {
 }
 
 #tabs-container{
-  height:100%;
+    height:100%;
     width:1700px;
 }
 #tab-container{
@@ -238,9 +238,9 @@ div[class*="col-sm-"] {
 /*//////////////////////////////////////////////////*/
 /** Breadcrumbs related styles | Start -> **/
 /*.breadcrumb{*/
-    /*padding-left: 50px;*/
-    /*display: inline-block;*/
-    /*float: right;*/
+/*padding-left: 50px;*/
+/*display: inline-block;*/
+/*float: right;*/
 /*}*/
 /** Breadcrumbs related styles | -> End **/
 /*//////////////////////////////////////////////////*/
