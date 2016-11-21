@@ -192,11 +192,30 @@ A ValueList may be an array or any object which supports iteration.
 TODO: Fix the following definition
 
 ```
-fork forkGroupIdentifier (messageVariableName) {
-        worker workerName (message variableName) {
-            reply res_nyse;
-        }+       
-}*
+fork (MessageName) {
+  worker workerName (message variableName) {
+    Statement;+
+    return MessageName;
+  }+       
+} join JoinCondition (message[] data) {
+  Statement;*
+}
+```
+When the `JoinCondition` has been satisfied, the corresponding slots of the message array will be filled with the returned messages from the workers in the order the workers' lexical order. If the condition asks for up to some number of results to be available to satisfy the condition, it may be the case that more than that number are avaialble by the time the statements within the join condition are executed. If a particular worker has not yet completed, the corresponding message slot will be null.
+
+#### Worker statement
+
+```
+worker WorkerName(message variableName) {
+  Statement;+
+  return MessageName;
+}
+```
+
+#### Wait statement
+
+```
+MessageName = wait WorkerName;
 ```
 
 #### Try/catch statement
