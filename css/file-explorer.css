@@ -1,0 +1,13 @@
+.file-explorer-activate-btn{
+    color: white;
+    margin-left: 5px;
+}
+.slider-container{
+    width: 120px;
+}
+
+.tree-highlight{
+    background-color: #373737;
+    position: absolute;
+    width: 100%;
+}

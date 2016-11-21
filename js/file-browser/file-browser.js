@@ -55,44 +55,6 @@ define(['jquery', 'backbone', 'lodash', 'tree_view', /** void module - jquery pl
             this._$parent_el.append(sliderContainer);
             sliderContainer.toggle( "slide" );
 
-            sliderContainer.jstree({
-                'core' : {
-                    'data' : {
-                        'url': function (node) {
-                            if(node.id === '#') {
-                                return self.workspaceServiceURL + "/root";
-                            }
-                            else {
-                                return self.workspaceServiceURL + "/list?path=" + btoa(node.id);
-                            }
-                        },
-                        'dataType': "json",
-                        'data' : function (node) {
-                            return { 'id' : node.id };
-                        }
-                    },
-                    'multiple' : false,
-                    'check_callback' : false,
-                    'force_text' : true,
-                    'themes' : {
-                        'responsive' : false,
-                        'variant' : 'small',
-                        'stripes' : true
-                    }
-                }
-            })
-            .on('changed.jstree', function (e, data) {
-                if(data && data.selected && data.selected.length) {
-                    self.selected = data.selected[0];
-                }
-                else {
-                    self.selected = false;
-                }
-            });
-
-
-            self.selected = false;
-
             var tree = new TreeMod.Models.Tree({
                 root: new TreeMod.Models.TreeItem({
                     name: "MyProj",
@@ -101,55 +63,17 @@ define(['jquery', 'backbone', 'lodash', 'tree_view', /** void module - jquery pl
                         new TreeMod.Models.TreeItem({
                             name: "Dir",
                             isDir: true,
-                            children: new TreeMod.Models.TreeItemList([new TreeMod.Models.TreeItem({name: "MyAP2"})])
+                            children: new TreeMod.Models.TreeItemList([new TreeMod.Models.TreeItem({name: "MyAP2"})] )
                         }),
                         new TreeMod.Models.TreeItem({name: "MyAP3"})])
                 })
             });
-            new TreeMod.Views.TreeView({model: tree}).render();
+            new TreeMod.Views.TreeView({model: tree, container: _.get(this._options, 'container')}).render();
             tree.on("select",function (e) {
                 console.log(e.path);
                 console.log(e.name);
             });
 
-
-            //jQuery(function($) {
-            //    $(self._options.container)
-            //        .jstree({
-            //            'core' : {
-            //                'data' : {
-            //                    'url': function (node) {
-            //                        if(node.id === '#') {
-            //                            return self.workspaceServiceURL + "/root";
-            //                        }
-            //                        else {
-            //                            return self.workspaceServiceURL + "/list?path=" + btoa(node.id);
-            //                        }
-            //                    },
-            //                    'dataType': "json",
-            //                    'data' : function (node) {
-            //                        return { 'id' : node.id };
-            //                    }
-            //                },
-            //                'multiple' : false,
-            //                'check_callback' : false,
-            //                'force_text' : true,
-            //                'themes' : {
-            //                    'responsive' : false,
-            //                    'variant' : 'small',
-            //                    'stripes' : true
-            //                }
-            //            }
-            //        })
-            //        .on('changed.jstree', function (e, data) {
-            //            if(data && data.selected && data.selected.length) {
-            //                self.selected = data.selected[0];
-            //            }
-            //            else {
-            //                self.selected = false;
-            //            }
-            //        });
-            //});
 
             return this;
         }

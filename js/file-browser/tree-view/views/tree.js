@@ -15,13 +15,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'backbone', './tree-item'], function (_, Backbone, TreeItemView) {
+define(['jquery', 'lodash', 'backbone', './tree-item'], function ($, _, Backbone, TreeItemView) {
 
     var TreeView = Backbone.View.extend({
-        el: "#tree",
+
+        initialize: function (options) {
+           this._options = options;
+            this._$parent_el = $(_.get(this._options, 'container'));
+        },
 
         render: function () {
-            var $el = this.$el;
+            var $el = $('<div></div>');
+            this._$parent_el.append($el);
             var model = this.model;
             var rootModel = model.attributes.root;
             var root = new TreeItemView({model: rootModel}).render();
