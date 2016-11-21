@@ -24,6 +24,8 @@ define(['d3'], function (d3) {
         icon: "images/tool-icons/lifeline.svg",
         class : "worker",
         shape: 'rect',
+        editable : true,
+        deletable: true,
         dragCursorOffset : { left: 50, top: 50 },
         createCloneCallback : function(view){
             function cloneCallBack() {

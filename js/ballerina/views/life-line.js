@@ -320,6 +320,16 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './proc
                     })
                 };
 
+                if(!_.isUndefined(this.model.definition.editable) && !_.isUndefined(this.model.definition.deletable)
+                    && this.model.definition.editable && this.model.definition.deletable) {
+                    this.addEditableAndDeletable(d3Ref, center, prefs, group, middleRect, lifeLineTopRectGroup);
+                }
+
+                return group;
+            },
+
+            addEditableAndDeletable: function(d3Ref, center, prefs, group, middleRect, lifeLineTopRectGroup){
+
                 var optionMenuStartX = center.x() + 2 + (prefs.rect.width + 30) / 2;
                 var optionMenuStartY = center.y() - prefs.rect.height / 2;
                 var optionsMenuGroup = group.append("g").attr("class", "option-menu option-menu-hide");
@@ -331,13 +341,13 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './proc
                     0,
                     0,
                     optionsMenuGroup, "#f8f8f3").
-                    attr("style", "stroke: #ede9dc; stroke-width: 1; opacity:0.5; cursor: pointer").
-                    on("mouseover", function () {
-                        d3.select(this).attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: .7; cursor: pointer");
-                    }).
-                    on("mouseout", function () {
-                        d3.select(this).attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: 0.5; cursor: pointer");
-                    });
+                attr("style", "stroke: #ede9dc; stroke-width: 1; opacity:0.5; cursor: pointer").
+                on("mouseover", function () {
+                    d3.select(this).attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: .7; cursor: pointer");
+                }).
+                on("mouseout", function () {
+                    d3.select(this).attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: 0.5; cursor: pointer");
+                });
 
                 var deleteOption = d3Ref.draw.rect(optionMenuStartX + 11,
                     optionMenuStartY + 3,
@@ -346,15 +356,15 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './proc
                     0,
                     0,
                     optionsMenuGroup, "url(#delIcon)").
-                    attr("style", "opacity:0.5; cursor: pointer").
-                    on("mouseover", function () {
-                        d3.select(this).attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: 1; cursor: pointer");
-                        optionMenuWrapper.attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: .7");
-                    }).
-                    on("mouseout", function () {
-                        d3.select(this).attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: 0.5; cursor: pointer");
-                        optionMenuWrapper.attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: 0.5; cursor: pointer");
-                    });
+                attr("style", "opacity:0.5; cursor: pointer").
+                on("mouseover", function () {
+                    d3.select(this).attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: 1; cursor: pointer");
+                    optionMenuWrapper.attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: .7");
+                }).
+                on("mouseout", function () {
+                    d3.select(this).attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: 0.5; cursor: pointer");
+                    optionMenuWrapper.attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: 0.5; cursor: pointer");
+                });
 
                 var editOption = d3Ref.draw.rect(optionMenuStartX + 11,
                     optionMenuStartY + 32,
@@ -363,15 +373,15 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './proc
                     0,
                     0,
                     optionsMenuGroup, "url(#editIcon)").
-                    attr("style", "opacity:0.5; cursor: pointer").
-                    on("mouseover", function () {
-                        d3.select(this).attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: 1; cursor: pointer");
-                        optionMenuWrapper.attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: .7; cursor: pointer");
-                    }).
-                    on("mouseout", function () {
-                        d3.select(this).attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: 0.5; cursor: pointer");
-                        optionMenuWrapper.attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: 0.5; cursor: pointer");
-                    });
+                attr("style", "opacity:0.5; cursor: pointer").
+                on("mouseover", function () {
+                    d3.select(this).attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: 1; cursor: pointer");
+                    optionMenuWrapper.attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: .7; cursor: pointer");
+                }).
+                on("mouseout", function () {
+                    d3.select(this).attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: 0.5; cursor: pointer");
+                    optionMenuWrapper.attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: 0.5; cursor: pointer");
+                });
 
                 var viewObj = this;
                 middleRect.on('mouseover', function () {
@@ -471,8 +481,6 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './proc
                         }
                     }
                 });
-
-                return group;
             }
 
         });
