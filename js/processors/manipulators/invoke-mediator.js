@@ -24,6 +24,8 @@ define(['d3', 'tree_node'], function (d3, TreeNode) {
         icon: "images/tool-icons/invoke.svg",
         colour : "#ffffff",
         type : "Action",
+        editable : true,
+        deletable: true,
         hasOutputConnection : true,
         dragCursorOffset : { left: 50, top: -5 },
         // For inout type message link value is 2
