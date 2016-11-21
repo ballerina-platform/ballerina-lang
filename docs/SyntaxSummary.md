@@ -17,7 +17,7 @@ Ballerina is not designed to be a general purpose language. Instead you should u
 This is an informal introduction to the Ballerina language.
 
 ## Structure of a Ballerina Program
-Every Ballerina program has both a textual representation and a normative visual representation. A Ballerina program can be modularized into a collection of files, with each file contributing one or more resources, functions or types. To access these from another file they must be explicitly imported by the other file.
+Every Ballerina program has both a textual representation and a normative visual representation. A Ballerina program can be modularized into a collection of packages, with each package(collection of files) contributing one or more resources, functions, actions or types. To access these from another package they must be explicitly imported by the other package.
 
 The structure of a file in Ballerina is as follow:
 
@@ -25,7 +25,7 @@ The structure of a file in Ballerina is as follow:
 [package PackageName;]
 [import (PackageWildCard|PackageName);]*
 
-(VariableDeclaration | TypeDefinition)*
+(VariableDeclaration | ActorDeclaration | TypeDefinition)*
 
 (ResourceDefinition | FunctionDefinition | ActionDefinition)+
 ```
@@ -61,7 +61,7 @@ function FunctionName ((TypeName VariableName)*) (TypeName*)
 
 All functions are public. Functions can be invoked from a resource or a function in the same package without an import. It may also be invoked from another package by either importing it first or by using its fully qualified name.
 
-The overall structure of a action is as follows:
+The overall structure of an action is as follows:
 
 ```
 action ActionName (TypeName ActorVariableName, (TypeName VariableName)*) (TypeName*)
