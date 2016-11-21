@@ -210,13 +210,14 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core',
                 d3.event.stopPropagation();
             });
 
-            // On click of the delete icon will delete the processor
             deleteOption.on("click", function () {
                 // Get the parent of the model and delete it from the parent
-                var parentModelChildren = viewObj.model.get("parent").get("children").models;
+                var parentModel = viewObj.model.get("parent");
+                var parentModelChildren = parentModel.get("children").models;
                 for (var itr = 0; itr < parentModelChildren.length; itr ++) {
                     if (parentModelChildren[itr].cid === viewObj.model.cid) {
-
+                        //reset parent height
+                        parentModel.setHeight(parentModel.getHeight() - parentModelChildren[itr].getHeight);
                         parentModelChildren.splice(itr, 1);
                         serviceView.render();
                         break;

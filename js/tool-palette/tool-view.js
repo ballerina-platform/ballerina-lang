@@ -20,7 +20,7 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'd3utils'], function (r
 
     var toolView = Backbone.View.extend({
 
-        toolTemplate: _.template("<div id=\"<%=id%>\" class=\"tool-container\"> <img src=\"<%=icon%>\" class=\"tool-image\"  /><p class=\"tool-title\"><%=title%></p></div>"),
+        toolTemplate: _.template("<div id=\"<%=id%>\" class=\"tool-container\"  data-placement=\"bottom\" data-toggle=\"tooltip\" title='<%=title%>'> <img src=\"<%=icon%>\" class=\"tool-image\"  /><p class=\"tool-title\"><%=title%></p></div>"),
 
         initialize: function (options) {
             _.extend(this, _.pick(options, ["toolPalette"]));
@@ -58,6 +58,7 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'd3utils'], function (r
             var dragCursorOffset = this.model.get("dragCursorOffset");
             var self = this;
             this.$el.html(this.toolTemplate(this.model.attributes));
+            this.$el.tooltip();
             parent.append(this.$el);
 
             this.$el.draggable({

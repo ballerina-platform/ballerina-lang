@@ -107,8 +107,8 @@ define(['d3', 'tree_node', 'app/ballerina/utils/module', 'app/ballerina/models/m
             },
             getMySubTree: function (model) {
                 var parameters = model.attributes.parameters;
-                var log_configStart = "log(level=\"" + parameters[1].value + "\"," + "status=\"" + parameters[0].value + "\"";
-                return new TreeNode("LogMediator", "LogMediator", log_configStart, ");");
+                var reply_configStart = "reply " + parameters[0].value;
+                return new TreeNode("ReplyMediator", "ReplyMediator", reply_configStart, ";");
             },
             outputs: false,
             getInputParams: function (model) {
@@ -116,6 +116,29 @@ define(['d3', 'tree_node', 'app/ballerina/utils/module', 'app/ballerina/models/m
                 inputParams[0] = model.attributes.parameters[0];
 
                 return inputParams;
+            },
+            createMyModel: function (model, view) {
+                var position = createPoint(0, 0);
+                var processor = model.createProcessor(
+                    Processors.manipulators.replyProcessor.title,
+                    position,
+                    Processors.manipulators.replyProcessor.id,
+
+                    {
+                        type: Processors.manipulators.replyProcessor.type || "UnitProcessor",
+                        initMethod: Processors.manipulators.replyProcessor.init,
+                        editable: Processors.manipulators.replyProcessor.editable,
+                        deletable: Processors.manipulators.replyProcessor.deletable,
+                        hasOutputConnection : Processors.manipulators.replyProcessor.hasOutputConnection,
+                        messageLinkType : Processors.manipulators.replyProcessor.messageLinkType
+                    },
+                    {colour: Processors.manipulators.replyProcessor.colour},
+                    Processors.manipulators.replyProcessor.parameters,
+                    Processors.manipulators.replyProcessor.utils
+                );
+                Processors.manipulators.replyProcessor.init(view.model, processor);
+                model.addChild(processor);
+                return processor;
             }
         }
     };

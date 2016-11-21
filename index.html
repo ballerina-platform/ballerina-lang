@@ -61,14 +61,14 @@
             <!-- End: alerts container row -->
             <!-- Start: breadcrumb row -->
             <div class="row" id="breadcrumb-container" >
-                <ol class="breadcrumb" id="breadcrumbs">
-                </ol>
+                <!--<ol class="breadcrumb" id="breadcrumbs">-->
+                <!--</ol>-->
             </div>
             <!-- End: breadcrumb row -->
             <!-- Start: file explorer and editor area row -->
             <div class="row">
                 <!-- Start: left container -->
-                <div id="left-container" class="col-sm-2">
+                <div id="left-container" class="col-sm-2" style="display:none">
                     <!-- Start: file explorer -->
                     <div id="file-browser">
                     </div>
@@ -76,7 +76,7 @@
                 </div>
                 <!-- End: left container -->
                 <!-- Start: right container -->
-                <div id="right-container" class="col-sm-10">
+                <div id="right-container" class="col-sm-12">
                     <!-- Start: service tabs wrapper container-->
                     <div class="container-fluid" id="service-tabs-wrapper">
                         <!-- Start: service tabs wrapper row -->
@@ -154,7 +154,7 @@
                 <h4 class="modal-title">Select root folder</h4>
             </div>
             <div class="modal-body">
-                <div class="container-fluid" style="padding: 15px; max-height: 450px; overflow-x: hidden; overflow-y: scroll">
+                <div class="container-fluid .file-browser-container">
                     <div id="fileTree"></div>
                     <div id="file-browser-error" class="alert alert-danger" style="display: none;">
                     </div>

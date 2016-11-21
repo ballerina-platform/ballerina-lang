@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'd3', 'diagram_core'], function ( _, d3, DiagramCore) {
+define(['lodash', 'd3', 'diagram_core', 'app/ballerina/models/life-line'], function ( _, d3, DiagramCore, LifeLine) {
 
     var ContainableProcessorElementView = DiagramCore.Views.ShapeView.extend(
         /** @lends ContainableProcessorElement.prototype */
@@ -68,7 +68,7 @@ define(['lodash', 'd3', 'diagram_core'], function ( _, d3, DiagramCore) {
                 var modelHeight = model.getHeight();
 
 
-                var rectBottomXXX = d3Ref.draw.rectWithTitle(
+                var rect = d3Ref.draw.rectWithTitle(
                     center,
                     60,
                     30,
@@ -80,12 +80,8 @@ define(['lodash', 'd3', 'diagram_core'], function ( _, d3, DiagramCore) {
                     this.modelAttr('viewAttributes').colour,
                     this.modelAttr('title')
                 );
-                // var height = (model.getHeight() - prefs.rect.height);
-                var middleRect = d3Ref.draw.centeredBasicRect( new DiagramCore.Models.Point({'x': center.x(), 'y':  center.y()+30}), 150, height, 0, 0);
-                middleRect.on("mousedown", function () {
-                    var m = d3.mouse(this);
-                    viewObj.serviceView.model.trigger("messageDrawStart", viewObj.model,  new DiagramCore.Models.Point({'x': center.x(), 'y': m[1]}));
-                }).on('mouseover', function () {
+
+                rect.middleRect.on('mouseover', function () {
                     viewObj.serviceView.model.selectedNode = viewObj.model;
                     d3.select(this).style("fill", "green").style("fill-opacity", 0.1);
                 }).on('mouseout', function () {
@@ -95,10 +91,10 @@ define(['lodash', 'd3', 'diagram_core'], function ( _, d3, DiagramCore) {
                 }).on('mouseup', function (data) {
                 });
 
-                group.middleRect = middleRect;
-                group.rect = rectBottomXXX.containerRect;
-                group.titleRect = rectBottomXXX.titleRect;
-                group.text = rectBottomXXX.text;
+                group.middleRect = rect.middleRect;
+                group.rect = rect.containerRect;
+                group.titleRect = rect.titleRect;
+                group.text = rect.text;
 
                 var centerPoint = center;
                 var xValue = centerPoint.x();
@@ -108,7 +104,7 @@ define(['lodash', 'd3', 'diagram_core'], function ( _, d3, DiagramCore) {
                 var totalWidth = 150;
                 this.model.setHeight(30);
 
-                var initWidth =rectBottomXXX.containerRect.attr("width");
+                var initWidth =rect.containerRect.attr("width");
 
                 yValue += 60;
                 for (var id in this.modelAttr("children").models) {
@@ -144,20 +140,20 @@ define(['lodash', 'd3', 'diagram_core'], function ( _, d3, DiagramCore) {
                 }
 
                 var deviation = (totalWidth - initWidth)/2;
-                var newX = parseInt(rectBottomXXX.containerRect.attr("x")) - deviation;
+                var newX = parseInt(rect.containerRect.attr("x")) - deviation;
 
-                rectBottomXXX.containerRect.attr("height", totalHeight);
-                rectBottomXXX.containerRect.attr("width", totalWidth);
-                rectBottomXXX.containerRect.attr("x", newX);
-                rectBottomXXX.titleRect.attr("x", parseInt(rectBottomXXX.titleRect.attr("x")) - deviation);
-                rectBottomXXX.text.attr("x", parseInt(rectBottomXXX.text.attr("x")) - deviation);
+                rect.containerRect.attr("height", totalHeight);
+                rect.containerRect.attr("width", totalWidth);
+                rect.containerRect.attr("x", newX);
+                rect.titleRect.attr("x", parseInt(rect.titleRect.attr("x")) - deviation);
+                rect.text.attr("x", parseInt(rect.text.attr("x")) - deviation);
                 this.model.setHeight(totalHeight);
                 this.model.get("parent").setHeight(this.model.get("parent").getHeight() + totalHeight - modelHeight);
                 this.model.setWidth(totalWidth);
                 this.model.setX(newX);
-                middleRect.attr("height", totalHeight-30);
-                middleRect.attr("width", totalWidth);
-                middleRect.attr("x", parseInt(middleRect.attr("x")) - deviation);
+                rect.middleRect.attr("height", totalHeight-30);
+                rect.middleRect.attr("width", totalWidth);
+                rect.middleRect.attr("x", parseInt(rect.middleRect.attr("x")) - deviation);
 
                 if (viewObj.model.get("title") === "Try" || viewObj.model.get("title") === "If") {
                     var optionsMenuGroup = group.append("g").attr("class", "option-menu option-menu-hide");
@@ -214,7 +210,7 @@ define(['lodash', 'd3', 'diagram_core'], function ( _, d3, DiagramCore) {
                         });
 
                     // On click of the mediator show/hide the delete icon
-                    rectBottomXXX.containerRect.on("click", function () {
+                    rect.containerRect.on("click", function () {
                         viewObj.serviceView.model.selectedNode = viewObj.model;
 
                         if (optionsMenuGroup.classed("option-menu-hide")) {
@@ -265,9 +261,18 @@ define(['lodash', 'd3', 'diagram_core'], function ( _, d3, DiagramCore) {
 
                     deleteOption.on("click", function () {
                         //Get the parent of the model and delete it from the parent
-                        var parentModelChildren = viewObj.model.get("parent").get("parent").get("children").models;
+                        var parentModel = viewObj.model.get("parent").get("parent");
+                        var parentModelChildren = parentModel.get("children").models;
                         for (var itr = 0; itr < parentModelChildren.length; itr ++) {
                             if (parentModelChildren[itr].cid === viewObj.model.get("parent").cid) {
+                                //reset parent height
+                                parentModel.setHeight(parentModel.getHeight() - parentModelChildren[itr].getHeight);
+                                var parentElement = parentModel;
+                                //Find the most recent Lifeline parent and adjust height
+                                while(!(parentElement instanceof LifeLine)){
+                                    parentElement = parentElement.get("parent")
+                                }
+                                parentElement.setHeight(parentElement.getHeight - parentModelChildren[itr].getHeight);
                                 parentModelChildren.splice(itr, 1);
                                 viewObj.serviceView.render();
                                 break;

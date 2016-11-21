@@ -554,17 +554,9 @@ function (require, log, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements,
                             serviceView.render();
                         } else if (id == "EndPoint") {
                             var countOfEndpoints = txt.endpointLifeLineCounter();
-                            //only one endpoint is allowed in this version TODO:
-                            if (countOfEndpoints === 0) {
-                                ++countOfEndpoints;
-                                serviceView.renderMainElement(id, countOfEndpoints, _.get(MainElements, 'lifelines.EndPoint'));
-                                txt.endpointLifeLineCounter(countOfEndpoints);
-                            }//validation check for number of endpoints in a tab
-                            else {
-                                $('#endpointModal').modal('show');
-                            }
-
-
+                            ++countOfEndpoints;
+                            serviceView.renderMainElement(id, countOfEndpoints, _.get(MainElements, 'lifelines.EndPoint'));
+                            txt.endpointLifeLineCounter(countOfEndpoints);
                         } else if (id == "Resource") {
                             var countOfResources = txt.resourceLifeLineCounter();
                             //if no resource elements added to this tab view, as only one resource element is allowed in a tab
@@ -768,14 +760,16 @@ function (require, log, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements,
                     type = "EndPoint";
                     if (numberOfEndpointElements > 0) {
                         var lastEpLifeLine = this.model.attributes.diagramEndpointElements.models[numberOfEndpointElements - 1];
-                        centerPoint = utils.createPoint(lastEpLifeLine.rightLowerCorner().x + 115, 50);
+                        var rightCorner = lastEpLifeLine.get('centerPoint').x() + lastEpLifeLine.get('textModel').get('dynamicRectWidth')/2;
+                        centerPoint = utils.createPoint(rightCorner + 115, 50);
                     } else if (numberOfWorkerElements > 0) {
                         var lastWorkerLifeLine = this.model.attributes.diagramWorkerElements.models[numberOfWorkerElements - 1];
-                        centerPoint = utils.createPoint(lastWorkerLifeLine.rightLowerCorner().x + 115, 50);
+                        var rightCorner = lastWorkerLifeLine.get('centerPoint').x() + lastWorkerLifeLine.get('textModel').get('dynamicRectWidth')/2;
+                        centerPoint = utils.createPoint(rightCorner + 115, 50);
                     } else {
                         var resourceLifeLine = this.model.attributes.diagramResourceElements.models[numberOfResourceElements - 1];
-                        //centerPoint = utils.createPoint(resourceLifeLine.rightLowerCorner().x + 115, 50);
-                        centerPoint = utils.createPoint(115, 50);
+                        var rightCorner = resourceLifeLine.get('centerPoint').x() + resourceLifeLine.get('textModel').get('dynamicRectWidth')/2;
+                        centerPoint = utils.createPoint(rightCorner + 115, 50);
                     }
                 } else if (lifelineName == "Worker") {
                     type = "Worker";

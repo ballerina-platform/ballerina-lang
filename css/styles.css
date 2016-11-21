@@ -3,7 +3,7 @@ body{
 }
 
 #alerts-container{
-  display:none
+    display:none
 }
 #right-container{
     background-color: #232323;
@@ -50,6 +50,7 @@ svg text::selection { background: none; }
 
 .canvas-container
 {
+    width: 100%;
     opacity: 100%;
     background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAHUlEQVQYV2NkYGAwBuKzQIwXMBJSAJMfVUidcAQAnUQBC6jEGBUAAAAASUVORK5CYII=');
     background-color: white;
@@ -62,8 +63,8 @@ svg text::selection { background: none; }
 /*//////////////////////////////////////////////////*/
 /** Resource level tabs related styles | Start -> **/
 #tab-container{
-    border-bottom-style: solid;
-    border-bottom-color: #8d8d8d;
+    /*border-bottom-style: solid;*/
+    /*border-bottom-color: #8d8d8d;*/
 }
 .tab-headers{
     background-color: #e4e4e4;
@@ -86,8 +87,7 @@ svg text::selection { background: none; }
 }
 
 .nav-tabs > li > a{
-    border-right: 1px solid darkgrey;
-    border-bottom: 1px solid white;
+    border-bottom: 1px solid #8d8d8d;
 }
 
 .nav-tabs > li > span {
@@ -101,14 +101,14 @@ svg text::selection { background: none; }
 
 .nav-tabs > li > a {
     padding-right: 32px;
-    padding-top: 1px;
+    padding-top: 3px;
     margin: 0;
     font-size: 0.8em;
     border-radius: 0;
 }
 
 .nav-tabs > li {
-    background-color: #f8f8f8;
+    background-color:  #c4c4c4;
 }
 
 .nav-tabs{
@@ -131,14 +131,16 @@ svg text::selection { background: none; }
 .nav-tabs > li.active > a:hover,
 .nav-tabs > li.active > a:focus {
     border: 1px solid #8d8d8d;
-    background-color: #373737;
+    background-color: #c4c4c4;
     color: white;
 }
 
 .remove-resource {
     position: absolute;
-    top: 14px;
+    top: 8px;
     right: 9px;
+    font-size: 8px;
+    color: #a8a8a8;
 }
 
 .close-icon {
@@ -195,18 +197,48 @@ span.tree-action{
 
 /*//////////////////////////////////////////////////*/
 /** Breadcrumbs related styles | Start -> **/
-.breadcrumb{
-    text-transform: none;
-    font-size: 14px;
-    padding: 16px;
-    background-color: #f1f1f1;
-    float:left;
+
+header .brand img.logo {
+    height: 20px;
+    padding: 0px 10px;
 }
-#breadcrumbRow{
-    border-bottom: 2px solid #1e1e1e;
+
+header .brand {
+    padding: 5px;
 }
-#breadcrumb-container{
-    background-color:#f1f1f1;
+
+header .brand h1 {
+    font-size: 15px;
+}
+
+ol#breadcrumbList {
+    background-color: #444;
 }
 /** Breadcrumbs related styles | -> End**/
 /*//////////////////////////////////////////////////*/
+.settings-icon{
+    padding-top:5px;
+}
+.source-icon{
+    padding-top:5px;
+}
+.file-browser-container
+{
+    padding: 15px;
+    max-height: 450px;
+    overflow-x: hidden;
+    overflow-y: scroll;
+}
+header .brand img.logo {
+    height: 20px;
+    padding: 0px 10px;
+}
+header .brand {
+    padding:5px;
+}
+header .brand h1 {
+    font-size: 15px;
+}
+ol#breadcrumbList {
+    background-color: #444;
+}
