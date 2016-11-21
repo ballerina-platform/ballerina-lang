@@ -17,7 +17,7 @@ Ballerina is not designed to be a general purpose language. Instead you should u
 This is an informal introduction to the Ballerina language.
 
 ## Structure of a Ballerina Program
-Every Ballerina program has both a textual representation and a normative visual representation. A Ballerina program can be modularized into a collection of files, with each file contributing one or more resources, functions or types. To access these from another file they must be explicitly imported by the other file.
+Every Ballerina program has both a textual representation and a normative visual representation. A Ballerina program can be modularized into a collection of packages, with each package(collection of files) contributing one or more resources, functions, actions or types. To access these from another package they must be explicitly imported by the other package.
 
 The structure of a file in Ballerina is as follow:
 
@@ -25,14 +25,14 @@ The structure of a file in Ballerina is as follow:
 [package PackageName;]
 [import (PackageWildCard|PackageName);]*
 
-(VariableDeclaration | TypeDefinition)*
+(VariableDeclaration | ActorDeclaration | TypeDefinition)*
 
-(ResourceDefinition | FunctionDefinition)+
+(ResourceDefinition | FunctionDefinition | ActionDefinition)+
 ```
 
-### Resources and Functions
+### Resource Definition
 
-Resources are externally invokable whereas functions are internal subroutines that can only be invoked form a resource.
+Resources are externally invokable whereas functions are internal subroutines that can only be invoked form a resource. Actions are subroutines that are associated with an actor. 
 
 The overall structure of a resource is as follows:
 
@@ -49,6 +49,8 @@ The visual representation of this (without the annotations) is as follows:
 
 ![bal-resource-skeleton.png]()
 
+### Function Definition
+
 A file may also contain functions who’s structure is as follows:
 
 ```
@@ -58,9 +60,26 @@ function FunctionName ((TypeName VariableName)*) (TypeName*)
     Statement+
 }
 ```
-All functions are public. Functions can be invoked from a resource or a function in the same file. It may also be invoked from another file by either importing it first or by using its fully qualified name.
 
-### Variables & Types
+All functions are public. Functions can be invoked from a resource or a function in the same package without an import. It may also be invoked from another package by either importing it first or by using its fully qualified name.
+
+### Action Definition
+
+The overall structure of an action is as follows:
+
+```
+action ActionName (TypeName ActorName, (TypeName VariableName)*) (TypeName*)
+        [throws ExceptionName [, ExceptionName]*] {
+    VariableDeclaration*
+    Statement+
+}
+```
+
+First argument of an action should be associated with an actor.
+
+All actions are public. Actions can be invoked from a resource or a function in the same package without an import. It may also be invoked from another file by either importing it first or by using its fully qualified name.
+
+### Variable Declaration
 
 A VariableDeclaration has the following structure:
 
@@ -79,12 +98,16 @@ There are also built in types to represent XML and JSON valued objects. XMLEleme
 - XMLElement
 - JSON
 
+### Type Definition
+
 User defined types are defined using a TypeDefinition as follows:
 ```
 type TypeName {
     TypeName VariableName;+
 }
 ```
+
+### Array Types
 
 Array types can be defined by using the array constructor as follows:
 - int[]
@@ -96,6 +119,16 @@ Array types can be defined by using the array constructor as follows:
 
 All arrays are unbounded in length and support 0 based indexing. Array length can be determined by checking the `.length` property of the array typed variable.
 
+### Actor Declaration
+
+TODO: What is an actor? Representation of an external system. 
+
+A ActorDeclaration has the following structure:
+
+```
+actor TypeName ActorName;
+```
+
 ### Statements
 
 A Statement may be one of the following:
@@ -104,15 +137,46 @@ A Statement may be one of the following:
 - switch statement
 - foreach statement
 - fork/join statement
-- invocation statement
 - try/catch statement
 - return statement
 - reply statement
+
+#### Assignment statement
 
 Assignment statements look like the following:
 ```
 VariableName = Expression;
 ```
+
+#### If statement
+
+Provides a way to perform conditional execution.
+```
+if (condition) {
+  VariableDeclaration*
+  Statement+	
+} 
+[else if (condition){
+  VariableDeclaration*
+  Statement+
+}]* 
+  else {
+  VariableDeclaration*
+  Statement+
+}
+```
+
+#### Switch statement
+
+Provides a way to perform conditional execution.
+```
+switch (predicate) {
+        (case valueX:)+
+	default:
+}*
+```
+
+#### Foreach statement
 
 A `foreach` statement provides a way to iterate through a list in order. A `foreach` statement has the following structure:
 ```
@@ -122,3 +186,66 @@ foreach (VariableType VariableName : ValueList) {
 }
 ```
 A ValueList may be an array or any object which supports iteration.
+
+#### Fork/join statement 
+
+TODO: Fix the following definition
+
+```
+fork (MessageName) {
+  worker workerName (message variableName) {
+    Statement;+
+    return MessageName;
+  }+       
+} join JoinCondition (message[] data) {
+  Statement;*
+}
+```
+When the `JoinCondition` has been satisfied, the corresponding slots of the message array will be filled with the returned messages from the workers in the order the workers' lexical order. If the condition asks for up to some number of results to be available to satisfy the condition, it may be the case that more than that number are avaialble by the time the statements within the join condition are executed. If a particular worker has not yet completed, the corresponding message slot will be null.
+
+#### Worker statement
+
+```
+worker WorkerName(message variableName) {
+  Statement;+
+  return MessageName;
+}
+```
+
+#### Wait statement
+
+```
+MessageName = wait WorkerName;
+```
+
+#### Try/catch statement
+
+
+```
+try {
+  VariableDeclaration*
+  Statement+
+} catch (exception e) { 
+  VariableDeclaration*
+  Statement+
+} finally {
+  VariableDeclaration*
+  Statement+
+}
+```
+
+#### Return statement
+
+```
+return (VariableName)*
+```
+
+#### Reply statement
+
+```
+reply 
+```
+
+## Configuration Management
+
+Several Ballerina constructs such as actors and resources have configurable parameters. Examples include the URI of an HTTP endpoint and timeout values. These values MAY be set explicitly within the program using annotations but such values can be overridden from outside the program by applying appropriate property values. These values may be set via environment variables or other deployment management approaches.
