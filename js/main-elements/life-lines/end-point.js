@@ -22,7 +22,7 @@ define(['d3'], function (d3) {
     var EndPointLifeline = {
         id: "EndPoint",
         title: "End Point",
-        icon: "images/tool-icons/lifeline.svg",
+        icon: "images/tool-icons/dgm-lifeline.svg",
         class : "endpoint",
         shape: 'rect',
         dragCursorOffset : { left: 50, top: 50 },

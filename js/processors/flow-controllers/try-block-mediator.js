@@ -22,7 +22,7 @@ define(['d3', 'tree_node'], function (d3, TreeNode) {
     var TryBlockMediator = {
         id: "TryBlockMediator",
         title: "Try Block",
-        icon: "images/tool-icons/tryblock.svg",
+        icon: "images/tool-icons/dgm-try-catch.svg",
         colour : "#ffffff",
         type : "ComplexProcessor",
         containableElements: [{container:"tryContainer",children:[{title:"Try"}]},{container:"catchContainer",children:[{title:"Catch"}]}],
@@ -30,7 +30,7 @@ define(['d3', 'tree_node'], function (d3, TreeNode) {
         createCloneCallback : function(view){
             function cloneCallBack() {
                 var div = view.createContainerForDraggable();
-                d3.xml("images/tool-icons/tryblock_drag.svg").mimeType("image/svg+xml").get(function(error, xml) {
+                d3.xml("images/tool-icons/dgm-try-catch.svg").mimeType("image/svg+xml").get(function(error, xml) {
                     if (error) throw error;
                     var svg = xml.getElementsByTagName("svg")[0];
                     d3.select(svg).attr("width", "100px").attr("height", "85px");

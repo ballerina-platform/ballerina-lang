@@ -21,14 +21,14 @@ define(['d3', 'tree_node'], function (d3, TreeNode) {
     var ForkProcessor = {
         id: "ForkProcessor",
         title: "Fork",
-        icon: "images/tool-icons/datamapper.svg",
+        icon: "images/tool-icons/dgm-fork.svg",
         colour : "#27ae60",
         type : "CustomProcessor",
         dragCursorOffset : { left: 50, top: -5 },
         createCloneCallback : function(view){
             function cloneCallBack() {
                 var div = view.createContainerForDraggable();
-                d3.xml("images/tool-icons/datamapper_drag.svg").mimeType("image/svg+xml").get(function(error, xml) {
+                d3.xml("images/tool-icons/dgm-fork.svg").mimeType("image/svg+xml").get(function(error, xml) {
                     if (error) throw error;
                     var svg = xml.getElementsByTagName("svg")[0];
                     d3.select(svg).attr("width", "100px").attr("height", "140px");
