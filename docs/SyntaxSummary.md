@@ -245,3 +245,7 @@ return (VariableName)*
 ```
 reply 
 ```
+
+## Configuration Management
+
+Several Ballerina constructs such as actors and resources have configurable parametes. Examples include the URI of an HTTP endpoint and timeout values. These values MAY be set explicitly within the program using annotations but such values can be overridden from outside the program by applying appropriate property values. These values may be set via environment variables or other deployment management approaches.
