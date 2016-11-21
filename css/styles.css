@@ -131,7 +131,7 @@ svg text::selection { background: none; }
 .nav-tabs > li.active > a:hover,
 .nav-tabs > li.active > a:focus {
     border: 1px solid #8d8d8d;
-    background-color: #373737;
+    background-color: #c4c4c4;
     color: white;
 }
 
