@@ -33,8 +33,6 @@ define(['require', 'log', 'jquery', 'backbone', 'command'],
                     log.error(errMsg);
                     throw errMsg;
                 }
-                var editorDiv = $(_.get(options, 'application.config.container'));
-                editorDiv.css('display', 'none');
                 this._$parent_el = container;
                 this._options = options;
 
@@ -87,10 +85,9 @@ define(['require', 'log', 'jquery', 'backbone', 'command'],
                 this.$el = backgroundDiv;
 
                 var command = this._options.application.commandManager;
-                var getStartedOpts = this._options;
 
                 $(newButton).on('click', function () {
-                    command.dispatch("create-new-tab", getStartedOpts);
+                    command.dispatch("create-new-tab");
 
                 });
             }

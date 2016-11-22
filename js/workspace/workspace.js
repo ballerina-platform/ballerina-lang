@@ -29,13 +29,14 @@ define(['jquery', 'lodash', 'backbone', 'file_browser', 'log', 'bootstrap'], fun
         }
 
 
-        this.createNewTab = function createNewTab(options){
+        this.createNewTab = function createNewTab(){
 
-            var welcomeContainerId = options.container;
+            var welcomeContainerId = app.config.welcome.container;
             $(welcomeContainerId).css("display","none");
-            var editorId = options.application.config.container;
+            var editorId = app.config.container;
             $(editorId).css("display","block");
-            options.application.tabController.newTab();
+           app.tabController.newTab();
+
 
         };
 
