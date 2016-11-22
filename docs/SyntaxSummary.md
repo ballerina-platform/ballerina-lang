@@ -54,14 +54,14 @@ The visual representation of this (without the annotations) is as follows:
 A file may also contain functions who’s structure is as follows:
 
 ```
-function FunctionName ((TypeName VariableName)*) (TypeName*)
+[public] function FunctionName ((TypeName VariableName)*) (TypeName*)
         [throws ExceptionName [, ExceptionName]*] {
     VariableDeclaration*
     Statement+
 }
 ```
 
-All functions are public. Functions can be invoked from a resource or a function in the same package without an import. It may also be invoked from another package by either importing it first or by using its fully qualified name.
+All functions are private to the package unless explicitly declared to be public with the `public` keyword.. Functions can be invoked from a resource or a function in the same package without an import. It may also be invoked from another package by either importing it first or by using its fully qualified name.
 
 ### Action Definition
 
@@ -86,13 +86,13 @@ A VariableDeclaration has the following structure:
 ```
 var TypeName VariableName[(, VariableName)*];
 ```
-variable delcaration can assign a value as following. 
+variable delcaration can assign a value as following.
 
 ```
 var TypeName VariableName = value;
 ```
 
-Value can be a integer, a float, a string "hello", a map, or XML or Json literals. Following are examples. 
+Value can be a integer, a float, a string, a map, or XML or Json literals. Following are examples.
 
 ```
 var int age = 4;
@@ -102,7 +102,7 @@ var xmlElement address_xml = `<address><name>$name</name></address>`
 var json address_json = `{ "name":"$name", "streetName":"$street"}`
 var map = {"name":"John", "age":34 }
 ```
-Here $name is a varaible that is avialable at the current scope. 
+Here $name is a variable that is avialable at the current scope.
 
 A TypeName is one of the following built in types or a user defined type name.
 - boolean
