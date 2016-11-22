@@ -102,7 +102,7 @@ var xmlElement address_xml = `<address><name>$name</name></address>`
 var json address_json = `{ "name":"$name", "streetName":"$street"}`
 var map = {"name":"John", "age":34 }
 ```
-Here $name is a variable that is avialable at the current scope.
+Here $name is a variable that is available at the current scope.
 
 A TypeName is one of the following built in types or a user defined type name.
 - boolean
@@ -113,7 +113,7 @@ A TypeName is one of the following built in types or a user defined type name.
 - string
 - xmlElement[<{XSD_namespace_name}type_name>]
 - xmlDocument
-- json[<json_schema_name>]
+- json\[<json_schema_name>]
 - message
 - map
 
@@ -140,7 +140,7 @@ All arrays are unbounded in length and support 0 based indexing. Array length ca
 
 ### Type Conversion
 
-For XML and JSON types we can declare a schema as discussed in XXXXXX.
+For XML and JSON types we can declare a schema as discussed in [Variable Declaration](#variable-declaration).
 To convert between types we can define a typeconverter as follows:
 ```
 typeconverter TypeConverterName (TypeName VariableName) (TypeName) {
