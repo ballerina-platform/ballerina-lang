@@ -10,9 +10,9 @@ native function hasSuffix(string s, string sufix) (boolean);
 
 native function indexOf(string s, string str) (int);
 
-native function lastIndexOf(string, string str) (int);
+native function lastIndexOf(string s, string str) (int);
 
-native function replace(string old, string new) (string);
+native function replace(string s, string old, string new) (string);
 
 native function split(string s, string sep) (string[]);
 
