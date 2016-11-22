@@ -24,6 +24,7 @@
 
     <link rel="stylesheet" type="text/css" href="css/sequence_diagram/sequenced-styles.css"/>
     <link rel="stylesheet" type="text/css" href="css/tool-palette.css"/>
+    <link rel="stylesheet" type="text/css" href="css/file-explorer.css"/>
     <link rel="stylesheet" type="text/css" href="css/diagram/preview-pane.css"/>
     <link rel="stylesheet" type="text/css" href="css/styles.css"/>
     <title>Integration Server Tooling</title>
@@ -72,7 +73,7 @@
             <!-- Start: file explorer and editor area row -->
             <div class="row">
                 <!-- Start: left container -->
-                <div id="left-container" class="col-sm-2" style="display:none">
+                <div id="left-container" class="col-sm-2">
                     <!-- Start: file explorer -->
                     <div id="file-browser">
                     </div>
@@ -80,7 +81,7 @@
                 </div>
                 <!-- End: left container -->
                 <!-- Start: right container -->
-                <div id="right-container" class="col-sm-12">
+                <div id="right-container" class="col-sm-10">
                     <!-- Start: service tabs wrapper container-->
                     <div class="container-fluid" id="service-tabs-wrapper">
                         <!-- Start: service tabs wrapper row -->
@@ -349,12 +350,19 @@
             }
         },
         packages: [
+
                       {
                            name: 'welcome',
                            location: 'js/welcome-screen',
                            main: 'module'
+                     },
+                     {
+                          name: 'tree_view',
+                          location: 'js/file-browser/tree-view',
+                          main: 'module'
                      }
-           ]
+                ]
+
     });
 
     require(['app/main'], function(Application) {
@@ -453,7 +461,11 @@
                 }
             },
             file_browser: {
-                container: "#file-browser"
+                container: "#file-browser",
+                cssClass: {
+                    activateBtn: 'fw fw-file-browse file-explorer-activate-btn',
+                    sliderContainer: 'slider-container'
+                }
             }
         };
         app = new Application(config);

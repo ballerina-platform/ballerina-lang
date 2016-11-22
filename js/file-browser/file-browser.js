@@ -16,61 +16,64 @@
  * under the License.
  */
 
-define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'js_tree'], function (require, $, d3, Backbone, _) {
+define(['jquery', 'backbone', 'lodash', 'tree_view', /** void module - jquery plugin **/ 'js_tree'], function ( $, Backbone, _, TreeMod) {
 
     var FileBrowser = Backbone.View.extend({
 
         initialize: function (config) {
-            if(!_.has(config, 'container')){
-                log.error('Cannot init file browser. config: container not found.')
+            var errMsg;
+            if (!_.has(config, 'container')) {
+                errMsg = 'unable to find configuration for container';
+                log.error(errMsg);
+                throw errMsg;
             }
+            var container = $(_.get(config, 'container'));
+            // check whether container element exists in dom
+            if (!container.length > 0) {
+                errMsg = 'unable to find container for file browser with selector: ' + _.get(config, 'container');
+                log.error(errMsg);
+                throw errMsg;
+            }
+            this._$parent_el = container;
+
             if(!_.has(config, 'application')){
                 log.error('Cannot init file browser. config: application not found.')
             }
-            this.options = config;
+            this.application = _.get(config, 'application');
+            this._options = config;
+            this.workspaceServiceURL = _.get(this._options, 'application.config.services.workspace.endpoint');
         },
 
         render: function () {
-            var self = this,
-                workspaceServiceURL = _.get(this.options, 'application.config.services.workspace.endpoint');
-            self.selected = false;
-            jQuery(function($) {
-                $(self.options.container)
-                    .jstree({
-                        'core' : {
-                            'data' : {
-                                'url': function (node) {
-                                    if(node.id === '#') {
-                                        return workspaceServiceURL + "/root";
-                                    }
-                                    else {
-                                        return workspaceServiceURL + "/list?path=" + btoa(node.id);
-                                    }
-                                },
-                                'dataType': "json",
-                                'data' : function (node) {
-                                    return { 'id' : node.id };
-                                }
-                            },
-                            'multiple' : false,
-                            'check_callback' : false,
-                            'force_text' : true,
-                            'themes' : {
-                                'responsive' : false,
-                                'variant' : 'small',
-                                'stripes' : true
-                            }
-                        }
-                    })
-                    .on('changed.jstree', function (e, data) {
-                        if(data && data.selected && data.selected.length) {
-                            self.selected = data.selected[0];
-                        }
-                        else {
-                            self.selected = false;
-                        }
-                    });
+            var self = this;
+            var activateBtn = $('<i></i>');
+            this._$parent_el.append(activateBtn);
+            activateBtn.addClass(_.get(this._options, 'cssClass.activateBtn'));
+
+            var sliderContainer = $('<div></div>');
+            sliderContainer.addClass(_.get(this._options, 'cssClass.sliderContainer'));
+            this._$parent_el.append(sliderContainer);
+            sliderContainer.toggle( "slide" );
+
+            var tree = new TreeMod.Models.Tree({
+                root: new TreeMod.Models.TreeItem({
+                    name: "MyProj",
+                    isDir: true,
+                    children: new TreeMod.Models.TreeItemList([
+                        new TreeMod.Models.TreeItem({
+                            name: "Dir",
+                            isDir: true,
+                            children: new TreeMod.Models.TreeItemList([new TreeMod.Models.TreeItem({name: "MyAP2"})] )
+                        }),
+                        new TreeMod.Models.TreeItem({name: "MyAP3"})])
+                })
             });
+            new TreeMod.Views.TreeView({model: tree, container: _.get(this._options, 'container')}).render();
+            tree.on("select",function (e) {
+                console.log(e.path);
+                console.log(e.name);
+            });
+
 
             return this;
         }
