@@ -220,7 +220,6 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core',
                         //reset parent height
                         var currentElementHeight = parentModelChildren[itr].getHeight();
                         parentModel.setHeight(parentModel.getHeight() - currentElementHeight);
-                        parentModelChildren.splice(itr, 1);
                         var parentElement = parentModel;
                         //todo chnage this to get first lifeline type parent instead of Resource
                         while(!(parentElement.get("type") === "Resource")){
@@ -228,6 +227,7 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core',
                         }
                         // save current life-line height
                         var lifelineHeight = parentElement.getHeight();
+                        //removing current processor
                         parentModelChildren.splice(itr, 1);
                         if(lifelineHeight + currentElementHeight >= highestHeight){
                             viewObj.model.get("serviceView").highestLifeline.setHeight(highestHeight - currentElementHeight);
