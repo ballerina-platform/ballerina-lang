@@ -1,9 +1,10 @@
-.file-explorer-activate-btn{
+.workspace-explorer-activate-btn{
     color: white;
     margin-left: 5px;
 }
-.slider-container{
+.workspace-explorer-container{
     width: 120px;
+    color: white;
 }
 
 .tree-highlight{

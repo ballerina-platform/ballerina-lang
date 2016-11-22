@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['jquery', 'lodash', 'backbone', 'file_browser', 'logger', 'bootstrap'], function ($, _, Backbone, FileBrowser, log) {
+define(['jquery', 'lodash', 'backbone', 'log'], function ($, _, Backbone, log) {
 
     var File = Backbone.View.extend(
         {
