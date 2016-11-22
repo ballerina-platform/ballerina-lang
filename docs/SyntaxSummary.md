@@ -32,7 +32,7 @@ The structure of a file in Ballerina is as follow:
 
 ### Resource Definition
 
-Resources are externally invokable whereas functions are internal subroutines that can only be invoked form a resource. Actions are subroutines that are associated with an actor. 
+Resources are externally invokable whereas functions are internal subroutines that can only be invoked form a resource. Actions are subroutines that are associated with an actor.
 
 The overall structure of a resource is as follows:
 
@@ -84,14 +84,16 @@ All actions are public. Actions can be invoked from a resource or a function in 
 A VariableDeclaration has the following structure:
 
 ```
-var TypeName VariableName;
+var TypeName VariableName[(, VariableName)*];
 ```
 A TypeName is one of the following built in types or a user defined type name.
+- boolean
 - int
 - long
 - float
 - double
 - string
+- message
 
 There are also built in types to represent XML and JSON valued objects. XMLElement and JSON objects may be further typed by indicating an XML Schema or JSON Schema, respectively.
 - XMLDocument
@@ -121,7 +123,7 @@ All arrays are unbounded in length and support 0 based indexing. Array length ca
 
 ### Actor Declaration
 
-TODO: What is an actor? Representation of an external system. 
+TODO: What is an actor? Representation of an external system.
 
 A ActorDeclaration has the following structure:
 
@@ -154,12 +156,12 @@ Provides a way to perform conditional execution.
 ```
 if (condition) {
   VariableDeclaration*
-  Statement+	
-} 
+  Statement+
+}
 [else if (condition){
   VariableDeclaration*
   Statement+
-}]* 
+}]*
   else {
   VariableDeclaration*
   Statement+
@@ -187,7 +189,7 @@ foreach (VariableType VariableName : ValueList) {
 ```
 A ValueList may be an array or any object which supports iteration.
 
-#### Fork/join statement 
+#### Fork/join statement
 
 TODO: Fix the following definition
 
@@ -225,7 +227,7 @@ MessageName = wait WorkerName;
 try {
   VariableDeclaration*
   Statement+
-} catch (exception e) { 
+} catch (exception e) {
   VariableDeclaration*
   Statement+
 } finally {
@@ -243,7 +245,7 @@ return (VariableName)*
 #### Reply statement
 
 ```
-reply 
+reply
 ```
 
 ## Configuration Management
