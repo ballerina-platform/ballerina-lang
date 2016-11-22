@@ -37,6 +37,7 @@ define(['require', 'backbone', 'lodash'], function ( require, Backbone, _) {
             render: function () {
                 var outerContainer = $("<div class='regular-welcome-screen-container'></div>");
                 var leftPanel = $("<div class='col-md-2 reg-welcome-left'></div>");
+                var rightPanel = $("<div class='col-md-10 reg-welcome-right'></div>");
                 var leftLogoContainer = $(
                     "<div style='padding-top: 75px'>" +
                         "<img src='images/wso2-logo.jpg' width='33%' style='margin: auto; display: block'>" +
@@ -52,14 +53,67 @@ define(['require', 'backbone', 'lodash'], function ( require, Backbone, _) {
                 leftActionsContainer.append(buttonContainer);
                 leftPanel.append(leftLogoContainer);
                 leftPanel.append(leftActionsContainer);
-                var rightPanel = $("<div class='col-md-10 reg-welcome-right'></div>");
+
+                // Create the DOM for the right panel
+                var openRecentSection = $("<div class='open-recent-section'></div>");
+                var openRecentHeading = $("<div class='open-recent-heading'>Open Recent</div>");
+                var recentPreviewSection = $("<div class='recent-preview-section'></div>");
+
+                // Dynamically add the preview divs for recent open diagrams
+                // TODO: make it dynamically configurable
+                for (var i = 0; i < 4; i ++) {
+                    var previewParent = $("<div class='col-md-3 preview-parent'></div>");
+                    var previewDiv = $("<div class='preview-div'></div>");
+                    var fileName = $("<div class='file-name'>SampleConfiguration.bal</div>");
+                    var previewName = $("<div class='preview-name-div'></div>");
+                    previewName.append(fileName);
+
+                    previewParent.append(previewDiv);
+                    previewParent.append(previewName);
+
+                    recentPreviewSection.append(previewParent);
+                }
+
+                openRecentSection.append(openRecentHeading);
+                openRecentSection.append(recentPreviewSection);
+
+                var templatesSection = $("<div class='open-template-section'></div>");
+                var templatesHeading = $("<div class='open-template-heading'>Try out our samples / Templates</div>");
+                var templatePreviewSection = $("<div class='template-preview-section'></div>");
+
+                // Dynamically add the preview divs for recent open diagrams
+                // TODO: make it dynamically configurable
+                for (var i = 0; i < 4; i ++) {
+                    var previewParent = $("<div class='col-md-3 preview-parent'></div>");
+                    var previewDiv = $("<div class='preview-div'></div>");
+                    var fileName = $("<div class='file-name'>SampleConfiguration.bal</div>");
+                    var previewName = $("<div class='preview-name-div'></div>");
+                    previewName.append(fileName);
+
+                    previewParent.append(previewDiv);
+                    previewParent.append(previewName);
+
+                    templatePreviewSection.append(previewParent);
+                }
+
+                templatesSection.append(templatesHeading);
+                templatesSection.append(templatePreviewSection);
+
+                var separator = $("<div class='separator'><hr></div>");
+
+                rightPanel.append(openRecentSection);
+                rightPanel.append(separator);
+                rightPanel.append(templatesSection);
+
+
                 outerContainer.append(leftPanel);
                 outerContainer.append(rightPanel);
                 this._$container.append(outerContainer);
+                var containerId = this._$container;
 
                 var commandManager = this.commandManager;
                 (newButton.find('.btn-new')).click(function () {
-                    $("#page-content").show();
+                    $(containerId).show();
                     $(".regular-welcome-screen-container").hide();
                     commandManager.dispatch('create-new-tab');
                 });

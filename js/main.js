@@ -43,6 +43,7 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'breadcrumbs', 'file_b
 
             //init workspace manager
             this.workspaceManager = new Workspace(this);
+
             // init breadcrumbs controller
             this.breadcrumbController = new BreadcrumbController(_.get(this.config, "breadcrumbs"));
 
@@ -59,6 +60,7 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'breadcrumbs', 'file_b
             //init tab controller
             var tabControlOpts = _.get(this.config, "tab_controller");
             _.set(tabControlOpts, 'application', this);
+
             // tab controller will take care of rendering tool palette
             _.set(tabControlOpts, 'toolPalette', this.toolPalette);
             this.tabController = new TabController(tabControlOpts);
