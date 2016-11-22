@@ -97,7 +97,9 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'breadcrumbs', 'file_b
         },
 
         render: function () {
-            this.reqularWelcomeScreen.render(this);
+            //TODO: if check to decide the welcome page type
+             this.initialWelcomePage.render();
+            //this.reqularWelcomeScreen.render(this);
             log.debug("start: rendering breadcrumbs control");
             this.breadcrumbController.render();
             log.debug("end: rendering breadcrumbs control");
