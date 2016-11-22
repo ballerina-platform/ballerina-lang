@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['jquery', 'lodash', 'backbone', 'file_browser', 'log', 'bootstrap'], function ($, _, Backbone, FileBrowser, log) {
+define(['jquery', 'lodash', 'backbone', 'log', 'bootstrap'], function ($, _, Backbone, log) {
 
     // workspace manager constructor
     /**
