@@ -84,7 +84,7 @@ All actions are public. Actions can be invoked from a resource or a function in 
 A VariableDeclaration has the following structure:
 
 ```
-var TypeName VariableName;
+var TypeName VariableName[(, VariableName)*];
 ```
 A TypeName is one of the following built in types or a user defined type name.
 - int
