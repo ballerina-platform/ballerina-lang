@@ -19,7 +19,7 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'breadcrumbs', 'file_b
 
     'welcome','command','workspace',/* void modules */ 'jquery_ui', 'bootstrap'],
 
-    function (require, log, $, _, Backbone, BreadcrumbController, FileBrowser, TabController, ToolPalette, WelcomeScreen,CommandManager,Workspace) {
+    function (require, log, $, _, Backbone, BreadcrumbController, FileBrowser, TabController, ToolPalette, WelcomeScreen, CommandManager, Workspace) {
 
     var Application = Backbone.View.extend(
     /** @lends Application.prototype */
@@ -42,14 +42,15 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'breadcrumbs', 'file_b
             this.commandManager = new CommandManager();
 
             //init workspace manager
-            this.workspaceManager = new Workspace(this);
+            this.workspaceManager = new Workspace.Manager(this);
+
             // init breadcrumbs controller
             this.breadcrumbController = new BreadcrumbController(_.get(this.config, "breadcrumbs"));
 
-            //init file browser
-            var fileBrowserOpts = _.get(this.config, "file_browser");
-            _.set(fileBrowserOpts, 'application', this);
-            this.fileBrowser = new FileBrowser(fileBrowserOpts);
+            //init workspace explorer
+            var workspaceExplorerOpts = _.get(this.config, "workspace_explorer");
+            _.set(workspaceExplorerOpts, 'application', this);
+            this.workspaceExplorer = new Workspace.Explorer(workspaceExplorerOpts);
 
             //init tool palette
             var toolPaletteOpts = _.get(this.config, "tab_controller.tool_palette");
@@ -104,9 +105,9 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'breadcrumbs', 'file_b
             this.breadcrumbController.render();
             log.debug("end: rendering breadcrumbs control");
 
-            log.debug("start: rendering file_browser control");
-            this.fileBrowser.render();
-            log.debug("end: rendering file_browser control");
+            log.debug("start: rendering workspace explorer control");
+            this.workspaceExplorer.render();
+            log.debug("end: rendering workspace explorer control");
 
             log.debug("start: rendering tab controller");
             this.tabController.render();

@@ -330,7 +330,6 @@
             ballerina: "js/ballerina/module",
             ballerina_models: "js/ballerina/models/",
             command: "js/command/command",
-            workspace: "js/workspace/workspace",
             drag_drop_manager: "js/drag-drop/manager",
             main_elements: "js/main-elements/module",
             processors: "js/processors/module" ,
@@ -351,16 +350,21 @@
             }
         },
         packages: [
-             {
-                   name: 'welcome',
-                   location: 'js/welcome-screen',
-                   main: 'module'
-             },
-             {
-                  name: 'tree_view',
-                  location: 'js/tree-view',
-                  main: 'module'
-             }
+            {
+                name: 'welcome',
+                location: 'js/welcome-screen',
+                main: 'module'
+            },
+            {
+                name: 'tree_view',
+                location: 'js/tree-view',
+                main: 'module'
+            },
+            {
+                name: 'workspace',
+                location: 'js/workspace',
+                main: 'module'
+            }
         ]
     });
 
@@ -459,7 +463,7 @@
                     }
                 }
             },
-            file_browser: {
+            workspace_explorer: {
                 container: "#file-browser",
                 cssClass: {
                     activateBtn: 'fw fw-file-browse file-explorer-activate-btn',
