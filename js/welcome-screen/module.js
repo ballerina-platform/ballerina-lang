@@ -15,12 +15,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require','./initial-view'],
-    function (require, primaryView) {
+define(['require','./initial-view', './regular-welcome-screen'],
+    function (require, primaryView, regularView) {
         return  {
-
             Views: {
-               PrimaryView : primaryView
+               PrimaryView: primaryView,
+                RegularView: regularView
             }
         }
     });

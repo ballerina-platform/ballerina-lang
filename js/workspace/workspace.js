@@ -40,8 +40,13 @@ define(['jquery', 'lodash', 'backbone', 'file_browser', 'log', 'bootstrap'], fun
 
         };
 
-        app.commandManager.registerCommand("create-new-tab",{key:""});
-        app.commandManager.registerHandler("create-new-tab",this.createNewTab);
+        this.popupRegularWelcomeScreen = function () {
+            // hide the page content and only the regular welcome screen will be shown
+            $("#page-content").hide();
+        };
+
+        app.commandManager.registerCommand("create-new-tab", {key:""});
+        app.commandManager.registerHandler('create-new-tab', this.createNewTab);
 
     }
 });

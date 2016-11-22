@@ -1,0 +1,20 @@
+.reg-welcome-left {
+    height: 100%;
+    background-color: #FFFFFF;
+}
+.reg-welcome-right {
+    height: 100%;
+    background-color: #f6f7f8;
+}
+
+.btn-new, .btn-new:hover, .btn-new:active, .btn-new:visited {
+    background-color: #f17f31;
+}
+
+.btn-open, .btn-open:hover, .btn-open:active, .btn-open:visited {
+    background-color: #4f5051;
+}
+
+.btn-container {
+    color: #FFFFFF;
+}

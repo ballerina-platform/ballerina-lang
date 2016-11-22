@@ -40,6 +40,7 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'breadcrumbs', 'file_b
 
             // init command manager
             this.commandManager = new CommandManager();
+
             //init workspace manager
             this.workspaceManager = new Workspace(this);
             // init breadcrumbs controller
@@ -67,6 +68,12 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'breadcrumbs', 'file_b
             _.set(welcomeOpts, 'application', this);
             this.initialWelcomePage = new WelcomeScreen.Views.PrimaryView(welcomeOpts);
 
+            //init the regular welcome screen
+            var regWelcomeScreenOpts = {
+                container: '#page-content-wrapper',
+                commandManager: this.commandManager
+            };
+            this.reqularWelcomeScreen = new WelcomeScreen.Views.RegularView(regWelcomeScreenOpts);
         },
 
         validateConfig: function(config){
@@ -90,6 +97,7 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'breadcrumbs', 'file_b
         },
 
         render: function () {
+            this.reqularWelcomeScreen.render(this);
             log.debug("start: rendering breadcrumbs control");
             this.breadcrumbController.render();
             log.debug("end: rendering breadcrumbs control");
@@ -101,11 +109,10 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'breadcrumbs', 'file_b
             log.debug("start: rendering tab controller");
             this.tabController.render();
             log.debug("end: rendering tab controller");
+        },
 
-            log.debug("start: rendering welcome page");
-             this.initialWelcomePage.render();
-            log.debug("end: rendering welcome page");
-
+        showWelcomeScreen: function () {
+            this.workspaceManager.popupRegularWelcomeScreen();
         }
 
     });
