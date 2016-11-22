@@ -4,6 +4,8 @@
 
 package com.sample;
 
+@GET
+@Path ("/*")
 resource echoResource (message m) {
     reply m;
 }
