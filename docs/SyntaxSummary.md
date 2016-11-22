@@ -65,7 +65,7 @@ All functions are private to the package unless explicitly declared to be public
 
 ### Action Definition
 
-The overall structure of an action is as follows:
+Actions are operations (functions) that can be executed against an actor. The overall structure of an action is as follows:
 
 ```
 action ActionName (TypeName ActorName, (TypeName VariableName)*) (TypeName*)
