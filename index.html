@@ -74,7 +74,7 @@
             <!-- Start: file explorer and editor area row -->
             <div class="row">
                 <!-- Start: left container -->
-                <div id="left-container" class="col-sm-2">
+                <div id="left-container" class="col-sm-2" >
                     <!-- Start: file explorer -->
                     <div id="file-browser">
                     </div>
@@ -351,19 +351,17 @@
             }
         },
         packages: [
-
-                      {
-                           name: 'welcome',
-                           location: 'js/welcome-screen',
-                           main: 'module'
-                     },
-                     {
-                          name: 'tree_view',
-                          location: 'js/file-browser/tree-view',
-                          main: 'module'
-                     }
-                ]
-
+             {
+                   name: 'welcome',
+                   location: 'js/welcome-screen',
+                   main: 'module'
+             },
+             {
+                  name: 'tree_view',
+                  location: 'js/tree-view',
+                  main: 'module'
+             }
+        ]
     });
 
     require(['app/main'], function(Application) {

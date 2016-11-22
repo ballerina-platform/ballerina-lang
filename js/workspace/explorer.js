@@ -18,7 +18,7 @@
 
 define(['jquery', 'backbone', 'lodash', 'tree_view', /** void module - jquery plugin **/ 'js_tree'], function ( $, Backbone, _, TreeMod) {
 
-    var FileBrowser = Backbone.View.extend({
+    var WorkspaceExplorer = Backbone.View.extend({
 
         initialize: function (config) {
             var errMsg;
@@ -47,45 +47,48 @@ define(['jquery', 'backbone', 'lodash', 'tree_view', /** void module - jquery pl
 
         render: function () {
             var self = this;
-            this._$parent_el
-                .jstree({
-                    'core' : {
-                        'data' : {
-                            'url': function (node) {
-                                if(node.id === '#') {
-                                    return self.workspaceServiceURL + "/root";
-                                }
-                                else {
-                                    return self.workspaceServiceURL + "/list?path=" + btoa(node.id);
-                                }
-                            },
-                            'dataType': "json",
-                            'data' : function (node) {
-                                return { 'id' : node.id };
-                            }
-                        },
-                        'multiple' : false,
-                        'check_callback' : false,
-                        'force_text' : true,
-                        'themes' : {
-                            'responsive' : false,
-                            'variant' : 'small',
-                            'stripes' : true
-                        }
-                    }
+            var activateBtn = $('<i></i>');
+            this._$parent_el.append(activateBtn);
+            activateBtn.addClass(_.get(this._options, 'cssClass.activateBtn'));
+
+            var sliderContainer = $('<div></div>');
+            sliderContainer.addClass(_.get(this._options, 'cssClass.sliderContainer'));
+            this._$parent_el.append(sliderContainer);
+            sliderContainer.toggle( "slide" );
+
+            activateBtn.on('click', function(){
+                if(self._isActive){
+                    self._$parent_el.parent().width('20px');
+                    self._isActive = false;
+                } else {
+                    self._$parent_el.parent().width('200px');
+                    self._isActive = true;
+                }
+            });
+
+            var tree = new TreeMod.Models.Tree({
+                root: new TreeMod.Models.TreeItem({
+                    name: "MyProj",
+                    isDir: true,
+                    children: new TreeMod.Models.TreeItemList([
+                        new TreeMod.Models.TreeItem({
+                            name: "Dir",
+                            isDir: true,
+                            children: new TreeMod.Models.TreeItemList([new TreeMod.Models.TreeItem({name: "MyAP2"})] )
+                        }),
+                        new TreeMod.Models.TreeItem({name: "MyAP3"})])
                 })
-                .on('changed.jstree', function (e, data) {
-                    if(data && data.selected && data.selected.length) {
-                        self.selected = data.selected[0];
-                    }
-                    else {
-                        self.selected = false;
-                    }
-                });
+            });
+            new TreeMod.Views.TreeView({model: tree, container: _.get(this._options, 'container')}).render();
+            tree.on("select",function (e) {
+                console.log(e.path);
+                console.log(e.name);
+            });
+
             return this;
         }
     });
 
-    return FileBrowser;
+    return WorkspaceExplorer;
 
 });
