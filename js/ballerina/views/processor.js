@@ -214,11 +214,24 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core',
                 // Get the parent of the model and delete it from the parent
                 var parentModel = viewObj.model.get("parent");
                 var parentModelChildren = parentModel.get("children").models;
+                var highestHeight = viewObj.model.get("serviceView").highestLifeline.get("height");
                 for (var itr = 0; itr < parentModelChildren.length; itr ++) {
                     if (parentModelChildren[itr].cid === viewObj.model.cid) {
                         //reset parent height
-                        parentModel.setHeight(parentModel.getHeight() - parentModelChildren[itr].getHeight);
+                        var currentElementHeight = parentModelChildren[itr].getHeight();
+                        parentModel.setHeight(parentModel.getHeight() - currentElementHeight);
                         parentModelChildren.splice(itr, 1);
+                        var parentElement = parentModel;
+                        //todo chnage this to get first lifeline type parent instead of Resource
+                        while(!(parentElement.get("type") === "Resource")){
+                            parentElement = parentElement.get("parent")
+                        }
+                        // save current life-line height
+                        var lifelineHeight = parentElement.getHeight();
+                        parentModelChildren.splice(itr, 1);
+                        if(lifelineHeight + currentElementHeight >= highestHeight){
+                            viewObj.model.get("serviceView").highestLifeline.setHeight(highestHeight - currentElementHeight);
+                        }
                         serviceView.render();
                         break;
                     }

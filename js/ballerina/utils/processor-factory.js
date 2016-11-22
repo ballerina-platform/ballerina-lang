@@ -19,7 +19,7 @@ define(['app/ballerina/models/unit-processor', 'app/ballerina/models/complex-pro
     'app/ballerina/models/custom-processor', 'app/ballerina/models/action-processor'],
     function (UnitProcessor, ComplexProcessor, DynamicContainableProcessor, CustomProcessor, ActionProcessor) {
 
-    var ProcessorFactory = function (title, center, type, model, viewAttributes, parameters, utils, textModel, width, height) {
+    var ProcessorFactory = function (title, center, type, model, viewAttributes, parameters, utils, textModel, width, height,serviceView) {
         var processor;
 
         if (type === "UnitProcessor") {
@@ -31,7 +31,8 @@ define(['app/ballerina/models/unit-processor', 'app/ballerina/models/complex-pro
                 viewAttributes: viewAttributes,
                 parameters: parameters,
                 utils: utils,
-                textModel : textModel
+                textModel : textModel,
+                serviceView : serviceView
             });
         } else if (type === "ComplexProcessor") {
             processor = new ComplexProcessor({
@@ -41,7 +42,8 @@ define(['app/ballerina/models/unit-processor', 'app/ballerina/models/complex-pro
                 model: model,
                 viewAttributes: viewAttributes,
                 parameters: parameters,
-                utils: utils
+                utils: utils,
+                serviceView : serviceView
             });
         } else if (type === "DynamicContainableProcessor") {
             processor = new DynamicContainableProcessor({
