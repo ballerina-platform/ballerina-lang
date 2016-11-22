@@ -60,6 +60,7 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'breadcrumbs', 'file_b
             //init tab controller
             var tabControlOpts = _.get(this.config, "tab_controller");
             _.set(tabControlOpts, 'application', this);
+
             // tab controller will take care of rendering tool palette
             _.set(tabControlOpts, 'toolPalette', this.toolPalette);
             this.tabController = new TabController(tabControlOpts);
@@ -86,8 +87,8 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'breadcrumbs', 'file_b
             if(!_.has(config, 'breadcrumbs')){
                 log.error('breadcrumbs configuration is not provided.');
             }
-            if(!_.has(config, 'file_browser')){
-                log.error('file_browser configuration is not provided.');
+            if(!_.has(config, 'workspace_explorer')){
+                log.error('Workspace explorer configuration is not provided.');
             }
             if(!_.has(config, 'tab_controller.tool_palette')){
                 log.error('tool_palette configuration is not provided.');

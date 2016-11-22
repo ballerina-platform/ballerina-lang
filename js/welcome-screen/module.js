@@ -19,7 +19,7 @@ define(['require','./initial-view', './regular-welcome-screen'],
     function (require, primaryView, regularView) {
         return  {
             Views: {
-               PrimaryView: primaryView,
+                PrimaryView: primaryView,
                 RegularView: regularView
             }
         }

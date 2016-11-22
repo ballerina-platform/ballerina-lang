@@ -97,12 +97,23 @@ define(['log', 'jquery', 'lodash', 'backbone', './tab', 'bootstrap'], function (
                 tabHeader.link = tabHeaderLink;
                 tabHeaderLink.attr('href', '#' + tab.cid);
                 tabHeaderLink.text(tab.getTitle());
+
                 var self = this;
                 tabHeaderLink.click(function(e){
                     self.setActiveTab(tab);
                     e.preventDefault();
                     e.stopPropagation();
                 });
+
+                var tabCloseBtn = $('<button type="button" >×</button>');
+                tabHeaderLink.append(tabCloseBtn);
+                tabCloseBtn.addClass( _.get(this.options, 'tabs.tab.cssClass.tab_close_btn'));
+                tabCloseBtn.click(function(e){
+                    self.removeTab(tab);
+                    e.preventDefault();
+                    e.stopPropagation();
+                });
+
                 tab.setHeader(tabHeader);
             },
 

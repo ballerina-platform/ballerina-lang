@@ -19,6 +19,67 @@
 .btn-container {
     color: #FFFFFF;
 }
+
+.open-recent-section {
+    height: 43%;
+}
+
+.open-template-section {
+    height: 45%;
+}
+
+.separator {
+    /*height: 2%;*/
+}
+
+.open-recent-heading {
+    font-size: 25px;
+    padding-top: 85px;
+    padding-left: 40px;
+    height: 28%;
+}
+
+.open-template-heading {
+    font-size: 25px;
+    padding-top: 58px;
+    padding-left: 40px;
+    height: 20%;
+}
+
+.recent-preview-section {
+    height: 72%;
+    padding-left: 40px;
+    padding-top: 10px;
+}
+
+.template-preview-section {
+    height: 80%;
+    padding-left: 40px;
+    padding-top: 10px;
+}
+
+.preview-div {
+    height: 80%;
+    background-color: #FFFFFF;
+}
+
+.preview-name-div {
+    height: 20%;
+    background-color: #515253;
+}
+
+.preview-parent {
+    height: 90%;
+    margin-top: 25px;
+}
+
+.file-name {
+    color: #FFFFFF;
+    font-size: 20px;
+    width: 85%;
+    margin-left: auto;
+    padding-top: 10px;
+}
 /** Regular Welcome Screen related styles | End -> **/
 
 /** Initial Welcome Screen related styles | Start -> **/

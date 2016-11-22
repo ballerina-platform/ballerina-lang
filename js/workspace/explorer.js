@@ -54,9 +54,8 @@ define(['log', 'jquery', 'backbone', 'lodash', 'tree_view', /** void module - jq
             activateBtn.addClass(_.get(this._options, 'cssClass.activateBtn'));
 
             var sliderContainer = $('<div></div>');
-            sliderContainer.addClass(_.get(this._options, 'cssClass.sliderContainer'));
+            sliderContainer.addClass(_.get(this._options, 'cssClass.container'));
             this._$parent_el.append(sliderContainer);
-            sliderContainer.toggle( "slide" );
 
             activateBtn.on('click', function(){
                 if(self._isActive){
@@ -81,7 +80,7 @@ define(['log', 'jquery', 'backbone', 'lodash', 'tree_view', /** void module - jq
                         new TreeMod.Models.TreeItem({name: "MyAP3"})])
                 })
             });
-            new TreeMod.Views.TreeView({model: tree, container: _.get(this._options, 'container')}).render();
+            new TreeMod.Views.TreeView({model: tree, container: sliderContainer}).render();
             tree.on("select",function (e) {
                 console.log(e.path);
                 console.log(e.name);

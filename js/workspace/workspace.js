@@ -30,19 +30,16 @@ define(['jquery', 'lodash', 'backbone', 'log', 'bootstrap'], function ($, _, Bac
 
 
         this.createNewTab = function createNewTab(){
-
             var welcomeContainerId = app.config.welcome.container;
             $(welcomeContainerId).css("display","none");
             var editorId = app.config.container;
             $(editorId).css("display","block");
-           app.tabController.newTab();
-
-
+            app.tabController.newTab();
         };
 
         this.popupRegularWelcomeScreen = function () {
             // hide the page content and only the regular welcome screen will be shown
-            $("#page-content").hide();
+            $(app.config.container).hide();
         };
 
         app.commandManager.registerCommand("create-new-tab", {key:""});
