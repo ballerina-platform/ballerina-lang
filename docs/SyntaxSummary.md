@@ -138,6 +138,23 @@ Array types can be defined by using the array constructor as follows:
 
 All arrays are unbounded in length and support 0 based indexing. Array length can be determined by checking the `.length` property of the array typed variable.
 
+### Type Conversion
+
+For XML and JSON types we can declare a schema as discussed in XXXXXX.
+To convert between types we can define a typeconverter as follows:
+```
+typeconverter TypeConverterName (TypeName VariableName) (TypeName) {
+    Statement;+
+}
+```
+
+When the typeconverter has been defined, we can do the type conversion through an assignment between types.
+```
+TypeName<{schema_type1}> VariableName1 = ...;   
+TypeName<{schema_type2}> VariableName2 = VariableName1;
+```
+//todo Do we need to convert from multiple input types to a single output type
+
 ### Actor Declaration
 
 TODO: What is an actor? Representation of an external system.
