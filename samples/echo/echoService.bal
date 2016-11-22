@@ -4,7 +4,7 @@
 
 package com.sample;
 
-resource resourceName (message m) {
+resource echoResource (message m) {
     reply m;
 }
 
