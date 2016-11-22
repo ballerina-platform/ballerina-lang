@@ -113,7 +113,7 @@ A TypeName is one of the following built in types or a user defined type name.
 - string
 - xmlElement[<{XSD_namespace_name}type_name>]
 - xmlDocument
-- json\[<json_schema_name>]
+- json\[\<json_schema_name\>\]
 - message
 - map
 
