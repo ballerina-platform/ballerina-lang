@@ -93,6 +93,7 @@ A TypeName is one of the following built in types or a user defined type name.
 - float
 - double
 - string
+- message
 
 There are also built in types to represent XML and JSON valued objects. XMLElement and JSON objects may be further typed by indicating an XML Schema or JSON Schema, respectively.
 - XMLDocument
