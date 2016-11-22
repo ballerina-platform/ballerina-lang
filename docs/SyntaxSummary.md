@@ -92,14 +92,15 @@ variable delcaration can assign a value as following.
 var TypeName VariableName = value;
 ```
 
-Value can be a integer (e.g. 3) a float 3.0, a string "hello" or XML or Json literals. Following are examples. 
+Value can be a integer, a float, a string "hello", a map, or XML or Json literals. Following are examples. 
 
 ```
 var int age = 4;
 var double price = 4.0;
 var string name = "John"
 var xmlElement address_xml = `<address><name>$name</name></address>`
-var json address_json = `{ name:$name, streetName:$street}`
+var json address_json = `{ "name":"$name", "streetName":"$street"}`
+var map = {"name:"John"}
 ```
 Here $name is a varaible that is avialable at the current scope. 
 
