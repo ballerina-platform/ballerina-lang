@@ -260,25 +260,35 @@ define(['lodash', 'd3', 'diagram_core', 'app/ballerina/models/life-line'], funct
                     });
 
                     deleteOption.on("click", function () {
-                        //Get the parent of the model and delete it from the parent
-                        var parentModel = viewObj.model.get("parent").get("parent");
-                        var parentModelChildren = parentModel.get("children").models;
-                        for (var itr = 0; itr < parentModelChildren.length; itr ++) {
-                            if (parentModelChildren[itr].cid === viewObj.model.get("parent").cid) {
-                                //reset parent height
-                                parentModel.setHeight(parentModel.getHeight() - parentModelChildren[itr].getHeight);
-                                var parentElement = parentModel;
-                                //Find the most recent Lifeline parent and adjust height
-                                while(!(parentElement instanceof LifeLine)){
-                                    parentElement = parentElement.get("parent")
-                                }
-                                parentElement.setHeight(parentElement.getHeight - parentModelChildren[itr].getHeight);
-                                parentModelChildren.splice(itr, 1);
-                                viewObj.serviceView.render();
-                                break;
+                    //Get the parent of the model and delete it from the parent
+                    var parentModel = viewObj.model.get("parent").get("parent");
+                    var parentModelChildren = parentModel.get("children").models;
+                    //Get diagram highest height
+                    var highestHeight = viewObj.model.get("parent").get("serviceView").highestLifeline.get("height");
+                    for (var itr = 0; itr < parentModelChildren.length; itr ++) {
+                        if (parentModelChildren[itr].cid === viewObj.model.get("parent").cid) {
+                        //reset parent height
+                            var currentElementHeight = parentModelChildren[itr].getHeight();
+                            parentModel.setHeight(parentModel.getHeight() - currentElementHeight);
+                            var parentElement = parentModel;
+                            //todo chnage this to get first lifeline type parent instead of Resource
+                            while(!(parentElement.get("type") === "Resource")){
+                                parentElement = parentElement.get("parent")
                             }
+                            // save current life-line height
+                            var lifelineHeight = parentElement.getHeight();
+                            parentModelChildren.splice(itr, 1);
+                            // adjust life-line height
+                            parentElement.setHeight(lifelineHeight - currentElementHeight);
+                            // if the current life-line is the tallest life-line we adjust it's height
+                            if(lifelineHeight + currentElementHeight >= highestHeight){
+                                viewObj.model.get("parent").get("serviceView").highestLifeline.setHeight(highestHeight - currentElementHeight);
+                            }
+                            viewObj.serviceView.render();
+                            break;
                         }
-                    });
+                    }
+                 });
                 }
 
                 return group;

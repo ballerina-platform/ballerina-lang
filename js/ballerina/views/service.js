@@ -513,7 +513,8 @@ function (require, log, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements,
                                 Processors.manipulators[id].utils,
                                 undefined,
                                 Processors.manipulators[id].width,
-                                Processors.manipulators[id].height
+                                Processors.manipulators[id].height,
+                                txt
                             );
 
                             if(typeof Processors.manipulators[id].init !== "undefined") {
@@ -533,7 +534,11 @@ function (require, log, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements,
                                 },
                                 {colour: Processors.flowControllers[id].colour},
                                 Processors.flowControllers[id].parameters,
-                                Processors.flowControllers[id].utils
+                                Processors.flowControllers[id].utils,
+                                undefined,
+                                undefined,
+                                undefined,
+                                txt
                             );
                             if (Processors.flowControllers[id].type == "ComplexProcessor") {
                                 (Processors.flowControllers[id].containableElements).forEach(function (elm) {

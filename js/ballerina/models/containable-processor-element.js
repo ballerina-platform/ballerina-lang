@@ -112,8 +112,8 @@ define(['require', 'diagram_core', './children', 'app/ballerina/utils/processor-
                 return position;
             },
 
-            createProcessor: function (title, center, type, model, viewAttributes, parameters, utils) {
-                return new ProcessorFactory(title, center, model.type, model, viewAttributes, parameters, utils);
+            createProcessor: function (title, center, type, model, viewAttributes, parameters, utils,textModel, width, height,serviceView) {
+                return new ProcessorFactory(title, center, model.type, model, viewAttributes, parameters, utils, textModel, width, height,serviceView);
             },
 
             setY: function (y) {
