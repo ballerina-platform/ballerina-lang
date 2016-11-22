@@ -1,6 +1,6 @@
 @BasePath ("/echo")
 
-@Service(title = "EchoService", description = "Description")
+@Service(title = "EchoService", description = "echo service sample.")
 
 package com.sample;
 
