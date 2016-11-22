@@ -1,3 +1,0 @@
-package ballerina.lang;
-
-// TBD
