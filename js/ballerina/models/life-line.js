@@ -53,7 +53,8 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core',
                 width : 0,
                 height : 300,
                 viewAttributes: {colour: "#ffffff"},
-                definition: undefined
+                definition: undefined,
+                serviceView: undefined
             },
 
             // Processors can override this method on order to define the behavior of drawing the messages from
@@ -106,8 +107,8 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core',
                 return new LifeLine({title: title, centerPoint: center, colour: colour, type: type, definition: definition});
             },
 
-            createProcessor: function (title, center, type, model, viewAttributes, parameters, utils, textModel, width, height) {
-                return new ProcessorFactory(title, center, model.type, model, viewAttributes, parameters, utils, textModel, width, height);
+            createProcessor: function (title, center, type, model, viewAttributes, parameters, utils, textModel, width, height,serviceView) {
+                return new ProcessorFactory(title, center, model.type, model, viewAttributes, parameters, utils, textModel, width, height,serviceView);
             },
 
             addChild: function (element, opts) {
