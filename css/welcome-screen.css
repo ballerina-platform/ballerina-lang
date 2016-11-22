@@ -47,35 +47,23 @@
 }
 
 .welcome-title {
-    position: absolute;
-    margin-top: 60px;
-    margin-left: 350px;
     font-size: 54px;
     font-weight: bold;
 }
 
 .welcome-icon {
     width: 250px;
-    position: absolute;
-    margin-top: 130px;
-    margin-left: 360px;
 }
 
-.new-welcome-button {
-    position: absolute;
-    top: 220px;
-    left: 310px;
+.new-welcome-button,.new-welcome-button:hover, .new-welcome-button:active {
     width: 190px;
     height: 45px;
-    background-color: #0673b9;
+    background-color: #f17b31;
     color: #f1f6fa;
     font-size: 20px;
 }
 
-.open-welcome-button {
-    position: absolute;
-    top: 220px;
-    left: 510px;
+.open-welcome-button, .open-welcome-button:hover, .open-welcome-button:active  {
     width: 190px;
     height: 45px;
     background-color: #505050;
@@ -105,6 +93,21 @@
     top: 370px;
     left: 80px;
     height: 200px;
+}
+
+.top-heading{
+    padding-top: 50px;
+    width: 35%;
+    margin: 0 auto;
+}
+
+.new-btn-wrap{
+    width: 20%;
+    margin-left: 260px;
+}
+
+.open-btn-wrap{
+    width: 20%;
 }
 
 /** Initial Welcome Screen related styles | End -> **/

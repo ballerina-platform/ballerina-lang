@@ -44,12 +44,18 @@ define(['require', 'log', 'jquery', 'backbone', 'command'],
                 var headingDiv = $('<div></div>');
                 var headingTitleSpan = $('<span></span>');
                 var headingImage = $('<img>');
+                var headingGroup1 = $('<div></div>');
+                var wrapTitle =  $('<div></div>');
+                var wrapImage = $('<div></div>');
+
                 var bodyDiv = $('<div></div>');
                 var newButton = $('<button></button>');
                 var openButton = $('<button></button>');
+                var buttonGroup1 = $('<div></div>');
+                var buttonGroup2 = $('<div></div>');
+
                 var bodyTitleSpan = $('<span></span>');
                 var samplesDiv = $('<div></div>');
-
 
                 backgroundDiv.addClass(_.get(this._options, 'cssClass.parent'));
                 mainWelcomeDiv.addClass(_.get(this._options, 'cssClass.outer'));
@@ -59,6 +65,9 @@ define(['require', 'log', 'jquery', 'backbone', 'command'],
                 headingImage.attr('src', 'images/Ballerina.svg');
                 newButton.addClass(_.get(this._options, 'cssClass.buttonNew'));
                 openButton.addClass(_.get(this._options, 'cssClass.buttonOpen'));
+                headingGroup1.addClass(_.get(this._options, 'cssClass.headingTop'));
+                buttonGroup1.addClass(_.get(this._options, 'cssClass.btnWrap1'));
+                buttonGroup2.addClass(_.get(this._options, 'cssClass.btnWrap2'));
 
                 bodyDiv.addClass(_.get(this._options, 'cssClass.body'));
                 bodyTitleSpan.addClass(_.get(this._options, 'cssClass.bodyTitle'));
@@ -69,10 +78,18 @@ define(['require', 'log', 'jquery', 'backbone', 'command'],
 
                 headingTitleSpan.text("Welcome to");
                 bodyTitleSpan.text("Try out our samples / Templates");
-                headingDiv.append(headingTitleSpan);
-                headingDiv.append(headingImage);
-                headingDiv.append(newButton);
-                headingDiv.append(openButton);
+
+                wrapTitle.append(headingTitleSpan);
+                headingGroup1.append(wrapTitle);
+                wrapImage.append(headingImage);
+                headingGroup1.append(wrapImage);
+
+                buttonGroup1.append(newButton);
+                buttonGroup2.append(openButton);
+
+                headingDiv.append(headingGroup1);
+                headingDiv.append(buttonGroup1);
+                headingDiv.append(buttonGroup2);
 
                 bodyDiv.append(bodyTitleSpan);
                 bodyDiv.append(samplesDiv);
