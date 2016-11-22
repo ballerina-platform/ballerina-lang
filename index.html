@@ -50,6 +50,11 @@
 
 <!-- Start: page-content-wrapper -->
 <div id="page-content-wrapper" class="">
+    <!--Start:Welcome page -->
+    <div id="welcome-container">
+
+    </div>
+    <!--End:Welcome page -->
     <!-- Start: page content -->
     <div id="page-content" class="container">
         <!-- Start: page content : first row -->
@@ -342,13 +347,36 @@
                 underscore: "lodash",
                 jQuery: "jquery"
             }
-        }
+        },
+        packages: [
+                      {
+                           name: 'welcome',
+                           location: 'js/welcome-screen',
+                           main: 'module'
+                     }
+           ]
     });
 
     require(['app/main'], function(Application) {
         var app, config;
         config = {
             container: "#page-content",
+            welcome:{
+                container:"#welcome-container",
+                cssClass :{
+                    parent: "initial-background-container",
+                    outer: "initial-welcome-container",
+                    heading: "heading-welcome-container",
+                    headingTitle: "welcome-title",
+                    body: "body-welcome-container",
+                    bodyTitle: "welcome-body-title",
+                    headingIcon: "welcome-icon",
+                    buttonNew: "new-welcome-button",
+                    buttonOpen: "open-welcome-button",
+                    samples: "welcome-samples",
+                }
+
+            },
             services:   {
                 workspace:  {
                     endpoint: "http://localhost:8289/service/workspace"
@@ -375,6 +403,7 @@
             },
             tab_controller: {
                 container: "#tabs-container",
+
                 headers:    {
                     // relative selector within container for tab controller
                     container: ".tab-headers",

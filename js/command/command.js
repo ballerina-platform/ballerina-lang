@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'backbone', 'logger'], function (_, Backbone, log) {
+define(['lodash', 'backbone', 'log'], function (_, Backbone, log) {
 
     // command manager constructor
     /**

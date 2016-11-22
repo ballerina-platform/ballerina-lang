@@ -17,9 +17,9 @@
  */
 define(['require', 'log', 'jquery', 'lodash', 'backbone', 'breadcrumbs', 'file_browser', 'tab/service-tab-list', 'app/tool-palette/tool-palette',
 
-    /* void modules */ 'jquery_ui', 'bootstrap'],
+    'welcome','command','workspace',/* void modules */ 'jquery_ui', 'bootstrap'],
 
-    function (require, log, $, _, Backbone, BreadcrumbController, FileBrowser, TabController, ToolPalette) {
+    function (require, log, $, _, Backbone, BreadcrumbController, FileBrowser, TabController, ToolPalette, WelcomeScreen,CommandManager,Workspace) {
 
     var Application = Backbone.View.extend(
     /** @lends Application.prototype */
@@ -37,6 +37,11 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'breadcrumbs', 'file_b
         },
 
         initComponents: function(){
+
+            // init command manager
+            this.commandManager = new CommandManager();
+            //init workspace manager
+            this.workspaceManager = new Workspace(this);
             // init breadcrumbs controller
             this.breadcrumbController = new BreadcrumbController(_.get(this.config, "breadcrumbs"));
 
@@ -56,6 +61,12 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'breadcrumbs', 'file_b
             // tab controller will take care of rendering tool palette
             _.set(tabControlOpts, 'toolPalette', this.toolPalette);
             this.tabController = new TabController(tabControlOpts);
+
+            //TODO : get from module
+            var welcomeOpts = _.get(this.config, "welcome");
+            _.set(welcomeOpts, 'application', this);
+            this.initialWelcomePage = new WelcomeScreen.Views.PrimaryView(welcomeOpts);
+
         },
 
         validateConfig: function(config){
@@ -91,8 +102,10 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'breadcrumbs', 'file_b
             this.tabController.render();
             log.debug("end: rendering tab controller");
 
-            var tab = this.tabController.newTab();
-            this.tabController.newTab();
+            log.debug("start: rendering welcome page");
+             this.initialWelcomePage.render();
+            log.debug("end: rendering welcome page");
+
         }
 
     });

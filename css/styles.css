@@ -1,15 +1,16 @@
-body{
+body {
     background: #232323;
 }
 
-#alerts-container{
-    display:none
+#alerts-container {
+    display: none
 }
-#right-container{
+
+#right-container {
     background-color: #232323;
 }
 
-#main-navbar{
+#main-navbar {
     background-color: #232323;
     border-top: solid #1e1e1e;
     border-bottom: solid #1e1e1e;
@@ -19,11 +20,11 @@ body{
     background-color: #1e1e1e;
 }
 
-#editor-container{
+#editor-container {
     background-color: #fff;
 }
 
-.editor-scroller{
+.editor-scroller {
     cursor: move;
 }
 
@@ -37,9 +38,11 @@ body{
 
 /*//////////////////////////////////////////////////*/
 /** Editor canvas related styles | Start -> **/
-svg text::selection { background: none; }
+svg text::selection {
+    background: none;
+}
 
-.non-user-selectable{
+.non-user-selectable {
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     -khtml-user-select: none;
@@ -48,51 +51,53 @@ svg text::selection { background: none; }
     user-select: none;
 }
 
-.canvas-container
-{
+.canvas-container {
     width: 100%;
     opacity: 100%;
     background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAHUlEQVQYV2NkYGAwBuKzQIwXMBJSAJMfVUidcAQAnUQBC6jEGBUAAAAASUVORK5CYII=');
     background-color: white;
     box-shadow: 0 0 2px lightgray;
 }
+
 /** Editor canvas related styles | -> End **/
 /*//////////////////////////////////////////////////*/
 
-
 /*//////////////////////////////////////////////////*/
 /** Resource level tabs related styles | Start -> **/
-#tab-container{
+#tab-container {
     /*border-bottom-style: solid;*/
     /*border-bottom-color: #8d8d8d;*/
 }
-.tab-headers{
+
+.tab-headers {
     background-color: #e4e4e4;
     height: 22px;
-    border-bottom-color:darkgray;
+    border-bottom-color: darkgray;
 }
 
 .navbar-default .navbar-nav > li a:hover {
     background: #8d8d8d;
 }
+
 .navbar-default .navbar-nav > li a:active {
     background: #8d8d8d;
 }
+
 .navbar-default .navbar-nav > li a:focus {
     background: #8d8d8d;
 }
 
 .nav-tabs > li, .nav-tabs > li > a {
-    height:22px;
+    height: 22px;
 }
 
-.nav-tabs > li > a{
+.nav-tabs > li > a {
     border-bottom: 1px solid #8d8d8d;
 }
 
 .nav-tabs > li > span {
-    cursor:pointer;
-    position:absolute;
+    cursor: pointer;
+    position: absolute;
     right: 0;
     top: 12px;
     color: #c0392b;
@@ -108,18 +113,18 @@ svg text::selection { background: none; }
 }
 
 .nav-tabs > li {
-    background-color:  #c4c4c4;
+    background-color: #c4c4c4;
 }
 
-.nav-tabs{
+.nav-tabs {
     border: 0;
 }
 
 .add-resource-btn {
-    width:40px;
+    width: 40px;
 }
 
-.tab-divs{
+.tab-divs {
     position: absolute;
     width: 100%;
     height: 100%;
@@ -146,9 +151,9 @@ svg text::selection { background: none; }
 .close-icon {
     cursor: pointer;
 }
+
 /** Resource level tabs related styles | -> End **/
 /*//////////////////////////////////////////////////*/
-
 
 /*//////////////////////////////////////////////////*/
 /** File Explorer related styles |Start -> **/
@@ -157,10 +162,10 @@ svg text::selection { background: none; }
     border: solid #373737;
 }
 
-#tree-action-bar{
+#tree-action-bar {
     background-color: #373737;
     color: #ededed;
-    border-bottom:solid #1e1e1e;
+    border-bottom: solid #1e1e1e;
 }
 
 .tree-view {
@@ -176,24 +181,26 @@ svg text::selection { background: none; }
     background: #fdfdfd;
 
 }
-.tree-action{
+
+.tree-action {
     float: right;
 }
 
-i.tree-action{
+i.tree-action {
     padding: 15px 8px;
 }
-span.tree-action{
+
+span.tree-action {
     padding: 4px;
 }
 
-.tree-view input{
+.tree-view input {
     height: 32px;
     color: black;
 }
+
 /** File Explorer related styles | -> End **/
 /*//////////////////////////////////////////////////*/
-
 
 /*//////////////////////////////////////////////////*/
 /** Breadcrumbs related styles | Start -> **/
@@ -214,31 +221,125 @@ header .brand h1 {
 ol#breadcrumbList {
     background-color: #444;
 }
+
 /** Breadcrumbs related styles | -> End**/
 /*//////////////////////////////////////////////////*/
-.settings-icon{
-    padding-top:5px;
+.settings-icon {
+    padding-top: 5px;
 }
-.source-icon{
-    padding-top:5px;
+
+.source-icon {
+    padding-top: 5px;
 }
-.file-browser-container
-{
+
+.file-browser-container {
     padding: 15px;
     max-height: 450px;
     overflow-x: hidden;
     overflow-y: scroll;
 }
+
 header .brand img.logo {
     height: 20px;
     padding: 0px 10px;
 }
+
 header .brand {
-    padding:5px;
+    padding: 5px;
 }
+
 header .brand h1 {
     font-size: 15px;
 }
+
 ol#breadcrumbList {
     background-color: #444;
 }
+
+/** Welcome Screen related styles | Start -> **/
+.initial-background-container {
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAHUlEQVQYV2NkYGAwBuKzQIwXMBJSAJMfVUidcAQAnUQBC6jEGBUAAAAASUVORK5CYII=');
+    background-color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #ddd;
+    width: 100%;
+    height: 100%;
+}
+
+.initial-welcome-container {
+    width: 1000px;
+    height: 600px;
+    border: solid 2px #e9e9e9;
+    position: absolute;
+    top: 50px;
+}
+
+.heading-welcome-container {
+    height: 300px;
+
+}
+
+.welcome-title {
+    position: absolute;
+    margin-top: 60px;
+    margin-left: 350px;
+    font-size: 54px;
+    font-weight: bold;
+}
+
+.welcome-icon {
+    width: 250px;
+    position: absolute;
+    margin-top: 130px;
+    margin-left: 360px;
+}
+
+.new-welcome-button {
+    position: absolute;
+    top: 220px;
+    left: 310px;
+    width: 190px;
+    height: 45px;
+    background-color: #0673b9;
+    color: #f1f6fa;
+    font-size: 20px;
+}
+
+.open-welcome-button {
+    position: absolute;
+    top: 220px;
+    left: 510px;
+    width: 190px;
+    height: 45px;
+    background-color: #505050;
+    color: #f1f6fa;
+    font-size: 20px;
+}
+
+.body-welcome-container {
+    background-color: #f5f5f5;
+    height: 300px;
+    width: 1000px;
+}
+
+.welcome-body-title {
+    position: absolute;
+    top: 330px;
+    left: 80px;
+    font-size: 20px;
+    color: #222222;
+    font-weight: bold;
+}
+
+.welcome-samples {
+    position: absolute;
+    border-top: 1px solid #d7d7d7;
+    width: 850px;
+    top: 370px;
+    left: 80px;
+    height: 200px;
+}
+
+/** Welcome Screen related styles | End -> **/
