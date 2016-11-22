@@ -100,7 +100,7 @@ var double price = 4.0;
 var string name = "John"
 var xmlElement address_xml = `<address><name>$name</name></address>`
 var json address_json = `{ "name":"$name", "streetName":"$street"}`
-var map = {"name:"John"}
+var map = {"name":"John", "age":34 }
 ```
 Here $name is a varaible that is avialable at the current scope. 
 
