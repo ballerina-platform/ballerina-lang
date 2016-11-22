@@ -2,7 +2,7 @@ package ballerina.lang.string
 
 native function contains(string s, string substr) (boolean);
 
-native function equalsIgnoreCase(string s, string s1, string s2) (boolean);
+native function equalsIgnoreCase(string s1, string s2) (boolean);
 
 native function hasPrefix(string s, string prefix) (boolean);
 
