@@ -22,9 +22,9 @@ resource passthrough (message m) {
         response = http.sendPost (nyse_ep, m);
     } catch (exception e) {
         response = new message();
-        setHeader(m, HTTP.StatusCode, 500);// need to discuss
+        message.setHeader(m, HTTP.StatusCode, 500);// need to discuss
         var json error = `{"error":"backend failed"}`;
-        setPayload(m, error);
+        message.setPayload(m, error);
     }
     reply response;
 
