@@ -8,8 +8,8 @@ import ballerina.lang.message;
 @Service(title = "StockExchangeService", description = "Exchange stock based on message content")
 service ContentBasedRouteService;
 
-actor HttpEndpoint nyseEP = new Endpoint("http://localhost:8080/exchange/nyse/");
-actor HttpEndpoint nasdaqEP = new Endpoint("http://localhost:8081/exchange/nasdaq/");
+actor HttpEndpoint nyseEP = new HttpEndpoint("http://localhost:8080/exchange/nyse/");
+actor HttpEndpoint nasdaqEP = new HttpEndpoint("http://localhost:8081/exchange/nasdaq/");
 
 @POST
 @Produces ("application/json")
