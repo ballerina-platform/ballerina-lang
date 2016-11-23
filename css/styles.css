@@ -223,7 +223,15 @@ ol#breadcrumbList {
     background-color: #444;
 }
 
-/** Breadcrumbs related styles | -> End**/
+/** Menu Bar **/
+.dropdown-menu{
+    background: #1e1e1e;
+    top: 50%;
+    font-size: 11px;
+}
+
+
+    /** Breadcrumbs related styles | -> End**/
 /*//////////////////////////////////////////////////*/
 .settings-icon {
     padding-top: 5px;

@@ -16,6 +16,10 @@
 
 }
 
+.dropdown-menu>li>a{
+    color: #959595;
+}
+
 .menu-bar{
     height: 27px;
 }
