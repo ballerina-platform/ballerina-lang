@@ -23,24 +23,15 @@ define(([],function (){
         items: [
             {
                 id: "EditMenu-Undo",
-                label: "Undo",
-                menuActionHandler: function () {
-
-                }
+                label: "Undo"
             },
             {
                 id: "EditMenu-Redo",
-                label: "Redo",
-                menuActionHandler: function () {
-
-                }
+                label: "Redo"
             },
             {
                 id: "EditMenu-Cut",
-                label: "Cut",
-                menuActionHandler: function () {
-
-                }
+                label: "Cut"
             }
 
         ],

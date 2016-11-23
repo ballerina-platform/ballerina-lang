@@ -46,6 +46,7 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'menu_bar_provider'],
                     var parent = this._$parent_el;
                     var self = this;
                     var _options = this._options;
+                    var command = _options.application.commandManager;
 
                     //Iterate over menu groups
                     _.forEach(MenuBarProvider, function (menuGroupDefinition, menuGroupId) {
@@ -68,7 +69,9 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'menu_bar_provider'],
                                 var item = $('<li></li>');
                                 var link = $('<a></a>');
                                 link.text(menuItem.label);
-                                link.click(menuItem.menuActionHandler);
+                                link.click(function () {
+                                    command.dispatch(menuItem.action);
+                                });
                                 item.append(link);
                                 menu.append(item);
                             });

@@ -24,22 +24,15 @@ define(([],function (){
             {
                 id: "FileMenu-NewService",
                 label: "New Service",
-                menuActionHandler: function () {
-                }
+                action: "create-new-tab"
             },
             {
                 id: "FileMenu-OpenService",
-                label: "Open Service",
-                menuActionHandler: function () {
-
-                }
+                label: "Open Service"
             },
             {
                 id: "FileMenu-Save",
-                label: "Save To File",
-                menuActionHandler: function () {
-
-                }
+                label: "Save To File"
             }
 
             ],
