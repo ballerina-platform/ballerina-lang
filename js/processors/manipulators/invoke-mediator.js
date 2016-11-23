@@ -26,6 +26,8 @@ define(['d3', 'tree_node'], function (d3, TreeNode) {
         type : "Action",
         editable : true,
         deletable: true,
+        width: 130,
+        height: 30,
         hasOutputConnection : true,
         dragCursorOffset : { left: 50, top: -5 },
         // For inout type message link value is 2

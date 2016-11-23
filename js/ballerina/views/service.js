@@ -516,12 +516,7 @@ function (require, log, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements,
                                     editable: Processors.manipulators[id].editable,
                                     deletable: Processors.manipulators[id].deletable,
                                     hasOutputConnection : Processors.manipulators[id].hasOutputConnection,
-                                    messageLinkType : {
-                                        messageLinkType: {
-                                            OutOnly : 1,
-                                            InOut : 2
-                                        }
-                                    }
+                                    messageLinkType : Processors.manipulators[id].messageLinkType
                                 },
                                 {colour: Processors.manipulators[id].colour},
                                 Processors.manipulators[id].parameters,
@@ -936,12 +931,8 @@ function (require, log, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements,
                     source: sourcePoint,
                     destination: destinationPoint,
                     priority: destinationPoint,
-                    type : {
-                        messageLinkType: {
-                            OutOnly: 1,
-                            InOut: 2
-                        }
-                    }
+                    // type one is out only
+                    type : 1
                 });
                 var messageOptionsInbound = {'class': 'messagePoint', 'direction': 'inbound'};
                 var messageOptionsOutbound = {'class': 'messagePoint', 'direction': 'outbound'};

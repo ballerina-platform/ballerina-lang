@@ -24,6 +24,8 @@ define(['d3', 'tree_node'], function (d3, TreeNode) {
         icon: "images/tool-icons/dgm-logger.svg",
         colour : "#ffffff",
         type : "UnitProcessor",
+        width: 130,
+        height: 45,
         dragCursorOffset : { left: 24, top: -5 },
         createCloneCallback : function(view){
             function cloneCallBack() {
