@@ -97,10 +97,10 @@ Value can be a integer, a float, a string, a map, or XML or Json literals. Follo
 ```
 var int age = 4;
 var double price = 4.0;
-var string name = "John"
-var xmlElement address_xml = `<address><name>$name</name></address>`
-var json address_json = `{ "name":"$name", "streetName":"$street"}`
-var map = {"name":"John", "age":34 }
+var string name = "John";
+var xmlElement address_xml = `<address><name>$name</name></address>`;
+var json address_json = `{ "name":"$name", "streetName":"$street"}`;
+var map = {"name":"John", "age":34 };
 ```
 Here $name is a variable that is available at the current scope.
 
