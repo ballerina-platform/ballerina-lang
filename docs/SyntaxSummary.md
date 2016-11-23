@@ -40,7 +40,8 @@ The overall structure of a resource is as follows:
 @Annotation+
 resource ResourceName (Message VariableName
         [, (@Context | @QueryParam | @PathParam) VariableName]*) {
-    VariableDeclaration*
+    ActorDelcaration*
+    (TypeDefinition | VariableDeclaration)*
     Statement+
 }*
 ```
@@ -56,28 +57,13 @@ A file may also contain functions who’s structure is as follows:
 ```
 [public] function FunctionName ((TypeName VariableName)*) (TypeName*)
         [throws ExceptionName [, ExceptionName]*] {
-    VariableDeclaration*
+    ActorDelcaration*
+    (TypeDefinition | VariableDeclaration)*
     Statement+
 }
 ```
 
 All functions are private to the package unless explicitly declared to be public with the `public` keyword.. Functions can be invoked from a resource or a function in the same package without an import. It may also be invoked from another package by either importing it first or by using its fully qualified name.
-
-### Action Definition
-
-Actions are operations (functions) that can be executed against an actor. The overall structure of an action is as follows:
-
-```
-action ActionName (TypeName ActorName, (TypeName VariableName)*) (TypeName*)
-        [throws ExceptionName [, ExceptionName]*] {
-    VariableDeclaration*
-    Statement+
-}
-```
-
-First argument of an action should be associated with an actor.
-
-All actions are public. Actions can be invoked from a resource or a function in the same package without an import. It may also be invoked from another file by either importing it first or by using its fully qualified name.
 
 ### Variable Declaration
 
@@ -155,16 +141,6 @@ TypeName<{schema_type1}> VariableName1 = ...;
 TypeName<{schema_type2}> VariableName2 = VariableName1;
 ```
 //todo Do we need to convert from multiple input types to a single output type
-
-### Actor Declaration
-
-TODO: What is an actor? Representation of an external system.
-
-A ActorDeclaration has the following structure:
-
-```
-actor TypeName ActorName;
-```
 
 ### Statements
 
@@ -295,6 +271,42 @@ return (Expression)*;
 ```
 reply Message?;
 ```
+
+## Actors and Actions
+
+Actors are the participants of an integration: they are the vertical lines in the sequence diagram. An `actor` provides a set of actions that workers can execute against them. A given `actor` may also need to be configured with particular details.
+
+### Actor Definition
+
+```
+[package PackageName;?]
+
+actor ActorName {
+    ActorInitializer+;
+}
+
+(TypeDefinition | VariableDeclaration | ActorDeclaration)*
+
+ActionDefinition+;
+```
+
+### Action Definition
+
+Actions are operations (functions) that can be executed against an actor. The overall structure of an action is as follows:
+
+```
+action ActionName (actor ActorName, (TypeName VariableName)*) (TypeName*)
+        [throws ExceptionName [, ExceptionName]*] {
+    ActorDelcaration*
+    (TypeDefinition | VariableDeclaration)*
+    Statement+
+}
+```
+
+First argument of an action should be associated with an actor.
+
+All actions are public. Actions can be invoked from a resource or a function in the same package without an import. It may also be invoked from another file by either importing it first or by using its fully qualified name.
+
 
 ## Configuration Management
 
