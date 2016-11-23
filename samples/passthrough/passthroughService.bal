@@ -12,7 +12,7 @@ service PassthroughService;
 @Path("/stocks")
 resource echoResource (message m) {
     actor HttpEndpoint nyse_ep =  new HttpEndpoint ("http://localhost:6060/nyse");
-    message r = http.sendPost (nyse_ep, m, "/*");
+    var message r = http.sendPost (nyse_ep, m, "/*");
     reply r;
 }
 
