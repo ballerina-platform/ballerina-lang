@@ -1,8 +1,13 @@
+package samples.echo;
+
 @BasePath ("/echo")
-
-@Service(title = "EchoService", description = "echo service sample.")
-
-package com.sample;
+@Source (interface="protocolDefinitionKey")?
+@Service(
+   	   tags = {"tag1", "tag2"},
+   description = "Description" 
+  )?
+@Description "description"?
+service EchoService;
 
 @GET
 @Path ("/*")
