@@ -586,6 +586,7 @@ define(['require', 'jquery', 'd3'], function (require, $, d3) {
 
         var d3Proto = Object.getPrototypeOf(d3ref);
         d3Proto.draw = draw;
+        d3Proto.draw = draw;
 
         return d3Ref = d3ref;
     };

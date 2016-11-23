@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'log', 'jquery', 'backbone', 'command'],
-    function (require, log, $, Backbone, CommandManager) {
+define(['require', 'log', 'jquery', 'backbone', 'command','ballerina'],
+    function (require, log, $, Backbone, CommandManager,Service) {
 
         var InitialWelcomePage = Backbone.View.extend({
             initialize: function (options) {
@@ -56,6 +56,7 @@ define(['require', 'log', 'jquery', 'backbone', 'command'],
 
                 var bodyTitleSpan = $('<span></span>');
                 var samplesDiv = $('<div></div>');
+                var carouselDiv = $('<div class="carousel-inner"></div>');
 
                 backgroundDiv.addClass(_.get(this._options, 'cssClass.parent'));
                 mainWelcomeDiv.addClass(_.get(this._options, 'cssClass.outer'));
@@ -100,8 +101,15 @@ define(['require', 'log', 'jquery', 'backbone', 'command'],
 
                 this._$parent_el.append(backgroundDiv);
                 this.$el = backgroundDiv;
-
+                //TODO: Need to iterate file list when implementation is complete
+                for (var i = 0; i < 4; i ++) {
+                    var previewParent = new Service.Views.ServicePreview();
+                    var renderedSample = previewParent.render();
+                    carouselDiv.append(renderedSample);
+                }
+                samplesDiv.append(carouselDiv);
                 var command = this._options.application.commandManager;
+                command.dispatch('create-carousel-view',samplesDiv);
 
                 $(newButton).on('click', function () {
                     command.dispatch("create-new-tab");

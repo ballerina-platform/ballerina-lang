@@ -70,12 +70,12 @@
 
 .preview-parent {
     height: 90%;
-    margin-top: 25px;
+    margin-top: 15px;
 }
 
 .file-name {
     color: #FFFFFF;
-    font-size: 20px;
+    font-size: 12px;
     width: 85%;
     margin-left: auto;
     padding-top: 10px;
@@ -104,6 +104,7 @@
 
 .heading-welcome-container {
     height: 300px;
+    background-color: rgba(255,255,255,0.5);
 
 }
 
@@ -113,7 +114,8 @@
 }
 
 .welcome-icon {
-    width: 250px;
+    margin-right: 50px;
+    margin-top: -20px;
 }
 
 .new-welcome-button,.new-welcome-button:hover, .new-welcome-button:active {
@@ -171,4 +173,18 @@
     width: 20%;
 }
 
+.carousel-control {
+    width:  4%;
+    color: #ccc;
+    background: none !important;
+}
+.carousel-control:hover{
+    color:#333;
+}
+.right-carousel{
+    margin-top: 90px;
+}
+.left-carousel{
+    margin-top: 90px;
+}
 /** Initial Welcome Screen related styles | End -> **/

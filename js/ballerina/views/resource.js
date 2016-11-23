@@ -16,7 +16,7 @@
  * under the License.
  */
 define(['require', 'jquery', 'd3', 'd3utils', 'backbone', 'lodash', 'diagram_core', 'main_elements',
-        './service-preview', 'processors', './life-line',
+        './service-outline', 'processors', './life-line',
         'ballerina_models/containable-processor-element', 'ballerina_models/life-line',  'ballerina_models/message-point',
         'ballerina_models/message-link', 'svg_pan_zoom'],
 

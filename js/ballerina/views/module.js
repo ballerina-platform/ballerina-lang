@@ -19,10 +19,10 @@
 define(['./message','./activation', './life-line', './processor', './message-link',
         './containable-processor-element',
         './unit-processor', './complex-processor', './dynamic-containable-processor', './custom-processor',
-        './resource', './service', './service-preview'],
+        './resource', './service', './service-outline','./service-preview'],
     function (MessageView, ActivationView, LifeLineView, ProcessorView, MessageLinkView,
               ContainableProcessorElementView, UnitProcessorView, ComplexProcessorView, DynamicContainableProcessorView, CustomProcessorView,
-                ResourceView, ServiceView, ServicePreview) {
+                ResourceView, ServiceView, ServiceOutlineView,ServicePreview) {
         var views = {};
         views.MessageView = MessageView;
         views.ActivationView = ActivationView;
@@ -36,6 +36,7 @@ define(['./message','./activation', './life-line', './processor', './message-lin
         views.CustomProcessorView = CustomProcessorView;
         views.ResourceView = ResourceView;
         views.ServiceView = ServiceView;
+        views.ServiceOutlineView = ServiceOutlineView;
         views.ServicePreview = ServicePreview;
         return views;
 });
