@@ -6,11 +6,11 @@ import ballerina.lang.json;
 
 
 @BasePath ("/stock")
-@Source (interface="passthroughinterface")
+@Source (interface = "passthroughinterface")
 @Service(title = "NYSEService", description = "NYSE service")
+service PassthroughService;
 
 actor HttpEndpoint nyse_ep = new HttpEndpoint ("http://localhost:8080/exchange/");
-
 
 @GET
 @PUT
