@@ -103,9 +103,16 @@ define(['lodash', 'backbone', 'log'], function (_, Backbone, log) {
         this.dispatch = function () {
             var cmdID = arguments[0];
             if (!_.isUndefined(cmdID)) {
-                // get only needed args for trigger - right now all are wanted
-                var triggerArgs = _.takeRight(arguments, arguments.length);
-                var triggerFn = commandBus.trigger;
+                var triggerFn = commandBus.trigger,
+                    triggerArgs;
+                // get only needed args for handler
+                if(_.isEqual(arguments.length, 1)){
+                    // means no args for the handler
+                    triggerArgs = undefined;
+                } else {
+                    // take except the first arg which is command ID to dispatch
+                    triggerArgs = _.takeRight(arguments, arguments.length - 1);
+                }
                 triggerFn.apply(commandBus, triggerArgs);
             }
         };
