@@ -85,6 +85,20 @@ define(['log', 'jquery', 'lodash', 'backbone', './tab', 'bootstrap'], function (
                 }
             },
 
+            hideTabComponents: function () {
+                var tabHeaderContainer = this._$parent_el.children(_.get(this.options, 'headers.container'));
+                tabHeaderContainer.hide();
+                // Hide the tool palette
+                _.get(this.options, 'toolPalette').hideToolPalette();
+            },
+
+            showTabComponents: function () {
+                var tabHeaderContainer = this._$parent_el.children(_.get(this.options, 'headers.container'));
+                tabHeaderContainer.show();
+                // Show the tool palette
+                _.get(this.options, 'toolPalette').showToolPalette();
+            },
+
             createHeaderForTab: function(tab){
                 var tabHeader = $('<li></li>');
                 this._$tabList.append(tabHeader);

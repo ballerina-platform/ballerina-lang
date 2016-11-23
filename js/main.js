@@ -15,11 +15,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'log', 'jquery', 'lodash', 'backbone', 'breadcrumbs', 'file_browser', 'tab/service-tab-list', 'app/tool-palette/tool-palette',
+define(['require', 'log', 'jquery', 'lodash', 'backbone', 'app/menu-bar/menu-bar', 'breadcrumbs', 'file_browser', 'tab/service-tab-list', 'app/tool-palette/tool-palette',
 
     'welcome','command','workspace',/* void modules */ 'jquery_ui', 'bootstrap'],
 
-    function (require, log, $, _, Backbone, BreadcrumbController, FileBrowser, TabController, ToolPalette, WelcomeScreen, CommandManager, Workspace) {
+    function (require, log, $, _, Backbone, MenuBar, BreadcrumbController, FileBrowser, TabController, ToolPalette, WelcomeScreen, CommandManager, Workspace) {
 
     var Application = Backbone.View.extend(
     /** @lends Application.prototype */
@@ -41,8 +41,15 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'breadcrumbs', 'file_b
             // init command manager
             this.commandManager = new CommandManager();
 
+            this.browserStorage = new Workspace.BrowserStorage('ballerinaAppTempStorage');
+
             //init workspace manager
             this.workspaceManager = new Workspace.Manager(this);
+
+            //init menu bar
+            var menuBarOpts = _.get(this.config, "menu_bar");
+            _.set(menuBarOpts, 'application', this);
+            this.menuBar = new MenuBar(menuBarOpts);
 
             // init breadcrumbs controller
             this.breadcrumbController = new BreadcrumbController(_.get(this.config, "breadcrumbs"));
@@ -102,6 +109,11 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'breadcrumbs', 'file_b
             //TODO: if check to decide the welcome page type
              this.initialWelcomePage.render();
             //this.reqularWelcomeScreen.render(this);
+
+            log.debug("start: rendering menu_bar control");
+            this.menuBar.render();
+            log.debug("end: rendering menu_bar control");
+
             log.debug("start: rendering breadcrumbs control");
             this.breadcrumbController.render();
             log.debug("end: rendering breadcrumbs control");

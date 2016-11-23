@@ -15,19 +15,29 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'main_elements', 'diagram_core'],
-    function (require, log, jquery, _, Tab, Ballerina, MainElements, DiagramCore) {
+define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'main_elements', 'diagram_core', 'workspace', 'app/ballerina/views/source'],
+    function (require, log, jquery, _, Tab, Ballerina, MainElements, DiagramCore, Workspace, SourceView) {
     var  ServiceTab;
 
     ServiceTab = Tab.extend({
         initialize: function (options) {
             Tab.prototype.initialize.call(this, options);
-
+            if(!_.has(options, 'file')){
+                this.file = new Workspace.File({isTemp: true}, {storage: this.getParent().getBrowserStorage()});
+            } else {
+                this.file = _.get(options, 'file');
+            }
         },
         render: function () {
             Tab.prototype.render.call(this);
+            var viewObj = this;
 
             var canvasContainer = this.$el.find(_.get(this.options, 'canvas.container'));
+            var previewContainer = this.$el.find(_.get(this.options, 'preview.container'));
+            var sourceContainer = this.$el.find(_.get(this.options, 'source.container'));
+            var toggleControlsContainer = this.$el.find(_.get(this.options, 'toggle_controls.container'));
+            var toggleSourceIcon = $(_.get(this.options, 'toggle_controls.sourceIcon')).find("img");
+            var toggleDesignIcon = $(_.get(this.options, 'toggle_controls.designIcon')).find("img");
             if(!canvasContainer.length > 0){
                 var errMsg = 'cannot find container to render svg';
                 log.error(errMsg);
@@ -39,6 +49,36 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'main_elemen
             var serviceView = new Ballerina.Views.ServiceView(serviceViewOpts);
 
             serviceView.render();
+
+            var sourceViewOptions = {
+                sourceContainer: sourceContainer.attr('id')
+            };
+
+            $('source-container-id').hide();
+
+            var sourceView = new SourceView(sourceViewOptions);
+
+            toggleSourceIcon.on('click', function () {
+                // Hide the tab components
+                viewObj.getParent().hideTabComponents();
+                canvasContainer.removeClass('show-div').addClass('hide-div');
+                previewContainer.removeClass('show-div').addClass('hide-div');
+                toggleControlsContainer.find('.toggle-to-source').removeClass('show-div').addClass('hide-div');
+                toggleControlsContainer.find('.toggle-to-design').removeClass('hide-div').addClass('show-div');
+                sourceContainer.removeClass('source-view-disabled').addClass('source-view-enabled');
+                sourceView.render();
+            });
+
+            toggleDesignIcon.on('click', function () {
+                // Show the tab components
+                viewObj.getParent().showTabComponents();
+                canvasContainer.removeClass('hide-div').addClass('show-div');
+                previewContainer.removeClass('hide-div').addClass('show-div');
+                toggleControlsContainer.find('.toggle-to-design').removeClass('show-div').addClass('hide-div');
+                toggleControlsContainer.find('.toggle-to-source').removeClass('hide-div').addClass('show-div');
+                sourceContainer.removeClass('source-view-enabled').addClass('source-view-disabled');
+            });
+
 
         }
     });

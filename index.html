@@ -11,11 +11,11 @@
     <link href="lib/theme-wso2_1.0/css/theme-wso2.css" rel="stylesheet" type="text/css"/>
     <link href="lib/jquery-ui_v1.12.1/jquery-ui.css" rel="stylesheet" type="text/css"/>
     <link href="lib/js-tree-v3.3.2/themes/default/style.css" rel="stylesheet" type="text/css"/>
-    <link href="lib/nanoscroller_0.8.7/nanoscroller.css" rel="stylesheet" type="text/css"/>
     <link href="css/layout.css" rel="stylesheet" type="text/css"/>
     <link href="css/styles.css" rel="stylesheet" type="text/css"/>
     <link href="css/welcome-screen.css" rel="stylesheet" type="text/css"/>
     <link href="css/tab-styles.css" rel="stylesheet" type="text/css"/>
+    <link href="lib/nanoscroller_0.8.7/nanoscroller.css" rel="stylesheet" type="text/css"/>
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -25,6 +25,7 @@
     <![endif]-->
 
     <link rel="stylesheet" type="text/css" href="css/sequence_diagram/sequenced-styles.css"/>
+    <link rel="stylesheet" type="text/css" href="css/menu-bar.css"/>
     <link rel="stylesheet" type="text/css" href="css/tool-palette.css"/>
     <link rel="stylesheet" type="text/css" href="css/workspace-explorer.css"/>
     <link rel="stylesheet" type="text/css" href="css/diagram/preview-pane.css"/>
@@ -134,7 +135,7 @@
         </div>
         <!-- End: Canvas Container -->
         <!-- Start: Preview Container -->
-        <div class="source-container">
+        <div class="source-container source-view-disabled" id="source-container-id">
         </div>
         <!-- End Preview Container -->
         <!-- Start: Preview Container -->
@@ -143,6 +144,8 @@
         <!-- End Preview Container -->
         <!-- Start: Toggle Controls Container -->
         <div class="toggle-controls-container">
+            <div class="toggle-to-source show-div"><img src="images/source.svg" style='height: 100%; width: 100%; object-fit: contain' id="icon-toggle-source"></div>
+            <div class="toggle-to-design hide-div"><img src="images/design.svg" style='height: 100%; width: 100%; object-fit: contain' id="icon-toggle-design"></div>
         </div>
         <!-- End: Toggle Controls Container  -->
     </div>
@@ -336,6 +339,9 @@
             processors: "js/processors/module" ,
             tool_palette: "js/tool-palette/module",
             file_browser: "js/file-browser/file-browser",
+            file_menu: "js/ballerina-menu-bar/file-menu",
+            edit_menu: "js/ballerina-menu-bar/edit-menu",
+            menu_bar_provider: "js/ballerina-menu-bar/module",
             menu_bar: "js/menu-bar/menu-bar",
             tool_bar: "js/tool-bar/tool-bar",
             tab: "js/tab/",
@@ -407,7 +413,13 @@
                 container: ""
             },
             menu_bar: {
-                container: "#menu-bar-container"
+                container: "#menu-bar-container",
+                cssClass: {
+                    active: "active",
+                    menu: "dropdown-menu",
+                    item: "dropdown-toggle",
+                    menu_group: "menu-group",
+                }
             },
             breadcrumbs:{
                 container: "#breadcrumb-container",
@@ -453,8 +465,10 @@
                         },
                         toggle_controls: {
                             // relative selector within container for a tab
-                            container: '.toggle-controls-container'
-                        }
+                            container: '.toggle-controls-container',
+                            sourceIcon: '.toggle-to-source',
+                            designIcon: '.toggle-to-design'
+                         }
                     }
                 },
                 tool_palette: {
@@ -473,7 +487,8 @@
                 container: "#workspace-explorer",
                 cssClass: {
                     activateBtn: 'fw fw-file-browse workspace-explorer-activate-btn',
-                    container: 'workspace-explorer-container'
+                    container: 'workspace-explorer-container',
+                    separator: 'workspace-explorer-separator'
                 }
             }
         };

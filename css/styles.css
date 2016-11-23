@@ -18,6 +18,7 @@ body {
 
 .header {
     background-color: #1e1e1e;
+    min-height: 27px;
 }
 
 #editor-container {
@@ -206,7 +207,7 @@ span.tree-action {
 /** Breadcrumbs related styles | Start -> **/
 
 header .brand img.logo {
-    height: 20px;
+    height: 15px;
     padding: 0px 10px;
 }
 
@@ -240,16 +241,19 @@ ol#breadcrumbList {
 }
 
 header .brand img.logo {
-    height: 20px;
-    padding: 0px 10px;
+    height: 17px;
+    padding: 0px 7px;
 }
 
 header .brand {
-    padding: 5px;
+    padding: 1px 10px;
 }
 
 header .brand h1 {
-    font-size: 15px;
+    text-transform: uppercase;
+    font-size: 12px;
+    font-weight: 200;
+    color: #d6d6d6;
 }
 
 ol#breadcrumbList {

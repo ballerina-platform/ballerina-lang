@@ -2,3 +2,37 @@
     margin-left: 5px;
     margin-bottom: 5px;
 }
+
+.toggle-controls-container {
+    position: absolute;
+    top: 70%;
+    right: 50px;
+}
+
+.toggle-to-design {
+    width: 30px;
+    height: 30px;
+}
+
+.toggle-to-source {
+    width: 30px;
+    height: 30px;
+}
+
+.source-view-enabled {
+    display: block;
+    width: 100%;
+    height:100%;
+}
+
+.source-view-disabled {
+    display: none;
+}
+
+.show-div {
+    display: block;
+}
+
+.hide-div {
+    display: none;
+}

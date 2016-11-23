@@ -87,6 +87,14 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
             });
 
             return this;
+        },
+
+        hideToolPalette: function () {
+            this._$parent_el.hide();
+        },
+
+        showToolPalette: function () {
+            this._$parent_el.show();
         }
     });
 
