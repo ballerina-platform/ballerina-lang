@@ -85,18 +85,7 @@ define(['d3', 'tree_node'], function (d3, TreeNode) {
                 var tryBlockNode = new TreeNode("TryBlock", "TryBlock", "try{", "}");
                 for (var itr = 0; itr < tryBlock.get('children').models.length; itr++) {
                     var child = tryBlock.get('children').models[itr];
-
-                    if (child instanceof SequenceD.Models.MessagePoint && child.get('direction') == 'outbound') {
-                        var endpoint = child.get('message').get('destination').get('parent').attributes.parameters[0].value;
-                        var uri = child.get('message').get('destination').attributes.parameters[1].value;
-                        // When we define the properties, need to extract the endpoint from the property
-                        definedConstants["HTTPEP"] = {name: endpoint, value: uri};
-                        var l = new TreeNode("InvokeMediator", "InvokeMediator", ("response = invoke(endpointKey=" +
-                        endpoint + ", messageKey=m)"), ";");
-                        tryBlockNode.getChildren().push(l);
-                    } else {
-                        tryBlockNode.getChildren().push(child.get('utils').getMySubTree(child));
-                    }
+                    tryBlockNode.getChildren().push(child.get('utils').getMySubTree(child));
                 }
 
                 // Generate the Subtree for the catch block
@@ -104,25 +93,13 @@ define(['d3', 'tree_node'], function (d3, TreeNode) {
                 var catchBlockNode = new TreeNode("CatchBlock", "CatchBlock", "catch(Exception e){", "}");
                 for (var itr = 0; itr < catchBlock.get('children').models.length; itr++) {
                     var child = catchBlock.get('children').models[itr];
-
-                    if (child instanceof SequenceD.Models.MessagePoint && child.get('direction') == 'outbound') {
-                        var endpoint = child.get('message').get('destination').get('parent').attributes.parameters[0].value;
-                        var uri = child.get('message').get('destination').get('parent').attributes.parameters[1].value;
-                        // When we define the properties, need to extract the endpoint from the property
-                        definedConstants["HTTPEP"] = {name: endpoint, value: uri};
-                        var l = new TreeNode("InvokeMediator", "InvokeMediator", ("response = invoke(endpointKey=" +
-                        endpoint + ", messageKey=m)"), ";");
-                        catchBlockNode.getChildren().push(l);
-                    } else {
-                        catchBlockNode.getChildren().push(child.get('utils').getMySubTree(child));
-                    }
+                    catchBlockNode.getChildren().push(child.get('utils').getMySubTree(child));
                 }
                 var tryCatchNode = new TreeNode("TryCatchMediator", "TryCatchMediator", "", "");
                 tryCatchNode.getChildren().push(tryBlockNode);
                 tryCatchNode.getChildren().push(catchBlockNode);
 
                 return tryCatchNode;
-
             }
         }
     };
