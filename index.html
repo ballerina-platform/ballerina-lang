@@ -25,6 +25,7 @@
     <![endif]-->
 
     <link rel="stylesheet" type="text/css" href="css/sequence_diagram/sequenced-styles.css"/>
+    <link rel="stylesheet" type="text/css" href="css/menu-bar.css"/>
     <link rel="stylesheet" type="text/css" href="css/tool-palette.css"/>
     <link rel="stylesheet" type="text/css" href="css/workspace-explorer.css"/>
     <link rel="stylesheet" type="text/css" href="css/diagram/preview-pane.css"/>
@@ -338,6 +339,9 @@
             processors: "js/processors/module" ,
             tool_palette: "js/tool-palette/module",
             file_browser: "js/file-browser/file-browser",
+            file_menu: "js/ballerina-menu-bar/file-menu",
+            edit_menu: "js/ballerina-menu-bar/edit-menu",
+            menu_bar_provider: "js/ballerina-menu-bar/module",
             menu_bar: "js/menu-bar/menu-bar",
             tool_bar: "js/tool-bar/tool-bar",
             tab: "js/tab/",
@@ -409,7 +413,13 @@
                 container: ""
             },
             menu_bar: {
-                container: "#menu-bar-container"
+                container: "#menu-bar-container",
+                cssClass: {
+                    active: "active",
+                    menu: "dropdown-menu",
+                    item: "dropdown-toggle",
+                    menu_group: "menu-group",
+                }
             },
             breadcrumbs:{
                 container: "#breadcrumb-container",

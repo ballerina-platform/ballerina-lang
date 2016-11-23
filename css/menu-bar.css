@@ -1,0 +1,21 @@
+.menu-group{
+    display: inline-block;
+    color: #999;
+    padding: 6px 8px;
+    min-height: 50px;
+    position: relative;
+    font-size: 80%;
+}
+
+.menu-list{
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+
+}
+
+.menu-bar{
+    height: 27px;
+}

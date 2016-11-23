@@ -115,6 +115,9 @@ define(['require', 'log', 'jquery', 'backbone', 'command','ballerina'],
                     command.dispatch("create-new-tab");
 
                 });
+
+                //Hiding menu bar
+                this._options.application.menuBar.hide();
             }
 
         });

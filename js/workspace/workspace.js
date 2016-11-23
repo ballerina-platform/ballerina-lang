@@ -34,6 +34,8 @@ define(['jquery', 'lodash', 'backbone', 'log', 'bootstrap'], function ($, _, Bac
             $(welcomeContainerId).css("display", "none");
             var editorId = app.config.container;
             $(editorId).css("display", "block");
+            //Showing menu bar
+            app.menuBar.show();
             app.tabController.newTab();
         };
         //The parent div provided should have following struct:
