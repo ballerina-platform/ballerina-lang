@@ -132,7 +132,7 @@ resource bookPackage (message m) {
             }
         } catch(exception e) {
             log.error("Error while making hotel reservation.");
-            var json responseJSON = `{ "FlightRef" : flightBookingRef }`;
+            var json responseJSON = `{ "FlightRef" : $flightBookingRef }`;
             message.setPayload(response, responseJSON);
             reply response;
         }
@@ -201,13 +201,13 @@ resource bookPackage (message m) {
             log.error("Error while making car reservation.");
             
             // Reply with Flight and Hotel booking refrences
-            var json responseJSON = `{ "FlightBookingRef" : flightBookingRef, "HotelBookingRef": hotelBookingRef }`;
+            var json responseJSON = `{ "FlightBookingRef" : $flightBookingRef, "HotelBookingRef": $hotelBookingRef }`;
             message.setPayload(response, responseJSON);
             message.setHeader(response, "Status", 200);
         }
         
         // Reply with Flight Booking, Hotel booking and Car booking refrences
-        var json responseJSON = `{ "FlightBookingRef" : flightBookingRef, "HotelBookingRef" : hotelBookingRef, "CarBookingRef" : carBookingRef }`;
+        var json responseJSON = `{ "FlightBookingRef" : $flightBookingRef, "HotelBookingRef" : $hotelBookingRef, "CarBookingRef" : $carBookingRef }`;
         message.setPayload(response, responseJSON);
         message.setHeader(response, "Status", 200);
     } else {
