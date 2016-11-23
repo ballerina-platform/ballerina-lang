@@ -100,6 +100,7 @@ define(['log', 'jquery', 'lodash', 'backbone', './tab', 'bootstrap'], function (
 
                 var self = this;
                 tabHeaderLink.click(function(e){
+                    tabHeaderLink.tab('show');
                     self.setActiveTab(tab);
                     e.preventDefault();
                     e.stopPropagation();
@@ -156,6 +157,8 @@ define(['log', 'jquery', 'lodash', 'backbone', './tab', 'bootstrap'], function (
                     log.error(errMsg);
                     throw errMsg;
                 }
+                var tabIndex = _.findIndex(this._tabs, tab);
+
                 _.remove(this._tabs, tab);
                 tab.getHeader().remove();
                 tab.remove();
@@ -165,6 +168,18 @@ define(['log', 'jquery', 'lodash', 'backbone', './tab', 'bootstrap'], function (
                  * @type {Tab}
                  */
                 this.trigger("tab-removed", tab);
+
+                //switch to tab at last or next index
+                //make sure there are remaining tabs
+                if(this._tabs.length > 0 && !_.isEqual(tabIndex, -1)){
+                    // if removing tab is 0th tab, next tab is also the 0th
+                    var nextTabIndex = 0;
+                    if(!_.isEqual(tabIndex, 0)){
+                        nextTabIndex = tabIndex - 1;
+                    }
+                    var nextTab = this._tabs[nextTabIndex];
+                    this.setActiveTab(nextTab);
+                }
             },
             /**
              * set selected tab
@@ -180,7 +195,7 @@ define(['log', 'jquery', 'lodash', 'backbone', './tab', 'bootstrap'], function (
                     }
                     var lastActiveTab = this.activeTab;
                     this.activeTab = tab;
-                    var activeTabHeaderClass = _.get(this.options, 'headers.cssClass.item');
+                    var activeTabHeaderClass = _.get(this.options, 'headers.cssClass.active');
 
                     if(!_.isUndefined(lastActiveTab)){
                         lastActiveTab.getHeader().removeClass(activeTabHeaderClass);
@@ -222,18 +237,19 @@ define(['log', 'jquery', 'lodash', 'backbone', './tab', 'bootstrap'], function (
                 _.set(tabOptions, 'application', this.options.application);
                 // merge view options from app config
                 _.assign(tabOptions, _.get(this.options, 'tabs.tab'));
+                _.set(tabOptions, 'parent', this);
                 var newTab = new this.TabModel(tabOptions);
                 this.addTab(newTab);
-                newTab.render();
-                // this is the first tab, so activate it by default
-                if (_.isEqual(this._tabs.length, 1 )){
-                    this.setActiveTab(newTab);
-                }
-                else if (_.has(opts, 'switchToNewTab')) {
+                // check whether switch to new tab set to false
+                if (_.has(opts, 'switchToNewTab')) {
                     if (_.isBoolean(_.get(opts, 'switchToNewTab')) && _.get(opts, 'switchToNewTab')) {
                         this.setActiveTab(newTab);
                     }
+                } else {
+                    // activate by default
+                    this.setActiveTab(newTab);
                 }
+                newTab.render();
                 return newTab;
             },
 
