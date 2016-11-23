@@ -16,7 +16,7 @@
  * under the License.
  */
 define(['require', 'log', 'jquery', 'd3', 'd3utils', 'backbone', 'lodash', 'diagram_core', 'main_elements',
-        './service-preview', 'processors', './life-line',
+        './service-outline', 'processors', './life-line',
         'ballerina_models/containable-processor-element', 'ballerina_models/life-line',  'app/ballerina/models/message-point',
         'app/ballerina/models/message-link', 'ballerina_models/service', 'app/ballerina/utils/module',
         'app/ballerina/utils/processor-factory', 'svg_pan_zoom'],
@@ -57,13 +57,18 @@ function (require, log, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements,
 
                 opts.diagram.class = opts.diagram.class || "diagram";
                 opts.diagram.selector = opts.diagram.selector || ".diagram";
-                opts.diagram.wrapper = opts.diagram.wrapper || {};
+                opts.diagram.wrapper = opts.diagram.wrapper ||{};
                 // CHANGED
                 opts.diagram.wrapperId = opts.wrapperId || "diagramWrapper";
                 opts.diagram.grid = opts.diagram.grid || {};
                 opts.diagram.grid.height = opts.diagram.grid.height || 25;
                 opts.diagram.grid.width = opts.diagram.grid.width || 25;
                 this.options = opts;
+
+                // set previewMode to false if not set
+                if(_.isUndefined(this.getPreviewMode())){
+                    this.setPreviewMode(false);
+                }
 
                 _.extend(this, _.pick(opts, ['toolPalette']));
 
@@ -76,13 +81,14 @@ function (require, log, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements,
                 this.model.on("messageDrawStart", this.onMessageDrawStart, this);
                 this.model.on("messageDrawEnd", this.onMessageDrawEnd, this);
 
-                var container = d3.select(this.options.container);
+                          var container = d3.select(this.options.container);
+
+
                 if (_.isUndefined(this.options.container)) {
                     log.error("options.container is not defined");
                 }
                 // wrap d3 with custom drawing apis
                 container = D3Utils.decorate(container);
-
                 var svg = container.draw.svg(this.options.diagram);
 
                 var definitions = svg.append("defs");
@@ -167,52 +173,53 @@ function (require, log, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements,
 
                 this.d3svg = svg;
 
-                this.panAndZoom = $(svg.node()).svgPanZoom({
-                    events: {
+                    this.panAndZoom = $(svg.node()).svgPanZoom({
+                        events: {
 
-                        // enables mouse wheel zooming events
-                        mouseWheel: true,
+                            // enables mouse wheel zooming events
+                            mouseWheel: true,
 
-                        // enables double-click to zoom-in events
-                        doubleClick: false,
+                            // enables double-click to zoom-in events
+                            doubleClick: false,
 
-                        // enables drag and drop to move the SVG events
-                        drag: true,
+                            // enables drag and drop to move the SVG events
+                            drag: true,
 
-                        // cursor to use while dragging the SVG
-                        dragCursor: "move"
-                    },
+                            // cursor to use while dragging the SVG
+                            dragCursor: "move"
+                        },
 
-                    // time in milliseconds to use as default for animations.
-                    // Set 0 to remove the animation
-                    animationTime: 100,
+                        // time in milliseconds to use as default for animations.
+                        // Set 0 to remove the animation
+                        animationTime: 100,
 
-                    // how much to zoom-in or zoom-out
-                    zoomFactor: 0.1,
+                        // how much to zoom-in or zoom-out
+                        zoomFactor: 0.1,
 
-                    // maximum zoom in, must be a number bigger than 1
-                    maxZoom: 10,
+                        // maximum zoom in, must be a number bigger than 1
+                        maxZoom: 10,
 
-                    // how much to move the viewBox when calling .panDirection() methods
-                    panFactor: 100,
+                        // how much to move the viewBox when calling .panDirection() methods
+                        panFactor: 100,
 
-                    // the initial viewBox, if null or undefined will try to use the viewBox set in the svg tag.
-                    // Also accepts string in the format "X Y Width Height"
-                    initialViewBox: {
+                        // the initial viewBox, if null or undefined will try to use the viewBox set in the svg tag.
+                        // Also accepts string in the format "X Y Width Height"
+                        initialViewBox: {
 
-                        // the top-left corner X coordinate
-                        x: 0,
+                            // the top-left corner X coordinate
+                            x: 0,
 
-                        // the top-left corner Y coordinate
-                        y: 0,
+                            // the top-left corner Y coordinate
+                            y: 0,
 
-                        // the width of the viewBox
-                        width:  this.options.diagram.viewBoxWidth,
+                            // the width of the viewBox
+                            width: this.options.diagram.viewBoxWidth,
 
-                        // the height of the viewBox
-                        height: this.options.diagram.viewBoxHeight
-                    }
-                });
+                            // the height of the viewBox
+                            height: this.options.diagram.viewBoxHeight
+                        }
+                    });
+
                 $(svg.node()).dblclick({view: this}, function (evt) {
                     evt.data.view.panAndZoom.reset();
                 });
@@ -232,6 +239,14 @@ function (require, log, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements,
                 // disable zoom in/out handler from plugin to override default behaviour
                 $(svg.node()).unbind("mousewheel DOMMouseScroll MozMousePixelScroll");
                 $(svg.node()).on("wheel", null, this, this.toggleZoom);
+            },
+
+
+            getPreviewMode:function(){
+                return this._previewMode;
+            },
+            setPreviewMode:function(mode){
+                 this._previewMode = mode;
             },
 
             createPreview: function(opts){
@@ -608,7 +623,9 @@ function (require, log, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements,
                     .attr("height", "100%");
                 this.d3el = mainGroup;
                 this.el = mainGroup.node();
-                this.calculateViewBoxLimits();
+                if(!this._previewMode) {
+                    this.calculateViewBoxLimits();
+                }
                 this.htmlDiv = $(this.options.container);
                 this.htmlDiv.droppable({
                     drop: this.createDropHandler(this),

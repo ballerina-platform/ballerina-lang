@@ -17,37 +17,28 @@
  */
 define(['jquery', 'lodash', 'backbone', 'log'], function ($, _, Backbone, log) {
 
-    var File = Backbone.View.extend(
+    var File = Backbone.Model.extend(
         {
-            initialize: function (options) {
-                var errMsg, fileMode, fileContent;
-                // FIXME
-                _.set(this, 'id', this.cid);
-                if (!_.has(options, 'mode')){
-                    errMsg = 'unable to find file mode ' + _.toString(options);
-                    log.error(errMsg);
-                    throw errMsg;
-                }
-                fileMode = $(_.get(options, 'mode')) || [];
-                if (!_.has(options, 'content')){
-                    errMsg = 'unable to find file content of mode ' + _.get(options, 'mode');
-                    log.error(errMsg);
-                    throw errMsg;
-                }
-                fileContent = $(_.get(options,'content')) || [];
-                // file mode : browserStored/fileSystem
-                this._mode = fileMode;
-                this.options = options;
-                this._content = fileContent;
+            defaults: {
+                isTemp: true,
+                isPersisted: false
             },
 
-            updateFileMode: function(mode){
-                this._mode = mode;
+            initialize: function (attrs, options) {
+                var errMsg;
+                if (_.isEqual(this.get('isPersisted'), false)){
+                    if(!_.has(options, 'storage')){
+                        errMsg = 'unable to find storage' + _.toString(attrs);
+                        log.error(errMsg);
+                        throw errMsg;
+                    }
+                    var storage = _.get(options, 'storage');
+                    if(!_.isUndefined(storage.create(this))){
+                        this.set('isPersisted', true);
+                    }
+                }
             }
-
         });
 
     return File;
-
-
 });

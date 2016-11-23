@@ -36,11 +36,13 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core'], functi
                     throw "config parent [serviceView] is not provided.";
                 }
                 this.serviceView = _.get(options, 'serviceView');
-
-                if(!_.has(this.serviceView, 'toolPalette.dragDropManager')){
-                    throw "dragDropManager is not provided.";
+                var mode = this.serviceView.getPreviewMode();
+                if(!mode) {
+                    if (!_.has(this.serviceView, 'toolPalette.dragDropManager')) {
+                        throw "dragDropManager is not provided.";
+                    }
+                    this.dragDropManager = this.serviceView.toolPalette.dragDropManager;
                 }
-                this.dragDropManager = this.serviceView.toolPalette.dragDropManager;
 
                 options.canvas = this.serviceView.d3el;
                 DiagramCore.Views.DiagramElementView.prototype.initialize.call(this, options);

@@ -37,6 +37,9 @@ define(['log', 'jquery', 'lodash', './tab-list', './service-tab'],
         newTab: function(opts) {
             var options = opts || {};
             TabList.prototype.newTab.call(this, options);
+        },
+        getBrowserStorage: function(){
+            return _.get(this, 'options.application.browserStorage');
         }
     });
 

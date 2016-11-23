@@ -15,14 +15,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'main_elements', 'diagram_core', 'app/ballerina/views/source'],
-    function (require, log, jquery, _, Tab, Ballerina, MainElements, DiagramCore, SourceView) {
+define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'main_elements', 'diagram_core', 'workspace', 'app/ballerina/views/source'],
+    function (require, log, jquery, _, Tab, Ballerina, MainElements, DiagramCore, Workspace, SourceView) {
     var  ServiceTab;
 
     ServiceTab = Tab.extend({
         initialize: function (options) {
             Tab.prototype.initialize.call(this, options);
-
+            if(!_.has(options, 'file')){
+                this.file = new Workspace.File({isTemp: true}, {storage: this.getParent().getBrowserStorage()});
+            } else {
+                this.file = _.get(options, 'file');
+            }
         },
         render: function () {
             Tab.prototype.render.call(this);

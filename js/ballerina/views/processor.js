@@ -43,10 +43,12 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core',
 
             this.serviceView = _.get(options, 'serviceView');
 
-            if(!_.has(this.serviceView, 'toolPalette.dragDropManager')){
-                throw "dragDropManager is not provided.";
+            if(!this.serviceView.getPreviewMode()) {
+                if (!_.has(this.serviceView, 'toolPalette.dragDropManager')) {
+                    throw "dragDropManager is not provided.";
+                }
+                this.dragDropManager = this.serviceView.toolPalette.dragDropManager;
             }
-            this.dragDropManager = this.serviceView.toolPalette.dragDropManager;
 
 
             this.options = options;
