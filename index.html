@@ -134,7 +134,7 @@
         </div>
         <!-- End: Canvas Container -->
         <!-- Start: Preview Container -->
-        <div class="source-container">
+        <div class="source-container source-view-disabled" id="source-container-id">
         </div>
         <!-- End Preview Container -->
         <!-- Start: Preview Container -->
@@ -143,6 +143,8 @@
         <!-- End Preview Container -->
         <!-- Start: Toggle Controls Container -->
         <div class="toggle-controls-container">
+            <div class="toggle-to-source show-div"><img src="images/source.svg" style='height: 100%; width: 100%; object-fit: contain' id="icon-toggle-source"></div>
+            <div class="toggle-to-design hide-div"><img src="images/design.svg" style='height: 100%; width: 100%; object-fit: contain' id="icon-toggle-design"></div>
         </div>
         <!-- End: Toggle Controls Container  -->
     </div>
@@ -453,8 +455,10 @@
                         },
                         toggle_controls: {
                             // relative selector within container for a tab
-                            container: '.toggle-controls-container'
-                        }
+                            container: '.toggle-controls-container',
+                            sourceIcon: '.toggle-to-source',
+                            designIcon: '.toggle-to-design'
+                         }
                     }
                 },
                 tool_palette: {
