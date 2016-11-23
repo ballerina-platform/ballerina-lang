@@ -116,6 +116,7 @@ A TypeName is one of the following built in types or a user defined type name.
 - json\[\<json_schema_name\>\]
 - message
 - map
+- exception
 
 ### Type Definition
 
@@ -177,14 +178,14 @@ A Statement may be one of the following:
 - return statement
 - reply statement
 
-#### Assignment statement
+#### Assignment Statement
 
 Assignment statements look like the following:
 ```
 VariableName = Expression;
 ```
 
-#### If statement
+#### If Statement
 
 Provides a way to perform conditional execution.
 ```
@@ -202,7 +203,7 @@ if (condition) {
 }
 ```
 
-#### Switch statement
+#### Switch Statement
 
 Provides a way to perform conditional execution.
 ```
@@ -212,7 +213,7 @@ switch (predicate) {
 }*
 ```
 
-#### Foreach statement
+#### Foreach Statement
 
 A `foreach` statement provides a way to iterate through a list in order. A `foreach` statement has the following structure:
 ```
@@ -223,7 +224,7 @@ foreach (VariableType VariableName : ValueList) {
 ```
 A ValueList may be an array or any object which supports iteration.
 
-#### Fork/join statement
+#### Fork/join Statement
 
 TODO: Fix the following definition
 
@@ -239,7 +240,7 @@ fork (MessageName) {
 ```
 When the `JoinCondition` has been satisfied, the corresponding slots of the message array will be filled with the returned messages from the workers in the order the workers' lexical order. If the condition asks for up to some number of results to be available to satisfy the condition, it may be the case that more than that number are avaialble by the time the statements within the join condition are executed. If a particular worker has not yet completed, the corresponding message slot will be null.
 
-#### Worker statement
+#### Worker Statement
 
 ```
 worker WorkerName(message variableName) {
@@ -248,14 +249,13 @@ worker WorkerName(message variableName) {
 }
 ```
 
-#### Wait statement
+#### Wait Statement
 
 ```
 MessageName = wait WorkerName;
 ```
 
-#### Try/catch statement
-
+#### Try/catch Statement
 
 ```
 try {
@@ -264,22 +264,36 @@ try {
 } catch (exception e) {
   VariableDeclaration*
   Statement+
-} finally {
-  VariableDeclaration*
-  Statement+
 }
 ```
 
-#### Return statement
+#### Exception Handling
+
+We provide an exception type which has a type(string), message(string) and a property map.
+We don't allow extension type for exceptions and different exception type should be handled using the type attribute.
+We provide  following statements
+ - `try` `catch` blocks to handle exception. 
+ - `throws` statement to signal that a function may throw an exception.
+ - `throw` statement to throw an exception.
+If a function is throwing an exception it must declare it. 
+If a function throws an exception the caller function can choose to handle it or let it propagate upwards.
+
+#### Throw Statement
 
 ```
-return (VariableName)*
+throw ExceptionVariableName;
 ```
 
-#### Reply statement
+#### Return Statement
 
 ```
-reply
+return (Expression)*;
+```
+
+#### Reply Statement
+
+```
+reply Message?;
 ```
 
 ## Configuration Management
