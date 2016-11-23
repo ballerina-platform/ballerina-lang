@@ -20,6 +20,7 @@ define(['jquery', 'lodash', 'backbone', 'log'], function ($, _, Backbone, log) {
     var File = Backbone.Model.extend(
         {
             defaults: {
+                path: 'unsaved/',
                 isTemp: true,
                 isPersisted: false
             },

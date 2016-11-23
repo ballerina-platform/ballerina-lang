@@ -16,7 +16,7 @@
  * under the License.
  */
 
-define(['log', 'jquery', 'backbone', 'lodash', 'tree_view', /** void module - jquery plugin **/ 'js_tree'],
+define(['log', 'jquery', 'backbone', 'lodash', 'tree_view', /** void module - jquery plugin **/ 'js_tree', 'nano_scroller'],
 
     function (log, $, Backbone, _, TreeMod) {
 
@@ -57,6 +57,10 @@ define(['log', 'jquery', 'backbone', 'lodash', 'tree_view', /** void module - jq
             sliderContainer.addClass(_.get(this._options, 'cssClass.container'));
             this._$parent_el.append(sliderContainer);
 
+            var verticalSeparator = $('<div></div>');
+            verticalSeparator.addClass(_.get(this._options, 'cssClass.separator'));
+            sliderContainer.append(verticalSeparator);
+
             activateBtn.on('click', function(){
                 if(self._isActive){
                     self._$parent_el.parent().width('20px');
@@ -67,25 +71,48 @@ define(['log', 'jquery', 'backbone', 'lodash', 'tree_view', /** void module - jq
                 }
             });
 
-            var tree = new TreeMod.Models.Tree({
-                root: new TreeMod.Models.TreeItem({
-                    name: "MyProj",
-                    isDir: true,
-                    children: new TreeMod.Models.TreeItemList([
-                        new TreeMod.Models.TreeItem({
-                            name: "Dir",
-                            isDir: true,
-                            children: new TreeMod.Models.TreeItemList([new TreeMod.Models.TreeItem({name: "MyAP2"})] )
-                        }),
-                        new TreeMod.Models.TreeItem({name: "MyAP3"})])
-                })
-            });
-            new TreeMod.Views.TreeView({model: tree, container: sliderContainer}).render();
-            tree.on("select",function (e) {
-                console.log(e.path);
-                console.log(e.name);
-            });
+            this._$parent_el.addClass('nano');
+            //this._$parent_el.css('overflow', 'scroll');
+            sliderContainer.addClass('nano-content');
+            this._$parent_el.nanoScroller();
 
+
+            var self = this;
+            sliderContainer
+                .jstree({
+                    'core' : {
+                        'data' : {
+                            'url': function (node) {
+                                if(node.id === '#') {
+                                    return self.workspaceServiceURL + "/root";
+                                }
+                                else {
+                                    return self.workspaceServiceURL + "/list?path=" + btoa(node.id);
+                                }
+                            },
+                            'dataType': "json",
+                            'data' : function (node) {
+                                return { 'id' : node.id };
+                            }
+                        },
+                        'multiple' : false,
+                        'check_callback' : false,
+                        'force_text' : true,
+                        'themes' : {
+                            'stripes' : true
+                        },
+                        "plugins" : [ "contextmenu", "dnd", "search", "state", "types", "wholerow" ]
+
+                    }
+                })
+                .on('changed.jstree', function (e, data) {
+                    if(data && data.selected && data.selected.length) {
+                        self.selected = data.selected[0];
+                    }
+                    else {
+                        self.selected = false;
+                    }
+                });
             return this;
         }
     });
