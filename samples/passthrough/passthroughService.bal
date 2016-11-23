@@ -19,7 +19,7 @@ actor HttpEndpoint nyse_ep = new HttpEndpoint ("http://localhost:8080/exchange/"
 resource passthrough (message m) {
   var  message response;
     try {
-        response = sendPost (nyse_ep, m, "/*"); // need to discuss
+        response = http.sendPost (nyse_ep, m, "/*"); // need to discuss
     } catch (exception e) {
         response = new message();
         setHeader(m, HTTP.StatusCode, 500);// need to discuss
@@ -27,5 +27,6 @@ resource passthrough (message m) {
         setPayload(m, error);
     }
     reply response;
+
 }
 
