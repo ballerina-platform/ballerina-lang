@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.siddhi.query.api.execution.subscription;
+package org.wso2.siddhi.query.api.execution.io;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -44,5 +44,32 @@ public class Transport {
 
     public Map<String, String> getOptions() {
         return options;
+    }
+
+    @Override
+    public String toString() {
+        return "Transport{" +
+                "type='" + type + '\'' +
+                ", options=" + options +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Transport transport = (Transport) o;
+
+        if (type != null ? !type.equals(transport.type) : transport.type != null) return false;
+        return !(options != null ? !options.equals(transport.options) : transport.options != null);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = type != null ? type.hashCode() : 0;
+        result = 31 * result + (options != null ? options.hashCode() : 0);
+        return result;
     }
 }

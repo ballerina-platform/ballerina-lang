@@ -16,17 +16,17 @@
  * under the License.
  */
 
-package org.wso2.siddhi.query.api.execution.subscription.map;
+package org.wso2.siddhi.query.api.execution.io.map;
 
-public class Mapping {
+public class AttributeMapping {
     private String mapping;
     private String rename;
 
-    public Mapping(String mapping) {
+    public AttributeMapping(String mapping) {
         this.mapping=mapping;
     }
 
-    public Mapping(String rename, String mapping) {
+    public AttributeMapping(String rename, String mapping) {
         this.rename = rename;
         this.mapping = mapping;
     }
@@ -45,5 +45,32 @@ public class Mapping {
 
     public void setRename(String rename) {
         this.rename = rename;
+    }
+
+    @Override
+    public String toString() {
+        return "AttributeMapping{" +
+                "mapping='" + mapping + '\'' +
+                ", rename='" + rename + '\'' +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        AttributeMapping that = (AttributeMapping) o;
+
+        if (mapping != null ? !mapping.equals(that.mapping) : that.mapping != null) return false;
+        return !(rename != null ? !rename.equals(that.rename) : that.rename != null);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = mapping != null ? mapping.hashCode() : 0;
+        result = 31 * result + (rename != null ? rename.hashCode() : 0);
+        return result;
     }
 }

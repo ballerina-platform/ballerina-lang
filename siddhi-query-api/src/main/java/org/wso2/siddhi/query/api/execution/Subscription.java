@@ -15,14 +15,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.query.api.execution.subscription;
+
+package org.wso2.siddhi.query.api.execution;
 
 import org.wso2.siddhi.query.api.annotation.Annotation;
-import org.wso2.siddhi.query.api.execution.ExecutionElement;
+import org.wso2.siddhi.query.api.execution.io.Transport;
 import org.wso2.siddhi.query.api.execution.query.output.stream.InsertIntoStream;
 import org.wso2.siddhi.query.api.execution.query.output.stream.OutputStream;
 import org.wso2.siddhi.query.api.execution.query.output.stream.ReturnStream;
-import org.wso2.siddhi.query.api.execution.subscription.map.Mapper;
+import org.wso2.siddhi.query.api.execution.io.map.Mapping;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +33,7 @@ public class Subscription implements ExecutionElement {
     private Transport transport;
     private OutputStream outputStream = new ReturnStream();
     private List<Annotation> annotations = new ArrayList<Annotation>();
-    private Mapper mapper;
+    private Mapping mapping;
 
     private Subscription(Transport transport) {
         this.transport = transport;
@@ -42,8 +43,8 @@ public class Subscription implements ExecutionElement {
         return new Subscription(transport);
     }
 
-    public Subscription map(Mapper mapper) {
-        this.mapper = mapper;
+    public Subscription map(Mapping mapping) {
+        this.mapping = mapping;
         return this;
     }
 
@@ -75,8 +76,40 @@ public class Subscription implements ExecutionElement {
         return transport;
     }
 
-    public Mapper getMapper() {
-        return mapper;
+    public Mapping getMapping() {
+        return mapping;
     }
 
+    @Override
+    public String toString() {
+        return "Subscription{" +
+                "transport=" + transport +
+                ", outputStream=" + outputStream +
+                ", annotations=" + annotations +
+                ", mapping=" + mapping +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Subscription that = (Subscription) o;
+
+        if (transport != null ? !transport.equals(that.transport) : that.transport != null) return false;
+        if (outputStream != null ? !outputStream.equals(that.outputStream) : that.outputStream != null) return false;
+        if (annotations != null ? !annotations.equals(that.annotations) : that.annotations != null) return false;
+        return !(mapping != null ? !mapping.equals(that.mapping) : that.mapping != null);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = transport != null ? transport.hashCode() : 0;
+        result = 31 * result + (outputStream != null ? outputStream.hashCode() : 0);
+        result = 31 * result + (annotations != null ? annotations.hashCode() : 0);
+        result = 31 * result + (mapping != null ? mapping.hashCode() : 0);
+        return result;
+    }
 }

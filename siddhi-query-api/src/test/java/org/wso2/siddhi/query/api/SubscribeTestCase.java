@@ -18,9 +18,9 @@
 package org.wso2.siddhi.query.api;
 
 import org.junit.Test;
-import org.wso2.siddhi.query.api.execution.subscription.map.Mapper;
-import org.wso2.siddhi.query.api.execution.subscription.Subscription;
-import org.wso2.siddhi.query.api.execution.subscription.Transport;
+import org.wso2.siddhi.query.api.execution.Subscription;
+import org.wso2.siddhi.query.api.execution.io.map.Mapping;
+import org.wso2.siddhi.query.api.execution.io.Transport;
 
 public class SubscribeTestCase {
 
@@ -35,7 +35,7 @@ public class SubscribeTestCase {
                         option("context", "/test").
                         option("transport", "http,https"));
 
-        subscription.map(Mapper.mapper("xml").
+        subscription.map(Mapping.format("xml").
                 map("/h:time").
                 map("data", "//h:data").
                 option("xmlns:h", "http://www.w3.org/TR/html4/"));
@@ -56,7 +56,7 @@ public class SubscribeTestCase {
                         option("topic", "foo"));
 
         subscription.map(
-                Mapper.mapper("json").
+                Mapping.format("json").
                         map("$.sensorData.time").
                         map("$.sensorData.data"));
 
@@ -76,7 +76,7 @@ public class SubscribeTestCase {
                 Transport.transport("jms").
                 option("topic", "foo"));
 
-        subscription.map(Mapper.mapper("json"));
+        subscription.map(Mapping.format("json"));
 
         subscription.insertInto("FooStream");
 
@@ -95,7 +95,7 @@ public class SubscribeTestCase {
                 Transport.transport("jms").
                 option("topic", "foo"));
 
-        subscription.map(Mapper.mapper("text").
+        subscription.map(Mapping.format("text").
                 map("regex1[1]").
                 map("regex2[3]").
                 option("regex1", "(\\w+)\\s(\\w+)\\s(\\w+)\\s(\\w+)").
