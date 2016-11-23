@@ -20,5 +20,12 @@ typeconvertor map_string_to_int (string s) (int) {
   return s.parseInt();
 }
 
+typeconvertor mapPerson2Driver(json<j1> in) (json<j2>){
+	var string name = json.get(in, "$.name", null);
+	var json out = '{"driver": {"name": "$.name" }}'
+    return out;
+}
+
+
 var s = "1234";
 int i = s;
