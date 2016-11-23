@@ -66,7 +66,7 @@ function (require, log, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements,
                 this.options = opts;
 
                 // set previewMode to false if not set
-                if(_.isUndefined(this.getPreviewMode())){
+                if(_.isUndefined(this.isPreviewMode())){
                     this.setPreviewMode(false);
                 }
 
@@ -242,11 +242,11 @@ function (require, log, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements,
             },
 
 
-            getPreviewMode:function(){
+            isPreviewMode:function(){
                 return this._previewMode;
             },
             setPreviewMode:function(mode){
-                 this._previewMode = mode;
+                this._previewMode = mode;
             },
 
             createPreview: function(opts){
@@ -623,7 +623,7 @@ function (require, log, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements,
                     .attr("height", "100%");
                 this.d3el = mainGroup;
                 this.el = mainGroup.node();
-                if(!this._previewMode) {
+                if(!this.isPreviewMode) {
                     this.calculateViewBoxLimits();
                 }
                 this.htmlDiv = $(this.options.container);

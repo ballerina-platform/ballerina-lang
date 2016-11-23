@@ -36,8 +36,7 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core'], functi
                     throw "config parent [serviceView] is not provided.";
                 }
                 this.serviceView = _.get(options, 'serviceView');
-                var mode = this.serviceView.getPreviewMode();
-                if(!mode) {
+                if(!this.serviceView.isPreviewMode()) {
                     if (!_.has(this.serviceView, 'toolPalette.dragDropManager')) {
                         throw "dragDropManager is not provided.";
                     }

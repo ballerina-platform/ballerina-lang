@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'log', 'jquery', 'backbone', 'command','ballerina'],
-    function (require, log, $, Backbone, CommandManager,Service) {
+define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
+    function (require, log, $, Backbone, CommandManager, Service) {
 
         var InitialWelcomePage = Backbone.View.extend({
             initialize: function (options) {
@@ -45,7 +45,7 @@ define(['require', 'log', 'jquery', 'backbone', 'command','ballerina'],
                 var headingTitleSpan = $('<span></span>');
                 var headingImage = $('<img>');
                 var headingGroup1 = $('<div></div>');
-                var wrapTitle =  $('<div></div>');
+                var wrapTitle = $('<div></div>');
                 var wrapImage = $('<div></div>');
 
                 var bodyDiv = $('<div></div>');
@@ -56,7 +56,6 @@ define(['require', 'log', 'jquery', 'backbone', 'command','ballerina'],
 
                 var bodyTitleSpan = $('<span></span>');
                 var samplesDiv = $('<div></div>');
-                var carouselDiv = $('<div class="carousel-inner"></div>');
 
                 backgroundDiv.addClass(_.get(this._options, 'cssClass.parent'));
                 mainWelcomeDiv.addClass(_.get(this._options, 'cssClass.outer'));
@@ -73,6 +72,8 @@ define(['require', 'log', 'jquery', 'backbone', 'command','ballerina'],
                 bodyDiv.addClass(_.get(this._options, 'cssClass.body'));
                 bodyTitleSpan.addClass(_.get(this._options, 'cssClass.bodyTitle'));
                 samplesDiv.addClass(_.get(this._options, 'cssClass.samples'));
+                samplesDiv.attr('id', 'theCarousel');
+                samplesDiv.addClass('carousel slide multi-item-carousel');
 
                 newButton.text("Get Started");
                 openButton.text("Open");
@@ -101,15 +102,72 @@ define(['require', 'log', 'jquery', 'backbone', 'command','ballerina'],
 
                 this._$parent_el.append(backgroundDiv);
                 this.$el = backgroundDiv;
-                //TODO: Need to iterate file list when implementation is complete
-                for (var i = 0; i < 4; i ++) {
-                    var previewParent = new Service.Views.ServicePreview();
-                    var renderedSample = previewParent.render();
-                    carouselDiv.append(renderedSample);
-                }
+
+                // Adding carousel view related elements
+                var carouselDiv = $('<div></div>');
+                carouselDiv.attr('id', "innerSamples");
                 samplesDiv.append(carouselDiv);
+                var nextControl = $('<a></a>');
+                nextControl.addClass('right carousel-control');
+                nextControl.attr('href', '#theCarousel').attr('data-slide', 'next');
+                var nextIcon = $('<i></i>');
+                nextIcon.addClass('fw fw-right right-carousel');
+                nextControl.append(nextIcon);
+
+                var prevControl = $('<a></a>');
+                prevControl.addClass('left carousel-control');
+                prevControl.attr('href', '#theCarousel').attr('data-slide', 'prev');
+                var prevIcon = $('<i></i>');
+                prevIcon.addClass('fw fw-left left-carousel');
+                prevControl.append(prevIcon);
+
+                samplesDiv.append(nextControl);
+                samplesDiv.append(prevControl);
+
+                //TODO: Need to iterate file list when implementation is complete
+                for (var i = 0; i < 4; i++) {
+                    if (i == 0) {
+                        var config =
+                        {
+                            "sampleName": "SampleConfiguration.bal",
+                            "parentContainer": "#innerSamples",
+                            "firstItem": true
+                        }
+                    }
+                    else {
+                        var config =
+                        {
+                            "sampleName": "SampleConfiguration.bal",
+                            "parentContainer": "#innerSamples"
+                        }
+                    }
+                    var servicePreview = new Service.Views.ServicePreview(config);
+                    servicePreview.render();
+
+                }
+                // class added after rendering to fix issue in firefox
+                carouselDiv.addClass("carousel-inner");
+                $('.multi-item-carousel').carousel({
+                    interval: false
+                });
+                $('.carousel .item').each(function () {
+                    var next = $(this).next();
+                    if (!next.length) {
+                        next = $(this).siblings(':first');
+                    }
+                    next.children(':first-child').clone().appendTo($(this));
+
+                    for (var i = 1; i < 3; i++) {
+                        next = next.next();
+                        if (!next.length) {
+                            next = $(this).siblings(':first');
+                        }
+
+                        next.children(':first-child').clone().appendTo($(this));
+                    }
+                });
+
                 var command = this._options.application.commandManager;
-                command.dispatch('create-carousel-view',samplesDiv);
 
                 $(newButton).on('click', function () {
                     command.dispatch("create-new-tab");

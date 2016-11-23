@@ -69,7 +69,7 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './proc
 
                 this.options = lifeLineOptions;
                 this.serviceView = _.get(options, 'serviceView');
-                if(!this.serviceView.getPreviewMode) {
+                if(!this.serviceView.isPreviewMode) {
                     this.dragDropManager = this.serviceView.toolPalette.dragDropManager;
                 }
                 options.canvas = this.serviceView.d3el;
@@ -232,7 +232,6 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './proc
             drawLifeLine: function (center, title, prefs, colour) {
                 var d3Ref = this.getD3Ref();
                 var viewObj = this;
-                var mode = viewObj.serviceView.getPreviewMode();
                 var group = d3Ref.draw.group(d3Ref)
                     .classed(this.model.viewAttributes.class, true);
                 var lifeLineTopRectGroup = group.append("g");
@@ -289,14 +288,14 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './proc
                 middleRect.on('mouseover', function () {
                     viewObj.serviceView.model.selectedNode = viewObj.model;
                     d3.select(this).style("fill", "green").style("fill-opacity", 0.1);
-                    if(!mode) {
+                    if(!viewObj.serviceView.isPreviewMode()) {
                         viewObj.dragDropManager.setActivatedDropTarget(viewObj.model);
                     }
                 }).on('mouseout', function () {
                     viewObj.serviceView.model.destinationLifeLine = viewObj.serviceView.model.selectedNode;
                     viewObj.serviceView.model.selectedNode = null;
                     d3.select(this).style("fill-opacity", 0.01);
-                  if(!mode) {
+                  if(!viewObj.serviceView.isPreviewMode()) {
                       viewObj.dragDropManager.clearActivatedDropTarget();
                   }
                 }).on('mouseup', function (data) {
