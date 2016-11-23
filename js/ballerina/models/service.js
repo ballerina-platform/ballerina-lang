@@ -271,12 +271,12 @@ define(['require','log', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', '
                 var includeConstants = function (resourceModel) {
                     // TODO: Need to handle this properly
                     // Defining the global constants
-                    for (var key in definedConstants) {
-                        if (_.isEqual(key, "HTTPEP")) {
-                            finalSource += "constant endpoint " + definedConstants[key].name + " = new HTTPEndPoint(\"" +
-                                definedConstants[key].value + "\");\n";
-                        }
-                    }
+                    // for (var key in definedConstants) {
+                    //     if (_.isEqual(key, "HTTPEP")) {
+                    //         finalSource += "constant endpoint " + definedConstants[key].name + " = new HTTPEndPoint(\"" +
+                    //             definedConstants[key].value + "\");\n";
+                    //     }
+                    // }
 
                     // For the moment we are injecting the API methods directly hardcoded here at the moment.
                     // After the properties view implementation those can be dynamically changed

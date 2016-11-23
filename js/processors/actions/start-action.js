@@ -16,7 +16,7 @@
  * under the License.
  */
 
-define([], function () {
+define(['tree_node'], function (TreeNode) {
 
     //Start action definition
     var StartAction = {
@@ -26,7 +26,12 @@ define([], function () {
         type : "Action",
         height: 30,
         width: 130,
-        textModel : "undefined"
+        textModel : "undefined",
+        utils: {
+            getMySubTree: function () {
+                return new TreeNode("StartAction", "StartAction", "", "");
+            }
+        }
     };
 
    return StartAction;

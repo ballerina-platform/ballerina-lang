@@ -47,8 +47,9 @@ define(['d3', 'lodash', 'backbone', 'jquery', 'ace/ace'], function(d3, _, Backbo
                 });
             },
             
-            render: function () {
+            render: function (options) {
                 var container = this.options.sourceContainer;
+                this.mainEditor.session.setValue(options.source);
                 $(container).show();
             }
         });

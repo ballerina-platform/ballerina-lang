@@ -84,7 +84,7 @@ define(['jquery', 'lodash', 'backbone', 'log', 'bootstrap'], function ($, _, Bac
                 }
             });
 
-        }
+        };
 
         this.popupRegularWelcomeScreen = function () {
             // hide the page content and only the regular welcome screen will be shown
