@@ -22,7 +22,7 @@ resource passthrough (message m) {
         response = sendPost (nyse_ep, m, "/*"); // need to discuss
     } catch (exception e) {
         response = new message();
-        setHeader(m, headerName = “HTTP.StatusCode”, headerValue = 500);// need to discuss
+        setHeader(m, HTTP.StatusCode, 500);// need to discuss
         var json error = `{"error":"backend failed"}`;
         setPayload(m, error);
     }
