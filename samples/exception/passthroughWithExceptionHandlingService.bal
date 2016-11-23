@@ -1,4 +1,4 @@
-package samples.passthrough;
+package samples.exception;
 
 import ballerina.lang.message;
 import ballerina.net.http;
