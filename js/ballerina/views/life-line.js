@@ -70,6 +70,7 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './proc
                 this.options = lifeLineOptions;
                 this.serviceView = _.get(options, 'serviceView');
                 if(!this.serviceView.isPreviewMode) {
+
                     this.dragDropManager = this.serviceView.toolPalette.dragDropManager;
                 }
                 options.canvas = this.serviceView.d3el;

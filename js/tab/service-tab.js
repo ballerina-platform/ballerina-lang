@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'main_elements', 'diagram_core', 'workspace', 'app/ballerina/views/source'],
-    function (require, log, jquery, _, Tab, Ballerina, MainElements, DiagramCore, Workspace, SourceView) {
+define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'main_elements', 'diagram_core', 'workspace', 'app/ballerina/views/source', 'lib/beautify/beautify'],
+    function (require, log, jquery, _, Tab, Ballerina, MainElements, DiagramCore, Workspace, SourceView, Beautify) {
     var  ServiceTab;
 
     ServiceTab = Tab.extend({
@@ -66,7 +66,14 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'main_elemen
                 toggleControlsContainer.find('.toggle-to-source').removeClass('show-div').addClass('hide-div');
                 toggleControlsContainer.find('.toggle-to-design').removeClass('hide-div').addClass('show-div');
                 sourceContainer.removeClass('source-view-disabled').addClass('source-view-enabled');
-                sourceView.render();
+
+                // Get the parsed source from the design and pass it to the ace editor rendering
+                var parsedSource = serviceView.model.parseTree();
+                parsedSource = Beautify.js_beautify(parsedSource);
+                var sourceViewOptions = {
+                    source: parsedSource
+                };
+                sourceView.render(sourceViewOptions);
             });
 
             toggleDesignIcon.on('click', function () {
@@ -121,47 +128,6 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'main_elemen
 //    var paletteView = new Tools.Views.ToolPaletteView({collection: toolPalette});
 //    paletteView.render();
 //};
-//
-//
-//
-//var formatter;
-//define('formatter', ['beautify/beautify'],
-//    function(beautify) {
-//        var beautify = beautify.js_beautify;
-//        formatter = beautify;
-//
-//    }
-//);
-//require(['formatter']);
-//
-//var mainEditor;
-//define('testace', ['ace/ace','ace/ext/language_tools'],
-//    function(ace,langTools, res) {
-//        console.log("source view lookup");
-//        var editor = ace.edit("ace-editor");
-//        mainEditor = editor;
-//        //Avoiding ace warning
-//        mainEditor.$blockScrolling = Infinity;
-//        mainEditor.setTheme("ace/theme/twilight");
-//        mainEditor.session.setMode("ace/mode/nel");
-//        var langTools = ace.require("ace/ext/language_tools");
-//        mainEditor.setOptions({
-//            enableBasicAutocompletion:true
-//
-//
-//        });
-//        mainEditor.setBehavioursEnabled(true);
-//        //bind auto complete to key press
-//        mainEditor.commands.on("afterExec", function(e){
-//            if (e.command.name == "insertstring"&&/^[\w.]$/.test(e.args)) {
-//                mainEditor.execCommand("startAutocomplete");
-//            }
-//        });
-//
-//    }
-//);
-//require(['testace']);
-//
 //
 //// Setting the default service parameters
 //var serviceProduces = "MediaType.APPLICATION_JSON",
