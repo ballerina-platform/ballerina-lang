@@ -41,6 +41,8 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'breadcrumbs', 'file_b
             // init command manager
             this.commandManager = new CommandManager();
 
+            this.browserStorage = new Workspace.BrowserStorage('ballerinaAppTempStorage');
+
             //init workspace manager
             this.workspaceManager = new Workspace.Manager(this);
 
