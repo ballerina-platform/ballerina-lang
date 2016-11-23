@@ -157,6 +157,8 @@ define(['log', 'jquery', 'lodash', 'backbone', './tab', 'bootstrap'], function (
                     log.error(errMsg);
                     throw errMsg;
                 }
+                var tabIndex = _.findIndex(this._tabs, tab);
+
                 _.remove(this._tabs, tab);
                 tab.getHeader().remove();
                 tab.remove();
@@ -166,6 +168,18 @@ define(['log', 'jquery', 'lodash', 'backbone', './tab', 'bootstrap'], function (
                  * @type {Tab}
                  */
                 this.trigger("tab-removed", tab);
+
+                //switch to tab at last or next index
+                //make sure there are remaining tabs
+                if(this._tabs.length > 0 && !_.isEqual(tabIndex, -1)){
+                    // if removing tab is 0th tab, next tab is also the 0th
+                    var nextTabIndex = 0;
+                    if(!_.isEqual(tabIndex, 0)){
+                        nextTabIndex = tabIndex - 1;
+                    }
+                    var nextTab = this._tabs[nextTabIndex];
+                    this.setActiveTab(nextTab);
+                }
             },
             /**
              * set selected tab
