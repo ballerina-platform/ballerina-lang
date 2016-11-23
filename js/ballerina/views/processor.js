@@ -175,12 +175,12 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core',
                         serviceView.model.enableDragZoomOptions();
                         $('#property-pane-svg').empty();
                     }
-                    diagram.selectedOptionsGroup = optionsMenuGroup;
+                    serviceView.model.selectedOptionsGroup = optionsMenuGroup;
 
                 } else {
                     optionsMenuGroup.classed("option-menu-hide", true);
                     optionsMenuGroup.classed("option-menu-show", false);
-                    diagram.propertyWindow = false;
+                    serviceView.model.propertyWindow = false;
                     serviceView.enableDragZoomOptions();
                     serviceView.render();
                 }
@@ -191,7 +191,7 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core',
             // On click of the edit icon will show the properties to to edit
             editOption.on("click", function () {
                 if (serviceView.model.propertyWindow) {
-                    diagram.propertyWindow = false;
+                    serviceView.model.propertyWindow = false;
                     serviceView.enableDragZoomOptions();
                     serviceView.render();
 
@@ -280,6 +280,7 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core',
             if (this.model.model.type === "UnitProcessor") {
 
                 var height = 0;
+                var titleRectHeight = 20;
                 if (this.model.get('utils').outputs) {
                     height = this.model.getHeight() + 20;
                 } else {
@@ -298,7 +299,7 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core',
 
                 var processorTitleRect = d3Ref.draw.rect((center.x() - this.model.getWidth()/2), center.y(),
                     this.model.getWidth(),
-                    20,
+                    titleRectHeight,
                     0,
                     0,
                     group,
@@ -309,7 +310,7 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core',
                     center, height, width, viewObj);
 
                 var mediatorText = d3Ref.draw.textElement(center.x(),
-                    (center.y() + 15),
+                    (center.y() + titleRectHeight/2),
                     title,
                     group)
                     .classed("mediator-title", true);
@@ -523,13 +524,13 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core',
                         d3.select(this).style("fill", "red").style("fill-opacity", 0.6)
                             .style("cursor", 'url(images/BlackHandwriting.cur), pointer');
                         // Update event manager with current active element type for validation
-                        viewObj.eventManager.isActivated(viewObj.serviceView.model.selectedNode.attributes.title);
+                        // viewObj.dragDropManager.isActivated(viewObj.serviceView.model.selectedNode.attributes.title);
                     }).on('mouseout', function () {
                         //diagram.destinationLifeLine = diagram.selectedNode;
                         viewObj.serviceView.model.selectedNode = null;
                         d3.select(this).style("fill-opacity", 0.01);
                         // Update event manager with out of focus on active element
-                        viewObj.eventManager.isActivated("none");
+                        // viewObj.dragDropManager.isActivated("none");
                     }).on('mouseup', function (data) {
 
                     });

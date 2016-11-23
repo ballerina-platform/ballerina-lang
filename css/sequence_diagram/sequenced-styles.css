@@ -125,6 +125,7 @@
 
 .mediator-title {
     text-anchor:middle;
+    alignment-baseline: central;
 }
 
 .input-output-text {
