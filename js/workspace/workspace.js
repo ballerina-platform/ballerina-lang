@@ -35,6 +35,7 @@ define(['jquery', 'lodash', 'backbone', 'log', 'bootstrap'], function ($, _, Bac
             var editorId = app.config.container;
             $(editorId).css("display","block");
             app.tabController.newTab();
+            app.tabController.newTab();
         };
 
         this.popupRegularWelcomeScreen = function () {

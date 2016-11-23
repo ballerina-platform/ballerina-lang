@@ -43,15 +43,21 @@ define(['log', 'backbone'], function (log, Backbone) {
             this._template = template;
             this.options = options;
             this._isActive = false;
-        },
-        render: function(){
+
+            if (_.has(options, 'parent')){
+               this.setParent(_.get(options, 'parent'));
+            }
+
+            // create the tab template
             var tab = this._template.children('div').clone();
             this.getParent().getTabContainer().append(tab);
-
             var tabClass = _.get(this.options, 'cssClass.tab');
             tab.addClass(tabClass);
             tab.attr('id', this.cid);
             this.$el = tab;
+        },
+        render: function(){
+
         },
         setActive: function(isActive){
             if(_.isBoolean(isActive)){
