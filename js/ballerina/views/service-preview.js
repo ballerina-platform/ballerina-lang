@@ -18,7 +18,15 @@
 
 define(['require', 'jquery', 'd3', 'd3utils', 'backbone', 'lodash','./service'], function (require, $, d3, D3Utils, Backbone,  _,Service) {
 
-    var ServicePreview = Service.extend({
+    var ServicePreview = Service.extend(
+        /** @lends ServicePreview.prototype */
+        {
+            /**
+             * @augments Backbone.View
+             * @constructs
+             * @class ServicePreview Represents the view for ballerina samples
+             * @param {Object} options Rendering options for the view
+             */
         initialize: function (options) {
 
             var previewDiv = $("<div class='preview-div'></div>");
