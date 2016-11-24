@@ -39,6 +39,14 @@ define(['jquery', 'lodash', 'backbone', 'log'], function ($, _, log) {
             this.localStorage().setItem(this.name, this.records.join(","));
         },
 
+        put: function(key, value){
+            this.localStorage().setItem(this.name+"-"+key, JSON.stringify(value));
+        },
+
+        get: function(key){
+            return this.jsonData(this.localStorage().getItem(this.name+"-"+key));
+        },
+
         create: function(model) {
             if (!model.id) {
                 model.id = guid();
