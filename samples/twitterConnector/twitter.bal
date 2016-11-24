@@ -2,31 +2,37 @@ package samples.twitterConnector;
 
 import ballerina.net.http;
 
-type TwitterData {
-    string clientKey;
-    string clientSecret;
-    string oAuthToken;
-}
+connector TwitterConnector(
+    string username, string password, string clientKey, string clientSecret, string oAuthToken,
+    options {"autoReConnect" : false}
+);
 
-actor http.HttpEndpoint twitterEP = alloc http.HttpEndpoint ("https://api.twitter.com");
+http.HttpConnector httpConnection = new http.HttpConnector("https://api.twitter.com", {"timeOut" : 300});
 
-action init(TwitterData td) throws exception {
-    var json loginReq = `{"clientKey" : "$td.clientKey", "clientSecret" : "$td.clientSecret"}`;
-    var message loginMessage = new message;
+action init(TwitterConnector t) throws exception {
+    json loginReq;
+
+    if (t.username == nil) {
+        loginReq = `{"clientKey" : "$t.clientKey", "clientSecret" : "$t.clientSecret"}`;
+    } else {
+         loginReq = `{"userName" : "$t.userName", "password" : "$t.password"}`;
+    }
+
+    message loginMessage = new message;
 
     message.setPayload(loginMessage, loginReq);
 
-    var message response = http.post(twitterEP, "/token", loginMessage);
+    message response = http.post(twitterEP, "/token", loginMessage);
 
-    td.oAuthToken = json.get(message.getPayload(response), "$.oAuthToken");
+    t.oAuthToken = json.get(message.getPayload(response), "$.oAuthToken");
 }
 
-action tweet(TwitterData td, string tweet) throws exception {
-    var json tweetJson = `{"message" : "$tweet"}`;
-    var message tweetMsg = new message;
+action tweet(TwitterConnector t, string tweet) throws exception {
+    json tweetJson = `{"message" : "$tweet"}`;
+    message tweetMsg = new message;
 
     message.setPayload(tweetMsg, tweetJson);
-    message.setHeader(tweetMsg, "Authorization", "Bearer " + td.oAuthToken);
+    message.setHeader(tweetMsg, "Authorization", "Bearer " + t.oAuthToken);
     http.post(twitterEP, "/tweet", tweetMsg);
 }
 

@@ -1,9 +1,11 @@
+import ballerina.net.http;
+
 function foo () {
 
+    HttpConnector e1 = new HttpConnector("http://localhost:8280", {"timeOut": 300});
 
-  actor HttpEndpoint e1 = new ballerina.net.http.endpoint ("http://localhost:2222");
-  int handle = ballerina.net.http.sendGet (e1, "/foo");
+    //HttpConnector e2 = new HttpConnector("https://localhost:8443", {"username" : "user", "password" : "pass", "timeOut": 300});
 
-  var HttpEndpoint e2 = new ballerina.net.http.endpoint ("http://localhost:2222");
+    message response = http.get(e1, "/foo", m);
 
 }

@@ -2,16 +2,16 @@ package samples.twitterConnector;
 
 service testTwitter;
 
-actor samples.twitterConnector.TwitterData  td = new samples.twitterConnector.TwitterData("clientkey", "clientsecret");
+twitterConnector.TwitterConnector twitter = new twitterConnector.TwitterConnector(nil, nil, "clientkey", "clientsecret", nil);
 
-var boolean loggedIn = false;
+boolean loggedIn = false;
 
 @POST
 @Path ("/tweet")
 resource tweet (message m) {
     if(!loggedIn) {
-        samples.twitterConnector.init(td);
+        twitterConnector.init(twitter);
         loggedIn = true;
     }
-    samples.twitterConnector.tweet(td, (string) message.getPayload(m));
+    twitterConnector.tweet(twitter, (string) message.getPayload(m));
 }
