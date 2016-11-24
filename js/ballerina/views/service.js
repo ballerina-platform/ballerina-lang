@@ -618,7 +618,7 @@ function (require, log, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements,
                     .attr("height", "100%");
                 this.d3el = mainGroup;
                 this.el = mainGroup.node();
-                if(!this.isPreviewMode) {
+                if(!this.isPreviewMode()) {
                     this.calculateViewBoxLimits();
                 }
                 this.htmlDiv = $(this.options.container);
