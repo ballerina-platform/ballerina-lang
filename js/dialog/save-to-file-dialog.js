@@ -16,29 +16,24 @@
  * under the License.
  */
 
-define(([],function (){
-    var FileMenu = {
-        id: "FileMenu",
-        label: "File",
-        items: [
-            {
-                id: "FileMenu-NewService",
-                label: "New Service",
-                action: "create-new-tab"
+define(['require', 'log', 'backbone'], function (require, log, Backbone) {
+    var SaveToFileDialog = Backbone.View.extend(
+        /** @lends SaveToFileDialog.prototype */
+        {
+            /**
+             * @augments Backbone.View
+             * @constructs
+             * @class SaveToFileDialog
+             * @param {Object} config configuration options for the SaveToFileDialog
+             */
+            initialize: function (options) {
+                this._options = options;
             },
-            {
-                id: "FileMenu-OpenService",
-                label: "Open Service"
-            },
-            {
-                id: "FileMenu-Save",
-                label: "Save To File",
-                action: "open-file-save-dialog"
+
+            render: function () {
+                alert("SaveToFileDialog");
             }
+        });
 
-            ],
-
-    };
-
-    return FileMenu;
-}));
+    return SaveToFileDialog;
+});

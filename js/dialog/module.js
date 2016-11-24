@@ -16,29 +16,8 @@
  * under the License.
  */
 
-define(([],function (){
-    var FileMenu = {
-        id: "FileMenu",
-        label: "File",
-        items: [
-            {
-                id: "FileMenu-NewService",
-                label: "New Service",
-                action: "create-new-tab"
-            },
-            {
-                id: "FileMenu-OpenService",
-                label: "Open Service"
-            },
-            {
-                id: "FileMenu-Save",
-                label: "Save To File",
-                action: "open-file-save-dialog"
-            }
-
-            ],
-
+define(['app/dialog/save-to-file-dialog'], function (SaveToFileDialog) {
+    return {
+        save_to_file_dialog: SaveToFileDialog
     };
-
-    return FileMenu;
-}));
+})

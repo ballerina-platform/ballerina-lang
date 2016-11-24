@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['jquery', 'lodash', 'backbone', 'log', 'bootstrap'], function ($, _, Backbone, log) {
+define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'bootstrap'], function ($, _, Backbone, log, Dialogs) {
 
     // workspace manager constructor
     /**
@@ -57,11 +57,19 @@ define(['jquery', 'lodash', 'backbone', 'log', 'bootstrap'], function ($, _, Bac
                 // show initial product launch page and hide others
                app.initialWelcomePage.show();
             }
-
         };
+
+        this.openFileSaveDialog = function openFileSaveDialog() {
+            var dialog = new Dialogs.save_to_file_dialog(app);
+            dialog.render();
+        }
 
         app.commandManager.registerCommand("create-new-tab", {key: ""});
         app.commandManager.registerHandler('create-new-tab', this.createNewTab);
+
+        // Open file save dialog
+        app.commandManager.registerCommand("open-file-save-dialog", {key: ""});
+        app.commandManager.registerHandler('open-file-save-dialog', this.openFileSaveDialog);
 
     }
 

@@ -54,7 +54,7 @@ define(['require', 'backbone', 'lodash'], function ( require, Backbone, _) {
                 var leftLogoContainer = $(
                     "<div style='padding-top: 75px'>" +
                         "<img src='images/wso2-logo.jpg' width='33%' style='margin: auto; display: block'>" +
-                        "<div style='width: 55%; font-size: 40px; margin: auto'>Ballerina</div>" +
+                        "<div style='width: 55%; font-size: 40px; margin: 0px 27px';>Ballerina</div>" +
                     "</div>"
                 );
                 var leftActionsContainer = $("<div></div>");
