@@ -82,6 +82,7 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'app/menu-bar/menu-bar
                 container: '#page-content-wrapper',
                 commandManager: this.commandManager
             };
+            _.set(regWelcomeScreenOpts, 'application', this);
             this.reqularWelcomeScreen = new WelcomeScreen.Views.RegularView(regWelcomeScreenOpts);
         },
 
@@ -106,10 +107,11 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'app/menu-bar/menu-bar
         },
 
         render: function () {
-            //TODO: if check to decide the welcome page type
-             this.initialWelcomePage.render();
-            //this.reqularWelcomeScreen.render(this);
-
+            if(this.browserStorage.get("isGetStarted")){
+                this.reqularWelcomeScreen.render(this);
+            }else{
+                this.initialWelcomePage.render();
+            }
             log.debug("start: rendering menu_bar control");
             this.menuBar.render();
             log.debug("end: rendering menu_bar control");

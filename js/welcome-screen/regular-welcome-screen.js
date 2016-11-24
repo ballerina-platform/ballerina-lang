@@ -32,6 +32,7 @@ define(['require', 'backbone', 'lodash'], function ( require, Backbone, _) {
                 }
                 this.commandManager = options.commandManager;
                 this._$container = $(_.get(options, 'container'));
+                this._options = options;
             },
 
             render: function () {
@@ -117,6 +118,9 @@ define(['require', 'backbone', 'lodash'], function ( require, Backbone, _) {
                     $(".regular-welcome-screen-container").hide();
                     commandManager.dispatch('create-new-tab');
                 });
+
+                //Hiding menu bar
+                this._options.application.menuBar.hide();
             }
         });
 

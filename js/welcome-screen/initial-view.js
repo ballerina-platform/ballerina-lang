@@ -168,10 +168,11 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
                 });
 
                 var command = this._options.application.commandManager;
+                var browserStorage = this._options.application.browserStorage;
 
                 $(newButton).on('click', function () {
                     command.dispatch("create-new-tab");
-
+                    browserStorage.put("isGetStarted", true);
                 });
 
                 //Hiding menu bar
