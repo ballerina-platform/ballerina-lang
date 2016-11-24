@@ -179,6 +179,7 @@ arbitrary conversions from one non-primitive type to another non-primitive and h
 A TypeConvertor is defined as follows:
 ```
 typeconverter TypeConverterName (TypeName VariableName) (TypeName) {
+    VariableDeclaration;*
     Statement;+
 }
 ```
