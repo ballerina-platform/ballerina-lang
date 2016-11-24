@@ -35,6 +35,18 @@ define(['require', 'backbone', 'lodash'], function ( require, Backbone, _) {
                 this._options = options;
             },
 
+            hide: function(){
+                //Hiding menu bar
+                this._options.application.menuBar.show();
+                this.$el.hide();
+            },
+
+            show: function(){
+                //Hiding menu bar
+                this._options.application.menuBar.hide();
+                this.$el.show();
+            },
+
             render: function () {
                 var outerContainer = $("<div class='regular-welcome-screen-container'></div>");
                 var leftPanel = $("<div class='col-md-2 reg-welcome-left'></div>");
@@ -119,8 +131,7 @@ define(['require', 'backbone', 'lodash'], function ( require, Backbone, _) {
                     commandManager.dispatch('create-new-tab');
                 });
 
-                //Hiding menu bar
-                this._options.application.menuBar.hide();
+                this.$el = outerContainer;
             }
         });
 

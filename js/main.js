@@ -107,11 +107,14 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'app/menu-bar/menu-bar
         },
 
         render: function () {
-            if(this.browserStorage.get("isGetStarted")){
-                this.reqularWelcomeScreen.render(this);
-            }else{
-                this.initialWelcomePage.render();
-            }
+            log.debug("start: rendering regular welcome page");
+            this.reqularWelcomeScreen.render();
+            log.debug("end: rendering regular welcome page");
+
+            log.debug("start: rendering initial welcome page");
+            this.initialWelcomePage.render();
+            log.debug("end: rendering initial welcome page");
+
             log.debug("start: rendering menu_bar control");
             this.menuBar.render();
             log.debug("end: rendering menu_bar control");
@@ -129,8 +132,16 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'app/menu-bar/menu-bar
             log.debug("end: rendering tab controller");
         },
 
-        showWelcomeScreen: function () {
-            this.workspaceManager.popupRegularWelcomeScreen();
+        displayInitialView: function () {
+            this.workspaceManager.displayInitialView();
+        },
+
+        hideWorkspaceArea: function(){
+            $(this.config.container).hide();
+        },
+
+        showWorkspaceArea: function(){
+            $(this.config.container).show();
         }
 
     });

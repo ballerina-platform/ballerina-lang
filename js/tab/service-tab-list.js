@@ -15,9 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['log', 'jquery', 'lodash', './tab-list', './service-tab'],
+define(['log', 'jquery', 'lodash', './tab-list', './service-tab',  'workspace'],
 
-    function (log, $, _, TabList, ServiceTab) {
+    function (log, $, _, TabList, ServiceTab, Workspace) {
 
     var ServiceTabList = TabList.extend(
     /** @lends ServiceTabList.prototype */
@@ -30,9 +30,40 @@ define(['log', 'jquery', 'lodash', './tab-list', './service-tab'],
         initialize: function (options) {
             _.set(options, 'tabModel', ServiceTab);
             TabList.prototype.initialize.call(this, options);
+            var lastWorkedFiles = this.getBrowserStorage().get('workingFileSet');
+            this._workingFileSet = [];
+            var self = this;
+            if(!_.isNil(lastWorkedFiles)){
+                lastWorkedFiles.forEach(function(fileData){
+                    var file = new Workspace.File(fileData);
+                    self._workingFileSet.push(file);
+                });
+            }
         },
         render: function() {
             TabList.prototype.render.call(this);
+            if(!_.isEmpty(this._workingFileSet)){
+                var self = this;
+                this._workingFileSet.forEach(function(file){
+                    self.newTab(_.set({}, 'tabOptions.file', file));
+                });
+            }
+        },
+        addTab: function(tab) {
+            TabList.prototype.addTab.call(this, tab);
+            // avoid re-addition of init time files
+            if(!_.includes(this._workingFileSet, tab.getFile())){
+                this._workingFileSet.push(tab.getFile());
+                this.getBrowserStorage().put('workingFileSet', this._workingFileSet);
+            }
+        },
+        removeTab: function (tab) {
+            TabList.prototype.removeTab.call(this, tab);
+            _.remove(this._workingFileSet, tab.getFile());
+            if(tab.getFile().get('isTemp')){
+                this.getBrowserStorage().destroy(tab.getFile());
+            }
+            this.getBrowserStorage().put('workingFileSet', this._workingFileSet);
         },
         newTab: function(opts) {
             var options = opts || {};
@@ -40,6 +71,9 @@ define(['log', 'jquery', 'lodash', './tab-list', './service-tab'],
         },
         getBrowserStorage: function(){
             return _.get(this, 'options.application.browserStorage');
+        },
+        hasFilesInWorkingSet: function(){
+            return !_.isEmpty(this._workingFileSet);
         }
     });
 

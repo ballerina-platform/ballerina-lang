@@ -22,12 +22,12 @@ define(['jquery', 'lodash', 'backbone', 'log', 'bootstrap'], function ($, _, Bac
      * Arg: application instance
      */
     return function (app) {
+
         if (_.isUndefined(app.commandManager)) {
             var error = "CommandManager is not initialized.";
             log.error(error);
             throw error;
         }
-
 
         this.createNewTab = function createNewTab() {
             var welcomeContainerId = app.config.welcome.container;
@@ -39,9 +39,25 @@ define(['jquery', 'lodash', 'backbone', 'log', 'bootstrap'], function ($, _, Bac
             app.tabController.newTab();
         };
 
-        this.popupRegularWelcomeScreen = function () {
-            // hide the page content and only the regular welcome screen will be shown
-            $(app.config.container).hide();
+        this.displayInitialView = function () {
+
+            app.hideWorkspaceArea();
+            app.initialWelcomePage.hide();
+            app.reqularWelcomeScreen.hide();
+
+            if(app.initialWelcomePage.passedFirstLaunch()){
+                if(app.tabController.hasFilesInWorkingSet()){
+                    // there were active tabs when closing app last time - open them
+                    app.showWorkspaceArea();
+                } else {
+                    // show regular welcome screen with open recent, etc. and hide others
+                    app.reqularWelcomeScreen.show();
+                }
+            } else {
+                // show initial product launch page and hide others
+               app.initialWelcomePage.show();
+            }
+
         };
 
         app.commandManager.registerCommand("create-new-tab", {key: ""});

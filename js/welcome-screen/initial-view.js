@@ -35,7 +35,22 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
                 }
                 this._$parent_el = container;
                 this._options = options;
+            },
 
+            hide: function(){
+                //Hiding menu bar
+                this._options.application.menuBar.show();
+                this.$el.hide();
+            },
+
+            show: function(){
+                //Hiding menu bar
+                this._options.application.menuBar.hide();
+                this.$el.show();
+            },
+
+            passedFirstLaunch: function(){
+                return this._options.application.browserStorage.get("pref:passedFirstLaunch") || false;
             },
 
             render: function () {
@@ -172,11 +187,8 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
 
                 $(newButton).on('click', function () {
                     command.dispatch("create-new-tab");
-                    browserStorage.put("isGetStarted", true);
+                    browserStorage.put("pref:passedFirstLaunch", true);
                 });
-
-                //Hiding menu bar
-                this._options.application.menuBar.hide();
             }
 
         });

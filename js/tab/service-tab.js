@@ -23,11 +23,15 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'main_elemen
         initialize: function (options) {
             Tab.prototype.initialize.call(this, options);
             if(!_.has(options, 'file')){
-                this.file = new Workspace.File({isTemp: true}, {storage: this.getParent().getBrowserStorage()});
+                this._file = new Workspace.File({isTemp: true}, {storage: this.getParent().getBrowserStorage()});
             } else {
-                this.file = _.get(options, 'file');
+                this._file = _.get(options, 'file');
             }
         },
+        getFile: function(){
+            return this._file;
+        },
+
         render: function () {
             Tab.prototype.render.call(this);
             var viewObj = this;

@@ -27,16 +27,15 @@ define(['jquery', 'lodash', 'backbone', 'log'], function ($, _, Backbone, log) {
 
             initialize: function (attrs, options) {
                 var errMsg;
-                if (_.isEqual(this.get('isPersisted'), false)){
+                if (!this.get('isPersisted')){
                     if(!_.has(options, 'storage')){
                         errMsg = 'unable to find storage' + _.toString(attrs);
                         log.error(errMsg);
                         throw errMsg;
                     }
                     var storage = _.get(options, 'storage');
-                    if(!_.isUndefined(storage.create(this))){
-                        this.set('isPersisted', true);
-                    }
+                    this.set('isPersisted', true);
+                    storage.create(this);
                 }
             }
         });
