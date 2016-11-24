@@ -272,33 +272,38 @@ return (Expression)*;
 reply Message?;
 ```
 
-## Actors and Actions
+## Connectors and Actions
 
-Actors are the participants of an integration: they are the vertical lines in the sequence diagram. An `actor` provides a set of actions that workers can execute against them. A given `actor` may also need to be configured with particular details.
+Conncetors are the participants of an integration: they are the vertical lines in the sequence diagram. 
+A `connector` provides a set of actions that workers can execute against them. A given `connector` may 
+also need to be configured with particular details.
 
-### Actor Definition
+### Connector Definition
 
 ```
 [package PackageName;?]
 
-actor ActorName {
-    ActorInitializer+;
-}
+connector ConnectorName (MandatoryParameters[, OptionalParameters);
 
-(TypeDefinition | VariableDeclaration | ActorDeclaration)*
+(TypeDefinition | VariableDeclaration | ConnectionDeclaration)*
 
 ActionDefinition+;
 ```
+Example:
+
+connector MyConnector (string s, int x = 10);
+connector FooC (string s | (string s, float y), int x = 10);
+
+var boolean loggedIn = false;
 
 ### Action Definition
 
 Actions are operations (functions) that can be executed against an actor. The overall structure of an action is as follows:
 
 ```
-action ActionName (actor ActorName, (TypeName VariableName)*) (TypeName*)
-        [throws ExceptionName [, ExceptionName]*] {
-    ActorDelcaration*
-    (TypeDefinition | VariableDeclaration)*
+action ActionName (ConnectorName VariableName, ((TypeName VariableName)*) (TypeName*)
+        [throws exception] {
+    (TypeDefinition | VariableDeclaration | ActorDeclaration)*
     Statement+
 }
 ```
@@ -307,6 +312,14 @@ First argument of an action should be associated with an actor.
 
 All actions are public. Actions can be invoked from a resource or a function in the same package without an import. It may also be invoked from another file by either importing it first or by using its fully qualified name.
 
+### Connection Declaration
+
+Connections represent a connection established via a connector. These can be declared at a 
+global level or within the scope of a function or action.
+
+```
+actor<ActorType> VariableName;
+```
 
 ## Configuration Management
 
