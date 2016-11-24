@@ -49,28 +49,160 @@ The structure of a `service` file in Ballerina is as follow:
 [package PackageName;]
 [import (PackageWildCard|PackageName);]*
 
+[ServiceAnnotations]
 service ServiceName;
 
 TypeDefinition*
 
-(VariableDeclaration | ConnectionDeclaration)*
+ConnectionDeclaration;*
 
-(ResourceDefinition | FunctionDefinition)+
+VariableDeclaration;*
+
+(ResourceDefinition | FunctionDefinition | TypeConvertor)+
 ```
+### Types & Variables
+
+Ballerina has variables of various types. The type system includes built-in primitives, a
+collection of built-in structured types and array and record type constructors. All variables
+of primitive types are allocated on the stack while all non-primitive types are allocated
+on a heap using `new`.
+
+#### Declaring Variables
+
+A VariableDeclaration has the following structure:
+
+```
+TypeName VariableName [= Value];
+```
+
+A TypeName may be one of the following built-in primitive types:
+- boolean
+- int
+- long
+- float
+- double
+Primitive types do not have to be dynamically allocated as they are always allocated
+on the stack.
+
+A TypeName may also be one of the following built-in non-primitive types:
+- string
+- message
+- map
+- exception
+
+A TypeName may also be the name of a user defined type.
+
+### Constructed Types
+
+User defined record types are defined using a TypeDefinition as follows:
+```
+[public] type TypeName {
+    TypeName VariableName;+
+}
+```
+If a type is marked `public` then it may be instantiated from another package.
+
+Arrays may be defined using the array constructor `[]` as follows:
+```
+TypeName[]
+```
+
+All arrays are unbounded in length and support 0 based indexing. Array length can be
+determined by checking the `.length` property of the array typed variable.
+
+### XML & JSON Types
+
+Ballerina has built-in support for XML elements, XML documents and JSON documents. TypeName
+can be any of the following:
+- json\[\<json_schema_name\>\]
+- xml\[<{XSD_namespace_name}type_name\>\]
+- xmlDocument
+
+A variable of type `json` can hold any JSON document. The optional qualification of the TypeName
+for a JSON document indicates the name of the JSON schema that the JSON value is assumed to
+conform to.
+
+A variable of type `xml` can hold any XML element. The optional qualification of the TypeName
+for an XML document indicates the qualified type name of the XML Schema type that the XML
+element is assumed to conform to.
+
+A variable of type `xmlDocument` can hold any XML document.
+
+### Allocating Variables
+
+Primitive types do not have to be dynamically allocated as they are always allocated
+on the stack. For all non-primitive types, user defined types and array types have to be
+allocated on the heap using `new` as follows:
+```
+new TypeName[(ValueList)]
+```
+The optional ValueList can be used to give initial values for the fields of any record type. The order
+of values must correspond to the order of field declarations.
+
+### Default Values for Variables
+
+Variables can be given values at time of declaration as follows:
+```
+TypeName VariableName = Value;
+```
+
+### Literal Values
+
+The following are examples of literal values for various types:
+```
+int age = 4;
+double price = 4.0;
+string name = "John";
+xmlElement address_xml = `<address><name>$name</name></address>`;
+json address_json = `{"name" : "$name", "streetName" : "$street"}`;
+map m = {"name" : "John", "age" : 34 };
+int[] data = [1, 2, 3, 6, 10];
+```
+
+### Type Coercion and Conversion
+
+The built-in `float` and `double` follow the standard IEEE 754 specifications. The `int` and `long` types follow
+the standard 32- and 64-bit integer arithmetic, respectively. Implicit type conversions from
+number types work the same way as defined by these specifications.
+
+For lossy type conversions, one must explicitly cast the value to the lower type. For example:
+```
+float f;
+int x;
+
+x = (int) f;
+```
+
+In addition to these built in type coercions and conversions, Ballerina allows one to define
+arbitrary conversions from one non-primitive type to another non-primitive and have the language apply it automatically.
+
+A TypeConvertor is defined as follows:
+```
+typeconverter TypeConverterName (TypeName VariableName) (TypeName) {
+    Statement;+
+}
+```
+If a TypeConvertor has been defined from Type1 to Type2, then it will be invoked by the runtime upon
+executing the following statement:
+```
+Type1 t1;
+Type2 t2;
+
+t2 = (Type2) t1;
+```
+
+That is, the registered type convertor is invoked by indicating the type cast as above.
 
 ### Resource Definition
 
-Resources are externally invokable whereas functions are internal subroutines that can only be invoked form a resource. Actions are subroutines that are associated with an actor.
-
-The overall structure of a resource is as follows:
+The structure of a resource is as follows:
 
 ```
-@Annotation+
-resource ResourceName (Message VariableName
-        [, (@Context | @QueryParam | @PathParam) VariableName]*) {
-    ActorDelcaration*
-    (TypeDefinition | VariableDeclaration)*
-    Statement+
+[ResourceAnnotations]
+resource ResourceName (Message VariableName[, ([ResourceParamAnnotations] TypeName VariableName)+]) {
+    ConnectionDeclaration;*
+    VariableDeclaration;*
+    Statement;+
 }*
 ```
 
@@ -80,95 +212,19 @@ The visual representation of this (without the annotations) is as follows:
 
 ### Function Definition
 
-A file may also contain functions who’s structure is as follows:
+The structure of a function is as follows:
 
 ```
-[public] function FunctionName ((TypeName VariableName)*) (TypeName*)
-        [throws ExceptionName [, ExceptionName]*] {
-    ActorDelcaration*
-    (TypeDefinition | VariableDeclaration)*
-    Statement+
-}
-```
-
-All functions are private to the package unless explicitly declared to be public with the `public` keyword.. Functions can be invoked from a resource or a function in the same package without an import. It may also be invoked from another package by either importing it first or by using its fully qualified name.
-
-### Variable Declaration
-
-A VariableDeclaration has the following structure:
-
-```
-var TypeName VariableName[(, VariableName)*];
-```
-variable delcaration can assign a value as following.
-
-```
-var TypeName VariableName = value;
-```
-
-Value can be a integer, a float, a string, a map, or XML or Json literals. Following are examples.
-
-```
-var int age = 4;
-var double price = 4.0;
-var string name = "John";
-var xmlElement address_xml = `<address><name>$name</name></address>`;
-var json address_json = `{ "name":"$name", "streetName":"$street"}`;
-var map = {"name":"John", "age":34 };
-```
-Here $name is a variable that is available at the current scope.
-
-A TypeName is one of the following built in types or a user defined type name.
-- boolean
-- int
-- long
-- float
-- double
-- string
-- xmlElement[<{XSD_namespace_name}type_name>]
-- xmlDocument
-- json\[\<json_schema_name\>\]
-- message
-- map
-- exception
-
-### Type Definition
-
-User defined types are defined using a TypeDefinition as follows:
-```
-type TypeName {
-    TypeName VariableName;+
-}
-```
-
-### Array Types
-
-Array types can be defined by using the array constructor as follows:
-- int[]
-- long[]
-- float[]
-- double[]
-- string[]
-- TypeName[]
-
-All arrays are unbounded in length and support 0 based indexing. Array length can be determined by checking the `.length` property of the array typed variable.
-
-### Type Conversion
-
-For XML and JSON types we can declare a schema as discussed in [Variable Declaration](#variable-declaration).
-To convert between types we can define a typeconverter as follows:
-```
-typeconverter TypeConverterName (TypeName VariableName) (TypeName) {
+[public] function FunctionName (((TypeName VariableName)[(, TypeName VariableName)*])?)
+        ((TypeName[(, TypeName)*])?) [throws exception] {
+    ConnectionDeclaration;*
+    VariableDeclaration;*
     Statement;+
 }
 ```
 
-When the typeconverter has been defined, we can do the type conversion through an assignment between types.
-```
-TypeName<{schema_type1}> VariableName1 = ...;   
-TypeName<{schema_type2}> VariableName2 = VariableName1;
-```
-//todo Do we need to convert from multiple input types to a single output type
+All functions are private to the package unless explicitly declared to be public with the `public` keyword. Functions may be invoked within the same package from a resource or a function in the same package without importing. Functions marked `public` can be invoked from another package after importing the package.
+
 
 ### Statements
 
@@ -300,55 +356,61 @@ return (Expression)*;
 reply Message?;
 ```
 
-## Connectors and Actions
+## Connectors and Connections
 
-Conncetors are the participants of an integration: they are the vertical lines in the sequence diagram.
-A `connector` provides a set of actions that workers can execute against them. A given `connector` may
-also need to be configured with particular details.
+Connectors are the participants of an integration; they are the vertical lines in the sequence diagram.
+A `connector` provides a set of `action`s that workers can execute against them.
+
+A given `connector` would need to be configured with particular details and a configured connector instance is called a `connection`.
 
 ### Connector Definition
 
 ```
 [package PackageName;?]
 
-connector ConnectorName (MandatoryParameters[, OptionalParameters);
+connector ConnectorName (
+  (TypeName VariableName)(, TypeName VariableName)*
+  (, options { (string : Value)+ })?
+);
 
-(TypeDefinition | VariableDeclaration | ConnectionDeclaration)*
+TypeDefinition*
 
-ActionDefinition+;
+ConnectionDeclaration;*
+
+VariableDeclaration;*
+
+(ActionDefinition | FunctionDefinition | TypeConvertor)+
 ```
-Example:
-
-connector MyConnector (string s, int x = 10);
-connector FooC (string s | (string s, float y), int x = 10);
-
-var boolean loggedIn = false;
 
 ### Action Definition
 
-Actions are operations (functions) that can be executed against an actor. The overall structure of an action is as follows:
+Actions are operations (functions) that can be executed against a connector.
+The overall structure of an action is as follows:
 
 ```
 action ActionName (ConnectorName VariableName, ((TypeName VariableName)*) (TypeName*)
         [throws exception] {
-    (TypeDefinition | VariableDeclaration | ActorDeclaration)*
-    Statement+
+    ConnectionDeclaration;*
+    VariableDeclaration;*
+    Statement;+
 }
 ```
 
-First argument of an action should be associated with an actor.
-
-All actions are public. Actions can be invoked from a resource or a function in the same package without an import. It may also be invoked from another file by either importing it first or by using its fully qualified name.
+All actions are public.
 
 ### Connection Declaration
 
-Connections represent a connection established via a connector. These can be declared at a
-global level or within the scope of a function or action.
+Connections represent a connection established via a connector. The structure is as follows:
 
 ```
-actor<ActorType> VariableName;
+[ConnectorPackageName.]ConnectorName VariableName = new [ConnectorPackageName.]ConnectorName (ValueList[, map]);
 ```
-
+Once a connection has been declared, actions can be invoked against that connection as follows:
+```
+[ConnectorPackageName.]ActionName (ConnectionVariableName, ValueList);
+```
 ## Configuration Management
+
+TODO!
 
 Several Ballerina constructs such as actors and resources have configurable parameters. Examples include the URI of an HTTP endpoint and timeout values. These values MAY be set explicitly within the program using annotations but such values can be overridden from outside the program by applying appropriate property values. These values may be set via environment variables or other deployment management approaches.
