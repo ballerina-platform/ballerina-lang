@@ -83,7 +83,7 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'app/menu-bar/menu-bar
                 commandManager: this.commandManager
             };
             _.set(regWelcomeScreenOpts, 'application', this);
-            this.reqularWelcomeScreen = new WelcomeScreen.Views.RegularView(regWelcomeScreenOpts);
+            this.regularWelcomeScreen = new WelcomeScreen.Views.RegularView(regWelcomeScreenOpts);
         },
 
         validateConfig: function(config){
@@ -108,7 +108,7 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'app/menu-bar/menu-bar
 
         render: function () {
             log.debug("start: rendering regular welcome page");
-            this.reqularWelcomeScreen.render();
+            this.regularWelcomeScreen.render();
             log.debug("end: rendering regular welcome page");
 
             log.debug("start: rendering initial welcome page");

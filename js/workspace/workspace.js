@@ -43,7 +43,7 @@ define(['jquery', 'lodash', 'backbone', 'log', 'bootstrap'], function ($, _, Bac
 
             app.hideWorkspaceArea();
             app.initialWelcomePage.hide();
-            app.reqularWelcomeScreen.hide();
+            app.regularWelcomeScreen.hide();
 
             if(app.initialWelcomePage.passedFirstLaunch()){
                 if(app.tabController.hasFilesInWorkingSet()){
@@ -51,7 +51,7 @@ define(['jquery', 'lodash', 'backbone', 'log', 'bootstrap'], function ($, _, Bac
                     app.showWorkspaceArea();
                 } else {
                     // show regular welcome screen with open recent, etc. and hide others
-                    app.reqularWelcomeScreen.show();
+                    app.regularWelcomeScreen.show();
                 }
             } else {
                 // show initial product launch page and hide others
