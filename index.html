@@ -315,7 +315,7 @@
             nano_scroller: "lib/nanoscroller_0.8.7/jquery.nanoscroller.min",
             theme_wso2: "lib/theme-wso2_1.0/js/theme-wso2",
             ace: "lib/ace",
-            beautify: "lib/beautify",
+            beautify: "lib/beautify/beautify",
             ///////////////////////
             // custom modules ////
             //////////////////////
@@ -443,24 +443,26 @@
                             tab_active: 'active',
                             tab_close_btn: 'close closeTab pull-right'
                         },
-                        canvas: {
-                            // relative selector within container for a tab
-                            container: '.canvas-container'
-                        },
-                        preview: {
-                            // relative selector within container for a tab
-                            container: '.preview-container'
-                        },
-                        source: {
-                            // relative selector within container for a tab
-                            container: '.source-container'
-                        },
-                        toggle_controls: {
-                            // relative selector within container for a tab
-                            container: '.toggle-controls-container',
-                            sourceIcon: '.toggle-to-source',
-                            designIcon: '.toggle-to-design'
-                         }
+                        service_editor: {
+                            canvas: {
+                                // relative selector within container for a tab
+                                container: '.canvas-container'
+                            },
+                            preview: {
+                                // relative selector within container for a tab
+                                container: '.preview-container'
+                            },
+                            source: {
+                                // relative selector within container for a tab
+                                container: '.source-container'
+                            },
+                            toggle_controls: {
+                                // relative selector within container for a tab
+                                container: '.toggle-controls-container',
+                                sourceIcon: '.toggle-to-source',
+                                designIcon: '.toggle-to-design'
+                            }
+                        }
                     }
                 },
                 tool_palette: {

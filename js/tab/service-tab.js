@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'main_elements', 'diagram_core', 'workspace', 'app/ballerina/views/source', 'lib/beautify/beautify'],
-    function (require, log, jquery, _, Tab, Ballerina, MainElements, DiagramCore, Workspace, SourceView, Beautify) {
+define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace'],
+    function (require, log, jquery, _, Tab, Ballerina, Workspace) {
     var  ServiceTab;
 
     ServiceTab = Tab.extend({
@@ -34,71 +34,11 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'main_elemen
 
         render: function () {
             Tab.prototype.render.call(this);
-            var viewObj = this;
-
-            var canvasContainer = this.$el.find(_.get(this.options, 'canvas.container'));
-            var previewContainer = this.$el.find(_.get(this.options, 'preview.container'));
-            var sourceContainer = this.$el.find(_.get(this.options, 'source.container'));
-            var toggleControlsContainer = $(_.get(this.options, 'toggle_controls.container'));
-            var toggleSourceIcon = $(_.get(this.options, 'toggle_controls.sourceIcon')).find("img");
-            var toggleDesignIcon = $(_.get(this.options, 'toggle_controls.designIcon')).find("img");
-            var tabContentContainer = $(_.get(this.options, 'tabs_container'));
-            if(!canvasContainer.length > 0){
-                var errMsg = 'cannot find container to render svg';
-                log.error(errMsg);
-                throw errMsg;
-            }
-            var serviceViewOpts = {};
-            _.set(serviceViewOpts, 'container', canvasContainer.get(0));
-            _.set(serviceViewOpts, 'toolPalette', this.getParent().options.toolPalette);
-            var serviceView = new Ballerina.Views.ServiceView(serviceViewOpts);
-
-            serviceView.render();
-
-            var sourceViewOptions = {
-                sourceContainer: sourceContainer.attr('id')
-            };
-
-            $('source-container-id').hide();
-
-            var sourceView = new SourceView(sourceViewOptions);
-
-            toggleSourceIcon.on('click', function () {
-                // Hide the tab components
-                viewObj.getParent().hideTabComponents();
-                canvasContainer.removeClass('show-div').addClass('hide-div');
-                previewContainer.removeClass('show-div').addClass('hide-div');
-                toggleControlsContainer.find('.toggle-to-source').removeClass('show-div').addClass('hide-div');
-                toggleControlsContainer.find('.toggle-to-design').removeClass('hide-div').addClass('show-div');
-                sourceContainer.removeClass('source-view-disabled').addClass('source-view-enabled');
-
-                // Remove the padding added for the tab-content
-                // TODO: this value changes dynamically and the corresponding value should be deducted from the padding
-                tabContentContainer.removeClass('tab-content-default');
-
-                // Get the parsed source from the design and pass it to the ace editor rendering
-                var parsedSource = serviceView.model.parseTree();
-                parsedSource = Beautify.js_beautify(parsedSource);
-                var sourceViewOptions = {
-                    source: parsedSource
-                };
-                sourceView.render(sourceViewOptions);
-            });
-
-            toggleDesignIcon.on('click', function () {
-                // Show the tab components
-                viewObj.getParent().showTabComponents();
-                canvasContainer.removeClass('hide-div').addClass('show-div');
-                previewContainer.removeClass('hide-div').addClass('show-div');
-                toggleControlsContainer.find('.toggle-to-design').removeClass('show-div').addClass('hide-div');
-                toggleControlsContainer.find('.toggle-to-source').removeClass('hide-div').addClass('show-div');
-                sourceContainer.removeClass('source-view-enabled').addClass('source-view-disabled');
-
-                // Add the padding for the tab-content
-                tabContentContainer.addClass('tab-content-default');
-            });
-
-
+            var serviceEditorOpts = _.get(this.options, 'service_editor');
+            _.set(serviceEditorOpts, 'toolPalette', this.getParent().options.toolPalette);
+            _.set(serviceEditorOpts, 'container', this.$el.get(0));
+            var serviceEditor = new Ballerina.Views.ServiceEditor(serviceEditorOpts);
+            serviceEditor.render();
         }
     });
 
