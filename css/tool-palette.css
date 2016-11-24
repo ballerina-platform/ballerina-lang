@@ -1,7 +1,8 @@
 
 #tool-palette-container{
     border-right: 2px solid #f4f4f4;
-    width: 11%;
+    position: fixed;
+    width: 200px;
     background-color: #ffffff;
     height: 100%;
 }

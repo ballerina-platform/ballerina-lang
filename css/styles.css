@@ -267,3 +267,15 @@ header .brand h1 {
 ol#breadcrumbList {
     background-color: #444;
 }
+
+#icon-toggle-source {
+    height: 100%;
+    width: 100%;
+    object-fit: contain;
+}
+
+#icon-toggle-design {
+    height: 100%;
+    width: 100%;
+    object-fit: contain;
+}

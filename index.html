@@ -29,7 +29,6 @@
     <link rel="stylesheet" type="text/css" href="css/tool-palette.css"/>
     <link rel="stylesheet" type="text/css" href="css/workspace-explorer.css"/>
     <link rel="stylesheet" type="text/css" href="css/diagram/preview-pane.css"/>
-    <link rel="stylesheet" type="text/css" href="css/styles.css"/>
     <title>Integration Server Tooling</title>
 </head>
 
@@ -54,17 +53,10 @@
 
 <!-- Start: page-content-wrapper -->
 <div id="page-content-wrapper" class="">
-    <!--Start:Welcome page -->
-    <div id="welcome-container">
-
-    </div>
-    <!--End:Welcome page -->
-    <!-- Start: page content -->
+    <div id="welcome-container"></div>
     <div id="page-content" class="container">
-        <!-- Start: page content : first row -->
         <div id="page-content-first-row" class="row">
-            <!-- Start: alerts container row -->
-            <div id="alerts-container" class="alert">
+            <div id="alerts-container" class="alert row">
             </div>
             <!-- End: alerts container row -->
             <!-- Start: breadcrumb row -->
@@ -76,7 +68,7 @@
             <!-- Start: file explorer and editor area row -->
             <div class="row">
                 <!-- Start: left container -->
-                <div id="left-container" class="col-sm-2" >
+                <div id="left-container">
                     <!-- Start: file explorer -->
                     <div id="workspace-explorer">
                     </div>
@@ -84,7 +76,7 @@
                 </div>
                 <!-- End: left container -->
                 <!-- Start: right container -->
-                <div id="right-container" class="col-sm-10">
+                <div id="right-container">
                     <!-- Start: service tabs wrapper container-->
                     <div class="container-fluid" id="service-tabs-wrapper">
                         <!-- Start: service tabs wrapper row -->
@@ -93,25 +85,30 @@
                             <div id="tabs-container" class="col-sm-12">
                                 <div class="tab-headers">
                                 </div>
-                                <!-- Start: tool-palette -->
-                                <div id="tool-palette-container" class="col-sm-2"></div>
-                                <!-- End: tool-palette -->
-                                <div class="tab-content col-sm-10">
+                                <div  id="tab-content-wrapper" style="height: 100%;">
+                                    <!-- Start: tool-palette -->
+                                    <div id="tool-palette-container"></div>
+                                    <!-- End: tool-palette -->
+                                    <div class="tab-content tab-content-default col-sm-12"></div>
+                                    <!-- Start: Toggle Controls Container -->
+                                    <div class="toggle-controls-container">
+                                        <div class="toggle-to-source show-div"><img src="images/source.svg" id="icon-toggle-source"></div>
+                                        <div class="toggle-to-design hide-div"><img src="images/design.svg" id="icon-toggle-design"></div>
+                                    </div>
+                                    <!-- End: Toggle Controls Container  -->
                                 </div>
                             </div>
-                            <!-- End: service tabs -->
                         </div>
-                        <!-- End: service tabs wrapper row -->
+                        <!-- End: service tabs -->
                     </div>
-                    <!-- End: service tabs wrapper container-->
+                    <!-- End: service tabs wrapper row -->
                 </div>
-                <!-- End: right container -->
+                <!-- End: service tabs wrapper container-->
             </div>
-            <!-- End: file explorer and editor area row -->
+            <!-- End: right container -->
         </div>
-        <!-- Start: page content : first row -->
+        <!-- End: file explorer and editor area row -->
     </div>
-    <!-- End: page-content-->
 </div>
 <!-- End: page-content-wrapper -->
 
@@ -142,12 +139,6 @@
         <div class="preview-container">
         </div>
         <!-- End Preview Container -->
-        <!-- Start: Toggle Controls Container -->
-        <div class="toggle-controls-container">
-            <div class="toggle-to-source show-div"><img src="images/source.svg" style='height: 100%; width: 100%; object-fit: contain' id="icon-toggle-source"></div>
-            <div class="toggle-to-design hide-div"><img src="images/design.svg" style='height: 100%; width: 100%; object-fit: contain' id="icon-toggle-design"></div>
-        </div>
-        <!-- End: Toggle Controls Container  -->
     </div>
     <!-- End: Tab -->
 </div>
