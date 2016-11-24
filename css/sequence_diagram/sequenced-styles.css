@@ -105,7 +105,6 @@
 .message{
     stroke: #000000;
     stroke-width: 1px;
-    marker-end: url('#markerArrow');
 }
 
 .message:hover{

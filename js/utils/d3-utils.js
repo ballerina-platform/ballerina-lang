@@ -112,6 +112,16 @@ define(['require', 'jquery', 'd3'], function (require, $, d3) {
             .attr('stroke-linejoin', 'round');
     };
 
+    var arrowPolygon = function (points, parent) {
+
+        return parent.append('polygon')
+            .attr('points', points)
+            .attr('stroke-width', 1)
+            .attr('fill', "#333333")
+            .attr('stroke', "#000000")
+            .attr('stroke-linejoin', 'round');
+    };
+
     var basicRect = function (x, y, width, height, rx, ry, parent) {
         parent = parent || d3Ref;
         rx = rx || 0;
@@ -583,6 +593,7 @@ define(['require', 'jquery', 'd3'], function (require, $, d3) {
         draw.outputTriangle = outputTriangle;
         draw.dashedLine = dashedLine;
         draw.polygon = polygon;
+        draw.arrowPolygon = arrowPolygon;
 
         var d3Proto = Object.getPrototypeOf(d3ref);
         d3Proto.draw = draw;

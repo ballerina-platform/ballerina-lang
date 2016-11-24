@@ -109,15 +109,67 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core'], functi
                         var line = d3ref.draw.lineFromPoints(lineSourceCenterPoint, lineDestinationCenterPoint, group)
                             .classed(this.options.class, true);
 
+                        //Creating arrow head for line
+                        var point1x = Math.round(lineDestinationCenterPoint.x())- 9;
+                        var point1y = Math.round(lineDestinationCenterPoint.y())- 5;
+                        var point2x = Math.round(point1x) + 8;
+                        var point2y = Math.round(point1y) + 5;
+                        var point3y = Math.round(point2y) + 5;
+
+                        var point1 = [point1x,point1y];
+                        var point2 = [point2x,point2y];
+                        var point3 = [point1x,point3y];
+                        var points = point1.join(',') + " " + point2.join(",")+ " " + point3.join(",");
+                        var arrowHead = d3ref.draw.arrowPolygon(points,group);
+                       // End: creating arrow head for line
+
                         var line2DestinationCenterPoint = createPoint(destinationCenterPoint.x(), Math.round(destinationCenterPoint.y()) + 10);
                         var line2SourceCenterPoint = createPoint(sourceCenterPoint.x(), Math.round(sourceCenterPoint.y()) + 10);
 
                         var line2 = d3ref.draw.lineFromPoints(line2DestinationCenterPoint, line2SourceCenterPoint, group)
                             .classed(this.options.class, true);
+
+                        //Creating arrow head for line2
+                        var reply1x = Math.round(line2SourceCenterPoint.x())+ 9;
+                        var reply1y = Math.round(line2SourceCenterPoint.y())+ 5;
+                        var reply2x = Math.round(line2SourceCenterPoint.x())-9 + 10;
+                        var reply2y = Math.round(line2SourceCenterPoint.y())-5 + 5;
+                        var reply3y = Math.round(reply2y) - 5;
+
+                        var replyPoint1 = [reply1x,reply1y];
+                        var replyPoint2 = [reply2x,reply2y];
+                        var replyPoint3 = [reply1x,reply3y];
+                        var replyPoints = replyPoint1.join(',') + " " + replyPoint2.join(",")+ " " + replyPoint3.join(",");
+                        var arrowHead = d3ref.draw.arrowPolygon(replyPoints,group);
+                        //End: creating arrow head for line2
+
                     }else{
                         // Drawing an OUT_ONLY message.
                         var line = d3ref.draw.lineFromPoints(sourceCenterPoint, destinationCenterPoint, group)
                             .classed(this.options.class, true);
+                         // Check arrowhead side depending on direction for reply mediator
+                       if(this.model.attributes.priority.attributes.direction == "inbound") {
+                           var point1x = Math.round(destinationCenterPoint.x()) - 9;
+                           var point1y = Math.round(destinationCenterPoint.y()) - 5;
+                           var point2x = Math.round(point1x) + 8;
+                           var point2y = Math.round(point1y) + 5;
+                           var point3y = Math.round(point2y) + 5;
+
+                       }
+                        else{
+                           var point1x = Math.round(destinationCenterPoint.x())+ 9;
+                           var point1y = Math.round(destinationCenterPoint.y())+ 5;
+                           var point2x = Math.round(destinationCenterPoint.x())-9 + 10;
+                           var point2y = Math.round(destinationCenterPoint.y())-5 + 5;
+                           var point3y = Math.round(point2y) - 5;
+
+                       }
+                        var point1 = [point1x, point1y];
+                        var point2 = [point2x, point2y];
+                        var point3 = [point1x, point3y];
+                        var points = point1.join(',') + " " + point2.join(",") + " " + point3.join(",");
+                        var arrowHead = d3ref.draw.arrowPolygon(points, group);
+
                     }
 
                     line.on("click", function () {
