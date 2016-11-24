@@ -290,14 +290,14 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './proc
                     viewObj.serviceView.model.selectedNode = viewObj.model;
                     d3.select(this).style("fill", "green").style("fill-opacity", 0.1);
                     if(!viewObj.serviceView.isPreviewMode()) {
-                        viewObj.dragDropManager.setActivatedDropTarget(viewObj.model);
+                      //  viewObj.dragDropManager.setActivatedDropTarget(viewObj.model);
                     }
                 }).on('mouseout', function () {
                     viewObj.serviceView.model.destinationLifeLine = viewObj.serviceView.model.selectedNode;
                     viewObj.serviceView.model.selectedNode = null;
                     d3.select(this).style("fill-opacity", 0.01);
                   if(!viewObj.serviceView.isPreviewMode()) {
-                      viewObj.dragDropManager.clearActivatedDropTarget();
+                    //  viewObj.dragDropManager.clearActivatedDropTarget();
                   }
                 }).on('mouseup', function (data) {
 
