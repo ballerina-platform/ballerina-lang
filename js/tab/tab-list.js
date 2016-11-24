@@ -251,6 +251,7 @@ define(['log', 'jquery', 'lodash', 'backbone', './tab', 'bootstrap'], function (
                 _.set(tabOptions, 'application', this.options.application);
                 // merge view options from app config
                 _.assign(tabOptions, _.get(this.options, 'tabs.tab'));
+                _.set(tabOptions, 'tabs_container',_.get(this.options, 'tabs.container'));
                 _.set(tabOptions, 'parent', this);
                 var newTab = new this.TabModel(tabOptions);
                 this.addTab(newTab);

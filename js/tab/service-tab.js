@@ -39,9 +39,10 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'main_elemen
             var canvasContainer = this.$el.find(_.get(this.options, 'canvas.container'));
             var previewContainer = this.$el.find(_.get(this.options, 'preview.container'));
             var sourceContainer = this.$el.find(_.get(this.options, 'source.container'));
-            var toggleControlsContainer = this.$el.find(_.get(this.options, 'toggle_controls.container'));
+            var toggleControlsContainer = $(_.get(this.options, 'toggle_controls.container'));
             var toggleSourceIcon = $(_.get(this.options, 'toggle_controls.sourceIcon')).find("img");
             var toggleDesignIcon = $(_.get(this.options, 'toggle_controls.designIcon')).find("img");
+            var tabContentContainer = $(_.get(this.options, 'tabs_container'));
             if(!canvasContainer.length > 0){
                 var errMsg = 'cannot find container to render svg';
                 log.error(errMsg);
@@ -71,6 +72,10 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'main_elemen
                 toggleControlsContainer.find('.toggle-to-design').removeClass('hide-div').addClass('show-div');
                 sourceContainer.removeClass('source-view-disabled').addClass('source-view-enabled');
 
+                // Remove the padding added for the tab-content
+                // TODO: this value changes dynamically and the corresponding value should be deducted from the padding
+                tabContentContainer.removeClass('tab-content-default');
+
                 // Get the parsed source from the design and pass it to the ace editor rendering
                 var parsedSource = serviceView.model.parseTree();
                 parsedSource = Beautify.js_beautify(parsedSource);
@@ -88,6 +93,9 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'main_elemen
                 toggleControlsContainer.find('.toggle-to-design').removeClass('show-div').addClass('hide-div');
                 toggleControlsContainer.find('.toggle-to-source').removeClass('hide-div').addClass('show-div');
                 sourceContainer.removeClass('source-view-enabled').addClass('source-view-disabled');
+
+                // Add the padding for the tab-content
+                tabContentContainer.addClass('tab-content-default');
             });
 
 

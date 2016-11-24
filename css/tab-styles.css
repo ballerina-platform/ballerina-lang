@@ -5,7 +5,7 @@
 
 .toggle-controls-container {
     position: absolute;
-    top: 70%;
+    bottom: 150px;
     right: 50px;
 }
 
