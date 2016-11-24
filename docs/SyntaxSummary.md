@@ -10,24 +10,52 @@ Ballerina is a new programming language for integration built on a sequence diag
 - Container Native
 - Fun
 
-The conceptual model of Ballerina is that of a sequence diagram. Each participant in the integration gets its own lifeline and Ballerina defines a complete syntax and semantics for how the sequence diagram works and execute the desired integration.
+The conceptual model of Ballerina is that of a sequence diagram. Each participant in the integration (referred to as a `connector` in Ballerina) gets its own lifeline and Ballerina defines a complete syntax and semantics for how the sequence diagram works and executes the desired integration.
 
-Ballerina is not designed to be a general purpose language. Instead you should use Ballerina if you need to integrate a collection of network connected systems such as HTTP endpoints, Web APIs, JMS services, and databases. The result of the integration can either be just that - the integration that runs once or repeatedly ona  schedule, or a reusable HTTP service that others can run.
+Ballerina is not designed to be a general purpose language. Instead you should use Ballerina if you need to integrate a collection of network connected systems such as HTTP endpoints, Web APIs, JMS services, and databases. The result of the integration can either be just that - the integration that runs once or repeatedly on a schedule, or a reusable HTTP service that others can run.
+
+NOTE: The initial release of the language only supports integrations that result in HTTP services.
 
 This is an informal introduction to the Ballerina language.
 
-## Structure of a Ballerina Program
-Every Ballerina program has both a textual representation and a normative visual representation. A Ballerina program can be modularized into a collection of packages, with each package(collection of files) contributing one or more resources, functions, actions or types. To access these from another package they must be explicitly imported by the other package.
+## Introduction
 
-The structure of a file in Ballerina is as follow:
+Every Ballerina program has both a textual representation and a canonical visual representation.
+
+### Concepts
+
+- *Service*: A `service` is an HTTP web service described by a Swagger. A service is the discrete unit of functionality that can be remotely accessed.
+- *Resource*: A `resource` is a single request handler within a service. The resource concept is designed to be access protocol independent - but in the initial release of the language it is intendended to work with HTTP.
+- *Connector*: A `Connector` represents a participant in the integration. Connectors can be declared at a service level or within a resource.
+- *Action*: An `action` is an operation one can execute against a `connector`
+- *Function*: A `function` is an operation that is executed by a worker.
+- *Worker*: A `worker` is a thread of execution that the integration developer programs as a lifeline.
+
+NEED PICTURE HERE.
+
+### Modularity
+
+Ballerina programs can be written in one or more files organized into packages. A package defines a namespace and all public symbols defined in any file in the same package are visible within the package. A package is represented by a directory.
+
+A single Ballerina file can define either a single `service`, a single `connector` or a collection of functions. A file that contains a `service` or `connector` may also define any number of functions. Functions that are not marked `public` are private to the package.
+
+The unit of execution for Ballerina programs is a `service`.
+
+## Structure of a Ballerina Program
+
+The structure of a `service` file in Ballerina is as follow:
 
 ```
 [package PackageName;]
 [import (PackageWildCard|PackageName);]*
 
-(VariableDeclaration | ActorDeclaration | TypeDefinition)*
+service ServiceName;
 
-(ResourceDefinition | FunctionDefinition | ActionDefinition)+
+TypeDefinition*
+
+(VariableDeclaration | ConnectionDeclaration)*
+
+(ResourceDefinition | FunctionDefinition)+
 ```
 
 ### Resource Definition
@@ -248,10 +276,10 @@ try {
 We provide an exception type which has a type(string), message(string) and a property map.
 We don't allow extension type for exceptions and different exception type should be handled using the type attribute.
 We provide  following statements
- - `try` `catch` blocks to handle exception. 
+ - `try` `catch` blocks to handle exception.
  - `throws` statement to signal that a function may throw an exception.
  - `throw` statement to throw an exception.
-If a function is throwing an exception it must declare it. 
+If a function is throwing an exception it must declare it.
 If a function throws an exception the caller function can choose to handle it or let it propagate upwards.
 
 #### Throw Statement
@@ -274,8 +302,8 @@ reply Message?;
 
 ## Connectors and Actions
 
-Conncetors are the participants of an integration: they are the vertical lines in the sequence diagram. 
-A `connector` provides a set of actions that workers can execute against them. A given `connector` may 
+Conncetors are the participants of an integration: they are the vertical lines in the sequence diagram.
+A `connector` provides a set of actions that workers can execute against them. A given `connector` may
 also need to be configured with particular details.
 
 ### Connector Definition
@@ -314,7 +342,7 @@ All actions are public. Actions can be invoked from a resource or a function in 
 
 ### Connection Declaration
 
-Connections represent a connection established via a connector. These can be declared at a 
+Connections represent a connection established via a connector. These can be declared at a
 global level or within the scope of a function or action.
 
 ```
