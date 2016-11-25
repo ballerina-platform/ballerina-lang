@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'backbone', 'lodash'], function ( require, Backbone, _) {
+define(['require', 'backbone', 'lodash','ballerina'], function ( require, Backbone, _, Service) {
 
     var RegularWelcomeScreenView = Backbone.View.extend(
         /** @lends RegularWelcomeScreenView.prototype */
@@ -53,8 +53,8 @@ define(['require', 'backbone', 'lodash'], function ( require, Backbone, _) {
                 var rightPanel = $("<div class='col-md-10 reg-welcome-right'></div>");
                 var leftLogoContainer = $(
                     "<div style='padding-top: 75px'>" +
-                        "<img src='images/wso2-logo.jpg' width='33%' style='margin: auto; display: block'>" +
-                        "<div style='width: 55%; font-size: 40px; margin: 0px 27px';>Ballerina</div>" +
+                    "<img src='images/wso2-logo.jpg' width='33%' style='margin: auto; display: block'>" +
+                    "<div style='width: 55%; font-size: 40px; margin: 0px 27px';>Ballerina</div>" +
                     "</div>"
                 );
                 var leftActionsContainer = $("<div></div>");
@@ -92,23 +92,8 @@ define(['require', 'backbone', 'lodash'], function ( require, Backbone, _) {
 
                 var templatesSection = $("<div class='open-template-section'></div>");
                 var templatesHeading = $("<div class='open-template-heading'>Try out our samples / Templates</div>");
-                var templatePreviewSection = $("<div class='template-preview-section'></div>");
-
-                // Dynamically add the preview divs for recent open diagrams
-                // TODO: make it dynamically configurable
-                for (var i = 0; i < 4; i ++) {
-                    var previewParent = $("<div class='col-md-3 preview-parent'></div>");
-                    var previewDiv = $("<div class='preview-div'></div>");
-                    var fileName = $("<div class='file-name'>SampleConfiguration.bal</div>");
-                    var previewName = $("<div class='preview-name-div'></div>");
-                    previewName.append(fileName);
-
-                    previewParent.append(previewDiv);
-                    previewParent.append(previewName);
-
-                    templatePreviewSection.append(previewParent);
-                }
-
+                var templatePreviewSection = $("<div class='carousel slide regular-item-carousel template-preview-section'></div>");
+                templatePreviewSection.attr('id', 'regularWelcomeCarousel');
                 templatesSection.append(templatesHeading);
                 templatesSection.append(templatePreviewSection);
 
@@ -123,6 +108,55 @@ define(['require', 'backbone', 'lodash'], function ( require, Backbone, _) {
                 outerContainer.append(rightPanel);
                 this._$container.append(outerContainer);
                 var containerId = this._$container;
+
+                // Adding carousel view related elements
+                var carouselDiv = $('<div></div>');
+                carouselDiv.attr('id', "innerSamples");
+                templatePreviewSection.append(carouselDiv);
+                var nextControl = $('<a></a>');
+                nextControl.addClass('right carousel-control regular-welcome-right-control');
+                nextControl.attr('href', '#regularWelcomeCarousel').attr('data-slide', 'next');
+                var nextIcon = $('<i></i>');
+                nextIcon.addClass('fw fw-right right-carousel');
+                nextControl.append(nextIcon);
+
+                var prevControl = $('<a></a>');
+                prevControl.addClass('left carousel-control regular-welcome-left-control');
+                prevControl.attr('href', '#regularWelcomeCarousel').attr('data-slide', 'prev');
+                var prevIcon = $('<i></i>');
+                prevIcon.addClass('fw fw-left left-carousel');
+                prevControl.append(prevIcon);
+                templatePreviewSection.append(prevControl);
+                templatePreviewSection.append(nextControl);
+
+///TODO: Need to iterate file list when implementation is complete
+                for (var i = 0; i < 4; i++) {
+                    if (i == 0) {
+                        var config =
+                        {
+                            "sampleName": "SampleConfiguration.bal",
+                            "parentContainer": "#innerSamples",
+                            "firstItem": true
+                        }
+                    }
+                    else {
+                        var config =
+                        {
+                            "sampleName": "SampleConfiguration.bal",
+                            "parentContainer": "#innerSamples"
+                        }
+                    }
+                    var servicePreview = new Service.Views.ServicePreview(config);
+                    servicePreview.render();
+
+                }
+                // class added after rendering to fix issue in firefox
+                carouselDiv.addClass("carousel-inner");
+                $('.regular-item-carousel').carousel({
+                    interval: false
+                });
+
+
 
                 var commandManager = this.commandManager;
                 (newButton.find('.btn-new')).click(function () {

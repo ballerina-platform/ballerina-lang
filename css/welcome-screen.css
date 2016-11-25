@@ -187,4 +187,13 @@
 .left-carousel{
     margin-top: 90px;
 }
+
+.regular-welcome-left-control {
+    margin-left: 38px;
+    margin-top: 20px;
+}
+
+.regular-welcome-right-control {
+    margin-top: 20px;
+}
 /** Initial Welcome Screen related styles | End -> **/

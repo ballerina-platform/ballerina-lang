@@ -162,9 +162,11 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
                 }
                 // class added after rendering to fix issue in firefox
                 carouselDiv.addClass("carousel-inner");
+                // initialise carousel
                 $('.multi-item-carousel').carousel({
                     interval: false
                 });
+                // Carousel only shows the 'active' item in it. To show multiple items in the same slide, each next item is cloned.
                 $('.carousel .item').each(function () {
                     var next = $(this).next();
                     if (!next.length) {
