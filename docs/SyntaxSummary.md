@@ -14,8 +14,6 @@ The conceptual model of Ballerina is that of a sequence diagram. Each participan
 
 Ballerina is not designed to be a general purpose language. Instead you should use Ballerina if you need to integrate a collection of network connected systems such as HTTP endpoints, Web APIs, JMS services, and databases. The result of the integration can either be just that - the integration that runs once or repeatedly on a schedule, or a reusable HTTP service that others can run.
 
-NOTE: The initial release of the language only supports integrations that result in HTTP services.
-
 This is an informal introduction to the Ballerina language.
 
 ## Introduction
@@ -25,9 +23,10 @@ Every Ballerina program has both a textual representation and a canonical visual
 ### Concepts
 
 - *Service*: A `service` is an HTTP web service described by a Swagger. A service is the discrete unit of functionality that can be remotely accessed.
-- *Resource*: A `resource` is a single request handler within a service. The resource concept is designed to be access protocol independent - but in the initial release of the language it is intendended to work with HTTP.
-- *Connector*: A `Connector` represents a participant in the integration. Connectors can be declared at a service level or within a resource.
-- *Action*: An `action` is an operation one can execute against a `connector`
+- *Resource*: A `resource` is a single request handler within a service. The resource concept is designed to be access protocol independent - but in the initial release of the language it is intended to work with HTTP.
+- *Connector*: A `connector` represents a participant in the integration and is used to interact with an external system. Ballerina includes a set of standard connectors.
+- *Connection*: A connection represents the instantiation of a `connector` with a particular configuration.
+- *Action*: An `action` is an operation one can execute against a connection - i.e. a single interaction with a participant of the integration.
 - *Function*: A `function` is an operation that is executed by a worker.
 - *Worker*: A `worker` is a thread of execution that the integration developer programs as a lifeline.
 
@@ -35,31 +34,94 @@ NEED PICTURE HERE.
 
 ### Modularity
 
-Ballerina programs can be written in one or more files organized into packages. A package defines a namespace and all public symbols defined in any file in the same package are visible within the package. A package is represented by a directory.
+Ballerina programs can be written in one or more files organized into packages. A package is represented by a directory.
 
-A single Ballerina file can define either a single `service`, a single `connector` or a collection of functions. A file that contains a `service` or `connector` may also define any number of functions. Functions that are not marked `public` are private to the package.
-
-The unit of execution for Ballerina programs is a `service`.
+A package defines a namespace. All symbols (e.g. service names, type names and function names) defined in any file in the same package belong to that namespace. Any symbol marked public is also visible to outside packages and can be accessed via the package qualified name of the symbol.
 
 ## Structure of a Ballerina Program
 
-The structure of a `service` file in Ballerina is as follow:
-
+A Ballerina file is structured as follows:
 ```
 [package PackageName;]
-[import (PackageWildCard|PackageName);]*
+[import PackageName[ as Identifier];]*
 
-[ServiceAnnotations]
-service ServiceName;
-
-TypeDefinition*
-
-ConnectionDeclaration;*
-
-VariableDeclaration;*
-
-(ResourceDefinition | FunctionDefinition | TypeConvertor)+
+(ServiceDefinition |
+ FunctionDefinition |
+ ConnectorDefinition |
+ TypeDefinition |
+ TypeConvertorDefinition |
+ ConstantDefinition)+
 ```
+
+### Services & Resources
+
+A `service` is defined as follows:
+```
+[ServiceAnnotations]
+service ServiceName {
+    ConnectionDeclaration;*
+
+    VariableDeclaration;*
+
+    ResourceDefinition;+
+}
+```
+Services are singletons. As such all variables defined within a service scope are shared across all `resource` invocations.
+
+The structure of a ResourceDefinition is as follows:
+
+```
+[ResourceAnnotations]
+resource ResourceName (Message VariableName[, ([ResourceParamAnnotations] TypeName VariableName)+]) {
+    ConnectionDeclaration;*
+    VariableDeclaration;*
+    Statement;+
+}*
+```
+
+The visual representation of this (without the annotations) is as follows:
+
+![bal-resource-skeleton.png]()
+
+### Functions
+
+The structure of a function is as follows:
+
+```
+[public] function FunctionName (((TypeName VariableName)[(, TypeName VariableName)*])?)
+        ((TypeName[(, TypeName)*])?) [throws exception] {
+    ConnectionDeclaration;*
+    VariableDeclaration;*
+    Statement;+
+}
+```
+
+All functions are private to the package unless explicitly declared to be public with the `public` keyword. Functions may be invoked within the same package from a resource or a function in the same package without importing. Functions marked `public` can be invoked from another package after importing the package.
+
+### Connectors & Actions
+
+A `connector` is defined as follows:
+```
+connector ConnectorName (TypeName VariableName[(, TypeName VariableName)*]) {
+    ConnectionDeclaration;*
+
+    VariableDeclaration;*
+
+    ActionDefinition;+
+}
+```
+
+A `connector` defines a set of actions. Actions are operations (functions) that can be executed against a connector. The  structure of an `action` definition is as follows:
+
+```
+action ActionName (ConnectorName VariableName, ((TypeName VariableName)*) (TypeName*)
+        [throws exception] {
+    ConnectionDeclaration;*
+    VariableDeclaration;*
+    Statement;+
+}
+```
+
 ### Types & Variables
 
 Ballerina has variables of various types. The type system includes built-in primitives, a
@@ -92,7 +154,7 @@ A TypeName may also be one of the following built-in non-primitive types:
 
 A TypeName may also be the name of a user defined type.
 
-### Constructed Types
+#### Constructed Types
 
 User defined record types are defined using a TypeDefinition as follows:
 ```
@@ -110,7 +172,7 @@ TypeName[]
 All arrays are unbounded in length and support 0 based indexing. Array length can be
 determined by checking the `.length` property of the array typed variable.
 
-### XML & JSON Types
+#### XML & JSON Types
 
 Ballerina has built-in support for XML elements, XML documents and JSON documents. TypeName
 can be any of the following:
@@ -128,7 +190,7 @@ element is assumed to conform to.
 
 A variable of type `xmlDocument` can hold any XML document.
 
-### Allocating Variables
+#### Allocating Variables
 
 Primitive types do not have to be dynamically allocated as they are always allocated
 on the stack. For all non-primitive types, user defined types and array types have to be
@@ -139,14 +201,14 @@ new TypeName[(ValueList)]
 The optional ValueList can be used to give initial values for the fields of any record type. The order
 of values must correspond to the order of field declarations.
 
-### Default Values for Variables
+#### Default Values for Variables
 
 Variables can be given values at time of declaration as follows:
 ```
 TypeName VariableName = Value;
 ```
 
-### Literal Values
+#### Literal Values
 
 The following are examples of literal values for various types:
 ```
@@ -159,7 +221,7 @@ map m = {"name" : "John", "age" : 34 };
 int[] data = [1, 2, 3, 6, 10];
 ```
 
-### Type Coercion and Conversion
+#### Type Coercion and Conversion
 
 The built-in `float` and `double` follow the standard IEEE 754 specifications. The `int` and `long` types follow
 the standard 32- and 64-bit integer arithmetic, respectively. Implicit type conversions from
@@ -194,38 +256,17 @@ t2 = (Type2) t1;
 
 That is, the registered type convertor is invoked by indicating the type cast as above.
 
-### Resource Definition
+### Connection Declaration
 
-The structure of a resource is as follows:
-
-```
-[ResourceAnnotations]
-resource ResourceName (Message VariableName[, ([ResourceParamAnnotations] TypeName VariableName)+]) {
-    ConnectionDeclaration;*
-    VariableDeclaration;*
-    Statement;+
-}*
-```
-
-The visual representation of this (without the annotations) is as follows:
-
-![bal-resource-skeleton.png]()
-
-### Function Definition
-
-The structure of a function is as follows:
+Connections represent a connection established via a connector. The structure is as follows:
 
 ```
-[public] function FunctionName (((TypeName VariableName)[(, TypeName VariableName)*])?)
-        ((TypeName[(, TypeName)*])?) [throws exception] {
-    ConnectionDeclaration;*
-    VariableDeclaration;*
-    Statement;+
-}
+[ConnectorPackageName.]ConnectorName VariableName = new [ConnectorPackageName.]ConnectorName (ValueList[, map]);
 ```
-
-All functions are private to the package unless explicitly declared to be public with the `public` keyword. Functions may be invoked within the same package from a resource or a function in the same package without importing. Functions marked `public` can be invoked from another package after importing the package.
-
+Once a connection has been declared, actions can be invoked against that connection as follows:
+```
+[ConnectorPackageName.]ActionName (ConnectionVariableName, ValueList);
+```
 
 ### Statements
 
@@ -243,25 +284,28 @@ A Statement may be one of the following:
 
 Assignment statements look like the following:
 ```
-VariableName = Expression;
+VariableAccessor = Expression;
 ```
+The left hand side of an assignment statement can be any of the following:
+- VariableName
+- VariableName[ArrayIndex]
+- VariableName[MapIndex]
+- VariableName.FieldName
+
 
 #### If Statement
 
 Provides a way to perform conditional execution.
 ```
-if (condition) {
-  VariableDeclaration*
-  Statement+
+if (BooleanExpression) {
+  Statement;*
 }
-[else if (condition){
-  VariableDeclaration*
-  Statement+
+[else if (BooleanExpression){
+  Statement;*
 }]*
-  else {
-  VariableDeclaration*
-  Statement+
-}
+  [else {
+  Statement;*
+}]?
 ```
 
 #### Switch Statement
@@ -269,8 +313,9 @@ if (condition) {
 Provides a way to perform conditional execution.
 ```
 switch (predicate) {
-        (case valueX:)+
-	default:
+        (case valueX: Statement;*)+
+	[default:
+      Statement;*]?
 }*
 ```
 
@@ -279,7 +324,6 @@ switch (predicate) {
 A `foreach` statement provides a way to iterate through a list in order. A `foreach` statement has the following structure:
 ```
 foreach (VariableType VariableName : ValueList) {
-  VariableDeclaration*
   Statement+
 }
 ```
@@ -357,59 +401,6 @@ return (Expression)*;
 reply Message?;
 ```
 
-## Connectors and Connections
-
-Connectors are the participants of an integration; they are the vertical lines in the sequence diagram.
-A `connector` provides a set of `action`s that workers can execute against them.
-
-A given `connector` would need to be configured with particular details and a configured connector instance is called a `connection`.
-
-### Connector Definition
-
-```
-[package PackageName;?]
-
-connector ConnectorName (
-  (TypeName VariableName)(, TypeName VariableName)*
-  (, options { (string : Value)+ })?
-);
-
-TypeDefinition*
-
-ConnectionDeclaration;*
-
-VariableDeclaration;*
-
-(ActionDefinition | FunctionDefinition | TypeConvertor)+
-```
-
-### Action Definition
-
-Actions are operations (functions) that can be executed against a connector.
-The overall structure of an action is as follows:
-
-```
-action ActionName (ConnectorName VariableName, ((TypeName VariableName)*) (TypeName*)
-        [throws exception] {
-    ConnectionDeclaration;*
-    VariableDeclaration;*
-    Statement;+
-}
-```
-
-All actions are public.
-
-### Connection Declaration
-
-Connections represent a connection established via a connector. The structure is as follows:
-
-```
-[ConnectorPackageName.]ConnectorName VariableName = new [ConnectorPackageName.]ConnectorName (ValueList[, map]);
-```
-Once a connection has been declared, actions can be invoked against that connection as follows:
-```
-[ConnectorPackageName.]ActionName (ConnectionVariableName, ValueList);
-```
 ## Configuration Management
 
 TODO!
