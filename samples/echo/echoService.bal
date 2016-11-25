@@ -1,6 +1,6 @@
 package samples.echo;
 
-service EchoService;
+Service EchoService{
 
 @GET
 @Path ("/*")
@@ -8,3 +8,4 @@ resource echoResource (message m) {
     reply m;
 }
 
+}
