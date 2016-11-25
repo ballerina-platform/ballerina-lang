@@ -60,9 +60,7 @@ A `service` is defined as follows:
 [ServiceAnnotations]
 service ServiceName {
     ConnectionDeclaration;*
-
     VariableDeclaration;*
-
     ResourceDefinition;+
 }
 ```
@@ -75,6 +73,7 @@ The structure of a ResourceDefinition is as follows:
 resource ResourceName (Message VariableName[, ([ResourceParamAnnotations] TypeName VariableName)+]) {
     ConnectionDeclaration;*
     VariableDeclaration;*
+    WorkerDeclaration;*
     Statement;+
 }*
 ```
@@ -92,21 +91,21 @@ The structure of a function is as follows:
         ((TypeName[(, TypeName)*])?) [throws exception] {
     ConnectionDeclaration;*
     VariableDeclaration;*
+    WorkerDeclaration;*
     Statement;+
 }
 ```
 
 All functions are private to the package unless explicitly declared to be public with the `public` keyword. Functions may be invoked within the same package from a resource or a function in the same package without importing. Functions marked `public` can be invoked from another package after importing the package.
 
-### Connectors & Actions
+### Connectors, Actions & Connections
 
 A `connector` is defined as follows:
 ```
-connector ConnectorName (TypeName VariableName[(, TypeName VariableName)*]) {
+[ServiceAnnotations]
+connector ConnectorName ([ConnectorParamAnnotations]TypeName VariableName[(, TypeName VariableName)*]) {
     ConnectionDeclaration;*
-
     VariableDeclaration;*
-
     ActionDefinition;+
 }
 ```
@@ -118,9 +117,56 @@ action ActionName (ConnectorName VariableName, ((TypeName VariableName)*) (TypeN
         [throws exception] {
     ConnectionDeclaration;*
     VariableDeclaration;*
+    WorkerDeclaration;*
     Statement;+
 }
 ```
+
+Connections represent a connection established via a connector. The structure is as follows:
+
+```
+[ConnectorPackageName.]ConnectorName VariableName = new [ConnectorPackageName.]ConnectorName (ValueList[, map]);
+```
+Once a connection has been declared, actions can be invoked against that connection as follows:
+```
+[ConnectorPackageName.]ActionName (ConnectionVariableName, ValueList);
+```
+
+### Workers
+
+#### Defining & Declaring Workers
+Workers are defined and declared as follows:
+```
+worker WorkerName (message m) {
+    ConnectionDeclaration;*
+    VariableDeclaration;*
+    Statement;+
+    [reply MessageName;]
+}
+```
+
+#### Initiating the Worker
+
+Workers initially come into existence when the enclosing entity (resource, function or action)
+becomes active. However, similar to a resource, the worker does not execute until it
+has been sent a message.
+
+A worker is triggered when a message is sent to the worker as follows by the enclosing entity:
+```
+MessageName -> WorkerName;
+```
+
+#### Waiting for Worker Completion
+
+When the worker replies, the response message (if any) is received by the enclosing entity
+from the worker as follows:
+````
+MessageName <- WorkerName;
+````
+
+#### Replying from a Worker
+
+If the worker wishes to reply to the enclosing entity, it can do so using a `reply` statement.
 
 ### Types & Variables
 
@@ -156,21 +202,29 @@ A TypeName may also be the name of a user defined type.
 
 #### Constructed Types
 
+##### Records
 User defined record types are defined using a TypeDefinition as follows:
 ```
 [public] type TypeName {
     TypeName VariableName;+
 }
 ```
-If a type is marked `public` then it may be instantiated from another package.
+If a record type is marked `public` then it may be instantiated from another package.
 
+##### Arrays
 Arrays may be defined using the array constructor `[]` as follows:
 ```
 TypeName[]
 ```
+All arrays are unbounded in length and support 0 based indexing.
 
-All arrays are unbounded in length and support 0 based indexing. Array length can be
-determined by checking the `.length` property of the array typed variable.
+##### Iterators
+Iterators may be defined using the iterator constructor `~` as follows:
+```
+TypeName~
+```
+Iterators are values that can be navigated through using an `iterate` statement.
+
 
 #### XML & JSON Types
 
@@ -256,29 +310,20 @@ t2 = (Type2) t1;
 
 That is, the registered type convertor is invoked by indicating the type cast as above.
 
-### Connection Declaration
-
-Connections represent a connection established via a connector. The structure is as follows:
-
-```
-[ConnectorPackageName.]ConnectorName VariableName = new [ConnectorPackageName.]ConnectorName (ValueList[, map]);
-```
-Once a connection has been declared, actions can be invoked against that connection as follows:
-```
-[ConnectorPackageName.]ActionName (ConnectionVariableName, ValueList);
-```
-
 ### Statements
 
 A Statement may be one of the following:
 - assignment statement
 - if statement
-- switch statement
-- foreach statement
+- iterate statement
+- while statement
+- break statement
 - fork/join statement
 - try/catch statement
+- throw statement
 - return statement
 - reply statement
+- worker initiation statement
 
 #### Assignment Statement
 
@@ -286,89 +331,87 @@ Assignment statements look like the following:
 ```
 VariableAccessor = Expression;
 ```
-The left hand side of an assignment statement can be any of the following:
+A VariableAccessor is one of:
 - VariableName
-- VariableName[ArrayIndex]
-- VariableName[MapIndex]
-- VariableName.FieldName
-
+- VariableAccessor'['ArrayIndex']'
+- VariableAccessor'['MapIndex']'
+- VariableAccessor.FieldName
 
 #### If Statement
 
 Provides a way to perform conditional execution.
 ```
 if (BooleanExpression) {
-  Statement;*
+    Statement;*
 }
-[else if (BooleanExpression){
-  Statement;*
-}]*
-  [else {
-  Statement;*
-}]?
+[else if (BooleanExpression) {
+    Statement;*
+}]* [else {
+    Statement;*
+}]
 ```
 
-#### Switch Statement
+#### Iterate Statement
 
-Provides a way to perform conditional execution.
+An `iterate` statement provides a way to iterate through an iterator.
 ```
-switch (predicate) {
-        (case valueX: Statement;*)+
-	[default:
-      Statement;*]?
-}*
-```
-
-#### Foreach Statement
-
-A `foreach` statement provides a way to iterate through a list in order. A `foreach` statement has the following structure:
-```
-foreach (VariableType VariableName : ValueList) {
-  Statement+
+iterate (VariableType VariableName : Iterator) {
+  Statement;+
 }
 ```
-A ValueList may be an array or any object which supports iteration.
 
-#### Fork/join Statement
+#### While Statement
 
-TODO: Fix the following definition
+```
+while (BooleanExpression) {
+    Statement;+
+}
+```
+
+#### Break Statement
+
+A `break` statement allows one to terminate the immediately enclosing loop.
+This is only allowed within the `iterate` or `while` constructs.
+```
+break;
+```
+
+#### Fork/Join Statement
+
+A fork statement allows one to replicate a message to any number of parallel
+workers and have them independently operate on the copies of the message. The `join`
+part of the `fork` statement allows one to define how the caller of `fork`
+will wait for the parallel workers to complete.
 
 ```
 fork (MessageName) {
-  worker workerName (message variableName) {
+  worker WorkerName (message VariableName) {
+    ConnectionDeclaration;*
+    VariableDeclaration;*
     Statement;+
-    return MessageName;
+    [reply MessageName;]
   }+       
-} join JoinCondition (message[] data) {
+} [join (JoinCondition) (message[] VariableName) {
+  ConnectionDeclaration;*
+  VariableDeclaration;*
   Statement;*
-}
+}]
 ```
-When the `JoinCondition` has been satisfied, the corresponding slots of the message array will be filled with the returned messages from the workers in the order the workers' lexical order. If the condition asks for up to some number of results to be available to satisfy the condition, it may be the case that more than that number are avaialble by the time the statements within the join condition are executed. If a particular worker has not yet completed, the corresponding message slot will be null.
+The JoinCondition is one of the following:
+- any IntegerValue[(, WorkerName)+]): wait for any k (IntegerValue) of the given workers or any of the workers
+- all [WorkerNameList]: wait for all given workers or all of the workers
 
-#### Worker Statement
-
-```
-worker WorkerName(message variableName) {
-  Statement;+
-  return MessageName;
-}
-```
-
-#### Wait Statement
-
-```
-MessageName = wait WorkerName;
-```
+When the `JoinCondition` has been satisfied, the corresponding slots of the message array will be filled with the returned messages from the workers in the order the workers' lexical order. If the condition asks for up to some number of results to be available to satisfy the condition, it may be the case that more than that number are available by the time the statements within the join condition are executed. If a particular worker has completed but not sent a response message, or not yet completed, the corresponding message slot will be null.
 
 #### Try/catch Statement
 
 ```
 try {
-  VariableDeclaration*
-  Statement+
+    VariableDeclaration*
+    Statement;+
 } catch (exception e) {
-  VariableDeclaration*
-  Statement+
+    VariableDeclaration*
+    Statement;+
 }
 ```
 
@@ -400,6 +443,8 @@ return (Expression)*;
 ```
 reply Message?;
 ```
+
+### Expressions
 
 ## Configuration Management
 
