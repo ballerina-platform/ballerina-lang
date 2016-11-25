@@ -1,6 +1,6 @@
 package samples.twitterConnector;
 
-service testTwitter;
+Service TestTwitterService {
 
 twitterConnector.TwitterConnector twitter = new twitterConnector.TwitterConnector(nil, nil, "clientkey", "clientsecret", nil);
 
@@ -14,4 +14,6 @@ resource tweet (message m) {
         loggedIn = true;
     }
     twitterConnector.tweet(twitter, (string) message.getPayload(m));
+}
+
 }
