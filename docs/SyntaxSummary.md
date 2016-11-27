@@ -6,19 +6,18 @@ Ballerina is a new programming language for integration built on a sequence diag
 - Visual
 - Powerful
 - Lightweight
-- Cloud Native
 - Container Native
 - Fun
 
-The conceptual model of Ballerina is that of a sequence diagram. Each participant in the integration (referred to as a `connector` in Ballerina) gets its own lifeline and Ballerina defines a complete syntax and semantics for how the sequence diagram works and executes the desired integration.
+The conceptual model of Ballerina is that of a sequence diagram. Each participant in an integration (referred to as a `connector` in Ballerina) is represented by its own lifeline. Ballerina defines the syntax and semantics for how the sequence diagram executes the desired integration.
 
-Ballerina is not designed to be a general purpose language. Instead you should use Ballerina if you need to integrate a collection of network connected systems such as HTTP endpoints, Web APIs, JMS services, and databases. The result of the integration can either be just that - the integration that runs once or repeatedly on a schedule, or a reusable HTTP service that others can run.
+You should use Ballerina if you need to integrate a collection of network connected entities such as HTTP endpoints, JMS clients, or data sources. The result of the integration can either be just that - the integration that runs once or repeatedly on a schedule, or a reusable HTTP endpoint that others can run.
 
 This is an informal introduction to the Ballerina language.
 
 ## Introduction
 
-Every Ballerina program has both a textual representation and a canonical visual representation.
+Every Ballerina program has both a textual representation and a visual representation of a sequence diagram.
 
 ### Concepts
 
@@ -34,7 +33,7 @@ NEED PICTURE HERE.
 
 ### Modularity
 
-Ballerina programs can be written in one or more files organized into packages. A package is represented by a directory.
+Ballerina programs can be written in one or more files organized into packages. A package is represented by a directory in a file system.
 
 A package defines a namespace. All symbols (e.g. service names, type names and function names) defined in any file in the same package belong to that namespace. Any symbol marked public is also visible to outside packages and can be accessed via the package qualified name of the symbol.
 
