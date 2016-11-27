@@ -1,7 +1,5 @@
 # Introducing Ballerina: A New Programming Language for Integration
 
-!! Little check by Frank!
-
 Ballerina is a new programming language for integration built on a sequence diagram metaphor. Ballerina is:
 - Simple
 - Intuitive
