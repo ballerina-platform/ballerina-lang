@@ -66,6 +66,9 @@ service ServiceName {
 ```
 Services are singletons. As such all variables defined within a service scope are shared across all `resource` invocations.
 
+Services may have the following annotations:
+- TBD - someone will go thru the Swagger spec and propose a detailed list of annotations to be included at each level.
+
 The structure of a ResourceDefinition is as follows:
 
 ```
@@ -87,6 +90,7 @@ The visual representation of this (without the annotations) is as follows:
 The structure of a function is as follows:
 
 ```
+[FunctionAnnotations]
 [public] function FunctionName (((TypeName VariableName)[(, TypeName VariableName)*])?)
         ((TypeName[(, TypeName)*])?) [throws exception] {
     ConnectionDeclaration;*
@@ -102,7 +106,7 @@ All functions are private to the package unless explicitly declared to be public
 
 A `connector` is defined as follows:
 ```
-[ServiceAnnotations]
+[ConnectorAnnotations]
 connector ConnectorName ([ConnectorParamAnnotations]TypeName VariableName[(, TypeName VariableName)*]) {
     ConnectionDeclaration;*
     VariableDeclaration;*
@@ -110,10 +114,13 @@ connector ConnectorName ([ConnectorParamAnnotations]TypeName VariableName[(, Typ
 }
 ```
 
+Note that ConnectorAnnotations are designed to help the editor provide a better user experience for connector users.
+
 A `connector` defines a set of actions. Actions are operations (functions) that can be executed against a connector. The  structure of an `action` definition is as follows:
 
 ```
-action ActionName (ConnectorName VariableName, ((TypeName VariableName)*) (TypeName*)
+[ActionAnnotations]
+action ActionName (ConnectorName VariableName[, ([ActionParamAnnotations] TypeName VariableName)+]) (TypeName*)
         [throws exception] {
     ConnectionDeclaration;*
     VariableDeclaration;*
@@ -324,6 +331,7 @@ A Statement may be one of the following:
 - return statement
 - reply statement
 - worker initiation statement
+- comment statement
 
 #### Assignment Statement
 
@@ -444,7 +452,20 @@ return (Expression)*;
 reply Message?;
 ```
 
+#### Comment Statement
+
+Comments are quite different in Ballerina in comparison to other languages. Comments are only allowed as a statement - i.e., only inside a resource, action or function.
+Ballerina has designed, structured mechanisms via annotations to document all Ballerina outer level constructs (services, resources etc.) and comments only play the role of providing a comment about the logic of a resource, action or function.
+
+Any statement that starts with the characters `//` is a comment.
+
 ### Expressions
+
+## Disabling Constructs from Execution
+
+In traditional programming languages, developers use commenting as a technique to disable a block of code from executing. In Ballerina, we do not allow comments arbitrarily - we only allow comments as statements.
+
+Ballerina instead allows the developer (either visually or textually) to mark any statement or function, action, connector, resource or service to be disabled by prefixing it with the `!` character. Disabling a construct does not prevent the language parser, type checker and other validations but it simply stops that construct from being executed at runtime.
 
 ## Configuration Management
 
