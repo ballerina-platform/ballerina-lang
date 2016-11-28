@@ -1,11 +1,11 @@
 package samples.echo;
 
-Service EchoService{
+service EchoService{
 
-@GET
-@Path ("/*")
-resource echoResource (message m) {
-    reply m;
-}
+  @GET
+  @Path ("/*")
+  resource echoResource (message m) {
+      reply m;
+  }
 
 }

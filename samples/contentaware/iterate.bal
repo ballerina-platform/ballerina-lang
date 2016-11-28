@@ -8,17 +8,19 @@ import ballerina.lang.system.log;
 @Path ("/iterate")
 @Source (interface="localhost")
 @Service (description = "Iterates through the message")
-service IteratorService;
+service IteratorService {
 
-actor HttpEndpoint stockEP = new HttpEndpoint("http://localhost:8080/exchange/");
+  http.HttpConnector stockEP = new http.HttpConnector("http://localhost:8080/exchange/", {"timeOut" : 30000});
 
-@POST
-@Consumes ("application/json")
-@Path("/exchange")
-resource iterate (message m) {
-    var json jsonMsg = json.getPayload(m);
-    foreach (message stock : json.get(jsonMsg, "$.stock.quote.exchange")){
-        var message response = http.sendPost(stockEP, stock);
-        log.info(response);
-    }
+  @POST
+  @Consumes ("application/json")
+  @Path("/*")
+  resource iterate (message m) {
+      json jsonMsg = json.getPayload(m);
+      foreach (json stock : json.get(jsonMsg, "$.stock.quote.exchange")){
+          message.setPayload(stock, m);
+          message response = http.sendPost(stockEP, m);
+          log.info(response);
+      }
+  }
 }
