@@ -20,6 +20,7 @@ package org.wso2.siddhi.query.api.execution;
 
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.execution.io.Transport;
+import org.wso2.siddhi.query.api.execution.query.output.ratelimit.OutputRate;
 import org.wso2.siddhi.query.api.execution.query.output.stream.InsertIntoStream;
 import org.wso2.siddhi.query.api.execution.query.output.stream.OutputStream;
 import org.wso2.siddhi.query.api.execution.query.output.stream.ReturnStream;
@@ -34,6 +35,7 @@ public class Subscription implements ExecutionElement {
     private OutputStream outputStream = new ReturnStream();
     private List<Annotation> annotations = new ArrayList<Annotation>();
     private Mapping mapping;
+    private OutputRate outputRate;
 
     private Subscription(Transport transport) {
         this.transport = transport;
@@ -67,6 +69,14 @@ public class Subscription implements ExecutionElement {
         return outputStream;
     }
 
+    public void output(OutputRate outputRate) {
+        this.outputRate = outputRate;
+    }
+
+    public OutputRate getOutputRate() {
+        return outputRate;
+    }
+
 
     public List<Annotation> getAnnotations() {
         return annotations;
@@ -81,16 +91,6 @@ public class Subscription implements ExecutionElement {
     }
 
     @Override
-    public String toString() {
-        return "Subscription{" +
-                "transport=" + transport +
-                ", outputStream=" + outputStream +
-                ", annotations=" + annotations +
-                ", mapping=" + mapping +
-                '}';
-    }
-
-    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
@@ -100,7 +100,8 @@ public class Subscription implements ExecutionElement {
         if (transport != null ? !transport.equals(that.transport) : that.transport != null) return false;
         if (outputStream != null ? !outputStream.equals(that.outputStream) : that.outputStream != null) return false;
         if (annotations != null ? !annotations.equals(that.annotations) : that.annotations != null) return false;
-        return !(mapping != null ? !mapping.equals(that.mapping) : that.mapping != null);
+        if (mapping != null ? !mapping.equals(that.mapping) : that.mapping != null) return false;
+        return !(outputRate != null ? !outputRate.equals(that.outputRate) : that.outputRate != null);
 
     }
 
@@ -110,6 +111,18 @@ public class Subscription implements ExecutionElement {
         result = 31 * result + (outputStream != null ? outputStream.hashCode() : 0);
         result = 31 * result + (annotations != null ? annotations.hashCode() : 0);
         result = 31 * result + (mapping != null ? mapping.hashCode() : 0);
+        result = 31 * result + (outputRate != null ? outputRate.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "Subscription{" +
+                "transport=" + transport +
+                ", outputStream=" + outputStream +
+                ", annotations=" + annotations +
+                ", mapping=" + mapping +
+                ", outputRate=" + outputRate +
+                '}';
     }
 }

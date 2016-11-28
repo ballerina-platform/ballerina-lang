@@ -30,6 +30,7 @@ import org.wso2.siddhi.core.query.output.callback.InsertIntoWindowCallback;
 import org.wso2.siddhi.core.query.output.callback.OutputCallback;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.core.stream.input.InputManager;
+import org.wso2.siddhi.core.subscription.SubscriptionRuntime;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.window.EventWindow;
 import org.wso2.siddhi.core.trigger.EventTrigger;
@@ -99,6 +100,10 @@ public class ExecutionPlanRuntimeBuilder {
 
     public void addPartition(PartitionRuntime partitionRuntime) {
         partitionMap.put(partitionRuntime.getPartitionId(), partitionRuntime);
+    }
+
+    public void addSubscription(SubscriptionRuntime subscriptionRuntime) {
+        // TODO: 11/23/16  fix subscription mgt
     }
 
     public String addQuery(QueryRuntime queryRuntime) {
@@ -188,4 +193,5 @@ public class ExecutionPlanRuntimeBuilder {
     public ExecutionPlanRuntime build() {
         return new ExecutionPlanRuntime(streamDefinitionMap, tableDefinitionMap, inputManager, queryProcessorMap, streamJunctionMap, eventTableMap, partitionMap, executionPlanContext, executionPlanRuntimeMap);
     }
+
 }

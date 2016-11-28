@@ -18,6 +18,12 @@
 package org.wso2.siddhi.core.util;
 
 public final class SiddhiConstants {
+
+    public static final String EVENT_TABLE = "eventtable";
+    public static final String INPUT_TRANSPORT = "inputtransport";
+    public static final String INPUT_MAPPER = "inputmapper";
+
+
     public static final int BEFORE_WINDOW_DATA_INDEX = 0;
     public static final int ON_AFTER_WINDOW_DATA_INDEX = 1;
     public static final int OUTPUT_DATA_INDEX = 2;

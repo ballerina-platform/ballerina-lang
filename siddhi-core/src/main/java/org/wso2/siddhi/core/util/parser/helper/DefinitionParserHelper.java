@@ -39,7 +39,6 @@ import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.definition.*;
 import org.wso2.siddhi.query.api.exception.DuplicateDefinitionException;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
-import org.wso2.siddhi.query.api.expression.function.AttributeFunctionExtension;
 import org.wso2.siddhi.query.api.extension.Extension;
 import org.wso2.siddhi.query.api.util.AnnotationHelper;
 
@@ -52,7 +51,8 @@ import java.util.concurrent.ConcurrentMap;
 public class DefinitionParserHelper {
 
 
-    public static void validateDefinition(AbstractDefinition definition, ConcurrentMap<String, AbstractDefinition> streamDefinitionMap, ConcurrentMap<String, AbstractDefinition> tableDefinitionMap, ConcurrentMap<String, AbstractDefinition> windowDefinitionMap) {
+    public static void validateDefinition(AbstractDefinition definition, ConcurrentMap<String, AbstractDefinition> streamDefinitionMap,
+                                          ConcurrentMap<String, AbstractDefinition> tableDefinitionMap, ConcurrentMap<String, AbstractDefinition> windowDefinitionMap) {
         AbstractDefinition existingTableDefinition = tableDefinitionMap.get(definition.getId());
         if (existingTableDefinition != null && (!existingTableDefinition.equals(definition) || definition instanceof StreamDefinition)) {
             throw new DuplicateDefinitionException("Table Definition with same Stream Id '" +
@@ -108,8 +108,18 @@ public class DefinitionParserHelper {
 
             EventTable eventTable;
             if (annotation != null) {
-                String evenTableType = annotation.getElement("eventtable");
-                Extension extension = new AttributeFunctionExtension("eventtable", evenTableType);
+                final String evenTableType = annotation.getElement(SiddhiConstants.EVENT_TABLE);
+                Extension extension = new Extension() {
+                    @Override
+                    public String getNamespace() {
+                        return SiddhiConstants.EVENT_TABLE;
+                    }
+
+                    @Override
+                    public String getFunction() {
+                        return evenTableType;
+                    }
+                };
                 eventTable = (EventTable) SiddhiClassLoader.loadExtensionImplementation(extension, EventTableExtensionHolder.getInstance(executionPlanContext));
             } else {
                 eventTable = new InMemoryEventTable();
