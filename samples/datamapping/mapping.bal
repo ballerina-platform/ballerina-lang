@@ -1,5 +1,5 @@
 function foo (message m) {
-  // following examples assume that type coverters are regsitered, and please see typeconverter.bal for an example. 
+  // following examples assume that type converters are regsitered, and please see typeconverter.bal for an example. 
   // suppose I know that the message payload is XML and its schema type:
   xmlElement<{http://example.com/xsd/SalesForce}Account> inXML =
      message.getPayload (m);
