@@ -1,5 +1,5 @@
 function jsonFormat() {
-
+    // following are examples of jason literal templates
     json j1 = `{"name" : "ballerina"}`;
     string s1 = json.get(j1, "$.name");
     //assert(s1 == "ballerina");
