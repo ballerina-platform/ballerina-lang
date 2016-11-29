@@ -53,6 +53,34 @@ A Ballerina file is structured as follows:
  TypeConvertorDefinition |
  ConstantDefinition)+
 ```
+Following is an example Ballerina program that shows the form of each construct. 
+```
+package org.example.math; 
+import balaerina.math
+
+service WeatherService{
+    WeatherConnector wc = new WeatherConnector( ... );
+    resource WeatherInFResource(message message){
+        float lat = xml.get(message.payload, "/lat");
+        float lon = xml.get(message.payload, "/lon");
+        float temperature = wc.getTemprature(new location(lat, lon));
+        return `{"temperature":$temperature}`;
+    }
+
+    type location{
+       int lat, int lon; 
+    }
+
+    connector WeatherConnector{
+        action getTemprature(location) (int) { ...}
+        ...
+    }
+    
+    function fromC2F(float temperature){
+       return 32 + temperature*5/9;
+    }
+}
+```
 
 ### Services & Resources
 
