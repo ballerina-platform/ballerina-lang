@@ -22,7 +22,7 @@ service PassthroughWithExceptionHandlingService {
         response = http.sendPost (nyse_ep, m);
     } catch (exception e) {
         message.setHeader(m, HTTP.StatusCode, 500);// need to discuss
-        json error = `{"error":"backend failed"}`;
+        json error = `{"error":"backend failed", "causedby":e.message}`;
         message.setPayload(m, error);
     }
     reply response;
