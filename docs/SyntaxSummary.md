@@ -412,6 +412,31 @@ The JoinCondition is one of the following:
 
 When the `JoinCondition` has been satisfied, the corresponding slots of the message array will be filled with the returned messages from the workers in the order the workers' lexical order. If the condition asks for up to some number of results to be available to satisfy the condition, it may be the case that more than that number are available by the time the statements within the join condition are executed. If a particular worker has completed but not sent a response message, or not yet completed, the corresponding message slot will be null.
 
+Following is an Example. 
+```
+FlightService fs = new FlightService(...)
+HotelService hs = new FlightService(...)
+fork (msg) {
+  worker checkFlightsWroker (message msg) {
+    string to = xml.get(msg.payload, '/to')
+    string from = xml.get(msg.payload, '/from')
+    date address = new date(xml.get(msg.payload, '/date')
+    return fs.query(`{"from":$from, "to":$to, "date":$date}`)
+  },
+  worker checkHotelsWroker (message msg) {
+    string to = xml.get(msg.payload, '/to')
+    string from = xml.get(msg.payload, '/from')
+    date address = new date(xml.get(msg.payload, '/date')
+    return hs.query(`{"from":$from, "to":$to, "date":$date}`)
+  }       
+} join all (message[] VariableName) {
+  bookFlights(VariableName[0])
+  bookHotels(VariableName[1])
+}
+
+```
+
+
 #### Try/catch Statement
 
 ```
@@ -434,6 +459,17 @@ We provide  following statements
  - `throw` statement to throw an exception.
 If a function is throwing an exception it must declare it.
 If a function throws an exception the caller function can choose to handle it or let it propagate upwards.
+
+Following is an Example. 
+```
+    try {
+        response = http.sendPost (nyse_ep, m);
+    } catch (exception e) {
+        message.setHeader(m, HTTP.StatusCode, 500);// need to discuss
+        json error = `{"error":"backend failed", "causedby":e.message}`;
+        message.setPayload(m, error);
+    }
+```
 
 #### Throw Statement
 
