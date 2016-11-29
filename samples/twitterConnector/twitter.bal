@@ -22,12 +22,13 @@ connector TwitterConnector(
     map options){
     //arguments in the above signature becomes attributes in the connectors
     
-    boolean hasInit = false; 
+    boolean loggedIn = false; 
     http.HttpConnector httpConnection = new http.HttpConnector("https://api.twitter.com", {"timeOut" : 300});
 
     action tweet(TwitterConnector t, string tweet) throws exception {
-        if(!hasInit){
+        if(!loggedIn){
             init(t)
+            loggedIn = true
         }
         json tweetJson = `{"message" : "$tweet"}`;
         message tweetMsg = new message;
