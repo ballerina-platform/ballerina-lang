@@ -1,5 +1,5 @@
 function xmlFormat() {
-
+    //following samples show XML literal templates 
     xmlElement e1 = `<hello>world</hello>`;
     xmlElement e2 = `<nested>$e1</nested>`;
 
