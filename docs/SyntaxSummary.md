@@ -55,7 +55,7 @@ A Ballerina file is structured as follows:
 ```
 Following is an example Ballerina program that shows the form of each construct. 
 ```
-package org.example.math; 
+package org.example.weather; 
 import balaerina.math
 
 service WeatherService{
@@ -77,7 +77,7 @@ service WeatherService{
     }
     
     function fromC2F(float temperature){
-       return 32 + temperature*5/9;
+       return math.round(32 + temperature*5/9);
     }
 }
 ```
