@@ -18,5 +18,8 @@
 
 package org.wso2.ballerina.model;
 
+/**
+ * A connection represents the instantiation of a connector with a particular configuration.
+ */
 public class Connection {
 }

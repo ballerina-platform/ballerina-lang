@@ -18,14 +18,95 @@
 
 package org.wso2.ballerina.model;
 
+import org.wso2.ballerina.model.statements.Statement;
+
+import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A function is an operation that is executed by a worker.
+ * <p>
+ * The structure of a function is as follows:
+ *
+ *  [FunctionAnnotations]
+ *  [public] function FunctionName (((TypeName VariableName)[(, TypeName VariableName)*])?)
+ *  ((TypeName[(, TypeName)*])?) [throws exception] {
+ *      ConnectionDeclaration;*
+ *      VariableDeclaration;*
+ *      WorkerDeclaration;*
+ *      Statement;+
+ *  }
+ */
 public class Function {
 
+    private List<Annotation> annotations;
+    private List<Argument> arguments;
     private List<Connection> connections;
     private List<Variable> variables;
     private List<Worker> workers;
     private List<Statement> statements;
+
+    private boolean isPublic;
+
+    /**
+     * Get all the Annotations associated with a Function
+     *
+     * @return list of Annotations
+     */
+    public List<Annotation> getAnnotations() {
+        return annotations;
+    }
+
+    /**
+     * Set list of all the Annotations
+     *
+     * @param annotations list of Annotations
+     */
+    public void setAnnotations(List<Annotation> annotations) {
+        this.annotations = annotations;
+    }
+
+    /**
+     * Add an Annotation to the Function
+     *
+     * @param annotation Annotation to be added
+     */
+    public void addAnnotation(Annotation annotation) {
+        if (annotations == null) {
+            annotations = new ArrayList<Annotation>();
+        }
+        annotations.add(annotation);
+    }
+
+    /**
+     * Get list of Arguments associated with the function definition
+     *
+     * @return list of Arguments
+     */
+    public List<Argument> getArguments() {
+        return arguments;
+    }
+
+    /**
+     * Set Arguments list to the function
+     *
+     * @param arguments list of Arguments
+     */
+    public void setArguments(List<Argument> arguments) {
+        this.arguments = arguments;
+    }
+
+    /**
+     * Add an Argument to the function
+     *
+     * @param argument Argument to be added to the function definition
+     */
+    public void addArgument(Argument argument) {
+        if (arguments == null) {
+            arguments = new ArrayList<Argument>();
+        }
+        arguments.add(argument);
+    }
 
     /**
      * Get all Connections declared within the Function scope
@@ -51,6 +132,9 @@ public class Function {
      * @param connection Connection to be added to the Function
      */
     public void addConnection(Connection connection) {
+        if (connections == null) {
+            connections = new ArrayList<Connection>();
+        }
         connections.add(connection);
     }
 
@@ -78,6 +162,9 @@ public class Function {
      * @param variable variable to be added to the Function
      */
     public void addVariable(Variable variable) {
+        if (variables == null) {
+            variables = new ArrayList<Variable>();
+        }
         variables.add(variable);
     }
 
@@ -105,6 +192,9 @@ public class Function {
      * @param worker Worker to be added to the Resource
      */
     public void addWorker(Worker worker) {
+        if (workers == null) {
+            workers = new ArrayList<Worker>();
+        }
         workers.add(worker);
     }
 
@@ -133,8 +223,25 @@ public class Function {
      * @param statement a Statement to be added to the Function
      */
     public void addStatement(Statement statement) {
+        if (statements == null) {
+            statements = new ArrayList<Statement>();
+        }
         statements.add(statement);
     }
 
+    /**
+     * Check whether function is public, which means function is visible outside the package
+     *
+     * @return whether function is public
+     */
+    public boolean isPublic() {
+        return isPublic;
+    }
 
+    /**
+     * Mark function as public
+     */
+    public void makePublic() {
+        isPublic = true;
+    }
 }

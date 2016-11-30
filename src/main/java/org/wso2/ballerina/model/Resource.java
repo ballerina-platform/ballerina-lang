@@ -20,16 +20,97 @@ package org.wso2.ballerina.model;
 
 import org.wso2.ballerina.model.statements.Statement;
 
+import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A resource is a single request handler within a service.
+ * The resource concept is designed to be access protocol independent.
+ * But in the initial release of the language it is intended to work with HTTP.
+ * <p>
+ *
+ * The structure of a ResourceDefinition is as follows:
+ *
+ *  [ResourceAnnotations]
+ *  resource ResourceName (Message VariableName[, ([ResourceParamAnnotations] TypeName VariableName)+]) {
+ *      ConnectionDeclaration;*
+ *      VariableDeclaration;*
+ *      WorkerDeclaration;*
+ *      Statement;+
+ *  }*
+ *
+ */
 public class Resource {
 
+    private List<Annotation> annotations;
+    private List<Argument> arguments;
     private List<Worker> workers;
     private Worker defaultWorker;
 
     public Resource() {
         defaultWorker = new Worker();
     }
+
+    /**
+     * Get all the Annotations associated with a Resource
+     *
+     * @return list of Annotations
+     */
+    public List<Annotation> getAnnotations() {
+        return annotations;
+    }
+
+    /**
+     * Set list of all the Annotations
+     *
+     * @param annotations list of Annotations
+     */
+    public void setAnnotations(List<Annotation> annotations) {
+        this.annotations = annotations;
+    }
+
+    /**
+     * Add an Annotation to the Resource
+     *
+     * @param annotation Annotation to be added
+     */
+    public void addAnnotation(Annotation annotation) {
+        if (annotations == null) {
+            annotations = new ArrayList<Annotation>();
+        }
+        annotations.add(annotation);
+    }
+
+    /**
+     * Get list of Arguments associated with the Resource definition
+     *
+     * @return list of Arguments
+     */
+    public List<Argument> getArguments() {
+        return arguments;
+    }
+
+    /**
+     * Set Arguments list to the Resource
+     *
+     * @param arguments list of Arguments
+     */
+    public void setArguments(List<Argument> arguments) {
+        this.arguments = arguments;
+    }
+
+    /**
+     * Add an Argument to the Resource
+     *
+     * @param argument Argument to be added to the Resource definition
+     */
+    public void addArgument(Argument argument) {
+        if (arguments == null) {
+            arguments = new ArrayList<Argument>();
+        }
+        arguments.add(argument);
+    }
+
 
     /**
      * Get all Connections declared within the default Worker scope of the Resource
@@ -109,6 +190,9 @@ public class Resource {
      * @param worker Worker to be added to the Resource
      */
     public void addWorker(Worker worker) {
+        if (workers == null) {
+            workers = new ArrayList<Worker>();
+        }
         workers.add(worker);
     }
 

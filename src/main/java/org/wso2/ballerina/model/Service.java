@@ -18,13 +18,58 @@
 
 package org.wso2.ballerina.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
+/**
+ *  A service is an HTTP web service described by a Swagger.
+ *  A service is the discrete unit of functionality that can be remotely accessed.
+ *  <p>
+ *
+ *  A service is defined as follows:
+ *
+ *  [ServiceAnnotations]
+ *  service ServiceName {
+ *      ConnectionDeclaration;*
+ *      VariableDeclaration;*
+ *      ResourceDefinition;+
+ *  }
+ */
 public class Service {
 
+    private List<Annotation> annotations;
     private List<Connection> connections;
     private List<Variable> variables;
     private List<Resource> resources;
+
+    /**
+     * Get all the Annotations associated with a Service
+     * @return list of Annotations
+     */
+    public List<Annotation> getAnnotations() {
+        return annotations;
+    }
+
+    /**
+     * Set list of all the Annotations
+     *
+     * @param annotations list of Annotations
+     */
+    public void setAnnotations(List<Annotation> annotations) {
+        this.annotations = annotations;
+    }
+
+    /**
+     * Add an Annotation to the Service
+     *
+     * @param annotation Annotation to be added
+     */
+    public void addAnnotation(Annotation annotation) {
+        if (annotations == null) {
+            annotations = new ArrayList<Annotation>();
+        }
+        annotations.add(annotation);
+    }
 
     /**
      * Get all Connections declared within the Service scope
@@ -50,6 +95,9 @@ public class Service {
      * @param connection Connection to be added to the Service
      */
     public void addConnection(Connection connection) {
+        if (connections == null) {
+            connections = new ArrayList<Connection>();
+        }
         connections.add(connection);
     }
 
@@ -77,6 +125,9 @@ public class Service {
      * @param variable variable to be added to the Service
      */
     public void addVariable(Variable variable) {
+        if (variables == null) {
+            variables = new ArrayList<Variable>();
+        }
         variables.add(variable);
     }
 
@@ -104,6 +155,9 @@ public class Service {
      * @param resource a Resource
      */
     public void addResource(Resource resource) {
+        if (resources == null) {
+            resources = new ArrayList<Resource>();
+        }
         resources.add(resource);
     }
 

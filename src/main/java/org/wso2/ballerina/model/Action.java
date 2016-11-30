@@ -18,14 +18,94 @@
 
 package org.wso2.ballerina.model;
 
+import org.wso2.ballerina.model.statements.Statement;
+
+import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Actions are operations (functions) that can be executed against a connector.
+ * <p>
+ * The structure of an action definition is as follows:
+ *  [ActionAnnotations]
+ *  action ActionName (ConnectorName VariableName[, ([ActionParamAnnotations] TypeName VariableName)+]) (TypeName*)
+ *  [throws exception] {
+ *      ConnectionDeclaration;*
+ *      VariableDeclaration;*
+ *      WorkerDeclaration;*
+ *      Statement;+
+ *  }
+ *
+ */
 public class Action {
 
+    private List<Annotation> annotations;
+    private List<Argument> arguments;
     private List<Connection> connections;
     private List<Variable> variables;
     private List<Worker> workers;
     private List<Statement> statements;
+
+    /**
+     * Get all the Annotations associated with an Action
+     *
+     * @return list of Annotations
+     */
+    public List<Annotation> getAnnotations() {
+        return annotations;
+    }
+
+    /**
+     * Set list of all the Annotations
+     *
+     * @param annotations list of Annotations
+     */
+    public void setAnnotations(List<Annotation> annotations) {
+        this.annotations = annotations;
+    }
+
+    /**
+     * Add an Annotation to the Action
+     *
+     * @param annotation Annotation to be added
+     */
+    public void addAnnotation(Annotation annotation) {
+        // Since model is generated sequentially no chance of synchronizing issues
+        if (annotations == null) {  // TODO: based on the usage of this and setAnnotation methods we may move this logic
+            annotations = new ArrayList<Annotation>();
+        }
+        annotations.add(annotation);
+    }
+
+    /**
+     * Get list of Arguments associated with the Action definition
+     *
+     * @return list of Arguments
+     */
+    public List<Argument> getArguments() {
+        return arguments;
+    }
+
+    /**
+     * Set Arguments list to the Action
+     *
+     * @param arguments list of Arguments
+     */
+    public void setArguments(List<Argument> arguments) {
+        this.arguments = arguments;
+    }
+
+    /**
+     * Add an Argument to the Action
+     *
+     * @param argument Argument to be added to the Action definition
+     */
+    public void addArgument(Argument argument) {
+        if (arguments == null) {
+            arguments = new ArrayList<Argument>();
+        }
+        arguments.add(argument);
+    }
 
     /**
      * Get all Connections declared within the Action scope
@@ -51,6 +131,9 @@ public class Action {
      * @param connection Connection to be added to the Action
      */
     public void addConnection(Connection connection) {
+        if (connections == null) {
+            connections = new ArrayList<Connection>();
+        }
         connections.add(connection);
     }
 
@@ -78,6 +161,9 @@ public class Action {
      * @param variable variable to be added to the Action
      */
     public void addVariable(Variable variable) {
+        if (variables == null) {
+            variables = new ArrayList<Variable>();
+        }
         variables.add(variable);
     }
 
@@ -105,6 +191,9 @@ public class Action {
      * @param worker Worker to be added to the Action
      */
     public void addWorker(Worker worker) {
+        if (workers == null) {
+            workers = new ArrayList<Worker>();
+        }
         workers.add(worker);
     }
 
@@ -132,6 +221,9 @@ public class Action {
      * @param statement a Statement to be added to the Action
      */
     public void addStatement(Statement statement) {
+        if (statements == null) {
+            statements = new ArrayList<Statement>();
+        }
         statements.add(statement);
     }
 

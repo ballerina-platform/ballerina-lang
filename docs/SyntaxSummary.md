@@ -66,19 +66,19 @@ service WeatherService{
         float temperature = wc.getTemprature(new location(lat, lon));
         return `{"temperature":$temperature}`;
     }
+ }
 
-    type location{
-       int lat, int lon; 
-    }
+type location{
+    int int lon; 
+}
 
-    connector WeatherConnector{
-        action getTemprature(location) (int) { ...}
-        ...
-    }
+connector WeatherConnector{
+    action getTemprature(location) (int) { ...}
+    ...
+}
     
-    function fromC2F(float temperature){
-       return math.round(32 + temperature*5/9);
-    }
+function fromC2F(float temperature){
+    return math.round(32 + temperature*5/9);
 }
 ```
 
@@ -188,6 +188,7 @@ becomes active. However, similar to a resource, the worker does not execute unti
 has been sent a message.
 
 A worker is triggered when a message is sent to the worker as follows by the enclosing entity:
+
 ```
 MessageName -> WorkerName;
 ```
@@ -196,13 +197,34 @@ MessageName -> WorkerName;
 
 When the worker replies, the response message (if any) is received by the enclosing entity
 from the worker as follows:
-````
+```
 MessageName <- WorkerName;
-````
+```
 
 #### Replying from a Worker
 
 If the worker wishes to reply to the enclosing entity, it can do so using a `reply` statement.
+
+Following code show a sample worker. 
+```
+worker AsyncCalculator (message m) {
+    int x = xml.get(m, "x");
+    int y = xml.get(m, "y");  
+    int result = x + y;
+    message m = new message(); 
+    m.payload = `{"result": $result}`
+    reply m
+}
+
+message m = new message(); 
+m.payload = `{"x": 3, "y": 7}`
+//trigger AsyncCalculator
+m->AsyncCalculator
+//AsyncCalculator will run in parallel to do_something()
+do_something()
+//wait for response from AsyncCalculator
+response<-AsyncCalculator
+```
 
 ### Types & Variables
 

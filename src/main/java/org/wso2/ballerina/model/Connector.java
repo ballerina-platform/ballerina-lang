@@ -18,13 +18,89 @@
 
 package org.wso2.ballerina.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A connector represents a participant in the integration and is used to interact with an external system.
+ * Ballerina includes a set of standard connectors.
+ * <p>
+ * A connector is defined as follows:
+ *
+ * [ConnectorAnnotations]
+ * connector ConnectorName ([ConnectorParamAnnotations]TypeName VariableName[(, TypeName VariableName)*]) {
+ *      ConnectionDeclaration;*
+ *      VariableDeclaration;*
+ *      ActionDefinition;+
+ * }
+ */
 public class Connector {
 
+    private List<Annotation> annotations;
+    private List<Argument> arguments;
     private List<Connection> connections;
     private List<Variable> variables;
     private List<Action> actions;
+
+    /**
+     * Get all the Annotations associated with a Connector
+     *
+     * @return list of Annotations
+     */
+    public List<Annotation> getAnnotations() {
+        return annotations;
+    }
+
+    /**
+     * Set list of all the Annotations
+     *
+     * @param annotations list of Annotations
+     */
+    public void setAnnotations(List<Annotation> annotations) {
+        this.annotations = annotations;
+    }
+
+    /**
+     * Add an Annotation to the Connector
+     *
+     * @param annotation Annotation to be added
+     */
+    public void addAnnotation(Annotation annotation) {
+        if (annotations == null) {
+            annotations = new ArrayList<Annotation>();
+        }
+        annotations.add(annotation);
+    }
+
+    /**
+     * Get list of Arguments associated with the Connector definition
+     *
+     * @return list of Arguments
+     */
+    public List<Argument> getArguments() {
+        return arguments;
+    }
+
+    /**
+     * Set Arguments list to the Connector
+     *
+     * @param arguments list of Arguments
+     */
+    public void setArguments(List<Argument> arguments) {
+        this.arguments = arguments;
+    }
+
+    /**
+     * Add an Argument to the Connector
+     *
+     * @param argument Argument to be added to the Connector definition
+     */
+    public void addArgument(Argument argument) {
+        if (arguments == null) {
+            arguments = new ArrayList<Argument>();
+        }
+        arguments.add(argument);
+    }
 
     /**
      * Get all Connections declared within the Connector scope
@@ -50,6 +126,9 @@ public class Connector {
      * @param connection Connection to be added to the Connector
      */
     public void addConnection(Connection connection) {
+        if (connections == null) {
+            connections = new ArrayList<Connection>();
+        }
         connections.add(connection);
     }
 
@@ -77,6 +156,9 @@ public class Connector {
      * @param variable variable to be added to the Connector
      */
     public void addVariable(Variable variable) {
+        if (variables == null) {
+            variables = new ArrayList<Variable>();
+        }
         variables.add(variable);
     }
 
@@ -104,6 +186,9 @@ public class Connector {
      * @param action Action to be added to the Connector
      */
     public void addAction(Action action) {
+        if (actions == null) {
+            actions = new ArrayList<Action>();
+        }
         actions.add(action);
     }
 
