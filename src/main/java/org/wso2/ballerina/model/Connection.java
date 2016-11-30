@@ -27,15 +27,22 @@ import java.util.List;
 @SuppressWarnings("unused")
 public class Connection {
 
+    /* Name of the Connector which Connection is instantiated against */
     String connectorName;
+
+    /* Name of the Connection instance */
+    String connectionName;
+
     List<String> argValues;
 
     /**
      *
-     * @param connectorName Name of the Connector
+     * @param connectorName Name of the Connector which Connection is instantiated against
+     * @param connectionName Name of the Connection instance
      */
-    public Connection(String connectorName) {
+    public Connection(String connectorName, String connectionName) {
         this.connectorName = connectorName;
+        this.connectionName = connectionName;
     }
 
     /**
