@@ -21,7 +21,91 @@ package org.wso2.ballerina.model;
 import java.util.List;
 
 public class Worker {
+
     private List<Connection> connections;
     private List<Variable> variables;
     private List<Statement> statements;
+
+
+    /**
+     * Get all Connections declared within the Worker
+     *
+     * @return list of all the Connections belongs to the Worker
+     */
+    public List<Connection> getConnections() {
+        return connections;
+    }
+
+    /**
+     * Assign connections to the Worker
+     *
+     * @param connections list of connections to be assigned to the Worker
+     */
+    public void setConnections(List<Connection> connections) {
+        this.connections = connections;
+    }
+
+    /**
+     * Add a Connection to the Worker
+     *
+     * @param connection Connection to be added to the Worker
+     */
+    public void addConnection(Connection connection) {
+        connections.add(connection);
+    }
+
+    /**
+     * Get all the variables declared in the Worker
+     *
+     * @return list of all Worker scoped variables
+     */
+    public List<Variable> getVariables() {
+        return variables;
+    }
+
+    /**
+     * Assign variables to the Worker
+     *
+     * @param variables list of variables
+     */
+    public void setVariables(List<Variable> variables) {
+        this.variables = variables;
+    }
+
+    /**
+     * Add a variable to the Worker
+     *
+     * @param variable variable to be added the Worker
+     */
+    public void addVariable(Variable variable) {
+        variables.add(variable);
+    }
+
+    /**
+     * Get all the Statements associated with the Worker
+     *
+     * @return list of Statements associated with the Worker
+     */
+    public List<Statement> getStatements() {
+        return statements;
+    }
+
+    /**
+     * Set Statements to be associated with the Worker
+     *
+     * @param statements list of Statements
+     */
+    public void setStatements(List<Statement> statements) {
+        this.statements = statements;
+    }
+
+    /**
+     * Add a Statement to the Worker
+     *
+     * @param statement a Statement to be added to the Worker
+     */
+    public void addStatement(Statement statement) {
+        statements.add(statement);
+    }
+
 }
