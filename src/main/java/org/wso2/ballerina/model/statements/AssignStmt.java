@@ -17,5 +17,9 @@
 */
 package org.wso2.ballerina.model.statements;
 
-public class Return {
+import org.wso2.ballerina.model.expression.Expression;
+
+public class AssignStmt implements Statement{
+    private Expression lhsExpr;
+    private Expression rhsExpr;
 }

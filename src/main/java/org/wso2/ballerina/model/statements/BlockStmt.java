@@ -17,5 +17,8 @@
 */
 package org.wso2.ballerina.model.statements;
 
-public class TryCatch {
+import java.util.List;
+
+public class BlockStmt {
+    private List<Statement> statements;
 }

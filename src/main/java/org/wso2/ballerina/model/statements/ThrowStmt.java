@@ -17,6 +17,6 @@
 */
 package org.wso2.ballerina.model.statements;
 
-public class While {
+public class ThrowStmt implements Statement{
 
 }

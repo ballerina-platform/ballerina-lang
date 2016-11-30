@@ -18,6 +18,8 @@
 
 package org.wso2.ballerina.model;
 
+import org.wso2.ballerina.model.statements.Statement;
+
 import java.util.List;
 
 public class Resource {

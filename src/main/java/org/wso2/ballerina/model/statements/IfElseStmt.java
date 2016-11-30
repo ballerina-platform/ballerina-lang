@@ -17,5 +17,10 @@
 */
 package org.wso2.ballerina.model.statements;
 
-public class IfElse {
+import org.wso2.ballerina.model.expression.Expression;
+
+public class IfElseStmt implements Statement{
+    private Expression condition;
+    private Statement thenBlock;
+    private Statement elseBlock;
 }
