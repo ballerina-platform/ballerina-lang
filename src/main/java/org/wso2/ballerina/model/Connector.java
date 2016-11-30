@@ -21,7 +21,7 @@ package org.wso2.ballerina.model;
 import java.util.List;
 
 public class Connector {
-    private List<Connection> connectionList;
-    private List<Variable> variableList;
-    private List<Action> actionList;
+    private List<Connection> connections;
+    private List<Variable> variables;
+    private List<Action> actions;
 }

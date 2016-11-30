@@ -21,8 +21,8 @@ package org.wso2.ballerina.model;
 import java.util.List;
 
 public class Resource {
-    private List<Connection> connectionList;
-    private List<Variable> variableList;
-    private List<Worker> workerList;
-    private List<Statement> statementList;
+    private List<Connection> connections;
+    private List<Variable> variables;
+    private List<Worker> workers;
+    private List<Statement> statements;
 }
