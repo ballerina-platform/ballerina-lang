@@ -188,6 +188,7 @@ becomes active. However, similar to a resource, the worker does not execute unti
 has been sent a message.
 
 A worker is triggered when a message is sent to the worker as follows by the enclosing entity:
+
 ```
 MessageName -> WorkerName;
 ```
@@ -196,13 +197,34 @@ MessageName -> WorkerName;
 
 When the worker replies, the response message (if any) is received by the enclosing entity
 from the worker as follows:
-````
+```
 MessageName <- WorkerName;
-````
+```
+Following example show a sample worker. 
 
 #### Replying from a Worker
 
 If the worker wishes to reply to the enclosing entity, it can do so using a `reply` statement.
+
+```
+worker AsyncCalculator (message m) {
+    int x = xml.get(m, "x");
+    int y = xml.get(m, "y");  
+    int result = x + y;
+    message m = new message(); 
+    m.payload = `{"result": $result}`
+    reply m
+}
+
+message m = new message(); 
+m.payload = `{"x": 3, "y": 7}`
+//trigger AsyncCalculator
+m->AsyncCalculator
+//AsyncCalculator will run in parallel to do_something()
+do_something()
+//wait for response from AsyncCalculator
+response<-AsyncCalculator
+```
 
 ### Types & Variables
 
