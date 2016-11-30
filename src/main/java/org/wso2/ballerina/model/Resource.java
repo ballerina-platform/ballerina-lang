@@ -28,43 +28,43 @@ public class Resource {
     private List<Statement> statements;
 
     /**
-     * Get all Connections declared within the Service scope
+     * Get all Connections declared within the default Worker scope of the Resource
      *
-     * @return list of all the Connections belongs to a Service
+     * @return list of all the Connections belongs to the default Worker of the Resource
      */
     public List<Connection> getConnections() {
         return connections;
     }
 
     /**
-     * Assign connections to the Service
+     * Assign connections to the default Worker of the Resource
      *
-     * @param connections list of connections to be assigned to a Service
+     * @param connections list of connections to be assigned to the default Worker of the Resource
      */
     public void setConnections(List<Connection> connections) {
         this.connections = connections;
     }
 
     /**
-     * Add a Connection to the Service
+     * Add a Connection to the default Worker of the Resource
      *
-     * @param connection Connection to be added to the Service
+     * @param connection Connection to be added to the default Worker of the Resource
      */
     public void addConnection(Connection connection) {
         connections.add(connection);
     }
 
     /**
-     * Get all the variables declared in the scope of Service
+     * Get all the variables declared in the default Worker scope of the Resource
      *
-     * @return list of all Service scoped variables
+     * @return list of all default Worker scoped variables
      */
     public List<Variable> getVariables() {
         return variables;
     }
 
     /**
-     * Assign variables to the Service
+     * Assign variables to the default Worker of the Resource
      *
      * @param variables list of variables
      */
@@ -73,9 +73,9 @@ public class Resource {
     }
 
     /**
-     * Add a variable to the Service
+     * Add a variable to the default Worker of the Resource
      *
-     * @param variable variable to be added to the Service
+     * @param variable variable to be added default Worker
      */
     public void addVariable(Variable variable) {
         variables.add(variable);
