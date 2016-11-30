@@ -1,12 +1,13 @@
 package ballerina.lang.exception;
 
-const string TYPE_IO_EXCEPTION = "IO_EXCEPTION";
+const string CATEGORY_IO = "IO_EXCEPTION";
 
-native function getCategory(exception e) (string);
-native function setCategory(exception e, string s);
+native function create (string category, string message, map properties) (exception);
 
-native function getMessage(exception e) (string);
-native function setMessage(exception e, string s);
+native function getCategory (exception e) (string);
+native function setCategory (exception e, string s);
 
-native function getProperties(exception e) (map);
+native function getMessage (exception e) (string);
+native function setMessage (exception e, string s);
 
+native function getProperties (exception e) (map);
