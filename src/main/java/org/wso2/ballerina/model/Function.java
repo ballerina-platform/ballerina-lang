@@ -20,6 +20,7 @@ package org.wso2.ballerina.model;
 
 import org.wso2.ballerina.model.statements.Statement;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -39,12 +40,22 @@ import java.util.List;
 public class Function {
 
     private List<Annotation> annotations;
+    private List<Argument> arguments;
     private List<Connection> connections;
     private List<Variable> variables;
     private List<Worker> workers;
     private List<Statement> statements;
 
     private boolean isPublic;
+
+    public Function() {
+        annotations = new ArrayList<Annotation>();
+        arguments = new ArrayList<Argument>();
+        connections = new ArrayList<Connection>();
+        variables = new ArrayList<Variable>();
+        workers = new ArrayList<Worker>();
+        statements = new ArrayList<Statement>();
+    }
 
     /**
      * Get all the Annotations associated with a Function
@@ -71,6 +82,33 @@ public class Function {
      */
     public void addAnnotation(Annotation annotation) {
         annotations.add(annotation);
+    }
+
+    /**
+     * Get list of Arguments associated with the function definition
+     *
+     * @return list of Arguments
+     */
+    public List<Argument> getArguments() {
+        return arguments;
+    }
+
+    /**
+     * Set Arguments list to the function
+     *
+     * @param arguments list of Arguments
+     */
+    public void setArguments(List<Argument> arguments) {
+        this.arguments = arguments;
+    }
+
+    /**
+     * Add an Argument to the function
+     *
+     * @param argument Argument to be added to the function definition
+     */
+    public void addArgument(Argument argument) {
+        arguments.add(argument);
     }
 
     /**
