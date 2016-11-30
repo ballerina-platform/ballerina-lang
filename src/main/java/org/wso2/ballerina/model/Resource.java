@@ -21,8 +21,118 @@ package org.wso2.ballerina.model;
 import java.util.List;
 
 public class Resource {
+
     private List<Connection> connections;
     private List<Variable> variables;
     private List<Worker> workers;
     private List<Statement> statements;
+
+    /**
+     * Get all Connections declared within the Service scope
+     *
+     * @return list of all the Connections belongs to a Service
+     */
+    public List<Connection> getConnections() {
+        return connections;
+    }
+
+    /**
+     * Assign connections to the Service
+     *
+     * @param connections list of connections to be assigned to a Service
+     */
+    public void setConnections(List<Connection> connections) {
+        this.connections = connections;
+    }
+
+    /**
+     * Add a Connection to the Service
+     *
+     * @param connection Connection to be added to the Service
+     */
+    public void addConnection(Connection connection) {
+        connections.add(connection);
+    }
+
+    /**
+     * Get all the variables declared in the scope of Service
+     *
+     * @return list of all Service scoped variables
+     */
+    public List<Variable> getVariables() {
+        return variables;
+    }
+
+    /**
+     * Assign variables to the Service
+     *
+     * @param variables list of variables
+     */
+    public void setVariables(List<Variable> variables) {
+        this.variables = variables;
+    }
+
+    /**
+     * Add a variable to the Service
+     *
+     * @param variable variable to be added to the Service
+     */
+    public void addVariable(Variable variable) {
+        variables.add(variable);
+    }
+
+    /**
+     * Get all the Workers associated with a Resource
+     *
+     * @return list of Workers
+     */
+    public List<Worker> getWorkers() {
+        return workers;
+    }
+
+    /**
+     * Assign Workers to the Resource
+     *
+     * @param workers list of all the Workers
+     */
+    public void setWorkers(List<Worker> workers) {
+        this.workers = workers;
+    }
+
+    /**
+     * Add a Worker to the Resource
+     *
+     * @param worker Worker to be added to the Resource
+     */
+    public void addWorker(Worker worker) {
+        workers.add(worker);
+    }
+
+    /**
+     * Get all the Statements associated with the default Worker
+     *
+     * @return list of Statements associated with the default Worker
+     */
+    public List<Statement> getStatements() {
+        return statements;
+    }
+
+    /**
+     * Set Statements to be associated with the default Worker
+     *
+     * @param statements list of Statements
+     */
+    public void setStatements(List<Statement> statements) {
+        this.statements = statements;
+    }
+
+    /**
+     * Add a Statement to the default Worker in the Resource
+     *
+     * @param statement a Statement to be added to the default Worker
+     */
+    public void addStatement(Statement statement) {
+        statements.add(statement);
+    }
+
 }
