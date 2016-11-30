@@ -31,27 +31,36 @@ public class Connection {
     String connectorName;
 
     /* Name of the Connection instance */
-    String connectionName;
+    String connectionIdentifier;
 
     List<String> argValues;
 
     /**
      *
      * @param connectorName Name of the Connector which Connection is instantiated against
-     * @param connectionName Name of the Connection instance
+     * @param connectionIdentifier Identifier of the Connection instance
      */
-    public Connection(String connectorName, String connectionName) {
+    public Connection(String connectorName, String connectionIdentifier) {
         this.connectorName = connectorName;
-        this.connectionName = connectionName;
+        this.connectionIdentifier = connectionIdentifier;
     }
 
     /**
-     * Get the name of the Connector
+     * Get the name of the Connector which Connection is instantiated against
      *
-     * @return name of thr Connector
+     * @return name of the Connector
      */
     public String getConnectorName() {
         return connectorName;
+    }
+
+    /**
+     * Get the identifier of the Connection instance
+     *
+     * @return identifier of the Connection instance
+     */
+    public String getConnectionIdentifier() {
+        return connectionIdentifier;
     }
 
     /**
