@@ -18,6 +18,8 @@
 
 package org.wso2.ballerina.model;
 
+import org.wso2.ballerina.model.types.Type;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,14 +29,15 @@ import java.util.List;
 @SuppressWarnings("unused")
 public class Argument {
 
-    private String type, name;
+    private Type type;
+    private String name;
     private List<Annotation> annotations;
 
     /**
      * @param type Type of the Argument
      * @param name  Name of the Argument
      */
-    public Argument(String type, String name) {
+    public Argument(Type type, String name) {
         this.type = type;
         this.name = name;
     }
@@ -53,7 +56,7 @@ public class Argument {
      *
      * @return type of the Argument
      */
-    public String getType() {
+    public Type getType() {
         return type;
     }
 

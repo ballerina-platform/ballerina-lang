@@ -18,6 +18,8 @@
 
 package org.wso2.ballerina.model;
 
+import org.wso2.ballerina.model.types.Type;
+
 /**
  * This represent a Variable declaration
  *
@@ -28,14 +30,15 @@ package org.wso2.ballerina.model;
 @SuppressWarnings("unused")
 public class Variable {
 
-    private String type, identifier, value;
+    private Type type;
+    private String identifier, value;
 
     /**
      * @param type       Type of the variable
      * @param identifier Identifier of the variable
      * @param value      value of the variable
      */
-    public Variable(String type, String identifier, String value) {
+    public Variable(Type type, String identifier, String value) {
         this.type = type;
         this.identifier = identifier;
         this.value = value;
@@ -46,7 +49,7 @@ public class Variable {
      *
      * @return type of the variable
      */
-    public String getType() {
+    public Type getType() {
         return type;
     }
 
