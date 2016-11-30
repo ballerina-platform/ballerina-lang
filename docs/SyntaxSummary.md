@@ -494,8 +494,15 @@ fork (msg) {
 ```
 
 
-#### Try/catch Statement
+#### Exception Handling
 
+Ballerina supports exception handling as a way to address unexpected scenarios in a Ballerina program. This is provided by the built-in `exception` type, the `try/catch` statement and the `throw` statement. Furthermore, any function can indicate that it may throw an exception by saying `throws exception`.
+
+The built-in `exception` type has three properties: its category (a string), its message (a string) and its properties (a map). These properties are manipulated using the functions defined in `ballerina.lang.exception` package.
+
+Note that there is only one built in exception type - all exceptions use this type with different values for the category property. All standard exception "types" are defined as category string constants in the `ballerina.lang.exception` package.
+
+The syntax of a `try/catch` is as follows:
 ```
 try {
     VariableDeclaration*
@@ -506,32 +513,21 @@ try {
 }
 ```
 
-#### Exception Handling
+The sytax of a `throw` statement is as follows:
 
-We provide an exception type which has a type(string), message(string) and a property map.
-We don't allow extension type for exceptions and different exception type should be handled using the type attribute.
-We provide  following statements
- - `try` `catch` blocks to handle exception.
- - `throws` statement to signal that a function may throw an exception.
- - `throw` statement to throw an exception.
-If a function is throwing an exception it must declare it.
-If a function throws an exception the caller function can choose to handle it or let it propagate upwards.
+```
+throw Expression;
+```
 
-Following is an Example.
+Example:
 ```
     try {
         response = http.sendPost (nyse_ep, m);
     } catch (exception e) {
         message.setHeader(m, HTTP.StatusCode, 500);// need to discuss
-        json error = `{"error":"backend failed", "causedby":e.message}`;
+        json error = `{"error":"backend failed", "causedBy":e.message}`;
         message.setPayload(m, error);
     }
-```
-
-#### Throw Statement
-
-```
-throw ExceptionVariableName;
 ```
 
 #### Return Statement
