@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A worker is a thread of execution that the integration developer programs as a lifeline.
+ * A {@code worker} is a thread of execution that the integration developer programs as a lifeline.
  * <p>
  *
  * Workers are defined as follows:
@@ -35,6 +35,8 @@ import java.util.List;
  *      Statement;+
  *      [reply MessageName;]
  *  }
+ *
+ *  @since 1.0.0
  */
 @SuppressWarnings("unused")
 public class Worker {

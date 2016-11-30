@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Actions are operations (functions) that can be executed against a connector.
+ * An {@code Action} is a operation (function) that can be executed against a connector.
  * <p>
  * The structure of an action definition is as follows:
  *  [ActionAnnotations]
@@ -35,6 +35,8 @@ import java.util.List;
  *      WorkerDeclaration;*
  *      Statement;+
  *  }
+ *
+ *  @since 1.0.0
  *
  */
 @SuppressWarnings("unused")
