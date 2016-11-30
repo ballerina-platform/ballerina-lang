@@ -18,6 +18,7 @@
 
 package org.wso2.ballerina.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -64,6 +65,9 @@ public class Service {
      * @param annotation Annotation to be added
      */
     public void addAnnotation(Annotation annotation) {
+        if (annotations == null) {
+            annotations = new ArrayList<Annotation>();
+        }
         annotations.add(annotation);
     }
 
@@ -91,6 +95,9 @@ public class Service {
      * @param connection Connection to be added to the Service
      */
     public void addConnection(Connection connection) {
+        if (connections == null) {
+            connections = new ArrayList<Connection>();
+        }
         connections.add(connection);
     }
 
@@ -118,6 +125,9 @@ public class Service {
      * @param variable variable to be added to the Service
      */
     public void addVariable(Variable variable) {
+        if (variables == null) {
+            variables = new ArrayList<Variable>();
+        }
         variables.add(variable);
     }
 
@@ -145,6 +155,9 @@ public class Service {
      * @param resource a Resource
      */
     public void addResource(Resource resource) {
+        if (resources == null) {
+            resources = new ArrayList<Resource>();
+        }
         resources.add(resource);
     }
 

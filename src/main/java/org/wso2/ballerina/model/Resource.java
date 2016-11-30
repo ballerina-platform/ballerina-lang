@@ -75,6 +75,9 @@ public class Resource {
      * @param annotation Annotation to be added
      */
     public void addAnnotation(Annotation annotation) {
+        if (annotations == null) {
+            annotations = new ArrayList<Annotation>();
+        }
         annotations.add(annotation);
     }
 
@@ -187,6 +190,9 @@ public class Resource {
      * @param worker Worker to be added to the Resource
      */
     public void addWorker(Worker worker) {
+        if (workers == null) {
+            workers = new ArrayList<Worker>();
+        }
         workers.add(worker);
     }
 

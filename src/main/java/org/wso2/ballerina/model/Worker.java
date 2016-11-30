@@ -20,6 +20,7 @@ package org.wso2.ballerina.model;
 
 import org.wso2.ballerina.model.statements.Statement;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -66,6 +67,9 @@ public class Worker {
      * @param connection Connection to be added to the Worker
      */
     public void addConnection(Connection connection) {
+        if (connections == null) {
+            connections = new ArrayList<Connection>();
+        }
         connections.add(connection);
     }
 
@@ -93,6 +97,9 @@ public class Worker {
      * @param variable variable to be added the Worker
      */
     public void addVariable(Variable variable) {
+        if (variables == null) {
+            variables = new ArrayList<Variable>();
+        }
         variables.add(variable);
     }
 
@@ -120,6 +127,9 @@ public class Worker {
      * @param statement a Statement to be added to the Worker
      */
     public void addStatement(Statement statement) {
+        if (statements == null) {
+            statements = new ArrayList<Statement>();
+        }
         statements.add(statement);
     }
 
