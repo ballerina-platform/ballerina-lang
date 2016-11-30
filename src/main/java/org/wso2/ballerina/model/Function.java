@@ -44,6 +44,8 @@ public class Function {
     private List<Worker> workers;
     private List<Statement> statements;
 
+    private boolean isPublic;
+
     /**
      * Get all the Annotations associated with a Function
      *
@@ -180,4 +182,19 @@ public class Function {
         statements.add(statement);
     }
 
+    /**
+     * Check whether function is public, which means function is visible outside the package
+     *
+     * @return whether function is public
+     */
+    public boolean isPublic() {
+        return isPublic;
+    }
+
+    /**
+     * Mark function as public
+     */
+    public void makePublic() {
+        isPublic = true;
+    }
 }
