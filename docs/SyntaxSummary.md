@@ -200,12 +200,12 @@ from the worker as follows:
 ```
 MessageName <- WorkerName;
 ```
-Following example show a sample worker. 
 
 #### Replying from a Worker
 
 If the worker wishes to reply to the enclosing entity, it can do so using a `reply` statement.
 
+Following code show a sample worker. 
 ```
 worker AsyncCalculator (message m) {
     int x = xml.get(m, "x");
