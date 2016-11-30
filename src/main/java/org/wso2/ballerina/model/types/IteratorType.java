@@ -17,5 +17,5 @@
 */
 package org.wso2.ballerina.model.types;
 
-public class Iterator {
+public class IteratorType {
 }
