@@ -20,6 +20,7 @@ package org.wso2.ballerina.model;
 
 import org.wso2.ballerina.model.statements.Statement;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -42,6 +43,7 @@ import java.util.List;
 public class Resource {
 
     private List<Annotation> annotations;
+    private List<Argument> arguments;
     private List<Worker> workers;
     private Worker defaultWorker;
 
@@ -74,6 +76,36 @@ public class Resource {
      */
     public void addAnnotation(Annotation annotation) {
         annotations.add(annotation);
+    }
+
+    /**
+     * Get list of Arguments associated with the Resource definition
+     *
+     * @return list of Arguments
+     */
+    public List<Argument> getArguments() {
+        return arguments;
+    }
+
+    /**
+     * Set Arguments list to the Resource
+     *
+     * @param arguments list of Arguments
+     */
+    public void setArguments(List<Argument> arguments) {
+        this.arguments = arguments;
+    }
+
+    /**
+     * Add an Argument to the Resource
+     *
+     * @param argument Argument to be added to the Resource definition
+     */
+    public void addArgument(Argument argument) {
+        if (arguments == null) {
+            arguments = new ArrayList<Argument>();
+        }
+        arguments.add(argument);
     }
 
 

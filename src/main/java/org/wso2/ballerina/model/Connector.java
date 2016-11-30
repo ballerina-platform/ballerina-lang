@@ -18,6 +18,7 @@
 
 package org.wso2.ballerina.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -36,6 +37,7 @@ import java.util.List;
 public class Connector {
 
     private List<Annotation> annotations;
+    private List<Argument> arguments;
     private List<Connection> connections;
     private List<Variable> variables;
     private List<Action> actions;
@@ -65,6 +67,36 @@ public class Connector {
      */
     public void addAnnotation(Annotation annotation) {
         annotations.add(annotation);
+    }
+
+    /**
+     * Get list of Arguments associated with the Connector definition
+     *
+     * @return list of Arguments
+     */
+    public List<Argument> getArguments() {
+        return arguments;
+    }
+
+    /**
+     * Set Arguments list to the Connector
+     *
+     * @param arguments list of Arguments
+     */
+    public void setArguments(List<Argument> arguments) {
+        this.arguments = arguments;
+    }
+
+    /**
+     * Add an Argument to the Connector
+     *
+     * @param argument Argument to be added to the Connector definition
+     */
+    public void addArgument(Argument argument) {
+        if (arguments == null) {
+            arguments = new ArrayList<Argument>();
+        }
+        arguments.add(argument);
     }
 
     /**

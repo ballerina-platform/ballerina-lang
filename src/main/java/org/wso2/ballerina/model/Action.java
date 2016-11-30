@@ -20,6 +20,7 @@ package org.wso2.ballerina.model;
 
 import org.wso2.ballerina.model.statements.Statement;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -39,6 +40,7 @@ import java.util.List;
 public class Action {
 
     private List<Annotation> annotations;
+    private List<Argument> arguments;
     private List<Connection> connections;
     private List<Variable> variables;
     private List<Worker> workers;
@@ -69,6 +71,36 @@ public class Action {
      */
     public void addAnnotation(Annotation annotation) {
         annotations.add(annotation);
+    }
+
+    /**
+     * Get list of Arguments associated with the Action definition
+     *
+     * @return list of Arguments
+     */
+    public List<Argument> getArguments() {
+        return arguments;
+    }
+
+    /**
+     * Set Arguments list to the Action
+     *
+     * @param arguments list of Arguments
+     */
+    public void setArguments(List<Argument> arguments) {
+        this.arguments = arguments;
+    }
+
+    /**
+     * Add an Argument to the Action
+     *
+     * @param argument Argument to be added to the Action definition
+     */
+    public void addArgument(Argument argument) {
+        if (arguments == null) {
+            arguments = new ArrayList<Argument>();
+        }
+        arguments.add(argument);
     }
 
     /**
