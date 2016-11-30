@@ -20,7 +20,7 @@ Ballerina `Annotations` can be used to annotate following Ballerina constructs.
 All Ballerina Annotations start with Character `@` (at) and it has following Syntax. 
 
 ```
-@AnnotationName [ ( PrimitiveValue | "AString"  | key = value [, key = value] )]
+@AnnotationName [ ( PrimitiveValue | "AString" | Array | key = value [, key = value] )]
 ```
 
 Here `value` can be one of the followings:
@@ -37,7 +37,9 @@ E.g:
     
     @AnnotationThree( keyInt = 1 , keyString = "second value", keyAnnotation = @InnerAnnotation("Inner Annotation Value"))
     
-    @AnnotationFour( 
+    @AnnotationFour({ "value1" , "value2"})
+    
+    @AnnotationFive( 
         keyStringArray = { "value 1" , "value 2"} ,
         keyAnnotationArray = {
             @InnerAnnotation( innerKeyInt = 1, innerKeyString = "A String"),
@@ -75,35 +77,35 @@ Followings are the service level annotations.
 
 #### API Definition
 
-A Doc annotation, which describes Ballerina Annotation. 
+A Doc annotation, which describes Ballerina Service. 
 
 ```
 @APIDefinition( // Alternatives : @Info, @ServiceInfo, @APIInfo, @APIDocumentation
-    SwaggerVersion = "2.0", 
-    info = @Info( // Swagger Info (Required)
-        title = "Sample API title", // Swagger Info.title (Required)
-        description =  "Sample Description.", // Swagger Info.Description 
-        version = "1.0.0", // Swagger Info.Version (Required)
-        termsOfService = "http://example.com/terms", // Swagger Info.TermsOfService
-        contact = @Contact( // Swagger Info.contact
+    swaggerVersion = "2.0", 
+    info = @Info( 
+        title = "Sample API title", 
+        description =  "Sample Description.", 
+        version = "1.0.0", 
+        termsOfService = "http://example.com/terms",
+        contact = @Contact(
             name = "wso2" ,
             url = "http//wso2.com"
-            [,anyName = anyValue]* // Swagger element "x-anyName" : "anyValue"
+            [,anyName = anyValue]* 
         ), 
 
-        license = @License( // Swagger Info.license
+        license = @License( 
             name = "Apache 2",
             url = "http://www.apache.org/licenses/LICENSE-2.0"
-            [,anyName = anyValue]* // Swagger element "x-anyName" : "anyValue"
+            [,anyName = anyValue]* 
         ) 
 
-        [,anyName = anyValue]* // Swagger element "x-anyName" : "anyValue"
+        [,anyName = anyValue]* 
     ),
 
-    externalDocs = @ExternalDocs( // Swagger external Docs
-        value = "wso2 ballerina",
+    externalDocs = @ExternalDocs( 
+        description = "wso2 ballerina",
         url = "http://docs.wso2.com/ballerina"
-        [,anyName = anyValue]* // Swagger element "x-anyName" : "anyValue"
+        [,anyName = anyValue]* 
     ),
     
     tags = { // Swagger tags element.
@@ -123,30 +125,92 @@ A Doc annotation, which describes Ballerina Annotation.
 
 _@APIDefinition_
 
-Ballerina Field Name  |  Description | Equivalent Swagger Field
-----------------------|--------------|-------------------------
-SwaggerVersion | Optional. Specifies the Swagger Specification version to be used. Default value is "2.0". | swagger 
-info | Required Field. Provides metadata about the Ballerina API. | info
-externalDocs |A list of tags used by the specification with additional metadata.| externalDocs
-tags | Optional. A list of tags used by the specification with additional metadata. | tags
+Ballerina Field | Type          | Description                                                       | Swagger Field
+----------------|:-------------:|-------------------------------------------------------------------|-------------------
+swaggerVersion  | string        | Specifies the Swagger Specification version to be used. Default value is "2.0". | swagger 
+info            | annotation    | **Required.** Provides metadata about the Ballerina API.          | info
+externalDocs    | annotation    | A list of tags used by the specification with additional metadata.|externalDocs
+tags            | annotation[]  | A list of tags used by the specification with additional metadata.| tags
 
 _@Info_
 
-Ballerina Field Name  |  Description | Equivalent Swagger Field
-----------------------|--------------|-------------------------
-title||
-description||
-version||
-termsOfService||
-contact||
-license||
-anyName*||
+Ballerina Field | Type          | Description                                                       | Swagger Field
+----------------|:-------------:|-------------------------------------------------------------------|-------------------
+title           | string        | **Required.**  The title of the Ballerina Service.                | title
+description     | string        | A description of the Ballerina Service.                           | description
+version         | string        | **Required.** The version of the Ballerina Service.               | version
+termsOfService  | string        | Text or URL for the Terms of Services for the Ballerina Service.  | termsOfService
+contact         | annotation    | The Contact information for Ballerina Service.                    | contact 
+license         | annotation    | The License information for Ballerina Service.                    | license
+anyName         | any           | Extension fields.                                                 | `x-`anyName (Swagger extensions)
 
+_@ExternalDocs_
 
+Ballerina Field | Type          | Description                                                       | Swagger Field
+----------------|:-------------:|-------------------------------------------------------------------|-------------------
+description     | string        | a description about the target documentation.                     | description
+url             | string        | **Required.** URL is pointing to target documentation.            | url
+anyName         | any           | Extension fields.                                                 | `x-`anyName (Swagger extensions)
 
+_@Tag_
+
+Ballerina Field | Type          | Description                                                       | Swagger Field
+----------------|:-------------:|-------------------------------------------------------------------|-------------------
+name            | string        | **Required.** Name of tag.                                        | name
+description     | string        | Description explaining current tag.                               | description
+externalDocs    | annotation    | Additional external documentation link explaining current tag.    | url
+anyName         | any           | Extension fields.                                                 | `x-`anyName (Swagger extensions)
+
+_@Contact_
+
+Ballerina Field | Type          | Description                                                       | Swagger Field
+----------------|:-------------:|-------------------------------------------------------------------|-------------------
+name            | string        | Name of the contact person or organization.                       |name
+url             | string        | An URL pointing to contact information.                           |url
+anyName         | any           | Extension fields.                                                 | `x-`anyName (Swagger extensions)
+
+_@License_
+
+Ballerina Field | Type          | Description                                                       | Swagger Field
+----------------|:-------------:|-------------------------------------------------------------------|-------------------
+name            | string        | Name of the License used for Ballerina Service.                   | name 
+url             | string        | An URL  pointing to License information.                          | url
+anyName         | any           | Extension fields.                                                 | `x-`anyName (Swagger extensions)
 
 #### API Configuration
 
+A Config annotation, which configure Ballerina Service. 
+
+```
+@APIConfiguration (
+    host = "http://example.com/sample/service", // Swagger hosts
+    schemes = {"http", "https"} // Swagger schemas
+    authorizationsConfigurations = { // Swagger securityDefinitions
+        @AuthorizationsConfiguration(
+        name = "anUniqueName", 
+        type = "basic|apiKey|oauth2|...", 
+        description = ""
+        // Swagger Oauth2 authentication.
+        [, flow = "implicit|password|application|accessCode" , 
+           authorizationUrl = "..." , 
+           tokenUrl = "..." , 
+           authorizationScopes = {
+        @AuthorizationScope( name = "scopeName" , 
+                             description = "A discription about scope"
+                        [,anyName = anyValue]* // this will represent swagger element "x-anyName" : "anyValue"
+        ),
+        @AuthorizationScope(...)
+        }] | // Swagger API KEY authentication. 
+        [, apiName = "apiKey" , in = "query|header"] 
+        
+        
+        [,anyName = anyValue]* // Swagger element "x-anyName" : "anyValue"
+        ),
+        @AuthorizationsConfiguration(...)
+    }
+    [,anyName = anyValue]* // Swagger element "x-anyName" : "anyValue"
+)
+```
 
 #### Path
 
