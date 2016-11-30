@@ -79,6 +79,7 @@ Followings are the service level annotations.
 
 A Doc annotation, which describes Ballerina Service. 
 
+Syntax:
 ```
 @APIDefinition( // Alternatives : @Info, @ServiceInfo, @APIInfo, @APIDocumentation
     swaggerVersion = "2.0", 
@@ -128,9 +129,9 @@ _@APIDefinition_
 Ballerina Field | Type          | Description                                                       | Swagger Field
 ----------------|:-------------:|-------------------------------------------------------------------|-------------------
 swaggerVersion  | string        | Specifies the Swagger Specification version to be used. Default value is "2.0". | swagger 
-info            | annotation    | **Required.** Provides metadata about the Ballerina API.          | info
-externalDocs    | annotation    | A list of tags used by the specification with additional metadata.|externalDocs
-tags            | annotation[]  | A list of tags used by the specification with additional metadata.| tags
+info            | @Info         | **Required.** Provides metadata about the Ballerina API.          | info
+externalDocs    | @ExternalDocs | A list of tags used by the specification with additional metadata.|externalDocs
+tags            | @Tag[]        | A list of tags used by the specification with additional metadata.| tags
 
 _@Info_
 
@@ -140,8 +141,8 @@ title           | string        | **Required.**  The title of the Ballerina Serv
 description     | string        | A description of the Ballerina Service.                           | description
 version         | string        | **Required.** The version of the Ballerina Service.               | version
 termsOfService  | string        | Text or URL for the Terms of Services for the Ballerina Service.  | termsOfService
-contact         | annotation    | The Contact information for Ballerina Service.                    | contact 
-license         | annotation    | The License information for Ballerina Service.                    | license
+contact         | @Contact      | The Contact information for Ballerina Service.                    | contact 
+license         | @License      | The License information for Ballerina Service.                    | license
 anyName         | any           | Extension fields.                                                 | `x-`anyName (Swagger extensions)
 
 _@ExternalDocs_
@@ -158,7 +159,7 @@ Ballerina Field | Type          | Description                                   
 ----------------|:-------------:|-------------------------------------------------------------------|-------------------
 name            | string        | **Required.** Name of tag.                                        | name
 description     | string        | Description explaining current tag.                               | description
-externalDocs    | annotation    | Additional external documentation link explaining current tag.    | url
+externalDocs    | @ExternalDocs | Additional external documentation link explaining current tag.    | url
 anyName         | any           | Extension fields.                                                 | `x-`anyName (Swagger extensions)
 
 _@Contact_
@@ -179,32 +180,33 @@ anyName         | any           | Extension fields.                             
 
 #### API Configuration
 
-A Config annotation, which configure Ballerina Service. 
+A Config annotation, which represents common configuration for a Ballerina Service. 
 
+Syntax:
 ```
 @APIConfiguration (
-    host = "http://example.com/sample/service", // Swagger hosts
-    schemes = {"http", "https"} // Swagger schemas
-    authorizationsConfigurations = { // Swagger securityDefinitions
+    host = "http://example.com/sample/service" , 
+    schemes = {"http", "https"} ,
+    authorizationsConfigurations = { 
         @AuthorizationsConfiguration(
-        name = "anUniqueName", 
-        type = "basic|apiKey|oauth2|...", 
-        description = ""
-        // Swagger Oauth2 authentication.
-        [, flow = "implicit|password|application|accessCode" , 
-           authorizationUrl = "..." , 
-           tokenUrl = "..." , 
-           authorizationScopes = {
-        @AuthorizationScope( name = "scopeName" , 
-                             description = "A discription about scope"
-                        [,anyName = anyValue]* // this will represent swagger element "x-anyName" : "anyValue"
-        ),
-        @AuthorizationScope(...)
-        }] | // Swagger API KEY authentication. 
-        [, apiName = "apiKey" , in = "query|header"] 
-        
-        
-        [,anyName = anyValue]* // Swagger element "x-anyName" : "anyValue"
+            name = "anUniqueName", 
+            type = "basic|apiKey|oauth2|...", 
+            description = "A Description."
+
+            [, flow = "implicit|password|application|accessCode" , 
+               authorizationUrl = "..." , 
+               tokenUrl = "..." , 
+               authorizationScopes = {
+                    @AuthorizationScope( 
+                        name = "scopeName" , 
+                        description = "A discription about scope"
+                        [,anyName = anyValue]* 
+                    ),
+                    @AuthorizationScope(...)
+                }
+            ] | 
+            [, apiName = "apiKey" , in = "query|header"] 
+            [,anyName = anyValue]* 
         ),
         @AuthorizationsConfiguration(...)
     }
@@ -212,14 +214,76 @@ A Config annotation, which configure Ballerina Service.
 )
 ```
 
+_@APIConfiguration_
+
+Ballerina Field | Type          | Description                                                       | Swagger Field
+----------------|:-------------:|-------------------------------------------------------------------|-------------------
+host            | string        | Host name or IP of the Ballerina Service.                         | host 
+schemes         | string[]      | Transport protocol of the Ballerina Service.(http, https, ws, wss)| schemes
+authorizationsConfigurations | @AuthorizationsConfiguration[] | Authorization schema associated with the Ballerina Service | securityDefinitions
+anyName         | any           | Extension fields.                                                 | `x-`anyName (Swagger extensions)
+
+_@AuthorizationsConfiguration_
+
+Ballerina Field | Type          | Description                                                       | Swagger Field
+----------------|:-------------:|-------------------------------------------------------------------|-------------------
+name            | string        | **Required.** Name of the authorization schema definition.        | securityDefinitions name 
+description     | string        | A Description about authorization schema.                         | description
+type            | string        | **Required.** Type of the authorization schema.(basic,oauth2,..)  | type
+apiName         | string        | **Required, if type is apikey** Name of the header or query param | name
+in              | string        | **Required, if type is apikey** Location of the API Key           | in
+flow            | string        | **Required, if type is oauth2** Flow used by OAuth2 schema.       | flow
+authorizationUrl| string        | **Required, if type is oauth2** authorizationUrl of the OAuth2 endpoint| authorizationUrl
+tokenUrl        | string        | **Required, if type is oauth2** tokenUrl of the OAuth2 endpoint   | tokenUrl
+authorizationScopes| @AuthorizationScope[] | **Required, if type is oauth2** OAuth2 scopes          | scopes
+anyName         | any           | Extension fields.                                                 | `x-`anyName (Swagger extensions)
+
+_@AuthorizationScope_
+
+Ballerina Field | Type          | Description                                                       | Swagger Field
+----------------|:-------------:|-------------------------------------------------------------------|-------------------
+name            | string        | Name of the OAuth2 scope.                                         | name 
+description     | string        | A description about the OAuth2 scope.                             | value of the name
+anyName         | any           | Extension fields.                                                 | `x-`anyName (Swagger extensions)
+
 #### Path
 
+Describes Base path of the HTTP Ballerina Service/API. This is a configuration annotation.
+
+Syntax:
+```
+@Path("/context")
+```
+
+Value of the `@Path` annotation can't be empty and it should start with `/`. Swagger 2.0 equivalent field is `basePath`.
 
 #### Consumes
 
+Defines A list of MIME types the Ballerina Service can consume. This is global to all the resource defined within a 
+  service. This is a configuration annotation.
+
+```
+@Consumes({ "MIME-type" [, "MIME-type"]*})
+```
+
+E.g: 
+```
+@Consumes({"application/json", "application/xml"})
+```
 
 #### Produces
 
+Defines A list of MIME types the Ballerina Service can produce. This is global to all the resource defined within a 
+  service. This is a configuration annotation.
+
+```
+@Produces({ "MIME-type" [, "MIME-type"]*})
+```
+
+E.g: 
+```
+@Produces({"application/json", "application/xml"})
+```
 
 ### Resource Annotation.
 
