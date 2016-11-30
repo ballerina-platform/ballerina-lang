@@ -67,8 +67,9 @@ import balarina.math;
 service WeatherService{
     WeatherConnector wc = new WeatherConnector( ... );
     resource WeatherInFResource(message message){
-        float lat = xml.get(message.payload, "/lat");
-        float lon = xml.get(message.payload, "/lon");
+        xml payload  = message:getXmlPayload(message)
+        float lat = xml.get(payload, "/lat");
+        float lon = xml.get(payload, "/lon");
         float temperature = wc.getTemprature(new location(lat, lon));
         return `{"temperature":$temperature}`;
     }
@@ -223,7 +224,7 @@ worker AsyncCalculator (message m) {
 }
 
 message m = new message();
-m.payload = `{"x": 3, "y": 7}`
+m.setXmlPayload(m, `{"x": 3, "y": 7}`)
 //trigger AsyncCalculator
 m->AsyncCalculator
 //AsyncCalculator will run in parallel to do_something()
