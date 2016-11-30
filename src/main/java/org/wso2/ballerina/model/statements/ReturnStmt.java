@@ -19,15 +19,17 @@ package org.wso2.ballerina.model.statements;
 
 import org.wso2.ballerina.model.expressions.Expression;
 
+import java.util.List;
+
 /**
  * {@code ReturnStmt} represents a return statement
  *
  * @since 1.0.0
  */
 public class ReturnStmt implements Statement {
-    private Expression returnExpr;
+    private List<Expression> returnExprs;
 
-    public ReturnStmt(Expression expr) {
-        this.returnExpr = expr;
+    public ReturnStmt(List<Expression> returnExprs) {
+        this.returnExprs = returnExprs;
     }
 }
