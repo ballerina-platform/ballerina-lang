@@ -70,6 +70,10 @@ public class Action {
      * @param annotation Annotation to be added
      */
     public void addAnnotation(Annotation annotation) {
+        // Since model is generated sequentially no chance of synchronizing issues
+        if (annotations == null) {  // TODO: based on the usage of this and setAnnotation methods we may move this logic
+            annotations = new ArrayList<Annotation>();
+        }
         annotations.add(annotation);
     }
 
@@ -127,6 +131,9 @@ public class Action {
      * @param connection Connection to be added to the Action
      */
     public void addConnection(Connection connection) {
+        if (connections == null) {
+            connections = new ArrayList<Connection>();
+        }
         connections.add(connection);
     }
 
@@ -154,6 +161,9 @@ public class Action {
      * @param variable variable to be added to the Action
      */
     public void addVariable(Variable variable) {
+        if (variables == null) {
+            variables = new ArrayList<Variable>();
+        }
         variables.add(variable);
     }
 
@@ -181,6 +191,9 @@ public class Action {
      * @param worker Worker to be added to the Action
      */
     public void addWorker(Worker worker) {
+        if (workers == null) {
+            workers = new ArrayList<Worker>();
+        }
         workers.add(worker);
     }
 
@@ -208,6 +221,9 @@ public class Action {
      * @param statement a Statement to be added to the Action
      */
     public void addStatement(Statement statement) {
+        if (statements == null) {
+            statements = new ArrayList<Statement>();
+        }
         statements.add(statement);
     }
 

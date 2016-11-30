@@ -72,6 +72,9 @@ public class Function {
      * @param annotation Annotation to be added
      */
     public void addAnnotation(Annotation annotation) {
+        if (annotations == null) {
+            annotations = new ArrayList<Annotation>();
+        }
         annotations.add(annotation);
     }
 
@@ -99,6 +102,9 @@ public class Function {
      * @param argument Argument to be added to the function definition
      */
     public void addArgument(Argument argument) {
+        if (arguments == null) {
+            arguments = new ArrayList<Argument>();
+        }
         arguments.add(argument);
     }
 
@@ -126,6 +132,9 @@ public class Function {
      * @param connection Connection to be added to the Function
      */
     public void addConnection(Connection connection) {
+        if (connections == null) {
+            connections = new ArrayList<Connection>();
+        }
         connections.add(connection);
     }
 
@@ -153,6 +162,9 @@ public class Function {
      * @param variable variable to be added to the Function
      */
     public void addVariable(Variable variable) {
+        if (variables == null) {
+            variables = new ArrayList<Variable>();
+        }
         variables.add(variable);
     }
 
@@ -180,6 +192,9 @@ public class Function {
      * @param worker Worker to be added to the Resource
      */
     public void addWorker(Worker worker) {
+        if (workers == null) {
+            workers = new ArrayList<Worker>();
+        }
         workers.add(worker);
     }
 
@@ -208,6 +223,9 @@ public class Function {
      * @param statement a Statement to be added to the Function
      */
     public void addStatement(Statement statement) {
+        if (statements == null) {
+            statements = new ArrayList<Statement>();
+        }
         statements.add(statement);
     }
 

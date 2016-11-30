@@ -66,6 +66,9 @@ public class Connector {
      * @param annotation Annotation to be added
      */
     public void addAnnotation(Annotation annotation) {
+        if (annotations == null) {
+            annotations = new ArrayList<Annotation>();
+        }
         annotations.add(annotation);
     }
 
@@ -123,6 +126,9 @@ public class Connector {
      * @param connection Connection to be added to the Connector
      */
     public void addConnection(Connection connection) {
+        if (connections == null) {
+            connections = new ArrayList<Connection>();
+        }
         connections.add(connection);
     }
 
@@ -150,6 +156,9 @@ public class Connector {
      * @param variable variable to be added to the Connector
      */
     public void addVariable(Variable variable) {
+        if (variables == null) {
+            variables = new ArrayList<Variable>();
+        }
         variables.add(variable);
     }
 
@@ -177,6 +186,9 @@ public class Connector {
      * @param action Action to be added to the Connector
      */
     public void addAction(Action action) {
+        if (actions == null) {
+            actions = new ArrayList<Action>();
+        }
         actions.add(action);
     }
 
