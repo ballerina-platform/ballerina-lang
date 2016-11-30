@@ -22,12 +22,54 @@ import org.wso2.ballerina.model.statements.Statement;
 
 import java.util.List;
 
+/**
+ * A function is an operation that is executed by a worker.
+ * <p>
+ * The structure of a function is as follows:
+ *
+ *  [FunctionAnnotations]
+ *  [public] function FunctionName (((TypeName VariableName)[(, TypeName VariableName)*])?)
+ *  ((TypeName[(, TypeName)*])?) [throws exception] {
+ *      ConnectionDeclaration;*
+ *      VariableDeclaration;*
+ *      WorkerDeclaration;*
+ *      Statement;+
+ *  }
+ */
 public class Function {
 
+    private List<Annotation> annotations;
     private List<Connection> connections;
     private List<Variable> variables;
     private List<Worker> workers;
     private List<Statement> statements;
+
+    /**
+     * Get all the Annotations associated with a Function
+     *
+     * @return list of Annotations
+     */
+    public List<Annotation> getAnnotations() {
+        return annotations;
+    }
+
+    /**
+     * Set list of all the Annotations
+     *
+     * @param annotations list of Annotations
+     */
+    public void setAnnotations(List<Annotation> annotations) {
+        this.annotations = annotations;
+    }
+
+    /**
+     * Add an Annotation to the Function
+     *
+     * @param annotation Annotation to be added
+     */
+    public void addAnnotation(Annotation annotation) {
+        annotations.add(annotation);
+    }
 
     /**
      * Get all Connections declared within the Function scope
@@ -137,6 +179,5 @@ public class Function {
     public void addStatement(Statement statement) {
         statements.add(statement);
     }
-
 
 }

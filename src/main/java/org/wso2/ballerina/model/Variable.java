@@ -18,5 +18,9 @@
 
 package org.wso2.ballerina.model;
 
+/**
+ * Ballerina has variables of various types. The type system includes built-in primitives,
+ * a collection of built-in structured types and array and record type constructors.
+ */
 public class Variable {
 }
