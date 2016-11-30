@@ -22,6 +22,20 @@ import org.wso2.ballerina.model.statements.Statement;
 
 import java.util.List;
 
+/**
+ * A function is an operation that is executed by a worker.
+ * <p>
+ * The structure of a function is as follows:
+ *
+ *  [FunctionAnnotations]
+ *  [public] function FunctionName (((TypeName VariableName)[(, TypeName VariableName)*])?)
+ *  ((TypeName[(, TypeName)*])?) [throws exception] {
+ *      ConnectionDeclaration;*
+ *      VariableDeclaration;*
+ *      WorkerDeclaration;*
+ *      Statement;+
+ *  }
+ */
 public class Function {
 
     private List<Connection> connections;

@@ -22,6 +22,23 @@ import org.wso2.ballerina.model.statements.Statement;
 
 import java.util.List;
 
+/**
+ * A resource is a single request handler within a service.
+ * The resource concept is designed to be access protocol independent.
+ * But in the initial release of the language it is intended to work with HTTP.
+ * <p>
+ *
+ * The structure of a ResourceDefinition is as follows:
+ *
+ *  [ResourceAnnotations]
+ *  resource ResourceName (Message VariableName[, ([ResourceParamAnnotations] TypeName VariableName)+]) {
+ *      ConnectionDeclaration;*
+ *      VariableDeclaration;*
+ *      WorkerDeclaration;*
+ *      Statement;+
+ *  }*
+ *
+ */
 public class Resource {
 
     private List<Worker> workers;

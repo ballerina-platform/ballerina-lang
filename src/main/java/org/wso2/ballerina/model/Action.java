@@ -22,6 +22,21 @@ import org.wso2.ballerina.model.statements.Statement;
 
 import java.util.List;
 
+
+/**
+ * Actions are operations (functions) that can be executed against a connector.
+ * <p>
+ * The structure of an action definition is as follows:
+ *  [ActionAnnotations]
+ *  action ActionName (ConnectorName VariableName[, ([ActionParamAnnotations] TypeName VariableName)+]) (TypeName*)
+ *  [throws exception] {
+ *      ConnectionDeclaration;*
+ *      VariableDeclaration;*
+ *      WorkerDeclaration;*
+ *      Statement;+
+ *  }
+ *
+ */
 public class Action {
 
     private List<Connection> connections;

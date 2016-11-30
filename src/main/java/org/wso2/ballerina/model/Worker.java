@@ -22,6 +22,19 @@ import org.wso2.ballerina.model.statements.Statement;
 
 import java.util.List;
 
+/**
+ * A worker is a thread of execution that the integration developer programs as a lifeline.
+ * <p>
+ *
+ * Workers are defined as follows:
+ *
+ *  worker WorkerName (message m) {
+ *      ConnectionDeclaration;*
+ *      VariableDeclaration;*
+ *      Statement;+
+ *      [reply MessageName;]
+ *  }
+ */
 public class Worker {
 
     private List<Connection> connections;
