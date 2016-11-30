@@ -41,12 +41,41 @@ import java.util.List;
  */
 public class Resource {
 
+    private List<Annotation> annotations;
     private List<Worker> workers;
     private Worker defaultWorker;
 
     public Resource() {
         defaultWorker = new Worker();
     }
+
+    /**
+     * Get all the Annotations associated with a Resource
+     *
+     * @return list of Annotations
+     */
+    public List<Annotation> getAnnotations() {
+        return annotations;
+    }
+
+    /**
+     * Set list of all the Annotations
+     *
+     * @param annotations list of Annotations
+     */
+    public void setAnnotations(List<Annotation> annotations) {
+        this.annotations = annotations;
+    }
+
+    /**
+     * Add an Annotation to the Resource
+     *
+     * @param annotation Annotation to be added
+     */
+    public void addAnnotation(Annotation annotation) {
+        annotations.add(annotation);
+    }
+
 
     /**
      * Get all Connections declared within the default Worker scope of the Resource

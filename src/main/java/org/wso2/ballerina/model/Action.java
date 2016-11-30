@@ -22,7 +22,6 @@ import org.wso2.ballerina.model.statements.Statement;
 
 import java.util.List;
 
-
 /**
  * Actions are operations (functions) that can be executed against a connector.
  * <p>
@@ -39,10 +38,38 @@ import java.util.List;
  */
 public class Action {
 
+    private List<Annotation> annotations;
     private List<Connection> connections;
     private List<Variable> variables;
     private List<Worker> workers;
     private List<Statement> statements;
+
+    /**
+     * Get all the Annotations associated with an Action
+     *
+     * @return list of Annotations
+     */
+    public List<Annotation> getAnnotations() {
+        return annotations;
+    }
+
+    /**
+     * Set list of all the Annotations
+     *
+     * @param annotations list of Annotations
+     */
+    public void setAnnotations(List<Annotation> annotations) {
+        this.annotations = annotations;
+    }
+
+    /**
+     * Add an Annotation to the Action
+     *
+     * @param annotation Annotation to be added
+     */
+    public void addAnnotation(Annotation annotation) {
+        annotations.add(annotation);
+    }
 
     /**
      * Get all Connections declared within the Action scope
