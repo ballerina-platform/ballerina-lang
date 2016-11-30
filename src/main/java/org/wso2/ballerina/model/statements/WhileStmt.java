@@ -17,9 +17,19 @@
 */
 package org.wso2.ballerina.model.statements;
 
-import org.wso2.ballerina.model.expression.Expression;
+import org.wso2.ballerina.model.expressions.Expression;
 
-public class WhileStmt implements Statement{
+/**
+ * {@code WhileStmt} represents a while statement
+ *
+ * @since 1.0.0
+ */
+public class WhileStmt implements Statement {
     private Expression condition;
     private Statement block;
+
+    public WhileStmt(Expression condition, Statement block) {
+        this.condition = condition;
+        this.block = block;
+    }
 }

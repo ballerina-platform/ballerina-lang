@@ -17,9 +17,19 @@
 */
 package org.wso2.ballerina.model.statements;
 
-import org.wso2.ballerina.model.expression.Expression;
+import org.wso2.ballerina.model.expressions.Expression;
 
-public class AssignStmt implements Statement{
+/**
+ * An {@code AssignStmt} represents an assignment.
+ *
+ * @since 1.0.0
+ */
+public class AssignStmt implements Statement {
     private Expression lhsExpr;
     private Expression rhsExpr;
+
+    public AssignStmt(Expression lhsExpr, Expression rhsExpr) {
+        this.lhsExpr = lhsExpr;
+        this.rhsExpr = rhsExpr;
+    }
 }

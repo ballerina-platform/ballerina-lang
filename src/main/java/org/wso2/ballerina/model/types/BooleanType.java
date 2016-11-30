@@ -15,15 +15,12 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerina.model.statements;
+package org.wso2.ballerina.model.types;
 
 /**
- * Represents a single line comment. //-style
+ * {@code BooleanType} represents a boolean value
+ *
+ * @since 1.0.0
  */
-public class CommentStmt implements Statement {
-    private String comment;
-
-    public CommentStmt(String comment) {
-        this.comment = comment;
-    }
+public class BooleanType implements Type {
 }

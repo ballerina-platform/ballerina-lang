@@ -15,15 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerina.model.statements;
+package org.wso2.ballerina.model.expressions;
 
-/**
- * Represents a single line comment. //-style
- */
-public class CommentStmt implements Statement {
-    private String comment;
-
-    public CommentStmt(String comment) {
-        this.comment = comment;
-    }
+public interface Expression {
 }

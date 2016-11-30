@@ -15,15 +15,12 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerina.model.statements;
+package org.wso2.ballerina.model.types;
 
 /**
- * Represents a single line comment. //-style
+ * {@code IntType} represents an integer which is a 32-bit signed number
+ *
+ * @since 1.0.0
  */
-public class CommentStmt implements Statement {
-    private String comment;
-
-    public CommentStmt(String comment) {
-        this.comment = comment;
-    }
+public class IntType implements Type {
 }

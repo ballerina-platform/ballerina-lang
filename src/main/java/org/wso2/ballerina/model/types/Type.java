@@ -15,15 +15,12 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerina.model.statements;
+package org.wso2.ballerina.model.types;
 
 /**
- * Represents a single line comment. //-style
+ * Represents a type. All types implements this interface.
+ *
+ * @since 1.0.0
  */
-public class CommentStmt implements Statement {
-    private String comment;
-
-    public CommentStmt(String comment) {
-        this.comment = comment;
-    }
+public interface Type {
 }

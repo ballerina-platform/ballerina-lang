@@ -17,5 +17,17 @@
 */
 package org.wso2.ballerina.model.statements;
 
+import org.wso2.ballerina.model.expressions.Expression;
+
+/**
+ * {@code ReplyStmt} represents a reply statement
+ *
+ * @since 1.0.0
+ */
 public class ReplyStmt implements Statement {
+    private Expression replyExpr;
+
+    public ReplyStmt(Expression replyExpr) {
+        this.replyExpr = replyExpr;
+    }
 }

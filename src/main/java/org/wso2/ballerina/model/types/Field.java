@@ -15,15 +15,21 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerina.model.statements;
+package org.wso2.ballerina.model.types;
+
+import org.wso2.ballerina.model.expressions.Identifier;
 
 /**
- * Represents a single line comment. //-style
+ * {@code Field} represents a field declaration in a {@code StructType}
+ *
+ * @since 1.0.0
  */
-public class CommentStmt implements Statement {
-    private String comment;
+public class Field {
+    private Type type;
+    private Identifier name;
 
-    public CommentStmt(String comment) {
-        this.comment = comment;
+    public Field(Type type, Identifier name) {
+        this.type = type;
+        this.name = name;
     }
 }

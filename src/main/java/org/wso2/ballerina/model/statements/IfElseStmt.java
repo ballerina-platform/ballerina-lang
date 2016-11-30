@@ -17,10 +17,21 @@
 */
 package org.wso2.ballerina.model.statements;
 
-import org.wso2.ballerina.model.expression.Expression;
+import org.wso2.ballerina.model.expressions.Expression;
 
-public class IfElseStmt implements Statement{
+/**
+ * {@code IfElseStmt} represents a if/else statement.
+ *
+ * @since 1.0.0
+ */
+public class IfElseStmt implements Statement {
     private Expression condition;
     private Statement thenBlock;
     private Statement elseBlock;
+
+    public IfElseStmt(Expression condition, Statement thenBlock, Statement elseBlock) {
+        this.condition = condition;
+        this.thenBlock = thenBlock;
+        this.elseBlock = elseBlock;
+    }
 }

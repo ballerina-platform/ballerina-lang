@@ -15,15 +15,19 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerina.model.statements;
+package org.wso2.ballerina.model.types;
+
+import java.util.List;
 
 /**
- * Represents a single line comment. //-style
+ * {@code StructType} represents a sequence of named elements, called fields, each of which has a name and a type
+ *
+ * @since 1.0.0
  */
-public class CommentStmt implements Statement {
-    private String comment;
+public class StructType implements Type {
+    private List<Field> fields;
 
-    public CommentStmt(String comment) {
-        this.comment = comment;
+    public StructType(List<Field> fields) {
+        this.fields = fields;
     }
 }

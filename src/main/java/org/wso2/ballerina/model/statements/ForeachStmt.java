@@ -17,11 +17,23 @@
 */
 package org.wso2.ballerina.model.statements;
 
-import org.wso2.ballerina.model.expression.Expression;
+import org.wso2.ballerina.model.expressions.Expression;
+import org.wso2.ballerina.model.types.IteratorType;
 
+/**
+ * {@code ForeachStmt} Represents a foreach statement.
+ *
+ * @since 1.0.0
+ */
 public class ForeachStmt implements Statement {
     private Expression condition;
-//    private Iterator itr;
-    private Statement body;
+    private IteratorType itr;
+    private Statement forEachBlock;
+
+    public ForeachStmt(Expression condition, IteratorType itr, Statement forEachBlock) {
+        this.condition = condition;
+        this.itr = itr;
+        this.forEachBlock = forEachBlock;
+    }
 
 }

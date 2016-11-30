@@ -15,7 +15,13 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerina.model.expression;
+package org.wso2.ballerina.model.types;
 
-public interface Expression {
+/**
+ * {@code FloatType} represents a integer which is a 32-bit floating-point number
+ * according to the standard IEEE 754 specifications.
+ *
+ * @since 1.0.0
+ */
+public class FloatType implements Type {
 }

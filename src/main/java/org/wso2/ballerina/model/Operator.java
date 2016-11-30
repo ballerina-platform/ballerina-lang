@@ -15,15 +15,18 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerina.model.statements;
+package org.wso2.ballerina.model;
 
-/**
- * Represents a single line comment. //-style
- */
-public class CommentStmt implements Statement {
-    private String comment;
+public enum Operator {
 
-    public CommentStmt(String comment) {
-        this.comment = comment;
+    ADD("+"),
+    SUB("-"),
+    MUL("*"),
+    DIV("/");
+
+    private final String opValue;
+
+    Operator(String opValue) {
+        this.opValue = opValue;
     }
 }
