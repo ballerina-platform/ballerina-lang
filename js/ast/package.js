@@ -15,25 +15,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define([], function(){
+define(['lodash', './node'], function(_, ASTNode){
 
-    var ASTNode = function(value, type, cStart, cEnd) {
-        this.object = undefined;
-        this.children = [];
-        this.value = value;
-        this.type = type;
-        this.configStart = cStart;
-        this.configEnd = cEnd;
+    var Package = function(){
+        this.serviceDefinitions = [];
+        this.functionDefinitions = [];
+        this.connectorDefinitions = [];
+        this.typeDefinitions = [];
+        this.typeConvertorDefinitions = [];
+        this.constantDefinitions = [];
     };
 
-    ASTNode.prototype.getChildren = function () {
-        return this.children;
-    };
+    Package.prototype = Object.create(ASTNode.prototype);
+    Package.prototype.constructor = Package;
 
-    ASTNode.prototype.getValue = function () {
-        return this.value;
-    };
 
-    return ASTNode;
 
 });
