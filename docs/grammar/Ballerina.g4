@@ -1,7 +1,6 @@
 grammar Ballerina;
 
-//todo inline json and xml declaration (with `)
-//todo xml, json shema definition
+//todo xml, json schema definition
 //todo comment statment
 //todo revisit blockStatement
 
@@ -369,22 +368,43 @@ localVariableDeclaration
 
 statement
     :   block
-    |   'if' parExpression statement ('else' statement)?
-    |   'iterate' '(' iterateStatement ')' statement
-    |   'while' parExpression statement
-    |   'break' Identifier? ';'
-    |   'fork' '(' Identifier ')' block joinClause?
-    |   'try' block catchClause+
-    |   'throw' expression ';'
-    |   'return' expression? ';'
-    |   'reply' expression? ';'
+    |   ifElseStatement
+    |   iterateStatement
+    |   whileStatement
+    |   breakStatement
+    |   forkJoinStatement
+    |   tryCatchStatement
+    |   throwStatement
+    |   returnStatement
+    |   replyStatement
+    |   workerInitiatingStatement
+//    |   commentStatement
     |   ';'
     |   statementExpression ';'
     |   Identifier ':' statement
     ;
+ifElseStatement
+    :   'if' parExpression statement ('else' statement)?
+    ;
 
-catchClause
-    :   'catch' '(' 'exception' Identifier ')' block
+iterateStatement
+    :   'iterate' '(' iterateControl ')' statement
+    ;
+
+iterateControl
+    :   variableModifier* typeType variableDeclaratorId ':' expression
+    ;
+
+whileStatement
+    :   'while' parExpression statement
+    ;
+
+breakStatement
+    :   'break' Identifier? ';'
+    ;
+
+forkJoinStatement
+    :   'fork' '(' Identifier ')' block joinClause?
     ;
 
 joinClause
@@ -406,11 +426,43 @@ joinBodyDeclaration
     |   statement
     ;
 
-
-iterateStatement
-    :   variableModifier* typeType variableDeclaratorId ':' expression
+tryCatchStatement
+    :   'try' block catchClause+
     ;
 
+catchClause
+    :   'catch' '(' 'exception' Identifier ')' block
+    ;
+
+throwStatement
+    :   'throw' expression ';'
+    ;
+
+returnStatement
+    :   'return' expression? ';'
+    ;
+
+replyStatement
+    :   'reply' expression? ';'
+    ;
+
+workerInitiatingStatement
+    :   triggerWorker
+    |   workerReply
+    ;
+
+triggerWorker
+    :   Identifier '->' Identifier ';'
+    ;
+
+workerReply
+    :   Identifier '<-' Identifier ';'
+    ;
+
+//todo
+//commentStatement
+//    :   '//' ~('\r|\n')*
+//    ;
 // EXPRESSIONS
 
 parExpression
@@ -447,6 +499,7 @@ expression
     |   expression '||' expression
     |   expression '?' expression ':' expression
     |   '{' expression ':' expression '}'
+    |   '`' expression '`'
     |   <assoc=right> expression
         (   '='
         |   '+='
