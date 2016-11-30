@@ -18,9 +18,9 @@
 package org.wso2.ballerina.model.types;
 
 /**
- * Represents a type. All types implements this interface.
+ * {@code JSONType} represents a JSON document
  *
  * @since 1.0.0
  */
-public interface Type {
+public class JSONType implements Type {
 }

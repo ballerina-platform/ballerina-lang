@@ -17,5 +17,10 @@
 */
 package org.wso2.ballerina.model.types;
 
-public class JSON {
+/**
+ * {@code XMLDocumentType} represents an XML Document
+ *
+ * @since 1.0.0
+ */
+public class XMLDocumentType {
 }

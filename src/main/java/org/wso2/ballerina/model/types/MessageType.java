@@ -17,5 +17,10 @@
 */
 package org.wso2.ballerina.model.types;
 
-public class Message {
+/**
+ * {@code MessageType} represents a request message
+ *
+ * @since 1.0.0
+ */
+public class MessageType implements Type {
 }

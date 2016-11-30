@@ -17,5 +17,11 @@
 */
 package org.wso2.ballerina.model.types;
 
-public class XML {
+/**
+ *  {@code ArrayType} represents an array
+ *
+ *  @since 1.0.0
+ */
+public class ArrayType implements Type {
+
 }

@@ -18,9 +18,9 @@
 package org.wso2.ballerina.model.types;
 
 /**
- * Represents a type. All types implements this interface.
+ * {@code MapType} represents a map
  *
  * @since 1.0.0
  */
-public interface Type {
+public class MapType {
 }

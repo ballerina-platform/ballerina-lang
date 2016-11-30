@@ -17,5 +17,10 @@
 */
 package org.wso2.ballerina.model.types;
 
-public class IteratorType {
+/**
+ * {@code IteratorType} represents a Iterator in Ballerina
+ *
+ * @since 1.0.0
+ */
+public class IteratorType implements Type {
 }

@@ -17,5 +17,10 @@
 */
 package org.wso2.ballerina.model.types;
 
-public class ExceptionType {
+/**
+ * {@code ExceptionType} represents an Exception in Ballerina
+ *
+ * @since 1.0.0
+ */
+public class ExceptionType implements Type {
 }
