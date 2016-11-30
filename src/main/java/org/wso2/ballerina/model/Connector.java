@@ -65,7 +65,7 @@ public class Connector {
     /**
      * Assign variables to the Connector
      *
-     * @param variables list of Connector
+     * @param variables list of variables
      */
     public void setVariables(List<Variable> variables) {
         this.variables = variables;
