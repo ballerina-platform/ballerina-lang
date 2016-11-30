@@ -18,9 +18,63 @@
 
 package org.wso2.ballerina.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * A connection represents the instantiation of a connector with a particular configuration.
+ * A Connection represents the instantiation of a connector with a particular configuration.
  */
 @SuppressWarnings("unused")
 public class Connection {
+
+    String connectorName;
+    List<String> argValues;
+
+    /**
+     *
+     * @param connectorName Name of the Connector
+     */
+    public Connection(String connectorName) {
+        this.connectorName = connectorName;
+    }
+
+    /**
+     * Get the name of the Connector
+     *
+     * @return name of thr Connector
+     */
+    public String getConnectorName() {
+        return connectorName;
+    }
+
+    /**
+     * Get values of the arguments
+     *
+     * @return list of argument values
+     */
+    public List<String> getArgValues() {
+        return argValues;
+    }
+
+    /**
+     * Assign argument values to the Connection
+     *
+     * @param argValues list of argument values
+     */
+    public void setArgValues(List<String> argValues) {
+        this.argValues = argValues;
+    }
+
+    /**
+     * Add an argument value to the Connection
+     *
+     * @param arg argument value
+     */
+    public void addArg(String arg) {
+        if (argValues == null) {
+            argValues = new ArrayList<String>();
+        }
+        argValues.add(arg);
+    }
+
 }

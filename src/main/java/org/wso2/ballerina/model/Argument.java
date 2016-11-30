@@ -27,34 +27,34 @@ import java.util.List;
 @SuppressWarnings("unused")
 public class Argument {
 
-    private String name, value;
+    private String type, name;
     private List<Annotation> annotations;
 
     /**
+     * @param type Type of the Argument
      * @param name  Name of the Argument
-     * @param value Value of the Argument
      */
-    public Argument(String name, String value) {
+    public Argument(String type, String name) {
+        this.type = type;
         this.name = name;
-        this.value = value;
     }
 
     /**
-     * Get name of the Argument
+     * Get connectorName of the Argument
      *
-     * @return name of the Argument
+     * @return connectorName of the Argument
      */
     public String getName() {
         return name;
     }
 
     /**
-     * Get the value of the Argument
+     * Get the type of the Argument
      *
-     * @return value of the Argument
+     * @return type of the Argument
      */
-    public String getValue() {
-        return value;
+    public String getType() {
+        return type;
     }
 
     /**

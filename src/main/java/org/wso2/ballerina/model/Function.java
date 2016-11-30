@@ -24,9 +24,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A function is an operation that is executed by a worker.
+ * A Function is an operation that is executed by a Worker.
  * <p>
- * The structure of a function is as follows:
+ * The structure of a Function is as follows:
  *
  *  [FunctionAnnotations]
  *  [public] function FunctionName (((TypeName VariableName)[(, TypeName VariableName)*])?)

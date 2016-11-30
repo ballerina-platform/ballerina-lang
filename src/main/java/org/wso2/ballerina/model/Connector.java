@@ -22,10 +22,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A connector represents a participant in the integration and is used to interact with an external system.
- * Ballerina includes a set of standard connectors.
+ * A Connector represents a participant in the integration and is used to interact with an external system.
+ * Ballerina includes a set of standard Connectors.
  * <p>
- * A connector is defined as follows:
+ * A Connector is defined as follows:
  *
  * [ConnectorAnnotations]
  * connector ConnectorName ([ConnectorParamAnnotations]TypeName VariableName[(, TypeName VariableName)*]) {
