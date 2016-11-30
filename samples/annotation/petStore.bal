@@ -1,4 +1,4 @@
-package ballerina.sample.petstore;
+package ballerina.sample.annotation;
 
 @APIDescription(
         Version = "1.0.0",
