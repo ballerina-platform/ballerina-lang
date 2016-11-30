@@ -48,7 +48,7 @@ E.g:
 
 In Ballerina annotations are divided into two categories.
 
-* Documentation Annotations
+* Documentation Annotations (Doc Annotation)
     - These annotations represent structured meta information about the Ballerina constructs that they annotated.(Similar to
      Java Doc comment.) 
 * Config Annotations
@@ -64,6 +64,98 @@ to Generate a Ballerina service skeleton from a Swagger 2.0 definition or Swagge
 ## Supported Annotations.
 
 ### Service Annotations. 
+
+Followings are the service level annotations.
+
+* API Definition
+* API Configuration
+* Path
+* Consumes
+* Produces
+
+#### API Definition
+
+A Doc annotation, which describes Ballerina Annotation. 
+
+```
+@APIDefinition( // Alternatives : @Info, @ServiceInfo, @APIInfo, @APIDocumentation
+    SwaggerVersion = "2.0", 
+    info = @Info( // Swagger Info (Required)
+        title = "Sample API title", // Swagger Info.title (Required)
+        description =  "Sample Description.", // Swagger Info.Description 
+        version = "1.0.0", // Swagger Info.Version (Required)
+        termsOfService = "http://example.com/terms", // Swagger Info.TermsOfService
+        contact = @Contact( // Swagger Info.contact
+            name = "wso2" ,
+            url = "http//wso2.com"
+            [,anyName = anyValue]* // Swagger element "x-anyName" : "anyValue"
+        ), 
+
+        license = @License( // Swagger Info.license
+            name = "Apache 2",
+            url = "http://www.apache.org/licenses/LICENSE-2.0"
+            [,anyName = anyValue]* // Swagger element "x-anyName" : "anyValue"
+        ) 
+
+        [,anyName = anyValue]* // Swagger element "x-anyName" : "anyValue"
+    ),
+
+    externalDocs = @ExternalDocs( // Swagger external Docs
+        value = "wso2 ballerina",
+        url = "http://docs.wso2.com/ballerina"
+        [,anyName = anyValue]* // Swagger element "x-anyName" : "anyValue"
+    ),
+    
+    tags = { // Swagger tags element.
+            @Tag( // Swagger tag element.
+                name = "HTTP",
+                description = "HTTP Service",
+                externalDocs = @ExternalDocs(
+                    value = "HTTP Service",
+                    url = "http://docs.wso2.com/http"
+                    [,anyName = anyValue]* // this will represent swagger element "x-anyName" : "anyValue"
+                )
+            ),
+            @Tag(name = "Private", description = "Private Service")
+        }
+)
+```
+
+_@APIDefinition_
+
+Ballerina Field Name  |  Description | Equivalent Swagger Field
+----------------------|--------------|-------------------------
+SwaggerVersion | Optional. Specifies the Swagger Specification version to be used. Default value is "2.0". | swagger 
+info | Required Field. Provides metadata about the Ballerina API. | info
+externalDocs |A list of tags used by the specification with additional metadata.| externalDocs
+tags | Optional. A list of tags used by the specification with additional metadata. | tags
+
+_@Info_
+
+Ballerina Field Name  |  Description | Equivalent Swagger Field
+----------------------|--------------|-------------------------
+title||
+description||
+version||
+termsOfService||
+contact||
+license||
+anyName*||
+
+
+
+
+#### API Configuration
+
+
+#### Path
+
+
+#### Consumes
+
+
+#### Produces
+
 
 ### Resource Annotation.
 
