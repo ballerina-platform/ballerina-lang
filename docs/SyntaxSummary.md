@@ -85,7 +85,7 @@ connector WeatherConnector{
 }
 
 function fromC2F(float temperature){
-    return math.round(32 + temperature*5/9);
+    return math:round(32 + temperature*5/9);
 }
 ```
 
@@ -215,8 +215,8 @@ If the worker wishes to reply to the enclosing entity, it can do so using a `rep
 Following code show a sample worker.
 ```
 worker AsyncCalculator (message m) {
-    int x = xml.get(m, "x");
-    int y = xml.get(m, "y");  
+    int x = xml:get(m, "x");
+    int y = xml:get(m, "y");  
     int result = x + y;
     message m = new message();
     m.payload = `{"result": $result}`
@@ -224,7 +224,7 @@ worker AsyncCalculator (message m) {
 }
 
 message m = new message();
-m.setXmlPayload(m, `{"x": 3, "y": 7}`)
+message:setXmlPayload(m, `{"x": 3, "y": 7}`)
 //trigger AsyncCalculator
 m->AsyncCalculator
 //AsyncCalculator will run in parallel to do_something()
@@ -475,15 +475,17 @@ FlightService fs = new FlightService(...)
 HotelService hs = new FlightService(...)
 fork (msg) {
   worker checkFlightsWroker (message msg) {
-    string to = xml.get(msg.payload, '/to')
-    string from = xml.get(msg.payload, '/from')
-    date address = new date(xml.get(msg.payload, '/date')
+    xml payload = message:getXmlPayload(msg)
+    string to = xml:get(payload, '/to')
+    string from = xml:get(payload, '/from')
+    date address = new date(xml.get(payload, '/date')
     return fs.query(`{"from":$from, "to":$to, "date":$date}`)
   },
   worker checkHotelsWroker (message msg) {
-    string to = xml.get(msg.payload, '/to')
-    string from = xml.get(msg.payload, '/from')
-    date address = new date(xml.get(msg.payload, '/date')
+    xml payload = message:getXmlPayload(msg)
+    string to = xml:get(payload, '/to')
+    string from = xml:get(payload, '/from')
+    date address = new date(xml:get(payload, '/date')
     return hs.query(`{"from":$from, "to":$to, "date":$date}`)
   }       
 } join all (message[] VariableName) {
@@ -522,11 +524,11 @@ throw Expression;
 Example:
 ```
     try {
-        response = http.sendPost (nyse_ep, m);
+        response = http:sendPost (nyse_ep, m);
     } catch (exception e) {
-        message.setHeader(m, HTTP.StatusCode, 500);// need to discuss
+        message:setHeader(m, HTTP.StatusCode, 500);// need to discuss
         json error = `{"error":"backend failed", "causedBy":e.message}`;
-        message.setPayload(m, error);
+        message:setPayloadJson(m, error);
     }
 ```
 
