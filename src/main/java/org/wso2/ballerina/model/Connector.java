@@ -20,6 +20,19 @@ package org.wso2.ballerina.model;
 
 import java.util.List;
 
+/**
+ * A connector represents a participant in the integration and is used to interact with an external system.
+ * Ballerina includes a set of standard connectors.
+ * <p>
+ * A connector is defined as follows:
+ *
+ * [ConnectorAnnotations]
+ * connector ConnectorName ([ConnectorParamAnnotations]TypeName VariableName[(, TypeName VariableName)*]) {
+ *      ConnectionDeclaration;*
+ *      VariableDeclaration;*
+ *      ActionDefinition;+
+ * }
+ */
 public class Connector {
 
     private List<Connection> connections;

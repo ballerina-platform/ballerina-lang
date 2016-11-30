@@ -18,5 +18,8 @@
 
 package org.wso2.ballerina.model.statements;
 
+/**
+ * Interface for the Statement. Classes which implement this interface represent an execution unit in Ballerina.
+ */
 public interface Statement {
 }
