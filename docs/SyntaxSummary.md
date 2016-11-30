@@ -37,7 +37,13 @@ Every Ballerina program has both a textual representation and a canonical visual
 
 Ballerina programs can be written in one or more files organized into packages. A package is represented by a directory.
 
-A package defines a namespace. All symbols (e.g. service names, type names and function names) defined in any file in the same package belong to that namespace. Any symbol marked public is also visible to outside packages and can be accessed via the package qualified name of the symbol.
+A package defines a namespace. All symbols (e.g. service names, type names and function names) defined in any file in the same package belong to that namespace. Only top level constructs marked public are visible outside a package.
+
+Every symbol has a qualified name consisting of its package name and its own top level name. When written down in a program, qualified names are written as follows:
+
+```
+PackageName:SymbolName
+```
 
 ## Structure of a Ballerina Program
 
@@ -53,10 +59,10 @@ A Ballerina file is structured as follows:
  TypeConvertorDefinition |
  ConstantDefinition)+
 ```
-Following is an example Ballerina program that shows the form of each construct. 
+Following is an example Ballerina program that shows the form of each construct.
 ```
-package org.example.weather; 
-import balaerina.math
+package org.example.weather;
+import balarina.math;
 
 service WeatherService{
     WeatherConnector wc = new WeatherConnector( ... );
@@ -69,14 +75,14 @@ service WeatherService{
  }
 
 type location{
-    int int lon; 
+    int int lon;
 }
 
 connector WeatherConnector{
-    action getTemprature(location) (int) { ...}
+    action getTemperature(location) (int) { ...}
     ...
 }
-    
+
 function fromC2F(float temperature){
     return math.round(32 + temperature*5/9);
 }
@@ -161,11 +167,11 @@ action ActionName (ConnectorName VariableName[, ([ActionParamAnnotations] TypeNa
 Connections represent a connection established via a connector. The structure is as follows:
 
 ```
-[ConnectorPackageName.]ConnectorName VariableName = new [ConnectorPackageName.]ConnectorName (ValueList[, map]);
+[ConnectorPackageName:]ConnectorName VariableName = new [ConnectorPackageName:]ConnectorName (ValueList[, map]);
 ```
 Once a connection has been declared, actions can be invoked against that connection as follows:
 ```
-[ConnectorPackageName.]ActionName (ConnectionVariableName, ValueList);
+[ConnectorPackageName:]ConnectorName.ActionName (ConnectionVariableName, ValueList);
 ```
 
 ### Workers
@@ -205,18 +211,18 @@ MessageName <- WorkerName;
 
 If the worker wishes to reply to the enclosing entity, it can do so using a `reply` statement.
 
-Following code show a sample worker. 
+Following code show a sample worker.
 ```
 worker AsyncCalculator (message m) {
     int x = xml.get(m, "x");
     int y = xml.get(m, "y");  
     int result = x + y;
-    message m = new message(); 
+    message m = new message();
     m.payload = `{"result": $result}`
     reply m
 }
 
-message m = new message(); 
+message m = new message();
 m.payload = `{"x": 3, "y": 7}`
 //trigger AsyncCalculator
 m->AsyncCalculator
@@ -462,7 +468,7 @@ The JoinCondition is one of the following:
 
 When the `JoinCondition` has been satisfied, the corresponding slots of the message array will be filled with the returned messages from the workers in the order the workers' lexical order. If the condition asks for up to some number of results to be available to satisfy the condition, it may be the case that more than that number are available by the time the statements within the join condition are executed. If a particular worker has completed but not sent a response message, or not yet completed, the corresponding message slot will be null.
 
-Following is an Example. 
+Following is an Example.
 ```
 FlightService fs = new FlightService(...)
 HotelService hs = new FlightService(...)
@@ -510,7 +516,7 @@ We provide  following statements
 If a function is throwing an exception it must declare it.
 If a function throws an exception the caller function can choose to handle it or let it propagate upwards.
 
-Following is an Example. 
+Following is an Example.
 ```
     try {
         response = http.sendPost (nyse_ep, m);
