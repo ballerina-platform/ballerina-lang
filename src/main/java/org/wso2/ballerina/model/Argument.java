@@ -24,7 +24,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This class represent an Argument which can be a part of Function, Resource and Action definition
+ * {@code Argument} represent an Argument in various signatures.
+ *
+ * This can be a part of {@link Function}, {@link Resource}
+ * or {@link Action} signature
+ *
+ * @since 1.0.0
  */
 @SuppressWarnings("unused")
 public class Argument {

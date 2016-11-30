@@ -19,10 +19,12 @@
 package org.wso2.ballerina.model;
 
 /**
- * This represents an Annotation in Ballerina.
+ * {@code Annotation} represents an Annotation in Ballerina.
  * <p>
  * Annotation can be associated with various Ballerina concepts like Service, Resource, Functions, etc.
  * @see <a href="https://github.com/wso2/ballerina/blob/master/docs/SyntaxSummary.md">Ballerina Syntax Summary</a>
+ *
+ * @since 1.0.0
  */
 @SuppressWarnings("unused")
 public class Annotation {

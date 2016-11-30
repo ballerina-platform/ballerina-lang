@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A Resource is a single request handler within a Service.
+ * A {@code Resource} is a single request handler within a {@code Service}.
  * The resource concept is designed to be access protocol independent.
  * But in the initial release of the language it is intended to work with HTTP.
  * <p>
@@ -38,6 +38,8 @@ import java.util.List;
  *      WorkerDeclaration;*
  *      Statement;+
  *  }*
+ *
+ *  @since 1.0.0
  *
  */
 @SuppressWarnings("unused")

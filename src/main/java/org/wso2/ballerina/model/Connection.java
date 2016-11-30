@@ -22,7 +22,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A Connection represents the instantiation of a connector with a particular configuration.
+ * A {@code Connection} represents the instantiation of a connector with a particular configuration.
+ *
+ * @since 1.0.0
  */
 @SuppressWarnings("unused")
 public class Connection {

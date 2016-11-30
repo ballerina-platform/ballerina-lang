@@ -21,11 +21,13 @@ package org.wso2.ballerina.model;
 import org.wso2.ballerina.model.types.Type;
 
 /**
- * This represent a Variable declaration
+ * {@code Variable} represent a Variable declaration
  *
  * <p>
  * Ballerina has variables of various types. The type system includes built-in primitives,
  * a collection of built-in structured types and array and record type constructors.
+ *
+ * @since 1.0.0
  */
 @SuppressWarnings("unused")
 public class Variable {

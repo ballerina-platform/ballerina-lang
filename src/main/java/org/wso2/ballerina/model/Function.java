@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A Function is an operation that is executed by a Worker.
+ * A {@code Function} is an operation that is executed by a {@code Worker}.
  * <p>
  * The structure of a Function is as follows:
  *
@@ -36,6 +36,9 @@ import java.util.List;
  *      WorkerDeclaration;*
  *      Statement;+
  *  }
+ *
+ *  @since 1.0.0
+ *
  */
 @SuppressWarnings("unused")
 public class Function {

@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A Connector represents a participant in the integration and is used to interact with an external system.
+ * A {@code Connector} represents a participant in the integration and is used to interact with an external system.
  * Ballerina includes a set of standard Connectors.
  * <p>
  * A Connector is defined as follows:
@@ -33,6 +33,8 @@ import java.util.List;
  *      VariableDeclaration;*
  *      ActionDefinition;+
  * }
+ *
+ * @since 1.0.0
  */
 @SuppressWarnings("unused")
 public class Connector {
