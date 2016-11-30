@@ -35,11 +35,7 @@ serviceBody
     ;
 
 serviceBodyDeclaration
-    :
-    (   resourceDefinition
-    |   connectionDeclaration
-    |   variableDeclaration
-    )*
+    :   (resourceDefinition | connectionDeclaration | variableDeclaration)* resourceDefinition
     ;
 
 
@@ -56,12 +52,7 @@ resourceBody
     ;
 
 resourceBodyDeclaration
-    :
-    (   connectionDeclaration
-    |   variableDeclaration
-    |   workerDeclaration
-    |   statement
-    )*
+    :   (connectionDeclaration | variableDeclaration | workerDeclaration | statement)* statement
     ;
 
 functionDefinition
@@ -73,12 +64,7 @@ functionBody
     ;
 
 functionBodyDeclaration
-    :
-    (   connectionDeclaration
-    |   variableDeclaration
-    |   workerDeclaration
-    |   statement
-    )*
+    :   (connectionDeclaration | variableDeclaration | workerDeclaration | statement)* statement
     ;
 
 connectorDefinition
@@ -90,11 +76,7 @@ connectorBody
     ;
 
 connectorBodyDeclaration
-    :
-    (   connectionDeclaration
-    |   variableDeclaration
-    |   actionDefinition
-    )*
+    :   (connectionDeclaration | variableDeclaration | actionDefinition)* actionDefinition
     ;
 
 actionDefinition
@@ -106,12 +88,7 @@ actionBody
     ;
 
 actionBodyDeclaration
-    :
-    (   connectionDeclaration
-    |   variableDeclaration
-    |   workerDeclaration
-    |   statement
-    )*
+    :   (connectionDeclaration | variableDeclaration | workerDeclaration | statement)* statement
     ;
 
 connectionDeclaration
@@ -131,7 +108,7 @@ typeBodyDeclaration
     ;
 
 typeConvertorDefinition
-    :   'typeconverter' Identifier '(' typeType Identifier ')' '('typeType')' typeConvertorBody
+    :   'typeconvertor' Identifier '(' typeType Identifier ')' '('typeType')' typeConvertorBody
     ;
 
 typeConvertorBody
@@ -139,8 +116,7 @@ typeConvertorBody
     ;
 
 typeConvertorBodyDeclaration
-    :   variableDeclaration
-    |   statement*
+    :   (variableDeclaration | statement)* statement
     ;
 
 constantDefinition
@@ -162,46 +138,8 @@ workerBody
     ;
 
 workerBodyDeclaration
-    :
-    (   connectionDeclaration
-    |   variableDeclaration
-    |   statement
-    )*
+    :   (connectionDeclaration | variableDeclaration | statement)* statement
     ;
-
-
-
-
-
-
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 variableModifier
     :   annotation
@@ -582,7 +520,7 @@ THROW	        :	'throw';
 THROWS	        :	'throws';
 TRY	            :	'try';
 TYPE	        :	'type';
-TYPECONVERTER	:	'typeconverter';
+TYPECONVERTOR	:	'typeconvertor';
 WHILE	        :	'while';
 WORKER	        :	'worker';
 XML	            :	'xml';
