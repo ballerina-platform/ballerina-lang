@@ -17,5 +17,9 @@
 */
 package org.wso2.ballerina.model.statements;
 
-public class TryCatch {
+import org.wso2.ballerina.model.expression.Expression;
+
+public class WhileStmt implements Statement{
+    private Expression condition;
+    private Statement block;
 }

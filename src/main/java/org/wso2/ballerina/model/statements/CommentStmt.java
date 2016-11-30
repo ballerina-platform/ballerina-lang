@@ -17,5 +17,6 @@
 */
 package org.wso2.ballerina.model.statements;
 
-public class Comment {
+public class CommentStmt  implements Statement{
+    private String comment;
 }

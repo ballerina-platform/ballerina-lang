@@ -17,5 +17,10 @@
 */
 package org.wso2.ballerina.model.statements;
 
-public class Throw {
+import java.util.List;
+
+public class TryCatchStmt implements Statement{
+    private Statement tryBlock;
+    private List<Exception> catchExceptions;
+    private Statement catchBlock;
 }

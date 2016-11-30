@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.ballerina.model;
+package org.wso2.ballerina.model.statements;
 
 public interface Statement {
 }

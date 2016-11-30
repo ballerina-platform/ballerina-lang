@@ -17,7 +17,9 @@
 */
 package org.wso2.ballerina.model.statements;
 
-import org.wso2.ballerina.model.Statement;
+import java.util.List;
 
-public class Assignment implements Statement {
+public class BlockStmt implements Statement {
+    private List<Statement> statements;
 }
+

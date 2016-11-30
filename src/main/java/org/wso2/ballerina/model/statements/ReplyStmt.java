@@ -17,5 +17,5 @@
 */
 package org.wso2.ballerina.model.statements;
 
-public class Foreach {
+public class ReplyStmt implements Statement {
 }

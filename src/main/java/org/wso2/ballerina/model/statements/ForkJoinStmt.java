@@ -17,5 +17,14 @@
 */
 package org.wso2.ballerina.model.statements;
 
-public class ForkJoin {
+import org.wso2.ballerina.model.Worker;
+import org.wso2.ballerina.model.expression.Expression;
+
+import java.util.List;
+
+public class ForkJoinStmt implements Statement{
+    private List<Worker> workers;
+    private Expression joinCondition;
+    private Statement joinBlock;
+
 }
