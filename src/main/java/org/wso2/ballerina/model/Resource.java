@@ -21,10 +21,10 @@ package org.wso2.ballerina.model;
 import java.util.List;
 
 public class Resource {
-    List<Connection> connectionList;
-    List<Variable> variableList;
-    List<Worker> workerList;
-    List<Statement> statementList;
+    private List<Connection> connectionList;
+    private List<Variable> variableList;
+    private List<Worker> workerList;
+    private List<Statement> statementList;
 
 
 }
