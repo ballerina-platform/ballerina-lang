@@ -36,9 +36,36 @@ import java.util.List;
  */
 public class Service {
 
+    private List<Annotation> annotations;
     private List<Connection> connections;
     private List<Variable> variables;
     private List<Resource> resources;
+
+    /**
+     * Get all the Annotations associated with a Service
+     * @return list of Annotations
+     */
+    public List<Annotation> getAnnotations() {
+        return annotations;
+    }
+
+    /**
+     * Set list of all the Annotations
+     *
+     * @param annotations list of Annotations
+     */
+    public void setAnnotations(List<Annotation> annotations) {
+        this.annotations = annotations;
+    }
+
+    /**
+     * Add an Annotation to the Service
+     *
+     * @param annotation Annotation to be added
+     */
+    public void addAnnotation(Annotation annotation) {
+        annotations.add(annotation);
+    }
 
     /**
      * Get all Connections declared within the Service scope

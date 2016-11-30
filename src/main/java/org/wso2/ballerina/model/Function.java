@@ -38,10 +38,38 @@ import java.util.List;
  */
 public class Function {
 
+    private List<Annotation> annotations;
     private List<Connection> connections;
     private List<Variable> variables;
     private List<Worker> workers;
     private List<Statement> statements;
+
+    /**
+     * Get all the Annotations associated with a Function
+     *
+     * @return list of Annotations
+     */
+    public List<Annotation> getAnnotations() {
+        return annotations;
+    }
+
+    /**
+     * Set list of all the Annotations
+     *
+     * @param annotations list of Annotations
+     */
+    public void setAnnotations(List<Annotation> annotations) {
+        this.annotations = annotations;
+    }
+
+    /**
+     * Add an Annotation to the Function
+     *
+     * @param annotation Annotation to be added
+     */
+    public void addAnnotation(Annotation annotation) {
+        annotations.add(annotation);
+    }
 
     /**
      * Get all Connections declared within the Function scope
@@ -151,6 +179,5 @@ public class Function {
     public void addStatement(Statement statement) {
         statements.add(statement);
     }
-
 
 }
