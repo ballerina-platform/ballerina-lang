@@ -20,14 +20,14 @@ package org.wso2.ballerina.model;
 
 import java.util.List;
 
-public class Service {
+public class Connector {
 
     private List<Connection> connections;
     private List<Variable> variables;
-    private List<Resource> resources;
+    private List<Action> actions;
 
     /**
-     * Get all Connections declared within the Service scope
+     * Get all Connections declared within the Connector scope
      *
      * @return list of all the Connections belongs to a Service
      */
@@ -36,34 +36,34 @@ public class Service {
     }
 
     /**
-     * Assign connections to the Service
+     * Assign connections to the Connector
      *
-     * @param connections list of connections to be assigned to a Service
+     * @param connections list of connections to be assigned to a Connector
      */
     public void setConnections(List<Connection> connections) {
         this.connections = connections;
     }
 
     /**
-     * Add a Connection to the Service
+     * Add a Connection to the Connector
      *
-     * @param connection Connection to be added to the Service
+     * @param connection Connection to be added to the Connector
      */
     public void addConnection(Connection connection) {
         connections.add(connection);
     }
 
     /**
-     * Get all the variables declared in the scope of Service
+     * Get all the variables declared in the scope of Connector
      *
-     * @return list of all Service scoped variables
+     * @return list of all Connector scoped variables
      */
     public List<Variable> getVariables() {
         return variables;
     }
 
     /**
-     * Assign variables to the Service
+     * Assign variables to the Connector
      *
      * @param variables list of variables
      */
@@ -72,39 +72,39 @@ public class Service {
     }
 
     /**
-     * Add a variable to the Service
+     * Add a variable to the Connector
      *
-     * @param variable variable to be added to the Service
+     * @param variable variable to be added to the Connector
      */
     public void addVariable(Variable variable) {
         variables.add(variable);
     }
 
     /**
-     * Get all the Resources associated to a Service
+     * Get all the Actions can be performed in the Connector
      *
-     * @return list of Resources belongs to a Service
+     * @return list of all Actions
      */
-    public List<Resource> getResources() {
-        return resources;
+    public List<Action> getActions() {
+        return actions;
     }
 
     /**
-     * Assign Resources to the Service
+     * Set list of Actions to the Connector
      *
-     * @param resources List of Resources
+     * @param actions list of Actions
      */
-    public void setResources(List<Resource> resources) {
-        this.resources = resources;
+    public void setActions(List<Action> actions) {
+        this.actions = actions;
     }
 
     /**
-     * Add a Resource to the Service
+     * Add an Action to the Connector
      *
-     * @param resource a Resource
+     * @param action Action to be added to the Connector
      */
-    public void addResource(Resource resource) {
-        resources.add(resource);
+    public void addAction(Action action) {
+        actions.add(action);
     }
 
 }

@@ -19,6 +19,7 @@ package org.wso2.ballerina.model.statements;
 
 import java.util.List;
 
-public class BlockStmt {
+public class BlockStmt implements Statement {
     private List<Statement> statements;
 }
+
