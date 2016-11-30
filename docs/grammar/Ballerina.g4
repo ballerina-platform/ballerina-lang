@@ -1,6 +1,5 @@
 grammar Ballerina;
 
-//todo xml, json schema definition
 //todo comment statment
 //todo revisit blockStatement
 
@@ -233,7 +232,7 @@ buildInDataType
     ;
 
 schemaDefinition
-    :   '<' '{' literal '}' Identifier '>';
+    :   '<' ('{' literal '}')? Identifier '>';
 
 //todo revisit and remove
 //typeArguments
