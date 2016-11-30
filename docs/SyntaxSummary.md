@@ -68,8 +68,8 @@ service WeatherService{
     WeatherConnector wc = new WeatherConnector( ... );
     resource WeatherInFResource(message message){
         xml payload  = message:getXmlPayload(message)
-        float lat = xml.get(payload, "/lat");
-        float lon = xml.get(payload, "/lon");
+        float lat = xml:get(payload, "/lat");
+        float lon = xml:get(payload, "/lon");
         float temperature = wc.getTemprature(new location(lat, lon));
         return `{"temperature":$temperature}`;
     }
