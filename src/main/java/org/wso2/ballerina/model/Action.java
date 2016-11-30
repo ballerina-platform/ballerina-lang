@@ -37,6 +37,7 @@ import java.util.List;
  *  }
  *
  */
+@SuppressWarnings("unused")
 public class Action {
 
     private List<Annotation> annotations;

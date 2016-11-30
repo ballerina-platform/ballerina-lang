@@ -37,6 +37,7 @@ import java.util.List;
  *      Statement;+
  *  }
  */
+@SuppressWarnings("unused")
 public class Function {
 
     private List<Annotation> annotations;

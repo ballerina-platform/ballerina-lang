@@ -21,6 +21,7 @@ package org.wso2.ballerina.model;
 /**
  * Unit of execution :TODO: Need to refactor this
  */
+@SuppressWarnings("unused")
 public class Node {
     public void run() {
 

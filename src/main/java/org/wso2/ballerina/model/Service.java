@@ -35,6 +35,7 @@ import java.util.List;
  *      ResourceDefinition;+
  *  }
  */
+@SuppressWarnings("unused")
 public class Service {
 
     private List<Annotation> annotations;

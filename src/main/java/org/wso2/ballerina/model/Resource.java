@@ -40,6 +40,7 @@ import java.util.List;
  *  }*
  *
  */
+@SuppressWarnings("unused")
 public class Resource {
 
     private List<Annotation> annotations;
