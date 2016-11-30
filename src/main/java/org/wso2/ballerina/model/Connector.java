@@ -20,8 +20,8 @@ package org.wso2.ballerina.model;
 
 import java.util.List;
 
-public class Worker {
+public class Connector {
     private List<Connection> connectionList;
     private List<Variable> variableList;
-    private List<Statement> statementList;
+    private List<Action> actionList;
 }

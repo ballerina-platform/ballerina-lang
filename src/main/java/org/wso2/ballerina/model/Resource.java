@@ -25,6 +25,4 @@ public class Resource {
     private List<Variable> variableList;
     private List<Worker> workerList;
     private List<Statement> statementList;
-
-
 }
