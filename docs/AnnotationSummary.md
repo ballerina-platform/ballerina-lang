@@ -655,21 +655,31 @@ Following are the resource level annotations.
 
 ```
 @ResourceConfig(
-    schemes = {http, https}
+    schemes = {http, https},
     authorizations = {
-        @Authorization(value="authorizationConfigName" 
-                       [, scopes = { "scope1", "scope2" }]
+        @Authorization(
+            name = "authorizationConfigName" 
+            [, scopes = { "scope1", "scope2" }]
         )
     }
     [,anyName = anyValue]* // this will represent swagger element "x-anyName" : "anyValue"
 )
 ```
 
-|Ballerina Field Name  |  Type | Description | Equivalent Swagger Field|
+_@ResourceConfig_
+
+|Ballerina Field |  Type | Description | Equivalent Swagger Field|
 |---|---|---|---|
-|  schemas|array |The transfer protocol for the ballerina resource. Values can be "http", "https", "ws" or "wss".  | schemas  | 
+|  value|string |The transfer protocol for the ballerina resource. Values can be "http", "https", "ws" or "wss".  | schemas  | 
 |  authorizations|annotation |A declaration of which authorizations configurations are applied for this resource.  | security  | 
 |anyName |any | Extension fields. | x-anyName, Maps to Swagger extensions. Field name begins with `x-` |
+
+_@Authorization_
+
+|Ballerina Field |  Type | Description | Equivalent Swagger Field|
+|---|---|---|---|
+|  name|string |Authorization name that specified in @AuthorizationsConfiguration section in the service level. | security  | 
+|  scopes|Array | Authorize scope for this resource that specified in @AuthorizationScope in the service level under above AuthorizationsConfiguration  | N/A  | 
 
 #### Consumes
 ```
@@ -709,18 +719,30 @@ resourceName(message m, @Type(name = "TypeName", description = "A Description", 
     summary = "A summary about resource",
     description = "a detailed description about resource",
     externalDocs = @ExternalDocs(
-                       value = "wso2 ballerina", 
+                       description = "wso2 ballerina", 
                        url = "http://docs.wso2.com/ballerina"
                    ),
     operationId = "methodName" // This information is redundant in resource name, But we need this in special cases.
 )
 ```
-|Ballerina Field Name  |  Type | Description | Swagger Field|
+
+_@ResourceInfo_
+
+|Ballerina Field |  Type | Description | Swagger Field|
 |---|---|---|---|
 |  tags|array |A list of tags for resource documentation control  | tags  | 
 |  summary|string |A short summary of what the resource does.  | summary  | 
 |  externalDocs|annotation |Additional external documentation for this resource.  | externalDocs  | 
 |  operationId|string |Unique string used to identify the resource.  | operationId  | 
+
+_@ExternalDocs_
+
+Ballerina Field | Type          | Description                                                       | Swagger Field
+----------------|:-------------:|-------------------------------------------------------------------|-------------------
+description     | string        | a description about the target documentation.                     | description
+url             | string        | **Required.** URL is pointing to target documentation.            | url
+anyName         | any           | Extension fields.                                                 | `x-`anyName (Swagger extensions)
+
 
 #### Responses
 ```
@@ -758,9 +780,38 @@ resourceName(message m, @Type(name = "TypeName", description = "A Description", 
 )
 
 ```
-|Ballerina Field Name  |  Type | Description | Swagger Field|
+
+_@Responses_
+
+|Ballerina Field |  Type | Description | Swagger Field|
 |---|---|---|---|
-|  Responses|annotation |The list of possible responses as they are returned from executing this operation  | Responses  | 
+|  values|array |An array of possible @Response as they are returned from executing this operation   | N/A  | 
+
+_@Response_
+
+|Ballerina Field |  Type | Description | Swagger Field|
+|---|---|---|---|
+|  code|int |HTTP status code of this response  | N/A  | 
+|  description|string |T A short description of the response.  | description  | 
+|  response|string |The list of possible responses as they are returned from executing this operation  | schema  | 
+|  headers|array |An array of @Header that are sent with the response  | headers  | 
+|  examples|array |An @Example of the response message  | examples  | 
+
+_@Header_
+
+|Ballerina Field |  Type | Description | Swagger Field|
+|---|---|---|---|
+|  name|string |HTTP status code of this response  | N/A  | 
+|  description|string A short description of the header  | description  | 
+|  type|string |The type of the object. The value MUST be one of "string", "number", "integer", "boolean", or "array"  | type  | 
+
+
+_@Example_
+
+|Ballerina Field |  Type | Description | Swagger Field|
+|---|---|---|---|
+|  type|string |mime type  | N/A  | 
+|  value| string| A sample response of this resource that match with given mime type  | N/A  | 
 
 ### Connector Annotations.
 
