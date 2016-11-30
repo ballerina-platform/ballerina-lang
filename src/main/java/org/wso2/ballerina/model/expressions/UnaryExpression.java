@@ -17,8 +17,21 @@
 */
 package org.wso2.ballerina.model.expressions;
 
+import org.wso2.ballerina.model.Operator;
+
 /**
+ * {@code UnaryExpression} represents a unary expression
  *
+ * @since 1.0.0
  */
-public interface Expression {
+public class UnaryExpression implements Expression {
+
+    private Operator op;
+    private Expression expr;
+
+    public UnaryExpression(Operator op, Expression expr) {
+        this.op = op;
+        this.expr = expr;
+    }
+
 }

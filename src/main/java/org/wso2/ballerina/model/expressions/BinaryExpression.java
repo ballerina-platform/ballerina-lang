@@ -17,8 +17,22 @@
 */
 package org.wso2.ballerina.model.expressions;
 
+import org.wso2.ballerina.model.Operator;
+
 /**
+ * {@code BinaryExpression} represents a binary expression
  *
+ * @since 1.0.0
  */
-public interface Expression {
+public class BinaryExpression implements Expression {
+
+    private Expression lExpr;
+    private Operator op;
+    private Expression rExpr;
+
+    public BinaryExpression(Expression lExpr, Operator op, Expression rExpr) {
+        this.lExpr = lExpr;
+        this.op = op;
+        this.lExpr = rExpr;
+    }
 }

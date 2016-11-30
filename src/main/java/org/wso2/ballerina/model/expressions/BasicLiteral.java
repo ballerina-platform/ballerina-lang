@@ -18,7 +18,9 @@
 package org.wso2.ballerina.model.expressions;
 
 /**
+ *  {@code BasicLiteral} represents a literal of the basic type
  *
+ *  @since 1.0.0
  */
-public interface Expression {
+public class BasicLiteral implements Expression {
 }

@@ -17,8 +17,5 @@
 */
 package org.wso2.ballerina.model.expressions;
 
-/**
- *
- */
-public interface Expression {
+public class Identifier implements Expression {
 }
