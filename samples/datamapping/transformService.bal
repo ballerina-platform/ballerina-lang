@@ -6,12 +6,14 @@ import ballerina.lang.json;
 @Path ("/transform")
 @Source (interface = "localhost")
 @Service (title = "TransformService", description = "Transforms the inbound message")
-service transformService;
+service transformService {
 
-@POST
-resource transform (message m) {
-	var json in = m.getPayload(m);
-    var json out  = mapPerson2Driver(in);
-    m.setPayload(out);
-    reply m;
+	@POST
+	resource transform (message m) {
+	    json<Person> in = m.getPayload(m);
+	    //here type converter kicks in
+	    json<Driver> out  = (json<Driver>)in;
+	    m:setPayload(out);
+	    reply m;
+	}
 }

@@ -29,13 +29,20 @@ Every Ballerina program has both a textual representation and a visual represent
 - *Function*: A `function` is an operation that is executed by a worker.
 - *Worker*: A `worker` is a thread of execution that the integration developer programs as a lifeline.
 
-NEED PICTURE HERE.
+![High Level Concepts](images/HighLevelConcepts.png)
+
 
 ### Modularity
 
 Ballerina programs can be written in one or more files organized into packages. A package is represented by a directory in a file system.
 
-A package defines a namespace. All symbols (e.g. service names, type names and function names) defined in any file in the same package belong to that namespace. Any symbol marked public is also visible to outside packages and can be accessed via the package qualified name of the symbol.
+A package defines a namespace. All symbols (e.g. service names, type names and function names) defined in any file in the same package belong to that namespace. Only top level constructs marked public are visible outside a package.
+
+Every symbol has a qualified name consisting of its package name and its own top level name. When written down in a program, qualified names are written as follows:
+
+```
+PackageName:SymbolName
+```
 
 ## Structure of a Ballerina Program
 
@@ -51,6 +58,35 @@ A Ballerina file is structured as follows:
  TypeConvertorDefinition |
  ConstantDefinition)+
 ```
+Following is an example Ballerina program that shows the form of each construct.
+```
+package org.example.weather;
+import balarina.math;
+
+service WeatherService{
+    WeatherConnector wc = new WeatherConnector( ... );
+    resource WeatherInFResource(message message){
+        xml payload  = message:getXmlPayload(message)
+        float lat = xml:get(payload, "/lat");
+        float lon = xml:get(payload, "/lon");
+        float temperature = wc.getTemprature(new location(lat, lon));
+        return `{"temperature":$temperature}`;
+    }
+ }
+
+type location{
+    int int lon;
+}
+
+connector WeatherConnector{
+    action getTemperature(location) (int) { ...}
+    ...
+}
+
+function fromC2F(float temperature){
+    return math:round(32 + temperature*5/9);
+}
+```
 
 ### Services & Resources
 
@@ -64,6 +100,9 @@ service ServiceName {
 }
 ```
 Services are singletons. As such all variables defined within a service scope are shared across all `resource` invocations.
+
+Services may have the following annotations:
+- TBD - someone will go thru the Swagger spec and propose a detailed list of annotations to be included at each level.
 
 The structure of a ResourceDefinition is as follows:
 
@@ -86,6 +125,7 @@ The visual representation of this (without the annotations) is as follows:
 The structure of a function is as follows:
 
 ```
+[FunctionAnnotations]
 [public] function FunctionName (((TypeName VariableName)[(, TypeName VariableName)*])?)
         ((TypeName[(, TypeName)*])?) [throws exception] {
     ConnectionDeclaration;*
@@ -101,7 +141,7 @@ All functions are private to the package unless explicitly declared to be public
 
 A `connector` is defined as follows:
 ```
-[ServiceAnnotations]
+[ConnectorAnnotations]
 connector ConnectorName ([ConnectorParamAnnotations]TypeName VariableName[(, TypeName VariableName)*]) {
     ConnectionDeclaration;*
     VariableDeclaration;*
@@ -109,10 +149,13 @@ connector ConnectorName ([ConnectorParamAnnotations]TypeName VariableName[(, Typ
 }
 ```
 
+Note that ConnectorAnnotations are designed to help the editor provide a better user experience for connector users.
+
 A `connector` defines a set of actions. Actions are operations (functions) that can be executed against a connector. The  structure of an `action` definition is as follows:
 
 ```
-action ActionName (ConnectorName VariableName, ((TypeName VariableName)*) (TypeName*)
+[ActionAnnotations]
+action ActionName (ConnectorName VariableName[, ([ActionParamAnnotations] TypeName VariableName)+]) (TypeName*)
         [throws exception] {
     ConnectionDeclaration;*
     VariableDeclaration;*
@@ -124,11 +167,11 @@ action ActionName (ConnectorName VariableName, ((TypeName VariableName)*) (TypeN
 Connections represent a connection established via a connector. The structure is as follows:
 
 ```
-[ConnectorPackageName.]ConnectorName VariableName = new [ConnectorPackageName.]ConnectorName (ValueList[, map]);
+[ConnectorPackageName:]ConnectorName VariableName = new [ConnectorPackageName:]ConnectorName (ValueList[, map]);
 ```
 Once a connection has been declared, actions can be invoked against that connection as follows:
 ```
-[ConnectorPackageName.]ActionName (ConnectionVariableName, ValueList);
+[ConnectorPackageName:]ConnectorName.ActionName (ConnectionVariableName, ValueList);
 ```
 
 ### Workers
@@ -151,6 +194,7 @@ becomes active. However, similar to a resource, the worker does not execute unti
 has been sent a message.
 
 A worker is triggered when a message is sent to the worker as follows by the enclosing entity:
+
 ```
 MessageName -> WorkerName;
 ```
@@ -159,13 +203,34 @@ MessageName -> WorkerName;
 
 When the worker replies, the response message (if any) is received by the enclosing entity
 from the worker as follows:
-````
+```
 MessageName <- WorkerName;
-````
+```
 
 #### Replying from a Worker
 
 If the worker wishes to reply to the enclosing entity, it can do so using a `reply` statement.
+
+Following code show a sample worker.
+```
+worker AsyncCalculator (message m) {
+    int x = xml:get(m, "x");
+    int y = xml:get(m, "y");  
+    int result = x + y;
+    message m = new message();
+    m.payload = `{"result": $result}`
+    reply m
+}
+
+message m = new message();
+message:setXmlPayload(m, `{"x": 3, "y": 7}`)
+//trigger AsyncCalculator
+m->AsyncCalculator
+//AsyncCalculator will run in parallel to do_something()
+do_something()
+//wait for response from AsyncCalculator
+response<-AsyncCalculator
+```
 
 ### Types & Variables
 
@@ -323,6 +388,7 @@ A Statement may be one of the following:
 - return statement
 - reply statement
 - worker initiation statement
+- comment statement
 
 #### Assignment Statement
 
@@ -402,8 +468,42 @@ The JoinCondition is one of the following:
 
 When the `JoinCondition` has been satisfied, the corresponding slots of the message array will be filled with the returned messages from the workers in the order the workers' lexical order. If the condition asks for up to some number of results to be available to satisfy the condition, it may be the case that more than that number are available by the time the statements within the join condition are executed. If a particular worker has completed but not sent a response message, or not yet completed, the corresponding message slot will be null.
 
-#### Try/catch Statement
+Following is an Example.
+```
+FlightService fs = new FlightService(...)
+HotelService hs = new FlightService(...)
+fork (msg) {
+  worker checkFlightsWroker (message msg) {
+    xml payload = message:getXmlPayload(msg)
+    string to = xml:get(payload, '/to')
+    string from = xml:get(payload, '/from')
+    date address = new date(xml.get(payload, '/date')
+    return fs.query(`{"from":$from, "to":$to, "date":$date}`)
+  },
+  worker checkHotelsWroker (message msg) {
+    xml payload = message:getXmlPayload(msg)
+    string to = xml:get(payload, '/to')
+    string from = xml:get(payload, '/from')
+    date address = new date(xml:get(payload, '/date')
+    return hs.query(`{"from":$from, "to":$to, "date":$date}`)
+  }       
+} join all (message[] VariableName) {
+  bookFlights(VariableName[0])
+  bookHotels(VariableName[1])
+}
 
+```
+
+
+#### Exception Handling
+
+Ballerina supports exception handling as a way to address unexpected scenarios in a Ballerina program. This is provided by the built-in `exception` type, the `try/catch` statement and the `throw` statement. Furthermore, any function can indicate that it may throw an exception by saying `throws exception`.
+
+The built-in `exception` type has three properties: its category (a string), its message (a string) and its properties (a map). These properties are manipulated using the functions defined in `ballerina.lang.exception` package.
+
+Note that there is only one built in exception type - all exceptions use this type with different values for the category property. All standard exception "types" are defined as category string constants in the `ballerina.lang.exception` package.
+
+The syntax of a `try/catch` is as follows:
 ```
 try {
     VariableDeclaration*
@@ -414,21 +514,21 @@ try {
 }
 ```
 
-#### Exception Handling
-
-We provide an exception type which has a type(string), message(string) and a property map.
-We don't allow extension type for exceptions and different exception type should be handled using the type attribute.
-We provide  following statements
- - `try` `catch` blocks to handle exception.
- - `throws` statement to signal that a function may throw an exception.
- - `throw` statement to throw an exception.
-If a function is throwing an exception it must declare it.
-If a function throws an exception the caller function can choose to handle it or let it propagate upwards.
-
-#### Throw Statement
+The sytax of a `throw` statement is as follows:
 
 ```
-throw ExceptionVariableName;
+throw Expression;
+```
+
+Example:
+```
+    try {
+        response = http:sendPost (nyse_ep, m);
+    } catch (exception e) {
+        message:setHeader(m, HTTP.StatusCode, 500);// need to discuss
+        json error = `{"error":"backend failed", "causedBy":e.message}`;
+        message:setPayloadJson(m, error);
+    }
 ```
 
 #### Return Statement
@@ -443,7 +543,20 @@ return (Expression)*;
 reply Message?;
 ```
 
+#### Comment Statement
+
+Comments are quite different in Ballerina in comparison to other languages. Comments are only allowed as a statement - i.e., only inside a resource, action or function.
+Ballerina has designed, structured mechanisms via annotations to document all Ballerina outer level constructs (services, resources etc.) and comments only play the role of providing a comment about the logic of a resource, action or function.
+
+Any statement that starts with the characters `//` is a comment.
+
 ### Expressions
+
+## Disabling Constructs from Execution
+
+In traditional programming languages, developers use commenting as a technique to disable a block of code from executing. In Ballerina, we do not allow comments arbitrarily - we only allow comments as statements.
+
+Ballerina instead allows the developer (either visually or textually) to mark any statement or function, action, connector, resource or service to be disabled by prefixing it with the `!` character. Disabling a construct does not prevent the language parser, type checker and other validations but it simply stops that construct from being executed at runtime.
 
 ## Configuration Management
 

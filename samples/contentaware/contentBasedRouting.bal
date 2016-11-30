@@ -5,29 +5,30 @@ import ballerina.lang.json;
 import ballerina.lang.message;
 
 @BasePath ("/stock")
-@Service(title = "StockExchangeService", description = "Exchange stock based on message content")
-service ContentBasedRouteService;
+@Service(title = "Content Based Routing Service", description = "Routing a message based on the content")
+service ContentBasedRouteService {
 
-actor HttpEndpoint nyseEP = new HttpEndpoint("http://localhost:8080/exchange/nyse/");
-actor HttpEndpoint nasdaqEP = new HttpEndpoint("http://localhost:8081/exchange/nasdaq/");
+  http.HttpConnector nyseEP = new http.HttpConnector("http://localhost:8080/exchange/nyse/", {"timeOut" : 30000});
+  http.HttpConnector nasdaqEP = new http.HttpConnector("http://localhost:8080/exchange/nasdaq/", {"timeOut" : 60000});
 
-@POST
-@Produces ("application/json")
-@Consumes ("application/json")
-@Path("/exchange")
-resource echoResource (message m) {
-    var message response;
-    var json jsonMsg = json.getPayload(m);
-    try {
-        if (json.get(jsonMsg, "$.stock.quote.exchange") == "NYSE") {
-            response = http.sendPost(nyseEP, m);
-        } else {
-            response = http.sendPost(nasdaqEP, m);
-        }
-    } catch (exception e) {
-        var json errorMsg = `{"error" : "Error while sending to backend"}`;
-        message.setPayload(response, errorMsg);
-        message.setHeader(response, "Status", 500);
-    }
-    reply response;
+  @POST
+  @Produces ("application/json")
+  @Consumes ("application/json")
+  @Path("/exchange")
+  resource cbrResource (message m) {
+      message response;
+      json jsonMsg = json.getPayload(m);
+      try {
+          if (json.get(jsonMsg, "$.stock.quote.exchange") == "NYSE") {
+              response = http.sendPost(nyseEP, m);
+          } else {
+              response = http.sendPost(nasdaqEP, m);
+          }
+      } catch (exception e) {
+          json errorMsg = `{"error" : "Error while sending to backend"}`;
+          message.setPayload(response, errorMsg);
+          message.setHeader(response, "Status", 500);
+      }
+      reply response;
+  }
 }
