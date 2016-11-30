@@ -34,6 +34,7 @@ import java.util.List;
  *      ActionDefinition;+
  * }
  */
+@SuppressWarnings("unused")
 public class Connector {
 
     private List<Annotation> annotations;

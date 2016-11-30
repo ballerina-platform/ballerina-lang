@@ -24,6 +24,7 @@ package org.wso2.ballerina.model;
  * Annotation can be associated with various Ballerina concepts like Service, Resource, Functions, etc.
  * @see <a href="https://github.com/wso2/ballerina/blob/master/docs/SyntaxSummary.md">Ballerina Syntax Summary</a>
  */
+@SuppressWarnings("unused")
 public class Annotation {
 
     private String name, value;

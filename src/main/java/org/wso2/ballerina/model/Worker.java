@@ -36,6 +36,7 @@ import java.util.List;
  *      [reply MessageName;]
  *  }
  */
+@SuppressWarnings("unused")
 public class Worker {
 
     private List<Connection> connections;

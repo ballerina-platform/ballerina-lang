@@ -24,6 +24,7 @@ import java.util.List;
 /**
  * This class represent an Argument which can be a part of Function, Resource and Action definition
  */
+@SuppressWarnings("unused")
 public class Argument {
 
     private String name, value;
