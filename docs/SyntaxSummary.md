@@ -66,19 +66,19 @@ service WeatherService{
         float temperature = wc.getTemprature(new location(lat, lon));
         return `{"temperature":$temperature}`;
     }
+ }
 
-    type location{
-       int lat, int lon; 
-    }
+type location{
+    int int lon; 
+}
 
-    connector WeatherConnector{
-        action getTemprature(location) (int) { ...}
-        ...
-    }
+connector WeatherConnector{
+    action getTemprature(location) (int) { ...}
+    ...
+}
     
-    function fromC2F(float temperature){
-       return math.round(32 + temperature*5/9);
-    }
+function fromC2F(float temperature){
+    return math.round(32 + temperature*5/9);
 }
 ```
 
