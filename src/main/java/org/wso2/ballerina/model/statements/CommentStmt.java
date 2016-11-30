@@ -17,6 +17,13 @@
 */
 package org.wso2.ballerina.model.statements;
 
+/**
+ * Represents a single line comment. //-style
+ */
 public class CommentStmt  implements Statement{
     private String comment;
+
+    public CommentStmt(String comment) {
+        this.comment = comment;
+    }
 }

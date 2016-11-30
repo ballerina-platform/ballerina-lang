@@ -15,13 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerina.model.statements;
+package org.wso2.ballerina.model.types;
 
-import org.wso2.ballerina.model.expressions.Expression;
-
-public class ForeachStmt implements Statement {
-    private Expression condition;
-//    private Iterator itr;
-    private Statement body;
-
+public class Type {
 }

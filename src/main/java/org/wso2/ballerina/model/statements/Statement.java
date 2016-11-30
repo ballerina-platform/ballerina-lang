@@ -18,5 +18,13 @@
 
 package org.wso2.ballerina.model.statements;
 
+/**
+ * Represents a statement. All statements nodes implements this interface.
+ * <p>
+ * A statement is a tree consisting of one or more of the concrete implementations
+ * of this interface.
+ *
+ * @Since 1.0.0
+ */
 public interface Statement {
 }

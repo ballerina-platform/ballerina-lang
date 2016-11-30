@@ -19,7 +19,17 @@ package org.wso2.ballerina.model.statements;
 
 import java.util.List;
 
+/**
+ * A BlockStmt represents a list of statements between balanced braces.
+ *
+ * @since 1.0.0
+ */
 public class BlockStmt implements Statement {
+
     private List<Statement> statements;
+
+    public BlockStmt(List<Statement> statements) {
+        this.statements = statements;
+    }
 }
 

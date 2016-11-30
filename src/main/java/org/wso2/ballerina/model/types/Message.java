@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerina.model.expression;
+package org.wso2.ballerina.model.types;
 
-public interface Expression {
+public class Message {
 }
