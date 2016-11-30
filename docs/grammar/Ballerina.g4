@@ -1,6 +1,5 @@
 grammar Ballerina;
 
-//todo inline map as argument
 //todo inline json and xml declaration (with `)
 //todo xml, json shema definition
 //todo comment statment
@@ -117,7 +116,7 @@ actionBodyDeclaration
     ;
 
 connectionDeclaration
-    :   (Identifier '.')? Identifier Identifier '=' 'new'  (Identifier '.')? Identifier expressionList ';'
+    :   (Identifier '.')? Identifier Identifier '=' 'new'  (Identifier '.')? Identifier '(' expressionList ')'';'
     ;
 
 typeDefinition
@@ -447,6 +446,7 @@ expression
     |   expression '&&' expression
     |   expression '||' expression
     |   expression '?' expression ':' expression
+    |   '{' expression ':' expression '}'
     |   <assoc=right> expression
         (   '='
         |   '+='
