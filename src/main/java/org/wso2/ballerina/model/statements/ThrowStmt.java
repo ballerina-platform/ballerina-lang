@@ -17,6 +17,17 @@
 */
 package org.wso2.ballerina.model.statements;
 
-public class ThrowStmt implements Statement{
+import org.wso2.ballerina.model.expressions.Expression;
 
+/**
+ * {@code ThrowStmt} represents a throw statement
+ *
+ * @since 1.0.0
+ */
+public class ThrowStmt implements Statement{
+    private Expression expr;
+
+    public ThrowStmt(Expression expr) {
+        this.expr = expr;
+    }
 }

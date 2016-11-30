@@ -17,10 +17,24 @@
 */
 package org.wso2.ballerina.model.statements;
 
+import org.wso2.ballerina.model.expressions.Expression;
+import org.wso2.ballerina.model.types.ExceptionType;
+
 import java.util.List;
 
-public class TryCatchStmt implements Statement{
+/**
+ * {@code TryCatchStmt} represents a try/catch statement
+ *
+ * @since 1.0.0
+ */
+public class TryCatchStmt implements Statement {
     private Statement tryBlock;
-    private List<Exception> catchExceptions;
+    private List<ExceptionType> catchExceptions;
     private Statement catchBlock;
+
+    public TryCatchStmt(Statement tryBlock, List<ExceptionType> catchExceptions, Statement catchBlock) {
+        this.tryBlock = tryBlock;
+        this.catchExceptions = catchExceptions;
+        this.catchBlock = catchBlock;
+    }
 }

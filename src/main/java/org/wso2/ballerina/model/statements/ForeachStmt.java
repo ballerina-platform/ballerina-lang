@@ -18,7 +18,7 @@
 package org.wso2.ballerina.model.statements;
 
 import org.wso2.ballerina.model.expressions.Expression;
-import org.wso2.ballerina.model.types.Iterator;
+import org.wso2.ballerina.model.types.IteratorType;
 
 /**
  * {@code ForeachStmt} Represents a foreach statement.
@@ -27,10 +27,10 @@ import org.wso2.ballerina.model.types.Iterator;
  */
 public class ForeachStmt implements Statement {
     private Expression condition;
-    private Iterator itr;
+    private IteratorType itr;
     private Statement forEachBlock;
 
-    public ForeachStmt(Expression condition, Iterator itr, Statement forEachBlock) {
+    public ForeachStmt(Expression condition, IteratorType itr, Statement forEachBlock) {
         this.condition = condition;
         this.itr = itr;
         this.forEachBlock = forEachBlock;

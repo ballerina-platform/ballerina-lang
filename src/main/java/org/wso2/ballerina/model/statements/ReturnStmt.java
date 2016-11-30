@@ -17,5 +17,17 @@
 */
 package org.wso2.ballerina.model.statements;
 
-public class ReturnStmt implements Statement{
+import org.wso2.ballerina.model.expressions.Expression;
+
+/**
+ * {@code ReturnStmt} represents a return statement
+ *
+ * @since 1.0.0
+ */
+public class ReturnStmt implements Statement {
+    private Expression returnExpr;
+
+    public ReturnStmt(Expression expr) {
+        this.returnExpr = expr;
+    }
 }
