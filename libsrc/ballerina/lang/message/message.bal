@@ -21,8 +21,3 @@ native function getPayload(message m) (map);
 native function setPayload(message m, map payload);
 
 native function clone(message m) (message);
-
-
-
-
-
