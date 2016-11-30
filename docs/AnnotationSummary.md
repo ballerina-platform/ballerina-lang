@@ -632,6 +632,136 @@ _@Example_
 | value | string | A sample response of this resource that match with given mime type. | The value SHOULD be an example of what such a response would look like  |
 
 
+Following are the resource level annotations.
+
+* Path
+* HTTP method
+* Resource Config
+* Consumes
+* Produces
+* Method Parameter Definition
+* Resource Info
+* Responses
+
+#### Path
+```
+@Path("/resource")
+```
+#### HTTP method
+```
+(@GET | @POST | @PUT | @DELETE | @OPTIONS | @HEAD | @PATCH )* 
+```
+#### Resource Config
+
+```
+@ResourceConfig(
+    schemes = {http, https}
+    authorizations = {
+        @Authorization(value="authorizationConfigName" 
+                       [, scopes = { "scope1", "scope2" }]
+        )
+    }
+    [,anyName = anyValue]* // this will represent swagger element "x-anyName" : "anyValue"
+)
+```
+
+|Ballerina Field Name  |  Type | Description | Equivalent Swagger Field|
+|---|---|---|---|
+|  schemas|array |The transfer protocol for the ballerina resource. Values can be "http", "https", "ws" or "wss".  | schemas  | 
+|  authorizations|annotation |A declaration of which authorizations configurations are applied for this resource.  | security  | 
+|anyName |any | Extension fields. | x-anyName, Maps to Swagger extensions. Field name begins with `x-` |
+
+#### Consumes
+```
+@Consumes({ "application/json", "application/xml" })
+```
+#### Produces
+```
+@Produces({ "application/json", "application/xml" })
+```
+#### Method Parameter Definition
+```
+QueryParam
+@Path("/foo")
+resourceName(message m, @QueryParam(name = "paramName", description = "A Description", required = true) string name, ...){...}
+
+PathParam
+@Path("/foo/{paramName}")
+resourceName(message m, @PathParam(name = "paramName", description = "A Description", required = true) string name, ...){...}
+
+FormParam
+@Path("/foo/")
+resourceName(message m, @FormParam(name = "paramName", description = "A Description", required = true) string name, ...){...}
+
+HeaderParam
+@Path("/foo/")
+resourceName(message m, @HeaderParam(name = "paramName", description = "A Description", required = true) string name, ...){...}
+
+Body
+@Path("/foo/")
+resourceName(message m, @Type(name = "TypeName", description = "A Description", required = true) TypeName typeVariableName, ...){...}
+
+```
+#### Resource Info
+```
+@ResourceInfo( 
+    tags = { "http", "get", "anotherTag" },
+    summary = "A summary about resource",
+    description = "a detailed description about resource",
+    externalDocs = @ExternalDocs(
+                       value = "wso2 ballerina", 
+                       url = "http://docs.wso2.com/ballerina"
+                   ),
+    operationId = "methodName" // This information is redundant in resource name, But we need this in special cases.
+)
+```
+|Ballerina Field Name  |  Type | Description | Swagger Field|
+|---|---|---|---|
+|  tags|array |A list of tags for resource documentation control  | tags  | 
+|  summary|string |A short summary of what the resource does.  | summary  | 
+|  externalDocs|annotation |Additional external documentation for this resource.  | externalDocs  | 
+|  operationId|string |Unique string used to identify the resource.  | operationId  | 
+
+#### Responses
+```
+@Responses( 
+    values = {
+        @Response( 
+            code = 200,
+            [description = "Human-readable message to accompany the response.",
+            response = TypeName|VaribaleType|ArrayType|XML<Schema>|JSON<Schema>
+            headers = {
+                @Header(
+                    name = "HeaderName",
+                    description = "description",
+                    type = TypeName|VaribaleType|ArrayType|XML<Schema>|JSON<Schema>
+                    ),
+                @Header(...)
+            },
+            examples = {
+                @Example(
+                    type = "mime-type",
+                    value = xml|json|string
+                ),
+                @Example(
+                    type = "application/json",
+                    value = `{ "key1": "value1", "key2", "value2"}` 
+                )
+            }] 
+            | [reference = "String to reference"]
+        ),
+        @Response( 
+            code = "default", 
+            description = "unexpected error",
+            ...)
+    }
+)
+
+```
+|Ballerina Field Name  |  Type | Description | Swagger Field|
+|---|---|---|---|
+|  Responses|annotation |The list of possible responses as they are returned from executing this operation  | Responses  | 
+
 ### Connector Annotations.
 
 ### Connection Annotations.
