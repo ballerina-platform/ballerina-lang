@@ -19,9 +19,52 @@
 package org.wso2.ballerina.model;
 
 /**
+ * This represent a Variable declaration
+ *
+ * <p>
  * Ballerina has variables of various types. The type system includes built-in primitives,
  * a collection of built-in structured types and array and record type constructors.
  */
 @SuppressWarnings("unused")
 public class Variable {
+
+    private String type, identifier, value;
+
+    /**
+     * @param type       Type of the variable
+     * @param identifier Identifier of the variable
+     * @param value      value of the variable
+     */
+    public Variable(String type, String identifier, String value) {
+        this.type = type;
+        this.identifier = identifier;
+        this.value = value;
+    }
+
+    /**
+     * Get the type of the variable
+     *
+     * @return type of the variable
+     */
+    public String getType() {
+        return type;
+    }
+
+    /**
+     * Get the identifier of the variable declaration
+     *
+     * @return identifier of the variable declaration
+     */
+    public String getIdentifier() {
+        return identifier;
+    }
+
+    /**
+     * Get the value of the variable
+     *
+     * @return value of the variable
+     */
+    public String getValue() {
+        return value;
+    }
 }
