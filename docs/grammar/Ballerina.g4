@@ -314,7 +314,7 @@ statement
     |   returnStatement
     |   replyStatement
     |   workerInitiatingStatement
-//    |   commentStatement
+    |   commentStatement
     |   ';'
     |   statementExpression ';'
     |   Identifier ':' statement
@@ -395,10 +395,11 @@ workerReply
     :   Identifier '<-' Identifier ';'
     ;
 
-//todo
-//commentStatement
-//    :   '//' ~('\r|\n')*
-//    ;
+
+commentStatement
+    :   LINE_COMMENT+
+    ;
+
 // EXPRESSIONS
 
 parExpression
