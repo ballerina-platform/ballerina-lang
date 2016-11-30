@@ -22,10 +22,12 @@ import java.util.List;
 
 public class Resource {
 
-    private List<Connection> connections;
-    private List<Variable> variables;
     private List<Worker> workers;
-    private List<Statement> statements;
+    private Worker defaultWorker;
+
+    public Resource() {
+        defaultWorker = new Worker();
+    }
 
     /**
      * Get all Connections declared within the default Worker scope of the Resource
@@ -33,7 +35,7 @@ public class Resource {
      * @return list of all the Connections belongs to the default Worker of the Resource
      */
     public List<Connection> getConnections() {
-        return connections;
+        return defaultWorker.getConnections();
     }
 
     /**
@@ -42,7 +44,7 @@ public class Resource {
      * @param connections list of connections to be assigned to the default Worker of the Resource
      */
     public void setConnections(List<Connection> connections) {
-        this.connections = connections;
+        defaultWorker.setConnections(connections);
     }
 
     /**
@@ -51,7 +53,7 @@ public class Resource {
      * @param connection Connection to be added to the default Worker of the Resource
      */
     public void addConnection(Connection connection) {
-        connections.add(connection);
+        defaultWorker.addConnection(connection);
     }
 
     /**
@@ -60,7 +62,7 @@ public class Resource {
      * @return list of all default Worker scoped variables
      */
     public List<Variable> getVariables() {
-        return variables;
+        return defaultWorker.getVariables();
     }
 
     /**
@@ -69,7 +71,7 @@ public class Resource {
      * @param variables list of variables
      */
     public void setVariables(List<Variable> variables) {
-        this.variables = variables;
+        defaultWorker.setVariables(variables);
     }
 
     /**
@@ -78,7 +80,7 @@ public class Resource {
      * @param variable variable to be added default Worker
      */
     public void addVariable(Variable variable) {
-        variables.add(variable);
+        defaultWorker.addVariable(variable);
     }
 
     /**
@@ -114,7 +116,7 @@ public class Resource {
      * @return list of Statements associated with the default Worker
      */
     public List<Statement> getStatements() {
-        return statements;
+        return defaultWorker.getStatements();
     }
 
     /**
@@ -123,7 +125,7 @@ public class Resource {
      * @param statements list of Statements
      */
     public void setStatements(List<Statement> statements) {
-        this.statements = statements;
+        defaultWorker.setStatements(statements);
     }
 
     /**
@@ -132,7 +134,7 @@ public class Resource {
      * @param statement a Statement to be added to the default Worker
      */
     public void addStatement(Statement statement) {
-        statements.add(statement);
+        defaultWorker.addStatement(statement);
     }
 
 }
