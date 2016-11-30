@@ -48,15 +48,6 @@ public class Function {
 
     private boolean isPublic;
 
-    public Function() {
-        annotations = new ArrayList<Annotation>();
-        arguments = new ArrayList<Argument>();
-        connections = new ArrayList<Connection>();
-        variables = new ArrayList<Variable>();
-        workers = new ArrayList<Worker>();
-        statements = new ArrayList<Statement>();
-    }
-
     /**
      * Get all the Annotations associated with a Function
      *
