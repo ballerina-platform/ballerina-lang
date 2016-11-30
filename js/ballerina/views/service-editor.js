@@ -38,6 +38,21 @@ define(['require', 'jquery', 'd3', 'd3utils', 'backbone', 'lodash','log','./serv
                 throw "container not found."
             }
             this._$parent_el = container;
+
+            if(_.has(options, 'antlr_worker')){
+                if(_.isUndefined(window.antlr4) && _.isUndefined(this.antlr4)){
+
+                    var libPath = _.get(options, 'antlr_worker.libPath');
+                    var reqScriptPath = _.get(options, 'antlr_worker.reqScriptPath');
+
+                    var antlrWorker = new Worker('./../parser/worker.js');
+                    antlrWorker.addEventListener('message', function(e){
+                        console.log(e.data);
+                    }, false);
+                    //antlrWorker.postMessage({command:'loadAntlr', libPath: libPath, reqScriptPath: reqScriptPath});
+
+                }
+            }
             this.options = options;
 
          },

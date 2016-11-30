@@ -314,7 +314,7 @@
             js_tree: "lib/js-tree-v3.3.2/jstree",
             nano_scroller: "lib/nanoscroller_0.8.7/jquery.nanoscroller.min",
             theme_wso2: "lib/theme-wso2_1.0/js/theme-wso2",
-            ace: "lib/ace",
+            ace: "lib/ace_v1.2.5",
             beautify: "lib/beautify/beautify",
             ///////////////////////
             // custom modules ////
@@ -363,6 +363,11 @@
                 name: 'workspace',
                 location: 'js/workspace',
                 main: 'module'
+            },
+            {
+                name: 'antlr',
+                location: 'lib/antlr_v4.5.3',
+                main: 'index'
             }
         ]
     });
@@ -444,6 +449,10 @@
                             tab_close_btn: 'close closeTab pull-right'
                         },
                         service_editor: {
+                            antlr_worker:{
+                                libPath: "lib/antlr_v4.5.3/antlr4/index",
+                                reqScriptPath: "lib/antlr_v4.5.3/lib/require"
+                            },
                             canvas: {
                                 // relative selector within container for a tab
                                 container: '.canvas-container'

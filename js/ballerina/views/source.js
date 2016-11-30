@@ -33,10 +33,10 @@ define(['d3', 'lodash', 'backbone', 'jquery', 'ace/ace'], function(d3, _, Backbo
                 //Avoiding ace warning
                 this.mainEditor.$blockScrolling = Infinity;
                 this.mainEditor.setTheme("ace/theme/twilight");
-                this.mainEditor.session.setMode("ace/mode/nel");
+                this.mainEditor.session.setMode("ace/mode/ballerina");
                 // var langTools = ace.require("ace/ext/language_tools");
                 this.mainEditor.setOptions({
-                    enableBasicAutocompletion:true
+                    enableBasicAutoCompletion:true
                 });
                 this.mainEditor.setBehavioursEnabled(true);
                 //bind auto complete to key press
