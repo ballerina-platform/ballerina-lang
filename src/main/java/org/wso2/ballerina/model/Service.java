@@ -21,7 +21,7 @@ package org.wso2.ballerina.model;
 import java.util.List;
 
 public class Service {
-    private List<Connection> connectionList;
-    private List<Variable> variableList;
-    private List<Resource> resourceList;
+    private List<Connection> connections;
+    private List<Variable> variables;
+    private List<Resource> resources;
 }
