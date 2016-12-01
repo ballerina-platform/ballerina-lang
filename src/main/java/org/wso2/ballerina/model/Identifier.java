@@ -31,6 +31,11 @@ public class Identifier {
         this.name = name;
     }
 
+    /**
+     * Get the name of the Identifier
+     *
+     * @return name of the Identifier
+     */
     public String getName() {
         return name;
     }
