@@ -15,25 +15,17 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerina.model.statements;
-
-import org.wso2.ballerina.model.types.ExceptionType;
-
-import java.util.List;
+package org.wso2.ballerina.model.values;
 
 /**
- * {@code TryCatchStmt} represents a try/catch statement
+ * {@code IntValue} represents a int value
  *
  * @since 1.0.0
  */
-public class TryCatchStmt implements Statement {
-    private Statement tryBlock;
-    private List<ExceptionType> catchExceptions;
-    private Statement catchBlock;
+public class IntValue implements BValue {
+    private int value;
 
-    public TryCatchStmt(Statement tryBlock, List<ExceptionType> catchExceptions, Statement catchBlock) {
-        this.tryBlock = tryBlock;
-        this.catchExceptions = catchExceptions;
-        this.catchBlock = catchBlock;
+    public IntValue(int value) {
+        this.value = value;
     }
 }

@@ -16,15 +16,31 @@
  * under the License.
  */
 
-package org.wso2.ballerina.model.statements;
+package org.wso2.ballerina.model;
+
+import org.testng.Assert;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Test;
 
 /**
- * Represents a statement. All statements nodes implements this interface.
- * <p>
- * A statement is a tree consisting of one or more of the concrete implementations
- * of this interface.
+ * Test class to test the functionality of the {@link org.wso2.ballerina.model.Resource} class
  *
  * @since 1.0.0
  */
-public interface Statement {
+public class ResourceTest {
+
+    private String sourceText;
+    private String targetText;
+
+    @BeforeTest
+    public void setup() {
+        sourceText = "resourceTest";
+        targetText = "resourceTest";
+    }
+
+    @Test
+    public void testResourceModelInvocation() {
+        Assert.assertEquals(sourceText, targetText);
+    }
+
 }

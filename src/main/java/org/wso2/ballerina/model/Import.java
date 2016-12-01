@@ -16,15 +16,27 @@
  * under the License.
  */
 
-package org.wso2.ballerina.model.statements;
+package org.wso2.ballerina.model;
 
 /**
- * Represents a statement. All statements nodes implements this interface.
- * <p>
- * A statement is a tree consisting of one or more of the concrete implementations
- * of this interface.
+ * {@code Import} represent an import statement
  *
  * @since 1.0.0
  */
-public interface Statement {
+public class Import {
+
+    private String importName;
+
+    public Import(String importName) {
+        this.importName = importName;
+    }
+
+    /**
+     * Get the name of the import
+     *
+     * @return name of the import
+     */
+    public String getName() {
+        return importName;
+    }
 }

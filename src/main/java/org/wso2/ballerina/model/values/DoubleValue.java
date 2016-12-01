@@ -15,7 +15,17 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerina.model.expressions;
+package org.wso2.ballerina.model.values;
 
-public class Identifier implements Expression {
+/**
+ * {@code DoubleValue} represents a double value
+ *
+ * @since 1.0.0
+ */
+public class DoubleValue implements BValue {
+    private double value;
+
+    public DoubleValue(double value) {
+        this.value = value;
+    }
 }

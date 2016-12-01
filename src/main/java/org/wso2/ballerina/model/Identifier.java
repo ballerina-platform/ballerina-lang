@@ -15,25 +15,28 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerina.model.statements;
-
-import org.wso2.ballerina.model.types.ExceptionType;
-
-import java.util.List;
+package org.wso2.ballerina.model;
 
 /**
- * {@code TryCatchStmt} represents a try/catch statement
+ * {@code Identifier} represents an identifier in Ballerina
+ * <p>
+ * Here only the name of the identifier is stored.
  *
  * @since 1.0.0
  */
-public class TryCatchStmt implements Statement {
-    private Statement tryBlock;
-    private List<ExceptionType> catchExceptions;
-    private Statement catchBlock;
+public class Identifier {
+    private String name;
 
-    public TryCatchStmt(Statement tryBlock, List<ExceptionType> catchExceptions, Statement catchBlock) {
-        this.tryBlock = tryBlock;
-        this.catchExceptions = catchExceptions;
-        this.catchBlock = catchBlock;
+    public Identifier(String name) {
+        this.name = name;
+    }
+
+    /**
+     * Get the name of the Identifier
+     *
+     * @return name of the Identifier
+     */
+    public String getName() {
+        return name;
     }
 }
