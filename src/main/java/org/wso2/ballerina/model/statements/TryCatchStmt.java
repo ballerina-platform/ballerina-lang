@@ -17,7 +17,6 @@
 */
 package org.wso2.ballerina.model.statements;
 
-import org.wso2.ballerina.model.expressions.Expression;
 import org.wso2.ballerina.model.types.ExceptionType;
 
 import java.util.List;

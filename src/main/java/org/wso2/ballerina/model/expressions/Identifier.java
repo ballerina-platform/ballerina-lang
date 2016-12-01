@@ -17,5 +17,17 @@
 */
 package org.wso2.ballerina.model.expressions;
 
+/**
+ * {@code Identifier} represents an identifier in Ballerina
+ * <p>
+ * Here only the name of the identifier is stored.
+ *
+ * @since 1.0.0
+ */
 public class Identifier implements Expression {
+    private String name;
+
+    public Identifier(String name) {
+        this.name = name;
+    }
 }
