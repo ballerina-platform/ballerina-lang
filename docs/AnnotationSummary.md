@@ -35,7 +35,11 @@ E.g:
     
     @AnnotationTwo("Value of two")
     
-    @AnnotationThree( keyInt = 1 , keyString = "second value", keyAnnotation = @InnerAnnotation("Inner Annotation Value"))
+    @AnnotationThree( 
+        keyInt = 1 ,
+        keyString = "second value",
+        keyAnnotation = @InnerAnnotation("Inner Annotation Value")
+    )
     
     @AnnotationFour({ "value1" , "value2"})
     
@@ -57,11 +61,14 @@ In Ballerina annotations are divided into two categories.
     - Config annotations denote additional configuration/behavior instructions for Ballerina runtime.
      (e.g Apply Security, Circuit Breaker, etc) By defining the config annotations for a construct, Ballerina developer 
      can instruct to the Ballerina runtime, to alter default behavior or/and apply Quality of services configuration.
+     
+Note: By design Doc annotation and Config annotation are defined separately. This will improve readability and performance
+ of the system.  
 
-## Swagger 2.0 Support
+### Swagger 2.0 Support
 
 Ballerina Annotations represent a supper set of Open API Specification 2.0 (AKA Swagger 2.0) format. This allows developers
-to Generate a Ballerina service skeleton from a Swagger 2.0 definition or Swagger 2.0 definition from a Ballerina service.
+to Generate a Ballerina service skeleton from a Swagger 2.0 definition and/or Swagger 2.0 definition from a Ballerina service.
  
 ## Supported Annotations.
 
@@ -69,19 +76,23 @@ to Generate a Ballerina service skeleton from a Swagger 2.0 definition or Swagge
 
 Followings are the service level annotations.
 
-* API Definition
-* API Configuration
+* Service Info
+* Service Config
 * Path
 * Consumes
 * Produces
 
-#### API Definition
+#### Service Info
 
-A Doc annotation, which describes Ballerina Service. 
+A Doc annotation, which describes a Ballerina Service. 
 
-Syntax:
+##### Suggestion 1 :
+ 
+ This syntax has one to one mapping in swagger. 
+ 
+Syntax: 
 ```
-@APIDefinition( // Alternatives : @Info, @ServiceInfo, @APIInfo, @APIDocumentation
+@ServiceInfo( // Alternatives :  @APIDefinition, @APIInfo, @APIDocumentation
     swaggerVersion = "2.0", 
     info = @Info( 
         title = "Sample API title", 
@@ -121,17 +132,20 @@ Syntax:
             ),
             @Tag(name = "Private", description = "Private Service")
         }
+        
+    [,anyName = anyValue]*
 )
 ```
 
-_@APIDefinition_
+_@ServiceInfo_
 
 | Ballerina Field | Type | Description | Swagger Field |
 |---|:---:|---|---|
 | swaggerVersion | string | Specifies the Swagger Specification version to be used. Default value is "2.0". | swagger | 
 | info | @Info | **Required.** Provides metadata about the Ballerina API. | info |
-| externalDocs | @ExternalDocs | A list of tags used by the specification with additional metadata.| externalDocs |
+| externalDocs | @ExternalDocs | An link to external documentation which describes annotated service.| externalDocs |
 | tags | @Tag[] | A list of tags used by the specification with additional metadata.| tags |
+| anyName | any | Extension fields. | `x-`anyName (Swagger extensions) |
 
 _@Info_
 
@@ -178,15 +192,134 @@ _@License_
 | url | string | An URL pointing to License information. | url |
 | anyName | any | Extension fields. | `x-`anyName (Swagger extensions) |
 
-#### API Configuration
+
+##### Suggestion 2: 
+
+Generic meta information about Service or Connector. But this a supper set of Swagger 2.0 representation. 
+
+Syntax: 
+```
+@ServiceInfo(
+    title = "Test Example Service" ,
+    version = "1.0.0" ,
+    description = "This is a short description about test example service" ,
+    termOfService = "http://example.com/services/Test/terms.html" ,
+    contact = @Contact( name = "WSO2 support" , email = "support@wso2.com" , url = "http://wso2.com/contact/" ),
+    license = @License( name = "Apache 2", url = "http://www.apache.org/licenses/LICENSE-2.0") ,
+    doc = @Doc( description = "Wso2 Ballerina Documentation", url = "https://docs.wso2.com/ballerina" ) , 
+    tags = {
+        @Tag(
+            name = "test" ,
+            description = "this is a test service" ,
+            doc = @Doc( ... )
+        ) ,
+        @Tag( ... )
+    }
+    organization = @Organization( name = "WSO2 inc.", url = "https://wso2.com") ,
+    developers = {
+        @Developer( name = "" , email = "")
+    } ,
+)
+@Swagger(
+    version = "2.0" , 
+    extenstions = {
+        @SwaggerExtension(
+            target = "json-path to swagger element"
+            [, anyKey = anyValue]+
+        ) ,
+        @SwaggerExtenstion( ... )
+    }
+)
+service TestService {
+ ...
+}
+```
+
+Following section describes each field defined in `@ServiceInfo` annotation. 
+
+| Ballerina Field | Type | Description | Swagger Field (Json Path) |
+|---|:---:|---|---|
+| title | string | **Required.** The title of the Ballerina Service. | $.info.title |
+| version | string | **Required.** The version of the Ballerina Service. | $.info.version |
+| description | string | A short description about the Ballerina Service. | $.info.description |
+| termsOfService | string | Text or URL for the Terms of Services for the Ballerina Service. | $.info.termsOfService |
+| contact | @Contact | The Contact information for Ballerina Service. | $.info.contact |
+| license | @License | The License information for Ballerina Service. | $.info.license |
+| doc | @Doc |  An link to external documentation which describes annotated service. | $.externalDocs |
+| tag | @Tag[] |  A list of tags used by the specification with additional metadata. | $.tags |
+| organization | @Organization | Organization this service belongs to. | $.info.x-organization |
+| developers | @Developers[] | Information about developers involved. | $.info.x-developers |
+
+_@Contact_
+
+| Ballerina Field | Type | Description | Swagger Field (Json Path) |
+|---|:---:|---|---|
+| name | string | Name of the contact person or organization. | $.info.contact.name |
+| email | string | email of the contact person or organization. | $.info.contact.x-email |
+| url | string | An URL pointing to contact information. | $.info.contact.url |
+
+_@License_
+
+| Ballerina Field | Type | Description | Swagger Field |
+|---|:---:|---|---|
+| name | string | Name of the License used for Ballerina Service. | $.info.license.name |
+| url | string | An URL pointing to License information. | $.info.license.url |
+
+_@Doc_
+
+| Ballerina Field | Type | Description | Swagger Field |
+|---|:---:|---|---|
+| description | string | a description about the target documentation. | parent.description |
+| url | string | **Required.** URL is pointing to target documentation. | parent.url |
+
+_@Tag_
+
+| Ballerina Field | Type | Description | Swagger Field |
+|---|:---:|---|---|
+| name | string | **Required.** Name of tag. | $.tags\[position\].name |
+| description | string | Description explaining current tag. | $.tags\[position\].description |
+| doc | @Doc | Additional external documentation link explaining current tag. | $.tags\[position\].externalDocs |
+
+_@Organization_
+
+| Ballerina Field | Type | Description | Swagger Field |
+|---|:---:|---|---|
+| name | string | Name of the Organization. | $.info.x-organization.name |
+| url | string | An URL pointing to the Organization website. | $.info.x-organization.url |
+
+_@Developer_
+
+| Ballerina Field | Type | Description | Swagger Field |
+|---|:---:|---|---|
+| name | string | Name of the developer. | $.info.x-developers\[position\].name |
+| email | string | An email address of the Developer. | $.info.x-developers\[position\].email |
+
+Following section describes each field defined in `@Swagger` annotation. This annotation represents all the vendor 
+specific custom swagger extensions. 
+
+| Ballerina Field | Type | Description | Swagger Field (Json Path) |
+|---|:---:|---|---|
+| version | string | **Required.** Specifies the Swagger Specification version to be used. If `@Swagger` annotation is not defined, default value is "2.0" | $.swagger |
+| extension | @SwaggerExtension[] | List of Swagger extension for specific swagger field. | Dynamic |
+
+@SwaggerExtension
+
+| Ballerina Field | Type | Description | Swagger Field (Json Path) |
+|---|:---:|---|---|
+| target | string | **Required.** Json path of the swagger field. | target |
+| anyKey | any | List of Swagger extension for specific swagger field. | target.x-anykey |
+
+
+#### Service Config
 
 A Config annotation, which represents common configuration for a Ballerina Service. 
 
 Syntax:
 ```
-@APIConfiguration (
+@ServiceConfig (
     host = "http://example.com/sample/service" , 
     schemes = {"http", "https"} ,
+    interface = "Interface Key or path to Interface." 
     authorizationsConfigurations = { 
         @AuthorizationsConfiguration(
             name = "anUniqueName", 
@@ -214,12 +347,13 @@ Syntax:
 )
 ```
 
-_@APIConfiguration_
+_@ServiceConfig_
 
 | Ballerina Field | Type | Description | Swagger Field |
 |---|:---:|---|---|
 | host| string| Host name or IP of the Ballerina Service. | host |
-| schemes | string[]| Transport protocol of the Ballerina Service.(http, https, ws, wss)| schemes |
+| schemes | string[] | Transport protocol of the Ballerina Service.(http, https, ws, wss)| schemes |
+| interface | string | Interface for Transport configuration. | N/A |
 | authorizationsConfigurations | @AuthorizationsConfiguration[] | Authorization schema associated with the Ballerina Service | securityDefinitions |
 | anyName | any | Extension fields. | `x-`anyName (Swagger extensions) |
 
@@ -312,10 +446,10 @@ Syntax:
 | Ballerina Field | Type | Description | 
 |---|:---:|---|
 | enable | boolean | Enable Circuit Breaker. Default is `false`.|
-| failureThreshold | integer | Number of continuous failed messages to Open circuit. Default value is 3. |
-| initialOpenDuration | long | Circuit open duration in Milliseconds, before it moves to Half Open. Default value 60000. |
-| maxOpenDuration | long | Maximum Circuit open duration in Milliseconds. Default is Long.max |
-| openDurationFactor | float >= 1.0 | Circuit open duration progression factor. Default is 1.0 |
+| failureThreshold | integer | Number of continuous failed messages to Open circuit. Default value is `3`. |
+| initialOpenDuration | long | Circuit open duration in Milliseconds, before it moves to Half Open. Default value `60000.` |
+| maxOpenDuration | long | Maximum Circuit open duration in Milliseconds. Default is `Long.max` |
+| openDurationFactor | float >= 1.0 | Circuit open duration progression factor. Default is `1.0` |
 | errorCodes | string[] | Error codes that are considered as connection failure and increment threshold value. If Threshold is reached, Open Circuit. By Default all error codes are enabled. |
 | criticalErrorCodes | string[] | Error codes that are considered as critical connection failures, which Open Circuit immediately. By default, no error code is defined. |
 | ignoredErrorCodes | string[] | Error codes that are not considered as connection failures, But that need to be dealt with as part of the integration logic. |
