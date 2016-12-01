@@ -32,7 +32,7 @@ define(['lodash', 'log', './statement', './expression'], function (_, log, State
     ConditionalStatement.prototype.constructor = ConditionalStatement;
 
     ConditionalStatement.prototype.setCondition = function (condition) {
-        if (!_.isUndefined(condition) && condition instanceof Expression) {
+        if (!_.isNil(condition) && condition instanceof Expression) {
             this._condition = condition;
         } else {
             log.error("Invalid value for condition received: " + condition);
@@ -45,7 +45,7 @@ define(['lodash', 'log', './statement', './expression'], function (_, log, State
 
     ConditionalStatement.prototype.setStatements = function (statements) {
         // There should be atleast one statement.
-        if (!_.isEmpty(statements)) {
+        if (!_.isNil(statements)) {
             this._statments = statements;
         } else {
             log.error("Cannot set undefined array of statements.");
