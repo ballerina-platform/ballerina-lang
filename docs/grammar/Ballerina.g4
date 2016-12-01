@@ -83,7 +83,7 @@ connectorBodyDeclaration
     ;
 
 actionDefinition
-    :   annotation* 'action' Identifier formalParameter returnTypeList? actionBody
+    :   annotation* 'action' Identifier formalParameters returnTypeList?  ('throws' userDefineType)? actionBody
     ;
 
 actionBody
