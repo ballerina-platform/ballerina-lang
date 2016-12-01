@@ -82,7 +82,7 @@ public class Service {
     }
 
     /**
-     * Add an Annotation to the Service
+     * Add an {@code Annotation} to the Service
      *
      * @param annotation Annotation to be added
      */
@@ -112,7 +112,7 @@ public class Service {
     }
 
     /**
-     * Add a Connection to the Service
+     * Add a {@code Connection} to the Service
      *
      * @param connection Connection to be added to the Service
      */
@@ -142,7 +142,7 @@ public class Service {
     }
 
     /**
-     * Add a variable to the Service
+     * Add a {@code Variable} to the Service
      *
      * @param variable variable to be added to the Service
      */
@@ -172,7 +172,7 @@ public class Service {
     }
 
     /**
-     * Add a Resource to the Service
+     * Add a {@code Resource} to the Service
      *
      * @param resource a Resource
      */

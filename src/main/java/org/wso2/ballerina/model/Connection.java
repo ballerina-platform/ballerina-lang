@@ -48,7 +48,7 @@ public class Connection {
     }
 
     /**
-     * Get the name of the Connector which Connection is instantiated against
+     * Get the name of the {@code Connector} which Connection is instantiated against
      *
      * @return name of the Connector
      */
@@ -57,7 +57,7 @@ public class Connection {
     }
 
     /**
-     * Get the identifier of the Connection instance
+     * Get the {@code Identifier} of the Connection instance
      *
      * @return identifier of the Connection instance
      */
@@ -84,7 +84,7 @@ public class Connection {
     }
 
     /**
-     * Add an argument value to the Connection
+     * Add an {@code Argument} value to the Connection
      *
      * @param arg argument value
      */
