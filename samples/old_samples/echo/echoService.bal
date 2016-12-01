@@ -2,7 +2,7 @@ package samples.echo;
 
 service EchoService{
 
-  @POST
+  @GET
   @Path ("/*")
   resource echoResource (message m) {
       reply m;
