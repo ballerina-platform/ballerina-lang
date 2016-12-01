@@ -28,7 +28,7 @@ define(['lodash', './node'], function(_, ASTNode){
     WorkerDeclaration.prototype.constructor = WorkerDeclaration;
 
     WorkerDeclaration.prototype.setConnections = function(connections){
-        if(!_.isEmpty(connections)){
+        if(!_.isNil(connections)){
             this.connectionDeclarations = connections;
         }
     };
@@ -38,7 +38,7 @@ define(['lodash', './node'], function(_, ASTNode){
     };
 
     WorkerDeclaration.prototype.setVariables = function(variables){
-        if(!_.isEmpty(variables)){
+        if(!_.isNil(variables)){
             this.variableDeclarations = variables;
         }
     };
@@ -48,7 +48,7 @@ define(['lodash', './node'], function(_, ASTNode){
     };
 
     WorkerDeclaration.prototype.setStatements = function(statements){
-        if(!_.isEmpty(statements)){
+        if(!_.isNil(statements)){
             this.statements = statements;
         }
     };
@@ -58,7 +58,7 @@ define(['lodash', './node'], function(_, ASTNode){
     };
 
     WorkerDeclaration.prototype.setReply = function(replyStatement){
-        if(!_.isEmpty(replyStatement)){
+        if(!_.isNil(replyStatement)){
             this.reply = replyStatement;
         }
     };
