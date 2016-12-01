@@ -40,10 +40,29 @@ import java.util.List;
 @SuppressWarnings("unused")
 public class Service {
 
+    private Identifier identifier;
     private List<Annotation> annotations;
     private List<Connection> connections;
     private List<Variable> variables;
     private List<Resource> resources;
+
+
+    /**
+     *
+     * @param identifier Service Identifier
+     */
+    public Service(Identifier identifier) {
+        this.identifier = identifier;
+    }
+
+    /**
+     * Get the {@code Identifier} of the Service
+     *
+     * @return Service Identifier
+     */
+    public Identifier getIdentifier() {
+        return identifier;
+    }
 
     /**
      * Get all the Annotations associated with a Service
