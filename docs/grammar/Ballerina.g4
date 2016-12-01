@@ -55,7 +55,11 @@ resourceBodyDeclaration
     ;
 
 functionDefinition
-    :   annotation* 'public'? 'function' Identifier formalParameters typeList? 'throws exception'? functionBody
+    :   annotation* 'public'? 'function' Identifier formalParameters returnTypeList? ('throws' userDefineType)? functionBody
+    ;
+
+returnTypeList
+    : '(' typeList ')'
     ;
 
 functionBody
@@ -79,7 +83,7 @@ connectorBodyDeclaration
     ;
 
 actionDefinition
-    :   annotation* 'action' Identifier formalParameter typeList? actionBody
+    :   annotation* 'action' Identifier formalParameter returnTypeList? actionBody
     ;
 
 actionBody
@@ -91,7 +95,7 @@ actionBodyDeclaration
     ;
 
 connectionDeclaration
-    :   (Identifier '.')? Identifier Identifier '=' 'new'  (Identifier '.')? Identifier '(' expressionList ')'';'
+    :   (Identifier '.')? Identifier Identifier '=' 'new'  (Identifier '.')? Identifier '(' expressionList? ')'';'
     ;
 
 typeDefinition
@@ -351,7 +355,7 @@ tryCatchStatement
     ;
 
 catchClause
-    :   'catch' '(' 'exception' Identifier ')' block
+    :   'catch' '(' userDefineType Identifier ')' block
     ;
 
 throwStatement
