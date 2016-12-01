@@ -43,7 +43,7 @@ resourceDefinition
     ;
 
 resourceParameters
-    :   '(' 'message' Identifier (',' formalParameterList)? ')'
+    :   '(' userDefineType Identifier (',' formalParameterList)? ')'
     ;
 
 resourceBody
@@ -55,7 +55,11 @@ resourceBodyDeclaration
     ;
 
 functionDefinition
-    :   annotation* 'public'? 'function' Identifier formalParameters typeList? 'throws exception'? functionBody
+    :   annotation* 'public'? 'function' Identifier formalParameters returnTypeList? ('throws' userDefineType)? functionBody
+    ;
+
+returnTypeList
+    : '(' typeList ')'
     ;
 
 functionBody
@@ -79,7 +83,7 @@ connectorBodyDeclaration
     ;
 
 actionDefinition
-    :   annotation* 'action' Identifier formalParameter typeList? actionBody
+    :   annotation* 'action' Identifier formalParameter returnTypeList? actionBody
     ;
 
 actionBody
@@ -91,7 +95,7 @@ actionBodyDeclaration
     ;
 
 connectionDeclaration
-    :   (Identifier '.')? Identifier Identifier '=' 'new'  (Identifier '.')? Identifier '(' expressionList ')'';'
+    :   (Identifier '.')? Identifier Identifier '=' 'new'  (Identifier '.')? Identifier '(' expressionList? ')'';'
     ;
 
 typeDefinition
@@ -128,7 +132,7 @@ variableDeclaration
 
 
 workerDeclaration
-    :   'worker' Identifier '(' 'message' Identifier ')' workerBody
+    :   'worker' Identifier '(' userDefineType Identifier ')' workerBody
     ;
 
 
@@ -178,10 +182,8 @@ arrayInitializer
     
     
 typeType
-    :   userDefineType (('[' ']') | '~')?
+    :   userDefineType schemaDefinition? (('[' ']') | '~')?
     |   primitiveType (('[' ']') | '~')?
-    |   nonPrimitiveType (('[' ']') | '~')?
-    |   buildInDataType (('[' ']') | '~')?
     ;
 
 userDefineType
@@ -194,13 +196,6 @@ primitiveType
     |   'long'
     |   'float'
     |   'double'
-    ;
-
-nonPrimitiveType
-    :   'string'
-    |   'message'
-    |   'map'
-    |   'exception'
     ;
 
 //todo maybe need this
@@ -223,12 +218,6 @@ formalParameter
 
 lastFormalParameter
     :   variableModifier* typeType '...' variableDeclaratorId
-    ;
-
-buildInDataType
-    :   'xml' (schemaDefinition)?
-    |   'xmlDocument'
-    |   'json'(schemaDefinition)?
     ;
 
 schemaDefinition
@@ -317,7 +306,6 @@ statement
     |   commentStatement
     |   ';'
     |   statementExpression ';'
-    |   Identifier ':' statement
     ;
 ifElseStatement
     :   'if' parExpression statement ('else' statement)?
@@ -344,7 +332,7 @@ forkJoinStatement
     ;
 
 joinClause
-    :   'join' joinConditions '(' 'message' '['']' Identifier ')' joinBody
+    :   'join' joinConditions '(' userDefineType '['']' Identifier ')' joinBody
     ;
 
 joinConditions
@@ -367,7 +355,7 @@ tryCatchStatement
     ;
 
 catchClause
-    :   'catch' '(' 'exception' Identifier ')' block
+    :   'catch' '(' userDefineType Identifier ')' block
     ;
 
 throwStatement
@@ -416,7 +404,7 @@ statementExpression
 
 expression
     :   primary
-    |   expression '.' Identifier
+    |   expression ':' Identifier
     |   expression '[' expression ']'
     |   expression '(' expressionList? ')'
     |   'new' creator
@@ -495,7 +483,6 @@ CONNECTOR	    :	'connector';
 CONST	        :	'const';
 DOUBLE	        :	'double';
 ELSE	        :	'else';
-EXCEPTION	    :	'exception';
 FLOAT	        :	'float';
 FORK	        :	'fork';
 FUNCTION	    :	'function';
@@ -504,17 +491,13 @@ IMPORT	        :	'import';
 INT	            :	'int';
 ITERATE	        :	'iterate';
 JOIN	        :	'join';
-JSON	        :	'json';
 LONG	        :	'long';
-MAP	            :	'map';
-MESSAGE	        :	'message';
 NEW	            :	'new';
 PACKAGE	        :	'package';
 REPLY	        :	'reply';
 RESOURCE	    :	'resource';
 RETURN	        :	'return';
 SERVICE	        :	'service';
-STRING	        :	'string';
 THROW	        :	'throw';
 THROWS	        :	'throws';
 TRY	            :	'try';
@@ -522,8 +505,6 @@ TYPE	        :	'type';
 TYPECONVERTOR	:	'typeconvertor';
 WHILE	        :	'while';
 WORKER	        :	'worker';
-XML	            :	'xml';
-XMLDOCUMENT	    :   'xmlDocument';
 
 // §3.10.1 Integer Literals
 IntegerLiteral
