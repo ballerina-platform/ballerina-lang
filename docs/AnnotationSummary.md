@@ -667,9 +667,72 @@ Syntax:
 
  
 ### Action Annotations. 
-// TBD
+
+Action can have @Doc annotation which describes the parameters and the return types.
+
+Syntax:
+```
+@Doc(
+    description = "description about the action",
+    params = {
+        @param(
+            name = "name of the parameter",
+            type = data type of the parameter,
+            description = "description about the parameter"            
+        )  
+    },
+    returns = {
+        @return(
+           type = data type of the return value,
+           description = "This returns String array."
+        ),
+        @return(
+           type = exception,
+           description = "Returns exception if connection timeout."
+        )
+    }
+)
+```
+| Ballerina Field | Type | Description | 
+|---|:---:|---|
+| description | string | Description about this action|
+| param | @param[] | Array of @param that this actor accept.|
+| return | @return[] | details about return types including possible exception situations.|
+
+
 ### Function Annotations.
-// TBD
+
+Function can have @Doc annotation which describes the parameters and the return types.
+
+Syntax:
+```
+@Doc(
+    description = "description about the function",
+    params = {
+        @param(
+            name = "name of the parameter",
+            type = data type of the parameter,
+            description = "description about the parameter"            
+        )  
+    },
+    returns = {
+        @return(
+           type = data type of the return value,
+           description = "This returns String array."
+        ),
+        @return(
+           type = exception,
+           description = "Returns exception if connection timeout."
+        )
+    }
+)
+```
+| Ballerina Field | Type | Description | 
+|---|:---:|---|
+| description | string | Description about this function|
+| param | @param[] | Array of @param that this actor accept.|
+| return | @return[] | details about return types including possible exception situations.|
+
 
 ### Type Annotations.
 
