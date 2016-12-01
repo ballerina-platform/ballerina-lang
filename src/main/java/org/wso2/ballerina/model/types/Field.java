@@ -17,7 +17,7 @@
 */
 package org.wso2.ballerina.model.types;
 
-import org.wso2.ballerina.model.expressions.Identifier;
+import org.wso2.ballerina.model.Identifier;
 
 /**
  * {@code Field} represents a field declaration in a {@code StructType}
