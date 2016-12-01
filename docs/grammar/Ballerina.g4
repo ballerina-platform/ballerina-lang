@@ -95,7 +95,7 @@ actionBodyDeclaration
     ;
 
 connectionDeclaration
-    :   (Identifier '.')? Identifier Identifier '=' 'new'  (Identifier '.')? Identifier '(' expressionList? ')'';'
+    :   (Identifier ':')? Identifier Identifier '=' 'new'  (Identifier ':')? Identifier '(' expressionList? ')'';'
     ;
 
 typeDefinition
@@ -404,6 +404,7 @@ statementExpression
 
 expression
     :   primary
+    |   expression '.' Identifier
     |   expression ':' Identifier
     |   expression '[' expression ']'
     |   expression '(' expressionList? ')'
