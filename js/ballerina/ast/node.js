@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define([], function(){
+define(['event_channel'], function(EventChannel){
 
     var ASTNode = function(value, type, cStart, cEnd) {
         this.object = undefined;
@@ -25,6 +25,9 @@ define([], function(){
         this.configStart = cStart;
         this.configEnd = cEnd;
     };
+
+    ASTNode.prototype = Object.create(EventChannel.prototype);
+    ASTNode.prototype.constructor = ASTNode;
 
     ASTNode.prototype.getChildren = function () {
         return this.children;
