@@ -126,57 +126,57 @@ Syntax:
 
 _@APIDefinition_
 
-Ballerina Field | Type          | Description                                                       | Swagger Field
-----------------|:-------------:|-------------------------------------------------------------------|-------------------
-swaggerVersion  | string        | Specifies the Swagger Specification version to be used. Default value is "2.0". | swagger 
-info            | @Info         | **Required.** Provides metadata about the Ballerina API.          | info
-externalDocs    | @ExternalDocs | A list of tags used by the specification with additional metadata.|externalDocs
-tags            | @Tag[]        | A list of tags used by the specification with additional metadata.| tags
+| Ballerina Field | Type | Description | Swagger Field |
+|---|:---:|---|---|
+| swaggerVersion | string | Specifies the Swagger Specification version to be used. Default value is "2.0". | swagger | 
+| info | @Info | **Required.** Provides metadata about the Ballerina API. | info |
+| externalDocs | @ExternalDocs | A list of tags used by the specification with additional metadata.| externalDocs |
+| tags | @Tag[] | A list of tags used by the specification with additional metadata.| tags |
 
 _@Info_
 
-Ballerina Field | Type          | Description                                                       | Swagger Field
-----------------|:-------------:|-------------------------------------------------------------------|-------------------
-title           | string        | **Required.**  The title of the Ballerina Service.                | title
-description     | string        | A description of the Ballerina Service.                           | description
-version         | string        | **Required.** The version of the Ballerina Service.               | version
-termsOfService  | string        | Text or URL for the Terms of Services for the Ballerina Service.  | termsOfService
-contact         | @Contact      | The Contact information for Ballerina Service.                    | contact 
-license         | @License      | The License information for Ballerina Service.                    | license
-anyName         | any           | Extension fields.                                                 | `x-`anyName (Swagger extensions)
+| Ballerina Field | Type | Description | Swagger Field |
+|---|:---:|---|---|
+| title | string | **Required.** The title of the Ballerina Service. | title |
+| description | string | A description of the Ballerina Service. | description |
+| version | string | **Required.** The version of the Ballerina Service. | version |
+| termsOfService | string | Text or URL for the Terms of Services for the Ballerina Service. | termsOfService |
+| contact | @Contact | The Contact information for Ballerina Service. | contact |
+| license | @License | The License information for Ballerina Service. | license |
+| anyName | any | Extension fields. | `x-`anyName (Swagger extensions) |
 
 _@ExternalDocs_
 
-Ballerina Field | Type          | Description                                                       | Swagger Field
-----------------|:-------------:|-------------------------------------------------------------------|-------------------
-description     | string        | a description about the target documentation.                     | description
-url             | string        | **Required.** URL is pointing to target documentation.            | url
-anyName         | any           | Extension fields.                                                 | `x-`anyName (Swagger extensions)
+| Ballerina Field | Type | Description | Swagger Field |
+|---|:---:|---|---|
+| description | string | a description about the target documentation. | description |
+| url | string | **Required.** URL is pointing to target documentation. | url |
+| anyName | any | Extension fields. | `x-`anyName (Swagger extensions) |
 
 _@Tag_
 
-Ballerina Field | Type          | Description                                                       | Swagger Field
-----------------|:-------------:|-------------------------------------------------------------------|-------------------
-name            | string        | **Required.** Name of tag.                                        | name
-description     | string        | Description explaining current tag.                               | description
-externalDocs    | @ExternalDocs | Additional external documentation link explaining current tag.    | url
-anyName         | any           | Extension fields.                                                 | `x-`anyName (Swagger extensions)
+| Ballerina Field | Type | Description | Swagger Field |
+|---|:---:|---|---|
+| name | string | **Required.** Name of tag. | name |
+| description | string | Description explaining current tag. | description |
+| externalDocs | @ExternalDocs | Additional external documentation link explaining current tag. | url |
+| anyName | any | Extension fields. | `x-`anyName (Swagger extensions) |
 
 _@Contact_
 
-Ballerina Field | Type          | Description                                                       | Swagger Field
-----------------|:-------------:|-------------------------------------------------------------------|-------------------
-name            | string        | Name of the contact person or organization.                       |name
-url             | string        | An URL pointing to contact information.                           |url
-anyName         | any           | Extension fields.                                                 | `x-`anyName (Swagger extensions)
+| Ballerina Field | Type | Description | Swagger Field |
+|---|:---:|---|---|
+| name | string | Name of the contact person or organization. | name |
+| url | string | An URL pointing to contact information. | url |
+| anyName | any | Extension fields. | `x-`anyName (Swagger extensions) |
 
 _@License_
 
-Ballerina Field | Type          | Description                                                       | Swagger Field
-----------------|:-------------:|-------------------------------------------------------------------|-------------------
-name            | string        | Name of the License used for Ballerina Service.                   | name 
-url             | string        | An URL  pointing to License information.                          | url
-anyName         | any           | Extension fields.                                                 | `x-`anyName (Swagger extensions)
+| Ballerina Field | Type | Description | Swagger Field |
+|---|:---:|---|---|
+| name | string | Name of the License used for Ballerina Service. | name |
+| url | string | An URL pointing to License information. | url |
+| anyName | any | Extension fields. | `x-`anyName (Swagger extensions) |
 
 #### API Configuration
 
@@ -216,35 +216,35 @@ Syntax:
 
 _@APIConfiguration_
 
-Ballerina Field | Type          | Description                                                       | Swagger Field
-----------------|:-------------:|-------------------------------------------------------------------|-------------------
-host            | string        | Host name or IP of the Ballerina Service.                         | host 
-schemes         | string[]      | Transport protocol of the Ballerina Service.(http, https, ws, wss)| schemes
-authorizationsConfigurations | @AuthorizationsConfiguration[] | Authorization schema associated with the Ballerina Service | securityDefinitions
-anyName         | any           | Extension fields.                                                 | `x-`anyName (Swagger extensions)
+| Ballerina Field | Type | Description | Swagger Field |
+|---|:---:|---|---|
+| host| string| Host name or IP of the Ballerina Service. | host |
+| schemes | string[]| Transport protocol of the Ballerina Service.(http, https, ws, wss)| schemes |
+| authorizationsConfigurations | @AuthorizationsConfiguration[] | Authorization schema associated with the Ballerina Service | securityDefinitions |
+| anyName | any | Extension fields. | `x-`anyName (Swagger extensions) |
 
 _@AuthorizationsConfiguration_
 
-Ballerina Field | Type          | Description                                                       | Swagger Field
-----------------|:-------------:|-------------------------------------------------------------------|-------------------
-name            | string        | **Required.** Name of the authorization schema definition.        | securityDefinitions name 
-description     | string        | A Description about authorization schema.                         | description
-type            | string        | **Required.** Type of the authorization schema.(basic,oauth2,..)  | type
-apiName         | string        | **Required, if type is apikey** Name of the header or query param | name
-in              | string        | **Required, if type is apikey** Location of the API Key           | in
-flow            | string        | **Required, if type is oauth2** Flow used by OAuth2 schema.       | flow
-authorizationUrl| string        | **Required, if type is oauth2** authorizationUrl of the OAuth2 endpoint| authorizationUrl
-tokenUrl        | string        | **Required, if type is oauth2** tokenUrl of the OAuth2 endpoint   | tokenUrl
-authorizationScopes| @AuthorizationScope[] | **Required, if type is oauth2** OAuth2 scopes          | scopes
-anyName         | any           | Extension fields.                                                 | `x-`anyName (Swagger extensions)
+| Ballerina Field | Type | Description | Swagger Field |
+|---|:---:|---|---|
+| name| string| **Required.** Name of the authorization schema definition.| securityDefinitions name |
+| description | string| A Description about authorization schema. | description |
+| type| string| **Required.** Type of the authorization schema.(basic,oauth2,..)| type |
+| apiName | string| **Required, if type is apikey** Name of the header or query param | name |
+| in| string| **Required, if type is apikey** Location of the API Key | in |
+| flow| string| **Required, if type is oauth2** Flow used by OAuth2 schema. | flow |
+| authorizationUrl| string| **Required, if type is oauth2** authorizationUrl of the OAuth2 endpoint| authorizationUrl |
+| tokenUrl| string| **Required, if type is oauth2** tokenUrl of the OAuth2 endpoint | tokenUrl |
+| authorizationScopes| @AuthorizationScope[] | **Required, if type is oauth2** OAuth2 scopes| scopes |
+| anyName | any | Extension fields. | `x-`anyName (Swagger extensions) |
 
 _@AuthorizationScope_
 
-Ballerina Field | Type          | Description                                                       | Swagger Field
-----------------|:-------------:|-------------------------------------------------------------------|-------------------
-name            | string        | Name of the OAuth2 scope.                                         | name 
-description     | string        | A description about the OAuth2 scope.                             | value of the name
-anyName         | any           | Extension fields.                                                 | `x-`anyName (Swagger extensions)
+| Ballerina Field | Type | Description | Swagger Field |
+|---|:---:|---|---|
+| name| string| Name of the OAuth2 scope. | name|
+| description | string| A description about the OAuth2 scope. | value of the name |
+| anyName | any | Extension fields. | `x-`anyName (Swagger extensions) |
 
 #### Path
 
@@ -290,6 +290,36 @@ E.g:
 ### Connector Annotations.
 
 ### Connection Annotations.
+
+#### Circuit Breaker
+
+Circuit Breaker prevents cascading failures in a connection.
+
+Syntax: 
+```
+@CircuitBreaker(
+    enable = true|false ,
+    failureThreshold = integer ,
+    initialOpenDuration = long ,
+    maxOpenDuration = long ,
+    openDurationFactor = float ,
+    errorCodes = { string[] } , 
+    criticalErrorCodes =  { string[] },  
+    ignoredErrorCodes =  { string[] }
+)
+```
+
+| Ballerina Field | Type | Description | 
+|---|:---:|---|
+| enable | boolean | Enable Circuit Breaker. Default is `false`.|
+| failureThreshold | integer | Number of continuous failed messages to Open circuit. Default value is 3. |
+| initialOpenDuration | long | Circuit open duration in Milliseconds, before it moves to Half Open. Default value 60000. |
+| maxOpenDuration | long | Maximum Circuit open duration in Milliseconds. Default is Long.max |
+| openDurationFactor | float >= 1.0 | Circuit open duration progression factor. Default is 1.0 |
+| errorCodes | string[] | Error codes that are considered as connection failure and increment threshold value. If Threshold is reached, Open Circuit. By Default all error codes are enabled. |
+| criticalErrorCodes | string[] | Error codes that are considered as critical connection failures, which Open Circuit immediately. By default, no error code is defined. |
+| ignoredErrorCodes | string[] | Error codes that are not considered as connection failures, But that need to be dealt with as part of the integration logic. |
+
  
 ### Action Annotations. 
 
@@ -299,3 +329,44 @@ E.g:
 
 ### Variable Annotations. 
 
+Annotations that can be annotated to a Ballerina variable.
+
+#### Property Annotation.
+
+Property Annotation is used to describe meta information about the annotated variable field. Primary purpose of this 
+ annotation is to provide rendering instruction for Ballerina tooling.
+   
+```
+@Property(  schema = "name", 
+            required = true|false, 
+            format = "password|date|date-time|binary|byte"
+)
+```
+
+| Ballerina Field | Type | Description | Swagger Field |
+|---|:---:|---|---|
+| schema | string | JSON/XML schema or data type. | Schema Object - $ref. |
+| required | boolean | Indicate annotated field is required. Default is false.  | Schema Object -required. |
+| title | string | Title for annotated field. | Schema Object -required. |
+| description | string | A description about annotated variable. | Schema Object - description |
+| format | string | DataType format (e.g: password, date, date-time, binary, byte, etc) | Schema Object - data type format. |
+| * | string | Other Properties defined in the Swagger Schema Object.  | Schema Object - *. |
+
+
+### Common Annotations
+
+Annotations that can be annotated to any construct in the Ballerina.
+
+#### Deprecated 
+
+Denotes annotated Ballerina constructed is deprecated. This is a Doc annotation and **will not** produce any error during 
+the compiler time or runtime of a Ballerina program. 
+
+```
+@Deprecated
+
+or 
+
+@Deprecated( since = "depricated version")
+```
+Swagger 2.0 defines `deprecate` field for resources.
