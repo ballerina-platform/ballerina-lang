@@ -19,7 +19,9 @@
 package org.wso2.ballerina.model;
 
 /**
- * {@code Import} represent a import statement
+ * {@code Import} represent an import statement
+ *
+ * @since 1.0.0
  */
 public class Import {
 

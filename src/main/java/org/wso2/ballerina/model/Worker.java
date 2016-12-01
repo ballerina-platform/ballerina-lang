@@ -65,7 +65,7 @@ public class Worker {
     }
 
     /**
-     * Add a Connection to the Worker
+     * Add a {@code Connection} to the Worker
      *
      * @param connection Connection to be added to the Worker
      */
@@ -95,7 +95,7 @@ public class Worker {
     }
 
     /**
-     * Add a variable to the Worker
+     * Add a {@code Variable} to the Worker
      *
      * @param variable variable to be added the Worker
      */
@@ -125,7 +125,7 @@ public class Worker {
     }
 
     /**
-     * Add a Statement to the Worker
+     * Add a {@code Statement} to the Worker
      *
      * @param statement a Statement to be added to the Worker
      */

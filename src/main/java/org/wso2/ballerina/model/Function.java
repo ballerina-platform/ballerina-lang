@@ -71,7 +71,7 @@ public class Function {
     }
 
     /**
-     * Add an Annotation to the Function
+     * Add an {@code Annotation} to the Function
      *
      * @param annotation Annotation to be added
      */
@@ -101,7 +101,7 @@ public class Function {
     }
 
     /**
-     * Add an Argument to the function
+     * Add an {@code Argument} to the function
      *
      * @param argument Argument to be added to the function definition
      */
@@ -131,7 +131,7 @@ public class Function {
     }
 
     /**
-     * Add a Connection to the Function
+     * Add a {@code Connection} to the Function
      *
      * @param connection Connection to be added to the Function
      */
@@ -161,7 +161,7 @@ public class Function {
     }
 
     /**
-     * Add a variable to the Function
+     * Add a {@code Variable} to the Function
      *
      * @param variable variable to be added to the Function
      */
@@ -191,7 +191,7 @@ public class Function {
     }
 
     /**
-     * Add a Worker to the Function
+     * Add a {@code Worker} to the Function
      *
      * @param worker Worker to be added to the Resource
      */
@@ -222,7 +222,7 @@ public class Function {
     }
 
     /**
-     * Add a Statement to the Function
+     * Add a {@code Statement} to the Function
      *
      * @param statement a Statement to be added to the Function
      */

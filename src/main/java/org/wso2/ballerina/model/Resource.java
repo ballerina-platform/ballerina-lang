@@ -73,7 +73,7 @@ public class Resource {
     }
 
     /**
-     * Add an Annotation to the Resource
+     * Add an {@code Annotation} to the Resource
      *
      * @param annotation Annotation to be added
      */
@@ -103,7 +103,7 @@ public class Resource {
     }
 
     /**
-     * Add an Argument to the Resource
+     * Add an {@code Argument} to the Resource
      *
      * @param argument Argument to be added to the Resource definition
      */
@@ -134,7 +134,7 @@ public class Resource {
     }
 
     /**
-     * Add a Connection to the default Worker of the Resource
+     * Add a {@code Connection} to the default Worker of the Resource
      *
      * @param connection Connection to be added to the default Worker of the Resource
      */
@@ -161,7 +161,7 @@ public class Resource {
     }
 
     /**
-     * Add a variable to the default Worker of the Resource
+     * Add a {@code Variable} to the default Worker of the Resource
      *
      * @param variable variable to be added default Worker
      */
@@ -188,7 +188,7 @@ public class Resource {
     }
 
     /**
-     * Add a Worker to the Resource
+     * Add a {@code Worker} to the Resource
      *
      * @param worker Worker to be added to the Resource
      */
@@ -218,7 +218,7 @@ public class Resource {
     }
 
     /**
-     * Add a Statement to the default Worker in the Resource
+     * Add a {@code Statement} to the default Worker in the Resource
      *
      * @param statement a Statement to be added to the default Worker
      */

@@ -64,7 +64,7 @@ public class Connector {
     }
 
     /**
-     * Add an Annotation to the Connector
+     * Add an {@code Annotation} to the Connector
      *
      * @param annotation Annotation to be added
      */
@@ -94,7 +94,7 @@ public class Connector {
     }
 
     /**
-     * Add an Argument to the Connector
+     * Add an {@code Argument} to the Connector
      *
      * @param argument Argument to be added to the Connector definition
      */
@@ -124,7 +124,7 @@ public class Connector {
     }
 
     /**
-     * Add a Connection to the Connector
+     * Add a {@code Connection} to the Connector
      *
      * @param connection Connection to be added to the Connector
      */
@@ -154,7 +154,7 @@ public class Connector {
     }
 
     /**
-     * Add a variable to the Connector
+     * Add a {@code Variable} to the Connector
      *
      * @param variable variable to be added to the Connector
      */
@@ -184,7 +184,7 @@ public class Connector {
     }
 
     /**
-     * Add an Action to the Connector
+     * Add an {@code Action} to the Connector
      *
      * @param action Action to be added to the Connector
      */
