@@ -20,7 +20,7 @@ Ballerina `Annotations` can be used to annotate following Ballerina constructs.
 All Ballerina Annotations start with Character `@` (at) and it has following Syntax. 
 
 ```
-@AnnotationName [ ( PrimitiveValue | "AString" | Array | key = value [, key = value] )]
+@AnnotationName [ ( PrimitiveValue | "A String" | Array | key = value [, key = value] )]
 ```
 
 Here `value` can be one of the followings:
@@ -328,7 +328,7 @@ Describes sub path of the HTTP Ballerina resource. This is a configuration annot
 
 Syntax:
 ```
-@Path("/context")
+@Path("/resource-path")
 ```
 
 #### HTTP method
@@ -342,7 +342,7 @@ Syntax:
 
 #### Resource Config
 
-@ResourceConfig use to define transport protocol and the authorization details for the resource.
+@ResourceConfig use to define transport protocol and the authorization details for the resource. This is a configuration annotation.
 
 Syntax:
 ```
@@ -352,7 +352,8 @@ Syntax:
         @Authorization(
             name = "authorizationConfigName" 
             [, scopes = { "scope1", "scope2" }]
-        )
+        ),
+        @Authorization(...)
     }
     [,anyName = anyValue]*
 )
@@ -506,7 +507,7 @@ Syntax:
 ```
 Body
 @Path("/foo")
-resourceName(message m, @Type(name = "TypeName", description = "A Description", required = true) TypeName typeVariableName, ...){...}
+resourceName(message m, @Type(name = "TypeName", description = "A Description", required = true) TypeName typeVariableName, ...) {...}
 ```
 ```
 @Path("/foo")
@@ -545,10 +546,10 @@ _@ResourceInfo_
 
 |Ballerina Field |  Type | Description | Swagger Field|
 |---|---|---|---|
-| tags| array | A list of tags for resource documentation control. | tags  |
+| tags| string[] | A list of tags for resource documentation control. | tags  |
 | summary| string | A short summary of what the resource does. | summary  |
 | externalDocs| @ExternalDocs | Additional external documentation for this resource. | externalDocs  |
-| operationId| string |Unique string used to identify the resource (Ballerina resource name). | operationId  |
+| operationId| string | Unique string used to identify the resource (Ballerina resource name). | operationId  |
 
 _@ExternalDocs_
 
@@ -602,15 +603,15 @@ _@Responses_
 
 |Ballerina Field |  Type | Description | Swagger Field|
 |---|---|---|---|
-| values | @Response[] | An array of possible @Response as they are returned from executing this operation. | responses  |
+| Responses | @Response[] | **Required.** An array of possible @Response as they are returned from executing this operation. | responses  |
 
 _@Response_
 
 |Ballerina Field |  Type | Description | Swagger Field|
 |---|---|---|---|
-| code | int | HTTP status code of this response  | Response HTTP status code  |
+| code | int | **Required.** HTTP status code of this response  | Response HTTP status code  |
 | description | string | A short description of the response. | description  |
-| response | string | The list of possible responses as they are returned from executing this operation  | schema  |
+| response | string | **Required.** The list of possible responses as they are returned from executing this operation  | schema  |
 | headers | @Header[] | An array of @Header that are sent with the response  | headers  |
 | examples | @Example[] | An @Example of the response message  | examples  |
 
@@ -618,16 +619,16 @@ _@Header_
 
 |Ballerina Field |  Type | Description | Swagger Field|
 |---|---|---|---|
-| name | string |HTTP status code of this response. | name of the header  |
+| name | string | **Required.** Header name. | name of the header  |
 | description | string | A short description of the header. | description  |
-| type | string | The type of the object. The value MUST be one of "string", "number", "integer", "boolean", or "array". | type  |
+| type | string | **Required.** The type of the object. The value MUST be one of "string", "number", "integer", "boolean", or "array". | type  |
 
 
 _@Example_
 
 |Ballerina Field |  Type | Description | Swagger Field|
 |---|---|---|---|
-| type | string | A supported mime type. | mime-tye value  |
+| type | string | **Required.** A supported mime type. | mime-tye value  |
 | value | string | A sample response of this resource that match with given mime type. | The value SHOULD be an example of what such a response would look like  |
 
 
@@ -666,10 +667,33 @@ Syntax:
 
  
 ### Action Annotations. 
-
-### Function Annotations. 
+// TBD
+### Function Annotations.
+// TBD
 
 ### Type Annotations.
+
+Defines user types.
+
+Syntax:
+```
+type UserDefineType {
+    @Property(
+        name = "JSON_KEY", 
+        required = true|false, 
+        format = "int32" | "int64" | "float" | "double" | "byte" | "binary" | "date" | "date-time" | "password"
+        [,anyName = anyValue]*
+     )
+    type variableName = DEFAULT_VALUE;
+}
+```
+
+| Ballerina Field | Type | Description | Swagger Field |
+|---|:---:|---|---|
+| name | string | Identifier which user can use instead of the variable name. | UserDefineType or name |
+| required | boolean | Whether is variable is required or not. | required |
+| format | string | JSON/XML schema or data type. | format |
+| anyName | any | Extension fields. | `x-`anyName (Swagger extensions) |
 
 ### Variable Annotations. 
 
