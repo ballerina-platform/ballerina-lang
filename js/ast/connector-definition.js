@@ -27,7 +27,7 @@ define(['lodash', './node'], function(_, ASTNode){
     ConnectorDefinition.prototype.constructor = ConnectorDefinition;
 
     ConnectorDefinition.prototype.setConnectionDeclarations = function (connectionDeclarations) {
-        if (!_.isEmpty(connectionDeclarations)) {
+        if (!_.isNil(connectionDeclarations)) {
             this.connectionDeclarations = connections;
         }
     };
@@ -37,7 +37,7 @@ define(['lodash', './node'], function(_, ASTNode){
     };
 
     ConnectorDefinition.prototype.setVariableDeclarations = function (variableDeclarations) {
-        if (!_.isEmpty(variableDeclarations)) {
+        if (!_.isNil(variableDeclarations)) {
             this.variableDeclarations = variableDeclarations;
         }
     };
@@ -47,7 +47,7 @@ define(['lodash', './node'], function(_, ASTNode){
     };
 
     ConnectorDefinition.prototype.setActionDefinitions = function (actionDefinitions) {
-        if (!_.isEmpty(actionDefinitions)) {
+        if (!_.isNil(actionDefinitions)) {
             this.actionDefinitions = actionDefinitions;
         }
     };
