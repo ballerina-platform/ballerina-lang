@@ -57,7 +57,7 @@ public class Argument {
     }
 
     /**
-     * Get the type of the Argument
+     * Get the {@code Type} of the Argument
      *
      * @return type of the Argument
      */
@@ -66,7 +66,7 @@ public class Argument {
     }
 
     /**
-     * Get list of Annotation of the Argument
+     * Get the {@code Annotation} list of the Argument
      *
      * @return list of Annotations related to an Argument
      */
@@ -75,7 +75,7 @@ public class Argument {
     }
 
     /**
-     * Set Annotation to an Argument
+     * Set {@code Annotation} list to an Argument
      *
      * @param annotations list of Annotations to assigned to the Argument
      */
@@ -84,7 +84,7 @@ public class Argument {
     }
 
     /**
-     * Add an Annotation to the Argument
+     * Add an {@code Annotation} to the Argument
      *
      * @param annotation Annotation to be added to the Argument
      */

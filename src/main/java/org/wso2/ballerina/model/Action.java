@@ -68,7 +68,7 @@ public class Action {
     }
 
     /**
-     * Add an Annotation to the Action
+     * Add an {@code Annotation} to the Action
      *
      * @param annotation Annotation to be added
      */
@@ -90,7 +90,7 @@ public class Action {
     }
 
     /**
-     * Set Arguments list to the Action
+     * Set {@code Argument} list to the Action
      *
      * @param arguments list of Arguments
      */
@@ -99,7 +99,7 @@ public class Action {
     }
 
     /**
-     * Add an Argument to the Action
+     * Add an {@code Argument} to the Action
      *
      * @param argument Argument to be added to the Action definition
      */
@@ -129,7 +129,7 @@ public class Action {
     }
 
     /**
-     * Add a Connection to the Action
+     * Add a {@code Connection} to the Action
      *
      * @param connection Connection to be added to the Action
      */
@@ -159,7 +159,7 @@ public class Action {
     }
 
     /**
-     * Add a variable to the Action
+     * Add a {@code Variable} to the Action
      *
      * @param variable variable to be added to the Action
      */
@@ -189,7 +189,7 @@ public class Action {
     }
 
     /**
-     * Add a Worker to the Action
+     * Add a {@code Worker} to the Action
      *
      * @param worker Worker to be added to the Action
      */
@@ -219,7 +219,7 @@ public class Action {
     }
 
     /**
-     * Add a Statement to the Action
+     * Add a {@code Statement} to the Action
      *
      * @param statement a Statement to be added to the Action
      */

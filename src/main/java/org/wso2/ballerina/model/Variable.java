@@ -33,14 +33,15 @@ import org.wso2.ballerina.model.types.Type;
 public class Variable {
 
     private Type type;
-    private String identifier, value;
+    private String value;
+    private Identifier identifier;
 
     /**
      * @param type       Type of the variable
      * @param identifier Identifier of the variable
      * @param value      value of the variable
      */
-    public Variable(Type type, String identifier, String value) {
+    public Variable(Type type, Identifier identifier, String value) {
         this.type = type;
         this.identifier = identifier;
         this.value = value;
@@ -60,7 +61,7 @@ public class Variable {
      *
      * @return identifier of the variable declaration
      */
-    public String getIdentifier() {
+    public Identifier getIdentifier() {
         return identifier;
     }
 

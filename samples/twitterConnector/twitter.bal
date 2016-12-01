@@ -12,9 +12,9 @@ function init(TwitterConnector t) throws exception {
     }
 
     message loginMessage = new message;
-    message.setPayload(loginMessage, loginReq);
-    message response = http.post(twitterEP, "/token", loginMessage);
-    t.oAuthToken = json.get(message.getPayload(response), "$.oAuthToken");
+    message:setPayload(loginMessage, loginReq);
+    message response = http:post(twitterEP, "/token", loginMessage);
+    t.oAuthToken = json:get(message:getPayload(response), "$.oAuthToken");
 }
 
 connector TwitterConnector(
@@ -23,7 +23,7 @@ connector TwitterConnector(
     //arguments in the above signature becomes attributes in the connectors
     
     boolean loggedIn = false; 
-    http.HttpConnector httpConnection = new http.HttpConnector("https://api.twitter.com", {"timeOut" : 300});
+    http:HttpConnector httpConnection = new http:HttpConnector("https://api.twitter.com", {"timeOut" : 300});
 
     action tweet(TwitterConnector t, string tweet) throws exception {
         if(!loggedIn){
@@ -32,9 +32,9 @@ connector TwitterConnector(
         }
         json tweetJson = `{"message" : "$tweet"}`;
         message tweetMsg = new message;
-        message.setPayload(tweetMsg, tweetJson);
-        message.setHeader(tweetMsg, "Authorization", "Bearer " + t.oAuthToken);
-        http.post(twitterEP, "/tweet", tweetMsg);
+        message:setPayload(tweetMsg, tweetJson);
+        message:setHeader(tweetMsg, "Authorization", "Bearer " + t.oAuthToken);
+        http:post(httpConnection, "/tweet", tweetMsg);
     }
 }
 
