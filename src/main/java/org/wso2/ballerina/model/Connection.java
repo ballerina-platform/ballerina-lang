@@ -33,7 +33,7 @@ public class Connection {
     String connectorName;
 
     /* Name of the Connection instance */
-    String connectionIdentifier;
+    Identifier connectionIdentifier;
 
     List<String> argValues;
 
@@ -42,7 +42,7 @@ public class Connection {
      * @param connectorName Name of the Connector which Connection is instantiated against
      * @param connectionIdentifier Identifier of the Connection instance
      */
-    public Connection(String connectorName, String connectionIdentifier) {
+    public Connection(String connectorName, Identifier connectionIdentifier) {
         this.connectorName = connectorName;
         this.connectionIdentifier = connectionIdentifier;
     }
@@ -61,7 +61,7 @@ public class Connection {
      *
      * @return identifier of the Connection instance
      */
-    public String getConnectionIdentifier() {
+    public Identifier getConnectionIdentifier() {
         return connectionIdentifier;
     }
 
