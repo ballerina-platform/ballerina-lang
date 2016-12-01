@@ -32,7 +32,7 @@ define(['lodash', 'log', './conditional-statement'], function (_, log, Condition
     IfStatement.prototype.constructor = IfStatement;
 
     ConditionalStatement.prototype.setElseStatements = function (elseStatements) {
-        if (!_.isUndefined(elseStatements)) {
+        if (!_.isNil(elseStatements)) {
             this._elseStatements = elseStatements;
         } else {
             log.error("Cannot set undefined array of else statements.");
@@ -44,7 +44,7 @@ define(['lodash', 'log', './conditional-statement'], function (_, log, Condition
     };
 
     ConditionalStatement.prototype.setElseIfStatements = function (elseIfStatements) {
-        if (!_.isUndefined(elseIfStatements)) {
+        if (!_.isNil(elseIfStatements)) {
             this._elseIfStatements = elseIfStatements;
         } else {
             log.error("Cannot set undefined array of else if statements.");
