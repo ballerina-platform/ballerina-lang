@@ -17,21 +17,36 @@
  */
 define([], function(){
 
-    var ASTNode = function(value, type, cStart, cEnd) {
+    var ASTNode = function(startIndex, length, parent, type) {
         this.object = undefined;
         this.children = [];
-        this.value = value;
+        this.startIndex = startIndex;
+        this.length = length;
+        this.parent = parent;
         this.type = type;
-        this.configStart = cStart;
-        this.configEnd = cEnd;
     };
 
     ASTNode.prototype.getChildren = function () {
         return this.children;
     };
 
-    ASTNode.prototype.getValue = function () {
-        return this.value;
+    ASTNode.prototype.getParent = function () {
+        return this.parent;
+    };
+
+    ASTNode.prototype.getType = function () {
+        return this.type;
+    };
+
+    ASTNode.prototype.getLength = function () {
+        return this.length;
+    };
+
+    ASTNode.prototype.getStartIndex = function () {
+        return this.startIndex;
+    };
+
+    ASTNode.prototype.accept = function (visitor) {
     };
 
     return ASTNode;
