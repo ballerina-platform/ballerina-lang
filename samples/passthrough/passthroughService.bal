@@ -10,7 +10,7 @@ import ballerina.lang.json;
 @Service(title = "NYSEService", description = "NYSE service")
 service PassthroughService {
 
-  http.HttpConnector nyseEP = new http.HttpConnector("http://localhost:8080/exchange/nyse/", {"timeOut" : 30000});
+  http:HttpConnector nyseEP = new http:HttpConnector("http://localhost:8080/exchange/nyse/", {"timeOut" : 30000});
 
   @GET
   @PUT
@@ -18,7 +18,7 @@ service PassthroughService {
   @Path ("/passthrough")
   resource passthrough (message m) {
     message response;
-    response = http.sendPost (nyseEP, m);
+    response = http:sendPost (nyseEP, m);
     reply response;
   }
 
