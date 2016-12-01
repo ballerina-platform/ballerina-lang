@@ -17,17 +17,17 @@ service ContentBasedRouteService {
   @Path("/exchange")
   resource cbrResource (message m) {
       message response;
-      json jsonMsg = json.getPayload(m);
+      json jsonMsg = json:getPayload(m);
       try {
-          if (json.get(jsonMsg, "$.stock.quote.exchange") == "NYSE") {
+          if (json:get(jsonMsg, "$.stock.quote.exchange") == "NYSE") {
               response = http.sendPost(nyseEP, m);
           } else {
               response = http.sendPost(nasdaqEP, m);
           }
       } catch (exception e) {
           json errorMsg = `{"error" : "Error while sending to backend"}`;
-          message.setPayload(response, errorMsg);
-          message.setHeader(response, "Status", 500);
+         message:setPayload(response, errorMsg);
+         message:setHeader(response, "Status", 500);
       }
       reply response;
   }

@@ -14,11 +14,11 @@ service FaultyService {
       reply faultyFunction(m);
   }
 
+}
 
-  function faultyFunction(message in) (message) throws exception {
+function faultyFunction(message in) (message) throws exception {
       http.HttpConnector e1 = new http.HttpEndpoint ();
-      http.setURL(e1, "http://localhost:2222");
-      message response = http.get (e1, "/test", in);
+      http:setURL(e1, "http://localhost:2222");
+      message response = http:get (e1, "/test", in);
       return response;
   }
-}

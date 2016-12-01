@@ -19,11 +19,11 @@ typeconvertor mapAddress (xmlElement<bigaddr> in) (xmlElement<smalladdr>) {
 }
 
 typeconvertor map_string_to_int (string s) (int) {
-  return s.parseInt();
+  return string:parseInt(s);
 }
 
 typeconvertor mapPerson2Driver(json<Person> in) (json<Driver>){
     string name = json:get(in, "$.name", null);
-    json out = '{"driver": {"name": "$.name" }}'
+    json out = `{"driver": {"name": "$.name" }}`;
     return out;
 }

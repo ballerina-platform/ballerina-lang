@@ -1,8 +1,8 @@
 package samples.datamapping;
 
 typeconvertor mapRequestToHotelRequest (xmlElement<t1> in) (xmlElement<t2>) {
-  string name = xml.get(in, "/name", null);
-  xmlElement<smalladdr> addr = mapAddress (xml.get (in, "/address", null));
+  string name = xml:get(in, "/name", nil);
+  xmlElement<smalladdr> addr = mapAddress (xml:get (in, "/address", nil));
   xmlElement out =
     `<Hotels>
        <name>$name</name>
@@ -12,15 +12,15 @@ typeconvertor mapRequestToHotelRequest (xmlElement<t1> in) (xmlElement<t2>) {
 }
 
 typeconvertor mapAddress (xmlElement<bigaddr> in) (xmlElement<smalladdr>) {
-  string addrstring = xml.get(in, "/address/number", null) + " " +
-                          xml.get(in, "/address/street", null) + ", " +
-                          xml.get(in, "/address/city", null);
+  string addrstring = xml:get(in, "/address/number", nil) + " " +
+                          xml:get(in, "/address/street", nil) + ", " +
+                          xml:get(in, "/address/city", nil);
   return `<address>$addrstring</address>`;
 }
 
 typeconvertor requestToCarRequest (xmlElement<t1> in) (xmlElement<t2>) {
-  string category = xml.get(in, "/category", null);
-  xmlElement<smallDetails> details = mapDetails (xml.get (in, "/details", null));
+  string category = xml:get(in, "/category", nil);
+  xmlElement<smallDetails> details = mapDetails (xml:get (in, "/details", nil));
   xmlElement out =
     `<Cars>
        <category>$category</category>
@@ -30,8 +30,8 @@ typeconvertor requestToCarRequest (xmlElement<t1> in) (xmlElement<t2>) {
 }
 
 typeconvertor mapDetails (xmlElement<bigDetails> in) (xmlElement<smallDetails>) {
-  string details = xml.get(in, "/order/capacity", null) + " " +
-                          xml.get(in, "/order/pickup", null) + ", " +
-                          xml.get(in, "/order/destination", null);
+  string details = xml:get(in, "/order/capacity", nil) + " " +
+                          xml:get(in, "/order/pickup", nil) + ", " +
+                          xml:get(in, "/order/destination", nil);
   return `<address>$details</address>`;
 }

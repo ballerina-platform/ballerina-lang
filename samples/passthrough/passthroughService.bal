@@ -18,7 +18,7 @@ service PassthroughService {
   @Path ("/passthrough")
   resource passthrough (message m) {
     message response;
-    response = http.sendPost (nyseEP, m);
+    response = http:sendPost (nyseEP, m);
     reply response;
   }
 

@@ -16,11 +16,11 @@ service IteratorService {
   @Consumes("application/json")
   @Path("/*")
   resource stockIterate (message m) {
-      json jsonMsg = json.getPayload(m);
-      iterate(json stock : json.get(jsonMsg, "$.stock.quote.exchange")){
-          message.setPayload(stock, m);
-          message response = http.sendPost(stockEP, m);
-          log.info(response);
+      json jsonMsg = json:getPayload(m);
+      iterate(json stock : json:get(jsonMsg, "$.stock.quote.exchange")){
+          message:setPayload(stock, m);
+          message response = http:sendPost(stockEP, m);
+          log:info(response);
       }
   }
 }
