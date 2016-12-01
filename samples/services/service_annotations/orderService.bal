@@ -1,4 +1,4 @@
-package samples.annotation;
+package samples.services.service_annotations;
 
 @BasePath("/orderService")
 @Service(description = "OrderService with service and resource annotations ")

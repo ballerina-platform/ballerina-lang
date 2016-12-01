@@ -1,4 +1,4 @@
-package samples.error-handling;
+package samples.error_handling;
 
 import ballerina.lang.message;
 import ballerina.net.http;
