@@ -33,6 +33,8 @@ import java.util.List;
  * (ServiceDefinition | FunctionDefinition | ConnectorDefinition | TypeDefinition | TypeConvertorDefinition |
  * ConstantDefinition)+
  *
+ * @since 1.0.0
+ *
  */
 public class BallerinaFile {
 
