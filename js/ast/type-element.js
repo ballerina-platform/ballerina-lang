@@ -27,13 +27,13 @@ define(['lodash', './node'], function (_, ASTNode) {
 
 
     TypeElement.prototype.setType = function (type) {
-        if (!_.isEmpty(type)) {
+        if (!_.isNil(type)) {
             this.type = type;
         }
     };
 
     TypeElement.prototype.setIdentifier = function (identifier) {
-        if (!_.isEmpty(identifier)) {
+        if (!_.isNil(identifier)) {
             this.identifier = identifier;
         }
     };

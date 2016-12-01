@@ -27,19 +27,19 @@ define(['lodash', './node'], function (_, ASTNode) {
     TypeConverterDefinition.prototype.constructor = TypeConverterDefinition;
 
     TypeConverterDefinition.prototype.setSource = function (source) {
-        if (!_.isEmpty(source)) {
+        if (!_.isNil(source)) {
             this.source = source;
         }
     };
 
     TypeConverterDefinition.prototype.setVariableDeclarations = function (variableDeclarations) {
-        if (!_.isEmpty(variableDeclarations)) {
+        if (!_.isNil(variableDeclarations)) {
             this.variableDeclarations = variableDeclarations;
         }
     };
 
     TypeConverterDefinition.prototype.setReturnType = function (returnType) {
-        if (!_.isEmpty(returnType)) {
+        if (!_.isNil(returnType)) {
             this.returnType = returnType;
         }
     };
