@@ -333,12 +333,16 @@ Syntax:
 
 #### HTTP method
 
+Defines the HTTP methods that support by the Ballerina resource. This is a configuration annotation.
+
 Syntax:
 ```
 (@GET | @POST | @PUT | @DELETE | @OPTIONS | @HEAD | @PATCH )* 
 ```
 
 #### Resource Config
+
+@ResourceConfig use to define transport protocol and the authorization details for the resource.
 
 Syntax:
 ```
@@ -350,7 +354,7 @@ Syntax:
             [, scopes = { "scope1", "scope2" }]
         )
     }
-    [,anyName = anyValue]* // this will represent swagger element "x-anyName" : "anyValue"
+    [,anyName = anyValue]*
 )
 ```
 
@@ -358,16 +362,16 @@ _@ResourceConfig_
 
 |Ballerina Field |  Type | Description | Equivalent Swagger Field|
 |---|---|---|---|
-|  value|string |The transfer protocol for the ballerina resource. Values can be "http", "https", "ws" or "wss".  | schemas  | 
-|  authorizations|annotation |A declaration of which authorizations configurations are applied for this resource.  | security  | 
-|anyName |any | Extension fields. | x-anyName, Maps to Swagger extensions. Field name begins with `x-` |
+| schemes | string | The transfer protocol for the ballerina resource. Values can be "http", "https", "ws" or "wss". | schemas  |
+| authorizations | @Authorization | A declaration of which authorizations configurations are applied for this resource. | security  |
+| anyName | any | Extension fields. | `x-`anyName (Swagger extensions) |
 
 _@Authorization_
 
 |Ballerina Field |  Type | Description | Equivalent Swagger Field|
 |---|---|---|---|
-|  name|string |Authorization name that specified in @AuthorizationsConfiguration section in the service level. | security  | 
-|  scopes|Array | Authorize scope for this resource that specified in @AuthorizationScope in the service level under above AuthorizationsConfiguration  | N/A  | 
+| name | string | Authorization name that specified in @AuthorizationsConfiguration section in the service level. | security  |
+| scopes | string[] | Authorize scope for this resource that specified in @AuthorizationScope in the service level under above AuthorizationsConfiguration. | Values that define in @AuthorizationScope[] in service level  |
 
 #### Consumes
 
@@ -399,31 +403,129 @@ E.g:
 
 #### Method Parameter Definition
 
+Defines resource parameter mapping.
+
+#####Query Param
 Syntax:
 ```
 QueryParam
 @Path("/foo")
-resourceName(message m, @QueryParam(name = "paramName", description = "A Description", required = true) string name, ...){...}
+resourceName(message m, @QueryParam(name = "paramName", description = "A Description", required = true) string name, ...) {...}
+```
+```
+@Path("/foo")
+@ParametersInfo ({
+    @ParamterInfo(
+       id = "identifier",
+       name = "paraName",
+       description = "description about the paramter",
+       required = true|false,
+       type = "string" | "number" | "integer" | "boolean" | "array" | "file",
+       format = "int32" | "int64" | "float" | "double" | "byte" | "binary" | "date" | "date-time" | "password",
+       collectionFormat = "csv" | "ssv" | "tsv" | "pipes" | "multi"
+    ),
+    @ParamterInfo(...)
+})
+resourceName(message m, @QueryParam(name = "paramName") type identifier, ...) {...}
+```
 
+##### Path Param
+Syntax:
+```
 PathParam
 @Path("/foo/{paramName}")
-resourceName(message m, @PathParam(name = "paramName", description = "A Description", required = true) string name, ...){...}
+resourceName(message m, @PathParam(name = "paramName", description = "A Description", required = true) string name, ...) {...}
+```
+```
+@Path("/foo/{paramName}")
+@ParametersInfo ({
+    @ParamterInfo(
+       id = "identifier",
+       name = "paraName",
+       description = "description about the paramter",
+       required = true,
+       type = "string" | "number" | "integer" | "boolean" | "array" | "file",
+       format = "int32" | "int64" | "float" | "double" | "byte" | "binary" | "date" | "date-time" | "password",
+       collectionFormat = "csv" | "ssv" | "tsv" | "pipes" | "multi"
+    ),
+    @ParamterInfo(...)
+})
+resourceName(message m, @PathParam(name = "paramName") type identifier, ...) {...}
+```
 
+##### Form Param
+Syntax:
+```
 FormParam
-@Path("/foo/")
-resourceName(message m, @FormParam(name = "paramName", description = "A Description", required = true) string name, ...){...}
+@Path("/foo")
+resourceName(message m, @FormParam(name = "paramName", description = "A Description", required = true) string name, ...) {...}
+```
+```
+@Path("/foo")
+@ParametersInfo ({
+    @ParamterInfo(
+       id = "identifier",
+       name = "paraName",
+       description = "description about the paramter",
+       required = true|false,
+       type = "string" | "number" | "integer" | "boolean" | "array" | "file",
+       format = "int32" | "int64" | "float" | "double" | "byte" | "binary" | "date" | "date-time" | "password",
+       collectionFormat = "csv" | "ssv" | "tsv" | "pipes" | "multi"
+    ),
+    @ParamterInfo(...)
+})
+resourceName(message m, @FormParam(name = "paramName") type identifier, ...) {...}
+```
 
+##### Header Param
+Syntax:
+```
 HeaderParam
-@Path("/foo/")
-resourceName(message m, @HeaderParam(name = "paramName", description = "A Description", required = true) string name, ...){...}
+@Path("/foo")
+resourceName(message m, @HeaderParam(name = "paramName", description = "A Description", required = true) string name, ...) {...}
+```
+```
+@Path("/foo")
+@ParametersInfo ({
+    @ParamterInfo(
+       id = "identifier",
+       name = "paraName",
+       description = "description about the paramter",
+       required = true|false,
+       type = "string" | "number" | "integer" | "boolean" | "array" | "file",
+       format = "int32" | "int64" | "float" | "double" | "byte" | "binary" | "date" | "date-time" | "password",
+       collectionFormat = "csv" | "ssv" | "tsv" | "pipes" | "multi"
+    ),
+    @ParamterInfo(...)
+})
+resourceName(message m, @HeaderParam(name = "paramName") type identifier, ...) {...}
+```
 
+##### Body
+Syntax:
+```
 Body
-@Path("/foo/")
+@Path("/foo")
 resourceName(message m, @Type(name = "TypeName", description = "A Description", required = true) TypeName typeVariableName, ...){...}
-
+```
+```
+@Path("/foo")
+@ParametersInfo ({
+    @ParamterInfo(
+       id = "identifier",
+       name = "paraName",
+       description = "description about the paramter",
+       required = true|false,
+       schema = type
+    ),
+    @ParamterInfo(...)
+})
+resourceName(message m, type identifier, ...) {...}
 ```
 
 #### Resource Info
+
+A meta annotation which describes the meta details of this resource.
 
 Syntax:
 ```
@@ -432,10 +534,10 @@ Syntax:
     summary = "A summary about resource",
     description = "a detailed description about resource",
     externalDocs = @ExternalDocs(
-                       description = "wso2 ballerina", 
-                       url = "http://docs.wso2.com/ballerina"
+                       description = "description", 
+                       url = "..."
                    ),
-    operationId = "methodName" // This information is redundant in resource name, But we need this in special cases.
+    operationId = "Ballerina resource name"
 )
 ```
 
@@ -443,56 +545,56 @@ _@ResourceInfo_
 
 |Ballerina Field |  Type | Description | Swagger Field|
 |---|---|---|---|
-|  tags|array |A list of tags for resource documentation control  | tags  | 
-|  summary|string |A short summary of what the resource does.  | summary  | 
-|  externalDocs|annotation |Additional external documentation for this resource.  | externalDocs  | 
-|  operationId|string |Unique string used to identify the resource.  | operationId  | 
+| tags| array | A list of tags for resource documentation control. | tags  |
+| summary| string | A short summary of what the resource does. | summary  |
+| externalDocs| @ExternalDocs | Additional external documentation for this resource. | externalDocs  |
+| operationId| string |Unique string used to identify the resource (Ballerina resource name). | operationId  |
 
 _@ExternalDocs_
 
-Ballerina Field | Type          | Description                                                       | Swagger Field
-----------------|:-------------:|-------------------------------------------------------------------|-------------------
-description     | string        | a description about the target documentation.                     | description
-url             | string        | **Required.** URL is pointing to target documentation.            | url
-anyName         | any           | Extension fields.                                                 | `x-`anyName (Swagger extensions)
+|Ballerina Field | Type          | Description | Swagger Field
+|---|---|---|---|
+| description | string | a description about the target documentation. | description
+| url | string | **Required.** URL is pointing to target documentation. | url
+| anyName | any | Extension fields. | `x-`anyName (Swagger extensions) |
 
 
 #### Responses
 
+Defines an array of @Response which include possible responses that returns by this resource. 
+
 Syntax:
 ```
-@Responses( 
-    values = {
-        @Response( 
-            code = 200,
-            [description = "Human-readable message to accompany the response.",
-            response = TypeName|VaribaleType|ArrayType|XML<Schema>|JSON<Schema>
-            headers = {
-                @Header(
-                    name = "HeaderName",
-                    description = "description",
-                    type = TypeName|VaribaleType|ArrayType|XML<Schema>|JSON<Schema>
-                    ),
-                @Header(...)
-            },
-            examples = {
-                @Example(
-                    type = "mime-type",
-                    value = xml|json|string
+@Responses({
+    @Response(
+        code = 200,
+        [description = "Human-readable message to accompany the response.",
+        response = TypeName|VaribaleType|ArrayType|XML<Schema>|JSON<Schema>
+        headers = {
+            @Header(
+                name = "HeaderName",
+                description = "description",
+                type = TypeName|VaribaleType|ArrayType|XML<Schema>|JSON<Schema>
                 ),
-                @Example(
-                    type = "application/json",
-                    value = `{ "key1": "value1", "key2", "value2"}` 
-                )
-            }] 
-            | [reference = "String to reference"]
-        ),
-        @Response( 
-            code = "default", 
-            description = "unexpected error",
-            ...)
-    }
-)
+            @Header(...)
+        },
+        examples = {
+            @Example(
+                type = "mime-type",
+                value = xml|json|string
+            ),
+            @Example(
+                type = "application/json",
+                value = `{ "key1": "value1", "key2", "value2"}`
+            )
+        }]
+        | [reference = "String to reference"]
+    ),
+    @Response(
+        code = "default",
+        description = "unexpected error",
+        ...)
+})
 
 ```
 
@@ -500,33 +602,33 @@ _@Responses_
 
 |Ballerina Field |  Type | Description | Swagger Field|
 |---|---|---|---|
-|  values|array |An array of possible @Response as they are returned from executing this operation   | N/A  | 
+| values | @Response[] | An array of possible @Response as they are returned from executing this operation. | responses  |
 
 _@Response_
 
 |Ballerina Field |  Type | Description | Swagger Field|
 |---|---|---|---|
-|  code|int |HTTP status code of this response  | N/A  | 
-|  description|string |T A short description of the response.  | description  | 
-|  response|string |The list of possible responses as they are returned from executing this operation  | schema  | 
-|  headers|array |An array of @Header that are sent with the response  | headers  | 
-|  examples|array |An @Example of the response message  | examples  | 
+| code | int | HTTP status code of this response  | Response HTTP status code  |
+| description | string | A short description of the response. | description  |
+| response | string | The list of possible responses as they are returned from executing this operation  | schema  |
+| headers | @Header[] | An array of @Header that are sent with the response  | headers  |
+| examples | @Example[] | An @Example of the response message  | examples  |
 
 _@Header_
 
 |Ballerina Field |  Type | Description | Swagger Field|
 |---|---|---|---|
-|  name|string |HTTP status code of this response  | N/A  | 
-|  description|string| A short description of the header  | description  | 
-|  type|string |The type of the object. The value MUST be one of "string", "number", "integer", "boolean", or "array"  | type  | 
+| name | string |HTTP status code of this response. | name of the header  |
+| description | string | A short description of the header. | description  |
+| type | string | The type of the object. The value MUST be one of "string", "number", "integer", "boolean", or "array". | type  |
 
 
 _@Example_
 
 |Ballerina Field |  Type | Description | Swagger Field|
 |---|---|---|---|
-|  type|string |mime type  | N/A  | 
-|  value| string| A sample response of this resource that match with given mime type  | N/A  | 
+| type | string | A supported mime type. | mime-tye value  |
+| value | string | A sample response of this resource that match with given mime type. | The value SHOULD be an example of what such a response would look like  |
 
 
 ### Connector Annotations.
