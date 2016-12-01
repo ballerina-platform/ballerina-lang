@@ -24,7 +24,7 @@ import org.wso2.ballerina.model.expressions.Expression;
  *
  * @since 1.0.0
  */
-public class ThrowStmt implements Statement{
+public class ThrowStmt implements Statement {
     private Expression expr;
 
     public ThrowStmt(Expression expr) {

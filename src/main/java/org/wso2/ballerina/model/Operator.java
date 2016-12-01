@@ -17,6 +17,11 @@
 */
 package org.wso2.ballerina.model;
 
+/**
+ * {code Operator} represents operators in Ballerina
+ *
+ * @since 1.0.0
+ */
 public enum Operator {
 
     ADD("+"),
