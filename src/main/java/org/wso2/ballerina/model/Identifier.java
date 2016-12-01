@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerina.model.expressions;
+package org.wso2.ballerina.model;
 
 /**
  * {@code Identifier} represents an identifier in Ballerina
@@ -24,10 +24,19 @@ package org.wso2.ballerina.model.expressions;
  *
  * @since 1.0.0
  */
-public class Identifier implements Expression {
+public class Identifier {
     private String name;
 
     public Identifier(String name) {
         this.name = name;
+    }
+
+    /**
+     * Get the name of the Identifier
+     *
+     * @return name of the Identifier
+     */
+    public String getName() {
+        return name;
     }
 }
