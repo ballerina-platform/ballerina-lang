@@ -16,7 +16,8 @@
  * under the License.
  */
 
-define(['lodash', 'jquery', 'event_channel', 'app/ballerina/ast/connection-declaration', 'log'], function (_, $, EventChannel, ConnectionDeclaration, log) {
+define(['lodash', 'jquery', 'event_channel', 'app/ballerina/ast/connection-declaration', 'log', 'd3utils'],
+    function (_, $, EventChannel, ConnectionDeclaration, log, D3Utils) {
 
     var ConnectionDeclaration = function (model) {
         this._model = model;
@@ -49,6 +50,13 @@ define(['lodash', 'jquery', 'event_channel', 'app/ballerina/ast/connection-decla
     };
 
     ConnectionDeclaration.prototype.render = function () {
+        var group = D3Utils.draw.group(this._container);
+        var rect = D3Utils.draw.rect(10, 10, 100, 100, 0, 0, group, "#FFFFFF");
+        window.console.log("Rendering the Worker Declaration");
+
+        group.rect = rect;
+
+        return group;
         window.console.log("Rendering the Connection Declaration");
     };
 
