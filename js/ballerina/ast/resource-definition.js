@@ -33,7 +33,7 @@ define(['lodash', './node'], function (_, ASTNode) {
 
 
     ResourceDefinition.prototype.setResourcePath = function (path) {
-        if (!_.isEmpty(path)) {
+        if (!_.isNil(path)) {
             this._path = path;
         }
     };
@@ -43,7 +43,7 @@ define(['lodash', './node'], function (_, ASTNode) {
     };
 
     ResourceDefinition.prototype.setResourceMethod = function (method) {
-        if (!_.isEmpty(method)) {
+        if (!_.isNil(method)) {
             this._method = method;
         }
     };
@@ -53,7 +53,7 @@ define(['lodash', './node'], function (_, ASTNode) {
     };
 
     ResourceDefinition.prototype.setConnections = function (connections) {
-        if (!_.isEmpty(connections)) {
+        if (!_.isNil(connections)) {
             this.connectionDeclarations = connections;
         }
     };
@@ -62,7 +62,7 @@ define(['lodash', './node'], function (_, ASTNode) {
         return this.connectionDeclarations;
     };
     ResourceDefinition.prototype.setVariables = function (variables) {
-        if (!_.isEmpty(variables)) {
+        if (!_.isNil(variables)) {
             this.variableDeclarations = variables;
         }
     };
@@ -71,7 +71,7 @@ define(['lodash', './node'], function (_, ASTNode) {
         return this.variableDeclarations;
     };
     ResourceDefinition.prototype.setWorkers = function (workers) {
-        if (!_.isEmpty(workers)) {
+        if (!_.isNil(workers)) {
             this.workerDeclarations = workers;
         }
     };
@@ -80,7 +80,7 @@ define(['lodash', './node'], function (_, ASTNode) {
         return this.workerDeclarations;
     };
     ResourceDefinition.prototype.setStatements = function (statements) {
-        if (!_.isEmpty(statements)) {
+        if (!_.isNil(statements)) {
             this.statements = statements;
         }
     };
@@ -89,7 +89,7 @@ define(['lodash', './node'], function (_, ASTNode) {
         return this.statements;
     };
     ResourceDefinition.prototype.setResourceArguments = function (resourceArgs) {
-        if (!_.isEmpty(resourceArgs)) {
+        if (!_.isNil(resourceArgs)) {
             this.resourceArguments = resourceArgs;
         }
     };
