@@ -21,6 +21,7 @@ define(['lodash', 'log'], function (_, log) {
         this._replyStatement = replyStatement;
     };
 
+    ReplyStatement.prototype = Object.create(ASTNode.prototype);
     ReplyStatement.prototype.constructor = ReplyStatement;
 
     ReplyStatement.prototype.setReplyStatement = function (replyStatement) {
@@ -36,7 +37,9 @@ define(['lodash', 'log'], function (_, log) {
     };
 
     ReplyStatement.prototype.accept = function (visitor) {
-        visitor.visitChildren(this);
+        //visitor.visitReplyStatement(replyStatementView);
+        visitor.visitReplyStatement();
+        //loop accept methods of children if exists
     };
 
     return ReplyStatement;

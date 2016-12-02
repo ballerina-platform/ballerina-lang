@@ -15,20 +15,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './reply-statement-view'], function(_, log, ReplyStatementView) {
+define(['lodash', 'log'], function(_, log) {
 
     var ASTVisitor = function() {
 
     };
 
     ASTVisitor.prototype.constructor = ASTVisitor;
-
-    ASTVisitor.prototype.visitReplyStatementChildren = function (modelView) {
-        if(modelView instanceof ReplyStatementView) {
-            modelView.visitChildren();
-        } else {
-            log.error("View object is not in the type of ReplyStatementView.");
-        }
-    };
 
 });

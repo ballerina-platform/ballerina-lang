@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './canvas', '../ast/reply-statement', 'd3'], function (_, log, Canvas, ReplyStatement, d3) {
+define(['lodash', 'log', './canvas', '../ast/reply-statement', 'ast-visitor', 'd3'], function (_, log, Canvas, ReplyStatement, ASTVisitor, d3) {
 
     var ReplyStatementView = function (model, container, viewOptions) {
         if (model instanceof ReplyStatement) {
@@ -25,7 +25,7 @@ define(['lodash', 'log', './canvas', '../ast/reply-statement', 'd3'], function (
         }
         this._container = container;
         this._viewOptions = viewOptions;
-        //this.super(model, container, viewOptions);
+        Canvas.call(this, model, container, viewOptions);
     };
 
     ReplyStatementView.prototype = Object.create(Canvas.prototype);
@@ -60,18 +60,12 @@ define(['lodash', 'log', './canvas', '../ast/reply-statement', 'd3'], function (
     };
 
     ReplyStatementView.prototype.render = function () {
-        //Draw ReplyStatement
+        //Draw ReplyStatement by utilizing D3
 
     };
 
-    ReplyStatement.prototype.accept = function (visitor) {
-        visitor.visitReplyStatementChildren(this);
-
-        //invoke accept methods of children
-    };
-
-    ReplyStatement.prototype.visitChildren = function () {
-        //invoke accept methods of children
-    };
+    //ReplyStatement.prototype.visitChildren = function () {
+    //    //invoke accept methods of children
+    //};
 
 });
