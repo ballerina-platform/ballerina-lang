@@ -259,6 +259,7 @@ A TypeName may be one of the following built-in primitive types:
 - long
 - float
 - double
+
 Primitive types do not have to be dynamically allocated as they are always allocated
 on the stack.
 
