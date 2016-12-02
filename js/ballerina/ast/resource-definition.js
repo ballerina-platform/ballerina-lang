@@ -17,14 +17,14 @@
  */
 define(['lodash', './node'], function (_, ASTNode) {
 
-    var ResourceDefinition = function (path, method, connections, variables, workers, statements, resourceArgs) {
-        this._path = path;
-        this._method = method;
-        this.connectionDeclarations = connections || [];
-        this.variableDeclarations = variables || [];
-        this.workerDeclarations = workers || [];
-        this.statements = statements || [];
-        this.resourceArguments = resourceArgs || [];
+    var ResourceDefinition = function (args) {
+        this._path = _.get(args, 'path');
+        this._method = _.get(args, 'method');
+        this.connectionDeclarations =_.get(args, 'connectorDefinitions', []);
+        this.variableDeclarations =_.get(args, 'variableDeclarations', []);
+        this.workerDeclarations = _.get(args, 'workerDeclarations', []);
+        this.statements = _.get(args, 'statements', []);
+        this.resourceArguments = _.get(args, 'resourceArguments', []);
 
     };
 

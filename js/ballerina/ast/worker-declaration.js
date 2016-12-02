@@ -18,43 +18,19 @@
 define(['lodash', './node'], function(_, ASTNode){
 
     var WorkerDeclaration = function(connections, variables, statements, replyStatement) {
-        this.connectionDeclarations = connections || {};
-        this.variableDeclarations = variables || {};
-        this.statements = statements || {};
+        this.childrenList = [];
         this.reply = replyStatement;
     };
 
     WorkerDeclaration.prototype = Object.create(ASTNode.prototype);
     WorkerDeclaration.prototype.constructor = WorkerDeclaration;
 
-    WorkerDeclaration.prototype.setConnections = function(connections){
-        if(!_.isNil(connections)){
-            this.connectionDeclarations = connections;
+    WorkerDeclaration.prototype.addChild = function (child, index) {
+        if (_.isUndefined(index)) {
+            this.childrenList.insert(index, child)
+        } else {
+            this.childrenList.push(child);
         }
-    };
-
-    WorkerDeclaration.prototype.getConnections = function(){
-        return this.connectionDeclarations;
-    };
-
-    WorkerDeclaration.prototype.setVariables = function(variables){
-        if(!_.isNil(variables)){
-            this.variableDeclarations = variables;
-        }
-    };
-
-    WorkerDeclaration.prototype.getVariables = function(){
-        return this.variableDeclarations;
-    };
-
-    WorkerDeclaration.prototype.setStatements = function(statements){
-        if(!_.isNil(statements)){
-            this.statements = statements;
-        }
-    };
-
-    WorkerDeclaration.prototype.getStatements = function(){
-        return this.statements;
     };
 
     WorkerDeclaration.prototype.setReply = function(replyStatement){
@@ -65,6 +41,10 @@ define(['lodash', './node'], function(_, ASTNode){
 
     WorkerDeclaration.prototype.getReply = function(){
         return this.reply;
+    };
+
+    WorkerDeclaration.prototype.accept = function (visitor) {
+        visitor.visitWorkerDeclaration();
     };
 
 });

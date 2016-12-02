@@ -15,18 +15,70 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './node'], function(_, ASTNode){
+define(['log', 'lodash', 'event_channel', './service-definition'],
 
-    var Package = function(){
-        this.serviceDefinitions = [];
-        this.functionDefinitions = [];
-        this.connectorDefinitions = [];
-        this.typeDefinitions = [];
-        this.typeConvertorDefinitions = [];
-        this.constantDefinitions = [];
+    function(log, _, EventChannel, ServiceDefinition){
+
+    var Package = function(args){
+        this.addServiceDefinitions(_.get(args, 'serviceDefinitions', []));
+        this._functionDefinitions = _.get(args, 'functionDefinitions', []);
+        this._connectorDefinitions = _.get(args, 'connectorDefinitions', []);
+        this._typeDefinitions = _.get(args, 'typeDefinitions', []);
+        this._typeConverterDefinitions = _.get(args, 'typeConverterDefinitions', []);
+        this._constantDefinitions = _.get(args, 'constantDefinitions', []);
     };
 
-    Package.prototype = Object.create(ASTNode.prototype);
+    Package.prototype = Object.create(EventChannel.prototype);
     Package.prototype.constructor = Package;
+
+    /**
+     * Add service defs
+     * @param serviceDefinitions - can be an array of serviceDefs or a single serviceDef
+     */
+    Package.prototype.addServiceDefinitions = function(serviceDefinitions){
+        var err;
+        if(!_.isArray(serviceDefinitions) && !(serviceDefinitions instanceof  ServiceDefinition)){
+            err = "Adding service def failed. Not an instance of ServiceDefinition" + serviceDefinitions;
+            log.error(err);
+            throw err;
+        }
+        if(_.isArray(serviceDefinitions)){
+            if(!_.isEmpty(serviceDefinitions)){
+                _.each(serviceDefinitions, function(serviceDefinition){
+                    if(!(serviceDefinition instanceof  ServiceDefinition)){
+                        err = "Adding service def failed. Not an instance of ServiceDefinition" + serviceDefinition;
+                        log.error(err);
+                        throw err;
+                    }
+                });
+            }
+        }
+        this._serviceDefinitions = this._serviceDefinitions || [];
+        _.concat(this._serviceDefinitions , serviceDefinitions);
+        /**
+         * fired when new service defs are added to the package.
+         * @event Package#service-defs-added
+         * @type {[ServiceDefinition]}
+         */
+        this.trigger("service-defs-added", serviceDefinitions);
+    };
+
+    /**
+     * Set service defs
+     *
+     * @param serviceDefs
+     */
+    Package.prototype.setServiceDefinitions = function(serviceDefs){
+        this._serviceDefinitions = null;
+        this.addServiceDefinitions(serviceDefs);
+    };
+
+    /**
+     *
+     * @returns {[ServiceDefinition]}
+     */
+    Package.prototype.getServiceDefinitions = function() {
+        return this._serviceDefinitions;
+    }
 
 });
