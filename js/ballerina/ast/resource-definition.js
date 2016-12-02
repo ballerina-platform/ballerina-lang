@@ -20,11 +20,11 @@ define(['lodash', './node'], function (_, ASTNode) {
     var ResourceDefinition = function (path, method, connections, variables, workers, statements, resourceArgs) {
         this._path = path;
         this._method = method;
-        this.connectionDeclarations = connections || {};
-        this.variableDeclarations = variables || {};
-        this.workerDeclarations = workers || {};
-        this.statements = statements || {};
-        this.resourceArguments = resourceArgs || {};
+        this.connectionDeclarations = connections || [];
+        this.variableDeclarations = variables || [];
+        this.workerDeclarations = workers || [];
+        this.statements = statements || [];
+        this.resourceArguments = resourceArgs || [];
 
     };
 
@@ -98,5 +98,5 @@ define(['lodash', './node'], function (_, ASTNode) {
         return this.resourceArguments;
     };
 
-
+return ResourceDefinition;
 });
