@@ -17,7 +17,7 @@
  */
 define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', './processor', './message-link',
 
-        'app/ballerina/models/processor',  'app/ballerina/models/message-point'
+        'app/ballerina-old/models/processor',  'app/ballerina-old/models/message-point'
 
 ], function (require, $, d3, Backbone, _, DiagramCore, ProcessorView, MessageLinkView, Processor, MessagePoint) {
 

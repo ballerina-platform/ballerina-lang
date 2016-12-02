@@ -17,9 +17,9 @@
  */
 define(['require', 'log', 'jquery', 'd3', 'd3utils', 'backbone', 'lodash', 'diagram_core', 'main_elements',
         './service-outline', 'processors', './life-line',
-        'ballerina_models/containable-processor-element', 'ballerina_models/life-line',  'app/ballerina/models/message-point',
-        'app/ballerina/models/message-link', 'ballerina_models/service', 'app/ballerina/utils/module',
-        'app/ballerina/utils/processor-factory', 'svg_pan_zoom', 'jquery_ui'],
+        'ballerina_models/containable-processor-element', 'ballerina_models/life-line',  'app/ballerina-old/models/message-point',
+        'app/ballerina-old/models/message-link', 'ballerina_models/service', 'app/ballerina-old/utils/module',
+        'app/ballerina-old/utils/processor-factory', 'svg_pan_zoom', 'jquery_ui'],
 
 function (require, log, $, d3, D3Utils, Backbone,  _, DiagramCore, MainElements, DiagramPreview, Processors, LifeLineView,
           ContainableProcessorElement, LifeLine, MessagePoint, MessageLink, Service, utils, ProcessorFactory
