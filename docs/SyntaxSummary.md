@@ -187,7 +187,6 @@ Once a connector has been created, actions can be invoked against that connector
 Workers are defined and declared as follows:
 ```
 worker WorkerName (message m) {
-    ConnectorDeclaration;*
     VariableDeclaration;*
     Statement;+
     [reply MessageName;]
@@ -463,18 +462,13 @@ will wait for the parallel workers to complete.
 ```
 fork (MessageName) {
   worker WorkerName (message VariableName) {
-    ConnectorDeclaration;*
     VariableDeclaration;*
     Statement;+
     [reply MessageName;]
   }+       
 } [join (JoinCondition) (message[] VariableName) {
-  ConnectorDeclaration;*
-  VariableDeclaration;*
   Statement;*
 } timeout (Expression) (message[] VariableName) {
-  ConnectorDeclaration;*
-  VariableDeclaration;*
   Statement;*  
 }]
 ```
@@ -526,15 +520,13 @@ Note that there is only one built in exception type - all exceptions use this ty
 The syntax of a `try/catch` is as follows:
 ```
 try {
-    VariableDeclaration*
     Statement;+
 } catch (exception e) {
-    VariableDeclaration*
     Statement;+
 }
 ```
 
-The sytax of a `throw` statement is as follows:
+The syntax of a `throw` statement is as follows:
 
 ```
 throw Expression;
