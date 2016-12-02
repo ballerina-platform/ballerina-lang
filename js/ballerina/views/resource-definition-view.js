@@ -29,10 +29,10 @@ define(['lodash', 'log', './canvas', 'app/ballerina/ast/resource-definition'],
             if (!_.isNul(model) && model instanceof ResourceDefinition && !_.isNil(container)) {
                 this._model = model;
                 this._container = container;
-                this._options = viewOptions;
+                this._viewOptions = viewOptions;
             } else {
-                log.error("Invalid args received for creating a resource definition. Model: " + model
-                    + ". Container: " + container);
+                log.error("Invalid args received for creating a resource definition. Model: " + model + ". Container: " +
+                    container);
             }
         };
 
@@ -46,10 +46,6 @@ define(['lodash', 'log', './canvas', 'app/ballerina/ast/resource-definition'],
             }
         };
 
-        ResourceDefinitionView.prototype.getModel = function () {
-            return this._model;
-        };
-
         ResourceDefinitionView.prototype.setContainer = function (container) {
             if (!_.isNil(container)) {
                 this._container = container;
@@ -58,12 +54,24 @@ define(['lodash', 'log', './canvas', 'app/ballerina/ast/resource-definition'],
             }
         };
 
+        ResourceDefinitionView.prototype.setViewOptions = function (viewOptions) {
+            this._viewOptions = viewOptions;
+        };
+
+        ResourceDefinitionView.prototype.getModel = function () {
+            return this._model;
+        };
+
         ResourceDefinitionView.prototype.getContainer = function () {
             return this._container;
         };
 
-        ResourceDefinitionView.prototype.visitResourceDef = function () {
+        ResourceDefinitionView.prototype.getViewOptions = function () {
+            return this._viewOptions;
+        };
 
+        ResourceDefinitionView.prototype.render = function () {
+            // Render resource view
         }
 
     });

@@ -41,4 +41,14 @@ define(['lodash', 'log', 'ast-visitor'], function(_, log, ASTVisitor) {
         //modelView.render();
         return false;
     };
+
+    DiagramRenderingVisitor.prototype.visitServiceDefinition = function () {
+        //modelView.render();
+        return false;
+    };
+
+    DiagramRenderingVisitor.prototype.visitResourceDefinition = function () {
+        //modelView.render();
+        return false;
+    };
 });

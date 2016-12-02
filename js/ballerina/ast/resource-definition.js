@@ -38,18 +38,10 @@ define(['lodash', './node'], function (_, ASTNode) {
         }
     };
 
-    ResourceDefinition.prototype.getResourcePath = function () {
-        return this._path;
-    };
-
     ResourceDefinition.prototype.setResourceMethod = function (method) {
         if (!_.isNil(method)) {
             this._method = method;
         }
-    };
-
-    ResourceDefinition.prototype.getResourceMethod = function () {
-        return this._method;
     };
 
     ResourceDefinition.prototype.setConnections = function (connections) {
@@ -57,18 +49,10 @@ define(['lodash', './node'], function (_, ASTNode) {
             this.connectionDeclarations = connections;
         }
     };
-
-    ResourceDefinition.prototype.getConnections = function () {
-        return this.connectionDeclarations;
-    };
     ResourceDefinition.prototype.setVariables = function (variables) {
         if (!_.isNil(variables)) {
             this.variableDeclarations = variables;
         }
-    };
-
-    ResourceDefinition.prototype.getVariables = function () {
-        return this.variableDeclarations;
     };
     ResourceDefinition.prototype.setWorkers = function (workers) {
         if (!_.isNil(workers)) {
@@ -76,27 +60,49 @@ define(['lodash', './node'], function (_, ASTNode) {
         }
     };
 
-    ResourceDefinition.prototype.getWorkers = function () {
-        return this.workerDeclarations;
-    };
     ResourceDefinition.prototype.setStatements = function (statements) {
         if (!_.isNil(statements)) {
             this.statements = statements;
         }
     };
 
-    ResourceDefinition.prototype.getStatements = function () {
-        return this.statements;
-    };
     ResourceDefinition.prototype.setResourceArguments = function (resourceArgs) {
         if (!_.isNil(resourceArgs)) {
             this.resourceArguments = resourceArgs;
         }
     };
 
+    ResourceDefinition.prototype.getStatements = function () {
+        return this.statements;
+    };
+
+    ResourceDefinition.prototype.getWorkers = function () {
+        return this.workerDeclarations;
+    };
+
+    ResourceDefinition.prototype.getVariables = function () {
+        return this.variableDeclarations;
+    };
+
+    ResourceDefinition.prototype.getConnections = function () {
+        return this.connectionDeclarations;
+    };
+
+    ResourceDefinition.prototype.getResourceMethod = function () {
+        return this._method;
+    };
+
+    ResourceDefinition.prototype.getResourcePath = function () {
+        return this._path;
+    };
+
     ResourceDefinition.prototype.getResourceArguments = function () {
         return this.resourceArguments;
     };
 
-return ResourceDefinition;
+    ResourceDefinition.prototype.accept = function (visitor) {
+        visitor.visitResourceDefinition(this);
+    };
+
+    return ResourceDefinition;
 });

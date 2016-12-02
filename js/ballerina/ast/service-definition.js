@@ -33,18 +33,10 @@ define(['lodash', './node'], function (_, ASTNode) {
         }
     };
 
-    ServiceDefinition.prototype.getBasePath = function () {
-        return this._basePath;
-    };
-
     ServiceDefinition.prototype.setResourceDefinitions = function (resourceDefinitions) {
         if (!_.isNil(resourceDefinitions)) {
             this._resourceDefinitions = resourceDefinitions;
         }
-    };
-
-    ServiceDefinition.prototype.getResourceDefinitions = function () {
-        return this._resourceDefinitions;
     };
 
     ServiceDefinition.prototype.setVariableDeclarations = function (variableDeclarations) {
@@ -53,18 +45,30 @@ define(['lodash', './node'], function (_, ASTNode) {
         }
     };
 
-    ServiceDefinition.prototype.getVariableDeclarations = function () {
-        return this._variableDeclarations;
-    };
-
     ServiceDefinition.prototype.setConnectionDeclarations = function (connectionDeclarations) {
         if (!_.isNil(connectionDeclarations)) {
             this._connectionDeclarations = connectionDeclarations;
         }
     };
 
+    ServiceDefinition.prototype.getBasePath = function () {
+        return this._basePath;
+    };
+
+    ServiceDefinition.prototype.getResourceDefinitions = function () {
+        return this._resourceDefinitions;
+    };
+
+    ServiceDefinition.prototype.getVariableDeclarations = function () {
+        return this._variableDeclarations;
+    };
+
     ServiceDefinition.prototype.getConnectionDeclarations = function () {
         return this._connectionDeclarations;
+    };
+
+    ServiceDefinition.prototype.accept = function (visitor) {
+        visitor.visitServiceDefinition(this);
     };
 
 });

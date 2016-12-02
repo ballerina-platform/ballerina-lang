@@ -21,7 +21,7 @@ define(['lodash', 'log', './canvas', 'app/ballerina/ast/service-definition'],
         /**
          * The view for the service definition model.
          * @param model Service definition model.
-         * @param container The SVG ele element.
+         * @param container The SVG element.
          * @param viewOptions Options to configure the view.
          * @constructor
          */
@@ -29,7 +29,7 @@ define(['lodash', 'log', './canvas', 'app/ballerina/ast/service-definition'],
             if (!_.isNul(model) && model instanceof ServiceDefinition && !_.isNil(container)) {
                 this._model = model;
                 this._container = container;
-                this._options = viewOptions;
+                this._viewOptions = viewOptions;
             } else {
                 log.error("Invalid args received for creating a service definition. Model: " + model + ". Container: " +
                     container);
@@ -47,10 +47,6 @@ define(['lodash', 'log', './canvas', 'app/ballerina/ast/service-definition'],
             }
         };
 
-        ServiceDefinitionView.prototype.getModel = function () {
-            return this._model;
-        };
-
         ServiceDefinitionView.prototype.setContainer = function (container) {
             if (!_.isNil(container)) {
                 this._container = container;
@@ -59,12 +55,24 @@ define(['lodash', 'log', './canvas', 'app/ballerina/ast/service-definition'],
             }
         };
 
+        ServiceDefinitionView.prototype.setViewOptions = function (viewOptions) {
+            this._viewOptions = viewOptions;
+        };
+
+        ServiceDefinitionView.prototype.getModel = function () {
+            return this._model;
+        };
+
         ServiceDefinitionView.prototype.getContainer = function () {
             return this._container;
         };
 
-        ServiceDefinitionView.prototype.visitResourceDef = function () {
+        ServiceDefinitionView.prototype.getViewOptions = function () {
+            return this._viewOptions;
+        };
 
+        ServiceDefinitionView.prototype.render = function () {
+            // Render service view
         }
 
     });
