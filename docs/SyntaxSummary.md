@@ -375,6 +375,9 @@ t2 = (Type2) t1;
 
 That is, the registered type convertor is invoked by indicating the type cast as above.
 
+Functions with message as an argument accept a payload type ( XML, JSON, map, and any user defined type) instead of the message, and automatically wraps the payload data to creates a message. This avoid having to create a message when sending simple data. For example, when calling `send(message)`, the call may use `send("Hello")`. A message is automatically created and passed to send. ( see issue #33)
+
+
 ### Statements
 
 A Statement may be one of the following:
