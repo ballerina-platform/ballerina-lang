@@ -18,8 +18,8 @@
 define(['lodash', './node'], function(_, ASTNode){
 
     var WorkerDeclaration = function(connections, variables, statements, replyStatement) {
-        this.childrenList = [];
-        this.reply = replyStatement;
+        this._childrenList = [];
+        this._reply = replyStatement;
     };
 
     WorkerDeclaration.prototype = Object.create(ASTNode.prototype);
@@ -27,24 +27,32 @@ define(['lodash', './node'], function(_, ASTNode){
 
     WorkerDeclaration.prototype.addChild = function (child, index) {
         if (_.isUndefined(index)) {
-            this.childrenList.insert(index, child)
+            this._childrenList.insert(index, child)
         } else {
-            this.childrenList.push(child);
+            this._childrenList.push(child);
         }
     };
 
     WorkerDeclaration.prototype.setReply = function(replyStatement){
         if(!_.isNil(replyStatement)){
-            this.reply = replyStatement;
+            this._reply = replyStatement;
         }
     };
 
     WorkerDeclaration.prototype.getReply = function(){
-        return this.reply;
+        return this._reply;
     };
 
     WorkerDeclaration.prototype.accept = function (visitor) {
         visitor.visitWorkerDeclaration();
+        this.acceptChildren(visitor);
+    };
+
+    WorkerDeclaration.prototype.acceptChildren = function (visitor) {
+        // Accept all the children of the worker
+        for (var id in this._childrenList) {
+            this._childrenList[id].accept(visitor);
+        }
     };
 
 });
