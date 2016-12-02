@@ -64,7 +64,11 @@ define(['lodash', 'log', 'event_channel', 'app/ballerina/ast/reply-statement', '
     };
 
     ReplyStatementView.prototype.render = function () {
-        //Draw ReplyStatement by utilizing D3
+        var group = D3Utils.draw.group(this._container);
+        var rect = D3Utils.draw.rect(10, 10, 100, 100, 0, 0, group, "#FFFFFF");
+        window.console.log("Rendering the Reply Statement.");
+        group.rect = rect;
+        return group;
     };
 
 });
