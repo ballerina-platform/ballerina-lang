@@ -546,7 +546,7 @@ Example:
 #### Return Statement
 
 ```
-return (Expression)*;
+return Expression*;
 ```
 
 #### Reply Statement
