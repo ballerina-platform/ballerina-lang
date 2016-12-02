@@ -17,7 +17,7 @@
  */
 define(['require', 'log', 'jquery', 'lodash', 'backbone', 'app/menu-bar/menu-bar', 'breadcrumbs', 'file_browser', 'tab/service-tab-list', 'app/tool-palette/tool-palette',
 
-    'welcome','command','workspace','file_editor',/* void modules */ 'jquery_ui', 'bootstrap'],
+    'welcome','command','workspace', 'file_editor',/* void modules */ 'jquery_ui', 'bootstrap'],
 
     function (require, log, $, _, Backbone, MenuBar, BreadcrumbController, FileBrowser, TabController, ToolPalette, WelcomeScreen, CommandManager, Workspace,FileEditor) {
 
@@ -86,10 +86,14 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'app/menu-bar/menu-bar
             this.regularWelcomeScreen = new WelcomeScreen.Views.RegularView(regWelcomeScreenOpts);
 
             var astRoot = {};
-            var serviceDefs = {id:"service1"};
+            var serviceDefs = [];
+            var service1 = {id:"service1"};
+            var service2 = {id:"service2"};
+            serviceDefs.push(service1);
+            serviceDefs.push(service2);
             astRoot.serviceDefinitions = serviceDefs;
             this.fileEditor = new FileEditor(null,astRoot);
-            this.fileEditor.init(astRoot,tabControlOpts);
+            this.fileEditor.init(astRoot,tabControlOpts.tabs);
         },
 
         validateConfig: function(config){

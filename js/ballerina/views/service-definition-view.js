@@ -26,7 +26,7 @@ define(['lodash', 'log', './canvas', 'app/ballerina/ast/service-definition'],
          * @constructor
          */
         var ServiceDefinitionView = function (model, container, viewOptions) {
-            if (!_.isNul(model) && model instanceof ServiceDefinition && !_.isNil(container)) {
+            if (!_.isNull(model) && model instanceof ServiceDefinition && !_.isNil(container)) {
                 this._model = model;
                 this._container = container;
                 this._viewOptions = viewOptions;
