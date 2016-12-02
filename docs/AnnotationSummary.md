@@ -84,118 +84,7 @@ Followings are the service level annotations.
 
 #### Service Info
 
-A Doc annotation, which describes a Ballerina Service. 
-
-##### Suggestion 1 :
- 
- This syntax has one to one mapping in swagger. 
- 
-Syntax: 
-```
-@ServiceInfo( // Alternatives :  @APIDefinition, @APIInfo, @APIDocumentation
-    swaggerVersion = "2.0", 
-    info = @Info( 
-        title = "Sample API title", 
-        description =  "Sample Description.", 
-        version = "1.0.0", 
-        termsOfService = "http://example.com/terms",
-        contact = @Contact(
-            name = "wso2" ,
-            url = "http//wso2.com"
-            [,anyName = anyValue]* 
-        ), 
-
-        license = @License( 
-            name = "Apache 2",
-            url = "http://www.apache.org/licenses/LICENSE-2.0"
-            [,anyName = anyValue]* 
-        ) 
-
-        [,anyName = anyValue]* 
-    ),
-
-    externalDocs = @ExternalDocs( 
-        description = "wso2 ballerina",
-        url = "http://docs.wso2.com/ballerina"
-        [,anyName = anyValue]* 
-    ),
-    
-    tags = { // Swagger tags element.
-            @Tag( // Swagger tag element.
-                name = "HTTP",
-                description = "HTTP Service",
-                externalDocs = @ExternalDocs(
-                    value = "HTTP Service",
-                    url = "http://docs.wso2.com/http"
-                    [,anyName = anyValue]* // this will represent swagger element "x-anyName" : "anyValue"
-                )
-            ),
-            @Tag(name = "Private", description = "Private Service")
-        }
-        
-    [,anyName = anyValue]*
-)
-```
-
-_@ServiceInfo_
-
-| Ballerina Field | Type | Description | Swagger Field |
-|---|:---:|---|---|
-| swaggerVersion | string | Specifies the Swagger Specification version to be used. Default value is "2.0". | swagger | 
-| info | @Info | **Required.** Provides metadata about the Ballerina API. | info |
-| externalDocs | @ExternalDocs | An link to external documentation which describes annotated service.| externalDocs |
-| tags | @Tag[] | A list of tags used by the specification with additional metadata.| tags |
-| anyName | any | Extension fields. | `x-`anyName (Swagger extensions) |
-
-_@Info_
-
-| Ballerina Field | Type | Description | Swagger Field |
-|---|:---:|---|---|
-| title | string | **Required.** The title of the Ballerina Service. | title |
-| description | string | A description of the Ballerina Service. | description |
-| version | string | **Required.** The version of the Ballerina Service. | version |
-| termsOfService | string | Text or URL for the Terms of Services for the Ballerina Service. | termsOfService |
-| contact | @Contact | The Contact information for Ballerina Service. | contact |
-| license | @License | The License information for Ballerina Service. | license |
-| anyName | any | Extension fields. | `x-`anyName (Swagger extensions) |
-
-_@ExternalDocs_
-
-| Ballerina Field | Type | Description | Swagger Field |
-|---|:---:|---|---|
-| description | string | a description about the target documentation. | description |
-| url | string | **Required.** URL is pointing to target documentation. | url |
-| anyName | any | Extension fields. | `x-`anyName (Swagger extensions) |
-
-_@Tag_
-
-| Ballerina Field | Type | Description | Swagger Field |
-|---|:---:|---|---|
-| name | string | **Required.** Name of tag. | name |
-| description | string | Description explaining current tag. | description |
-| externalDocs | @ExternalDocs | Additional external documentation link explaining current tag. | url |
-| anyName | any | Extension fields. | `x-`anyName (Swagger extensions) |
-
-_@Contact_
-
-| Ballerina Field | Type | Description | Swagger Field |
-|---|:---:|---|---|
-| name | string | Name of the contact person or organization. | name |
-| url | string | An URL pointing to contact information. | url |
-| anyName | any | Extension fields. | `x-`anyName (Swagger extensions) |
-
-_@License_
-
-| Ballerina Field | Type | Description | Swagger Field |
-|---|:---:|---|---|
-| name | string | Name of the License used for Ballerina Service. | name |
-| url | string | An URL pointing to License information. | url |
-| anyName | any | Extension fields. | `x-`anyName (Swagger extensions) |
-
-
-##### Suggestion 2: 
-
-Generic meta information about Service or Connector. But this a supper set of Swagger 2.0 representation. 
+A Doc annotation, which describes meta information about a Ballerina Service. This a supper set of Swagger 2.0 representation. 
 
 Syntax: 
 ```
@@ -206,7 +95,7 @@ Syntax:
     termOfService = "http://example.com/services/Test/terms.html" ,
     contact = @Contact( name = "WSO2 support" , email = "support@wso2.com" , url = "http://wso2.com/contact/" ),
     license = @License( name = "Apache 2", url = "http://www.apache.org/licenses/LICENSE-2.0") ,
-    doc = @Doc( description = "Wso2 Ballerina Documentation", url = "https://docs.wso2.com/ballerina" ) , 
+    externalDoc = @ExternalDoc( description = "Wso2 Ballerina Documentation", url = "https://docs.wso2.com/ballerina" ) , 
     tags = {
         @Tag(
             name = "test" ,
@@ -245,7 +134,7 @@ Following section describes each field defined in `@ServiceInfo` annotation.
 | termsOfService | string | Text or URL for the Terms of Services for the Ballerina Service. | $.info.termsOfService |
 | contact | @Contact | The Contact information for Ballerina Service. | $.info.contact |
 | license | @License | The License information for Ballerina Service. | $.info.license |
-| doc | @Doc |  An link to external documentation which describes annotated service. | $.externalDocs |
+| externalDoc | @ExternalDoc |  An link to external documentation which describes annotated service. | $.externalDocs |
 | tag | @Tag[] |  A list of tags used by the specification with additional metadata. | $.tags |
 | organization | @Organization | Organization this service belongs to. | $.info.x-organization |
 | developers | @Developers[] | Information about developers involved. | $.info.x-developers |
@@ -265,7 +154,7 @@ _@License_
 | name | string | Name of the License used for Ballerina Service. | $.info.license.name |
 | url | string | An URL pointing to License information. | $.info.license.url |
 
-_@Doc_
+_@ExternalDoc_
 
 | Ballerina Field | Type | Description | Swagger Field |
 |---|:---:|---|---|
