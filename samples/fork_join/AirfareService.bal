@@ -22,7 +22,7 @@ service AirfareProviderService {
                 string date = xml:get(payload, 'reservationInfo/date');
                 string query = "?departure_city=" + from + "&destination_city=" + to + "&date=" + date;
                 response = http:HttpConnector.sendGet (abcAirlineEP, query, m);
-                return response;
+                reply response;
             }
 
             worker XYZ_Airline (message m) {
@@ -32,7 +32,7 @@ service AirfareProviderService {
                 string date = xml:get(payload, 'reservationInfo/date');
                 string query = "?From=" + from + "&To=" + to + "&Date=" + date;
                 response = http:HttpConnector.sendGet (xyzAirlineEP, query, m);
-                return response;
+                reply response;
             }
         } join all (message[] airfareResponses) {
             xmlElement airfareAggregatedResponse = `<airfareRes></airfareRes>`;
