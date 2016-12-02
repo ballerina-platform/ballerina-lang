@@ -303,7 +303,7 @@ Ballerina has built-in support for XML elements, XML documents and JSON document
 can be any of the following:
 - json\[\<json_schema_name\>\]
 - xml\[<{XSD_namespace_name}type_name\>\]
-- xmlDocument
+- xmlDocument\[<{XSD_namespace_name}type_name\>\]
 
 A variable of type `json` can hold any JSON document. The optional qualification of the TypeName
 for a JSON document indicates the name of the JSON schema that the JSON value is assumed to
@@ -313,7 +313,7 @@ A variable of type `xml` can hold any XML element. The optional qualification of
 for an XML document indicates the qualified type name of the XML Schema type that the XML
 element is assumed to conform to.
 
-A variable of type `xmlDocument` can hold any XML document.
+A variable of type `xmlDocument` can hold any XML document and the optional schema type is the type of the document element.
 
 #### Allocating Variables
 
