@@ -15,18 +15,31 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './reply-statement'], function(_, log, ReplyStatementView) {
+define(['lodash', 'log'], function (_, log) {
 
-    var ASTVisitor = function() {
-
+    var ReplyStatement = function (replyStatement) {
+        this._replyStatement = replyStatement;
     };
 
-    ASTVisitor.prototype.constructor = ASTVisitor;
+    ReplyStatement.prototype.constructor = ReplyStatement;
 
-    ASTVisitor.prototype.visitReplyStatementChildren = function (modelView) {
-        if(modelView instanceof ReplyStatementView) {
-            modelView.visitChildren();
+    ReplyStatement.prototype.setReplyStatement = function (replyStatement) {
+        if (!_.isNil(replyStatement)) {
+            this._replyStatement = replyStatement;
+        } else {
+            log.error("Cannot set undefined to the reply statement.");
         }
     };
+
+    ReplyStatement.prototype.getReplyStatement = function () {
+        return this._replyStatement;
+    };
+
+    ReplyStatement.prototype.accept = function (visitor) {
+        visitor.visit(this);
+    };
+
+
+
 
 });
