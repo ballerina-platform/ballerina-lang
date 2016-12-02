@@ -15,56 +15,56 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', 'app/ballerina/ast/reply-statement', 'd3utils'], function (_, log, EventChannel, ReplyStatement, D3Utils) {
+define(['lodash', 'log', 'event_channel', 'app/ballerina/ast/return-statement', 'd3utils'], function (_, log, EventChannel, ReturnStatement, D3Utils) {
 
-    var ReplyStatementView = function (model, container, viewOptions) {
-        if (!_.isNil(model) && model instanceof ReplyStatement && !_.isNil(container)) {
+    var ReturnStatementView = function (model, container, viewOptions) {
+        if (!_.isNil(model) && model instanceof ReturnStatement && !_.isNil(container)) {
             this._model = model;
             this._container = container;
             this._viewOptions = viewOptions;
         } else {
-            log.error("Invalid args received for creating a reply statement view. Model: " + model
+            log.error("Invalid args received for creating a return statement view. Model: " + model
                 + ". Container: " + container);
         }
     };
 
-    ReplyStatementView.prototype = Object.create(EventChannel.prototype);
-    ReplyStatementView.prototype.constructor = ReplyStatementView;
+    ReturnStatementView.prototype = Object.create(EventChannel.prototype);
+    ReturnStatementView.prototype.constructor = ReturnStatementView;
 
-    ReplyStatementView.prototype.setModel = function (model) {
+    ReturnStatementView.prototype.setModel = function (model) {
         if (!_.isNil(model)) {
             this._model = model;
         } else {
-            log.error("Unknown definition received for reply statement.");
+            log.error("Unknown definition received for return statement.");
         }
     };
 
-    ReplyStatementView.prototype.setContainer = function (container) {
+    ReturnStatementView.prototype.setContainer = function (container) {
         if (!_.isNil(container)) {
             this._container = container;
         } else {
-            log.error("SVG container for the reply statement is null or empty.");
+            log.error("SVG container for the return statement is null or empty.");
         }
     };
 
-    ReplyStatementView.prototype.setViewOptions = function (viewOptions) {
+    ReturnStatementView.prototype.setViewOptions = function (viewOptions) {
         this._viewOptions = viewOptions;
     };
 
-    ReplyStatementView.prototype.getModel = function () {
+    ReturnStatementView.prototype.getModel = function () {
         return this._model;
     };
 
-    ReplyStatementView.prototype.getContainer = function () {
+    ReturnStatementView.prototype.getContainer = function () {
         return this._container;
     };
 
-    ReplyStatementView.prototype.getViewOptions = function () {
+    ReturnStatementView.prototype.getViewOptions = function () {
         return this._viewOptions;
     };
 
-    ReplyStatementView.prototype.render = function () {
-        //Draw ReplyStatement by utilizing D3
+    ReturnStatementView.prototype.render = function () {
+        //Draw ReturnStatement by utilizing D3
     };
 
 });

@@ -17,29 +17,29 @@
  */
 define(['lodash', 'log'], function (_, log) {
 
-    var ReplyStatement = function (message) {
-        this._message = message;
+    var ReturnStatement = function (expression) {
+        this._expression = expression || [];
     };
 
-    ReplyStatement.prototype = Object.create(ASTNode.prototype);
-    ReplyStatement.prototype.constructor = ReplyStatement;
+    ReturnStatement.prototype = Object.create(ASTNode.prototype);
+    ReturnStatement.prototype.constructor = ReturnStatement;
 
-    ReplyStatement.prototype.setReplyMessage = function (message) {
-        if (!_.isNil(message)) {
-            this._message = message;
+    ReturnStatement.prototype.setReturnExpression = function (expression) {
+        if (!_.isNil(expression)) {
+            this._expression = expression;
         } else {
-            log.error("Cannot set undefined to the reply statement.");
+            log.error("Cannot set undefined to the return statement.");
         }
     };
 
-    ReplyStatement.prototype.getReplyMessage = function () {
-        return this._message;
+    ReturnStatement.prototype.getReturnExpression = function () {
+        return this._expression;
     };
 
-    ReplyStatement.prototype.accept = function (visitor) {
-        visitor.visitReplyStatement();
+    ReturnStatement.prototype.accept = function (visitor) {
+        visitor.visitReturnStatement();
         //loop accept methods of children if exists
     };
 
-    return ReplyStatement;
+    return ReturnStatement;
 });
