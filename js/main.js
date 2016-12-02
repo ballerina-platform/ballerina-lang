@@ -17,9 +17,9 @@
  */
 define(['require', 'log', 'jquery', 'lodash', 'backbone', 'app/menu-bar/menu-bar', 'breadcrumbs', 'file_browser', 'tab/service-tab-list', 'app/tool-palette/tool-palette',
 
-    'welcome','command','workspace',/* void modules */ 'jquery_ui', 'bootstrap'],
+    'welcome','command','workspace','file_editor',/* void modules */ 'jquery_ui', 'bootstrap'],
 
-    function (require, log, $, _, Backbone, MenuBar, BreadcrumbController, FileBrowser, TabController, ToolPalette, WelcomeScreen, CommandManager, Workspace) {
+    function (require, log, $, _, Backbone, MenuBar, BreadcrumbController, FileBrowser, TabController, ToolPalette, WelcomeScreen, CommandManager, Workspace,FileEditor) {
 
     var Application = Backbone.View.extend(
     /** @lends Application.prototype */
@@ -84,6 +84,12 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'app/menu-bar/menu-bar
             };
             _.set(regWelcomeScreenOpts, 'application', this);
             this.regularWelcomeScreen = new WelcomeScreen.Views.RegularView(regWelcomeScreenOpts);
+
+            var astRoot = {};
+            var serviceDefs = {id:"service1"};
+            astRoot.serviceDefinitions = serviceDefs;
+            this.fileEditor = new FileEditor(null,astRoot);
+            this.fileEditor.init(astRoot,tabControlOpts);
         },
 
         validateConfig: function(config){

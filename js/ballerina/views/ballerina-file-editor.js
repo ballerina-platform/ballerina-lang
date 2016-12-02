@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash','log','./service-definition-view'], function(_,log,ServiceDefView){
+define(['lodash','log'], function(_,log){
 
     var ballerinaFileEditor = function(canvasList,astRoot){
       this.canvasList = canvasList || [];
@@ -25,7 +25,7 @@ define(['lodash','log','./service-definition-view'], function(_,log,ServiceDefVi
 
     ballerinaFileEditor.prototype.addCanvas = function(canvas){
         if(!_.isNil(canvas)){
-            this.canvasList.add(canvas);
+            this.canvasList.push(canvas);
         }
         else{
             log.error("Unable to add empty canvas" + canvas);
@@ -35,6 +35,7 @@ define(['lodash','log','./service-definition-view'], function(_,log,ServiceDefVi
     };
     ballerinaFileEditor.prototype.init = function(astRoot,options){
           var errMsg;
+        var editorParent = this;
         if (!_.has(options, 'container')) {
             errMsg = 'unable to find configuration for container';
             log.error(errMsg);
@@ -55,9 +56,10 @@ define(['lodash','log','./service-definition-view'], function(_,log,ServiceDefVi
                 _.each(serviceDefs, function (serviceModel) {
 
                     //TODO: Add serviceModel id and css props
-                    var serviceContainer = $('<div></div>');
-                    var serviceView = new ServiceDefView(serviceModel,serviceContainer);
-                    this.addCanvas(serviceView);
+                    var serviceContainer = $('<div>Service View container</div>');
+                    // var ServiceDefView =  require('app/ballerina/views/service-definition-view');
+                   // var serviceView = new ServiceDefView(serviceModel,serviceContainer);
+                   editorParent.addCanvas(serviceContainer);
                 });
             }
                 if(_.has(astRoot, 'functionDefinitions')){
@@ -89,6 +91,7 @@ define(['lodash','log','./service-definition-view'], function(_,log,ServiceDefVi
            _.each(this.canvasList, function(canvas){
                //draw a collapse accordion
                var outerDiv = $('<div></div>');
+               outerDiv.addClass('mainAccordian');
                outerDiv.addClass('panel panel-default');
                var panelHeading = $('<div></div>');
                panelHeading.addClass('panel-heading');
@@ -118,6 +121,7 @@ define(['lodash','log','./service-definition-view'], function(_,log,ServiceDefVi
            });
        }
     };
+    return ballerinaFileEditor;
 
 });
 
