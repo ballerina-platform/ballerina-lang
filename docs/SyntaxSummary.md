@@ -251,7 +251,7 @@ on a heap using `new`.
 A VariableDeclaration has the following structure:
 
 ```
-TypeName VariableName [= Value];
+TypeName VariableName;
 ```
 
 A TypeName may be one of the following built-in primitive types:
@@ -398,6 +398,8 @@ A Statement may be one of the following:
 - return statement
 - reply statement
 - worker initiation statement
+- worker join statement
+- action invocation statement
 - comment statement
 
 #### Assignment Statement
@@ -472,6 +474,8 @@ fork (MessageName) {
   Statement;*
 }]
 ```
+Note that if the `join` clause is missing then its equivalent to waiting for all to complete and ignorning the results.
+
 The JoinCondition is one of the following:
 - any IntegerValue[(, WorkerName)+]): wait for any k (IntegerValue) of the given workers or any of the workers
 - all [WorkerNameList]: wait for all given workers or all of the workers
