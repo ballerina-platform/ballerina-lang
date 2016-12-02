@@ -15,25 +15,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'ast-visitor'], function(_, log, ASTVisitor) {
+define(['lodash', './node'], function(_, ASTNode){
 
-    var DiagramRenderingVisitor = function() {
-
+    var ConnectionDeclaration = function(options) {
+        this._connectionOptions = options || {};
     };
 
-    DiagramRenderingVisitor.prototype = Object.create(ASTVisitor.prototype);
-    DiagramRenderingVisitor.prototype.constructor = DiagramRenderingVisitor;
+    ConnectionDeclaration.prototype = Object.create(ASTNode.prototype);
+    ConnectionDeclaration.prototype.constructor = ConnectionDeclaration;
 
-    DiagramRenderingVisitor.prototype.visitReplyStatement = function () {
-        //modelView.render();
-        return false;
+    ConnectionDeclaration.prototype.getOptions = function () {
+        return this._connectionOptions;
     };
 
-    DiagramRenderingVisitor.prototype.visitConnectionDeclaration = function () {
-        return false;
-    };
-
-    DiagramRenderingVisitor.prototype.visitWorkerDeclaration = function () {
-        return false;
+    ConnectionDeclaration.prototype.accept = function (visitor) {
+        visitor.visitConnectionDeclaration();
     }
 });
