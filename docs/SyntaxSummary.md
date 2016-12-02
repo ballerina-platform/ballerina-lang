@@ -34,7 +34,7 @@ Every Ballerina program has both a textual representation and a canonical visual
 ![High Level Concepts](images/HighLevelConcepts2.png)
 
 
-### Modularity
+### Modularity & Versioning
 
 Ballerina programs can be written in one or more files organized into packages. A package is represented by a directory.
 
@@ -45,13 +45,18 @@ Every symbol has a qualified name consisting of its package name and its own top
 ```
 PackageName:SymbolName
 ```
+Ballerina brings in versioning to the language. The details of this are still under development and will combine the versioning concepts from Maven, OSGi and Java to a model that is native to the language.
+
+Every top level symbol has a version string associated with it (with a default value of "1.0.0"). Packages may define their version number in the Major.Minor.Patch format. Package import statements may indicate the version that they are importing in the Major.Minor format - i.e. patch version levels are not relevant to package importers.
+
+In the initial release of Ballerina the details of versioning are still under development. As such, any version string other than "1.0" for an import version will be rejected by the compiler. Note that there is currently no provision for declaring the version of a package.
 
 ## Structure of a Ballerina Program
 
 A Ballerina file is structured as follows:
 ```
 [package PackageName;]
-[import PackageName[ as Identifier];]*
+[import PackageName [version ImportVersionNumber] [as Identifier];]*
 
 (ServiceDefinition |
  FunctionDefinition |
@@ -60,10 +65,11 @@ A Ballerina file is structured as follows:
  TypeConvertorDefinition |
  ConstantDefinition)+
 ```
+
 Following is an example Ballerina program that shows the form of each construct.
 ```
 package org.example.weather;
-import balarina.math;
+import ballerina.math;
 
 service WeatherService{
     WeatherConnector wc = new WeatherConnector( ... );
