@@ -17,12 +17,12 @@ This is an informal introduction to the Ballerina language.
 
 ## Introduction
 
-Every Ballerina program has both a textual representation and a visual representation of a sequence diagram.
+Every Ballerina program has both a textual representation and a visual representation; the visual representation is based on  sequence diagrams.
 
 ### Concepts
 
-- *Service*: A `service` is an HTTP web service described by a Swagger. A service is the discrete unit of functionality that can be remotely accessed.
-- *Resource*: A `resource` is a single request handler within a service. The resource concept is designed to be access protocol independent - but in the initial release of the language it is intended to work with HTTP.
+- *Service*: A `service` is an HTTP web service described by a Swagger file, i.e. it corresponds to an API. It is a unit of functionality that can be remotely accessed. 
+- *Resource*: A `resource` is a single operation within a service. The resource concept is designed to be access protocol independent - but in the initial release of the language only HTTP(S) is supported.<
 - *Connector*: A `connector` represents a participant in the integration and is used to interact with an external system. Ballerina includes a set of standard connectors.
 - *Connection*: A connection represents the instantiation of a `connector` with a particular configuration.
 - *Action*: An `action` is an operation one can execute against a connection - i.e. a single interaction with a participant of the integration.
@@ -33,10 +33,9 @@ Every Ballerina program has both a textual representation and a visual represent
 
 
 ### Modularity
-
 Ballerina programs can be written in one or more files organized into packages. A package is represented by a directory in a file system.
 
-A package defines a namespace. All symbols (e.g. service names, type names and function names) defined in any file in the same package belong to that namespace. Only top level constructs marked public are visible outside a package.
+A package defines a namespace. All symbols (e.g. service names, type names and function names) defined in any file in the same package belong to that namespace. Only top level constructs marked `public` are visible outside a package.
 
 Every symbol has a qualified name consisting of its package name and its own top level name. When written down in a program, qualified names are written as follows:
 
