@@ -36,10 +36,8 @@ define(['lodash', 'log'], function (_, log) {
     };
 
     ReplyStatement.prototype.accept = function (visitor) {
-        visitor.visit(this);
+        visitor.visitChildren(this);
     };
 
-
-
-
+    return ReplyStatement;
 });
