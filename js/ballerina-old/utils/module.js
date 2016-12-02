@@ -21,7 +21,7 @@ define(['require' ],
         var utils = {};
         // loading on demand so the utils module will not create cyclic deps and crash app load
         utils.getProcessorFactory = function(){
-            return  require('app/ballerina/utils/processor-factory');
+            return  require('app/ballerina-old/utils/processor-factory');
         };
 
         utils.createPoint = function (x, y) {
@@ -32,7 +32,7 @@ define(['require' ],
 
         utils.createLifeLine = function (title, center, cssClass, utils, parameters, textModel, type, definition) {
             // loading on demand so the utils module will not create cyclic deps and crash app load
-            var LifeLine = require('app/ballerina/models/life-line');
+            var LifeLine = require('app/ballerina-old/models/life-line');
             return new LifeLine({
                 title: title,
                 centerPoint: center,
