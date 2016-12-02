@@ -21,13 +21,18 @@ define(['lodash', 'log', './canvas', 'app/ballerina/ast/service-definition'],
         /**
          * The view for the service definition model.
          * @param model Service definition model.
+         * @param container The SVG ele element.
+         * @param viewOptions Options to configure the view.
          * @constructor
          */
-        var ServiceDefinitionView = function (model) {
-            if (model instanceof ServiceDefinition) {
+        var ServiceDefinitionView = function (model, container, viewOptions) {
+            if (!_.isNul(model) && model instanceof ServiceDefinition && !_.isNil(container)) {
                 this._model = model;
+                this._container = container;
+                this._options = viewOptions;
             } else {
-                log.error("Unknown definition received for service definition.");
+                log.error("Invalid args received for creating a service definition. Model: " + model + ". Container: " +
+                    container);
             }
         };
 
@@ -35,15 +40,27 @@ define(['lodash', 'log', './canvas', 'app/ballerina/ast/service-definition'],
         ServiceDefinitionView.prototype.constructor = ServiceDefinitionView;
 
         ServiceDefinitionView.prototype.setModel = function (model) {
-            if (!_.isNil(model)) {
+            if (!_.isNil(model) && model instanceof ServiceDefinition) {
                 this._model = model;
             } else {
-                log.error("Unknown definition received for service definition.");
+                log.error("Unknown definition received for service definition. Model: " + model);
             }
         };
 
         ServiceDefinitionView.prototype.getModel = function () {
             return this._model;
+        };
+
+        ServiceDefinitionView.prototype.setContainer = function (container) {
+            if (!_.isNil(container)) {
+                this._container = container;
+            } else {
+                log.error("SVG container for the service is null or empty.");
+            }
+        };
+
+        ServiceDefinitionView.prototype.getContainer = function () {
+            return this._container;
         };
 
         ServiceDefinitionView.prototype.visitResourceDef = function () {
