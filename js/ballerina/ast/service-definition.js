@@ -22,6 +22,8 @@ define(['lodash', './node'], function (_, ASTNode) {
         this._resourceDefinitions = [];
         this._variableDeclarations = [];
         this._connectionDeclarations = [];
+
+        ASTNode.call(this);
     };
 
     ServiceDefinition.prototype = Object.create(ASTNode.prototype);
@@ -70,5 +72,7 @@ define(['lodash', './node'], function (_, ASTNode) {
     ServiceDefinition.prototype.accept = function (visitor) {
         visitor.visitServiceDefinition(this);
     };
+
+    return ServiceDefinition;
 
 });

@@ -15,14 +15,3 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log'], function(_, log) {
-
-    var ASTVisitor = function() {
-
-    };
-
-    ASTVisitor.prototype.constructor = ASTVisitor;
-
-    return ASTVisitor;
-
-});

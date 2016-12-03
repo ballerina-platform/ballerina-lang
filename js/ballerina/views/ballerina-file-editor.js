@@ -15,26 +15,36 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'lodash','log'], function(require, _,log){
+define(['require', 'lodash', 'log'], function (require, _, log) {
 
-    var ballerinaFileEditor = function(canvasList,astRoot){
-      this.canvasList = canvasList || [];
+    var ballerinaFileEditor = function (canvasList, astRoot) {
+        this.canvasList = canvasList || [];
         this._astRoot = astRoot;
+        this.id = "Ballerina File Editor";
 
     }
 
-    ballerinaFileEditor.prototype.addCanvas = function(canvas){
-        if(!_.isNil(canvas)){
+    ballerinaFileEditor.prototype.getId = function () {
+        return this.id;
+    };
+
+    ballerinaFileEditor.prototype.setId = function (id) {
+        this.id = id;
+    }
+
+    ballerinaFileEditor.prototype.addCanvas = function (canvas) {
+        if (!_.isNil(canvas)) {
             this.canvasList.push(canvas);
         }
-        else{
+        else {
             log.error("Unable to add empty canvas" + canvas);
         }
 
 
     };
-    ballerinaFileEditor.prototype.init = function(astRoot,options){
-          var errMsg;
+    ballerinaFileEditor.prototype.init = function (astRoot, options) {
+        this._astRoot = astRoot;
+        var errMsg;
         var editorParent = this;
         if (!_.has(options, 'container')) {
             errMsg = 'unable to find configuration for container';
@@ -48,80 +58,80 @@ define(['require', 'lodash','log'], function(require, _,log){
             log.error(errMsg);
             throw errMsg;
         }
-        if(!_.isNil(astRoot)){
+        if (!_.isNil(astRoot)) {
 
-            if(_.has(astRoot, 'serviceDefinitions')) {
+            if (_.has(astRoot, 'serviceDefinitions')) {
 
-                var serviceDefs = $(_.get(astRoot,'serviceDefinitions'));
+                var serviceDefs = $(_.get(astRoot, 'serviceDefinitions'));
                 _.each(serviceDefs, function (serviceModel) {
 
                     //TODO: Add serviceModel id and css props
                     var serviceContainer = $('<div>Service View container</div>');
-                    serviceContainer.attr('id',serviceModel.id);
+                    serviceContainer.attr('id', serviceModel.id);
                     // var ServiceDefView =  require('app/ballerina/views/service-definition-view');
-                   // var serviceView = new ServiceDefView(serviceModel,serviceContainer);
-                   editorParent.addCanvas(serviceContainer);
+                    // var serviceView = new ServiceDefView(serviceModel,serviceContainer);
+                    editorParent.addCanvas(serviceContainer);
                 });
             }
-                if(_.has(astRoot, 'functionDefinitions')){
-                    _.each(astRoot.functionDefinitions, function(functionModel){
-                        var functionContainer = $('<div></div>');
-                        var functionView = new FunctionDefinitionView(functionModel,functionContainer);
-                        this.addCanvas(functionView);
-                    });
+            if (_.has(astRoot, 'functionDefinitions')) {
+                _.each(astRoot.functionDefinitions, function (functionModel) {
+                    var functionContainer = $('<div></div>');
+                    var functionView = new FunctionDefinitionView(functionModel, functionContainer);
+                    this.addCanvas(functionView);
+                });
             }
-                if(_.has(astRoot, 'connectorDefinitions')){
-                    _.each(astRoot.connectorDefinitions, function(connectorModel){
-                        var connectorContainer = $('<div></div>');
-                        var connectorView = new ConnectorDefinitionView(connectorModel,connectorContainer);
-                        this.addCanvas(connectorView);
-                    });
-                }
-                //TODO: rest of definitions when implemented
+            if (_.has(astRoot, 'connectorDefinitions')) {
+                _.each(astRoot.connectorDefinitions, function (connectorModel) {
+                    var connectorContainer = $('<div></div>');
+                    var connectorView = new ConnectorDefinitionView(connectorModel, connectorContainer);
+                    this.addCanvas(connectorView);
+                });
+            }
+            //TODO: rest of definitions when implemented
         }
-        else{
-           log.error("Provided astRoot is undefined"+ astRoot);
+        else {
+            log.error("Provided astRoot is undefined" + astRoot);
         }
 
         this.render(container);
 
     };
 
-    ballerinaFileEditor.prototype.render = function(parent){
-       if(!_.isNil(this.canvasList)){
-           _.each(this.canvasList, function(canvas){
-               //draw a collapse accordion
-               var outerDiv = $('<div></div>');
-              // outerDiv.addClass('mainAccordian');
-               outerDiv.addClass('panel panel-default');
-               var panelHeading = $('<div></div>');
-               panelHeading.addClass('panel-heading');
-               //TODO: UPDATE ID
-               panelHeading.attr('id',canvas[0].id +3).attr('role','tab');
-               var panelTitle = $('<h4></h4>');
-               panelTitle.addClass('panel-title');
-               var titleLink =  $('<a>' +canvas[0].id+ '</a>');
-               titleLink.addClass("collapsed");
-               //TODO: update href,aria-controls
-               titleLink.attr('role','button').attr('data-toggle','collapse').attr('data-parent',"#accordion").attr('href','#'+ canvas[0].id).attr('aria-expanded','false').attr('aria-controls',canvas[0].id);
-              panelTitle.append(titleLink);
-               panelHeading.append(panelTitle);
+    ballerinaFileEditor.prototype.render = function (parent) {
+        if (!_.isNil(this.canvasList)) {
+            _.each(this.canvasList, function (canvas) {
+                //draw a collapse accordion
+                var outerDiv = $('<div></div>');
+                // outerDiv.addClass('mainAccordian');
+                outerDiv.addClass('panel panel-default');
+                var panelHeading = $('<div></div>');
+                panelHeading.addClass('panel-heading');
+                //TODO: UPDATE ID
+                panelHeading.attr('id', canvas[0].id + 3).attr('role', 'tab');
+                var panelTitle = $('<h4></h4>');
+                panelTitle.addClass('panel-title');
+                var titleLink = $('<a>' + canvas[0].id + '</a>');
+                titleLink.addClass("collapsed");
+                //TODO: update href,aria-controls
+                titleLink.attr('role', 'button').attr('data-toggle', 'collapse').attr('data-parent', "#accordion").attr('href', '#' + canvas[0].id).attr('aria-expanded', 'false').attr('aria-controls', canvas[0].id);
+                panelTitle.append(titleLink);
+                panelHeading.append(panelTitle);
 
-               var bodyDiv = $('<div></div>');
-               bodyDiv.addClass('panel-collapse collapse');
-               //TODO: UPDATE ID
-               bodyDiv.attr('id',canvas[0].id).attr('aria-labelledby',canvas[0].id +3).attr('role','tabpanel');
-               canvas.addClass('panel-body');
-               bodyDiv.append(canvas);
+                var bodyDiv = $('<div></div>');
+                bodyDiv.addClass('panel-collapse collapse');
+                //TODO: UPDATE ID
+                bodyDiv.attr('id', canvas[0].id).attr('aria-labelledby', canvas[0].id + 3).attr('role', 'tabpanel');
+                canvas.addClass('panel-body');
+                bodyDiv.append(canvas);
 
-               outerDiv.append(panelHeading);
-               outerDiv.append(bodyDiv);
+                outerDiv.append(panelHeading);
+                outerDiv.append(bodyDiv);
 
 
-               // append to parent
-               parent.append(outerDiv);
-           });
-       }
+                // append to parent
+                parent.append(outerDiv);
+            });
+        }
     };
     return ballerinaFileEditor;
 

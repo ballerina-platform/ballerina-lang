@@ -15,14 +15,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'ast-visitor'], function(_, log, ASTVisitor) {
+define(['lodash', 'log', 'ast_visitor', 'file_editor'], function(_, log, ASTVisitor, FileEditor) {
 
-    var DiagramRenderingVisitor = function() {
-
+    var DiagramRenderingVisitor = function(containerView) {
+        this.containerView = containerView;
+        this.viewMap = new Map();
     };
 
     DiagramRenderingVisitor.prototype = Object.create(ASTVisitor.prototype);
     DiagramRenderingVisitor.prototype.constructor = DiagramRenderingVisitor;
+
+    DiagramRenderingVisitor.prototype.visitBallerinaASTRoot = function (astNode) {
+        log.info("Visiting BallerinaASTRoot");
+        var fileEditor = new FileEditor(null, astNode);
+        fileEditor.init(astNode, this.containerView);
+        this.viewMap.set(astNode, fileEditor);
+        return true;
+    }
 
     DiagramRenderingVisitor.prototype.visitReplyStatement = function () {
         //modelView.render();
@@ -42,13 +51,19 @@ define(['lodash', 'log', 'ast-visitor'], function(_, log, ASTVisitor) {
         return false;
     };
 
-    DiagramRenderingVisitor.prototype.visitServiceDefinition = function () {
+    DiagramRenderingVisitor.prototype.visitServiceDefinition = function (astNode) {
         //modelView.render();
-        return false;
+        log.info("Visiting ServiceDefinition");
+        var parent = astNode.getParent();
+        var parentView  = this.viewMap.get(parent);
+        //TODO create new service definition view and call render
+        return true;
     };
 
     DiagramRenderingVisitor.prototype.visitResourceDefinition = function () {
         //modelView.render();
         return false;
     };
+
+    return DiagramRenderingVisitor;
 });

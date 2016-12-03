@@ -17,9 +17,9 @@
  */
 define(['require', 'log', 'jquery', 'lodash', 'backbone', 'app/menu-bar/menu-bar', 'breadcrumbs', 'file_browser', 'tab/service-tab-list', 'app/tool-palette/tool-palette',
 
-    'welcome','command','workspace', 'file_editor',/* void modules */ 'jquery_ui', 'bootstrap'],
+    'welcome','command','workspace', 'file_editor', 'ast/ballerina-ast-factory', 'diagram_rendering_visitor',/* void modules */ 'jquery_ui', 'bootstrap'],
 
-    function (require, log, $, _, Backbone, MenuBar, BreadcrumbController, FileBrowser, TabController, ToolPalette, WelcomeScreen, CommandManager, Workspace,FileEditor) {
+    function (require, log, $, _, Backbone, MenuBar, BreadcrumbController, FileBrowser, TabController, ToolPalette, WelcomeScreen, CommandManager, Workspace,FileEditor, BallerinaASTFactory, DiagramRenderingVisitor) {
 
     var Application = Backbone.View.extend(
     /** @lends Application.prototype */
@@ -85,15 +85,21 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'app/menu-bar/menu-bar
             _.set(regWelcomeScreenOpts, 'application', this);
             this.regularWelcomeScreen = new WelcomeScreen.Views.RegularView(regWelcomeScreenOpts);
 
-            var astRoot = {};
-            var serviceDefs = [];
-            var service1 = {id:"service1"};
-            var service2 = {id:"service2"};
-            serviceDefs.push(service1);
-            serviceDefs.push(service2);
-            astRoot.serviceDefinitions = serviceDefs;
-            this.fileEditor = new FileEditor(null,astRoot);
-            this.fileEditor.init(astRoot,tabControlOpts.tabs);
+
+            var ballerinaASTFactory = new BallerinaASTFactory();
+            var ballerinaAstRoot = ballerinaASTFactory.createBallerinaAstRoot();
+            var serviceDefinitions = [];
+            var serviceDefinition1 = ballerinaASTFactory.createServiceDefinition();
+            serviceDefinition1.setBasePath("/basePath1");
+            var serviceDefinition2 = ballerinaASTFactory.createServiceDefinition();
+            serviceDefinition2.setBasePath("/basePath2");
+            serviceDefinitions.push(serviceDefinition1);
+            serviceDefinitions.push(serviceDefinition2);
+            ballerinaAstRoot.setServiceDefinitions(serviceDefinitions);
+
+            var diagramRenderingVisitor = new DiagramRenderingVisitor(tabControlOpts.tabs);
+            ballerinaAstRoot.accept(diagramRenderingVisitor);
+
         },
 
         validateConfig: function(config){

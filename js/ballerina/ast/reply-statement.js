@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log'], function (_, log) {
+define(['lodash', 'log', './node'], function (_, log, ASTNode) {
 
     var ReplyStatement = function (message) {
         this._message = message;
