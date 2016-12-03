@@ -36,7 +36,7 @@ Every Ballerina program has both a textual representation and a canonical visual
 
 Ballerina programs can be written in one or more files organized into packages. A package is represented by a directory.
 
-A package defines a namespace. All symbols (e.g. service names, type names and function names) defined in any file in the same package belong to that namespace. Only top level constructs marked public are visible outside a package.
+A package defines a namespace. All symbols (e.g. service names, type names and function names) defined in any file in the same package belong to that namespace. Only top level constructs marked `public` are visible outside a package.
 
 Every symbol has a qualified name consisting of its package name and its own top level name. When written down in a program, qualified names are written as follows:
 
@@ -75,7 +75,7 @@ service WeatherService{
         xml payload  = message:getXmlPayload(message)
         float lat = xml:get(payload, "/lat");
         float lon = xml:get(payload, "/lon");
-        float temperature = wc.getTemprature(new location(lat, lon));
+        float temperature = wc.getTemperature(new location(lat, lon));
         return `{"temperature":$temperature}`;
     }
  }
