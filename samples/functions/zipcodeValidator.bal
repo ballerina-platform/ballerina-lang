@@ -8,4 +8,8 @@ public function validateZipCode (string country, string zipCode) (boolean) {
 
 
     return true;
+    
+    // and otherwise
+    
+    return false;
 }
