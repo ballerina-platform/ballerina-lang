@@ -31,7 +31,7 @@ Every Ballerina program has both a textual representation and a canonical visual
 - *Worker*: A `worker` is a thread of execution that the integration developer programs as a lifeline.
 - *Function*: A `function` is an operation that is executed by a worker.
 
-![High Level Concepts](images/HighLevelConcepts2.png)
+![High Level Concepts](images/Figure1-1.png)
 
 
 ### Modularity & Versioning
