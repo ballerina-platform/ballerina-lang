@@ -24,8 +24,6 @@ Every Ballerina program has both a textual representation and a canonical visual
 
 - *Service*: A `service` is an HTTP web service described by a Swagger. A service is the discrete unit of functionality that can be remotely accessed.
 - *Resource*: A `resource` is a single request handler within a service. The resource concept is designed to be access protocol independent - but in the initial release of the language it is intended to work with HTTP.
-- *Worker*: A `worker` is a thread of execution that the integration developer programs as a lifeline. A resource has a built-in worker that excutes the work of the resource.
-- *Function*: A `function` is an operation that is executed by a worker.
 - *Connector*: A `connector` represents a participant in the integration and is used to interact with an external system. Ballerina includes a set of standard connectors and anyone can program additional connectors in Ballerina itself.
 - *Action*: An `action` is an operation one can execute against a connector - i.e. a single interaction with a participant of the integration.
 - *Worker*: A `worker` is a thread of execution that the integration developer programs as a lifeline.
