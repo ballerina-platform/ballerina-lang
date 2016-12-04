@@ -102,8 +102,9 @@ define(['require', 'lodash', 'log'], function (require, _, log) {
             _.each(this.canvasList, function (canvas) {
                 //draw a collapse accordion
                 var outerDiv = $('<div></div>');
+                // TODO: For the moment disabling the adding classes in order to show the containers
                 // outerDiv.addClass('mainAccordian');
-                outerDiv.addClass('panel panel-default');
+                // outerDiv.addClass('panel panel-default');
                 var panelHeading = $('<div></div>');
                 panelHeading.addClass('panel-heading');
                 //TODO: UPDATE ID
@@ -118,7 +119,8 @@ define(['require', 'lodash', 'log'], function (require, _, log) {
                 panelHeading.append(panelTitle);
 
                 var bodyDiv = $('<div></div>');
-                bodyDiv.addClass('panel-collapse collapse');
+                // TODO: For the moment disabling the adding classes in order to show the containers
+                // bodyDiv.addClass('panel-collapse collapse');
                 //TODO: UPDATE ID
                 bodyDiv.attr('id', canvas[0].id).attr('aria-labelledby', canvas[0].id + 3).attr('role', 'tabpanel');
                 canvas.addClass('panel-body');

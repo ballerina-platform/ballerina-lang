@@ -62,6 +62,7 @@ define(['lodash', 'log', 'ast_visitor', 'file_editor'], function(_, log, ASTVisi
 
     DiagramRenderingVisitor.prototype.visitResourceDefinition = function () {
         //modelView.render();
+        window.console.log("VISIT RESOURCE DEFINITION");
         return false;
     };
 

@@ -93,6 +93,11 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'app/menu-bar/menu-bar
             serviceDefinition1.setBasePath("/basePath1");
             var serviceDefinition2 = ballerinaASTFactory.createServiceDefinition();
             serviceDefinition2.setBasePath("/basePath2");
+
+            // Create Sample Resource Definitions
+            var resourceDefinition1 = ballerinaASTFactory.createResourceDefinition();
+            serviceDefinition1.setResourceDefinitions([resourceDefinition1]);
+
             serviceDefinitions.push(serviceDefinition1);
             serviceDefinitions.push(serviceDefinition2);
             ballerinaAstRoot.setServiceDefinitions(serviceDefinitions);
