@@ -22,8 +22,8 @@
 define(['./ballerina-ast-root', './service-definition', './function-definition', './connector-definition', './resource-definition',
         './worker-declaration', './statement', './conditional-statement', './connection-declaration', './expression',
         './if-statement', './package', './reply-statement', './return-statement', './type-converter-definition', './type-definition',
-        './type-element', './variable-declaration'],
-    function (ballerinaAstRoot, serviceDefinition, functionDefinition, connectorDefinition,
+        './type-element', './variable-declaration', './resource-definition'],
+    function (ballerinaAstRoot, serviceDefinition, functionDefinition, connectorDefinition, resourceDefinition,
               workerDeclaration, statement, conditionalStatement, connectionDeclaration, expression,
               ifStatement, package, replyStatement, returnStatement, typeConverterDefinition, typeDefinition,
               typeElement, variableDeclaration) {
@@ -60,7 +60,7 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
          */
         var createFunctionDefinition = function (args) {
             return new functionDefinition(args);
-        }
+        };
 
         /**
          * creates ConnectorDefinition
@@ -68,7 +68,7 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
          */
         var createConnectorDefinition = function (args) {
             return new connectorDefinition(args);
-        }
+        };
 
         /**
          * creates WorkerDeclaration
@@ -76,7 +76,7 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
          */
         var createWorkerDeclaration = function (args) {
             return new workerDeclaration(args);
-        }
+        };
 
         /**
          * creates Statement
@@ -84,7 +84,7 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
          */
         var createStatement = function (args) {
             return new statement(args);
-        }
+        };
 
         /**
          * creates TypeConverterDefinition
@@ -92,7 +92,7 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
          */
         var createTypeConverterDefinition = function (args) {
             return new typeConverterDefinition(args);
-        }
+        };
 
         /**
          * creates TypeDefinition
@@ -100,7 +100,7 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
          */
         var createTypeDefinition = function (args) {
             return new typeDefinition(args);
-        }
+        };
 
         /**
          * creates TypeElement
@@ -108,7 +108,7 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
          */
         var createTypeElement = function (args) {
             return new typeElement(args);
-        }
+        };
 
         /**
          * create VariableDeclaration
@@ -116,14 +116,14 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
          */
         var createVariableDeclaration = function (args) {
             return new variableDeclaration(args);
-        }
+        };
         /**
          * create ConditionalStatement
          * @param args
          */
         var createConditionalStatement = function (args) {
             return new conditionalStatement(args);
-        }
+        };
 
         /**
          * create ConnectionDeclaration
@@ -131,7 +131,7 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
          */
         var createConnectionDeclaration = function (args) {
             return new connectionDeclaration(args);
-        }
+        };
 
         /**
          * creates Expression
@@ -139,7 +139,7 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
          */
         var createExpression = function (args) {
             return new expression(args);
-        }
+        };
 
         /**
          * creates IfStatement
@@ -147,7 +147,7 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
          */
         var createIfStatement = function (args) {
             return new ifStatement(args);
-        }
+        };
 
         /**
          * creates Package
@@ -155,7 +155,7 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
          */
         var createPackage = function (args) {
             return new package(args);
-        }
+        };
 
         /**
          * creates ReplyStatement
@@ -163,7 +163,7 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
          */
         var createReplyStatement = function (args) {
             return new replyStatement(args);
-        }
+        };
 
         /**
          * creates ReturnStatement
@@ -171,7 +171,15 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
          */
         var createReturnStatement = function (args) {
             return new returnStatement(args);
-        }
+        };
+
+        /**
+         * creates ResourceDefinition
+         * @param args
+         */
+        BallerinaASTFactory.prototype.createResourceDefinition = function (args) {
+            return new resourceDefinition(args);
+        };
 
         return BallerinaASTFactory;
 
