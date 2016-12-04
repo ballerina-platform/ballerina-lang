@@ -15,13 +15,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './node'], function (_, log, ASTNode) {
+define(['lodash', 'log', './statement'], function (_, log, Statement) {
 
     var ReturnStatement = function (expression) {
         this._expression = expression || [];
     };
 
-    ReturnStatement.prototype = Object.create(ASTNode.prototype);
+    ReturnStatement.prototype = Object.create(Statement.prototype);
     ReturnStatement.prototype.constructor = ReturnStatement;
 
     ReturnStatement.prototype.setReturnExpression = function (expression) {

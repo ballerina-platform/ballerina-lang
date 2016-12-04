@@ -15,13 +15,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './node'], function (_, log, ASTNode) {
+define(['lodash', 'log', './statement'], function (_, log, Statement) {
 
     var ReplyStatement = function (message) {
         this._message = message;
     };
 
-    ReplyStatement.prototype = Object.create(ASTNode.prototype);
+    ReplyStatement.prototype = Object.create(Statement.prototype);
     ReplyStatement.prototype.constructor = ReplyStatement;
 
     ReplyStatement.prototype.setReplyMessage = function (message) {
