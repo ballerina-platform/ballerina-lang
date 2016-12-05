@@ -102,6 +102,7 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'app/menu-bar/menu-bar
 
             // Create Sample Resource Definitions
             var resourceDefinition1 = ballerinaASTFactory.createResourceDefinition();
+            resourceDefinition1.parent(serviceDefinition1);
             serviceDefinition1.setResourceDefinitions([resourceDefinition1]);
 
             serviceDefinitions.push(serviceDefinition1);

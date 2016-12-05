@@ -15,13 +15,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['log', 'lodash', 'event_channel', './service-definition', './function-definition', './connector-definition',
-        './type-definition', './type-converter-definition', './constant-definition'],
+define(['log', 'lodash', 'event_channel', './../ast/service-definition', './../ast/function-definition', './../ast/connector-definition',
+        './../ast/type-definition', './../ast/type-converter-definition', './../ast/constant-definition'],
 
     function(log, _, EventChannel, ServiceDefinition, FunctionDefinition, ConnectorDefinition, TypeDefinition,
                 TypeConverterDefinition, ConstantDefinition){
 
+    /**
+     * @class Package
+     * @augments EventChannel
+     * @param args {Object} - args.name: name of the package
+     * @constructor
+     */
     var Package = function(args){
+        this.setName(_.get(args, 'name', null));
         this.addServiceDefinitions(_.get(args, 'serviceDefinitions', []));
         this.addFunctionDefinitions(_.get(args, 'functionDefinitions', []));
         this.addConnectorDefinitions(_.get(args, 'connectorDefinitions', []));
@@ -32,6 +39,18 @@ define(['log', 'lodash', 'event_channel', './service-definition', './function-de
 
     Package.prototype = Object.create(EventChannel.prototype);
     Package.prototype.constructor = Package;
+
+    Package.prototype.setName = function(name){
+        if(!_.isNil(name) && _.isString(name)){
+            this._name = name;
+        } else {
+            log.error("Invalid value for package name: ", name);
+        }
+    };
+
+    Package.prototype.getName = function(){
+        return this._name;
+    };
 
     /**
      * Add constant defs
