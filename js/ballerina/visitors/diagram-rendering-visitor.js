@@ -81,5 +81,13 @@ define(['lodash', 'log', 'ast_visitor', 'file_editor'], function(_, log, ASTVisi
         return false;
     };
 
+    DiagramRenderingVisitor.prototype.visitFunctionDefinition = function() {
+         return false;
+    }
+
+    DiagramRenderingVisitor.prototype.visitActionDefinition = function() {
+        return false;
+    }
+
     return DiagramRenderingVisitor;
 });

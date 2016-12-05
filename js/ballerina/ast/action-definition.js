@@ -17,28 +17,28 @@
  */
 define(['lodash', './callable-definition'], function (_, CallableDefinition) {
 
-    var FunctionDefinition = function (connectionDeclarations, variableDeclarations, workerDeclarations, statements,args) {
+    var ActionDefinition = function (connectionDeclarations, variableDeclarations, workerDeclarations, statements,args) {
         CallableDefinition.call(this, connectionDeclarations, variableDeclarations, workerDeclarations, statements)
         this.args = args || [];
     };
 
-    FunctionDefinition.prototype = Object.create(CallableDefinition.prototype);
-    FunctionDefinition.prototype.constructor = FunctionDefinition;
+    ActionDefinition.prototype = Object.create(CallableDefinition.prototype);
+    ActionDefinition.prototype.constructor = ActionDefinition;
 
-    FunctionDefinition.prototype.setArgs = function(args){
+    ActionDefinition.prototype.setArgs = function(args){
         if(!_.isNil(args)){
             this.args = args;
         }
     };
 
-    FunctionDefinition.prototype.getArgs = function () {
+    ActionDefinition.prototype.getArgs = function () {
         return this.args;
     };
 
-    FunctionDefinition.prototype.accept = function(visitor) {
-        visitor.visitFunctionDefinition();
+    ActionDefinition.prototype.accept = function(visitor) {
+        visitor.visitActionDefinition();
     };
 
-    return FunctionDefinition;
+    return ActionDefinition;
 
 });

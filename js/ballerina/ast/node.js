@@ -23,7 +23,6 @@ define(['event_channel'], function(EventChannel){
         this.children = [];
         this.startIndex = startIndex;
         this.length = length;
-        this.parent = parent;
         this.type = type;
     };
 
@@ -40,10 +39,6 @@ define(['event_channel'], function(EventChannel){
 
     ASTNode.prototype.getChildren = function () {
         return this.children;
-    };
-
-    ASTNode.prototype.getParent = function () {
-        return this.parent;
     };
 
     ASTNode.prototype.getType = function () {
