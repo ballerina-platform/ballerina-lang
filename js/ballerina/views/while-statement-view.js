@@ -74,4 +74,5 @@ define(['lodash', 'log', 'event_channel', 'app/ballerina/ast/while-statement', '
         //Draw while statement
     };
 
+    return WhileStatementView;
 });
