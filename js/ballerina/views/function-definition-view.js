@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', 'app/ballerina/ast/function-definition', 'd3utils'],
-    function (_, log, EventChannel, FunctionDefinition, D3Utils) {
+define(['lodash', 'log', 'event_channel',  './canvas', 'ast/function-definition'],
+    function (_, log, EventChannel, Canvas, FunctionDefinition) {
 
         /**
          * View for the function definition model.
