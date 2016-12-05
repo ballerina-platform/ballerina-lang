@@ -15,24 +15,35 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './node'], function(_, ASTNode){
+define(['lodash', 'log', './statement'], function (_, log, Statement) {
 
-    var Expression = function(expression) {
+    /**
+     * Class for throw statement in ballerina.
+     * @param expression one expression for a throw statement.
+     * @constructor
+     */
+    var ThrowStatement = function (expression) {
         this._expression = expression;
     };
 
-    Expression.prototype = Object.create(ASTNode.prototype);
-    Expression.prototype.constructor = Expression;
+    ThrowStatement.prototype = Object.create(Statement.prototype);
+    ThrowStatement.prototype.constructor = ThrowStatement;
 
-    Expression.prototype.setExpression = function (expression) {
-        if(!_.isUndefined(expression)){
+    ThrowStatement.prototype.setThrowExpression = function (expression) {
+        if (!_.isNil(expression)) {
             this._expression = expression;
+        } else {
+            log.error("Cannot set undefined to the throw statement.");
         }
     };
 
-    Expression.prototype.getExpression = function () {
+    ThrowStatement.prototype.getThrowExpression = function () {
         return this._expression;
     };
 
-    return Expression;
+    ThrowStatement.prototype.accept = function (visitor) {
+        visitor.visitThrowStatement(this);
+    };
+
+    return ThrowStatement;
 });

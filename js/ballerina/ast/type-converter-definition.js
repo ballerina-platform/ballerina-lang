@@ -56,4 +56,5 @@ define(['lodash', './node'], function (_, ASTNode) {
         return this.returnType;
     };
 
+    return TypeConverterDefinition;
 });
