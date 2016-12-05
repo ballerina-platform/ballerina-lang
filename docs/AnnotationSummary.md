@@ -10,7 +10,6 @@ Ballerina `Annotations` can be used to annotate following Ballerina constructs.
  * Service
  * Resource
  * Connectors
- * Connections
  * Actions
  * Functions
  * User Defined Types
@@ -84,7 +83,11 @@ Followings are the service level annotations.
 
 #### Service Info
 
-A Doc annotation, which describes meta information about a Ballerina Service. This a supper set of Swagger 2.0 representation. 
+
+A Doc annotation, which describes a Ballerina Service. 
+
+Generic meta information about Service or Connector. But this a supper set of Swagger 2.0 representation. 
+
 
 Syntax: 
 ```
@@ -186,10 +189,12 @@ _@Developer_
 Following section describes each field defined in `@Swagger` annotation. This annotation represents all the vendor 
 specific custom swagger extensions. 
 
+**Note** `@Swagger` can be used only to annotate Ballerina Service, Resource, and Type fields. 
+
 | Ballerina Field | Type | Description | Swagger Field (Json Path) |
 |---|:---:|---|---|
 | version | string | **Required.** Specifies the Swagger Specification version to be used. If `@Swagger` annotation is not defined, default value is "2.0" | $.swagger |
-| extension | @SwaggerExtension[] | List of Swagger extension for specific swagger field. | Dynamic |
+| extension | @SwaggerExtension[] | List of Swagger extension for specific swagger field. | any |
 
 @SwaggerExtension
 
@@ -209,12 +214,11 @@ Syntax:
     host = "http://example.com/sample/service" , 
     schemes = {"http", "https"} ,
     interface = "Interface Key or path to Interface." 
-    authorizationsConfigurations = { 
-        @AuthorizationsConfiguration(
+    authorizations = { 
+        @Authorization(
             name = "anUniqueName", 
             type = "basic|apiKey|oauth2|...", 
             description = "A Description."
-
             [, flow = "implicit|password|application|accessCode" , 
                authorizationUrl = "..." , 
                tokenUrl = "..." , 
@@ -228,46 +232,41 @@ Syntax:
                 }
             ] | 
             [, apiName = "apiKey" , in = "query|header"] 
-            [,anyName = anyValue]* 
         ),
-        @AuthorizationsConfiguration(...)
+        @Authorization(...)
     }
-    [,anyName = anyValue]* // Swagger element "x-anyName" : "anyValue"
 )
 ```
 
 _@ServiceConfig_
 
-| Ballerina Field | Type | Description | Swagger Field |
+| Ballerina Field | Type | Description | Swagger Field (Json Path) |
 |---|:---:|---|---|
-| host| string| Host name or IP of the Ballerina Service. | host |
-| schemes | string[] | Transport protocol of the Ballerina Service.(http, https, ws, wss)| schemes |
+| host| string| Host name or IP of the Ballerina Service. | $.host |
+| schemes | string[] | Transport protocol of the Ballerina Service.(http, https, ws, wss)| $.schemes |
 | interface | string | Interface for Transport configuration. | N/A |
-| authorizationsConfigurations | @AuthorizationsConfiguration[] | Authorization schema associated with the Ballerina Service | securityDefinitions |
-| anyName | any | Extension fields. | `x-`anyName (Swagger extensions) |
+| authorizations | @Authorization[] | Authorization schema associated with the Ballerina Service | $.securityDefinitions |
 
-_@AuthorizationsConfiguration_
+_@Authorization_
 
-| Ballerina Field | Type | Description | Swagger Field |
+| Ballerina Field | Type | Description | Swagger Field (Json Path) |
 |---|:---:|---|---|
-| name| string| **Required.** Name of the authorization schema definition.| securityDefinitions name |
-| description | string| A Description about authorization schema. | description |
-| type| string| **Required.** Type of the authorization schema.(basic,oauth2,..)| type |
-| apiName | string| **Required, if type is apikey** Name of the header or query param | name |
-| in| string| **Required, if type is apikey** Location of the API Key | in |
-| flow| string| **Required, if type is oauth2** Flow used by OAuth2 schema. | flow |
-| authorizationUrl| string| **Required, if type is oauth2** authorizationUrl of the OAuth2 endpoint| authorizationUrl |
-| tokenUrl| string| **Required, if type is oauth2** tokenUrl of the OAuth2 endpoint | tokenUrl |
-| authorizationScopes| @AuthorizationScope[] | **Required, if type is oauth2** OAuth2 scopes| scopes |
-| anyName | any | Extension fields. | `x-`anyName (Swagger extensions) |
+| name| string | **Required.** Name of the authorization schema definition.| json_name($.securityDefinitions\[*\]\['name'\]) |
+| description | string | A Description about authorization schema. | $.securityDefinitions\[*\]\['name'\].description |
+| type| string | **Required.** Type of the authorization schema.(basic,oauth2,..)| $.securityDefinitions\[*\]\['name'\].type |
+| apiName | string | **Required, if type is apikey** Name of the header or query param | $.securityDefinitions\[*\]\['name'\].name |
+| in | string | **Required, if type is apikey** Location of the API Key | $.securityDefinitions\[*\]\['name'\].in |
+| flow | string | **Required, if type is oauth2** Flow used by OAuth2 schema. | $.securityDefinitions\[*\]\['name'\].flow |
+| authorizationUrl | string | **Required, if type is oauth2** authorizationUrl of the OAuth2 endpoint| $.securityDefinitions\[*\]\['name'\].authorizationUrl |
+| tokenUrl | string | **Required, if type is oauth2** tokenUrl of the OAuth2 endpoint | $.securityDefinitions\[*\]\['name'\].tokenUrl |
+| authorizationScopes| @AuthorizationScope[] | **Required, if type is oauth2** OAuth2 scopes| $.securityDefinitions\[*\]\['name'\].scopes |
 
 _@AuthorizationScope_
 
-| Ballerina Field | Type | Description | Swagger Field |
+| Ballerina Field | Type | Description | Swagger Field (Json Path) |
 |---|:---:|---|---|
-| name| string| Name of the OAuth2 scope. | name|
-| description | string| A description about the OAuth2 scope. | value of the name |
-| anyName | any | Extension fields. | `x-`anyName (Swagger extensions) |
+| name| string| Name of the OAuth2 scope. | json_name($.securityDefinitions\[*\]\['name'\].scopes.\['name'\])|
+| description | string| A description about the OAuth2 scope. | $.securityDefinitions\[*\]\['name'\].scopes.\['name'\] |
 
 #### Path
 
@@ -278,7 +277,10 @@ Syntax:
 @Path("/context")
 ```
 
-Value of the `@Path` annotation can't be empty and it should start with `/`. Swagger 2.0 equivalent field is `basePath`.
+Value of the `@Path` annotation can't be empty and it should start with `/`. This is an Optional annotation and default
+service context is mapped to `/`
+
+Swagger 2.0 equivalent field is `basePath`. (Json Path `$.basePath`)
 
 #### Consumes
 
@@ -294,6 +296,8 @@ E.g:
 @Consumes({"application/json", "application/xml"})
 ```
 
+This is an optional annotation. Swagger 2.0 equivalent field is `consumes`. (Json Path `$.consumes`)
+
 #### Produces
 
 Defines A list of MIME types the Ballerina Service can produce. This is global to all the resource defined within a 
@@ -307,6 +311,8 @@ E.g:
 ```
 @Produces({"application/json", "application/xml"})
 ```
+
+This is an optional annotation. Swagger 2.0 equivalent field is `produces`. (Json Path `$.produces`)
 
 ### Resource Annotation.
 
@@ -331,6 +337,11 @@ Syntax:
 @Path("/resource-path")
 ```
 
+Value of the `@Path` annotation can't be empty and it should start with `/`.  This is a **Required** annotation for HTTP
+Ballerina services. 
+
+Swagger 2.0 equivalent field is `paths.path`. (Json Path `$.paths./resource-path`)
+
 #### HTTP method
 
 Defines the HTTP methods that support by the Ballerina resource. This is a configuration annotation.
@@ -339,6 +350,59 @@ Syntax:
 ```
 (@GET | @POST | @PUT | @DELETE | @OPTIONS | @HEAD | @PATCH )* 
 ```
+
+Swagger 2.0 equivalent field is `paths.path.HTTP_METHOD`. (Json Path `$.paths./resource-path.HTTP_METHOD`) Here 
+HTTP_METHOD is either get, post, put, delete, option, head or patch.
+
+**Note**: Typical Ballerina resource can have multiple HTTP methods associated with it. This feature is not supported by
+ Swagger 2.0 specification. Hence this will map to multiple Swagger Operation Objects per path.
+ 
+ E.g. Both put and post HTTP methods are mapped to ballerina resource `createStdRecord`.  
+ ```
+ @ServiceInfo(
+    title = "Student Management Service"
+    version = "1.0.0"
+ )
+ service StudentManagementService{
+    ...
+    @Path("/createStudentRecord")
+    @PUT
+    @POST
+    resource createStdRecord (message m)  {
+       // Do something.
+       reply m;
+    }
+    ...
+ }
+ ```
+ 
+Equivalent Swagger definition. 
+ 
+```
+swagger: '2.0'
+info:
+  version: '1.0.0'
+  title: Student Management Service
+paths:
+  /createStudentRecord:
+    put:
+      operationId: createStdRecord_put
+      responses:
+        default:
+          description: Default Response.
+          schema: 
+            $ref: '#/ballerina/default/response'
+    post:
+      operationId: createStdRecord_post
+      responses:
+        default:
+          description: Default Response.
+          schema:
+            $ref: '#/ballerina/default/response'
+```
+
+Swagger operationId has format `BallerinaResourceName_httpMethod`. 
+
 
 #### Resource Config
 
@@ -355,24 +419,22 @@ Syntax:
         ),
         @Authorization(...)
     }
-    [,anyName = anyValue]*
 )
 ```
 
 _@ResourceConfig_
 
-|Ballerina Field |  Type | Description | Equivalent Swagger Field|
+|Ballerina Field |  Type | Description | Swagger Field (Json Path) |
 |---|---|---|---|
-| schemes | string | The transfer protocol for the ballerina resource. Values can be "http", "https", "ws" or "wss". | schemas  |
-| authorizations | @Authorization | A declaration of which authorizations configurations are applied for this resource. | security  |
-| anyName | any | Extension fields. | `x-`anyName (Swagger extensions) |
+| schemes | string[] | The transfer protocol for the ballerina resource. Values can be "http", "https", "ws" or "wss". | $.paths./resource-path.schemas  |
+| authorizations | @Authorization[] | A declaration of which authorizations configurations are applied for this resource. | $.paths./resource-path.security  |
 
 _@Authorization_
 
-|Ballerina Field |  Type | Description | Equivalent Swagger Field|
+|Ballerina Field |  Type | Description | Swagger Field (Json Path) |
 |---|---|---|---|
-| name | string | Authorization name that specified in @AuthorizationsConfiguration section in the service level. | security  |
-| scopes | string[] | Authorize scope for this resource that specified in @AuthorizationScope in the service level under above AuthorizationsConfiguration. | Values that define in @AuthorizationScope[] in service level  |
+| name | string | Authorization name that specified in @AuthorizationsConfiguration section in the service level. | json_name($.paths./resource-path.security\[*\]\["name"\])  |
+| scopes | string[] | Authorize scope for this resource that specified in @AuthorizationScope in the service level under above AuthorizationsConfiguration. | $.paths./resource-path.security\[*\]\["name"\], (Values that define in @AuthorizationScope[] in service level)  |
 
 #### Consumes
 
@@ -387,6 +449,7 @@ E.g:
 ```
 @Consumes({"application/json", "application/xml"})
 ```
+This is an optional annotation. Swagger 2.0 equivalent field is `consumes`. (Json Path `$.paths./resource-path.consumes`)
 
 #### Produces
 
@@ -402,127 +465,127 @@ E.g:
 @Produces({"application/json", "application/xml"})
 ```
 
+This is an optional annotation. Swagger 2.0 equivalent field is `produces`. (Json Path `$.paths./resource-path.produces`)
+
 #### Method Parameter Definition
 
 Defines resource parameter mapping.
 
 #####Query Param
+
+Represents a HTTP Query Param of the annotated resource. 
+
 Syntax:
 ```
-QueryParam
 @Path("/foo")
-resourceName(message m, @QueryParam(name = "paramName", description = "A Description", required = true) string name, ...) {...}
-```
-```
-@Path("/foo")
-@ParametersInfo ({
-    @ParamterInfo(
-       id = "identifier",
-       name = "paraName",
-       description = "description about the paramter",
-       required = true|false,
-       type = "string" | "number" | "integer" | "boolean" | "array" | "file",
-       format = "int32" | "int64" | "float" | "double" | "byte" | "binary" | "date" | "date-time" | "password",
-       collectionFormat = "csv" | "ssv" | "tsv" | "pipes" | "multi"
-    ),
-    @ParamterInfo(...)
-})
-resourceName(message m, @QueryParam(name = "paramName") type identifier, ...) {...}
-```
+resourceName(message m, @QueryParam("paramName") type identifier, ...) {...}
+``` 
+
+`paramName` is **Required** and Case Sensitive. It should match to Query Param of the URL and can't be an empty string.
 
 ##### Path Param
+
+Represents a Path Param of the annotated resource.
+
 Syntax:
 ```
-PathParam
 @Path("/foo/{paramName}")
-resourceName(message m, @PathParam(name = "paramName", description = "A Description", required = true) string name, ...) {...}
+resourceName(message m, @PathParam("paramName") type identifier, ...) {...}
 ```
-```
-@Path("/foo/{paramName}")
-@ParametersInfo ({
-    @ParamterInfo(
-       id = "identifier",
-       name = "paraName",
-       description = "description about the paramter",
-       required = true,
-       type = "string" | "number" | "integer" | "boolean" | "array" | "file",
-       format = "int32" | "int64" | "float" | "double" | "byte" | "binary" | "date" | "date-time" | "password",
-       collectionFormat = "csv" | "ssv" | "tsv" | "pipes" | "multi"
-    ),
-    @ParamterInfo(...)
-})
-resourceName(message m, @PathParam(name = "paramName") type identifier, ...) {...}
-```
+
+`paramName` is **Required** and Case Sensitive. It should match to Path Param of the URL which is defined in `@Path` 
+annotation. It can't be an empty string.
 
 ##### Form Param
+
+Represents a HTTP Form field of the annotated resource. This annotation applies only for content type `application/x-www-form-urlencoded` or `multipart/form-data` 
+
 Syntax:
 ```
-FormParam
 @Path("/foo")
-resourceName(message m, @FormParam(name = "paramName", description = "A Description", required = true) string name, ...) {...}
+resourceName(message m, @FormParam("paramName") string|byte identifier, ...) {...}
 ```
-```
-@Path("/foo")
-@ParametersInfo ({
-    @ParamterInfo(
-       id = "identifier",
-       name = "paraName",
-       description = "description about the paramter",
-       required = true|false,
-       type = "string" | "number" | "integer" | "boolean" | "array" | "file",
-       format = "int32" | "int64" | "float" | "double" | "byte" | "binary" | "date" | "date-time" | "password",
-       collectionFormat = "csv" | "ssv" | "tsv" | "pipes" | "multi"
-    ),
-    @ParamterInfo(...)
-})
-resourceName(message m, @FormParam(name = "paramName") type identifier, ...) {...}
-```
+`paramName` is **Required** and Case Sensitive. It should match to Form Param (Described bellow) and can't be an empty string.
+
+if content type is `application/x-www-form-urlencoded` - `paramName` is similar to the format of Query parameters but in a payload. 
+
+If content type is `multipart/form-data` - value of the `name` parameter of the HTTP `Content-Disposition: form-data;` header. 
 
 ##### Header Param
+
+Represents a transport headers that are expected as part of the request.
+
 Syntax:
 ```
-HeaderParam
 @Path("/foo")
-resourceName(message m, @HeaderParam(name = "paramName", description = "A Description", required = true) string name, ...) {...}
+resourceName(message m, @HeaderParam("paramName") string identifier, ...) {...}
 ```
-```
-@Path("/foo")
-@ParametersInfo ({
-    @ParamterInfo(
-       id = "identifier",
-       name = "paraName",
-       description = "description about the paramter",
-       required = true|false,
-       type = "string" | "number" | "integer" | "boolean" | "array" | "file",
-       format = "int32" | "int64" | "float" | "double" | "byte" | "binary" | "date" | "date-time" | "password",
-       collectionFormat = "csv" | "ssv" | "tsv" | "pipes" | "multi"
-    ),
-    @ParamterInfo(...)
-})
-resourceName(message m, @HeaderParam(name = "paramName") type identifier, ...) {...}
-```
+`paramName` is **Required** and Case Sensitive. It should match to transport header name and can't be an empty string.
 
 ##### Body
+
+Represents payload of the incoming request.
+
 Syntax:
 ```
-Body
 @Path("/foo")
-resourceName(message m, @Type(name = "TypeName", description = "A Description", required = true) TypeName typeVariableName, ...) {...}
+resourceName(message m, @Body type identifier, ...) {...}
 ```
+
+Since there is only one payload for a request, `@Body` annotation can be used once per resource. Form parameters 
+ are defined in the payload, a resource definition can't have both `@Body` annotation or `@FormParam` annotations together.  
+
+
+##### ParametersInfo (or Parameters)
+
+ParametersInfo describes meta information about operation parameters (as described above) of a resource. `@ParametersInfo` contains one or more `@ParameterInfo` annotations.
+
+Syntax:
 ```
-@Path("/foo")
 @ParametersInfo ({
     @ParamterInfo(
-       id = "identifier",
+       in = "query" | "header" | "path" | "formData" | "body",
        name = "paraName",
        description = "description about the paramter",
        required = true|false,
-       schema = type
+       allowEmptyValue = true|false,
+       type = "string" | "number" | "integer" | "boolean" | "array" | "file" ,
+       format = "int32" | "int64" | "float" | "double" | "byte" | "binary" | "date" | "date-time" | "password",
+       schema = typeName,
+       collectionFormat = "csv" | "ssv" | "tsv" | "pipes" | "multi"
+       items =  @items (
+            type = "string" | "number" | "integer" | "boolean" | "array" | "file" ,
+            format = "int32" | "int64" | "float" | "double" | "byte" | "binary" | "date" | "date-time" | "password",
+            collectionFormat = "csv" | "ssv" | "tsv" | "pipes" | "multi"
+            items = @Item(...)
+       )
     ),
     @ParamterInfo(...)
 })
-resourceName(message m, type identifier, ...) {...}
 ```
+
+_@ParameterInfo_ (or parameter)
+
+|Ballerina Field |  Type | Description | Swagger Field (Json Path) |
+|---|---|---|---|
+| in | string | The location of the parameter. Possible values are "query", "path", "formData", "header" or "body". **Optional** If the Parameter is defined as a parameter of the resource definition using `@QueryParam`, `@PathParam`, `@FormParam`, `@HeaderParam`, or `@Body`. Otherwise this is **Required** and considered this as implicit meta information. | $.paths./resource-path.parameters\[position\].in  |
+| name | string | **Required.** The name of the parameter which is defined in `@QueryParam`, `@PathParam`, `@FormParam` or `@HeaderParam` annotations.| $.paths./resource-path.parameters\[position\].name  |
+| description | string | A short description about the parameter. | $.paths./resource-path.parameters\[position\].description  |
+| required | string | Define whether this parameter is mandatory. Default is `true` for `@PathParam`, `false` otherwise. | $.paths./resource-path.parameters\[position\].required  |
+| allowEmptyValue | string | Define empty values are supported. Valid only for either `query` or `formData` | $.paths./resource-path.parameters\[position\].allowEmptyValue  |
+| type | string | Type of the parameter. **Optional** only if the Parameter is defined as a parameter of the resource definition using `@QueryParam`, `@PathParam`, `@FormParam` or `@HeaderParam`.  | $.paths./resource-path.parameters\[position\].type  |
+| format | string | Format of the `type`.  | $.paths./resource-path.parameters\[position\].format  |
+| schema | anyType |  Defines Payload format. **Required.** Applies only if in is `body` or `@Body` annotation is defined. | $.paths./resource-path.parameters\[position\].schema  |
+| collectionFormat | string | Determines the format of the array if type array is used. Default is `cvs`| $.paths./resource-path.parameters\[position\].collectionFormat  |
+| items | @Items | **Required.** if `type` is an Array. Describes the items in the array. | $.paths./resource-path.parameters\[position\].items  |
+
+|Ballerina Field |  Type | Description | Equivalent Swagger Field|
+|---|---|---|---|
+| type | string | **Required.** The internal type of the array. | $.paths./resource-path.parameters\[position\].items.type  |
+| format | string | Format of the `type`. | $.paths./resource-path.parameters\[position\].items.format  |
+| collectionFormat | string |  Determines the format of the array if type array is used. Default is `cvs` | $.paths./resource-path.parameters\[position\].items.collectionFormat  |
+| items | string |  **Required.** if `type` is an Array. Describes the items in the array. | $.paths./resource-path.parameters\[position\].items.items  |
+
 
 #### Resource Info
 
@@ -544,20 +607,13 @@ Syntax:
 
 _@ResourceInfo_
 
-|Ballerina Field |  Type | Description | Swagger Field|
+|Ballerina Field | Type | Description | Swagger Field (Json Path) |
 |---|---|---|---|
-| tags| string[] | A list of tags for resource documentation control. | tags  |
-| summary| string | A short summary of what the resource does. | summary  |
-| externalDocs| @ExternalDocs | Additional external documentation for this resource. | externalDocs  |
-| operationId| string | Unique string used to identify the resource (Ballerina resource name). | operationId  |
-
-_@ExternalDocs_
-
-|Ballerina Field | Type          | Description | Swagger Field
-|---|---|---|---|
-| description | string | a description about the target documentation. | description
-| url | string | **Required.** URL is pointing to target documentation. | url
-| anyName | any | Extension fields. | `x-`anyName (Swagger extensions) |
+| tags| string[] | A list of tags for resource documentation control. | $.paths./resource-path.tags  |
+| summary| string | A short summary of what the resource does. | $.paths./resource-path.summary  |
+| description| string | A description about of what the resource does. | $.paths./resource-path.summary  |
+| externalDocs| @ExternalDocs | Additional external documentation for this resource. | $.paths./resource-path.externalDocs  |
+| operationId| string | Unique string used to identify the resource (Ballerina resource name). | $.paths./resource-path.operationId  |
 
 
 #### Responses
@@ -601,35 +657,35 @@ Syntax:
 
 _@Responses_
 
-|Ballerina Field |  Type | Description | Swagger Field|
+|Ballerina Field |  Type | Description | Swagger Field (Json Path) |
 |---|---|---|---|
-| Responses | @Response[] | **Required.** An array of possible @Response as they are returned from executing this operation. | responses  |
+| Responses | @Response[] | **Required.** An array of possible @Response as they are returned from executing this operation. |  $.paths./resource-path.responses  |
 
 _@Response_
 
-|Ballerina Field |  Type | Description | Swagger Field|
+|Ballerina Field |  Type | Description | Swagger Field (Json Path) |
 |---|---|---|---|
-| code | int | **Required.** HTTP status code of this response  | Response HTTP status code  |
-| description | string | A short description of the response. | description  |
-| response | string | **Required.** The list of possible responses as they are returned from executing this operation  | schema  |
-| headers | @Header[] | An array of @Header that are sent with the response  | headers  |
-| examples | @Example[] | An @Example of the response message  | examples  |
+| code | int | **Required.** HTTP status code of this response  | json_name($.paths./resource-path.responses\[position\]["code"\])  |
+| description | string | A short description of the response. | $.paths./resource-path.responses\[*\]\["code"\].description  |
+| response | string | **Required.** The list of possible responses as they are returned from executing this operation  | $.paths./resource-path.responses\[*\]\["code"\].schema  |
+| headers | @Header[] | An array of @Header that are sent with the response  | $.paths./resource-path.responses\[*\]\["code"\].headers  |
+| examples | @Example[] | An @Example of the response message  | $.paths./resource-path.responses\[*\]\["code"\].examples  |
 
 _@Header_
 
-|Ballerina Field |  Type | Description | Swagger Field|
+|Ballerina Field |  Type | Description | Swagger Field (Json Path) |
 |---|---|---|---|
-| name | string | **Required.** Header name. | name of the header  |
-| description | string | A short description of the header. | description  |
-| type | string | **Required.** The type of the object. The value MUST be one of "string", "number", "integer", "boolean", or "array". | type  |
+| name | string | **Required.** Header name. | json_name($.paths./resource-path.responses\[\*\]\["code"\].headers\[\*\]\["name"\])  |
+| description | string | A short description of the header. | $.paths./resource-path.responses\[\*\]\["code"\].headers\[\*\]\["name"\].description  |
+| type | string | **Required.** The type of the object. The value MUST be one of "string", "number", "integer", "boolean", or "array". | $.paths./resource-path.responses\[\*\]\["code"\].headers\[\*\]\["name"\].type  |
 
 
 _@Example_
 
-|Ballerina Field |  Type | Description | Swagger Field|
+|Ballerina Field |  Type | Description | Swagger Field (Json Path) |
 |---|---|---|---|
-| type | string | **Required.** A supported mime type. | mime-tye value  |
-| value | string | A sample response of this resource that match with given mime type. | The value SHOULD be an example of what such a response would look like  |
+| type | string | **Required.** A supported mime type. | json_name($.paths./resource-path.responses\[*\]\["code"\].examples\[\*\]\['type'\])  |
+| value | string | A sample response of this resource that match with given mime type.  The value SHOULD be an example of what such a response would look like  | $.paths./resource-path.responses\[*\]\["code"\].examples\[\*\]\['type'\] |
 
 
 Following are the resource level annotations.
@@ -815,11 +871,11 @@ _@Example_
 
 ### Connector Annotations.
 
-### Connection Annotations.
+In Ballerina, A Connector (Based in HTTP) can be generated by importing a Swagger Definition. Connector has `@ConnectorInfo` annotation which share same attribute set of the `@ServiceInfo` annotation and `@ConnectorConfig` annotation which share same attribute set of the `@ServiceConfig`. 
 
 #### Circuit Breaker
 
-Circuit Breaker prevents cascading failures in a connection.
+The Circuit Breaker is a built in feature in Ballerina, that prevents cascading failures in a connector. This annotation applies only for connector instances. 
 
 Syntax: 
 ```
@@ -849,7 +905,17 @@ Syntax:
  
 ### Action Annotations. 
 
-Action can have @Doc annotation which describes the parameters and the return types.
+TODO: Following Section needs some re-thinking whether we should use same format for action and resource annotation.  
+
+Action can have @Doc annotation which describes the parameters and the return types. If Actions are generated using a swagger definition, each Swagger Operation Object will be mapped to action.
+
+|Action Annotation | Matching Resource Annotation | Description |
+|---|---|---|
+|ConnectorConfig|ResourceConfig| ??? |
+|Consumes|Consumes| ??? |
+|Produces|Produces| ??? |
+|ParametersInfo|ParametersInfo| ??? |
+|ConnectorInfo|ResourceInfo| ??? |
 
 Syntax:
 ```
@@ -931,11 +997,12 @@ type UserDefineType {
     type variableName = DEFAULT_VALUE;
 }
 ```
+TODO: Need to support : https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#schemaObject
 
-| Ballerina Field | Type | Description | Swagger Field |
+| Ballerina Field | Type | Description |  Swagger Field (Json Path) |
 |---|:---:|---|---|
-| name | string | Identifier which user can use instead of the variable name. | UserDefineType or name |
-| required | boolean | Whether is variable is required or not. | required |
+| name | string | Identifier which user can use instead of the variable name. | json_name($.definitions\['name\]) |
+| required | boolean | Whether is variable is required or not. | $.definitions\['name\].required |
 | format | string | JSON/XML schema or data type. | format |
 | anyName | any | Extension fields. | `x-`anyName (Swagger extensions) |
 
@@ -955,7 +1022,7 @@ Property Annotation is used to describe meta information about the annotated var
 )
 ```
 
-| Ballerina Field | Type | Description | Swagger Field |
+| Ballerina Field | Type | Description | Swagger Field (Json Path)  |
 |---|:---:|---|---|
 | schema | string | JSON/XML schema or data type. | Schema Object - $ref. |
 | required | boolean | Indicate annotated field is required. Default is false.  | Schema Object -required. |
