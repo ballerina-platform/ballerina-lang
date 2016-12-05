@@ -66,7 +66,7 @@ define(['require', 'lodash', 'log'], function (require, _, log) {
                 _.each(serviceDefs, function (serviceModel) {
 
                     //TODO: Add serviceModel id and css props
-                    var serviceContainer = $('<div>Service View container</div>');
+                    var serviceContainer = $('<div><svg class="diagram"></svg></div>');
                     serviceContainer.attr('id', serviceModel.id);
                     // var ServiceDefView =  require('app/ballerina/views/service-definition-view');
                     // var serviceView = new ServiceDefView(serviceModel,serviceContainer);
@@ -127,7 +127,6 @@ define(['require', 'lodash', 'log'], function (require, _, log) {
 
                 outerDiv.append(panelHeading);
                 outerDiv.append(bodyDiv);
-
 
                 // append to parent
                 parent.append(outerDiv);
