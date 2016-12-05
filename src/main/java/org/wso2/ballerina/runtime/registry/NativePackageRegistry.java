@@ -18,34 +18,33 @@
 
 package org.wso2.ballerina.runtime.registry;
 
-import org.wso2.ballerina.model.Application;
+import org.wso2.ballerina.model.Package;
 
 import java.util.HashMap;
-import java.util.Map;
 
 /**
- * The place where all Ballerina Applications are stored
+ * The place where all the native package definitions are stored
  *
  * @since 1.0.0
  */
-public class ApplicationRegistry {
+public class NativePackageRegistry {
 
-    private Map<String, Application> applications = new HashMap<String, Application>();
+    HashMap<String, Package> packages = new HashMap<String, Package>();
 
-    private static ApplicationRegistry instance = new ApplicationRegistry();
+    private static NativePackageRegistry instance = new NativePackageRegistry();
 
-    private ApplicationRegistry() {}
+    private NativePackageRegistry(){}
 
-    public ApplicationRegistry getInstance() {
+    public NativePackageRegistry getInstance() {
         return instance;
     }
 
-    public void addApplication(Application application) {
-        applications.put(application.getAppName(), application);
+    public void registerPackage(Package aPackage) {
+        packages.put(aPackage.getFullQualifiedName(), aPackage);
     }
 
-    public Application getApplication(String appName) {
-        return applications.get(appName);
+    public Package getPackage(String fqn) {
+        return packages.get(fqn);
     }
 
 }
