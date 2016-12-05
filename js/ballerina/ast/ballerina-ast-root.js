@@ -60,7 +60,7 @@ define(['lodash', './node'], function (_, ASTNode) {
      */
     BallerinaASTRoot.prototype.getServiceDefinitions = function () {
         return this.serviceDefinitions;
-    }
+    };
 
     /**
      * Accept function in visitor pattern
@@ -73,7 +73,7 @@ define(['lodash', './node'], function (_, ASTNode) {
         _.forEach(this.serviceDefinitions, function (serviceDefinition) {
             serviceDefinition.accept(visitor);
         });
-    }
+    };
 
     return BallerinaASTRoot;
-})
+});
