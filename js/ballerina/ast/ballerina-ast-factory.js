@@ -66,7 +66,7 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
          * creates ConnectorDefinition
          * @param args
          */
-        var createConnectorDefinition = function (args) {
+        BallerinaASTFactory.prototype.createConnectorDefinition = function (args) {
             return new connectorDefinition(args);
         };
 
