@@ -103,7 +103,7 @@ define(['require', 'lodash', 'log'], function (require, _, log) {
                 //draw a collapse accordion
                 var outerDiv = $('<div></div>');
                 // TODO: For the moment disabling the adding classes in order to show the containers
-                 outerDiv.addClass('panel panel-default');
+                 outerDiv.addClass('panel panel-default container-outer-div');
                 var panelHeading = $('<div></div>');
                 //panelHeading.addClass('panel-heading');
                 //TODO: UPDATE ID

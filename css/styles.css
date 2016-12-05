@@ -290,6 +290,10 @@ ol#breadcrumbList {
     box-shadow: 0 0 2px lightgray;
 }
 
+.container-outer-div {
+    border-radius: 0;
+}
+
 /** Service container related styles | -> End **/
 /*//////////////////////////////////////////////////*/
 
