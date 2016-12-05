@@ -31,4 +31,6 @@ define(['lodash', './node'], function(_, ASTNode){
     ConnectionDeclaration.prototype.accept = function (visitor) {
         visitor.visitConnectionDeclaration();
     }
+
+    return ConnectionDeclaration;
 });

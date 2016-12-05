@@ -60,7 +60,7 @@ define(['lodash', './node'], function (_, ASTNode) {
      */
     BallerinaASTRoot.prototype.getServiceDefinitions = function () {
         return this.serviceDefinitions;
-    }
+    };
 
     /**
      * Setter function for ConnectorDefinition
@@ -95,7 +95,7 @@ define(['lodash', './node'], function (_, ASTNode) {
         _.forEach(this.serviceDefinitions, function (serviceDefinition) {
             serviceDefinition.accept(visitor);
         });
-    }
+    };
 
     return BallerinaASTRoot;
-})
+});

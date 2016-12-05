@@ -72,5 +72,13 @@ define(['lodash', 'log', 'ast_visitor', 'file_editor'], function(_, log, ASTVisi
         return false;
     };
 
+    DiagramRenderingVisitor.prototype.visitThrowStatement = function (astNode) {
+        log.info("Visiting ThrowStatement");
+        var parent = astNode.getParent();
+        var parentView  = this.viewMap.get(parent);
+        //TODO create new throw statement view and call render
+        return false;
+    };
+
     return DiagramRenderingVisitor;
 });

@@ -35,4 +35,5 @@ define(['lodash', './node'], function (_, ASTNode) {
         return this.typeElement;
     };
 
+    return TypeDefinition;
 });

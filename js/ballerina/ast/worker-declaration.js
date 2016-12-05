@@ -55,4 +55,5 @@ define(['lodash', './node'], function(_, ASTNode){
         }
     };
 
+    return WorkerDeclaration;
 });

@@ -46,4 +46,5 @@ define(['lodash', './node'], function (_, ASTNode) {
         return this.identifier;
     };
 
+    return TypeElement;
 });
