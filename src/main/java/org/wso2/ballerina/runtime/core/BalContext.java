@@ -18,6 +18,8 @@
 
 package org.wso2.ballerina.runtime.core;
 
+import org.wso2.carbon.messaging.CarbonMessage;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,7 +28,20 @@ import java.util.Map;
  */
 public class BalContext {
 
+    private CarbonMessage carbonMessage;
+
     protected Map<String, Object> properties = new HashMap();
+
+    public BalContext(CarbonMessage carbonMessage) {
+        this.carbonMessage = carbonMessage;
+    }
+
+    public BalContext() {
+    }
+
+    public CarbonMessage getCarbonMessage() {
+        return carbonMessage;
+    }
 
     public Object getProperty(String key) {
         return properties.get(key);

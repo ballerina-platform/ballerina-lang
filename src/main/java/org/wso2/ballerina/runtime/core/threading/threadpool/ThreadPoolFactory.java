@@ -16,12 +16,29 @@
  * under the License.
  */
 
-package org.wso2.ballerina.runtime.core;
+package org.wso2.ballerina.runtime.core.threading.threadpool;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
- * {@BalCallback} represent the Callback interface for Ballerina
+ * {@code ThreadPoolFactory} holds the thread pools in Ballerina engine
  */
-public interface BalCallback {
-    void done(BalContext balContext);
+public class ThreadPoolFactory {
+
+    private static ThreadPoolFactory instance = new ThreadPoolFactory();
+
+    //TODO: Make this configurable
+    private ExecutorService executorService =  Executors.newFixedThreadPool(100);
+
+    private ThreadPoolFactory(){};
+
+    public static ThreadPoolFactory getInstance() {
+        return instance;
+    }
+
+    public ExecutorService getExecutor() {
+        return executorService;
+    }
 
 }

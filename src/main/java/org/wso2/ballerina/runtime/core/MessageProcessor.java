@@ -18,6 +18,37 @@
 
 package org.wso2.ballerina.runtime.core;
 
-public class MessageProcessor {
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.wso2.ballerina.runtime.core.threading.threadpool.RequestWorkerThread;
+import org.wso2.ballerina.runtime.core.threading.threadpool.ThreadPoolFactory;
+import org.wso2.carbon.messaging.CarbonCallback;
+import org.wso2.carbon.messaging.CarbonMessage;
+import org.wso2.carbon.messaging.CarbonMessageProcessor;
+import org.wso2.carbon.messaging.TransportSender;
 
+public class MessageProcessor implements CarbonMessageProcessor {
+
+    private static final Logger log = LoggerFactory.getLogger(MessageProcessor.class);
+
+    public boolean receive(CarbonMessage carbonMessage, CarbonCallback carbonCallback) throws Exception {
+        if (log.isDebugEnabled()) {
+            log.debug("ballerina received a message");
+        }
+
+        RequestWorkerThread workerThread =
+                new RequestWorkerThread(new BalContext(carbonMessage), new DefaultBalCallback(carbonCallback));
+
+        ThreadPoolFactory.getInstance().getExecutor().submit(workerThread);
+
+        return false;
+    }
+
+    public void setTransportSender(TransportSender transportSender) {
+
+    }
+
+    public String getId() {
+        return null;
+    }
 }

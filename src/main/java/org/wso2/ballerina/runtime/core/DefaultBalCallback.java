@@ -18,10 +18,21 @@
 
 package org.wso2.ballerina.runtime.core;
 
-/**
- * {@BalCallback} represent the Callback interface for Ballerina
- */
-public interface BalCallback {
-    void done(BalContext balContext);
+import org.wso2.carbon.messaging.CarbonCallback;
 
+/**
+ * Default implementation of {@code BalCallback}
+ */
+public class DefaultBalCallback implements BalCallback {
+
+    CarbonCallback carbonCallback;
+
+    public DefaultBalCallback(CarbonCallback carbonCallback) {
+        this.carbonCallback = carbonCallback;
+    }
+
+    @Override
+    public void done(BalContext balContext) {
+        carbonCallback.done(balContext.getCarbonMessage());
+    }
 }

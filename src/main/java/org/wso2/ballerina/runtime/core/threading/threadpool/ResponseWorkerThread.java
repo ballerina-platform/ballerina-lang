@@ -16,12 +16,21 @@
  * under the License.
  */
 
-package org.wso2.ballerina.runtime.core;
+package org.wso2.ballerina.runtime.core.threading.threadpool;
+
+import org.wso2.ballerina.runtime.core.BalCallback;
+import org.wso2.ballerina.runtime.core.BalContext;
 
 /**
- * {@BalCallback} represent the Callback interface for Ballerina
+ * Worker Thread which is responsible for response processing
  */
-public interface BalCallback {
-    void done(BalContext balContext);
+public class ResponseWorkerThread extends WorkerThread {
 
+    public ResponseWorkerThread(BalContext context, BalCallback callback) {
+        super(context, callback);
+    }
+
+    public void run() {
+
+    }
 }
