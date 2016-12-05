@@ -18,5 +18,12 @@
 
 package org.wso2.ballerina.runtime.registry;
 
+/**
+ * The place where all Ballerina Applications are stored
+ */
 public class ApplicationRegistry {
+
+
+
+
 }

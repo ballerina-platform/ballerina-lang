@@ -29,7 +29,7 @@ import java.util.List;
 public class Application {
 
     private String appName;
-    private List<BallerinaFile> files = new ArrayList<BallerinaFile>();
+    private List<Package> packages = new ArrayList<Package>();
 
     /**
      *
@@ -43,12 +43,30 @@ public class Application {
     }
 
     /**
-     * Add a {@code BallerinaFile} to the application
+     * Add a {@code Package} to the application
      *
-     * @param file Ballerina file
+     * @param aPackage a Package
      */
-    public void addFile(BallerinaFile file) {
-        files.add(file);
+    public void addPackage(Package aPackage) {
+        packages.add(aPackage);
+    }
+
+    /**
+     * Get list of {@code Packages}s in the Application
+     *
+     * @return Packages in the Application
+     */
+    public List<Package> getPackages() {
+        return packages;
+    }
+
+    /**
+     * Get the name of the Application
+     *
+     * @return name of the Application
+     */
+    public String getAppName() {
+        return appName;
     }
 
 }

@@ -46,7 +46,6 @@ public class Service {
     private List<Variable> variables;
     private List<Resource> resources;
 
-
     /**
      *
      * @param identifier Service Identifier
