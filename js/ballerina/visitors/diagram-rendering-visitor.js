@@ -64,12 +64,11 @@ define(['require', 'lodash', 'log', 'ast_visitor', 'views/ballerina-file-editor'
         log.info("Visiting ServiceDefinition");
         var parent = astNode.getParent();
         var parentView  = this.viewMap.get(parent);
-        // var ServiceDefinitionView1 = require('app/ballerina/views/service-definition-view');
         _.forEach(parent.serviceDefinitions, function(serviceDefinition, index) {
             var canvas = parentView.canvasList[index];
-            var serviceDefinitionView = new ServiceDefinitionView(serviceDefinition, canvas, undefined);
+            var serviceDefinitionView = new ServiceDefinitionView(serviceDefinition, canvas);
+            serviceDefinitionView.render();
         });
-        //TODO create new service definition view and call render
         return true;
     };
 
