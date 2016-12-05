@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['log', 'lodash', 'event_channel', './service-definition', './function-definition', './connector-definition',
-        './type-definition', './type-converter-definition', './constant-definition'],
+define(['log', 'lodash', 'event_channel', './../ast/service-definition', './../ast/function-definition', './../ast/connector-definition',
+        './../ast/type-definition', './../ast/type-converter-definition', './../ast/constant-definition'],
 
     function(log, _, EventChannel, ServiceDefinition, FunctionDefinition, ConnectorDefinition, TypeDefinition,
                 TypeConverterDefinition, ConstantDefinition){
