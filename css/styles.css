@@ -279,3 +279,14 @@ ol#breadcrumbList {
     width: 100%;
     object-fit: contain;
 }
+
+/*//////////////////////////////////////////////////*/
+/** Service container related styles | Start -> **/
+.service-container {
+    width: 100%;
+    min-height: 300px;
+}
+
+/** Service container related styles | -> End **/
+/*//////////////////////////////////////////////////*/
+
