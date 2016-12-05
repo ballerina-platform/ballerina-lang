@@ -21,10 +21,13 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.FullHttpMessage;
 import io.netty.handler.codec.http.HttpContent;
+import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.LastHttpContent;
 import org.apache.commons.pool.impl.GenericObjectPool;
 import org.slf4j.Logger;
@@ -43,6 +46,8 @@ import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManage
 
 import java.net.InetSocketAddress;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -57,6 +62,8 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     private Map<String, TargetChannel> channelFutureMap = new HashMap<>();
     protected Map<String, GenericObjectPool> targetChannelPool;
     protected ListenerConfiguration listenerConfiguration;
+
+
 
     public ListenerConfiguration getListenerConfiguration() {
         return listenerConfiguration;
@@ -99,6 +106,28 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             }
 
         } else if (msg instanceof HttpRequest) {
+
+            HttpRequest request = (HttpRequest) msg;
+            HttpHeaders headers = request.headers();
+
+            /*
+            Checks whether the incoming HttpRequest is a WebSocket Upgrade Request
+            or a normal HttpRequest
+             */
+            if (headers.get("Connection").equalsIgnoreCase("Upgrade") ||
+                    headers.get("Upgrade").equalsIgnoreCase("WebSocket")) {
+                log.info("Upgrading the connection from Http to WebSocket for " +
+                                 "channel : " + ctx.channel());
+
+                //Replace HTTP handlers  with  new Handlers for WebSocket in the pipeline
+                ChannelPipeline pipeline = ctx.pipeline();
+                pipeline.replace("handler",
+                                 "ws_handler",
+                                 new  WebSocketSourceHandler(this.connectionManager,
+                                                             this.listenerConfiguration,
+                                                             request.getUri()));
+
+            }
 
             publishToMessageProcessor(msg);
 
