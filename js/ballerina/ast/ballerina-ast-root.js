@@ -60,6 +60,28 @@ define(['lodash', './node'], function (_, ASTNode) {
      */
     BallerinaASTRoot.prototype.getServiceDefinitions = function () {
         return this.serviceDefinitions;
+    };
+
+    /**
+     * Setter function for ConnectorDefinition
+     * @param connectorDefinitions
+     */
+    BallerinaASTRoot.prototype.setConnectorDefinitions = function (connectorDefinitions) {
+        if (!_.isNil(connectorDefinitions)) {
+            this.connectorDefinitions = connectorDefinitions;
+            var self = this;
+            _.forEach(connectorDefinitions, function (connectorDefinition) {
+                connectorDefinition.setParent(self);
+            });
+        }
+    };
+
+    /**
+     * Getter function for ServiceDefinition
+     * @returns {Array}
+     */
+    BallerinaASTRoot.prototype.getConnectorDefinitions = function () {
+        return this.connectorDefinitions;
     }
 
     /**
@@ -73,7 +95,13 @@ define(['lodash', './node'], function (_, ASTNode) {
         _.forEach(this.serviceDefinitions, function (serviceDefinition) {
             serviceDefinition.accept(visitor);
         });
-    }
+
+        // Iterate over connectorDefinitions array
+        _.forEach(this.connectorDefinitions, function (connectorDefinition) {
+            connectorDefinition.accept(visitor);
+        });
+
+    };
 
     return BallerinaASTRoot;
-})
+});

@@ -17,14 +17,28 @@
  */
 define(['lodash', './node'], function(_, ASTNode){
 
-    var ConnectorDefinition = function(connectionDeclarations,variableDeclarations,actionDefinitions) {
-        this.connectionDeclarations = connectionDeclarations || [];
-        this.variableDeclarations = variableDeclarations || [];
-        this.actionDefinitions = actionDefinitions || [];
+    var ConnectorDefinition = function() {
+        this.id = autoGenerateId();
+        this.connectionDeclarations =  [];
+        this.variableDeclarations =  [];
+        this.actionDefinitions =  [];
+
+        ASTNode.call(this);
     };
 
     ConnectorDefinition.prototype = Object.create(ASTNode.prototype);
     ConnectorDefinition.prototype.constructor = ConnectorDefinition;
+
+    // Auto generated Id for service definitions (for accordion views)
+    function autoGenerateId(){
+        function s4() {
+            return Math.floor((1 + Math.random()) * 0x10000)
+                .toString(16)
+                .substring(1);
+        }
+        return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+            s4() + '-' + s4() + s4() + s4();
+    };
 
     ConnectorDefinition.prototype.setConnectionDeclarations = function (connectionDeclarations) {
         if (!_.isNil(connectionDeclarations)) {
@@ -54,6 +68,12 @@ define(['lodash', './node'], function(_, ASTNode){
 
     ConnectorDefinition.prototype.getActionDefinitions = function () {
             return this.actionDefinitions;
+    };
+
+    ConnectorDefinition.prototype.accept = function (visitor) {
+        visitor.visitConnectionDeclaration(this);
+
+
     };
 
     return ConnectorDefinition;

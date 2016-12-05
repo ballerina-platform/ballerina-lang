@@ -17,12 +17,12 @@
  */
 define(['lodash', './node'], function (_, ASTNode) {
 
-    var ServiceDefinition = function () {
+    var ServiceDefinition = function (args) {
         this.id = autoGenerateId();
-        this._basePath = "/";
-        this._resourceDefinitions = [];
-        this._variableDeclarations = [];
-        this._connectionDeclarations = [];
+        this._basePath = _.get(args, 'basePath', "/");
+        this._resourceDefinitions = _.get(args, 'resourceDefinitions', []);
+        this._variableDeclarations = _.get(args, 'variableDeclarations', []);
+        this._connectionDeclarations = _.get(args, 'connectionDeclarations', []);
 
         ASTNode.call(this);
     };

@@ -42,6 +42,7 @@ define(['lodash', 'log', 'ast_visitor', 'file_editor'], function(_, log, ASTVisi
     };
 
     DiagramRenderingVisitor.prototype.visitConnectionDeclaration = function () {
+        log.info("Visiting ConnectionDefinition");
         return false;
     };
 
