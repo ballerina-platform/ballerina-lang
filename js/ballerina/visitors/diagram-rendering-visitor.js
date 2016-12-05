@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'lodash', 'log', 'ast-visitor', 'views/ballerina-file-editor', 'views/service-definition-view'],
+define(['require', 'lodash', 'log', 'ast_visitor', 'views/ballerina-file-editor', 'views/service-definition-view'],
     function(require, _, log, ASTVisitor, FileEditor, ServiceDefinitionView) {
 
     var DiagramRenderingVisitor = function(containerView) {
