@@ -113,5 +113,13 @@ define(['require', 'lodash', 'log', 'ast_visitor', 'views/ballerina-file-editor'
         return true;
     };
 
+    DiagramRenderingVisitor.prototype.visitFunctionDefinition = function() {
+        return false;
+    };
+
+    DiagramRenderingVisitor.prototype.visitActionDefinition = function() {
+        return false;
+    };
+
     return DiagramRenderingVisitor;
 });

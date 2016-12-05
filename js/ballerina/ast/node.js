@@ -17,14 +17,13 @@
  */
 define(['event_channel'], function(EventChannel){
 
-    var ASTNode = function(value, type, cStart, cEnd) {
+    var ASTNode = function(startIndex, length, parent, type) {
         this.object = undefined;
         this.parent = undefined;
         this.children = [];
-        this.value = value;
+        this.startIndex = startIndex;
+        this.length = length;
         this.type = type;
-        this.configStart = cStart;
-        this.configEnd = cEnd;
         this.id = uuid();
     };
 
@@ -43,8 +42,19 @@ define(['event_channel'], function(EventChannel){
         return this.children;
     };
 
-    ASTNode.prototype.getValue = function () {
-        return this.value;
+    ASTNode.prototype.getType = function () {
+        return this.type;
+    };
+
+    ASTNode.prototype.getLength = function () {
+        return this.length;
+    };
+
+    ASTNode.prototype.getStartIndex = function () {
+        return this.startIndex;
+    };
+
+    ASTNode.prototype.accept = function (visitor) {
     };
 
     // Auto generated Id for service definitions (for accordion views)

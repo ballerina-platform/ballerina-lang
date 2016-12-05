@@ -23,6 +23,11 @@
     fill-opacity: 1;
 }
 
+.outer-box{
+    padding: 15px;
+    border: 1px solid transparent;
+}
+
 .tool > line {
     stroke-width: 1px;
 }

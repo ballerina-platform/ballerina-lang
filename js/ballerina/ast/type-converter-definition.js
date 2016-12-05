@@ -17,9 +17,10 @@
  */
 define(['lodash', './node'], function (_, ASTNode) {
 
-    var TypeConverterDefinition = function (source, variableDeclarations, returnType) {
+    var TypeConverterDefinition = function (source, variableDeclarations, statements, returnType) {
         this.source = source;
         this.variableDeclarations = variableDeclarations || [];
+        this.statements = statements || [];
         this.returnType = returnType;
     };
 
@@ -35,6 +36,12 @@ define(['lodash', './node'], function (_, ASTNode) {
     TypeConverterDefinition.prototype.setVariableDeclarations = function (variableDeclarations) {
         if (!_.isNil(variableDeclarations)) {
             this.variableDeclarations = variableDeclarations;
+        }
+    };
+
+    TypeConverterDefinition.prototype.setStatements = function (statements) {
+        if (!_.isNil(statements)) {
+            this.statements= statements;
         }
     };
 

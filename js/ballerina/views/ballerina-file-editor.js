@@ -66,7 +66,7 @@ define(['require', 'lodash', 'log'], function (require, _, log) {
                 _.each(serviceDefs, function (serviceModel) {
 
                     //TODO: Add serviceModel id and css props
-                    var serviceContainer = $('<div><svg class="service-container"></svg></div>');
+                    var serviceContainer = $('<div class="outer-box"><svg class="service-container"></svg></div>');
                     serviceContainer.attr('id', serviceModel.id);
                     serviceContainer.attr('name','service');
                     editorParent.addCanvas(serviceContainer);
@@ -105,11 +105,19 @@ define(['require', 'lodash', 'log'], function (require, _, log) {
                 // TODO: For the moment disabling the adding classes in order to show the containers
                  outerDiv.addClass('panel panel-default');
                 var panelHeading = $('<div></div>');
-                panelHeading.addClass('panel-heading');
+                //panelHeading.addClass('panel-heading');
                 //TODO: UPDATE ID
                 panelHeading.attr('id', canvas[0].id + 3).attr('role', 'tab');
                 var panelTitle = $('<h4></h4>');
                 panelTitle.addClass('panel-title');
+                var panelIcon = $('<i></i>');
+                panelIcon.attr('style', 'padding:5px;');
+                if(canvas[0].getAttribute('name') == "service") {
+                    panelIcon.addClass('fw fw-dgm-service');
+                } else if (canvas[0].getAttribute('name') == "connector") {
+                    panelIcon.addClass('fw fw-dgm-connector');
+                }
+                panelTitle.append(panelIcon);
                 var titleLink = $('<a>'+ canvas[0].getAttribute('name') + '</a>');
                 titleLink.addClass("collapsed");
                 //TODO: update href,aria-controls
