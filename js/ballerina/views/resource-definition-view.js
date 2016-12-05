@@ -72,6 +72,7 @@ define(['lodash', 'log', './canvas', 'app/ballerina/ast/resource-definition'],
 
         ResourceDefinitionView.prototype.render = function () {
             // Render resource view
+            window.console.log("Rendering the resource");
         }
 
     });
