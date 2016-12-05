@@ -10,7 +10,7 @@ import ballerina.lang.json;
 @Service(title = "NYSEService", description = "NYSE service")
 service PassthroughWithExceptionHandlingService {
 
-  http.HttpConnector nyseEP = new http.HttpConnector("http://localhost:8080/exchange/", {"timeOut" : 30000});
+  http:HttpConnector nyseEP = new http:HttpConnector("http://localhost:8080/exchange/", {"timeOut" : 30000});
 
   @GET
   @PUT

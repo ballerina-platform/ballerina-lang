@@ -1,12 +1,12 @@
-package samples.connector.twitter;
+package samples.connectors.twitter version 1.0;
 
-service TestTwitterService {
+service TestTwitterConnector {
 
-  twitterConnector:TwitterConnector twitter = new twitterConnector:TwitterConnector(nil, nil, "clientkey", "clientsecret", nil);
+  twitter:TwitterConnector t = new twitter:TwitterConnector(nil, nil, "clientkey", "clientsecret", nil);
 
   @POST
   @Path ("/tweet")
   resource tweet (message m) {
-      twitterConnector:TwitterConnector.tweet(twitter, (string) message:getPayload(m));
+      twitter:TwitterConnector.tweet(t, (string) message:getPayload(m));
   }
 }
