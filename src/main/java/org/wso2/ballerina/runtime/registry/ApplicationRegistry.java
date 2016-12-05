@@ -18,12 +18,32 @@
 
 package org.wso2.ballerina.runtime.registry;
 
+import org.wso2.ballerina.model.Application;
+
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * The place where all Ballerina Applications are stored
  */
 public class ApplicationRegistry {
 
+    private Map<String, Application> applications = new HashMap<String, Application>();
 
+    private static ApplicationRegistry instance = new ApplicationRegistry();
 
+    private ApplicationRegistry() {}
+
+    public ApplicationRegistry getInstance() {
+        return instance;
+    }
+
+    public void addApplication(Application application) {
+        applications.put(application.getAppName(), application);
+    }
+
+    public Application getApplication(String appName) {
+        return applications.get(appName);
+    }
 
 }
