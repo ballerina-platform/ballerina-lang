@@ -16,36 +16,28 @@
  * under the License.
  */
 
-package org.wso2.ballerina.runtime.registry;
-
-import org.wso2.ballerina.model.Application;
+package org.wso2.ballerina.runtime.core;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * The place where all Ballerina Applications are stored
- *
- * @since 1.0.0
+ * {@code BalContext} represents the Ballerina Runtime Context
  */
-public class ApplicationRegistry {
+public class BalContext {
 
-    private Map<String, Application> applications = new HashMap<String, Application>();
+    protected Map<String, Object> properties = new HashMap();
 
-    private static ApplicationRegistry instance = new ApplicationRegistry();
-
-    private ApplicationRegistry() {}
-
-    public ApplicationRegistry getInstance() {
-        return instance;
+    public Object getProperty(String key) {
+        return properties.get(key);
     }
 
-    public void addApplication(Application application) {
-        applications.put(application.getAppName(), application);
+    public Map<String, Object> getProperties() {
+        return properties;
     }
 
-    public Application getApplication(String appName) {
-        return applications.get(appName);
+    public void setProperty(String key, Object value) {
+        properties.put(key, value);
     }
 
 }

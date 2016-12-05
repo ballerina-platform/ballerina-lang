@@ -43,6 +43,8 @@ import java.util.List;
 @SuppressWarnings("unused")
 public class Function {
 
+    private String name;
+
     private List<Annotation> annotations;
     private List<Argument> arguments;
     private List<Connection> connections;
@@ -51,6 +53,13 @@ public class Function {
     private List<Statement> statements;
 
     private boolean isPublic;
+
+    /**
+     * @param name FQN of the function
+     */
+    public Function(String name) {
+        this.name = name;
+    }
 
     /**
      * Get all the Annotations associated with a Function
@@ -231,6 +240,15 @@ public class Function {
             statements = new ArrayList<Statement>();
         }
         statements.add(statement);
+    }
+
+    /**
+     * Get the name of the function
+     *
+     * @return FQN of the function
+     */
+    public String getName() {
+        return name;
     }
 
     /**

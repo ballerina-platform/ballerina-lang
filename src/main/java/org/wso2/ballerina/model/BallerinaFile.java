@@ -21,27 +21,29 @@ package org.wso2.ballerina.model;
 import org.wso2.ballerina.model.types.StructType;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * {@code BallerinaFile} represent a content of a Ballerina source file
  * <p>
  * A Ballerina file is structured as follows:
- *
+ * <p>
  * [package PackageName;]
  * [import PackageName[ as Identifier];]*
  * (ServiceDefinition | FunctionDefinition | ConnectorDefinition | TypeDefinition | TypeConvertorDefinition |
  * ConstantDefinition)+
  *
  * @since 1.0.0
- *
  */
+@SuppressWarnings("unused")
 public class BallerinaFile {
 
     private String packageName;
     private List<Import> imports;
     private List<Service> services;
-    private List<Function> functions;
+    private Map<String, Function> functions;
     private List<StructType> types;
     //TODO: add TypeConverters
     //TODO: add constants
@@ -68,7 +70,7 @@ public class BallerinaFile {
     /**
      * Get {@code Import} statements the file
      *
-     * @return  list of imports
+     * @return list of imports
      */
     public List<Import> getImports() {
         return imports;
@@ -77,7 +79,7 @@ public class BallerinaFile {
     /**
      * Set {@code Import} statement list
      *
-     * @param imports   list of imports
+     * @param imports list of imports
      */
     public void setImports(List<Import> imports) {
         this.imports = imports;
@@ -98,7 +100,7 @@ public class BallerinaFile {
     /**
      * Get {@code Service} list defined in the file
      *
-     * @return  list of Services
+     * @return list of Services
      */
     public List<Service> getServices() {
         return services;
@@ -126,20 +128,20 @@ public class BallerinaFile {
     }
 
     /**
-     * Get {@code Function} list defined in the File
+     * Get {@code Function}s defined in the File
      *
-     * @return list of functions defined in the File
+     * @return map of functions defined in the File
      */
-    public List<Function> getFunctions() {
+    public Map<String, Function> getFunctions() {
         return functions;
     }
 
     /**
-     * Set the {@code Function} list
+     * Set the {@code Function}s
      *
-     * @param functions list of Functions
+     * @param functions map of Functions
      */
-    public void setFunctions(List<Function> functions) {
+    public void setFunctions(Map<String, Function> functions) {
         this.functions = functions;
     }
 
@@ -150,9 +152,9 @@ public class BallerinaFile {
      */
     public void addFunction(Function function) {
         if (functions == null) {
-            functions = new ArrayList<Function>();
+            functions = new HashMap<String, Function>();
         }
-        functions.add(function);
+        functions.put(function.getName(), function);
     }
 
     /**
