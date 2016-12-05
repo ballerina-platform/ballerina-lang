@@ -21,7 +21,10 @@ package org.wso2.ballerina.model;
 import org.wso2.ballerina.model.types.StructType;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * {@code Package} represents a Package in a Ballerina Program.
@@ -33,9 +36,10 @@ public class Package {
     private String fullQualifiedName;
     private String name;
 
-    private List<BallerinaFile> files = new ArrayList<BallerinaFile>();
-    private List<Service> services = new ArrayList<Service>();
-    private List<Function> functions = new ArrayList<Function>();
+    private List<BallerinaFile> files = new ArrayList<>();
+    private List<Service> services = new ArrayList<>();
+    private Map<String, Function> publicFunctions = new HashMap<>();
+    private Map<String, Function> privateFunctions = new HashMap<>();
     private List<StructType> types = new ArrayList<StructType>();
     //TODO: add TypeConverters and Constants
 
@@ -85,7 +89,16 @@ public class Package {
 
         // Add references of top level entities in the Ballerina file to the package
         services.addAll(file.getServices());
-        functions.addAll(file.getFunctions());
+
+        file.getFunctions().forEach((funcName, function) -> {
+            if (function.isPublic()) {
+                publicFunctions.put(funcName, function);
+            } else {
+                privateFunctions.put(funcName, function);
+            }
+        });
+
+        privateFunctions.putAll(file.getFunctions());
         types.addAll(file.getTypes());
     }
 
@@ -98,13 +111,43 @@ public class Package {
         return services;
     }
 
+
     /**
-     * Get all {@code Function} definitions in the package
+     * Get public {@code Function} definitions in the package
      *
-     * @return list of all Functions
+     * @return map of public Functions
      */
-    public List<Function> getFunctions() {
-        return functions;
+    public Map getPublicFunctions() {
+        return publicFunctions;
+    }
+
+    /**
+     * Get a public {@code Function} in the package
+     *
+     * @param functionName fqn of the function
+     * @return public function
+     */
+    public Function getPublicFunction(String functionName) {
+        return publicFunctions.get(functionName);
+    }
+
+    /**
+     * Get private {@code Function} definitions in the package
+     *
+     * @return map of private Functions
+     */
+    public Map getPrivateFunctions() {
+        return privateFunctions;
+    }
+
+    /**
+     * Get a private {@code Function} in the package
+     *
+     * @param functionName fqn of the function
+     * @return private function
+     */
+    public Function getPrivateFunction(String functionName) {
+        return privateFunctions.get(functionName);
     }
 
     /**
