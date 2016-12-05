@@ -5,6 +5,7 @@ lexer grammar BallerinaLexer;
 // §3.9 Ballerina keywords
 
 ACTION	        :	'action';
+fragment
 BOOLEAN	        :	'boolean';
 BREAK	        :	'break';
 CATCH	        :	'catch';
@@ -17,7 +18,8 @@ FORK	        :	'fork';
 FUNCTION	    :	'function';
 IF	            :	'if';
 IMPORT	        :	'import';
-//INT	            :	'int';
+fragment
+INT	            :	'int';
 ITERATE	        :	'iterate';
 JOIN	        :	'join';
 LONG	        :	'long';
@@ -34,6 +36,23 @@ TYPE	        :	'type';
 TYPECONVERTOR	:	'typeconvertor';
 WHILE	        :	'while';
 WORKER	        :	'worker';
+BACKTICK        :   '`';
+
+// Non-reserved keywords
+fragment
+XML             :   'xml';
+fragment
+JSON            :   'json';
+fragment
+XMLDOCUMENT     :   'xmlDocument';
+fragment
+STRING          :   'string';
+fragment
+MESSAGE         :   'message';
+fragment
+MAP             :   'map';
+fragment
+EXCEPTION       :   'exception';
 
 // more keywords
 VersionString
@@ -312,9 +331,32 @@ QuotedStringLiteral
     :   '"' StringCharacters? '"'
     ;
 
-BacktickStringLiteral
-    :   '`' StringCharacters '`'
-    ;
+//BacktickStringLiteral
+//    :   '`' StringCharacters '`'
+//    ;
+
+//VariableReference
+//    : '$' Identifier
+//    ;
+//
+//VariableAccessor
+//    :   Identifier
+//    |   Identifier '['DecimalNumeral']'
+//    |   Identifier'['QuotedStringLiteral']'
+//    |   Identifier '.' VariableAccessor
+//    ;
+
+//FunctionInovation
+//    :   QualifiedName ':' Identifier
+//    ;
+//
+//ActionInovation
+//    :   QualifiedName ':' Identifier '.' Identifier
+//    ;
+//
+//QualifiedName
+//    :   Identifier ('.' Identifier)*
+//    ;
 
 fragment
 StringCharacters
@@ -374,7 +416,9 @@ DOT             : '.';
 // §3.12 Operators
 
 ASSIGN          : '=';
+fragment
 GT              : '>';
+fragment
 LT              : '<';
 BANG            : '!';
 TILDE           : '~';
@@ -391,6 +435,7 @@ DEC             : '--';
 ADD             : '+';
 SUB             : '-';
 MUL             : '*';
+fragment
 DIV             : '/';
 BITAND          : '&';
 BITOR           : '|';
@@ -409,6 +454,7 @@ LSHIFT_ASSIGN   : '<<=';
 RSHIFT_ASSIGN   : '>>=';
 URSHIFT_ASSIGN  : '>>>=';
 
+DOLLAR_SIGN     : '$';
 
 Identifier
     :   Letter LetterOrDigit*
@@ -449,3 +495,78 @@ WS  :  [ \t\r\n\u000C]+ -> skip
 LINE_COMMENT
     :   '//' ~[\r\n]* -> skip
     ;
+
+fragment ESC
+   : '\\' (["\\/bfnrt] | UNICODE)
+   ;
+fragment UNICODE
+   : 'u' HEX HEX HEX HEX
+   ;
+fragment HEX
+   : [0-9a-fA-F]
+   ;
+fragment EXP
+   : [Ee] [+\-]? IntegerLiteral
+   ;
+
+// Default "mode": Everything OUTSIDE of a tag
+XMLCOMMENT     :   '<!--' .*? '-->'            ;
+CDATA       :   '<![CDATA[' .*? ']]>'       ;
+/** Scarf all DTD stuff, Entity Declarations like <!ENTITY ...>,
+ *  and Notation Declarations <!NOTATION ...>
+ */
+DTD         :   '<!' .*? '>'            -> skip ;
+EntityRef   :   '&' Name ';' ;
+CharRef     :   '&#' DIGIT+ ';'
+            |   '&#x' HEXDIGIT+ ';'
+            ;
+SEA_WS      :   (' '|'\t'|'\r'? '\n')+ ;
+OPEN        :   '<'                     -> pushMode(INSIDE) ;
+XMLDeclOpen :   '<?xml' S               -> pushMode(INSIDE) ;
+SPECIAL_OPEN:   '<?' Name               -> more, pushMode(PROC_INSTR) ;
+fragment
+TEXT        :   ~[`<&]+ ;        // match any 16 bit char other than < and &
+
+// ----------------- Everything INSIDE of a tag ---------------------
+mode INSIDE;
+
+CLOSE       :   '>'                     -> popMode ;
+SPECIAL_CLOSE:  '?>'                    -> popMode ; // close <?xml...?>
+SLASH_CLOSE :   '/>'                    -> popMode ;
+SLASH       :   '/' ;
+EQUALS      :   '=' ;
+XMLSTRING      :   '"' ~[<"]* '"'
+            |   '\'' ~[<']* '\''
+            ;
+Name        :   NameStartChar NameChar* ;
+S           :   [ \t\r\n]               -> skip ;
+
+fragment
+HEXDIGIT    :   [a-fA-F0-9] ;
+
+fragment
+DIGIT       :   [0-9] ;
+
+fragment
+NameChar    :   NameStartChar
+            |   '-' | '_' | '.' | DIGIT
+            |   '\u00B7'
+            |   '\u0300'..'\u036F'
+            |   '\u203F'..'\u2040'
+            ;
+
+fragment
+NameStartChar
+            :   [:a-zA-Z]
+            |   '\u2070'..'\u218F'
+            |   '\u2C00'..'\u2FEF'
+            |   '\u3001'..'\uD7FF'
+            |   '\uF900'..'\uFDCF'
+            |   '\uFDF0'..'\uFFFD'
+            ;
+
+// ----------------- Handle <? ... ?> ---------------------
+mode PROC_INSTR;
+
+PI          :   '?>'                    -> popMode ; // close <?...?>
+IGNORE      :   .                       -> more ;
