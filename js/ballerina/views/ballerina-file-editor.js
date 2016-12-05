@@ -102,7 +102,6 @@ define(['require', 'lodash', 'log'], function (require, _, log) {
             _.each(this.canvasList, function (canvas) {
                 //draw a collapse accordion
                 var outerDiv = $('<div></div>');
-                // outerDiv.addClass('mainAccordian');
                 outerDiv.addClass('panel panel-default');
                 var panelHeading = $('<div></div>');
                 panelHeading.addClass('panel-heading');
@@ -110,7 +109,7 @@ define(['require', 'lodash', 'log'], function (require, _, log) {
                 panelHeading.attr('id', canvas[0].id + 3).attr('role', 'tab');
                 var panelTitle = $('<h4></h4>');
                 panelTitle.addClass('panel-title');
-                var titleLink = $('<a>' + canvas[0].id + '</a>');
+                var titleLink = $('<a>'+ 'service' + '</a>');
                 titleLink.addClass("collapsed");
                 //TODO: update href,aria-controls
                 titleLink.attr('role', 'button').attr('data-toggle', 'collapse').attr('data-parent', "#accordion").attr('href', '#' + canvas[0].id).attr('aria-expanded', 'false').attr('aria-controls', canvas[0].id);
