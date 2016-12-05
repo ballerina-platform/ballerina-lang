@@ -195,7 +195,7 @@ statement
     |   replyStatement
     |   workerInteractionStatement
     |   commentStatement
-//    |   actionInvocationStatement
+    |   actionInvocationStatement
     ;
 
 assignmentStatement
@@ -278,6 +278,10 @@ workerReply
 
 commentStatement
     :   LINE_COMMENT
+    ;
+
+actionInvocationStatement
+    :    qualifiedReference '.' Identifier '(' expressionList ')' ';'
     ;
 
 // EXPRESSIONS

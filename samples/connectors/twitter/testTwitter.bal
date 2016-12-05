@@ -1,4 +1,4 @@
-package samples.connectors.twitter version 1.0;
+package samples.connectors.twitter;
 
 service TestTwitterConnector {
 

@@ -1,6 +1,6 @@
-package samples.connectors.twitter version 1.0.0;
+package samples.connectors.twitter;
 
-import ballerina.net.http version 1.1 as http11;
+import ballerina.net.http;
 
 function init(TwitterConnector t) throws exception {
     json loginReq;
