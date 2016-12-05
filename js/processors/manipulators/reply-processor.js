@@ -16,7 +16,7 @@
  * under the License.
  */
 
-define(['d3', 'tree_node', 'app/ballerina-old/utils/module', 'app/ballerina-old/models/message-point', 'app/ballerina-old/models/message-link'],
+define(['d3', 'ast/node', 'app/ballerina-old/utils/module', 'app/ballerina-old/models/message-point', 'app/ballerina-old/models/message-link'],
     function (d3, TreeNode, utils, MessagePoint, MessageLink) {
 
     var ReplyProcessor = {

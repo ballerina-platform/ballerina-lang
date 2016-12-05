@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['d3', 'tree_node'], function (d3, TreeNode) {
+define(['d3', 'ast/node'], function (d3, TreeNode) {
 
     // Header Processor Definition
     var HeaderProcessor = {

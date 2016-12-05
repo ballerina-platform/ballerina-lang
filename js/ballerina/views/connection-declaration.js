@@ -60,4 +60,5 @@ define(['lodash', 'jquery', 'event_channel', 'app/ballerina/ast/connection-decla
         window.console.log("Rendering the Connection Declaration");
     };
 
+    return ConnectionDeclaration;
 });

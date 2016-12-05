@@ -17,7 +17,7 @@
  */
 define(['require', 'log', 'jquery', 'lodash', 'backbone', 'app/menu-bar/menu-bar', 'breadcrumbs', 'file_browser', 'tab/service-tab-list', 'app/tool-palette/tool-palette',
 
-    'welcome','command','workspace', 'file_editor', 'ast/ballerina-ast-factory', 'diagram_rendering_visitor',/* void modules */ 'jquery_ui', 'bootstrap'],
+    'welcome','command','workspace', 'views/ballerina-file-editor', 'ast/ballerina-ast-factory', 'diagram_rendering_visitor',/* void modules */ 'jquery_ui', 'bootstrap'],
 
     function (require, log, $, _, Backbone, MenuBar, BreadcrumbController, FileBrowser, TabController, ToolPalette, WelcomeScreen, CommandManager, Workspace,FileEditor, BallerinaASTFactory, DiagramRenderingVisitor) {
 

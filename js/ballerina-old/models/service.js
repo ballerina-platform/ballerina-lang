@@ -16,7 +16,7 @@
  * under the License.
  */
 
-define(['require','log', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', 'tree_node', './life-line', './message-point'],
+define(['require','log', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core', 'ast/node', './life-line', './message-point'],
 
     function (require, log, $, d3, Backbone, _, DiagramCore, TreeNode, LifeLine, MessagePoint) {
 
