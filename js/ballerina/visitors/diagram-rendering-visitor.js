@@ -80,5 +80,13 @@ define(['lodash', 'log', 'ast_visitor', 'file_editor'], function(_, log, ASTVisi
         return false;
     };
 
+    DiagramRenderingVisitor.prototype.visitWhileStatement = function (astNode) {
+        log.info("Visiting WhileStatement");
+        var parent = astNode.getParent();
+        var parentView  = this.viewMap.get(parent);
+        //TODO create new while statement view and call render
+        return true;
+    };
+
     return DiagramRenderingVisitor;
 });

@@ -25,7 +25,7 @@ define(['lodash', 'log', 'event_channel', 'app/ballerina/ast/throw-statement', '
      * @constructor
      */
     var ThrowStatementView = function (model, container, viewOptions) {
-        if (!_.isNil(model) && model instanceof ReturnStatement && !_.isNil(container)) {
+        if (!_.isNil(model) && model instanceof ThrowStatement && !_.isNil(container)) {
             this._model = model;
             this._container = container;
             this._viewOptions = viewOptions;
