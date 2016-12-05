@@ -70,5 +70,11 @@ define(['lodash', './node'], function(_, ASTNode){
             return this.actionDefinitions;
     };
 
+    ConnectorDefinition.prototype.accept = function (visitor) {
+        visitor.visitConnectionDeclaration(this);
+
+
+    };
+
     return ConnectorDefinition;
 });

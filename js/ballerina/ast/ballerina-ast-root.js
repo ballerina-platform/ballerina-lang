@@ -95,6 +95,12 @@ define(['lodash', './node'], function (_, ASTNode) {
         _.forEach(this.serviceDefinitions, function (serviceDefinition) {
             serviceDefinition.accept(visitor);
         });
+
+        // Iterate over connectorDefinitions array
+        _.forEach(this.connectorDefinitions, function (connectorDefinition) {
+            connectorDefinition.accept(visitor);
+        });
+
     };
 
     return BallerinaASTRoot;
