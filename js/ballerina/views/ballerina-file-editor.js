@@ -19,9 +19,8 @@ define(['require', 'lodash', 'log'], function (require, _, log) {
 
     var ballerinaFileEditor = function (canvasList, astRoot) {
         this.canvasList = canvasList || [];
-        this._astRoot = astRoot;
+        this._model = astRoot;
         this.id = "Ballerina File Editor";
-
     };
 
     ballerinaFileEditor.prototype.getId = function () {
@@ -43,7 +42,7 @@ define(['require', 'lodash', 'log'], function (require, _, log) {
 
     };
     ballerinaFileEditor.prototype.init = function (astRoot, options) {
-        this._astRoot = astRoot;
+        this._model = astRoot;
         var errMsg;
         var editorParent = this;
         if (!_.has(options, 'container')) {
@@ -132,6 +131,10 @@ define(['require', 'lodash', 'log'], function (require, _, log) {
                 parent.append(outerDiv);
             });
         }
+    };
+
+    ballerinaFileEditor.prototype.getModel = function () {
+        return this._model;
     };
 
     return ballerinaFileEditor;

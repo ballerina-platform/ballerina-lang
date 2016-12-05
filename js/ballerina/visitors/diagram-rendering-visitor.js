@@ -20,7 +20,7 @@ define(['require', 'lodash', 'log', 'ast_visitor', 'views/ballerina-file-editor'
 
     var DiagramRenderingVisitor = function(containerView) {
         this.containerView = containerView;
-        this.viewMap = new Map();
+        this._viewsList = [];
     };
 
     DiagramRenderingVisitor.prototype = Object.create(ASTVisitor.prototype);
@@ -30,14 +30,14 @@ define(['require', 'lodash', 'log', 'ast_visitor', 'views/ballerina-file-editor'
         log.info("Visiting BallerinaASTRoot");
         var fileEditor = new FileEditor(null, astNode);
         fileEditor.init(astNode, this.containerView);
-        this.viewMap.set(astNode, fileEditor);
+        this._viewsList.push(fileEditor);
         return true;
     };
 
     DiagramRenderingVisitor.prototype.visitReplyStatement = function (astNode) {
         log.info("Visiting ReplyStatement");
         var parent = astNode.getParent();
-        var parentView  = this.viewMap.get(parent);
+        var parentView  = _.find(this._viewsList, ['_model',parent]);
         //TODO create new reply statement view and call render
         return false;
     };
@@ -54,7 +54,7 @@ define(['require', 'lodash', 'log', 'ast_visitor', 'views/ballerina-file-editor'
     DiagramRenderingVisitor.prototype.visitReturnStatement = function (astNode) {
         log.info("Visiting ReturnStatement");
         var parent = astNode.getParent();
-        var parentView  = this.viewMap.get(parent);
+        var parentView  = _.find(this._viewsList, ['_model',parent]);
         //TODO create new return statement view and call render
         return false;
     };
@@ -63,7 +63,7 @@ define(['require', 'lodash', 'log', 'ast_visitor', 'views/ballerina-file-editor'
         //modelView.render();
         log.info("Visiting ServiceDefinition");
         var parent = astNode.getParent();
-        var parentView  = this.viewMap.get(parent);
+        var parentView  = _.find(this._viewsList, ['_model',parent]);
         // var ServiceDefinitionView1 = require('app/ballerina/views/service-definition-view');
         _.forEach(parent.serviceDefinitions, function(serviceDefinition, index) {
             var canvas = parentView.canvasList[index];
@@ -82,7 +82,7 @@ define(['require', 'lodash', 'log', 'ast_visitor', 'views/ballerina-file-editor'
     DiagramRenderingVisitor.prototype.visitThrowStatement = function (astNode) {
         log.info("Visiting ThrowStatement");
         var parent = astNode.getParent();
-        var parentView  = this.viewMap.get(parent);
+        var parentView  = _.find(this._viewsList, ['_model',parent]);
         //TODO create new throw statement view and call render
         return false;
     };
@@ -90,7 +90,7 @@ define(['require', 'lodash', 'log', 'ast_visitor', 'views/ballerina-file-editor'
     DiagramRenderingVisitor.prototype.visitWhileStatement = function (astNode) {
         log.info("Visiting WhileStatement");
         var parent = astNode.getParent();
-        var parentView  = this.viewMap.get(parent);
+        var parentView  = _.find(this._viewsList, ['_model',parent]);
         //TODO create new while statement view and call render
         return true;
     };
