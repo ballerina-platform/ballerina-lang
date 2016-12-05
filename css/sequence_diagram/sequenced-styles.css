@@ -28,6 +28,12 @@
     border: 1px solid transparent;
 }
 
+.right-icon-clickable{
+    float: right;
+    padding-right: 10px;
+    cursor: pointer;
+}
+
 .tool > line {
     stroke-width: 1px;
 }

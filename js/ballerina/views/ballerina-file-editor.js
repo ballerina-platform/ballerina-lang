@@ -110,26 +110,33 @@ define(['require', 'lodash', 'log'], function (require, _, log) {
                 panelHeading.attr('id', canvas[0].id + 3).attr('role', 'tab');
                 var panelTitle = $('<h4></h4>');
                 panelTitle.addClass('panel-title');
+                panelTitle.attr('style', 'border-style:solid;border-width:1px;');
                 var panelIcon = $('<i></i>');
-                panelIcon.attr('style', 'padding:5px;');
+                panelIcon.attr('style', 'padding:10px;background-color:#ced4dd;');
                 if(canvas[0].getAttribute('name') == "service") {
                     panelIcon.addClass('fw fw-dgm-service');
                 } else if (canvas[0].getAttribute('name') == "connector") {
                     panelIcon.addClass('fw fw-dgm-connector');
                 }
                 panelTitle.append(panelIcon);
-                var titleLink = $('<a>'+ canvas[0].getAttribute('name') + '</a>');
+                var titleLink = $('<a style="padding-left: 10px;">'+ canvas[0].getAttribute('name') + '</a>');
                 titleLink.addClass("collapsed");
                 //TODO: update href,aria-controls
                 titleLink.attr('role', 'button').attr('data-toggle', 'collapse').attr('data-parent', "#accordion").attr('href', '#' + canvas[0].id).attr('aria-expanded', 'false').attr('aria-controls', canvas[0].id);
                 panelTitle.append(titleLink);
+
+                var panelRightIcon = $('<i></i>');
+                panelRightIcon.addClass('fw fw-sort-down pull-right right-icon-clickable');
+                panelRightIcon.attr('style', 'padding-left:10px;padding-right:10px;padding-top:5px;');
+                panelTitle.append(panelRightIcon);
+
                 panelHeading.append(panelTitle);
 
                 var bodyDiv = $('<div></div>');
                 // TODO: For the moment disabling the adding classes in order to show the containers
                  bodyDiv.addClass('panel-collapse collapse');
                 //TODO: UPDATE ID
-                bodyDiv.attr('id', canvas[0].id).attr('aria-labelledby', canvas[0].id + 3).attr('role', 'tabpanel');
+                bodyDiv.attr('id', canvas[0].id).attr('aria-labelledby', canvas[0].id + 3).attr('role', 'tabpanel').attr('style', 'border-style:solid;border-width:1px;');
                 canvas.addClass('panel-body');
                 bodyDiv.append(canvas);
 
