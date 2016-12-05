@@ -15,21 +15,29 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.wso2.ballerina.runtime.core;
 
-/**
- * {@code Executable} is an executable entity of Ballerina
- *
- * Implementations of this can be executed as statements.
- */
-public interface Executable {
+import java.util.HashMap;
+import java.util.Map;
 
-    /**
-     *
-     * @param context Ballerina context
-     * @param callback  Ballerina callback
-     * @return  whether execution is successful
-     */
-    boolean execute(BalContext context, BalCallback callback);
+/**
+ * {@code BalContext} represents the Ballerina Runtime Context
+ */
+public class BalContext {
+
+    protected Map<String, Object> properties = new HashMap();
+
+    public Object getProperty(String key) {
+        return properties.get(key);
+    }
+
+    public Map<String, Object> getProperties() {
+        return properties;
+    }
+
+    public void setProperty(String key, Object value) {
+        properties.put(key, value);
+    }
 
 }

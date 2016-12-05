@@ -15,21 +15,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.wso2.ballerina.runtime.core;
 
-/**
- * {@code Executable} is an executable entity of Ballerina
- *
- * Implementations of this can be executed as statements.
- */
-public interface Executable {
+import org.wso2.carbon.messaging.CarbonCallback;
 
-    /**
-     *
-     * @param context Ballerina context
-     * @param callback  Ballerina callback
-     * @return  whether execution is successful
-     */
-    boolean execute(BalContext context, BalCallback callback);
+/**
+ * {@BalCallback} represent the Callback interface for Ballerina
+ */
+public interface BalCallback extends CarbonCallback {
 
 }
