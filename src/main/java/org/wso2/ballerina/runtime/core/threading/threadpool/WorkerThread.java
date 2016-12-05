@@ -24,12 +24,12 @@ import org.wso2.ballerina.runtime.core.BalContext;
 /**
  * Worker Thread which is executable through the worker pool
  */
-public abstract class Worker implements Runnable {
+public abstract class WorkerThread implements Runnable {
 
     private BalContext context;
     private BalCallback callback;
 
-    public Worker(BalContext context, BalCallback callback) {
+    public WorkerThread(BalContext context, BalCallback callback) {
         this.context = context;
         this.callback = callback;
     }

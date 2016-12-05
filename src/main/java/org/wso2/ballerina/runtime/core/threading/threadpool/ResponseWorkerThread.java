@@ -22,11 +22,11 @@ import org.wso2.ballerina.runtime.core.BalCallback;
 import org.wso2.ballerina.runtime.core.BalContext;
 
 /**
- * Worker Thread which is responsible for request processing
+ * Worker Thread which is responsible for response processing
  */
-public class RequestWorker extends Worker {
+public class ResponseWorkerThread extends WorkerThread {
 
-    public RequestWorker(BalContext context, BalCallback callback) {
+    public ResponseWorkerThread(BalContext context, BalCallback callback) {
         super(context, callback);
     }
 
