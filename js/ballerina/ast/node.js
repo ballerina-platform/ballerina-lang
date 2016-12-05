@@ -25,6 +25,7 @@ define(['event_channel'], function(EventChannel){
         this.type = type;
         this.configStart = cStart;
         this.configEnd = cEnd;
+        this.id = uuid();
     };
 
     ASTNode.prototype = Object.create(EventChannel.prototype);
@@ -44,6 +45,17 @@ define(['event_channel'], function(EventChannel){
 
     ASTNode.prototype.getValue = function () {
         return this.value;
+    };
+
+    // Auto generated Id for service definitions (for accordion views)
+    var uuid =  function (){
+        function s4() {
+            return Math.floor((1 + Math.random()) * 0x10000)
+                .toString(16)
+                .substring(1);
+        }
+        return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+            s4() + '-' + s4() + s4() + s4();
     };
 
     return ASTNode;

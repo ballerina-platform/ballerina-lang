@@ -25,7 +25,8 @@ define(['lodash', './node'], function (_, ASTNode) {
         this.workerDeclarations = _.get(args, 'workerDeclarations', []);
         this.statements = _.get(args, 'statements', []);
         this.resourceArguments = _.get(args, 'resourceArguments', []);
-        this._parent = undefined;
+
+        ASTNode.call(this);
     };
 
     ResourceDefinition.prototype = Object.create(ASTNode.prototype);
@@ -104,11 +105,11 @@ define(['lodash', './node'], function (_, ASTNode) {
         visitor.visitResourceDefinition(this);
     };
 
-    ResourceDefinition.prototype.parent = function (parent) {
+    ResourceDefinition.prototype.resourceParent = function (parent) {
         if (!_.isUndefined(parent)) {
-            this._parent = parent;
+            this.parent = parent;
         } else {
-            return this._parent;
+            return this.parent;
         }
     };
 

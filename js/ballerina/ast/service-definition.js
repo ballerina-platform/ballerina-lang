@@ -18,7 +18,6 @@
 define(['lodash', './node'], function (_, ASTNode) {
 
     var ServiceDefinition = function (args) {
-        this.id = autoGenerateId();
         this._basePath = _.get(args, 'basePath', "/");
         this._resourceDefinitions = _.get(args, 'resourceDefinitions', []);
         this._variableDeclarations = _.get(args, 'variableDeclarations', []);
@@ -30,16 +29,6 @@ define(['lodash', './node'], function (_, ASTNode) {
     ServiceDefinition.prototype = Object.create(ASTNode.prototype);
     ServiceDefinition.prototype.constructor = ServiceDefinition;
 
-    // Auto generated Id for service definitions (for accordion views)
-    function autoGenerateId(){
-        function s4() {
-            return Math.floor((1 + Math.random()) * 0x10000)
-                .toString(16)
-                .substring(1);
-        }
-        return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-            s4() + '-' + s4() + s4() + s4();
-    };
     ServiceDefinition.prototype.setBasePath = function (basePath) {
         if (!_.isNil(basePath)) {
             this._basePath = basePath;

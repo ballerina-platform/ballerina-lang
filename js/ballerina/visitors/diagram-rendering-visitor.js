@@ -77,7 +77,7 @@ define(['require', 'lodash', 'log', 'ast_visitor', 'views/ballerina-file-editor'
 
     DiagramRenderingVisitor.prototype.visitResourceDefinition = function (astNode) {
         //modelView.render();
-        var parent = astNode.parent();
+        var parent = astNode.resourceParent();
         var parentView = _.find(this._viewsList, ['_model',parent]);
         if (_.isUndefined(parentView)) {
             log.error('Parent View cannot find in the views List');

@@ -73,9 +73,19 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', 'app/diagram-core/models/poi
         ResourceDefinitionView.prototype.render = function () {
             // Render resource view
             var svgContainer = $(this._container).children()[0];
-            var center = new Point(200, 50);
+            var headingStart = new Point(200, 50);
+            var contentStart = new Point(200, 75);
 
-            d3utils.rect(center.x(), center.y(), 200, 200, 0, 0, d3.select(svgContainer));
+            var headingRect = d3utils.rect(headingStart.x(), headingStart.y(), 1000, 25, 0, 0, d3.select(svgContainer));
+            // TODO: Move these styling to css
+            headingRect.attr('fill', "#FFFFFF");
+            headingRect.attr('stroke-width', "1");
+            headingRect.attr('stroke', "#000000");
+            var contentRect = d3utils.rect(contentStart.x(), contentStart.y(), 1000, 200, 0, 0, d3.select(svgContainer));
+            // TODO: Move these styling to css
+            contentRect.attr('fill', "#FFFFFF");
+            contentRect.attr('stroke-width', "1");
+            contentRect.attr('stroke', "#000000");
             log.debug("Rendering Resource View");
         };
 
