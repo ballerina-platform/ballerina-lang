@@ -72,10 +72,6 @@ define(['lodash', 'log', 'event_channel',  './canvas', 'ast/function-definition'
         };
 
         FunctionDefinitionView.prototype.render = function () {
-            var group = D3Utils.draw.group(this._container);
-            var rect = D3Utils.draw.rect(10, 10, 100, 100, 0, 0, group, "#FFFFFF");
-            group.rect = rect;
-            return group;
         };
 
         return FunctionDefinitionView;
