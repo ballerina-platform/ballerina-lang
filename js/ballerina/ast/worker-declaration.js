@@ -18,53 +18,42 @@
 define(['lodash', './node'], function(_, ASTNode){
 
     var WorkerDeclaration = function(connections, variables, statements, replyStatement) {
-        this.connectionDeclarations = connections || {};
-        this.variableDeclarations = variables || {};
-        this.statements = statements || {};
-        this.reply = replyStatement;
+        this._childrenList = [];
+        this._reply = replyStatement;
     };
 
     WorkerDeclaration.prototype = Object.create(ASTNode.prototype);
     WorkerDeclaration.prototype.constructor = WorkerDeclaration;
 
-    WorkerDeclaration.prototype.setConnections = function(connections){
-        if(!_.isNil(connections)){
-            this.connectionDeclarations = connections;
+    WorkerDeclaration.prototype.addChild = function (child, index) {
+        if (_.isUndefined(index)) {
+            this._childrenList.insert(index, child)
+        } else {
+            this._childrenList.push(child);
         }
-    };
-
-    WorkerDeclaration.prototype.getConnections = function(){
-        return this.connectionDeclarations;
-    };
-
-    WorkerDeclaration.prototype.setVariables = function(variables){
-        if(!_.isNil(variables)){
-            this.variableDeclarations = variables;
-        }
-    };
-
-    WorkerDeclaration.prototype.getVariables = function(){
-        return this.variableDeclarations;
-    };
-
-    WorkerDeclaration.prototype.setStatements = function(statements){
-        if(!_.isNil(statements)){
-            this.statements = statements;
-        }
-    };
-
-    WorkerDeclaration.prototype.getStatements = function(){
-        return this.statements;
     };
 
     WorkerDeclaration.prototype.setReply = function(replyStatement){
         if(!_.isNil(replyStatement)){
-            this.reply = replyStatement;
+            this._reply = replyStatement;
         }
     };
 
     WorkerDeclaration.prototype.getReply = function(){
-        return this.reply;
+        return this._reply;
     };
 
+    WorkerDeclaration.prototype.accept = function (visitor) {
+        visitor.visitWorkerDeclaration();
+        this.acceptChildren(visitor);
+    };
+
+    WorkerDeclaration.prototype.acceptChildren = function (visitor) {
+        // Accept all the children of the worker
+        for (var id in this._childrenList) {
+            this._childrenList[id].accept(visitor);
+        }
+    };
+
+    return WorkerDeclaration;
 });

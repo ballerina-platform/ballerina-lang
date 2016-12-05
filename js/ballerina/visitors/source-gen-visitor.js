@@ -15,24 +15,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './node'], function(_, ASTNode){
+define(['lodash', 'log', 'ast-visitor'], function(_, log, ASTVisitor) {
 
-    var Expression = function(expression) {
-        this._expression = expression;
+    var SourceGenVisitor = function() {
+
     };
 
-    Expression.prototype = Object.create(ASTNode.prototype);
-    Expression.prototype.constructor = Expression;
+    SourceGenVisitor.prototype = Object.create(ASTVisitor.prototype);
+    SourceGenVisitor.prototype.constructor = SourceGenVisitor;
 
-    Expression.prototype.setExpression = function (expression) {
-        if(!_.isUndefined(expression)){
-            this._expression = expression;
-        }
-    };
-
-    Expression.prototype.getExpression = function () {
-        return this._expression;
-    };
-
-    return Expression;
 });

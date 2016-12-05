@@ -19,6 +19,7 @@ define(['event_channel'], function(EventChannel){
 
     var ASTNode = function(startIndex, length, parent, type) {
         this.object = undefined;
+        this.parent = undefined;
         this.children = [];
         this.startIndex = startIndex;
         this.length = length;
@@ -28,6 +29,14 @@ define(['event_channel'], function(EventChannel){
 
     ASTNode.prototype = Object.create(EventChannel.prototype);
     ASTNode.prototype.constructor = ASTNode;
+
+    ASTNode.prototype.getParent = function () {
+        return this.parent;
+    };
+
+    ASTNode.prototype.setParent = function (parent) {
+        this.parent = parent;
+    };
 
     ASTNode.prototype.getChildren = function () {
         return this.children;

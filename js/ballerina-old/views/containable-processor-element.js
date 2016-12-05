@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'd3', 'diagram_core', 'app/ballerina/models/life-line'], function ( _, d3, DiagramCore, LifeLine) {
+define(['lodash', 'd3', 'diagram_core', 'app/ballerina-old/models/life-line'], function ( _, d3, DiagramCore, LifeLine) {
 
     var ContainableProcessorElementView = DiagramCore.Views.ShapeView.extend(
         /** @lends ContainableProcessorElement.prototype */
@@ -109,7 +109,7 @@ define(['lodash', 'd3', 'diagram_core', 'app/ballerina/models/life-line'], funct
                 yValue += 60;
                 for (var id in this.modelAttr("children").models) {
                     var processor = this.modelAttr("children").models[id];
-                    var ProcessorView = require('app/ballerina/views/processor'); //TODO: fix this
+                    var ProcessorView = require('app/ballerina-old/views/processor'); //TODO: fix this
                     var processorViewOptions = {
                         model: processor,
                         center: new DiagramCore.Models.Point({x: xValue, y: yValue}),

@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'app/ballerina/models/module', 'app/ballerina/views/module', 'app/ballerina/utils/module'],
+define(['require', 'app/ballerina-old/models/module', 'app/ballerina-old/views/module', 'app/ballerina-old/utils/module'],
     function (require, models, views, utils) {
         return  {
             Models: models,

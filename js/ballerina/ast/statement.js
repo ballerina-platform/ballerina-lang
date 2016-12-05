@@ -27,4 +27,6 @@ define(['lodash', './node'], function (_, ASTNode) {
     Statement.prototype = Object.create(ASTNode.prototype);
     Statement.prototype.constructor = Statement;
 
+    return Statement;
+
 });

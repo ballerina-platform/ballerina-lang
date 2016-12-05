@@ -56,4 +56,6 @@ define(['lodash', 'log', './statement', './expression'], function (_, log, State
         return this._statments;
     };
 
+    return ConditionalStatement;
+
 });

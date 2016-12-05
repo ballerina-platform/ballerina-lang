@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['app/ballerina/models/unit-processor', 'app/ballerina/models/complex-processor', 'app/ballerina/models/dynamic-containable-processor',
-    'app/ballerina/models/custom-processor', 'app/ballerina/models/action-processor'],
+define(['app/ballerina-old/models/unit-processor', 'app/ballerina-old/models/complex-processor', 'app/ballerina-old/models/dynamic-containable-processor',
+    'app/ballerina-old/models/custom-processor', 'app/ballerina-old/models/action-processor'],
     function (UnitProcessor, ComplexProcessor, DynamicContainableProcessor, CustomProcessor, ActionProcessor) {
 
     var ProcessorFactory = function (title, center, type, model, viewAttributes, parameters, utils, textModel, width, height,serviceView) {

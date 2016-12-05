@@ -15,27 +15,80 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './node'], function(_, ASTNode){
+define(['lodash', './node'], function (_, ASTNode) {
 
-    var ServiceDefinition = function() {
-        this._basePath = "/";
-        this.resourceDefinitions = [];
-        this.variableDeclarations = [];
-        this.connectionDeclarations = [];
+    var ServiceDefinition = function (args) {
+        this.id = autoGenerateId();
+        this._basePath = _.get(args, 'basePath', "/");
+        this._resourceDefinitions = _.get(args, 'resourceDefinitions', []);
+        this._variableDeclarations = _.get(args, 'variableDeclarations', []);
+        this._connectionDeclarations = _.get(args, 'connectionDeclarations', []);
+
+        ASTNode.call(this);
     };
 
     ServiceDefinition.prototype = Object.create(ASTNode.prototype);
     ServiceDefinition.prototype.constructor = ServiceDefinition;
 
-
-    ServiceDefinition.prototype.setBasePath = function(basePath){
-        if(!_.isUndefined(basePath)){
+    // Auto generated Id for service definitions (for accordion views)
+    function autoGenerateId(){
+        function s4() {
+            return Math.floor((1 + Math.random()) * 0x10000)
+                .toString(16)
+                .substring(1);
+        }
+        return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+            s4() + '-' + s4() + s4() + s4();
+    };
+    ServiceDefinition.prototype.setBasePath = function (basePath) {
+        if (!_.isNil(basePath)) {
             this._basePath = basePath;
         }
     };
 
-    ServiceDefinition.prototype.getBasePath = function(){
+    ServiceDefinition.prototype.setResourceDefinitions = function (resourceDefinitions) {
+        if (!_.isNil(resourceDefinitions)) {
+            this._resourceDefinitions = resourceDefinitions;
+        }
+    };
+
+    ServiceDefinition.prototype.setVariableDeclarations = function (variableDeclarations) {
+        if (!_.isNil(variableDeclarations)) {
+            this._variableDeclarations = variableDeclarations;
+        }
+    };
+
+    ServiceDefinition.prototype.setConnectionDeclarations = function (connectionDeclarations) {
+        if (!_.isNil(connectionDeclarations)) {
+            this._connectionDeclarations = connectionDeclarations;
+        }
+    };
+
+    ServiceDefinition.prototype.getBasePath = function () {
         return this._basePath;
     };
+
+    ServiceDefinition.prototype.getResourceDefinitions = function () {
+        return this._resourceDefinitions;
+    };
+
+    ServiceDefinition.prototype.getVariableDeclarations = function () {
+        return this._variableDeclarations;
+    };
+
+    ServiceDefinition.prototype.getConnectionDeclarations = function () {
+        return this._connectionDeclarations;
+    };
+
+    ServiceDefinition.prototype.accept = function (visitor) {
+        visitor.visitServiceDefinition(this);
+
+        // Accept the resource definitions
+        for (var id in this._resourceDefinitions) {
+            this._resourceDefinitions[id].accept(visitor);
+        }
+    };
+
+    return ServiceDefinition;
 
 });

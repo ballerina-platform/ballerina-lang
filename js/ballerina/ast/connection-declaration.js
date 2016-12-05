@@ -17,22 +17,20 @@
  */
 define(['lodash', './node'], function(_, ASTNode){
 
-    var Expression = function(expression) {
-        this._expression = expression;
+    var ConnectionDeclaration = function(options) {
+        this._connectionOptions = options || {};
     };
 
-    Expression.prototype = Object.create(ASTNode.prototype);
-    Expression.prototype.constructor = Expression;
+    ConnectionDeclaration.prototype = Object.create(ASTNode.prototype);
+    ConnectionDeclaration.prototype.constructor = ConnectionDeclaration;
 
-    Expression.prototype.setExpression = function (expression) {
-        if(!_.isUndefined(expression)){
-            this._expression = expression;
-        }
+    ConnectionDeclaration.prototype.getOptions = function () {
+        return this._connectionOptions;
     };
 
-    Expression.prototype.getExpression = function () {
-        return this._expression;
-    };
+    ConnectionDeclaration.prototype.accept = function (visitor) {
+        visitor.visitConnectionDeclaration();
+    }
 
-    return Expression;
+    return ConnectionDeclaration;
 });

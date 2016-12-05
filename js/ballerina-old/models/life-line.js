@@ -16,7 +16,7 @@
  * under the License.
  */
 define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'diagram_core',
-    'app/ballerina/models/children', 'app/ballerina/models/processor', 'app/ballerina/utils/processor-factory'],
+    'app/ballerina-old/models/children', 'app/ballerina-old/models/processor', 'app/ballerina-old/utils/processor-factory'],
     function (require, $, d3, Backbone, _, DiagramCore, Children, Processor, ProcessorFactory) {
 
     var LifeLine = DiagramCore.Models.Shape.extend(

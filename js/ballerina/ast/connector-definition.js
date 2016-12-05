@@ -55,4 +55,6 @@ define(['lodash', './node'], function(_, ASTNode){
     ConnectorDefinition.prototype.getActionDefinitions = function () {
             return this.actionDefinitions;
     };
+
+    return ConnectorDefinition;
 });

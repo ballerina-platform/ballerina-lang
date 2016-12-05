@@ -17,15 +17,15 @@
  */
 define(['lodash', './node'], function (_, ASTNode) {
 
-    var ResourceDefinition = function (path, method, connections, variables, workers, statements, resourceArgs) {
-        this._path = path;
-        this._method = method;
-        this.connectionDeclarations = connections || {};
-        this.variableDeclarations = variables || {};
-        this.workerDeclarations = workers || {};
-        this.statements = statements || {};
-        this.resourceArguments = resourceArgs || {};
-
+    var ResourceDefinition = function (args) {
+        this._path = _.get(args, 'path');
+        this._method = _.get(args, 'method');
+        this.connectionDeclarations =_.get(args, 'connectorDefinitions', []);
+        this.variableDeclarations =_.get(args, 'variableDeclarations', []);
+        this.workerDeclarations = _.get(args, 'workerDeclarations', []);
+        this.statements = _.get(args, 'statements', []);
+        this.resourceArguments = _.get(args, 'resourceArguments', []);
+        this._parent = undefined;
     };
 
     ResourceDefinition.prototype = Object.create(ASTNode.prototype);
@@ -33,70 +33,84 @@ define(['lodash', './node'], function (_, ASTNode) {
 
 
     ResourceDefinition.prototype.setResourcePath = function (path) {
-        if (!_.isEmpty(path)) {
+        if (!_.isNil(path)) {
             this._path = path;
         }
     };
 
-    ResourceDefinition.prototype.getResourcePath = function () {
-        return this._path;
-    };
-
     ResourceDefinition.prototype.setResourceMethod = function (method) {
-        if (!_.isEmpty(method)) {
+        if (!_.isNil(method)) {
             this._method = method;
         }
     };
 
-    ResourceDefinition.prototype.getResourceMethod = function () {
-        return this._method;
-    };
-
     ResourceDefinition.prototype.setConnections = function (connections) {
-        if (!_.isEmpty(connections)) {
+        if (!_.isNil(connections)) {
             this.connectionDeclarations = connections;
         }
     };
-
-    ResourceDefinition.prototype.getConnections = function () {
-        return this.connectionDeclarations;
-    };
     ResourceDefinition.prototype.setVariables = function (variables) {
-        if (!_.isEmpty(variables)) {
+        if (!_.isNil(variables)) {
             this.variableDeclarations = variables;
         }
     };
-
-    ResourceDefinition.prototype.getVariables = function () {
-        return this.variableDeclarations;
-    };
     ResourceDefinition.prototype.setWorkers = function (workers) {
-        if (!_.isEmpty(workers)) {
+        if (!_.isNil(workers)) {
             this.workerDeclarations = workers;
         }
     };
 
-    ResourceDefinition.prototype.getWorkers = function () {
-        return this.workerDeclarations;
-    };
     ResourceDefinition.prototype.setStatements = function (statements) {
-        if (!_.isEmpty(statements)) {
+        if (!_.isNil(statements)) {
             this.statements = statements;
+        }
+    };
+
+    ResourceDefinition.prototype.setResourceArguments = function (resourceArgs) {
+        if (!_.isNil(resourceArgs)) {
+            this.resourceArguments = resourceArgs;
         }
     };
 
     ResourceDefinition.prototype.getStatements = function () {
         return this.statements;
     };
-    ResourceDefinition.prototype.setResourceArguments = function (resourceArgs) {
-        if (!_.isEmpty(resourceArgs)) {
-            this.resourceArguments = resourceArgs;
-        }
+
+    ResourceDefinition.prototype.getWorkers = function () {
+        return this.workerDeclarations;
+    };
+
+    ResourceDefinition.prototype.getVariables = function () {
+        return this.variableDeclarations;
+    };
+
+    ResourceDefinition.prototype.getConnections = function () {
+        return this.connectionDeclarations;
+    };
+
+    ResourceDefinition.prototype.getResourceMethod = function () {
+        return this._method;
+    };
+
+    ResourceDefinition.prototype.getResourcePath = function () {
+        return this._path;
     };
 
     ResourceDefinition.prototype.getResourceArguments = function () {
         return this.resourceArguments;
     };
 
+    ResourceDefinition.prototype.accept = function (visitor) {
+        visitor.visitResourceDefinition(this);
+    };
 
+    ResourceDefinition.prototype.parent = function (parent) {
+        if (!_.isUndefined(parent)) {
+            this._parent = parent;
+        } else {
+            return this._parent;
+        }
+    };
+
+    return ResourceDefinition;
 });

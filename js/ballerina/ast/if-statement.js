@@ -54,4 +54,6 @@ define(['lodash', 'log', './conditional-statement'], function (_, log, Condition
     ConditionalStatement.prototype.getElseIfStatements = function () {
         return this._elseIfStatements;
     };
+
+    return IfStatement;
 });
