@@ -17,21 +17,22 @@
  */
 define(['require', 'lodash', 'log'], function (require, _, log) {
 
-    var ballerinaFileEditor = function (canvasList, astRoot) {
+    var BallerinaFileEditor = function (canvasList, astRoot, viewOptions) {
         this.canvasList = canvasList || [];
         this._model = astRoot;
         this.id = "Ballerina File Editor";
+        this._viewOptions = viewOptions;
     };
 
-    ballerinaFileEditor.prototype.getId = function () {
+    BallerinaFileEditor.prototype.getId = function () {
         return this.id;
     };
 
-    ballerinaFileEditor.prototype.setId = function (id) {
+    BallerinaFileEditor.prototype.setId = function (id) {
         this.id = id;
     };
 
-    ballerinaFileEditor.prototype.addCanvas = function (canvas) {
+    BallerinaFileEditor.prototype.addCanvas = function (canvas) {
         if (!_.isNil(canvas)) {
             this.canvasList.push(canvas);
         }
@@ -41,7 +42,7 @@ define(['require', 'lodash', 'log'], function (require, _, log) {
 
 
     };
-    ballerinaFileEditor.prototype.init = function (astRoot, options) {
+    BallerinaFileEditor.prototype.init = function (astRoot, options) {
         this._model = astRoot;
         var errMsg;
         var editorParent = this;
@@ -65,7 +66,7 @@ define(['require', 'lodash', 'log'], function (require, _, log) {
                 _.each(serviceDefs, function (serviceModel) {
 
                     //TODO: Add serviceModel id and css props
-                    var serviceContainer = $('<div><svg class="diagram"></svg></div>');
+                    var serviceContainer = $('<div><svg class="service-container"></svg></div>');
                     serviceContainer.attr('id', serviceModel.id);
                     serviceContainer.attr('name','service');
                     editorParent.addCanvas(serviceContainer);
@@ -96,7 +97,7 @@ define(['require', 'lodash', 'log'], function (require, _, log) {
 
     };
 
-    ballerinaFileEditor.prototype.render = function (parent) {
+    BallerinaFileEditor.prototype.render = function (parent) {
         if (!_.isNil(this.canvasList)) {
             _.each(this.canvasList, function (canvas) {
                 //draw a collapse accordion
@@ -133,10 +134,10 @@ define(['require', 'lodash', 'log'], function (require, _, log) {
         }
     };
 
-    ballerinaFileEditor.prototype.getModel = function () {
+    BallerinaFileEditor.prototype.getModel = function () {
         return this._model;
     };
 
-    return ballerinaFileEditor;
+    return BallerinaFileEditor;
 });
 

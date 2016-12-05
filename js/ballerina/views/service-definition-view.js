@@ -72,7 +72,7 @@ define(['lodash', 'log', './canvas', 'ast/service-definition'],
         };
 
         ServiceDefinitionView.prototype.render = function () {
-            // Render service view
+
         };
 
         return ServiceDefinitionView;
