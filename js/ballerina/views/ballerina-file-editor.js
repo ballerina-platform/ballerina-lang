@@ -105,7 +105,7 @@ define(['require', 'lodash', 'log'], function (require, _, log) {
                 // TODO: For the moment disabling the adding classes in order to show the containers
                  outerDiv.addClass('panel panel-default');
                 var panelHeading = $('<div></div>');
-                panelHeading.addClass('panel-heading');
+                //panelHeading.addClass('panel-heading');
                 //TODO: UPDATE ID
                 panelHeading.attr('id', canvas[0].id + 3).attr('role', 'tab');
                 var panelTitle = $('<h4></h4>');
