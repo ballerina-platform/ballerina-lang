@@ -15,39 +15,39 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', 'app/ballerina/ast/function-definition', 'd3utils'],
-    function (_, log, EventChannel, FunctionDefinition, D3Utils) {
+define(['lodash', 'log', 'event_channel', 'app/ballerina/ast/action-definition', 'd3utils'],
+    function (_, log, EventChannel, ActionDefinition, D3Utils) {
 
         /**
-         * View for the function definition model.
-         * @param model - Function definition model.
+         * View for the action definition model.
+         * @param model - Action definition model.
          * @param container - the SVG container.
          * @param viewOptions - Options to configure the view
          */
-        var FunctionDefinitionView = function (model, container, viewOptions) {
+        var ActionDefinitionView = function (model, container, viewOptions) {
             if (!_.isNil(model) && model instanceof FunctionDefinition && !_.isNil(container)) {
                 this._model = model;
                 this._container = container;
                 this._viewOptions = viewOptions;
             } else {
-                log.error("Invalid args received for creating a function definition view. Model: " + model
+                log.error("Invalid args received for creating a action definition view. Model: " + model
                     + ". Container: " + container);
             }
 
         };
 
-        FunctionDefinitionView.prototype = Object.create(EventChannel.prototype);
-        FunctionDefinitionView.prototype.constructor = FunctionDefinitionView;
+        ActionDefinitionView.prototype = Object.create(EventChannel.prototype);
+        ActionDefinitionView.prototype.constructor = ActionDefinitionView;
 
-        FunctionDefinitionView.prototype.setModel = function (model) {
+        ActionDefinitionView.prototype.setModel = function (model) {
             if (!_.isNil(model)) {
                 this._model = model;
             } else {
-                log.error("Unknown definition received for function definition.");
+                log.error("Unknown definition received for action definition.");
             }
         };
 
-        FunctionDefinitionView.prototype.setContainer = function (container) {
+        ActionDefinitionView.prototype.setContainer = function (container) {
             if (!_.isNil(container)) {
                 this._container = container;
             } else {
@@ -55,28 +55,28 @@ define(['lodash', 'log', 'event_channel', 'app/ballerina/ast/function-definition
             }
         };
 
-        FunctionDefinitionView.prototype.setViewOptions = function (viewOptions) {
+        ActionDefinitionView.prototype.setViewOptions = function (viewOptions) {
             this._viewOptions = viewOptions;
         };
 
-        FunctionDefinitionView.prototype.getModel = function () {
+        ActionDefinitionView.prototype.getModel = function () {
             return this._model;
         };
 
-        FunctionDefinitionView.prototype.getContainer = function () {
+        ActionDefinitionView.prototype.getContainer = function () {
             return this._container;
         };
 
-        FunctionDefinitionView.prototype.getViewOptions = function () {
+        ActionDefinitionView.prototype.getViewOptions = function () {
             return this._viewOptions;
         };
 
-        FunctionDefinitionView.prototype.render = function () {
+        ActionDefinitionView.prototype.render = function () {
             var group = D3Utils.draw.group(this._container);
             var rect = D3Utils.draw.rect(10, 10, 100, 100, 0, 0, group, "#FFFFFF");
             group.rect = rect;
             return group;
         };
 
-        return FunctionDefinitionView;
+        return ActionDefinitionView;
     });
