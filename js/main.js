@@ -89,6 +89,12 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'app/menu-bar/menu-bar
             var ballerinaASTFactory = new BallerinaASTFactory();
             var ballerinaAstRoot = ballerinaASTFactory.createBallerinaAstRoot();
             var serviceDefinitions = [];
+            // Create sample connector definition
+            var connectorDefinitions = [];
+            var connectorDefinition1 = ballerinaASTFactory.createConnectorDefinition();
+            connectorDefinitions.push(connectorDefinition1);
+            ballerinaAstRoot.setConnectorDefinitions(connectorDefinitions);
+
             var serviceDefinition1 = ballerinaASTFactory.createServiceDefinition();
             serviceDefinition1.setBasePath("/basePath1");
             var serviceDefinition2 = ballerinaASTFactory.createServiceDefinition();

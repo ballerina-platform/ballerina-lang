@@ -68,23 +68,23 @@ define(['require', 'lodash', 'log'], function (require, _, log) {
                     //TODO: Add serviceModel id and css props
                     var serviceContainer = $('<div>Service View container</div>');
                     serviceContainer.attr('id', serviceModel.id);
-                    // var ServiceDefView =  require('app/ballerina/views/service-definition-view');
-                    // var serviceView = new ServiceDefView(serviceModel,serviceContainer);
+                    serviceContainer.attr('name','service');
                     editorParent.addCanvas(serviceContainer);
                 });
             }
             if (_.has(astRoot, 'functionDefinitions')) {
                 _.each(astRoot.functionDefinitions, function (functionModel) {
                     var functionContainer = $('<div></div>');
-                    var functionView = new FunctionDefinitionView(functionModel, functionContainer);
-                    this.addCanvas(functionView);
+                   // var functionView = new FunctionDefinitionView(functionModel, functionContainer);
+                    editorParent.addCanvas(functionContainer);
                 });
             }
             if (_.has(astRoot, 'connectorDefinitions')) {
                 _.each(astRoot.connectorDefinitions, function (connectorModel) {
-                    var connectorContainer = $('<div></div>');
-                    var connectorView = new ConnectorDefinitionView(connectorModel, connectorContainer);
-                    this.addCanvas(connectorView);
+                    var connectorContainer = $('<div>Connector View Container</div>');
+                    connectorContainer.attr('id', connectorModel.id);
+                    connectorContainer.attr('name','connector');
+                    editorParent.addCanvas(connectorContainer);
                 });
             }
             //TODO: rest of definitions when implemented
@@ -110,7 +110,7 @@ define(['require', 'lodash', 'log'], function (require, _, log) {
                 panelHeading.attr('id', canvas[0].id + 3).attr('role', 'tab');
                 var panelTitle = $('<h4></h4>');
                 panelTitle.addClass('panel-title');
-                var titleLink = $('<a>'+ 'service' + '</a>');
+                var titleLink = $('<a>'+ canvas[0].getAttribute('name') + '</a>');
                 titleLink.addClass("collapsed");
                 //TODO: update href,aria-controls
                 titleLink.attr('role', 'button').attr('data-toggle', 'collapse').attr('data-parent', "#accordion").attr('href', '#' + canvas[0].id).attr('aria-expanded', 'false').attr('aria-controls', canvas[0].id);
