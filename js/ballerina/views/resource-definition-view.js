@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './canvas', 'app/ballerina/ast/resource-definition'],
-    function (_, log, Canvas, ResourceDefinition) {
+define(['lodash', 'log', './canvas'],
+    function (_, log, Canvas) {
 
         /**
          * The view for the resource definition model.
@@ -26,7 +26,7 @@ define(['lodash', 'log', './canvas', 'app/ballerina/ast/resource-definition'],
          * @constructor
          */
         var ResourceDefinitionView = function (model, container, viewOptions) {
-            if (!_.isNul(model) && model instanceof ResourceDefinition && !_.isNil(container)) {
+            if (!_.isNil(model) && !_.isNil(container)) {
                 this._model = model;
                 this._container = container;
                 this._viewOptions = viewOptions;
@@ -72,8 +72,8 @@ define(['lodash', 'log', './canvas', 'app/ballerina/ast/resource-definition'],
 
         ResourceDefinitionView.prototype.render = function () {
             // Render resource view
-            window.console.log("Rendering the resource");
-        }
+            log.debug("Rendering Resource View");
+        };
 
         return ResourceDefinitionView
 
