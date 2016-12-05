@@ -15,8 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'lodash', 'log', 'ast_visitor', 'views/ballerina-file-editor', 'views/service-definition-view'],
-    function(require, _, log, ASTVisitor, FileEditor, ServiceDefinitionView) {
+define(['require', 'lodash', 'log', 'ast_visitor', 'views/ballerina-file-editor', 'views/service-definition-view',
+    'views/resource-definition-view'],
+    function(require, _, log, ASTVisitor, FileEditor, ServiceDefinitionView, ResourceDefinitionView) {
 
     var DiagramRenderingVisitor = function(containerView) {
         this.containerView = containerView;
@@ -64,18 +65,35 @@ define(['require', 'lodash', 'log', 'ast_visitor', 'views/ballerina-file-editor'
         log.info("Visiting ServiceDefinition");
         var parent = astNode.getParent();
         var parentView  = _.find(this._viewsList, ['_model',parent]);
-        // var ServiceDefinitionView1 = require('app/ballerina/views/service-definition-view');
-        _.forEach(parent.serviceDefinitions, function(serviceDefinition, index) {
-            var canvas = parentView.canvasList[index];
+        for (var id in parent.serviceDefinitions) {
+            var serviceDefinition = parent.serviceDefinitions[id];
+            var canvas = parentView.canvasList[id];
             var serviceDefinitionView = new ServiceDefinitionView(serviceDefinition, canvas);
+            this._viewsList.push(serviceDefinitionView);
             serviceDefinitionView.render();
-        });
+        }
         return true;
     };
 
-    DiagramRenderingVisitor.prototype.visitResourceDefinition = function () {
+    DiagramRenderingVisitor.prototype.visitResourceDefinition = function (astNode) {
         //modelView.render();
-        window.console.log("VISIT RESOURCE DEFINITION");
+        var parent = astNode.parent();
+        var parentView = _.find(this._viewsList, ['_model',parent]);
+        if (_.isUndefined(parentView)) {
+            log.error('Parent View cannot find in the views List');
+            throw 'Parent View cannot find in the views List';
+        }
+        var canvas = parentView.getContainer();
+
+        var resourceView = _.find(this._viewsList, ['_model',astNode]);
+        if (_.isUndefined(resourceView)) {
+            var resourceDefinitionView = new ResourceDefinitionView(astNode, canvas);
+            this._viewsList.push(resourceDefinitionView);
+            resourceDefinitionView.render();
+        } else {
+            log.debug('Existing Resource View Found');
+        }
+        log.debug("VISIT RESOURCE DEFINITION");
         return false;
     };
 

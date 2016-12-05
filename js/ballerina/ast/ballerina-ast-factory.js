@@ -21,11 +21,11 @@
  */
 define(['./ballerina-ast-root', './service-definition', './function-definition', './connector-definition', './resource-definition',
         './worker-declaration', './statement', './conditional-statement', './connection-declaration', './expression',
-        './if-statement', './package', './reply-statement', './return-statement', './type-converter-definition', './type-definition',
+        './if-statement', './reply-statement', './return-statement', './type-converter-definition', './type-definition',
         './type-element', './variable-declaration', './resource-definition'],
     function (ballerinaAstRoot, serviceDefinition, functionDefinition, connectorDefinition, resourceDefinition,
               workerDeclaration, statement, conditionalStatement, connectionDeclaration, expression,
-              ifStatement, package, replyStatement, returnStatement, typeConverterDefinition, typeDefinition,
+              ifStatement, replyStatement, returnStatement, typeConverterDefinition, typeDefinition,
               typeElement, variableDeclaration) {
 
         /**
@@ -58,7 +58,7 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
          * creates FunctionDefinition
          * @param args
          */
-        var createFunctionDefinition = function (args) {
+        BallerinaASTFactory.prototype.createFunctionDefinition = function (args) {
             return new functionDefinition(args);
         };
 
@@ -74,7 +74,7 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
          * creates WorkerDeclaration
          * @param args
          */
-        var createWorkerDeclaration = function (args) {
+        BallerinaASTFactory.prototype.createWorkerDeclaration = function (args) {
             return new workerDeclaration(args);
         };
 
@@ -82,7 +82,7 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
          * creates Statement
          * @param args
          */
-        var createStatement = function (args) {
+        BallerinaASTFactory.prototype.createStatement = function (args) {
             return new statement(args);
         };
 
@@ -90,7 +90,7 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
          * creates TypeConverterDefinition
          * @param args
          */
-        var createTypeConverterDefinition = function (args) {
+        BallerinaASTFactory.prototype.createTypeConverterDefinition = function (args) {
             return new typeConverterDefinition(args);
         };
 
@@ -98,7 +98,7 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
          * creates TypeDefinition
          * @param args
          */
-        var createTypeDefinition = function (args) {
+        BallerinaASTFactory.prototype.createTypeDefinition = function (args) {
             return new typeDefinition(args);
         };
 
@@ -106,7 +106,7 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
          * creates TypeElement
          * @param args
          */
-        var createTypeElement = function (args) {
+        BallerinaASTFactory.prototype.createTypeElement = function (args) {
             return new typeElement(args);
         };
 
@@ -114,14 +114,14 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
          * create VariableDeclaration
          * @param args
          */
-        var createVariableDeclaration = function (args) {
+        BallerinaASTFactory.prototype.createVariableDeclaration = function (args) {
             return new variableDeclaration(args);
         };
         /**
          * create ConditionalStatement
          * @param args
          */
-        var createConditionalStatement = function (args) {
+        BallerinaASTFactory.prototype.createConditionalStatement = function (args) {
             return new conditionalStatement(args);
         };
 
@@ -129,7 +129,7 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
          * create ConnectionDeclaration
          * @param args
          */
-        var createConnectionDeclaration = function (args) {
+        BallerinaASTFactory.prototype.createConnectionDeclaration = function (args) {
             return new connectionDeclaration(args);
         };
 
@@ -137,7 +137,7 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
          * creates Expression
          * @param args
          */
-        var createExpression = function (args) {
+        BallerinaASTFactory.prototype.createExpression = function (args) {
             return new expression(args);
         };
 
@@ -145,23 +145,15 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
          * creates IfStatement
          * @param args
          */
-        var createIfStatement = function (args) {
+        BallerinaASTFactory.prototype.createIfStatement = function (args) {
             return new ifStatement(args);
-        };
-
-        /**
-         * creates Package
-         * @param args
-         */
-        var createPackage = function (args) {
-            return new package(args);
         };
 
         /**
          * creates ReplyStatement
          * @param args
          */
-        var createReplyStatement = function (args) {
+        BallerinaASTFactory.prototype.createReplyStatement = function (args) {
             return new replyStatement(args);
         };
 
@@ -169,7 +161,7 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
          * creates ReturnStatement
          * @param args
          */
-        var createReturnStatement = function (args) {
+        BallerinaASTFactory.prototype.createReturnStatement = function (args) {
             return new returnStatement(args);
         };
 
