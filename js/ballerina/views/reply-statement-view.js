@@ -78,4 +78,5 @@ define(['lodash', 'log', 'event_channel', 'app/ballerina/ast/reply-statement', '
         return group;
     };
 
+    return ReplyStatementView;
 });

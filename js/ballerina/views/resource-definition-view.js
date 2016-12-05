@@ -75,4 +75,6 @@ define(['lodash', 'log', './canvas', 'app/ballerina/ast/resource-definition'],
             window.console.log("Rendering the resource");
         }
 
+        return ResourceDefinitionView
+
     });

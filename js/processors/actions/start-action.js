@@ -16,7 +16,7 @@
  * under the License.
  */
 
-define(['tree_node'], function (TreeNode) {
+define(['ast/node'], function (TreeNode) {
 
     //Start action definition
     var StartAction = {

@@ -22,7 +22,7 @@ define(['require', 'lodash', 'log'], function (require, _, log) {
         this._astRoot = astRoot;
         this.id = "Ballerina File Editor";
 
-    }
+    };
 
     ballerinaFileEditor.prototype.getId = function () {
         return this.id;
@@ -30,7 +30,7 @@ define(['require', 'lodash', 'log'], function (require, _, log) {
 
     ballerinaFileEditor.prototype.setId = function (id) {
         this.id = id;
-    }
+    };
 
     ballerinaFileEditor.prototype.addCanvas = function (canvas) {
         if (!_.isNil(canvas)) {

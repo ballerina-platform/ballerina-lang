@@ -59,4 +59,5 @@ define(['lodash', 'jquery', 'event_channel', 'app/ballerina/ast/worker-declarati
         return group;
     };
 
+    return WorkerDeclaration;
 });

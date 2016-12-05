@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './canvas', 'app/ballerina/ast/service-definition'],
+define(['lodash', 'log', './canvas', 'ast/service-definition'],
     function (_, log, Canvas, ServiceDefinition) {
 
         /**
@@ -73,6 +73,7 @@ define(['lodash', 'log', './canvas', 'app/ballerina/ast/service-definition'],
 
         ServiceDefinitionView.prototype.render = function () {
             // Render service view
-        }
+        };
 
+        return ServiceDefinitionView;
     });

@@ -15,7 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'ast_visitor', 'file_editor'], function(_, log, ASTVisitor, FileEditor) {
+define(['require', 'lodash', 'log', 'ast_visitor', 'views/ballerina-file-editor', 'views/service-definition-view'],
+    function(require, _, log, ASTVisitor, FileEditor, ServiceDefinitionView) {
 
     var DiagramRenderingVisitor = function(containerView) {
         this.containerView = containerView;
@@ -63,6 +64,11 @@ define(['lodash', 'log', 'ast_visitor', 'file_editor'], function(_, log, ASTVisi
         log.info("Visiting ServiceDefinition");
         var parent = astNode.getParent();
         var parentView  = this.viewMap.get(parent);
+        // var ServiceDefinitionView1 = require('app/ballerina/views/service-definition-view');
+        _.forEach(parent.serviceDefinitions, function(serviceDefinition, index) {
+            var canvas = parentView.canvasList[index];
+            var serviceDefinitionView = new ServiceDefinitionView(serviceDefinition, canvas, undefined);
+        });
         //TODO create new service definition view and call render
         return true;
     };
