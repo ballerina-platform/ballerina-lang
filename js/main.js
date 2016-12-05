@@ -109,6 +109,12 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'app/menu-bar/menu-bar
             serviceDefinitions.push(serviceDefinition2);
             ballerinaAstRoot.setServiceDefinitions(serviceDefinitions);
 
+            // Create Sample Function Definitions
+            var functionDefinitions = [];
+            var functionDefinition1 = ballerinaASTFactory.createFunctionDefinition();
+            functionDefinitions.push(functionDefinition1);
+            ballerinaAstRoot.setFunctionDefinitions(functionDefinitions);
+
             var diagramRenderingVisitor = new DiagramRenderingVisitor(tabControlOpts.tabs);
             ballerinaAstRoot.accept(diagramRenderingVisitor);
 

@@ -25,6 +25,8 @@ define(['lodash', './node'], function (_, ASTNode) {
         this.variableDeclarations = variableDeclarations || [];
         this.workerDeclarations = workerDeclarations || [];
         this.statements = statements || [];
+
+        ASTNode.call(this);
     };
 
     CallableDefinition .prototype = Object.create(ASTNode.prototype);

@@ -85,6 +85,28 @@ define(['lodash', './node'], function (_, ASTNode) {
     }
 
     /**
+     * Setter function for FunctionDefinition
+     * @param functionDefinitions
+     */
+    BallerinaASTRoot.prototype.setFunctionDefinitions = function (functionDefinitions) {
+        if (!_.isNil(functionDefinitions)) {
+            this.functionDefinitions = functionDefinitions;
+            var self = this;
+            _.forEach(functionDefinitions, function (functionDefinition) {
+                functionDefinition.setParent(self);
+            });
+        }
+    };
+
+    /**
+     * Getter function for FunctionDefinition
+     * @returns {Array}
+     */
+    BallerinaASTRoot.prototype.getFunctionDefinitions = function () {
+        return this.functionDefinitions;
+    }
+
+    /**
      * Accept function in visitor pattern
      * @param visitor
      */
@@ -99,6 +121,11 @@ define(['lodash', './node'], function (_, ASTNode) {
         // Iterate over connectorDefinitions array
         _.forEach(this.connectorDefinitions, function (connectorDefinition) {
             connectorDefinition.accept(visitor);
+        });
+
+        // Iterate over functionDefinitions array
+        _.forEach(this.functionDefinitions, function (functionDefinition) {
+            functionDefinition.accept(visitor);
         });
 
     };

@@ -74,8 +74,9 @@ define(['require', 'lodash', 'log'], function (require, _, log) {
             }
             if (_.has(astRoot, 'functionDefinitions')) {
                 _.each(astRoot.functionDefinitions, function (functionModel) {
-                    var functionContainer = $('<div></div>');
-                   // var functionView = new FunctionDefinitionView(functionModel, functionContainer);
+                    var functionContainer = $('<div>Function View Container</div>');
+                    functionContainer.attr('id', functionModel.id);
+                    functionContainer.attr('name','function');
                     editorParent.addCanvas(functionContainer);
                 });
             }
