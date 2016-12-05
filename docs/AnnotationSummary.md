@@ -310,6 +310,225 @@ E.g:
 
 ### Resource Annotation.
 
+
+Following are the resource level annotations.
+
+* Path
+* HTTP method
+* Resource Config
+* Consumes
+* Produces
+* Method Parameter Definition
+* Resource Info
+* Responses
+
+#### Path
+
+Describes sub path of the HTTP Ballerina resource. This is a configuration annotation.
+
+Syntax:
+```
+@Path("/context")
+```
+
+#### HTTP method
+
+Syntax:
+```
+(@GET | @POST | @PUT | @DELETE | @OPTIONS | @HEAD | @PATCH )* 
+```
+
+#### Resource Config
+
+Syntax:
+```
+@ResourceConfig(
+    schemes = {http, https},
+    authorizations = {
+        @Authorization(
+            name = "authorizationConfigName" 
+            [, scopes = { "scope1", "scope2" }]
+        )
+    }
+    [,anyName = anyValue]* // this will represent swagger element "x-anyName" : "anyValue"
+)
+```
+
+_@ResourceConfig_
+
+|Ballerina Field |  Type | Description | Equivalent Swagger Field|
+|---|---|---|---|
+|  value|string |The transfer protocol for the ballerina resource. Values can be "http", "https", "ws" or "wss".  | schemas  | 
+|  authorizations|annotation |A declaration of which authorizations configurations are applied for this resource.  | security  | 
+|anyName |any | Extension fields. | x-anyName, Maps to Swagger extensions. Field name begins with `x-` |
+
+_@Authorization_
+
+|Ballerina Field |  Type | Description | Equivalent Swagger Field|
+|---|---|---|---|
+|  name|string |Authorization name that specified in @AuthorizationsConfiguration section in the service level. | security  | 
+|  scopes|Array | Authorize scope for this resource that specified in @AuthorizationScope in the service level under above AuthorizationsConfiguration  | N/A  | 
+
+#### Consumes
+
+Defines A list of MIME types the Ballerina resource can consume. This is a configuration annotation.
+
+Syntax:
+```
+@Consumes({ "MIME-type" [, "MIME-type"]*})
+```
+
+E.g: 
+```
+@Consumes({"application/json", "application/xml"})
+```
+
+#### Produces
+
+Defines A list of MIME types the Ballerina resource can produce. This is a configuration annotation.
+
+Syntax:
+```
+@Produces({ "MIME-type" [, "MIME-type"]*})
+```
+
+E.g: 
+```
+@Produces({"application/json", "application/xml"})
+```
+
+#### Method Parameter Definition
+
+Syntax:
+```
+QueryParam
+@Path("/foo")
+resourceName(message m, @QueryParam(name = "paramName", description = "A Description", required = true) string name, ...){...}
+
+PathParam
+@Path("/foo/{paramName}")
+resourceName(message m, @PathParam(name = "paramName", description = "A Description", required = true) string name, ...){...}
+
+FormParam
+@Path("/foo/")
+resourceName(message m, @FormParam(name = "paramName", description = "A Description", required = true) string name, ...){...}
+
+HeaderParam
+@Path("/foo/")
+resourceName(message m, @HeaderParam(name = "paramName", description = "A Description", required = true) string name, ...){...}
+
+Body
+@Path("/foo/")
+resourceName(message m, @Type(name = "TypeName", description = "A Description", required = true) TypeName typeVariableName, ...){...}
+
+```
+
+#### Resource Info
+
+Syntax:
+```
+@ResourceInfo( 
+    tags = { "http", "get", "anotherTag" },
+    summary = "A summary about resource",
+    description = "a detailed description about resource",
+    externalDocs = @ExternalDocs(
+                       description = "wso2 ballerina", 
+                       url = "http://docs.wso2.com/ballerina"
+                   ),
+    operationId = "methodName" // This information is redundant in resource name, But we need this in special cases.
+)
+```
+
+_@ResourceInfo_
+
+|Ballerina Field |  Type | Description | Swagger Field|
+|---|---|---|---|
+|  tags|array |A list of tags for resource documentation control  | tags  | 
+|  summary|string |A short summary of what the resource does.  | summary  | 
+|  externalDocs|annotation |Additional external documentation for this resource.  | externalDocs  | 
+|  operationId|string |Unique string used to identify the resource.  | operationId  | 
+
+_@ExternalDocs_
+
+Ballerina Field | Type          | Description                                                       | Swagger Field
+----------------|:-------------:|-------------------------------------------------------------------|-------------------
+description     | string        | a description about the target documentation.                     | description
+url             | string        | **Required.** URL is pointing to target documentation.            | url
+anyName         | any           | Extension fields.                                                 | `x-`anyName (Swagger extensions)
+
+
+#### Responses
+
+Syntax:
+```
+@Responses( 
+    values = {
+        @Response( 
+            code = 200,
+            [description = "Human-readable message to accompany the response.",
+            response = TypeName|VaribaleType|ArrayType|XML<Schema>|JSON<Schema>
+            headers = {
+                @Header(
+                    name = "HeaderName",
+                    description = "description",
+                    type = TypeName|VaribaleType|ArrayType|XML<Schema>|JSON<Schema>
+                    ),
+                @Header(...)
+            },
+            examples = {
+                @Example(
+                    type = "mime-type",
+                    value = xml|json|string
+                ),
+                @Example(
+                    type = "application/json",
+                    value = `{ "key1": "value1", "key2", "value2"}` 
+                )
+            }] 
+            | [reference = "String to reference"]
+        ),
+        @Response( 
+            code = "default", 
+            description = "unexpected error",
+            ...)
+    }
+)
+
+```
+
+_@Responses_
+
+|Ballerina Field |  Type | Description | Swagger Field|
+|---|---|---|---|
+|  values|array |An array of possible @Response as they are returned from executing this operation   | N/A  | 
+
+_@Response_
+
+|Ballerina Field |  Type | Description | Swagger Field|
+|---|---|---|---|
+|  code|int |HTTP status code of this response  | N/A  | 
+|  description|string |T A short description of the response.  | description  | 
+|  response|string |The list of possible responses as they are returned from executing this operation  | schema  | 
+|  headers|array |An array of @Header that are sent with the response  | headers  | 
+|  examples|array |An @Example of the response message  | examples  | 
+
+_@Header_
+
+|Ballerina Field |  Type | Description | Swagger Field|
+|---|---|---|---|
+|  name|string |HTTP status code of this response  | N/A  | 
+|  description|string| A short description of the header  | description  | 
+|  type|string |The type of the object. The value MUST be one of "string", "number", "integer", "boolean", or "array"  | type  | 
+
+
+_@Example_
+
+|Ballerina Field |  Type | Description | Swagger Field|
+|---|---|---|---|
+|  type|string |mime type  | N/A  | 
+|  value| string| A sample response of this resource that match with given mime type  | N/A  | 
+
+
 ### Connector Annotations.
 
 ### Connection Annotations.
