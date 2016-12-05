@@ -31,10 +31,13 @@ define(['lodash', 'log', 'ast_visitor', 'file_editor'], function(_, log, ASTVisi
         fileEditor.init(astNode, this.containerView);
         this.viewMap.set(astNode, fileEditor);
         return true;
-    }
+    };
 
-    DiagramRenderingVisitor.prototype.visitReplyStatement = function () {
-        //modelView.render();
+    DiagramRenderingVisitor.prototype.visitReplyStatement = function (astNode) {
+        log.info("Visiting ReplyStatement");
+        var parent = astNode.getParent();
+        var parentView  = this.viewMap.get(parent);
+        //TODO create new reply statement view and call render
         return false;
     };
 
@@ -46,8 +49,11 @@ define(['lodash', 'log', 'ast_visitor', 'file_editor'], function(_, log, ASTVisi
         return false;
     };
 
-    DiagramRenderingVisitor.prototype.visitReturnStatement = function () {
-        //modelView.render();
+    DiagramRenderingVisitor.prototype.visitReturnStatement = function (astNode) {
+        log.info("Visiting ReturnStatement");
+        var parent = astNode.getParent();
+        var parentView  = this.viewMap.get(parent);
+        //TODO create new return statement view and call render
         return false;
     };
 

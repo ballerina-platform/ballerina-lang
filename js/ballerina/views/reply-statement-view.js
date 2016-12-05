@@ -17,6 +17,13 @@
  */
 define(['lodash', 'log', 'event_channel', 'app/ballerina/ast/reply-statement', 'd3utils'], function (_, log, EventChannel, ReplyStatement, D3Utils) {
 
+    /**
+     * The view for the reply statement model.
+     * @param model Reply statement model.
+     * @param container The SVG element.
+     * @param viewOptions Options to configure the view.
+     * @constructor
+     */
     var ReplyStatementView = function (model, container, viewOptions) {
         if (!_.isNil(model) && model instanceof ReplyStatement && !_.isNil(container)) {
             this._model = model;

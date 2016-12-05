@@ -17,6 +17,13 @@
  */
 define(['lodash', 'log', 'event_channel', 'app/ballerina/ast/return-statement', 'd3utils'], function (_, log, EventChannel, ReturnStatement, D3Utils) {
 
+    /**
+     * The view for the return statement model.
+     * @param model return statement model.
+     * @param container The SVG element.
+     * @param viewOptions Options to configure the view.
+     * @constructor
+     */
     var ReturnStatementView = function (model, container, viewOptions) {
         if (!_.isNil(model) && model instanceof ReturnStatement && !_.isNil(container)) {
             this._model = model;

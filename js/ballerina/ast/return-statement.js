@@ -17,6 +17,11 @@
  */
 define(['lodash', 'log', './statement'], function (_, log, Statement) {
 
+    /**
+     * Class for return statement in ballerina.
+     * @param expression zero or many expressions for a return statement.
+     * @constructor
+     */
     var ReturnStatement = function (expression) {
         this._expression = expression || [];
     };
@@ -37,7 +42,7 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
     };
 
     ReturnStatement.prototype.accept = function (visitor) {
-        visitor.visitReturnStatement();
+        visitor.visitReturnStatement(this);
         //loop accept methods of children if exists
     };
 

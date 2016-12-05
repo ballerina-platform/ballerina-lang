@@ -17,6 +17,11 @@
  */
 define(['lodash', 'log', './statement'], function (_, log, Statement) {
 
+    /**
+     * Class for reply statement in ballerina.
+     * @param message expression of a reply statement.
+     * @constructor
+     */
     var ReplyStatement = function (message) {
         this._message = message;
     };
@@ -37,7 +42,7 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
     };
 
     ReplyStatement.prototype.accept = function (visitor) {
-        visitor.visitReplyStatement();
+        visitor.visitReplyStatement(this);
         //loop accept methods of children if exists
     };
 
