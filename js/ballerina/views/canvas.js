@@ -17,42 +17,41 @@
  */
 define(['log', 'lodash', 'jquery', 'd3', 'event_channel', 'd3utils'], function(log, _, $, d3, EventChannel, D3Utils){
 
-    var Canvas = function(model, container, viewOptions) {
+    var Canvas = function(container, viewOptions) {
 
-        viewOptions.diagram = viewOptions.diagram || {};
-        viewOptions.diagram.height = viewOptions.diagram.height || "100%";
-        viewOptions.diagram.width = viewOptions.diagram.width || "100%";
-        viewOptions.diagram.padding =  viewOptions.diagram.padding || 50;
-        viewOptions.diagram.viewBoxWidth =  viewOptions.diagram.viewBoxWidth || 1000;
-        viewOptions.diagram.viewBoxHeight =  viewOptions.diagram.viewBoxHeight || 1000;
-
-        viewOptions.diagram.class = viewOptions.diagram.class || "diagram";
-        viewOptions.diagram.selector = viewOptions.diagram.selector || ".diagram";
-        viewOptions.diagram.wrapper = viewOptions.diagram.wrapper ||{};
-        // CHANGED
-        viewOptions.diagram.wrapperId = viewOptions.wrapperId || "diagramWrapper";
-        viewOptions.diagram.grid = viewOptions.diagram.grid || {};
-        viewOptions.diagram.grid.height = viewOptions.diagram.grid.height || 25;
-        viewOptions.diagram.grid.width = viewOptions.diagram.grid.width || 25;
-        this.viewOptions = viewOptions;
-
-        this.model = model;
-        this.container = container;
-
-        if (_.isUndefined(this.container)) {
-            log.error("container is not defined");
-        }
-
-        var d3Container = d3.select(this.container);
-        // wrap d3 with custom drawing apis
-        d3Container = D3Utils.decorate(d3Container);
-        var svg = d3Container.draw.svg(this.viewOptions.diagram);
-        this._definitions = svg.append("defs");
-        this._svg = svg;
-
-        this._mainSVGGroup = this.d3svg.draw.group(this._svg).attr("id", this.viewOptions.diagram.wrapperId)
-            .attr("width", "100%")
-            .attr("height", "100%");
+        // viewOptions.diagram.height = _.get(viewOptions, "diagram.height", "100%");
+        // viewOptions.diagram.width = _.get(viewOptions, "diagram.width", "100%");
+        // viewOptions.diagram.padding =  _.get(viewOptions, "diagram.padding", 50);
+        // viewOptions.diagram.viewBoxWidth =  _.get(viewOptions, "diagram.viewBoxWidth", 1000);
+        // viewOptions.diagram.viewBoxHeight =  _.get(viewOptions, "diagram.viewBoxHeight", 1000);
+        //
+        // viewOptions.diagram.class = viewOptions.diagram.class || "diagram";
+        // viewOptions.diagram.selector = viewOptions.diagram.selector || ".diagram";
+        // viewOptions.diagram.wrapper = viewOptions.diagram.wrapper ||{};
+        // // CHANGED
+        // viewOptions.diagram.wrapperId = viewOptions.wrapperId || "diagramWrapper";
+        // viewOptions.diagram.grid = viewOptions.diagram.grid || {};
+        // viewOptions.diagram.grid.height = viewOptions.diagram.grid.height || 25;
+        // viewOptions.diagram.grid.width = viewOptions.diagram.grid.width || 25;
+        // this.viewOptions = viewOptions;
+        //
+        // this.model = model;
+        // this.container = container;
+        //
+        // if (_.isUndefined(this.container)) {
+        //     log.error("container is not defined");
+        // }
+        //
+        // var d3Container = d3.select(this.container);
+        // // wrap d3 with custom drawing apis
+        // d3Container = D3Utils.decorate(d3Container);
+        // var svg = d3Container.draw.svg(this.viewOptions.diagram);
+        // this._definitions = svg.append("defs");
+        // this._svg = svg;
+        //
+        // this._mainSVGGroup = this.d3svg.draw.group(this._svg).attr("id", this.viewOptions.diagram.wrapperId)
+        //     .attr("width", "100%")
+        //     .attr("height", "100%");
     };
 
     Canvas.prototype = Object.create(EventChannel.prototype);
