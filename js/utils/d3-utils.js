@@ -16,10 +16,7 @@
  * under the License.
  */
 
-define(['require', 'jquery', 'd3'], function (require, $, d3) {
-
-    var d3_utils = {};
-    var d3Ref = undefined;
+define(['require', 'lodash', 'jquery', 'd3', 'log'], function (require, _, $, d3, log) {
 
     var heights = {
         textBox: 30,
@@ -33,13 +30,21 @@ define(['require', 'jquery', 'd3'], function (require, $, d3) {
         checkbox_checkbox: 35
     };
 
+    var logParentUndefined = function (parent) {
+        if (_.isUndefined(parent)) {
+            var errMsg = 'Parent Undefined';
+            log.warn(errMsg);
+            throw errMsg;
+        }
+    };
+
     var circleOnPoint = function (point, r, parent) {
-        parent = parent || d3Ref;
+        logParentUndefined(parent);
         return parent.draw.circle(point.x(), point.y(), r);
     };
 
     var rectWithTitle = function (center, width, height, containerWidth, containerHeight, rx, ry, parent, colour, title) {
-        parent = parent || d3Ref;
+        logParentUndefined(parent);
 
         var composite = {};
 
@@ -123,7 +128,7 @@ define(['require', 'jquery', 'd3'], function (require, $, d3) {
     };
 
     var basicRect = function (x, y, width, height, rx, ry, parent) {
-        parent = parent || d3Ref;
+        logParentUndefined(parent);
         rx = rx || 0;
         ry = ry || 0;
         return parent.append("rect")
@@ -137,7 +142,7 @@ define(['require', 'jquery', 'd3'], function (require, $, d3) {
             .attr("ry", ry);
     };
     var genericRect = function (x, y, width, height, rx, ry, parent, colour, textModel) {
-        parent = parent || d3Ref;
+        logParentUndefined(parent);
         // get TextModel and if dynamicRectWidth is not 130 add that as width
         var modelId = textModel.cid;
         var dynamicWidth = textModel.dynamicRectWidth();
@@ -160,14 +165,14 @@ define(['require', 'jquery', 'd3'], function (require, $, d3) {
     };
 
     var genericCenteredRect = function (center, width, height, rx, ry, parent, colour, textModel) {
-        parent = parent || d3Ref;
+        logParentUndefined(parent);
         rx = rx || 0;
         ry = ry || 0;
         return parent.draw.genericRect(center.x() - width / 2, center.y() - height / 2, width, height, rx, ry, parent, colour, textModel);
     };
-//GENERIC TEXT BOX CREATION
+
     var genericTextRect = function (center,width,height,rx,ry,textContent,x,y,parent,colour, textModel){
-        parent = parent || d3Ref;
+        logParentUndefined(parent);
 
         var rect =parent.draw.genericRect(center.x() - width / 2, center.y(), width, height, rx, ry, parent, colour, textModel);
         var text = rect.draw.genericTextElement(center.x(), center.y(), textContent, rect,textModel)
@@ -176,7 +181,7 @@ define(['require', 'jquery', 'd3'], function (require, $, d3) {
     };
 
     var rect = function (x, y, width, height, rx, ry, parent, colour) {
-        parent = parent || d3Ref;
+        logParentUndefined(parent);
 
         rx = rx || 0;
         ry = ry || 0;
@@ -193,7 +198,7 @@ define(['require', 'jquery', 'd3'], function (require, $, d3) {
     };
 
     var centeredRect = function (center, width, height, rx, ry, parent, colour) {
-        parent = parent || d3Ref;
+        logParentUndefined(parent);
         rx = rx || 0;
         ry = ry || 0;
         return parent.draw.rect(center.x() - width / 2, center.y(), width, height, rx, ry, parent, colour);
@@ -201,14 +206,14 @@ define(['require', 'jquery', 'd3'], function (require, $, d3) {
 
 
     var centeredBasicRect = function (center, width, height, rx, ry, parent) {
-        parent = parent || d3Ref;
+        logParentUndefined(parent);
         rx = rx || 0;
         ry = ry || 0;
         return parent.draw.basicRect(center.x() - width / 2, center.y(), width, height, rx, ry, parent);
     };
 
     var line = function (x1, y1, x2, y2, parent) {
-        parent = parent || d3Ref;
+        logParentUndefined(parent);
         return parent.append("line")
             .attr("x1", x1)
             .attr("y1", y1)
@@ -223,21 +228,21 @@ define(['require', 'jquery', 'd3'], function (require, $, d3) {
      * @param [parent] parent element.
      */
     var lineFromPoints = function (startPoint, endPoint, parent) {
-        parent = parent || d3Ref;
+        logParentUndefined(parent);
         return parent.draw.line(startPoint.x(), startPoint.y(), endPoint.x(), endPoint.y());
     };
 
     var verticalLine = function (start, height, parent) {
-        parent = parent || d3Ref;
+        logParentUndefined(parent);
         return parent.draw.line(start.x(), start.y(), start.x(), start.y() + height, parent);
     };
 
     var editableText = function (x, y, text) {
 
     };
-    //TODO:
+
     var genericTextElement = function (x, y, textContent, parent,txtModel) {
-        parent = parent || d3Ref;
+        logParentUndefined(parent);
         var modelId = txtModel.cid;
         var dynamicPosition = txtModel.dynamicTextPosition();
         if(dynamicPosition != undefined){
@@ -252,14 +257,14 @@ define(['require', 'jquery', 'd3'], function (require, $, d3) {
                 return textContent;
             });
     };
-//TODO:TEST
+
     var genericCenteredText = function (center, textContent, parent,txtModel) {
-        parent = parent || d3Ref;
+        logParentUndefined(parent);
         return parent.draw.genericTextElement(center.x(), center.y(), textContent, parent,txtModel)
             .attr('text-anchor', 'middle').attr('dominant-baseline', 'middle');
     };
     var textElement = function (x, y, textContent, parent) {
-        parent = parent || d3Ref;
+        logParentUndefined(parent);
         return parent.append("text")
             .attr("x", x)
             .attr("y", y)
@@ -269,21 +274,21 @@ define(['require', 'jquery', 'd3'], function (require, $, d3) {
     };
 
     var inputTriangle = function (x, y, parent) {
-        parent = parent || d3Ref;
+        logParentUndefined(parent);
         var points = "" + x + "," + (y - 5) + " " + (x + 5) + "," + (y) + " " + x + "," + (y + 5);
         return parent.append("polyline")
             .attr("points", points);
     };
 
     var outputTriangle = function (x, y, parent) {
-        parent = parent || d3Ref;
+        logParentUndefined(parent);
         var points = "" + x + "," + y + " " + (x + 5) + "," + (y - 5) + " " + (x + 5) + "," + (y + 5);
         return parent.append("polyline")
             .attr("points", points);
     };
 
     var dashedLine = function (x1,y1, x2, y2, color, parent) {
-        parent = parent || d3Ref;
+        logParentUndefined(parent);
         return parent.append("line")
             .attr("x1", x1)
             .attr("y1", y1)
@@ -295,7 +300,7 @@ define(['require', 'jquery', 'd3'], function (require, $, d3) {
     };
 
     var circle = function (x, y, radius, parent, colour) {
-        parent = parent || d3Ref;
+        logParentUndefined(parent);
 
         var circle = parent.append("circle")
             .attr("cx", x )
@@ -307,7 +312,7 @@ define(['require', 'jquery', 'd3'], function (require, $, d3) {
     };
 
     var centeredText = function (center, textContent, parent) {
-        parent = parent || d3Ref;
+        logParentUndefined(parent);
         return parent.draw.textElement(center.x(), center.y(), textContent, parent)
             .attr('text-anchor', 'middle').attr('dominant-baseline', 'middle');
     };
@@ -321,7 +326,7 @@ define(['require', 'jquery', 'd3'], function (require, $, d3) {
      * @returns {*} Created form element
      */
     var form = function (parent, parameters, propertyPaneSchema, rect) {
-        parent = parent || d3Ref;
+        logParentUndefined(parent);
 
         var foreignObject = parent.append("foreignObject")
             .attr("x", 23)
@@ -406,6 +411,7 @@ define(['require', 'jquery', 'd3'], function (require, $, d3) {
 
         }
     };
+
     var updateParentOnLayoutChange = function () {
         if (defaultView.selectedNode.attributes.textModel != null) {
             model = defaultView.selectedNode.attributes.textModel;
@@ -417,6 +423,7 @@ define(['require', 'jquery', 'd3'], function (require, $, d3) {
             }
         }
     };
+    
     /**
      * Save properties in selected element's model by calling saveMyProperties method in respective elements
      */
@@ -442,6 +449,7 @@ define(['require', 'jquery', 'd3'], function (require, $, d3) {
     };
 
     var appendCheckBox = function (parent, property, checked) {
+        logParentUndefined(parent);
         var checkbox = parent.append("xhtml:input")
             .attr("class", "property-checkbox")
             .attr("type", "checkbox")
@@ -457,6 +465,7 @@ define(['require', 'jquery', 'd3'], function (require, $, d3) {
     };
 
     var appendTextBox = function (parent, value, name) {
+        logParentUndefined(parent);
         var textBox = parent.append("input")
             .attr("class", "property-textbox")
             .attr("type", "text")
@@ -473,12 +482,14 @@ define(['require', 'jquery', 'd3'], function (require, $, d3) {
     };
 
     var appendLabel = function (parent, value) {
+        logParentUndefined(parent);
         return parent.append("label")
             .attr("class", "property-label")
             .text(value);
     };
 
     var appendDropdown = function (parent, optionsList, name, count, selectedValue) {
+        logParentUndefined(parent);
         var input = parent.append("input")
             .attr("name", name)
             .attr("id", name)
@@ -518,12 +529,12 @@ define(['require', 'jquery', 'd3'], function (require, $, d3) {
     };
 
     var group = function (parent) {
-        parent = parent || d3Ref;
+        logParentUndefined(parent);
         return parent.append("g");
     };
 
     var svg = function (opts, parent) {
-        parent = parent || d3Ref;
+        logParentUndefined(parent);
         return parent.append("svg")
             .attr("height", opts.height)
             .attr("width", opts.width)
@@ -531,7 +542,7 @@ define(['require', 'jquery', 'd3'], function (require, $, d3) {
     };
 
     var propertySVG = function (opts, parent) {
-        parent = parent || d3Ref;
+        logParentUndefined(parent);
         return parent.append("svg")
             .attr("id", opts.id)
             .attr("height", opts.height)
@@ -555,59 +566,42 @@ define(['require', 'jquery', 'd3'], function (require, $, d3) {
     };
 
     var propertyRect = function (center, width, height, rx, ry, parent, colour) {
-        parent = parent || d3Ref;
+        logParentUndefined(parent);
         rx = rx || 0;
         ry = ry || 0;
         return parent.draw.rect(center.x() - width / 2, center.y(), width, height, rx, ry, parent, colour);
     };
 
-    var decorate = function (d3ref) {
-        if (typeof d3ref === 'undefined') {
-            throw "undefined d3 ref.";
-        }
-        var draw = {};
-        draw.centeredRect = centeredRect;
-        draw.rect = rect;
-        draw.genericCenteredRect = genericCenteredRect;
-        draw.genericRect = genericRect;
-        draw.basicRect = basicRect;
-        draw.centeredBasicRect = centeredBasicRect;
-        draw.line = line;
-        draw.lineFromPoints = lineFromPoints;
-        draw.verticalLine = verticalLine;
-        draw.editableText = editableText;
-        draw.centeredText = centeredText;
-        draw.textElement = textElement;
-        draw.genericCenteredText = genericCenteredText;
-        draw.genericTextElement = genericTextElement;
-        draw.circle = circle;
-        draw.circleOnPoint = circleOnPoint;
-        draw.group = group;
-        draw.svg = svg;
-        draw.propertySVG = propertySVG;
-        draw.rectWithTitle = rectWithTitle;
-        draw.regroup = regroup;
-        draw.propertyRect = propertyRect;
-        draw.form = form;
-        draw.inputTriangle = inputTriangle;
-        draw.outputTriangle = outputTriangle;
-        draw.dashedLine = dashedLine;
-        draw.polygon = polygon;
-        draw.arrowPolygon = arrowPolygon;
+    var draw = {};
+    draw.centeredRect = centeredRect;
+    draw.rect = rect;
+    draw.genericCenteredRect = genericCenteredRect;
+    draw.genericRect = genericRect;
+    draw.basicRect = basicRect;
+    draw.centeredBasicRect = centeredBasicRect;
+    draw.line = line;
+    draw.lineFromPoints = lineFromPoints;
+    draw.verticalLine = verticalLine;
+    draw.editableText = editableText;
+    draw.centeredText = centeredText;
+    draw.textElement = textElement;
+    draw.genericCenteredText = genericCenteredText;
+    draw.genericTextElement = genericTextElement;
+    draw.circle = circle;
+    draw.circleOnPoint = circleOnPoint;
+    draw.group = group;
+    draw.svg = svg;
+    draw.propertySVG = propertySVG;
+    draw.rectWithTitle = rectWithTitle;
+    draw.regroup = regroup;
+    draw.propertyRect = propertyRect;
+    draw.form = form;
+    draw.inputTriangle = inputTriangle;
+    draw.outputTriangle = outputTriangle;
+    draw.dashedLine = dashedLine;
+    draw.polygon = polygon;
+    draw.arrowPolygon = arrowPolygon;
 
-        var d3Proto = Object.getPrototypeOf(d3ref);
-        d3Proto.draw = draw;
-        d3Proto.draw = draw;
-
-        return d3Ref = d3ref;
-    };
-
-    var d3 = function () {
-        return d3Ref;
-    };
-
-    d3_utils.decorate = decorate;
-
-    return d3_utils;
+    return draw;
 
 });
