@@ -18,11 +18,11 @@ compilationUnit
     ;
 
 packageDeclaration
-    :   'package' qualifiedName ';'
+    :   'package' packageName ';'
     ;
 
 importDeclaration
-    :   'import' qualifiedName ('as' Identifier)?';'
+    :   'import' packageName ('version' '1.0')? ('as' Identifier)? ';'
     ;
 
 serviceDefinition
@@ -34,68 +34,37 @@ serviceBody
     ;
 
 serviceBodyDeclaration
-    :   (resourceDefinition | connectionDeclaration | variableDeclaration)* resourceDefinition
+    :  connectorDeclaration* variableDeclaration* resourceDefinition+
     ;
 
 
 resourceDefinition
-    :   annotation* 'resource' Identifier resourceParameters resourceBody
-    ;
-
-resourceParameters
-    :   '(' userDefineType Identifier (',' formalParameterList)? ')'
-    ;
-
-resourceBody
-    : '{' resourceBodyDeclaration '}'
-    ;
-
-resourceBodyDeclaration
-    :   (connectionDeclaration | variableDeclaration | workerDeclaration | statement)* statement
+    :   annotation* 'resource' Identifier '(' parameterList ')' functionBody
     ;
 
 functionDefinition
-    :   annotation* 'public'? 'function' Identifier formalParameters returnTypeList? ('throws' userDefineType)? functionBody
+    :   annotation* 'public'? 'function' Identifier '(' parameterList ')' returnTypeList? ('throws' Identifier)? functionBody
     ;
 
-returnTypeList
-    : '(' typeList ')'
-    ;
-
+//todo rename, this is used in resource, action and funtion
 functionBody
-    : '{' functionBodyDeclaration '}'
-    ;
-
-functionBodyDeclaration
-    :   (connectionDeclaration | variableDeclaration | workerDeclaration | statement)* statement
+    : '{' connectorDeclaration* variableDeclaration* workerDeclaration* statement+ '}'
     ;
 
 connectorDefinition
-    :   annotation* 'connector' Identifier formalParameters connectorBody
+    :   annotation* 'connector' Identifier '(' parameterList ')' connectorBody
     ;
 
 connectorBody
-    :   '{' connectorBodyDeclaration '}'
-    ;
-
-connectorBodyDeclaration
-    :   (connectionDeclaration | variableDeclaration | actionDefinition)* actionDefinition
+    :   '{' connectorDeclaration* variableDeclaration* actionDefinition+ '}'
     ;
 
 actionDefinition
-    :   annotation* 'action' Identifier formalParameters returnTypeList?  ('throws' userDefineType)? actionBody
+    :   annotation* 'action' Identifier '(' parameterList ')' returnTypeList?  ('throws' Identifier)? functionBody
     ;
 
-actionBody
-    :   '{' actionBodyDeclaration '}'
-    ;
-
-actionBodyDeclaration
-    :   (connectionDeclaration | variableDeclaration | workerDeclaration | statement)* statement
-    ;
-
-connectionDeclaration
-    :   (Identifier ':')? Identifier Identifier '=' 'new'  (Identifier ':')? Identifier '(' expressionList? ')'';'
+connectorDeclaration
+    :   qualifiedReference Identifier '=' 'new' qualifiedReference '(' expressionList? ')'';'
     ;
 
 typeDefinition
@@ -103,144 +72,83 @@ typeDefinition
     ;
 
 typeDefinitionBody
-    :   '{' typeBodyDeclaration '}'
-    ;
-
-typeBodyDeclaration
-    :   fieldDeclaration+
+    :   '{' (typeName Identifier ';')+ '}'
     ;
 
 typeConvertorDefinition
-    :   'typeconvertor' Identifier '(' typeType Identifier ')' '('typeType')' typeConvertorBody
+    :   'typeconvertor' Identifier '(' typeNameWithOptionalSchema Identifier ')' '('typeNameWithOptionalSchema')' typeConvertorBody
     ;
 
 typeConvertorBody
-    :   '{' typeConvertorBodyDeclaration '}'
-    ;
-
-typeConvertorBodyDeclaration
-    :   (variableDeclaration | statement)* statement
+    :   '{' variableDeclaration* statement+ '}'
     ;
 
 constantDefinition
-    :   'const' variableDeclaration;
-
+    :   'const' typeName Identifier '=' literalValue;
 
 variableDeclaration
-    :   localVariableDeclaration ';'
+    :   typeName Identifier ';'
     ;
 
-
+// typeName below is only 'message' type
 workerDeclaration
-    :   'worker' Identifier '(' userDefineType Identifier ')' workerBody
+    :   'worker' Identifier '(' typeName Identifier ')'  '{' variableDeclaration* statement+ '}'
     ;
 
-
-workerBody
-    : '{' workerBodyDeclaration '}'
+returnTypeList
+    : '(' typeNameList ')'
     ;
 
-workerBodyDeclaration
-    :   (connectionDeclaration | variableDeclaration | statement)* statement
+typeNameList
+    :   typeName (',' typeName)*
     ;
-
-variableModifier
-    :   annotation
-    ;
-
-
-typeList
-    :   typeType (',' typeType)*
-    ;
-
 
 fieldDeclaration
-    :   typeType variableDeclarators ';'
+    :   typeName Identifier ';'
     ;
 
-
-variableDeclarators
-    :   variableDeclarator (',' variableDeclarator)*
+qualifiedTypeName
+    :   packageName ':' unqualifiedTypeName
     ;
 
-variableDeclarator
-    :   variableDeclaratorId ('=' variableInitializer)?
+unqualifiedTypeName
+    :   typeNameWithOptionalSchema
+    |   typeNameWithOptionalSchema '[]'
+    |   typeNameWithOptionalSchema '~'
     ;
 
-variableDeclaratorId
-    :   Identifier ('[' ']')*
+typeNameWithOptionalSchema
+    :   Identifier  ('<' ('{' QuotedStringLiteral '}')? Identifier '>')
+    |   Identifier  ('<' ('{' QuotedStringLiteral '}') '>')
+    |   Identifier
     ;
 
-variableInitializer
-    :   arrayInitializer
-    |   expression
+typeName
+    :   unqualifiedTypeName
+    |   qualifiedTypeName
     ;
 
-arrayInitializer
-    :   '{' (variableInitializer (',' variableInitializer)* (',')? )? '}'
-    ;
-    
-    
-typeType
-    :   userDefineType schemaDefinition? (('[' ']') | '~')?
-    |   primitiveType (('[' ']') | '~')?
+qualifiedReference
+    :   packageName ':' Identifier
     ;
 
-userDefineType
-    :   Identifier ('.' Identifier )*
+parameterList
+    :   parameter ',' parameterList
+    |   parameter
     ;
 
-primitiveType
-    :   'boolean'
-    |   'int'
-    |   'long'
-    |   'float'
-    |   'double'
+parameter
+    :   annotation* typeName Identifier
     ;
 
-//todo maybe need this
-qualifiedNameList
-    :   qualifiedName (',' qualifiedName)*
-    ;
-
-formalParameters
-    :   '(' formalParameterList? ')'
-    ;
-
-formalParameterList
-    :   formalParameter (',' formalParameter)* (',' lastFormalParameter)?
-    |   lastFormalParameter
-    ;
-
-formalParameter
-    :   variableModifier* typeType variableDeclaratorId
-    ;
-
-lastFormalParameter
-    :   variableModifier* typeType '...' variableDeclaratorId
-    ;
-
-schemaDefinition
-    :   '<' ('{' literal '}')? Identifier '>';
-
-//todo revisit and remove
-//typeArguments
-//    :   '<' typeArgument (',' typeArgument)* '>'
-//    ;
-//
-//typeArgument
-//    :   typeType
-//    |   '?' (('extends' | 'super') typeType)?
-//    ;
-
-qualifiedName
+packageName
     :   Identifier ('.' Identifier)*
     ;
 
-literal
+literalValue
     :   IntegerLiteral
     |   FloatingPointLiteral
-    |   StringLiteral
+    |   QuotedStringLiteral
     |   BooleanLiteral
     |   'nil'
     ;
@@ -251,7 +159,7 @@ literal
      :   '@' annotationName ( '(' ( elementValuePairs | elementValue )? ')' )?
      ;
 
- annotationName : qualifiedName ;
+ annotationName : packageName ;
 
  elementValuePairs
      :   elementValuePair (',' elementValuePair)*
@@ -274,25 +182,8 @@ literal
  //============================================================================================================
 // STATEMENTS / BLOCKS
 
-block
-    :   '{' blockStatement* '}'
-    ;
-
-blockStatement
-    :   localVariableDeclarationStatement
-    |   statement
-    ;
-
-localVariableDeclarationStatement
-    :    localVariableDeclaration ';'
-    ;
-
-localVariableDeclaration
-    :   variableModifier* typeType variableDeclarators
-    ;
-
 statement
-    :   block
+    :   assignmentStatement
     |   ifElseStatement
     |   iterateStatement
     |   whileStatement
@@ -302,60 +193,59 @@ statement
     |   throwStatement
     |   returnStatement
     |   replyStatement
-    |   workerInitiatingStatement
+    |   workerInteractionStatement
     |   commentStatement
-    |   ';'
-    |   statementExpression ';'
+//    |   actionInvocationStatement
     ;
+
+assignmentStatement
+    :   variableReference '=' expression ';'
+    |   variableReference '=' 'new' (packageName ':' )? Identifier ('(' expressionList ')')? ';'
+    ;
+
 ifElseStatement
-    :   'if' parExpression statement ('else' statement)?
+    :   'if' '(' expression ')' '{' statement* '}' ('else' 'if' '(' expression ')' '{' statement* '}')* ('else' '{' statement*'}' )?
     ;
 
 iterateStatement
-    :   'iterate' '(' iterateControl ')' statement
-    ;
-
-iterateControl
-    :   variableModifier* typeType variableDeclaratorId ':' expression
+    :   'iterate' '(' typeName Identifier ':' expression ')' '{' statement+ '}'
     ;
 
 whileStatement
-    :   'while' parExpression statement
+    :   'while' '(' expression ')' '{' statement+ '}'
     ;
 
 breakStatement
-    :   'break' Identifier? ';'
+    :   'break' ';'
     ;
 
 forkJoinStatement
-    :   'fork' '(' Identifier ')' block joinClause?
+    :   'fork' '(' Identifier ')' '{' workerDeclaration+ '}' joinClause? timeoutClause?
     ;
 
+// below typeName is only 'message[]'
 joinClause
-    :   'join' joinConditions '(' userDefineType '['']' Identifier ')' joinBody
+    :   'join' '(' joinConditions ')' '(' typeName Identifier ')'  '{' statement+ '}'
     ;
 
 joinConditions
-    :   'any' literal (Identifier (',' Identifier)*)?
+    :   'any' IntegerLiteral (Identifier (',' Identifier)*)?
     |   'all' (Identifier (',' Identifier)*)?
     ;
 
-joinBody
-    :   '{' joinBodyDeclaration '}'
-    ;
-
-joinBodyDeclaration
-    :   connectionDeclaration
-    |   variableDeclaration
-    |   statement
+// below typeName is only 'message[]'
+timeoutClause
+    :   'timeout' '(' expression ')' '(' typeName Identifier ')'  '{' statement+ '}'
     ;
 
 tryCatchStatement
-    :   'try' block catchClause+
+    :   'try' '{' statement+ '}' catchClause
     ;
 
+
+// below tyeName is only 'exception'
 catchClause
-    :   'catch' '(' userDefineType Identifier ')' block
+    :   'catch' '(' typeName Identifier ')' '{' statement+ '}'
     ;
 
 throwStatement
@@ -363,113 +253,103 @@ throwStatement
     ;
 
 returnStatement
-    :   'return' expression? ';'
+    :   'return' expressionList? ';'
     ;
 
+// below Identifier is only a type of 'message'
 replyStatement
-    :   'reply' expression? ';'
+    :   'reply' Identifier? ';'
     ;
 
-workerInitiatingStatement
+workerInteractionStatement
     :   triggerWorker
     |   workerReply
     ;
 
+// below left Identifier is of type 'message' and the right Identifier is of type 'worker'
 triggerWorker
     :   Identifier '->' Identifier ';'
     ;
 
+// below left Identifier is of type 'worker' and the right Identifier is of type 'message'
 workerReply
     :   Identifier '<-' Identifier ';'
     ;
 
-
 commentStatement
-    :   LINE_COMMENT+
+    :   LINE_COMMENT
     ;
 
 // EXPRESSIONS
-
-parExpression
-    :   '(' expression ')'
-    ;
 
 expressionList
     :   expression (',' expression)*
     ;
 
-statementExpression
-    :   expression
-    ;
 
 expression
-    :   primary
-    |   expression '.' Identifier
-    |   expression ':' Identifier
-    |   expression '[' expression ']'
-    |   expression '(' expressionList? ')'
-    |   'new' creator
-    |   '(' typeType ')' expression
-    |   expression ('++' | '--')
-    |   ('+'|'-'|'++'|'--') expression
-    |   ('~'|'!') expression
-    |   expression ('*'|'/'|'%') expression
-    |   expression ('+'|'-') expression
-    |   expression ('<' '<' | '>' '>' '>' | '>' '>') expression
-    |   expression ('<=' | '>=' | '>' | '<') expression
-    |   expression ('==' | '!=') expression
-    |   expression '&' expression
-    |   expression '^' expression
-    |   expression '|' expression
-    |   expression '&&' expression
-    |   expression '||' expression
-    |   expression '?' expression ':' expression
-    |   '{' expression ':' expression '}'
-    |   '`' expression '`'
-    |   <assoc=right> expression
-        (   '='
-        |   '+='
-        |   '-='
-        |   '*='
-        |   '/='
-        |   '&='
-        |   '|='
-        |   '^='
-        |   '>>='
-        |   '>>>='
-        |   '<<='
-        |   '%='
-        )
-        expression
+    :   literalValue
+    |   unaryExpression
+    |   multExpression (('+' | '-' | '||') multExpression)*
+    |   functionInvocation
+    |   templateExpression
+    |   '(' expression ')'
+    |   variableReference
+
     ;
 
-primary
-    :   '(' expression ')'
-    |   literal
-    |   Identifier
-    ;
-
-creator
-    :   createdName arrayCreatorRest
-    ;
-
-//todo think of the xml, json schema (removed Diamon syntax)
-createdName
-    :   Identifier ('.' Identifier)*
-    |   primitiveType
+multExpression
+    :   <assoc=right> (('*' | '/' | '&&') expression)+
     ;
 
 
-arrayCreatorRest
-    :   '['
-        (   ']' ('[' ']')* arrayInitializer
-        |   expression ']' ('[' expression ']')* ('[' ']')*
-        )
+variableReference
+    :   Identifier // simple identifier
+    |   Identifier'[' expression ']' // array and map reference
+    |   Identifier ('.' variableReference)+ // struct field reference
     ;
 
-//todo is something worng ?
-arguments
-    :   '(' expressionList? ')'
+unaryExpression
+    :   '-' expression
+    |   '+' expression
+    |   '!' expression
+    ;
+
+//    expr:  mult ('+' mult)* ;
+//    mult:  atom ('*' atom)* ;
+//    atom:  INT | '(' expr ')' ;
+
+
+//(a + b * c) ==> a + (b*c)
+
+binaryOperator
+    :   '+'
+    |   '-'
+    |   '*'
+    |   '/'
+    |   '&&'
+    |   '||'
+    |   '=='
+    |   '!='
+    |   '<'
+    |   '<='
+    |   '>'
+    |   '>='
+    |   '%'
+    |   '^'
+    ;
+
+functionInvocation
+    :   functionName '(' expressionList? ')'
+    ;
+
+functionName
+    :   Identifier
+    |   qualifiedReference
+    ;
+
+templateExpression
+    :   BacktickStringLiteral
     ;
 
 // LEXER
@@ -489,7 +369,7 @@ FORK	        :	'fork';
 FUNCTION	    :	'function';
 IF	            :	'if';
 IMPORT	        :	'import';
-INT	            :	'int';
+//INT	            :	'int';
 ITERATE	        :	'iterate';
 JOIN	        :	'join';
 LONG	        :	'long';
@@ -719,8 +599,12 @@ BooleanLiteral
 
 // §3.10.5 String Literals
 
-StringLiteral
+QuotedStringLiteral
     :   '"' StringCharacters? '"'
+    ;
+
+BacktickStringLiteral
+    :   '`' StringCharacters '`'
     ;
 
 fragment
@@ -851,10 +735,6 @@ ELLIPSIS : '...';
 //
 
 WS  :  [ \t\r\n\u000C]+ -> skip
-    ;
-
-COMMENT
-    :   '/*' .*? '*/' -> skip
     ;
 
 LINE_COMMENT
