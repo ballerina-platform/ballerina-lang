@@ -64,35 +64,7 @@ A Ballerina file is structured as follows:
  ConstantDefinition)+
 ```
 
-Following is an example Ballerina program that shows the form of each construct.
-```
-package org.example.weather;
-import ballerina.math;
 
-service WeatherService{
-    WeatherConnector wc = new WeatherConnector( ... );
-    resource WeatherInFResource(message message){
-        xml payload  = message:getXmlPayload(message)
-        float lat = xml:get(payload, "/lat");
-        float lon = xml:get(payload, "/lon");
-        float temperature = wc.getTemperature(new location(lat, lon));
-        return `{"temperature":$temperature}`;
-    }
- }
-
-type location{
-    int int lon;
-}
-
-connector WeatherConnector{
-    action getTemperature(location) (int) { ...}
-    ...
-}
-
-function fromC2F(float temperature){
-    return math:round(32 + temperature*5/9);
-}
-```
 
 ### Services & Resources
 
@@ -214,27 +186,6 @@ MessageName <- WorkerName;
 #### Replying from a Worker
 
 If the worker wishes to reply to the enclosing entity, it can do so using a `reply` statement.
-
-Following code show a sample worker.
-```
-worker AsyncCalculator (message m) {
-    int x = xml:get(m, "x");
-    int y = xml:get(m, "y");  
-    int result = x + y;
-    message m = new message();
-    m.payload = `{"result": $result}`
-    reply m
-}
-
-message m = new message();
-message:setXmlPayload(m, `{"x": 3, "y": 7}`)
-//trigger AsyncCalculator
-m->AsyncCalculator
-//AsyncCalculator will run in parallel to do_something()
-do_something()
-//wait for response from AsyncCalculator
-response<-AsyncCalculator
-```
 
 ### Types & Variables
 
@@ -481,32 +432,6 @@ When the `JoinCondition` has been satisfied, the corresponding slots of the mess
 
 The `timeout` clause allows one to specify a maximum time (in milliseconds) within which the join condition must be satisfied.
 
-Following is an Example.
-```
-FlightService fs = new FlightService(...)
-HotelService hs = new FlightService(...)
-fork (msg) {
-  worker checkFlightsWroker (message msg) {
-    xml payload = message:getXmlPayload(msg)
-    string to = xml:get(payload, '/to')
-    string from = xml:get(payload, '/from')
-    date address = new date(xml.get(payload, '/date')
-    return fs.query(`{"from":$from, "to":$to, "date":$date}`)
-  },
-  worker checkHotelsWroker (message msg) {
-    xml payload = message:getXmlPayload(msg)
-    string to = xml:get(payload, '/to')
-    string from = xml:get(payload, '/from')
-    date address = new date(xml:get(payload, '/date')
-    return hs.query(`{"from":$from, "to":$to, "date":$date}`)
-  }       
-} join all (message[] VariableName) {
-  bookFlights(VariableName[0])
-  bookHotels(VariableName[1])
-}
-
-```
-
 
 #### Exception Handling
 
@@ -529,17 +454,6 @@ The syntax of a `throw` statement is as follows:
 
 ```
 throw Expression;
-```
-
-Example:
-```
-    try {
-        response = http:sendPost (nyse_ep, m);
-    } catch (exception e) {
-        message:setHeader(m, HTTP.StatusCode, 500);// need to discuss
-        json error = `{"error":"backend failed", "causedBy":e.message}`;
-        message:setPayloadJson(m, error);
-    }
 ```
 
 #### Return Statement
