@@ -14,4 +14,7 @@
     <Match>
         <Package name="org.wso2.ballerina.model"/>
     </Match>
+    <Match>
+        <Package name="org.wso2.ballerina.interpreter"/>
+    </Match>
 </FindBugsFilter>

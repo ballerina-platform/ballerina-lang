@@ -154,7 +154,7 @@ public class BallerinaFile {
         if (functions == null) {
             functions = new HashMap<String, Function>();
         }
-        functions.put(function.getName(), function);
+        functions.put(function.getFunctionName().getName(), function);
     }
 
     /**

@@ -90,7 +90,7 @@ public class Package {
         services.addAll(file.getServices());
 
         file.getFunctions().forEach((funcName, function) -> {
-            if (function.isPublic()) {
+            if (function.isPublicFunc()) {
                 publicFunctions.put(funcName, function);
             } else {
                 privateFunctions.put(funcName, function);

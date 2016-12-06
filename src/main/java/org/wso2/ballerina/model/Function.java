@@ -80,6 +80,15 @@ public class Function implements Interpreter {
     }
 
     /**
+     * Get the function Identifier
+     *
+     * @return function identifier
+     */
+    public Identifier getFunctionName() {
+        return functionName;
+    }
+
+    /**
      * Get all the Annotations associated with a Function
      *
      * @return list of Annotations
