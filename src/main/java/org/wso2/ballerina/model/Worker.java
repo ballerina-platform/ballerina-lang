@@ -42,7 +42,7 @@ import java.util.List;
 public class Worker {
 
     private List<Connection> connections;
-    private List<Variable> variables;
+    private List<VariableDcl> variables;
     private List<Statement> statements;
 
 
@@ -81,7 +81,7 @@ public class Worker {
      *
      * @return list of all Worker scoped variables
      */
-    public List<Variable> getVariables() {
+    public List<VariableDcl> getVariables() {
         return variables;
     }
 
@@ -90,7 +90,7 @@ public class Worker {
      *
      * @param variables list of variables
      */
-    public void setVariables(List<Variable> variables) {
+    public void setVariables(List<VariableDcl> variables) {
         this.variables = variables;
     }
 
@@ -99,9 +99,9 @@ public class Worker {
      *
      * @param variable variable to be added the Worker
      */
-    public void addVariable(Variable variable) {
+    public void addVariable(VariableDcl variable) {
         if (variables == null) {
-            variables = new ArrayList<Variable>();
+            variables = new ArrayList<VariableDcl>();
         }
         variables.add(variable);
     }

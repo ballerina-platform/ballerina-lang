@@ -43,9 +43,9 @@ import java.util.List;
 public class Action {
 
     private List<Annotation> annotations;
-    private List<Argument> arguments;
+    private List<Parameter> arguments;
     private List<Connection> connections;
-    private List<Variable> variables;
+    private List<VariableDcl> variables;
     private List<Worker> workers;
     private List<Statement> statements;
 
@@ -85,7 +85,7 @@ public class Action {
      *
      * @return list of Arguments
      */
-    public List<Argument> getArguments() {
+    public List<Parameter> getArguments() {
         return arguments;
     }
 
@@ -94,7 +94,7 @@ public class Action {
      *
      * @param arguments list of Arguments
      */
-    public void setArguments(List<Argument> arguments) {
+    public void setArguments(List<Parameter> arguments) {
         this.arguments = arguments;
     }
 
@@ -103,9 +103,9 @@ public class Action {
      *
      * @param argument Argument to be added to the Action definition
      */
-    public void addArgument(Argument argument) {
+    public void addArgument(Parameter argument) {
         if (arguments == null) {
-            arguments = new ArrayList<Argument>();
+            arguments = new ArrayList<Parameter>();
         }
         arguments.add(argument);
     }
@@ -145,7 +145,7 @@ public class Action {
      *
      * @return list of all Action scoped variables
      */
-    public List<Variable> getVariables() {
+    public List<VariableDcl> getVariables() {
         return variables;
     }
 
@@ -154,7 +154,7 @@ public class Action {
      *
      * @param variables list of Variables
      */
-    public void setVariables(List<Variable> variables) {
+    public void setVariables(List<VariableDcl> variables) {
         this.variables = variables;
     }
 
@@ -163,9 +163,9 @@ public class Action {
      *
      * @param variable variable to be added to the Action
      */
-    public void addVariable(Variable variable) {
+    public void addVariable(VariableDcl variable) {
         if (variables == null) {
-            variables = new ArrayList<Variable>();
+            variables = new ArrayList<VariableDcl>();
         }
         variables.add(variable);
     }
