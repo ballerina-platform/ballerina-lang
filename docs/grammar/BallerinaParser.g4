@@ -66,7 +66,7 @@ actionDefinition
     ;
 
 connectorDeclaration
-    :   qualifiedReference Identifier ASSIGN NEW qualifiedReference '(' expressionList? ')'';'
+    :   qualifiedReference Identifier '=' 'new' qualifiedReference '(' expressionList? ')'';'
     ;
 
 typeDefinition
@@ -86,7 +86,7 @@ typeConvertorBody
     ;
 
 constantDefinition
-    :   'const' typeName Identifier ASSIGN literalValue;
+    :   'const' typeName Identifier '=' literalValue;
 
 variableDeclaration
     :   typeName Identifier ';'
@@ -117,8 +117,8 @@ unqualifiedTypeName
     ;
 
 typeNameWithOptionalSchema
-    :   Identifier  (OPEN ('{' DoubleQuotedStringLiteral '}')? Identifier CLOSE)
-    |   Identifier  (OPEN ('{' DoubleQuotedStringLiteral '}') CLOSE)
+    :   Identifier  ('<' ('{' DoubleQuotedStringLiteral '}')? Identifier '>')
+    |   Identifier  ('<' ('{' DoubleQuotedStringLiteral '}') '>')
     |   Identifier
     ;
 
@@ -192,11 +192,11 @@ variableAccessor
     ;
 
 initializeTypeStatement
-    :   NEW (packageName ':' )? Identifier ('(' expressionList? ')')?
+    :   'new' (packageName ':' )? Identifier ('(' expressionList? ')')?
     ;
 
 assignmentExpression
-    :   variableAccessor ASSIGN statementExpression
+    :   variableAccessor '=' statementExpression
     ;
 
 inlineAssignmentExpression
@@ -253,11 +253,6 @@ statement
     |   commentStatement
     |   actionInovationExpression
     ;
-
-//assignmentStatement
-//    :   variableReference '=' expression ';'
-//    |   variableReference '=' 'new' (packageName ':' )? Identifier ('(' expressionList ')')? ';'
-//    ;
 
 ifElseStatement
     :   'if' '(' expression ')' '{' statement* '}' ('else' 'if' '(' expression ')' '{' statement* '}')* ('else' '{' statement*'}' )?
@@ -337,134 +332,27 @@ commentStatement
     :   LINE_COMMENT
     ;
 
-//actionInvocationStatement
-//    :    qualifiedReference '.' Identifier '(' expressionList ')' ';'
-//    ;
-
-//// EXPRESSIONS
-//
-//expressionList
-//    :   expression (',' expression)*
-//    ;
-//
-//
-//expression
-//    :   literalValue
-//    |   unaryExpression
-//    |   multExpression (('+' | '-' | '||') multExpression)*
-//    |   functionInvocation
-//    |   templateExpression
-//    |   '(' expression ')'
-//    |   variableReference
-//
-//    ;
-//
-//multExpression
-//    :   <assoc=right> (('*' | '/' | '&&') expression)+
-//    ;
-//
-//
-//variableReference
-//    :   Identifier // simple identifier
-//    |   Identifier'[' expression ']' // array and map reference
-//    |   Identifier ('.' variableReference)+ // struct field reference
-//    ;
-//
-//unaryExpression
-//    :   '-' expression
-//    |   '+' expression
-//    |   '!' expression
-//    ;
-//
-////    expr:  mult ('+' mult)* ;
-////    mult:  atom ('*' atom)* ;
-////    atom:  INT | '(' expr ')' ;
-//
-//
-////(a + b * c) ==> a + (b*c)
-//
-//binaryOperator
-//    :   '+'
-//    |   '-'
-//    |   '*'
-//    |   '/'
-//    |   '&&'
-//    |   '||'
-//    |   '=='
-//    |   '!='
-//    |   '<'
-//    |   '<='
-//    |   '>'
-//    |   '>='
-//    |   '%'
-//    |   '^'
-//    ;
-//
-//functionInvocation
-//    :   functionName '(' expressionList? ')'
-//    ;
-//
-//functionName
-//    :   Identifier
-//    |   qualifiedReference
-//    ;
-//
-//templateExpression
-//    :   BacktickStringLiteral
-//    ;
+backQuoteString
+   :   BacktickStringLiteral
+   ;
 
 expression
     :   primary                                             # literalExpression
-    |   backtickjson                                        # templateExpression
+    |   backQuoteString                                     # templateExpression
     |   expression '.' Identifier                           # accessMemberDotExpression
     |   (packageName | Identifier) ':' Identifier           # inlineFunctionInovcationExpression
     |   expression '[' expression ']'                       # accessArrayElementExpression
     |   expression '(' expressionList? ')'                  # argumentListExpression
     |   '(' typeName ')' expression                         # typeCastingExpression
-    |   expression ('++' | '--')                            # postDualOperationExpression
-    |   ('+'|'-'|'++'|'--') expression                      # preSingleDualExpression
-    |   ('~'|'!') expression                                # preUnaryExpression
-    |   expression ('*'|DIV|'%') expression                 # binrayMulDivPercentExpression
+    |   ('+'|'-'|'!') expression                      # preSingleDualExpression
+    |   expression ('*'|'/'|'%') expression                 # binrayMulDivPercentExpression
     |   expression ('+'|'-') expression                     # binaryPlusMinusExpression
-    |   expression (OPEN OPEN | CLOSE CLOSE CLOSE | CLOSE CLOSE) expression    # binrayBitShiftExpression
-    |   expression ('<=' | '>=' | CLOSE | OPEN) expression       # binaryComparisonExpression
+    |   expression ('<=' | '>=' | '>' | '<') expression       # binaryComparisonExpression
     |   expression ('==' | '!=') expression                 # binrayEqualExpression
-    |   expression '&' expression                           # binrayBitwiseAndExpression
-    |   expression '^' expression                           # binrayBitwiseXorExpression
-    |   expression '|' expression                           # binrayBitwiseOrExpression
     |   expression '&&' expression                          # binrayAndExpression
     |   expression '||' expression                          # binrayOrExpression
-    |   expression '?' expression ':' expression            # ternaryIfExpression
     |   '{' DoubleQuotedStringLiteral ':' literal '}'             # mapInitializerExpression
-    |   <assoc=right> expression
-        (   ASSIGN
-        |   '+='
-        |   '-='
-        |   '*='
-        |   '/='
-        |   '&='
-        |   '|='
-        |   '^='
-        |   '>>='
-        |   '>>>='
-        |   '<<='
-        |   '%='
-        )
-        expression                                          # binrayOpEqualsOpExpression
     ;
-
-//typeType
-//    :   userDefineType (('[' ']') | '~')?
-//    |   primitiveType (('[' ']') | '~')?
-//    |   nonPrimitiveType (('[' ']') | '~')?
-//    |   buildInDataType (('[' ']') | '~')?
-//    ;
-
-//buildInDataType
-//    :   XML (schemaDefinition)?
-//    |   XMLDOCUMENT
-//    |   JSON(schemaDefinition)?
-//    ;
 
 literal
     :   IntegerLiteral
@@ -475,103 +363,8 @@ literal
     |   NullLiteral
     ;
 
-//schemaDefinition
-//    :   OPEN ('{' QuotedStringLiteral '}')? Identifier CLOSE;
-//
-//userDefineType
-//    :   Identifier ('.' Identifier )*
-//    ;
-
-//primitiveType
-//    :   BOOLEAN
-//    |   INT
-//    |   'long'
-//    |   'float'
-//    |   'double'
-//    ;
-
-//nonPrimitiveType
-//    :   STRING
-//    |   MESSAGE
-//    |   MAP
-//    |   EXCEPTION
-//    ;
-
 primary
     :   '(' expression ')'
     |   literal
     |   Identifier
     ;
-
-
-////todo think of the xml, json schema (removed Diamon syntax)
-//createdName
-//    :   Identifier ('.' Identifier)*
-//    |   primitiveType
-//    ;
-
-////todo is something worng ?
-//arguments
-//    :   '(' expressionList? ')'
-//    ;
-
-// JSON Parsing
-backtickjson
-    :   BACKTICK jsonorxml BACKTICK
-    ;
-
-jsonorxml
-    :   json
-    |   document
-    ;
-
-json
-   : value
-   ;
-
-object
-   : '{' pair (',' pair)* '}'
-   | '{' '}'
-   ;
-
-pair
-   : DoubleQuotedStringLiteral ':' value
-   ;
-
-array
-   : '[' value (',' value)* ']'
-   | '[' ']'
-   ;
-
-
-value
-   : object
-   | array
-   | VariableReference
-   | literal
-   ;
-
-// XML Parsing
-//backtickxml   : OPENBACKTICK document CLOSEBACKTICK;
-
-document    :   prolog? misc* element misc*;
-
-prolog      :   XMLDeclOpen attribute* SPECIAL_CLOSE ;
-
-content     :   chardata?
-                ( (element | reference | CDATA | PI | XMLCOMMENT) chardata?)* ;
-
-element     :   OPEN Name attribute* CLOSE content OPEN SLASH Name CLOSE
-            |   OPEN Name attribute* SLASH CLOSE
-            ;
-
-reference   :   EntityRef | CharRef ;
-
-attribute   :   Name EQUALS XMLSTRING ; // Our STRING is AttValue in spec
-
-/** ``All text that is not markup constitutes the character data of
- *  the document.''
- */
-chardata    :   DoubleQuotedStringLiteral | SEA_WS | VariableReference;
-
-misc        :   XMLCOMMENT | PI | SEA_WS ;
