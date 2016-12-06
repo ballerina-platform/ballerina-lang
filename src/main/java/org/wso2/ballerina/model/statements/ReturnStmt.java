@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerina.model.statements;
 
+import org.wso2.ballerina.interpreter.Context;
 import org.wso2.ballerina.model.expressions.Expression;
 
 import java.util.List;
@@ -27,9 +28,13 @@ import java.util.List;
  * @since 1.0.0
  */
 public class ReturnStmt implements Statement {
-    private List<Expression> returnExprs;
+    private Expression expr;
 
-    public ReturnStmt(List<Expression> returnExprs) {
-        this.returnExprs = returnExprs;
+    public ReturnStmt(Expression expr) {
+        this.expr = expr;
+    }
+
+    public void interpret(Context ctx) {
+        ctx.getControlStack().getCurrentFrame().returnValue.setBValue(expr.evaluate(ctx).getBValue());
     }
 }
