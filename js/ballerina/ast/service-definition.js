@@ -69,15 +69,6 @@ define(['lodash', './node'], function (_, ASTNode) {
         return this._connectionDeclarations;
     };
 
-    ServiceDefinition.prototype.accept = function (visitor) {
-        visitor.visitServiceDefinition(this);
-
-        // Accept the resource definitions
-        for (var id in this._resourceDefinitions) {
-            this._resourceDefinitions[id].accept(visitor);
-        }
-    };
-
     return ServiceDefinition;
 
 });

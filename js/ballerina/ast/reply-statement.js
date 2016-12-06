@@ -41,10 +41,5 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
         return this._message;
     };
 
-    ReplyStatement.prototype.accept = function (visitor) {
-        visitor.visitReplyStatement(this);
-        //loop accept methods of children if exists
-    };
-
     return ReplyStatement;
 });

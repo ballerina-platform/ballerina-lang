@@ -23,6 +23,8 @@ define(['lodash', './node'], function (_, ASTNode) {
 
     /**
      * Constructs BallerinaASTRoot
+     * @class BallerinaASTRoot
+     * @augments ASTNode
      * @param args
      * @constructor
      */
@@ -82,7 +84,7 @@ define(['lodash', './node'], function (_, ASTNode) {
      */
     BallerinaASTRoot.prototype.getConnectorDefinitions = function () {
         return this.connectorDefinitions;
-    }
+    };
 
     /**
      * Setter function for FunctionDefinition
@@ -104,31 +106,8 @@ define(['lodash', './node'], function (_, ASTNode) {
      */
     BallerinaASTRoot.prototype.getFunctionDefinitions = function () {
         return this.functionDefinitions;
-    }
-
-    /**
-     * Accept function in visitor pattern
-     * @param visitor
-     */
-    BallerinaASTRoot.prototype.accept = function (visitor) {
-        visitor.visitBallerinaASTRoot(this);
-
-        // Iterate over serviceDefinitions array
-        _.forEach(this.serviceDefinitions, function (serviceDefinition) {
-            serviceDefinition.accept(visitor);
-        });
-
-        // Iterate over connectorDefinitions array
-        _.forEach(this.connectorDefinitions, function (connectorDefinition) {
-            connectorDefinition.accept(visitor);
-        });
-
-        // Iterate over functionDefinitions array
-        _.forEach(this.functionDefinitions, function (functionDefinition) {
-            functionDefinition.accept(visitor);
-        });
-
     };
+
 
     return BallerinaASTRoot;
 });

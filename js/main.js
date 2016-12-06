@@ -19,7 +19,7 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'app/menu-bar/menu-bar
 
     'welcome','command','workspace', 'views/ballerina-file-editor', 'ast/ballerina-ast-factory', 'diagram_rendering_visitor',/* void modules */ 'jquery_ui', 'bootstrap'],
 
-    function (require, log, $, _, Backbone, MenuBar, BreadcrumbController, FileBrowser, TabController, ToolPalette, WelcomeScreen, CommandManager, Workspace,FileEditor, BallerinaASTFactory, DiagramRenderingVisitor) {
+    function (require, log, $, _, Backbone, MenuBar, BreadcrumbController, FileBrowser, TabController, ToolPalette, WelcomeScreen, CommandManager, Workspace, FileEditor, BallerinaASTFactory) {
 
     var Application = Backbone.View.extend(
     /** @lends Application.prototype */
@@ -117,9 +117,7 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'app/menu-bar/menu-bar
             functionDefinitions.push(functionDefinition1);
             ballerinaAstRoot.setFunctionDefinitions(functionDefinitions);
 
-            var diagramRenderingVisitor = new DiagramRenderingVisitor(tabControlOpts.tabs);
-            ballerinaAstRoot.accept(diagramRenderingVisitor);
-
+            var fileEditor = new FileEditor({model: ballerinaAstRoot, viewOptions: _.get(this.config, "tab_controller.tabs")});
         },
 
         validateConfig: function(config){

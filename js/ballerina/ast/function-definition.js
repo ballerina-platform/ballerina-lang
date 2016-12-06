@@ -48,10 +48,6 @@ define(['lodash', './callable-definition'], function (_, CallableDefinition) {
         return this.args;
     };
 
-    FunctionDefinition.prototype.accept = function(visitor) {
-        visitor.visitFunctionDefinition(this);
-    };
-
     return FunctionDefinition;
 
 });

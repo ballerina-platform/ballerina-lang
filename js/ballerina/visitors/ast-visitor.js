@@ -15,12 +15,64 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel'], function(_, log, EventChannel) {
+define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, EventChannel, AST) {
 
     var ASTVisitor = function() {};
 
     ASTVisitor.prototype = Object.create(EventChannel.prototype);
     ASTVisitor.prototype.constructor = ASTVisitor;
+
+    /**
+     * @param node {ASTNode}
+     */
+    ASTVisitor.prototype.canVisit = function(node){
+        if(node instanceof AST.BallerinaASTRoot){
+            this.canVisitBallerinaASTRoot(node);
+        } else if(node instanceof AST.ServiceDefinition){
+            this.canVisitServiceDefinition(node);
+        } else if(node instanceof AST.ResourceDefinition){
+            this.canVisitResourceDefinition(node);
+        }
+    };
+
+    /**
+     * @param node {ASTNode}
+     */
+    ASTVisitor.prototype.beginVisit = function(node){
+        if(node instanceof AST.BallerinaASTRoot){
+            this.beginVisitBallerinaASTRoot(node);
+        } else if(node instanceof AST.ServiceDefinition){
+            this.beginVisitServiceDefinition(node);
+        } else if(node instanceof AST.ResourceDefinition){
+            this.beginVisitResourceDefinition(node);
+        }
+    };
+
+    /**
+     * @param node {ASTNode}
+     */
+    ASTVisitor.prototype.visit = function(node){
+        if(node instanceof AST.BallerinaASTRoot){
+            this.visitBallerinaASTRoot(node);
+        } else if(node instanceof AST.ServiceDefinition){
+            this.visitServiceDefinition(node);
+        } else if(node instanceof AST.ResourceDefinition){
+            this.visitResourceDefinition(node);
+        }
+    };
+
+    /**
+     * @param node {ASTNode}
+     */
+    ASTVisitor.prototype.endVisit = function(node){
+        if(node instanceof AST.BallerinaASTRoot){
+            this.endVisitBallerinaASTRoot(node);
+        } else if(node instanceof AST.ServiceDefinition){
+            this.endVisitServiceDefinition(node);
+        } else if(node instanceof AST.ResourceDefinition){
+            this.endVisitResourceDefinition(node);
+        }
+    };
 
     ASTVisitor.prototype.canVisitBallerinaASTRoot = function(ballerinaASTRoot){
         return false;
@@ -40,6 +92,26 @@ define(['lodash', 'log', 'event_channel'], function(_, log, EventChannel) {
     ASTVisitor.prototype.visitServiceDefinition = function(serviceDefinition){
     };
     ASTVisitor.prototype.endVisitServiceDefinition = function(serviceDefinition){
+    };
+
+    ASTVisitor.prototype.canVisitConnectorDefinition = function(connectorDefinition){
+        return false;
+    };
+    ASTVisitor.prototype.beginVisitConnectorDefinition = function(connectorDefinition){
+    };
+    ASTVisitor.prototype.visitConnectorDefinition = function(connectorDefinition){
+    };
+    ASTVisitor.prototype.endVisitConnectorDefinition = function(connectorDefinition){
+    };
+
+    ASTVisitor.prototype.canVisitFunctionDefinition = function(functionDefinition){
+        return false;
+    };
+    ASTVisitor.prototype.beginVisitFunctionDefinition = function(functionDefinition){
+    };
+    ASTVisitor.prototype.visitFunctionDefinition = function(functionDefinition){
+    };
+    ASTVisitor.prototype.endVisitFunctionDefinition = function(functionDefinition){
     };
 
     ASTVisitor.prototype.canVisitResourceDefinition = function(resourceDefinition){

@@ -30,19 +30,5 @@ define(['lodash', 'log', './conditional-statement'], function (_, log, Condition
     WhileStatement.prototype = Object.create(ConditionalStatement.prototype);
     WhileStatement.prototype.constructor = WhileStatement;
 
-    WhileStatement.prototype.accept = function (visitor) {
-        var canVisitChildren = visitor.visitWhileStatement(this);
-
-        // Accept all the children of the worker
-        if(canVisitChildren) {
-            var statements = this.getStatements();
-            for (var id in statements) {
-                this.statements[id].accept(visitor);
-            }
-        } else {
-            log.info("Disable to visit the Children of while statement.");
-        }
-    };
-
     return WhileStatement;
 });

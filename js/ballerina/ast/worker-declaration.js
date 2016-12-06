@@ -43,17 +43,5 @@ define(['lodash', './node'], function(_, ASTNode){
         return this._reply;
     };
 
-    WorkerDeclaration.prototype.accept = function (visitor) {
-        visitor.visitWorkerDeclaration();
-        this.acceptChildren(visitor);
-    };
-
-    WorkerDeclaration.prototype.acceptChildren = function (visitor) {
-        // Accept all the children of the worker
-        for (var id in this._childrenList) {
-            this._childrenList[id].accept(visitor);
-        }
-    };
-
     return WorkerDeclaration;
 });

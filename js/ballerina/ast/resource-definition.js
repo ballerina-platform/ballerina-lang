@@ -101,10 +101,6 @@ define(['lodash', './node'], function (_, ASTNode) {
         return this.resourceArguments;
     };
 
-    ResourceDefinition.prototype.accept = function (visitor) {
-        visitor.visitResourceDefinition(this);
-    };
-
     ResourceDefinition.prototype.resourceParent = function (parent) {
         if (!_.isUndefined(parent)) {
             this.parent = parent;

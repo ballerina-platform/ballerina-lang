@@ -41,9 +41,5 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
         return this._expression;
     };
 
-    ThrowStatement.prototype.accept = function (visitor) {
-        visitor.visitThrowStatement(this);
-    };
-
     return ThrowStatement;
 });

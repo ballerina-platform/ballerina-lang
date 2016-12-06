@@ -54,7 +54,18 @@ define(['event_channel'], function(EventChannel){
         return this.startIndex;
     };
 
+    /**
+     * Accept function in visitor pattern
+     * @param visitor {ASTVisitor}
+     */
     ASTNode.prototype.accept = function (visitor) {
+        if(visitor.canVisit(this)) {
+            visitor.beginVisit(this);
+            _.forEach(this.children, function (child) {
+                visitor.visit(child);
+            });
+            visitor.endVisit(this);
+        }
     };
 
     // Auto generated Id for service definitions (for accordion views)

@@ -35,10 +35,6 @@ define(['lodash', './callable-definition'], function (_, CallableDefinition) {
         return this.args;
     };
 
-    ActionDefinition.prototype.accept = function(visitor) {
-        visitor.visitActionDefinition(this);
-    };
-
     return ActionDefinition;
 
 });

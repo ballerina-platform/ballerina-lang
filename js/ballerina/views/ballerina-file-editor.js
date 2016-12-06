@@ -15,14 +15,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'lodash', 'log'], function (require, _, log) {
+define(['lodash', 'jquery', 'log', 'ast_visitor', './service-definition-view'], function (_, $, log, ASTVisitor, ServiceDefinitionView) {
 
-    var BallerinaFileEditor = function (canvasList, astRoot, viewOptions) {
-        this.canvasList = canvasList || [];
-        this._model = astRoot;
+    /**
+     * @class BallerinaFileEditor
+     * @augments ASTVisitor
+     * @param args {Object}
+     * @constructor
+     */
+    var BallerinaFileEditor = function (args) {
+        this._canvasList = _.get(args, 'canvasList', []);
+        this._model =  _.get(args, 'model', null);
         this.id = "Ballerina File Editor";
-        this._viewOptions = viewOptions;
+        this._options =  _.get(args, 'viewOptions', {});
+        this.init();
     };
+
+    BallerinaFileEditor.prototype = Object.create(ASTVisitor.prototype);
+    BallerinaFileEditor.prototype.constructor = BallerinaFileEditor;
 
     BallerinaFileEditor.prototype.getId = function () {
         return this.id;
@@ -34,35 +44,47 @@ define(['require', 'lodash', 'log'], function (require, _, log) {
 
     BallerinaFileEditor.prototype.addCanvas = function (canvas) {
         if (!_.isNil(canvas)) {
-            this.canvasList.push(canvas);
+            this._canvasList.push(canvas);
         }
         else {
             log.error("Unable to add empty canvas" + canvas);
         }
+    };
 
+    BallerinaFileEditor.prototype.canVisitBallerinaASTRoot = function(ballerinaASTRoot){
+        return true;
+    };
+    BallerinaFileEditor.prototype.visitBallerinaASTRoot = function(ballerinaASTRoot){
 
     };
-    BallerinaFileEditor.prototype.init = function (astRoot, options) {
-        this._model = astRoot;
+
+    BallerinaFileEditor.prototype.canVisitServiceDefinition = function(serviceDefinition){
+        return true;
+    };
+    BallerinaFileEditor.prototype.visitServiceDefinition = function(serviceDefinition){
+        var serviceDefinitionView = new ServiceDefinitionView({model: serviceDefinition});
+        this.addCanvas(serviceDefinitionView)
+    };
+
+    BallerinaFileEditor.prototype.init = function() {
         var errMsg;
-        var editorParent = this;
-        if (!_.has(options, 'container')) {
+        if (!_.has(this._options, 'container')) {
             errMsg = 'unable to find configuration for container';
             log.error(errMsg);
             throw errMsg;
         }
-        var container = $(_.get(options, 'container'));
+        var container = $(_.get(this._options, 'container'));
         // check whether container element exists in dom
         if (!container.length > 0) {
-            errMsg = 'unable to find container for file editor with selector: ' + _.get(options, 'container');
+            errMsg = 'unable to find container for file editor with selector: ' + _.get(this._options, 'container');
             log.error(errMsg);
             throw errMsg;
         }
-        if (!_.isNil(astRoot)) {
+        if (!_.isNil(this._model)) {
 
-            if (_.has(astRoot, 'serviceDefinitions')) {
+            if (_.has(this._model, 'serviceDefinitions')) {
 
-                var serviceDefs = $(_.get(astRoot, 'serviceDefinitions'));
+                var serviceDefs = $(_.get(this._model, 'serviceDefinitions'));
                 _.each(serviceDefs, function (serviceModel) {
 
                     //TODO: Add serviceModel id and css props
@@ -72,16 +94,16 @@ define(['require', 'lodash', 'log'], function (require, _, log) {
                     editorParent.addCanvas(serviceContainer);
                 });
             }
-            if (_.has(astRoot, 'functionDefinitions')) {
-                _.each(astRoot.functionDefinitions, function (functionModel) {
+            if (_.has(this._model, 'functionDefinitions')) {
+                _.each( this._model.functionDefinitions, function (functionModel) {
                     var functionContainer = $('<div>Function View Container</div>');
                     functionContainer.attr('id', functionModel.id);
                     functionContainer.attr('name','function');
                     editorParent.addCanvas(functionContainer);
                 });
             }
-            if (_.has(astRoot, 'connectorDefinitions')) {
-                _.each(astRoot.connectorDefinitions, function (connectorModel) {
+            if (_.has(this._model, 'connectorDefinitions')) {
+                _.each(this._model.connectorDefinitions, function (connectorModel) {
                     var connectorContainer = $('<div>Connector View Container</div>');
                     connectorContainer.attr('id', connectorModel.id);
                     connectorContainer.attr('name','connector');
@@ -91,16 +113,14 @@ define(['require', 'lodash', 'log'], function (require, _, log) {
             //TODO: rest of definitions when implemented
         }
         else {
-            log.error("Provided astRoot is undefined" + astRoot);
+            log.error("Provided astRoot is undefined");
         }
-
         this.render(container);
-
     };
 
     BallerinaFileEditor.prototype.render = function (parent) {
-        if (!_.isNil(this.canvasList)) {
-            _.each(this.canvasList, function (canvas) {
+        if (!_.isNil(this._canvasList)) {
+            _.each(this._canvasList, function (canvas) {
                 //draw a collapse accordion
                 var outerDiv = $('<div></div>');
                 // TODO: For the moment disabling the adding classes in order to show the containers
