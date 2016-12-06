@@ -113,13 +113,13 @@ define(['require', 'lodash', 'log'], function (require, _, log) {
                 panelTitle.addClass('panel-title');
                 panelTitle.attr('style', 'border-style:solid;border-width:1px;');
                 var panelIcon = $('<i></i>');
-                panelIcon.attr('style', 'padding:10px;background-color:#ced4dd;');
+                panelIcon.attr('style', 'padding:10px;background-color:black;');
                 if(canvas[0].getAttribute('name') == "service") {
-                    panelIcon.addClass('fw fw-dgm-service');
+                    panelIcon.addClass('fw fw-dgm-service fw-inverse');
                 } else if (canvas[0].getAttribute('name') == "connector") {
-                    panelIcon.addClass('fw fw-dgm-connector');
+                    panelIcon.addClass('fw fw-dgm-connector fw-inverse');
                 } else if(canvas[0].getAttribute('name') == "function") {
-                    panelIcon.addClass('fw fw-function');
+                    panelIcon.addClass('fw fw-function fw-inverse');
                 }
                 panelTitle.append(panelIcon);
                 var titleLink = $('<a style="padding-left: 10px;">'+ canvas[0].getAttribute('name') + '</a>');
