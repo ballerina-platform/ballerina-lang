@@ -50,13 +50,8 @@ import java.util.List;
  */
 public class FunctionInvocationTest {
 
-    private String sourceText;
-    private String targetText;
-
     @BeforeTest
     public void setup() {
-        sourceText = "functionTest";
-        targetText = "functionTest";
     }
 
     /**
@@ -218,8 +213,6 @@ public class FunctionInvocationTest {
      */
     @Test
     public void testFuncInvokeWithString() {
-        Assert.assertEquals(sourceText, targetText);
-
         Context ctx = new Context();
         ControlStack controlStack = ctx.getControlStack();
 
@@ -251,8 +244,6 @@ public class FunctionInvocationTest {
      */
     @Test
     public void testFuncInvokeWithInt() {
-        Assert.assertEquals(sourceText, targetText);
-
         Context ctx = new Context();
         ControlStack controlStack = ctx.getControlStack();
 
