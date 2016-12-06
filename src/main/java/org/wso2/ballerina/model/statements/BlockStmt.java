@@ -17,6 +17,8 @@
 */
 package org.wso2.ballerina.model.statements;
 
+import org.wso2.ballerina.interpreter.Context;
+
 import java.util.List;
 
 /**
@@ -30,6 +32,14 @@ public class BlockStmt implements Statement {
 
     public BlockStmt(List<Statement> statements) {
         this.statements = statements;
+    }
+
+    public void interpret(Context ctx) {
+        //TODO Improve this to support non-blocking behaviour.
+        //TODO Possibly a linked set of statements would do.
+        for (Statement stmt : statements) {
+            stmt.interpret(ctx);
+        }
     }
 }
 
