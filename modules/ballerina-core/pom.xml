@@ -30,7 +30,7 @@
     <artifactId>ballerina-core</artifactId>
     <packaging>bundle</packaging>
 
-    <name>ballerina-core</name>
+    <name>WSO2 Ballerina - Core</name>
     <url>http://wso2.org</url>
 
     <dependencies>

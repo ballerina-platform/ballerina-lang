@@ -30,7 +30,7 @@
     <artifactId>ballerina</artifactId>
     <packaging>pom</packaging>
     <version>1.0.0-SNAPSHOT</version>
-    <name>WSO2 Ballerina Parent</name>
+    <name>WSO2 Ballerina - Parent</name>
 
     <url>http://wso2.org</url>
 
