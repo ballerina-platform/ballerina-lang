@@ -24,33 +24,37 @@ Every Ballerina program has both a textual representation and a canonical visual
 
 - *Service*: A `service` is an HTTP web service described by a Swagger. A service is the discrete unit of functionality that can be remotely accessed.
 - *Resource*: A `resource` is a single request handler within a service. The resource concept is designed to be access protocol independent - but in the initial release of the language it is intended to work with HTTP.
-- *Connector*: A `connector` represents a participant in the integration and is used to interact with an external system. Ballerina includes a set of standard connectors.
-- *Connection*: A connection represents the instantiation of a `connector` with a particular configuration.
-- *Action*: An `action` is an operation one can execute against a connection - i.e. a single interaction with a participant of the integration.
-- *Function*: A `function` is an operation that is executed by a worker.
+- *Connector*: A `connector` represents a participant in the integration and is used to interact with an external system. Ballerina includes a set of standard connectors and anyone can program additional connectors in Ballerina itself.
+- *Action*: An `action` is an operation one can execute against a connector - i.e. a single interaction with a participant of the integration.
 - *Worker*: A `worker` is a thread of execution that the integration developer programs as a lifeline.
+- *Function*: A `function` is an operation that is executed by a worker.
 
-![High Level Concepts](images/HighLevelConcepts.png)
+![High Level Concepts](images/Figure1-1.png)
 
 
-### Modularity
+### Modularity & Versioning
 
 Ballerina programs can be written in one or more files organized into packages. A package is represented by a directory.
 
-A package defines a namespace. All symbols (e.g. service names, type names and function names) defined in any file in the same package belong to that namespace. Only top level constructs marked public are visible outside a package.
+A package defines a namespace. All symbols (e.g. service names, type names and function names) defined in any file in the same package belong to that namespace. Only top level constructs marked `public` are visible outside a package.
 
 Every symbol has a qualified name consisting of its package name and its own top level name. When written down in a program, qualified names are written as follows:
 
 ```
 PackageName:SymbolName
 ```
+Ballerina brings in versioning to the language. The details of this are still under development and will combine the versioning concepts from Maven, OSGi and Java to a model that is native to the language.
+
+Every top level symbol has a version string associated with it (with a default value of "1.0.0"). Packages may define their version number in the Major.Minor.Patch format. Package import statements may indicate the version that they are importing in the Major.Minor format - i.e. patch version levels are not relevant to package importers.
+
+In the initial release of Ballerina the details of versioning are still under development. As such, any version string other than "1.0" for an import version will be rejected by the compiler. Note that there is currently no provision for declaring the version of a package.
 
 ## Structure of a Ballerina Program
 
 A Ballerina file is structured as follows:
 ```
 [package PackageName;]
-[import PackageName[ as Identifier];]*
+[import PackageName [version ImportVersionNumber] [as Identifier];]*
 
 (ServiceDefinition |
  FunctionDefinition |
@@ -59,35 +63,8 @@ A Ballerina file is structured as follows:
  TypeConvertorDefinition |
  ConstantDefinition)+
 ```
-Following is an example Ballerina program that shows the form of each construct.
-```
-package org.example.weather;
-import balarina.math;
 
-service WeatherService{
-    WeatherConnector wc = new WeatherConnector( ... );
-    resource WeatherInFResource(message message){
-        xml payload  = message:getXmlPayload(message)
-        float lat = xml:get(payload, "/lat");
-        float lon = xml:get(payload, "/lon");
-        float temperature = wc.getTemprature(new location(lat, lon));
-        return `{"temperature":$temperature}`;
-    }
- }
 
-type location{
-    int int lon;
-}
-
-connector WeatherConnector{
-    action getTemperature(location) (int) { ...}
-    ...
-}
-
-function fromC2F(float temperature){
-    return math:round(32 + temperature*5/9);
-}
-```
 
 ### Services & Resources
 
@@ -95,7 +72,7 @@ A `service` is defined as follows:
 ```
 [ServiceAnnotations]
 service ServiceName {
-    ConnectionDeclaration;*
+    ConnectorDeclaration;*
     VariableDeclaration;*
     ResourceDefinition;+
 }
@@ -110,16 +87,16 @@ The structure of a ResourceDefinition is as follows:
 ```
 [ResourceAnnotations]
 resource ResourceName (Message VariableName[, ([ResourceParamAnnotations] TypeName VariableName)+]) {
-    ConnectionDeclaration;*
+    ConnectorDeclaration;*
     VariableDeclaration;*
     WorkerDeclaration;*
     Statement;+
 }*
 ```
 
-The visual representation of this (without the annotations) is as follows:
+The visual representation of this (without the annotations) in a sequence diagram is as follows:
 
-![bal-resource-skeleton.png]()
+![Resources in a Service](images/bal-resource-skeleton.png)
 
 ### Functions
 
@@ -129,7 +106,7 @@ The structure of a function is as follows:
 [FunctionAnnotations]
 [public] function FunctionName (((TypeName VariableName)[(, TypeName VariableName)*])?)
         ((TypeName[(, TypeName)*])?) [throws exception] {
-    ConnectionDeclaration;*
+    ConnectorDeclaration;*
     VariableDeclaration;*
     WorkerDeclaration;*
     Statement;+
@@ -138,13 +115,13 @@ The structure of a function is as follows:
 
 All functions are private to the package unless explicitly declared to be public with the `public` keyword. Functions may be invoked within the same package from a resource or a function in the same package without importing. Functions marked `public` can be invoked from another package after importing the package.
 
-### Connectors, Actions & Connections
+### Connectors & Actions
 
-A `connector` is defined as follows:
+Connectors represent participants in the integration. A `connector` is defined as follows:
 ```
 [ConnectorAnnotations]
 connector ConnectorName ([ConnectorParamAnnotations]TypeName VariableName[(, TypeName VariableName)*]) {
-    ConnectionDeclaration;*
+    ConnectorDeclaration;*
     VariableDeclaration;*
     ActionDefinition;+
 }
@@ -156,23 +133,23 @@ A `connector` defines a set of actions. Actions are operations (functions) that 
 
 ```
 [ActionAnnotations]
+
 action ActionName (ConnectorName VariableName[, ([ActionParamAnnotations] TypeName VariableName)+]) (TypeName*)
         [throws exception] {
-    ConnectionDeclaration;*
+    ConnectorDeclaration;*
     VariableDeclaration;*
     WorkerDeclaration;*
     Statement;+
 }
 ```
 
-Connections represent a connection established via a connector. The structure is as follows:
-
+Connectors are instantiated by giving the necessary data as follows:
 ```
 [ConnectorPackageName:]ConnectorName VariableName = new [ConnectorPackageName:]ConnectorName (ValueList[, map]);
 ```
-Once a connection has been declared, actions can be invoked against that connection as follows:
+Once a connector has been created, actions can be invoked against that connector as follows:
 ```
-[ConnectorPackageName:]ConnectorName.ActionName (ConnectionVariableName, ValueList);
+[ConnectorPackageName:]ConnectorName.ActionName (ConnectorVariableName, ValueList);
 ```
 
 ### Workers
@@ -181,7 +158,6 @@ Once a connection has been declared, actions can be invoked against that connect
 Workers are defined and declared as follows:
 ```
 worker WorkerName (message m) {
-    ConnectionDeclaration;*
     VariableDeclaration;*
     Statement;+
     [reply MessageName;]
@@ -212,27 +188,6 @@ MessageName <- WorkerName;
 
 If the worker wishes to reply to the enclosing entity, it can do so using a `reply` statement.
 
-Following code show a sample worker.
-```
-worker AsyncCalculator (message m) {
-    int x = xml:get(m, "x");
-    int y = xml:get(m, "y");  
-    int result = x + y;
-    message m = new message();
-    m.payload = `{"result": $result}`
-    reply m
-}
-
-message m = new message();
-message:setXmlPayload(m, `{"x": 3, "y": 7}`)
-//trigger AsyncCalculator
-m->AsyncCalculator
-//AsyncCalculator will run in parallel to do_something()
-do_something()
-//wait for response from AsyncCalculator
-response<-AsyncCalculator
-```
-
 ### Types & Variables
 
 Ballerina has variables of various types. The type system includes built-in primitives, a
@@ -245,7 +200,7 @@ on a heap using `new`.
 A VariableDeclaration has the following structure:
 
 ```
-TypeName VariableName [= Value];
+TypeName VariableName;
 ```
 
 A TypeName may be one of the following built-in primitive types:
@@ -254,6 +209,7 @@ A TypeName may be one of the following built-in primitive types:
 - long
 - float
 - double
+
 Primitive types do not have to be dynamically allocated as they are always allocated
 on the stack.
 
@@ -297,7 +253,7 @@ Ballerina has built-in support for XML elements, XML documents and JSON document
 can be any of the following:
 - json\[\<json_schema_name\>\]
 - xml\[<{XSD_namespace_name}type_name\>\]
-- xmlDocument
+- xmlDocument\[<{XSD_namespace_name}type_name\>\]
 
 A variable of type `json` can hold any JSON document. The optional qualification of the TypeName
 for a JSON document indicates the name of the JSON schema that the JSON value is assumed to
@@ -307,7 +263,7 @@ A variable of type `xml` can hold any XML element. The optional qualification of
 for an XML document indicates the qualified type name of the XML Schema type that the XML
 element is assumed to conform to.
 
-A variable of type `xmlDocument` can hold any XML document.
+A variable of type `xmlDocument` can hold any XML document and the optional schema type is the type of the document element.
 
 #### Allocating Variables
 
@@ -375,6 +331,9 @@ t2 = (Type2) t1;
 
 That is, the registered type convertor is invoked by indicating the type cast as above.
 
+Functions with message as an argument accept a payload type ( XML, JSON, map, and any user defined type) instead of the message, and automatically wraps the payload data to creates a message. This avoid having to create a message when sending simple data. For example, when calling `send(message)`, the call may use `send("Hello")`. A message is automatically created and passed to send. ( see issue #33)
+
+
 ### Statements
 
 A Statement may be one of the following:
@@ -389,6 +348,8 @@ A Statement may be one of the following:
 - return statement
 - reply statement
 - worker initiation statement
+- worker join statement
+- action invocation statement
 - comment statement
 
 #### Assignment Statement
@@ -452,48 +413,25 @@ will wait for the parallel workers to complete.
 ```
 fork (MessageName) {
   worker WorkerName (message VariableName) {
-    ConnectionDeclaration;*
     VariableDeclaration;*
     Statement;+
     [reply MessageName;]
   }+       
 } [join (JoinCondition) (message[] VariableName) {
-  ConnectionDeclaration;*
-  VariableDeclaration;*
   Statement;*
+} timeout (Expression) (message[] VariableName) {
+  Statement;*  
 }]
 ```
+Note that if the `join` clause is missing then its equivalent to waiting for all to complete and ignorning the results.
+
 The JoinCondition is one of the following:
 - any IntegerValue[(, WorkerName)+]): wait for any k (IntegerValue) of the given workers or any of the workers
 - all [WorkerNameList]: wait for all given workers or all of the workers
 
 When the `JoinCondition` has been satisfied, the corresponding slots of the message array will be filled with the returned messages from the workers in the order the workers' lexical order. If the condition asks for up to some number of results to be available to satisfy the condition, it may be the case that more than that number are available by the time the statements within the join condition are executed. If a particular worker has completed but not sent a response message, or not yet completed, the corresponding message slot will be null.
 
-Following is an Example.
-```
-FlightService fs = new FlightService(...)
-HotelService hs = new FlightService(...)
-fork (msg) {
-  worker checkFlightsWroker (message msg) {
-    xml payload = message:getXmlPayload(msg)
-    string to = xml:get(payload, '/to')
-    string from = xml:get(payload, '/from')
-    date address = new date(xml.get(payload, '/date')
-    return fs.query(`{"from":$from, "to":$to, "date":$date}`)
-  },
-  worker checkHotelsWroker (message msg) {
-    xml payload = message:getXmlPayload(msg)
-    string to = xml:get(payload, '/to')
-    string from = xml:get(payload, '/from')
-    date address = new date(xml:get(payload, '/date')
-    return hs.query(`{"from":$from, "to":$to, "date":$date}`)
-  }       
-} join all (message[] VariableName) {
-  bookFlights(VariableName[0])
-  bookHotels(VariableName[1])
-}
-
-```
+The `timeout` clause allows one to specify a maximum time (in milliseconds) within which the join condition must be satisfied.
 
 
 #### Exception Handling
@@ -507,35 +445,22 @@ Note that there is only one built in exception type - all exceptions use this ty
 The syntax of a `try/catch` is as follows:
 ```
 try {
-    VariableDeclaration*
     Statement;+
 } catch (exception e) {
-    VariableDeclaration*
     Statement;+
 }
 ```
 
-The sytax of a `throw` statement is as follows:
+The syntax of a `throw` statement is as follows:
 
 ```
 throw Expression;
 ```
 
-Example:
-```
-    try {
-        response = http:sendPost (nyse_ep, m);
-    } catch (exception e) {
-        message:setHeader(m, HTTP.StatusCode, 500);// need to discuss
-        json error = `{"error":"backend failed", "causedBy":e.message}`;
-        message:setPayloadJson(m, error);
-    }
-```
-
 #### Return Statement
 
 ```
-return (Expression)*;
+return Expression*;
 ```
 
 #### Reply Statement

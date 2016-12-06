@@ -17,17 +17,15 @@
 */
 package org.wso2.ballerina.utils;
 
-import java.util.function.Function;
-
 /**
  * Represents a function that accepts three arguments and produces a result.
- * This is the three-arity specialization of {@link Function}.
+ * This is the three-arity specialization of {@link java.util.function.Function}.
  *
  * @param <T> the type of the first argument to the function
  * @param <U> the type of the second argument to the function
  * @param <S> the type of the third argument to the function
  * @param <R> the type of the result of the function
- * @see Function
+ * @see java.util.function.Function
  * @since 1.0.0
  */
 @FunctionalInterface

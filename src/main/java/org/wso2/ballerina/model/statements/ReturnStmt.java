@@ -20,8 +20,6 @@ package org.wso2.ballerina.model.statements;
 import org.wso2.ballerina.interpreter.Context;
 import org.wso2.ballerina.model.expressions.Expression;
 
-import java.util.List;
-
 /**
  * {@code ReturnStmt} represents a return statement
  *

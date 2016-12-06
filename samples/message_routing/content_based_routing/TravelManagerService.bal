@@ -1,0 +1,34 @@
+package samples.message_routing.content_based_routing;
+
+import ballerina.lang.message;
+import ballerina.net.http;
+import ballerina.lang.json;
+
+
+@BasePath ("/travelmgr")
+@Source (interface = "default_http_listener")
+@Service(description = "Service to do content based routing of request between Hotel and Car-rental services")
+service TravelManagerService {
+
+    http:HttpConnector hotelEP = new http:HttpConnector("http://localhost:9090/hotel", {"timeOut" : 30000});
+    http:HttpConnector carRentalEP = new http:HttpConnector("http://localhost:9090/carrental", {"timeOut" : 60000});
+
+    @POST
+    @Path ("/reservation")
+    resource passthrough (message m) {
+        message response;
+        json jsonMsg = json:getPayload(m);
+        try {
+          if (json:get(jsonMsg, "$.TravelpediaReservation.reservationType") == "CAR-RENTAL") {
+              response = http:HttpConnector.sendPost(hotelEP, m);
+          } else {
+              response = http:HttpConnector.sendPost(carRentalEP, m);
+          }
+        } catch (exception e) {
+            json errorMsg = `{"error" : "Error while sending to backend"}`;
+            message:setPayload (response, errorMsg);
+            message:setHeader (response, "Status", 500);
+        }
+        reply response;
+    }
+}

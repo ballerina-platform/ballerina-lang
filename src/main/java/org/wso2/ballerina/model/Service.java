@@ -46,7 +46,6 @@ public class Service {
     private List<VariableDcl> variables;
     private List<Resource> resources;
 
-
     /**
      *
      * @param identifier Service Identifier

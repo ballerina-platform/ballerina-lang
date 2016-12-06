@@ -22,7 +22,7 @@ package org.wso2.ballerina.model.values;
  *
  * @since 1.0.0
  */
-public class FloatValue  implements BValue{
+public class FloatValue implements BValue {
     private float value;
 
     public FloatValue(float value) {

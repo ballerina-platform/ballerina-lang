@@ -34,7 +34,7 @@ import org.wso2.ballerina.utils.TriFunction;
  */
 public class MultExpression extends BinaryArithmeticExpression {
 
-    public static final TriFunction<Context, Expression, Expression, BValueRef> multIntFunc =
+    public static final TriFunction<Context, Expression, Expression, BValueRef> MULT_INT_FUNC =
             (ctx, lExpr, rExpr) -> {
                 IntValue lValue = (IntValue) lExpr.evaluate(ctx).getBValue();
                 IntValue rValue = (IntValue) rExpr.evaluate(ctx).getBValue();
@@ -42,7 +42,7 @@ public class MultExpression extends BinaryArithmeticExpression {
                 return new BValueRef(bValue);
             };
 
-    public static final TriFunction<Context, Expression, Expression, BValueRef> multLongFunc =
+    public static final TriFunction<Context, Expression, Expression, BValueRef> MULT_LONG_FUNC =
             (ctx, lExpr, rExpr) -> {
                 LongValue lValue = (LongValue) lExpr.evaluate(ctx).getBValue();
                 LongValue rValue = (LongValue) rExpr.evaluate(ctx).getBValue();
@@ -50,7 +50,7 @@ public class MultExpression extends BinaryArithmeticExpression {
                 return new BValueRef(bValue);
             };
 
-    public static final TriFunction<Context, Expression, Expression, BValueRef> multFloatFunc =
+    public static final TriFunction<Context, Expression, Expression, BValueRef> MULT_FLOAT_FUNC =
             (ctx, lExpr, rExpr) -> {
                 FloatValue lValue = (FloatValue) lExpr.evaluate(ctx).getBValue();
                 FloatValue rValue = (FloatValue) rExpr.evaluate(ctx).getBValue();
@@ -58,7 +58,7 @@ public class MultExpression extends BinaryArithmeticExpression {
                 return new BValueRef(bValue);
             };
 
-    public static final TriFunction<Context, Expression, Expression, BValueRef> multDoubleFunc =
+    public static final TriFunction<Context, Expression, Expression, BValueRef> MULT_DOUBLE_FUNC =
             (ctx, lExpr, rExpr) -> {
                 DoubleValue lValue = (DoubleValue) lExpr.evaluate(ctx).getBValue();
                 DoubleValue rValue = (DoubleValue) rExpr.evaluate(ctx).getBValue();

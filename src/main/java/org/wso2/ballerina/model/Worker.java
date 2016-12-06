@@ -19,6 +19,9 @@
 package org.wso2.ballerina.model;
 
 import org.wso2.ballerina.model.statements.Statement;
+import org.wso2.ballerina.runtime.core.BalCallback;
+import org.wso2.ballerina.runtime.core.BalContext;
+import org.wso2.ballerina.runtime.core.Executable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +42,7 @@ import java.util.List;
  *  @since 1.0.0
  */
 @SuppressWarnings("unused")
-public class Worker {
+public class Worker implements Executable {
 
     private List<Connection> connections;
     private List<VariableDcl> variables;
@@ -136,4 +139,7 @@ public class Worker {
         statements.add(statement);
     }
 
+    public boolean execute(BalContext context, BalCallback callback) {
+        return false;
+    }
 }

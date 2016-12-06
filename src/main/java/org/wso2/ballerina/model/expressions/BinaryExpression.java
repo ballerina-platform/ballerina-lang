@@ -19,8 +19,6 @@ package org.wso2.ballerina.model.expressions;
 
 import org.wso2.ballerina.interpreter.Context;
 import org.wso2.ballerina.model.Operator;
-import org.wso2.ballerina.model.types.TypeEnum;
-import org.wso2.ballerina.model.values.BValue;
 import org.wso2.ballerina.model.values.BValueRef;
 
 /**

@@ -230,7 +230,7 @@ public class FunctionInvocationTest {
         controlStack.pushFrame(stackFrame);
 
         FunctionInvocationExpr invocationExpr = getFunctionInvocationExpr(new StringType(),
-                AddExpression.addStringFunc);
+                AddExpression.ADD_STRING_FUNC);
         BValueRef returnValue = invocationExpr.evaluate(ctx);
 
 //        stackFrame = controlStack.popFrame();
@@ -263,7 +263,7 @@ public class FunctionInvocationTest {
         controlStack.pushFrame(stackFrame);
 
         FunctionInvocationExpr invocationExpr = getFunctionInvocationExpr(new IntType(),
-                AddExpression.addIntFunc);
+                AddExpression.ADD_INT_FUNC);
         BValueRef returnValue = invocationExpr.evaluate(ctx);
 
 //        stackFrame = controlStack.popFrame();
