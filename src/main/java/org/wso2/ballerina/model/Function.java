@@ -270,8 +270,4 @@ public class Function implements Interpreter {
     public void interpret(Context ctx) {
         functionBody.interpret(ctx);
     }
-
-    public String getName() {
-        return functionName.getName();
-    }
 }
