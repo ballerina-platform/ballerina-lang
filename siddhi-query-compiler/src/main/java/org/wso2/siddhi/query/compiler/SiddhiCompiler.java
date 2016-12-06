@@ -42,6 +42,7 @@ import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
 import org.wso2.siddhi.query.api.execution.partition.Partition;
 import org.wso2.siddhi.query.api.execution.query.Query;
+import org.wso2.siddhi.query.api.expression.constant.TimeConstant;
 import org.wso2.siddhi.query.compiler.exception.SiddhiParserException;
 import org.wso2.siddhi.query.compiler.internal.SiddhiErrorListener;
 import org.wso2.siddhi.query.compiler.internal.SiddhiQLBaseVisitorImpl;
@@ -151,4 +152,19 @@ public class SiddhiCompiler {
     }
 
 
+    public static TimeConstant parseTimeConstantDefinition(String source) throws SiddhiParserException {
+        ANTLRInputStream input = new ANTLRInputStream(source);
+        SiddhiQLLexer lexer = new SiddhiQLLexer(input);
+        lexer.removeErrorListeners();
+        lexer.addErrorListener(SiddhiErrorListener.INSTANCE);
+
+        CommonTokenStream tokens = new CommonTokenStream(lexer);
+        SiddhiQLParser parser = new SiddhiQLParser(tokens);
+        parser.removeErrorListeners();
+        parser.addErrorListener(SiddhiErrorListener.INSTANCE);
+        ParseTree tree = parser.time_value();
+
+        SiddhiQLVisitor eval = new SiddhiQLBaseVisitorImpl();
+        return (TimeConstant) eval.visit(tree);
+    }
 }
