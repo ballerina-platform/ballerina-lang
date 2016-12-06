@@ -28,34 +28,44 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.wso2.ballerina</groupId>
     <artifactId>ballerina</artifactId>
-    <packaging>bundle</packaging>
+    <packaging>pom</packaging>
     <version>1.0.0-SNAPSHOT</version>
-    <name>ballerina</name>
-    <url>http://maven.apache.org</url>
+    <name>WSO2 Ballerina Parent</name>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.testng</groupId>
-            <artifactId>testng</artifactId>
-            <version>${testng.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.transport</groupId>
-            <artifactId>org.wso2.carbon.transport.http.netty</artifactId>
-            <version>${carbon.transport.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.messaging</groupId>
-            <artifactId>org.wso2.carbon.messaging</artifactId>
-            <version>${carbon.messaging.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.orbit.org.antlr</groupId>
-            <artifactId>antlr4-runtime</artifactId>
-            <version>${antlr4.runtime.version}</version>
-        </dependency>
-    </dependencies>
+    <url>http://wso2.org</url>
+
+    <scm>
+        <url>https://github.com/wso2/ballerina.git</url>
+        <developerConnection>scm:git:https://github.com/wso2/ballerina.git</developerConnection>
+        <connection>scm:git:https://github.com/wso2/ballerina.git</connection>
+        <tag>HEAD</tag>
+    </scm>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.testng</groupId>
+                <artifactId>testng</artifactId>
+                <version>${testng.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.transport</groupId>
+                <artifactId>org.wso2.carbon.transport.http.netty</artifactId>
+                <version>${carbon.transport.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.messaging</groupId>
+                <artifactId>org.wso2.carbon.messaging</artifactId>
+                <version>${carbon.messaging.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.orbit.org.antlr</groupId>
+                <artifactId>antlr4-runtime</artifactId>
+                <version>${antlr4.runtime.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <build>
         <plugins>
@@ -190,26 +200,10 @@
 
         <antlr4.runtime.version>4.5.1.wso2v1</antlr4.runtime.version>
 
-        <export.package>
-            org.wso2.ballerina.*;version="${ballerina.package.export.version}"
-        </export.package>
-        <import.package>
-            org.osgi.framework.*;version="${osgi.framework.import.version.range}",
-            org.osgi.util.tracker;version="${osgi.service.tracker.import.version.range}",
-            org.wso2.carbon.kernel.transports.*;version="${carbon.kernel.package.import.version.range}",
-            org.wso2.carbon.kernel.deployment.*;version="${carbon.kernel.package.import.version.range}",
-            org.wso2.carbon.kernel.startupresolver.*;version="${carbon.kernel.package.import.version.range}",
-            org.slf4j.*;version="${slf4j.logging.package.import.version.range}",
-            org.antlr.v4.runtime.*,
-
-            org.wso2.carbon.messaging.*;version="${carbon.messaging.package.import.version.range}",
-            org.wso2.carbon.deployment.engine.*;version="${carbon.deployment.export.version}",
-        </import.package>
-        <carbon.component>
-            osgi.service; objectClass="org.wso2.carbon.deployment.engine.Deployer",
-            osgi.service; objectClass="org.wso2.carbon.messaging.CarbonMessageProcessor";
-            requiredByComponentName="netty-transports-mgt"
-        </carbon.component>
     </properties>
+
+    <modules>
+        <module>modules/ballerina-core</module>
+    </modules>
 
 </project>
