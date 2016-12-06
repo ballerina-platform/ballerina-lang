@@ -19,7 +19,9 @@
 package org.wso2.ballerina.model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  *  A {@code Service} is an HTTP web service described by a Swagger.
@@ -41,7 +43,7 @@ import java.util.List;
 public class Service {
 
     private Identifier identifier;
-    private List<Annotation> annotations;
+    private Map<String, Annotation> annotations;
     private List<Connection> connections;
     private List<VariableDcl> variables;
     private List<Resource> resources;
@@ -64,10 +66,20 @@ public class Service {
     }
 
     /**
-     * Get all the Annotations associated with a Service
-     * @return list of Annotations
+     * Get an Annotation associated with a Service for a given name
+     *
+     * @param name name of the Annotation
+     * @return Annotation
      */
-    public List<Annotation> getAnnotations() {
+    public Annotation getAnnotation(String name) {
+        return annotations.get(name);
+    }
+
+    /**
+     * Get all the Annotations associated with a Service
+     * @return Map of Annotations
+     */
+    public Map<String, Annotation> getAnnotations() {
         return annotations;
     }
 
@@ -76,7 +88,7 @@ public class Service {
      *
      * @param annotations list of Annotations
      */
-    public void setAnnotations(List<Annotation> annotations) {
+    public void setAnnotations(Map<String, Annotation> annotations) {
         this.annotations = annotations;
     }
 
@@ -87,9 +99,9 @@ public class Service {
      */
     public void addAnnotation(Annotation annotation) {
         if (annotations == null) {
-            annotations = new ArrayList<Annotation>();
+            annotations = new HashMap<>();
         }
-        annotations.add(annotation);
+        annotations.put(annotation.getName(), annotation);
     }
 
     /**

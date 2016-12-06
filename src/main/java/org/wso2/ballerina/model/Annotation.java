@@ -18,22 +18,31 @@
 
 package org.wso2.ballerina.model;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * {@code Annotation} represents an Annotation in Ballerina.
  * <p>
  * Annotation can be associated with various Ballerina concepts like Service, Resource, Functions, etc.
- * @see <a href="https://github.com/wso2/ballerina/blob/master/docs/SyntaxSummary.md">Ballerina Syntax Summary</a>
  *
+ * @see <a href="https://github.com/wso2/ballerina/blob/master/docs/SyntaxSummary.md">Ballerina Syntax Summary</a>
  * @since 1.0.0
  */
 @SuppressWarnings("unused")
 public class Annotation {
 
     private String name, value;
+    private Map<String, String> keyValPairs = new HashMap<>();
 
     public Annotation(String name, String value) {
         this.name = name;
         this.value = value;
+    }
+
+    public Annotation(String name, Map<String, String> keyValPairs) {
+        this.name = name;
+        this.keyValPairs = keyValPairs;
     }
 
     /**
@@ -53,4 +62,24 @@ public class Annotation {
     public String getValue() {
         return value;
     }
+
+    /**
+     * Get Key-Value pairs in the annotation
+     *
+     * @return all Key-Value pairs
+     */
+    public Map getKeyValuePairs() {
+        return keyValPairs;
+    }
+
+    /**
+     * Get the value of the Key-Value pair
+     *
+     * @param key key
+     * @return value of the Key-Value pair
+     */
+    public String getValueOfKeyValuePair(String key) {
+        return keyValPairs.get(key);
+    }
+
 }
