@@ -24,7 +24,7 @@ import java.util.List;
  *
  * @since 1.0.0
  */
-public class StructType implements Type {
+public class StructType extends AbstractType {
     private List<Field> fields;
 
     public StructType(List<Field> fields) {
