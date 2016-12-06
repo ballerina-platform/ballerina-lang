@@ -176,21 +176,10 @@ public final class Constants {
 
     public static final String LOCALHOST = "localhost";
 
-    //WebSocket Related Parameters
-    public static final String IS_WEBSOCKET_MESSAGE = "IS_WEBSOCKET_MESSAGE";
-    public static final String WEBSOCKET_CONTENT = "WEBSOCKET_CONTENT";
-    public static final String WEBSOCKET_FRAME_TYPE = "WEBSOCKET_FRAME_TYPE";
-    public static final class WebSocketFrameTypes {
-        public static final String TEXT_WEBSOCKET_FRAME ="TEXT_WEBSOCKET_FRAME";
-        public static final String BINARY_WEBSOCKET_FRAME ="BINARY_WEBSOCKET_FRAME";
-        public static final String PING_WEBSOCKET_FRAME ="PING_WEBSOCKET_FRAME";
-        public static final String PONG_WEBSOCKET_FRAME ="PONG_WEBSOCKET_FRAME";
-        public static final String CLOSE_WEBSOCKET_FRAME ="CLOSE_WEBSOCKET_FRAME";
-    }
+    // WebSocket Related Parameters
+    public static final String IS_WEBSOCKET_FRAME = "IS_WEBSOCKET_FRAME";
+    public static final String WEBSOCKET_FRAME = "WEBSOCKET_CONTENT";
 
     private Constants() {
     }
-
 }
-
-

@@ -20,15 +20,12 @@ package org.wso2.carbon.transport.http.netty.listener;
 
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.handler.codec.http.HttpRequest;
-import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
-import io.netty.handler.codec.serialization.ObjectEncoder;
-import org.apache.logging.log4j.core.config.plugins.util.ResolverUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessage;
+import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.transport.http.netty.common.Constants;
-import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
@@ -43,14 +40,17 @@ import java.net.InetSocketAddress;
  */
 public class WebSocketSourceHandler extends SourceHandler {
 
-    private final String URI;
+    private static Logger log = LoggerFactory.getLogger(WebSocketSourceHandler.class);
+    private final String uri;
 
     public WebSocketSourceHandler(ConnectionManager connectionManager,
                                   ListenerConfiguration listenerConfiguration,
                                   String uri) throws Exception {
         super(connectionManager, listenerConfiguration);
-        this.URI = uri;
+        this.uri = uri;
     }
+
+
 
     /**
      * Read the channel for incoming {@link io.netty.handler.codec.http.websocketx.WebSocketFrame}
@@ -60,30 +60,53 @@ public class WebSocketSourceHandler extends SourceHandler {
      */
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+
         if (msg instanceof WebSocketFrame) {
+            WebSocketFrame webSocketFrame = (WebSocketFrame) msg;
             CarbonMessage carbonMessage = setupBasicCarbonMessage(ctx);
-
-            if (msg instanceof TextWebSocketFrame) {
-                TextWebSocketFrame frame = (TextWebSocketFrame) msg;
-                String text = frame.text();
-
-                carbonMessage.setProperty(Constants.WEBSOCKET_FRAME_TYPE,
-                                          Constants.WebSocketFrameTypes.TEXT_WEBSOCKET_FRAME);
-                carbonMessage.setProperty(Constants.WEBSOCKET_CONTENT, text);
-
-            }
+            carbonMessage.setProperty(Constants.IS_WEBSOCKET_FRAME, true);
+            carbonMessage.setProperty(Constants.WEBSOCKET_FRAME, webSocketFrame);
+            publishToMessageProcessor(carbonMessage);
+        } else {
+            log.error("Expecting WebSocketFrame. Unknown type.");
         }
     }
 
-    /**
-     * Extract all the necessary details from {@link ChannelHandlerContext}
-     * Add them into a {@link CarbonMessage}
-     * Note : This method only add details of {@link ChannelHandlerContext}
-     * Adding other custom details should be done separately
-     * @param ctx {@link ChannelHandlerContext;} of the channel
-     * @return basic {@link CarbonMessage} with necessary details
+
+    /*
+    Carbon Message is published to registered message processor
+    Message Processor should return transport thread immediately
      */
-    protected CarbonMessage setupBasicCarbonMessage(ChannelHandlerContext ctx) {
+    private void publishToMessageProcessor(CarbonMessage cMsg) {
+        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+            HTTPTransportContextHolder.getInstance().getHandlerExecutor().executeAtSourceRequestReceiving(cMsg);
+        }
+
+        CarbonMessageProcessor carbonMessageProcessor = HTTPTransportContextHolder.getInstance()
+                .getMessageProcessor();
+        if (carbonMessageProcessor != null) {
+            try {
+                carbonMessageProcessor.receive(cMsg, new ResponseCallback(this.ctx));
+            } catch (Exception e) {
+                log.error("Error while submitting CarbonMessage to CarbonMessageProcessor", e);
+            }
+        } else {
+            log.error("Cannot find registered MessageProcessor for forward the message");
+        }
+
+    }
+
+
+
+    /*
+     Extract all the necessary details from ChannelHandlerContext
+     Add them into a CarbonMessage
+     Note : This method only add details of ChannelHandlerContext to the CarbonMessage
+     Adding other custom details should be done separately
+     @return basic CarbonMessage with necessary details
+     */
+    private CarbonMessage setupBasicCarbonMessage(ChannelHandlerContext ctx) {
+
         CarbonMessage cMsg = new HTTPCarbonMessage();
         if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
             HTTPTransportContextHolder.getInstance().getHandlerExecutor().executeAtSourceRequestReceiving(cMsg);
@@ -91,7 +114,7 @@ public class WebSocketSourceHandler extends SourceHandler {
         cMsg.setProperty(Constants.PORT, ((InetSocketAddress) ctx.channel().remoteAddress()).getPort());
         cMsg.setProperty(Constants.HOST, ((InetSocketAddress) ctx.channel().remoteAddress()).getHostName());
 
-        cMsg.setProperty(Constants.TO, this.URI);
+        cMsg.setProperty(Constants.TO, this.uri);
         cMsg.setProperty(Constants.CHNL_HNDLR_CTX, ctx);
         cMsg.setProperty(Constants.SRC_HNDLR, this);
 
@@ -106,7 +129,6 @@ public class WebSocketSourceHandler extends SourceHandler {
         ChannelHandler handler = ctx.handler();
 
         cMsg.setProperty(Constants.CHANNEL_ID, ((SourceHandler) handler).getListenerConfiguration().getId());
-
         return cMsg;
     }
 }
