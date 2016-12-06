@@ -64,11 +64,27 @@ In Ballerina annotations are divided into two categories.
 Note: By design Doc annotation and Config annotation are defined separately. This will improve readability and performance
  of the system.  
 
-### Swagger 2.0 Support
+## Open API 2.0 (Swagger 2.0) Support in Ballerina. 
 
 Ballerina Annotations represent a super set of Open API Specification 2.0 (AKA Swagger 2.0) format. This allows developers
 to Generate a Ballerina service skeleton from a Swagger 2.0 definition and/or Swagger 2.0 definition from a Ballerina service.
- 
+
+### Ballerina vs Swagger Type and Format Mapping. 
+
+| Ballerina type | Swagger Type | Swagger Format |
+|---|---|---|
+| int | integer | int32 |
+| long | integer | int64 |
+| float | number | float |
+| double | number | double |
+| boolean | boolean | N/A | 
+| string | string | N/A | 
+| string* | string | date, date-time, email, password | 
+| (?)| string | binary | 
+| (?)| string | byte | 
+
+\* Using `@Proprty` annotations, string field can be converted in to date, date-time, email, or password field in Ballerina UI.    
+
 ## Supported Annotations.
 
 ### Service Annotations. 
@@ -86,8 +102,7 @@ Followings are the service level annotations.
 
 A Doc annotation which describes a Ballerina Service. 
 
-Generic meta information about Service or Connector. But this a super set of Swagger 2.0 representation. 
-
+Generic meta information about Service. This a super set of Swagger 2.0 representation. 
 
 Syntax: 
 ```
@@ -985,20 +1000,33 @@ Syntax:
 
 ### Type and Variable Annotations.
 
-Defines user types.
-
 Syntax:
 ```
 @TypeInfo(
     name = "userDefineType",
 )
+@Xml(
+    name = "xmlElementName" ,
+    namespace = "https://example.com/foo" ,
+    prefix = "foo" ,
+    wrapped = true | false ,
+    xsdType = "xmlElementType"
+)
 type UserDefineType {
 
     @Property(  
-                name = "varName", 
-                schema = "schemaName", 
-                required = true|false, 
-                format = "password|date|date-time|binary|byte"
+        name = "varName", 
+        required = true|false, 
+        title = "A title for this variable", 
+        discription = "A short description about the variable field."
+        format = "password|date|date-time|binary|byte"
+    )
+    @Xml(
+        name = "InnerElementName" ,
+        namespace = "https://example.com/bar" ,
+        prefix = "bar" ,
+        attribute = true | false ,
+        xsdType = "InnerElementType"
     )
     type variableName = DEFAULT_VALUE;
 }
@@ -1020,9 +1048,298 @@ Property Annotation is used to describe meta information about the annotated var
 | required | boolean | Indicate annotated field is required. The default is false.  | insert varName into ($.definitions\['userDefineType'\].required) |
 | title | string | Title for annotated field. |$.definitions\['userDefineType'\].properties.\['varName'\].title |
 | description | string | A description about annotated variable. | $.definitions\['userDefineType'\].properties.\['varName'\].description |
-| format | string | DataType format (e.g: password, date, date-time, binary, byte, etc) | $.definitions\['userDefineType'\].properties.\['varName'\].format |
-| * | string | Other Properties defined in the Swagger Schema Object. https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#schemaObject  | Schema Object - *. |
+| format | string | Data Type format (e.g: password, date, date-time, binary, byte, etc) | $.definitions\['userDefineType'\].properties.\['varName'\].format |
+| * | string | Other Properties defined in the Swagger Schema Object. https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#schemaObject  | .definitions\['userDefineType'\].properties.\['varName'\].* |
 
+_@Xml_
+
+`@XML` element is used to bind xml object to a Ballerina type. 
+   
+| Ballerina Field | Type | Description | Swagger Field (JSON Path)  |
+|---|:---:|---|---|
+|name|string| Equivalent XML element name| For Variable:  $.definitions\['userDefineType'\].properties.\['varName'\].xml.name  <br/>  For Type :  $.definitions\['userDefineType'\].xml.name|
+|namespace|string| Namespace of the XML element.|  $.definitions\['userDefineType'\].properties.\['varName'\].xml.namespace  <br/> For Type : $.definitions\['userDefineType'\].xml.namespace|
+|prefix|string| Namespace prefix of the XML element.|  $.definitions\['userDefineType'\].properties.\['varName'\].xml.prefix <br/> For Type : $.definitions\['userDefineType'\].xml.prefix|
+|attribute|boolean| **Only for Variables** If true, annotated variable considers as an attribute of the type. |  $.definitions\['userDefineType'\].properties.\['varName'\].xml.attribute |
+|wrapped|boolean| **Only for Type** MAY be used only for an array definition. Added this to comply with Swagger 2.0 |  $.definitions\['userDefineType'\].xml.wrapped |
+|xsdType|string| Field specify XSD type name, `namespace` field is required. |  $.definitions\['userDefineType'\].properties.\['varName'\].xml.x-xsdType <br/> For Type : $.definitions\['userDefineType'\].xml.x-xsdType|
+
+
+####Example
+
+##### Generating Swagger 2.0 Definition Object(JSON Schema) and XML Schema from Ballerina user defined types. 
+
+_Example 1 - No annotation_
+
+```
+package com.example.person;
+
+type Person {
+    int userID;
+    string name;
+    string birthday;
+    Address address;
+    string[] email;
+}
+
+type Address {
+    string addressLine;
+    string city;
+    string state;
+    string country;
+    int zipcode;
+}
+```
+
+* Generated Swagger 2.0 Object Definitions(JSON schema)
+```
+definitions:
+  Address : 
+    type: object
+    properties:
+      addressLine:
+        type: string
+      city:
+        type: string
+      state:
+        type: string
+      country:
+        type: string
+      zipcode:
+        type: integer
+        format: int32
+    x-ballerina-package: com.example.person
+  Person :
+    type: object
+    properties:
+      userID:
+        type: integer
+        format: int32
+      name:
+        type: string
+        title: Name of the person.
+      birthday:
+        type: string
+      address:
+        $ref: #/definitions/address
+      email:
+        type: array
+        items: 
+          type : string
+    x-ballerina-package: com.example.person
+```
+
+* Generated XML Schema 
+
+```
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="Person" type="PersonType"/>
+    <xs:element name="Address" type="AddressType"/>
+    <xs:complexType name="AddressType">
+        <xs:sequence>
+            <xs:element type="xs:string" name="addressLine"/>
+            <xs:element type="xs:string" name="city"/>
+            <xs:element type="xs:string" name="state"/>
+            <xs:element type="xs:string" name="country"/>
+            <xs:element type="xs:integer" name="zipcode"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="PersonType">
+        <xs:sequence>
+            <xs:element type="xs:integer" name="userID"/>
+            <xs:element type="xs:string" name="name"/>
+            <xs:element type="xs:string" name="birthday"/>
+            <xs:element type="AddressType" name="address"/>
+            <xs:element type="xs:string" name="email" maxOccurs="unbounded" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+</xs:schema>
+```
+
+Example xml:
+```
+<Person>
+  <userID>100</userID>
+  <name>string</name>
+  <birthday>string</birthday>
+  <address>
+    <addressLine>string</addressLine>
+    <city>string</city>
+    <state>string</state>
+    <country>string</country>
+    <zipcode>100</zipcode>
+  </address>
+  <!--Zero or more repetitions:-->
+  <email>string</email>
+</Person>
+```
+
+
+_Example 2 - with Annotation_
+
+Consider Following Person and Address Types.
+
+```
+package com.example.person;
+
+@TypeInfo( name = "person" )
+@Xml( name = "person" , namespace = "http://example.com/person" , prefix = "per" , xsdType = "personType" )
+type Person{
+
+    @Property( required = true , title = "User ID of the person." )
+    @Xml( attribute = true )
+    int userID;
+
+    @Property( required = true , title = "Name of the person." )
+    string name;
+    
+    @Property( format = "date" )
+    @XML( namespace = "http://www.w3.org/2001/XMLSchema" , xsdType="date" )
+    string birthday; 
+    
+    Address address;
+    
+    @Property( format = "email" )
+    string[] email;
+
+}
+
+@TypeInfo( name = "address" )
+@Xml( name = "addressXML" , namespace = "http://example.com/person" , prefix = "per" , xsdType = "addressType" )
+Type Address{
+
+    @Property( required = true )
+    string addressLine;
+    
+    @Property( required = true )
+    string city;
+    
+    string state;
+    
+    @Property( required = true )
+    string country;
+    
+    @XML( namespace = "http://www.w3.org/2001/XMLSchema" , xsdType="int" )
+    int zipcode;
+
+}
+```
+
+* Generated Swagger 2.0 Object Definitions(JSON schema)
+```
+definitions:
+  address : 
+    type: object
+    required:
+      - addressLine
+      - city
+      - country
+    properties:
+      addressLine:
+        type: string
+      city:
+        type: string
+      state:
+        type: string
+      country:
+        type: string
+      zipcode:
+        type: integer
+        format: int32
+        xml:
+          namespace: http://www.w3.org/2001/XMLSchema
+          x-xsdType: int
+    x-ballerina-name: Address
+    x-ballerina-package: com.example.person
+  person :
+    type: object
+    required:
+      - userID
+      - name
+    properties:
+      userID:
+        type: integer
+        format: int32
+        title: User ID of the person.
+        xml:
+          attribute: true
+      name:
+        type: string
+        title: Name of the person.
+      birthday:
+        type: string
+        format: date
+        xml:
+          namespace: http://www.w3.org/2001/XMLSchema
+          x-xsdType: date
+      address:
+        $ref: #/definitions/address
+      email:
+        type: array
+        items: 
+          type : string
+          format : email
+    x-ballerina-name: Person
+    x-ballerina-package: com.example.person
+```
+
+* Generated XML Schema 
+```
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="http://example.com/person"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="person" type="per:personType" xmlns:per="http://example.com/person"/>
+    <xs:element name="addressXML" type="per:addressType" xmlns:per="http://example.com/person"/>
+    <xs:complexType name="addressType">
+        <xs:sequence>
+            <xs:element type="xs:string" name="addressLine"/>
+            <xs:element type="xs:string" name="city"/>
+            <xs:element type="xs:string" name="state"/>
+            <xs:element type="xs:string" name="country"/>
+            <xs:element type="xs:int" name="zipcode"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="personType">
+        <xs:sequence>
+            <xs:element type="xs:string" name="name"/>
+            <xs:element type="xs:date" name="birthday"/>
+            <xs:element type="per:addressType" name="address" xmlns:per="http://example.com/person"/>
+            <xs:element type="xs:string" name="email" maxOccurs="unbounded" minOccurs="0" />
+        </xs:sequence>
+        <xs:attribute type="xs:integer" name="userID"/>
+    </xs:complexType>
+</xs:schema>
+```
+Example xml:
+```
+<per:person userID="100" xmlns:per="http://example.com/person">
+  <per:name>string</per:name>
+  <per:birthday>2008-09-29</per:birthday>
+  <per:address>
+    <per:addressLine>string</per:addressLine>
+    <per:city>string</per:city>
+    <per:state>string</per:state>
+    <per:country>string</per:country>
+    <per:zipcode>3</per:zipcode>
+  </per:address>
+  <!--Zero or more repetitions:-->
+  <per:email>string</per:email>
+</per:person>
+```
+
+##### Generating Ballerina user defined types using a Swagger 2.0 Definition Object(JSON Schema). 
+
+TODO.
+
+##### Generating Ballerina user defined types using a XSD Schema. 
+
+TODO.
+
+
+Future Work: 
+
+* Handle Swagger polymorphism in data type. - https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#models-with-polymorphism-support
+ 
 
 ### Common Annotations
 
