@@ -34,4 +34,11 @@ public abstract class WorkerThread implements Runnable {
         this.callback = callback;
     }
 
+    public BalContext getContext() {
+        return context;
+    }
+
+    public BalCallback getCallback() {
+        return callback;
+    }
 }

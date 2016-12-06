@@ -27,6 +27,9 @@ import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.messaging.TransportSender;
 
+/**
+ * {@code MessageProcessor} is the interface between the inbound transport and the Ballerina engine
+ */
 public class MessageProcessor implements CarbonMessageProcessor {
 
     private static final Logger log = LoggerFactory.getLogger(MessageProcessor.class);
@@ -39,7 +42,7 @@ public class MessageProcessor implements CarbonMessageProcessor {
         RequestWorkerThread workerThread =
                 new RequestWorkerThread(new BalContext(carbonMessage), new DefaultBalCallback(carbonCallback));
 
-        ThreadPoolFactory.getInstance().getExecutor().submit(workerThread);
+        ThreadPoolFactory.getInstance().getExecutor().execute(workerThread);
 
         return false;
     }
