@@ -18,14 +18,22 @@
 package org.wso2.ballerina.model.values;
 
 /**
- * {@code FloatValue} represents a float value
+ * {@code FloatValue} represents a float value in Ballerina
  *
  * @since 1.0.0
  */
-public class FloatValue {
+public class FloatValue  implements BValue{
     private float value;
 
     public FloatValue(float value) {
+        this.value = value;
+    }
+
+    public float getValue() {
+        return value;
+    }
+
+    public void setValue(float value) {
         this.value = value;
     }
 }
