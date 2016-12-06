@@ -50,6 +50,11 @@
             <artifactId>org.wso2.carbon.messaging</artifactId>
             <version>${carbon.messaging.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.orbit.org.antlr</groupId>
+            <artifactId>antlr4-runtime</artifactId>
+            <version>${antlr4.runtime.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

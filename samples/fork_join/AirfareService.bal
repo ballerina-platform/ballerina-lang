@@ -34,11 +34,13 @@ service AirfareProviderService {
                 response = http:HttpConnector.sendGet (xyzAirlineEP, query, m);
                 reply response;
             }
-        } join all (message[] airfareResponses) {
+        } join (all) (message[] airfareResponses) {
             xmlElement airfareAggregatedResponse = `<airfareRes></airfareRes>`;
             xml:appendChild(airfareAggregatedResponse, "/airfareRes", null, airfareResponses[0]);
             xml:appendChild(airfareAggregatedResponse, "/airfareRes", null, airfareResponses[1]);
 
             reply airfareAggregatedResponse;
         }
+   }
+
 }
