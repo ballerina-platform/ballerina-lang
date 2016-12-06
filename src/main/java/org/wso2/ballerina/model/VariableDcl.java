@@ -30,18 +30,18 @@ import org.wso2.ballerina.model.types.Type;
  * @since 1.0.0
  */
 @SuppressWarnings("unused")
-public class Variable {
+public class VariableDcl {
 
     private Type type;
-    private String value;
     private Identifier identifier;
+    private String value;
 
     /**
      * @param type       Type of the variable
      * @param identifier Identifier of the variable
-     * @param value      value of the variable
+     * @param value      bValueRef of the variable
      */
-    public Variable(Type type, Identifier identifier, String value) {
+    public VariableDcl(Type type, Identifier identifier, String value) {
         this.type = type;
         this.identifier = identifier;
         this.value = value;
@@ -66,9 +66,9 @@ public class Variable {
     }
 
     /**
-     * Get the value of the variable
+     * Get the bValueRef of the variable
      *
-     * @return value of the variable
+     * @return bValueRef of the variable
      */
     public String getValue() {
         return value;
