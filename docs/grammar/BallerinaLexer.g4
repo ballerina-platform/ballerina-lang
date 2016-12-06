@@ -5,24 +5,22 @@ lexer grammar BallerinaLexer;
 // §3.9 Ballerina keywords
 
 ACTION	        :	'action';
-fragment
-BOOLEAN	        :	'boolean';
+//BOOLEAN	        :	'boolean';
 BREAK	        :	'break';
 CATCH	        :	'catch';
 CONNECTOR	    :	'connector';
 CONST	        :	'const';
-DOUBLE	        :	'double';
+//DOUBLE	        :	'double';
 ELSE	        :	'else';
-FLOAT	        :	'float';
+//FLOAT	        :	'float';
 FORK	        :	'fork';
 FUNCTION	    :	'function';
 IF	            :	'if';
 IMPORT	        :	'import';
-fragment
-INT	            :	'int';
+//INT	            :	'int';
 ITERATE	        :	'iterate';
 JOIN	        :	'join';
-LONG	        :	'long';
+//LONG	        :	'long';
 NEW	            :	'new';
 PACKAGE	        :	'package';
 REPLY	        :	'reply';
@@ -37,82 +35,23 @@ TYPECONVERTOR	:	'typeconvertor';
 WHILE	        :	'while';
 WORKER	        :	'worker';
 BACKTICK        :   '`';
+//XML             :   'xml';
+//JSON            :   'json';
+//XMLDOCUMENT     :   'xmlDocument';
+//STRING          :   'string';
+//MESSAGE         :   'message';
+//MAP             :   'map';
+//EXCEPTION       :   'exception';
 
-// Non-reserved keywords
-fragment
-XML             :   'xml';
-fragment
-JSON            :   'json';
-fragment
-XMLDOCUMENT     :   'xmlDocument';
-fragment
-STRING          :   'string';
-fragment
-MESSAGE         :   'message';
-fragment
-MAP             :   'map';
-fragment
-EXCEPTION       :   'exception';
-
-// more keywords
-VersionString
-    :   VERSION
-    ;
-fragment
 VERSION         :   'version';
-
-OneZeroString
-    :   ONEZERO
-    ;
-fragment
 ONEZERO         :   '1.0';
-
-PublicString
-    :   PUBLIC
-    ;
-fragment
 PUBLIC          :   'public';
-
-AnyString
-    :   ANY
-    ;
-fragment
 ANY             :   'any';
-
-AllString
-    :   ALL
-    ;
-fragment
 ALL             :   'all';
-
-AsString
-    :   AS
-    ;
-fragment
 AS              :   'as';
-
-EmptyArrayString
-    :   EMPTYARRAY
-    ;
-fragment
 EMPTYARRAY      :  '[]';
-
-TimeoutString
-    :   TIMEOUT
-    ;
-fragment
 TIMEOUT         :   'timeout';
-
-SendArrow
-    :   SENDARROW
-    ;
-fragment
 SENDARROW       :   '->';
-
-ReceiveArrow
-    :   RECEIVEARROW
-    ;
-fragment
 RECEIVEARROW    :   '<-';
 
 // §3.10.1 Integer Literals
@@ -327,8 +266,12 @@ BooleanLiteral
 
 // §3.10.5 String Literals
 
-QuotedStringLiteral
+DoubleQuotedStringLiteral
     :   '"' StringCharacters? '"'
+    ;
+
+SingleQuotedStringLiteral
+    :   '\'' StringCharacters? '\''
     ;
 
 //BacktickStringLiteral
@@ -397,8 +340,8 @@ ZeroToThree
 
 // §3.10.7 The Null Literal
 
-NilLiteral
-    :   'nil'
+NullLiteral
+    :   'null'
     ;
 
 // §3.11 Separators
@@ -435,7 +378,6 @@ DEC             : '--';
 ADD             : '+';
 SUB             : '-';
 MUL             : '*';
-fragment
 DIV             : '/';
 BITAND          : '&';
 BITOR           : '|';
@@ -453,8 +395,11 @@ MOD_ASSIGN      : '%=';
 LSHIFT_ASSIGN   : '<<=';
 RSHIFT_ASSIGN   : '>>=';
 URSHIFT_ASSIGN  : '>>>=';
-
 DOLLAR_SIGN     : '$';
+
+VariableReference
+    : DOLLAR_SIGN Identifier
+    ;
 
 Identifier
     :   Letter LetterOrDigit*
@@ -535,7 +480,7 @@ SPECIAL_CLOSE:  '?>'                    -> popMode ; // close <?xml...?>
 SLASH_CLOSE :   '/>'                    -> popMode ;
 SLASH       :   '/' ;
 EQUALS      :   '=' ;
-XMLSTRING      :   '"' ~[<"]* '"'
+XMLSTRING   :   '"' ~[<"]* '"'
             |   '\'' ~[<']* '\''
             ;
 Name        :   NameStartChar NameChar* ;

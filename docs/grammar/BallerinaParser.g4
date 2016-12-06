@@ -20,11 +20,11 @@ compilationUnit
     ;
 
 packageDeclaration
-    :   'package' packageName (VersionString OneZeroString)? ';'
+    :   'package' packageName ('version' '1.0')? ';'
     ;
 
 importDeclaration
-    :   'import' packageName (VersionString OneZeroString)? (AsString Identifier)? ';'
+    :   'import' packageName ('version' '1.0')? ('as' Identifier)? ';'
     ;
 
 serviceDefinition
@@ -45,7 +45,7 @@ resourceDefinition
     ;
 
 functionDefinition
-    :   annotation* PublicString? 'function' Identifier '(' parameterList? ')' returnTypeList? ('throws' Identifier)? functionBody
+    :   annotation* 'public'? 'function' Identifier '(' parameterList? ')' returnTypeList? ('throws' Identifier)? functionBody
     ;
 
 //todo rename, this is used in resource, action and funtion
@@ -70,7 +70,7 @@ connectorDeclaration
     ;
 
 typeDefinition
-    :   PublicString? 'type' Identifier typeDefinitionBody
+    :   'public'? 'type' Identifier typeDefinitionBody
     ;
 
 typeDefinitionBody
@@ -112,13 +112,13 @@ qualifiedTypeName
 
 unqualifiedTypeName
     :   typeNameWithOptionalSchema
-    |   typeNameWithOptionalSchema EmptyArrayString
+    |   typeNameWithOptionalSchema '[]'
     |   typeNameWithOptionalSchema '~'
     ;
 
 typeNameWithOptionalSchema
-    :   Identifier  (LT ('{' QuotedStringLiteral '}')? Identifier GT)
-    |   Identifier  (LT ('{' QuotedStringLiteral '}') GT)
+    :   Identifier  (OPEN ('{' DoubleQuotedStringLiteral '}')? Identifier CLOSE)
+    |   Identifier  (OPEN ('{' DoubleQuotedStringLiteral '}') CLOSE)
     |   Identifier
     ;
 
@@ -147,9 +147,9 @@ packageName
 literalValue
     :   IntegerLiteral
     |   FloatingPointLiteral
-    |   QuotedStringLiteral
+    |   DoubleQuotedStringLiteral
     |   BooleanLiteral
-    |   'nil'
+    |   NullLiteral
     ;
  //============================================================================================================
  // ANNOTATIONS
@@ -184,14 +184,10 @@ assignmentStatement
     |   statementExpression ';')+
     ;
 
-variableReference
-    : DOLLAR_SIGN Identifier
-    ;
-
 variableAccessor
     :   Identifier
-    |   Identifier '['DecimalNumeral']'
-    |   Identifier'['QuotedStringLiteral']'
+    |   Identifier '['IntegerLiteral']'
+    |   Identifier'['DoubleQuotedStringLiteral']'
     |   Identifier '.' variableAccessor
     ;
 
@@ -279,8 +275,9 @@ breakStatement
     :   'break' ';'
     ;
 
+// typeName is only message
 forkJoinStatement
-    :   'fork' '(' Identifier ')' '{' workerDeclaration+ '}' joinClause? timeoutClause?
+    :   'fork' '(' typeName Identifier ')' '{' workerDeclaration+ '}' joinClause? timeoutClause?
     ;
 
 // below typeName is only 'message[]'
@@ -289,13 +286,13 @@ joinClause
     ;
 
 joinConditions
-    :   AnyString IntegerLiteral (Identifier (',' Identifier)*)?
-    |   AllString (Identifier (',' Identifier)*)?
+    :   'any' IntegerLiteral (Identifier (',' Identifier)*)?
+    |   'all' (Identifier (',' Identifier)*)?
     ;
 
 // below typeName is only 'message[]'
 timeoutClause
-    :   TimeoutString '(' expression ')' '(' typeName Identifier ')'  '{' statement+ '}'
+    :   'timeout' '(' expression ')' '(' typeName Identifier ')'  '{' statement+ '}'
     ;
 
 tryCatchStatement
@@ -328,12 +325,12 @@ workerInteractionStatement
 
 // below left Identifier is of type 'message' and the right Identifier is of type 'worker'
 triggerWorker
-    :   Identifier SendArrow Identifier ';'
+    :   Identifier '->' Identifier ';'
     ;
 
 // below left Identifier is of type 'worker' and the right Identifier is of type 'message'
 workerReply
-    :   Identifier ReceiveArrow Identifier ';'
+    :   Identifier '<-' Identifier ';'
     ;
 
 commentStatement
@@ -429,8 +426,8 @@ expression
     |   ('~'|'!') expression                                # preUnaryExpression
     |   expression ('*'|DIV|'%') expression                 # binrayMulDivPercentExpression
     |   expression ('+'|'-') expression                     # binaryPlusMinusExpression
-    |   expression (LT LT | GT GT GT | GT GT) expression    # binrayBitShiftExpression
-    |   expression ('<=' | '>=' | GT | LT) expression       # binaryComparisonExpression
+    |   expression (OPEN OPEN | CLOSE CLOSE CLOSE | CLOSE CLOSE) expression    # binrayBitShiftExpression
+    |   expression ('<=' | '>=' | CLOSE | OPEN) expression       # binaryComparisonExpression
     |   expression ('==' | '!=') expression                 # binrayEqualExpression
     |   expression '&' expression                           # binrayBitwiseAndExpression
     |   expression '^' expression                           # binrayBitwiseXorExpression
@@ -438,7 +435,7 @@ expression
     |   expression '&&' expression                          # binrayAndExpression
     |   expression '||' expression                          # binrayOrExpression
     |   expression '?' expression ':' expression            # ternaryIfExpression
-    |   '{' QuotedStringLiteral ':' literal '}'             # mapInitializerExpression
+    |   '{' DoubleQuotedStringLiteral ':' literal '}'             # mapInitializerExpression
     |   <assoc=right> expression
         (   ASSIGN
         |   '+='
@@ -456,48 +453,49 @@ expression
         expression                                          # binrayOpEqualsOpExpression
     ;
 
-typeType
-    :   userDefineType (('[' ']') | '~')?
-    |   primitiveType (('[' ']') | '~')?
-    |   nonPrimitiveType (('[' ']') | '~')?
-    |   buildInDataType (('[' ']') | '~')?
-    ;
+//typeType
+//    :   userDefineType (('[' ']') | '~')?
+//    |   primitiveType (('[' ']') | '~')?
+//    |   nonPrimitiveType (('[' ']') | '~')?
+//    |   buildInDataType (('[' ']') | '~')?
+//    ;
 
-buildInDataType
-    :   XML (schemaDefinition)?
-    |   XMLDOCUMENT
-    |   JSON(schemaDefinition)?
-    ;
+//buildInDataType
+//    :   XML (schemaDefinition)?
+//    |   XMLDOCUMENT
+//    |   JSON(schemaDefinition)?
+//    ;
 
 literal
     :   IntegerLiteral
     |   FloatingPointLiteral
-    |   QuotedStringLiteral
+    |   DoubleQuotedStringLiteral
+    |   SingleQuotedStringLiteral
     |   BooleanLiteral
-    |   'nil'
+    |   NullLiteral
     ;
 
-schemaDefinition
-    :   LT ('{' literal '}')? Identifier GT;
+//schemaDefinition
+//    :   OPEN ('{' QuotedStringLiteral '}')? Identifier CLOSE;
+//
+//userDefineType
+//    :   Identifier ('.' Identifier )*
+//    ;
 
-userDefineType
-    :   Identifier ('.' Identifier )*
-    ;
+//primitiveType
+//    :   BOOLEAN
+//    |   INT
+//    |   'long'
+//    |   'float'
+//    |   'double'
+//    ;
 
-primitiveType
-    :   BOOLEAN
-    |   INT
-    |   'long'
-    |   'float'
-    |   'double'
-    ;
-
-nonPrimitiveType
-    :   STRING
-    |   MESSAGE
-    |   MAP
-    |   EXCEPTION
-    ;
+//nonPrimitiveType
+//    :   STRING
+//    |   MESSAGE
+//    |   MAP
+//    |   EXCEPTION
+//    ;
 
 primary
     :   '(' expression ')'
@@ -506,16 +504,16 @@ primary
     ;
 
 
-//todo think of the xml, json schema (removed Diamon syntax)
-createdName
-    :   Identifier ('.' Identifier)*
-    |   primitiveType
-    ;
+////todo think of the xml, json schema (removed Diamon syntax)
+//createdName
+//    :   Identifier ('.' Identifier)*
+//    |   primitiveType
+//    ;
 
-//todo is something worng ?
-arguments
-    :   '(' expressionList? ')'
-    ;
+////todo is something worng ?
+//arguments
+//    :   '(' expressionList? ')'
+//    ;
 
 // JSON Parsing
 backtickjson
@@ -537,7 +535,7 @@ object
    ;
 
 pair
-   : QuotedStringLiteral ':' value
+   : DoubleQuotedStringLiteral ':' value
    ;
 
 array
@@ -549,8 +547,8 @@ array
 value
    : object
    | array
+   | VariableReference
    | literal
-   | JSONNULL
    ;
 
 // XML Parsing
@@ -561,7 +559,7 @@ document    :   prolog? misc* element misc*;
 prolog      :   XMLDeclOpen attribute* SPECIAL_CLOSE ;
 
 content     :   chardata?
-                ( (element | reference | CDATA | PI | COMMENT) chardata?)* ;
+                ( (element | reference | CDATA | PI | XMLCOMMENT) chardata?)* ;
 
 element     :   OPEN Name attribute* CLOSE content OPEN SLASH Name CLOSE
             |   OPEN Name attribute* SLASH CLOSE
@@ -574,6 +572,6 @@ attribute   :   Name EQUALS XMLSTRING ; // Our STRING is AttValue in spec
 /** ``All text that is not markup constitutes the character data of
  *  the document.''
  */
-chardata    :   QuotedStringLiteral | SEA_WS ;
+chardata    :   DoubleQuotedStringLiteral | SEA_WS | VariableReference;
 
-misc        :   COMMENT | PI | SEA_WS ;
+misc        :   XMLCOMMENT | PI | SEA_WS ;
