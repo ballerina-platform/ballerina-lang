@@ -20,12 +20,14 @@ package org.wso2.ballerina.model.types;
 import org.wso2.ballerina.model.Identifier;
 
 /**
- * Represents a type. All types implements this interface.
+ * {@code AbstractType} is an abstract class for all the types in Ballerina
  *
  * @since 1.0.0
  */
-public interface Type {
+public class AbstractType implements Type {
+    protected Identifier name;
 
-    Identifier getName();
-
+    public Identifier getName() {
+        return name;
+    }
 }
