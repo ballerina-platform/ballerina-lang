@@ -79,6 +79,10 @@ public class Function implements Interpreter {
         this.functionBody = functionBody;
     }
 
+    public String getName() {
+        return functionName.getName();
+    }
+
     /**
      * Get all the Annotations associated with a Function
      *
@@ -238,7 +242,7 @@ public class Function implements Interpreter {
      *
      * @return whether function is public
      */
-    public boolean isPublicFunc() {
+    public boolean isPublic() {
         return publicFunc;
     }
 
