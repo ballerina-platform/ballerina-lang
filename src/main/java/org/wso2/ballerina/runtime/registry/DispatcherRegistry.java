@@ -26,14 +26,28 @@ import java.util.Map;
 
 /**
  * The place where protocol specific dispatchers are stored
+ *
+ * @since 1.0.0
  */
 public class DispatcherRegistry {
 
     private Map<String, ServiceDispatcher> serviceDispatchers = new HashMap<String, ServiceDispatcher>();
     private Map<String, ResourceDispatcher> resourceDispatchers = new HashMap<String, ResourceDispatcher>();
 
+    private static DispatcherRegistry instance = new DispatcherRegistry();
+
+    private DispatcherRegistry(){}
+
+    public static DispatcherRegistry getInstance() {
+        return instance;
+    }
+
     public ServiceDispatcher getServiceDispatcher(String protocol) {
         return serviceDispatchers.get(protocol);
+    }
+
+    public Map<String, ServiceDispatcher> getServiceDispatchers() {
+        return serviceDispatchers;
     }
 
     public ResourceDispatcher getResourceDispatcher(String protocol) {

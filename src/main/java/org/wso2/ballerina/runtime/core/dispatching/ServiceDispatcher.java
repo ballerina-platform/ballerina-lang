@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerina.runtime.core.dispatching;
 
+import org.wso2.ballerina.model.Service;
 import org.wso2.ballerina.runtime.core.BalCallback;
 import org.wso2.ballerina.runtime.core.BalContext;
 
@@ -37,6 +38,25 @@ public interface ServiceDispatcher {
      */
     boolean dispatch(BalContext context, BalCallback callback);
 
+    /**
+     * Get the protocol of the dispatcher
+     *
+     * @return protocol
+     */
     String getProtocol();
+
+    /**
+     * This is getting triggered when a new Service belongs to this protocol added to the Ballerina engine
+     *
+     * @param service Service
+     */
+    void serviceRegistered(Service service);
+
+    /**
+     * This is getting triggered when Service belongs to this protocol removed from Ballerina engine
+     *
+     * @param service Service
+     */
+    void serviceUnregistered(Service service);
 
 }

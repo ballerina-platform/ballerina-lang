@@ -40,8 +40,30 @@ public class ApplicationRegistry {
         return instance;
     }
 
-    public void addApplication(Application application) {
+    public void registerApplication(Application application) {
         applications.put(application.getAppName(), application);
+
+        // Notify source dispatchers
+        application.getPackages().forEach(aPackage -> {
+            aPackage.getServices().forEach(service -> {
+                DispatcherRegistry.getInstance().getServiceDispatchers().forEach((protocol, dispatcher) -> {
+                    dispatcher.serviceRegistered(service);
+                });
+            });
+        });
+    }
+
+    public void unregisterApplication(Application application) {
+        applications.remove(application.getAppName());
+
+        // Notify source dispatchers
+        application.getPackages().forEach(aPackage -> {
+            aPackage.getServices().forEach(service -> {
+                DispatcherRegistry.getInstance().getServiceDispatchers().forEach((protocol, dispatcher) -> {
+                    dispatcher.serviceUnregistered(service);
+                });
+            });
+        });
     }
 
     public Application getApplication(String appName) {
