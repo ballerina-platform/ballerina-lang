@@ -20,4 +20,7 @@
     <Match>
         <Package name="org.wso2.ballerina.interpreter"/>
     </Match>
+    <Match>
+        <Package name="org.wso2.ballerina.parser"/>
+    </Match>
 </FindBugsFilter>

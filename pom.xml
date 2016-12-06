@@ -119,7 +119,7 @@
                                 <failsOnError>true</failsOnError>
                                 <includeTestSourceDirectory>true</includeTestSourceDirectory>
                                 <!--Exclude generated sources-->
-                                <excludes>**/generated/**/*</excludes>
+                                <excludes>**/parser/*</excludes>
                             </configuration>
                             <goals>
                                 <goal>check</goal>
