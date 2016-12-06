@@ -1,0 +1,26 @@
+<FindBugsFilter>
+    <Match>
+        <Package name="org.wso2.ballerina.core.model.values"/>
+    </Match>
+    <Match>
+        <Package name="org.wso2.ballerina.interpreter"/>
+    </Match>
+    <Match>
+        <Package name="org.wso2.ballerina.core.model.statements"/>
+    </Match>
+    <Match>
+        <Package name="org.wso2.ballerina.core.model.expressions"/>
+    </Match>
+    <Match>
+        <Package name="org.wso2.ballerina.core.model.types"/>
+    </Match>
+    <Match>
+        <Package name="org.wso2.ballerina.core.model"/>
+    </Match>
+    <Match>
+        <Package name="org.wso2.ballerina.core.interpreter"/>
+    </Match>
+    <Match>
+        <Package name="org.wso2.ballerina.core.parser"/>
+    </Match>
+</FindBugsFilter>
