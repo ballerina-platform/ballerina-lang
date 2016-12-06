@@ -53,7 +53,6 @@
     </dependencies>
 
     <properties>
-        <!--Bundle Plugin - Overridden from parent due to a bug in latest version related to capability providers-->
         <maven.findbugsplugin.version.exclude>findbugs-exclude.xml</maven.findbugsplugin.version.exclude>
 
         <export.package>
