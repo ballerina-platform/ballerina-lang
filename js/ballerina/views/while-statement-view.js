@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', 'app/ballerina/ast/while-statement', 'd3utils'], function (_, log, EventChannel, WhileStatement, D3Utils) {
+define(['lodash', 'log', 'event_channel', './../ast/while-statement', 'd3utils'], function (_, log, EventChannel, WhileStatement, D3Utils) {
 
     /**
      * The view for the while statement model.

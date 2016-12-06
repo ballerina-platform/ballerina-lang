@@ -17,9 +17,9 @@
  */
 define(['require', 'log', 'jquery', 'lodash', 'backbone', 'app/menu-bar/menu-bar', 'breadcrumbs', 'file_browser', 'tab/service-tab-list', 'app/tool-palette/tool-palette',
 
-    'welcome','command','workspace', 'views/ballerina-file-editor', 'ast/ballerina-ast-factory', 'diagram_rendering_visitor',/* void modules */ 'jquery_ui', 'bootstrap'],
+    'welcome','command','workspace', 'ballerina',/* void modules */ 'jquery_ui', 'bootstrap'],
 
-    function (require, log, $, _, Backbone, MenuBar, BreadcrumbController, FileBrowser, TabController, ToolPalette, WelcomeScreen, CommandManager, Workspace, FileEditor, BallerinaASTFactory) {
+    function (require, log, $, _, Backbone, MenuBar, BreadcrumbController, FileBrowser, TabController, ToolPalette, WelcomeScreen, CommandManager, Workspace, Ballerina) {
 
     var Application = Backbone.View.extend(
     /** @lends Application.prototype */
@@ -86,7 +86,7 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'app/menu-bar/menu-bar
             this.regularWelcomeScreen = new WelcomeScreen.Views.RegularView(regWelcomeScreenOpts);
 
 
-            var ballerinaASTFactory = new BallerinaASTFactory();
+            var ballerinaASTFactory = new Ballerina.ast.BallerinaASTFactory();
             var ballerinaAstRoot = ballerinaASTFactory.createBallerinaAstRoot();
             var serviceDefinitions = [];
             // Create sample connector definition
@@ -117,7 +117,7 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'app/menu-bar/menu-bar
             functionDefinitions.push(functionDefinition1);
             ballerinaAstRoot.setFunctionDefinitions(functionDefinitions);
 
-            var fileEditor = new FileEditor({model: ballerinaAstRoot, viewOptions: _.get(this.config, "tab_controller.tabs")});
+            var fileEditor = new  Ballerina.views.BallerinaFileEditor({model: ballerinaAstRoot, viewOptions: _.get(this.config, "tab_controller.tabs")});
         },
 
         validateConfig: function(config){

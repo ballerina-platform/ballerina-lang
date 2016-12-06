@@ -15,13 +15,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['app/processors/flow-controllers/module', 'app/processors/manipulators/module', 'app/processors/actions/module'],
-    function (flowControllers, manipulators, actions) {
+define([],
+    function () {
         return {
-            flowControllers: flowControllers,
-            manipulators: manipulators,
-            actions: actions
-        };
+          };
     }
 );
 
