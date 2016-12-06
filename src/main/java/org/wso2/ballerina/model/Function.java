@@ -18,7 +18,10 @@
 
 package org.wso2.ballerina.model;
 
+import org.wso2.ballerina.interpreter.Context;
+import org.wso2.ballerina.interpreter.Interpreter;
 import org.wso2.ballerina.model.statements.Statement;
+import org.wso2.ballerina.model.types.Type;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,30 +30,54 @@ import java.util.List;
  * A {@code Function} is an operation that is executed by a {@code Worker}.
  * <p>
  * The structure of a Function is as follows:
+ * <p>
+ * [FunctionAnnotations]
+ * [public] function FunctionName (((TypeName VariableName)[(, TypeName VariableName)*])?)
+ * ((TypeName[(, TypeName)*])?) [throws exception] {
+ * ConnectionDeclaration;*
+ * VariableDeclaration;*
+ * WorkerDeclaration;*
+ * Statement;+
+ * }
  *
- *  [FunctionAnnotations]
- *  [public] function FunctionName (((TypeName VariableName)[(, TypeName VariableName)*])?)
- *  ((TypeName[(, TypeName)*])?) [throws exception] {
- *      ConnectionDeclaration;*
- *      VariableDeclaration;*
- *      WorkerDeclaration;*
- *      Statement;+
- *  }
- *
- *  @since 1.0.0
- *
+ * @since 1.0.0
  */
 @SuppressWarnings("unused")
-public class Function {
+public class Function implements Interpreter {
+
+    private Identifier functionName;
 
     private List<Annotation> annotations;
-    private List<Argument> arguments;
+    private List<Parameter> parameters;
     private List<Connection> connections;
-    private List<Variable> variables;
+    private List<VariableDcl> variableDcls;
     private List<Worker> workers;
-    private List<Statement> statements;
 
-    private boolean isPublic;
+    private List<Type> returnTypes;
+    private Statement functionBody;
+
+    private boolean publicFunc;
+
+    public Function(Identifier name,
+                    Boolean isPublic,
+                    List<Annotation> annotations,
+                    List<Parameter> parameters,
+                    List<Type> returnTypes,
+                    List<Connection> connections,
+                    List<VariableDcl> variableDcls,
+                    List<Worker> workers,
+                    Statement functionBody) {
+
+        this.functionName = name;
+        this.publicFunc = isPublic;
+        this.annotations = annotations;
+        this.parameters = parameters;
+        this.returnTypes = returnTypes;
+        this.connections = connections;
+        this.variableDcls = variableDcls;
+        this.workers = workers;
+        this.functionBody = functionBody;
+    }
 
     /**
      * Get all the Annotations associated with a Function
@@ -87,17 +114,17 @@ public class Function {
      *
      * @return list of Arguments
      */
-    public List<Argument> getArguments() {
-        return arguments;
+    public List<Parameter> getParameters() {
+        return parameters;
     }
 
     /**
      * Set Arguments list to the function
      *
-     * @param arguments list of Arguments
+     * @param parameters list of Arguments
      */
-    public void setArguments(List<Argument> arguments) {
-        this.arguments = arguments;
+    public void setParameters(List<Parameter> parameters) {
+        this.parameters = parameters;
     }
 
     /**
@@ -105,11 +132,11 @@ public class Function {
      *
      * @param argument Argument to be added to the function definition
      */
-    public void addArgument(Argument argument) {
-        if (arguments == null) {
-            arguments = new ArrayList<Argument>();
+    public void addArgument(Parameter argument) {
+        if (parameters == null) {
+            parameters = new ArrayList<Parameter>();
         }
-        arguments.add(argument);
+        parameters.add(argument);
     }
 
     /**
@@ -143,21 +170,21 @@ public class Function {
     }
 
     /**
-     * Get all the variables declared in the scope of Function
+     * Get all the variableDcls declared in the scope of Function
      *
-     * @return list of all Function scoped variables
+     * @return list of all Function scoped variableDcls
      */
-    public List<Variable> getVariables() {
-        return variables;
+    public List<VariableDcl> getVariableDcls() {
+        return variableDcls;
     }
 
     /**
-     * Assign variables to the Function
+     * Assign variableDcls to the Function
      *
-     * @param variables list of Function
+     * @param variableDcls list of Function
      */
-    public void setVariables(List<Variable> variables) {
-        this.variables = variables;
+    public void setVariableDcls(List<VariableDcl> variableDcls) {
+        this.variableDcls = variableDcls;
     }
 
     /**
@@ -165,11 +192,11 @@ public class Function {
      *
      * @param variable variable to be added to the Function
      */
-    public void addVariable(Variable variable) {
-        if (variables == null) {
-            variables = new ArrayList<Variable>();
+    public void addVariable(VariableDcl variable) {
+        if (variableDcls == null) {
+            variableDcls = new ArrayList<VariableDcl>();
         }
-        variables.add(variable);
+        variableDcls.add(variable);
     }
 
     /**
@@ -202,35 +229,8 @@ public class Function {
         workers.add(worker);
     }
 
-
-    /**
-     * Get all the Statements associated with the Function
-     *
-     * @return list of Statements associated with the Function
-     */
-    public List<Statement> getStatements() {
-        return statements;
-    }
-
-    /**
-     * Set Statements to be associated with the Function
-     *
-     * @param statements list of Statements
-     */
-    public void setStatements(List<Statement> statements) {
-        this.statements = statements;
-    }
-
-    /**
-     * Add a {@code Statement} to the Function
-     *
-     * @param statement a Statement to be added to the Function
-     */
-    public void addStatement(Statement statement) {
-        if (statements == null) {
-            statements = new ArrayList<Statement>();
-        }
-        statements.add(statement);
+    public List<Type> getReturnTypes() {
+        return returnTypes;
     }
 
     /**
@@ -238,14 +238,23 @@ public class Function {
      *
      * @return whether function is public
      */
-    public boolean isPublic() {
-        return isPublic;
+    public boolean isPublicFunc() {
+        return publicFunc;
     }
 
     /**
      * Mark function as public
      */
     public void makePublic() {
-        isPublic = true;
+        publicFunc = true;
+    }
+
+    /**
+     * TODO This is the basic implementation of the function interpreter
+     *
+     * @param ctx
+     */
+    public void interpret(Context ctx) {
+        functionBody.interpret(ctx);
     }
 }
