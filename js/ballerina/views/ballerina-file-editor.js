@@ -118,6 +118,8 @@ define(['require', 'lodash', 'log'], function (require, _, log) {
                     panelIcon.addClass('fw fw-dgm-service');
                 } else if (canvas[0].getAttribute('name') == "connector") {
                     panelIcon.addClass('fw fw-dgm-connector');
+                } else if(canvas[0].getAttribute('name') == "function") {
+                    panelIcon.addClass('fw fw-function');
                 }
                 panelTitle.append(panelIcon);
                 var titleLink = $('<a style="padding-left: 10px;">'+ canvas[0].getAttribute('name') + '</a>');
