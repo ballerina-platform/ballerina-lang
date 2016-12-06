@@ -108,7 +108,7 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'app/menu-bar/menu-bar
             serviceDefinition1.setResourceDefinitions([resourceDefinition1, resourceDefinition2]);
 
             serviceDefinitions.push(serviceDefinition1);
-            serviceDefinitions.push(serviceDefinition2);
+            // serviceDefinitions.push(serviceDefinition2);
             ballerinaAstRoot.setServiceDefinitions(serviceDefinitions);
 
             // Create Sample Function Definitions

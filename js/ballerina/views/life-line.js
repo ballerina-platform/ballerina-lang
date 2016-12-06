@@ -16,7 +16,7 @@
  * under the License.
  */
 
-define(['lodash', 'jquery', 'd3', 'log', 'd3utils'], function (_, $, d3, log, D3Utils) {
+define(['lodash', 'jquery', 'd3', 'log', 'd3utils', 'app/diagram-core/models/point'], function (_, $, d3, log, D3Utils, Point) {
 
     /**
      *
@@ -29,43 +29,41 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils'], function (_, $, d3, log, D3
             this._canvas = canvas;
 
             // Set default options for the life-lines
-            var lifeLineOptions = options || {};
-            lifeLineOptions.class = _.get(options, "class", "lifeline");
-            lifeLineOptions.editable = _.get(options, "editable", true);
+            this._viewOptions = options || {};
+            this._viewOptions.class = _.get(options, "class", "lifeline");
+            this._viewOptions.editable = _.get(options, "editable", true);
 
             // Lifeline starting point.
-            lifeLineOptions.centerPoint = _.get(options, "centerPoint", {});
-            lifeLineOptions.centerPoint.x = _.get(options, "centerPoint.x", 90);
-            lifeLineOptions.centerPoint.y = _.get(options, "centerPoint.y", 40);
+            this._viewOptions.centerPoint = _.get(options, "centerPoint", {});
+            this._viewOptions.centerPoint.x = _.get(options, "centerPoint.x", 90);
+            this._viewOptions.centerPoint.y = _.get(options, "centerPoint.y", 40);
 
             // Lifeline polygon options.
-            lifeLineOptions.polygon = _.get(options, "polygon", {});
-            lifeLineOptions.polygon.shape = _.get(options, "polygon.shape", "rect");
-            lifeLineOptions.polygon.width = _.get(options, "polygon.width", 65);
-            lifeLineOptions.polygon.height = _.get(options, "polygon.height", 65);
-            lifeLineOptions.polygon.roundX = _.get(options, "polygon.roundX", 0);
-            lifeLineOptions.polygon.roundY = _.get(options, "polygon.roundY", 0);
-            lifeLineOptions.polygon.class = _.get(options, "polygon.class", "lifeline-polygon");
+            this._viewOptions.polygon = _.get(options, "polygon", {});
+            this._viewOptions.polygon.shape = _.get(options, "polygon.shape", "diamond");
+            this._viewOptions.polygon.width = _.get(options, "polygon.width", 65);
+            this._viewOptions.polygon.height = _.get(options, "polygon.height", 65);
+            this._viewOptions.polygon.roundX = _.get(options, "polygon.roundX", 0);
+            this._viewOptions.polygon.roundY = _.get(options, "polygon.roundY", 0);
+            this._viewOptions.polygon.class = _.get(options, "polygon.class", "client lifeline-polygon");
 
             // Lifeline droppable-rect options.
-            lifeLineOptions.droppableRect = _.get(options, "droppableRect", {});
-            lifeLineOptions.droppableRect.width = _.get(options, "droppableRect.width", 100);
-            lifeLineOptions.droppableRect.height = _.get(options, "droppableRect.height", 300);
-            lifeLineOptions.droppableRect.roundX = _.get(options, "droppableRect.roundX", 1);
-            lifeLineOptions.droppableRect.roundY = _.get(options, "droppableRect.roundY", 1);
-            lifeLineOptions.droppableRect.class = _.get(options, "droppableRect.class", "lifeline-droppableRect");
+            this._viewOptions.droppableRect = _.get(options, "droppableRect", {});
+            this._viewOptions.droppableRect.width = _.get(options, "droppableRect.width", 100);
+            this._viewOptions.droppableRect.height = _.get(options, "droppableRect.height", 300);
+            this._viewOptions.droppableRect.roundX = _.get(options, "droppableRect.roundX", 1);
+            this._viewOptions.droppableRect.roundY = _.get(options, "droppableRect.roundY", 1);
+            this._viewOptions.droppableRect.class = _.get(options, "droppableRect.class", "client lifeline-droppableRect");
 
             // Lifeline line options.
-            lifeLineOptions.line = _.get(options, "line", {});
-            lifeLineOptions.line.height = _.get(options, "line.height", 150);
-            lifeLineOptions.line.class = _.get(options, "line.class", "lifeline-line");
+            this._viewOptions.line = _.get(options, "line", {});
+            this._viewOptions.line.height = _.get(options, "line.height", 275);
+            this._viewOptions.line.class = _.get(options, "line.class", "client lifeline-line");
 
             // Lifeline text options.
-            lifeLineOptions.text = _.get(options, "text", {});
-            lifeLineOptions.text.value = _.get(options, "text.value", "Client");
-            lifeLineOptions.text.class = _.get(options, "text.class", "lifeline-title");
-
-            this._lifeLineOptions = lifeLineOptions;
+            this._viewOptions.text = _.get(options, "text", {});
+            this._viewOptions.text.value = _.get(options, "text.value", "Client");
+            this._viewOptions.text.class = _.get(options, "text.class", "client lifeline-title");
 
             // Make the lifeline uneditable by default
             if (_.get(options, "editable", false)) {
@@ -77,7 +75,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils'], function (_, $, d3, log, D3
     LifeLine.prototype.constructor = LifeLine;
 
     LifeLine.prototype.getLifeLineOptions = function () {
-      return this._lifeLineOptions;
+      return this._viewOptions;
     };
 
     /**
@@ -85,7 +83,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils'], function (_, $, d3, log, D3
      * @param options The lifeline options. Use #getLifeLineOptions() to get the existing options of a lifeline.
      */
     LifeLine.prototype.reRender = function(options) {
-        this._lifeLineOptions = options;
+        this._viewOptions = options;
         // Deleting existing lifeline.
         this._lifelineGroup.remove();
         // Redrawing the lifeline.
@@ -103,7 +101,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils'], function (_, $, d3, log, D3
             return;
         }
 
-        this._lifeLineOptions.line.height = newHeight;
+        this._viewOptions.line.height = newHeight;
 
         if (_.isNil(fromBottom)) {
             fromBottom = true;
@@ -147,126 +145,151 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils'], function (_, $, d3, log, D3
 
     LifeLine.prototype.render = function () {
         // Creating group for lifeline.
-        this._lifelineGroup = D3Utils.group(d3.select(this._canvas));
+        this._lifelineGroup = D3Utils.group(d3.select(this._canvas)).classed("client", true);
 
-        // Top polygon group.
-        this._topPolygonGroup = D3Utils.group(this._lifelineGroup);
+        if (this._viewOptions.polygon.shape == "diamond") { // Drawing top polygon.
+            var polygonYOffset = this._viewOptions.polygon.height / 2;
+            var polygonXOffset = this._viewOptions.polygon.width / 2;
+            var topPolygonPoints =
+                // Bottom point of the polygon.
+                " " + this._viewOptions.centerPoint.x + "," + (this._viewOptions.centerPoint.y + polygonYOffset) +
+                // Right point of the polygon
+                " " + (this._viewOptions.centerPoint.x + polygonXOffset) + "," + this._viewOptions.centerPoint.y +
+                // Top point of the polygon.
+                " " + this._viewOptions.centerPoint.x + "," + (this._viewOptions.centerPoint.y - polygonYOffset) +
+                // Left point of the polygon.
+                " " + (this._viewOptions.centerPoint.x - polygonXOffset) + "," + this._viewOptions.centerPoint.y;
 
-        // Drawing top polygon.
-        var polygonYOffset = this._lifeLineOptions.polygon.height / 2;
-        var polygonXOffset = this._lifeLineOptions.polygon.width / 2;
-        var topPolygonPoints =
-            // Bottom point of the polygon.
-            " " + this._lifeLineOptions.centerPoint.x + "," + (this._lifeLineOptions.centerPoint.y + polygonYOffset) +
-            // Right point of the polygon
-            " " + (this._lifeLineOptions.centerPoint.x + polygonXOffset) + "," + this._lifeLineOptions.centerPoint.y +
-            // Top point of the polygon.
-            " " + this._lifeLineOptions.centerPoint.x + "," + (this._lifeLineOptions.centerPoint.y - polygonYOffset) +
-            // Left point of the polygon.
-            " " + (this._lifeLineOptions.centerPoint.x - polygonXOffset) + "," + this._lifeLineOptions.centerPoint.y;
+            this._topPolygon = D3Utils.polygon(topPolygonPoints, this._lifelineGroup);
+            this._topPolygon.attr("stroke-linejoin", "round");
 
-        this._topPolygon = D3Utils.polygon(topPolygonPoints, this._topPolygonGroup);
-        this._topPolygon.attr('fill', "#FFFFFF");
-        this._topPolygon.attr('stroke-width', "1");
-        this._topPolygon.attr('stroke', "#000000");
+            // Add text to top polygon.
+            this._topPolygonText = D3Utils.textElement(this._viewOptions.centerPoint.x, this._viewOptions.centerPoint.y,
+                this._viewOptions.text.value, this._lifelineGroup)
+                .classed(this._viewOptions.text.class, true).classed("genericT", true);
 
-        // Add text to top polygon.
-        this._topPolygonText = D3Utils.textElement(this._lifeLineOptions.centerPoint.x, this._lifeLineOptions.centerPoint.y,
-            this._lifeLineOptions.text.value, this._topPolygonGroup)
-            .classed(this._lifeLineOptions.text.class, true).classed("genericT",true);
+            // Centering the text to the middle of the top polygon.
+            this._topPolygonText.attr('dominant-baseline', "middle");
 
-        // Centering the text to the middle of the top polygon.
-        this._topPolygonText.attr('dominant-baseline', "middle");
+            // Drawing middle line.
+            //// Bottom point of the top polygon will be the starting y point of the middle line.
+            var startingYPointOfTheMiddleLine = this._viewOptions.centerPoint.y + polygonYOffset;
+            var endingYPointOfTheMiddleLine = this._viewOptions.centerPoint.y + polygonYOffset + this._viewOptions.line.height;
+            this._middleLine = D3Utils.line(this._viewOptions.centerPoint.x, startingYPointOfTheMiddleLine,
+                this._viewOptions.centerPoint.x, endingYPointOfTheMiddleLine, this._lifelineGroup);
 
-        // Drawing middle line.
-        //// Bottom point of the top polygon will be the starting y point of the middle line.
-        var startingYPointOfTheMiddleLine = this._lifeLineOptions.centerPoint.y + polygonYOffset;
-        var endingYPointOfTheMiddleLine = this._lifeLineOptions.centerPoint.y + polygonYOffset + this._lifeLineOptions.line.height;
-        this._middleLine = D3Utils.line(this._lifeLineOptions.centerPoint.x, startingYPointOfTheMiddleLine,
-            this._lifeLineOptions.centerPoint.x, endingYPointOfTheMiddleLine, this._lifelineGroup);
-        this._middleLine.attr('stroke-width', "1");
-        this._middleLine.attr('stroke', "#000000");
+            // Drawing bottom polygon.
+            var centerYPointOfBottomPolygon = endingYPointOfTheMiddleLine + polygonYOffset;
 
-        // Drawing bottom polygon.
-        var centerYPointOfBottomPolygon = endingYPointOfTheMiddleLine + polygonYOffset;
+            // Drawing droppable middle rect
+            var startingXPointOfDroppableRect = this._viewOptions.centerPoint.x - (polygonXOffset / 2);
+            var startingYPointOfDroppableRect = this._viewOptions.centerPoint.y + polygonYOffset;
+            this._droppableMiddleRect = D3Utils.rect(startingXPointOfDroppableRect, startingYPointOfDroppableRect,
+                (this._viewOptions.polygon.width / 2), this._viewOptions.line.height, 0, 0, this._lifelineGroup);
+            this._droppableMiddleRect.attr('style', 'cursor: pointer');
+            this._droppableMiddleRect.attr('fill', "#FFFFFF");
+            this._droppableMiddleRect.attr("fill-opacity", 0.01);
+            this._droppableMiddleRect.on('mouseover', function () {
+                d3.select(this).attr('fill', "green");
+                d3.select(this).attr('fill-opacity', 0.1);
+            }).on('mouseout', function () {
+                d3.select(this).attr('fill', "#FFFFFF");
+                d3.select(this).attr("fill-opacity", 0.01);
+            }).on('mouseup', function (data) {
 
-        // Drawing droppable middle rect
-        var startingXPointOfDroppableRect = this._lifeLineOptions.centerPoint.x - (polygonXOffset / 2);
-        var startingYPointOfDroppableRect = this._lifeLineOptions.centerPoint.y + polygonYOffset;
-        this._droppableMiddleRect = D3Utils.rect(startingXPointOfDroppableRect, startingYPointOfDroppableRect,
-            (this._lifeLineOptions.polygon.width / 2), this._lifeLineOptions.line.height, 0, 0, this._lifelineGroup);
-        this._droppableMiddleRect.attr('style', 'cursor: pointer');
-        this._droppableMiddleRect.attr('fill', "#FFFFFF");
-        this._droppableMiddleRect.attr("fill-opacity", 0.01);
-        this._droppableMiddleRect.on('mouseover', function () {
-            d3.select(this).attr('fill', "green");
-            d3.select(this).attr('fill-opacity', 0.1);
-        }).on('mouseout', function () {
-            d3.select(this).attr('fill', "#FFFFFF");
-            d3.select(this).attr("fill-opacity", 0.01);
-        }).on('mouseup', function (data) {
+            });
 
-        });
+            var bottomPolygonPoints =
+                // Bottom point of the polygon.
+                " " + this._viewOptions.centerPoint.x + "," + (centerYPointOfBottomPolygon + polygonYOffset) +
+                // Left point of the polygon
+                " " + (this._viewOptions.centerPoint.x + polygonXOffset) + "," + centerYPointOfBottomPolygon +
+                // Top point of the polygon.
+                " " + this._viewOptions.centerPoint.x + "," + (centerYPointOfBottomPolygon - polygonYOffset) +
+                // Right point of the polygon.
+                " " + (this._viewOptions.centerPoint.x - polygonXOffset) + "," + centerYPointOfBottomPolygon;
 
-        var bottomPolygonPoints =
-            // Bottom point of the polygon.
-            " " + this._lifeLineOptions.centerPoint.x + "," + (centerYPointOfBottomPolygon + polygonYOffset) +
-            // Left point of the polygon
-            " " + (this._lifeLineOptions.centerPoint.x + polygonXOffset) + "," + centerYPointOfBottomPolygon +
-            // Top point of the polygon.
-            " " + this._lifeLineOptions.centerPoint.x + "," + (centerYPointOfBottomPolygon - polygonYOffset) +
-            // Right point of the polygon.
-            " " + (this._lifeLineOptions.centerPoint.x - polygonXOffset) + "," + centerYPointOfBottomPolygon;
+            this._bottomPolygon = D3Utils.polygon(bottomPolygonPoints, this._lifelineGroup);
+            this._bottomPolygon.attr('fill', "#FFFFFF");
+            this._bottomPolygon.attr('stroke-width', "1");
+            this._bottomPolygon.attr('stroke', "#000000");
 
-        this._bottomPolygon = D3Utils.polygon(bottomPolygonPoints, this._lifelineGroup);
-        this._bottomPolygon.attr('fill', "#FFFFFF");
-        this._bottomPolygon.attr('stroke-width', "1");
-        this._bottomPolygon.attr('stroke', "#000000");
+            // Add text to bottom polygon.
+            this._bottomPolygonText = D3Utils.textElement(this._viewOptions.centerPoint.x, centerYPointOfBottomPolygon,
+                this._viewOptions.text.value, this._lifelineGroup)
+                .classed(this._viewOptions.text.class, true).classed("genericT", true);
 
-        // Add text to bottom polygon.
-        this._bottomPolygonText = D3Utils.textElement(this._lifeLineOptions.centerPoint.x, centerYPointOfBottomPolygon,
-            this._lifeLineOptions.text.value, this._lifelineGroup)
-            .classed(this._lifeLineOptions.text.class, true).classed("genericT",true);
+            // Centering the text to the middle of the bottom polygon.
+            this._bottomPolygonText.attr('dominant-baseline', "middle");
+        } else if (this._viewOptions.polygon.shape == "rect") {
+            this._topPolygon = D3Utils.centeredRect(new Point(this._viewOptions.centerPoint.x, this._viewOptions.centerPoint.y), this._viewOptions.polygon.width, this._viewOptions.polygon.height, 0, 0, this._lifelineGroup);
+            this._topPolygon.attr('fill', "#FFFFFF");
+            this._topPolygon.attr('stroke-width', "1");
+            this._topPolygon.attr('stroke', "#000000");
 
-        // Centering the text to the middle of the bottom polygon.
-        this._bottomPolygonText.attr('dominant-baseline', "middle");
+            // Add text to top polygon.
+            this._topPolygonText = D3Utils.textElement(this._viewOptions.centerPoint.x, this._viewOptions.centerPoint.y,
+                this._viewOptions.text.value, this._lifelineGroup)
+                .classed(this._viewOptions.text.class, true).classed("genericT", true);
+
+            // Centering the text to the middle of the top polygon.
+            this._topPolygonText.attr('text-anchor', "middle");
+            this._topPolygonText.attr('alignment-baseline', "central");
+
+            // Drawing middle line.
+            //// Bottom point of the top polygon will be the starting y point of the middle line.
+            var startingYPointOfTheMiddleLine = this._viewOptions.centerPoint.y + (this._viewOptions.polygon.height / 2);
+            var endingYPointOfTheMiddleLine = this._viewOptions.centerPoint.y + this._viewOptions.polygon.height + this._viewOptions.line.height;
+            this._middleLine = D3Utils.line(this._viewOptions.centerPoint.x, startingYPointOfTheMiddleLine,
+                this._viewOptions.centerPoint.x, endingYPointOfTheMiddleLine, this._lifelineGroup);
+
+            // Drawing droppable middle rect
+            var startingXPointOfDroppableRect = this._viewOptions.centerPoint.x - (this._viewOptions.polygon.width / 4);
+            var startingYPointOfDroppableRect = this._viewOptions.centerPoint.y + (this._viewOptions.polygon.height / 2);
+            this._droppableMiddleRect = D3Utils.rect(startingXPointOfDroppableRect, startingYPointOfDroppableRect,
+                (this._viewOptions.polygon.width / 2), (this._viewOptions.polygon.height / 2) + this._viewOptions.line.height, 0, 0, this._lifelineGroup);
+            this._droppableMiddleRect.attr('style', 'cursor: pointer');
+            this._droppableMiddleRect.attr('fill', "#FFFFFF");
+            this._droppableMiddleRect.attr("fill-opacity", 0.01);
+            // this._droppableMiddleRect.attr('fill', "#FFFFFF");
+            // this._droppableMiddleRect.attr('stroke-width', "1");
+            // this._droppableMiddleRect.attr('stroke', "#000000");
+            this._droppableMiddleRect.on('mouseover', function () {
+                d3.select(this).attr('fill', "green");
+                d3.select(this).attr('fill-opacity', 0.1);
+            }).on('mouseout', function () {
+                d3.select(this).attr('fill', "#FFFFFF");
+                d3.select(this).attr("fill-opacity", 0.01);
+            }).on('mouseup', function (data) {
+
+            });
+
+            this._bottomPolygon = D3Utils.centeredRect(new Point(this._viewOptions.centerPoint.x, this._viewOptions.centerPoint.y + this._viewOptions.line.height), this._viewOptions.polygon.width, this._viewOptions.polygon.height, 0, 0, this._lifelineGroup);
+            this._bottomPolygon.attr('fill', "#FFFFFF");
+            this._bottomPolygon.attr('stroke-width', "1");
+            this._bottomPolygon.attr('stroke', "#000000");
+            // this._bottomPolygon.attr('fill', "#FFFFFF");
+            // this._bottomPolygon.attr('stroke-width', "1");
+            // this._bottomPolygon.attr('stroke', "#000000");
+            //
+            // // Add text to bottom polygon.
+            // this._bottomPolygonText = D3Utils.textElement(this._viewOptions.centerPoint.x, centerYPointOfBottomPolygon,
+            //     this._viewOptions.text.value, this._lifelineGroup)
+            //     .classed(this._viewOptions.text.class, true).classed("genericT", true);
+            //
+            // // Centering the text to the middle of the bottom polygon.
+            // this._bottomPolygonText.attr('dominant-baseline', "middle");
+        }
 
         // Adding property editor buttons.
-        if (_.get(this._lifeLineOptions, "editable", false)) {
+        if (_.get(this._viewOptions, "editable", false)) {
             this.addEditableAndDeletable();
         }
 
-        // Drawing bottom polygon.
-        // var bottomPolygon = D3Utils.rect(this._lifeLineOptions.centerPoint.x, this._lifeLineOptions.centerPoint.y + (this._lifeLineOptions.centerPoint.y / 2),
-        //     this._lifeLineOptions.polygon.width, this._lifeLineOptions.polygon.height,
-        //     this._lifeLineOptions.polygon.roundX, this._lifeLineOptions.polygon.roundY, d3.select(this._canvas))
-        //     .classed(this._lifeLineOptions.polygon.class, true).classed("genericR",true);
-        //
-        // bottomPolygon.attr('fill', "#FFFFFF");
-        // bottomPolygon.attr('stroke-width', "1");
-        // bottomPolygon.attr('stroke', "#000000");
-        // bottomPolygon.attr('transform', "rotate(45 100 100)");
-
-        // var centerPoint = this._lifeLineOptions.centerPoint;
-        // var title = this._lifeLineOptions.text;
-        // var lifeLine = this.drawLifeLine(centerPoint, title, this.options);
-        // var viewObj = this;
-        // var drag = d3.drag()
-        //     .on("start", function () {
-        //         viewObj.dragStart(d3.event);
-        //     })
-        //     .on("drag", function () {
-        //         viewObj.dragMove(d3.event);
-        //     })
-        //     .on("end", function () {
-        //         viewObj.dragStop();
-        //     });
-        //
-        // lifeLine.call(drag);
-        // this.d3el = lifeLine;
-        // this.el = lifeLine.node();
+        // TODO : Implement draggable.
     };
 
+    // TODO : Implement rendering processors
     LifeLine.prototype.renderProcessors = function () {
         // Minimum length for a Lifeline
         var minimumLength = 250;
@@ -345,6 +368,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils'], function (_, $, d3, log, D3
         return this.d3el;
     };
 
+    // TODO : Implement rendering messages
     LifeLine.prototype.renderMessages = function () {
         for (var id in this.modelAttr("children").models) {
             var messagePoint = this.modelAttr("children").models[id];
@@ -359,124 +383,10 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils'], function (_, $, d3, log, D3
         }
     };
 
-    LifeLine.prototype.drawLifeLine = function (center, title, prefs, colour) {
-        var d3Ref = this._canvas;
-        var viewObj = this;
-        var group = D3Utils.group(this._canvas);
-        var lifeLineTopRectGroup = group.append("g");
-        var topShape;
-        var bottomShape;
-        var droppableRect;
-        var line;
-        var polygonYOffset = 30;
-        var polygonXOffset = 35;
-        this.group = group;
-        this.center = center;
-        this.title = title;
-
-        // var textModel = this.model.attributes.textModel;
-        // if (textModel.dynamicRectWidth() === undefined) {
-        //     textModel.dynamicRectWidth(130);
-        // }
-
-        lifeLineTopRectGroup.attr('style', 'cursor: pointer');
-
-        if (this._lifeLineOptions.polygon == 'rect') {
-            topShape = D3Utils.genericCenteredRect(center, this._lifeLineOptions.polygon.width + 30, this._lifeLineOptions.polygon.height,
-                0, 0, lifeLineTopRectGroup, '#FFFFFF', undefined)
-                .classed(this._lifeLineOptions.polygon.class, true).classed("genericR", true);
-        } else if (viewObj.model.definition.shape == 'polygon') {
-            var points = "" + center.x() + "," + (center.y() + polygonYOffset) +
-                " " + (center.x() + polygonXOffset) + "," + center.y() +
-                " " + center.x() + "," + (center.y() - polygonYOffset) +
-                " " + (center.x() - polygonXOffset) + "," + center.y();
-            topShape = D3Utils.polygon(points, lifeLineTopRectGroup, textModel, center);
-            topShape.classed(viewObj.model.definition.class, true);
-        }
-
-        if (viewObj.model.definition.shape == 'rect') {
-            droppableRect = d3Ref.draw.centeredBasicRect(createPoint(center.get('x'),
-                    center.get('y') + prefs.rect.height / 2),
-                prefs.droppableRect.width, prefs.droppableRect.height, 0, 0, group, textModel)
-                .classed(prefs.droppableRect.class, true);
-            line = d3Ref.draw.verticalLine(createPoint(center.get('x'),
-                center.get('y') + prefs.rect.height / 2), prefs.line.height - prefs.rect.height, group, textModel)
-                .classed(prefs.line.class, true);
-        } else if (viewObj.model.definition.shape == 'polygon') {
-            var lenNew = prefs.line.height - 2 * polygonYOffset;
-            droppableRect = d3Ref.draw.centeredBasicRect(createPoint(center.get('x'),
-                    center.get('y') + polygonYOffset),
-                prefs.droppableRect.width, lenNew, 0, 0, group, textModel)
-                .classed(prefs.droppableRect.class, true);
-            line = d3Ref.draw.verticalLine(createPoint(center.get('x'),
-                center.get('y') + polygonYOffset), lenNew, group, textModel)
-                .classed(prefs.line.class, true);
-        }
-
-        droppableRect.attr('style', 'cursor: pointer');
-        droppableRect.on('mouseover', function () {
-            viewObj.serviceView.model.selectedNode = viewObj.model;
-            d3.select(this).style("fill", "green").style("fill-opacity", 0.1);
-            if (!viewObj.serviceView.isPreviewMode()) {
-                viewObj.dragDropManager.setActivatedDropTarget(viewObj.model);
-            }
-        }).on('mouseout', function () {
-            viewObj.serviceView.model.destinationLifeLine = viewObj.serviceView.model.selectedNode;
-            viewObj.serviceView.model.selectedNode = null;
-            d3.select(this).style("fill-opacity", 0.01);
-            if (!viewObj.serviceView.isPreviewMode()) {
-                viewObj.dragDropManager.clearActivatedDropTarget();
-            }
-        }).on('mouseup', function (data) {
-
-        });
-        var text = d3Ref.draw.genericCenteredText(center, title, group, textModel)
-            .classed(prefs.text.class, true).classed("genericT", true);
-        var lifeLineBottomRectGroup = group.append("g");
-        if (viewObj.model.definition.shape == 'rect') {
-            bottomShape = d3Ref.draw.genericCenteredRect(createPoint(center.get('x'),
-                    center.get('y') + prefs.line.height), prefs.rect.width + 30,
-                prefs.rect.height, 0, 0, lifeLineBottomRectGroup, '', textModel)
-                .classed(prefs.rect.class, true).classed("genericR", true);
-        } else if (viewObj.model.definition.shape == 'polygon') {
-            var points = "" + center.x() + "," + (center.get('y') + prefs.line.height + 30) +
-                " " + (center.x() + 35) + "," + (center.get('y') + prefs.line.height) +
-                " " + center.x() + "," + (center.get('y') + prefs.line.height - 30) +
-                " " + (center.x() - 35) + "," + (center.get('y') + prefs.line.height);
-            bottomShape = d3Ref.draw.polygon(points, lifeLineTopRectGroup, textModel, center);
-        }
-        var textBottom = d3Ref.draw.genericCenteredText(createPoint(center.get('x'), center.get('y') + prefs.line.height), title, group, textModel)
-            .classed(prefs.text.class, true).classed("genericT", true);
-
-        if (this.model.type == "EndPoint") {
-            topShape.classed("outer-dashed", true);
-            bottomShape.classed("outer-dashed", true);
-        }
-
-        group.topShape = topShape;
-        group.bottomShape = bottomShape;
-        group.line = line;
-        group.droppableRect = droppableRect;
-        group.textBottom = textBottom;
-        group.svgTitle = text;
-        group.svgTitleBottom = textBottom;
-        group.translate = function (dx, dy) {
-            this.attr("transform", function () {
-                return "translate(" + [dx, dy] + ")"
-            })
-        };
-
-        if (!_.isUndefined(this.model.definition.editable) && !_.isUndefined(this.model.definition.deletable)
-            && this.model.definition.editable && this.model.definition.deletable) {
-            this.addEditableAndDeletable(d3Ref, center, prefs, group, droppableRect, lifeLineTopRectGroup);
-        }
-
-        return group;
-    };
-
+    // TODO : Fix icons and field creations
     LifeLine.prototype.addEditableAndDeletable = function () {
-        var optionMenuStartX = this._lifeLineOptions.centerPoint.x + 2 + (this._lifeLineOptions.polygon.width + 30) / 2;
-        var optionMenuStartY = this._lifeLineOptions.centerPoint.y - this._lifeLineOptions.polygon.height / 2;
+        var optionMenuStartX = this._viewOptions.centerPoint.x + 2 + (this._viewOptions.polygon.width + 30) / 2;
+        var optionMenuStartY = this._viewOptions.centerPoint.y - this._viewOptions.polygon.height / 2;
         var optionsMenuGroup = D3Utils.group(this._lifelineGroup).classed("option-menu option-menu-hide", true);
 
         var optionsMenuWrapper = D3Utils.rect(optionMenuStartX + 8,
@@ -521,7 +431,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils'], function (_, $, d3, log, D3
 
         var viewObj = this;
 
-        this._topPolygonGroup.on("click", (function () {
+        this._lifelineGroup.on("click", (function () {
             // viewObj.serviceView.model.selectedNode = viewObj.model;
             if (optionsMenuGroup.classed("option-menu-hide")) {
                 optionsMenuGroup.classed("option-menu-hide", false);
