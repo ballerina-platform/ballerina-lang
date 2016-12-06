@@ -20,11 +20,11 @@ compilationUnit
     ;
 
 packageDeclaration
-    :   'package' packageName (VersionString OneZeroString)? ';'
+    :   'package' packageName ('version' '1.0')? ';'
     ;
 
 importDeclaration
-    :   'import' packageName (VersionString OneZeroString)? (AsString Identifier)? ';'
+    :   'import' packageName ('version' '1.0')? ('as' Identifier)? ';'
     ;
 
 serviceDefinition
@@ -45,7 +45,7 @@ resourceDefinition
     ;
 
 functionDefinition
-    :   annotation* PublicString? 'function' Identifier '(' parameterList ')' returnTypeList? ('throws' Identifier)? functionBody
+    :   annotation* 'public'? 'function' Identifier '(' parameterList? ')' returnTypeList? ('throws' Identifier)? functionBody
     ;
 
 //todo rename, this is used in resource, action and funtion
@@ -66,11 +66,11 @@ actionDefinition
     ;
 
 connectorDeclaration
-    :   qualifiedReference Identifier '=' 'new' qualifiedReference '(' expressionList? ')'';'
+    :   qualifiedReference Identifier ASSIGN NEW qualifiedReference '(' expressionList? ')'';'
     ;
 
 typeDefinition
-    :   PublicString? 'type' Identifier typeDefinitionBody
+    :   'public'? 'type' Identifier typeDefinitionBody
     ;
 
 typeDefinitionBody
@@ -86,10 +86,11 @@ typeConvertorBody
     ;
 
 constantDefinition
-    :   'const' typeName Identifier '=' literalValue;
+    :   'const' typeName Identifier ASSIGN literalValue;
 
 variableDeclaration
     :   typeName Identifier ';'
+    |   inlineAssignmentExpression
     ;
 
 // typeName below is only 'message' type
@@ -105,23 +106,19 @@ typeNameList
     :   typeName (',' typeName)*
     ;
 
-fieldDeclaration
-    :   typeName Identifier ';'
-    ;
-
 qualifiedTypeName
     :   packageName ':' unqualifiedTypeName
     ;
 
 unqualifiedTypeName
     :   typeNameWithOptionalSchema
-    |   typeNameWithOptionalSchema EmptyArrayString
+    |   typeNameWithOptionalSchema '[]'
     |   typeNameWithOptionalSchema '~'
     ;
 
 typeNameWithOptionalSchema
-    :   Identifier  ('<' ('{' QuotedStringLiteral '}')? Identifier '>')
-    |   Identifier  ('<' ('{' QuotedStringLiteral '}') '>')
+    :   Identifier  (OPEN ('{' DoubleQuotedStringLiteral '}')? Identifier CLOSE)
+    |   Identifier  (OPEN ('{' DoubleQuotedStringLiteral '}') CLOSE)
     |   Identifier
     ;
 
@@ -150,9 +147,9 @@ packageName
 literalValue
     :   IntegerLiteral
     |   FloatingPointLiteral
-    |   QuotedStringLiteral
+    |   DoubleQuotedStringLiteral
     |   BooleanLiteral
-    |   'nil'
+    |   NullLiteral
     ;
  //============================================================================================================
  // ANNOTATIONS
@@ -168,7 +165,7 @@ literalValue
      ;
 
  elementValuePair
-     :   Identifier '=' elementValue
+     :   assignmentExpression
      ;
 
  elementValue
@@ -180,6 +177,63 @@ literalValue
  elementValueArrayInitializer
      :   '{' (elementValue (',' elementValue)*)? (',')? '}'
      ;
+
+assignmentStatement
+    :   (assignmentExpression ';'
+    |   inlineAssignmentExpression
+    |   statementExpression ';')+
+    ;
+
+variableAccessor
+    :   Identifier
+    |   Identifier '['IntegerLiteral']'
+    |   Identifier'['DoubleQuotedStringLiteral']'
+    |   Identifier '.' variableAccessor
+    ;
+
+initializeTypeStatement
+    :   NEW (packageName ':' )? Identifier ('(' expressionList? ')')?
+    ;
+
+assignmentExpression
+    :   variableAccessor ASSIGN statementExpression
+    ;
+
+inlineAssignmentExpression
+    :   typeName assignmentExpression ';'
+    ;
+
+statementExpression
+    :   expression
+    |   functionInovationExpression
+    |   actionInovationExpression
+    |   initializeTypeStatement
+    ;
+
+argumentList
+    :   '(' expressionList ')'
+    ;
+
+expressionList
+    :   expression (',' expression)*
+    ;
+
+functionInovationExpression
+    :   functionInovation argumentList
+    ;
+
+actionInovationExpression
+    :   actionInovation argumentList
+    ;
+
+functionInovation
+    :   (packageName | Identifier) ':' Identifier
+    ;
+
+actionInovation
+    :   packageName ':' Identifier '.' Identifier
+    ;
+
 
  //============================================================================================================
 // STATEMENTS / BLOCKS
@@ -197,13 +251,13 @@ statement
     |   replyStatement
     |   workerInteractionStatement
     |   commentStatement
-    |   actionInvocationStatement
+    |   actionInovationExpression
     ;
 
-assignmentStatement
-    :   variableReference '=' expression ';'
-    |   variableReference '=' 'new' (packageName ':' )? Identifier ('(' expressionList ')')? ';'
-    ;
+//assignmentStatement
+//    :   variableReference '=' expression ';'
+//    |   variableReference '=' 'new' (packageName ':' )? Identifier ('(' expressionList ')')? ';'
+//    ;
 
 ifElseStatement
     :   'if' '(' expression ')' '{' statement* '}' ('else' 'if' '(' expression ')' '{' statement* '}')* ('else' '{' statement*'}' )?
@@ -221,8 +275,9 @@ breakStatement
     :   'break' ';'
     ;
 
+// typeName is only message
 forkJoinStatement
-    :   'fork' '(' Identifier ')' '{' workerDeclaration+ '}' joinClause? timeoutClause?
+    :   'fork' '(' typeName Identifier ')' '{' workerDeclaration+ '}' joinClause? timeoutClause?
     ;
 
 // below typeName is only 'message[]'
@@ -231,13 +286,13 @@ joinClause
     ;
 
 joinConditions
-    :   AnyString IntegerLiteral (Identifier (',' Identifier)*)?
-    |   AllString (Identifier (',' Identifier)*)?
+    :   'any' IntegerLiteral (Identifier (',' Identifier)*)?
+    |   'all' (Identifier (',' Identifier)*)?
     ;
 
 // below typeName is only 'message[]'
 timeoutClause
-    :   TimeoutString '(' expression ')' '(' typeName Identifier ')'  '{' statement+ '}'
+    :   'timeout' '(' expression ')' '(' typeName Identifier ')'  '{' statement+ '}'
     ;
 
 tryCatchStatement
@@ -260,7 +315,7 @@ returnStatement
 
 // below Identifier is only a type of 'message'
 replyStatement
-    :   'reply' Identifier? ';'
+    :   'reply' (Identifier | expression)? ';'
     ;
 
 workerInteractionStatement
@@ -270,90 +325,253 @@ workerInteractionStatement
 
 // below left Identifier is of type 'message' and the right Identifier is of type 'worker'
 triggerWorker
-    :   Identifier SendArrow Identifier ';'
+    :   Identifier '->' Identifier ';'
     ;
 
 // below left Identifier is of type 'worker' and the right Identifier is of type 'message'
 workerReply
-    :   Identifier ReceiveArrow Identifier ';'
+    :   Identifier '<-' Identifier ';'
     ;
 
 commentStatement
     :   LINE_COMMENT
     ;
 
-actionInvocationStatement
-    :    qualifiedReference '.' Identifier '(' expressionList ')' ';'
-    ;
+//actionInvocationStatement
+//    :    qualifiedReference '.' Identifier '(' expressionList ')' ';'
+//    ;
 
-// EXPRESSIONS
-
-expressionList
-    :   expression (',' expression)*
-    ;
-
+//// EXPRESSIONS
+//
+//expressionList
+//    :   expression (',' expression)*
+//    ;
+//
+//
+//expression
+//    :   literalValue
+//    |   unaryExpression
+//    |   multExpression (('+' | '-' | '||') multExpression)*
+//    |   functionInvocation
+//    |   templateExpression
+//    |   '(' expression ')'
+//    |   variableReference
+//
+//    ;
+//
+//multExpression
+//    :   <assoc=right> (('*' | '/' | '&&') expression)+
+//    ;
+//
+//
+//variableReference
+//    :   Identifier // simple identifier
+//    |   Identifier'[' expression ']' // array and map reference
+//    |   Identifier ('.' variableReference)+ // struct field reference
+//    ;
+//
+//unaryExpression
+//    :   '-' expression
+//    |   '+' expression
+//    |   '!' expression
+//    ;
+//
+////    expr:  mult ('+' mult)* ;
+////    mult:  atom ('*' atom)* ;
+////    atom:  INT | '(' expr ')' ;
+//
+//
+////(a + b * c) ==> a + (b*c)
+//
+//binaryOperator
+//    :   '+'
+//    |   '-'
+//    |   '*'
+//    |   '/'
+//    |   '&&'
+//    |   '||'
+//    |   '=='
+//    |   '!='
+//    |   '<'
+//    |   '<='
+//    |   '>'
+//    |   '>='
+//    |   '%'
+//    |   '^'
+//    ;
+//
+//functionInvocation
+//    :   functionName '(' expressionList? ')'
+//    ;
+//
+//functionName
+//    :   Identifier
+//    |   qualifiedReference
+//    ;
+//
+//templateExpression
+//    :   BacktickStringLiteral
+//    ;
 
 expression
-    :   literalValue
-    |   unaryExpression
-    |   multExpression (('+' | '-' | '||') multExpression)*
-    |   functionInvocation
-    |   templateExpression
-    |   '(' expression ')'
-    |   variableReference
-
+    :   primary                                             # literalExpression
+    |   backtickjson                                        # templateExpression
+    |   expression '.' Identifier                           # accessMemberDotExpression
+    |   (packageName | Identifier) ':' Identifier           # inlineFunctionInovcationExpression
+    |   expression '[' expression ']'                       # accessArrayElementExpression
+    |   expression '(' expressionList? ')'                  # argumentListExpression
+    |   '(' typeName ')' expression                         # typeCastingExpression
+    |   expression ('++' | '--')                            # postDualOperationExpression
+    |   ('+'|'-'|'++'|'--') expression                      # preSingleDualExpression
+    |   ('~'|'!') expression                                # preUnaryExpression
+    |   expression ('*'|DIV|'%') expression                 # binrayMulDivPercentExpression
+    |   expression ('+'|'-') expression                     # binaryPlusMinusExpression
+    |   expression (OPEN OPEN | CLOSE CLOSE CLOSE | CLOSE CLOSE) expression    # binrayBitShiftExpression
+    |   expression ('<=' | '>=' | CLOSE | OPEN) expression       # binaryComparisonExpression
+    |   expression ('==' | '!=') expression                 # binrayEqualExpression
+    |   expression '&' expression                           # binrayBitwiseAndExpression
+    |   expression '^' expression                           # binrayBitwiseXorExpression
+    |   expression '|' expression                           # binrayBitwiseOrExpression
+    |   expression '&&' expression                          # binrayAndExpression
+    |   expression '||' expression                          # binrayOrExpression
+    |   expression '?' expression ':' expression            # ternaryIfExpression
+    |   '{' DoubleQuotedStringLiteral ':' literal '}'             # mapInitializerExpression
+    |   <assoc=right> expression
+        (   ASSIGN
+        |   '+='
+        |   '-='
+        |   '*='
+        |   '/='
+        |   '&='
+        |   '|='
+        |   '^='
+        |   '>>='
+        |   '>>>='
+        |   '<<='
+        |   '%='
+        )
+        expression                                          # binrayOpEqualsOpExpression
     ;
 
-multExpression
-    :   <assoc=right> (('*' | '/' | '&&') expression)+
+//typeType
+//    :   userDefineType (('[' ']') | '~')?
+//    |   primitiveType (('[' ']') | '~')?
+//    |   nonPrimitiveType (('[' ']') | '~')?
+//    |   buildInDataType (('[' ']') | '~')?
+//    ;
+
+//buildInDataType
+//    :   XML (schemaDefinition)?
+//    |   XMLDOCUMENT
+//    |   JSON(schemaDefinition)?
+//    ;
+
+literal
+    :   IntegerLiteral
+    |   FloatingPointLiteral
+    |   DoubleQuotedStringLiteral
+    |   SingleQuotedStringLiteral
+    |   BooleanLiteral
+    |   NullLiteral
+    ;
+
+//schemaDefinition
+//    :   OPEN ('{' QuotedStringLiteral '}')? Identifier CLOSE;
+//
+//userDefineType
+//    :   Identifier ('.' Identifier )*
+//    ;
+
+//primitiveType
+//    :   BOOLEAN
+//    |   INT
+//    |   'long'
+//    |   'float'
+//    |   'double'
+//    ;
+
+//nonPrimitiveType
+//    :   STRING
+//    |   MESSAGE
+//    |   MAP
+//    |   EXCEPTION
+//    ;
+
+primary
+    :   '(' expression ')'
+    |   literal
+    |   Identifier
     ;
 
 
-variableReference
-    :   Identifier // simple identifier
-    |   Identifier'[' expression ']' // array and map reference
-    |   Identifier ('.' variableReference)+ // struct field reference
+////todo think of the xml, json schema (removed Diamon syntax)
+//createdName
+//    :   Identifier ('.' Identifier)*
+//    |   primitiveType
+//    ;
+
+////todo is something worng ?
+//arguments
+//    :   '(' expressionList? ')'
+//    ;
+
+// JSON Parsing
+backtickjson
+    :   BACKTICK jsonorxml BACKTICK
     ;
 
-unaryExpression
-    :   '-' expression
-    |   '+' expression
-    |   '!' expression
+jsonorxml
+    :   json
+    |   document
     ;
 
-//    expr:  mult ('+' mult)* ;
-//    mult:  atom ('*' atom)* ;
-//    atom:  INT | '(' expr ')' ;
+json
+   : value
+   ;
+
+object
+   : '{' pair (',' pair)* '}'
+   | '{' '}'
+   ;
+
+pair
+   : DoubleQuotedStringLiteral ':' value
+   ;
+
+array
+   : '[' value (',' value)* ']'
+   | '[' ']'
+   ;
 
 
-//(a + b * c) ==> a + (b*c)
+value
+   : object
+   | array
+   | VariableReference
+   | literal
+   ;
 
-binaryOperator
-    :   '+'
-    |   '-'
-    |   '*'
-    |   '/'
-    |   '&&'
-    |   '||'
-    |   '=='
-    |   '!='
-    |   '<'
-    |   '<='
-    |   '>'
-    |   '>='
-    |   '%'
-    |   '^'
-    ;
+// XML Parsing
+//backtickxml   : OPENBACKTICK document CLOSEBACKTICK;
 
-functionInvocation
-    :   functionName '(' expressionList? ')'
-    ;
+document    :   prolog? misc* element misc*;
 
-functionName
-    :   Identifier
-    |   qualifiedReference
-    ;
+prolog      :   XMLDeclOpen attribute* SPECIAL_CLOSE ;
 
-templateExpression
-    :   BacktickStringLiteral
-    ;
+content     :   chardata?
+                ( (element | reference | CDATA | PI | XMLCOMMENT) chardata?)* ;
+
+element     :   OPEN Name attribute* CLOSE content OPEN SLASH Name CLOSE
+            |   OPEN Name attribute* SLASH CLOSE
+            ;
+
+reference   :   EntityRef | CharRef ;
+
+attribute   :   Name EQUALS XMLSTRING ; // Our STRING is AttValue in spec
+
+/** ``All text that is not markup constitutes the character data of
+ *  the document.''
+ */
+chardata    :   DoubleQuotedStringLiteral | SEA_WS | VariableReference;
+
+misc        :   XMLCOMMENT | PI | SEA_WS ;
