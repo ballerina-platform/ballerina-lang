@@ -17,21 +17,29 @@
 */
 package org.wso2.ballerina.model.expressions;
 
+import org.wso2.ballerina.interpreter.Context;
 import org.wso2.ballerina.model.Operator;
+import org.wso2.ballerina.model.types.TypeEnum;
+import org.wso2.ballerina.model.values.BValue;
+import org.wso2.ballerina.model.values.BValueRef;
 
 /**
  * {@code UnaryExpression} represents a unary expression
  *
  * @since 1.0.0
  */
-public class UnaryExpression implements Expression {
+public class UnaryExpression extends AbstractExpression {
 
-    private Operator op;
-    private Expression expr;
+    protected Operator op;
+    protected Expression rExpr;
 
-    public UnaryExpression(Operator op, Expression expr) {
+    public UnaryExpression(Operator op, Expression rExpr) {
         this.op = op;
-        this.expr = expr;
+        this.rExpr = rExpr;
     }
 
+    @Override
+    public BValueRef evaluate(Context ctx) {
+        return null;
+    }
 }
