@@ -16,7 +16,10 @@
  * under the License.
  */
 
-package org.wso2.ballerina.runtime.core.dispatching;
+package org.wso2.ballerina.runtime.registry;
+
+import org.wso2.ballerina.runtime.core.dispatching.ResourceDispatcher;
+import org.wso2.ballerina.runtime.core.dispatching.ServiceDispatcher;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,5 +32,20 @@ public class DispatcherRegistry {
     private Map<String, ServiceDispatcher> serviceDispatchers = new HashMap<String, ServiceDispatcher>();
     private Map<String, ResourceDispatcher> resourceDispatchers = new HashMap<String, ResourceDispatcher>();
 
+    public ServiceDispatcher getServiceDispatcher(String protocol) {
+        return serviceDispatchers.get(protocol);
+    }
+
+    public ResourceDispatcher getResourceDispatcher(String protocol) {
+        return resourceDispatchers.get(protocol);
+    }
+
+    public void registerServiceDispatcher(ServiceDispatcher dispatcher) {
+        serviceDispatchers.put(dispatcher.getProtocol(), dispatcher);
+    }
+
+    public void registerResourceDispatcher(ResourceDispatcher dispatcher) {
+        resourceDispatchers.put(dispatcher.getProtocol(), dispatcher);
+    }
 
 }

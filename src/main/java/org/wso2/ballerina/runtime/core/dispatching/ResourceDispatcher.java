@@ -21,14 +21,14 @@ import org.wso2.ballerina.runtime.core.BalCallback;
 import org.wso2.ballerina.runtime.core.BalContext;
 
 /**
- * {@code ServiceDispatcher} represents the service level dispatcher interface.
+ * {@code ServiceResourceDispatcherDispatcher} represents the resource level dispatcher interface.
  * <p>
  * Need to have a protocol specific dispatcher
  */
-public interface ServiceDispatcher {
+public interface ResourceDispatcher {
 
     /**
-     * Dispatch the message to a service
+     * Dispatch the message to a resource
      *
      * @param context  Ballerina Context
      * @param callback Ballerina Callback

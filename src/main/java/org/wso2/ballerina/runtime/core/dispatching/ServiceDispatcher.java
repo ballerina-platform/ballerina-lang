@@ -15,25 +15,27 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.ballerina.core.inbound;
+package org.wso2.ballerina.runtime.core.dispatching;
 
-import org.wso2.carbon.messaging.CarbonCallback;
-import org.wso2.carbon.messaging.CarbonMessage;
-
+import org.wso2.ballerina.runtime.core.BalCallback;
+import org.wso2.ballerina.runtime.core.BalContext;
 
 /**
- * Message Dispatcher Interface. Need to have a protocol specific dispatcher
+ * {@code ServiceDispatcher} represents the service level dispatcher interface.
+ * <p>
+ * Need to have a protocol specific dispatcher
  */
-public interface Dispatcher {
+public interface ServiceDispatcher {
+
 
     /**
-     * Dispatch the message to an inbound endpoint
+     * Dispatch the message to a service
      *
-     * @param carbonMessage Carbon Message
-     * @param callback      Callback
+     * @param context  Ballerina Context
+     * @param callback Ballerina Callback
      * @return whether dispatching is successful or not
      */
-    boolean dispatch(CarbonMessage carbonMessage, CarbonCallback callback);
+    boolean dispatch(BalContext context, BalCallback callback);
 
     String getProtocol();
 
