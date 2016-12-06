@@ -26,9 +26,16 @@ package org.wso2.ballerina.model;
 public class Import {
 
     private String importName;
+    private String packageName;
 
-    public Import(String importName) {
+    public Import(String packageName) {
+        this.importName = packageName.substring(packageName.lastIndexOf(".") + 1);
+        this.packageName = packageName;
+    }
+
+    public Import(String importName, String packageName) {
         this.importName = importName;
+        this.packageName = packageName;
     }
 
     /**
@@ -36,7 +43,16 @@ public class Import {
      *
      * @return name of the import
      */
-    public String getName() {
+    public String getImportName() {
         return importName;
+    }
+
+    /**
+     * Get the imported package name
+     *
+     * @return name of the package imported
+     */
+    public String getPackageName() {
+        return packageName;
     }
 }
