@@ -17,7 +17,10 @@
 */
 package org.wso2.ballerina.model.statements;
 
+import org.wso2.ballerina.interpreter.Context;
 import org.wso2.ballerina.model.expressions.Expression;
+import org.wso2.ballerina.model.expressions.VariableRefExpr;
+import org.wso2.ballerina.model.values.BValueRef;
 
 /**
  * An {@code AssignStmt} represents an assignment.
@@ -25,11 +28,18 @@ import org.wso2.ballerina.model.expressions.Expression;
  * @since 1.0.0
  */
 public class AssignStmt implements Statement {
-    private Expression lhsExpr;
+    private VariableRefExpr lhsExpr;
     private Expression rhsExpr;
 
-    public AssignStmt(Expression lhsExpr, Expression rhsExpr) {
+    public AssignStmt(VariableRefExpr lhsExpr, Expression rhsExpr) {
         this.lhsExpr = lhsExpr;
         this.rhsExpr = rhsExpr;
+    }
+
+    public void interpret(Context ctx) {
+        BValueRef rValue = rhsExpr.evaluate(ctx);
+        BValueRef lValue = lhsExpr.evaluate(ctx);
+
+        lValue.setBValue(rValue.getBValue());
     }
 }
