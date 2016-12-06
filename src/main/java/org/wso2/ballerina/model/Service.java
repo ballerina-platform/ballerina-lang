@@ -43,7 +43,7 @@ public class Service {
     private Identifier identifier;
     private List<Annotation> annotations;
     private List<Connection> connections;
-    private List<Variable> variables;
+    private List<VariableDcl> variables;
     private List<Resource> resources;
 
     /**
@@ -127,7 +127,7 @@ public class Service {
      *
      * @return list of all Service scoped variables
      */
-    public List<Variable> getVariables() {
+    public List<VariableDcl> getVariables() {
         return variables;
     }
 
@@ -136,7 +136,7 @@ public class Service {
      *
      * @param variables list of variables
      */
-    public void setVariables(List<Variable> variables) {
+    public void setVariables(List<VariableDcl> variables) {
         this.variables = variables;
     }
 
@@ -145,9 +145,9 @@ public class Service {
      *
      * @param variable variable to be added to the Service
      */
-    public void addVariable(Variable variable) {
+    public void addVariable(VariableDcl variable) {
         if (variables == null) {
-            variables = new ArrayList<Variable>();
+            variables = new ArrayList<VariableDcl>();
         }
         variables.add(variable);
     }

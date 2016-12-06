@@ -18,7 +18,7 @@
 package org.wso2.ballerina.model.values;
 
 /**
- * {@code IntValue} represents a int value
+ * {@code IntValue} represents an int value in Ballerina
  *
  * @since 1.0.0
  */
@@ -26,6 +26,14 @@ public class IntValue implements BValue {
     private int value;
 
     public IntValue(int value) {
+        this.value = value;
+    }
+
+    public int getValue() {
+        return value;
+    }
+
+    public void setValue(int value) {
         this.value = value;
     }
 }

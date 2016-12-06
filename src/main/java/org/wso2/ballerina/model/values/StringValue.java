@@ -18,7 +18,7 @@
 package org.wso2.ballerina.model.values;
 
 /**
- * {@code StringValue} represents a string value
+ * {@code StringValue} represents a string value in Ballerina
  *
  * @since 1.0.0
  */
@@ -26,6 +26,14 @@ public class StringValue implements BValue {
     private String value;
 
     public StringValue(String value) {
+        this.value = value;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
         this.value = value;
     }
 }

@@ -19,16 +19,16 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-    <!--<parent>-->
-    <!--<groupId>org.wso2</groupId>-->
-    <!--<artifactId>wso2</artifactId>-->
-    <!--<version>5</version>-->
-    <!--</parent>-->
+    <parent>
+        <groupId>org.wso2</groupId>
+        <artifactId>wso2</artifactId>
+        <version>5</version>
+    </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.wso2.ballerina</groupId>
     <artifactId>ballerina</artifactId>
-    <packaging>jar</packaging>
+    <packaging>bundle</packaging>
     <version>1.0.0-SNAPSHOT</version>
     <name>ballerina</name>
     <url>http://maven.apache.org</url>
@@ -68,65 +68,143 @@
                     </suiteXmlFiles>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>${maven.compiler.plugin.version}</version>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                </configuration>
-            </plugin>
         </plugins>
+
+        <pluginManagement>
+            <plugins>
+                <plugin><!-- Overridden from parent pom to exclude generated sources -->
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>findbugs-maven-plugin</artifactId>
+                    <configuration>
+                        <effort>Max</effort>
+                        <threshold>Low</threshold>
+                        <xmlOutput>true</xmlOutput>
+                        <findbugsXmlOutputDirectory>${project.build.directory}/findbugs
+                        </findbugsXmlOutputDirectory>
+                        <excludeFilterFile>${maven.findbugsplugin.version.exclude}</excludeFilterFile>
+                        <!--Exclude generated sources-->
+                    </configuration>
+                    <version>${maven.findbugsplugin.version}</version>
+                    <executions>
+                        <execution>
+                            <id>analyze-compile</id>
+                            <phase>compile</phase>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin><!-- Overridden from parent pom to exclude generated sources -->
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-checkstyle-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <id>validate</id>
+                            <phase>validate</phase>
+                            <configuration>
+                                <configLocation>
+                                    https://raw.githubusercontent.com/wso2/code-quality-tools/master/checkstyle/checkstyle.xml
+                                </configLocation>
+                                <suppressionsLocation>
+                                    https://raw.githubusercontent.com/wso2/code-quality-tools/master/checkstyle/suppressions.xml
+                                </suppressionsLocation>
+                                <encoding>UTF-8</encoding>
+                                <consoleOutput>true</consoleOutput>
+                                <failsOnError>true</failsOnError>
+                                <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                                <!--Exclude generated sources-->
+                                <excludes>**/generated/**/*</excludes>
+                            </configuration>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <!-- ANTLR Plugin -->
+                <plugin>
+                    <groupId>org.antlr</groupId>
+                    <artifactId>antlr4-maven-plugin</artifactId>
+                    <version>4.5.1</version>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>antlr4</goal>
+                            </goals>
+                            <configuration>
+                                <listener>true</listener>
+                                <visitor>false</visitor>
+                                <encoding>${file.encoding}</encoding>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
     </build>
 
     <properties>
+        <ballerina.package.export.version>1.0.0</ballerina.package.export.version>
+
+        <!-- Maven plugins -->
+        <!--Bundle Plugin - Overridden from parent due to a bug in latest version related to capability providers-->
+        <maven.bundle.plugin.version>2.5.4</maven.bundle.plugin.version>
+        <maven.findbugsplugin.version.exclude>findbugs-exclude.xml</maven.findbugsplugin.version.exclude>
+
+        <carbon.p2.plugin.version>1.5.4</carbon.p2.plugin.version>
+        <carbon.feature.plugin.version>2.0.0</carbon.feature.plugin.version>
+
         <testng.version>6.9.4</testng.version>
-        <maven.surefire.plugin.version>2.18.1</maven.surefire.plugin.version>
-        <maven.compiler.plugin.version>3.5.1</maven.compiler.plugin.version>
+        <plugin.version.antlr>4.5.1</plugin.version.antlr>
+
+        <!-- OSGI -->
+        <osgi.api.version>6.0.0</osgi.api.version>
+        <equinox.osgi.version>3.10.2.v20150203-1939</equinox.osgi.version>
+        <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
+
+        <osgi.framework.import.version.range>[1.8.0, 2.0.0)</osgi.framework.import.version.range>
+        <osgi.service.tracker.import.version.range>[1.5.1, 2.0.0)</osgi.service.tracker.import.version.range>
+
+        <!-- Dependencies -->
+        <carbon.kernel.version>5.1.0</carbon.kernel.version>
+        <carbon.kernel.package.import.version.range>[5.0.0, 6.0.0)</carbon.kernel.package.import.version.range>
+
         <carbon.transport.version>2.1.17</carbon.transport.version>
+        <carbon.transport.package.import.version.range>[2.0.0, 2.2.0)</carbon.transport.package.import.version.range>
+
         <carbon.messaging.version>1.0.11</carbon.messaging.version>
+        <carbon.messaging.package.import.version.range>[0.0.0, 2.0.0)</carbon.messaging.package.import.version.range>
+
+        <carbon.deployment.version>5.0.0</carbon.deployment.version>
+        <carbon.deployment.export.version>5.0.0</carbon.deployment.export.version>
+
+        <slf4j.version>1.7.5</slf4j.version>
+        <slf4j.logging.package.import.version.range>[1.7.1, 2.0.0)
+        </slf4j.logging.package.import.version.range>
+
+        <antlr4.runtime.version>4.5.1.wso2v1</antlr4.runtime.version>
+
+        <export.package>
+            org.wso2.ballerina.*;version="${ballerina.package.export.version}"
+        </export.package>
+        <import.package>
+            org.osgi.framework.*;version="${osgi.framework.import.version.range}",
+            org.osgi.util.tracker;version="${osgi.service.tracker.import.version.range}",
+            org.wso2.carbon.kernel.transports.*;version="${carbon.kernel.package.import.version.range}",
+            org.wso2.carbon.kernel.deployment.*;version="${carbon.kernel.package.import.version.range}",
+            org.wso2.carbon.kernel.startupresolver.*;version="${carbon.kernel.package.import.version.range}",
+            org.slf4j.*;version="${slf4j.logging.package.import.version.range}",
+            org.antlr.v4.runtime.*,
+
+            org.wso2.carbon.messaging.*;version="${carbon.messaging.package.import.version.range}",
+            org.wso2.carbon.deployment.engine.*;version="${carbon.deployment.export.version}",
+        </import.package>
+        <carbon.component>
+            osgi.service; objectClass="org.wso2.carbon.deployment.engine.Deployer",
+            osgi.service; objectClass="org.wso2.carbon.messaging.CarbonMessageProcessor";
+            requiredByComponentName="netty-transports-mgt"
+        </carbon.component>
     </properties>
 
-
-
-    <!--todo: remove the following after adding the parent pom-->
-    <repositories>
-        <!-- WSO2 released artifact repository -->
-        <repository>
-            <id>wso2.releases</id>
-            <name>WSO2 Releases Repository</name>
-            <url>http://maven.wso2.org/nexus/content/repositories/releases/</url>
-            <releases>
-                <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
-                <checksumPolicy>ignore</checksumPolicy>
-            </releases>
-        </repository>
-
-        <!-- WSO2 Snapshot artifact repository -->
-        <repository>
-            <id>wso2.snapshots</id>
-            <name>WSO2 Snapshot Repository</name>
-            <url>http://maven.wso2.org/nexus/content/repositories/snapshots/</url>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
-            </snapshots>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-        </repository>
-
-        <repository>
-            <id>wso2-nexus</id>
-            <name>WSO2 internal Repository</name>
-            <url>http://maven.wso2.org/nexus/content/groups/wso2-public/</url>
-            <releases>
-                <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
-                <checksumPolicy>ignore</checksumPolicy>
-            </releases>
-        </repository>
-    </repositories>
 </project>

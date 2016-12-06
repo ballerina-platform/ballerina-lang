@@ -18,7 +18,7 @@
 package org.wso2.ballerina.model.values;
 
 /**
- * {@code BValue} represents a generic value
+ * {@code BValue} represents any value in Ballerina
  *
  * @see StringValue
  * @see DoubleValue
