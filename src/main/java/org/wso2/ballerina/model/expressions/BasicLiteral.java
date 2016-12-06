@@ -18,30 +18,25 @@
 package org.wso2.ballerina.model.expressions;
 
 import org.wso2.ballerina.interpreter.Context;
-import org.wso2.ballerina.model.Operator;
 import org.wso2.ballerina.model.values.BValueRef;
-import org.wso2.ballerina.utils.TriFunction;
 
 /**
- * {@code BinaryExpression} represents a binary expression
+ * {@code BasicLiteral} represents a literal in Ballerina
+ * <p>
+ * This class is used to hold IntegerLiterals, FloatingPointLiterals, QuotedStringLiterals, BooleanLiterals and 'nil'
  *
  * @since 1.0.0
  */
-public class BinaryExpression extends UnaryExpression {
+public class BasicLiteral extends AbstractExpression {
 
-    protected Expression lExpr;
-    protected TriFunction<Context, Expression, Expression, BValueRef> evalFunc;
+    private BValueRef bValueRef;
 
-    public BinaryExpression(Expression lExpr, Operator op, Expression rExpr) {
-        super(op, rExpr);
-        this.lExpr = lExpr;
+    public BasicLiteral(BValueRef bValueRef) {
+        this.bValueRef = bValueRef;
     }
 
-    public void setEvalFunc(TriFunction<Context, Expression, Expression, BValueRef> evalFunc) {
-        this.evalFunc = evalFunc;
-    }
-
+    @Override
     public BValueRef evaluate(Context ctx) {
-        return evalFunc.apply(ctx, lExpr, rExpr);
+        return bValueRef;
     }
 }

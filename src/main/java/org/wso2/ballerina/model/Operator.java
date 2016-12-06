@@ -27,7 +27,11 @@ public enum Operator {
     ADD("+"),
     SUB("-"),
     MUL("*"),
-    DIV("/");
+    DIV("/"),
+    AND("&&"),
+    OR("||"),
+    EQUAL("=="),
+    NOT_EQUAL("!=");
 
     private final String opValue;
 

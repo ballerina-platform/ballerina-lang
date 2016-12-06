@@ -17,31 +17,16 @@
 */
 package org.wso2.ballerina.model.expressions;
 
-import org.wso2.ballerina.interpreter.Context;
 import org.wso2.ballerina.model.Operator;
-import org.wso2.ballerina.model.values.BValueRef;
-import org.wso2.ballerina.utils.TriFunction;
 
 /**
- * {@code BinaryExpression} represents a binary expression
+ * {@code BinaryEqualityExpression} represents a equality expression in Ballerina
  *
  * @since 1.0.0
  */
-public class BinaryExpression extends UnaryExpression {
+public class BinaryEqualityExpression extends BinaryExpression {
 
-    protected Expression lExpr;
-    protected TriFunction<Context, Expression, Expression, BValueRef> evalFunc;
-
-    public BinaryExpression(Expression lExpr, Operator op, Expression rExpr) {
-        super(op, rExpr);
-        this.lExpr = lExpr;
-    }
-
-    public void setEvalFunc(TriFunction<Context, Expression, Expression, BValueRef> evalFunc) {
-        this.evalFunc = evalFunc;
-    }
-
-    public BValueRef evaluate(Context ctx) {
-        return evalFunc.apply(ctx, lExpr, rExpr);
+    public BinaryEqualityExpression(Expression lExpr, Operator op, Expression rExpr) {
+        super(lExpr, op, rExpr);
     }
 }

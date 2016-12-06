@@ -18,30 +18,24 @@
 package org.wso2.ballerina.model.expressions;
 
 import org.wso2.ballerina.interpreter.Context;
-import org.wso2.ballerina.model.Operator;
 import org.wso2.ballerina.model.values.BValueRef;
-import org.wso2.ballerina.utils.TriFunction;
+import org.wso2.ballerina.model.values.BooleanValue;
+
+import static org.wso2.ballerina.model.Operator.OR;
 
 /**
- * {@code BinaryExpression} represents a binary expression
+ * {@code AndExpression} represents an boolean AND('||') expression in Ballerina
  *
  * @since 1.0.0
  */
-public class BinaryExpression extends UnaryExpression {
-
-    protected Expression lExpr;
-    protected TriFunction<Context, Expression, Expression, BValueRef> evalFunc;
-
-    public BinaryExpression(Expression lExpr, Operator op, Expression rExpr) {
-        super(op, rExpr);
-        this.lExpr = lExpr;
-    }
-
-    public void setEvalFunc(TriFunction<Context, Expression, Expression, BValueRef> evalFunc) {
-        this.evalFunc = evalFunc;
+public class OrExpression extends BinaryLogicalExpression {
+    public OrExpression(Expression lExpr, Expression rExpr) {
+        super(lExpr, OR, rExpr);
     }
 
     public BValueRef evaluate(Context ctx) {
-        return evalFunc.apply(ctx, lExpr, rExpr);
+        boolean result = lExpr.evaluate(ctx).getBoolean() || rExpr.evaluate(ctx).getBoolean();
+        BooleanValue booleanValue = new BooleanValue(result);
+        return new BValueRef(booleanValue);
     }
 }

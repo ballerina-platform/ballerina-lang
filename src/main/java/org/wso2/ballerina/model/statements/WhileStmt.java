@@ -27,14 +27,16 @@ import org.wso2.ballerina.model.expressions.Expression;
  */
 public class WhileStmt implements Statement {
     private Expression condition;
-    private Statement block;
+    private Statement whileBody;
 
-    public WhileStmt(Expression condition, Statement block) {
+    public WhileStmt(Expression condition, Statement whileBody) {
         this.condition = condition;
-        this.block = block;
+        this.whileBody = whileBody;
     }
 
     public void interpret(Context ctx) {
-
+        while (condition.evaluate(ctx).getBoolean()) {
+            whileBody.interpret(ctx);
+        }
     }
 }

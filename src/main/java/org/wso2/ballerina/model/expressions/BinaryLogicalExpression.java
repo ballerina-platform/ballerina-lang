@@ -20,28 +20,20 @@ package org.wso2.ballerina.model.expressions;
 import org.wso2.ballerina.interpreter.Context;
 import org.wso2.ballerina.model.Operator;
 import org.wso2.ballerina.model.values.BValueRef;
-import org.wso2.ballerina.utils.TriFunction;
 
 /**
- * {@code BinaryExpression} represents a binary expression
+ * {@code BinaryLogicalExpression} represents a logical expression in Ballerina
  *
  * @since 1.0.0
  */
-public class BinaryExpression extends UnaryExpression {
+public class BinaryLogicalExpression extends BinaryExpression {
 
-    protected Expression lExpr;
-    protected TriFunction<Context, Expression, Expression, BValueRef> evalFunc;
-
-    public BinaryExpression(Expression lExpr, Operator op, Expression rExpr) {
-        super(op, rExpr);
-        this.lExpr = lExpr;
+    public BinaryLogicalExpression(Expression lExpr, Operator op, Expression rExpr) {
+        super(lExpr, op, rExpr);
     }
 
-    public void setEvalFunc(TriFunction<Context, Expression, Expression, BValueRef> evalFunc) {
-        this.evalFunc = evalFunc;
-    }
-
+    @Override
     public BValueRef evaluate(Context ctx) {
-        return evalFunc.apply(ctx, lExpr, rExpr);
+        return null;
     }
 }

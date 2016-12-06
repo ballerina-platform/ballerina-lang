@@ -17,10 +17,7 @@
 */
 package org.wso2.ballerina.model.expressions;
 
-import org.wso2.ballerina.interpreter.Context;
 import org.wso2.ballerina.model.Operator;
-import org.wso2.ballerina.model.values.BValueRef;
-import org.wso2.ballerina.utils.TriFunction;
 
 /**
  * {@code BinaryArithmeticExpression} is the base class for any binary arithmetic expression
@@ -29,18 +26,7 @@ import org.wso2.ballerina.utils.TriFunction;
  */
 public class BinaryArithmeticExpression extends BinaryExpression {
 
-    protected TriFunction<Context, Expression, Expression, BValueRef> evalFunc;
-
     public BinaryArithmeticExpression(Expression lExpr, Operator op, Expression rExpr) {
         super(lExpr, op, rExpr);
     }
-
-    public void setEvalFunc(TriFunction<Context, Expression, Expression, BValueRef> evalFunc) {
-        this.evalFunc = evalFunc;
-    }
-
-    public BValueRef evaluate(Context ctx) {
-        return evalFunc.apply(ctx, lExpr, rExpr);
-    }
-
 }
