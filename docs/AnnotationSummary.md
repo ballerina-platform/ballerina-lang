@@ -529,11 +529,13 @@ Represents payload of the incoming request.
 Syntax:
 ```
 @Path("/foo")
-resourceName(message m, @Body type identifier, ...) {...}
+resourceName(message m, @Body("name") type identifier, ...) {...}
 ```
 
 Since there is only one payload for a request, `@Body` annotation can be used once per resource. Form parameters 
- are defined in the payload, a resource definition can't have both `@Body` annotation or `@FormParam` annotations together.  
+ are defined in the payload, a resource definition can't have both `@Body` annotation or `@FormParam` annotations together. 
+  
+  `name` is **Required** and Case Sensitive. It can't be an empty string.
 
 
 ##### ParametersInfo (or Parameters)
@@ -543,10 +545,10 @@ ParametersInfo describes meta information about operation parameters (as describ
 Syntax:
 ```
 @ParametersInfo ({
-    @ParamterInfo(
+    @ParameterInfo(
        in = "query" | "header" | "path" | "formData" | "body",
        name = "paraName",
-       description = "description about the paramter",
+       description = "description about the parameter",
        required = true|false,
        allowEmptyValue = true|false,
        type = "string" | "number" | "integer" | "boolean" | "array" | "file" ,
@@ -575,7 +577,7 @@ _@ParameterInfo_ (or parameter)
 | allowEmptyValue | string | Define empty values are supported. Valid only for either `query` or `formData` | $.paths./resource-path.parameters\[position\].allowEmptyValue  |
 | type | string | Type of the parameter. **Optional** only if the Parameter is defined as a parameter of the resource definition using `@QueryParam`, `@PathParam`, `@FormParam` or `@HeaderParam`.  | $.paths./resource-path.parameters\[position\].type  |
 | format | string | Format of the `type`.  | $.paths./resource-path.parameters\[position\].format  |
-| schema | anyType |  Defines Payload format. **Required.** Applies only if in is `body` or `@Body` annotation is defined. | $.paths./resource-path.parameters\[position\].schema  |
+| schema | anyType |  Defines Payload format. Applies only if in is `body` or `@Body` annotation is defined.  **Required** if `@Body` is not defined.| $.paths./resource-path.parameters\[position\].schema  |
 | collectionFormat | string | Determines the format of the array if type array is used. Default is `cvs`| $.paths./resource-path.parameters\[position\].collectionFormat  |
 | items | @Items | **Required.** if `type` is an Array. Describes the items in the array. | $.paths./resource-path.parameters\[position\].items  |
 
@@ -625,7 +627,7 @@ Syntax:
 @Responses({
     @Response(
         code = 200,
-        [description = "Human-readable message to accompany the response.",
+        description = "Human-readable message to accompany the response.",
         response = TypeName|VaribaleType|ArrayType|XML<Schema>|JSON<Schema>
         headers = {
             @Header(
@@ -981,55 +983,45 @@ Syntax:
 | return | @return[] | details about return types including possible exception situations.|
 
 
-### Type Annotations.
+### Type and Variable Annotations.
 
 Defines user types.
 
 Syntax:
 ```
+@TypeInfo(
+    name = "userDefineType",
+)
 type UserDefineType {
-    @Property(
-        name = "JSON_KEY", 
-        required = true|false, 
-        format = "int32" | "int64" | "float" | "double" | "byte" | "binary" | "date" | "date-time" | "password"
-        [,anyName = anyValue]*
-     )
+
+    @Property(  
+                name = "varName", 
+                schema = "schemaName", 
+                required = true|false, 
+                format = "password|date|date-time|binary|byte"
+    )
     type variableName = DEFAULT_VALUE;
 }
 ```
-TODO: Need to support : https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#schemaObject
+_@TypeInfo_
 
 | Ballerina Field | Type | Description |  Swagger Field (Json Path) |
 |---|:---:|---|---|
-| name | string | Identifier which user can use instead of the variable name. | json_name($.definitions\['name\]) |
-| required | boolean | Whether is variable is required or not. | $.definitions\['name\].required |
-| format | string | JSON/XML schema or data type. | format |
-| anyName | any | Extension fields. | `x-`anyName (Swagger extensions) |
+| name | string | Identifier Swagger definition name. | json_name($.definitions\['userDefineType'\]) |
 
-### Variable Annotations. 
+_@Property_
 
-Annotations that can be annotated to a Ballerina variable.
-
-#### Property Annotation.
-
-Property Annotation is used to describe meta information about the annotated variable field. Primary purpose of this 
+Property Annotation is used to describe meta information about the annotated variable or type field. Primary purpose of this 
  annotation is to provide rendering instruction for Ballerina tooling.
-   
-```
-@Property(  schema = "name", 
-            required = true|false, 
-            format = "password|date|date-time|binary|byte"
-)
-```
 
 | Ballerina Field | Type | Description | Swagger Field (JSON Path)  |
 |---|:---:|---|---|
-| schema | string | JSON/XML schema or data type. | Schema Object - $ref. |
-| required | boolean | Indicate annotated field is required. The default is false.  | Schema Object -required. |
-| title | string | Title for annotated field. | Schema Object -required. |
-| description | string | A description about annotated variable. | Schema Object - description |
-| format | string | DataType format (e.g: password, date, date-time, binary, byte, etc) | Schema Object - data type format. |
-| * | string | Other Properties defined in the Swagger Schema Object.  | Schema Object - *. |
+| name | string | **Optional** filed to override Swagger filed name. Default name is taken from Ballerina variable name. | json_name($.definitions\['userDefineType'\].properties.\['varName'\]) |
+| required | boolean | Indicate annotated field is required. The default is false.  | insert varName into ($.definitions\['userDefineType'\].required) |
+| title | string | Title for annotated field. |$.definitions\['userDefineType'\].properties.\['varName'\].title |
+| description | string | A description about annotated variable. | $.definitions\['userDefineType'\].properties.\['varName'\].description |
+| format | string | DataType format (e.g: password, date, date-time, binary, byte, etc) | $.definitions\['userDefineType'\].properties.\['varName'\].format |
+| * | string | Other Properties defined in the Swagger Schema Object. https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#schemaObject  | Schema Object - *. |
 
 
 ### Common Annotations

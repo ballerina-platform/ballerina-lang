@@ -1,112 +1,172 @@
 package sample.annotation.petstore;
 
-@APIDescription(
-        Version = "1.0.0",
-        Title = "Swagger Petstore (Simple)",
-        Description = "A sample API that uses a petstore as an example to demonstrate features in the swagger-2.0 specification",
-        SwaggerVersion = "2.0")
-@APIConfiguration(
-        Schemes =  [ "http" ],
-        Host = "petstore.swagger.io")
+@ServiceInfo(
+        Version = "1.0.0" ,
+        Title = "Swagger Petstore (Simple)" ,
+        Description = "A sample API that uses a petstore as an example to demonstrate features in the swagger-2.0 specification" ,
+        termOfService = "http://helloreverb.com/terms/" ,
+        contact = @Contact( name = "Swagger API team" , email = "foo@example.com" , url = "http://swagger.io" ) ,
+        license = @License( name = "MIT", url = "http://opensource.org/licenses/MIT")
+        )
+@ServiceConfig( schemes =  { "http" }, host = "petstore.swagger.io" )
 @Consumes({"application/json"})
 @Produces({"application/json"})
-@Path("/api") // BasePath or Path.
+@Path("/api")
 service PetStore{
 
     @GET
     @Path("/pets")
     @Produces({ "application/json", "application/xml", "text/xml", "text/html" })
-    @Responses(values = {
+    @Responses({
             @Response(code = 200,
                       description = "pet response",
-                      response = pet[]),
+                      response = Pet[]),
             @Response(code = default,
                       description = "unexpected error",
-                      response = errorModel)
+                      response = ErrorModel)
     })
-    @ResourceInfo(description = "Returns all pets from the system that the user has access to")
-    resource findPets(message m,
-                      @QueryParam(name = "tags", description = "tags to filter by", required = false) String[] tags,
-                      @QueryParam(name = "limit", description = "maximum number of results to return", required = false)
-                        int limit) {
+    @ResourceInfo(
+        description = "Returns all pets from the system that the user has access to"
+        operationId = "findPets";
+    )
+    @ParametersInfo ({
+        @ParameterInfo(
+            name = "tags" ,
+            description = "tags to filter by" ,
+            required = false ,
+            type = "array" ,
+            items =  @items ( type = "string" ) ,
+            collectionFormat = "csv" ,
+        ),
+        @ParameterInfo(
+            name = "limit" ,
+            description = "maximum number of results to return" ,
+            required = false ,
+            type = "integer" ,
+        ),
+    })
+    resource findPets(message m, @QueryParam("tags") String[] tags, @QueryParam("limit") int limit) {
+        // Auto Generated Code by Ballerina. Implement your logic here.
         reply m;
     }
 
     @POST
     @Path("/pets")
     @Produces({ "application/json" })
-    @Responses(values = {
+    @Responses({
             @Response(code = 200,
                       description = "pet response",
-                      response = pet),
+                      response = Pet),
             @Response(code = default,
                       description = "unexpected error",
-                      response = errorModel)
+                      response = ErrorModel)
     })
-    @ResourceInfo(description = "Creates a new pet in the store.  Duplicates are allowed")
-    resource addPet(message m){
+    @ResourceInfo(
+        description = "Creates a new pet in the store.  Duplicates are allowed"
+        operationId = "addPet";
+    )
+    @ParametersInfo ({
+        @ParameterInfo(
+            name = "pet" ,
+            description = "Pet to add to the store" ,
+            required = true
+        )
+    })
+    resource addPet(message m, @Body("pet") NewPet newPetObject){
+        // Auto Generated Code by Ballerina. Implement your logic here.
         reply m;
     }
 
     @GET
     @Path("/pets/{id}")
     @Produces({ "application/json", "application/xml", "text/xml", "text/html" })
-    @Responses(values = {
+    @Responses({
             @Response(code = 200,
                       description = "pet response",
-                      response = pet),
+                      response = Pet),
             @Response(code = default,
                       description = "unexpected error",
-                      response = errorModel)
+                      response = ErrorModel)
     })
-    @ResourceInfo(description = " Returns a user based on a single ID, if the user does not have access to the pet")
-    resource findPetById(message m,
-                         @QueryParam(name = "id", description = "ID of pet to fetch", required = ture) int id){
+    @ResourceInfo(
+        description = "Returns a user based on a single ID, if the user does not have access to the pet"
+        operationId = "findPetById";
+    )
+    @ParametersInfo ({
+        @ParameterInfo(
+            name = "id" ,
+            description = "ID of pet to fetch" ,
+            required = true,
+            type = "integer" ,
+        )
+    })
+    resource findPetById(message m, @PathParam("id") long id) {
+        // Auto Generated Code by Ballerina. Implement your logic here.
         reply m;
     }
 
     @DELETE
     @Path("/pets/{id}")
-    @Produces({ "application/json", "application/xml" })
-    @Responses(values = {
+    @Responses({
             @Response(code = 204,
-                      description = "pet deleted"),
+                      description = "pet deleted"
             @Response(code = default,
-                      description = "unexpected error")
+                      description = "unexpected error",
+                      response = ErrorModel)
     })
-    @ResourceInfo(description = "deletes a single pet based on the ID supplied")
-    resource deletePet(message m,
-                       @QueryParam(name = "id", description = "Pet id to delete", required = ture) int id){
+    @ResourceInfo(
+        description = "deletes a single pet based on the ID supplied"
+        operationId = "deletePet";
+    )
+    @ParametersInfo ({
+        @ParameterInfo(
+            name = "id" ,
+            description = "ID of pet to delete" ,
+            required = true,
+            type = "integer" ,
+        )
+    })
+    resource deletePet(message m, @PathParam("id") long id) {
+        // Auto Generated Code by Ballerina. Implement your logic here.
         reply m;
     }
 }
 
-type pet{
-    @Property(name = "id", required = true)
-    int id;
+@TypeInfo(
+    name = "pet"
+)
+type Pet{
+    @Property(required = true)
+    long id;
 
-    @Property(name = "name", required = true)
+    @Property(required = true)
     string name;
 
-    @Property(name = "tag", required = false)
+    @Property(required = false)
     string tag;
 }
 
-type newPet{
-    @Property(name = "id", required = false)
+@TypeInfo(
+    name = "newPet"
+)
+type NewPet{
+    @Property(required = false)
     int id;
 
-    @Property(name = "name", required = true)
+    @Property(required = true)
     string name;
 
-    @Property(name = "tag", required = false)
+    @Property(required = false)
     string tag;
 }
 
-type errorModel{
-    @Property(name = "code", required = true)
+@TypeInfo(
+    name = "errorModel"
+)
+type ErrorModel{
+    @Property(required = true)
     int code;
 
-    @Property(name = "message", required = true)
+    @Property(required = true)
     string message;
 }
