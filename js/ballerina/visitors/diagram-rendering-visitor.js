@@ -16,8 +16,8 @@
  * under the License.
  */
 define(['require', 'lodash', 'log', 'ast_visitor', 'views/ballerina-file-editor', 'views/service-definition-view',
-    'views/resource-definition-view'],
-    function(require, _, log, ASTVisitor, FileEditor, ServiceDefinitionView, ResourceDefinitionView) {
+    'views/resource-definition-view', 'views/function-definition-view'],
+    function(require, _, log, ASTVisitor, FileEditor, ServiceDefinitionView, ResourceDefinitionView, FunctionDefinitionView) {
 
     var DiagramRenderingVisitor = function(containerView) {
         this.containerView = containerView;
@@ -113,11 +113,21 @@ define(['require', 'lodash', 'log', 'ast_visitor', 'views/ballerina-file-editor'
         return true;
     };
 
-    DiagramRenderingVisitor.prototype.visitFunctionDefinition = function() {
-        return false;
+    DiagramRenderingVisitor.prototype.visitFunctionDefinition = function(astNode) {
+        log.info("Visiting FunctionDefinition");
+        var parent = astNode.getParent();
+        var parentView  = _.find(this._viewsList, ['_model',parent]);
+        for (var id in parent.functionDefinitions) {
+            var functionDefinition = parent.functionDefinitions[id];
+            var canvas = parentView.canvasList[id];
+            var functionDefinitionView = new FunctionDefinitionView(functionDefinition, canvas);
+            this._viewsList.push(functionDefinitionView);
+            functionDefinitionView.render();
+        }
+        return true;
     };
 
-    DiagramRenderingVisitor.prototype.visitActionDefinition = function() {
+    DiagramRenderingVisitor.prototype.visitActionDefinition = function(astNode) {
         return false;
     };
 

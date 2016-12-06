@@ -18,12 +18,25 @@
 define(['lodash', './callable-definition'], function (_, CallableDefinition) {
 
     var FunctionDefinition = function (connectionDeclarations, variableDeclarations, workerDeclarations, statements,args) {
+        this.id = autoGenerateId();
         CallableDefinition.call(this, connectionDeclarations, variableDeclarations, workerDeclarations, statements)
         this.args = args || [];
     };
 
     FunctionDefinition.prototype = Object.create(CallableDefinition.prototype);
     FunctionDefinition.prototype.constructor = FunctionDefinition;
+
+    // Auto generated Id for service definitions (for accordion views)
+    function autoGenerateId(){
+        function s4() {
+            return Math.floor((1 + Math.random()) * 0x10000)
+                .toString(16)
+                .substring(1);
+        }
+        return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+            s4() + '-' + s4() + s4() + s4();
+    };
+
 
     FunctionDefinition.prototype.setArgs = function(args){
         if(!_.isNil(args)){
@@ -36,7 +49,7 @@ define(['lodash', './callable-definition'], function (_, CallableDefinition) {
     };
 
     FunctionDefinition.prototype.accept = function(visitor) {
-        visitor.visitFunctionDefinition();
+        visitor.visitFunctionDefinition(this);
     };
 
     return FunctionDefinition;
