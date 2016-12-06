@@ -247,7 +247,7 @@ public class Function implements Interpreter {
      *
      * @return whether function is public
      */
-    public boolean isPublicFunc() {
+    public boolean isPublic() {
         return publicFunc;
     }
 
@@ -265,5 +265,9 @@ public class Function implements Interpreter {
      */
     public void interpret(Context ctx) {
         functionBody.interpret(ctx);
+    }
+
+    public String getName() {
+        return functionName.getName();
     }
 }
