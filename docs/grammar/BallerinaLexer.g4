@@ -5,22 +5,17 @@ lexer grammar BallerinaLexer;
 // §3.9 Ballerina keywords
 
 ACTION	        :	'action';
-//BOOLEAN	        :	'boolean';
 BREAK	        :	'break';
 CATCH	        :	'catch';
 CONNECTOR	    :	'connector';
 CONST	        :	'const';
-//DOUBLE	        :	'double';
 ELSE	        :	'else';
-//FLOAT	        :	'float';
 FORK	        :	'fork';
 FUNCTION	    :	'function';
 IF	            :	'if';
 IMPORT	        :	'import';
-//INT	            :	'int';
 ITERATE	        :	'iterate';
 JOIN	        :	'join';
-//LONG	        :	'long';
 NEW	            :	'new';
 PACKAGE	        :	'package';
 REPLY	        :	'reply';
@@ -35,14 +30,6 @@ TYPECONVERTOR	:	'typeconvertor';
 WHILE	        :	'while';
 WORKER	        :	'worker';
 BACKTICK        :   '`';
-//XML             :   'xml';
-//JSON            :   'json';
-//XMLDOCUMENT     :   'xmlDocument';
-//STRING          :   'string';
-//MESSAGE         :   'message';
-//MAP             :   'map';
-//EXCEPTION       :   'exception';
-
 VERSION         :   'version';
 ONEZERO         :   '1.0';
 PUBLIC          :   'public';
@@ -53,6 +40,43 @@ EMPTYARRAY      :  '[]';
 TIMEOUT         :   'timeout';
 SENDARROW       :   '->';
 RECEIVEARROW    :   '<-';
+
+// §3.11 Separators
+
+LPAREN          : '(';
+RPAREN          : ')';
+LBRACE          : '{';
+RBRACE          : '}';
+LBRACK          : '[';
+RBRACK          : ']';
+SEMI            : ';';
+COMMA           : ',';
+DOT             : '.';
+
+// §3.12 Operators
+
+ASSIGN          : '=';
+GT              : '>';
+LT              : '<';
+BANG            : '!';
+TILDE           : '~';
+QUESTION        : '?';
+COLON           : ':';
+EQUAL           : '==';
+LE              : '<=';
+GE              : '>=';
+NOTEQUAL        : '!=';
+AND             : '&&';
+OR              : '||';
+ADD             : '+';
+SUB             : '-';
+MUL             : '*';
+DIV             : '/';
+BITAND          : '&';
+BITOR           : '|';
+CARET           : '^';
+MOD             : '%';
+DOLLAR_SIGN     : '$';
 
 // §3.10.1 Integer Literals
 IntegerLiteral
@@ -251,19 +275,6 @@ BooleanLiteral
     |   'false'
     ;
 
-//todo remove it after verifying
-// §3.10.4 Character Literals
-//
-//CharacterLiteral
-//    :   '\'' SingleCharacter '\''
-//    |   '\'' EscapeSequence '\''
-//    ;
-//
-//fragment
-//SingleCharacter
-//    :   ~['\\]
-//    ;
-
 // §3.10.5 String Literals
 
 DoubleQuotedStringLiteral
@@ -274,32 +285,21 @@ SingleQuotedStringLiteral
     :   '\'' StringCharacters? '\''
     ;
 
-//BacktickStringLiteral
-//    :   '`' StringCharacters '`'
-//    ;
+BacktickStringLiteral
+   :   '`' ValidBackTickStringCharacters '`'
+   ;
+fragment
+ValidBackTickStringCharacters
+   :     ValidBackTickStringCharacter+
+   ;
 
-//VariableReference
-//    : '$' Identifier
-//    ;
-//
-//VariableAccessor
-//    :   Identifier
-//    |   Identifier '['DecimalNumeral']'
-//    |   Identifier'['QuotedStringLiteral']'
-//    |   Identifier '.' VariableAccessor
-//    ;
-
-//FunctionInovation
-//    :   QualifiedName ':' Identifier
-//    ;
-//
-//ActionInovation
-//    :   QualifiedName ':' Identifier '.' Identifier
-//    ;
-//
-//QualifiedName
-//    :   Identifier ('.' Identifier)*
-//    ;
+fragment
+ValidBackTickStringCharacter
+   :   ~[`]
+   |   '\\' [btnfr\\]
+   |   OctalEscape
+   |   UnicodeEscape
+   ;
 
 fragment
 StringCharacters
@@ -343,59 +343,6 @@ ZeroToThree
 NullLiteral
     :   'null'
     ;
-
-// §3.11 Separators
-
-LPAREN          : '(';
-RPAREN          : ')';
-LBRACE          : '{';
-RBRACE          : '}';
-LBRACK          : '[';
-RBRACK          : ']';
-SEMI            : ';';
-COMMA           : ',';
-DOT             : '.';
-
-// §3.12 Operators
-
-ASSIGN          : '=';
-fragment
-GT              : '>';
-fragment
-LT              : '<';
-BANG            : '!';
-TILDE           : '~';
-QUESTION        : '?';
-COLON           : ':';
-EQUAL           : '==';
-LE              : '<=';
-GE              : '>=';
-NOTEQUAL        : '!=';
-AND             : '&&';
-OR              : '||';
-INC             : '++';
-DEC             : '--';
-ADD             : '+';
-SUB             : '-';
-MUL             : '*';
-DIV             : '/';
-BITAND          : '&';
-BITOR           : '|';
-CARET           : '^';
-MOD             : '%';
-
-ADD_ASSIGN      : '+=';
-SUB_ASSIGN      : '-=';
-MUL_ASSIGN      : '*=';
-DIV_ASSIGN      : '/=';
-AND_ASSIGN      : '&=';
-OR_ASSIGN       : '|=';
-XOR_ASSIGN      : '^=';
-MOD_ASSIGN      : '%=';
-LSHIFT_ASSIGN   : '<<=';
-RSHIFT_ASSIGN   : '>>=';
-URSHIFT_ASSIGN  : '>>>=';
-DOLLAR_SIGN     : '$';
 
 VariableReference
     : DOLLAR_SIGN Identifier
@@ -441,77 +388,5 @@ LINE_COMMENT
     :   '//' ~[\r\n]* -> skip
     ;
 
-fragment ESC
-   : '\\' (["\\/bfnrt] | UNICODE)
-   ;
-fragment UNICODE
-   : 'u' HEX HEX HEX HEX
-   ;
-fragment HEX
-   : [0-9a-fA-F]
-   ;
-fragment EXP
-   : [Ee] [+\-]? IntegerLiteral
-   ;
 
-// Default "mode": Everything OUTSIDE of a tag
-XMLCOMMENT     :   '<!--' .*? '-->'            ;
-CDATA       :   '<![CDATA[' .*? ']]>'       ;
-/** Scarf all DTD stuff, Entity Declarations like <!ENTITY ...>,
- *  and Notation Declarations <!NOTATION ...>
- */
-DTD         :   '<!' .*? '>'            -> skip ;
-EntityRef   :   '&' Name ';' ;
-CharRef     :   '&#' DIGIT+ ';'
-            |   '&#x' HEXDIGIT+ ';'
-            ;
-SEA_WS      :   (' '|'\t'|'\r'? '\n')+ ;
-OPEN        :   '<'                     -> pushMode(INSIDE) ;
-XMLDeclOpen :   '<?xml' S               -> pushMode(INSIDE) ;
-SPECIAL_OPEN:   '<?' Name               -> more, pushMode(PROC_INSTR) ;
-fragment
-TEXT        :   ~[`<&]+ ;        // match any 16 bit char other than < and &
 
-// ----------------- Everything INSIDE of a tag ---------------------
-mode INSIDE;
-
-CLOSE       :   '>'                     -> popMode ;
-SPECIAL_CLOSE:  '?>'                    -> popMode ; // close <?xml...?>
-SLASH_CLOSE :   '/>'                    -> popMode ;
-SLASH       :   '/' ;
-EQUALS      :   '=' ;
-XMLSTRING   :   '"' ~[<"]* '"'
-            |   '\'' ~[<']* '\''
-            ;
-Name        :   NameStartChar NameChar* ;
-S           :   [ \t\r\n]               -> skip ;
-
-fragment
-HEXDIGIT    :   [a-fA-F0-9] ;
-
-fragment
-DIGIT       :   [0-9] ;
-
-fragment
-NameChar    :   NameStartChar
-            |   '-' | '_' | '.' | DIGIT
-            |   '\u00B7'
-            |   '\u0300'..'\u036F'
-            |   '\u203F'..'\u2040'
-            ;
-
-fragment
-NameStartChar
-            :   [:a-zA-Z]
-            |   '\u2070'..'\u218F'
-            |   '\u2C00'..'\u2FEF'
-            |   '\u3001'..'\uD7FF'
-            |   '\uF900'..'\uFDCF'
-            |   '\uFDF0'..'\uFFFD'
-            ;
-
-// ----------------- Handle <? ... ?> ---------------------
-mode PROC_INSTR;
-
-PI          :   '?>'                    -> popMode ; // close <?...?>
-IGNORE      :   .                       -> more ;
