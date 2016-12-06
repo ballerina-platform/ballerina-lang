@@ -126,11 +126,15 @@ define(['require', 'lodash', 'log'], function (require, _, log) {
                 panelTitle.append(titleLink);
 
                 var panelRightIcon = $('<i></i>');
-                panelRightIcon.addClass('fw fw-sort-down pull-right right-icon-clickable');
-                panelRightIcon.attr('style', 'padding-left:10px;padding-right:10px;padding-top:5px;');
+                panelRightIcon.addClass('fw fw-down pull-right right-icon-clickable');
+                panelRightIcon.attr('style', 'padding:10px;');
                 panelTitle.append(panelRightIcon);
 
                 panelHeading.append(panelTitle);
+
+                titleLink.click(function () {
+                    $(this).parent().find('i.right-icon-clickable').toggleClass('fw-down fw-up');
+                });
 
                 var bodyDiv = $('<div></div>');
                 // TODO: For the moment disabling the adding classes in order to show the containers
