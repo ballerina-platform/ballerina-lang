@@ -17,6 +17,11 @@
 */
 package org.wso2.ballerina.model.types;
 
+/**
+ * {@code TypeEnum} represents all the types names in Ballerina
+ *
+ * @since 1.0.0
+ */
 public enum TypeEnum {
     INT("int"),
     LONG("long"),
