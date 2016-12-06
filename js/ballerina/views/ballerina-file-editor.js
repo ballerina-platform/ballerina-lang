@@ -68,6 +68,7 @@ define(['lodash', 'jquery', 'log', './../visitors/ast-visitor', './service-defin
 
     BallerinaFileEditor.prototype.init = function() {
         var errMsg;
+        var editorParent = this;
         if (!_.has(this._options, 'container')) {
             errMsg = 'unable to find configuration for container';
             log.error(errMsg);
