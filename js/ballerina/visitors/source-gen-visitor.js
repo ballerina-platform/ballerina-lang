@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'ast-visitor'], function(_, log, ASTVisitor) {
+define(['lodash', 'log', './ast-visitor'], function(_, log, ASTVisitor) {
 
     var SourceGenVisitor = function() {
 

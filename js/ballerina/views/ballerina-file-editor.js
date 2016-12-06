@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'jquery', 'log', 'ast_visitor', './service-definition-view'], function (_, $, log, ASTVisitor, ServiceDefinitionView) {
+define(['lodash', 'jquery', 'log', './../visitors/ast-visitor', './service-definition-view'], function (_, $, log, ASTVisitor, ServiceDefinitionView) {
 
     /**
      * @class BallerinaFileEditor

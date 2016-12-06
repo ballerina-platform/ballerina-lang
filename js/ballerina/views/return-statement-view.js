@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', 'app/ballerina/ast/return-statement', 'd3utils'], function (_, log, EventChannel, ReturnStatement, D3Utils) {
+define(['lodash', 'log', 'event_channel', './../ast/return-statement', 'd3utils'], function (_, log, EventChannel, ReturnStatement, D3Utils) {
 
     /**
      * The view for the return statement model.

@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel',  './canvas', 'ast/function-definition'],
+define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-definition'],
     function (_, log, EventChannel, Canvas, FunctionDefinition) {
 
         /**

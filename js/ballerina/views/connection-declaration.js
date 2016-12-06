@@ -16,7 +16,7 @@
  * under the License.
  */
 
-define(['lodash', 'jquery', 'event_channel', 'app/ballerina/ast/connection-declaration', 'log', 'd3utils'],
+define(['lodash', 'jquery', 'event_channel', './../ast/connection-declaration', 'log', 'd3utils'],
     function (_, $, EventChannel, ConnectionDeclaration, log, D3Utils) {
 
     var ConnectionDeclaration = function (model) {

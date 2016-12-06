@@ -16,7 +16,7 @@
  * under the License.
  */
 
-define(['lodash', 'jquery', 'event_channel', 'app/ballerina/ast/worker-declaration', 'log', 'd3utils'],
+define(['lodash', 'jquery', 'event_channel', './../ast/worker-declaration', 'log', 'd3utils'],
     function (_, $, EventChannel, ConnectionDeclaration, log, D3Utils) {
 
     var WorkerDeclaration = function (model) {

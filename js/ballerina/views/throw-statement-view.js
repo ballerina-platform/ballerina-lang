@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', 'app/ballerina/ast/throw-statement', 'd3utils'], function (_, log, EventChannel, ThrowStatement, D3Utils) {
+define(['lodash', 'log', 'event_channel', './../ast/throw-statement', 'd3utils'], function (_, log, EventChannel, ThrowStatement, D3Utils) {
 
     /**
      * The view for the throw statement model.
