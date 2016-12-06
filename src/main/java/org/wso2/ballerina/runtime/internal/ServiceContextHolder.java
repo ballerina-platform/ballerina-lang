@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.ballerina.internal;
+package org.wso2.ballerina.runtime.internal;
 
 
 import org.wso2.carbon.messaging.TransportSender;

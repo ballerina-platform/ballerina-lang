@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.ballerina.internal;
+package org.wso2.ballerina.runtime.internal;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
@@ -35,7 +35,7 @@ import org.wso2.carbon.messaging.TransportSender;
  * Service component for Ballerina.
  */
 @Component(
-        name = "org.wso2.ballerina.core.internal.BallerinaServiceComponent",
+        name = "org.wso2.ballerina.BallerinaService",
         immediate = true
 )
 public class BallerinaServiceComponent {
