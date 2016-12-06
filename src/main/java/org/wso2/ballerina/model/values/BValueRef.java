@@ -36,4 +36,28 @@ public class BValueRef {
     public void setBValue(BValue bValue) {
         this.bValue = bValue;
     }
+
+    public boolean getBoolean() {
+        return ((BooleanValue) bValue).getValue();
+    }
+
+    public int getInt() {
+        return ((IntValue) bValue).getValue();
+    }
+
+    public long getLong() {
+        return ((LongValue) bValue).getValue();
+    }
+
+    public float getFloat() {
+        return ((FloatValue) bValue).getValue();
+    }
+
+    public double getDouble() {
+        return ((DoubleValue) bValue).getValue();
+    }
+
+    public String getString() {
+        return ((StringValue) bValue).getValue();
+    }
 }
