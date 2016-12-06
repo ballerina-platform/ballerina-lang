@@ -22,5 +22,5 @@ package org.wso2.ballerina.model.types;
  *
  * @since 1.0.0
  */
-public class IntType implements Type {
+public class IntType extends AbstractType {
 }
