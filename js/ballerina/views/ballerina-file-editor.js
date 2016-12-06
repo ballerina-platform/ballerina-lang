@@ -131,12 +131,17 @@ define(['require', 'lodash', 'log'], function (require, _, log) {
                 var panelRightIcon = $('<i></i>');
                 panelRightIcon.addClass('fw fw-down pull-right right-icon-clickable');
                 panelRightIcon.attr('style', 'padding:10px;');
+                panelRightIcon.attr('role', 'button').attr('data-toggle', 'collapse').attr('data-parent', "#accordion").attr('href', '#' + canvas[0].id).attr('aria-expanded', 'false').attr('aria-controls', canvas[0].id);
                 panelTitle.append(panelRightIcon);
 
                 panelHeading.append(panelTitle);
 
                 titleLink.click(function () {
                     $(this).parent().find('i.right-icon-clickable').toggleClass('fw-down fw-up');
+                });
+
+                panelRightIcon.click(function () {
+                    $(this).toggleClass('fw-down fw-up');
                 });
 
                 var bodyDiv = $('<div></div>');
