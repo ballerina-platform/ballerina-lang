@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerina.model.statements;
 
+import org.wso2.ballerina.interpreter.Context;
 import org.wso2.ballerina.model.types.ExceptionType;
 
 import java.util.List;
@@ -35,5 +36,9 @@ public class TryCatchStmt implements Statement {
         this.tryBlock = tryBlock;
         this.catchExceptions = catchExceptions;
         this.catchBlock = catchBlock;
+    }
+
+    public void interpret(Context ctx) {
+
     }
 }

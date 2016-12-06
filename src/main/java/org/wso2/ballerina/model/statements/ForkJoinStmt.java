@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerina.model.statements;
 
+import org.wso2.ballerina.interpreter.Context;
 import org.wso2.ballerina.model.Worker;
 import org.wso2.ballerina.model.expressions.Expression;
 
@@ -38,4 +39,7 @@ public class ForkJoinStmt implements Statement {
         this.joinBlock = joinBlock;
     }
 
+    public void interpret(Context ctx) {
+
+    }
 }
