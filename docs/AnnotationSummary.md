@@ -66,7 +66,7 @@ Note: By design Doc annotation and Config annotation are defined separately. Thi
 
 ### Swagger 2.0 Support
 
-Ballerina Annotations represent a supper set of Open API Specification 2.0 (AKA Swagger 2.0) format. This allows developers
+Ballerina Annotations represent a super set of Open API Specification 2.0 (AKA Swagger 2.0) format. This allows developers
 to Generate a Ballerina service skeleton from a Swagger 2.0 definition and/or Swagger 2.0 definition from a Ballerina service.
  
 ## Supported Annotations.
@@ -84,9 +84,9 @@ Followings are the service level annotations.
 #### Service Info
 
 
-A Doc annotation, which describes a Ballerina Service. 
+A Doc annotation which describes a Ballerina Service. 
 
-Generic meta information about Service or Connector. But this a supper set of Swagger 2.0 representation. 
+Generic meta information about Service or Connector. But this a super set of Swagger 2.0 representation. 
 
 
 Syntax: 
@@ -155,7 +155,7 @@ _@License_
 | Ballerina Field | Type | Description | Swagger Field |
 |---|:---:|---|---|
 | name | string | Name of the License used for Ballerina Service. | $.info.license.name |
-| url | string | An URL pointing to License information. | $.info.license.url |
+| url | string | A URL pointing to License information. | $.info.license.url |
 
 _@ExternalDoc_
 
@@ -191,17 +191,17 @@ specific custom swagger extensions.
 
 **Note** `@Swagger` can be used only to annotate Ballerina Service, Resource, and Type fields. 
 
-| Ballerina Field | Type | Description | Swagger Field (Json Path) |
+| Ballerina Field | Type | Description | Swagger Field (JSON Path) |
 |---|:---:|---|---|
 | version | string | **Required.** Specifies the Swagger Specification version to be used. If `@Swagger` annotation is not defined, default value is "2.0" | $.swagger |
 | extension | @SwaggerExtension[] | List of Swagger extension for specific swagger field. | any |
 
 @SwaggerExtension
 
-| Ballerina Field | Type | Description | Swagger Field (Json Path) |
+| Ballerina Field | Type | Description | Swagger Field (JSON Path) |
 |---|:---:|---|---|
-| target | string | **Required.** Json path of the swagger field. | target |
-| anyKey | any | List of Swagger extension for specific swagger field. | target.x-anykey |
+| target | string | **Required.** JSON path of the swagger field. | target |
+| anyKey | any | List of Swagger extension for a specific swagger field. | target.x-anykey |
 
 
 #### Service Config
@@ -240,9 +240,9 @@ Syntax:
 
 _@ServiceConfig_
 
-| Ballerina Field | Type | Description | Swagger Field (Json Path) |
+| Ballerina Field | Type | Description | Swagger Field (JSON Path) |
 |---|:---:|---|---|
-| host| string| Host name or IP of the Ballerina Service. | $.host |
+| host| string| Hostname or IP of the Ballerina Service. | $.host |
 | schemes | string[] | Transport protocol of the Ballerina Service.(http, https, ws, wss)| $.schemes |
 | interface | string | Interface for Transport configuration. | N/A |
 | authorizations | @Authorization[] | Authorization schema associated with the Ballerina Service | $.securityDefinitions |
@@ -277,7 +277,7 @@ Syntax:
 @Path("/context")
 ```
 
-Value of the `@Path` annotation can't be empty and it should start with `/`. This is an Optional annotation and default
+The value of the `@Path` annotation can't be empty and it should start with `/`. This is an Optional annotation and default
 service context is mapped to `/`
 
 Swagger 2.0 equivalent field is `basePath`. (Json Path `$.basePath`)
@@ -296,7 +296,7 @@ E.g:
 @Consumes({"application/json", "application/xml"})
 ```
 
-This is an optional annotation. Swagger 2.0 equivalent field is `consumes`. (Json Path `$.consumes`)
+This is an optional annotation. Swagger 2.0 equivalent field is `Consumes`. (JSON Path `$.consumes`)
 
 #### Produces
 
@@ -312,7 +312,7 @@ E.g:
 @Produces({"application/json", "application/xml"})
 ```
 
-This is an optional annotation. Swagger 2.0 equivalent field is `produces`. (Json Path `$.produces`)
+This is an optional annotation. Swagger 2.0 equivalent field is `produces`. (JSON Path `$.produces`)
 
 ### Resource Annotation.
 
@@ -337,7 +337,7 @@ Syntax:
 @Path("/resource-path")
 ```
 
-Value of the `@Path` annotation can't be empty and it should start with `/`.  This is a **Required** annotation for HTTP
+The value of the `@Path` annotation can't be empty and it should start with `/`.  This is a **Required** annotation for HTTP
 Ballerina services. 
 
 Swagger 2.0 equivalent field is `paths.path`. (Json Path `$.paths./resource-path`)
@@ -465,7 +465,7 @@ E.g:
 @Produces({"application/json", "application/xml"})
 ```
 
-This is an optional annotation. Swagger 2.0 equivalent field is `produces`. (Json Path `$.paths./resource-path.produces`)
+This is an optional annotation. Swagger 2.0 equivalent field is `produces`. (JSON Path `$.paths./resource-path.produces`)
 
 #### Method Parameter Definition
 
@@ -473,7 +473,7 @@ Defines resource parameter mapping.
 
 #####Query Param
 
-Represents a HTTP Query Param of the annotated resource. 
+Represents an HTTP Query Param of the annotated resource. 
 
 Syntax:
 ```
@@ -498,7 +498,7 @@ annotation. It can't be an empty string.
 
 ##### Form Param
 
-Represents a HTTP Form field of the annotated resource. This annotation applies only for content type `application/x-www-form-urlencoded` or `multipart/form-data` 
+Represents an HTTP Form field of the annotated resource. This annotation applies only for content type `application/x-www-form-urlencoded` or `multipart/form-data` 
 
 Syntax:
 ```
@@ -513,7 +513,7 @@ If content type is `multipart/form-data` - value of the `name` parameter of the 
 
 ##### Header Param
 
-Represents a transport headers that are expected as part of the request.
+Represents a transport header that is expected as part of the request.
 
 Syntax:
 ```
@@ -589,7 +589,7 @@ _@ParameterInfo_ (or parameter)
 
 #### Resource Info
 
-A meta annotation which describes the meta details of this resource.
+A meta-annotation which describes the meta details of this resource.
 
 Syntax:
 ```
@@ -850,8 +850,8 @@ _@Response_
 |  code|int |HTTP status code of this response  | N/A  | 
 |  description|string |T A short description of the response.  | description  | 
 |  response|string |The list of possible responses as they are returned from executing this operation  | schema  | 
-|  headers|array |An array of @Header that are sent with the response  | headers  | 
-|  examples|array |An @Example of the response message  | examples  | 
+|  headers|array |An array of @Header that is sent with the response  | headers  | 
+|  examples|array |A `@Example` of the response message  | examples  | 
 
 _@Header_
 
@@ -867,15 +867,15 @@ _@Example_
 |Ballerina Field |  Type | Description | Swagger Field|
 |---|---|---|---|
 |  type|string |mime type  | N/A  | 
-|  value| string| A sample response of this resource that match with given mime type  | N/A  | 
+|  value| string| A sample response of this resource that matches with given mime type  | N/A  | 
 
 ### Connector Annotations.
 
-In Ballerina, A Connector (Based in HTTP) can be generated by importing a Swagger Definition. Connector has `@ConnectorInfo` annotation which share same attribute set of the `@ServiceInfo` annotation and `@ConnectorConfig` annotation which share same attribute set of the `@ServiceConfig`. 
+In Ballerina, A Connector (Based on HTTP) can be generated by importing a Swagger Definition. The connector has `@ConnectorInfo` annotation which shares same attribute set of the `@ServiceInfo` annotation and `@ConnectorConfig` annotation which share same attribute set of the `@ServiceConfig`. 
 
 #### Circuit Breaker
 
-The Circuit Breaker is a built in feature in Ballerina, that prevents cascading failures in a connector. This annotation applies only for connector instances. 
+The Circuit Breaker is a built in feature in Ballerina, that prevents cascading failures in a connector. This annotation applies only to connector instances. 
 
 Syntax: 
 ```
@@ -894,7 +894,7 @@ Syntax:
 | Ballerina Field | Type | Description | 
 |---|:---:|---|
 | enable | boolean | Enable Circuit Breaker. Default is `false`.|
-| failureThreshold | integer | Number of continuous failed messages to Open circuit. Default value is `3`. |
+| failureThreshold | integer | Number of continuously failed messages to the Open circuit. The default value is `3`. |
 | initialOpenDuration | long | Circuit open duration in Milliseconds, before it moves to Half Open. Default value `60000.` |
 | maxOpenDuration | long | Maximum Circuit open duration in Milliseconds. Default is `Long.max` |
 | openDurationFactor | float >= 1.0 | Circuit open duration progression factor. Default is `1.0` |
@@ -905,9 +905,9 @@ Syntax:
  
 ### Action Annotations. 
 
-TODO: Following Section needs some re-thinking whether we should use same format for action and resource annotation.  
+TODO: Following Section needs some re-thinking whether we should use the same format for action and resource annotation.  
 
-Action can have @Doc annotation which describes the parameters and the return types. If Actions are generated using a swagger definition, each Swagger Operation Object will be mapped to action.
+Action can have @Doc annotation which describes the parameters and the return types. If Actions are generated using a swagger definition, each Swagger Operation Object will be mapped to the action.
 
 |Action Annotation | Matching Resource Annotation | Description |
 |---|---|---|
@@ -949,7 +949,7 @@ Syntax:
 
 ### Function Annotations.
 
-Function can have @Doc annotation which describes the parameters and the return types.
+The function can have @Doc annotation which describes the parameters and the return types.
 
 Syntax:
 ```
@@ -1022,10 +1022,10 @@ Property Annotation is used to describe meta information about the annotated var
 )
 ```
 
-| Ballerina Field | Type | Description | Swagger Field (Json Path)  |
+| Ballerina Field | Type | Description | Swagger Field (JSON Path)  |
 |---|:---:|---|---|
 | schema | string | JSON/XML schema or data type. | Schema Object - $ref. |
-| required | boolean | Indicate annotated field is required. Default is false.  | Schema Object -required. |
+| required | boolean | Indicate annotated field is required. The default is false.  | Schema Object -required. |
 | title | string | Title for annotated field. | Schema Object -required. |
 | description | string | A description about annotated variable. | Schema Object - description |
 | format | string | DataType format (e.g: password, date, date-time, binary, byte, etc) | Schema Object - data type format. |
@@ -1039,7 +1039,7 @@ Annotations that can be annotated to any construct in the Ballerina.
 #### Deprecated 
 
 Denotes annotated Ballerina constructed is deprecated. This is a Doc annotation and **will not** produce any error during 
-the compiler time or runtime of a Ballerina program. 
+the compile time or runtime of a Ballerina program. 
 
 ```
 @Deprecated
