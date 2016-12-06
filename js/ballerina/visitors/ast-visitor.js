@@ -15,13 +15,42 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log'], function(_, log) {
+define(['lodash', 'log', 'event_channel'], function(_, log, EventChannel) {
 
-    var ASTVisitor = function() {
+    var ASTVisitor = function() {};
 
+    ASTVisitor.prototype = Object.create(EventChannel.prototype);
+    ASTVisitor.prototype.constructor = ASTVisitor;
+
+    ASTVisitor.prototype.canVisitBallerinaASTRoot = function(ballerinaASTRoot){
+        return false;
+    };
+    ASTVisitor.prototype.beginVisitBallerinaASTRoot = function(ballerinaASTRoot){
+    };
+    ASTVisitor.prototype.visitBallerinaASTRoot= function(ballerinaASTRoot){
+    };
+    ASTVisitor.prototype.endVisitBallerinaASTRoot = function(ballerinaASTRoot){
     };
 
-    ASTVisitor.prototype.constructor = ASTVisitor;
+    ASTVisitor.prototype.canVisitServiceDefinition = function(serviceDefinition){
+        return false;
+    };
+    ASTVisitor.prototype.beginVisitServiceDefinition = function(serviceDefinition){
+    };
+    ASTVisitor.prototype.visitServiceDefinition = function(serviceDefinition){
+    };
+    ASTVisitor.prototype.endVisitServiceDefinition = function(serviceDefinition){
+    };
+
+    ASTVisitor.prototype.canVisitResourceDefinition = function(resourceDefinition){
+        return false;
+    };
+    ASTVisitor.prototype.beginVisitResourceDefinition = function(resourceDefinition){
+    };
+    ASTVisitor.prototype.visitResourceDefinition = function(resourceDefinition){
+    };
+    ASTVisitor.prototype.endVisitResourceDefinition = function(resourceDefinition){
+    };
 
     return ASTVisitor;
 
