@@ -15,15 +15,19 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerina.model.values;
+package org.wso2.ballerina.model.types;
+
+import org.wso2.ballerina.model.Identifier;
 
 /**
- * {@code BValue} represents any value in Ballerina
+ * {@code AbstractType} is an abstract class for all the types in Ballerina
  *
- * @see StringValue
- * @see DoubleValue
- * @see IntValue
  * @since 1.0.0
  */
-public interface BValue {
+public class AbstractType implements Type {
+    protected Identifier name;
+
+    public Identifier getName() {
+        return name;
+    }
 }

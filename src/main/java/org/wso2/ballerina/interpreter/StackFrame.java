@@ -15,12 +15,24 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerina.model.expressions;
+package org.wso2.ballerina.interpreter;
+
+import org.wso2.ballerina.model.values.BValueRef;
 
 /**
- *  {@code BasicLiteral} represents a literal of the basic type
+ * {@code StackFrame} represents frame in a control stack.
+ * Holds references to parameters, local variables and return values
  *
- *  @since 1.0.0
+ * @since 1.0.0
  */
-public class BasicLiteral implements Expression {
+public class StackFrame {
+    public BValueRef[] parameters;
+    public BValueRef returnValue;
+    public BValueRef[] localVariables;
+
+    public StackFrame(BValueRef[] parameters, BValueRef returnValue, BValueRef[] localVariables) {
+        this.parameters = parameters;
+        this.returnValue = returnValue;
+        this.localVariables = localVariables;
+    }
 }

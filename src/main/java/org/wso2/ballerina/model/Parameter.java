@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * {@code Argument} represent an Argument in various signatures.
+ * {@code Parameter} represent a Parameter in various signatures.
  *
  * This can be a part of {@link Function}, {@link Resource}
  * or {@link Action} signature
@@ -32,17 +32,17 @@ import java.util.List;
  * @since 1.0.0
  */
 @SuppressWarnings("unused")
-public class Argument {
+public class Parameter {
 
     private Type type;
-    private String name;
+    private Identifier name;
     private List<Annotation> annotations;
 
     /**
      * @param type Type of the Argument
      * @param name  Name of the Argument
      */
-    public Argument(Type type, String name) {
+    public Parameter(Type type, Identifier name) {
         this.type = type;
         this.name = name;
     }
@@ -52,7 +52,7 @@ public class Argument {
      *
      * @return connectorName of the Argument
      */
-    public String getName() {
+    public Identifier getName() {
         return name;
     }
 

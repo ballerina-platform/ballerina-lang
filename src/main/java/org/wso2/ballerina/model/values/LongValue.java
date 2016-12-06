@@ -18,7 +18,7 @@
 package org.wso2.ballerina.model.values;
 
 /**
- * {@code LongValue} represents a long value
+ * {@code LongValue} represents a long value in Ballerina
  *
  * @since 1.0.0
  */
@@ -26,6 +26,14 @@ public class LongValue implements BValue {
     private long value;
 
     public LongValue(long value) {
+        this.value = value;
+    }
+
+    public long getValue() {
+        return value;
+    }
+
+    public void setValue(long value) {
         this.value = value;
     }
 }

@@ -17,10 +17,15 @@
 */
 package org.wso2.ballerina.model.types;
 
+import org.wso2.ballerina.model.Identifier;
+
 /**
  * Represents a type. All types implements this interface.
  *
  * @since 1.0.0
  */
 public interface Type {
+
+    Identifier getName();
+
 }

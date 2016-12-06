@@ -18,9 +18,9 @@
 package org.wso2.ballerina.model.types;
 
 /**
- * {@code BooleanType} represents a boolean value
+ * {@code BooleanType} represents a boolean bValueRef
  *
  * @since 1.0.0
  */
-public class BooleanType implements Type {
+public class BooleanType extends AbstractType {
 }

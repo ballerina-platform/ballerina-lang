@@ -18,12 +18,22 @@
 package org.wso2.ballerina.model.values;
 
 /**
- * {@code BValue} represents any value in Ballerina
+ * {@code BValueRef} is a container for a BValue
  *
- * @see StringValue
- * @see DoubleValue
- * @see IntValue
  * @since 1.0.0
  */
-public interface BValue {
+public class BValueRef {
+    private BValue bValue;
+
+    public BValueRef(BValue bValue) {
+        this.bValue = bValue;
+    }
+
+    public BValue getBValue() {
+        return this.bValue;
+    }
+
+    public void setBValue(BValue bValue) {
+        this.bValue = bValue;
+    }
 }

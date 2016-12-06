@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerina.model.statements;
 
+import org.wso2.ballerina.interpreter.Context;
 import org.wso2.ballerina.model.expressions.Expression;
 
 /**
@@ -31,5 +32,9 @@ public class WhileStmt implements Statement {
     public WhileStmt(Expression condition, Statement block) {
         this.condition = condition;
         this.block = block;
+    }
+
+    public void interpret(Context ctx) {
+
     }
 }

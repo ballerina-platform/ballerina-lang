@@ -22,5 +22,5 @@ package org.wso2.ballerina.model.types;
  *
  * @since 1.0.0
  */
-public class LongType implements Type {
+public class LongType extends AbstractType {
 }

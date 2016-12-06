@@ -15,15 +15,28 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerina.model.values;
+package org.wso2.ballerina.model.types;
 
 /**
- * {@code BValue} represents any value in Ballerina
+ * {@code TypeEnum} represents all the types names in Ballerina
  *
- * @see StringValue
- * @see DoubleValue
- * @see IntValue
  * @since 1.0.0
  */
-public interface BValue {
+public enum TypeEnum {
+    INT("int"),
+    LONG("long"),
+    FLOAT("float"),
+    DOUBLE("double"),
+    BOOLEAN("boolean"),
+    STRING("string");
+
+    private String name;
+
+    TypeEnum(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
 }

@@ -15,15 +15,14 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerina.model.values;
+package org.wso2.ballerina.interpreter;
 
 /**
- * {@code BValue} represents any value in Ballerina
+ * {@code Interpreter} allows Ballerina languages constructs to be executed.
+ * Functions, resources, actions, statements implement this interface.
  *
- * @see StringValue
- * @see DoubleValue
- * @see IntValue
  * @since 1.0.0
  */
-public interface BValue {
+public interface Interpreter {
+    void interpret(Context ctx);
 }

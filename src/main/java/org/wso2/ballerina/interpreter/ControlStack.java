@@ -15,19 +15,36 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerina.model.types;
+package org.wso2.ballerina.interpreter;
 
-import java.util.List;
+import java.util.Stack;
 
 /**
- * {@code StructType} represents a sequence of named elements, called fields, each of which has a name and a type
+ * {@code ControlStack} is used to manage functions calls and returns.
  *
  * @since 1.0.0
  */
-public class StructType extends AbstractType {
-    private List<Field> fields;
+public class ControlStack {
 
-    public StructType(List<Field> fields) {
-        this.fields = fields;
+    private Stack<StackFrame> stack;
+    private StackFrame currentFrame;
+
+    public ControlStack() {
+        stack = new Stack<StackFrame>();
+    }
+
+    public StackFrame pushFrame(StackFrame frame) {
+        currentFrame = stack.push(frame);
+        return currentFrame;
+    }
+
+    public StackFrame popFrame() {
+        StackFrame poppedFrame = stack.pop();
+        currentFrame = (stack.isEmpty()) ? null : stack.peek();
+        return poppedFrame;
+    }
+
+    public StackFrame getCurrentFrame() {
+        return currentFrame;
     }
 }

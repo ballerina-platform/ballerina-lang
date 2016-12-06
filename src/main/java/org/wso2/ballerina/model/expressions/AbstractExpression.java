@@ -15,31 +15,39 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerina.model.statements;
+package org.wso2.ballerina.model.expressions;
 
 import org.wso2.ballerina.interpreter.Context;
-
-import java.util.List;
+import org.wso2.ballerina.model.types.Type;
+import org.wso2.ballerina.model.values.BValueRef;
 
 /**
- * A BlockStmt represents a list of statements between balanced braces.
+ * All the expressions should extend {@code AbstractExpression}
+ * <p>
+ * Provides the common behaviour of expressions.
  *
  * @since 1.0.0
  */
-public class BlockStmt implements Statement {
+public abstract class AbstractExpression implements Expression {
 
-    private List<Statement> statements;
+    protected Type type;
+    protected BValueRef bValueRef;
 
-    public BlockStmt(List<Statement> statements) {
-        this.statements = statements;
+    public abstract BValueRef evaluate(Context ctx);
+
+    public Type geType() {
+        return type;
     }
 
-    public void interpret(Context ctx) {
-        //TODO Improve this to support non-blocking behaviour.
-        //TODO Possibly a linked set of statements would do.
-        for (Statement stmt : statements) {
-            stmt.interpret(ctx);
-        }
+    public void setType(Type type) {
+        this.type = type;
+    }
+
+    public BValueRef getBValueRef() {
+        return bValueRef;
+    }
+
+    public void setBValueRef(BValueRef bValueRef) {
+        this.bValueRef = bValueRef;
     }
 }
-

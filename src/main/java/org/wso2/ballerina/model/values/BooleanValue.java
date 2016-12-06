@@ -18,12 +18,22 @@
 package org.wso2.ballerina.model.values;
 
 /**
- * {@code BValue} represents any value in Ballerina
+ * {@code BooleanValue} represents a boolean value in Ballerina
  *
- * @see StringValue
- * @see DoubleValue
- * @see IntValue
  * @since 1.0.0
  */
-public interface BValue {
+public class BooleanValue implements BValue {
+    private boolean value;
+
+    public BooleanValue(boolean value) {
+        this.value = value;
+    }
+
+    public boolean getValue() {
+        return value;
+    }
+
+    public void setValue(boolean value) {
+        this.value = value;
+    }
 }

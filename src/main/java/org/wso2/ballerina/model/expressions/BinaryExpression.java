@@ -17,22 +17,27 @@
 */
 package org.wso2.ballerina.model.expressions;
 
+import org.wso2.ballerina.interpreter.Context;
 import org.wso2.ballerina.model.Operator;
+import org.wso2.ballerina.model.values.BValueRef;
 
 /**
  * {@code BinaryExpression} represents a binary expression
  *
  * @since 1.0.0
  */
-public class BinaryExpression implements Expression {
+public class BinaryExpression extends UnaryExpression {
 
-    private Expression lExpr;
-    private Operator op;
-    private Expression rExpr;
+    protected Expression lExpr;
+
 
     public BinaryExpression(Expression lExpr, Operator op, Expression rExpr) {
+        super(op, rExpr);
         this.lExpr = lExpr;
-        this.op = op;
-        this.lExpr = rExpr;
+    }
+
+    @Override
+    public BValueRef evaluate(Context ctx) {
+        return null;
     }
 }

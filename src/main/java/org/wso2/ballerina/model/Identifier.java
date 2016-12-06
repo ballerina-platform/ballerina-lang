@@ -39,4 +39,13 @@ public class Identifier {
     public String getName() {
         return name;
     }
+
+    public boolean equals(Object obj) {
+        Identifier other = (Identifier) obj;
+        return this.name.equals(other.getName());
+    }
+
+    public int hashCode() {
+        return name.length();
+    }
 }
