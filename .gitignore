@@ -14,3 +14,6 @@ hs_err_pid*
 .idea
 *.iml
 *.ipr
+
+# generated files
+/gen
