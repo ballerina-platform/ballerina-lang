@@ -22,5 +22,5 @@ package org.wso2.ballerina.model.types;
  *
  * @since 1.0.0
  */
-public class MapType {
+public class MapType extends AbstractType {
 }

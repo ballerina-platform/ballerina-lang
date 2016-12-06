@@ -17,8 +17,27 @@
 */
 package org.wso2.ballerina.model.expressions;
 
+import org.wso2.ballerina.interpreter.Context;
+import org.wso2.ballerina.model.types.Type;
+import org.wso2.ballerina.model.values.BValueRef;
+
 /**
+ * {@code Expression} represents a generic expression in Ballerina
  *
+ * @see AddExpression
+ * @see VariableRefExpr
+ * @see FunctionInvocationExpr
+ * @since 1.0.0
  */
 public interface Expression {
+
+    BValueRef evaluate(Context ctx);
+
+    Type geType();
+
+    void setType(Type type);
+
+    BValueRef getBValueRef();
+
+    void setBValueRef(BValueRef value);
 }

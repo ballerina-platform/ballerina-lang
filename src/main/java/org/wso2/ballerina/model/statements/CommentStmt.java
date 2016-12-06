@@ -17,6 +17,8 @@
 */
 package org.wso2.ballerina.model.statements;
 
+import org.wso2.ballerina.interpreter.Context;
+
 /**
  * Represents a single line comment. //-style
  */
@@ -25,5 +27,9 @@ public class CommentStmt implements Statement {
 
     public CommentStmt(String comment) {
         this.comment = comment;
+    }
+
+    public void interpret(Context ctx) {
+
     }
 }

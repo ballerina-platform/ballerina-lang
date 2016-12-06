@@ -94,9 +94,9 @@ resource ResourceName (Message VariableName[, ([ResourceParamAnnotations] TypeNa
 }*
 ```
 
-The visual representation of this (without the annotations) is as follows:
+The visual representation of this (without the annotations) in a sequence diagram is as follows:
 
-![bal-resource-skeleton.png]()
+![Resources in a Service](images/bal-resource-skeleton.png)
 
 ### Functions
 
@@ -133,6 +133,7 @@ A `connector` defines a set of actions. Actions are operations (functions) that 
 
 ```
 [ActionAnnotations]
+
 action ActionName (ConnectorName VariableName[, ([ActionParamAnnotations] TypeName VariableName)+]) (TypeName*)
         [throws exception] {
     ConnectorDeclaration;*

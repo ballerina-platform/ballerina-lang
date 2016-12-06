@@ -22,7 +22,7 @@ under the License.
 <suite name="ballerina-test-suite">
     <test name="ballerina-model-unit-tests" preserve-order="true" parallel="false">
         <classes>
-            <class name="org.wso2.ballerina.model.ResourceTest" />
+            <class name="org.wso2.ballerina.model.FunctionInvocationTest" />
         </classes>
     </test>
 </suite>

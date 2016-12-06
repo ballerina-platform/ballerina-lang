@@ -18,7 +18,7 @@
 package org.wso2.ballerina.model.values;
 
 /**
- * {@code DoubleValue} represents a double value
+ * {@code DoubleValue} represents a double value in Ballerina
  *
  * @since 1.0.0
  */
@@ -26,6 +26,14 @@ public class DoubleValue implements BValue {
     private double value;
 
     public DoubleValue(double value) {
+        this.value = value;
+    }
+
+    public double getValue() {
+        return value;
+    }
+
+    public void setValue(double value) {
         this.value = value;
     }
 }

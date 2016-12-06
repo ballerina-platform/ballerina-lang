@@ -46,7 +46,7 @@ import java.util.List;
 public class Resource {
 
     private List<Annotation> annotations;
-    private List<Argument> arguments;
+    private List<Parameter> arguments;
     private List<Worker> workers;
     private Worker defaultWorker;
 
@@ -89,7 +89,7 @@ public class Resource {
      *
      * @return list of Arguments
      */
-    public List<Argument> getArguments() {
+    public List<Parameter> getArguments() {
         return arguments;
     }
 
@@ -98,7 +98,7 @@ public class Resource {
      *
      * @param arguments list of Arguments
      */
-    public void setArguments(List<Argument> arguments) {
+    public void setArguments(List<Parameter> arguments) {
         this.arguments = arguments;
     }
 
@@ -107,9 +107,9 @@ public class Resource {
      *
      * @param argument Argument to be added to the Resource definition
      */
-    public void addArgument(Argument argument) {
+    public void addArgument(Parameter argument) {
         if (arguments == null) {
-            arguments = new ArrayList<Argument>();
+            arguments = new ArrayList<Parameter>();
         }
         arguments.add(argument);
     }
@@ -147,7 +147,7 @@ public class Resource {
      *
      * @return list of all default Worker scoped variables
      */
-    public List<Variable> getVariables() {
+    public List<VariableDcl> getVariables() {
         return defaultWorker.getVariables();
     }
 
@@ -156,7 +156,7 @@ public class Resource {
      *
      * @param variables list of variables
      */
-    public void setVariables(List<Variable> variables) {
+    public void setVariables(List<VariableDcl> variables) {
         defaultWorker.setVariables(variables);
     }
 
@@ -165,7 +165,7 @@ public class Resource {
      *
      * @param variable variable to be added default Worker
      */
-    public void addVariable(Variable variable) {
+    public void addVariable(VariableDcl variable) {
         defaultWorker.addVariable(variable);
     }
 

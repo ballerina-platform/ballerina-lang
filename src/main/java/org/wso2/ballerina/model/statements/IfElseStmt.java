@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerina.model.statements;
 
+import org.wso2.ballerina.interpreter.Context;
 import org.wso2.ballerina.model.expressions.Expression;
 
 /**
@@ -33,5 +34,9 @@ public class IfElseStmt implements Statement {
         this.condition = condition;
         this.thenBlock = thenBlock;
         this.elseBlock = elseBlock;
+    }
+
+    public void interpret(Context ctx) {
+
     }
 }

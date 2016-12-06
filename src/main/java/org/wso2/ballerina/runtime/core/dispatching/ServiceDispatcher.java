@@ -15,32 +15,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.wso2.ballerina.runtime.core.dispatching;
 
-package org.wso2.ballerina.model;
-
-import org.testng.Assert;
-import org.testng.annotations.BeforeTest;
-import org.testng.annotations.Test;
+import org.wso2.ballerina.runtime.core.BalCallback;
+import org.wso2.ballerina.runtime.core.BalContext;
 
 /**
- * Test class to test the functionality of the {@link org.wso2.ballerina.model.Resource} class
- *
- * @since 1.0.0
+ * {@code ServiceDispatcher} represents the service level dispatcher interface.
+ * <p>
+ * Need to have a protocol specific dispatcher
  */
-public class ResourceTest {
+public interface ServiceDispatcher {
 
-    private String sourceText;
-    private String targetText;
 
-    @BeforeTest
-    public void setup() {
-        sourceText = "resourceTest";
-        targetText = "resourceTest";
-    }
+    /**
+     * Dispatch the message to a service
+     *
+     * @param context  Ballerina Context
+     * @param callback Ballerina Callback
+     * @return whether dispatching is successful or not
+     */
+    boolean dispatch(BalContext context, BalCallback callback);
 
-    @Test
-    public void testResourceModelInvocation() {
-        Assert.assertEquals(sourceText, targetText);
-    }
+    String getProtocol();
 
 }

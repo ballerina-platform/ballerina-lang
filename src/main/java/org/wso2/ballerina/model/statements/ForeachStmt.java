@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerina.model.statements;
 
+import org.wso2.ballerina.interpreter.Context;
 import org.wso2.ballerina.model.expressions.Expression;
 import org.wso2.ballerina.model.types.IteratorType;
 
@@ -36,4 +37,7 @@ public class ForeachStmt implements Statement {
         this.forEachBlock = forEachBlock;
     }
 
+    public void interpret(Context ctx) {
+
+    }
 }

@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerina.model.statements;
 
+import org.wso2.ballerina.interpreter.Context;
 import org.wso2.ballerina.model.expressions.Expression;
 
 /**
@@ -29,5 +30,9 @@ public class ReplyStmt implements Statement {
 
     public ReplyStmt(Expression replyExpr) {
         this.replyExpr = replyExpr;
+    }
+
+    public void interpret(Context ctx) {
+
     }
 }
