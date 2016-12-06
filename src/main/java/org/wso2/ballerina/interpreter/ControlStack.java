@@ -20,7 +20,7 @@ package org.wso2.ballerina.interpreter;
 import java.util.Stack;
 
 /**
- * {@code ControlStack} is used to managed functions calls and returns.
+ * {@code ControlStack} is used to manage functions calls and returns.
  *
  * @since 1.0.0
  */
