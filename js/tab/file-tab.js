@@ -47,6 +47,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace']
             var connectorDefinition1 = ballerinaASTFactory.createConnectorDefinition();
             connectorDefinitions.push(connectorDefinition1);
             ballerinaAstRoot.setConnectorDefinitions(connectorDefinitions);
+            ballerinaAstRoot.addChild(connectorDefinition1);
 
             var serviceDefinition1 = ballerinaASTFactory.createServiceDefinition();
             serviceDefinition1.setBasePath("/basePath1");
@@ -58,6 +59,9 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace']
             var resourceDefinition2 = ballerinaASTFactory.createResourceDefinition();
             resourceDefinition1.resourceParent(serviceDefinition1);
             resourceDefinition2.resourceParent(serviceDefinition2);
+
+            ballerinaAstRoot.addChild(serviceDefinition1);
+            ballerinaAstRoot.addChild(serviceDefinition2);
             serviceDefinition1.setResourceDefinitions([resourceDefinition1, resourceDefinition2]);
 
             serviceDefinitions.push(serviceDefinition1);
@@ -68,7 +72,14 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace']
             var functionDefinitions = [];
             var functionDefinition1 = ballerinaASTFactory.createFunctionDefinition();
             functionDefinitions.push(functionDefinition1);
+            ballerinaAstRoot.addChild(functionDefinition1);
             ballerinaAstRoot.setFunctionDefinitions(functionDefinitions);
+
+            /**
+             * Testing the source-gen traverse
+             *
+             */
+            var sourceGenVisitor = new Ballerina.visitors.SourceGen.BallerinaASTRootVisitor();
 
             var fileEditor = new  Ballerina.views.BallerinaFileEditor({model: ballerinaAstRoot, viewOptions: ballerinaEditorOptions});
             var sourceGenVisitor = new Ballerina.visitors.SourceGen.BallerinaASTRootVisitor();

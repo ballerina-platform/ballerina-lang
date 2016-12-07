@@ -25,7 +25,7 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor'], func
     ServiceDefinitionVisitor.prototype.constructor = ServiceDefinitionVisitor;
 
     ServiceDefinitionVisitor.prototype.canVisitServiceDefinition = function(serviceDefinition){
-        return false;
+        return true;
     };
 
     ServiceDefinitionVisitor.prototype.beginVisitServiceDefinition = function(serviceDefinition){
