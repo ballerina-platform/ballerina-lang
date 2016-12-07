@@ -40,6 +40,5 @@ define(['lodash', 'log', 'event_channel', './statement-definition-visitor'], fun
         log.info('End Visit Try-Catch Statement Definition');
     };
 
-
     return TryCatchStatementVisitor;
 });
