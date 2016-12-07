@@ -42,7 +42,7 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './se
     };
 
     BallerinaASTRootVisitor.prototype.visitServiceDefinition = function(serviceDefinition){
-        var serviceDefinitionVisitor = new ServiceDefinitionVisitor();
+        var serviceDefinitionVisitor = new ServiceDefinitionVisitor(this);
         serviceDefinition.accept(serviceDefinitionVisitor);
     };
 

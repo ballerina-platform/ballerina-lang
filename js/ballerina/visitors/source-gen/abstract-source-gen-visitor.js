@@ -17,12 +17,35 @@
  */
 define(['lodash', 'log', 'event_channel', '../ast-visitor'], function(_, log, EventChannel, ASTVisitor) {
 
-    var AbstractSourceGenVisitor = function() {
+    /**
+     * Constructor for the Abstract Source Generation Visitor
+     * @param parent
+     * @constructor
+     */
+    var AbstractSourceGenVisitor = function(parent) {
+        this._generatedSource = '';
+        this.parent = parent;
         ASTVisitor.call(this);
     };
 
     AbstractSourceGenVisitor.prototype = Object.create(ASTVisitor.prototype);
     AbstractSourceGenVisitor.prototype.constructor = AbstractSourceGenVisitor;
+
+    AbstractSourceGenVisitor.prototype.getGeneratedSource = function () {
+        return this._generatedSource;
+    };
+
+    AbstractSourceGenVisitor.prototype.setGeneratedSource = function (generatedSource) {
+        this._generatedSource = generatedSource;
+    };
+
+    AbstractSourceGenVisitor.prototype.appendSource = function (source) {
+        this._generatedSource += source;
+    };
+
+    AbstractSourceGenVisitor.prototype.getParent = function () {
+        return this.parent;
+    };
 
     return AbstractSourceGenVisitor;
 });
