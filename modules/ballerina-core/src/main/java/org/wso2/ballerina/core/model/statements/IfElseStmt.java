@@ -37,6 +37,10 @@ public class IfElseStmt implements Statement {
     }
 
     public void interpret(Context ctx) {
-
+        if (condition.evaluate(ctx).getBoolean()) {
+            thenBlock.interpret(ctx);
+        } else {
+            elseBlock.interpret(ctx);
+        }
     }
 }

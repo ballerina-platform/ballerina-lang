@@ -23,7 +23,8 @@ under the License.
     <test name="ballerina-model-unit-tests" preserve-order="true" parallel="false">
         <classes>
             <class name="org.wso2.ballerina.core.model.FunctionInvocationTest" />
-            <class name="org.wso2.ballerina.core.model.WhileStatementTest" />
+            <class name="org.wso2.ballerina.core.model.WhileStmtTest" />
+            <class name="org.wso2.ballerina.core.model.IfElseStmtTest" />
         </classes>
     </test>
 </suite>
