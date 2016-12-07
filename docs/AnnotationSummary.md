@@ -74,7 +74,7 @@ to Generate a Ballerina service skeleton from a Swagger 2.0 definition and/or Sw
 
 * [Service Annotations](#service-annotations)
 * [Recourse Annotations](#resource-annotation)
-* [Connectors and Action Annotations.](#connector-and-action-annotations) 
+* [Connectors and Action Annotations.](#connector-annotations) 
 * [Type and Variable Annotations.](#type-and-variable-annotations)
 * [Function Annotations.](#function-annotations)
 * [Common Annotations.](#common-annotations)
@@ -86,7 +86,7 @@ to Generate a Ballerina service skeleton from a Swagger 2.0 definition and/or Sw
  * Generating Ballerina using Swagger 2.0 Definition 
     - [Pet Store Sample](../sampels/annotation/petstore/)
  * Type Mapping
-    - [Generating JSON Schema (Swagger 2.0 compliant) and XML Schema.](../samples/annotation/type/fromBal)
+    - [Generating JSON Schema (Swagger 2.0 compliant) and XML Schema.](../samples/annotation/type/fromBallerina)
     - [Generating Ballerina Types using Swagger 2.0](../samples/annotation/type/fromSwagger)
     
 
