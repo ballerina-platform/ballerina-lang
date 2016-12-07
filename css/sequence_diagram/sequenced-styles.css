@@ -23,17 +23,6 @@
     fill-opacity: 1;
 }
 
-.outer-box{
-    padding: 15px;
-    border: 1px solid transparent;
-}
-
-.right-icon-clickable{
-    float: right;
-    padding-right: 10px;
-    cursor: pointer;
-}
-
 .tool > line {
     stroke-width: 1px;
 }
@@ -55,12 +44,25 @@
     fill: #ffffff;
 }
 
-.source > rect {
+.client rect {
     fill: #ffffff;
 }
 
-.source .lifeline-title{
+.client polygon {
+    stroke: #9d9d9d;
+    fill: #FFFFFF;
+}
+
+.client .lifeline-title{
     fill: #000000;
+}
+
+.client line {
+    stroke: #b7b7b7;
+}
+
+.client text {
+    fill: #727272;
 }
 
 .endpoint > line {
@@ -70,7 +72,7 @@
     fill: #ffffff;
 }
 
-.lifeline-rect{
+.lifeline-polygon{
     fill: #ffffff;
 }
 

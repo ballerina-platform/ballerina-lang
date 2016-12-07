@@ -69,6 +69,7 @@ define(['lodash', 'jquery', 'log', './../visitors/ast-visitor', './service-defin
     BallerinaFileEditor.prototype.init = function() {
         var errMsg;
         var editorParent = this;
+        var options = this._options.file_editor;
         if (!_.has(this._options, 'container')) {
             errMsg = 'unable to find configuration for container';
             log.error(errMsg);
@@ -87,11 +88,10 @@ define(['lodash', 'jquery', 'log', './../visitors/ast-visitor', './service-defin
 
                 var serviceDefs = $(_.get(this._model, 'serviceDefinitions'));
                 _.each(serviceDefs, function (serviceModel) {
-
-                    //TODO: Add serviceModel id and css props
-                    var serviceContainer = $('<div class="outer-box"><svg class="service-container"></svg></div>');
+                    var serviceContainer =  $('<div><svg class="service-container"></svg></div>');
                     serviceContainer.attr('id', serviceModel.id);
                     serviceContainer.attr('name','service');
+                    serviceContainer.addClass(_.get(options, 'cssClass.outer_box'));
                     editorParent.addCanvas(serviceContainer);
                 });
             }
@@ -116,42 +116,37 @@ define(['lodash', 'jquery', 'log', './../visitors/ast-visitor', './service-defin
         else {
             log.error("Provided astRoot is undefined");
         }
-        this.render(container);
+        this.render(container,options);
     };
 
-    BallerinaFileEditor.prototype.render = function (parent) {
+    BallerinaFileEditor.prototype.render = function (parent,options) {
         if (!_.isNil(this._canvasList)) {
             _.each(this._canvasList, function (canvas) {
                 //draw a collapse accordion
                 var outerDiv = $('<div></div>');
-                // TODO: For the moment disabling the adding classes in order to show the containers
-                 outerDiv.addClass('panel panel-default container-outer-div');
+                outerDiv.addClass(_.get(options, 'cssClass.outer_div'));
                 var panelHeading = $('<div></div>');
-                //panelHeading.addClass('panel-heading');
-                //TODO: UPDATE ID
                 panelHeading.attr('id', canvas[0].id + 3).attr('role', 'tab');
                 var panelTitle = $('<h4></h4>');
-                panelTitle.addClass('panel-title');
-                panelTitle.attr('style', 'border-style:solid;border-width:1px;');
+                panelTitle.addClass(_.get(options, 'cssClass.panel_title'));
                 var panelIcon = $('<i></i>');
-                panelIcon.attr('style', 'padding:10px;background-color:black;');
+                panelIcon.addClass(_.get(options, 'cssClass.panel_icon'));
                 if(canvas[0].getAttribute('name') == "service") {
-                    panelIcon.addClass('fw fw-dgm-service fw-inverse');
+                    panelIcon.addClass(_.get(options, 'cssClass.service_icon'));
                 } else if (canvas[0].getAttribute('name') == "connector") {
-                    panelIcon.addClass('fw fw-dgm-connector fw-inverse');
+                    panelIcon.addClass(_.get(options, 'cssClass.connector_icon'));
                 } else if(canvas[0].getAttribute('name') == "function") {
-                    panelIcon.addClass('fw fw-function fw-inverse');
+                    panelIcon.addClass(_.get(options, 'cssClass.function_icon'));
                 }
                 panelTitle.append(panelIcon);
-                var titleLink = $('<a style="padding-left: 10px;">'+ canvas[0].getAttribute('name') + '</a>');
-                titleLink.addClass("collapsed");
+                var titleLink = $('<a>'+ canvas[0].getAttribute('name') + '</a>');
+                titleLink.addClass(_.get(options, 'cssClass.title_link'));
                 //TODO: update href,aria-controls
                 titleLink.attr('role', 'button').attr('data-toggle', 'collapse').attr('data-parent', "#accordion").attr('href', '#' + canvas[0].id).attr('aria-expanded', 'false').attr('aria-controls', canvas[0].id);
                 panelTitle.append(titleLink);
 
                 var panelRightIcon = $('<i></i>');
-                panelRightIcon.addClass('fw fw-down pull-right right-icon-clickable');
-                panelRightIcon.attr('style', 'padding:10px;');
+                panelRightIcon.addClass(_.get(options, 'cssClass.panel_right_icon'));
                 panelRightIcon.attr('role', 'button').attr('data-toggle', 'collapse').attr('data-parent', "#accordion").attr('href', '#' + canvas[0].id).attr('aria-expanded', 'false').attr('aria-controls', canvas[0].id);
                 panelTitle.append(panelRightIcon);
 
@@ -166,11 +161,9 @@ define(['lodash', 'jquery', 'log', './../visitors/ast-visitor', './service-defin
                 });
 
                 var bodyDiv = $('<div></div>');
-                // TODO: For the moment disabling the adding classes in order to show the containers
-                 bodyDiv.addClass('panel-collapse collapse');
-                //TODO: UPDATE ID
-                bodyDiv.attr('id', canvas[0].id).attr('aria-labelledby', canvas[0].id + 3).attr('role', 'tabpanel').attr('style', 'border-style:solid;border-width:1px;');
-                canvas.addClass('panel-body');
+                bodyDiv.addClass(_.get(options, 'cssClass.body_div'));
+                bodyDiv.attr('id', canvas[0].id).attr('aria-labelledby', canvas[0].id + 3).attr('role', 'tabpanel');
+                bodyDiv.addClass(_.get(options, 'cssClass.canvas'));
                 bodyDiv.append(canvas);
 
                 outerDiv.append(panelHeading);

@@ -18,8 +18,8 @@
 define(['lodash', './node'], function (_, ASTNode) {
 
     var ResourceDefinition = function (args) {
-        this._path = _.get(args, 'path');
-        this._method = _.get(args, 'method');
+        this._path = _.get(args, 'path', '/');
+        this._method = _.get(args, 'method', 'GET');
         this.connectionDeclarations =_.get(args, 'connectorDefinitions', []);
         this.variableDeclarations =_.get(args, 'variableDeclarations', []);
         this.workerDeclarations = _.get(args, 'workerDeclarations', []);
