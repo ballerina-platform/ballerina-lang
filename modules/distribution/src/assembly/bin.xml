@@ -1,0 +1,100 @@
+<!--
+  ~ /*
+  ~ * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+  ~ *
+  ~ * Licensed under the Apache License, Version 2.0 (the "License");
+  ~ * you may not use this file except in compliance with the License.
+  ~ * You may obtain a copy of the License at
+  ~ *
+  ~ * http://www.apache.org/licenses/LICENSE-2.0
+  ~ *
+  ~ * Unless required by applicable law or agreed to in writing, software
+  ~ * distributed under the License is distributed on an "AS IS" BASIS,
+  ~ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ * See the License for the specific language governing permissions and
+  ~ * limitations under the License.
+  ~ */
+  -->
+<assembly>
+    <includeBaseDirectory>true</includeBaseDirectory>
+    <baseDirectory>ballerina-${project.version}</baseDirectory>
+    <id>Ballerina Distribution</id>
+    <formats>
+        <format>zip</format>
+    </formats>
+
+    <fileSets>
+        <fileSet>
+            <directory>target/wso2carbon-kernel-${carbon.kernel.version}</directory>
+            <outputDirectory>.</outputDirectory>
+            <excludes>
+                <exclude>README.txt</exclude>
+                <exclude>LICENSE.txt</exclude>
+                <exclude>release-notes.html</exclude>
+                <exclude>**/*.ipr</exclude>
+                <exclude>**/*.iwr</exclude>
+                <exclude>**/*.eclipse</exclude>
+            </excludes>
+        </fileSet>
+
+        <fileSet>
+            <directory>..</directory>
+            <outputDirectory>.</outputDirectory>
+            <includes>
+                <include>README.md</include>
+                <include>LICENSE</include>
+            </includes>
+        </fileSet>
+
+        <fileSet>
+            <directory>carbon-home/conf/transports</directory>
+            <outputDirectory>conf/transports</outputDirectory>
+            <fileMode>644</fileMode>
+        </fileSet>
+        <fileSet>
+            <directory>carbon-home/conf/osgi</directory>
+            <outputDirectory>conf/osgi</outputDirectory>
+            <fileMode>644</fileMode>
+        </fileSet>
+        <fileSet>
+            <directory>../../samples</directory>
+            <outputDirectory>samples</outputDirectory>
+            <excludes>
+                <exclude>target/**</exclude>
+                <exclude>scripts/**</exclude>
+                <exclude>pom.xml</exclude>
+                <exclude>README.txt</exclude>
+                <exclude>LICENSE.txt</exclude>
+                <exclude>release-notes.html</exclude>
+                <exclude>**/*.ipr</exclude>
+                <exclude>**/*.iwr</exclude>
+                <exclude>**/*.eclipse</exclude>
+                <exclude>**/*.iml</exclude>
+            </excludes>
+            <fileMode>644</fileMode>
+        </fileSet>
+        <fileSet>
+            <directory>carbon-home/deployment/ballerina-files</directory>
+            <outputDirectory>deployment/ballerina-files</outputDirectory>
+            <fileMode>644</fileMode>
+            <excludes>
+                <exclude>empty.txt</exclude>
+            </excludes>
+        </fileSet>
+    </fileSets>
+
+    <files>
+        <file>
+            <source>target/wso2carbon-kernel-${carbon.kernel.version}/bin/kernel-version.txt</source>
+            <outputDirectory>bin/</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>444</fileMode>
+        </file>
+        <file>
+            <source>target/wso2carbon-kernel-${carbon.kernel.version}/bin/README.txt</source>
+            <outputDirectory>bin/</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>444</fileMode>
+        </file>
+    </files>
+</assembly>

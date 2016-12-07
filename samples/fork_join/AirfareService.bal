@@ -17,9 +17,9 @@ service AirfareProviderService {
         fork (message m) {
             worker ABC_Airline (message m) {
                 xml payload = message:getXmlPayload(msg);
-                string from = xml:get(payload, 'reservationInfo/from');
-                string to = xml:get(payload, 'reservationInfo/to');
-                string date = xml:get(payload, 'reservationInfo/date');
+                string from = xml:get(payload, "reservationInfo/from");
+                string to = xml:get(payload, "reservationInfo/to");
+                string date = xml:get(payload, "reservationInfo/date");
                 string query = "?departure_city=" + from + "&destination_city=" + to + "&date=" + date;
                 response = http:HttpConnector.sendGet (abcAirlineEP, query, m);
                 reply response;
@@ -27,9 +27,9 @@ service AirfareProviderService {
 
             worker XYZ_Airline (message m) {
                 xml payload = message:getXmlPayload(msg);
-                string from = xml:get(payload, 'reservationInfo/from');
-                string to = xml:get(payload, 'reservationInfo/to');
-                string date = xml:get(payload, 'reservationInfo/date');
+                string from = xml:get(payload, "reservationInfo/from");
+                string to = xml:get(payload, "reservationInfo/to");
+                string date = xml:get(payload, "reservationInfo/date");
                 string query = "?From=" + from + "&To=" + to + "&Date=" + date;
                 response = http:HttpConnector.sendGet (xyzAirlineEP, query, m);
                 reply response;
