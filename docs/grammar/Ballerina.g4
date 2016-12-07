@@ -18,7 +18,7 @@ compilationUnit
     ;
 
 packageDeclaration
-    :   'package' packageName ';'
+    :   'package' packageName ('version' '1.0')? ';'
     ;
 
 importDeclaration
@@ -43,7 +43,7 @@ resourceDefinition
     ;
 
 functionDefinition
-    :   annotation* 'public'? 'function' Identifier '(' parameterList ')' returnTypeList? ('throws' Identifier)? functionBody
+    :   annotation* 'public'? 'function' Identifier '(' parameterList? ')' returnTypeList? ('throws' Identifier)? functionBody
     ;
 
 //todo rename, this is used in resource, action and funtion
@@ -88,6 +88,7 @@ constantDefinition
 
 variableDeclaration
     :   typeName Identifier ';'
+    |   typeName Identifier '=' assignmentRHSExpression ';'
     ;
 
 // typeName below is only 'message' type
@@ -101,10 +102,6 @@ returnTypeList
 
 typeNameList
     :   typeName (',' typeName)*
-    ;
-
-fieldDeclaration
-    :   typeName Identifier ';'
     ;
 
 qualifiedTypeName
@@ -150,7 +147,7 @@ literalValue
     |   FloatingPointLiteral
     |   QuotedStringLiteral
     |   BooleanLiteral
-    |   'nil'
+    |   NullLiteral
     ;
  //============================================================================================================
  // ANNOTATIONS
@@ -166,7 +163,7 @@ literalValue
      ;
 
  elementValuePair
-     :   Identifier '=' elementValue
+     :    Identifier '=' elementValue
      ;
 
  elementValue
@@ -196,11 +193,16 @@ statement
     |   workerInteractionStatement
     |   commentStatement
     |   actionInvocationStatement
+    |   functionInvocationStatement
     ;
 
 assignmentStatement
-    :   variableReference '=' expression ';'
-    |   variableReference '=' 'new' (packageName ':' )? Identifier ('(' expressionList ')')? ';'
+    :   variableAccessor '='  assignmentRHSExpression ';'
+    |   inlineAssignmentStatement
+    ;
+
+inlineAssignmentStatement
+    :   typeName variableAccessor '=' assignmentRHSExpression ';'
     ;
 
 ifElseStatement
@@ -219,8 +221,9 @@ breakStatement
     :   'break' ';'
     ;
 
+// typeName is only message
 forkJoinStatement
-    :   'fork' '(' Identifier ')' '{' workerDeclaration+ '}' joinClause? timeoutClause?
+    :   'fork' '(' typeName Identifier ')' '{' workerDeclaration+ '}' joinClause? timeoutClause?
     ;
 
 // below typeName is only 'message[]'
@@ -242,7 +245,6 @@ tryCatchStatement
     :   'try' '{' statement+ '}' catchClause
     ;
 
-
 // below tyeName is only 'exception'
 catchClause
     :   'catch' '(' typeName Identifier ')' '{' statement+ '}'
@@ -258,7 +260,7 @@ returnStatement
 
 // below Identifier is only a type of 'message'
 replyStatement
-    :   'reply' Identifier? ';'
+    :   'reply' (Identifier | expression)? ';'
     ;
 
 workerInteractionStatement
@@ -281,79 +283,88 @@ commentStatement
     ;
 
 actionInvocationStatement
-    :    qualifiedReference '.' Identifier '(' expressionList ')' ';'
+    :   actionInvocation argumentList ';'
     ;
 
-// EXPRESSIONS
+variableAccessor
+    :   Identifier // simple identifier
+    |   Identifier '['IntegerLiteral']' // array reference
+    |   Identifier'['QuotedStringLiteral']' // map reference
+    |   Identifier ('.' variableAccessor)+ // struct field reference
+    ;
+
+typeInitializeExpression
+    :   'new' (packageName ':' )? Identifier ('(' expressionList? ')')?
+    ;
+
+assignmentRHSExpression
+    :   expression
+    |   typeInitializeExpression
+    |   functionInvocationExpression
+    ;
+
+argumentList
+    :   '(' expressionList ')'
+    ;
 
 expressionList
     :   expression (',' expression)*
     ;
 
-
-expression
-    :   literalValue
-    |   unaryExpression
-    |   multExpression (('+' | '-' | '||') multExpression)*
-    |   functionInvocation
-    |   templateExpression
-    |   '(' expression ')'
-    |   variableReference
-
+functionInvocationStatement
+    :   functionInvocationExpression ';'
     ;
 
-multExpression
-    :   <assoc=right> (('*' | '/' | '&&') expression)+
-    ;
-
-
-variableReference
-    :   Identifier // simple identifier
-    |   Identifier'[' expression ']' // array and map reference
-    |   Identifier ('.' variableReference)+ // struct field reference
-    ;
-
-unaryExpression
-    :   '-' expression
-    |   '+' expression
-    |   '!' expression
-    ;
-
-//    expr:  mult ('+' mult)* ;
-//    mult:  atom ('*' atom)* ;
-//    atom:  INT | '(' expr ')' ;
-
-
-//(a + b * c) ==> a + (b*c)
-
-binaryOperator
-    :   '+'
-    |   '-'
-    |   '*'
-    |   '/'
-    |   '&&'
-    |   '||'
-    |   '=='
-    |   '!='
-    |   '<'
-    |   '<='
-    |   '>'
-    |   '>='
-    |   '%'
-    |   '^'
-    ;
-
-functionInvocation
-    :   functionName '(' expressionList? ')'
+functionInvocationExpression
+    :   functionName argumentList
     ;
 
 functionName
-    :   Identifier
-    |   qualifiedReference
+    :   (packageName ':')? Identifier
     ;
 
-templateExpression
-    :   BacktickStringLiteral
+actionInvocation
+    :   packageName ':' Identifier '.' Identifier
+    ;
+
+backtickString
+   :   BacktickStringLiteral
+   ;
+
+expression
+    :   primary                                             # literalExpression
+    |   backtickString                                      # templateExpression
+    |   expression '.' Identifier                           # accessMemberDotExpression
+    |   (packageName | Identifier) ':' Identifier           # inlineFunctionInovcationExpression
+    |   expression '[' expression ']'                       # accessArrayElementExpression
+    |   expression '(' expressionList? ')'                  # argumentListExpression
+    |   '(' typeName ')' expression                         # typeCastingExpression
+    |   ('+'|'-'|'!') expression                            # preSingleDualExpression
+    |   expression ('*'|'/'|'%') expression                 # binaryMulDivPercentExpression
+    |   expression ('+'|'-') expression                     # binaryPlusMinusExpression
+    |   expression ('<=' | '>=' | '>' | '<') expression     # binaryComparisonExpression
+    |   expression ('==' | '!=') expression                 # binaryEqualExpression
+    |   expression '&&' expression                          # binaryAndExpression
+    |   expression '||' expression                          # binaryOrExpression
+    |   '{' mapInitKeyValue (',' mapInitKeyValue)* '}'      # mapInitializerExpression
+    ;
+
+literal
+    :   IntegerLiteral
+    |   FloatingPointLiteral
+    |   QuotedStringLiteral
+    |   BooleanLiteral
+    |   NullLiteral
+    ;
+
+primary
+    :   '(' expression ')'
+    |   literal
+    |   Identifier
+    ;
+
+mapInitKeyValue
+    :   QuotedStringLiteral ':' literal
     ;
 
 // LEXER
@@ -361,22 +372,17 @@ templateExpression
 // §3.9 Ballerina keywords
 
 ACTION	        :	'action';
-BOOLEAN	        :	'boolean';
 BREAK	        :	'break';
 CATCH	        :	'catch';
 CONNECTOR	    :	'connector';
 CONST	        :	'const';
-DOUBLE	        :	'double';
 ELSE	        :	'else';
-FLOAT	        :	'float';
 FORK	        :	'fork';
 FUNCTION	    :	'function';
 IF	            :	'if';
 IMPORT	        :	'import';
-//INT	            :	'int';
 ITERATE	        :	'iterate';
 JOIN	        :	'join';
-LONG	        :	'long';
 NEW	            :	'new';
 PACKAGE	        :	'package';
 REPLY	        :	'reply';
@@ -390,6 +396,53 @@ TYPE	        :	'type';
 TYPECONVERTOR	:	'typeconvertor';
 WHILE	        :	'while';
 WORKER	        :	'worker';
+BACKTICK        :   '`';
+VERSION         :   'version';
+ONEZERO         :   '1.0';
+PUBLIC          :   'public';
+ANY             :   'any';
+ALL             :   'all';
+AS              :   'as';
+TIMEOUT         :   'timeout';
+SENDARROW       :   '->';
+RECEIVEARROW    :   '<-';
+
+// §3.11 Separators
+
+LPAREN          : '(';
+RPAREN          : ')';
+LBRACE          : '{';
+RBRACE          : '}';
+LBRACK          : '[';
+RBRACK          : ']';
+SEMI            : ';';
+COMMA           : ',';
+DOT             : '.';
+
+// §3.12 Operators
+
+ASSIGN          : '=';
+GT              : '>';
+LT              : '<';
+BANG            : '!';
+TILDE           : '~';
+QUESTION        : '?';
+COLON           : ':';
+EQUAL           : '==';
+LE              : '<=';
+GE              : '>=';
+NOTEQUAL        : '!=';
+AND             : '&&';
+OR              : '||';
+ADD             : '+';
+SUB             : '-';
+MUL             : '*';
+DIV             : '/';
+BITAND          : '&';
+BITOR           : '|';
+CARET           : '^';
+MOD             : '%';
+DOLLAR_SIGN     : '$';
 
 // §3.10.1 Integer Literals
 IntegerLiteral
@@ -588,19 +641,6 @@ BooleanLiteral
     |   'false'
     ;
 
-//todo remove it after verifying
-// §3.10.4 Character Literals
-//
-//CharacterLiteral
-//    :   '\'' SingleCharacter '\''
-//    |   '\'' EscapeSequence '\''
-//    ;
-//
-//fragment
-//SingleCharacter
-//    :   ~['\\]
-//    ;
-
 // §3.10.5 String Literals
 
 QuotedStringLiteral
@@ -608,8 +648,20 @@ QuotedStringLiteral
     ;
 
 BacktickStringLiteral
-    :   '`' StringCharacters '`'
-    ;
+   :   '`' ValidBackTickStringCharacters '`'
+   ;
+fragment
+ValidBackTickStringCharacters
+   :     ValidBackTickStringCharacter+
+   ;
+
+fragment
+ValidBackTickStringCharacter
+   :   ~[`]
+   |   '\\' [btnfr\\]
+   |   OctalEscape
+   |   UnicodeEscape
+   ;
 
 fragment
 StringCharacters
@@ -650,60 +702,13 @@ ZeroToThree
 
 // §3.10.7 The Null Literal
 
-NilLiteral
-    :   'nil'
+NullLiteral
+    :   'null'
     ;
 
-// §3.11 Separators
-
-LPAREN          : '(';
-RPAREN          : ')';
-LBRACE          : '{';
-RBRACE          : '}';
-LBRACK          : '[';
-RBRACK          : ']';
-SEMI            : ';';
-COMMA           : ',';
-DOT             : '.';
-
-// §3.12 Operators
-
-ASSIGN          : '=';
-GT              : '>';
-LT              : '<';
-BANG            : '!';
-TILDE           : '~';
-QUESTION        : '?';
-COLON           : ':';
-EQUAL           : '==';
-LE              : '<=';
-GE              : '>=';
-NOTEQUAL        : '!=';
-AND             : '&&';
-OR              : '||';
-INC             : '++';
-DEC             : '--';
-ADD             : '+';
-SUB             : '-';
-MUL             : '*';
-DIV             : '/';
-BITAND          : '&';
-BITOR           : '|';
-CARET           : '^';
-MOD             : '%';
-
-ADD_ASSIGN      : '+=';
-SUB_ASSIGN      : '-=';
-MUL_ASSIGN      : '*=';
-DIV_ASSIGN      : '/=';
-AND_ASSIGN      : '&=';
-OR_ASSIGN       : '|=';
-XOR_ASSIGN      : '^=';
-MOD_ASSIGN      : '%=';
-LSHIFT_ASSIGN   : '<<=';
-RSHIFT_ASSIGN   : '>>=';
-URSHIFT_ASSIGN  : '>>>=';
-
+VariableReference
+    : DOLLAR_SIGN Identifier
+    ;
 
 Identifier
     :   Letter LetterOrDigit*

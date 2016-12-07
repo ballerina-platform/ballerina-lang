@@ -5,22 +5,17 @@ lexer grammar BallerinaLexer;
 // §3.9 Ballerina keywords
 
 ACTION	        :	'action';
-BOOLEAN	        :	'boolean';
 BREAK	        :	'break';
 CATCH	        :	'catch';
 CONNECTOR	    :	'connector';
 CONST	        :	'const';
-DOUBLE	        :	'double';
 ELSE	        :	'else';
-FLOAT	        :	'float';
 FORK	        :	'fork';
 FUNCTION	    :	'function';
 IF	            :	'if';
 IMPORT	        :	'import';
-//INT	            :	'int';
 ITERATE	        :	'iterate';
 JOIN	        :	'join';
-LONG	        :	'long';
 NEW	            :	'new';
 PACKAGE	        :	'package';
 REPLY	        :	'reply';
@@ -34,67 +29,54 @@ TYPE	        :	'type';
 TYPECONVERTOR	:	'typeconvertor';
 WHILE	        :	'while';
 WORKER	        :	'worker';
-
-// more keywords
-VersionString
-    :   VERSION
-    ;
-fragment
+BACKTICK        :   '`';
 VERSION         :   'version';
-
-OneZeroString
-    :   ONEZERO
-    ;
-fragment
 ONEZERO         :   '1.0';
-
-PublicString
-    :   PUBLIC
-    ;
-fragment
 PUBLIC          :   'public';
-
-AnyString
-    :   ANY
-    ;
-fragment
 ANY             :   'any';
-
-AllString
-    :   ALL
-    ;
-fragment
 ALL             :   'all';
-
-AsString
-    :   AS
-    ;
-fragment
 AS              :   'as';
-
-EmptyArrayString
-    :   EMPTYARRAY
-    ;
-fragment
 EMPTYARRAY      :  '[]';
-
-TimeoutString
-    :   TIMEOUT
-    ;
-fragment
 TIMEOUT         :   'timeout';
-
-SendArrow
-    :   SENDARROW
-    ;
-fragment
 SENDARROW       :   '->';
-
-ReceiveArrow
-    :   RECEIVEARROW
-    ;
-fragment
 RECEIVEARROW    :   '<-';
+
+// §3.11 Separators
+
+LPAREN          : '(';
+RPAREN          : ')';
+LBRACE          : '{';
+RBRACE          : '}';
+LBRACK          : '[';
+RBRACK          : ']';
+SEMI            : ';';
+COMMA           : ',';
+DOT             : '.';
+
+// §3.12 Operators
+
+ASSIGN          : '=';
+GT              : '>';
+LT              : '<';
+BANG            : '!';
+TILDE           : '~';
+QUESTION        : '?';
+COLON           : ':';
+EQUAL           : '==';
+LE              : '<=';
+GE              : '>=';
+NOTEQUAL        : '!=';
+AND             : '&&';
+OR              : '||';
+ADD             : '+';
+SUB             : '-';
+MUL             : '*';
+DIV             : '/';
+BITAND          : '&';
+BITOR           : '|';
+CARET           : '^';
+MOD             : '%';
+DOLLAR_SIGN     : '$';
 
 // §3.10.1 Integer Literals
 IntegerLiteral
@@ -293,28 +275,31 @@ BooleanLiteral
     |   'false'
     ;
 
-//todo remove it after verifying
-// §3.10.4 Character Literals
-//
-//CharacterLiteral
-//    :   '\'' SingleCharacter '\''
-//    |   '\'' EscapeSequence '\''
-//    ;
-//
-//fragment
-//SingleCharacter
-//    :   ~['\\]
-//    ;
-
 // §3.10.5 String Literals
 
-QuotedStringLiteral
+DoubleQuotedStringLiteral
     :   '"' StringCharacters? '"'
     ;
 
-BacktickStringLiteral
-    :   '`' StringCharacters '`'
+SingleQuotedStringLiteral
+    :   '\'' StringCharacters? '\''
     ;
+
+BacktickStringLiteral
+   :   '`' ValidBackTickStringCharacters '`'
+   ;
+fragment
+ValidBackTickStringCharacters
+   :     ValidBackTickStringCharacter+
+   ;
+
+fragment
+ValidBackTickStringCharacter
+   :   ~[`]
+   |   '\\' [btnfr\\]
+   |   OctalEscape
+   |   UnicodeEscape
+   ;
 
 fragment
 StringCharacters
@@ -355,60 +340,13 @@ ZeroToThree
 
 // §3.10.7 The Null Literal
 
-NilLiteral
-    :   'nil'
+NullLiteral
+    :   'null'
     ;
 
-// §3.11 Separators
-
-LPAREN          : '(';
-RPAREN          : ')';
-LBRACE          : '{';
-RBRACE          : '}';
-LBRACK          : '[';
-RBRACK          : ']';
-SEMI            : ';';
-COMMA           : ',';
-DOT             : '.';
-
-// §3.12 Operators
-
-ASSIGN          : '=';
-GT              : '>';
-LT              : '<';
-BANG            : '!';
-TILDE           : '~';
-QUESTION        : '?';
-COLON           : ':';
-EQUAL           : '==';
-LE              : '<=';
-GE              : '>=';
-NOTEQUAL        : '!=';
-AND             : '&&';
-OR              : '||';
-INC             : '++';
-DEC             : '--';
-ADD             : '+';
-SUB             : '-';
-MUL             : '*';
-DIV             : '/';
-BITAND          : '&';
-BITOR           : '|';
-CARET           : '^';
-MOD             : '%';
-
-ADD_ASSIGN      : '+=';
-SUB_ASSIGN      : '-=';
-MUL_ASSIGN      : '*=';
-DIV_ASSIGN      : '/=';
-AND_ASSIGN      : '&=';
-OR_ASSIGN       : '|=';
-XOR_ASSIGN      : '^=';
-MOD_ASSIGN      : '%=';
-LSHIFT_ASSIGN   : '<<=';
-RSHIFT_ASSIGN   : '>>=';
-URSHIFT_ASSIGN  : '>>>=';
-
+VariableReference
+    : DOLLAR_SIGN Identifier
+    ;
 
 Identifier
     :   Letter LetterOrDigit*
@@ -449,3 +387,6 @@ WS  :  [ \t\r\n\u000C]+ -> skip
 LINE_COMMENT
     :   '//' ~[\r\n]* -> skip
     ;
+
+
+
