@@ -340,12 +340,12 @@ expression
     |   expression '(' expressionList? ')'                  # argumentListExpression
     |   '(' typeName ')' expression                         # typeCastingExpression
     |   ('+'|'-'|'!') expression                            # preSingleDualExpression
-    |   expression ('*'|'/'|'%') expression                 # binrayMulDivPercentExpression
+    |   expression ('*'|'/'|'%') expression                 # binaryMulDivPercentExpression
     |   expression ('+'|'-') expression                     # binaryPlusMinusExpression
     |   expression ('<=' | '>=' | '>' | '<') expression     # binaryComparisonExpression
-    |   expression ('==' | '!=') expression                 # binrayEqualExpression
-    |   expression '&&' expression                          # binrayAndExpression
-    |   expression '||' expression                          # binrayOrExpression
+    |   expression ('==' | '!=') expression                 # binaryEqualExpression
+    |   expression '&&' expression                          # binaryAndExpression
+    |   expression '||' expression                          # binaryOrExpression
     |   '{' mapInitKeyValue (',' mapInitKeyValue)* '}'      # mapInitializerExpression
     ;
 
