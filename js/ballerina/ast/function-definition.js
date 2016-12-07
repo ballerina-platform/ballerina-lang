@@ -19,7 +19,8 @@ define(['lodash', './callable-definition'], function (_, CallableDefinition) {
 
     var FunctionDefinition = function (connectionDeclarations, variableDeclarations, workerDeclarations, statements,args) {
         this.id = autoGenerateId();
-        CallableDefinition.call(this, connectionDeclarations, variableDeclarations, workerDeclarations, statements)
+        CallableDefinition.call(this, connectionDeclarations, variableDeclarations, workerDeclarations,
+            statements, 'Function', 'function FunctionName () {', "}");
         this.args = args || [];
     };
 
@@ -35,8 +36,7 @@ define(['lodash', './callable-definition'], function (_, CallableDefinition) {
         }
         return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
             s4() + '-' + s4() + s4() + s4();
-    };
-
+    }
 
     FunctionDefinition.prototype.setArgs = function(args){
         if(!_.isNil(args)){
