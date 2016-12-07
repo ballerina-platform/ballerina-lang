@@ -90,12 +90,7 @@
                                     <div id="tool-palette-container"></div>
                                     <!-- End: tool-palette -->
                                     <div class="tab-content tab-content-default "></div>
-                                    <!-- Start: Toggle Controls Container -->
-                                    <div class="toggle-controls-container">
-                                        <div class="toggle-to-source show-div"><i class="fw fw-lg fw-code fw-inverse fw-helper fw-helper-circle"></i></div>
-                                        <div class="toggle-to-design hide-div"><img src="images/design.svg" id="icon-toggle-design"></div>
-                                    </div>
-                                    <!-- End: Toggle Controls Container  -->
+
                                 </div>
                             </div>
                         </div>
@@ -129,10 +124,25 @@
     <div>
         <!-- Start: Canvas Container -->
         <div class="canvas-container">
+            <!-- Start: TopRight Controls Container -->
+            <div class="top-right-controls-container">
+                <div class="package-btn btn-icon"><i class="fw fw-lg fw-info fw-inverse fw-helper fw-helper-circle"></i></div>
+            </div>
+            <!-- End: TopRight Controls Container  -->
+            <!-- Start: BottomRight Controls Container -->
+            <div class="bottom-right-controls-container">
+                <div class="view-source-btn btn-icon"><i class="fw fw-lg fw-code fw-inverse fw-helper fw-helper-circle"></i></div>
+            </div>
+            <!-- End: BottomRight Controls Container  -->
         </div>
         <!-- End: Canvas Container -->
         <!-- Start: Preview Container -->
         <div class="source-container source-view-disabled" id="source-container-id">
+            <!-- Start: BottomRight Controls Container -->
+            <div class="bottom-right-controls-container">
+                <div class="view-design-btn btn-icon"><i class="fw fw-lg fw-design-view fw-inverse fw-helper fw-helper-circle"></i></div>
+            </div>
+            <!-- End: BottomRight Controls Container  -->
         </div>
         <!-- End Preview Container -->
         <!-- Start: Preview Container -->
@@ -437,7 +447,7 @@
                     container: ".tab-headers",
                     cssClass: {
                         list: 'nav nav-tabs',
-                        item: 'nav-tab-header',
+                        item: '',
                         active: 'active'
                     }
                 },

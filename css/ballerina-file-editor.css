@@ -53,4 +53,12 @@
 
 .tab-pane > .panel{
     background: none;
+    width: 96%
+}
+.btn-icon{
+    opacity: 0.5;
+}
+.btn-icon:hover{
+    opacity: 1;
+    cursor: pointer;
 }
