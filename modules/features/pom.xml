@@ -31,6 +31,6 @@
     <name>WSO2 Ballerina - Features Module</name>
     <url>http://wso2.org</url>
     <modules>
-        <module>org.wso2.ballerina.core.feature</module>
+        <module>ballerina-core-feature</module>
     </modules>
 </project>
