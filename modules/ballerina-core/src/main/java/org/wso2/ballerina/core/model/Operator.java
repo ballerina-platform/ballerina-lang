@@ -31,7 +31,11 @@ public enum Operator {
     AND("&&"),
     OR("||"),
     EQUAL("=="),
-    NOT_EQUAL("!=");
+    NOT_EQUAL("!="),
+    GREATER_THAN(">"),
+    GREATER_EQUAL(">="),
+    LESS_THAN("<"),
+    LESS_EQUAL("<=");
 
     private final String opValue;
 

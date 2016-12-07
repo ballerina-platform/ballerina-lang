@@ -20,16 +20,17 @@ package org.wso2.ballerina.core.model.expressions;
 import org.wso2.ballerina.core.model.Operator;
 
 /**
- * {@code BinaryArithmeticExpression} is the base class for any binary arithmetic expression
+ * {@code BinaryCompareExpression} represents a comparison expression in Ballerina
  *
- * @see AddExpression
- * @see SubstractExpression
- * @see MultExpression
+ * @see GreaterEqualExpression
+ * @see GreaterThanExpression
+ * @see LessEqualExpression
+ * @see LessThanExpression
  * @since 1.0.0
  */
-public class BinaryArithmeticExpression extends BinaryExpression {
+public class BinaryCompareExpression extends BinaryExpression {
 
-    public BinaryArithmeticExpression(Expression lExpr, Operator op, Expression rExpr) {
+    public BinaryCompareExpression(Expression lExpr, Operator op, Expression rExpr) {
         super(lExpr, op, rExpr);
     }
 }
