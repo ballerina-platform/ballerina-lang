@@ -25,6 +25,7 @@ under the License.
             <class name="org.wso2.ballerina.core.model.FunctionInvocationTest" />
             <class name="org.wso2.ballerina.core.model.WhileStmtTest" />
             <class name="org.wso2.ballerina.core.model.IfElseStmtTest" />
+            <class name="org.wso2.ballerina.core.model.RecursiveFuncTest" />
         </classes>
     </test>
 </suite>
