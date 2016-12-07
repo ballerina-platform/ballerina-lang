@@ -28,6 +28,8 @@ import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.LastHttpContent;
+import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
+import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
 import org.apache.commons.pool.impl.GenericObjectPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +46,7 @@ import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 
 import java.net.InetSocketAddress;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -59,7 +62,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     private Map<String, TargetChannel> channelFutureMap = new HashMap<>();
     protected Map<String, GenericObjectPool> targetChannelPool;
     protected ListenerConfiguration listenerConfiguration;
-
+    private WebSocketServerHandshaker handshaker;
 
 
     public ListenerConfiguration getListenerConfiguration() {
@@ -98,35 +101,31 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             cMsg.addHttpContent(new DefaultLastHttpContent(content));
             cMsg.setEndOfMsgAdded(true);
             if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-
                 HTTPTransportContextHolder.getInstance().getHandlerExecutor().executeAtSourceRequestSending(cMsg);
             }
 
         } else if (msg instanceof HttpRequest) {
-
             HttpRequest request = (HttpRequest) msg;
             HttpHeaders headers = request.headers();
-
             /*
             Checks whether the incoming HttpRequest is a WebSocket Upgrade Request
             or a normal HttpRequest
              */
-            if (headers.get("Connection").equalsIgnoreCase("Upgrade") ||
-                    headers.get("Upgrade").equalsIgnoreCase("WebSocket")) {
-                log.info("Upgrading the connection from Http to WebSocket for " +
-                                 "channel : " + ctx.channel());
-
-                //Replace HTTP handlers  with  new Handlers for WebSocket in the pipeline
-                ChannelPipeline pipeline = ctx.pipeline();
-                pipeline.replace("handler",
-                                 "ws_handler",
-                                 new  WebSocketSourceHandler(this.connectionManager,
-                                                             this.listenerConfiguration,
-                                                             request.getUri()));
-
+            if (headers.get("Connection").equalsIgnoreCase("Upgrade")) {
+                if (headers.get("Upgrade").equalsIgnoreCase("websocket")) {
+                    log.info("Upgrading the connection from Http to WebSocket for " +
+                                     "channel : " + ctx.channel());
+                    //Replace HTTP handlers  with  new Handlers for WebSocket in the pipeline
+                    ChannelPipeline pipeline = ctx.pipeline();
+                    pipeline.replace("handler",
+                                     "ws_handler",
+                                     new  WebSocketSourceHandler(this.connectionManager,
+                                                                 this.listenerConfiguration,
+                                                                 request.getUri()));
+                }
+            } else {
+                publishToMessageProcessor(msg);
             }
-
-            publishToMessageProcessor(msg);
 
         } else {
             if (cMsg != null) {
@@ -145,7 +144,27 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
                 }
             }
         }
+    }
 
+
+    /* Do the handshaking for WebSocket request */
+    private void handleWebSocketHandshake(ChannelHandlerContext ctx, HttpRequest req) throws URISyntaxException {
+        WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(getWebSocketURL(req),
+                                                                                          null, true);
+        handshaker = wsFactory.newHandshaker(req);
+        if (handshaker == null) {
+            WebSocketServerHandshakerFactory.sendUnsupportedVersionResponse(ctx.channel());
+        } else {
+            handshaker.handshake(ctx.channel(), req);
+        }
+    }
+
+
+    private String getWebSocketURL(HttpRequest req) {
+        System.out.println("Req URI : " + req.getUri());
+        String url =  "ws://" + req.headers().get("Host") + req.getUri() ;
+        System.out.println("Constructed URL : " + url);
+        return url;
     }
 
     //Carbon Message is published to registered message processor and Message Processor should return transport thread
