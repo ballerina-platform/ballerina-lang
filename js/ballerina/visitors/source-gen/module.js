@@ -15,12 +15,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['./abstract-source-gen-visitor', './service-definition-visitor', './ballerina-ast-root-visitor'],
-    function (AbstractSourceGenVisitor, ServiceDefinitionVisitor, BallerinaASTRootVisitor) {
+define(['./abstract-source-gen-visitor', './service-definition-visitor', './ballerina-ast-root-visitor', '' +
+    './resource-definition-visitor', './function-definition-visitor'],
+    function (AbstractSourceGenVisitor, ServiceDefinitionVisitor, BallerinaASTRootVisitor, ResourceDefinitionVisitor,
+              FunctionDefinitionVisitor) {
         return  {
             AbstractSourceGenVisitor: AbstractSourceGenVisitor,
             ServiceDefinitionVisitor: ServiceDefinitionVisitor,
-            BallerinaASTRootVisitor: BallerinaASTRootVisitor
+            ResourceDefinitionVisitor: ResourceDefinitionVisitor,
+            BallerinaASTRootVisitor: BallerinaASTRootVisitor,
+            FunctionDefinitionVisitor: FunctionDefinitionVisitor
         }
     });
 

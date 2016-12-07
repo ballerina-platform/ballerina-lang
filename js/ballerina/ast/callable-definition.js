@@ -16,17 +16,24 @@
  * under the License.
  */
 define(['lodash', './node'], function (_, ASTNode) {
+
     /**
-     * Class to represent callable definition
+     * @param connectionDeclarations
+     * @param variableDeclarations
+     * @param workerDeclarations
+     * @param statements
+     * @param configStart
+     * @param configEnd
      * @constructor
      */
-    var CallableDefinition = function (connectionDeclarations, variableDeclarations, workerDeclarations, statements) {
+    var CallableDefinition = function (connectionDeclarations, variableDeclarations, workerDeclarations,
+                                       statements, type, configStart, configEnd) {
         this.connectionDeclarations = connectionDeclarations || [];
         this.variableDeclarations = variableDeclarations || [];
         this.workerDeclarations = workerDeclarations || [];
         this.statements = statements || [];
 
-        ASTNode.call(this);
+        ASTNode.call(this, type, configStart, configEnd);
     };
 
     CallableDefinition .prototype = Object.create(ASTNode.prototype);

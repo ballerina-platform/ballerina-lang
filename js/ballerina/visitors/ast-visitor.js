@@ -32,6 +32,8 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
             return this.canVisitServiceDefinition(node);
         } else if(node instanceof AST.ResourceDefinition){
             return this.canVisitResourceDefinition(node);
+        } else if(node instanceof AST.FunctionDefinition){
+            return this.canVisitFunctionDefinition(node);
         }
     };
 
@@ -45,6 +47,8 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
             return this.beginVisitServiceDefinition(node);
         } else if(node instanceof AST.ResourceDefinition){
             return this.beginVisitResourceDefinition(node);
+        } else if(node instanceof AST.FunctionDefinition){
+            return this.beginVisitFunctionDefinition(node);
         }
     };
 
@@ -60,6 +64,8 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
             return this.visitResourceDefinition(node);
         } else if(node instanceof AST.Statement){
             return this.visitStatementDefinition(node);
+        } else if(node instanceof AST.FunctionDefinition){
+            return this.visitFunctionDefinition(node);
         }
     };
 
@@ -73,6 +79,8 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
             return this.endVisitServiceDefinition(node);
         } else if(node instanceof AST.ResourceDefinition){
             return this.endVisitResourceDefinition(node);
+        } else if(node instanceof AST.FunctionDefinition){
+            return this.endVisitFunctionDefinition(node);
         }
     };
 
@@ -124,6 +132,16 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
     ASTVisitor.prototype.visitResourceDefinition = function(resourceDefinition){
     };
     ASTVisitor.prototype.endVisitResourceDefinition = function(resourceDefinition){
+    };
+
+    ASTVisitor.prototype.canVisitFunctionDefinition = function(resourceDefinition){
+        return false;
+    };
+    ASTVisitor.prototype.beginVisitFunctionDefinition = function(resourceDefinition){
+    };
+    ASTVisitor.prototype.visitFunctionDefinition = function(resourceDefinition){
+    };
+    ASTVisitor.prototype.endVisitFunctionDefinition = function(resourceDefinition){
     };
 
     return ASTVisitor;
