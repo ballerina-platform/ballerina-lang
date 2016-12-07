@@ -41,5 +41,10 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor'],
             log.info('End Visit ResourceDefinition');
         };
 
+        ResourceDefinitionVisitor.prototype.visitStatement = function(statementDefinition){
+            var statementDefinitionVisitor= new StatementDefinitionVisitor();
+            statementDefinition.accept(statementDefinitionVisitor);
+        };
+
         return ResourceDefinitionVisitor;
     });

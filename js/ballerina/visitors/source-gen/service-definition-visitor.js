@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor'], function(_, log, EventChannel, AbstractSourceGenVisitor) {
+define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './resource-definition-visitor'], function(_, log, EventChannel, AbstractSourceGenVisitor, ResourceDefinitionVisitor) {
 
     var ServiceDefinitionVisitor = function() {
         AbstractSourceGenVisitor.call(this);
@@ -38,6 +38,11 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor'], func
 
     ServiceDefinitionVisitor.prototype.endVisitServiceDefinition = function(serviceDefinition){
         log.info('End Visit Service Definition');
+    };
+
+    ServiceDefinitionVisitor.prototype.visitResourceDefinition = function(resourceDefinition){
+        var resourceDefinitionVisitor = new ResourceDefinitionVisitor();
+        resourceDefinition.accept(resourceDefinitionVisitor);
     };
 
     return ServiceDefinitionVisitor;
