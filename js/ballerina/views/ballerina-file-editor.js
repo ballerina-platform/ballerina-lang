@@ -62,8 +62,11 @@ define(['lodash', 'jquery', 'log', './../visitors/ast-visitor', './service-defin
         return true;
     };
     BallerinaFileEditor.prototype.visitServiceDefinition = function(serviceDefinition){
-        var serviceDefinitionView = new ServiceDefinitionView({model: serviceDefinition});
-        this.addCanvas(serviceDefinitionView)
+        log.info("Visiting service definition");
+        var divId = serviceDefinition.id;
+        var currentContainer = $('#'+ divId);
+        var serviceDefinitionView = new ServiceDefinitionView({model: serviceDefinition, container:currentContainer});
+        serviceDefinitionView.render();
     };
 
     BallerinaFileEditor.prototype.init = function() {
