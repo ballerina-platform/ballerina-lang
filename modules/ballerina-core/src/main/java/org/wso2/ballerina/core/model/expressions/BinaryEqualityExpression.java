@@ -22,6 +22,8 @@ import org.wso2.ballerina.core.model.Operator;
 /**
  * {@code BinaryEqualityExpression} represents a equality expression in Ballerina
  *
+ * @see EqualExpression
+ * @see NotEqualExpression
  * @since 1.0.0
  */
 public class BinaryEqualityExpression extends BinaryExpression {

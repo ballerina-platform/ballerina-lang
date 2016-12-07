@@ -24,6 +24,8 @@ import org.wso2.ballerina.core.model.values.BValueRef;
 /**
  * {@code BinaryLogicalExpression} represents a logical expression in Ballerina
  *
+ * @see AndExpression
+ * @see OrExpression
  * @since 1.0.0
  */
 public class BinaryLogicalExpression extends BinaryExpression {
