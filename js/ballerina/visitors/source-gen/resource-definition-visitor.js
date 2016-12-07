@@ -67,6 +67,5 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor'],
             }
             statementDefinition.accept(statementDefinitionVisitor);
         };
-
         return ResourceDefinitionVisitor;
     });
