@@ -22,11 +22,11 @@
 define(['./ballerina-ast-root', './service-definition', './function-definition', './connector-definition', './resource-definition',
         './worker-declaration', './statement', './conditional-statement', './connection-declaration', './expression',
         './if-statement', './reply-statement', './return-statement', './type-converter-definition', './type-definition',
-        './type-element', './variable-declaration', './resource-definition'],
+        './type-element', './variable-declaration', './package-definition', './import-declaration', './resource-arg'],
     function (ballerinaAstRoot, serviceDefinition, functionDefinition, connectorDefinition, resourceDefinition,
               workerDeclaration, statement, conditionalStatement, connectionDeclaration, expression,
               ifStatement, replyStatement, returnStatement, typeConverterDefinition, typeDefinition,
-              typeElement, variableDeclaration) {
+              typeElement, variableDeclaration, packageDefinition, importDeclaration, resourceArgument) {
 
         /**
          * Constructs BallerinaASTFactory
@@ -171,6 +171,33 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
          */
         BallerinaASTFactory.prototype.createResourceDefinition = function (args) {
             return new resourceDefinition(args);
+        };
+
+        /**
+         * creates PackageDefinition
+         * @param args
+         * @returns {PackageDefinition}
+         */
+        BallerinaASTFactory.prototype.createPackageDefinition = function (args) {
+            return new packageDefinition(args);
+        };
+
+        /**
+         * creates ImportDeclaration
+         * @param args
+         * @returns {ImportDeclaration}
+         */
+        BallerinaASTFactory.prototype.createImportDeclaration = function (args) {
+            return new importDeclaration(args);
+        };
+
+        /**
+         * creates ResourceArgument
+         * @param args
+         * @returns {ResourceArgument}
+         */
+        BallerinaASTFactory.prototype.createResourceArgument = function (args) {
+            return new resourceArgument(args);
         };
 
         return BallerinaASTFactory;
