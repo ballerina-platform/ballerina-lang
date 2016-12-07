@@ -62,7 +62,11 @@ define(['event_channel'], function(EventChannel){
         if(visitor.canVisit(this)) {
             visitor.beginVisit(this);
             _.forEach(this.children, function (child) {
+                // visit current child
                 visitor.visit(child);
+                // forward visitor down the hierarchy to visit children of current child
+                // if visitor doesn't support visiting children of current child, it will break
+                child.accept(visitor);
             });
             visitor.endVisit(this);
         }

@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'd3', 'jquery', 'd3utils', 'app/diagram-core/models/point'],
-    function (_, log, d3, $, d3utils, Point) {
+define(['lodash', 'log', 'd3', 'jquery', 'd3utils', 'app/diagram-core/models/point', './life-line'],
+    function (_, log, d3, $, D3utils, Point, LifeLine) {
 
         /**
          * The view for the resource definition model.
@@ -29,10 +29,31 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', 'app/diagram-core/models/poi
             if (!_.isNil(model) && !_.isNil(container)) {
                 this._model = model;
                 this._container = container;
-                this._viewOptions = viewOptions;
+
+                // Center point of the resource
+                this._viewOptions = _.get(viewOptions, "viewOptions", {});
+                this._viewOptions.centerPoint = _.get(viewOptions, "viewOptions.centerPoint", {});
+                this._viewOptions.centerPoint.x = _.get(viewOptions, "viewOptions.centerPoint.x", 50);
+                this._viewOptions.centerPoint.y = _.get(viewOptions, "viewOptions.centerPoint.y", 100);
+
+                // View options for height and width of the heading box.
+                this._viewOptions.heading = _.get(viewOptions, "viewOptions.heading", {});
+                this._viewOptions.heading.hight = _.get(viewOptions, "viewOptions.heading.height", 25);
+                this._viewOptions.heading.width = _.get(viewOptions, "viewOptions.heading.width", 1000);
+
+                // View options for height and width of the resource icon in the heading box.
+                this._viewOptions.heading.icon = _.get(viewOptions, "viewOptions.heading.icon", {});
+                this._viewOptions.heading.icon.height = _.get(viewOptions, "viewOptions.heading.icon.height", 25);
+                this._viewOptions.heading.icon.width = _.get(viewOptions, "viewOptions.heading.icon.width", 25);
+
+                this._viewOptions.contentCollapsed = _.get(viewOptions, "viewOptions.contentCollapsed", false);
+                this._viewOptions.contentWidth = _.get(viewOptions, "viewOptions.contentWidth", 1000);
+                this._viewOptions.contentHeight = _.get(viewOptions, "viewOptions.contentHeight", 200);
+
+
             } else {
-                log.error("Invalid args received for creating a resource definition. Model: " + model + ". Container: " +
-                    container);
+                log.error("Invalid args received for creating a resource definition. Model: " + model +
+                    ". Container: " + container);
             }
         };
 
@@ -73,19 +94,87 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', 'app/diagram-core/models/poi
         ResourceDefinitionView.prototype.render = function () {
             // Render resource view
             var svgContainer = $(this._container).children()[0];
-            var headingStart = new Point(200, 50);
-            var contentStart = new Point(200, 75);
+            var headingStart = new Point(this._viewOptions.centerPoint.x, this._viewOptions.centerPoint.y);
+            var contentStart = new Point(this._viewOptions.centerPoint.x, this._viewOptions.centerPoint.y + this._viewOptions.heading.hight);
 
-            var headingRect = d3utils.rect(headingStart.x(), headingStart.y(), 1000, 25, 0, 0, d3.select(svgContainer));
+            var headerGroup = D3utils.group(d3.select(svgContainer));
+
+            var headingRect = D3utils.rect(headingStart.x(), headingStart.y(), this._viewOptions.heading.width, this._viewOptions.heading.hight, 0, 0, headerGroup);
             // TODO: Move these styling to css
             headingRect.attr('fill', "#FFFFFF");
             headingRect.attr('stroke-width', "1");
-            headingRect.attr('stroke', "#000000");
-            var contentRect = d3utils.rect(contentStart.x(), contentStart.y(), 1000, 200, 0, 0, d3.select(svgContainer));
+            headingRect.attr('stroke', "#cbcbcb");
+
+            // Drawing resource icon
+            // TODO : FIX
+            var headingRectIcon = D3utils.rect(headingStart.x(), headingStart.y(), this._viewOptions.heading.icon.width,
+                this._viewOptions.heading.icon.height, 0, 0, headerGroup).classed("fw fw-dgm-service fw-inverse");
+
+            // Create rect for the http method text
+            var httpMethodRect = D3utils.rect(headingStart.x() + this._viewOptions.heading.icon.width, headingStart.y() + 0.5, this._viewOptions.heading.icon.width + 25,
+                this._viewOptions.heading.icon.height - 1, 0, 0, headerGroup);
+            httpMethodRect.attr('fill', "#f3f3f3");
+
+            // Set HTTP Method
+            var httpMethodText = D3utils.textElement(headingStart.x() + this._viewOptions.heading.icon.width + 5, headingStart.y() + 4, this._model.getResourceMethod(), headerGroup);
+            httpMethodText.attr('dominant-baseline', "text-before-edge");
+            httpMethodText.attr("fill", "#777777");
+
+            // Setting resource path prefix
+            var resourcePathPrefix = D3utils.textElement(headingStart.x() + this._viewOptions.heading.icon.width + 55, headingStart.y() + 4, "Path: ", headerGroup);
+            resourcePathPrefix.attr('dominant-baseline', "text-before-edge");
+            resourcePathPrefix.attr('stroke-width', 0.5);
+            resourcePathPrefix.attr('stroke', "#000000");
+
+            var resourcePath = D3utils.textElement(headingStart.x() + this._viewOptions.heading.icon.width + 90, headingStart.y() + 4, this._model.getResourcePath(), headerGroup);
+            resourcePath.attr('dominant-baseline', "text-before-edge");
+
+            var contentRect = D3utils.rect(contentStart.x(), contentStart.y(), this._viewOptions.contentWidth, this._viewOptions.contentHeight, 0, 0, d3.select(svgContainer));
             // TODO: Move these styling to css
             contentRect.attr('fill', "#FFFFFF");
             contentRect.attr('stroke-width', "1");
-            contentRect.attr('stroke', "#000000");
+            contentRect.attr('stroke', "#cbcbcb");
+
+            // Move up the resource content rect before client lifeline so that the client lifeline will go through the
+            // rect.
+            var contentRectNode = $(contentRect.node());
+            $(svgContainer).prepend(contentRectNode);
+
+            // Drawing default worker
+            var defaultWorkerOptions = {
+                "editable": true,
+                "centerPoint": {
+                    "x": 180,
+                    "y": 150
+                },
+                "class": "lifeline",
+                "polygon": {
+                    "shape" : "rect",
+                    "width": 120,
+                    "height": 30,
+                    "roundX": 0,
+                    "roundY": 0,
+                    "class": "lifeline-polygon"
+                },
+                "droppableRect": {
+                    "width": 100,
+                    "height": 300,
+                    "roundX": 0,
+                    "roundY": 0,
+                    "class": "lifeline-droppableRect"
+                },
+                "line": {
+                    "height": 100,
+                    "class": "lifeline-line"
+                },
+                "text": {
+                    "value": "Resource Worker",
+                    "class": "lifeline-text"
+                }
+            };
+            var defaultWorker = new LifeLine(svgContainer, defaultWorkerOptions);
+            defaultWorker.render();
+
             log.debug("Rendering Resource View");
         };
 

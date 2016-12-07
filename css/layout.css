@@ -316,6 +316,7 @@ div[class*="col-sm-"] {
 
 #tab-content-wrapper {
     position: relative;
+    background-color: white;
 }
 
 /** ace editor (source view) related styles | -> End **/

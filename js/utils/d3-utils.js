@@ -217,7 +217,6 @@ define(['require', 'lodash', 'jquery', 'd3', 'log'], function (require, _, $, d3
     draw.rect = rect;
     draw.line = line;
     draw.textElement = textElement;
-    draw.textElement = textElement;
     draw.circle = circle;
     draw.group = group;
     draw.svg = svg;
