@@ -30,22 +30,23 @@ public class Constants {
 
     public static final String DEFAULT_INTERFACE = "default_http_listener";
     public static final String DEFAULT_BASE_PATH = "/";
+    public static final String DEFAULT_SUB_PATH = "/*";
 
     public static final String PROTOCOL_HTTP = "http";
 
+    public static final String HTTP_METHOD = "HTTP_METHOD";
+    /* HTTP Methods */
     public static final String METHOD_GET = "GET";
     public static final String METHOD_POST = "POST";
     public static final String METHOD_PUT = "PUT";
     public static final String METHOD_DELETE = "DELETE";
     public static final String METHOD_OPTIONS = "OPTIONS";
 
-    public static final String HTTP_METHOD = "HTTP_METHOD";
-
     /* Annotations */
     public static final String ANNOTATION_NAME_SOURCE = "Source";
     public static final String ANNOTATION_NAME_BASE_PATH = "BasePath";
     public static final String ANNOTATION_NAME_PATH = "Path";
+
+
     public static final String ANNOTATION_SOURCE_KEY_INTERFACE = "interface";
-
-
 }

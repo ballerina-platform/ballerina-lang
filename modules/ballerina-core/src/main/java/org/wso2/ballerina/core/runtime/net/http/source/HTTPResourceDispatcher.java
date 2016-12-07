@@ -20,6 +20,7 @@ package org.wso2.ballerina.core.runtime.net.http.source;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.runtime.core.BalCallback;
@@ -42,16 +43,18 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
         String method = (String) cMsg.getProperty(Constants.HTTP_METHOD);
         String subPath = (String) context.getProperty(Constants.SUB_PATH);
 
-        if (service.getResources().size() == 1 ) {
-            Resource resource = service.getResources().get(0);
-            if (resource.getAnnotation(Constants.ANNOTATION_NAME_PATH).equals("/*")) {
-                //TODO Dispatch to resource from here
-                return true;
-            }
-        }
-
         for (Resource resource : service.getResources()) {
-            if (subPath.startsWith(resource.getAnnotation(Constants.ANNOTATION_NAME_PATH).getValue()) &&
+            Annotation subPathAnnotation = resource.getAnnotation(Constants.ANNOTATION_NAME_PATH);
+            if (subPathAnnotation == null) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Path not specified in the Resource");
+                }
+                continue;
+            }
+
+            String subPathAnnotationVal = subPathAnnotation.getValue();
+
+            if ((subPath.startsWith(subPathAnnotationVal) || Constants.DEFAULT_SUB_PATH.equals(subPathAnnotationVal)) &&
                 (resource.getAnnotation(method) != null)) {
                 //TODO Dispatch to resource from here
                 return true;
@@ -63,9 +66,6 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
 
         return false;
     }
-
-
-
 
     @Override
     public String getProtocol() {
