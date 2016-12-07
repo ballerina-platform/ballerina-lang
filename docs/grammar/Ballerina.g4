@@ -342,14 +342,14 @@ expression
     |   expression '[' expression ']'                       # accessArrayElementExpression
     |   expression '(' expressionList? ')'                  # argumentListExpression
     |   '(' typeName ')' expression                         # typeCastingExpression
-    |   ('+'|'-'|'!') expression                      # preSingleDualExpression
+    |   ('+'|'-'|'!') expression                            # preSingleDualExpression
     |   expression ('*'|'/'|'%') expression                 # binrayMulDivPercentExpression
     |   expression ('+'|'-') expression                     # binaryPlusMinusExpression
-    |   expression ('<=' | '>=' | '>' | '<') expression       # binaryComparisonExpression
+    |   expression ('<=' | '>=' | '>' | '<') expression     # binaryComparisonExpression
     |   expression ('==' | '!=') expression                 # binrayEqualExpression
     |   expression '&&' expression                          # binrayAndExpression
     |   expression '||' expression                          # binrayOrExpression
-    |   '{' DoubleQuotedStringLiteral ':' literal '}'             # mapInitializerExpression
+    |   '{' DoubleQuotedStringLiteral ':' literal '}'       # mapInitializerExpression
     ;
 
 literal
