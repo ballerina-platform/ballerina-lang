@@ -227,7 +227,7 @@
                         <id>clean_target</id>
                         <phase>install</phase>
                         <configuration>
-                            <target>
+                            <tasks>
                                 <delete dir="target/archive-tmp"/>
                                 <delete dir="target/dependency-maven-plugin-markers"/>
                                 <delete dir="target/org.eclipse.equinox.executable-3.5.0.v20110530-7P7NFUFFLWUl76mart"/>
@@ -235,7 +235,13 @@
                                 <delete file="target/tmp"/>
                                 <delete dir="target/wso2carbon-kernel-${carbon.kernel.version}"/>
                                 <delete dir="target/antrun"/>
-                            </target>
+                                <delete dir="target/maven-shared-archive-resources"/>
+                                <delete dir="target/findbugs"/>
+                                <delete file="target/checkstyle-cachefile"/>
+                                <delete file="target/checkstyle-checker.xml"/>
+                                <delete file="target/checkstyle-result.xml"/>
+                                <delete file="target/checkstyle-suppressions.xml"/>
+                            </tasks>
                         </configuration>
                         <goals>
                             <goal>run</goal>
