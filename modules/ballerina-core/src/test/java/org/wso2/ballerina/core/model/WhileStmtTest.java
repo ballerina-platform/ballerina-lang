@@ -34,15 +34,13 @@ import org.wso2.ballerina.core.model.statements.WhileStmt;
 import org.wso2.ballerina.core.model.values.BValueRef;
 import org.wso2.ballerina.core.model.values.IntValue;
 
-import java.util.ArrayList;
-import java.util.List;
 
 /**
- * Test class to test the functionality of  {@link org.wso2.ballerina.model.statements.WhileStmt} class
+ * Test class to test the functionality of  {@link org.wso2.ballerina.core.model.statements.WhileStmt} class
  *
  * @since 1.0.0
  */
-public class WhileStatementTest {
+public class WhileStmtTest {
 
     @BeforeTest
     public void setup() {
@@ -112,10 +110,10 @@ public class WhileStatementTest {
         addExprY.setEvalFunc(AddExpression.ADD_INT_FUNC);
         AssignStmt assignStmtY = new AssignStmt(varRefExprY, addExprY);
 
-        List<Statement> whileStmtList = new ArrayList<>(2);
-        whileStmtList.add(assignStmtZ);
-        whileStmtList.add(assignStmtY);
-        BlockStmt whileBody = new BlockStmt(whileStmtList);
+        Statement[] statements = new Statement[2];
+        statements[0] = assignStmtZ;
+        statements[1] = assignStmtY;
+        BlockStmt whileBody = new BlockStmt(statements);
 
         NotEqualExpression whileCondition = new NotEqualExpression(varRefExprX, varRefExprY);
         whileCondition.setEvalFunc(NotEqualExpression.NOT_EQUAL_INT_FUNC);
@@ -124,7 +122,7 @@ public class WhileStatementTest {
     }
 
     public static void main(String[] args) {
-        WhileStatementTest test = new WhileStatementTest();
+        WhileStmtTest test = new WhileStmtTest();
         test.testFuncInvokeWithInt();
     }
 }

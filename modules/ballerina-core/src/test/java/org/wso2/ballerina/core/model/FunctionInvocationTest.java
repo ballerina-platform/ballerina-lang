@@ -92,8 +92,8 @@ public class FunctionInvocationTest {
 
         ReturnStmt returnStmt = new ReturnStmt(addExpression);
 
-        List<Statement> statements = new ArrayList<>();
-        statements.add(returnStmt);
+        Statement[] statements = new Statement[1];
+        statements[0] = returnStmt;
         BlockStmt funcBody = new BlockStmt(statements);
 
         Function function = new Function(new Identifier("addInternal"), false, annotations, parameters, returnTypes,
@@ -157,9 +157,9 @@ public class FunctionInvocationTest {
         AssignStmt assignStmt = new AssignStmt(varRefExprSUM, fInvoExpr);
         ReturnStmt returnStmt = new ReturnStmt(varRefExprSUM);
 
-        List<Statement> statements = new ArrayList<>();
-        statements.add(assignStmt);
-        statements.add(returnStmt);
+        Statement[] statements = new Statement[2];
+        statements[0] = assignStmt;
+        statements[1] = returnStmt;
 
         BlockStmt funcBody = new BlockStmt(statements);
         Function function = new Function(new Identifier("addNumbers"), false, annotations, parameters, returnTypes,
