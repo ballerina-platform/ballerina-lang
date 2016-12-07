@@ -43,9 +43,11 @@
 .worker > rect {
     fill: #ffffff;
 }
-
-.client rect {
-    fill: #ffffff;
+.resource-content{
+    fill: none;
+}
+.client rect{
+    /*fill: #ffffff;*/
 }
 
 .client polygon {

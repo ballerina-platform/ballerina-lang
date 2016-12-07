@@ -85,6 +85,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace']
              */
             var sourceGenVisitor = new Ballerina.visitors.SourceGen.BallerinaASTRootVisitor();
             ballerinaAstRoot.accept(sourceGenVisitor);
+            ballerinaAstRoot.accept(fileEditor);
             log.info(sourceGenVisitor.getGeneratedSource());
         }
     });

@@ -129,9 +129,9 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', 'app/diagram-core/models/poi
             var resourcePath = D3utils.textElement(headingStart.x() + this._viewOptions.heading.icon.width + 90, headingStart.y() + 4, this._model.getResourcePath(), headerGroup);
             resourcePath.attr('dominant-baseline', "text-before-edge");
 
-            var contentRect = D3utils.rect(contentStart.x(), contentStart.y(), this._viewOptions.contentWidth, this._viewOptions.contentHeight, 0, 0, d3.select(svgContainer));
+            var contentRect = D3utils.rect(contentStart.x(), contentStart.y(), this._viewOptions.contentWidth, this._viewOptions.contentHeight, 0, 0, d3.select(svgContainer)).classed("resource-content", true);;
             // TODO: Move these styling to css
-            contentRect.attr('fill', "#FFFFFF");
+            //contentRect.attr('fill', "#FFFFFF");
             contentRect.attr('stroke-width', "1");
             contentRect.attr('stroke', "#cbcbcb");
              //TODO: add dynamic properties for arrow
