@@ -156,8 +156,9 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
                             "parentContainer": "#innerSamples"
                         }
                     }
-                    var servicePreview = new Service.Views.ServicePreview(config);
-                    servicePreview.render();
+                    // FIXME: fix previews
+                    //var servicePreview = new Service.Views.ServicePreview(config);
+                    //servicePreview.render();
 
                 }
                 // class added after rendering to fix issue in firefox

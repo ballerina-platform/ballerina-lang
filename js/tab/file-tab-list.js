@@ -15,17 +15,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['log', 'jquery', 'lodash', './tab-list', './service-tab',  'workspace'],
+define(['log', 'jquery', 'lodash', './tab-list', './file-tab',  'workspace'],
 
     function (log, $, _, TabList, ServiceTab, Workspace) {
 
-    var ServiceTabList = TabList.extend(
-    /** @lends ServiceTabList.prototype */
+    var FileTabList = TabList.extend(
+    /** @lends FileTabList.prototype */
     {
         /**
-         * @augments ServiceTabList
+         * @augments FileTabList
          * @constructs
-         * @class ServiceTabList represents service tab list.
+         * @class FileTabList represents service tab list.
          */
         initialize: function (options) {
             _.set(options, 'tabModel', ServiceTab);
@@ -77,5 +77,5 @@ define(['log', 'jquery', 'lodash', './tab-list', './service-tab',  'workspace'],
         }
     });
 
-    return ServiceTabList;
+    return FileTabList;
 });

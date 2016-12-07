@@ -18,7 +18,9 @@
     width: 30px;
     height: 30px;
 }
-
+.preview-container{
+    display: none;
+}
 .source-view-enabled {
     display: block;
     width: 100%;
