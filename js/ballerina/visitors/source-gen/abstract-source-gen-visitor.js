@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', 'ast_visitor'], function(_, log, EventChannel, ASTVisitor) {
+define(['lodash', 'log', 'event_channel', '../ast-visitor'], function(_, log, EventChannel, ASTVisitor) {
 
     var AbstractSourceGenVisitor = function() {
         ASTVisitor.call(this);

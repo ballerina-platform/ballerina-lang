@@ -15,12 +15,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['./ast-visitor', './diagram-rendering-visitor', './source-gen/module'],
-    function (ASTVisitor, DiagramRenderingVisitor, SourceGenModule) {
+define(['./abstract-source-gen-visitor', './service-definition-visitor', './ballerina-ast-root-visitor'],
+    function (AbstractSourceGenVisitor, ServiceDefinitionVisitor, BallerinaASTRootVisitor) {
         return  {
-            ASTVisitor: ASTVisitor,
-            DiagramRenderingVisitor: DiagramRenderingVisitor,
-            SourceGen: SourceGenModule
+            AbstractSourceGenVisitor: AbstractSourceGenVisitor,
+            ServiceDefinitionVisitor: ServiceDefinitionVisitor,
+            BallerinaASTRootVisitor: BallerinaASTRootVisitor
         }
     });
 

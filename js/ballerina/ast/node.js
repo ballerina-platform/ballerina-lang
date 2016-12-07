@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['event_channel'], function(EventChannel){
+define(['event_channel', 'lodash'], function(EventChannel, _){
 
     var ASTNode = function(startIndex, length, parent, type) {
         this.object = undefined;
@@ -55,6 +55,19 @@ define(['event_channel'], function(EventChannel){
     };
 
     /**
+     * Insert a guven child to the children array for a given index or otherwise to the array normally
+     * @param child
+     * @param index
+     */
+    ASTNode.prototype.addChild = function (child, index) {
+        if (_.isUndefined(index)) {
+            this.children.push(child);
+        } else {
+            this.children.splice(index, 0, child);
+        }
+    };
+
+    /**
      * Accept function in visitor pattern
      * @param visitor {ASTVisitor}
      */
@@ -62,7 +75,11 @@ define(['event_channel'], function(EventChannel){
         if(visitor.canVisit(this)) {
             visitor.beginVisit(this);
             _.forEach(this.children, function (child) {
+                // visit current child
                 visitor.visit(child);
+                // forward visitor down the hierarchy to visit children of current child
+                // if visitor doesn't support visiting children of current child, it will break
+                child.accept(visitor);
             });
             visitor.endVisit(this);
         }

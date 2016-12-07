@@ -15,11 +15,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'log', 'jquery', 'lodash', 'backbone', 'app/menu-bar/menu-bar', 'breadcrumbs', 'file_browser', 'tab/service-tab-list', 'app/tool-palette/tool-palette',
+define(['require', 'log', 'jquery', 'lodash', 'backbone', 'app/menu-bar/menu-bar', 'breadcrumbs', 'file_browser', 'tab/file-tab-list', 'app/tool-palette/tool-palette',
 
-    'welcome','command','workspace', 'ballerina',/* void modules */ 'jquery_ui', 'bootstrap'],
+    'welcome','command','workspace',/* void modules */ 'jquery_ui', 'bootstrap'],
 
-    function (require, log, $, _, Backbone, MenuBar, BreadcrumbController, FileBrowser, TabController, ToolPalette, WelcomeScreen, CommandManager, Workspace, Ballerina) {
+    function (require, log, $, _, Backbone, MenuBar, BreadcrumbController, FileBrowser, TabController, ToolPalette, WelcomeScreen, CommandManager, Workspace) {
 
     var Application = Backbone.View.extend(
     /** @lends Application.prototype */
@@ -84,40 +84,6 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'app/menu-bar/menu-bar
             };
             _.set(regWelcomeScreenOpts, 'application', this);
             this.regularWelcomeScreen = new WelcomeScreen.Views.RegularView(regWelcomeScreenOpts);
-
-
-            var ballerinaASTFactory = new Ballerina.ast.BallerinaASTFactory();
-            var ballerinaAstRoot = ballerinaASTFactory.createBallerinaAstRoot();
-            var serviceDefinitions = [];
-            // Create sample connector definition
-            var connectorDefinitions = [];
-            var connectorDefinition1 = ballerinaASTFactory.createConnectorDefinition();
-            connectorDefinitions.push(connectorDefinition1);
-            ballerinaAstRoot.setConnectorDefinitions(connectorDefinitions);
-
-            var serviceDefinition1 = ballerinaASTFactory.createServiceDefinition();
-            serviceDefinition1.setBasePath("/basePath1");
-            var serviceDefinition2 = ballerinaASTFactory.createServiceDefinition();
-            serviceDefinition2.setBasePath("/basePath2");
-
-            // Create Sample Resource Definitions
-            var resourceDefinition1 = ballerinaASTFactory.createResourceDefinition();
-            var resourceDefinition2 = ballerinaASTFactory.createResourceDefinition();
-            resourceDefinition1.resourceParent(serviceDefinition1);
-            resourceDefinition2.resourceParent(serviceDefinition2);
-            serviceDefinition1.setResourceDefinitions([resourceDefinition1, resourceDefinition2]);
-
-            serviceDefinitions.push(serviceDefinition1);
-            serviceDefinitions.push(serviceDefinition2);
-            ballerinaAstRoot.setServiceDefinitions(serviceDefinitions);
-
-            // Create Sample Function Definitions
-            var functionDefinitions = [];
-            var functionDefinition1 = ballerinaASTFactory.createFunctionDefinition();
-            functionDefinitions.push(functionDefinition1);
-            ballerinaAstRoot.setFunctionDefinitions(functionDefinitions);
-
-            var fileEditor = new  Ballerina.views.BallerinaFileEditor({model: ballerinaAstRoot, viewOptions: _.get(this.config, "tab_controller.tabs")});
         },
 
         validateConfig: function(config){
