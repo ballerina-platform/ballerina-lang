@@ -18,10 +18,11 @@ service HolidayPackageService {
   @Path ("/flights?depart={dateDepart}&return={dateReturn}&from={from}&to={to}")
   resource flights (message m) {
       message response;
+      json errorMsg;
       try {
           response = http:sendPost(airlineEP, m);
       } catch (exception e) {
-          json errorMsg = `{"error" : "Error while getting flight details."}`;
+          errorMsg = `{"error" : "Error while getting flight details."}`;
           message:setPayload(response, errorMsg);
           message:setHeader(response, "Status", 500);
       }
@@ -32,14 +33,16 @@ service HolidayPackageService {
   @Path ("/hotels?from={dateFrom}&to={dateTo}&location={location}")
   resource hotels (message m) {
       message response;
+      xmlElement<{"http://example.com/xsd/HolidayPackage"}Request> request;
+      xmlElement<{"http://example.com/xsd/HolidayPackage"}HotelRequest> hotelRequest;
+      json errorMsg;
       try {
-          xmlElement<{"http://example.com/xsd/HolidayPackage"}Request> request = message:getPayload(m);
-          xmlElement<{"http://example.com/xsd/HolidayPackage"}HotelRequest> hotelRequest;
+          request = message:getPayload(m);
           hotelRequest = request;
           message:setPayload(m, hotelRequest);
           response = http:sendPost(hotelEP, m);
       } catch (exception e) {
-          json errorMsg = `{"error" : "Error while getting hotel details."}`;
+          errorMsg = `{"error" : "Error while getting hotel details."}`;
           message:setPayload(response, errorMsg);
           message:setHeader(response, "Status", 500);
       }
@@ -50,14 +53,16 @@ service HolidayPackageService {
   @Path ("/rentals?from={dateFrom}&to={dateTo}&type={type}")
   resource cars (message m) {
       message response;
+      xmlElement<{"http://example.com/xsd/HolidayPackage"}Request> requestXML;
+      xmlElement<{"http://example.com/xsd/HolidayPackage"}CarRequest> carrequestXML;
+      json errorMsg;
       try {
-          xmlElement<{"http://example.com/xsd/HolidayPackage"}Request> requestXML = message:getPayload(m);
-          xmlElement<{"http://example.com/xsd/HolidayPackage"}CarRequest> carrequestXML;
+          requestXML = message:getPayload(m);
           carrequestXML = requestXML;
           message:setPayload(m, carrequestXML);
           response = http:sendPost(carRentalEP, m);
       } catch (exception e) {
-          json errorMsg = `{"error" : "Error while getting car rental details."}`;
+          errorMsg = `{"error" : "Error while getting car rental details."}`;
           message:setPayload(response, errorMsg);
           message:setHeader(response, "Status", 500);
       }

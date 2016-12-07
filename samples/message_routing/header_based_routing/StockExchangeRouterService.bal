@@ -16,7 +16,8 @@ service StockExchangeRouterService {
     @Path ("/stock")
     resource passthrough (message m) {
         message response;
-        string[] routingId = message:getHeader (m, "X-STOCK-EX-ID");
+        string[] routingId;
+        routingId = message:getHeader (m, "X-STOCK-EX-ID");
         if (string:equals(routingId[0], "NYSE")) {
             response = http:HttpConnector.sendPost (nyseEP, "/us", m);
         } else {

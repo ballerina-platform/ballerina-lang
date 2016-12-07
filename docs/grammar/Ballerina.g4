@@ -88,7 +88,6 @@ constantDefinition
 
 variableDeclaration
     :   typeName Identifier ';'
-    |   typeName Identifier '=' assignmentRHSExpression ';'
     ;
 
 // typeName below is only 'message' type
@@ -198,11 +197,6 @@ statement
 
 assignmentStatement
     :   variableAccessor '='  assignmentRHSExpression ';'
-    |   inlineAssignmentStatement
-    ;
-
-inlineAssignmentStatement
-    :   typeName variableAccessor '=' assignmentRHSExpression ';'
     ;
 
 ifElseStatement

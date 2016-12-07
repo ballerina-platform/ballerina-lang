@@ -398,16 +398,6 @@ public interface BallerinaListener extends ParseTreeListener {
 	 */
 	void exitAssignmentStatement(BallerinaParser.AssignmentStatementContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#inlineAssignmentStatement}.
-	 * @param ctx the parse tree
-	 */
-	void enterInlineAssignmentStatement(BallerinaParser.InlineAssignmentStatementContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#inlineAssignmentStatement}.
-	 * @param ctx the parse tree
-	 */
-	void exitInlineAssignmentStatement(BallerinaParser.InlineAssignmentStatementContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#ifElseStatement}.
 	 * @param ctx the parse tree
 	 */

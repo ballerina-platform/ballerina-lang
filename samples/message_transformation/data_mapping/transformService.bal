@@ -10,9 +10,11 @@ service transformService {
 
 	@POST
 	resource transform (message m) {
-	    json<Person> in = m:getPayload(m);
+	    json<Person> in;
+	    json<Driver> out;
+	    in = m:getPayload(m);
 	    //here type converter kicks in
-	    json<Driver> out  = (json<Driver>)in;
+	    out  = (json<Driver>)in;
 	    m:setPayload(out);
 	    reply m;
 	}
