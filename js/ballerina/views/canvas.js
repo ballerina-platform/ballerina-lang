@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['log', 'lodash', 'jquery', 'd3', 'event_channel', 'd3utils'], function(log, _, $, d3, EventChannel, D3Utils){
+define(['log', 'lodash', 'jquery', 'd3', './../visitors/ast-visitor', 'd3utils'], function(log, _, $, d3, AstVisitor, D3Utils){
 
     var Canvas = function(container, viewOptions) {
 
@@ -54,7 +54,7 @@ define(['log', 'lodash', 'jquery', 'd3', 'event_channel', 'd3utils'], function(l
         //     .attr("height", "100%");
     };
 
-    Canvas.prototype = Object.create(EventChannel.prototype);
+    Canvas.prototype = Object.create(AstVisitor.prototype);
     Canvas.prototype.constructor = Canvas;
 
     Canvas.prototype.getSVG = function () {

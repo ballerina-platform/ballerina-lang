@@ -25,35 +25,35 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', 'app/diagram-core/models/poi
          * @param viewOptions Options to configure the view.
          * @constructor
          */
-        var ResourceDefinitionView = function (model, container, viewOptions) {
-            if (!_.isNil(model) && !_.isNil(container)) {
-                this._model = model;
-                this._container = container;
+        var ResourceDefinitionView = function (args) {
+            this._model =  _.get(args, 'model', null);
+            this._viewOptions =  _.get(args, 'viewOptions', {});
+            this._container = _.get(args, 'container', null);
+            if (!_.isNil(this._model) && !_.isNil(this._container)) {
 
                 // Center point of the resource
-                this._viewOptions = _.get(viewOptions, "viewOptions", {});
-                this._viewOptions.centerPoint = _.get(viewOptions, "viewOptions.centerPoint", {});
-                this._viewOptions.centerPoint.x = _.get(viewOptions, "viewOptions.centerPoint.x", 50);
-                this._viewOptions.centerPoint.y = _.get(viewOptions, "viewOptions.centerPoint.y", 100);
+                this._viewOptions.centerPoint = _.get(args, "viewOptions.centerPoint", {});
+                this._viewOptions.centerPoint.x = _.get(args, "viewOptions.centerPoint.x", 50);
+                this._viewOptions.centerPoint.y = _.get(args, "viewOptions.centerPoint.y", 100);
 
                 // View options for height and width of the heading box.
-                this._viewOptions.heading = _.get(viewOptions, "viewOptions.heading", {});
-                this._viewOptions.heading.hight = _.get(viewOptions, "viewOptions.heading.height", 25);
-                this._viewOptions.heading.width = _.get(viewOptions, "viewOptions.heading.width", 1000);
+                this._viewOptions.heading = _.get(args, "viewOptions.heading", {});
+                this._viewOptions.heading.hight = _.get(args, "viewOptions.heading.height", 25);
+                this._viewOptions.heading.width = _.get(args, "viewOptions.heading.width", 1000);
 
                 // View options for height and width of the resource icon in the heading box.
-                this._viewOptions.heading.icon = _.get(viewOptions, "viewOptions.heading.icon", {});
-                this._viewOptions.heading.icon.height = _.get(viewOptions, "viewOptions.heading.icon.height", 25);
-                this._viewOptions.heading.icon.width = _.get(viewOptions, "viewOptions.heading.icon.width", 25);
+                this._viewOptions.heading.icon = _.get(args, "viewOptions.heading.icon", {});
+                this._viewOptions.heading.icon.height = _.get(args, "viewOptions.heading.icon.height", 25);
+                this._viewOptions.heading.icon.width = _.get(args, "viewOptions.heading.icon.width", 25);
 
-                this._viewOptions.contentCollapsed = _.get(viewOptions, "viewOptions.contentCollapsed", false);
-                this._viewOptions.contentWidth = _.get(viewOptions, "viewOptions.contentWidth", 1000);
-                this._viewOptions.contentHeight = _.get(viewOptions, "viewOptions.contentHeight", 200);
+                this._viewOptions.contentCollapsed = _.get(args, "viewOptions.contentCollapsed", false);
+                this._viewOptions.contentWidth = _.get(args, "viewOptions.contentWidth", 1000);
+                this._viewOptions.contentHeight = _.get(args, "viewOptions.contentHeight", 200);
 
 
             } else {
-                log.error("Invalid args received for creating a resource definition. Model: " + model +
-                    ". Container: " + container);
+                log.error("Invalid args received for creating a resource definition view. Model: " + this._model +
+                    ". Container: " + this._container);
             }
         };
 
@@ -175,9 +175,11 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', 'app/diagram-core/models/poi
             var defaultWorker = new LifeLine(svgContainer, defaultWorkerOptions);
             defaultWorker.render();
 
+
+
             log.debug("Rendering Resource View");
         };
 
-        return ResourceDefinitionView
+        return ResourceDefinitionView;
 
     });

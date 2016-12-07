@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './canvas', './../ast/service-definition', './life-line'],
-    function (_, log, Canvas, ServiceDefinition, LifeLine) {
+define(['lodash', 'log', './canvas', './../ast/service-definition', './life-line','./resource-definition-view'],
+    function (_, log, Canvas, ServiceDefinition, LifeLine,ResourceDefinitionView) {
 
         /**
          * The view for the service definition model.
@@ -25,12 +25,11 @@ define(['lodash', 'log', './canvas', './../ast/service-definition', './life-line
          * @param viewOptions Options to configure the view.
          * @constructor
          */
-        var ServiceDefinitionView = function (model, container, viewOptions) {
-            if (!_.isNull(model) && model instanceof ServiceDefinition && !_.isNil(container)) {
-                this._model = model;
-                this._container = container;
-                this._viewOptions = viewOptions;
-            } else {
+        var ServiceDefinitionView = function (args) {
+            this._model =  _.get(args, 'model', null);
+            this._viewOptions =  _.get(args, 'viewOptions', {});
+            this._container = _.get(args, 'container', null);
+            if (_.isNull(this._model) && _.isNil(this._container)){
                 log.error("Invalid args received for creating a service definition. Model: " + model + ". Container: " +
                     container);
             }
@@ -45,6 +44,16 @@ define(['lodash', 'log', './canvas', './../ast/service-definition', './life-line
             } else {
                 log.error("Unknown definition received for service definition. Model: " + model);
             }
+        };
+
+        ServiceDefinitionView.prototype.setChildContainer = function(svg){
+            if (!_.isNil(svg)) {
+                this._childContainer = svg;
+            }
+        };
+        ServiceDefinitionView.prototype.getChildContainer = function(){
+            return this._childContainer ;
+
         };
 
         ServiceDefinitionView.prototype.setContainer = function (container) {
@@ -73,9 +82,28 @@ define(['lodash', 'log', './canvas', './../ast/service-definition', './life-line
 
         ServiceDefinitionView.prototype.render = function () {
             // Creating client lifeline.
-            var clientLifeLine = new LifeLine(_.first($(this._container).children()));
+            var clientLifeLine = new LifeLine(_.first($(this._container).children().children()));
+            //Store parent container for child elements of this serviceDefView
+            this.setChildContainer(_.first($(this._container).children().children()));
             clientLifeLine.render();
+            this.getModel().accept(this);
+        };
+        ServiceDefinitionView.prototype.canVisitServiceDefinition = function(serviceDefinition){
+            return true;
+        };
+        ServiceDefinitionView.prototype.visitServiceDefinition = function(serviceDefinition){
+
         };
 
+        ServiceDefinitionView.prototype.canVisitResourceDefinition = function(resourceDefinition){
+            return true;
+        };
+        ServiceDefinitionView.prototype.visitResourceDefinition = function(resourceDefinition){
+            log.info("Visiting resource definition");
+            var resourceContainer  = this.getChildContainer();
+            var resourceDefinitionView = new ResourceDefinitionView({model: resourceDefinition,container: resourceContainer});
+            resourceDefinitionView.render();
+
+        };
         return ServiceDefinitionView;
     });
