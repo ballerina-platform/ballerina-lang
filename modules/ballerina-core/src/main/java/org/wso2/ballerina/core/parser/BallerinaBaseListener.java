@@ -484,18 +484,6 @@ public class BallerinaBaseListener implements BallerinaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterInlineAssignmentStatement(BallerinaParser.InlineAssignmentStatementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitInlineAssignmentStatement(BallerinaParser.InlineAssignmentStatementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterIfElseStatement(BallerinaParser.IfElseStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}

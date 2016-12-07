@@ -4,6 +4,8 @@ import ballerina.net.http;
 
 function init(TwitterConnector t) throws exception {
     json loginReq;
+    message loginMessage;
+    message response;
 
     if (t.username == nil) {
         loginReq = `{"clientKey" : "$t.clientKey", "clientSecret" : "$t.clientSecret"}`;
@@ -11,27 +13,31 @@ function init(TwitterConnector t) throws exception {
         loginReq = `{"userName" : "$t.userName", "password" : "$t.password"}`;
     }
 
-    message loginMessage = new message;
+    loginMessage = new message;
     message:setPayload(loginMessage, loginReq);
-    message response = http:post(twitterEP, "/token", loginMessage);
+    response = http:post(twitterEP, "/token", loginMessage);
     t.oAuthToken = json:get(message:getPayload(response), "$.oAuthToken");
 }
 
 connector Twitter(string username, string password,
-        string clientKey, string clientSecret, string oAuthToken, map options) {
+                string clientKey, string clientSecret, string oAuthToken, map options) {
 
-    boolean loggedIn = false;
     http:HttpConnector h = new http:HttpConnector("https://api.twitter.com", {"timeOut" : 300});
 
+    boolean loggedIn; // default value get assigned
     action tweet(Twitter t, string tweet) throws exception {
+        json tweetJson;
+        message tweetMsg;
+
         if(!loggedIn){
             init(t);
             loggedIn = true;
         }
-        json tweetJson = `{"message" : "$tweet"}`;
-        message tweetMsg = new message;
+        tweetJson = `{"message" : "$tweet"}`;
+        tweetMsg = new message;
         message:setPayload(tweetMsg, tweetJson);
         message:setHeader(tweetMsg, "Authorization", "Bearer " + t.oAuthToken);
         http:HttpConnector.post(h, "/tweet", tweetMsg);
     }
+
 }
