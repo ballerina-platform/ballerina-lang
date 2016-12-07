@@ -37,6 +37,8 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
     // Outer Map key=interface, Inner Map key=basePath
     private Map<String, Map<String, Service>> services = new HashMap<>();
 
+    private HTTPListenerManager listenerManager = new HTTPListenerManager();
+
     @Override
     public boolean dispatch(BalContext context, BalCallback callback) {
         return false;
@@ -68,8 +70,10 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
 
         Map<String, Service> servicesOnInterface = services.get(listenerInterface);
         if (servicesOnInterface == null) {
+            // Assumption : this is always sequential, no two simultaneous calls can get here
             servicesOnInterface = new HashMap<>();
             services.put(listenerInterface, servicesOnInterface);
+            listenerManager.bindInterface(listenerInterface);
         }
         if (servicesOnInterface.containsKey(basePath)) {
             //TODO: Through deployment exception
@@ -105,6 +109,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
             servicesOnInterface.remove(basePath);
             if (servicesOnInterface.isEmpty()) {
                 services.remove(listenerInterface);
+                listenerManager.unbindInterface(listenerInterface);
             }
         }
     }
