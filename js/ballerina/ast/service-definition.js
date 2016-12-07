@@ -18,6 +18,7 @@
 define(['lodash', './node'], function (_, ASTNode) {
 
     var ServiceDefinition = function (args) {
+        this._serviceName = _.get(args, 'serviceName');
         this._basePath = _.get(args, 'basePath', "/");
         this._resourceDefinitions = _.get(args, 'resourceDefinitions', []);
         this._variableDeclarations = _.get(args, 'variableDeclarations', []);
@@ -28,6 +29,12 @@ define(['lodash', './node'], function (_, ASTNode) {
 
     ServiceDefinition.prototype = Object.create(ASTNode.prototype);
     ServiceDefinition.prototype.constructor = ServiceDefinition;
+
+    ServiceDefinition.prototype.setServiceName = function (serviceName) {
+        if(!_.isNil(serviceName)){
+            this._serviceName = serviceName;
+        }
+    };
 
     ServiceDefinition.prototype.setBasePath = function (basePath) {
         if (!_.isNil(basePath)) {
@@ -51,6 +58,10 @@ define(['lodash', './node'], function (_, ASTNode) {
         if (!_.isNil(connectionDeclarations)) {
             this._connectionDeclarations = connectionDeclarations;
         }
+    };
+
+    ServiceDefinition.prototype.getServiceName = function () {
+        return this._serviceName;
     };
 
     ServiceDefinition.prototype.getBasePath = function () {

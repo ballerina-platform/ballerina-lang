@@ -6,13 +6,41 @@
 .toggle-controls-container {
     position: absolute;
     bottom: 150px;
-    right: 50px;
+    right: 25px;
 }
 
 .toggle-to-design {
     width: 30px;
     height: 30px;
 }
+
+.tab-pane{
+    padding: 15px;
+}
+
+
+.grid-background{
+    background:
+    linear-gradient(-90deg, rgba(0, 0, 0, .03) 1px, transparent 1px),
+    linear-gradient(rgba(0, 0, 0, .03) 1px, transparent 1px),
+    linear-gradient(-90deg, rgba(0, 0, 0, .03) 1px, transparent 1px),
+    linear-gradient(rgba(0, 0, 0, .03) 1px, transparent 1px),
+    linear-gradient(transparent 3px, transparent 3px, transparent 78px, transparent 78px),
+    linear-gradient(-90deg, transparent 1px, transparent 1px),
+    linear-gradient(-90deg, transparent 3px, transparent 3px, transparent 78px, transparent 78px),
+    linear-gradient(transparent 1px, transparent 1px), transparent;
+    background-size:
+    10px 10px,
+    10px 10px,
+    10px 10px,
+    10px 10px,
+    10px 10px,
+    10px 10px,
+    10px 10px,
+    10px 10px;
+}
+
+
 
 .toggle-to-source {
     width: 30px;
