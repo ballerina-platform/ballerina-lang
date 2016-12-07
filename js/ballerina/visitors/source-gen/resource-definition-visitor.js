@@ -55,7 +55,7 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor'],
 
         ResourceDefinitionVisitor.prototype.visitStatement = function(statementDefinition){
             var statementDefinitionVisitor;
-            //routing to correct statement type
+            //routing to the correct statement type
             if(statementDefinition instanceof IfStatement){
                 statementDefinitionVisitor = new IfStatementVisitor();
             } else if(statementDefinition instanceof WhileStatement){

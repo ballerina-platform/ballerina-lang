@@ -29,6 +29,12 @@ define(['lodash', 'log', 'event_channel', './statement-definition-visitor'], fun
     };
 
     IfStatementVisitor.prototype.beginVisitStatementDefinition = function(ifStatement){
+    /**
+    * set the configuration start for the if statement definition language construct
+    * If we need to add additional parameters which are dynamically added to the configuration start
+    * that particular source generation has to be constructed here
+    */
+        this.appendSource(ifStatement.getConfigStart());
         log.info('Begin Visit If Else Statement Definition');
     };
 
