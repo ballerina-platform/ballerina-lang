@@ -54,7 +54,17 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor'],
         };
 
         ResourceDefinitionVisitor.prototype.visitStatement = function(statementDefinition){
-            var statementDefinitionVisitor= new StatementDefinitionVisitor();
+            var statementDefinitionVisitor;
+            //routing to correct statement type
+            if(statementDefinition instanceof IfStatement){
+                statementDefinitionVisitor = new IfStatementVisitor();
+            } else if(statementDefinition instanceof WhileStatement){
+                statementDefinitionVisitor = new IterateStatementVisitor();
+            } else if(statementDefinition instanceof TryCatchStatement){
+                statementDefinitionVisitor = new TryCatchStatementVisitor();
+            } else if(statementDefinition instanceof ReplyStatement){
+                statementDefinitionVisitor = new ReplyStatementVisitor();
+            }
             statementDefinition.accept(statementDefinitionVisitor);
         };
 
