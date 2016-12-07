@@ -1,0 +1,34 @@
+definitions:
+  Address :
+    type: object
+    properties:
+      addressLine:
+        type: string
+      city:
+        type: string
+      state:
+        type: string
+      country:
+        type: string
+      zipcode:
+        type: integer
+        format: int32
+    x-ballerina-package: sample.annotation.type.fromBal.simple
+  Person :
+    type: object
+    properties:
+      userID:
+        type: integer
+        format: int32
+      name:
+        type: string
+        title: Name of the person.
+      birthday:
+        type: string
+      address:
+        $ref: #/definitions/address
+      email:
+        type: array
+        items:
+          type : string
+    x-ballerina-package: sample.annotation.type.fromBal.simple

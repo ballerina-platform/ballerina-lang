@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="Person" type="PersonType"/>
+    <xs:element name="Address" type="AddressType"/>
+    <xs:complexType name="AddressType">
+        <xs:sequence>
+            <xs:element type="xs:string" name="addressLine"/>
+            <xs:element type="xs:string" name="city"/>
+            <xs:element type="xs:string" name="state"/>
+            <xs:element type="xs:string" name="country"/>
+            <xs:element type="xs:integer" name="zipcode"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="PersonType">
+        <xs:sequence>
+            <xs:element type="xs:integer" name="userID"/>
+            <xs:element type="xs:string" name="name"/>
+            <xs:element type="xs:string" name="birthday"/>
+            <xs:element type="AddressType" name="address"/>
+            <xs:element type="xs:string" name="email" maxOccurs="unbounded" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+</xs:schema>

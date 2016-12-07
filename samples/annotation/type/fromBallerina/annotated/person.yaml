@@ -1,0 +1,54 @@
+definitions:
+  address :
+    type: object
+    required:
+      - addressLine
+      - city
+      - country
+    properties:
+      addressLine:
+        type: string
+      city:
+        type: string
+      state:
+        type: string
+      country:
+        type: string
+      zipcode:
+        type: integer
+        format: int32
+        xml:
+          namespace: http://www.w3.org/2001/XMLSchema
+          x-xsdType: int
+    x-ballerina-name: Address
+    x-ballerina-package: sample.annotation.type.fromBal.annotated
+  person :
+    type: object
+    required:
+      - userID
+      - name
+    properties:
+      userID:
+        type: integer
+        format: int32
+        title: User ID of the person.
+        xml:
+          attribute: true
+      name:
+        type: string
+        title: Name of the person.
+      birthday:
+        type: string
+        format: date
+        xml:
+          namespace: http://www.w3.org/2001/XMLSchema
+          x-xsdType: date
+      address:
+        $ref: #/definitions/address
+      email:
+        type: array
+        items:
+          type : string
+          format : email
+    x-ballerina-name: Person
+    x-ballerina-package: sample.annotation.type.fromBal.annotated

@@ -132,10 +132,7 @@ service PetStore{
     }
 }
 
-@TypeInfo(
-    name = "pet"
-)
-type Pet{
+type pet{
     @Property(required = true)
     long id;
 
@@ -146,10 +143,7 @@ type Pet{
     string tag;
 }
 
-@TypeInfo(
-    name = "newPet"
-)
-type NewPet{
+type newPet{
     @Property(required = false)
     int id;
 
@@ -160,10 +154,7 @@ type NewPet{
     string tag;
 }
 
-@TypeInfo(
-    name = "errorModel"
-)
-type ErrorModel{
+type errorModel{
     @Property(required = true)
     int code;
 

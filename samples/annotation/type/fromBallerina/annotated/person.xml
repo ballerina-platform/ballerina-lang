@@ -1,0 +1,13 @@
+<per:person userID="100" xmlns:per="http://example.com/person">
+    <per:name>string</per:name>
+    <per:birthday>2008-09-29</per:birthday>
+    <per:address>
+        <per:addressLine>string</per:addressLine>
+        <per:city>string</per:city>
+        <per:state>string</per:state>
+        <per:country>string</per:country>
+        <per:zipcode>3</per:zipcode>
+    </per:address>
+    <!--Zero or more repetitions:-->
+    <per:email>string</per:email>
+</per:person>
