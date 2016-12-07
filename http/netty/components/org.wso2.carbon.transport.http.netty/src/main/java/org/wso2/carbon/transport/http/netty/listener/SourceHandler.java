@@ -115,6 +115,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
                 if (headers.get("Upgrade").equalsIgnoreCase("websocket")) {
                     log.info("Upgrading the connection from Http to WebSocket for " +
                                      "channel : " + ctx.channel());
+                    handleWebSocketHandshake(ctx, request);
                     //Replace HTTP handlers  with  new Handlers for WebSocket in the pipeline
                     ChannelPipeline pipeline = ctx.pipeline();
                     pipeline.replace("handler",
@@ -122,6 +123,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
                                      new  WebSocketSourceHandler(this.connectionManager,
                                                                  this.listenerConfiguration,
                                                                  request.getUri()));
+                    log.info("WebSocket upgrade is successful");
                 }
             } else {
                 publishToMessageProcessor(msg);
@@ -161,9 +163,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
 
 
     private String getWebSocketURL(HttpRequest req) {
-        System.out.println("Req URI : " + req.getUri());
-        String url =  "ws://" + req.headers().get("Host") + req.getUri() ;
-        System.out.println("Constructed URL : " + url);
+        String url =  "ws://" + req.headers().get("Host") + req.getUri();
         return url;
     }
 
