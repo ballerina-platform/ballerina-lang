@@ -23,17 +23,6 @@
     fill-opacity: 1;
 }
 
-.outer-box{
-    padding: 15px;
-    border: 1px solid transparent;
-}
-
-.right-icon-clickable{
-    float: right;
-    padding-right: 10px;
-    cursor: pointer;
-}
-
 .tool > line {
     stroke-width: 1px;
 }

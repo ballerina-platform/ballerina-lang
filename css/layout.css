@@ -318,8 +318,5 @@ div[class*="col-sm-"] {
     position: relative;
 }
 
-.panel-default > .panel-heading {
-    margin-bottom: 0px;
-}
 /** ace editor (source view) related styles | -> End **/
 /*//////////////////////////////////////////////////*/
