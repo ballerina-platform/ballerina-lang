@@ -21,7 +21,9 @@ package org.wso2.ballerina.core.model;
 import org.wso2.ballerina.core.model.statements.Statement;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A {@code Resource} is a single request handler within a {@code Service}.
@@ -45,7 +47,7 @@ import java.util.List;
 @SuppressWarnings("unused")
 public class Resource {
 
-    private List<Annotation> annotations;
+    private Map<String, Annotation> annotations;
     private List<Parameter> arguments;
     private List<Worker> workers;
     private Worker defaultWorker;
@@ -55,20 +57,30 @@ public class Resource {
     }
 
     /**
+     * Get an Annotation from a given name
+     *
+     * @param name name of the annotation
+     * @return Annotation
+     */
+    public Annotation getAnnotation(String name) {
+        return annotations.get(name);
+    }
+
+    /**
      * Get all the Annotations associated with a Resource
      *
-     * @return list of Annotations
+     * @return map of Annotations
      */
-    public List<Annotation> getAnnotations() {
+    public Map<String, Annotation> getAnnotations() {
         return annotations;
     }
 
     /**
-     * Set list of all the Annotations
+     * Set Annotations
      *
-     * @param annotations list of Annotations
+     * @param annotations map of Annotations
      */
-    public void setAnnotations(List<Annotation> annotations) {
+    public void setAnnotations(Map<String, Annotation> annotations) {
         this.annotations = annotations;
     }
 
@@ -79,9 +91,9 @@ public class Resource {
      */
     public void addAnnotation(Annotation annotation) {
         if (annotations == null) {
-            annotations = new ArrayList<Annotation>();
+            annotations = new HashMap<>();
         }
-        annotations.add(annotation);
+        annotations.put(annotation.getName(), annotation);
     }
 
     /**

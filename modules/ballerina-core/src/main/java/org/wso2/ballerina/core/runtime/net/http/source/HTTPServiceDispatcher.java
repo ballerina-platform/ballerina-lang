@@ -78,6 +78,8 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
                 basePath = basePath.concat("/").concat(path[i]);
                 service = servicesOnInterface.get(basePath);
                 if (service != null) {
+                    context.setProperty(Constants.BASE_PATH, basePath);
+                    context.setProperty(Constants.SUB_PATH, uri.split(Constants.BASE_PATH)[1]);
                     break;
                 }
             }
@@ -97,7 +99,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
 
     @Override
     public String getProtocol() {
-        return "http";
+        return Constants.PROTOCOL_HTTP;
     }
 
     @Override
