@@ -26,7 +26,8 @@ define(['lodash', './node'], function (_, ASTNode) {
         this.statements = _.get(args, 'statements', []);
         this.resourceArguments = _.get(args, 'resourceArguments', []);
 
-        ASTNode.call(this);
+        // TODO: All the types should be referred from the global constants
+        ASTNode.call(this, 'Resource', 'resource {', '}');
     };
 
     ResourceDefinition.prototype = Object.create(ASTNode.prototype);
