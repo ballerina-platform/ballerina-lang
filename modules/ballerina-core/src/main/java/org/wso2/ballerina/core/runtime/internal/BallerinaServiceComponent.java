@@ -27,7 +27,9 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.runtime.core.MessageProcessor;
+import org.wso2.ballerina.core.runtime.net.http.source.HTTPListenerManager;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
+import org.wso2.carbon.messaging.TransportListenerManager;
 import org.wso2.carbon.messaging.TransportSender;
 
 
@@ -49,6 +51,9 @@ public class BallerinaServiceComponent {
 
             //Creating the processor and registering the service
             bundleContext.registerService(CarbonMessageProcessor.class, new MessageProcessor(), null);
+
+            // Registering HTTP Listener Manager with transport framework
+            bundleContext.registerService(TransportListenerManager.class, HTTPListenerManager.getInstance(), null);
         } catch (Exception ex) {
             String msg = "Error while loading Ballerina";
             log.error(msg, ex);

@@ -39,6 +39,14 @@ public class HTTPListenerManager implements TransportListenerManager {
 
     private Lock lock = new ReentrantLock();
 
+    private static HTTPListenerManager instance = new HTTPListenerManager();
+
+    private HTTPListenerManager(){}
+
+    public static HTTPListenerManager getInstance() {
+        return instance;
+    }
+
     @Override
     public TransportListener getTransportListener() {
         return transportListener;
