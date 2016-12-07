@@ -320,14 +320,12 @@ functionInvocationExpression
     ;
 
 functionName
-    :   (packageName | Identifier) ':' Identifier
+    :   (packageName ':')? Identifier
     ;
 
 actionInvocation
     :   packageName ':' Identifier '.' Identifier
     ;
-
-
 
 backtickString
    :   BacktickStringLiteral
