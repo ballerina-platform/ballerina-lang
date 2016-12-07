@@ -134,6 +134,9 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', 'app/diagram-core/models/poi
             contentRect.attr('fill', "#FFFFFF");
             contentRect.attr('stroke-width', "1");
             contentRect.attr('stroke', "#cbcbcb");
+             //TODO: add dynamic properties for arrow
+            var arrowLine = D3utils.line(90,250, 120,250, d3.select(svgContainer));
+            var arrowHead = D3utils.inputTriangle(115,250,d3.select(svgContainer));
 
             // Move up the resource content rect before client lifeline so that the client lifeline will go through the
             // rect.
@@ -170,6 +173,9 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', 'app/diagram-core/models/poi
                 "text": {
                     "value": "Resource Worker",
                     "class": "lifeline-text"
+                },
+                "action": {
+                    "value": "Start"
                 }
             };
             var defaultWorker = new LifeLine(svgContainer, defaultWorkerOptions);

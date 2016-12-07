@@ -64,6 +64,8 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', 'app/diagram-core/models/poi
             this._viewOptions.text = _.get(options, "text", {});
             this._viewOptions.text.value = _.get(options, "text.value", "Client");
             this._viewOptions.text.class = _.get(options, "text.class", "client lifeline-title");
+            this._viewOptions.action = _.get(options, "action", {});
+            this._viewOptions.action.value = _.get(options, "action.value", "Action");
 
             // Make the lifeline uneditable by default
             if (_.get(options, "editable", false)) {
@@ -229,7 +231,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', 'app/diagram-core/models/poi
 
             // Add text to top polygon.
             this._topPolygonText = D3Utils.textElement(this._viewOptions.centerPoint.x, this._viewOptions.centerPoint.y,
-                this._viewOptions.text.value, this._lifelineGroup)
+                this._viewOptions.text.value , this._lifelineGroup)
                 .classed(this._viewOptions.text.class, true).classed("genericT", true);
 
             // Centering the text to the middle of the top polygon.
