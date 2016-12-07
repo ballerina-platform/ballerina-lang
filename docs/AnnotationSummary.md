@@ -53,7 +53,7 @@ E.g:
 
 In Ballerina annotations are divided into two categories.
 
-* Documentation Annotations (Doc Annotation)
+* Documentation Annotations (Doc/Meta Annotation)
     - These annotations represent structured meta information about the Ballerina constructs that they annotated.(Similar to
      Java Doc comment.) 
 * Config Annotations
@@ -69,25 +69,28 @@ Note: By design Doc annotation and Config annotation are defined separately. Thi
 Ballerina Annotations represent a super set of Open API Specification 2.0 (AKA Swagger 2.0) format. This allows developers
 to Generate a Ballerina service skeleton from a Swagger 2.0 definition and/or Swagger 2.0 definition from a Ballerina service.
 
-### Ballerina vs Swagger Type and Format Mapping. 
-
-| Ballerina type | Swagger Type | Swagger Format |
-|---|---|---|
-| int | integer | int32 |
-| long | integer | int64 |
-| float | number | float |
-| double | number | double |
-| boolean | boolean | N/A | 
-| string | string | N/A | 
-| string* | string | date, date-time, email, password | 
-| (?)| string | binary | 
-| (?)| string | byte | 
-
-\* Using `@Proprty` annotations, string field can be converted in to date, date-time, email, or password field in Ballerina UI.    
 
 ## Supported Annotations.
 
-### Service Annotations. 
+* [Service Annotations](#service-annotations)
+* [Recourse Annotations](#resource-annotation)
+* [Connectors and Action Annotations.](#connector-and-action-annotations) 
+* [Type and Variable Annotations.](#type-and-variable-annotations)
+* [Function Annotations.](#function-annotations)
+* [Common Annotations.](#common-annotations)
+
+
+## Example Index
+
+ * Service Annotations - 
+ * Generating Ballerina using Swagger 2.0 Definition 
+    - [Pet Store Sample](../sampels/annotation/petstore/)
+ * Type Mapping
+    - [Generating JSON Schema (Swagger 2.0 compliant) and XML Schema.](../samples/annotation/type/fromBal)
+    - [Generating Ballerina Types using Swagger 2.0](../samples/annotation/type/fromSwagger)
+    
+
+## Service Annotations. 
 
 Followings are the service level annotations.
 
@@ -97,8 +100,7 @@ Followings are the service level annotations.
 * Consumes
 * Produces
 
-#### Service Info
-
+### Service Info
 
 A Doc annotation which describes a Ballerina Service. 
 
@@ -145,7 +147,7 @@ service TestService {
 }
 ```
 
-Following section describes each field defined in `@ServiceInfo` annotation. 
+##### _@ServiceInfo_
 
 | Ballerina Field | Type | Description | Swagger Field (Json Path) |
 |---|:---:|---|---|
@@ -160,7 +162,7 @@ Following section describes each field defined in `@ServiceInfo` annotation.
 | organization | @Organization | Organization this service belongs to. | $.info.x-organization |
 | developers | @Developers[] | Information about developers involved. | $.info.x-developers |
 
-_@Contact_
+##### _@Contact_
 
 | Ballerina Field | Type | Description | Swagger Field (Json Path) |
 |---|:---:|---|---|
@@ -168,21 +170,21 @@ _@Contact_
 | email | string | email of the contact person or organization. | $.info.contact.x-email |
 | url | string | An URL pointing to contact information. | $.info.contact.url |
 
-_@License_
+##### _@License_
 
 | Ballerina Field | Type | Description | Swagger Field |
 |---|:---:|---|---|
 | name | string | Name of the License used for Ballerina Service. | $.info.license.name |
 | url | string | A URL pointing to License information. | $.info.license.url |
 
-_@ExternalDoc_
+##### _@ExternalDoc_
 
 | Ballerina Field | Type | Description | Swagger Field |
 |---|:---:|---|---|
 | description | string | a description about the target documentation. | parent.description |
 | url | string | **Required.** URL is pointing to target documentation. | parent.url |
 
-_@Tag_
+##### _@Tag_
 
 | Ballerina Field | Type | Description | Swagger Field |
 |---|:---:|---|---|
@@ -190,22 +192,23 @@ _@Tag_
 | description | string | Description explaining current tag. | $.tags\[position\].description |
 | doc | @Doc | Additional external documentation link explaining current tag. | $.tags\[position\].externalDocs |
 
-_@Organization_
+##### _@Organization_
 
 | Ballerina Field | Type | Description | Swagger Field |
 |---|:---:|---|---|
 | name | string | Name of the Organization. | $.info.x-organization.name |
 | url | string | An URL pointing to the Organization website. | $.info.x-organization.url |
 
-_@Developer_
+##### _@Developer_
 
 | Ballerina Field | Type | Description | Swagger Field |
 |---|:---:|---|---|
 | name | string | Name of the developer. | $.info.x-developers\[position\].name |
 | email | string | An email address of the Developer. | $.info.x-developers\[position\].email |
 
-Following section describes each field defined in `@Swagger` annotation. This annotation represents all the vendor 
-specific custom swagger extensions. 
+##### _@Swagger_
+ 
+This annotation represents all the vendor specific custom swagger extensions. 
 
 **Note** `@Swagger` can be used only to annotate Ballerina Service, Resource, and Type fields. 
 
@@ -214,7 +217,7 @@ specific custom swagger extensions.
 | version | string | **Required.** Specifies the Swagger Specification version to be used. If `@Swagger` annotation is not defined, default value is "2.0" | $.swagger |
 | extension | @SwaggerExtension[] | List of Swagger extension for specific swagger field. | any |
 
-@SwaggerExtension
+##### _@SwaggerExtension_
 
 | Ballerina Field | Type | Description | Swagger Field (JSON Path) |
 |---|:---:|---|---|
@@ -222,7 +225,7 @@ specific custom swagger extensions.
 | anyKey | any | List of Swagger extension for a specific swagger field. | target.x-anykey |
 
 
-#### Service Config
+### Service Config
 
 A Config annotation, which represents common configuration for a Ballerina Service. 
 
@@ -256,7 +259,7 @@ Syntax:
 )
 ```
 
-_@ServiceConfig_
+##### _@ServiceConfig_
 
 | Ballerina Field | Type | Description | Swagger Field (JSON Path) |
 |---|:---:|---|---|
@@ -265,7 +268,7 @@ _@ServiceConfig_
 | interface | string | Interface for Transport configuration. | N/A |
 | authorizations | @Authorization[] | Authorization schema associated with the Ballerina Service | $.securityDefinitions |
 
-_@Authorization_
+##### _@Authorization_
 
 | Ballerina Field | Type | Description | Swagger Field (Json Path) |
 |---|:---:|---|---|
@@ -279,14 +282,14 @@ _@Authorization_
 | tokenUrl | string | **Required, if type is oauth2** tokenUrl of the OAuth2 endpoint | $.securityDefinitions\[*\]\['name'\].tokenUrl |
 | authorizationScopes| @AuthorizationScope[] | **Required, if type is oauth2** OAuth2 scopes| $.securityDefinitions\[*\]\['name'\].scopes |
 
-_@AuthorizationScope_
+##### _@AuthorizationScope_
 
 | Ballerina Field | Type | Description | Swagger Field (Json Path) |
 |---|:---:|---|---|
 | name| string| Name of the OAuth2 scope. | json_name($.securityDefinitions\[*\]\['name'\].scopes.\['name'\])|
 | description | string| A description about the OAuth2 scope. | $.securityDefinitions\[*\]\['name'\].scopes.\['name'\] |
 
-#### Path
+### Path
 
 Describes Base path of the HTTP Ballerina Service/API. This is a configuration annotation.
 
@@ -300,7 +303,7 @@ service context is mapped to `/`
 
 Swagger 2.0 equivalent field is `basePath`. (Json Path `$.basePath`)
 
-#### Consumes
+### Consumes
 
 Defines A list of MIME types the Ballerina Service can consume. This is global to all the resource defined within a 
   service. This is a configuration annotation.
@@ -316,7 +319,7 @@ E.g:
 
 This is an optional annotation. Swagger 2.0 equivalent field is `Consumes`. (JSON Path `$.consumes`)
 
-#### Produces
+### Produces
 
 Defines A list of MIME types the Ballerina Service can produce. This is global to all the resource defined within a 
   service. This is a configuration annotation.
@@ -332,8 +335,7 @@ E.g:
 
 This is an optional annotation. Swagger 2.0 equivalent field is `produces`. (JSON Path `$.produces`)
 
-### Resource Annotation.
-
+## Resource Annotation.
 
 Following are the resource level annotations.
 
@@ -346,7 +348,7 @@ Following are the resource level annotations.
 * Resource Info
 * Responses
 
-#### Path
+### Path
 
 Describes sub path of the HTTP Ballerina resource. This is a configuration annotation.
 
@@ -360,7 +362,7 @@ Ballerina services.
 
 Swagger 2.0 equivalent field is `paths.path`. (Json Path `$.paths./resource-path`)
 
-#### HTTP method
+### HTTP method
 
 Defines the HTTP methods that support by the Ballerina resource. This is a configuration annotation.
 
@@ -422,9 +424,9 @@ paths:
 Swagger operationId has format `BallerinaResourceName_httpMethod`. 
 
 
-#### Resource Config
+### Resource Config
 
-@ResourceConfig use to define transport protocol and the authorization details for the resource. This is a configuration annotation.
+`@ResourceConfig` use to define transport protocol and the authorization details for the resource. This is a configuration annotation.
 
 Syntax:
 ```java
@@ -440,21 +442,21 @@ Syntax:
 )
 ```
 
-_@ResourceConfig_
+##### _@ResourceConfig_
 
 |Ballerina Field |  Type | Description | Swagger Field (Json Path) |
 |---|---|---|---|
 | schemes | string[] | The transfer protocol for the ballerina resource. Values can be "http", "https", "ws" or "wss". | $.paths./resource-path.schemas  |
 | authorizations | @Authorization[] | A declaration of which authorizations configurations are applied for this resource. | $.paths./resource-path.security  |
 
-_@Authorization_
+##### _@Authorization_
 
 |Ballerina Field |  Type | Description | Swagger Field (Json Path) |
 |---|---|---|---|
 | name | string | Authorization name that specified in @AuthorizationsConfiguration section in the service level. | json_name($.paths./resource-path.security\[*\]\["name"\])  |
 | scopes | string[] | Authorize scope for this resource that specified in @AuthorizationScope in the service level under above AuthorizationsConfiguration. | $.paths./resource-path.security\[*\]\["name"\], (Values that define in @AuthorizationScope[] in service level)  |
 
-#### Consumes
+### Consumes
 
 Defines A list of MIME types the Ballerina resource can consume. This is a configuration annotation.
 
@@ -469,7 +471,7 @@ E.g:
 ```
 This is an optional annotation. Swagger 2.0 equivalent field is `consumes`. (Json Path `$.paths./resource-path.consumes`)
 
-#### Produces
+### Produces
 
 Defines A list of MIME types the Ballerina resource can produce. This is a configuration annotation.
 
@@ -485,11 +487,11 @@ E.g:
 
 This is an optional annotation. Swagger 2.0 equivalent field is `produces`. (JSON Path `$.paths./resource-path.produces`)
 
-#### Method Parameter Definition
+### Method Parameter Definition
 
 Defines resource parameter mapping.
 
-#####Query Param
+#### Query Param
 
 Represents an HTTP Query Param of the annotated resource. 
 
@@ -501,7 +503,7 @@ resourceName(message m, @QueryParam("paramName") type identifier, ...) {...}
 
 `paramName` is **Required** and Case Sensitive. It should match to Query Param of the URL and can't be an empty string.
 
-##### Path Param
+#### Path Param
 
 Represents a Path Param of the annotated resource.
 
@@ -514,7 +516,7 @@ resourceName(message m, @PathParam("paramName") type identifier, ...) {...}
 `paramName` is **Required** and Case Sensitive. It should match to Path Param of the URL which is defined in `@Path` 
 annotation. It can't be an empty string.
 
-##### Form Param
+#### Form Param
 
 Represents an HTTP Form field of the annotated resource. This annotation applies only for content type `application/x-www-form-urlencoded` or `multipart/form-data` 
 
@@ -529,7 +531,7 @@ if content type is `application/x-www-form-urlencoded` - `paramName` is similar 
 
 If content type is `multipart/form-data` - value of the `name` parameter of the HTTP `Content-Disposition: form-data;` header. 
 
-##### Header Param
+#### Header Param
 
 Represents a transport header that is expected as part of the request.
 
@@ -540,7 +542,7 @@ resourceName(message m, @HeaderParam("paramName") string identifier, ...) {...}
 ```
 `paramName` is **Required** and Case Sensitive. It should match to transport header name and can't be an empty string.
 
-##### Body
+#### Body
 
 Represents payload of the incoming request.
 
@@ -556,7 +558,7 @@ Since there is only one payload for a request, `@Body` annotation can be used on
   `name` is **Required** and Case Sensitive. It can't be an empty string.
 
 
-##### ParametersInfo (or Parameters)
+#### ParametersInfo (or Parameters)
 
 ParametersInfo describes meta information about operation parameters (as described above) of a resource. `@ParametersInfo` contains one or more `@ParameterInfo` annotations.
 
@@ -584,7 +586,7 @@ Syntax:
 })
 ```
 
-_@ParameterInfo_ (or parameter)
+##### _@ParameterInfo_ (or parameter)
 
 |Ballerina Field |  Type | Description | Swagger Field (Json Path) |
 |---|---|---|---|
@@ -599,6 +601,7 @@ _@ParameterInfo_ (or parameter)
 | collectionFormat | string | Determines the format of the array if type array is used. Default is `cvs`| $.paths./resource-path.parameters\[position\].collectionFormat  |
 | items | @Items | **Required.** if `type` is an Array. Describes the items in the array. | $.paths./resource-path.parameters\[position\].items  |
 
+##### _@Item_
 |Ballerina Field |  Type | Description | Equivalent Swagger Field|
 |---|---|---|---|
 | type | string | **Required.** The internal type of the array. | $.paths./resource-path.parameters\[position\].items.type  |
@@ -607,7 +610,7 @@ _@ParameterInfo_ (or parameter)
 | items | string |  **Required.** if `type` is an Array. Describes the items in the array. | $.paths./resource-path.parameters\[position\].items.items  |
 
 
-#### Resource Info
+### Resource Info
 
 A meta-annotation which describes the meta details of this resource.
 
@@ -625,7 +628,7 @@ Syntax:
 )
 ```
 
-_@ResourceInfo_
+##### _@ResourceInfo_
 
 |Ballerina Field | Type | Description | Swagger Field (Json Path) |
 |---|---|---|---|
@@ -636,7 +639,7 @@ _@ResourceInfo_
 | operationId| string | Unique string used to identify the resource (Ballerina resource name). | $.paths./resource-path.operationId  |
 
 
-#### Responses
+### Responses
 
 Defines an array of @Response which include possible responses that returns by this resource. 
 
@@ -675,13 +678,13 @@ Syntax:
 
 ```
 
-_@Responses_
+##### _@Responses_
 
 |Ballerina Field |  Type | Description | Swagger Field (Json Path) |
 |---|---|---|---|
 | Responses | @Response[] | **Required.** An array of possible @Response as they are returned from executing this operation. |  $.paths./resource-path.responses  |
 
-_@Response_
+##### _@Response_
 
 |Ballerina Field |  Type | Description | Swagger Field (Json Path) |
 |---|---|---|---|
@@ -691,7 +694,7 @@ _@Response_
 | headers | @Header[] | An array of @Header that are sent with the response  | $.paths./resource-path.responses\[*\]\["code"\].headers  |
 | examples | @Example[] | An @Example of the response message  | $.paths./resource-path.responses\[*\]\["code"\].examples  |
 
-_@Header_
+##### _@Header_
 
 |Ballerina Field |  Type | Description | Swagger Field (Json Path) |
 |---|---|---|---|
@@ -700,194 +703,13 @@ _@Header_
 | type | string | **Required.** The type of the object. The value MUST be one of "string", "number", "integer", "boolean", or "array". | $.paths./resource-path.responses\[\*\]\["code"\].headers\[\*\]\["name"\].type  |
 
 
-_@Example_
+##### _@Example_
 
 |Ballerina Field |  Type | Description | Swagger Field (Json Path) |
 |---|---|---|---|
 | type | string | **Required.** A supported mime type. | json_name($.paths./resource-path.responses\[*\]\["code"\].examples\[\*\]\['type'\])  |
 | value | string | A sample response of this resource that match with given mime type.  The value SHOULD be an example of what such a response would look like  | $.paths./resource-path.responses\[*\]\["code"\].examples\[\*\]\['type'\] |
 
-
-Following are the resource level annotations.
-
-* Path
-* HTTP method
-* Resource Config
-* Consumes
-* Produces
-* Method Parameter Definition
-* Resource Info
-* Responses
-
-#### Path
-```
-@Path("/resource")
-```
-#### HTTP method
-```
-(@GET | @POST | @PUT | @DELETE | @OPTIONS | @HEAD | @PATCH )* 
-```
-#### Resource Config
-
-```java
-@ResourceConfig(
-    schemes = {http, https},
-    authorizations = {
-        @Authorization(
-            name = "authorizationConfigName" 
-            [, scopes = { "scope1", "scope2" }]
-        )
-    }
-    [,anyName = anyValue]* // this will represent swagger element "x-anyName" : "anyValue"
-)
-```
-
-_@ResourceConfig_
-
-|Ballerina Field |  Type | Description | Equivalent Swagger Field|
-|---|---|---|---|
-|  value|string |The transfer protocol for the ballerina resource. Values can be "http", "https", "ws" or "wss".  | schemas  | 
-|  authorizations|annotation |A declaration of which authorizations configurations are applied for this resource.  | security  | 
-|anyName |any | Extension fields. | x-anyName, Maps to Swagger extensions. Field name begins with `x-` |
-
-_@Authorization_
-
-|Ballerina Field |  Type | Description | Equivalent Swagger Field|
-|---|---|---|---|
-|  name|string |Authorization name that specified in @AuthorizationsConfiguration section in the service level. | security  | 
-|  scopes|Array | Authorize scope for this resource that specified in @AuthorizationScope in the service level under above AuthorizationsConfiguration  | N/A  | 
-
-#### Consumes
-```
-@Consumes({ "application/json", "application/xml" })
-```
-#### Produces
-```
-@Produces({ "application/json", "application/xml" })
-```
-#### Method Parameter Definition
-```
-QueryParam
-@Path("/foo")
-resourceName(message m, @QueryParam(name = "paramName", description = "A Description", required = true) string name, ...){...}
-
-PathParam
-@Path("/foo/{paramName}")
-resourceName(message m, @PathParam(name = "paramName", description = "A Description", required = true) string name, ...){...}
-
-FormParam
-@Path("/foo/")
-resourceName(message m, @FormParam(name = "paramName", description = "A Description", required = true) string name, ...){...}
-
-HeaderParam
-@Path("/foo/")
-resourceName(message m, @HeaderParam(name = "paramName", description = "A Description", required = true) string name, ...){...}
-
-Body
-@Path("/foo/")
-resourceName(message m, @Type(name = "TypeName", description = "A Description", required = true) TypeName typeVariableName, ...){...}
-
-```
-#### Resource Info
-```java
-@ResourceInfo( 
-    tags = { "http", "get", "anotherTag" },
-    summary = "A summary about resource",
-    description = "a detailed description about resource",
-    externalDocs = @ExternalDocs(
-                       description = "wso2 ballerina", 
-                       url = "http://docs.wso2.com/ballerina"
-                   ),
-    operationId = "methodName" // This information is redundant in resource name, But we need this in special cases.
-)
-```
-
-_@ResourceInfo_
-
-|Ballerina Field |  Type | Description | Swagger Field|
-|---|---|---|---|
-|  tags|array |A list of tags for resource documentation control  | tags  | 
-|  summary|string |A short summary of what the resource does.  | summary  | 
-|  externalDocs|annotation |Additional external documentation for this resource.  | externalDocs  | 
-|  operationId|string |Unique string used to identify the resource.  | operationId  | 
-
-_@ExternalDocs_
-
-Ballerina Field | Type          | Description                                                       | Swagger Field
-----------------|:-------------:|-------------------------------------------------------------------|-------------------
-description     | string        | a description about the target documentation.                     | description
-url             | string        | **Required.** URL is pointing to target documentation.            | url
-anyName         | any           | Extension fields.                                                 | `x-`anyName (Swagger extensions)
-
-
-#### Responses
-```java
-@Responses( 
-    values = {
-        @Response( 
-            code = 200 ,
-            [description = "Human-readable message to accompany the response.",
-            response = TypeName|VaribaleType|ArrayType|XML<Schema>|JSON<Schema>
-            headers = {
-                @Header(
-                    name = "HeaderName",
-                    description = "description",
-                    type = TypeName|VaribaleType|ArrayType|XML<Schema>|JSON<Schema>
-                    ),
-                @Header(...)
-            },
-            examples = {
-                @Example(
-                    type = "mime-type",
-                    value = xml|json|string
-                ),
-                @Example(
-                    type = "application/json",
-                    value = `{ "key1": "value1", "key2", "value2"}` 
-                )
-            }] 
-            | [reference = "String to reference"]
-        ),
-        @Response( 
-            code = "default", 
-            description = "unexpected error",
-            ...)
-    }
-)
-
-```
-
-_@Responses_
-
-|Ballerina Field |  Type | Description | Swagger Field|
-|---|---|---|---|
-|  values|array |An array of possible @Response as they are returned from executing this operation   | N/A  | 
-
-_@Response_
-
-|Ballerina Field |  Type | Description | Swagger Field|
-|---|---|---|---|
-|  code|int |HTTP status code of this response  | N/A  | 
-|  description|string |T A short description of the response.  | description  | 
-|  response|string |The list of possible responses as they are returned from executing this operation  | schema  | 
-|  headers|array |An array of @Header that is sent with the response  | headers  | 
-|  examples|array |A `@Example` of the response message  | examples  | 
-
-_@Header_
-
-|Ballerina Field |  Type | Description | Swagger Field|
-|---|---|---|---|
-|  name|string |HTTP status code of this response  | N/A  | 
-|  description|string A short description of the header  | description  | 
-|  type|string |The type of the object. The value MUST be one of "string", "number", "integer", "boolean", or "array"  | type  | 
-
-
-_@Example_
-
-|Ballerina Field |  Type | Description | Swagger Field|
-|---|---|---|---|
-|  type|string |mime type  | N/A  | 
-|  value| string| A sample response of this resource that matches with given mime type  | N/A  | 
 
 ### Connector Annotations.
 
@@ -923,7 +745,7 @@ Syntax:
 | ignoredErrorCodes | string[] | Error codes that are not considered as connection failures, But that need to be dealt with as part of the integration logic. |
 
  
-### Action Annotations. 
+#### Action Annotations. 
 
 TODO: Following Section needs some re-thinking whether we should use the same format for action and resource annotation.  
 
@@ -1001,11 +823,22 @@ Syntax:
 | return | @return[] | details about return types including possible exception situations.|
 
 
-### Type and Variable Annotations.
+## Type and Variable Annotations.
+
+
+| Annotation | target | Description |
+|---|---|---|
+|@TypeInfo| Any type |Describes meta information about a Ballerina type. |
+|@Property| Any variable (primitive or type variable) in a Type, Service, Connector | Describes meta information about a Ballerina type variable. |
+|@Xml| - Any type<br/>- variable (primitive or type variable) in a Type  | Describes additional information about the XML representation of a Ballerina type or variable.  |
 
 Syntax:
 ```java
-@TypeInfo( name = "userDefineType" )
+@TypeInfo( 
+        name = "userDefineType" ,
+        title = "A title of the Type" ,
+        description = "A Description about type"
+)
 @Xml(
     name = "xmlElementName" ,
     namespace = "https://example.com/foo" ,
@@ -1032,15 +865,18 @@ type UserDefineType {
     type variableName = DEFAULT_VALUE;
 }
 ```
-_@TypeInfo_
+
+##### _@TypeInfo_
 
 | Ballerina Field | Type | Description |  Swagger Field (Json Path) |
 |---|:---:|---|---|
 | name | string | Identifier Swagger definition name. | json_name($.definitions\['userDefineType'\]) |
+| title | string | Title for annotated type. |$.definitions\['userDefineType'\].title |
+| description | string | A description about annotated type. | $.definitions\['userDefineType'\].description |
 
-_@Property_
+##### _@Property_
 
-Property Annotation is used to describe meta information about the annotated variable or type field. Primary purpose of this 
+Describe meta information about the annotated variable or type field of a Type, Service, or Connector. Primary purpose of this 
  annotation is to provide rendering instruction for Ballerina tooling.
 
 | Ballerina Field | Type | Description | Swagger Field (JSON Path)  |
@@ -1052,9 +888,7 @@ Property Annotation is used to describe meta information about the annotated var
 | format | string | Data Type format (e.g: password, date, date-time, binary, byte, etc) | $.definitions\['userDefineType'\].properties.\['varName'\].format |
 | * | string | Other Properties defined in the Swagger Schema Object. https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#schemaObject  | .definitions\['userDefineType'\].properties.\['varName'\].* |
 
-_@Xml_
-
-`@XML` element is used to bind xml object to a Ballerina type. 
+##### _@Xml_
    
 | Ballerina Field | Type | Description | Swagger Field (JSON Path)  |
 |---|:---:|---|---|
@@ -1065,276 +899,21 @@ _@Xml_
 |wrapped|boolean| **Only for Type** MAY be used only for an array definition. Added this to comply with Swagger 2.0 | **Type :** $.definitions\['userDefineType'\].xml.wrapped |
 |xsdType|string| Field specify XSD type name, `namespace` field is required. | **Variable :** $.definitions\['userDefineType'\].properties.\['varName'\].xml.x-xsdType <br/> **Type :** $.definitions\['userDefineType'\].xml.x-xsdType|
 
+### Ballerina Variable vs Swagger Type & Format Mapping. 
 
-####Example
+| Ballerina type | Swagger Type | Swagger Format |
+|---|---|---|
+| int | integer | int32 |
+| long | integer | int64 |
+| float | number | float |
+| double | number | double |
+| boolean | boolean | N/A | 
+| string | string | N/A | 
+| string* | string | date, date-time, email, password | 
+| (?)| string | binary | 
+| (?)| string | byte | 
 
-##### Generating Swagger 2.0 Definition Object(JSON Schema) and XML Schema from Ballerina user defined types. 
-
-_Example 1 - No annotation_
-
-```java
-package com.example.person;
-
-type Person {
-    int userID;
-    string name;
-    string birthday;
-    Address address;
-    string[] email;
-}
-
-type Address {
-    string addressLine;
-    string city;
-    string state;
-    string country;
-    int zipcode;
-}
-```
-
-* Generated Swagger 2.0 Object Definitions(JSON schema)
-```yaml
-definitions:
-  Address : 
-    type: object
-    properties:
-      addressLine:
-        type: string
-      city:
-        type: string
-      state:
-        type: string
-      country:
-        type: string
-      zipcode:
-        type: integer
-        format: int32
-    x-ballerina-package: com.example.person
-  Person :
-    type: object
-    properties:
-      userID:
-        type: integer
-        format: int32
-      name:
-        type: string
-        title: Name of the person.
-      birthday:
-        type: string
-      address:
-        $ref: #/definitions/address
-      email:
-        type: array
-        items: 
-          type : string
-    x-ballerina-package: com.example.person
-```
-
-* Generated XML Schema 
-
-```xml
-<xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified"
-           xmlns:xs="http://www.w3.org/2001/XMLSchema">
-    <xs:element name="Person" type="PersonType"/>
-    <xs:element name="Address" type="AddressType"/>
-    <xs:complexType name="AddressType">
-        <xs:sequence>
-            <xs:element type="xs:string" name="addressLine"/>
-            <xs:element type="xs:string" name="city"/>
-            <xs:element type="xs:string" name="state"/>
-            <xs:element type="xs:string" name="country"/>
-            <xs:element type="xs:integer" name="zipcode"/>
-        </xs:sequence>
-    </xs:complexType>
-    <xs:complexType name="PersonType">
-        <xs:sequence>
-            <xs:element type="xs:integer" name="userID"/>
-            <xs:element type="xs:string" name="name"/>
-            <xs:element type="xs:string" name="birthday"/>
-            <xs:element type="AddressType" name="address"/>
-            <xs:element type="xs:string" name="email" maxOccurs="unbounded" minOccurs="0"/>
-        </xs:sequence>
-    </xs:complexType>
-</xs:schema>
-```
-
-Example xml:
-```xml
-<Person>
-  <userID>100</userID>
-  <name>string</name>
-  <birthday>string</birthday>
-  <address>
-    <addressLine>string</addressLine>
-    <city>string</city>
-    <state>string</state>
-    <country>string</country>
-    <zipcode>100</zipcode>
-  </address>
-  <!--Zero or more repetitions:-->
-  <email>string</email>
-</Person>
-```
-
-
-_Example 2 - with Annotation_
-
-Consider Following Person and Address Types.
-
-```java
-package com.example.person;
-
-@TypeInfo( name = "person" )
-@Xml( name = "person" , namespace = "http://example.com/person" , prefix = "per" , xsdType = "personType" )
-type Person{
-
-    @Property( required = true , title = "User ID of the person." )
-    @Xml( attribute = true )
-    int userID;
-
-    @Property( required = true , title = "Name of the person." )
-    string name;
-    
-    @Property( format = "date" )
-    @XML( namespace = "http://www.w3.org/2001/XMLSchema" , xsdType="date" )
-    string birthday; 
-    
-    Address address;
-    
-    @Property( format = "email" )
-    string[] email;
-
-}
-
-@TypeInfo( name = "address" )
-@Xml( name = "addressXML" , namespace = "http://example.com/person" , prefix = "per" , xsdType = "addressType" )
-type Address{
-
-    @Property( required = true )
-    string addressLine;
-    
-    @Property( required = true )
-    string city;
-    
-    string state;
-    
-    @Property( required = true )
-    string country;
-    
-    @XML( namespace = "http://www.w3.org/2001/XMLSchema" , xsdType="int" )
-    int zipcode;
-
-}
-```
-
-* Generated Swagger 2.0 Object Definitions(JSON schema)
-```yaml
-definitions:
-  address : 
-    type: object
-    required:
-      - addressLine
-      - city
-      - country
-    properties:
-      addressLine:
-        type: string
-      city:
-        type: string
-      state:
-        type: string
-      country:
-        type: string
-      zipcode:
-        type: integer
-        format: int32
-        xml:
-          namespace: http://www.w3.org/2001/XMLSchema
-          x-xsdType: int
-    x-ballerina-name: Address
-    x-ballerina-package: com.example.person
-  person :
-    type: object
-    required:
-      - userID
-      - name
-    properties:
-      userID:
-        type: integer
-        format: int32
-        title: User ID of the person.
-        xml:
-          attribute: true
-      name:
-        type: string
-        title: Name of the person.
-      birthday:
-        type: string
-        format: date
-        xml:
-          namespace: http://www.w3.org/2001/XMLSchema
-          x-xsdType: date
-      address:
-        $ref: #/definitions/address
-      email:
-        type: array
-        items: 
-          type : string
-          format : email
-    x-ballerina-name: Person
-    x-ballerina-package: com.example.person
-```
-
-* Generated XML Schema 
-```xml
-<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="http://example.com/person"
-           xmlns:xs="http://www.w3.org/2001/XMLSchema">
-    <xs:element name="person" type="per:personType" xmlns:per="http://example.com/person"/>
-    <xs:element name="addressXML" type="per:addressType" xmlns:per="http://example.com/person"/>
-    <xs:complexType name="addressType">
-        <xs:sequence>
-            <xs:element type="xs:string" name="addressLine"/>
-            <xs:element type="xs:string" name="city"/>
-            <xs:element type="xs:string" name="state"/>
-            <xs:element type="xs:string" name="country"/>
-            <xs:element type="xs:int" name="zipcode"/>
-        </xs:sequence>
-    </xs:complexType>
-    <xs:complexType name="personType">
-        <xs:sequence>
-            <xs:element type="xs:string" name="name"/>
-            <xs:element type="xs:date" name="birthday"/>
-            <xs:element type="per:addressType" name="address" xmlns:per="http://example.com/person"/>
-            <xs:element type="xs:string" name="email" maxOccurs="unbounded" minOccurs="0" />
-        </xs:sequence>
-        <xs:attribute type="xs:integer" name="userID"/>
-    </xs:complexType>
-</xs:schema>
-```
-Example xml:
-```xml
-<per:person userID="100" xmlns:per="http://example.com/person">
-  <per:name>string</per:name>
-  <per:birthday>2008-09-29</per:birthday>
-  <per:address>
-    <per:addressLine>string</per:addressLine>
-    <per:city>string</per:city>
-    <per:state>string</per:state>
-    <per:country>string</per:country>
-    <per:zipcode>3</per:zipcode>
-  </per:address>
-  <!--Zero or more repetitions:-->
-  <per:email>string</per:email>
-</per:person>
-```
-
-##### Generating Ballerina user defined types using a Swagger 2.0 Definition Object(JSON Schema). 
-
-TODO.
-
-##### Generating Ballerina user defined types using a XSD Schema. 
-
-TODO.
+\* Using `@Proprty` annotations, string field can be converted in to date, date-time, email, or password field in Ballerina UI.    
 
 
 Future Work: 
