@@ -27,11 +27,11 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
      */
     ASTVisitor.prototype.canVisit = function(node){
         if(node instanceof AST.BallerinaASTRoot){
-            this.canVisitBallerinaASTRoot(node);
+            return this.canVisitBallerinaASTRoot(node);
         } else if(node instanceof AST.ServiceDefinition){
-            this.canVisitServiceDefinition(node);
+            return this.canVisitServiceDefinition(node);
         } else if(node instanceof AST.ResourceDefinition){
-            this.canVisitResourceDefinition(node);
+            return this.canVisitResourceDefinition(node);
         }
     };
 
@@ -40,11 +40,11 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
      */
     ASTVisitor.prototype.beginVisit = function(node){
         if(node instanceof AST.BallerinaASTRoot){
-            this.beginVisitBallerinaASTRoot(node);
+            return this.beginVisitBallerinaASTRoot(node);
         } else if(node instanceof AST.ServiceDefinition){
-            this.beginVisitServiceDefinition(node);
+            return this.beginVisitServiceDefinition(node);
         } else if(node instanceof AST.ResourceDefinition){
-            this.beginVisitResourceDefinition(node);
+            return this.beginVisitResourceDefinition(node);
         }
     };
 
@@ -53,11 +53,11 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
      */
     ASTVisitor.prototype.visit = function(node){
         if(node instanceof AST.BallerinaASTRoot){
-            this.visitBallerinaASTRoot(node);
+            return this.visitBallerinaASTRoot(node);
         } else if(node instanceof AST.ServiceDefinition){
-            this.visitServiceDefinition(node);
+            return this.visitServiceDefinition(node);
         } else if(node instanceof AST.ResourceDefinition){
-            this.visitResourceDefinition(node);
+            return this.visitResourceDefinition(node);
         }
     };
 
@@ -66,11 +66,11 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
      */
     ASTVisitor.prototype.endVisit = function(node){
         if(node instanceof AST.BallerinaASTRoot){
-            this.endVisitBallerinaASTRoot(node);
+            return this.endVisitBallerinaASTRoot(node);
         } else if(node instanceof AST.ServiceDefinition){
-            this.endVisitServiceDefinition(node);
+            return this.endVisitServiceDefinition(node);
         } else if(node instanceof AST.ResourceDefinition){
-            this.endVisitResourceDefinition(node);
+            return this.endVisitResourceDefinition(node);
         }
     };
 

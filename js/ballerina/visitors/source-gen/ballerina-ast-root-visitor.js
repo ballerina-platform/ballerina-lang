@@ -25,18 +25,18 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor'], func
     BallerinaASTRootVisitor.prototype.constructor = BallerinaASTRootVisitor;
 
     BallerinaASTRootVisitor.prototype.canVisitBallerinaASTRoot = function(serviceDefinition){
-        return false;
+        return true;
     };
 
     BallerinaASTRootVisitor.prototype.beginVisitBallerinaASTRoot = function(serviceDefinition){
         log.info('Begin Visit BallerinaASTRoot');
     };
 
-    BallerinaASTRootVisitor.prototype.visitServiceBallerinaASTRoot = function(serviceDefinition){
+    BallerinaASTRootVisitor.prototype.visitBallerinaASTRoot = function(serviceDefinition){
         log.info('Visit BallerinaASTRoot');
     };
 
-    BallerinaASTRootVisitor.prototype.endVisitServiceBallerinaASTRoot = function(serviceDefinition){
+    BallerinaASTRootVisitor.prototype.endVisitBallerinaASTRoot = function(serviceDefinition){
         log.info('End Visit BallerinaASTRoot');
     };
 
