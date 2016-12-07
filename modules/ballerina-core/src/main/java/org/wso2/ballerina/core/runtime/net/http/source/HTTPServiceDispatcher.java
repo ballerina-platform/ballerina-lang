@@ -18,11 +18,14 @@
 
 package org.wso2.ballerina.core.runtime.net.http.source;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.runtime.core.BalCallback;
 import org.wso2.ballerina.core.runtime.core.BalContext;
 import org.wso2.ballerina.core.runtime.core.dispatching.ServiceDispatcher;
+import org.wso2.carbon.messaging.CarbonMessage;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -34,12 +37,62 @@ import java.util.Map;
  */
 public class HTTPServiceDispatcher implements ServiceDispatcher {
 
+    private static final Logger log = LoggerFactory.getLogger(HTTPServiceDispatcher.class);
+
     // Outer Map key=interface, Inner Map key=basePath
     private Map<String, Map<String, Service>> services = new HashMap<>();
 
+    private HTTPListenerManager listenerManager = new HTTPListenerManager();
+
     @Override
     public boolean dispatch(BalContext context, BalCallback callback) {
-        return false;
+
+        CarbonMessage cMsg = context.getCarbonMessage();
+        String interfaceId = (String) cMsg.getProperty(org.wso2.carbon.messaging.Constants.LISTENER_INTERFACE_ID);
+        if (interfaceId == null) {
+            if (log.isDebugEnabled()) {
+                log.debug("Interface id not found on the message, hence using the default interface");
+            }
+            interfaceId = Constants.DEFAULT_INTERFACE;
+        }
+
+        Map<String, Service> servicesOnInterface = services.get(interfaceId);
+        if (servicesOnInterface == null) {
+            log.error("No services found for interface : " + interfaceId);
+            //TODO: Throw an exception
+            return false;
+        }
+
+        String uri = (String) cMsg.getProperty(org.wso2.carbon.messaging.Constants.TO);
+        if (uri == null) {
+            log.error("Uri not found in the message");
+            return false;
+            //TODO: Throw an exception
+        }
+        String[] path = uri.split("/");
+        String basePath = path[0];
+
+        Service service = servicesOnInterface.get(basePath);  // 90% of the time we will find service from here
+        if (service == null) {
+            for (int i = 1; i < path.length; i++) {
+                basePath = basePath.concat("/").concat(path[i]);
+                service = servicesOnInterface.get(basePath);
+                if (service != null) {
+                    break;
+                }
+            }
+        }
+
+        if (service == null) {
+            log.error("No Service found to handle request sent to : " + uri);
+            return false;
+            //TODO: Throw an exception
+        }
+
+        //TODO: Dispatch to the service
+
+
+        return true;
     }
 
     @Override
@@ -68,8 +121,10 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
 
         Map<String, Service> servicesOnInterface = services.get(listenerInterface);
         if (servicesOnInterface == null) {
+            // Assumption : this is always sequential, no two simultaneous calls can get here
             servicesOnInterface = new HashMap<>();
             services.put(listenerInterface, servicesOnInterface);
+            listenerManager.bindInterface(listenerInterface);
         }
         if (servicesOnInterface.containsKey(basePath)) {
             //TODO: Through deployment exception
@@ -105,6 +160,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
             servicesOnInterface.remove(basePath);
             if (servicesOnInterface.isEmpty()) {
                 services.remove(listenerInterface);
+                listenerManager.unbindInterface(listenerInterface);
             }
         }
     }
