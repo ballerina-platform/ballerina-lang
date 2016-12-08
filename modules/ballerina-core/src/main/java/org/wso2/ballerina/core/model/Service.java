@@ -212,7 +212,7 @@ public class Service implements Executable {
 
         ResourceDispatcher resourceDispatcher = DispatcherRegistry.getInstance().getResourceDispatcher(protocol);
         if (resourceDispatcher == null) {
-            logger.error("No service dispatcher available to handle protocol : " + protocol);
+            logger.error("No resource dispatcher available to handle protocol : " + protocol);
             return false;
         }
 
