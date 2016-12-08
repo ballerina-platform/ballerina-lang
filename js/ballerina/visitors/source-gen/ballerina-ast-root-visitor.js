@@ -15,9 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './service-definition-visitor',
-        './function-definition-visitor'],
-    function(_, log, EventChannel, AbstractSourceGenVisitor, ServiceDefinitionVisitor, FunctionDefinitionVisitor) {
+define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './service-definition-visitor', './function-definition-visitor', './package-definition-visitor', './import-declaration-visitor'],
+    function(_, log, EventChannel, AbstractSourceGenVisitor, ServiceDefinitionVisitor, FunctionDefinitionVisitor, PackageDefinitionVisitor, ImportDeclarationVisitor) {
 
     var BallerinaASTRootVisitor = function() {
         AbstractSourceGenVisitor.call(this);
@@ -50,6 +49,16 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './se
     BallerinaASTRootVisitor.prototype.visitFunctionDefinition = function(functionDefinition){
         var functionDefinitionVisitor = new FunctionDefinitionVisitor(this);
         functionDefinition.accept(functionDefinitionVisitor);
+    };
+
+    BallerinaASTRootVisitor.prototype.visitPackageDefinition = function(packageDefinition){
+        var packageDefinitionVisitor = new PackageDefinitionVisitor(this);
+        packageDefinition.accept(packageDefinitionVisitor);
+    };
+
+    BallerinaASTRootVisitor.prototype.visitImportDeclaration = function(importDeclaration){
+        var importDeclarationVisitor = new ImportDeclarationVisitor(this);
+        importDeclaration.accept(importDeclarationVisitor);
     };
 
     return BallerinaASTRootVisitor;

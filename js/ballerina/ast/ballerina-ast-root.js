@@ -61,7 +61,6 @@ define(['lodash', './node'], function (_, ASTNode) {
      */
     BallerinaASTRoot.prototype.setImportDeclarations = function (importDeclarations) {
         if(!_.isNil(importDeclarations)){
-            importDeclarations.setParent(this);
             this.importDeclarations = importDeclarations;
         }
     };
