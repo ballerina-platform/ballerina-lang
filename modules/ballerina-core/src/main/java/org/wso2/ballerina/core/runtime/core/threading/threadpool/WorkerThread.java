@@ -26,8 +26,8 @@ import org.wso2.ballerina.core.runtime.core.BalContext;
  */
 public abstract class WorkerThread implements Runnable {
 
-    private BalContext context;
-    private BalCallback callback;
+    protected BalContext context;
+    protected BalCallback callback;
 
     public WorkerThread(BalContext context, BalCallback callback) {
         this.context = context;
