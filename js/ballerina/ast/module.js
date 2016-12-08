@@ -16,11 +16,11 @@
  * under the License.
  */
 define(['./ballerina-ast-factory', './ballerina-ast-root', './conditional-statement', './connection-declaration', './connector-definition',
-    './constant-definition', './expression', './function-definition', './if-statement', './node', './reply-statement', './resource-definition',
+    './constant-definition', './expression', './function-definition', './if-statement', './trycatch-statement', './node', './reply-statement', './resource-definition',
     './return-statement', './service-definition', './statement', './throw-statement', './type-definition', './type-converter-definition', './type-element',
     './variable-declaration', './while-statement', './worker-declaration'],
     function (BallerinaASTFactory, BallerinaASTRoot, ConditionalStatement, ConnectionDeclaration, ConnectorDefinition, ConstantDefinition,
-                Expression, FunctionDefinition, IfStatement, ASTNode, ReplyStatement, ResourceDefinition, ReturnStatement, ServiceDefinition,
+                Expression, FunctionDefinition, IfStatement, TryCatchStatement, ASTNode, ReplyStatement, ResourceDefinition, ReturnStatement, ServiceDefinition,
                 Statement, ThrowStatement, TypeConverterDefinition, TypeDefinition, TypeElement, VariableDeclaration, WhileStatement, WorkerDeclaration) {
         return  {
             BallerinaASTFactory: BallerinaASTFactory,
@@ -32,6 +32,7 @@ define(['./ballerina-ast-factory', './ballerina-ast-root', './conditional-statem
             Expression: Expression,
             FunctionDefinition: FunctionDefinition,
             IfStatement: IfStatement,
+            TryCatchStatement: TryCatchStatement,
             ASTNode: ASTNode,
             ReplyStatement: ReplyStatement,
             ResourceDefinition: ResourceDefinition,

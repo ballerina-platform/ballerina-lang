@@ -15,20 +15,31 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor'], function(_, log, EventChannel, AbstractSourceGenVisitor) {
+define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './resource-definition-visitor'],
+    function(_, log, EventChannel, AbstractSourceGenVisitor, ResourceDefinitionVisitor) {
 
-    var ServiceDefinitionVisitor = function() {
-        AbstractSourceGenVisitor.call(this);
+    /**
+     * @param parent
+     * @constructor
+     */
+    var ServiceDefinitionVisitor = function (parent) {
+        AbstractSourceGenVisitor.call(this, parent);
     };
 
     ServiceDefinitionVisitor.prototype = Object.create(AbstractSourceGenVisitor.prototype);
     ServiceDefinitionVisitor.prototype.constructor = ServiceDefinitionVisitor;
 
     ServiceDefinitionVisitor.prototype.canVisitServiceDefinition = function(serviceDefinition){
-        return false;
+        return true;
     };
 
     ServiceDefinitionVisitor.prototype.beginVisitServiceDefinition = function(serviceDefinition){
+        /**
+         * set the configuration start for the service definition language construct
+         * If we need to add additional parameters which are dynamically added to the configuration start
+         * that particular source generation has to be constructed here
+         */
+        this.appendSource(serviceDefinition.getConfigStart());
         log.info('Begin Visit Service Definition');
     };
 
@@ -37,7 +48,14 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor'], func
     };
 
     ServiceDefinitionVisitor.prototype.endVisitServiceDefinition = function(serviceDefinition){
+        this.appendSource(serviceDefinition.getConfigEnd() + "\n");
+        this.getParent().appendSource(this.getGeneratedSource());
         log.info('End Visit Service Definition');
+    };
+
+    ServiceDefinitionVisitor.prototype.visitResourceDefinition = function(resourceDefinition){
+        var resourceDefinitionVisitor = new ResourceDefinitionVisitor(this);
+        resourceDefinition.accept(resourceDefinitionVisitor);
     };
 
     return ServiceDefinitionVisitor;

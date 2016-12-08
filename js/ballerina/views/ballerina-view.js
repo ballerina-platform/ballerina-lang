@@ -15,13 +15,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['./ast-visitor', './diagram-rendering-visitor', './source-gen/module', './statement-visitor'],
-    function (ASTVisitor, DiagramRenderingVisitor, SourceGenModule, StatementVisitor) {
-        return  {
-            ASTVisitor: ASTVisitor,
-            DiagramRenderingVisitor: DiagramRenderingVisitor,
-            SourceGen: SourceGenModule,
-            StatementVisitor: StatementVisitor
-        }
-    });
+define(['lodash', 'log', 'event_channel'], function (_, log, EventChannel) {
+    var BallerinaView = function() {
 
+    };
+
+    BallerinaView.prototype = Object.create(EventChannel.prototype);
+    BallerinaView.prototype.constructor = BallerinaView;
+
+    BallerinaView.prototype.setWidth = function(newWidth) {};
+    BallerinaView.prototype.setHeight = function(newHeight) {};
+    BallerinaView.prototype.setXPosition = function(xPosition) {};
+    BallerinaView.prototype.setYPosition = function(yPosition) {};
+});

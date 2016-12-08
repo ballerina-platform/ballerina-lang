@@ -29,7 +29,7 @@
     <link rel="stylesheet" type="text/css" href="css/tool-palette.css"/>
     <link rel="stylesheet" type="text/css" href="css/workspace-explorer.css"/>
     <link rel="stylesheet" type="text/css" href="css/diagram/preview-pane.css"/>
-    <title>Integration Server Tooling</title>
+    <title>Ballerina Tooling</title>
 </head>
 
 <body>
@@ -41,7 +41,7 @@
         <div class="pull-left brand float-remove-xs text-center-xs">
             <a href="#">
                 <img src="lib/theme-wso2_1.0/images/logo-inverse.svg" alt="WSO2" title="WSO2" class="logo">
-                <h1>Integration Server Tooling</h1>
+                <h1>WSO2 Ballerina Tooling</h1>
             </a>
         </div>
         <div id="menu-bar-container" class="menu-bar">
@@ -85,17 +85,12 @@
                             <div id="tabs-container" class="col-sm-12">
                                 <div class="tab-headers">
                                 </div>
-                                <div  id="tab-content-wrapper" style="height: 100%;">
+                                <div  id="tab-content-wrapper" class="grid-background" style="height: 100%;">
                                     <!-- Start: tool-palette -->
                                     <div id="tool-palette-container"></div>
                                     <!-- End: tool-palette -->
-                                    <div class="tab-content tab-content-default"></div>
-                                    <!-- Start: Toggle Controls Container -->
-                                    <div class="toggle-controls-container">
-                                        <div class="toggle-to-source show-div"><img src="images/source.svg" id="icon-toggle-source"></div>
-                                        <div class="toggle-to-design hide-div"><img src="images/design.svg" id="icon-toggle-design"></div>
-                                    </div>
-                                    <!-- End: Toggle Controls Container  -->
+                                    <div class="tab-content tab-content-default "></div>
+
                                 </div>
                             </div>
                         </div>
@@ -115,7 +110,7 @@
 <!-- Start: footer -->
 <footer class="footer">
     <div id="footer-container" class="container-fluid">
-        <p>WSO2 Integration Server Tooling v0.0.1 | ©
+        <p>WSO2 Ballerina Tooling v0.0.1 | ©
             <script>document.write(new Date().getFullYear());</script>
             <a href="http://wso2.com/" target="_blank"><i class="icon fw fw-wso2"></i> Inc</a>.
         </p>
@@ -129,10 +124,25 @@
     <div>
         <!-- Start: Canvas Container -->
         <div class="canvas-container">
+            <!-- Start: TopRight Controls Container -->
+            <div class="top-right-controls-container">
+                <div class="package-btn btn-icon"><i class="fw fw-lg fw-info fw-inverse fw-helper fw-helper-circle"></i></div>
+            </div>
+            <!-- End: TopRight Controls Container  -->
+            <!-- Start: BottomRight Controls Container -->
+            <div class="bottom-right-controls-container">
+                <div class="view-source-btn btn-icon"><i class="fw fw-lg fw-code fw-inverse fw-helper fw-helper-circle"></i></div>
+            </div>
+            <!-- End: BottomRight Controls Container  -->
         </div>
         <!-- End: Canvas Container -->
         <!-- Start: Preview Container -->
         <div class="source-container source-view-disabled" id="source-container-id">
+            <!-- Start: BottomRight Controls Container -->
+            <div class="bottom-right-controls-container">
+                <div class="view-design-btn btn-icon"><i class="fw fw-lg fw-design-view fw-inverse fw-helper fw-helper-circle"></i></div>
+            </div>
+            <!-- End: BottomRight Controls Container  -->
         </div>
         <!-- End Preview Container -->
         <!-- Start: Preview Container -->
@@ -437,7 +447,7 @@
                     container: ".tab-headers",
                     cssClass: {
                         list: 'nav nav-tabs',
-                        item: 'nav-tab-header',
+                        item: '',
                         active: 'active'
                     }
                 },
@@ -473,24 +483,23 @@
                                 container: '.toggle-controls-container',
                                 sourceIcon: '.toggle-to-source',
                                 designIcon: '.toggle-to-design'
+                            },
+                            file_editor: {
+                                cssClass:{
+                                    outer_box: 'outer-box',
+                                    service_container: 'service-container',
+                                    outer_div: 'panel panel-default container-outer-div',
+                                    panel_title: 'panel-title',
+                                    panel_icon: 'panel-icon',
+                                    service_icon: 'fw fw-rest-service fw-inverse',
+                                    connector_icon:'fw fw-dgm-connector fw-inverse',
+                                    function_icon:'fw fw-function fw-inverse',
+                                    title_link:'collapsed',
+                                    panel_right_icon:'fw fw-down pull-right right-icon-clickable',
+                                    body_div:'panel-collapse collapse',
+                                    canvas: 'panel-body'
+                                }
                             }
-                        }
-                    },
-                    file_editor: {
-
-                        cssClass:{
-                            outer_box: 'outer-box',
-                            service_container: 'service-container',
-                            outer_div: 'panel panel-default container-outer-div',
-                            panel_title: 'panel-title',
-                            panel_icon: 'panel-icon',
-                            service_icon: 'fw fw-dgm-service fw-inverse',
-                            connector_icon:'fw fw-dgm-connector fw-inverse',
-                            function_icon:'fw fw-function fw-inverse',
-                            title_link:'collapsed',
-                            panel_right_icon:'fw fw-down pull-right right-icon-clickable',
-                            body_div:'panel-collapse collapse',
-                            canvas: 'panel-body'
                         }
                     }
                 },

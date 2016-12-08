@@ -17,14 +17,21 @@
  */
 define(['event_channel', 'lodash'], function(EventChannel, _){
 
-    var ASTNode = function(startIndex, length, parent, type) {
+    /**
+     * Constructor for the ASTNode
+     * @param type
+     * @param configStart
+     * @param configEnd
+     * @constructor
+     */
+    var ASTNode = function(type, configStart, configEnd) {
         this.object = undefined;
         this.parent = undefined;
         this.children = [];
-        this.startIndex = startIndex;
-        this.length = length;
         this.type = type;
         this.id = uuid();
+        this.configStart = configStart;
+        this.configEnd = configEnd;
     };
 
     ASTNode.prototype = Object.create(EventChannel.prototype);
@@ -52,6 +59,22 @@ define(['event_channel', 'lodash'], function(EventChannel, _){
 
     ASTNode.prototype.getStartIndex = function () {
         return this.startIndex;
+    };
+
+    /**
+     * Get the config start string
+     * @returns {ASTNode.configStart}
+     */
+    ASTNode.prototype.getConfigStart = function () {
+        return this.configStart;
+    };
+
+    /**
+     * Get the config end string
+     * @returns {ASTNode.configEnd}
+     */
+    ASTNode.prototype.getConfigEnd = function () {
+        return this.configEnd;
     };
 
     /**

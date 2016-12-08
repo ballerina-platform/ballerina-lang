@@ -29,6 +29,8 @@ define(['lodash', './node'], function (_, ASTNode) {
      * @constructor
      */
     var BallerinaASTRoot = function (args) {
+        this.packageDefinition = _.get(args, 'packageDefinition');
+        this.importDeclarations = _.get(args, 'importDeclarations', []);
         this.serviceDefinitions = _.get(args, 'serviceDefinitions', []);
         this.functionDefinitions = _.get(args, 'functionDefinitions', []);
         this.connectorDefinitions = _.get(args, 'connectorDefinitions', []);
@@ -42,6 +44,28 @@ define(['lodash', './node'], function (_, ASTNode) {
     BallerinaASTRoot.prototype = Object.create(ASTNode.prototype);
     BallerinaASTRoot.prototype.constructor = BallerinaASTRoot;
 
+    /**
+     * Setter function for PackageDefinition 
+     * @param packageDefinition
+     */
+    BallerinaASTRoot.prototype.setPackageDefinition = function (packageDefinition){
+        if(!_.isNil(packageDefinition)){
+            packageDefinition.setParent(this);
+            this.packageDefinition  = packageDefinition;
+        }
+    };
+
+    /**
+     * Setter for ImportDeclarations
+     * @param importDeclarations
+     */
+    BallerinaASTRoot.prototype.setImportDeclarations = function (importDeclarations) {
+        if(!_.isNil(importDeclarations)){
+            importDeclarations.setParent(this);
+            this.importDeclarations = importDeclarations;
+        }
+    };
+    
     /**
      * Setter function for ServiceDefinition
      * @param serviceDefinitions

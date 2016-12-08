@@ -25,35 +25,35 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', 'app/diagram-core/models/poi
          * @param viewOptions Options to configure the view.
          * @constructor
          */
-        var ResourceDefinitionView = function (model, container, viewOptions) {
-            if (!_.isNil(model) && !_.isNil(container)) {
-                this._model = model;
-                this._container = container;
+        var ResourceDefinitionView = function (args) {
+            this._model =  _.get(args, 'model', null);
+            this._viewOptions =  _.get(args, 'viewOptions', {});
+            this._container = _.get(args, 'container', null);
+            if (!_.isNil(this._model) && !_.isNil(this._container)) {
 
                 // Center point of the resource
-                this._viewOptions = _.get(viewOptions, "viewOptions", {});
-                this._viewOptions.centerPoint = _.get(viewOptions, "viewOptions.centerPoint", {});
-                this._viewOptions.centerPoint.x = _.get(viewOptions, "viewOptions.centerPoint.x", 50);
-                this._viewOptions.centerPoint.y = _.get(viewOptions, "viewOptions.centerPoint.y", 100);
+                this._viewOptions.centerPoint = _.get(args, "viewOptions.centerPoint", {});
+                this._viewOptions.centerPoint.x = _.get(args, "viewOptions.centerPoint.x", 50);
+                this._viewOptions.centerPoint.y = _.get(args, "viewOptions.centerPoint.y", 100);
 
                 // View options for height and width of the heading box.
-                this._viewOptions.heading = _.get(viewOptions, "viewOptions.heading", {});
-                this._viewOptions.heading.hight = _.get(viewOptions, "viewOptions.heading.height", 25);
-                this._viewOptions.heading.width = _.get(viewOptions, "viewOptions.heading.width", 1000);
+                this._viewOptions.heading = _.get(args, "viewOptions.heading", {});
+                this._viewOptions.heading.hight = _.get(args, "viewOptions.heading.height", 25);
+                this._viewOptions.heading.width = _.get(args, "viewOptions.heading.width", 1000);
 
                 // View options for height and width of the resource icon in the heading box.
-                this._viewOptions.heading.icon = _.get(viewOptions, "viewOptions.heading.icon", {});
-                this._viewOptions.heading.icon.height = _.get(viewOptions, "viewOptions.heading.icon.height", 25);
-                this._viewOptions.heading.icon.width = _.get(viewOptions, "viewOptions.heading.icon.width", 25);
+                this._viewOptions.heading.icon = _.get(args, "viewOptions.heading.icon", {});
+                this._viewOptions.heading.icon.height = _.get(args, "viewOptions.heading.icon.height", 25);
+                this._viewOptions.heading.icon.width = _.get(args, "viewOptions.heading.icon.width", 25);
 
-                this._viewOptions.contentCollapsed = _.get(viewOptions, "viewOptions.contentCollapsed", false);
-                this._viewOptions.contentWidth = _.get(viewOptions, "viewOptions.contentWidth", 1000);
-                this._viewOptions.contentHeight = _.get(viewOptions, "viewOptions.contentHeight", 200);
+                this._viewOptions.contentCollapsed = _.get(args, "viewOptions.contentCollapsed", false);
+                this._viewOptions.contentWidth = _.get(args, "viewOptions.contentWidth", 1000);
+                this._viewOptions.contentHeight = _.get(args, "viewOptions.contentHeight", 200);
 
 
             } else {
-                log.error("Invalid args received for creating a resource definition. Model: " + model +
-                    ". Container: " + container);
+                log.error("Invalid args received for creating a resource definition view. Model: " + this._model +
+                    ". Container: " + this._container);
             }
         };
 
@@ -97,7 +97,10 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', 'app/diagram-core/models/poi
             var headingStart = new Point(this._viewOptions.centerPoint.x, this._viewOptions.centerPoint.y);
             var contentStart = new Point(this._viewOptions.centerPoint.x, this._viewOptions.centerPoint.y + this._viewOptions.heading.hight);
 
-            var headerGroup = D3utils.group(d3.select(svgContainer));
+            var resourceGroup = D3utils.group(d3.select(svgContainer));
+            resourceGroup.attr("id","resourceGroup");
+            var headerGroup = D3utils.group(resourceGroup);
+            headerGroup.attr("id","headerGroup");
 
             var headingRect = D3utils.rect(headingStart.x(), headingStart.y(), this._viewOptions.heading.width, this._viewOptions.heading.hight, 0, 0, headerGroup);
             // TODO: Move these styling to css
@@ -105,10 +108,12 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', 'app/diagram-core/models/poi
             headingRect.attr('stroke-width', "1");
             headingRect.attr('stroke', "#cbcbcb");
 
+
             // Drawing resource icon
             // TODO : FIX
             var headingRectIcon = D3utils.rect(headingStart.x(), headingStart.y(), this._viewOptions.heading.icon.width,
-                this._viewOptions.heading.icon.height, 0, 0, headerGroup).classed("fw fw-dgm-service fw-inverse");
+                this._viewOptions.heading.icon.height, 0, 0, headerGroup);
+
 
             // Create rect for the http method text
             var httpMethodRect = D3utils.rect(headingStart.x() + this._viewOptions.heading.icon.width, headingStart.y() + 0.5, this._viewOptions.heading.icon.width + 25,
@@ -129,16 +134,33 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', 'app/diagram-core/models/poi
             var resourcePath = D3utils.textElement(headingStart.x() + this._viewOptions.heading.icon.width + 90, headingStart.y() + 4, this._model.getResourcePath(), headerGroup);
             resourcePath.attr('dominant-baseline', "text-before-edge");
 
-            var contentRect = D3utils.rect(contentStart.x(), contentStart.y(), this._viewOptions.contentWidth, this._viewOptions.contentHeight, 0, 0, d3.select(svgContainer));
+
+
+            var contentGroup = D3utils.group(resourceGroup);
+            contentGroup.attr('id',"contentGroup");
+
+            var contentRect = D3utils.rect(contentStart.x(), contentStart.y(), this._viewOptions.contentWidth, this._viewOptions.contentHeight, 0, 0, contentGroup).classed("resource-content", true);;
             // TODO: Move these styling to css
-            contentRect.attr('fill', "#FFFFFF");
+            //contentRect.attr('fill', "#FFFFFF");
             contentRect.attr('stroke-width', "1");
             contentRect.attr('stroke', "#cbcbcb");
+             //TODO: add dynamic properties for arrow
+            var arrowLine = D3utils.line(90,250, 120,250, contentGroup);
+            var arrowHead = D3utils.inputTriangle(115,250,contentGroup);
+            var sample = contentGroup;
+
+
+           headerGroup.on("click", function () {
+               log.info("Header clicked");
+               sample.attr("display","none");
+           });
+
+
 
             // Move up the resource content rect before client lifeline so that the client lifeline will go through the
             // rect.
-            var contentRectNode = $(contentRect.node());
-            $(svgContainer).prepend(contentRectNode);
+            //var contentRectNode = $(contentRect.node());
+            //$(svgContainer).prepend(contentRectNode);
 
             // Drawing default worker
             var defaultWorkerOptions = {
@@ -170,14 +192,22 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', 'app/diagram-core/models/poi
                 "text": {
                     "value": "Resource Worker",
                     "class": "lifeline-text"
+                },
+                "action": {
+                    "value": "Start"
+                },
+                "worker": {
+                    "value":true
                 }
             };
-            var defaultWorker = new LifeLine(svgContainer, defaultWorkerOptions);
+            var defaultWorker = new LifeLine(contentGroup, defaultWorkerOptions);
             defaultWorker.render();
+
+
 
             log.debug("Rendering Resource View");
         };
 
-        return ResourceDefinitionView
+        return ResourceDefinitionView;
 
     });

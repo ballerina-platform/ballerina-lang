@@ -15,7 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor'], function(_, log, EventChannel, AbstractSourceGenVisitor) {
+define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './service-definition-visitor',
+        './function-definition-visitor'],
+    function(_, log, EventChannel, AbstractSourceGenVisitor, ServiceDefinitionVisitor, FunctionDefinitionVisitor) {
 
     var BallerinaASTRootVisitor = function() {
         AbstractSourceGenVisitor.call(this);
@@ -38,6 +40,16 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor'], func
 
     BallerinaASTRootVisitor.prototype.endVisitBallerinaASTRoot = function(serviceDefinition){
         log.info('End Visit BallerinaASTRoot');
+    };
+
+    BallerinaASTRootVisitor.prototype.visitServiceDefinition = function(serviceDefinition){
+        var serviceDefinitionVisitor = new ServiceDefinitionVisitor(this);
+        serviceDefinition.accept(serviceDefinitionVisitor);
+    };
+
+    BallerinaASTRootVisitor.prototype.visitFunctionDefinition = function(functionDefinition){
+        var functionDefinitionVisitor = new FunctionDefinitionVisitor(this);
+        functionDefinition.accept(functionDefinitionVisitor);
     };
 
     return BallerinaASTRootVisitor;

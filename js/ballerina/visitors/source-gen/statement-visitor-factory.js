@@ -15,16 +15,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['./service-definition-visitor', './ballerina-ast-root-visitor',
-    './resource-definition-visitor', './function-definition-visitor', './try-catch-statement-visitor'],
-    function (ServiceDefinitionVisitor, BallerinaASTRootVisitor, ResourceDefinitionVisitor,
-              FunctionDefinitionVisitor, TryCatchStatementVisitor) {
-        return  {
-            ServiceDefinitionVisitor: ServiceDefinitionVisitor,
-            ResourceDefinitionVisitor: ResourceDefinitionVisitor,
-            BallerinaASTRootVisitor: BallerinaASTRootVisitor,
-            FunctionDefinitionVisitor: FunctionDefinitionVisitor,
-            TryCatchStatementVisitor: TryCatchStatementVisitor
-        }
-    });
+define(['lodash', 'log', 'event_channel', '../../ast/module', './try-catch-statement-visitor'], function (_, log, EventChannel, AST, TryCatchStatementVisitor) {
 
+    var StatementVisitorFactor = function () {
+    };
+
+    StatementVisitorFactor.prototype.getStatementVisitor = function (statement) {
+        if (statement instanceof AST.TryCatchStatement) {
+            return new TryCatchStatementVisitor();
+        }
+    };
+
+    return StatementVisitorFactor;
+});

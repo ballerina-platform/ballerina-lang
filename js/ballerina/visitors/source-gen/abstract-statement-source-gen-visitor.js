@@ -15,37 +15,37 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', '../ast-visitor'], function(_, log, EventChannel, ASTVisitor) {
+define(['lodash', 'log', 'event_channel', '../statement-visitor', './abstract-source-gen-visitor'], function(_, log, EventChannel, StatementVisitor, AbstractSourceGenVisitor) {
 
     /**
-     * Constructor for the Abstract Source Generation Visitor
+     * Constructor for the Abstract Source Generation Visitor for the statements
      * @param parent
      * @constructor
      */
-    var AbstractSourceGenVisitor = function(parent) {
+    var AbstractStatementSourceGenVisitor = function(parent) {
         this._generatedSource = '';
         this.parent = parent;
-        ASTVisitor.call(this);
+        StatementVisitor.call(this);
     };
 
-    AbstractSourceGenVisitor.prototype = Object.create(ASTVisitor.prototype);
-    AbstractSourceGenVisitor.prototype.constructor = AbstractSourceGenVisitor;
+    AbstractStatementSourceGenVisitor.prototype = Object.create(StatementVisitor.prototype);
+    AbstractStatementSourceGenVisitor.prototype.constructor = AbstractSourceGenVisitor;
 
-    AbstractSourceGenVisitor.prototype.getGeneratedSource = function () {
+    AbstractStatementSourceGenVisitor.prototype.getGeneratedSource = function () {
         return this._generatedSource;
     };
 
-    AbstractSourceGenVisitor.prototype.setGeneratedSource = function (generatedSource) {
+    AbstractStatementSourceGenVisitor.prototype.setGeneratedSource = function (generatedSource) {
         this._generatedSource = generatedSource;
     };
 
-    AbstractSourceGenVisitor.prototype.appendSource = function (source) {
+    AbstractStatementSourceGenVisitor.prototype.appendSource = function (source) {
         this._generatedSource += source;
     };
 
-    AbstractSourceGenVisitor.prototype.getParent = function () {
+    AbstractStatementSourceGenVisitor.prototype.getParent = function () {
         return this.parent;
     };
 
-    return AbstractSourceGenVisitor;
+    return AbstractStatementSourceGenVisitor;
 });
