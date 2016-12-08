@@ -15,20 +15,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './node'], function (_, log, ASTNode) {
+define(['lodash', 'log', './node', './worker-declaration'], function (_, log, ASTNode, WorkerDeclaration) {
 
     var ResourceDefinition = function (args) {
         this._path = _.get(args, 'path', '/');
         this._method = _.get(args, 'method', 'GET');
-        this.connectionDeclarations =_.get(args, 'connectorDefinitions', []);
-        this.variableDeclarations =_.get(args, 'variableDeclarations', []);
-        this.workerDeclarations = _.get(args, 'workerDeclarations', []);
-        this.statements = _.get(args, 'statements', []);
-        this.resourceArguments = _.get(args, 'resourceArguments', []);
-        this.resourceName = _.get(args, 'resourceName', undefined);
+        this._connectionDeclarations = _.get(args, 'connectorDefinitions', []);
+        this._variableDeclarations = _.get(args, 'variableDeclarations', []);
+        this._workerDeclarations = _.get(args, 'workerDeclarations', []);
+        this._statements = _.get(args, 'statements', []);
+        this._resourceArguments = _.get(args, 'resourceArguments', []);
+        this._resourceName = _.get(args, 'resourceName');
 
         // TODO: All the types should be referred from the global constants
-        ASTNode.call(this, 'Resource');
+        ASTNode.call(this, 'Resource', 'resource {', '}');
+
+        // Adding the default worker declaration.
+        var defaultWorker = new WorkerDeclaration({isDefaultWorker: true});
+        this._workerDeclarations.push(defaultWorker);
     };
 
     ResourceDefinition.prototype = Object.create(ASTNode.prototype);
@@ -49,46 +53,55 @@ define(['lodash', 'log', './node'], function (_, log, ASTNode) {
 
     ResourceDefinition.prototype.setConnections = function (connections) {
         if (!_.isNil(connections)) {
-            this.connectionDeclarations = connections;
+            this._connectionDeclarations = connections;
         }
     };
     ResourceDefinition.prototype.setVariables = function (variables) {
         if (!_.isNil(variables)) {
-            this.variableDeclarations = variables;
+            this._variableDeclarations = variables;
         }
     };
     ResourceDefinition.prototype.setWorkers = function (workers) {
         if (!_.isNil(workers)) {
-            this.workerDeclarations = workers;
+            this._workerDeclarations = workers;
         }
     };
 
     ResourceDefinition.prototype.setStatements = function (statements) {
         if (!_.isNil(statements)) {
-            this.statements = statements;
+            this._statements = statements;
         }
     };
 
     ResourceDefinition.prototype.setResourceArguments = function (resourceArgs) {
         if (!_.isNil(resourceArgs)) {
-            this.resourceArguments = resourceArgs;
+            this._resourceArguments = resourceArgs;
+        }
+    };
+
+    ResourceDefinition.prototype.setResourceName = function (resourceName) {
+        if (!_.isNil(resourceName)) {
+            this.resourceName = resourceName;
+        } else {
+            log.error('Invalid Resource name [' + resourceName + '] Provided');
+            throw 'Invalid Resource name [' + resourceName + '] Provided';
         }
     };
 
     ResourceDefinition.prototype.getStatements = function () {
-        return this.statements;
+        return this._statements;
     };
 
     ResourceDefinition.prototype.getWorkers = function () {
-        return this.workerDeclarations;
+        return this._workerDeclarations;
     };
 
     ResourceDefinition.prototype.getVariables = function () {
-        return this.variableDeclarations;
+        return this._variableDeclarations;
     };
 
     ResourceDefinition.prototype.getConnections = function () {
-        return this.connectionDeclarations;
+        return this._connectionDeclarations;
     };
 
     ResourceDefinition.prototype.getResourceMethod = function () {
@@ -100,7 +113,11 @@ define(['lodash', 'log', './node'], function (_, log, ASTNode) {
     };
 
     ResourceDefinition.prototype.getResourceArguments = function () {
-        return this.resourceArguments;
+        return this._resourceArguments;
+    };
+
+    ResourceDefinition.prototype.getResourceName = function () {
+        return this.resourceName;
     };
 
     ResourceDefinition.prototype.resourceParent = function (parent) {
@@ -108,19 +125,6 @@ define(['lodash', 'log', './node'], function (_, log, ASTNode) {
             this.parent = parent;
         } else {
             return this.parent;
-        }
-    };
-
-    ResourceDefinition.prototype.getResourceName = function () {
-        return this.resourceName;
-    };
-
-    ResourceDefinition.prototype.setResourceName = function (resourceName) {
-        if (!_.isNil(resourceName)) {
-            this.resourceName = resourceName;
-        } else {
-            log.error('Invalid Resource name [' + resourceName + '] Provided');
-            throw 'Invalid Resource name [' + resourceName + '] Provided';
         }
     };
 

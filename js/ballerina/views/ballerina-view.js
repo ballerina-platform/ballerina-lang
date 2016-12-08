@@ -15,16 +15,35 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel'], function (_, log, EventChannel) {
-    var BallerinaView = function() {
+define(['lodash', 'log', './../visitors/ast-visitor'], function (_, log, ASTVisitor) {
 
+    /**
+     * A common class which consists functions of moving or resizing views.
+     * @constructor
+     */
+    var BallerinaView = function () {
+        ASTVisitor.call(this);
     };
 
-    BallerinaView.prototype = Object.create(EventChannel.prototype);
+    BallerinaView.prototype = Object.create(ASTVisitor.prototype);
     BallerinaView.prototype.constructor = BallerinaView;
 
-    BallerinaView.prototype.setWidth = function(newWidth) {};
-    BallerinaView.prototype.setHeight = function(newHeight) {};
-    BallerinaView.prototype.setXPosition = function(xPosition) {};
-    BallerinaView.prototype.setYPosition = function(yPosition) {};
+    BallerinaView.prototype.setWidth = function (newWidth) {
+    };
+    BallerinaView.prototype.setHeight = function (newHeight) {
+    };
+    BallerinaView.prototype.setXPosition = function (xPosition) {
+    };
+    BallerinaView.prototype.setYPosition = function (yPosition) {
+    };
+    BallerinaView.prototype.getWidth = function () {
+    };
+    BallerinaView.prototype.getHeight = function () {
+    };
+    BallerinaView.prototype.getXPosition = function () {
+    };
+    BallerinaView.prototype.getYPosition = function () {
+    };
+
+    return BallerinaView;
 });

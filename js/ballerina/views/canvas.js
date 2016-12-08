@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['log', 'lodash', 'jquery', 'd3', './../visitors/ast-visitor', 'd3utils'], function(log, _, $, d3, AstVisitor, D3Utils){
+define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor', './ballerina-view'], function(log, _, $, d3, D3Utils, AstVisitor, BallerinaView){
 
     var Canvas = function(container, viewOptions) {
 
@@ -52,9 +52,11 @@ define(['log', 'lodash', 'jquery', 'd3', './../visitors/ast-visitor', 'd3utils']
         // this._mainSVGGroup = this.d3svg.draw.group(this._svg).attr("id", this.viewOptions.diagram.wrapperId)
         //     .attr("width", "100%")
         //     .attr("height", "100%");
+
+        BallerinaView.call(this);
     };
 
-    Canvas.prototype = Object.create(AstVisitor.prototype);
+    Canvas.prototype = Object.create(BallerinaView.prototype);
     Canvas.prototype.constructor = Canvas;
 
     Canvas.prototype.getSVG = function () {

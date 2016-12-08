@@ -15,62 +15,66 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './canvas', './../ast/service-definition', './life-line','./resource-definition-view'],
-    function (_, log, Canvas, ServiceDefinition, LifeLine,ResourceDefinitionView) {
+define(['lodash', 'log', './canvas', './../ast/service-definition', './life-line', './resource-definition-view'],
+    function (_, log, Canvas, ServiceDefinition, LifeLine, ResourceDefinitionView) {
 
         /**
-         * The view for the service definition model.
-         * @param model Service definition model.
-         * @param container The SVG element.
-         * @param viewOptions Options to configure the view.
+         * The view to represent a service definition which is an AST visitor.
+         * @param {Object} args - Arguments for creating the view.
+         * @param {ServiceDefinition} args.model - The service definition model.
+         * @param {Object} args.container - The HTML container to which the view should be added to.
+         * @param {Object} [args.viewOptions={}] - Configuration values for the view.
          * @constructor
          */
         var ServiceDefinitionView = function (args) {
-            this._model =  _.get(args, 'model', null);
-            this._viewOptions =  _.get(args, 'viewOptions', {});
-            this._container = _.get(args, 'container', null);
-            this._options =  _.get(args, 'options', null);
-            this._resourceViewList = [];
-            if (_.isNull(this._model) && _.isNil(this._container)){
-                log.error("Invalid args received for creating a service definition. Model: " + model + ". Container: " +
-                    container);
+            this._model = _.get(args, "model");
+            this._container = _.get(args, "container");
+            this._resourceViewList = _.get(args, "resourceViewList", []);
+            this._viewOptions = _.get(args, "viewOptions", {});
+
+            if (_.isNil(this._model) || !(this._model instanceof ServiceDefinition)) {
+                log.error("Service definition is undefined or is of different type." + this._model);
+                throw "Service definition is undefined or is of different type." + this._model;
             }
+
+            if (_.isNil(this._container)) {
+                log.error("Container for service definition is undefined." + this._container);
+                throw "Container for service definition is undefined." + this._container;
+            }
+
+            Canvas.call(this);
         };
 
         ServiceDefinitionView.prototype = Object.create(Canvas.prototype);
         ServiceDefinitionView.prototype.constructor = ServiceDefinitionView;
 
-        ServiceDefinitionView.prototype.addResourceViewList = function(view){
-            if(!_.isNil(view)){
-                this._resourceViewList.push(view);
-            }
-        }
-        ServiceDefinitionView.prototype.getResourceViewList = function(){
-            return this._resourceViewList;
-        }
         ServiceDefinitionView.prototype.setModel = function (model) {
             if (!_.isNil(model) && model instanceof ServiceDefinition) {
                 this._model = model;
             } else {
-                log.error("Unknown definition received for service definition. Model: " + model);
+                log.error("Service definition is undefined or is of different type." + model);
+                throw "Service definition is undefined or is of different type." + model;
             }
-        };
-
-        ServiceDefinitionView.prototype.setChildContainer = function(svg){
-            if (!_.isNil(svg)) {
-                this._childContainer = svg;
-            }
-        };
-        ServiceDefinitionView.prototype.getChildContainer = function(){
-            return this._childContainer ;
-
         };
 
         ServiceDefinitionView.prototype.setContainer = function (container) {
             if (!_.isNil(container)) {
                 this._container = container;
             } else {
-                log.error("SVG container for the service is null or empty.");
+                log.error("Container for service definition is undefined." + container);
+                throw "Container for service definition is undefined." + container;
+            }
+        };
+
+        ServiceDefinitionView.prototype.addResourceViewList = function (view) {
+            if (!_.isNil(view)) {
+                this._resourceViewList.push(view);
+            }
+        };
+
+        ServiceDefinitionView.prototype.setChildContainer = function (svg) {
+            if (!_.isNil(svg)) {
+                this._childContainer = svg;
             }
         };
 
@@ -86,12 +90,24 @@ define(['lodash', 'log', './canvas', './../ast/service-definition', './life-line
             return this._container;
         };
 
+        ServiceDefinitionView.prototype.getResourceViewList = function () {
+            return this._resourceViewList;
+        };
+
+        ServiceDefinitionView.prototype.getChildContainer = function () {
+            return this._childContainer;
+        };
+
         ServiceDefinitionView.prototype.getViewOptions = function () {
             return this._viewOptions;
         };
 
+        /**
+         * Rendering the view of the service definition.
+         * @returns {Object} - The svg group which the service definition view resides in.
+         */
         ServiceDefinitionView.prototype.render = function () {
-            this.drawAccordionCanvas(this._container, this._options, this._model.id, 'service');
+            this.drawAccordionCanvas(this._container, this._viewOptions, this._model.id, 'service');
             var divId = this._model.id;
             var currentContainer = $('#' + divId);
             this._container = currentContainer;
@@ -103,17 +119,24 @@ define(['lodash', 'log', './canvas', './../ast/service-definition', './life-line
             clientLifeLine.render();
             this.getModel().accept(this);
         };
-        ServiceDefinitionView.prototype.canVisitServiceDefinition = function(serviceDefinition){
+
+        ServiceDefinitionView.prototype.canVisitServiceDefinition = function (serviceDefinition) {
             return true;
         };
-        ServiceDefinitionView.prototype.visitServiceDefinition = function(serviceDefinition){
+
+        ServiceDefinitionView.prototype.visitServiceDefinition = function (serviceDefinition) {
 
         };
 
-        ServiceDefinitionView.prototype.canVisitResourceDefinition = function(resourceDefinition){
+        ServiceDefinitionView.prototype.canVisitResourceDefinition = function (resourceDefinition) {
             return true;
         };
-        ServiceDefinitionView.prototype.visitResourceDefinition = function(resourceDefinition){
+
+        /**
+         * Calls the render method for a resource definition.
+         * @param {ResourceDefinition} resourceDefinition - The resource definition model.
+         */
+        ServiceDefinitionView.prototype.visitResourceDefinition = function (resourceDefinition) {
             log.info("Visiting resource definition");
             var resourceContainer  = this.getChildContainer();
             // If more than 1 resource
@@ -131,7 +154,56 @@ define(['lodash', 'log', './canvas', './../ast/service-definition', './life-line
             }
             resourceDefinitionView.render();
             this.addResourceViewList(resourceDefinitionView);
-
         };
+
+        /**
+         * @inheritDoc
+         */
+        ServiceDefinitionView.prototype.setHeight = function (newHeight) {
+            // TODO : Implement
+        };
+
+        /**
+         * @inheritDoc
+         */
+        ServiceDefinitionView.prototype.setXPosition = function (xPosition) {
+            // TODO : Implement
+        };
+
+        /**
+         * @inheritDoc
+         */
+        ServiceDefinitionView.prototype.setYPosition = function (yPosition) {
+            // TODO : Implement
+        };
+
+        /**
+         * @inheritDoc
+         */
+        ServiceDefinitionView.prototype.getWidth = function () {
+            // TODO : Implement
+        };
+
+        /**
+         * @inheritDoc
+         */
+        ServiceDefinitionView.prototype.getHeight = function () {
+            // TODO : Implement
+        };
+
+        /**
+         * @inheritDoc
+         */
+        ServiceDefinitionView.prototype.getXPosition = function () {
+            // TODO : Implement
+        };
+
+        /**
+         * @inheritDoc
+         */
+        ServiceDefinitionView.prototype.getYPosition = function () {
+            // TODO : Implement
+        };
+
         return ServiceDefinitionView;
     });

@@ -115,14 +115,14 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace']
             var functionDefinitions1 = [];
 
             var functionDefinition1 = ballerinaASTFactory.createFunctionDefinition();
-            functionDefinitions.push(functionDefinition1);
-            ballerinaAstRoot.addChild(functionDefinition1);
-            ballerinaAstRoot.setFunctionDefinitions(functionDefinitions);
+            // functionDefinitions.push(functionDefinition1);
+            // ballerinaAstRoot.addChild(functionDefinition1);
+            // ballerinaAstRoot.setFunctionDefinitions(functionDefinitions);
 
-            var functionDefinition2 = ballerinaASTFactory.createFunctionDefinition();
-            var functionDefinition3 = ballerinaASTFactory.createFunctionDefinition();
-            functionDefinitions1.push(functionDefinition2);
-            functionDefinitions1.push(functionDefinition3);
+            // var functionDefinition2 = ballerinaASTFactory.createFunctionDefinition();
+            // var functionDefinition3 = ballerinaASTFactory.createFunctionDefinition();
+            // functionDefinitions1.push(functionDefinition2);
+            // functionDefinitions1.push(functionDefinition3);
 
             var package1 = new Ballerina.env.Package({name: 'PACKAGE1'});
             package1.addServiceDefinitions(serviceDefinitions);

@@ -15,17 +15,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['./action-definition-view', './ballerina-file-editor', './canvas', './connection-declaration', './function-definition-view', './reply-statement-view',
-    './resource-definition-view', './return-statement-view', './service-definition-view', './throw-statement-view', './while-statement-view', './worker-declaration',
-    './source-view'],
-    function (ActionDefinitionView, BallerinaFileEditor, Canvas, ConnectionDeclaration, FunctionDefinitionView, ReplyStatementView,
-              ResourceDefinitionView, ReturnStatementView, ServiceDefinitionView, ThrowStatementView, WhileStatementView, WorkerDeclaration,
-                SourceView) {
+define(['./action-definition-view', './ballerina-file-editor', './ballerina-view', './canvas',
+        './connection-declaration-view', './function-definition-view', './reply-statement-view',
+        './resource-definition-view', './return-statement-view', './service-definition-view', './throw-statement-view',
+        './while-statement-view', './worker-declaration-view', './source-view' ],
+    function (ActionDefinitionView, BallerinaFileEditor, BallerinaView, Canvas,
+              ConnectionDeclarationView, FunctionDefinitionView, ReplyStatementView,
+              ResourceDefinitionView, ReturnStatementView, ServiceDefinitionView, ThrowStatementView,
+              WhileStatementView, WorkerDeclarationView, SourceView) {
         return  {
+            BallerinaView: BallerinaView,
             ActionDefinitionView: ActionDefinitionView,
             BallerinaFileEditor: BallerinaFileEditor,
             Canvas: Canvas,
-            ConnectionDeclaration: ConnectionDeclaration,
+            ConnectionDeclarationView: ConnectionDeclarationView,
             FunctionDefinitionView: FunctionDefinitionView,
             ReplyStatementView: ReplyStatementView,
             ResourceDefinitionView: ResourceDefinitionView,
@@ -33,7 +36,7 @@ define(['./action-definition-view', './ballerina-file-editor', './canvas', './co
             ServiceDefinitionView: ServiceDefinitionView,
             ThrowStatementView: ThrowStatementView,
             WhileStatementView: WhileStatementView,
-            WorkerDeclaration: WorkerDeclaration,
+            WorkerDeclarationView: WorkerDeclarationView,
             SourceView: SourceView
         }
     });
