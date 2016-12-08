@@ -50,9 +50,9 @@ import java.util.Map;
 @SuppressWarnings("unused")
 public class Resource implements Executable {
 
-    private Map<String, Annotation> annotations;
-    private List<Parameter> arguments;
-    private List<Worker> workers;
+    private Map<String, Annotation> annotations = new HashMap<>();
+    private List<Parameter> arguments = new ArrayList<>();
+    private List<Worker> workers = new ArrayList<>();
     private Worker defaultWorker;
     private String name;
 
@@ -99,9 +99,6 @@ public class Resource implements Executable {
      * @param annotation Annotation to be added
      */
     public void addAnnotation(Annotation annotation) {
-        if (annotations == null) {
-            annotations = new HashMap<>();
-        }
         annotations.put(annotation.getName(), annotation);
     }
 
@@ -129,9 +126,6 @@ public class Resource implements Executable {
      * @param argument Argument to be added to the Resource definition
      */
     public void addArgument(Parameter argument) {
-        if (arguments == null) {
-            arguments = new ArrayList<Parameter>();
-        }
         arguments.add(argument);
     }
 
@@ -214,9 +208,6 @@ public class Resource implements Executable {
      * @param worker Worker to be added to the Resource
      */
     public void addWorker(Worker worker) {
-        if (workers == null) {
-            workers = new ArrayList<Worker>();
-        }
         workers.add(worker);
     }
 

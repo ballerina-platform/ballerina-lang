@@ -36,7 +36,7 @@ public class ApplicationRegistry {
 
     private ApplicationRegistry() {}
 
-    public ApplicationRegistry getInstance() {
+    public static ApplicationRegistry getInstance() {
         return instance;
     }
 

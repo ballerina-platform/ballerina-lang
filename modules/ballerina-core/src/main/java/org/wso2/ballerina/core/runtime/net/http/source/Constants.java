@@ -35,17 +35,17 @@ public class Constants {
     public static final String PROTOCOL_HTTP = "HTTP";
 
     public static final String HTTP_METHOD = "HTTP_METHOD";
-    /* HTTP Methods */
-    public static final String METHOD_GET = "GET";
-    public static final String METHOD_POST = "POST";
-    public static final String METHOD_PUT = "PUT";
-    public static final String METHOD_DELETE = "DELETE";
-    public static final String METHOD_OPTIONS = "OPTIONS";
 
     /* Annotations */
     public static final String ANNOTATION_NAME_SOURCE = "Source";
     public static final String ANNOTATION_NAME_BASE_PATH = "BasePath";
     public static final String ANNOTATION_NAME_PATH = "Path";
+    public static final String ANNOTATION_METHOD_GET = "GET";
+    public static final String ANNOTATION_METHOD_POST = "POST";
+    public static final String ANNOTATION_METHOD_PUT = "PUT";
+    public static final String ANNOTATION_METHOD_DELETE = "DELETE";
+    public static final String ANNOTATION_METHOD_OPTIONS = "OPTIONS";
+
 
 
     public static final String ANNOTATION_SOURCE_KEY_INTERFACE = "interface";

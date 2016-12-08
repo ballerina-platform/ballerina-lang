@@ -67,18 +67,20 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
             return false;
             //TODO: Throw an exception
         }
+        if (!uri.startsWith("/")) {
+            uri = "/".concat(uri);
+        }
+
         String[] path = uri.split("/");
-        String basePath = path[0];
+        String basePath = "/".concat(path[1]);
 
         Service service = servicesOnInterface.get(basePath);  // 90% of the time we will find service from here
         if (service == null) {
-            for (int i = 1; i < path.length; i++) {
+            for (int i = 2; i < path.length; i++) {
                 basePath = basePath.concat("/").concat(path[i]);
                 service = servicesOnInterface.get(basePath);
                 if (service != null) {
-                    context.setProperty(Constants.BASE_PATH, basePath);
-                    context.setProperty(Constants.SUB_PATH, uri.split(Constants.BASE_PATH)[1]);
-                    break;
+                     break;
                 }
             }
         }
@@ -88,6 +90,10 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
             return false;
             //TODO: Throw an exception
         }
+
+        context.setProperty(Constants.BASE_PATH, basePath);
+        context.setProperty(Constants.SUB_PATH, uri.split(basePath)[1]);
+
         return service.execute(context, callback);
     }
 
