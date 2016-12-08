@@ -39,7 +39,19 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './st
          * If we need to add additional parameters which are dynamically added to the configuration start
          * that particular source generation has to be constructed here
          */
-        this.appendSource('Resource {');
+        var constructedSourceSegment = 'resource ' + resourceDefinition.getResourceName() + '(';
+
+        // Append the resource arguments
+        var arguments = resourceDefinition.getResourceArguments();
+        for (var id = 0; id < arguments.length; id ++) {
+            constructedSourceSegment += arguments[id].getType() + ' ' + arguments[id].getIdentifier();
+            if (id !== arguments.length - 1) {
+                constructedSourceSegment += ','
+            } else {
+                constructedSourceSegment += ') {'
+            }
+        }
+        this.appendSource(constructedSourceSegment);
         log.info('Begin Visit ResourceDefinition');
     };
 

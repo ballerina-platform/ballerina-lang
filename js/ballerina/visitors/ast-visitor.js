@@ -15,8 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', './../ast/module'],
-    function(_, log, EventChannel, AST) {
+define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, EventChannel, AST) {
 
     var ASTVisitor = function() {};
 
@@ -37,6 +36,10 @@ define(['lodash', 'log', 'event_channel', './../ast/module'],
             return this.canVisitFunctionDefinition(node);
         } else if (node instanceof AST.Statement) {
             return this.canVisitStatement(node);
+        } else if (node instanceof AST.PackageDefinition) {
+            return this.canVisitPackageDefinition(node);
+        } else if (node instanceof AST.ImportDeclaration) {
+            return this.canVisitImportDeclaration(node);
         }
     };
 
@@ -54,6 +57,10 @@ define(['lodash', 'log', 'event_channel', './../ast/module'],
             return this.beginVisitFunctionDefinition(node);
         } else if (node instanceof AST.Statement) {
             return this.beginVisitStatement(node);
+        } else if (node instanceof AST.PackageDefinition) {
+            return this.beginVisitPackageDefinition(node);
+        } else if (node instanceof AST.ImportDeclaration) {
+            return this.beginVisitImportDeclaration(node);
         }
     };
 
@@ -71,6 +78,10 @@ define(['lodash', 'log', 'event_channel', './../ast/module'],
             return this.visitStatement(node);
         } else if(node instanceof AST.FunctionDefinition){
             return this.visitFunctionDefinition(node);
+        } else if(node instanceof AST.PackageDefinition){
+            return this.visitPackageDefinition(node);
+        } else if(node instanceof AST.ImportDeclaration){
+            return this.visitImportDeclaration(node);
         }
     };
 
@@ -88,6 +99,10 @@ define(['lodash', 'log', 'event_channel', './../ast/module'],
             return this.endVisitFunctionDefinition(node);
         } else if(node instanceof AST.Statement){
             return this.endVisitStatement(node);
+        } else if(node instanceof AST.PackageDefinition){
+            return this.endVisitPackageDefinition(node);
+        } else if(node instanceof AST.ImportDeclaration){
+            return this.endVisitImportDeclaration(node);
         }
     };
 
@@ -151,11 +166,30 @@ define(['lodash', 'log', 'event_channel', './../ast/module'],
     ASTVisitor.prototype.endVisitFunctionDefinition = function(resourceDefinition){
     };
 
+    ASTVisitor.prototype.canVisitPackageDefinition = function(packageDefinition){
+        return false;
+    };
+    ASTVisitor.prototype.beginVisitPackageDefinition = function(packageDefinition){
+    };
+    ASTVisitor.prototype.visitPackageDefinition = function(packageDefinition){
+    };
+    ASTVisitor.prototype.endVisitPackageDefinition = function(packageDefinition){
+    };
+
+    ASTVisitor.prototype.canVisitImportDeclaration = function(importDeclaration){
+        return false;
+    };
+    ASTVisitor.prototype.beginVisitImportDeclaration = function(importDeclaration){
+    };
+    ASTVisitor.prototype.visitImportDeclaration = function(importDeclaration){
+    };
+    ASTVisitor.prototype.endVisitImportDeclaration = function(importDeclaration){
+    };
+
     ASTVisitor.prototype.canVisitStatement = function(statement){
         return false;
     };
     ASTVisitor.prototype.beginVisitStatement = function(statement){
-
     };
     ASTVisitor.prototype.visitStatement = function(statement){
     };

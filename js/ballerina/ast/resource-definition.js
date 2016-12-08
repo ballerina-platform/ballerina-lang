@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './node'], function (_, ASTNode) {
+define(['lodash', 'log', './node'], function (_, log, ASTNode) {
 
     var ResourceDefinition = function (args) {
         this._path = _.get(args, 'path', '/');
@@ -25,6 +25,7 @@ define(['lodash', './node'], function (_, ASTNode) {
         this.workerDeclarations = _.get(args, 'workerDeclarations', []);
         this.statements = _.get(args, 'statements', []);
         this.resourceArguments = _.get(args, 'resourceArguments', []);
+        this.resourceName = _.get(args, 'resourceName', undefined);
 
         // TODO: All the types should be referred from the global constants
         ASTNode.call(this, 'Resource');
@@ -107,6 +108,19 @@ define(['lodash', './node'], function (_, ASTNode) {
             this.parent = parent;
         } else {
             return this.parent;
+        }
+    };
+
+    ResourceDefinition.prototype.getResourceName = function () {
+        return this.resourceName;
+    };
+
+    ResourceDefinition.prototype.setResourceName = function (resourceName) {
+        if (!_.isNil(resourceName)) {
+            this.resourceName = resourceName;
+        } else {
+            log.error('Invalid Resource name [' + resourceName + '] Provided');
+            throw 'Invalid Resource name [' + resourceName + '] Provided';
         }
     };
 

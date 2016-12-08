@@ -18,10 +18,10 @@
 define(['./ballerina-ast-factory', './ballerina-ast-root', './conditional-statement', './connection-declaration', './connector-definition',
     './constant-definition', './expression', './function-definition', './if-statement', './trycatch-statement', './try-statement', './catch-statement', './node', './reply-statement', './resource-definition',
     './return-statement', './service-definition', './statement', './throw-statement', './type-definition', './type-converter-definition', './type-element',
-    './variable-declaration', './while-statement', './worker-declaration'],
+    './variable-declaration', './while-statement', './worker-declaration', './package-definition', './import-declaration'],
     function (BallerinaASTFactory, BallerinaASTRoot, ConditionalStatement, ConnectionDeclaration, ConnectorDefinition, ConstantDefinition,
                 Expression, FunctionDefinition, IfStatement, TryCatchStatement, TryStatement, CatchStatement, ASTNode, ReplyStatement, ResourceDefinition, ReturnStatement, ServiceDefinition,
-                Statement, ThrowStatement, TypeConverterDefinition, TypeDefinition, TypeElement, VariableDeclaration, WhileStatement, WorkerDeclaration) {
+                Statement, ThrowStatement, TypeConverterDefinition, TypeDefinition, TypeElement, VariableDeclaration, WhileStatement, WorkerDeclaration, PackageDefinition, ImportDeclaration) {
         return  {
             BallerinaASTFactory: BallerinaASTFactory,
             BallerinaASTRoot: BallerinaASTRoot,
@@ -47,7 +47,9 @@ define(['./ballerina-ast-factory', './ballerina-ast-root', './conditional-statem
             TypeElement: TypeElement,
             VariableDeclaration: VariableDeclaration,
             WhileStatement: WhileStatement,
-            WorkerDeclaration: WorkerDeclaration
+            WorkerDeclaration: WorkerDeclaration,
+            PackageDefinition: PackageDefinition,
+            ImportDeclaration: ImportDeclaration
         }
     });
 
