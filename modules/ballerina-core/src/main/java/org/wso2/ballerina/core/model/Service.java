@@ -18,6 +18,15 @@
 
 package org.wso2.ballerina.core.model;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.wso2.ballerina.core.runtime.Constants;
+import org.wso2.ballerina.core.runtime.core.BalCallback;
+import org.wso2.ballerina.core.runtime.core.BalContext;
+import org.wso2.ballerina.core.runtime.core.Executable;
+import org.wso2.ballerina.core.runtime.core.dispatching.ResourceDispatcher;
+import org.wso2.ballerina.core.runtime.registry.DispatcherRegistry;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -40,7 +49,9 @@ import java.util.Map;
  *  @since 1.0.0
  */
 @SuppressWarnings("unused")
-public class Service {
+public class Service implements Executable {
+
+    private static final Logger logger = LoggerFactory.getLogger(Service.class);
 
     private Identifier identifier;
     private Map<String, Annotation> annotations;
@@ -194,4 +205,17 @@ public class Service {
         resources.add(resource);
     }
 
+    @Override
+    public boolean execute(BalContext context, BalCallback callback) {
+
+        String protocol = (String) context.getProperty(Constants.PROTOCOL);
+
+        ResourceDispatcher resourceDispatcher = DispatcherRegistry.getInstance().getResourceDispatcher(protocol);
+        if (resourceDispatcher == null) {
+            logger.error("No resource dispatcher available to handle protocol : " + protocol);
+            return false;
+        }
+
+        return resourceDispatcher.dispatch(this, context, callback);
+    }
 }

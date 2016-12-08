@@ -88,11 +88,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
             return false;
             //TODO: Throw an exception
         }
-
-        //TODO: Dispatch to the service
-
-
-        return true;
+        return service.execute(context, callback);
     }
 
     @Override

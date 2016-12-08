@@ -19,6 +19,9 @@
 package org.wso2.ballerina.core.model;
 
 import org.wso2.ballerina.core.model.statements.Statement;
+import org.wso2.ballerina.core.runtime.core.BalCallback;
+import org.wso2.ballerina.core.runtime.core.BalContext;
+import org.wso2.ballerina.core.runtime.core.Executable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,7 +48,7 @@ import java.util.Map;
  *
  */
 @SuppressWarnings("unused")
-public class Resource {
+public class Resource implements Executable {
 
     private Map<String, Annotation> annotations;
     private List<Parameter> arguments;
@@ -238,4 +241,8 @@ public class Resource {
         defaultWorker.addStatement(statement);
     }
 
+    @Override
+    public boolean execute(BalContext context, BalCallback callback) {
+        return defaultWorker.execute(context, callback);
+    }
 }
