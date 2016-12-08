@@ -207,6 +207,33 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
         BallerinaASTFactory.prototype.createResourceArgument = function (args) {
             return new resourceArgument(args);
         };
+        
+        /**
+         * instanceof check for ServiceDefinition
+         * @param child
+         * @returns {boolean}
+         */
+        BallerinaASTFactory.prototype.isServiceDefinition = function (child) {
+            return child instanceof serviceDefinition ? true : false;
+        };
+
+        /**
+         * instanceof check for FunctionDefinition
+         * @param child
+         * @returns {boolean}
+         */
+        BallerinaASTFactory.prototype.isFunctionDefinition = function (child) {
+            return child instanceof functionDefinition ? true : false;
+        };
+
+        /**
+         * instanceof check for ConnectorDefinition
+         * @param child
+         * @returns {boolean}
+         */
+        BallerinaASTFactory.prototype.isConnectorDefinition = function (child) {
+            return child instanceof connectorDefinition ? true : false;
+        };
 
         return BallerinaASTFactory;
 
