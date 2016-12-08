@@ -1,6 +1,6 @@
-/**
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- *
+    /**
+     * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+     *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
@@ -15,7 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'jquery', 'log', './../visitors/ast-visitor', './service-definition-view', 'ballerina/ast/ballerina-ast-factory'], function (_, $, log, ASTVisitor, ServiceDefinitionView, BallerinaASTFactory) {
+define(['lodash', 'jquery', 'log', './../visitors/ast-visitor', './service-definition-view', './../ast/ballerina-ast-factory', './source-view'],
+
+    function (_, $, log, ASTVisitor, ServiceDefinitionView, BallerinaASTFactory, SourceView) {
 
     /**
      * @class BallerinaFileEditor
@@ -72,16 +74,18 @@ define(['lodash', 'jquery', 'log', './../visitors/ast-visitor', './service-defin
     BallerinaFileEditor.prototype.init = function() {
         var errMsg;
         var editorParent = this;
-        var options = this._options.file_editor;
-        if (!_.has(this._options, 'container')) {
+        var options = this._options;
+        if (!_.has(this._options, 'design.container')) {
             errMsg = 'unable to find configuration for container';
             log.error(errMsg);
             throw errMsg;
         }
-        var container = $(_.get(this._options, 'container'));
+        // this._options.container is the root div for tab content
+        var container = $(this._options.container).find(_.get(this._options, 'design.container'));
+        this._$designViewContainer = container;
         // check whether container element exists in dom
         if (!container.length > 0) {
-            errMsg = 'unable to find container for file editor with selector: ' + _.get(this._options, 'container');
+            errMsg = 'unable to find container for file editor with selector: ' + _.get(this._options, 'design.container');
             log.error(errMsg);
             throw errMsg;
         }
@@ -123,6 +127,8 @@ define(['lodash', 'jquery', 'log', './../visitors/ast-visitor', './service-defin
             _.each(this._canvasList, function (canvas) {
                 //draw a collapse accordion
                 var outerDiv = $('<div></div>');
+                // append to parent
+                parent.append(outerDiv);
                 outerDiv.addClass(_.get(options, 'cssClass.outer_div'));
                 var panelHeading = $('<div></div>');
                 panelHeading.attr('id', canvas[0].id + 3).attr('role', 'tab');
@@ -168,10 +174,31 @@ define(['lodash', 'jquery', 'log', './../visitors/ast-visitor', './service-defin
                 outerDiv.append(panelHeading);
                 outerDiv.append(bodyDiv);
 
-                // append to parent
-                parent.append(outerDiv);
             });
         }
+        var self = this;
+
+        // container for per-tab source view TODO improve source view to wrap this logic
+        var sourceViewContainer = $(this._options.container).find(_.get(this._options, 'source.container'));
+        var aceEditorContainer = $('<div></div>');
+        aceEditorContainer.addClass(_.get(this._options, 'cssClass.text_editor_class'));
+        sourceViewContainer.append(aceEditorContainer);
+        this._sourceView = new SourceView({container: aceEditorContainer.get(0), content: "test content"});
+        this._sourceView.render();
+
+        var sourceViewBtn = $(this._options.container).find(_.get(this._options, 'controls.view_source_btn'));
+        sourceViewBtn.click(function(){
+            self._options.toolPalette.hide();
+            sourceViewContainer.show();
+            self._$designViewContainer.hide();
+        });
+
+        var designViewBtn = $(this._options.container).find(_.get(this._options, 'controls.view_design_btn'));
+        designViewBtn.click(function(){
+            self._options.toolPalette.show();
+            sourceViewContainer.hide();
+            self._$designViewContainer.show();
+        });
     };
 
     BallerinaFileEditor.prototype.getModel = function () {

@@ -115,6 +115,10 @@
     border: 0;
 }
 
+.canvas-container{
+    background: none;
+}
+
 
 
 /** Resource level tabs related styles | -> End **/
