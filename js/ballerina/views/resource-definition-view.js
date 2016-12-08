@@ -97,7 +97,10 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', 'app/diagram-core/models/poi
             var headingStart = new Point(this._viewOptions.centerPoint.x, this._viewOptions.centerPoint.y);
             var contentStart = new Point(this._viewOptions.centerPoint.x, this._viewOptions.centerPoint.y + this._viewOptions.heading.hight);
 
-            var headerGroup = D3utils.group(d3.select(svgContainer));
+            var resourceGroup = D3utils.group(d3.select(svgContainer));
+            resourceGroup.attr("id","resourceGroup");
+            var headerGroup = D3utils.group(resourceGroup);
+            headerGroup.attr("id","headerGroup");
 
             var headingRect = D3utils.rect(headingStart.x(), headingStart.y(), this._viewOptions.heading.width, this._viewOptions.heading.hight, 0, 0, headerGroup);
             // TODO: Move these styling to css
@@ -105,10 +108,12 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', 'app/diagram-core/models/poi
             headingRect.attr('stroke-width', "1");
             headingRect.attr('stroke', "#cbcbcb");
 
+
             // Drawing resource icon
             // TODO : FIX
             var headingRectIcon = D3utils.rect(headingStart.x(), headingStart.y(), this._viewOptions.heading.icon.width,
-                this._viewOptions.heading.icon.height, 0, 0, headerGroup).classed("fw fw-dgm-service fw-inverse");
+                this._viewOptions.heading.icon.height, 0, 0, headerGroup);
+
 
             // Create rect for the http method text
             var httpMethodRect = D3utils.rect(headingStart.x() + this._viewOptions.heading.icon.width, headingStart.y() + 0.5, this._viewOptions.heading.icon.width + 25,
@@ -129,19 +134,33 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', 'app/diagram-core/models/poi
             var resourcePath = D3utils.textElement(headingStart.x() + this._viewOptions.heading.icon.width + 90, headingStart.y() + 4, this._model.getResourcePath(), headerGroup);
             resourcePath.attr('dominant-baseline', "text-before-edge");
 
-            var contentRect = D3utils.rect(contentStart.x(), contentStart.y(), this._viewOptions.contentWidth, this._viewOptions.contentHeight, 0, 0, d3.select(svgContainer)).classed("resource-content", true);;
+
+
+            var contentGroup = D3utils.group(resourceGroup);
+            contentGroup.attr('id',"contentGroup");
+
+            var contentRect = D3utils.rect(contentStart.x(), contentStart.y(), this._viewOptions.contentWidth, this._viewOptions.contentHeight, 0, 0, contentGroup).classed("resource-content", true);;
             // TODO: Move these styling to css
             //contentRect.attr('fill', "#FFFFFF");
             contentRect.attr('stroke-width', "1");
             contentRect.attr('stroke', "#cbcbcb");
              //TODO: add dynamic properties for arrow
-            var arrowLine = D3utils.line(90,250, 120,250, d3.select(svgContainer));
-            var arrowHead = D3utils.inputTriangle(115,250,d3.select(svgContainer));
+            var arrowLine = D3utils.line(90,250, 120,250, contentGroup);
+            var arrowHead = D3utils.inputTriangle(115,250,contentGroup);
+            var sample = contentGroup;
+
+
+           headerGroup.on("click", function () {
+               log.info("Header clicked");
+               sample.attr("display","none");
+           });
+
+
 
             // Move up the resource content rect before client lifeline so that the client lifeline will go through the
             // rect.
-            var contentRectNode = $(contentRect.node());
-            $(svgContainer).prepend(contentRectNode);
+            //var contentRectNode = $(contentRect.node());
+            //$(svgContainer).prepend(contentRectNode);
 
             // Drawing default worker
             var defaultWorkerOptions = {
@@ -176,9 +195,12 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', 'app/diagram-core/models/poi
                 },
                 "action": {
                     "value": "Start"
+                },
+                "worker": {
+                    "value":true
                 }
             };
-            var defaultWorker = new LifeLine(svgContainer, defaultWorkerOptions);
+            var defaultWorker = new LifeLine(contentGroup, defaultWorkerOptions);
             defaultWorker.render();
 
 

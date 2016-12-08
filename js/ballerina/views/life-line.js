@@ -66,6 +66,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', 'app/diagram-core/models/poi
             this._viewOptions.text.class = _.get(options, "text.class", "client lifeline-title");
             this._viewOptions.action = _.get(options, "action", {});
             this._viewOptions.action.value = _.get(options, "action.value", "Action");
+            this._viewOptions.defaultWorker = _.get(options, "worker.value", false);
 
             // Make the lifeline uneditable by default
             if (_.get(options, "editable", false)) {
@@ -147,7 +148,13 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', 'app/diagram-core/models/poi
 
     LifeLine.prototype.render = function () {
         // Creating group for lifeline.
-        this._lifelineGroup = D3Utils.group(d3.select(this._canvas)).classed("client", true);
+        if(this._viewOptions.defaultWorker){
+           this._lifelineGroup = D3Utils.group((this._canvas)).classed("client", true);
+        }
+        else{
+            this._lifelineGroup = D3Utils.group(d3.select(this._canvas)).classed("client", true);
+        }
+
 
         if (this._viewOptions.polygon.shape == "diamond") { // Drawing top polygon.
             var polygonYOffset = this._viewOptions.polygon.height / 2;
@@ -285,7 +292,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', 'app/diagram-core/models/poi
 
         // Adding property editor buttons.
         if (_.get(this._viewOptions, "editable", false)) {
-            this.addEditableAndDeletable();
+           // this.addEditableAndDeletable();
         }
 
         // TODO : Implement draggable.
