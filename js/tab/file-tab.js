@@ -62,6 +62,16 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace']
 
             // Create Sample try-catch statement
             var tryCatchStatement1 = ballerinaASTFactory.createTryCatchStatement();
+            var tryStatement = ballerinaASTFactory.createTryStatement();
+            var catchStatement = ballerinaASTFactory.createCatchStatement();
+            var tryCatchStatement2 = ballerinaASTFactory.createTryCatchStatement();
+            var tryStatement2 = ballerinaASTFactory.createTryStatement();
+            var catchStatement2 = ballerinaASTFactory.createCatchStatement();
+            tryCatchStatement2.addChild(tryStatement2);
+            tryCatchStatement2.addChild(catchStatement2);
+            tryStatement.addChild(tryCatchStatement2);
+            tryCatchStatement1.addChild(tryStatement);
+            tryCatchStatement1.addChild(catchStatement);
 
             resourceDefinition1.addChild(tryCatchStatement1);
 

@@ -15,10 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './ast-visitor', '../ast/module'],
-    function(_, log, ASTVisitor, AST) {
+define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, ASTVisitor, AST) {
 
-    var StatementVisitor = function() {
+    var StatementVisitor = function () {
         ASTVisitor.call(this);
     };
 
@@ -28,65 +27,111 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'],
     /**
      * @param node {ASTNode}
      */
-    StatementVisitor.prototype.canVisit = function(node){
-        if(node instanceof AST.IfStatement){
+    StatementVisitor.prototype.canVisit = function (node) {
+        if (node instanceof AST.IfStatement) {
             return this.canVisitIfStatement(node);
-        } else if(node instanceof AST.TryCatchStatement){
-            return this.canVisitTryCatchStatement(node);
+        } else if (node instanceof AST.TryCatchStatement) {
+            return this.canVisitStatement(node);
+        } else if (node instanceof AST.TryStatement) {
+            return this.canVisitTryStatement(node);
+        } else if (node instanceof AST.CatchStatement) {
+            return this.canVisitCatchStatement(node);
         }
     };
 
     /**
      * @param node {ASTNode}
      */
-    StatementVisitor.prototype.beginVisit = function(node){
-        if(node instanceof AST.IfStatement){
+    StatementVisitor.prototype.beginVisit = function (node) {
+        if (node instanceof AST.IfStatement) {
             return this.beginVisitIfStatement(node);
-        } else if(node instanceof AST.TryCatchStatement){
-            return this.beginVisitTryCatchStatement(node);
+        } else if (node instanceof AST.TryCatchStatement) {
+            return this.beginVisitStatement(node);
+        } else if (node instanceof AST.TryStatement) {
+            return this.beginVisitTryStatement(node);
+        } else if (node instanceof AST.CatchStatement) {
+            return this.beginVisitCatchStatement(node);
         }
     };
 
     /**
      * @param node {ASTNode}
      */
-    StatementVisitor.prototype.visit = function(node){
-        if(node instanceof AST.IfStatement){
+    StatementVisitor.prototype.visit = function (node) {
+        if (node instanceof AST.IfStatement) {
             return this.visitIfStatement(node);
-        } else if(node instanceof AST.TryCatchStatement){
-            return this.visitTryCatchStatement(node);
+        } else if (node instanceof AST.TryCatchStatement) {
+            return this.visitStatement(node);
+        } else if (node instanceof AST.TryStatement) {
+            return this.visitTryStatement(node);
+        } else if (node instanceof AST.CatchStatement) {
+            return this.visitCatchStatement(node);
         }
     };
 
     /**
      * @param node {ASTNode}
      */
-    StatementVisitor.prototype.endVisit = function(node){
-        if(node instanceof AST.IfStatement){
+    StatementVisitor.prototype.endVisit = function (node) {
+        if (node instanceof AST.IfStatement) {
             return this.endVisitIfStatement(node);
-        } else if(node instanceof AST.TryCatchStatement){
-            return this.endVisitTryCatchStatement(node);
+        } else if (node instanceof AST.TryCatchStatement) {
+            return this.endVisitStatement(node);
+        } else if (node instanceof AST.TryStatement) {
+            return this.endVisitTryStatement(node);
+        } else if (node instanceof AST.CatchStatement) {
+            return this.endVisitCatchStatement(node);
         }
     };
 
-    ASTVisitor.prototype.canVisitIfStatement = function(statement){
+    StatementVisitor.prototype.canVisitIfStatement = function (statement) {
         return false;
     };
-    ASTVisitor.prototype.beginVisitIfStatement = function(statement){
+    StatementVisitor.prototype.beginVisitIfStatement = function (statement) {
     };
-    ASTVisitor.prototype.visitIfStatement= function(statement){
+    StatementVisitor.prototype.visitIfStatement = function (statement) {
     };
-    ASTVisitor.prototype.endVisitIfStatement = function(statement){
+    StatementVisitor.prototype.endVisitIfStatement = function (statement) {
     };
 
-    ASTVisitor.prototype.canVisitTryCatchStatement = function(statement){
+    StatementVisitor.prototype.canVisitTryCatchStatement = function (statement) {
         return false;
     };
-    ASTVisitor.prototype.beginVisitTryCatchStatement = function(statement){
+    StatementVisitor.prototype.beginVisitTryCatchStatement = function (statement) {
     };
-    ASTVisitor.prototype.visitTryCatchStatement= function(statement){
+    StatementVisitor.prototype.visitTryCatchStatement = function (statement) {
     };
-    ASTVisitor.prototype.endVisitTryCatchStatement = function(statement){
+    StatementVisitor.prototype.endVisitTryCatchStatement = function (statement) {
+    };
+
+    StatementVisitor.prototype.canVisitTryStatement = function (statement) {
+        return false;
+    };
+    StatementVisitor.prototype.beginVisitTryStatement = function (statement) {
+    };
+    StatementVisitor.prototype.visitTryStatement = function (statement) {
+    };
+    StatementVisitor.prototype.endVisitTryStatement = function (statement) {
+    };
+
+    StatementVisitor.prototype.canVisitCatchStatement = function (statement) {
+        return false;
+    };
+    StatementVisitor.prototype.beginVisitCatchStatement = function (statement) {
+    };
+    StatementVisitor.prototype.visitCatchStatement = function (statement) {
+    };
+    StatementVisitor.prototype.endVisitCatchStatement = function (statement) {
+    };
+
+    StatementVisitor.prototype.canVisitStatement = function (statement) {
+        return false;
+    };
+    StatementVisitor.prototype.beginVisitStatement = function (statement) {
+    };
+    StatementVisitor.prototype.visitStatement = function (statement) {
+    };
+    StatementVisitor.prototype.endVisitStatement = function (statement) {
     };
 
     return StatementVisitor;

@@ -21,47 +21,12 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
      * Class for try-catch statement in ballerina.
      * @constructor
      */
-    var TryCatchStatement = function (tryStatements, catchStatements) {
-        this._tryStatements = tryStatements || [];
-        this._catchStatements = catchStatements || [];
+    var TryCatchStatement = function () {
+        Statement.call(this);
     };
 
     TryCatchStatement.prototype = Object.create(Statement.prototype);
     TryCatchStatement.prototype.constructor = TryCatchStatement;
-
-    /**
-     * setter for try statements
-     * @param catchStatements
-     */
-    TryCatchStatement.prototype.setTryStatements = function(tryStatements) {
-        if(!_.isNil(tryStatements)){
-            this._tryStatements = tryStatements;
-        }
-    };
-
-    /**
-    * getter for try statements
-    */
-    TryCatchStatement.prototype.getTryStatements = function() {
-        return this._tryStatements;
-    };
-
-    /**
-     * setter for catch statements
-     * @param catchStatements
-     */
-    TryCatchStatement.prototype.setCatchStatements = function(catchStatements) {
-        if(!_.isNil(catchStatements)){
-            this._catchStatements = catchStatements;
-        }
-    };
-
-    /**
-    * getter for catch statements
-    */
-    TryCatchStatement.prototype.getCatchStatements = function() {
-        return this._catchStatements;
-    };
 
     /**
      * setter for catch block exception

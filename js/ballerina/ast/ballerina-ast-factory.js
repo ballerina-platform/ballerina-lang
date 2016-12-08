@@ -21,11 +21,11 @@
  */
 define(['./ballerina-ast-root', './service-definition', './function-definition', './connector-definition', './resource-definition',
         './worker-declaration', './statement', './conditional-statement', './connection-declaration', './expression',
-        './if-statement', './trycatch-statement' ,'./reply-statement', './return-statement', './type-converter-definition', './type-definition',
+        './if-statement', './trycatch-statement', './try-statement', './catch-statement', './reply-statement', './return-statement', './type-converter-definition', './type-definition',
         './type-element', './variable-declaration', './package-definition', './import-declaration', './resource-arg'],
     function (ballerinaAstRoot, serviceDefinition, functionDefinition, connectorDefinition, resourceDefinition,
               workerDeclaration, statement, conditionalStatement, connectionDeclaration, expression,
-              ifStatement, tryCatchStatement, replyStatement, returnStatement, typeConverterDefinition, typeDefinition,
+              ifStatement, tryCatchStatement, tryStatement, catchStatement, replyStatement, returnStatement, typeConverterDefinition, typeDefinition,
               typeElement, variableDeclaration, packageDefinition, importDeclaration, resourceArgument) {
 
         /**
@@ -150,11 +150,27 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
         };
 
         /**
-         * creates IfStatement
+         * creates TryCatchStatement
          * @param args
          */
         BallerinaASTFactory.prototype.createTryCatchStatement = function (args) {
             return new tryCatchStatement(args);
+        };
+
+        /**
+         * creates TryStatement
+         * @param args
+         */
+        BallerinaASTFactory.prototype.createTryStatement = function (args) {
+            return new tryStatement(args);
+        };
+
+        /**
+         * creates CatchStatement
+         * @param args
+         */
+        BallerinaASTFactory.prototype.createCatchStatement = function (args) {
+            return new catchStatement(args);
         };
 
         /**
