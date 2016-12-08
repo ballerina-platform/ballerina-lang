@@ -15,19 +15,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './node'], function (_, ASTNode) {
+define(['lodash', 'log', './conditional-statement'], function (_, log, ConditionalStatement) {
 
     /**
-     * Class to represent a statement in ballerina.
+     * Class for catch statement in ballerina.
      * @constructor
      */
-    var Statement = function () {
-        ASTNode.call(this, 'Statement');
+    var CatchStatement = function () {
+        ConditionalStatement.call(this);
     };
 
-    Statement.prototype = Object.create(ASTNode.prototype);
-    Statement.prototype.constructor = Statement;
+    CatchStatement.prototype = Object.create(ConditionalStatement.prototype);
+    CatchStatement.prototype.constructor = CatchStatement;
 
-    return Statement;
-
+    return CatchStatement;
 });

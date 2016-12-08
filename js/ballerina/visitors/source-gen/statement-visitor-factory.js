@@ -15,14 +15,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', '../../ast/module', './try-catch-statement-visitor'], function (_, log, EventChannel, AST, TryCatchStatementVisitor) {
+define(['lodash', 'log', 'event_channel', '../../ast/module', './try-catch-statement-visitor', './try-statement-visitor', './catch-statement-visitor'], function (_, log, EventChannel, AST, TryCatchStatementVisitor, TryStatementVisitor, CatchStatementVisitor) {
 
     var StatementVisitorFactor = function () {
     };
 
-    StatementVisitorFactor.prototype.getStatementVisitor = function (statement) {
+    StatementVisitorFactor.prototype.getStatementVisitor = function (statement, parent) {
         if (statement instanceof AST.TryCatchStatement) {
-            return new TryCatchStatementVisitor();
+            return new TryCatchStatementVisitor(parent);
+        } else if (statement instanceof AST.TryStatement) {
+            return new TryStatementVisitor(parent.getParent());
+        } else if (statement instanceof AST.CatchStatement) {
+            return new CatchStatementVisitor(parent.getParent());
         }
     };
 

@@ -24,14 +24,12 @@ define(['event_channel', 'lodash'], function(EventChannel, _){
      * @param configEnd
      * @constructor
      */
-    var ASTNode = function(type, configStart, configEnd) {
+    var ASTNode = function(type) {
         this.object = undefined;
         this.parent = undefined;
         this.children = [];
         this.type = type;
         this.id = uuid();
-        this.configStart = configStart;
-        this.configEnd = configEnd;
     };
 
     ASTNode.prototype = Object.create(EventChannel.prototype);
@@ -62,23 +60,7 @@ define(['event_channel', 'lodash'], function(EventChannel, _){
     };
 
     /**
-     * Get the config start string
-     * @returns {ASTNode.configStart}
-     */
-    ASTNode.prototype.getConfigStart = function () {
-        return this.configStart;
-    };
-
-    /**
-     * Get the config end string
-     * @returns {ASTNode.configEnd}
-     */
-    ASTNode.prototype.getConfigEnd = function () {
-        return this.configEnd;
-    };
-
-    /**
-     * Insert a guven child to the children array for a given index or otherwise to the array normally
+     * Insert a given child to the children array for a given index or otherwise to the array normally
      * @param child
      * @param index
      */
