@@ -21,11 +21,11 @@
  */
 define(['./ballerina-ast-root', './service-definition', './function-definition', './connector-definition', './resource-definition',
         './worker-declaration', './statement', './conditional-statement', './connection-declaration', './expression',
-        './if-statement', './reply-statement', './return-statement', './type-converter-definition', './type-definition',
+        './if-statement', './trycatch-statement' ,'./reply-statement', './return-statement', './type-converter-definition', './type-definition',
         './type-element', './variable-declaration', './package-definition', './import-declaration', './resource-arg'],
     function (ballerinaAstRoot, serviceDefinition, functionDefinition, connectorDefinition, resourceDefinition,
               workerDeclaration, statement, conditionalStatement, connectionDeclaration, expression,
-              ifStatement, replyStatement, returnStatement, typeConverterDefinition, typeDefinition,
+              ifStatement, tryCatchStatement, replyStatement, returnStatement, typeConverterDefinition, typeDefinition,
               typeElement, variableDeclaration, packageDefinition, importDeclaration, resourceArgument) {
 
         /**
@@ -150,6 +150,14 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
         };
 
         /**
+         * creates IfStatement
+         * @param args
+         */
+        BallerinaASTFactory.prototype.createTryCatchStatement = function (args) {
+            return new tryCatchStatement(args);
+        };
+
+        /**
          * creates ReplyStatement
          * @param args
          */
@@ -198,6 +206,33 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
          */
         BallerinaASTFactory.prototype.createResourceArgument = function (args) {
             return new resourceArgument(args);
+        };
+        
+        /**
+         * instanceof check for ServiceDefinition
+         * @param child
+         * @returns {boolean}
+         */
+        BallerinaASTFactory.prototype.isServiceDefinition = function (child) {
+            return child instanceof serviceDefinition ? true : false;
+        };
+
+        /**
+         * instanceof check for FunctionDefinition
+         * @param child
+         * @returns {boolean}
+         */
+        BallerinaASTFactory.prototype.isFunctionDefinition = function (child) {
+            return child instanceof functionDefinition ? true : false;
+        };
+
+        /**
+         * instanceof check for ConnectorDefinition
+         * @param child
+         * @returns {boolean}
+         */
+        BallerinaASTFactory.prototype.isConnectorDefinition = function (child) {
+            return child instanceof connectorDefinition ? true : false;
         };
 
         return BallerinaASTFactory;

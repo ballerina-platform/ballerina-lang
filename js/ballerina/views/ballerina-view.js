@@ -15,14 +15,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
- define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor'], function(_, log, EventChannel, AbstractSourceGenVisitor) {
+define(['lodash', 'log', 'event_channel'], function (_, log, EventChannel) {
+    var BallerinaView = function() {
 
-    var StatementDefinitionVisitor = function() {
-        AbstractSourceGenVisitor.call(this);
     };
 
-    StatementDefinitionVisitor.prototype = Object.create(AbstractSourceGenVisitor.prototype);
-    StatementDefinitionVisitor.prototype.constructor = StatementDefinitionVisitor;
+    BallerinaView.prototype = Object.create(EventChannel.prototype);
+    BallerinaView.prototype.constructor = BallerinaView;
 
-    return StatementDefinitionVisitor;
- });
+    BallerinaView.prototype.setWidth = function(newWidth) {};
+    BallerinaView.prototype.setHeight = function(newHeight) {};
+    BallerinaView.prototype.setXPosition = function(xPosition) {};
+    BallerinaView.prototype.setYPosition = function(yPosition) {};
+});

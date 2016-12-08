@@ -15,28 +15,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', './statement-definition-visitor'], function(_, log, EventChannel, StatementDefinitionVisitor) {
+define(['lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor'], function(_, log, EventChannel, AbstractStatementSourceGenVisitor) {
 
     var IfStatementVisitor = function(){
-        StatementDefinitionVisitor.call(this);
+        AbstractStatementSourceGenVisitor.call(this);
     };
 
-    IfStatementVisitor.prototype = Object.create(StatementDefinitionVisitor.prototype);
+    IfStatementVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
     IfStatementVisitor.prototype.constructor = IfStatementVisitor;
 
-    IfStatementVisitor.prototype.canVisitStatementDefinition = function(ifStatement){
+    IfStatementVisitor.prototype.canVisitIfStatement = function(ifStatement){
         return true;
     };
 
-    IfStatementVisitor.prototype.beginVisitStatementDefinition = function(ifStatement){
+    IfStatementVisitor.prototype.beginVisitIfStatement = function(ifStatement){
         log.info('Begin Visit If Else Statement Definition');
     };
 
-    IfStatementVisitor.prototype.visitStatementDefinition = function(ifStatement){
+    IfStatementVisitor.prototype.visitIfStatement = function(ifStatement){
         log.info('Visit If Else Statement Definition');
     };
 
-    IfStatementVisitor.prototype.endVisitStatementDefinition = function(ifStatement){
+    IfStatementVisitor.prototype.endVisitIfStatement = function(ifStatement){
         log.info('End Visit If Else Statement Definition');
     };
 

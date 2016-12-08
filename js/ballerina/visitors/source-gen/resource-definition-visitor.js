@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor'],
-    function(_, log, EventChannel, AbstractSourceGenVisitor) {
+define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './statement-visitor-factory'],
+    function(_, log, EventChannel, AbstractSourceGenVisitor, StatementVisitorFactory) {
 
         /**
          * @param parent
@@ -53,19 +53,10 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor'],
             log.info('End Visit ResourceDefinition');
         };
 
-        ResourceDefinitionVisitor.prototype.visitStatement = function(statementDefinition){
-            var statementDefinitionVisitor;
-            //routing to correct statement type
-            if(statementDefinition instanceof IfStatement){
-                statementDefinitionVisitor = new IfStatementVisitor();
-            } else if(statementDefinition instanceof WhileStatement){
-                statementDefinitionVisitor = new IterateStatementVisitor();
-            } else if(statementDefinition instanceof TryCatchStatement){
-                statementDefinitionVisitor = new TryCatchStatementVisitor();
-            } else if(statementDefinition instanceof ReplyStatement){
-                statementDefinitionVisitor = new ReplyStatementVisitor();
-            }
-            statementDefinition.accept(statementDefinitionVisitor);
+        ResourceDefinitionVisitor.prototype.visitStatement = function(statement){
+            var statementVisitorFactory = new StatementVisitorFactory();
+            var statementVisitor = statementVisitorFactory.getStatementVisitor(statement);
+            statement.accept(statementVisitor);
         };
         return ResourceDefinitionVisitor;
     });

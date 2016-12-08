@@ -15,30 +15,30 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', './statement-definition-visitor'], function(_, log, EventChannel, StatementDefinitionVisitor) {
+define(['lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor'], function(_, log, EventChannel, AbstractStatementSourceGenVisitor) {
 
     var IterateStatementVisitor = function(){
-        StatementDefinitionVisitor.call(this);
+        AbstractStatementSourceGenVisitor.call(this);
     };
 
-    IterateStatementVisitor.prototype = Object.create(StatementDefinitionVisitor.prototype);
-    IterateStatementVisitor.prototype.constructor = IfStatementVisitor;
+    IterateStatementVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
+    IterateStatementVisitor.prototype.constructor = IterateStatementVisitor;
 
-    IterateStatementVisitor.prototype.canVisitStatementDefinition = function(iterateStatement){
+    IterateStatementVisitor.prototype.canVisitStatement = function(iterateStatement){
         return true;
     };
 
-    IterateStatementVisitor.prototype.beginVisitStatementDefinition = function(iterateStatement){
+    IterateStatementVisitor.prototype.beginVisitStatement = function(iterateStatement){
         log.info('Begin Visit Iterate Statement Definition');
     };
 
-    IterateStatementVisitor.prototype.visitStatementDefinition = function(iterateStatement){
+    IterateStatementVisitor.prototype.visitStatement = function(iterateStatement){
         log.info('Visit Iterate Statement Definition');
     };
 
-    IterateStatementVisitor.prototype.endVisitStatementDefinition = function(iterateStatement){
+    IterateStatementVisitor.prototype.endVisitStatement = function(iterateStatement){
         log.info('End Visit Iterate Statement Definition');
     };
 
-    return IfStatementVisitor;
+    return IterateStatementVisitor;
 });

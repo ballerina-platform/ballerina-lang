@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'jquery', 'log', './../visitors/ast-visitor', './service-definition-view'], function (_, $, log, ASTVisitor, ServiceDefinitionView) {
+define(['lodash', 'jquery', 'log', './../visitors/ast-visitor', './service-definition-view', 'ballerina/ast/ballerina-ast-factory'], function (_, $, log, ASTVisitor, ServiceDefinitionView, BallerinaASTFactory) {
 
     /**
      * @class BallerinaFileEditor
@@ -86,34 +86,30 @@ define(['lodash', 'jquery', 'log', './../visitors/ast-visitor', './service-defin
             throw errMsg;
         }
         if (!_.isNil(this._model)) {
+            if(_.has(this._model, 'children')){
+                var children = $(_.get(this._model, 'children'));
+                _.each(children, function (child) {
+                    var ballerinaASTFactory = new BallerinaASTFactory();
+                    if(ballerinaASTFactory.isServiceDefinition(child)){
+                        var serviceContainer =  $('<div><svg class="service-container"></svg></div>');
+                        serviceContainer.attr('id', child.id);
+                        serviceContainer.attr('name','service');
+                        serviceContainer.addClass(_.get(options, 'cssClass.outer_box'));
+                        editorParent.addCanvas(serviceContainer);
+                    } else if(ballerinaASTFactory.isFunctionDefinition(child)){
+                        var functionContainer = $('<div>Function View Container</div>');
+                        functionContainer.attr('id', child.id);
+                        functionContainer.attr('name','function');
+                        editorParent.addCanvas(functionContainer);
+                    } else if(ballerinaASTFactory.isConnectorDefinition(child)){
+                        var connectorContainer = $('<div>Connector View Container</div>');
+                        connectorContainer.attr('id', child.id);
+                        connectorContainer.attr('name','connector');
+                        editorParent.addCanvas(connectorContainer);
+                    }
+                });
+            }
 
-            if (_.has(this._model, 'serviceDefinitions')) {
-
-                var serviceDefs = $(_.get(this._model, 'serviceDefinitions'));
-                _.each(serviceDefs, function (serviceModel) {
-                    var serviceContainer =  $('<div><svg class="service-container"></svg></div>');
-                    serviceContainer.attr('id', serviceModel.id);
-                    serviceContainer.attr('name','service');
-                    serviceContainer.addClass(_.get(options, 'cssClass.outer_box'));
-                    editorParent.addCanvas(serviceContainer);
-                });
-            }
-            if (_.has(this._model, 'functionDefinitions')) {
-                _.each( this._model.functionDefinitions, function (functionModel) {
-                    var functionContainer = $('<div>Function View Container</div>');
-                    functionContainer.attr('id', functionModel.id);
-                    functionContainer.attr('name','function');
-                    editorParent.addCanvas(functionContainer);
-                });
-            }
-            if (_.has(this._model, 'connectorDefinitions')) {
-                _.each(this._model.connectorDefinitions, function (connectorModel) {
-                    var connectorContainer = $('<div>Connector View Container</div>');
-                    connectorContainer.attr('id', connectorModel.id);
-                    connectorContainer.attr('name','connector');
-                    editorParent.addCanvas(connectorContainer);
-                });
-            }
             //TODO: rest of definitions when implemented
         }
         else {

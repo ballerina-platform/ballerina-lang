@@ -22,17 +22,17 @@ define(([],function (){
         label: "File",
         items: [
             {
-                id: "FileMenu-NewService",
-                label: "New Service",
+                id: "FileMenu-NewFile",
+                label: "New",
                 action: "create-new-tab"
             },
             {
-                id: "FileMenu-OpenService",
-                label: "Open Service"
+                id: "FileMenu-OpenFile",
+                label: "Open"
             },
             {
-                id: "FileMenu-Save",
-                label: "Save To File",
+                id: "FileMenu-SaveFile",
+                label: "Save",
                 action: "open-file-save-dialog"
             }
 
