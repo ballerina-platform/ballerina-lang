@@ -1,24 +1,24 @@
-.lifeline-title{
+.lifeline-title {
     fill: #000000;
-    text-anchor:middle;
-    cursor:text;
+    text-anchor: middle;
+    cursor: text;
 }
 
-.lifeline-line{
+.lifeline-line {
     stroke: #000000;
     stroke-width: 1px;
 }
 
 .outer-dashed {
-    stroke-dasharray: 3,2;
+    stroke-dasharray: 3, 2;
 }
 
-.lifeline-tool-line{
+.lifeline-tool-line {
     stroke: #000000;
     stroke-width: 1px;
 }
 
-.lifeline-tool-rect{
+.lifeline-tool-rect {
     fill: #FFFFFF;
     fill-opacity: 1;
 }
@@ -26,6 +26,7 @@
 .tool > line {
     stroke-width: 1px;
 }
+
 .tool > rect {
     fill-opacity: 1;
 }
@@ -33,6 +34,36 @@
 .resource > line {
     stroke: #000000;
 }
+
+.headingRect {
+    fill: #FFFFFF;
+    stroke-width: 1;
+    stroke: #cbcbcb;
+
+}
+
+.headingRectIcon {
+    fill: url(#resourceIcon);
+}
+
+.headingCollapseIcon {
+    fill: url(#toggleIcon);
+}
+
+.httpMethodRect {
+    fill: #f3f3f3;
+}
+
+.httpMethodText {
+    fill: #777777;
+}
+
+.resourcePathPrefix {
+    stroke-width: 0.5;
+    stroke: #000000;
+
+}
+
 .resource > rect {
     fill: #ffffff;
 }
@@ -40,13 +71,18 @@
 .worker > line {
     stroke: #000000;
 }
+
 .worker > rect {
     fill: #ffffff;
 }
-.resource-content{
+
+.resource-content {
     fill: none;
+    stroke-width: 1;
+    stroke: #cbcbcb;
 }
-.client rect{
+
+.client rect {
     /*fill: #ffffff;*/
 }
 
@@ -55,7 +91,7 @@
     fill: #FFFFFF;
 }
 
-.client .lifeline-title{
+.client .lifeline-title {
     fill: #000000;
 }
 
@@ -70,75 +106,77 @@
 .endpoint > line {
     stroke: #000000;
 }
+
 .endpoint > rect {
     fill: #ffffff;
 }
 
-.lifeline-polygon{
+.lifeline-polygon {
     fill: #ffffff;
 }
 
-.try-block-mediator-tool > rect{
+.try-block-mediator-tool > rect {
     fill-opacity: 1;
     fill: #ffffff;
 }
 
-.try-block-mediator-tool > text{
+.try-block-mediator-tool > text {
     fill-opacity: 1;
     fill: #ffffff;
 }
 
-.switch-mediator-tool > rect{
+.switch-mediator-tool > rect {
     fill-opacity: 1;
     fill: #ffffff;
 }
 
-.switch-mediator-tool > text{
+.switch-mediator-tool > text {
     fill-opacity: 1;
     fill: #ffffff;
 }
 
-.payload-factory-tool > rect{
+.payload-factory-tool > rect {
     fill-opacity: 1;
     fill: #27ae60;
 }
 
-.payload-factory-tool > text{
+.payload-factory-tool > text {
     fill-opacity: 1;
     fill: #ffffff;
 }
 
-.log-mediator-tool > rect{
+.log-mediator-tool > rect {
     fill-opacity: 1;
     fill: #2980b9;
 }
 
-.log-mediator-tool > text{
+.log-mediator-tool > text {
     fill-opacity: 1;
     fill: #ffffff;
 }
-.message{
+
+.message {
     stroke: #000000;
     stroke-width: 1px;
 }
 
-.message:hover{
+.message:hover {
     cursor: pointer;
 }
 
-.lifeline{
+.lifeline {
 }
 
-.lifeline:hover{
+.lifeline:hover {
     cursor: pointer;
 }
 
-.marker{
+.marker {
     fill: #000000;
 }
 
 .mediator-title {
-    text-anchor:middle;
+    text-anchor: middle;
     alignment-baseline: central;
 }
 

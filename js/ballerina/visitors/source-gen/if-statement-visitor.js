@@ -17,28 +17,28 @@
  */
 define(['lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor'], function(_, log, EventChannel, AbstractStatementSourceGenVisitor) {
 
-    var IterateStatementVisitor = function(){
+    var IfStatementVisitor = function(){
         AbstractStatementSourceGenVisitor.call(this);
     };
 
-    IterateStatementVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
-    IterateStatementVisitor.prototype.constructor = IterateStatementVisitor;
+    IfStatementVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
+    IfStatementVisitor.prototype.constructor = IfStatementVisitor;
 
-    IterateStatementVisitor.prototype.canVisitStatement = function(iterateStatement){
+    IfStatementVisitor.prototype.canVisitIfStatement = function(ifStatement){
         return true;
     };
 
-    IterateStatementVisitor.prototype.beginVisitStatement = function(iterateStatement){
-        log.info('Begin Visit Iterate Statement Definition');
+    IfStatementVisitor.prototype.beginVisitIfStatement = function(ifStatement){
+        log.info('Begin Visit If Else Statement Definition');
     };
 
-    IterateStatementVisitor.prototype.visitStatement = function(iterateStatement){
-        log.info('Visit Iterate Statement Definition');
+    IfStatementVisitor.prototype.visitIfStatement = function(ifStatement){
+        log.info('Visit If Else Statement Definition');
     };
 
-    IterateStatementVisitor.prototype.endVisitStatement = function(iterateStatement){
-        log.info('End Visit Iterate Statement Definition');
+    IfStatementVisitor.prototype.endVisitIfStatement = function(ifStatement){
+        log.info('End Visit If Else Statement Definition');
     };
 
-    return IterateStatementVisitor;
+    return IfStatementVisitor;
 });

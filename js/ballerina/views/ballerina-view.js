@@ -15,19 +15,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './node'], function (_, ASTNode) {
+define(['lodash', 'log', 'event_channel'], function (_, log, EventChannel) {
+    var BallerinaView = function() {
 
-    /**
-     * Class to represent a statement in ballerina.
-     * @constructor
-     */
-    var Statement = function () {
-        ASTNode.call(this, 'Statement');
     };
 
-    Statement.prototype = Object.create(ASTNode.prototype);
-    Statement.prototype.constructor = Statement;
+    BallerinaView.prototype = Object.create(EventChannel.prototype);
+    BallerinaView.prototype.constructor = BallerinaView;
 
-    return Statement;
-
+    BallerinaView.prototype.setWidth = function(newWidth) {};
+    BallerinaView.prototype.setHeight = function(newHeight) {};
+    BallerinaView.prototype.setXPosition = function(xPosition) {};
+    BallerinaView.prototype.setYPosition = function(yPosition) {};
 });

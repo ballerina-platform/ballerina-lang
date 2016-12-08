@@ -24,6 +24,7 @@ define(['lodash', 'log', './statement', './expression'], function (_, log, State
      * @constructor
      */
     var ConditionalStatement = function (condition, statements) {
+        Statement.call(this);
         this._condition = condition;
         this._statments = statements || [];
     };

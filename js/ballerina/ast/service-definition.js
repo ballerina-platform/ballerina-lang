@@ -25,7 +25,7 @@ define(['lodash', './node'], function (_, ASTNode) {
         this._connectionDeclarations = _.get(args, 'connectionDeclarations', []);
 
         // TODO: All the types should be referred from the global constants
-        ASTNode.call(this, 'Service', 'service TravelManagerService {', '}');
+        ASTNode.call(this, 'Service');
     };
 
     ServiceDefinition.prototype = Object.create(ASTNode.prototype);
