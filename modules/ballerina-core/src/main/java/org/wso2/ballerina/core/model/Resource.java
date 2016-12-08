@@ -54,9 +54,15 @@ public class Resource implements Executable {
     private List<Parameter> arguments;
     private List<Worker> workers;
     private Worker defaultWorker;
+    private String name;
 
     public Resource() {
         defaultWorker = new Worker();
+    }
+
+    public Resource(String name) {
+        defaultWorker = new Worker();
+        this.name = name;
     }
 
     /**
@@ -239,6 +245,10 @@ public class Resource implements Executable {
      */
     public void addStatement(Statement statement) {
         defaultWorker.addStatement(statement);
+    }
+
+    public String getName() {
+        return name;
     }
 
     @Override
