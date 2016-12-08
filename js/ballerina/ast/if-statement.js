@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './conditional-statement'], function (_, log, ConditionalStatement) {
+define(['lodash', 'log', './conditional-statement', './node'], function (_, log, ConditionalStatement, ASTNode) {
 
     /**
      * Class for if conditions in ballerina.
@@ -23,9 +23,14 @@ define(['lodash', 'log', './conditional-statement'], function (_, log, Condition
      * @param elseIfStatements The 'else if' statements of an IF condition.
      * @constructor
      */
-    var IfStatement = function (elseStatements, elseIfStatements) {
+    var IfStatement = function (statements,elseStatements, elseIfStatements) {
+        //this._condition = condition;
+        this._statements = statements || [];
         this._elseStatements = elseStatements || [];
         this._elseIfStatements = elseIfStatements || [];
+
+        // TODO: All the types should be referred from the global constants
+        ASTNode.call(this, 'If {', 'fi}');
     };
 
     IfStatement.prototype = Object.create(ConditionalStatement.prototype);

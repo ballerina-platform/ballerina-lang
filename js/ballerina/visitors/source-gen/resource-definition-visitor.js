@@ -15,8 +15,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor'],
-    function(_, log, EventChannel, AbstractSourceGenVisitor) {
+define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './if-statement-visitor',
+'./iterate-statement-visitor', './trycatch-statement-visitor', './reply-statement-visitor'],
+    function(_, log, EventChannel, AbstractSourceGenVisitor, IfStatementVisitor, IterateStatementVisitor,
+    TryCatchStatementVisitor, ReplyStatementVisitor) {
 
         /**
          * @param parent

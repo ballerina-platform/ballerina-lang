@@ -42,6 +42,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace']
             var ballerinaASTFactory = new Ballerina.ast.BallerinaASTFactory();
             var ballerinaAstRoot = ballerinaASTFactory.createBallerinaAstRoot();
             var serviceDefinitions = [];
+            var statements = [];
             // Create sample connector definition
             var connectorDefinitions = [];
             var connectorDefinition1 = ballerinaASTFactory.createConnectorDefinition();
@@ -57,6 +58,12 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace']
             // Create Sample Resource Definitions
             var resourceDefinition1 = ballerinaASTFactory.createResourceDefinition();
             var resourceDefinition2 = ballerinaASTFactory.createResourceDefinition();
+
+            // Create If statement Definition
+            var ifStatement1 = ballerinaASTFactory.createIfStatement();
+            statements.push(ifStatement1);
+            resourceDefinition1.setStatements(statements);
+
             resourceDefinition1.resourceParent(serviceDefinition1);
             resourceDefinition2.resourceParent(serviceDefinition2);
 

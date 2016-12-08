@@ -22,7 +22,7 @@ define(['lodash', 'log', 'event_channel', './statement-definition-visitor'], fun
     };
 
     IterateStatementVisitor.prototype = Object.create(StatementDefinitionVisitor.prototype);
-    IterateStatementVisitor.prototype.constructor = IfStatementVisitor;
+    IterateStatementVisitor.prototype.constructor = IterateStatementVisitor;
 
     IterateStatementVisitor.prototype.canVisitStatementDefinition = function(iterateStatement){
         return true;
@@ -40,5 +40,5 @@ define(['lodash', 'log', 'event_channel', './statement-definition-visitor'], fun
         log.info('End Visit Iterate Statement Definition');
     };
 
-    return IfStatementVisitor;
+    return IterateStatementVisitor;
 });
