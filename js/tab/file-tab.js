@@ -67,6 +67,11 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace']
             resourceDefinition1.resourceParent(serviceDefinition1);
             resourceDefinition2.resourceParent(serviceDefinition2);
 
+            // Create Sample try-catch statement
+            var tryCatchStatement1 = ballerinaASTFactory.createTryCatchStatement();
+
+            resourceDefinition1.addChild(tryCatchStatement1);
+
             ballerinaAstRoot.addChild(serviceDefinition1);
             ballerinaAstRoot.addChild(serviceDefinition2);
             serviceDefinition1.setResourceDefinitions([resourceDefinition1, resourceDefinition2]);

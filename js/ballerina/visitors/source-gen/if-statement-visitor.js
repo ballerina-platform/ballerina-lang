@@ -15,34 +15,34 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', './statement-definition-visitor'], function(_, log, EventChannel, StatementDefinitionVisitor) {
+define(['lodash', 'log', 'event_channel', './statement-visitor'], function(_, log, EventChannel, StatementVisitor) {
 
     var IfStatementVisitor = function(){
-        StatementDefinitionVisitor.call(this);
+        StatementVisitor.call(this);
     };
 
-    IfStatementVisitor.prototype = Object.create(StatementDefinitionVisitor.prototype);
+    IfStatementVisitor.prototype = Object.create(StatementVisitor.prototype);
     IfStatementVisitor.prototype.constructor = IfStatementVisitor;
 
-    IfStatementVisitor.prototype.canVisitStatementDefinition = function(ifStatement){
+    IfStatementVisitor.prototype.canVisitIfStatement = function(ifStatement){
         return true;
     };
 
-    IfStatementVisitor.prototype.beginVisitStatementDefinition = function(ifStatement){
-    /**
-    * set the configuration start for the if statement definition language construct
-    * If we need to add additional parameters which are dynamically added to the configuration start
-    * that particular source generation has to be constructed here
-    */
+    IfStatementVisitor.prototype.beginVisitIfStatement = function(ifStatement){
+        /**
+        * set the configuration start for the if statement definition language construct
+        * If we need to add additional parameters which are dynamically added to the configuration start
+        * that particular source generation has to be constructed here
+        */
         this.appendSource(ifStatement.getConfigStart());
         log.info('Begin Visit If Else Statement Definition');
     };
 
-    IfStatementVisitor.prototype.visitStatementDefinition = function(ifStatement){
+    IfStatementVisitor.prototype.visitIfStatement = function(ifStatement){
         log.info('Visit If Else Statement Definition');
     };
 
-    IfStatementVisitor.prototype.endVisitStatementDefinition = function(ifStatement){
+    IfStatementVisitor.prototype.endVisitIfStatement = function(ifStatement){
         log.info('End Visit If Else Statement Definition');
     };
 

@@ -19,6 +19,8 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './if
 './iterate-statement-visitor', './trycatch-statement-visitor', './reply-statement-visitor'],
     function(_, log, EventChannel, AbstractSourceGenVisitor, IfStatementVisitor, IterateStatementVisitor,
     TryCatchStatementVisitor, ReplyStatementVisitor) {
+define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './statement-visitor'],
+    function(_, log, EventChannel, AbstractSourceGenVisitor, StatementVisitor) {
 
         /**
          * @param parent
@@ -55,19 +57,9 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './if
             log.info('End Visit ResourceDefinition');
         };
 
-        ResourceDefinitionVisitor.prototype.visitStatement = function(statementDefinition){
-            var statementDefinitionVisitor;
-            //routing to the correct statement type
-            if(statementDefinition instanceof IfStatement){
-                statementDefinitionVisitor = new IfStatementVisitor();
-            } else if(statementDefinition instanceof WhileStatement){
-                statementDefinitionVisitor = new IterateStatementVisitor();
-            } else if(statementDefinition instanceof TryCatchStatement){
-                statementDefinitionVisitor = new TryCatchStatementVisitor();
-            } else if(statementDefinition instanceof ReplyStatement){
-                statementDefinitionVisitor = new ReplyStatementVisitor();
-            }
-            statementDefinition.accept(statementDefinitionVisitor);
+        ResourceDefinitionVisitor.prototype.visitStatement = function(statement){
+            var statementVisitor = new StatementVisitor(this);
+            statementVisitor.visitStatement(statement);
         };
         return ResourceDefinitionVisitor;
     });

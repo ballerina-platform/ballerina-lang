@@ -15,28 +15,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', './statement-definition-visitor'], function(_, log, EventChannel, StatementDefinitionVisitor) {
+define(['lodash', 'log', 'event_channel', './statement-visitor'], function(_, log, EventChannel, StatementVisitor) {
 
     var ReplyStatementVisitor = function(){
-        StatementDefinitionVisitor.call(this);
+        StatementVisitor.call(this);
     };
 
-    ReplyStatementVisitor.prototype = Object.create(StatementDefinitionVisitor.prototype);
+    ReplyStatementVisitor.prototype = Object.create(StatementVisitor.prototype);
     ReplyStatementVisitor.prototype.constructor = ReplyStatementVisitor;
 
-    ReplyStatementVisitor.prototype.canVisitStatementDefinition = function(replyStatement){
+    ReplyStatementVisitor.prototype.canVisitStatement = function(replyStatement){
         return true;
     };
 
-    ReplyStatementVisitor.prototype.beginVisitStatementDefinition = function(replyStatement){
+    ReplyStatementVisitor.prototype.beginVisitStatement = function(replyStatement){
         log.info('Begin Visit Reply Statement Definition');
     };
 
-    ReplyStatementVisitor.prototype.visitStatementDefinition = function(replyStatement){
+    ReplyStatementVisitor.prototype.visitStatement = function(replyStatement){
         log.info('Visit Reply Statement Definition');
     };
 
-    ReplyStatementVisitor.prototype.endVisitStatementDefinition = function(replyStatement){
+    ReplyStatementVisitor.prototype.endVisitStatement = function(replyStatement){
         log.info('End Visit Reply Statement Definition');
     };
 
