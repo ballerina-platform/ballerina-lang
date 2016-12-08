@@ -54,15 +54,15 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'd3utils'], function (r
         },
 
         render: function (parent) {
-            var createCloneCallback = this.model.get("createCloneCallback");
-            var dragCursorOffset = this.model.get("dragCursorOffset");
+            //var createCloneCallback = this.model.get("createCloneCallback");
+            var dragCursorOffset = this.getDragCursorOffset();
             var self = this;
             this.$el.html(this.toolTemplate(this.model.attributes));
             this.$el.tooltip();
             parent.append(this.$el);
 
             this.$el.draggable({
-                helper: _.isUndefined(createCloneCallback) ?  'clone' : createCloneCallback(self),
+                helper: _.isUndefined(this.createCloneCallback) ?  'clone' : this.createCloneCallback(self),
                 cursor: 'move',
                 cursorAt: _.isUndefined(dragCursorOffset) ?  { left: -2, top: -2 } : dragCursorOffset,
                 zIndex: 10001,
@@ -79,8 +79,46 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'd3utils'], function (r
             var div = body.append("div").attr("id", "draggingToolClone");
             //For validation feedback
             div.append('span').attr("id","validator");
-            div =  D3Utils.decorate(div);
             return div;
+        },
+
+        partialRender: function (parent, attributes) {
+            var dragCursorOffset = this.getDragCursorOffset();
+            var self = this;
+            this.$el.html(this.toolTemplate(attributes));
+            this.$el.tooltip();
+            parent.append(this.$el);
+
+            this.$el.draggable({
+                helper: _.isUndefined(this.createCloneCallback) ? 'clone' : this.createCloneCallback(self),
+                cursor: 'move',
+                cursorAt: _.isUndefined(dragCursorOffset) ? {left: -2, top: -2} : dragCursorOffset,
+                zIndex: 10001,
+                stop: this.createHandleDragStartEvent(),
+                start: this.createHandleDragStartEvent(),
+                drag: this.createHandleDragStartEvent()
+            });
+            return this;
+        },
+
+        createCloneCallback: function (view) {
+            function cloneCallBack() {
+                var div = view.createContainerForDraggable();
+                d3.xml("images/tool-icons/lifeline.svg").mimeType("image/svg+xml").get(function (error, xml) {
+                    if (error) throw error;
+                    var svg = xml.getElementsByTagName("svg")[0];
+                    d3.select(svg).attr("width", "100px").attr("height", "100px");
+                    d3.select(svg).attr("width", "100px");
+                    div.node().appendChild(svg);
+                });
+                return div.node();
+            }
+
+            return cloneCallBack;
+        },
+
+        getDragCursorOffset: function () {
+            return {left: 50, top: 50};
         }
 
     });

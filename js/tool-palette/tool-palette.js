@@ -16,9 +16,9 @@
  * under the License.
  */
 define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-group',
-        'main_elements', 'processors', './drag-drop-manager'],
+        'main_elements', 'processors', './drag-drop-manager', 'ballerina'],
     function (require, log, $, Backbone, ToolGroupView, ToolGroup,
-              MainElements, Processors, DragDropManager) {
+              MainElements, Processors, DragDropManager, Ballerina) {
 
     var ToolPalette = Backbone.View.extend({
         initialize: function (options) {
@@ -45,18 +45,53 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
 
             var _toolGroups = [];
             // Create main tool group
+            var ballerinaASTFactory = new Ballerina.ast.BallerinaASTFactory();
+            var resourceDefinition = ballerinaASTFactory.createResourceDefinition();
+            var functionDefinition = ballerinaASTFactory.createFunctionDefinition();
+            var serviceDefinition = ballerinaASTFactory.createServiceDefinition();
+            var ifStatement = ballerinaASTFactory.createIfStatement();
+
+            var mainToolDefArray = [{
+                id: "resource",
+                name: "Resource",
+                icon: "images/tool-icons/lifeline.svg",
+                title: "Resource",
+                node: serviceDefinition
+            },
+                {
+                    id: "service",
+                    name: "Service",
+                    icon: "images/tool-icons/lifeline.svg",
+                    title: "Service",
+                    node: resourceDefinition
+                },
+                {
+                    id: "function",
+                    name: "Function",
+                    icon: "images/tool-icons/lifeline.svg",
+                    title: "Function",
+                    node: functionDefinition
+                }];
+
             var mainToolGroup = new ToolGroup({
                 toolGroupName: "Elements",
                 toolGroupID: "main-tool-group",
-                toolDefinitions: MainElements.lifelines
+                toolDefinitions: mainToolDefArray
             });
             _toolGroups.push(mainToolGroup);
 
+            var statementToolDefArray = [{
+                id: "if",
+                name: "Resource",
+                icon: "images/tool-icons/lifeline.svg",
+                title: "If",
+                node: ifStatement
+            }];
             // Create mediators tool group
             var mediatorsToolGroup = new ToolGroup({
-                toolGroupName: "Mediators",
+                toolGroupName: "Statements",
                 toolGroupID: "mediators-tool-group",
-                toolDefinitions: _.assign({},Processors.manipulators, Processors.flowControllers)
+                toolDefinitions: statementToolDefArray
             });
             _toolGroups.push(mediatorsToolGroup);
 
@@ -87,6 +122,17 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
             });
 
             return this;
+        },
+
+        updateToolGroup: function (toolDef, group) {
+            var self = this;
+            var tool = group.addNewTool(toolDef, group);
+            var groupView = new ToolGroupView({model: group, toolPalette: self});
+            groupView.partialRender(self.$el, tool, group);
+        },
+
+        getElementToolGroups: function () {
+            return this._toolGroups;
         },
 
         hideToolPalette: function () {

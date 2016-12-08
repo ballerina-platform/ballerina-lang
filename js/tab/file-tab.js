@@ -38,10 +38,12 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace']
             var ballerinaEditorOptions = _.get(this.options, 'ballerina_editor');
             _.set(ballerinaEditorOptions, 'toolPalette', this.getParent().options.toolPalette);
             _.set(ballerinaEditorOptions, 'container', this.$el.get(0));
+            var toolPallet = _.get(this.options.application, 'toolPalette');
 
             var ballerinaASTFactory = new Ballerina.ast.BallerinaASTFactory();
             var ballerinaAstRoot = ballerinaASTFactory.createBallerinaAstRoot();
             var serviceDefinitions = [];
+            var serviceDefinitions1 = [];
             // Create sample connector definition
             var connectorDefinitions = [];
             var connectorDefinition1 = ballerinaASTFactory.createConnectorDefinition();
@@ -53,6 +55,11 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace']
             serviceDefinition1.setBasePath("/basePath1");
             var serviceDefinition2 = ballerinaASTFactory.createServiceDefinition();
             serviceDefinition2.setBasePath("/basePath2");
+
+            var serviceDefinition3 = ballerinaASTFactory.createServiceDefinition();
+            serviceDefinition3.setBasePath("/basePath3");
+            var serviceDefinition4 = ballerinaASTFactory.createServiceDefinition();
+            serviceDefinition4.setBasePath("/basePath4");
 
             // Create Sample Resource Definitions
             var resourceDefinition1 = ballerinaASTFactory.createResourceDefinition();
@@ -75,12 +82,36 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace']
             serviceDefinitions.push(serviceDefinition2);
             ballerinaAstRoot.setServiceDefinitions(serviceDefinitions);
 
+            serviceDefinitions1.push(serviceDefinition3);
+            serviceDefinitions1.push(serviceDefinition4);
+
             // Create Sample Function Definitions
             var functionDefinitions = [];
+            var functionDefinitions1 = [];
             var functionDefinition1 = ballerinaASTFactory.createFunctionDefinition();
             functionDefinitions.push(functionDefinition1);
             ballerinaAstRoot.addChild(functionDefinition1);
             ballerinaAstRoot.setFunctionDefinitions(functionDefinitions);
+
+            var functionDefinition2 = ballerinaASTFactory.createFunctionDefinition();
+            var functionDefinition3 = ballerinaASTFactory.createFunctionDefinition();
+            functionDefinitions1.push(functionDefinition2);
+            functionDefinitions1.push(functionDefinition3);
+
+            var package1 = new Ballerina.env.Package({name: 'PACKAGE1'});
+            package1.addServiceDefinitions(serviceDefinitions);
+            package1.addFunctionDefinitions(functionDefinitions);
+
+            var package2 = new Ballerina.env.Package({name: 'PACKAGE2'});
+            package2.addServiceDefinitions(serviceDefinitions1);
+            package2.addFunctionDefinitions(functionDefinitions1);
+
+            //Create environment and add add package list
+            var ballerinaEnvironment = new Ballerina.env.Environment();
+            ballerinaEnvironment.addPackage(package1);
+            ballerinaEnvironment.addPackage(package2);
+
+            this.generateToolPallet(ballerinaEnvironment, toolPallet);
 
             var fileEditor = new  Ballerina.views.BallerinaFileEditor({model: ballerinaAstRoot, viewOptions: ballerinaEditorOptions});
 
@@ -92,6 +123,56 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace']
             ballerinaAstRoot.accept(sourceGenVisitor);
             ballerinaAstRoot.accept(fileEditor);
             log.info(sourceGenVisitor.getGeneratedSource());
+        },
+
+        generateToolPallet: function (environment, toolPallet) {
+            var self = this;
+            var mainElementsToolGroup = toolPallet.getElementToolGroups()[0];
+            var statementsToolGroup = toolPallet.getElementToolGroups()[1];
+            var packageList = environment.getPackages();
+
+            _.each(packageList, function (pckg) {
+                if (!_.isEmpty(pckg.getServiceDefinitions())) {
+                    var service = self.isToolAvailableInPallet(mainElementsToolGroup, "Service");
+                    if (!service) {
+                        var serviceDefinitions = pckg.getServiceDefinitions();
+                        var serviceDef = {
+                            id: "service",
+                            name: "Service",
+                            icon: "images/tool-icons/lifeline.svg",
+                            title: "Service",
+                            node: serviceDefinitions[0]
+                        };
+                        mainElementsToolGroup.get("toolDefinitions").push(serviceDef);
+                        toolPallet.updateToolGroup(serviceDef, mainElementsToolGroup);
+                    }
+
+                    _.each(pckg.getServiceDefinitions(), function (serviceDef) {
+                        if (!_.isEmpty(serviceDef.getResourceDefinitions())) {
+
+                        }
+                    });
+                }
+                if (!_.isEmpty(pckg.getFunctionDefinitions())) {
+
+                }
+                if (!_.isEmpty(pckg.getConnectorDefinitions())) {
+
+                }
+                if (!_.isEmpty(pckg.getTypeDefinitions())) {
+
+                }
+            });
+        },
+
+        isToolAvailableInPallet: function (elementGroup, name) {
+            var elementGroupDefinitions = elementGroup.get("toolDefinitions");
+            for (var i = 0; i < elementGroupDefinitions.length; i++) {
+                if (elementGroupDefinitions[i].name == name) {
+                    return true;
+                }
+            }
+            return false;
         }
     });
 
