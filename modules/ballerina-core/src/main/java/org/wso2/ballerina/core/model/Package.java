@@ -97,7 +97,6 @@ public class Package {
             }
         });
 
-        privateFunctions.putAll(file.getFunctions());
         types.addAll(file.getTypes());
     }
 

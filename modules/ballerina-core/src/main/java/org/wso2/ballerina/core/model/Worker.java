@@ -142,6 +142,11 @@ public class Worker implements Executable {
     public boolean execute(BalContext context, BalCallback callback) {
 
         //Execute statements from here
+        if (statements == null || statements.size() == 0) {
+            return true; // nothing to execute
+        }
+
         return false;
+
     }
 }

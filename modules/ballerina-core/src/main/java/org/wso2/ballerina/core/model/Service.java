@@ -54,10 +54,10 @@ public class Service implements Executable {
     private static final Logger logger = LoggerFactory.getLogger(Service.class);
 
     private Identifier identifier;
-    private Map<String, Annotation> annotations;
-    private List<Connection> connections;
-    private List<VariableDcl> variables;
-    private List<Resource> resources;
+    private Map<String, Annotation> annotations = new HashMap<>();
+    private List<Connection> connections = new ArrayList<>();
+    private List<VariableDcl> variables = new ArrayList<>();
+    private List<Resource> resources = new ArrayList<>();
 
     /**
      *
@@ -109,9 +109,6 @@ public class Service implements Executable {
      * @param annotation Annotation to be added
      */
     public void addAnnotation(Annotation annotation) {
-        if (annotations == null) {
-            annotations = new HashMap<>();
-        }
         annotations.put(annotation.getName(), annotation);
     }
 
@@ -139,9 +136,6 @@ public class Service implements Executable {
      * @param connection Connection to be added to the Service
      */
     public void addConnection(Connection connection) {
-        if (connections == null) {
-            connections = new ArrayList<Connection>();
-        }
         connections.add(connection);
     }
 
@@ -169,9 +163,6 @@ public class Service implements Executable {
      * @param variable variable to be added to the Service
      */
     public void addVariable(VariableDcl variable) {
-        if (variables == null) {
-            variables = new ArrayList<VariableDcl>();
-        }
         variables.add(variable);
     }
 
@@ -199,9 +190,6 @@ public class Service implements Executable {
      * @param resource a Resource
      */
     public void addResource(Resource resource) {
-        if (resources == null) {
-            resources = new ArrayList<Resource>();
-        }
         resources.add(resource);
     }
 

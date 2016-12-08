@@ -41,10 +41,10 @@ import java.util.Map;
 public class BallerinaFile {
 
     private String packageName;
-    private List<Import> imports;
-    private List<Service> services;
-    private Map<String, Function> functions;
-    private List<StructType> types;
+    private List<Import> imports = new ArrayList<>();
+    private List<Service> services = new ArrayList<>();
+    private Map<String, Function> functions = new HashMap<>();
+    private List<StructType> types = new ArrayList<>();
     //TODO: add TypeConverters
     //TODO: add constants
 
@@ -91,9 +91,6 @@ public class BallerinaFile {
      * @param importStmt an import to be added to the file
      */
     public void addImport(Import importStmt) {
-        if (imports == null) {
-            imports = new ArrayList<Import>();
-        }
         imports.add(importStmt);
     }
 
@@ -121,9 +118,6 @@ public class BallerinaFile {
      * @param service a Service
      */
     public void addService(Service service) {
-        if (services == null) {
-            services = new ArrayList<Service>();
-        }
         services.add(service);
     }
 
@@ -151,9 +145,6 @@ public class BallerinaFile {
      * @param function a Function to be added to the File
      */
     public void addFunction(Function function) {
-        if (functions == null) {
-            functions = new HashMap<String, Function>();
-        }
         functions.put(function.getFunctionName().getName(), function);
     }
 
@@ -182,9 +173,6 @@ public class BallerinaFile {
      * @param type Type to be added to the File
      */
     public void addType(StructType type) {
-        if (types == null) {
-            types = new ArrayList<StructType>();
-        }
         types.add(type);
     }
 

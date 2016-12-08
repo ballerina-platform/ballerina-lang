@@ -35,6 +35,10 @@ public class Annotation {
     private String name, value;
     private Map<String, String> keyValPairs = new HashMap<>();
 
+    public Annotation(String name) {
+        this.name = name;
+    }
+
     public Annotation(String name, String value) {
         this.name = name;
         this.value = value;
