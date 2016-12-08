@@ -15,27 +15,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', './statement-visitor'], function(_, log, EventChannel, StatementVisitor) {
+define(['lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor'],
+function(_, log, EventChannel, AbstractStatementSourceGenVisitor) {
 
-    var IfStatementVisitor = function(){
-        StatementVisitor.call(this);
+    var IfElseStatementVisitor = function(parent){
+        AbstractStatementSourceGenVisitor.call(this,parent);
     };
 
-    IfStatementVisitor.prototype = Object.create(StatementVisitor.prototype);
-    IfStatementVisitor.prototype.constructor = IfStatementVisitor;
+    IfElseStatementVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
+    IfElseStatementVisitor.prototype.constructor = IfElseStatementVisitor;
 
-    IfStatementVisitor.prototype.canVisitIfStatement = function(ifStatement){
+    IfElseStatementVisitor.prototype.canVisitIfStatement = function(ifStatement){
         return true;
     };
 
-    IfStatementVisitor.prototype.beginVisitIfStatement = function(ifStatement){
+    IfElseStatementVisitor.prototype.beginVisitIfStatement = function(ifStatement){
         /**
         * set the configuration start for the if statement definition language construct
         * If we need to add additional parameters which are dynamically added to the configuration start
         * that particular source generation has to be constructed here
         */
-        this.appendSource(ifStatement.getConfigStart());
-        log.info('Begin Visit If Else Statement Definition');
+        this.appendSource('if(cbhbbhbh');
+        log.info('Begin visit If Else Statement Definition');
     };
 
     IfStatementVisitor.prototype.visitIfStatement = function(ifStatement){
@@ -43,6 +44,8 @@ define(['lodash', 'log', 'event_channel', './statement-visitor'], function(_, lo
     };
 
     IfStatementVisitor.prototype.endVisitIfStatement = function(ifStatement){
+        this.appendSource('fhbhbhbbhbhi}');
+        this.getParent().appendSource(this.getGeneratedSource());
         log.info('End Visit If Else Statement Definition');
     };
 
