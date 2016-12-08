@@ -196,7 +196,7 @@ statement
     ;
 
 assignmentStatement
-    :   variableAccessor '='  assignmentRHSExpression ';'
+    :   variableAccessor '='  expression ';'
     ;
 
 ifElseStatement
@@ -277,7 +277,7 @@ commentStatement
     ;
 
 actionInvocationStatement
-    :   actionInvocation argumentList ';'
+    :   expression ';'
     ;
 
 variableAccessor
@@ -285,16 +285,6 @@ variableAccessor
     |   Identifier '['IntegerLiteral']' // array reference
     |   Identifier'['QuotedStringLiteral']' // map reference
     |   Identifier ('.' variableAccessor)+ // struct field reference
-    ;
-
-typeInitializeExpression
-    :   'new' (packageName ':' )? Identifier ('(' expressionList? ')')?
-    ;
-
-assignmentRHSExpression
-    :   expression
-    |   typeInitializeExpression
-    |   functionInvocationExpression
     ;
 
 argumentList
@@ -306,11 +296,7 @@ expressionList
     ;
 
 functionInvocationStatement
-    :   functionInvocationExpression ';'
-    ;
-
-functionInvocationExpression
-    :   functionName argumentList
+    :   expression ';'
     ;
 
 functionName
@@ -326,20 +312,22 @@ backtickString
    ;
 
 expression
-    :   primary                                             # literalExpression
-    |   backtickString                                      # templateExpression
-    |   expression '.' Identifier                           # accessMemberDotExpression
-    |   (packageName | Identifier) ':' Identifier           # inlineFunctionInovcationExpression
-    |   expression '[' expression ']'                       # accessArrayElementExpression
-    |   '(' typeName ')' expression                         # typeCastingExpression
-    |   ('+'|'-'|'!') expression                            # preSingleDualExpression
-    |   expression ('*'|'/'|'%') expression                 # binaryMulDivPercentExpression
-    |   expression ('+'|'-') expression                     # binaryPlusMinusExpression
-    |   expression ('<=' | '>=' | '>' | '<') expression     # binaryComparisonExpression
-    |   expression ('==' | '!=') expression                 # binaryEqualExpression
-    |   expression '&&' expression                          # binaryAndExpression
-    |   expression '||' expression                          # binaryOrExpression
-    |   '{' mapInitKeyValue (',' mapInitKeyValue)* '}'      # mapInitializerExpression
+    :   primary                                                             # literalExpression
+    |   backtickString                                                      # templateExpression
+    |   expression '.' Identifier                                           # accessMemberDotExpression
+    |   functionName argumentList                                           # functionInvocationExpression
+    |   actionInvocation argumentList                                       # actionInvocationExpression
+    |   expression '[' expression ']'                                       # accessArrayElementExpression
+    |   '(' typeName ')' expression                                         # typeCastingExpression
+    |   ('+'|'-'|'!') expression                                            # preSingleDualExpression
+    |   expression ('*'|'/'|'%') expression                                 # binaryMulDivPercentExpression
+    |   expression ('+'|'-') expression                                     # binaryPlusMinusExpression
+    |   expression ('<=' | '>=' | '>' | '<') expression                     # binaryComparisonExpression
+    |   expression ('==' | '!=') expression                                 # binaryEqualExpression
+    |   expression '&&' expression                                          # binaryAndExpression
+    |   expression '||' expression                                          # binaryOrExpression
+    |   '{' mapInitKeyValue (',' mapInitKeyValue)* '}'                      # mapInitializerExpression
+    |   'new' (packageName ':' )? Identifier ('(' expressionList? ')')?     # typeInitializeExpression
     ;
 
 literal
