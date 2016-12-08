@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './statement-visitor'],
-    function(_, log, EventChannel, AbstractSourceGenVisitor, StatementVisitor) {
+define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './statement-visitor-factory'],
+    function(_, log, EventChannel, AbstractSourceGenVisitor, StatementVisitorFactory) {
 
         /**
          * @param parent
@@ -54,8 +54,9 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './st
         };
 
         ResourceDefinitionVisitor.prototype.visitStatement = function(statement){
-            var statementVisitor = new StatementVisitor(this);
-            statementVisitor.visitStatement(statement);
+            var statementVisitorFactory = new StatementVisitorFactory();
+            var statementVisitor = statementVisitorFactory.getStatementVisitor(statement);
+            statement.accept(statementVisitor);
         };
         return ResourceDefinitionVisitor;
     });

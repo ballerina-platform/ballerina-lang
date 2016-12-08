@@ -15,13 +15,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', './statement-visitor'], function(_, log, EventChannel, StatementVisitor) {
+define(['lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor'], function(_, log, EventChannel, AbstractStatementSourceGenVisitor) {
 
     var ReplyStatementVisitor = function(){
-        StatementVisitor.call(this);
+        AbstractStatementSourceGenVisitor.call(this);
     };
 
-    ReplyStatementVisitor.prototype = Object.create(StatementVisitor.prototype);
+    ReplyStatementVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
     ReplyStatementVisitor.prototype.constructor = ReplyStatementVisitor;
 
     ReplyStatementVisitor.prototype.canVisitStatement = function(replyStatement){
