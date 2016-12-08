@@ -48,7 +48,7 @@ public class WhileStatemetParserTest {
             ballerinaParser.compilationUnit();
 
         } catch (IOException e) {
-            e.printStackTrace();
+
         }
     }
 
