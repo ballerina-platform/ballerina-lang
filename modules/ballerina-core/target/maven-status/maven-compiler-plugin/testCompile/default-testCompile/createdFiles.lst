@@ -1,0 +1,4 @@
+org/wso2/ballerina/core/model/FunctionInvocationTest.class
+org/wso2/ballerina/core/model/IfElseStmtTest.class
+org/wso2/ballerina/core/parser/BallerinaBaseListenerImplTest.class
+org/wso2/ballerina/core/model/WhileStmtTest.class

@@ -1,0 +1,61 @@
+Manifest-Version: 1.0
+Bnd-LastModified: 1481102497832
+Build-Jdk: 1.8.0_45
+Built-By: isurur
+Bundle-Contributors: WSO2 Inc
+Bundle-Copyright: WSO2 Inc
+Bundle-Description: WSO2 is an open source application development softw
+ are company focused on providing service-orientedarchitecture solutions
+  for professional developers.
+Bundle-Developers: WSO2 Inc
+Bundle-DocURL: https://docs.wso2.com
+Bundle-License: http://www.apache.org/licenses/LICENSE-2.0.txt
+Bundle-ManifestVersion: 2
+Bundle-Name: ballerina-core
+Bundle-SymbolicName: ballerina-core
+Bundle-Vendor: WSO2 Inc
+Bundle-Version: 1.0.0.SNAPSHOT
+Carbon-Component: osgi.service; objectClass="org.wso2.carbon.deployment.
+ engine.Deployer",osgi.service; objectClass="org.wso2.carbon.messaging.C
+ arbonMessageProcessor";requiredByComponentName="netty-transports-mgt"
+Created-By: Apache Maven Bundle Plugin
+Export-Package: org.wso2.ballerina.core.interpreter;version="1.0.0";uses
+ :="org.wso2.ballerina.core.model,org.wso2.ballerina.core.model.values",
+ org.wso2.ballerina.core.model;version="1.0.0";uses:="org.wso2.ballerina
+ .core.interpreter,org.wso2.ballerina.core.model.statements,org.wso2.bal
+ lerina.core.model.types,org.wso2.ballerina.core.runtime.core",org.wso2.
+ ballerina.core.model.expressions;version="1.0.0";uses:="org.wso2.baller
+ ina.core.interpreter,org.wso2.ballerina.core.model,org.wso2.ballerina.c
+ ore.model.types,org.wso2.ballerina.core.model.values,org.wso2.ballerina
+ .core.utils",org.wso2.ballerina.core.model.statements;version="1.0.0";u
+ ses:="org.wso2.ballerina.core.interpreter,org.wso2.ballerina.core.model
+ ,org.wso2.ballerina.core.model.expressions,org.wso2.ballerina.core.mode
+ l.types",org.wso2.ballerina.core.model.types;version="1.0.0";uses:="org
+ .wso2.ballerina.core.model",org.wso2.ballerina.core.model.values;versio
+ n="1.0.0";uses:="org.wso2.ballerina.core.model.types",org.wso2.ballerin
+ a.core.parser;version="1.0.0";uses:="org.antlr.v4.runtime,org.antlr.v4.
+ runtime.atn,org.antlr.v4.runtime.dfa,org.antlr.v4.runtime.tree",org.wso
+ 2.ballerina.core.runtime.core;version="1.0.0";uses:="org.wso2.carbon.me
+ ssaging",org.wso2.ballerina.core.runtime.core.dispatching;version="1.0.
+ 0";uses:="org.wso2.ballerina.core.model,org.wso2.ballerina.core.runtime
+ .core",org.wso2.ballerina.core.runtime.core.threading.threadpool;versio
+ n="1.0.0";uses:="org.wso2.ballerina.core.runtime.core",org.wso2.balleri
+ na.core.runtime.internal;version="1.0.0";uses:="org.osgi.framework,org.
+ wso2.carbon.messaging",org.wso2.ballerina.core.runtime.net.http.source;
+ version="1.0.0";uses:="org.wso2.ballerina.core.model,org.wso2.ballerina
+ .core.runtime.core,org.wso2.ballerina.core.runtime.core.dispatching",or
+ g.wso2.ballerina.core.runtime.registry;version="1.0.0";uses:="org.wso2.
+ ballerina.core.model,org.wso2.ballerina.core.runtime.core.dispatching",
+ org.wso2.ballerina.core.utils;version="1.0.0"
+Import-Package: org.osgi.framework;version="[1.8.0,2.0.0)",org.slf4j;ver
+ sion="[1.7.1,2.0.0)",org.antlr.v4.runtime;version="[4.5,5)",org.antlr.v
+ 4.runtime.atn;version="[4.5,5)",org.antlr.v4.runtime.dfa;version="[4.5,
+ 5)",org.antlr.v4.runtime.tree;version="[4.5,5)",org.wso2.carbon.messagi
+ ng;version="[0.0.0,2.0.0)",org.osgi.util.tracker;version="[1.5.1,2.0.0)
+ "
+Require-Capability: osgi.service;effective:=active;resolution:=optional;
+ filter:="(objectClass=org.wso2.carbon.messaging.TransportSender)",osgi.
+ ee;filter:="(&(osgi.ee=JavaSE)(version=1.8))"
+SCM-Revision: 50520e399bc36481b799145fc0ac849b60433a68
+Service-Component: OSGI-INF/org.wso2.ballerina.BallerinaService.xml
+Tool: Bnd-2.4.1.201501161923

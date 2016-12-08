@@ -64,6 +64,26 @@
                 <artifactId>antlr4-runtime</artifactId>
                 <version>${antlr4.runtime.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.apache.ws.commons.axiom</groupId>
+                <artifactId>axiom-api</artifactId>
+                <version>${axiom.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.ws.commons.axiom</groupId>
+                <artifactId>axiom-impl</artifactId>
+                <version>${axiom.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.ws.commons.axiom</groupId>
+                <artifactId>axiom-dom</artifactId>
+                <version>${axiom.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.orbit.net.sf.saxon</groupId>
+                <artifactId>Saxon-HE</artifactId>
+                <version>${saxon.wso2.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -199,6 +219,9 @@
         </slf4j.logging.package.import.version.range>
 
         <antlr4.runtime.version>4.5.1.wso2v1</antlr4.runtime.version>
+        <axiom.version>1.2.11-wso2v11</axiom.version>
+
+        <saxon.wso2.version>9.7.0.wso2v1</saxon.wso2.version>
 
     </properties>
 

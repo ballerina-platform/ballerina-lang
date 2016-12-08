@@ -50,6 +50,22 @@
             <groupId>org.wso2.orbit.org.antlr</groupId>
             <artifactId>antlr4-runtime</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.apache.ws.commons.axiom</groupId>
+            <artifactId>axiom-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.ws.commons.axiom</groupId>
+            <artifactId>axiom-impl</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.ws.commons.axiom</groupId>
+            <artifactId>axiom-dom</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.orbit.net.sf.saxon</groupId>
+            <artifactId>Saxon-HE</artifactId>
+        </dependency>
     </dependencies>
 
     <properties>
@@ -66,6 +82,8 @@
             org.wso2.carbon.kernel.startupresolver.*;version="${carbon.kernel.package.import.version.range}",
             org.slf4j.*;version="${slf4j.logging.package.import.version.range}",
             org.antlr.v4.runtime.*,
+            org.apache.axiom.*;
+
 
             org.wso2.carbon.messaging.*;version="${carbon.messaging.package.import.version.range}",
             org.wso2.carbon.deployment.engine.*;version="${carbon.deployment.export.version}",
