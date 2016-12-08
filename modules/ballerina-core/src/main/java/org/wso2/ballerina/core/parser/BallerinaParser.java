@@ -205,6 +205,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitCompilationUnit(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitCompilationUnit(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final CompilationUnitContext compilationUnit() throws RecognitionException {
@@ -318,6 +323,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitPackageDeclaration(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitPackageDeclaration(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final PackageDeclarationContext packageDeclaration() throws RecognitionException {
@@ -373,6 +383,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitImportDeclaration(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitImportDeclaration(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -447,6 +462,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitServiceDefinition(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitServiceDefinition(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ServiceDefinitionContext serviceDefinition() throws RecognitionException {
@@ -505,6 +525,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitServiceBody(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitServiceBody(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ServiceBodyContext serviceBody() throws RecognitionException {
@@ -562,6 +587,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitServiceBodyDeclaration(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitServiceBodyDeclaration(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -656,6 +686,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitResourceDefinition(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitResourceDefinition(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ResourceDefinitionContext resourceDefinition() throws RecognitionException {
@@ -735,6 +770,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitFunctionDefinition(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitFunctionDefinition(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -857,6 +897,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitFunctionBody(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitFunctionBody(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final FunctionBodyContext functionBody() throws RecognitionException {
@@ -970,6 +1015,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitConnectorDefinition(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitConnectorDefinition(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ConnectorDefinitionContext connectorDefinition() throws RecognitionException {
@@ -1048,6 +1098,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitConnectorBody(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitConnectorBody(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -1152,6 +1207,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitActionDefinition(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitActionDefinition(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ActionDefinitionContext actionDefinition() throws RecognitionException {
@@ -1243,6 +1303,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitConnectorDeclaration(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitConnectorDeclaration(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ConnectorDeclarationContext connectorDeclaration() throws RecognitionException {
@@ -1307,6 +1372,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitTypeDefinition(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitTypeDefinition(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final TypeDefinitionContext typeDefinition() throws RecognitionException {
@@ -1366,6 +1436,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitTypeDefinitionBody(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitTypeDefinitionBody(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -1437,6 +1512,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitTypeConvertorDefinition(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitTypeConvertorDefinition(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final TypeConvertorDefinitionContext typeConvertorDefinition() throws RecognitionException {
@@ -1502,6 +1582,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitTypeConvertorBody(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitTypeConvertorBody(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -1580,6 +1665,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitConstantDefinition(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitConstantDefinition(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ConstantDefinitionContext constantDefinition() throws RecognitionException {
@@ -1627,6 +1717,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitVariableDeclaration(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitVariableDeclaration(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -1686,6 +1781,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitWorkerDeclaration(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitWorkerDeclaration(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -1772,6 +1872,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitReturnTypeList(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitReturnTypeList(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ReturnTypeListContext returnTypeList() throws RecognitionException {
@@ -1817,6 +1922,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitTypeNameList(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitTypeNameList(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -1877,6 +1987,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitQualifiedTypeName(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitQualifiedTypeName(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final QualifiedTypeNameContext qualifiedTypeName() throws RecognitionException {
@@ -1919,6 +2034,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitUnqualifiedTypeName(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitUnqualifiedTypeName(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -1984,6 +2104,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitTypeNameWithOptionalSchema(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitTypeNameWithOptionalSchema(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -2083,6 +2208,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitTypeName(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitTypeName(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final TypeNameContext typeName() throws RecognitionException {
@@ -2136,6 +2266,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitQualifiedReference(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitQualifiedReference(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final QualifiedReferenceContext qualifiedReference() throws RecognitionException {
@@ -2181,6 +2316,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitParameterList(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitParameterList(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -2245,6 +2385,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitParameter(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitParameter(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ParameterContext parameter() throws RecognitionException {
@@ -2301,6 +2446,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitPackageName(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitPackageName(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -2360,6 +2510,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitLiteralValue(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitLiteralValue(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final LiteralValueContext literalValue() throws RecognitionException {
@@ -2410,6 +2565,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitAnnotation(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitAnnotation(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -2480,6 +2640,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitAnnotationName(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitAnnotationName(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final AnnotationNameContext annotationName() throws RecognitionException {
@@ -2521,6 +2686,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitElementValuePairs(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitElementValuePairs(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -2579,6 +2749,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitElementValuePair(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitElementValuePair(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ElementValuePairContext elementValuePair() throws RecognitionException {
@@ -2627,6 +2802,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitElementValue(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitElementValue(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -2689,6 +2869,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitElementValueArrayInitializer(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitElementValueArrayInitializer(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -2807,6 +2992,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitStatement(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitStatement(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -2947,6 +3137,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitAssignmentStatement(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitAssignmentStatement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final AssignmentStatementContext assignmentStatement() throws RecognitionException {
@@ -3000,6 +3195,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitIfElseStatement(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitIfElseStatement(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -3145,6 +3345,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitIterateStatement(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitIterateStatement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final IterateStatementContext iterateStatement() throws RecognitionException {
@@ -3221,6 +3426,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitWhileStatement(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitWhileStatement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final WhileStatementContext whileStatement() throws RecognitionException {
@@ -3282,6 +3492,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitBreakStatement(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitBreakStatement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final BreakStatementContext breakStatement() throws RecognitionException {
@@ -3335,6 +3550,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitForkJoinStatement(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitForkJoinStatement(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -3430,6 +3650,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitJoinClause(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitJoinClause(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final JoinClauseContext joinClause() throws RecognitionException {
@@ -3503,6 +3728,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitJoinConditions(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitJoinConditions(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -3620,6 +3850,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitTimeoutClause(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitTimeoutClause(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final TimeoutClauseContext timeoutClause() throws RecognitionException {
@@ -3698,6 +3933,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitTryCatchStatement(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitTryCatchStatement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final TryCatchStatementContext tryCatchStatement() throws RecognitionException {
@@ -3765,6 +4005,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitCatchClause(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitCatchClause(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final CatchClauseContext catchClause() throws RecognitionException {
@@ -3831,6 +4076,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitThrowStatement(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitThrowStatement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ThrowStatementContext throwStatement() throws RecognitionException {
@@ -3873,6 +4123,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitReturnStatement(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitReturnStatement(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -3925,6 +4180,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitReplyStatement(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitReplyStatement(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -3986,6 +4246,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitWorkerInteractionStatement(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitWorkerInteractionStatement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final WorkerInteractionStatementContext workerInteractionStatement() throws RecognitionException {
@@ -4039,6 +4304,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitTriggerWorker(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitTriggerWorker(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final TriggerWorkerContext triggerWorker() throws RecognitionException {
@@ -4085,6 +4355,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitWorkerReply(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitWorkerReply(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final WorkerReplyContext workerReply() throws RecognitionException {
@@ -4128,6 +4403,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitCommentStatement(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitCommentStatement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final CommentStatementContext commentStatement() throws RecognitionException {
@@ -4166,6 +4446,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitActionInvocationStatement(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitActionInvocationStatement(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -4213,6 +4498,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitVariableAccessor(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitVariableAccessor(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -4315,6 +4605,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitArgumentList(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitArgumentList(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ArgumentListContext argumentList() throws RecognitionException {
@@ -4360,6 +4655,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitExpressionList(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitExpressionList(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -4417,6 +4717,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitFunctionInvocationStatement(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitFunctionInvocationStatement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final FunctionInvocationStatementContext functionInvocationStatement() throws RecognitionException {
@@ -4458,6 +4763,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitFunctionName(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitFunctionName(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -4514,6 +4824,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitActionInvocation(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitActionInvocation(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ActionInvocationContext actionInvocation() throws RecognitionException {
@@ -4558,6 +4873,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitBacktickString(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitBacktickString(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -4609,6 +4929,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitBinaryOrExpression(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitBinaryOrExpression(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class TypeInitializeExpressionContext extends ExpressionContext {
 		public TerminalNode Identifier() { return getToken(BallerinaParser.Identifier, 0); }
@@ -4627,6 +4952,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitTypeInitializeExpression(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitTypeInitializeExpression(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class BinaryComparisonExpressionContext extends ExpressionContext {
 		public List<ExpressionContext> expression() {
@@ -4644,6 +4974,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitBinaryComparisonExpression(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitBinaryComparisonExpression(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class TemplateExpressionContext extends ExpressionContext {
 		public BacktickStringContext backtickString() {
@@ -4657,6 +4992,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitTemplateExpression(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitTemplateExpression(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class BinaryPlusMinusExpressionContext extends ExpressionContext {
@@ -4675,6 +5015,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitBinaryPlusMinusExpression(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitBinaryPlusMinusExpression(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class PreSingleDualExpressionContext extends ExpressionContext {
 		public ExpressionContext expression() {
@@ -4688,6 +5033,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitPreSingleDualExpression(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitPreSingleDualExpression(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class FunctionInvocationExpressionContext extends ExpressionContext {
@@ -4706,6 +5056,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitFunctionInvocationExpression(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitFunctionInvocationExpression(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class BinaryEqualExpressionContext extends ExpressionContext {
 		public List<ExpressionContext> expression() {
@@ -4722,6 +5077,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitBinaryEqualExpression(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitBinaryEqualExpression(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class AccessArrayElementExpressionContext extends ExpressionContext {
@@ -4740,6 +5100,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitAccessArrayElementExpression(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitAccessArrayElementExpression(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class BinaryMulDivPercentExpressionContext extends ExpressionContext {
 		public List<ExpressionContext> expression() {
@@ -4757,6 +5122,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitBinaryMulDivPercentExpression(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitBinaryMulDivPercentExpression(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class AccessMemberDotExpressionContext extends ExpressionContext {
 		public ExpressionContext expression() {
@@ -4771,6 +5141,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitAccessMemberDotExpression(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitAccessMemberDotExpression(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class ActionInvocationExpressionContext extends ExpressionContext {
@@ -4789,6 +5164,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitActionInvocationExpression(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitActionInvocationExpression(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class TypeCastingExpressionContext extends ExpressionContext {
 		public TypeNameContext typeName() {
@@ -4805,6 +5185,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitTypeCastingExpression(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitTypeCastingExpression(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class BinaryAndExpressionContext extends ExpressionContext {
@@ -4823,6 +5208,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitBinaryAndExpression(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitBinaryAndExpression(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class LiteralExpressionContext extends ExpressionContext {
 		public PrimaryContext primary() {
@@ -4836,6 +5226,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitLiteralExpression(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitLiteralExpression(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class MapInitializerExpressionContext extends ExpressionContext {
@@ -4853,6 +5248,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitMapInitializerExpression(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitMapInitializerExpression(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -5189,6 +5589,11 @@ public class BallerinaParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitLiteral(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitLiteral(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final LiteralContext literal() throws RecognitionException {
@@ -5237,6 +5642,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitPrimary(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitPrimary(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -5306,6 +5716,11 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitMapInitKeyValue(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitMapInitKeyValue(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
