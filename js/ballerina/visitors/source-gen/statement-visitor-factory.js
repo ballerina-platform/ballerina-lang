@@ -15,21 +15,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor', '../../ast/module', './try-catch-statement-visitor'], function (_, log, EventChannel, AbstractStatementSourceGenVisitor, AST, TryCatchStatementVisitor) {
+define(['lodash', 'log', 'event_channel', '../../ast/module', './try-catch-statement-visitor'], function (_, log, EventChannel, AST, TryCatchStatementVisitor) {
 
-    var StatementVisitor = function () {
-        AbstractStatementSourceGenVisitor.call(this);
+    var StatementVisitorFactor = function () {
     };
 
-    StatementVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
-    StatementVisitor.prototype.constructor = StatementVisitor;
-
-    StatementVisitor.prototype.visitStatement = function (statement) {
+    StatementVisitorFactor.prototype.getStatementVisitor = function (statement) {
         if (statement instanceof AST.TryCatchStatement) {
-            var tryCatchVisitor = new TryCatchStatementVisitor();
-            statement.accept(tryCatchVisitor);
+            return new TryCatchStatementVisitor();
         }
     };
 
-    return StatementVisitor;
+    return StatementVisitorFactor;
 });
