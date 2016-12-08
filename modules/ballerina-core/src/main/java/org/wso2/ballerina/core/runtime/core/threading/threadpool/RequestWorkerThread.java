@@ -18,19 +18,45 @@
 
 package org.wso2.ballerina.core.runtime.core.threading.threadpool;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.runtime.core.BalCallback;
 import org.wso2.ballerina.core.runtime.core.BalContext;
+import org.wso2.ballerina.core.runtime.core.dispatching.ServiceDispatcher;
+import org.wso2.ballerina.core.runtime.registry.DispatcherRegistry;
+import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
  * Worker Thread which is responsible for request processing
  */
 public class RequestWorkerThread extends WorkerThread {
 
+    private static final Logger logger = LoggerFactory.getLogger(RequestWorkerThread.class);
+
+
     public RequestWorkerThread(BalContext context, BalCallback callback) {
         super(context, callback);
     }
 
     public void run() {
+
+        CarbonMessage cMsg = context.getCarbonMessage();
+
+        String protocol = (String) cMsg.getProperty(org.wso2.carbon.messaging.Constants.PROTOCOL);
+        if (protocol == null) {
+            logger.error("Protocol not defined in the incoming request");
+            //TODO: Handler error
+            return;
+        }
+
+        ServiceDispatcher dispatcher = DispatcherRegistry.getInstance().getServiceDispatcher(protocol);
+        if (dispatcher == null) {
+            logger.error("No dispatcher available to handle protocol : " + protocol);
+            //TODO: Handle error
+            return;
+        }
+
+        dispatcher.dispatch(context, callback);
 
     }
 }
