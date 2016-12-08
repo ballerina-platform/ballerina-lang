@@ -137,7 +137,7 @@
         </div>
         <!-- End: Canvas Container -->
         <!-- Start: Preview Container -->
-        <div class="source-container source-view-disabled" id="source-container-id">
+        <div class="source-container" id="source-container-id">
             <!-- Start: BottomRight Controls Container -->
             <div class="bottom-right-controls-container">
                 <div class="view-design-btn btn-icon"><i class="fw fw-lg fw-design-view fw-inverse fw-helper fw-helper-circle"></i></div>
@@ -462,11 +462,7 @@
                             tab_close_btn: 'close closeTab pull-right'
                         },
                         ballerina_editor: {
-                            antlr_worker:{
-                                libPath: "lib/antlr_v4.5.3/antlr4/index",
-                                reqScriptPath: "lib/antlr_v4.5.3/lib/require"
-                            },
-                            canvas: {
+                            design: {
                                 // relative selector within container for a tab
                                 container: '.canvas-container'
                             },
@@ -478,27 +474,24 @@
                                 // relative selector within container for a tab
                                 container: '.source-container'
                             },
-                            toggle_controls: {
-                                // relative selector within container for a tab
-                                container: '.toggle-controls-container',
-                                sourceIcon: '.toggle-to-source',
-                                designIcon: '.toggle-to-design'
+                            controls: {
+                                view_source_btn: '.view-source-btn',
+                                view_design_btn: '.view-design-btn'
                             },
-                            file_editor: {
-                                cssClass:{
-                                    outer_box: 'outer-box',
-                                    service_container: 'service-container',
-                                    outer_div: 'panel panel-default container-outer-div',
-                                    panel_title: 'panel-title',
-                                    panel_icon: 'panel-icon',
-                                    service_icon: 'fw fw-rest-service fw-inverse',
-                                    connector_icon:'fw fw-dgm-connector fw-inverse',
-                                    function_icon:'fw fw-function fw-inverse',
-                                    title_link:'collapsed',
-                                    panel_right_icon:'fw fw-down pull-right right-icon-clickable',
-                                    body_div:'panel-collapse collapse',
-                                    canvas: 'panel-body'
-                                }
+                            cssClass:{
+                                text_editor_class: 'text-editor',
+                                outer_box: 'outer-box',
+                                service_container: 'service-container',
+                                outer_div: 'panel panel-default container-outer-div',
+                                panel_title: 'panel-title',
+                                panel_icon: 'panel-icon',
+                                service_icon: 'fw fw-rest-service fw-inverse',
+                                connector_icon:'fw fw-dgm-connector fw-inverse',
+                                function_icon:'fw fw-function fw-inverse',
+                                title_link:'collapsed',
+                                panel_right_icon:'fw fw-down pull-right right-icon-clickable',
+                                body_div:'panel-collapse collapse',
+                                canvas: 'panel-body'
                             }
                         }
                     }

@@ -28,6 +28,12 @@ define(['require', 'jquery', 'backbone', './tool'], function (require, $, Backbo
             );
         },
 
+        addNewTool: function (definition, currentObj) {
+            var newTool = new Tool(definition);
+            currentObj.tools.push(newTool);
+            return newTool;
+        },
+
         modelName: "ToolGroup",
 
         defaults: {

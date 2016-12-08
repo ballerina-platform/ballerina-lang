@@ -19,7 +19,10 @@
 define(['require', 'backbone'], function (require, Backbone) {
 
     var tool = Backbone.Model.extend({
-        initialize: function (attrs, options) {
+        initialize: function (args) {
+            this._name = _.get(args, 'name', null),
+            this._icon = _.get(args, 'icon', null),
+            this._astNode = _.get(args, 'node', null)
         },
 
         modelName: "Tool",

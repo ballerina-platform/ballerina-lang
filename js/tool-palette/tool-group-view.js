@@ -63,6 +63,15 @@ define(['require','log', 'jquery', 'd3', 'backbone', './tool-view'], function (r
                     });
             });
             return this;
+        },
+
+        partialRender: function (parent, tool, group) {
+            var self = this;
+            if (parent.find("#tool-group-" + group.get("toolGroupID")) !== undefined) {
+                var groupBodyDiv = parent.find("#tool-group-" + group.get("toolGroupID")).find(".tool-group-body");
+                var toolView = new ToolView({model: tool, toolPalette: self.toolPalette});
+                toolView.partialRender(groupBodyDiv, tool.attributes);
+            }
         }
     });
 

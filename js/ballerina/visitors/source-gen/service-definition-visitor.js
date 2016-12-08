@@ -39,7 +39,7 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './re
          * If we need to add additional parameters which are dynamically added to the configuration start
          * that particular source generation has to be constructed here
          */
-        this.appendSource(serviceDefinition.getConfigStart());
+        this.appendSource('Service {');
         log.info('Begin Visit Service Definition');
     };
 
@@ -48,7 +48,7 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './re
     };
 
     ServiceDefinitionVisitor.prototype.endVisitServiceDefinition = function(serviceDefinition){
-        this.appendSource(serviceDefinition.getConfigEnd() + "\n");
+        this.appendSource("}\n");
         this.getParent().appendSource(this.getGeneratedSource());
         log.info('End Visit Service Definition');
     };

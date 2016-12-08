@@ -34,7 +34,7 @@ define(['log', 'lodash', 'event_channel', './../ast/service-definition', './../a
         this.addConnectorDefinitions(_.get(args, 'connectorDefinitions', []));
         this.addTypeDefinitions(_.get(args, 'typeDefinitions', []));
         this.addTypeConverterDefinitions(_.get(args, 'typeConverterDefinitions', []));
-        this.addConstantDefinitions(get(args, 'constantDefinitions', []));
+        this.addConstantDefinitions(_.get(args, 'constantDefinitions', []));
     };
 
     Package.prototype = Object.create(EventChannel.prototype);
@@ -76,7 +76,7 @@ define(['log', 'lodash', 'event_channel', './../ast/service-definition', './../a
             }
         }
         this._constantDefinitions = this._constantDefinitions || [];
-        _.concat(this._constantDefinitions , constantDefinitions);
+        this._constantDefinitions = _.concat(this._constantDefinitions , constantDefinitions);
         /**
          * fired when new constant defs are added to the package.
          * @event Package#constant-defs-added
@@ -127,7 +127,7 @@ define(['log', 'lodash', 'event_channel', './../ast/service-definition', './../a
             }
         }
         this._typeConverterDefinitions = this._typeConverterDefinitions || [];
-        _.concat(this._typeConverterDefinitions , typeConverterDefinitions);
+        this._typeConverterDefinitions = _.concat(this._typeConverterDefinitions , typeConverterDefinitions);
         /**
          * fired when new type converter defs are added to the package.
          * @event Package#type-converter-defs-added
@@ -178,7 +178,7 @@ define(['log', 'lodash', 'event_channel', './../ast/service-definition', './../a
             }
         }
         this._typeDefinitions = this._typeDefinitions || [];
-        _.concat(this._typeDefinitions , typeDefinitions);
+        this._typeDefinitions = _.concat(this._typeDefinitions , typeDefinitions);
         /**
          * fired when new type defs are added to the package.
          * @event Package#type-defs-added
@@ -229,7 +229,7 @@ define(['log', 'lodash', 'event_channel', './../ast/service-definition', './../a
             }
         }
         this._connectorDefinitions = this._connectorDefinitions || [];
-        _.concat(this._connectorDefinitions , connectorDefinitions);
+        this._connectorDefinitions = _.concat(this._connectorDefinitions , connectorDefinitions);
         /**
          * fired when new connector defs are added to the package.
          * @event Package#connector-defs-added
@@ -279,7 +279,7 @@ define(['log', 'lodash', 'event_channel', './../ast/service-definition', './../a
             }
         }
         this._serviceDefinitions = this._serviceDefinitions || [];
-        _.concat(this._serviceDefinitions , serviceDefinitions);
+        this._serviceDefinitions = _.concat(this._serviceDefinitions , serviceDefinitions);
         /**
          * fired when new service defs are added to the package.
          * @event Package#service-defs-added
@@ -330,7 +330,7 @@ define(['log', 'lodash', 'event_channel', './../ast/service-definition', './../a
             }
         }
         this._functionDefinitions = this._functionDefinitions || [];
-        _.concat(this._functionDefinitions , functionDefinitions);
+        this._functionDefinitions = _.concat(this._functionDefinitions , functionDefinitions);
         /**
          * fired when new function defs are added to the package.
          * @event Package#function-defs-added

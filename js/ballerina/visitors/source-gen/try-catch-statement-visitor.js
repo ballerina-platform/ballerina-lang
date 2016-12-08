@@ -15,30 +15,31 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor'],
-    function(_, log, EventChannel, AbstractStatementSourceGenVisitor) {
+define(['require', 'lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor'], function(require, _, log, EventChannel, AbstractStatementSourceGenVisitor) {
 
-    var TryCatchStatementVisitor = function(){
-        AbstractStatementSourceGenVisitor.call(this);
+    var TryCatchStatementVisitor = function(parent){
+        AbstractStatementSourceGenVisitor.call(this, parent);
     };
 
     TryCatchStatementVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
     TryCatchStatementVisitor.prototype.constructor = TryCatchStatementVisitor;
 
-    TryCatchStatementVisitor.prototype.canVisitTryCatchStatement = function(tryCatchStatement){
+    TryCatchStatementVisitor.prototype.canVisitStatement = function(statement){
         return true;
     };
 
-    TryCatchStatementVisitor.prototype.beginVisitTryCatchStatement = function(tryCatchStatement){
-        log.info('Begin Visit If Else Statement Definition');
+    TryCatchStatementVisitor.prototype.visitTryStatement = function(statement){
+        var StatementVisitorFactory = require('./statement-visitor-factory');
+        var statementVisitorFactory = new StatementVisitorFactory();
+        var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
+        statement.accept(statementVisitor);
     };
 
-    TryCatchStatementVisitor.prototype.visitTryCatchStatement = function(tryCatchStatement){
-        log.info('Visit If Else Statement Definition');
-    };
-
-    TryCatchStatementVisitor.prototype.endVisitTryCatchStatement = function(tryCatchStatement){
-        log.info('End Visit If Else Statement Definition');
+    TryCatchStatementVisitor.prototype.visitCatchStatement = function(statement){
+        var StatementVisitorFactory = require('./statement-visitor-factory');
+        var statementVisitorFactory = new StatementVisitorFactory();
+        var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
+        statement.accept(statementVisitor);
     };
 
     return TryCatchStatementVisitor;
