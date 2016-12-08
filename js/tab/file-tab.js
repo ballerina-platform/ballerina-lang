@@ -69,8 +69,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace']
             ballerinaAstRoot.addChild(serviceDefinition2);
             serviceDefinition1.setResourceDefinitions([resourceDefinition1, resourceDefinition2]);
             serviceDefinition1.addChild(resourceDefinition1);
-            //TODO: design view does not support more then 1 resource in 1 service
-            serviceDefinition2.addChild(resourceDefinition2);
+            serviceDefinition1.addChild(resourceDefinition2);
 
             serviceDefinitions.push(serviceDefinition1);
             serviceDefinitions.push(serviceDefinition2);

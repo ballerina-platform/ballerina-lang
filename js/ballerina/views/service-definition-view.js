@@ -29,6 +29,7 @@ define(['lodash', 'log', './canvas', './../ast/service-definition', './life-line
             this._model =  _.get(args, 'model', null);
             this._viewOptions =  _.get(args, 'viewOptions', {});
             this._container = _.get(args, 'container', null);
+            this._resourceViewList = [];
             if (_.isNull(this._model) && _.isNil(this._container)){
                 log.error("Invalid args received for creating a service definition. Model: " + model + ". Container: " +
                     container);
@@ -38,6 +39,14 @@ define(['lodash', 'log', './canvas', './../ast/service-definition', './life-line
         ServiceDefinitionView.prototype = Object.create(Canvas.prototype);
         ServiceDefinitionView.prototype.constructor = ServiceDefinitionView;
 
+        ServiceDefinitionView.prototype.addResourceViewList = function(view){
+            if(!_.isNil(view)){
+                this._resourceViewList.push(view);
+            }
+        }
+        ServiceDefinitionView.prototype.getResourceViewList = function(){
+            return this._resourceViewList;
+        }
         ServiceDefinitionView.prototype.setModel = function (model) {
             if (!_.isNil(model) && model instanceof ServiceDefinition) {
                 this._model = model;
@@ -101,8 +110,21 @@ define(['lodash', 'log', './canvas', './../ast/service-definition', './life-line
         ServiceDefinitionView.prototype.visitResourceDefinition = function(resourceDefinition){
             log.info("Visiting resource definition");
             var resourceContainer  = this.getChildContainer();
+            // If more than 1 resource
+            if(this.getResourceViewList().length > 0 ){
+               var prevView = this.getResourceViewList().pop(this.getResourceViewList().length-1);
+                var prevResourceHeight = prevView.getBoundingBox().height;
+                var prevResourceY = prevView.getBoundingBox().y;
+                var newCenterPointY = prevResourceHeight + prevResourceY + 10;
+                var viewOpts = { centerPoint: {y:newCenterPointY}};
+                var resourceDefinitionView = new ResourceDefinitionView({model: resourceDefinition,container: resourceContainer,viewOptions: viewOpts});
+
+            }
+            else{
             var resourceDefinitionView = new ResourceDefinitionView({model: resourceDefinition,container: resourceContainer});
+            }
             resourceDefinitionView.render();
+            this.addResourceViewList(resourceDefinitionView);
 
         };
         return ServiceDefinitionView;

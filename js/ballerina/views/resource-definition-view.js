@@ -38,7 +38,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', 'app/diagram-core/models/poi
 
                 // View options for height and width of the heading box.
                 this._viewOptions.heading = _.get(args, "viewOptions.heading", {});
-                this._viewOptions.heading.hight = _.get(args, "viewOptions.heading.height", 25);
+                this._viewOptions.heading.height = _.get(args, "viewOptions.heading.height", 25);
                 this._viewOptions.heading.width = _.get(args, "viewOptions.heading.width", 1000);
 
                 // View options for height and width of the resource icon in the heading box.
@@ -91,15 +91,26 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', 'app/diagram-core/models/poi
         ResourceDefinitionView.prototype.getViewOptions = function () {
             return this._viewOptions;
         };
+        ResourceDefinitionView.prototype.setBoundingBox = function(width,height,x,y){
+           if(!_.isNil(width) || !_.isNil(height) || !_.isNil(x) || !_.isNil(y) )
+            this._boundingBox = {"width": width, "height":height, "x":x, "y":y};
+        }
 
+        ResourceDefinitionView.prototype.getBoundingBox = function(){
+            return this._boundingBox;
+        }
         ResourceDefinitionView.prototype.render = function () {
             // Render resource view
             var svgContainer = $(this._container).children()[0];
             var headingStart = new Point(this._viewOptions.centerPoint.x, this._viewOptions.centerPoint.y);
-            var contentStart = new Point(this._viewOptions.centerPoint.x, this._viewOptions.centerPoint.y + this._viewOptions.heading.hight);
+            var contentStart = new Point(this._viewOptions.centerPoint.x, this._viewOptions.centerPoint.y + this._viewOptions.heading.height);
              //Main container for a resource
             var resourceGroup = D3utils.group(d3.select(svgContainer));
             resourceGroup.attr("id","resourceGroup");
+            resourceGroup.attr("width",this._viewOptions.heading.width).attr("height",this._viewOptions.heading.height+this._viewOptions.contentHeight);
+            resourceGroup.attr("x",headingStart.x()).attr("y",contentStart.y());
+
+            this.setBoundingBox(this._viewOptions.heading.width,this._viewOptions.heading.height+this._viewOptions.contentHeight,headingStart.x(),contentStart.y());
 
             // Resource related definitions: resourceIcon,collapseIcon
             var def = resourceGroup.append("defs");
@@ -112,7 +123,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', 'app/diagram-core/models/poi
             var headerGroup = D3utils.group(resourceGroup);
             headerGroup.attr("id","headerGroup");
 
-            var headingRect = D3utils.rect(headingStart.x(), headingStart.y(), this._viewOptions.heading.width, this._viewOptions.heading.hight, 0, 0, headerGroup).classed("headingRect",true);
+            var headingRect = D3utils.rect(headingStart.x(), headingStart.y(), this._viewOptions.heading.width, this._viewOptions.heading.height, 0, 0, headerGroup).classed("headingRect",true);
 
             // Drawing resource icon
             var headingRectIcon = D3utils.rect(headingStart.x(), headingStart.y(), this._viewOptions.heading.icon.width,
@@ -166,8 +177,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', 'app/diagram-core/models/poi
             var defaultWorkerOptions = {
                 "editable": true,
                 "centerPoint": {
-                    "x": 180,
-                    "y": 150
+                    "x": contentStart.x() + 130,
+                    "y": contentStart.y() + 25
                 },
                 "class": "lifeline",
                 "polygon": {
