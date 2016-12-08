@@ -51,7 +51,6 @@ import java.util.Map;
 @SuppressWarnings("unused")
 public class Service implements Executable {
 
-
     private static final Logger logger = LoggerFactory.getLogger(Service.class);
 
     private Identifier identifier;
