@@ -331,7 +331,6 @@ expression
     |   expression '.' Identifier                           # accessMemberDotExpression
     |   (packageName | Identifier) ':' Identifier           # inlineFunctionInovcationExpression
     |   expression '[' expression ']'                       # accessArrayElementExpression
-    |   expression '(' expressionList? ')'                  # argumentListExpression
     |   '(' typeName ')' expression                         # typeCastingExpression
     |   ('+'|'-'|'!') expression                            # preSingleDualExpression
     |   expression ('*'|'/'|'%') expression                 # binaryMulDivPercentExpression

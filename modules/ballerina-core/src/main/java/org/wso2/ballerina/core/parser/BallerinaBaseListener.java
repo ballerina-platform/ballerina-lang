@@ -832,18 +832,6 @@ public class BallerinaBaseListener implements BallerinaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterArgumentListExpression(BallerinaParser.ArgumentListExpressionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitArgumentListExpression(BallerinaParser.ArgumentListExpressionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterBinaryComparisonExpression(BallerinaParser.BinaryComparisonExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
