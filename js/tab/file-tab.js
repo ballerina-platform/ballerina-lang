@@ -42,12 +42,14 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace']
             var ballerinaASTFactory = new Ballerina.ast.BallerinaASTFactory();
             var ballerinaAstRoot = ballerinaASTFactory.createBallerinaAstRoot();
             var serviceDefinitions = [];
-            var statements = [];
+            var ifStatements1 = [];
+            var elseStatements1 = [];
+            var ifCondition = ballerinaASTFactory.createExpression();
             // Create sample connector definition
             var connectorDefinitions = [];
             var connectorDefinition1 = ballerinaASTFactory.createConnectorDefinition();
             connectorDefinitions.push(connectorDefinition1);
-            ballerinaAstRoot.setConnectorDefinitions(connectorDefinitions);
+           // ballerinaAstRoot.setConnectorDefinitions(connectorDefinitions);
             ballerinaAstRoot.addChild(connectorDefinition1);
 
             var serviceDefinition1 = ballerinaASTFactory.createServiceDefinition();
@@ -60,9 +62,9 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace']
             var resourceDefinition2 = ballerinaASTFactory.createResourceDefinition();
 
             // Create If statement Definition
-            var ifStatement1 = ballerinaASTFactory.createIfStatement();
-            statements.push(ifStatement1);
-            resourceDefinition1.setStatements(statements);
+           // var ifStatement1 = ballerinaASTFactory.createIfStatement();
+           // resourceDefinition1.addChild(ifStatement1);
+            var ifElseStatement = ballerinaASTFactory.createIfElseStatement(ifCondition,ifStatements1,elseStatements1);
 
             resourceDefinition1.resourceParent(serviceDefinition1);
             resourceDefinition2.resourceParent(serviceDefinition2);
@@ -74,7 +76,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace']
 
             ballerinaAstRoot.addChild(serviceDefinition1);
             ballerinaAstRoot.addChild(serviceDefinition2);
-            serviceDefinition1.setResourceDefinitions([resourceDefinition1, resourceDefinition2]);
+           // serviceDefinition1.setResourceDefinitions([resourceDefinition1, resourceDefinition2]);
             serviceDefinition1.addChild(resourceDefinition1);
             serviceDefinition1.addChild(resourceDefinition2);
 

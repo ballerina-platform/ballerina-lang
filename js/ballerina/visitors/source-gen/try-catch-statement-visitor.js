@@ -30,15 +30,15 @@ define(['lodash', 'log', 'event_channel', './abstract-statement-source-gen-visit
     };
 
     TryCatchStatementVisitor.prototype.beginVisitTryCatchStatement = function(tryCatchStatement){
-        log.info('Begin Visit If Else Statement Definition');
+        log.info('Begin Visit Try-catch Statement Definition');
     };
 
     TryCatchStatementVisitor.prototype.visitTryCatchStatement = function(tryCatchStatement){
-        log.info('Visit If Else Statement Definition');
+        log.info('Visit Try-catch Statement Definition');
     };
 
     TryCatchStatementVisitor.prototype.endVisitTryCatchStatement = function(tryCatchStatement){
-        log.info('End Visit If Else Statement Definition');
+        log.info('End Visit Try-catch Statement Definition');
     };
 
     return TryCatchStatementVisitor;

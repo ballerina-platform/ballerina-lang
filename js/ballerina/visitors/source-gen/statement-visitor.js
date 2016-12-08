@@ -15,20 +15,37 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor', '../../ast/module', './try-catch-statement-visitor'], function (_, log, EventChannel, AbstractStatementSourceGenVisitor, AST, TryCatchStatementVisitor) {
+define(['lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor', '../../ast/module',
+'./try-catch-statement-visitor', './if-else-statement-visitor'],
+function (_, log, EventChannel, AbstractStatementSourceGenVisitor, AST, TryCatchStatementVisitor, IfElseStatementVisitor) {
 
-    var StatementVisitor = function () {
-        AbstractStatementSourceGenVisitor.call(this);
+    var StatementVisitor = function (parent) {
+        AbstractStatementSourceGenVisitor.call(this, parent);
     };
 
     StatementVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
     StatementVisitor.prototype.constructor = StatementVisitor;
 
+    StatementVisitor.prototype.beginVisitStatement = function (statement){
+        this.getParent().appendSource(this.getGeneratedSource());
+    };
+
     StatementVisitor.prototype.visitStatement = function (statement) {
         if (statement instanceof AST.TryCatchStatement) {
             var tryCatchVisitor = new TryCatchStatementVisitor();
             statement.accept(tryCatchVisitor);
+        } else if (statement instanceof AST.IfElseStatement) {
+            var ifElseStatementVisitor = new IfElseStatementVisitor(this);
+            statement.accept(ifElseStatementVisitor);
         }
+    };
+
+    StatementVisitor.prototype.beginVisitStatement = function (statement){
+        this.getParent().appendSource(this.getGeneratedSource());
+    };
+
+    StatementVisitor.prototype.endVisitStatement = function (statement){
+        this.getParent().appendSource(this.getGeneratedSource());
     };
 
     return StatementVisitor;

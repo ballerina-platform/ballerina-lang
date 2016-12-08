@@ -21,11 +21,11 @@
  */
 define(['./ballerina-ast-root', './service-definition', './function-definition', './connector-definition', './resource-definition',
         './worker-declaration', './statement', './conditional-statement', './connection-declaration', './expression',
-        './if-statement', './trycatch-statement' ,'./reply-statement', './return-statement', './type-converter-definition', './type-definition',
+        './if-else-statement', './trycatch-statement' ,'./reply-statement', './return-statement', './type-converter-definition', './type-definition',
         './type-element', './variable-declaration', './package-definition', './import-declaration', './resource-arg'],
     function (ballerinaAstRoot, serviceDefinition, functionDefinition, connectorDefinition, resourceDefinition,
               workerDeclaration, statement, conditionalStatement, connectionDeclaration, expression,
-              ifStatement, tryCatchStatement, replyStatement, returnStatement, typeConverterDefinition, typeDefinition,
+              ifElseStatement, tryCatchStatement, replyStatement, returnStatement, typeConverterDefinition, typeDefinition,
               typeElement, variableDeclaration, packageDefinition, importDeclaration, resourceArgument) {
 
         /**
@@ -145,8 +145,8 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
          * creates IfStatement
          * @param args
          */
-        BallerinaASTFactory.prototype.createIfStatement = function (args) {
-            return new ifStatement(args);
+        BallerinaASTFactory.prototype.createIfElseStatement = function (args) {
+            return new ifElseStatement(args);
         };
 
         /**
