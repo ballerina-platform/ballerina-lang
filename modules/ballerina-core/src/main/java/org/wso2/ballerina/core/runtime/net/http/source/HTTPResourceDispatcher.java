@@ -56,8 +56,7 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
 
             if ((subPath.startsWith(subPathAnnotationVal) || Constants.DEFAULT_SUB_PATH.equals(subPathAnnotationVal)) &&
                 (resource.getAnnotation(method) != null)) {
-                //TODO Dispatch to resource from here
-                return true;
+                return resource.execute(context, callback);
             }
         }
 
