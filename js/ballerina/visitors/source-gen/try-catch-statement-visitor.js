@@ -15,29 +15,30 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', './statement-definition-visitor'], function(_, log, EventChannel, StatementDefinitionVisitor) {
+define(['lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor'],
+    function(_, log, EventChannel, AbstractStatementSourceGenVisitor) {
 
     var TryCatchStatementVisitor = function(){
-        StatementDefinitionVisitor.call(this);
+        AbstractStatementSourceGenVisitor.call(this);
     };
 
-    TryCatchStatementVisitor.prototype = Object.create(StatementDefinitionVisitor.prototype);
+    TryCatchStatementVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
     TryCatchStatementVisitor.prototype.constructor = TryCatchStatementVisitor;
 
-    TryCatchStatementVisitor.prototype.canVisitStatementDefinition = function(tryCatchStatement){
+    TryCatchStatementVisitor.prototype.canVisitTryCatchStatement = function(tryCatchStatement){
         return true;
     };
 
-    TryCatchStatementVisitor.prototype.beginVisitStatementDefinition = function(tryCatchStatement){
-        log.info('Begin Visit Try-Catch Statement Definition');
+    TryCatchStatementVisitor.prototype.beginVisitTryCatchStatement = function(tryCatchStatement){
+        log.info('Begin Visit If Else Statement Definition');
     };
 
-    TryCatchStatementVisitor.prototype.visitStatementDefinition = function(tryCatchStatement){
-        log.info('Visit Try-Catch Statement Definition');
+    TryCatchStatementVisitor.prototype.visitTryCatchStatement = function(tryCatchStatement){
+        log.info('Visit If Else Statement Definition');
     };
 
-    TryCatchStatementVisitor.prototype.endVisitStatementDefinition = function(tryCatchStatement){
-        log.info('End Visit Try-Catch Statement Definition');
+    TryCatchStatementVisitor.prototype.endVisitTryCatchStatement = function(tryCatchStatement){
+        log.info('End Visit If Else Statement Definition');
     };
 
     return TryCatchStatementVisitor;
