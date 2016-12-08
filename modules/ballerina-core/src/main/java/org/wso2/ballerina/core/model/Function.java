@@ -20,7 +20,7 @@ package org.wso2.ballerina.core.model;
 
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.interpreter.Interpreter;
-import org.wso2.ballerina.core.model.statements.Statement;
+import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.types.Type;
 
 import java.util.ArrayList;
@@ -54,7 +54,7 @@ public class Function implements Interpreter {
     private List<Worker> workers;
 
     private List<Type> returnTypes;
-    private Statement functionBody;
+    private BlockStmt functionBody;
 
     private boolean publicFunc;
 
@@ -66,7 +66,7 @@ public class Function implements Interpreter {
                     List<Connection> connections,
                     List<VariableDcl> variableDcls,
                     List<Worker> workers,
-                    Statement functionBody) {
+            BlockStmt functionBody) {
 
         this.functionName = name;
         this.publicFunc = isPublic;

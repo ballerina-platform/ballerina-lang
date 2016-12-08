@@ -33,6 +33,7 @@ import org.wso2.ballerina.core.model.expressions.Expression;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
+import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
 import org.wso2.ballerina.core.model.types.IntType;
@@ -85,11 +86,15 @@ public class BallerinaBaseListenerImpl extends BallerinaBaseListener {
 
         for (VariableDeclarationContext variableDeclarationContext : ctx.functionBody().variableDeclaration()) {
             variableDclList.add(parserVariableDclCtx(variableDeclarationContext));
-
         }
-        //todo function body should be list of statement
+
+        Statement[] statementArray = new Statement[ctx.functionBody().statement().size()];
+        for (int i = 0; i < ctx.functionBody().statement().size(); i++) {
+            statementArray[i] = parserStatementCtx(ctx.functionBody().statement(i).getChild(0));
+        }
+
         Function function = new Function(functionName, isPublicFunction, null, null, null, null, variableDclList, null,
-                parserStatementCtx(ctx.functionBody().statement(3).getChild(0))); //getting only while statement
+                new BlockStmt(statementArray)); //getting only while statement
 
         balFile.addFunction(function);
 
@@ -166,11 +171,12 @@ public class BallerinaBaseListenerImpl extends BallerinaBaseListener {
 
         } else if (ctx instanceof WhileStatementContext) {
             WhileStatementContext whileStmtCtx = (WhileStatementContext) ctx;
-            //todo whileBody should be list of statement
-
             //todo getChild(0) because function body has statement+
-            return new WhileStmt(parserExpressionCtx(whileStmtCtx.expression()),
-                    parserStatementCtx(whileStmtCtx.statement(0).getChild(0)));
+            Statement[] statementArray = new Statement[whileStmtCtx.statement().size()];
+            for (int i = 0; i < whileStmtCtx.statement().size(); i++) {
+                statementArray[i] = parserStatementCtx(whileStmtCtx.statement(i).getChild(0));
+            }
+            return new WhileStmt(parserExpressionCtx(whileStmtCtx.expression()), new BlockStmt(statementArray));
 
         }
         return null;

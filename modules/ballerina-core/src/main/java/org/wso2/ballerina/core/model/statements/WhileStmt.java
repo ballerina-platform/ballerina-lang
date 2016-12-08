@@ -27,9 +27,9 @@ import org.wso2.ballerina.core.model.expressions.Expression;
  */
 public class WhileStmt implements Statement {
     private Expression condition;
-    private Statement whileBody;
+    private BlockStmt whileBody;
 
-    public WhileStmt(Expression condition, Statement whileBody) {
+    public WhileStmt(Expression condition, BlockStmt whileBody) {
         this.condition = condition;
         this.whileBody = whileBody;
     }
