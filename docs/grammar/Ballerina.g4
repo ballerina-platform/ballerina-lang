@@ -196,7 +196,7 @@ statement
     ;
 
 assignmentStatement
-    :   variableAccessor '='  expression ';'
+    :   variableReference '=' expression ';'
     ;
 
 ifElseStatement
@@ -280,11 +280,10 @@ actionInvocationStatement
     :   expression ';'
     ;
 
-variableAccessor
-    :   Identifier // simple identifier
-    |   Identifier '['IntegerLiteral']' // array reference
-    |   Identifier'['QuotedStringLiteral']' // map reference
-    |   Identifier ('.' variableAccessor)+ // struct field reference
+variableReference
+    :   Identifier                          # simpleVariableIdentifier// simple identifier
+    |   Identifier '['expression']'         # mapArrayVariableIdentifier// array and map reference
+    |   Identifier ('.' variableReference)+ # structFieldIdentifier// struct field reference
     ;
 
 argumentList
@@ -312,40 +311,34 @@ backtickString
    ;
 
 expression
-    :   primary                                                             # literalExpression
+    :   literalValue                                                        # literalExpression
+    |   variableReference                                                   # variableReferenceExpression
     |   backtickString                                                      # templateExpression
-    |   expression '.' Identifier                                           # accessMemberDotExpression
     |   functionName argumentList                                           # functionInvocationExpression
     |   actionInvocation argumentList                                       # actionInvocationExpression
-    |   expression '[' expression ']'                                       # accessArrayElementExpression
     |   '(' typeName ')' expression                                         # typeCastingExpression
-    |   ('+'|'-'|'!') expression                                            # preSingleDualExpression
-    |   expression ('*'|'/'|'%') expression                                 # binaryMulDivPercentExpression
-    |   expression ('+'|'-') expression                                     # binaryPlusMinusExpression
-    |   expression ('<=' | '>=' | '>' | '<') expression                     # binaryComparisonExpression
-    |   expression ('==' | '!=') expression                                 # binaryEqualExpression
-    |   expression '&&' expression                                          # binaryAndExpression
-    |   expression '||' expression                                          # binaryOrExpression
+    |   ('+'|'-'|'!') expression                                            # unaryExpression
+    |   '(' expression ')'                                                  # bracedExpression
+    |   expression ('^') expression                                         # binaryPowExpression
+    |   expression ('/') expression                                         # binaryDivitionExpression
+    |   expression ('*') expression                                         # binaryMultiplicationExpression
+    |   expression ('%') expression                                         # binaryModExpression
+    |   expression ('&&') expression                                        # binaryAndExpression
+    |   expression ('+') expression                                         # binaryAddExpression
+    |   expression ('-') expression                                         # binarySubExpression
+    |   expression ('||') expression                                        # binaryOrExpression
+    |   expression ('>') expression                                         # binaryGTExpression
+    |   expression ('>=') expression                                        # binaryGEExpression
+    |   expression ('<') expression                                         # binaryLTExpression
+    |   expression ('<=') expression                                        # binaryLEExpression
+    |   expression ('==') expression                                        # binaryEqualExpression
+    |   expression ('!=') expression                                        # binaryNotEqualExpression
     |   '{' mapInitKeyValue (',' mapInitKeyValue)* '}'                      # mapInitializerExpression
     |   'new' (packageName ':' )? Identifier ('(' expressionList? ')')?     # typeInitializeExpression
     ;
 
-literal
-    :   IntegerLiteral
-    |   FloatingPointLiteral
-    |   QuotedStringLiteral
-    |   BooleanLiteral
-    |   NullLiteral
-    ;
-
-primary
-    :   '(' expression ')'
-    |   literal
-    |   Identifier
-    ;
-
 mapInitKeyValue
-    :   QuotedStringLiteral ':' literal
+    :   QuotedStringLiteral ':' literalValue
     ;
 
 // LEXER

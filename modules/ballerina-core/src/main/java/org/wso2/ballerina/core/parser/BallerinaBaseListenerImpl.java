@@ -23,14 +23,21 @@ import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.model.Identifier;
 import org.wso2.ballerina.core.model.Import;
-import org.wso2.ballerina.core.model.Operator;
 import org.wso2.ballerina.core.model.VariableDcl;
+import org.wso2.ballerina.core.model.expressions.AddExpression;
+import org.wso2.ballerina.core.model.expressions.AndExpression;
 import org.wso2.ballerina.core.model.expressions.BasicLiteral;
-import org.wso2.ballerina.core.model.expressions.BinaryArithmeticExpression;
-import org.wso2.ballerina.core.model.expressions.BinaryCompareExpression;
-import org.wso2.ballerina.core.model.expressions.BinaryEqualityExpression;
+import org.wso2.ballerina.core.model.expressions.EqualExpression;
 import org.wso2.ballerina.core.model.expressions.Expression;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
+import org.wso2.ballerina.core.model.expressions.GreaterEqualExpression;
+import org.wso2.ballerina.core.model.expressions.GreaterThanExpression;
+import org.wso2.ballerina.core.model.expressions.LessEqualExpression;
+import org.wso2.ballerina.core.model.expressions.LessThanExpression;
+import org.wso2.ballerina.core.model.expressions.MultExpression;
+import org.wso2.ballerina.core.model.expressions.NotEqualExpression;
+import org.wso2.ballerina.core.model.expressions.OrExpression;
+import org.wso2.ballerina.core.model.expressions.SubstractExpression;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
@@ -38,21 +45,40 @@ import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
 import org.wso2.ballerina.core.model.types.IntType;
 import org.wso2.ballerina.core.model.values.BValueRef;
+import org.wso2.ballerina.core.model.values.BooleanValue;
+import org.wso2.ballerina.core.model.values.FloatValue;
+import org.wso2.ballerina.core.model.values.IntValue;
 import org.wso2.ballerina.core.model.values.StringValue;
+import org.wso2.ballerina.core.parser.BallerinaParser.ActionInvocationExpressionContext;
 import org.wso2.ballerina.core.parser.BallerinaParser.AssignmentStatementContext;
-import org.wso2.ballerina.core.parser.BallerinaParser.BinaryComparisonExpressionContext;
+import org.wso2.ballerina.core.parser.BallerinaParser.BinaryAddExpressionContext;
+import org.wso2.ballerina.core.parser.BallerinaParser.BinaryAndExpressionContext;
+import org.wso2.ballerina.core.parser.BallerinaParser.BinaryDivitionExpressionContext;
 import org.wso2.ballerina.core.parser.BallerinaParser.BinaryEqualExpressionContext;
-import org.wso2.ballerina.core.parser.BallerinaParser.BinaryMulDivPercentExpressionContext;
-import org.wso2.ballerina.core.parser.BallerinaParser.BinaryPlusMinusExpressionContext;
+import org.wso2.ballerina.core.parser.BallerinaParser.BinaryGEExpressionContext;
+import org.wso2.ballerina.core.parser.BallerinaParser.BinaryGTExpressionContext;
+import org.wso2.ballerina.core.parser.BallerinaParser.BinaryLEExpressionContext;
+import org.wso2.ballerina.core.parser.BallerinaParser.BinaryLTExpressionContext;
+import org.wso2.ballerina.core.parser.BallerinaParser.BinaryModExpressionContext;
+import org.wso2.ballerina.core.parser.BallerinaParser.BinaryMultiplicationExpressionContext;
+import org.wso2.ballerina.core.parser.BallerinaParser.BinaryNotEqualExpressionContext;
+import org.wso2.ballerina.core.parser.BallerinaParser.BinaryOrExpressionContext;
+import org.wso2.ballerina.core.parser.BallerinaParser.BinaryPowExpressionContext;
+import org.wso2.ballerina.core.parser.BallerinaParser.BinarySubExpressionContext;
+import org.wso2.ballerina.core.parser.BallerinaParser.BracedExpressionContext;
 import org.wso2.ballerina.core.parser.BallerinaParser.ExpressionContext;
 import org.wso2.ballerina.core.parser.BallerinaParser.FunctionDefinitionContext;
 import org.wso2.ballerina.core.parser.BallerinaParser.FunctionInvocationExpressionContext;
 import org.wso2.ballerina.core.parser.BallerinaParser.ImportDeclarationContext;
 import org.wso2.ballerina.core.parser.BallerinaParser.LiteralExpressionContext;
+import org.wso2.ballerina.core.parser.BallerinaParser.LiteralValueContext;
 import org.wso2.ballerina.core.parser.BallerinaParser.PackageDeclarationContext;
 import org.wso2.ballerina.core.parser.BallerinaParser.StatementContext;
 import org.wso2.ballerina.core.parser.BallerinaParser.TemplateExpressionContext;
+import org.wso2.ballerina.core.parser.BallerinaParser.TypeCastingExpressionContext;
+import org.wso2.ballerina.core.parser.BallerinaParser.UnaryExpressionContext;
 import org.wso2.ballerina.core.parser.BallerinaParser.VariableDeclarationContext;
+import org.wso2.ballerina.core.parser.BallerinaParser.VariableReferenceExpressionContext;
 import org.wso2.ballerina.core.parser.BallerinaParser.WhileStatementContext;
 
 import java.util.ArrayList;
@@ -106,56 +132,157 @@ public class BallerinaBaseListenerImpl extends BallerinaBaseListener {
     }
 
     private Expression parserExpressionCtx(ParseTree ctx) {
-        if (ctx instanceof BinaryPlusMinusExpressionContext) {
-            BinaryPlusMinusExpressionContext binaryPlusMinusExpCtx = (BinaryPlusMinusExpressionContext) ctx;
 
-            return new BinaryArithmeticExpression(parserExpressionCtx(binaryPlusMinusExpCtx.children.get(0)),
-                    getOperatorName(binaryPlusMinusExpCtx.children.get(1).getText()),
-                    parserExpressionCtx(binaryPlusMinusExpCtx.children.get(2)));
+        if (ctx instanceof LiteralExpressionContext) {
 
-        } else if (ctx instanceof BinaryMulDivPercentExpressionContext) {
+            LiteralExpressionContext binaryExpCtx = (LiteralExpressionContext) ctx;
 
-            BinaryMulDivPercentExpressionContext binaryMulDivExpCtx = (BinaryMulDivPercentExpressionContext) ctx;
+            LiteralValueContext literalValue = binaryExpCtx.literalValue();
+            if (literalValue.IntegerLiteral() != null) {
+                return new BasicLiteral(
+                        new BValueRef(new IntValue(Integer.parseInt(literalValue.IntegerLiteral().getText()))));
+            } else if (literalValue.FloatingPointLiteral() != null) {
+                return new BasicLiteral(
+                        new BValueRef(new FloatValue(Float.parseFloat(literalValue.FloatingPointLiteral().getText()))));
+            } else if (literalValue.QuotedStringLiteral() != null) {
+                return new BasicLiteral(new BValueRef(new StringValue(literalValue.QuotedStringLiteral().getText())));
+            } else if (literalValue.BooleanLiteral() != null) {
+                return new BasicLiteral(
+                        new BValueRef(new BooleanValue(Boolean.parseBoolean(literalValue.BooleanLiteral().getText()))));
 
-            return new BinaryArithmeticExpression(parserExpressionCtx(binaryMulDivExpCtx.children.get(0)),
-                    getOperatorName(binaryMulDivExpCtx.children.get(1).getText()),
-                    parserExpressionCtx(binaryMulDivExpCtx.children.get(2)));
-
-        } else if (ctx instanceof BinaryEqualExpressionContext) {
-            BinaryEqualExpressionContext binaryEqualExpCtx = (BinaryEqualExpressionContext) ctx;
-
-            return new BinaryEqualityExpression(parserExpressionCtx(binaryEqualExpCtx.children.get(0)),
-                    getOperatorName(binaryEqualExpCtx.children.get(1).getText()),
-                    parserExpressionCtx(binaryEqualExpCtx.children.get(2)));
-
-        } else if (ctx instanceof BinaryComparisonExpressionContext) {
-            BinaryComparisonExpressionContext binaryComparisonExpCtx = (BinaryComparisonExpressionContext) ctx;
-
-            return new BinaryCompareExpression(parserExpressionCtx(binaryComparisonExpCtx.children.get(0)),
-                    getOperatorName(binaryComparisonExpCtx.children.get(1).getText()),
-                    parserExpressionCtx(binaryComparisonExpCtx.children.get(2)));
-
-        } else if (ctx instanceof LiteralExpressionContext) {
-            LiteralExpressionContext literalExpCtx = (LiteralExpressionContext) ctx;
-
-            return new BasicLiteral(new BValueRef(new StringValue(literalExpCtx.primary().getText())));
+            } else {
+                return null;
+            }
+        } else if (ctx instanceof VariableReferenceExpressionContext) {
+            VariableReferenceExpressionContext binaryExpCtx = (VariableReferenceExpressionContext) ctx;
+            //todo can extract whether simple, map , array or struct reference
+            return new VariableRefExpr(new Identifier(binaryExpCtx.variableReference().getText()));
 
         } else if (ctx instanceof TemplateExpressionContext) {
-            TemplateExpressionContext templateExpCtx = (TemplateExpressionContext) ctx;
+            TemplateExpressionContext binaryExpCtx = (TemplateExpressionContext) ctx;
+            // xml or json as sting
+            return new BasicLiteral(new BValueRef(new StringValue(binaryExpCtx.getText())));
 
-            return new BasicLiteral(new BValueRef(new StringValue(templateExpCtx.backtickString().getText())));
         } else if (ctx instanceof FunctionInvocationExpressionContext) {
-            FunctionInvocationExpressionContext funExpCtx = (FunctionInvocationExpressionContext) ctx;
+            FunctionInvocationExpressionContext funInoCtx = (FunctionInvocationExpressionContext) ctx;
 
             List<Expression> expressionList = new ArrayList<>();
 
-            for (ExpressionContext expressionContext : funExpCtx.argumentList().expressionList().expression()) {
+            for (ExpressionContext expressionContext : funInoCtx.argumentList().expressionList().expression()) {
                 expressionList.add(parserExpressionCtx(expressionContext));
             }
+            return new FunctionInvocationExpr(new Identifier(funInoCtx.functionName().getText()), expressionList);
 
-            return new FunctionInvocationExpr(new Identifier(funExpCtx.functionName().getText()), expressionList);
+        } else if (ctx instanceof ActionInvocationExpressionContext) {
+            ActionInvocationExpressionContext actionInoCtx = (ActionInvocationExpressionContext) ctx;
+            //todo action invocation expression
+            return null;
+
+        } else if (ctx instanceof TypeCastingExpressionContext) {
+            // todo type cast expression
+            return null;
+        } else if (ctx instanceof UnaryExpressionContext) {
+            UnaryExpressionContext unaryExpCtx = (UnaryExpressionContext) ctx;
+            // todo debug and fix
+            return null;
+
+        } else if (ctx instanceof BracedExpressionContext) {
+            // todo braced expression
+            return null;
+
+        } else if (ctx instanceof BinaryPowExpressionContext) {
+            BinaryPowExpressionContext binaryExpCtx = (BinaryPowExpressionContext) ctx;
+
+            // todo implement pow operator
+
+        } else if (ctx instanceof BinaryDivitionExpressionContext) {
+            BinaryDivitionExpressionContext binaryExpCtx = (BinaryDivitionExpressionContext) ctx;
+            // todo implement divition operator
+        } else if (ctx instanceof BinaryMultiplicationExpressionContext) {
+
+            BinaryMultiplicationExpressionContext binaryExpCtx = (BinaryMultiplicationExpressionContext) ctx;
+
+            return new MultExpression(parserExpressionCtx(binaryExpCtx.children.get(0)),
+                    parserExpressionCtx(binaryExpCtx.children.get(2)));
+
+        } else if (ctx instanceof BinaryModExpressionContext) {
+
+            BinaryModExpressionContext binaryExpCtx = (BinaryModExpressionContext) ctx;
+
+            //todo implement mod operator
+            return null;
+
+        } else if (ctx instanceof BinaryAndExpressionContext) {
+
+            BinaryAndExpressionContext binaryExpCtx = (BinaryAndExpressionContext) ctx;
+
+            return new AndExpression(parserExpressionCtx(binaryExpCtx.children.get(0)),
+                    parserExpressionCtx(binaryExpCtx.children.get(2)));
+
+        } else if (ctx instanceof BinaryAddExpressionContext) {
+
+            BinaryAddExpressionContext binaryExpCtx = (BinaryAddExpressionContext) ctx;
+
+            return new AddExpression(parserExpressionCtx(binaryExpCtx.children.get(0)),
+                    parserExpressionCtx(binaryExpCtx.children.get(2)));
+
+        } else if (ctx instanceof BinarySubExpressionContext) {
+
+            BinarySubExpressionContext binaryExpCtx = (BinarySubExpressionContext) ctx;
+
+            return new SubstractExpression(parserExpressionCtx(binaryExpCtx.children.get(0)),
+                    parserExpressionCtx(binaryExpCtx.children.get(2)));
+
+        } else if (ctx instanceof BinaryOrExpressionContext) {
+
+            BinaryOrExpressionContext binaryExpCtx = (BinaryOrExpressionContext) ctx;
+
+            return new OrExpression(parserExpressionCtx(binaryExpCtx.children.get(0)),
+                    parserExpressionCtx(binaryExpCtx.children.get(2)));
+
+        } else if (ctx instanceof BinaryGTExpressionContext) {
+
+            BinaryGTExpressionContext binaryExpCtx = (BinaryGTExpressionContext) ctx;
+
+            return new GreaterThanExpression(parserExpressionCtx(binaryExpCtx.children.get(0)),
+                    parserExpressionCtx(binaryExpCtx.children.get(2)));
+
+        } else if (ctx instanceof BinaryGEExpressionContext) {
+
+            BinaryGEExpressionContext binaryExpCtx = (BinaryGEExpressionContext) ctx;
+
+            return new GreaterEqualExpression(parserExpressionCtx(binaryExpCtx.children.get(0)),
+                    parserExpressionCtx(binaryExpCtx.children.get(2)));
+
+        } else if (ctx instanceof BinaryLTExpressionContext) {
+
+            BinaryLTExpressionContext binaryExpCtx = (BinaryLTExpressionContext) ctx;
+
+            return new LessThanExpression(parserExpressionCtx(binaryExpCtx.children.get(0)),
+                    parserExpressionCtx(binaryExpCtx.children.get(2)));
+
+        } else if (ctx instanceof BinaryLEExpressionContext) {
+
+            BinaryLEExpressionContext binaryExpCtx = (BinaryLEExpressionContext) ctx;
+
+            return new LessEqualExpression(parserExpressionCtx(binaryExpCtx.children.get(0)),
+                    parserExpressionCtx(binaryExpCtx.children.get(2)));
+
+        } else if (ctx instanceof BinaryEqualExpressionContext) {
+
+            BinaryEqualExpressionContext binaryExpCtx = (BinaryEqualExpressionContext) ctx;
+
+            return new EqualExpression(parserExpressionCtx(binaryExpCtx.children.get(0)),
+                    parserExpressionCtx(binaryExpCtx.children.get(2)));
+
+        } else if (ctx instanceof BinaryNotEqualExpressionContext) {
+
+            BinaryNotEqualExpressionContext binaryExpCtx = (BinaryNotEqualExpressionContext) ctx;
+
+            return new NotEqualExpression(parserExpressionCtx(binaryExpCtx.children.get(0)),
+                    parserExpressionCtx(binaryExpCtx.children.get(2)));
+
         }
-
         return null;
     }
 
@@ -164,7 +291,7 @@ public class BallerinaBaseListenerImpl extends BallerinaBaseListener {
             AssignmentStatementContext assignmentStmtCtx = (AssignmentStatementContext) ctx;
 
             VariableRefExpr variableRefExpr = new VariableRefExpr(
-                    new Identifier(assignmentStmtCtx.variableAccessor().getText()));
+                    new Identifier(assignmentStmtCtx.variableReference().getText()));
 
             Expression expression = parserExpressionCtx(assignmentStmtCtx.expression());
             return new AssignStmt(variableRefExpr, expression);
@@ -193,34 +320,4 @@ public class BallerinaBaseListenerImpl extends BallerinaBaseListener {
         super.exitLiteralExpression(ctx);
     }
 
-    private Operator getOperatorName(String op) {
-
-        switch (op) {
-        case "+":
-            return Operator.ADD;
-        case "-":
-            return Operator.SUB;
-        case "*":
-            return Operator.MUL;
-        case "/":
-            return Operator.DIV;
-        case "&&":
-            return Operator.AND;
-        case "||":
-            return Operator.OR;
-        case "==":
-            return Operator.EQUAL;
-        case "!=":
-            return Operator.NOT_EQUAL;
-        case ">":
-            return Operator.GREATER_THAN;
-        case ">=":
-            return Operator.GREATER_EQUAL;
-        case "<":
-            return Operator.LESS_THAN;
-        case "<=":
-            return Operator.LESS_EQUAL;
-        }
-        return null;
-    }
 }

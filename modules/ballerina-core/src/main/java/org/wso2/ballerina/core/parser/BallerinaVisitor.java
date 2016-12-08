@@ -353,11 +353,26 @@ public interface BallerinaVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitActionInvocationStatement(BallerinaParser.ActionInvocationStatementContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link BallerinaParser#variableAccessor}.
+	 * Visit a parse tree produced by the {@code simpleVariableIdentifier}
+	 * labeled alternative in {@link BallerinaParser#variableReference}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitVariableAccessor(BallerinaParser.VariableAccessorContext ctx);
+	T visitSimpleVariableIdentifier(BallerinaParser.SimpleVariableIdentifierContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code mapArrayVariableIdentifier}
+	 * labeled alternative in {@link BallerinaParser#variableReference}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMapArrayVariableIdentifier(BallerinaParser.MapArrayVariableIdentifierContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code structFieldIdentifier}
+	 * labeled alternative in {@link BallerinaParser#variableReference}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitStructFieldIdentifier(BallerinaParser.StructFieldIdentifierContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link BallerinaParser#argumentList}.
 	 * @param ctx the parse tree
@@ -402,19 +417,19 @@ public interface BallerinaVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitBinaryOrExpression(BallerinaParser.BinaryOrExpressionContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code binaryGTExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitBinaryGTExpression(BallerinaParser.BinaryGTExpressionContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code typeInitializeExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitTypeInitializeExpression(BallerinaParser.TypeInitializeExpressionContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code binaryComparisonExpression}
-	 * labeled alternative in {@link BallerinaParser#expression}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitBinaryComparisonExpression(BallerinaParser.BinaryComparisonExpressionContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code templateExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.
@@ -423,19 +438,12 @@ public interface BallerinaVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitTemplateExpression(BallerinaParser.TemplateExpressionContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code binaryPlusMinusExpression}
+	 * Visit a parse tree produced by the {@code binaryLEExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitBinaryPlusMinusExpression(BallerinaParser.BinaryPlusMinusExpressionContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code preSingleDualExpression}
-	 * labeled alternative in {@link BallerinaParser#expression}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitPreSingleDualExpression(BallerinaParser.PreSingleDualExpressionContext ctx);
+	T visitBinaryLEExpression(BallerinaParser.BinaryLEExpressionContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code functionInvocationExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.
@@ -444,6 +452,13 @@ public interface BallerinaVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitFunctionInvocationExpression(BallerinaParser.FunctionInvocationExpressionContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code binaryGEExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitBinaryGEExpression(BallerinaParser.BinaryGEExpressionContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code binaryEqualExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.
 	 * @param ctx the parse tree
@@ -451,26 +466,19 @@ public interface BallerinaVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitBinaryEqualExpression(BallerinaParser.BinaryEqualExpressionContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code accessArrayElementExpression}
+	 * Visit a parse tree produced by the {@code bracedExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitAccessArrayElementExpression(BallerinaParser.AccessArrayElementExpressionContext ctx);
+	T visitBracedExpression(BallerinaParser.BracedExpressionContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code binaryMulDivPercentExpression}
+	 * Visit a parse tree produced by the {@code variableReferenceExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitBinaryMulDivPercentExpression(BallerinaParser.BinaryMulDivPercentExpressionContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code accessMemberDotExpression}
-	 * labeled alternative in {@link BallerinaParser#expression}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitAccessMemberDotExpression(BallerinaParser.AccessMemberDotExpressionContext ctx);
+	T visitVariableReferenceExpression(BallerinaParser.VariableReferenceExpressionContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code actionInvocationExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.
@@ -493,12 +501,61 @@ public interface BallerinaVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitBinaryAndExpression(BallerinaParser.BinaryAndExpressionContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code binaryNotEqualExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitBinaryNotEqualExpression(BallerinaParser.BinaryNotEqualExpressionContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code binaryDivitionExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitBinaryDivitionExpression(BallerinaParser.BinaryDivitionExpressionContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code binaryModExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitBinaryModExpression(BallerinaParser.BinaryModExpressionContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code binarySubExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitBinarySubExpression(BallerinaParser.BinarySubExpressionContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code binaryMultiplicationExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitBinaryMultiplicationExpression(BallerinaParser.BinaryMultiplicationExpressionContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code literalExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitLiteralExpression(BallerinaParser.LiteralExpressionContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code unaryExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitUnaryExpression(BallerinaParser.UnaryExpressionContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code binaryLTExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitBinaryLTExpression(BallerinaParser.BinaryLTExpressionContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code mapInitializerExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.
@@ -507,17 +564,19 @@ public interface BallerinaVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitMapInitializerExpression(BallerinaParser.MapInitializerExpressionContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link BallerinaParser#literal}.
+	 * Visit a parse tree produced by the {@code binaryPowExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitLiteral(BallerinaParser.LiteralContext ctx);
+	T visitBinaryPowExpression(BallerinaParser.BinaryPowExpressionContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link BallerinaParser#primary}.
+	 * Visit a parse tree produced by the {@code binaryAddExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitPrimary(BallerinaParser.PrimaryContext ctx);
+	T visitBinaryAddExpression(BallerinaParser.BinaryAddExpressionContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link BallerinaParser#mapInitKeyValue}.
 	 * @param ctx the parse tree

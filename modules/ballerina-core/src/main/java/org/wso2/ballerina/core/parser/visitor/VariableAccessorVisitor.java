@@ -35,8 +35,10 @@ public class VariableAccessorVisitor extends BallerinaBaseVisitor {
      * @param ctx
      */
     @Override
-    public Object visitVariableAccessor(BallerinaParser.VariableAccessorContext ctx) {
+    public Object visitVariableReferenceExpression(BallerinaParser.VariableReferenceExpressionContext ctx) {
         Identifier identifier = new Identifier(ctx.getText());
         return identifier;
     }
+
+
 }

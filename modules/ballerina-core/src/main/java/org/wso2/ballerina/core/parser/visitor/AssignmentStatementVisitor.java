@@ -38,7 +38,7 @@ public class AssignmentStatementVisitor extends BallerinaBaseVisitor {
     @Override
     public Object visitAssignmentStatement(BallerinaParser.AssignmentStatementContext ctx) {
         VariableAccessorVisitor vav = new VariableAccessorVisitor();
-        Identifier identifier = (Identifier) ctx.variableAccessor().accept(vav);
+        Identifier identifier = (Identifier) ctx.variableReference().accept(vav);
         VariableRefExpr variableRefExpr = new VariableRefExpr(identifier);
         AssignStmt assignStmt = new AssignStmt(variableRefExpr, null);
         return assignStmt;

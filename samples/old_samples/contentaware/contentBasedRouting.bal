@@ -22,9 +22,9 @@ service ContentBasedRouteService {
       jsonMsg = json:getPayload(m);
       try {
           if (json:get(jsonMsg, "$.stock.quote.exchange") == "NYSE") {
-              response = http.sendPost(nyseEP, m);
+              response = http:sendPost(nyseEP, m);
           } else {
-              response = http.sendPost(nasdaqEP, m);
+              response = http:sendPost(nasdaqEP, m);
           }
       } catch (exception e) {
          errorMsg = `{"error" : "Error while sending to backend"}`;
