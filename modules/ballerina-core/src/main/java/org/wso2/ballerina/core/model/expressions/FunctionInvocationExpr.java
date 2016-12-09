@@ -20,6 +20,7 @@ package org.wso2.ballerina.core.model.expressions;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.interpreter.ControlStack;
 import org.wso2.ballerina.core.interpreter.StackFrame;
+import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.model.Identifier;
 import org.wso2.ballerina.core.model.Parameter;
@@ -54,7 +55,6 @@ public class FunctionInvocationExpr extends AbstractExpression {
 
     public BValueRef evaluate(Context ctx) {
         List<Parameter> parameters = calleeFunction.getParameters();
-        List<VariableDcl> variableDcls = calleeFunction.getVariableDcls();
 
         // Setting up function parameters.
         BValueRef[] funcParams = new BValueRef[parameters.size()];
@@ -64,24 +64,32 @@ public class FunctionInvocationExpr extends AbstractExpression {
             funcParams[index] = value;
         }
 
-        // Setting up local variables;
-        BValueRef[] localVariables = new BValueRef[variableDcls.size()];
-        for (int index = 0; index < variableDcls.size(); index++) {
-            BValueRef value = ValueFactory.creteValue(variableDcls.get(index).getType());
-            localVariables[index] = value;
-
-        }
-
         // Return bValueRef
         // TODO Support multiple return types
-        BValueRef returnValue = ValueFactory.creteValue(calleeFunction.getReturnTypes().get(0));
+        BValueRef returnValue = null;
+        if (calleeFunction.getReturnTypes().size() > 0) {
+            returnValue = ValueFactory.creteValue(calleeFunction.getReturnTypes().get(0));
+        }
+
+        BValueRef[] localVariables = new BValueRef[0];
+        if (calleeFunction instanceof BallerinaFunction) {
+            BallerinaFunction function = (BallerinaFunction) calleeFunction;
+
+            List<VariableDcl> variableDcls = function.getVariableDcls();
+
+            // Setting up local variables;
+            localVariables = new BValueRef[variableDcls.size()];
+            for (int index = 0; index < variableDcls.size(); index++) {
+                BValueRef value = ValueFactory.creteValue(variableDcls.get(index).getType());
+                localVariables[index] = value;
+            }
+        }
 
         ControlStack controlStack = ctx.getControlStack();
         StackFrame stackFrame = new StackFrame(funcParams, returnValue, localVariables);
         controlStack.pushFrame(stackFrame);
 
         calleeFunction.interpret(ctx);
-
         controlStack.popFrame();
         return returnValue;
     }

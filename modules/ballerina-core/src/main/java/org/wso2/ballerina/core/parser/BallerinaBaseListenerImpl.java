@@ -21,6 +21,7 @@ package org.wso2.ballerina.core.parser;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.model.Identifier;
 import org.wso2.ballerina.core.model.Import;
@@ -171,8 +172,8 @@ public class BallerinaBaseListenerImpl extends BallerinaBaseListener {
             statementArray[i] = parserStatementCtx(ctx.functionBody().statement(i).getChild(0));
         }
 
-        Function function = new Function(functionName, isPublicFunction, annotationList, parameterList, null, null,
-                variableDclList, null, new BlockStmt(statementArray));
+        Function function = new BallerinaFunction(functionName, isPublicFunction, annotationList, parameterList, null,
+                null, variableDclList, null, new BlockStmt(statementArray));
 
         balFile.addFunction(function);
 
