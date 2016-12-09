@@ -73,7 +73,9 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
 
         String[] path = uri.split("/");
         String basePath = "/".concat(path[1]);
+        String subPath = "";
 
+        //TODO: Add regex support
         Service service = servicesOnInterface.get(basePath);  // 90% of the time we will find service from here
         if (service == null) {
             for (int i = 2; i < path.length; i++) {
@@ -85,6 +87,15 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
             }
         }
 
+        // Check if there is a service with default base path ("/")
+        if (service == null) {
+            service = servicesOnInterface.get(Constants.DEFAULT_BASE_PATH);
+            basePath = Constants.DEFAULT_BASE_PATH;
+            subPath = uri;
+        } else {
+            subPath = uri.split(basePath)[1];
+        }
+
         if (service == null) {
             log.error("No Service found to handle request sent to : " + uri);
             return false;
@@ -92,7 +103,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
         }
 
         context.setProperty(Constants.BASE_PATH, basePath);
-        context.setProperty(Constants.SUB_PATH, uri.split(basePath)[1]);
+        context.setProperty(Constants.SUB_PATH, subPath);
 
         return service.execute(context, callback);
     }
