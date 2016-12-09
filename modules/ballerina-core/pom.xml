@@ -47,6 +47,10 @@
             <artifactId>org.wso2.carbon.messaging</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.wso2.carbon.deployment</groupId>
+            <artifactId>org.wso2.carbon.deployment.engine</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.wso2.orbit.org.antlr</groupId>
             <artifactId>antlr4-runtime</artifactId>
         </dependency>
@@ -71,6 +75,7 @@
             org.wso2.carbon.deployment.engine.*;version="${carbon.deployment.export.version}",
         </import.package>
         <carbon.component>
+            osgi.service; objectClass="org.wso2.carbon.deployment.engine.Deployer",
             osgi.service; objectClass="org.wso2.carbon.messaging.CarbonMessageProcessor";
             requiredByComponentName="netty-transports-mgt"
         </carbon.component>
