@@ -126,14 +126,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace']
 
             var fileEditor = new  Ballerina.views.BallerinaFileEditor({model: ballerinaAstRoot, viewOptions: ballerinaEditorOptions});
 
-            /**
-             * Testing the source-gen traverse
-             *
-             */
-            var sourceGenVisitor = new Ballerina.visitors.SourceGen.BallerinaASTRootVisitor();
-            ballerinaAstRoot.accept(sourceGenVisitor);
             ballerinaAstRoot.accept(fileEditor);
-            log.info(sourceGenVisitor.getGeneratedSource());
         },
 
         generateToolPallet: function (environment, toolPallet) {

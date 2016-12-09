@@ -15,9 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'jquery', 'log', './../visitors/ast-visitor', './service-definition-view', './../ast/ballerina-ast-factory', './source-view'],
+define(['lodash', 'jquery', 'log', './../visitors/ast-visitor', './service-definition-view', './../ast/ballerina-ast-factory', './source-view', './../visitors/source-gen/ballerina-ast-root-visitor'],
 
-    function (_, $, log, ASTVisitor, ServiceDefinitionView, BallerinaASTFactory, SourceView) {
+    function (_, $, log, ASTVisitor, ServiceDefinitionView, BallerinaASTFactory, SourceView, SourceGenVisitor) {
 
     /**
      * @class BallerinaFileEditor
@@ -189,6 +189,11 @@ define(['lodash', 'jquery', 'log', './../visitors/ast-visitor', './service-defin
         var sourceViewBtn = $(this._options.container).find(_.get(this._options, 'controls.view_source_btn'));
         sourceViewBtn.click(function(){
             self._options.toolPalette.hide();
+            // Visit the ast model and generate the source
+            var sourceGenVisitor = new SourceGenVisitor();
+            self._model.accept(sourceGenVisitor);
+            // Get the generated source and append it to the source view container's content
+            self._sourceView.setContent(sourceGenVisitor.getGeneratedSource());
             sourceViewContainer.show();
             self._$designViewContainer.hide();
         });
