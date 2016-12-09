@@ -46,7 +46,7 @@ public class BalDeployer implements Deployer {
 
     private static final Logger log = LoggerFactory.getLogger(BalDeployer.class);
 
-    private static final String EXTERNAL_DSL_CONFIGS_DIRECTORY = "ballerina-files";
+    private static final String BAL_FILES_DIRECTORY = "ballerina-files";
     private static final String FILE_EXTENSION = ".bal";
     private static final Logger logger = LoggerFactory.getLogger(BalDeployer.class);
     private ArtifactType artifactType = new ArtifactType<>("bal");
@@ -60,7 +60,7 @@ public class BalDeployer implements Deployer {
     @Override
     public void init() {
         try {
-            directoryLocation = new URL("file:" + EXTERNAL_DSL_CONFIGS_DIRECTORY);
+            directoryLocation = new URL("file:" + BAL_FILES_DIRECTORY);
         } catch (MalformedURLException e) {
             logger.error("Error while initializing directoryLocation" + directoryLocation.getPath(), e);
         }
