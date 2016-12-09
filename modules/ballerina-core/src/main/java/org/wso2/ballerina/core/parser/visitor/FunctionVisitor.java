@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerina.core.parser.visitor;
 
+import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.model.Identifier;
 import org.wso2.ballerina.core.parser.BallerinaBaseVisitor;
@@ -38,7 +39,7 @@ public class FunctionVisitor extends BallerinaBaseVisitor {
     @Override
     public Object visitFunctionDefinition(BallerinaParser.FunctionDefinitionContext ctx) {
         Identifier identifier = new Identifier(ctx.Identifier().get(0).getText());
-        Function functionObject = new Function(identifier, false, null, null, null, null, null, null, null);
+        Function functionObject = new BallerinaFunction(identifier, false, null, null, null, null, null, null, null);
 
         //FunctionBodyVisitor functionBodyVisitor = new FunctionBodyVisitor();
         //List<Statement> statementList = (List<Statement>) ctx.functionBody().accept(functionBodyVisitor);
