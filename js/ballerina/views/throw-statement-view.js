@@ -15,68 +15,137 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', './../ast/throw-statement', 'd3utils'], function (_, log, EventChannel, ThrowStatement, D3Utils) {
+define(['lodash', 'log', './ballerina-view', './../ast/throw-statement', 'd3utils'],
+    function (_, log, BallerinaView, ThrowStatement, D3Utils) {
 
-    /**
-     * The view for the throw statement model.
-     * @param model throw statement model.
-     * @param container The SVG element.
-     * @param viewOptions Options to configure the view.
-     * @constructor
-     */
-    var ThrowStatementView = function (model, container, viewOptions) {
-        if (!_.isNil(model) && model instanceof ThrowStatement && !_.isNil(container)) {
-            this._model = model;
-            this._container = container;
+        /**
+         * The view to represent a throw statement which is an AST visitor.
+         * @param {Object} args - Arguments for creating the view.
+         * @param {ThrowStatement} args.model - The throw statement model.
+         * @param {Object} args.container - The HTML container to which the view should be added to.
+         * @param {Object} [args.viewOptions={}] - Configuration values for the view.
+         * @constructor
+         */
+        var ThrowStatementView = function (args) {
+            this._model = _.get(args, "model");
+            this._container = _.get(args, "container");
+            this._viewOptions = _.get(args, "viewOptions", {});
+
+            if (_.isNil(this._model) || !(this._model instanceof ThrowStatement)) {
+                log.error("Throw statement definition is undefined or is of different type." + this._model);
+                throw "Throw statement definition is undefined or is of different type." + this._model;
+            }
+
+            if (_.isNil(this._container)) {
+                log.error("Container for throw statement is undefined." + this._container);
+                throw "Container for throw statement is undefined." + this._container;
+            }
+
+            BallerinaView.call(this);
+        };
+
+        ThrowStatementView.prototype = Object.create(BallerinaView.prototype);
+        ThrowStatementView.prototype.constructor = ThrowStatementView;
+
+        ThrowStatementView.prototype.setModel = function (model) {
+            if (!_.isNil(model) && model instanceof ThrowStatement) {
+                this._model = model;
+            } else {
+                log.error("Throw statement definition is undefined or is of different type." + model);
+                throw "Throw statement definition is undefined or is of different type." + model;
+            }
+        };
+
+        ThrowStatementView.prototype.setContainer = function (container) {
+            if (!_.isNil(container)) {
+                this._container = container;
+            } else {
+                log.error("Container for throw statement is undefined." + container);
+                throw "Container for throw statement is undefined." + container;
+            }
+        };
+
+        ThrowStatementView.prototype.setViewOptions = function (viewOptions) {
             this._viewOptions = viewOptions;
-        } else {
-            log.error("Invalid args received for creating a throw statement view. Model: " + model
-                + ". Container: " + container);
-        }
-    };
+        };
 
-    ThrowStatementView.prototype = Object.create(EventChannel.prototype);
-    ThrowStatementView.prototype.constructor = ThrowStatementView;
+        ThrowStatementView.prototype.getModel = function () {
+            return this._model;
+        };
 
-    ThrowStatementView.prototype.setModel = function (model) {
-        if (!_.isNil(model)) {
-            this._model = model;
-        } else {
-            log.error("Unknown definition received for throw statement.");
-        }
-    };
+        ThrowStatementView.prototype.getContainer = function () {
+            return this._container;
+        };
 
-    ThrowStatementView.prototype.setContainer = function (container) {
-        if (!_.isNil(container)) {
-            this._container = container;
-        } else {
-            log.error("SVG container for the throw statement is null or empty.");
-        }
-    };
+        ThrowStatementView.prototype.getViewOptions = function () {
+            return this._viewOptions;
+        };
 
-    ThrowStatementView.prototype.setViewOptions = function (viewOptions) {
-        this._viewOptions = viewOptions;
-    };
+        /**
+         * Rendering the view of the throw statement.
+         * @returns {Object} - The svg group which the throw statement view resides in.
+         */
+        ThrowStatementView.prototype.render = function () {
+            var group = D3Utilsgroup(this._container);
+            log.info("Rendering the throw Statement.");
+            return group;
+        };
 
-    ThrowStatementView.prototype.getModel = function () {
-        return this._model;
-    };
+        /**
+         * @inheritDoc
+         */
+        ThrowStatementView.prototype.setWidth = function (newWidth) {
+            // TODO : Implement
+        };
 
-    ThrowStatementView.prototype.getContainer = function () {
-        return this._container;
-    };
+        /**
+         * @inheritDoc
+         */
+        ThrowStatementView.prototype.setHeight = function (newHeight) {
+            // TODO : Implement
+        };
 
-    ThrowStatementView.prototype.getViewOptions = function () {
-        return this._viewOptions;
-    };
+        /**
+         * @inheritDoc
+         */
+        ThrowStatementView.prototype.setXPosition = function (xPosition) {
+            // TODO : Implement
+        };
 
-    ThrowStatementView.prototype.render = function () {
-        var group = D3Utils.draw.group(this._container);
-        var rect = D3Utils.draw.rect(50, 50, 100, 100, 0, 0, group, "#FFFFFF");
-        window.console.log("Rendering the throw Statement.");
-        group.rect = rect;
-        return group;
-    };
+        /**
+         * @inheritDoc
+         */
+        ThrowStatementView.prototype.setYPosition = function (yPosition) {
+            // TODO : Implement
+        };
 
-    return ThrowStatementView;
-});
+        /**
+         * @inheritDoc
+         */
+        ThrowStatementView.prototype.getWidth = function () {
+            // TODO : Implement
+        };
+
+        /**
+         * @inheritDoc
+         */
+        ThrowStatementView.prototype.getHeight = function () {
+            // TODO : Implement
+        };
+
+        /**
+         * @inheritDoc
+         */
+        ThrowStatementView.prototype.getXPosition = function () {
+            // TODO : Implement
+        };
+
+        /**
+         * @inheritDoc
+         */
+        ThrowStatementView.prototype.getYPosition = function () {
+            // TODO : Implement
+        };
+
+        return ThrowStatementView;
+    });

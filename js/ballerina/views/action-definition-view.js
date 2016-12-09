@@ -15,35 +15,44 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', './../ast/action-definition', 'd3utils'],
-    function (_, log, EventChannel, ActionDefinition, D3Utils) {
+define(['lodash', 'log', './ballerina-view', './../ast/action-definition', 'd3utils'],
+    function (_, log, BallerinaView, ActionDefinition, D3Utils) {
 
         /**
-         * View for the action definition model.
-         * @param model - Action definition model.
-         * @param container - the SVG container.
-         * @param viewOptions - Options to configure the view
+         * The view to represent a action definition which is an AST visitor.
+         * @param {Object} args - Arguments for creating the view.
+         * @param {ActionDefinition} args.model - The action statement model.
+         * @param {Object} args.container - The HTML container to which the view should be added to.
+         * @param {Object} [args.viewOptions={}] - Configuration values for the view.
+         * @constructor
          */
-        var ActionDefinitionView = function (model, container, viewOptions) {
-            if (!_.isNil(model) && model instanceof FunctionDefinition && !_.isNil(container)) {
-                this._model = model;
-                this._container = container;
-                this._viewOptions = viewOptions;
-            } else {
-                log.error("Invalid args received for creating a action definition view. Model: " + model
-                    + ". Container: " + container);
+        var ActionDefinitionView = function (args) {
+            this._model = _.get(args, "model");
+            this._container = _.get(args, "container");
+            this._viewOptions = _.get(args, "viewOptions", {});
+
+            if (_.isNil(this._model) || !(this._model instanceof ActionDefinition)) {
+                log.error("Action definition undefined or is of different type." + this._model);
+                throw "Action definition undefined or is of different type." + this._model;
             }
 
+            if (_.isNil(this._container)) {
+                log.error("Container for action definition is undefined." + this._container);
+                throw "Container for action definition is undefined." + this._container;
+            }
+
+            BallerinaView.call(this);
         };
 
-        ActionDefinitionView.prototype = Object.create(EventChannel.prototype);
+        ActionDefinitionView.prototype = Object.create(BallerinaView.prototype);
         ActionDefinitionView.prototype.constructor = ActionDefinitionView;
 
         ActionDefinitionView.prototype.setModel = function (model) {
-            if (!_.isNil(model)) {
+            if (!_.isNil(model) && model instanceof ActionDefinition) {
                 this._model = model;
             } else {
-                log.error("Unknown definition received for action definition.");
+                log.error("Action definition undefined or is of different type." + model);
+                throw "Action definition undefined or is of different type." + model;
             }
         };
 
@@ -51,7 +60,8 @@ define(['lodash', 'log', 'event_channel', './../ast/action-definition', 'd3utils
             if (!_.isNil(container)) {
                 this._container = container;
             } else {
-                log.error("SVG container for the function is null or empty.");
+                log.error("Container for action definition is undefined." + container);
+                throw "Container for action definition is undefined." + container;
             }
         };
 
@@ -71,11 +81,71 @@ define(['lodash', 'log', 'event_channel', './../ast/action-definition', 'd3utils
             return this._viewOptions;
         };
 
+        /**
+         * Renders the view for action definition.
+         * @returns {group} - The SVG group which holds the elements of the action definition.
+         */
         ActionDefinitionView.prototype.render = function () {
-            var group = D3Utils.draw.group(this._container);
-            var rect = D3Utils.draw.rect(10, 10, 100, 100, 0, 0, group, "#FFFFFF");
-            group.rect = rect;
+            var group = D3Utils.group(this._container);
+            // TODO : Draw the view of the action definition and add it to the above svg group.
+            log.info("Rendering action view.");
             return group;
+        };
+
+        /**
+         * @inheritDoc
+         */
+        ActionDefinitionView.prototype.setWidth = function (newWidth) {
+            // TODO : Implement
+        };
+
+        /**
+         * @inheritDoc
+         */
+        ActionDefinitionView.prototype.setHeight = function (newHeight) {
+            // TODO : Implement
+        };
+
+        /**
+         * @inheritDoc
+         */
+        ActionDefinitionView.prototype.setXPosition = function (xPosition) {
+            // TODO : Implement
+        };
+
+        /**
+         * @inheritDoc
+         */
+        ActionDefinitionView.prototype.setYPosition = function (yPosition) {
+            // TODO : Implement
+        };
+
+        /**
+         * @inheritDoc
+         */
+        ActionDefinitionView.prototype.getWidth = function () {
+            // TODO : Implement
+        };
+
+        /**
+         * @inheritDoc
+         */
+        ActionDefinitionView.prototype.getHeight = function () {
+            // TODO : Implement
+        };
+
+        /**
+         * @inheritDoc
+         */
+        ActionDefinitionView.prototype.getXPosition = function () {
+            // TODO : Implement
+        };
+
+        /**
+         * @inheritDoc
+         */
+        ActionDefinitionView.prototype.getYPosition = function () {
+            // TODO : Implement
         };
 
         return ActionDefinitionView;

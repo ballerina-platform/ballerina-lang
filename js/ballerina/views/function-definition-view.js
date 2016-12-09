@@ -19,26 +19,41 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
     function (_, log, EventChannel, Canvas, FunctionDefinition) {
 
         /**
-         * View for the function definition model.
-         * @param model - Function definition model.
-         * @param container - the SVG container.
-         * @param viewOptions - Options to configure the view
+         * The view to represent a function definition which is an AST visitor.
+         * @param {Object} args - Arguments for creating the view.
+         * @param {FunctionDefinition} args.model - The function definition model.
+         * @param {Object} args.container - The HTML container to which the view should be added to.
+         * @param {Object} [args.viewOptions={}] - Configuration values for the view.
+         * @constructor
          */
         var FunctionDefinitionView = function (args) {
-            this._model =  _.get(args, 'model', null);
-            this._viewOptions =  _.get(args, 'viewOptions', {});
-            this._options =  _.get(args, 'options', null);
-            this._container =  _.get(args, 'container', null);
+            this._model = _.get(args, "model");
+            this._container = _.get(args, "container");
+            this._viewOptions = _.get(args, "viewOptions", {});
+
+            if (_.isNil(this._model) || !(this._model instanceof FunctionDefinition)) {
+                log.error("Function definition is undefined or is of different type." + this._model);
+                throw "Function definition is undefined or is of different type." + this._model;
+            }
+
+            if (_.isNil(this._container)) {
+                log.error("Container for function definition is undefined." + this._container);
+                throw "Container for function definition is undefined." + this._container;
+            }
+
+            Canvas.call(this);
+
         };
 
         FunctionDefinitionView.prototype = Object.create(Canvas.prototype);
         FunctionDefinitionView.prototype.constructor = FunctionDefinitionView;
 
         FunctionDefinitionView.prototype.setModel = function (model) {
-            if (!_.isNil(model)) {
+            if (!_.isNil(model) && model instanceof FunctionDefinition) {
                 this._model = model;
             } else {
-                log.error("Unknown definition received for function definition.");
+                log.error("Function definition undefined or is of different type." + model);
+                throw "Function definition undefined or is of different type." + model;
             }
         };
 
@@ -46,12 +61,19 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
             if (!_.isNil(container)) {
                 this._container = container;
             } else {
-                log.error("SVG container for the function is null or empty.");
+                log.error("Container for function definition is undefined." + container);
+                throw "Container for function definition is undefined." + container;
             }
         };
 
         FunctionDefinitionView.prototype.setViewOptions = function (viewOptions) {
             this._viewOptions = viewOptions;
+        };
+
+        FunctionDefinitionView.prototype.setChildContainer = function(svg){
+            if (!_.isNil(svg)) {
+                this._childContainer = svg;
+            }
         };
 
         FunctionDefinitionView.prototype.getModel = function () {
@@ -66,17 +88,16 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
             return this._viewOptions;
         };
 
-        FunctionDefinitionView.prototype.setChildContainer = function(svg){
-            if (!_.isNil(svg)) {
-                this._childContainer = svg;
-            }
-        };
         FunctionDefinitionView.prototype.getChildContainer = function(){
             return this._childContainer ;
         };
 
+        /**
+         * Rendering the view for function definition.
+         * @returns {group} The svg group which contains the elements of the function definition view.
+         */
         FunctionDefinitionView.prototype.render = function () {
-            this.drawAccordionCanvas(this._container, this._options, this._model.id, 'function');
+            this.drawAccordionCanvas(this._container, this._viewOptions, this._model.id, 'function');
             var divId = this._model.id;
             var currentContainer = $('#'+ divId);
             this._container = currentContainer;
@@ -84,6 +105,62 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
             //Store parent container for child elements of this serviceDefView
             this.setChildContainer(_.first($(this._container).children().children()));
             this.getModel().accept(this);
+        };
+
+        /**
+         * @inheritDoc
+         */
+        FunctionDefinitionView.prototype.setWidth = function (newWidth) {
+            // TODO : Implement
+        };
+
+        /**
+         * @inheritDoc
+         */
+        FunctionDefinitionView.prototype.setHeight = function (newHeight) {
+            // TODO : Implement
+        };
+
+        /**
+         * @inheritDoc
+         */
+        FunctionDefinitionView.prototype.setXPosition = function (xPosition) {
+            // TODO : Implement
+        };
+
+        /**
+         * @inheritDoc
+         */
+        FunctionDefinitionView.prototype.setYPosition = function (yPosition) {
+            // TODO : Implement
+        };
+
+        /**
+         * @inheritDoc
+         */
+        FunctionDefinitionView.prototype.getWidth = function () {
+            // TODO : Implement
+        };
+
+        /**
+         * @inheritDoc
+         */
+        FunctionDefinitionView.prototype.getHeight = function () {
+            // TODO : Implement
+        };
+
+        /**
+         * @inheritDoc
+         */
+        FunctionDefinitionView.prototype.getXPosition = function () {
+            // TODO : Implement
+        };
+
+        /**
+         * @inheritDoc
+         */
+        FunctionDefinitionView.prototype.getYPosition = function () {
+            // TODO : Implement
         };
 
         return FunctionDefinitionView;

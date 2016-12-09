@@ -144,14 +144,6 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace']
                 viewOptions: ballerinaEditorOptions
             });
             fileEditor.render();
-
-            /**
-             * Testing the source-gen traverse
-             *
-             */
-            var sourceGenVisitor = new Ballerina.visitors.SourceGen.BallerinaASTRootVisitor();
-            ballerinaAstRoot.accept(sourceGenVisitor);
-            log.info(sourceGenVisitor.getGeneratedSource());
         },
 
         generateToolPallet: function (environment, toolPallet) {

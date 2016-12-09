@@ -15,11 +15,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './node'], function(_, ASTNode){
+define(['lodash', './node'], function (_, ASTNode) {
 
-    var WorkerDeclaration = function(connections, variables, statements, replyStatement) {
+    var WorkerDeclaration = function (args) {
+        this._isDefaultWorker = _.get(args, "isDefaultWorker", false);
+        this._reply = _.get(args, "replyStatement", null);
         this._childrenList = [];
-        this._reply = replyStatement;
+
+        ASTNode.call(this);
     };
 
     WorkerDeclaration.prototype = Object.create(ASTNode.prototype);
@@ -33,14 +36,24 @@ define(['lodash', './node'], function(_, ASTNode){
         }
     };
 
-    WorkerDeclaration.prototype.setReply = function(replyStatement){
-        if(!_.isNil(replyStatement)){
+    WorkerDeclaration.prototype.setReply = function (replyStatement) {
+        if (!_.isNil(replyStatement)) {
             this._reply = replyStatement;
         }
     };
 
-    WorkerDeclaration.prototype.getReply = function(){
+    WorkerDeclaration.prototype.setIsDefaultWorker = function (isDefaultWorker) {
+        if (!_.isNil(isDefaultWorker)) {
+            this._isDefaultWorker = isDefaultWorker;
+        }
+    };
+
+    WorkerDeclaration.prototype.getReply = function () {
         return this._reply;
+    };
+
+    WorkerDeclaration.prototype.isDefaultWorker = function () {
+        return this._isDefaultWorker;
     };
 
     return WorkerDeclaration;

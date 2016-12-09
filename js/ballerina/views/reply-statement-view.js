@@ -15,68 +15,139 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', './../ast/reply-statement', 'd3utils'], function (_, log, EventChannel, ReplyStatement, D3Utils) {
+define(['lodash', 'log', './ballerina-view', './../ast/reply-statement', 'd3utils'],
+    function (_, log, BallerinaView, ReplyStatement, D3Utils) {
 
-    /**
-     * The view for the reply statement model.
-     * @param model Reply statement model.
-     * @param container The SVG element.
-     * @param viewOptions Options to configure the view.
-     * @constructor
-     */
-    var ReplyStatementView = function (model, container, viewOptions) {
-        if (!_.isNil(model) && model instanceof ReplyStatement && !_.isNil(container)) {
-            this._model = model;
-            this._container = container;
+        /**
+         * The view to represent a reply statement which is an AST visitor.
+         * @param {Object} args - Arguments for creating the view.
+         * @param {ReplyStatement} args.model - The reply statement model.
+         * @param {Object} args.container - The HTML container to which the view should be added to.
+         * @param {Object} [args.viewOptions={}] - Configuration values for the view.
+         * @constructor
+         */
+        var ReplyStatementView = function (args) {
+            this._model = _.get(args, "model");
+            this._container = _.get(args, "container");
+            this._viewOptions = _.get(args, "viewOptions", {});
+
+            if (_.isNil(this._model) || !(this._model instanceof ReplyStatement)) {
+                log.error("Return statement definition is undefined or is of different type." + this._model);
+                throw "Return statement definition is undefined or is of different type." + this._model;
+            }
+
+            if (_.isNil(this._container)) {
+                log.error("Container for return statement is undefined." + this._container);
+                throw "Container for return statement is undefined." + this._container;
+            }
+
+            BallerinaView.call(this);
+        };
+
+        ReplyStatementView.prototype = Object.create(BallerinaView.prototype);
+        ReplyStatementView.prototype.constructor = ReplyStatementView;
+
+        ReplyStatementView.prototype.setModel = function (model) {
+            if (!_.isNil(model) && model instanceof ReplyStatement) {
+                this._model = model;
+            } else {
+                log.error("Return statement definition is undefined or is of different type." + model);
+                throw "Return statement definition is undefined or is of different type." + model;
+            }
+        };
+
+        ReplyStatementView.prototype.setContainer = function (container) {
+            if (!_.isNil(container)) {
+                this._container = container;
+            } else {
+                log.error("Container for return statement is undefined." + container);
+                throw "Container for return statement is undefined." + container;
+            }
+        };
+
+        ReplyStatementView.prototype.setViewOptions = function (viewOptions) {
             this._viewOptions = viewOptions;
-        } else {
-            log.error("Invalid args received for creating a reply statement view. Model: " + model
-                + ". Container: " + container);
-        }
-    };
+        };
 
-    ReplyStatementView.prototype = Object.create(EventChannel.prototype);
-    ReplyStatementView.prototype.constructor = ReplyStatementView;
+        ReplyStatementView.prototype.getModel = function () {
+            return this._model;
+        };
 
-    ReplyStatementView.prototype.setModel = function (model) {
-        if (!_.isNil(model)) {
-            this._model = model;
-        } else {
-            log.error("Unknown definition received for reply statement.");
-        }
-    };
+        ReplyStatementView.prototype.getContainer = function () {
+            return this._container;
+        };
 
-    ReplyStatementView.prototype.setContainer = function (container) {
-        if (!_.isNil(container)) {
-            this._container = container;
-        } else {
-            log.error("SVG container for the reply statement is null or empty.");
-        }
-    };
+        ReplyStatementView.prototype.getViewOptions = function () {
+            return this._viewOptions;
+        };
 
-    ReplyStatementView.prototype.setViewOptions = function (viewOptions) {
-        this._viewOptions = viewOptions;
-    };
+        /**
+         * Rendering the view for reply statement.
+         * @returns {group} The svg group which contains the elements of the reply statement view.
+         */
+        ReplyStatementView.prototype.render = function () {
+            var group = D3Utils.draw.group(this._container);
+            // var rect = D3Utils.draw.rect(10, 10, 100, 100, 0, 0, group, "#FFFFFF");
+            log.info("Rendering the Reply Statement.");
+            // group.rect = rect;
+            return group;
+        };
 
-    ReplyStatementView.prototype.getModel = function () {
-        return this._model;
-    };
+        /**
+         * @inheritDoc
+         */
+        ReplyStatementView.prototype.setWidth = function (newWidth) {
+            // TODO : Implement
+        };
 
-    ReplyStatementView.prototype.getContainer = function () {
-        return this._container;
-    };
+        /**
+         * @inheritDoc
+         */
+        ReplyStatementView.prototype.setHeight = function (newHeight) {
+            // TODO : Implement
+        };
 
-    ReplyStatementView.prototype.getViewOptions = function () {
-        return this._viewOptions;
-    };
+        /**
+         * @inheritDoc
+         */
+        ReplyStatementView.prototype.setXPosition = function (xPosition) {
+            // TODO : Implement
+        };
 
-    ReplyStatementView.prototype.render = function () {
-        var group = D3Utils.draw.group(this._container);
-        var rect = D3Utils.draw.rect(10, 10, 100, 100, 0, 0, group, "#FFFFFF");
-        window.console.log("Rendering the Reply Statement.");
-        group.rect = rect;
-        return group;
-    };
+        /**
+         * @inheritDoc
+         */
+        ReplyStatementView.prototype.setYPosition = function (yPosition) {
+            // TODO : Implement
+        };
 
-    return ReplyStatementView;
-});
+        /**
+         * @inheritDoc
+         */
+        ReplyStatementView.prototype.getWidth = function () {
+            // TODO : Implement
+        };
+
+        /**
+         * @inheritDoc
+         */
+        ReplyStatementView.prototype.getHeight = function () {
+            // TODO : Implement
+        };
+
+        /**
+         * @inheritDoc
+         */
+        ReplyStatementView.prototype.getXPosition = function () {
+            // TODO : Implement
+        };
+
+        /**
+         * @inheritDoc
+         */
+        ReplyStatementView.prototype.getYPosition = function () {
+            // TODO : Implement
+        };
+
+        return ReplyStatementView;
+    });
