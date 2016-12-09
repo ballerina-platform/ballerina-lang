@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'jquery', 'log', './../visitors/ast-visitor', './service-definition-view', 'ballerina/ast/ballerina-ast-factory'], function (_, $, log, ASTVisitor, ServiceDefinitionView, BallerinaASTFactory) {
+define(['lodash', 'jquery', 'log', './../visitors/ast-visitor', './service-definition-view', './function-definition-view', './../ast/ballerina-ast-factory', './source-view'], function (_, $, log, ASTVisitor, ServiceDefinitionView, FunctionDefinitionView, BallerinaASTFactory, SourceView) {
 
     /**
      * @class BallerinaFileEditor
@@ -25,14 +25,32 @@ define(['lodash', 'jquery', 'log', './../visitors/ast-visitor', './service-defin
      */
     var BallerinaFileEditor = function (args) {
         this._canvasList = _.get(args, 'canvasList', []);
-        this._model =  _.get(args, 'model', null);
+        this._model = _.get(args, 'model', null);
         this.id = "Ballerina File Editor";
-        this._options =  _.get(args, 'viewOptions', {});
+        this._options = _.get(args, 'viewOptions', {});
         this.init();
     };
 
     BallerinaFileEditor.prototype = Object.create(ASTVisitor.prototype);
     BallerinaFileEditor.prototype.constructor = BallerinaFileEditor;
+
+    BallerinaFileEditor.prototype.init = function () {
+        var errMsg;
+        if (!_.has(this._options, 'design.container')) {
+            errMsg = 'unable to find configuration for container';
+            log.error(errMsg);
+            throw errMsg;
+        }
+        // this._options.container is the root div for tab content
+        var container = $(this._options.container).find(_.get(this._options, 'design.container'));
+        this._$designViewContainer = container;
+        // check whether container element exists in dom
+        if (!container.length > 0) {
+            errMsg = 'unable to find container for file editor with selector: ' + _.get(this._options, 'design.container');
+            log.error(errMsg);
+            throw errMsg;
+        }
+    };
 
     BallerinaFileEditor.prototype.getId = function () {
         return this.id;
@@ -51,127 +69,73 @@ define(['lodash', 'jquery', 'log', './../visitors/ast-visitor', './service-defin
         }
     };
 
-    BallerinaFileEditor.prototype.canVisitBallerinaASTRoot = function(ballerinaASTRoot){
+    BallerinaFileEditor.prototype.canVisitBallerinaASTRoot = function (ballerinaASTRoot) {
         return true;
     };
-    BallerinaFileEditor.prototype.visitBallerinaASTRoot = function(ballerinaASTRoot){
+    BallerinaFileEditor.prototype.visitBallerinaASTRoot = function (ballerinaASTRoot) {
 
     };
 
-    BallerinaFileEditor.prototype.canVisitServiceDefinition = function(serviceDefinition){
+    BallerinaFileEditor.prototype.canVisitServiceDefinition = function (serviceDefinition) {
         return true;
     };
-    BallerinaFileEditor.prototype.visitServiceDefinition = function(serviceDefinition){
-        log.info("Visiting service definition");
-        var divId = serviceDefinition.id;
-        var currentContainer = $('#'+ divId);
-        var serviceDefinitionView = new ServiceDefinitionView({model: serviceDefinition, container:currentContainer});
+
+    /**
+     * Visits ServiceDefinition
+     * @param serviceDefinition
+     */
+    BallerinaFileEditor.prototype.visitServiceDefinition = function (serviceDefinition) {
+        var serviceDefinitionView = new ServiceDefinitionView({
+            options: this._options,
+            container: this._$designViewContainer,
+            model: serviceDefinition
+        });
         serviceDefinitionView.render();
     };
 
-    BallerinaFileEditor.prototype.init = function() {
-        var errMsg;
-        var editorParent = this;
-        var options = this._options.file_editor;
-        if (!_.has(this._options, 'container')) {
-            errMsg = 'unable to find configuration for container';
-            log.error(errMsg);
-            throw errMsg;
-        }
-        var container = $(_.get(this._options, 'container'));
-        // check whether container element exists in dom
-        if (!container.length > 0) {
-            errMsg = 'unable to find container for file editor with selector: ' + _.get(this._options, 'container');
-            log.error(errMsg);
-            throw errMsg;
-        }
-        if (!_.isNil(this._model)) {
-            if(_.has(this._model, 'children')){
-                var children = $(_.get(this._model, 'children'));
-                _.each(children, function (child) {
-                    var ballerinaASTFactory = new BallerinaASTFactory();
-                    if(ballerinaASTFactory.isServiceDefinition(child)){
-                        var serviceContainer =  $('<div><svg class="service-container"></svg></div>');
-                        serviceContainer.attr('id', child.id);
-                        serviceContainer.attr('name','service');
-                        serviceContainer.addClass(_.get(options, 'cssClass.outer_box'));
-                        editorParent.addCanvas(serviceContainer);
-                    } else if(ballerinaASTFactory.isFunctionDefinition(child)){
-                        var functionContainer = $('<div>Function View Container</div>');
-                        functionContainer.attr('id', child.id);
-                        functionContainer.attr('name','function');
-                        editorParent.addCanvas(functionContainer);
-                    } else if(ballerinaASTFactory.isConnectorDefinition(child)){
-                        var connectorContainer = $('<div>Connector View Container</div>');
-                        connectorContainer.attr('id', child.id);
-                        connectorContainer.attr('name','connector');
-                        editorParent.addCanvas(connectorContainer);
-                    }
-                });
-            }
-
-            //TODO: rest of definitions when implemented
-        }
-        else {
-            log.error("Provided astRoot is undefined");
-        }
-        this.render(container,options);
+    BallerinaFileEditor.prototype.canVisitFunctionDefinition = function (functionDefinition) {
+        return true;
     };
 
-    BallerinaFileEditor.prototype.render = function (parent,options) {
-        if (!_.isNil(this._canvasList)) {
-            _.each(this._canvasList, function (canvas) {
-                //draw a collapse accordion
-                var outerDiv = $('<div></div>');
-                outerDiv.addClass(_.get(options, 'cssClass.outer_div'));
-                var panelHeading = $('<div></div>');
-                panelHeading.attr('id', canvas[0].id + 3).attr('role', 'tab');
-                var panelTitle = $('<h4></h4>');
-                panelTitle.addClass(_.get(options, 'cssClass.panel_title'));
-                var panelIcon = $('<i></i>');
-                panelIcon.addClass(_.get(options, 'cssClass.panel_icon'));
-                if(canvas[0].getAttribute('name') == "service") {
-                    panelIcon.addClass(_.get(options, 'cssClass.service_icon'));
-                } else if (canvas[0].getAttribute('name') == "connector") {
-                    panelIcon.addClass(_.get(options, 'cssClass.connector_icon'));
-                } else if(canvas[0].getAttribute('name') == "function") {
-                    panelIcon.addClass(_.get(options, 'cssClass.function_icon'));
-                }
-                panelTitle.append(panelIcon);
-                var titleLink = $('<a>'+ canvas[0].getAttribute('name') + '</a>');
-                titleLink.addClass(_.get(options, 'cssClass.title_link'));
-                //TODO: update href,aria-controls
-                titleLink.attr('role', 'button').attr('data-toggle', 'collapse').attr('data-parent', "#accordion").attr('href', '#' + canvas[0].id).attr('aria-expanded', 'false').attr('aria-controls', canvas[0].id);
-                panelTitle.append(titleLink);
+    /**
+     * Visits FunctionDefinition
+     * @param functionDefinition
+     */
+    BallerinaFileEditor.prototype.visitFunctionDefinition = function (functionDefinition) {
+        var functionDefinitionView = new FunctionDefinitionView({
+            options: this._options,
+            container: this._$designViewContainer,
+            model: functionDefinition
+        });
+        functionDefinitionView.render();
+    };
 
-                var panelRightIcon = $('<i></i>');
-                panelRightIcon.addClass(_.get(options, 'cssClass.panel_right_icon'));
-                panelRightIcon.attr('role', 'button').attr('data-toggle', 'collapse').attr('data-parent', "#accordion").attr('href', '#' + canvas[0].id).attr('aria-expanded', 'false').attr('aria-controls', canvas[0].id);
-                panelTitle.append(panelRightIcon);
+    BallerinaFileEditor.prototype.render = function (parent, options) {
+        this._model.accept(this);
 
-                panelHeading.append(panelTitle);
+        var self = this;
 
-                titleLink.click(function () {
-                    $(this).parent().find('i.right-icon-clickable').toggleClass('fw-down fw-up');
-                });
+        // container for per-tab source view TODO improve source view to wrap this logic
+        var sourceViewContainer = $(this._options.container).find(_.get(this._options, 'source.container'));
+        var aceEditorContainer = $('<div></div>');
+        aceEditorContainer.addClass(_.get(this._options, 'cssClass.text_editor_class'));
+        sourceViewContainer.append(aceEditorContainer);
+        this._sourceView = new SourceView({container: aceEditorContainer.get(0), content: "test content"});
+        this._sourceView.render();
 
-                panelRightIcon.click(function () {
-                    $(this).toggleClass('fw-down fw-up');
-                });
+        var sourceViewBtn = $(this._options.container).find(_.get(this._options, 'controls.view_source_btn'));
+        sourceViewBtn.click(function () {
+            self._options.toolPalette.hide();
+            sourceViewContainer.show();
+            self._$designViewContainer.hide();
+        });
 
-                var bodyDiv = $('<div></div>');
-                bodyDiv.addClass(_.get(options, 'cssClass.body_div'));
-                bodyDiv.attr('id', canvas[0].id).attr('aria-labelledby', canvas[0].id + 3).attr('role', 'tabpanel');
-                bodyDiv.addClass(_.get(options, 'cssClass.canvas'));
-                bodyDiv.append(canvas);
-
-                outerDiv.append(panelHeading);
-                outerDiv.append(bodyDiv);
-
-                // append to parent
-                parent.append(outerDiv);
-            });
-        }
+        var designViewBtn = $(this._options.container).find(_.get(this._options, 'controls.view_design_btn'));
+        designViewBtn.click(function () {
+            self._options.toolPalette.show();
+            sourceViewContainer.hide();
+            self._$designViewContainer.show();
+        });
     };
 
     BallerinaFileEditor.prototype.getModel = function () {

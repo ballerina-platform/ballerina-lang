@@ -65,6 +65,64 @@ define(['log', 'lodash', 'jquery', 'd3', './../visitors/ast-visitor', 'd3utils']
         return this._mainSVGGroup;
     };
 
+    Canvas.prototype.drawAccordionCanvas = function (parent, options, id, name) {
+        var serviceContainer = $('<div><svg class="service-container"></svg></div>');
+        serviceContainer.attr('id', id);
+        serviceContainer.attr('name', name);
+        serviceContainer.addClass(_.get(options, 'cssClass.outer_box'));
+        var canvas = serviceContainer;
+
+        //draw a collapse accordion
+        var outerDiv = $('<div></div>');
+        outerDiv.addClass(_.get(options, 'cssClass.outer_div'));
+        var panelHeading = $('<div></div>');
+        panelHeading.attr('id', canvas[0].id + 3).attr('role', 'tab');
+        var panelTitle = $('<h4></h4>');
+        panelTitle.addClass(_.get(options, 'cssClass.panel_title'));
+        var panelIcon = $('<i></i>');
+        panelIcon.addClass(_.get(options, 'cssClass.panel_icon'));
+        if (canvas[0].getAttribute('name') == "service") {
+            panelIcon.addClass(_.get(options, 'cssClass.service_icon'));
+        } else if (canvas[0].getAttribute('name') == "connector") {
+            panelIcon.addClass(_.get(options, 'cssClass.connector_icon'));
+        } else if (canvas[0].getAttribute('name') == "function") {
+            panelIcon.addClass(_.get(options, 'cssClass.function_icon'));
+        }
+        panelTitle.append(panelIcon);
+        var titleLink = $('<a>' + canvas[0].getAttribute('name') + '</a>');
+        titleLink.addClass(_.get(options, 'cssClass.title_link'));
+        //TODO: update href,aria-controls
+        titleLink.attr('role', 'button').attr('data-toggle', 'collapse').attr('data-parent', "#accordion").attr('href', '#' + canvas[0].id).attr('aria-expanded', 'false').attr('aria-controls', canvas[0].id);
+        panelTitle.append(titleLink);
+
+        var panelRightIcon = $('<i></i>');
+        panelRightIcon.addClass(_.get(options, 'cssClass.panel_right_icon'));
+        panelRightIcon.attr('role', 'button').attr('data-toggle', 'collapse').attr('data-parent', "#accordion").attr('href', '#' + canvas[0].id).attr('aria-expanded', 'false').attr('aria-controls', canvas[0].id);
+        panelTitle.append(panelRightIcon);
+
+        panelHeading.append(panelTitle);
+
+        titleLink.click(function () {
+            $(this).parent().find('i.right-icon-clickable').toggleClass('fw-down fw-up');
+        });
+
+        panelRightIcon.click(function () {
+            $(this).toggleClass('fw-down fw-up');
+        });
+
+        var bodyDiv = $('<div></div>');
+        bodyDiv.addClass(_.get(options, 'cssClass.body_div'));
+        bodyDiv.attr('id', canvas[0].id).attr('aria-labelledby', canvas[0].id + 3).attr('role', 'tabpanel');
+        bodyDiv.addClass(_.get(options, 'cssClass.canvas'));
+        bodyDiv.append(canvas);
+
+        outerDiv.append(panelHeading);
+        outerDiv.append(bodyDiv);
+
+        // append to parent
+        parent.append(outerDiv);
+    };
+
     return Canvas;
 
 });

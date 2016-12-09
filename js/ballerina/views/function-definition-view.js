@@ -24,19 +24,14 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
          * @param container - the SVG container.
          * @param viewOptions - Options to configure the view
          */
-        var FunctionDefinitionView = function (model, container, viewOptions) {
-            if (!_.isNil(model) && model instanceof FunctionDefinition && !_.isNil(container)) {
-                this._model = model;
-                this._container = container;
-                this._viewOptions = viewOptions;
-            } else {
-                log.error("Invalid args received for creating a function definition view. Model: " + model
-                    + ". Container: " + container);
-            }
-
+        var FunctionDefinitionView = function (args) {
+            this._model =  _.get(args, 'model', null);
+            this._viewOptions =  _.get(args, 'viewOptions', {});
+            this._options =  _.get(args, 'options', null);
+            this._container =  _.get(args, 'container', null);
         };
 
-        FunctionDefinitionView.prototype = Object.create(EventChannel.prototype);
+        FunctionDefinitionView.prototype = Object.create(Canvas.prototype);
         FunctionDefinitionView.prototype.constructor = FunctionDefinitionView;
 
         FunctionDefinitionView.prototype.setModel = function (model) {
@@ -71,7 +66,24 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
             return this._viewOptions;
         };
 
+        FunctionDefinitionView.prototype.setChildContainer = function(svg){
+            if (!_.isNil(svg)) {
+                this._childContainer = svg;
+            }
+        };
+        FunctionDefinitionView.prototype.getChildContainer = function(){
+            return this._childContainer ;
+        };
+
         FunctionDefinitionView.prototype.render = function () {
+            this.drawAccordionCanvas(this._container, this._options, this._model.id, 'function');
+            var divId = this._model.id;
+            var currentContainer = $('#'+ divId);
+            this._container = currentContainer;
+
+            //Store parent container for child elements of this serviceDefView
+            this.setChildContainer(_.first($(this._container).children().children()));
+            this.getModel().accept(this);
         };
 
         return FunctionDefinitionView;

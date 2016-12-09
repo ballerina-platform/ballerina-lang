@@ -18,7 +18,7 @@
 define(['lodash', './argument'], function (_, Argument) {
 
     var ResourceArgument = function (type, identifier,annotation) {
-        CallableDefinition.call(this, type, identifier)
+        Argument.call(this, type, identifier);
         this.annotation = annotation;
     };
 

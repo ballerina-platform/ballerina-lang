@@ -1,6 +1,6 @@
 .service-container {
     width: 100%;
-    min-height: 300px;
+    min-height: 500px;
     background: none;
 }
 
@@ -51,14 +51,25 @@
     border-width:1px;
 }
 
-.tab-pane > .panel{
+.tab-pane .panel{
     background: none;
     width: 96%
 }
+
+
 .btn-icon{
     opacity: 0.5;
 }
 .btn-icon:hover{
     opacity: 1;
     cursor: pointer;
+}
+
+.source-container{
+    display: none;
+    height: 500px;
+}
+
+.text-editor{
+    height: 500px;
 }
