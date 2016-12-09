@@ -29,6 +29,7 @@ import org.wso2.siddhi.query.compiler.SiddhiCompiler;
 import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -121,6 +122,14 @@ public class SiddhiManager {
      */
     public void setExtension(String name, Class clazz) {
         siddhiContext.getSiddhiExtensions().put(name, clazz);
+    }
+
+    /**
+     * Method used to get the extensions registered in the siddhi manager.
+     * @return Extension name to class map
+     */
+    public Map<String, Class> getExtensions() {
+        return siddhiContext.getSiddhiExtensions();
     }
 
     /**
