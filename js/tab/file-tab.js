@@ -94,7 +94,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace']
             ifElseStatement2.addChild(ifStatement2);
             ifElseStatement2.addChild(elseStatement2);
 
-            resourceDefinition1.addChild(tryCatchStatement1);
+            //resourceDefinition1.addChild(tryCatchStatement1);
             resourceDefinition1.addChild(ifElseStatement2);
 
             ballerinaAstRoot.addChild(serviceDefinition1);
