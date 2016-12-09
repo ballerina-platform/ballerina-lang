@@ -48,7 +48,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', 'app/diagram-core/models/poi
 
                 this._viewOptions.contentCollapsed = _.get(args, "viewOptions.contentCollapsed", false);
                 this._viewOptions.contentWidth = _.get(args, "viewOptions.contentWidth", 1000);
-                this._viewOptions.contentHeight = _.get(args, "viewOptions.contentHeight", 200);
+                this._viewOptions.contentHeight = _.get(args, "viewOptions.contentHeight", 360);
                 this._viewOptions.collapseIconWidth = _.get(args, "viewOptions.collaspeIconWidth", 1025);
 
 
@@ -155,8 +155,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', 'app/diagram-core/models/poi
             var contentRect = D3utils.rect(contentStart.x(), contentStart.y(), this._viewOptions.contentWidth, this._viewOptions.contentHeight, 0, 0, contentGroup).classed("resource-content", true);
 
             //TODO: add dynamic properties for arrow
-            var arrowLine = D3utils.line(90,250, 120,250, contentGroup);
-            var arrowHead = D3utils.inputTriangle(115,250,contentGroup);
+          //  var arrowLine = D3utils.line(90,250, 120,250, contentGroup);
+           // var arrowHead = D3utils.inputTriangle(115,250,contentGroup);
 
              // On click of collapse icon hide/show resource body
             headingCollapseIcon.on("click", function () {
@@ -197,7 +197,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', 'app/diagram-core/models/poi
                     "class": "lifeline-droppableRect"
                 },
                 "line": {
-                    "height": 100,
+                    "height": 280,
                     "class": "lifeline-line"
                 },
                 "text": {
