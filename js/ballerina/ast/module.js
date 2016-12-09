@@ -16,11 +16,11 @@
  * under the License.
  */
 define(['./ballerina-ast-factory', './ballerina-ast-root', './conditional-statement', './connection-declaration', './connector-definition',
-    './constant-definition', './expression', './function-definition', './if-statement', './trycatch-statement', './try-statement', './catch-statement', './node', './reply-statement', './resource-definition',
+    './constant-definition', './expression', './function-definition', './if-else-statement', './if-statement', './else-statement', './trycatch-statement', './try-statement', './catch-statement', './node', './reply-statement', './resource-definition',
     './return-statement', './service-definition', './statement', './throw-statement', './type-definition', './type-converter-definition', './type-element',
     './variable-declaration', './while-statement', './worker-declaration'],
     function (BallerinaASTFactory, BallerinaASTRoot, ConditionalStatement, ConnectionDeclaration, ConnectorDefinition, ConstantDefinition,
-                Expression, FunctionDefinition, IfStatement, TryCatchStatement, TryStatement, CatchStatement, ASTNode, ReplyStatement, ResourceDefinition, ReturnStatement, ServiceDefinition,
+                Expression, FunctionDefinition, IfElseStatement, IfStatement, ElseStatement, TryCatchStatement, TryStatement, CatchStatement, ASTNode, ReplyStatement, ResourceDefinition, ReturnStatement, ServiceDefinition,
                 Statement, ThrowStatement, TypeConverterDefinition, TypeDefinition, TypeElement, VariableDeclaration, WhileStatement, WorkerDeclaration) {
         return  {
             BallerinaASTFactory: BallerinaASTFactory,
@@ -31,7 +31,9 @@ define(['./ballerina-ast-factory', './ballerina-ast-root', './conditional-statem
             ConstantDefinition: ConstantDefinition,
             Expression: Expression,
             FunctionDefinition: FunctionDefinition,
+            IfElseStatement: IfElseStatement,
             IfStatement: IfStatement,
+            ElseStatement: ElseStatement,
             TryCatchStatement: TryCatchStatement,
             TryStatement: TryStatement,
             CatchStatement: CatchStatement,

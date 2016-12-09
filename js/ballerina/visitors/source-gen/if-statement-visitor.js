@@ -15,10 +15,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor'], function(_, log, EventChannel, AbstractStatementSourceGenVisitor) {
+define(['require','lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor'],
+function(require, _, log, EventChannel, AbstractStatementSourceGenVisitor) {
 
-    var IfStatementVisitor = function(){
-        AbstractStatementSourceGenVisitor.call(this);
+    var IfStatementVisitor = function(parent){
+        AbstractStatementSourceGenVisitor.call(this,parent);
     };
 
     IfStatementVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
@@ -29,6 +30,7 @@ define(['lodash', 'log', 'event_channel', './abstract-statement-source-gen-visit
     };
 
     IfStatementVisitor.prototype.beginVisitIfStatement = function(ifStatement){
+        this.appendSource('If {');
         log.info('Begin Visit If Else Statement Definition');
     };
 
@@ -37,7 +39,16 @@ define(['lodash', 'log', 'event_channel', './abstract-statement-source-gen-visit
     };
 
     IfStatementVisitor.prototype.endVisitIfStatement = function(ifStatement){
+        this.appendSource('}\n');
+        this.getParent().appendSource(this.getGeneratedSource());
         log.info('End Visit If Else Statement Definition');
+    };
+
+    IfStatementVisitor.prototype.visitStatement = function (statement) {
+        var StatementVisitorFactory = require('./statement-visitor-factory');
+        var statementVisitorFactory = new StatementVisitorFactory();
+        var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
+        statement.accept(statementVisitor);
     };
 
     return IfStatementVisitor;

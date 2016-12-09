@@ -15,30 +15,27 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log','./node', './if-statement', './else-statement'], function (_, log, ASTNode, IfStatement, ElseStatement) {
+define(['lodash', 'log','./statement'], function (_, log, Statement) {
 
     /**
      * Class for if conditions in ballerina.
-     * @param elseStatements The 'else' statements of an IF condition.
-     * @param elseIfStatements The 'else if' statements of an IF condition.
      * @constructor
      */
-    var IfElseStatement = function (condition, ifStatements, elseStatements) {
-        if(!_.isNil(condition) && !_.Nil){
-            //this._ifNode = new IfStatement(condition,ifStatements);
-            this.addChild(new IfStatement(condition,ifStatements))
-        }
-        else {
-            log.error("Condition expression cannot be undefined");
-        }
-        if(!_.isNil(elseStatements)){
-           // this._elseNode = new ElseStatement(elseStatements);
-            this.addChild(new ElseStatement(elseStatements))
+
+var IfElseStatement = function () {
+      Statement.call(this);
+    };
+
+    IfElseStatement.prototype = Object.create(Statement.prototype);
+    IfElseStatement.prototype.constructor = IfElseStatement;
+
+    IfElseStatement.prototype.setCondition = function(condition){
+        if (!_.isNil(condition)) {
+            this._condition = condition;
+        } else {
+            log.error("Cannot set undefined to the condition.");
         }
     };
 
-    IfElseStatement.prototype = Object.create(ASTNode.prototype);
-    IfElseStatement.prototype.constructor = IfElseStatement;
-
-    return IfStatement;
+    return IfElseStatement;
 });

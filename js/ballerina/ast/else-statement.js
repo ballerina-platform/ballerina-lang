@@ -22,36 +22,12 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
      * @param elseStatements The 'else' statements of an IF condition.
      * @constructor
      */
-    var ElseStatement = function (statements) {
-        this._elseStatements = statements || [];
+    var ElseStatement = function () {
+        Statement.call(this);
     };
 
     ElseStatement.prototype = Object.create(Statement.prototype);
     ElseStatement.prototype.constructor = ElseStatement;
-
-//    ConditionalStatement.prototype.setElseStatements = function (elseStatements) {
-//        if (!_.isNil(elseStatements)) {
-//            this._elseStatements = elseStatements;
-//        } else {
-//            log.error("Cannot set undefined array of else statements.");
-//        }
-//    };
-//
-//    ConditionalStatement.prototype.getElseStatements = function () {
-//        return this._elseStatements;
-//    };
-//
-//    ConditionalStatement.prototype.setElseIfStatements = function (elseIfStatements) {
-//        if (!_.isNil(elseIfStatements)) {
-//            this._elseIfStatements = elseIfStatements;
-//        } else {
-//            log.error("Cannot set undefined array of else if statements.");
-//        }
-//    };
-//
-//    ConditionalStatement.prototype.getElseIfStatements = function () {
-//        return this._elseIfStatements;
-//    };
 
     return ElseStatement;
 });

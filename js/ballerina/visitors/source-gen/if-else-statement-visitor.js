@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor'],
-function(_, log, EventChannel, AbstractStatementSourceGenVisitor) {
+define(['require', 'lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor'],
+function(require, _, log, EventChannel, AbstractStatementSourceGenVisitor) {
 
     var IfElseStatementVisitor = function(parent){
         AbstractStatementSourceGenVisitor.call(this,parent);
@@ -25,29 +25,23 @@ function(_, log, EventChannel, AbstractStatementSourceGenVisitor) {
     IfElseStatementVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
     IfElseStatementVisitor.prototype.constructor = IfElseStatementVisitor;
 
-    IfElseStatementVisitor.prototype.canVisitIfStatement = function(ifStatement){
+    IfElseStatementVisitor.prototype.canVisitStatement = function(statement){
         return true;
     };
 
-    IfElseStatementVisitor.prototype.beginVisitIfStatement = function(ifStatement){
-        /**
-        * set the configuration start for the if statement definition language construct
-        * If we need to add additional parameters which are dynamically added to the configuration start
-        * that particular source generation has to be constructed here
-        */
-        this.appendSource('if(cbhbbhbh');
-        log.info('Begin visit If Else Statement Definition');
+    IfElseStatementVisitor.prototype.visitIfStatement = function(statement){
+        var StatementVisitorFactory = require('./statement-visitor-factory');
+        var statementVisitorFactory = new StatementVisitorFactory();
+        var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
+        statement.accept(statementVisitor);
     };
 
-    IfStatementVisitor.prototype.visitIfStatement = function(ifStatement){
-        log.info('Visit If Else Statement Definition');
+    IfElseStatementVisitor.prototype.visitElseStatement = function(statement){
+        var StatementVisitorFactory = require('./statement-visitor-factory');
+        var statementVisitorFactory = new StatementVisitorFactory();
+        var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
+        statement.accept(statementVisitor);
     };
 
-    IfStatementVisitor.prototype.endVisitIfStatement = function(ifStatement){
-        this.appendSource('fhbhbhbbhbhi}');
-        this.getParent().appendSource(this.getGeneratedSource());
-        log.info('End Visit If Else Statement Definition');
-    };
-
-    return IfStatementVisitor;
+    return IfElseStatementVisitor;
 });

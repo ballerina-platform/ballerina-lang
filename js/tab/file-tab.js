@@ -69,8 +69,6 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace']
             var resourceDefinition2 = ballerinaASTFactory.createResourceDefinition();
 
             // Create If statement Definition
-           // var ifStatement1 = ballerinaASTFactory.createIfStatement();
-           // resourceDefinition1.addChild(ifStatement1);
             var ifElseStatement = ballerinaASTFactory.createIfElseStatement(ifCondition,ifStatements1,elseStatements1);
 
             resourceDefinition1.resourceParent(serviceDefinition1);
@@ -89,7 +87,16 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace']
             tryCatchStatement1.addChild(tryStatement);
             tryCatchStatement1.addChild(catchStatement);
 
+            //Create Smaple If-else
+
+            var ifElseStatement2 = ballerinaASTFactory.createIfElseStatement();
+            var ifStatement2 = ballerinaASTFactory.createIfStatement();
+            var elseStatement2 = ballerinaASTFactory.createElseStatement();
+            ifElseStatement2.addChild(ifStatement2);
+            ifElseStatement2.addChild(elseStatement2);
+
             resourceDefinition1.addChild(tryCatchStatement1);
+            resourceDefinition1.addChild(ifElseStatement2);
 
             ballerinaAstRoot.addChild(serviceDefinition1);
             ballerinaAstRoot.addChild(serviceDefinition2);
