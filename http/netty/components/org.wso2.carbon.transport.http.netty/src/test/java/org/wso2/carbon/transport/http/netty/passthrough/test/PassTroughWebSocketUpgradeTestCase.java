@@ -20,13 +20,17 @@ package org.wso2.carbon.transport.http.netty.passthrough.test;
 
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
-import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
 import org.wso2.carbon.transport.http.netty.listener.HTTPTransportListener;
 import org.wso2.carbon.transport.http.netty.util.TestUtil;
-import org.wso2.carbon.transport.http.netty.util.server.HTTPServer;
+import org.wso2.carbon.transport.http.netty.util.websocket.client.WebSocketClient;
+
+import java.net.URISyntaxException;
+
+import static org.testng.Assert.assertTrue;
 
 /**
  * Test class for WebSocket Upgrade
@@ -36,8 +40,7 @@ public class PassTroughWebSocketUpgradeTestCase {
     private ListenerConfiguration listenerConfiguration;
     private SenderConfiguration senderConfiguration;
     private HTTPTransportListener httpTransportListener;
-    private HTTPServer httpServer;
-    private static final String testValue = "Test Message";
+    private WebSocketClient client = new WebSocketClient();
 
     @BeforeClass(groups = "passthroughUPGRADE")
     public void setup() {
@@ -48,17 +51,21 @@ public class PassTroughWebSocketUpgradeTestCase {
         senderConfiguration = new SenderConfiguration("passthrough-sender");
         httpTransportListener = TestUtil
                 .startCarbonTransport(listenerConfiguration, senderConfiguration, new PassthroughMessageProcessor());
-        httpServer = TestUtil.startHTTPServer(TestUtil.TEST_SERVER_PORT, testValue, Constants.TEXT_PLAIN);
-
     }
 
     @Test(groups = "passthroughUPGRADE")
-    public void test() {
-
+    public void testHandshake() throws URISyntaxException {
+        try {
+            assertTrue(client.handhshake(TestUtil.TEST_HOST, TestUtil.TEST_ESB_PORT));
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            assertTrue(false);
+        }
     }
+
 
     @AfterClass(groups = "passthroughUPGRADE")
     public void cleaUp() {
-        TestUtil.cleanUp(httpTransportListener, httpServer);
+        TestUtil.shutDownCarbonTransport(httpTransportListener);
     }
 }
