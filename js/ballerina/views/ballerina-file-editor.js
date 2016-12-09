@@ -66,6 +66,10 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             this._id = id;
         };
 
+        BallerinaFileEditor.prototype.setViewOptions = function (viewOptions) {
+            this._viewOptions = viewOptions;
+        };
+
         BallerinaFileEditor.prototype.getModel = function () {
             return this._model;
         };
@@ -76,6 +80,10 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
 
         BallerinaFileEditor.prototype.getId = function () {
             return this._id;
+        };
+
+        BallerinaFileEditor.prototype.getViewOptions = function () {
+            return this._viewOptions;
         };
 
         BallerinaFileEditor.prototype.canVisitBallerinaASTRoot = function (ballerinaASTRoot) {
@@ -161,11 +169,11 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
 
             var sourceViewBtn = $(this._viewOptions.container).find(_.get(this._viewOptions, 'controls.view_source_btn'));
             sourceViewBtn.click(function () {
-                self._options.toolPalette.hide();
+                self.getViewOptions().toolPalette.hide();
                 // Visit the ast model and generate the source
                 var sourceGenVisitor = new SourceGenVisitor();
                 self._model.accept(sourceGenVisitor);
-                self._options.toolPalette.hide();
+                self.getViewOptions().toolPalette.hide();
                 // Get the generated source and append it to the source view container's content
                 self._sourceView.setContent(sourceGenVisitor.getGeneratedSource());
                 sourceViewContainer.show();
@@ -174,7 +182,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
 
             var designViewBtn = $(this._viewOptions.container).find(_.get(this._viewOptions, 'controls.view_design_btn'));
             designViewBtn.click(function () {
-                self._options.toolPalette.show();
+                self.getViewOptions().toolPalette.show();
                 sourceViewContainer.hide();
                 self._$designViewContainer.show();
             });
