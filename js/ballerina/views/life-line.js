@@ -156,7 +156,6 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', 'app/diagram-core/models/poi
             this._lifelineGroup = D3Utils.group(d3.select(this._canvas)).classed("client", true);
         }
 
-
         if (this._viewOptions.polygon.shape == "diamond") { // Drawing top polygon.
             var polygonYOffset = this._viewOptions.polygon.height / 2;
             var polygonXOffset = this._viewOptions.polygon.width / 2;
@@ -521,6 +520,10 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', 'app/diagram-core/models/poi
             //     }
             // }
         });
+    };
+
+    LifeLine.prototype.getViewOptions = function () {
+        return this._viewOptions;
     };
 
     return LifeLine;

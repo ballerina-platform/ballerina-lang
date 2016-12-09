@@ -110,11 +110,17 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace']
             serviceDefinitions1.push(serviceDefinition3);
             serviceDefinitions1.push(serviceDefinition4);
 
+            // Create sample Worker Declaration
+            var workerDeclaration1 = ballerinaASTFactory.createWorkerDeclaration();
+            var workerDeclaration2 = ballerinaASTFactory.createWorkerDeclaration();
+
             // Create Sample Function Definitions
             var functionDefinitions = [];
             var functionDefinitions1 = [];
 
             var functionDefinition1 = ballerinaASTFactory.createFunctionDefinition();
+            functionDefinition1.addChild(workerDeclaration1);
+            functionDefinition1.addChild(workerDeclaration2);
             functionDefinitions.push(functionDefinition1);
             ballerinaAstRoot.addChild(functionDefinition1);
             ballerinaAstRoot.setFunctionDefinitions(functionDefinitions);

@@ -147,7 +147,6 @@ define(['lodash', 'log', './canvas', './../ast/service-definition', './life-line
                 var newCenterPointY = prevResourceHeight + prevResourceY + 10;
                 var viewOpts = { centerPoint: {y:newCenterPointY}};
                 var resourceDefinitionView = new ResourceDefinitionView({model: resourceDefinition,container: resourceContainer,viewOptions: viewOpts});
-
             }
             else{
                 var resourceDefinitionView = new ResourceDefinitionView({model: resourceDefinition,container: resourceContainer});

@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-definition'],
-    function (_, log, EventChannel, Canvas, FunctionDefinition) {
+define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-definition', './life-line', 'd3utils', 'd3', './worker-declaration-view'],
+    function (_, log, EventChannel, Canvas, FunctionDefinition, LifeLine, D3Utils, d3, WorkerDeclarationView) {
 
         /**
          * The view to represent a function definition which is an AST visitor.
@@ -30,6 +30,9 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
             this._model = _.get(args, "model");
             this._container = _.get(args, "container");
             this._viewOptions = _.get(args, "viewOptions", {});
+            this._defaultWorkerLifeLine = undefined;
+            // TODO: Check whether the possibility of adding this to the generic level
+            this._workerAndConnectorViews = [];
 
             if (_.isNil(this._model) || !(this._model instanceof FunctionDefinition)) {
                 log.error("Function definition is undefined or is of different type." + this._model);
@@ -92,6 +95,29 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
             return this._childContainer ;
         };
 
+        FunctionDefinitionView.prototype.canVisitWorkerDeclaration = function () {
+            return true;
+        };
+
+        FunctionDefinitionView.prototype.canVisitFunctionDefinition = function () {
+            return true;
+        };
+
+        /**
+         * Calls the render method for a worker declaration.
+         * @param {WorkerDeclaration} workerDeclaration - The resource definition model.
+         */
+        FunctionDefinitionView.prototype.visitWorkerDeclaration = function (workerDeclaration) {
+            var workerDeclarationOptions = {
+                model: workerDeclaration,
+                container: this._container
+            };
+            var workerDeclarationView = new WorkerDeclarationView(workerDeclarationOptions);
+            workerDeclarationView.setParent(this);
+            workerDeclarationView.render();
+            this._workerAndConnectorViews.push(workerDeclarationView);
+        };
+
         /**
          * Rendering the view for function definition.
          * @returns {group} The svg group which contains the elements of the function definition view.
@@ -102,8 +128,54 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
             var currentContainer = $('#'+ divId);
             this._container = currentContainer;
 
-            //Store parent container for child elements of this serviceDefView
-            this.setChildContainer(_.first($(this._container).children().children()));
+            // TODO: Default worker's center point coordinates has to get with respect to the outer container margins
+            // Drawing default worker
+            var defaultWorkerOptions = {
+                editable: true,
+                centerPoint: {
+                    x: 130,
+                    y: 25
+                },
+                class: "lifeline",
+                polygon: {
+                    shape: "rect",
+                    width: 120,
+                    height: 30,
+                    roundX: 0,
+                    roundY: 0,
+                    class: "lifeline-polygon"
+                },
+                droppableRect: {
+                    width: 100,
+                    height: 300,
+                    roundX: 0,
+                    roundY: 0,
+                    class: "lifeline-droppableRect"
+                },
+                line: {
+                    height: 280,
+                    class: "lifeline-line"
+                },
+                text: {
+                    value: "Default Worker",
+                    class: "lifeline-text"
+                },
+                action: {
+                    value: "Start"
+                },
+                worker: {
+                    value: true
+                }
+            };
+
+            // Add a group to the svg
+            var containerGroup = D3Utils.group(d3.select(_.first($(this._container).children().children())));
+
+            // Check whether there is already created default worker and otherwise we create a new one
+            if (_.isUndefined(this._defaultWorkerLifeLine)) {
+                this._defaultWorkerLifeLine = new LifeLine(containerGroup, defaultWorkerOptions);
+            }
+            this._defaultWorkerLifeLine.render();
             this.getModel().accept(this);
         };
 
@@ -161,6 +233,22 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
          */
         FunctionDefinitionView.prototype.getYPosition = function () {
             // TODO : Implement
+        };
+
+        /**
+         * @inheritDoc
+         * @returns {_defaultWorker}
+         */
+        FunctionDefinitionView.prototype.getDefaultWorkerLifeLine = function () {
+            return this._defaultWorkerLifeLine;
+        };
+
+        /**
+         * @inheritDoc
+         * @returns [_workerAndConnectorViews]
+         */
+        FunctionDefinitionView.prototype.getWorkerAndConnectorViews = function () {
+            return this._workerAndConnectorViews;
         };
 
         return FunctionDefinitionView;
