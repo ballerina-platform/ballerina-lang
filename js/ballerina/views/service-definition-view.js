@@ -29,6 +29,7 @@ define(['lodash', 'log', './canvas', './../ast/service-definition', './life-line
             this._model =  _.get(args, 'model', null);
             this._viewOptions =  _.get(args, 'viewOptions', {});
             this._container = _.get(args, 'container', null);
+            this._options =  _.get(args, 'options', null);
             this._resourceViewList = [];
             if (_.isNull(this._model) && _.isNil(this._container)){
                 log.error("Invalid args received for creating a service definition. Model: " + model + ". Container: " +
@@ -90,6 +91,11 @@ define(['lodash', 'log', './canvas', './../ast/service-definition', './life-line
         };
 
         ServiceDefinitionView.prototype.render = function () {
+            this.drawAccordionCanvas(this._container, this._options, this._model.id, 'service');
+            var divId = this._model.id;
+            var currentContainer = $('#' + divId);
+            this._container = currentContainer;
+
             // Creating client lifeline.
             var clientLifeLine = new LifeLine(_.first($(this._container).children().children()));
             //Store parent container for child elements of this serviceDefView
@@ -112,7 +118,7 @@ define(['lodash', 'log', './canvas', './../ast/service-definition', './life-line
             var resourceContainer  = this.getChildContainer();
             // If more than 1 resource
             if(this.getResourceViewList().length > 0 ){
-               var prevView = this.getResourceViewList().pop(this.getResourceViewList().length-1);
+                var prevView = this.getResourceViewList().pop(this.getResourceViewList().length-1);
                 var prevResourceHeight = prevView.getBoundingBox().height;
                 var prevResourceY = prevView.getBoundingBox().y;
                 var newCenterPointY = prevResourceHeight + prevResourceY + 10;
@@ -121,7 +127,7 @@ define(['lodash', 'log', './canvas', './../ast/service-definition', './life-line
 
             }
             else{
-            var resourceDefinitionView = new ResourceDefinitionView({model: resourceDefinition,container: resourceContainer});
+                var resourceDefinitionView = new ResourceDefinitionView({model: resourceDefinition,container: resourceContainer});
             }
             resourceDefinitionView.render();
             this.addResourceViewList(resourceDefinitionView);

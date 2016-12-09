@@ -53,6 +53,8 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
             return this.beginVisitServiceDefinition(node);
         } else if(node instanceof AST.ResourceDefinition){
             return this.beginVisitResourceDefinition(node);
+        } else if(node instanceof AST.Statement){
+            return this.visitStatementDefinition(node);
         } else if(node instanceof AST.FunctionDefinition){
             return this.beginVisitFunctionDefinition(node);
         } else if (node instanceof AST.Statement) {

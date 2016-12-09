@@ -15,41 +15,33 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require','lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor'],
+define(['require', 'lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor'],
 function(require, _, log, EventChannel, AbstractStatementSourceGenVisitor) {
 
-    var IfStatementVisitor = function(parent){
+    var IfElseStatementVisitor = function(parent){
         AbstractStatementSourceGenVisitor.call(this,parent);
     };
 
-    IfStatementVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
-    IfStatementVisitor.prototype.constructor = IfStatementVisitor;
+    IfElseStatementVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
+    IfElseStatementVisitor.prototype.constructor = IfElseStatementVisitor;
 
-    IfStatementVisitor.prototype.canVisitIfStatement = function(ifStatement){
+    IfElseStatementVisitor.prototype.canVisitStatement = function(statement){
         return true;
     };
 
-    IfStatementVisitor.prototype.beginVisitIfStatement = function(ifStatement){
-        this.appendSource('If {');
-        log.info('Begin Visit If Else Statement Definition');
-    };
-
-    IfStatementVisitor.prototype.visitIfStatement = function(ifStatement){
-        log.info('Visit If Else Statement Definition');
-    };
-
-    IfStatementVisitor.prototype.endVisitIfStatement = function(ifStatement){
-        this.appendSource('}\n');
-        this.getParent().appendSource(this.getGeneratedSource());
-        log.info('End Visit If Else Statement Definition');
-    };
-
-    IfStatementVisitor.prototype.visitStatement = function (statement) {
+    IfElseStatementVisitor.prototype.visitIfStatement = function(statement){
         var StatementVisitorFactory = require('./statement-visitor-factory');
         var statementVisitorFactory = new StatementVisitorFactory();
         var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
         statement.accept(statementVisitor);
     };
 
-    return IfStatementVisitor;
+    IfElseStatementVisitor.prototype.visitElseStatement = function(statement){
+        var StatementVisitorFactory = require('./statement-visitor-factory');
+        var statementVisitorFactory = new StatementVisitorFactory();
+        var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
+        statement.accept(statementVisitor);
+    };
+
+    return IfElseStatementVisitor;
 });

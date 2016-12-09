@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', '../../ast/module', './try-catch-statement-visitor', './try-statement-visitor', './catch-statement-visitor'], function (_, log, EventChannel, AST, TryCatchStatementVisitor, TryStatementVisitor, CatchStatementVisitor) {
+define(['lodash', 'log', 'event_channel', '../../ast/module', './try-catch-statement-visitor', './try-statement-visitor', './catch-statement-visitor', './if-else-statement-visitor', './if-statement-visitor', './else-statement-visitor'], function (_, log, EventChannel, AST, TryCatchStatementVisitor, TryStatementVisitor, CatchStatementVisitor, IfElseStatementVisitor, IfStatementVisitor, ElseStatementVisitor) {
 
     var StatementVisitorFactor = function () {
     };
@@ -27,6 +27,12 @@ define(['lodash', 'log', 'event_channel', '../../ast/module', './try-catch-state
             return new TryStatementVisitor(parent.getParent());
         } else if (statement instanceof AST.CatchStatement) {
             return new CatchStatementVisitor(parent.getParent());
+        } else if (statement instanceof AST.IfElseStatement) {
+            return new IfElseStatementVisitor(parent.getParent());
+        } else if (statement instanceof AST.IfStatement) {
+            return new IfStatementVisitor(parent.getParent());
+        } else if (statement instanceof AST.ElseStatement) {
+            return new ElseStatementVisitor(parent.getParent());
         }
     };
 

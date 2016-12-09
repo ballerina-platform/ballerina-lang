@@ -15,21 +15,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace'],
-    function (require, log, jquery, _, Tab, Ballerina, Workspace) {
-    var  FileTab;
+define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace'], function (require, log, jquery, _, Tab, Ballerina, Workspace) {
+    var FileTab;
 
     FileTab = Tab.extend({
         initialize: function (options) {
             Tab.prototype.initialize.call(this, options);
-            if(!_.has(options, 'file')){
+            if (!_.has(options, 'file')) {
                 this._file = new Workspace.File({isTemp: true}, {storage: this.getParent().getBrowserStorage()});
             } else {
                 this._file = _.get(options, 'file');
             }
         },
 
-        getFile: function(){
+        getFile: function () {
             return this._file;
         },
 
@@ -44,12 +43,15 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace']
             var ballerinaAstRoot = ballerinaASTFactory.createBallerinaAstRoot();
             var serviceDefinitions = [];
             var serviceDefinitions1 = [];
+            var ifStatements1 = [];
+            var elseStatements1 = [];
+            var ifCondition = ballerinaASTFactory.createExpression();
             // Create sample connector definition
             var connectorDefinitions = [];
             var connectorDefinition1 = ballerinaASTFactory.createConnectorDefinition();
             connectorDefinitions.push(connectorDefinition1);
-            ballerinaAstRoot.setConnectorDefinitions(connectorDefinitions);
-            ballerinaAstRoot.addChild(connectorDefinition1);
+            //ballerinaAstRoot.setConnectorDefinitions(connectorDefinitions);
+            //ballerinaAstRoot.addChild(connectorDefinition1);
 
             var serviceDefinition1 = ballerinaASTFactory.createServiceDefinition();
             serviceDefinition1.setBasePath("/basePath1");
@@ -64,6 +66,10 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace']
             // Create Sample Resource Definitions
             var resourceDefinition1 = ballerinaASTFactory.createResourceDefinition();
             var resourceDefinition2 = ballerinaASTFactory.createResourceDefinition();
+
+            // Create If statement Definition
+            var ifElseStatement = ballerinaASTFactory.createIfElseStatement(ifCondition,ifStatements1,elseStatements1);
+
             resourceDefinition1.resourceParent(serviceDefinition1);
             resourceDefinition2.resourceParent(serviceDefinition2);
 
@@ -80,7 +86,16 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace']
             tryCatchStatement1.addChild(tryStatement);
             tryCatchStatement1.addChild(catchStatement);
 
+            //Create Smaple If-else
+
+            var ifElseStatement2 = ballerinaASTFactory.createIfElseStatement();
+            var ifStatement2 = ballerinaASTFactory.createIfStatement();
+            var elseStatement2 = ballerinaASTFactory.createElseStatement();
+            ifElseStatement2.addChild(ifStatement2);
+            ifElseStatement2.addChild(elseStatement2);
+
             resourceDefinition1.addChild(tryCatchStatement1);
+            resourceDefinition1.addChild(ifElseStatement2);
 
             ballerinaAstRoot.addChild(serviceDefinition1);
             ballerinaAstRoot.addChild(serviceDefinition2);
@@ -124,9 +139,11 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace']
 
             this.generateToolPallet(ballerinaEnvironment, toolPallet);
 
-            var fileEditor = new  Ballerina.views.BallerinaFileEditor({model: ballerinaAstRoot, viewOptions: ballerinaEditorOptions});
-
-            ballerinaAstRoot.accept(fileEditor);
+            var fileEditor = new Ballerina.views.BallerinaFileEditor({
+                model: ballerinaAstRoot,
+                viewOptions: ballerinaEditorOptions
+            });
+            fileEditor.render();
         },
 
         generateToolPallet: function (environment, toolPallet) {

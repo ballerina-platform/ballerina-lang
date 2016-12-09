@@ -49,7 +49,7 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
             var resourceDefinition = ballerinaASTFactory.createResourceDefinition();
             var functionDefinition = ballerinaASTFactory.createFunctionDefinition();
             var serviceDefinition = ballerinaASTFactory.createServiceDefinition();
-            var ifStatement = ballerinaASTFactory.createIfStatement();
+            var ifStatement = ballerinaASTFactory.createIfElseStatement();
 
             var mainToolDefArray = [{
                 id: "resource",

@@ -15,21 +15,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './conditional-statement'], function (_, log, ConditionalStatement) {
+define(['lodash', 'log', './statement'], function (_, log, Statement) {
 
     /**
-     * Class for if conditions in ballerina. Extended from Conditional-Statement
+     * Class for else node in ballerina.
      * @param elseStatements The 'else' statements of an IF condition.
-     * @param elseIfStatements The 'else if' statements of an IF condition.
      * @constructor
      */
-
-    var IfStatement = function () {
-        ConditionalStatement.call(this);
+    var ElseStatement = function () {
+        Statement.call(this);
     };
 
-    IfStatement.prototype = Object.create(ConditionalStatement.prototype);
-    IfStatement.prototype.constructor = IfStatement;
+    ElseStatement.prototype = Object.create(Statement.prototype);
+    ElseStatement.prototype.constructor = ElseStatement;
 
-    return IfStatement;
+    return ElseStatement;
 });

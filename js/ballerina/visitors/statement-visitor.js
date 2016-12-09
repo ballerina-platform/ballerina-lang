@@ -28,8 +28,12 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
      * @param node {ASTNode}
      */
     StatementVisitor.prototype.canVisit = function (node) {
-        if (node instanceof AST.IfStatement) {
+        if (node instanceof AST.IfElseStatement) {
+            return this.canVisitStatement(node);
+        } else if (node instanceof AST.IfStatement) {
             return this.canVisitIfStatement(node);
+        } else if (node instanceof AST.ElseStatement) {
+            return this.canVisitElseStatement(node);
         } else if (node instanceof AST.TryCatchStatement) {
             return this.canVisitStatement(node);
         } else if (node instanceof AST.TryStatement) {
@@ -58,8 +62,12 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
      * @param node {ASTNode}
      */
     StatementVisitor.prototype.visit = function (node) {
-        if (node instanceof AST.IfStatement) {
+        if (node instanceof AST.IfElseStatement) {
+            return this.visitStatement(node);
+        } else if (node instanceof AST.IfStatement) {
             return this.visitIfStatement(node);
+        } else if (node instanceof AST.ElseStatement) {
+            return this.visitElseStatement(node);
         } else if (node instanceof AST.TryCatchStatement) {
             return this.visitStatement(node);
         } else if (node instanceof AST.TryStatement) {
@@ -85,6 +93,9 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
     };
 
     StatementVisitor.prototype.canVisitIfStatement = function (statement) {
+        return false;
+    };
+    StatementVisitor.prototype.canVisitElseStatement = function (statement) {
         return false;
     };
     StatementVisitor.prototype.beginVisitIfStatement = function (statement) {
