@@ -48,6 +48,12 @@ public class Worker implements Executable {
     private List<VariableDcl> variables;
     private List<Statement> statements;
 
+    public Worker(List<VariableDcl> variables, List<Statement> statements) {
+        this.variables = variables;
+        this.statements = statements;
+    }
+
+    public Worker(){}
 
     /**
      * Get all Connections declared within the Worker
