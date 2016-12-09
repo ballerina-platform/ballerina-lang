@@ -118,7 +118,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
          */
         ResourceDefinitionView.prototype.render = function () {
             // Render resource view
-            var svgContainer = $(this._container).children()[0];
+            var svgContainer = $(this._container)[0];
             var headingStart = new Point(this._viewOptions.centerPoint.x, this._viewOptions.centerPoint.y);
             var contentStart = new Point(this._viewOptions.centerPoint.x, this._viewOptions.centerPoint.y + this._viewOptions.heading.height);
             //Main container for a resource
