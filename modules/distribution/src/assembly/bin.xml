@@ -57,6 +57,14 @@
             <fileMode>644</fileMode>
         </fileSet>
         <fileSet>
+            <directory>carbon-home/bin</directory>
+            <outputDirectory>bin</outputDirectory>
+            <includes>
+                <include>**/*.sh</include>
+            </includes>
+            <fileMode>755</fileMode>
+        </fileSet>
+        <fileSet>
             <directory>../../samples</directory>
             <outputDirectory>samples</outputDirectory>
             <excludes>
