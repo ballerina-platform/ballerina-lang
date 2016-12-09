@@ -30,7 +30,7 @@ function(require, _, log, EventChannel, AbstractStatementSourceGenVisitor) {
     };
 
     IfStatementVisitor.prototype.beginVisitIfStatement = function(ifStatement){
-        this.appendSource('If {');
+        this.appendSource('If(' + ifStatement.getCondition() + '){');
         log.info('Begin Visit If Statement Definition');
     };
 

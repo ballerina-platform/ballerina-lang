@@ -30,5 +30,15 @@ define(['lodash', 'log', './conditional-statement'], function (_, log, Condition
     WhileStatement.prototype = Object.create(ConditionalStatement.prototype);
     WhileStatement.prototype.constructor = WhileStatement;
 
+    WhileStatement.prototype.setCondition = function(condition){
+        if(!_.isNil(condition)){
+            this._condition = condition;
+        }
+    };
+
+    WhileStatement.prototype,getCondition = function(){
+        return this._condition;
+    };
+
     return WhileStatement;
 });

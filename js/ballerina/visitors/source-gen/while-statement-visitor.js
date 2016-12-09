@@ -30,7 +30,7 @@ function(require, _, log, EventChannel, AbstractStatementSourceGenVisitor) {
     };
 
     WhileStatementVisitor.prototype.beginVisitWhileStatement = function(whileStatement){
-        this.appendSource('While {');
+        this.appendSource('While(' + whileStatement.getCondition() + '){');
         log.info('Begin Visit If Statement Definition');
     };
 
