@@ -251,6 +251,18 @@ public interface BallerinaVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitIfElseStatement(BallerinaParser.IfElseStatementContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link BallerinaParser#elseIfClause}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitElseIfClause(BallerinaParser.ElseIfClauseContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link BallerinaParser#elseClause}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitElseClause(BallerinaParser.ElseClauseContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link BallerinaParser#iterateStatement}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

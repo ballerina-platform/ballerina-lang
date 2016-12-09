@@ -129,8 +129,7 @@ qualifiedReference
     ;
 
 parameterList
-    :   parameter ',' parameterList
-    |   parameter
+    :   parameter (',' parameter)*
     ;
 
 parameter
@@ -200,7 +199,15 @@ assignmentStatement
     ;
 
 ifElseStatement
-    :   'if' '(' expression ')' '{' statement* '}' ('else' 'if' '(' expression ')' '{' statement* '}')* ('else' '{' statement*'}' )?
+    :   'if' '(' expression ')' '{' statement* '}' elseIfClause* elseClause?
+    ;
+
+elseIfClause
+    :   'else' 'if' '(' expression ')' '{' statement* '}'
+    ;
+
+elseClause
+    :   'else' '{' statement*'}'
     ;
 
 iterateStatement
@@ -705,13 +712,6 @@ LetterOrDigit
     |   // covers UTF-16 surrogate pairs encodings for U+10000 to U+10FFFF
         [\uD800-\uDBFF] [\uDC00-\uDFFF]
     ;
-
-//
-// Additional symbols not defined in the lexical specification
-//
-
-AT : '@';
-ELLIPSIS : '...';
 
 //
 // Whitespace and comments
