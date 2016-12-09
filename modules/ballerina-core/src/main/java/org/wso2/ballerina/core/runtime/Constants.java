@@ -25,4 +25,15 @@ public class Constants {
 
     public static final String PROTOCOL = "PROTOCOL";
 
+    /* Name of the System property which contains the ballerina file path to be executed */
+    public static final String SYSTEM_PROP_BAL_FILE = "bal-file";
+
+    /**
+     * Runtime modes of Ballerina engine
+     */
+    public enum RuntimeMode {
+        RUN_FILE, SERVER
+
+    };
+
 }
