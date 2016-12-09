@@ -48,7 +48,6 @@ public class BalDeployer implements Deployer {
 
     private static final String BAL_FILES_DIRECTORY = "ballerina-files";
     private static final String FILE_EXTENSION = ".bal";
-    private static final Logger logger = LoggerFactory.getLogger(BalDeployer.class);
     private ArtifactType artifactType = new ArtifactType<>("bal");
     ;
     private URL directoryLocation;
@@ -62,7 +61,7 @@ public class BalDeployer implements Deployer {
         try {
             directoryLocation = new URL("file:" + BAL_FILES_DIRECTORY);
         } catch (MalformedURLException e) {
-            logger.error("Error while initializing directoryLocation" + directoryLocation.getPath(), e);
+            log.error("Error while initializing directoryLocation" + directoryLocation.getPath(), e);
         }
     }
 
@@ -101,7 +100,7 @@ public class BalDeployer implements Deployer {
                 log.info("Deploying ballerina file : " + file.getName());
             }
         } catch (IOException e) {
-            logger.error("Error while creating Ballerina object model from file : " + file.getName(), e);
+            log.error("Error while creating Ballerina object model from file : " + file.getName(), e);
         } finally {
             if (inputStream != null) {
                 try {
