@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @see org.wso2.siddhi.core.stream.StreamJunction#sendData(long, Object[])
  */
-public class EventBasedTimeMillisTimestampGenerator implements TimestampGenerator {
+public class EventTimeBasedMillisTimestampGenerator implements TimestampGenerator {
 
     /**
      * Timestamp as defined by the last event.
@@ -81,7 +81,7 @@ public class EventBasedTimeMillisTimestampGenerator implements TimestampGenerato
      *
      * @param scheduledExecutorService
      */
-    public EventBasedTimeMillisTimestampGenerator(ScheduledExecutorService scheduledExecutorService) {
+    public EventTimeBasedMillisTimestampGenerator(ScheduledExecutorService scheduledExecutorService) {
         this.scheduledExecutorService = scheduledExecutorService;
     }
 
@@ -97,7 +97,7 @@ public class EventBasedTimeMillisTimestampGenerator implements TimestampGenerato
     }
 
     /**
-     * Set the timestamp to the {@link EventBasedTimeMillisTimestampGenerator} and notify the interested listeners.
+     * Set the timestamp to the {@link EventTimeBasedMillisTimestampGenerator} and notify the interested listeners.
      *
      * @param timestamp
      */
@@ -178,7 +178,7 @@ public class EventBasedTimeMillisTimestampGenerator implements TimestampGenerato
         @Override
         public void run() {
             long currentTimestamp = System.currentTimeMillis();
-            synchronized (EventBasedTimeMillisTimestampGenerator.this) {
+            synchronized (EventTimeBasedMillisTimestampGenerator.this) {
                 heartbeatRunning = false;
                 long diff = currentTimestamp - lastSystemTimestamp;
                 if (diff >= idleTime) {

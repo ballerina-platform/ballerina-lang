@@ -595,10 +595,6 @@ public class PlaybackTestCase {
         executionPlanRuntime.shutdown();
     }
 
-    // TODO: 12/1/16 Check this test case with Suho
-    // Should the new event with smaller timestamp expire immediately or not
-    // However this behavior is mainly decided by the window. In this case,
-    // window set the scheduler to 2 sec from the first event
     @Test
     public void playbackTest13() throws InterruptedException {
         log.info("Playback Test 13: Testing playback with out of order event with smaller than system timestamp after window expires");

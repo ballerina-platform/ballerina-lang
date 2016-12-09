@@ -31,7 +31,7 @@ import org.wso2.siddhi.core.util.ThreadBarrier;
 import org.wso2.siddhi.core.util.persistence.PersistenceService;
 import org.wso2.siddhi.core.util.snapshot.SnapshotService;
 import org.wso2.siddhi.core.util.statistics.LatencyTracker;
-import org.wso2.siddhi.core.util.timestamp.EventBasedTimeMillisTimestampGenerator;
+import org.wso2.siddhi.core.util.timestamp.EventTimeBasedMillisTimestampGenerator;
 import org.wso2.siddhi.core.util.timestamp.SystemCurrentTimeMillisTimestampGenerator;
 import org.wso2.siddhi.core.window.EventWindow;
 import org.wso2.siddhi.query.api.ExecutionPlan;
@@ -130,7 +130,7 @@ public class ExecutionPlanParser {
             if (annotation != null) {
                 String idleTime = null;
                 String increment = null;
-                EventBasedTimeMillisTimestampGenerator timestampGenerator = new EventBasedTimeMillisTimestampGenerator(executionPlanContext.getScheduledExecutorService());
+                EventTimeBasedMillisTimestampGenerator timestampGenerator = new EventTimeBasedMillisTimestampGenerator(executionPlanContext.getScheduledExecutorService());
                 // Get the optional elements of playback annotation
                 for (Element e : annotation.getElements()) {
                     if (SiddhiConstants.ANNOTATION_IDLE_TIME.equalsIgnoreCase(e.getKey())) {
@@ -147,7 +147,7 @@ public class ExecutionPlanParser {
                     throw new ExecutionPlanValidationException("Playback annotation requires both idleTime and increment but increment not found");
                 } else if (idleTime == null && increment != null) {
                     throw new ExecutionPlanValidationException("Playback annotation requires both idleTime and increment but idleTime does not found");
-                } else if (idleTime != null && increment != null) {
+                } else if (idleTime != null) {
                     // The fourth case idleTime == null && increment == null are ignored because it means no heartbeat.
                     try {
                         timestampGenerator.setIdleTime(SiddhiCompiler.parseTimeConstantDefinition(idleTime).value());

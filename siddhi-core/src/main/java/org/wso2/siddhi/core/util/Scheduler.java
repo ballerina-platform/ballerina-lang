@@ -29,73 +29,42 @@ import org.wso2.siddhi.core.query.input.stream.single.EntryValveProcessor;
 import org.wso2.siddhi.core.util.lock.LockWrapper;
 import org.wso2.siddhi.core.util.snapshot.Snapshotable;
 import org.wso2.siddhi.core.util.statistics.LatencyTracker;
-import org.wso2.siddhi.core.util.timestamp.EventBasedTimeMillisTimestampGenerator;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
-public class Scheduler implements Snapshotable {
+public abstract class Scheduler implements Snapshotable {
 
     private static final Logger log = Logger.getLogger(Scheduler.class);
-    private final BlockingQueue<Long> toNotifyQueue = new LinkedBlockingQueue<Long>();
+    protected final BlockingQueue<Long> toNotifyQueue = new LinkedBlockingQueue<Long>();
     private final ThreadBarrier threadBarrier;
-    private ScheduledExecutorService scheduledExecutorService;
-    private EventCaller eventCaller;
-    private volatile boolean running = false;
+    private final Schedulable singleThreadEntryValve;
     private StreamEventPool streamEventPool;
     private ComplexEventChunk<StreamEvent> streamEventChunk;
-    private ExecutionPlanContext executionPlanContext;
-    private String elementId;
+    protected ExecutionPlanContext executionPlanContext;
+    protected String elementId;
     private LatencyTracker latencyTracker;
     private LockWrapper lockWrapper;
 
 
-    public Scheduler(ScheduledExecutorService scheduledExecutorService, Schedulable singleThreadEntryValve, ExecutionPlanContext executionPlanContext) {
+    public Scheduler(Schedulable singleThreadEntryValve, ExecutionPlanContext executionPlanContext) {
         this.threadBarrier = executionPlanContext.getThreadBarrier();
-        this.scheduledExecutorService = scheduledExecutorService;
-        this.eventCaller = new EventCaller(singleThreadEntryValve);
         this.executionPlanContext = executionPlanContext;
-
-        if (this.executionPlanContext.isPlayback()) {
-            ((EventBasedTimeMillisTimestampGenerator) this.executionPlanContext.getTimestampGenerator()).addTimeChangeListener(new EventBasedTimeMillisTimestampGenerator.TimeChangeListener() {
-                @Override
-                public void onTimeChange(long currentTimestamp) {
-                    Long lastTime = toNotifyQueue.peek();
-                    if (lastTime != null && lastTime <= currentTimestamp) {
-                        // If executed in a separate thread, while it is processing,
-                        // the new event will come into the window. As the result of it,
-                        // the window will emit the new event as an existing current event.
-                        eventCaller.run();
-                    }
-                }
-            });
-        }
+        this.singleThreadEntryValve = singleThreadEntryValve;
     }
+
+    public abstract void schedule(long time);
+
+    public abstract Scheduler clone(String key, EntryValveProcessor entryValveProcessor);
 
     public void notifyAt(long time) {
         try {
+            // Insert the time into the queue
             toNotifyQueue.put(time);
-            if (!running && toNotifyQueue.size() == 1 && !this.executionPlanContext.isPlayback()) {
-                synchronized (toNotifyQueue) {
-                    if (!running) {
-                        running = true;
-                        long timeDiff = time - executionPlanContext.getTimestampGenerator().currentTime();
-                        if (timeDiff > 0) {
-                            scheduledExecutorService.schedule(eventCaller, timeDiff, TimeUnit.MILLISECONDS);
-                        } else {
-                            scheduledExecutorService.schedule(eventCaller, 0, TimeUnit.MILLISECONDS);
-                        }
-                    }
-                }
-            }
-
+            schedule(time);     // Let the subclasses to schedule the scheduler
         } catch (InterruptedException e) {
             log.error("Error when adding time:" + time + " to toNotifyQueue at Scheduler", e);
         }
-
-
     }
 
     public void setStreamEventPool(StreamEventPool streamEventPool) {
@@ -129,91 +98,47 @@ public class Scheduler implements Snapshotable {
         return elementId;
     }
 
-    public Scheduler clone(String key, EntryValveProcessor entryValveProcessor) {
-        Scheduler scheduler = new Scheduler(scheduledExecutorService, entryValveProcessor, executionPlanContext);
-        scheduler.elementId = elementId + "-" + key;
-        return scheduler;
-    }
-
     public void setLatencyTracker(LatencyTracker latencyTracker) {
         this.latencyTracker = latencyTracker;
     }
 
-    private class EventCaller implements Runnable {
-        private Schedulable singleThreadEntryValve;
+    /**
+     * Go through the timestamps stored in the {@link #toNotifyQueue} and send the TIMER events for the expired events.
+     */
+    protected void sendTimerEvents() {
+        Long toNotifyTime = toNotifyQueue.peek();
+        long currentTime = executionPlanContext.getTimestampGenerator().currentTime();
+        while (toNotifyTime != null && toNotifyTime - currentTime <= 0) {
+            toNotifyQueue.poll();
 
-        public EventCaller(Schedulable singleThreadEntryValve) {
-
-            this.singleThreadEntryValve = singleThreadEntryValve;
-        }
-
-        /**
-         * When an object implementing interface <code>Runnable</code> is used
-         * to create a thread, starting the thread causes the object's
-         * <code>run</code> method to be called in that separately executing
-         * thread.
-         * <p>
-         * The general contract of the method <code>run</code> is that it may
-         * take any action whatsoever.
-         *
-         * @see Thread#run()
-         */
-        @Override
-        public void run() {
-            try {
-                Long toNotifyTime = toNotifyQueue.peek();
-                long currentTime = executionPlanContext.getTimestampGenerator().currentTime();
-                while (toNotifyTime != null && toNotifyTime - currentTime <= 0) {
-                    toNotifyQueue.poll();
-
-                    StreamEvent timerEvent = streamEventPool.borrowEvent();
-                    timerEvent.setType(StreamEvent.Type.TIMER);
-                    timerEvent.setTimestamp(toNotifyTime);
-                    streamEventChunk.add(timerEvent);
-                    if (lockWrapper != null) {
-                        lockWrapper.lock();
-                    }
-                    threadBarrier.pass();
-                    try {
-                        if (latencyTracker != null) {
-                            try {
-                                latencyTracker.markIn();
-                                singleThreadEntryValve.process(streamEventChunk);
-                            } finally {
-                                latencyTracker.markOut();
-                            }
-                        } else {
-                            singleThreadEntryValve.process(streamEventChunk);
-                        }
-                    } finally {
-                        if (lockWrapper != null) {
-                            lockWrapper.unlock();
-                        }
-                    }
-                    streamEventChunk.clear();
-
-                    toNotifyTime = toNotifyQueue.peek();
-                    currentTime = executionPlanContext.getTimestampGenerator().currentTime();
-
-                }
-                if (!executionPlanContext.isPlayback()) {
-                    if (toNotifyTime != null) {
-                        scheduledExecutorService.schedule(eventCaller, toNotifyTime - currentTime, TimeUnit.MILLISECONDS);
-                    } else {
-                        synchronized (toNotifyQueue) {
-                            running = false;
-                            if (toNotifyQueue.peek() != null) {
-                                running = true;
-                                scheduledExecutorService.schedule(eventCaller, 0, TimeUnit.MILLISECONDS);
-                            }
-                        }
-                    }
-                }
-
-            } catch (Throwable t) {
-                log.error(t);
+            StreamEvent timerEvent = streamEventPool.borrowEvent();
+            timerEvent.setType(StreamEvent.Type.TIMER);
+            timerEvent.setTimestamp(toNotifyTime);
+            streamEventChunk.add(timerEvent);
+            if (lockWrapper != null) {
+                lockWrapper.lock();
             }
-        }
+            threadBarrier.pass();
+            try {
+                if (latencyTracker != null) {
+                    try {
+                        latencyTracker.markIn();
+                        singleThreadEntryValve.process(streamEventChunk);
+                    } finally {
+                        latencyTracker.markOut();
+                    }
+                } else {
+                    singleThreadEntryValve.process(streamEventChunk);
+                }
+            } finally {
+                if (lockWrapper != null) {
+                    lockWrapper.unlock();
+                }
+            }
+            streamEventChunk.clear();
 
+            toNotifyTime = toNotifyQueue.peek();
+            currentTime = executionPlanContext.getTimestampGenerator().currentTime();
+        }
     }
 }

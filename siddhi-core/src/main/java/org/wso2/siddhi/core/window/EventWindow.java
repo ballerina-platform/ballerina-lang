@@ -38,6 +38,7 @@ import org.wso2.siddhi.core.util.Scheduler;
 import org.wso2.siddhi.core.util.collection.operator.Finder;
 import org.wso2.siddhi.core.util.collection.operator.MatchingMetaStateHolder;
 import org.wso2.siddhi.core.util.lock.LockWrapper;
+import org.wso2.siddhi.core.util.parser.SchedulerParser;
 import org.wso2.siddhi.core.util.parser.SingleInputStreamParser;
 import org.wso2.siddhi.core.util.snapshot.Snapshotable;
 import org.wso2.siddhi.core.util.statistics.LatencyTracker;
@@ -151,7 +152,7 @@ public class EventWindow implements FindableProcessor, Snapshotable {
         EntryValveProcessor entryValveProcessor = null;
         if (internalWindowProcessor instanceof SchedulingProcessor) {
             entryValveProcessor = new EntryValveProcessor(this.executionPlanContext);
-            Scheduler scheduler = new Scheduler(this.executionPlanContext.getScheduledExecutorService(), entryValveProcessor, this.executionPlanContext);
+            Scheduler scheduler = SchedulerParser.parse(this.executionPlanContext.getScheduledExecutorService(), entryValveProcessor, this.executionPlanContext);
             scheduler.init(this.lockWrapper);
             scheduler.setStreamEventPool(streamEventPool);
             ((SchedulingProcessor) internalWindowProcessor).setScheduler(scheduler);

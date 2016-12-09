@@ -24,6 +24,7 @@ import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.util.Scheduler;
+import org.wso2.siddhi.core.util.parser.SchedulerParser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -88,7 +89,7 @@ public class PerSnapshotOutputRateLimiter extends SnapshotOutputRateLimiter {
 
     @Override
     public void start() {
-        scheduler = new Scheduler(scheduledExecutorService, this, executionPlanContext);
+        scheduler = SchedulerParser.parse(scheduledExecutorService, this, executionPlanContext);
         scheduler.setStreamEventPool(new StreamEventPool(0, 0, 0, 5));
         scheduler.init(lockWrapper);
         long currentTime = System.currentTimeMillis();
