@@ -34,7 +34,7 @@ define(['require', 'lodash', 'log', 'event_channel', './abstract-statement-sourc
          * If we need to add additional parameters which are dynamically added to the configuration start
          * that particular source generation has to be constructed here
          */
-        this.appendSource('catch {');
+        this.appendSource('catch('+ catchStatement.getExceptionType() + '){');
         log.info('Begin Visit Catch Statement');
     };
 

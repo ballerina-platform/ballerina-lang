@@ -21,12 +21,25 @@ define(['lodash', 'log', './conditional-statement'], function (_, log, Condition
      * Class for catch statement in ballerina.
      * @constructor
      */
-    var CatchStatement = function () {
+    var CatchStatement = function (exceptionType) {
+        if(!_.isNil(exceptionType)){
+            this._exceptionType = exceptionType;
+        }
         ConditionalStatement.call(this);
     };
 
     CatchStatement.prototype = Object.create(ConditionalStatement.prototype);
     CatchStatement.prototype.constructor = CatchStatement;
+
+    CatchStatement.prototype.setExceptionType = function(exceptionType){
+        if(!_.isNil(exceptionType)){
+            this._exceptionType = exceptionType;
+        }
+    };
+
+    CatchStatement.prototype.getExceptionType = function(){
+        return this._exceptionType;
+    };
 
     return CatchStatement;
 });

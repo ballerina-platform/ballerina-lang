@@ -39,77 +39,119 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace']
             _.set(ballerinaEditorOptions, 'container', this.$el.get(0));
             var toolPallet = _.get(this.options.application, 'toolPalette');
 
+//            var ballerinaASTFactory = new Ballerina.ast.BallerinaASTFactory();
+//            var ballerinaAstRoot = ballerinaASTFactory.createBallerinaAstRoot();
+//            var serviceDefinitions = [];
+//            var serviceDefinitions1 = [];
+//
+//            // Create sample connector definition
+//            var connectorDefinitions = [];
+//            var connectorDefinition1 = ballerinaASTFactory.createConnectorDefinition();
+//            connectorDefinitions.push(connectorDefinition1);
+//
+//            var serviceDefinition1 = ballerinaASTFactory.createServiceDefinition();
+//            serviceDefinition1.setBasePath("/basePath1");
+//
+//            // Create Sample Resource Definitions
+//            var resourceDefinition1 = ballerinaASTFactory.createResourceDefinition();
+//
+//            ballerinaAstRoot.addChild(serviceDefinition1);
+//
+//            serviceDefinition1.setResourceDefinitions([resourceDefinition1]);
+//            serviceDefinition1.addChild(resourceDefinition1);
+//
+//            serviceDefinitions.push(serviceDefinition1);
+//
+//            ballerinaAstRoot.setServiceDefinitions(serviceDefinitions);
+//
+//            // Create Sample Function Definitions
+//            var functionDefinitions = [];
+//            var functionDefinitions1 = [];
+//
+//            var functionDefinition1 = ballerinaASTFactory.createFunctionDefinition();
+//            functionDefinitions.push(functionDefinition1);
+//            ballerinaAstRoot.addChild(functionDefinition1);
+//            ballerinaAstRoot.setFunctionDefinitions(functionDefinitions);
+
+            var sourceGenVisitor = new Ballerina.visitors.SourceGen.BallerinaASTRootVisitor();
             var ballerinaASTFactory = new Ballerina.ast.BallerinaASTFactory();
-            var ballerinaAstRoot = ballerinaASTFactory.createBallerinaAstRoot();
+            var ballerinaAstRoot1 = ballerinaASTFactory.createBallerinaAstRoot();
+
+            //package definition
+            var packageDefinition = ballerinaASTFactory.createPackageDefinition();
+            packageDefinition.setPackageName("samples.passthrough");
+            ballerinaAstRoot1.addChild(packageDefinition);
+            ballerinaAstRoot1.setPackageDefinition(packageDefinition);
+
+            //import declarations
+            var importDeclaration_langMessage = ballerinaASTFactory.createImportDeclaration();
+            importDeclaration_langMessage.setPackageName("ballerina.lang.message");
+            importDeclaration_langMessage.setParent(ballerinaAstRoot1);
+            var importDeclaration_netHttp = ballerinaASTFactory.createImportDeclaration();
+            importDeclaration_netHttp.setPackageName("ballerina.net.http");
+            importDeclaration_netHttp.setParent(ballerinaAstRoot1);
+            var importDeclarations = [];
+            importDeclarations.push(importDeclaration_langMessage);
+            importDeclarations.push(importDeclaration_netHttp);
+            ballerinaAstRoot1.setImportDeclarations(importDeclarations);
+            ballerinaAstRoot1.addChild(importDeclaration_langMessage);
+            ballerinaAstRoot1.addChild(importDeclaration_netHttp);
+
+            //service definition
             var serviceDefinitions = [];
-            var serviceDefinitions1 = [];
-            var ifStatements1 = [];
-            var elseStatements1 = [];
-            var ifCondition = ballerinaASTFactory.createExpression();
-            // Create sample connector definition
-            var connectorDefinitions = [];
-            var connectorDefinition1 = ballerinaASTFactory.createConnectorDefinition();
-            connectorDefinitions.push(connectorDefinition1);
-            //ballerinaAstRoot.setConnectorDefinitions(connectorDefinitions);
-            //ballerinaAstRoot.addChild(connectorDefinition1);
+            var serviceDefinition_passthroughService = ballerinaASTFactory.createServiceDefinition();
+            serviceDefinition_passthroughService.setServiceName("PassthroughService");
+            serviceDefinition_passthroughService.setBasePath("/account");
 
-            var serviceDefinition1 = ballerinaASTFactory.createServiceDefinition();
-            serviceDefinition1.setBasePath("/basePath1");
-            var serviceDefinition2 = ballerinaASTFactory.createServiceDefinition();
-            serviceDefinition2.setBasePath("/basePath2");
+            // Adding Resources
+            var resource_passthrough = ballerinaASTFactory.createResourceDefinition();
+            resource_passthrough.setResourceName('passthrough');
 
-            var serviceDefinition3 = ballerinaASTFactory.createServiceDefinition();
-            serviceDefinition3.setBasePath("/basePath3");
-            var serviceDefinition4 = ballerinaASTFactory.createServiceDefinition();
-            serviceDefinition4.setBasePath("/basePath4");
+            //Adding custom resource
+            var custom_resource = ballerinaASTFactory.createResourceDefinition();
+            custom_resource.setResourceName('customResource');
 
-            // Create Sample Resource Definitions
-            var resourceDefinition1 = ballerinaASTFactory.createResourceDefinition();
-            var resourceDefinition2 = ballerinaASTFactory.createResourceDefinition();
+            //Adding resource argument
+            var resourceArgument_m = ballerinaASTFactory.createResourceArgument();
+            resourceArgument_m.setType("message");
+            resourceArgument_m.setIdentifier("m");
+            resource_passthrough.setResourceArguments([resourceArgument_m]);
 
-            // Create If statement Definition
-            var ifElseStatement = ballerinaASTFactory.createIfElseStatement(ifCondition,ifStatements1,elseStatements1);
+            //Adding reply statement
+            var statement_reply = ballerinaASTFactory.createReplyStatement();
+            statement_reply.setReplyMessage("m");
+            var statements = [];
+            statements.push(statement_reply);
+            resource_passthrough.setStatements(statements);
 
-            resourceDefinition1.resourceParent(serviceDefinition1);
-            resourceDefinition2.resourceParent(serviceDefinition2);
+            //var resourceDefinitions = [];
+            //resourceDefinitions.push(resource_passthrough);
+            //resourceDefinitions.push(custom_resource);
 
-            // Create Sample try-catch statement
-            var tryCatchStatement1 = ballerinaASTFactory.createTryCatchStatement();
-            var tryStatement = ballerinaASTFactory.createTryStatement();
-            var catchStatement = ballerinaASTFactory.createCatchStatement();
-            var tryCatchStatement2 = ballerinaASTFactory.createTryCatchStatement();
-            var tryStatement2 = ballerinaASTFactory.createTryStatement();
-            var catchStatement2 = ballerinaASTFactory.createCatchStatement();
-            tryCatchStatement2.addChild(tryStatement2);
-            tryCatchStatement2.addChild(catchStatement2);
-            tryStatement.addChild(tryCatchStatement2);
-            tryCatchStatement1.addChild(tryStatement);
-            tryCatchStatement1.addChild(catchStatement);
+            serviceDefinition_passthroughService.addChild(resource_passthrough);
 
-            //Create Smaple If-else
+           //Create Smaple If-else
+           var ifElseStatement1 = ballerinaASTFactory.createIfElseStatement();
+           var ifStatement1 = ballerinaASTFactory.createIfStatement();
+           var elseStatement1 = ballerinaASTFactory.createElseStatement();
+           ifElseStatement1.addChild(ifStatement1);
+           ifElseStatement1.addChild(elseStatement1);
+           ifStatement1.setCondition("Condition1");
+           resource_passthrough.addChild(ifElseStatement1);
 
-            var ifElseStatement2 = ballerinaASTFactory.createIfElseStatement();
-            var ifStatement2 = ballerinaASTFactory.createIfStatement();
-            var elseStatement2 = ballerinaASTFactory.createElseStatement();
-            ifElseStatement2.addChild(ifStatement2);
-            ifElseStatement2.addChild(elseStatement2);
+           //creating while statement
+           var whileStatement1 = ballerinaASTFactory.createWhileStatement();
+           whileStatement1.setCondition("Condition2");
+           resource_passthrough.addChild(whileStatement1);
 
-            resourceDefinition1.addChild(tryCatchStatement1);
-            resourceDefinition1.addChild(ifElseStatement2);
-
-            ballerinaAstRoot.addChild(serviceDefinition1);
-            ballerinaAstRoot.addChild(serviceDefinition2);
-            serviceDefinition1.setResourceDefinitions([resourceDefinition1, resourceDefinition2]);
-            serviceDefinition1.addChild(resourceDefinition1);
-            serviceDefinition1.addChild(resourceDefinition2);
-
-            serviceDefinitions.push(serviceDefinition1);
-            serviceDefinitions.push(serviceDefinition2);
-            ballerinaAstRoot.setServiceDefinitions(serviceDefinitions);
-
-            serviceDefinitions1.push(serviceDefinition3);
-            serviceDefinitions1.push(serviceDefinition4);
-
+           // Create Sample try-catch statement
+           var tryCatchStatement = ballerinaASTFactory.createTryCatchStatement();
+           var tryStatement = ballerinaASTFactory.createTryStatement();
+           var catchStatement = ballerinaASTFactory.createCatchStatement();
+           catchStatement.setExceptionType("ArithmeticException ex");
+           tryCatchStatement.addChild(tryStatement);
+           tryCatchStatement.addChild(catchStatement);
+           resource_passthrough.addChild(tryCatchStatement);
             // Create sample Worker Declaration
             var workerDeclaration1 = ballerinaASTFactory.createWorkerDeclaration();
             var workerDeclaration2 = ballerinaASTFactory.createWorkerDeclaration();
@@ -125,28 +167,18 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace']
             ballerinaAstRoot.addChild(functionDefinition1);
             ballerinaAstRoot.setFunctionDefinitions(functionDefinitions);
 
-            var functionDefinition2 = ballerinaASTFactory.createFunctionDefinition();
-            var functionDefinition3 = ballerinaASTFactory.createFunctionDefinition();
-            functionDefinitions1.push(functionDefinition2);
-            functionDefinitions1.push(functionDefinition3);
-
-            var package1 = new Ballerina.env.Package({name: 'PACKAGE1'});
-            package1.addServiceDefinitions(serviceDefinitions);
-            package1.addFunctionDefinitions(functionDefinitions);
-
-            var package2 = new Ballerina.env.Package({name: 'PACKAGE2'});
-            package2.addServiceDefinitions(serviceDefinitions1);
-            package2.addFunctionDefinitions(functionDefinitions1);
+           serviceDefinitions.push(serviceDefinition_passthroughService);
+           ballerinaAstRoot1.setServiceDefinitions(serviceDefinitions);
+           ballerinaAstRoot1.addChild(serviceDefinition_passthroughService);
+           ballerinaAstRoot1.accept(sourceGenVisitor);
 
             //Create environment and add add package list
-            var ballerinaEnvironment = new Ballerina.env.Environment();
-            ballerinaEnvironment.addPackage(package1);
-            ballerinaEnvironment.addPackage(package2);
+           var ballerinaEnvironment = new Ballerina.env.Environment();
 
-            this.generateToolPallet(ballerinaEnvironment, toolPallet);
+           this.generateToolPallet(ballerinaEnvironment, toolPallet);
 
-            var fileEditor = new Ballerina.views.BallerinaFileEditor({
-                model: ballerinaAstRoot,
+           var fileEditor = new Ballerina.views.BallerinaFileEditor({
+                model: ballerinaAstRoot1,
                 viewOptions: ballerinaEditorOptions
             });
             fileEditor.render();

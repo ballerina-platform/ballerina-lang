@@ -18,38 +18,38 @@
 define(['require','lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor'],
 function(require, _, log, EventChannel, AbstractStatementSourceGenVisitor) {
 
-    var IfStatementVisitor = function(parent){
+    var WhileStatementVisitor = function(parent){
         AbstractStatementSourceGenVisitor.call(this,parent);
     };
 
-    IfStatementVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
-    IfStatementVisitor.prototype.constructor = IfStatementVisitor;
+    WhileStatementVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
+    WhileStatementVisitor.prototype.constructor = WhileStatementVisitor;
 
-    IfStatementVisitor.prototype.canVisitIfStatement = function(ifStatement){
+    WhileStatementVisitor.prototype.canVisitWhileStatement = function(whileStatement){
         return true;
     };
 
-    IfStatementVisitor.prototype.beginVisitIfStatement = function(ifStatement){
-        this.appendSource('If(' + ifStatement.getCondition() + '){');
+    WhileStatementVisitor.prototype.beginVisitWhileStatement = function(whileStatement){
+        this.appendSource('While(' + whileStatement.getCondition() + '){');
         log.info('Begin Visit If Statement Definition');
     };
 
-    IfStatementVisitor.prototype.visitIfStatement = function(ifStatement){
+    WhileStatementVisitor.prototype.visitWhileStatement = function(whileStatement){
         log.info('Visit If Statement Definition');
     };
 
-    IfStatementVisitor.prototype.endVisitIfStatement = function(ifStatement){
+    WhileStatementVisitor.prototype.endVisitWhileStatement = function(whileStatement){
         this.appendSource("}\n");
         this.getParent().appendSource(this.getGeneratedSource());
         log.info('End Visit If Statement Definition');
     };
 
-    IfStatementVisitor.prototype.visitStatement = function (statement) {
+    WhileStatementVisitor.prototype.visitStatement = function (statement) {
         var StatementVisitorFactory = require('./statement-visitor-factory');
         var statementVisitorFactory = new StatementVisitorFactory();
         var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
         statement.accept(statementVisitor);
     };
 
-    return IfStatementVisitor;
+    return WhileStatementVisitor;
 });
