@@ -44,7 +44,7 @@ function (require, _, log, EventChannel, AbstractStatementSourceGenVisitor) {
     };
 
     ElseStatementVisitor.prototype.endVisitElseStatement = function(elseStatement){
-        this.appendSource('}\n');
+        this.appendSource("}\n");
         this.getParent().appendSource(this.getGeneratedSource());
         log.info('End Visit Else Statement Definition');
     };

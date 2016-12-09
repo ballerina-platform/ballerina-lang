@@ -39,7 +39,7 @@ function(require, _, log, EventChannel, AbstractStatementSourceGenVisitor) {
     };
 
     IfStatementVisitor.prototype.endVisitIfStatement = function(ifStatement){
-        this.appendSource('}\n');
+        this.appendSource("}\n");
         this.getParent().appendSource(this.getGeneratedSource());
         log.info('End Visit If Statement Definition');
     };

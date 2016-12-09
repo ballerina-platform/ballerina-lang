@@ -43,9 +43,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace']
             var ballerinaAstRoot = ballerinaASTFactory.createBallerinaAstRoot();
             var serviceDefinitions = [];
             var serviceDefinitions1 = [];
-            var ifStatements1 = [];
-            var elseStatements1 = [];
-            var ifCondition = ballerinaASTFactory.createExpression();
+
             // Create sample connector definition
             var connectorDefinitions = [];
             var connectorDefinition1 = ballerinaASTFactory.createConnectorDefinition();
@@ -67,11 +65,6 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace']
             var resourceDefinition1 = ballerinaASTFactory.createResourceDefinition();
             var resourceDefinition2 = ballerinaASTFactory.createResourceDefinition();
 
-            // Create If statement Definition
-            var ifElseStatement = ballerinaASTFactory.createIfElseStatement(ifCondition,ifStatements1,elseStatements1);
-
-            resourceDefinition1.resourceParent(serviceDefinition1);
-            resourceDefinition2.resourceParent(serviceDefinition2);
 
             // Create Sample try-catch statement
             var tryCatchStatement1 = ballerinaASTFactory.createTryCatchStatement();
@@ -87,28 +80,36 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace']
             tryCatchStatement1.addChild(catchStatement);
 
             //Create Smaple If-else
+            var ifElseStatement1 = ballerinaASTFactory.createIfElseStatement();
+            var ifStatement1 = ballerinaASTFactory.createIfStatement();
+            var elseStatement1 = ballerinaASTFactory.createElseStatement();
 
             var ifElseStatement2 = ballerinaASTFactory.createIfElseStatement();
             var ifStatement2 = ballerinaASTFactory.createIfStatement();
             var elseStatement2 = ballerinaASTFactory.createElseStatement();
+
             ifElseStatement2.addChild(ifStatement2);
             ifElseStatement2.addChild(elseStatement2);
+            ifStatement1.addChild(ifElseStatement2)
 
-            //resourceDefinition1.addChild(tryCatchStatement1);
-            resourceDefinition1.addChild(ifElseStatement2);
+            ifElseStatement1.addChild(ifStatement1);
+            ifElseStatement1.addChild(elseStatement1);
+
+            resourceDefinition1.addChild(tryCatchStatement1);
+            resourceDefinition1.addChild(ifElseStatement1);
 
             ballerinaAstRoot.addChild(serviceDefinition1);
             ballerinaAstRoot.addChild(serviceDefinition2);
             serviceDefinition1.setResourceDefinitions([resourceDefinition1, resourceDefinition2]);
             serviceDefinition1.addChild(resourceDefinition1);
-            serviceDefinition1.addChild(resourceDefinition2);
+            //serviceDefinition1.addChild(resourceDefinition2);
 
             serviceDefinitions.push(serviceDefinition1);
-            serviceDefinitions.push(serviceDefinition2);
+            //serviceDefinitions.push(serviceDefinition2);
             ballerinaAstRoot.setServiceDefinitions(serviceDefinitions);
 
-            serviceDefinitions1.push(serviceDefinition3);
-            serviceDefinitions1.push(serviceDefinition4);
+           // serviceDefinitions1.push(serviceDefinition3);
+           // serviceDefinitions1.push(serviceDefinition4);
 
             // Create Sample Function Definitions
             var functionDefinitions = [];

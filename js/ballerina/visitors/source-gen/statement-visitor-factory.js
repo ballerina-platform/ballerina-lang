@@ -28,7 +28,7 @@ define(['lodash', 'log', 'event_channel', '../../ast/module', './try-catch-state
         } else if (statement instanceof AST.CatchStatement) {
             return new CatchStatementVisitor(parent.getParent());
         } else if (statement instanceof AST.IfElseStatement) {
-            return new IfElseStatementVisitor(parent.getParent());
+            return new IfElseStatementVisitor(parent);
         } else if (statement instanceof AST.IfStatement) {
             return new IfStatementVisitor(parent.getParent());
         } else if (statement instanceof AST.ElseStatement) {
