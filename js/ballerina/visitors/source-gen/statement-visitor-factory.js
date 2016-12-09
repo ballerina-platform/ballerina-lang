@@ -15,7 +15,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', '../../ast/module', './try-catch-statement-visitor', './try-statement-visitor', './catch-statement-visitor', './if-else-statement-visitor', './if-statement-visitor', './else-statement-visitor'], function (_, log, EventChannel, AST, TryCatchStatementVisitor, TryStatementVisitor, CatchStatementVisitor, IfElseStatementVisitor, IfStatementVisitor, ElseStatementVisitor) {
+define(['lodash', 'log', 'event_channel', '../../ast/module',
+'./try-catch-statement-visitor',
+'./try-statement-visitor',
+'./catch-statement-visitor',
+'./if-else-statement-visitor',
+'./if-statement-visitor',
+'./else-statement-visitor',
+'./while-statement-visitor'],
+function (_, log, EventChannel, AST,
+TryCatchStatementVisitor, TryStatementVisitor, CatchStatementVisitor, IfElseStatementVisitor, IfStatementVisitor,
+ElseStatementVisitor, WhileStatementVisitor) {
 
     var StatementVisitorFactor = function () {
     };
@@ -33,6 +43,8 @@ define(['lodash', 'log', 'event_channel', '../../ast/module', './try-catch-state
             return new IfStatementVisitor(parent.getParent());
         } else if (statement instanceof AST.ElseStatement) {
             return new ElseStatementVisitor(parent.getParent());
+        } else if (statement instanceof AST.WhileStatement) {
+            return new WhileStatementVisitor(parent);
         }
     };
 

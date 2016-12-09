@@ -95,6 +95,10 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace']
             ifElseStatement1.addChild(ifStatement1);
             ifElseStatement1.addChild(elseStatement1);
 
+            //creating while statement
+            var whileStatement1 = ballerinaASTFactory.createWhileStatement();
+            resourceDefinition1.addChild(whileStatement1);
+
             resourceDefinition1.addChild(tryCatchStatement1);
             resourceDefinition1.addChild(ifElseStatement1);
 

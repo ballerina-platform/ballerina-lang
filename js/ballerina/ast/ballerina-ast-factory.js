@@ -21,11 +21,11 @@
  */
 define(['./ballerina-ast-root', './service-definition', './function-definition', './connector-definition', './resource-definition',
         './worker-declaration', './statement', './conditional-statement', './connection-declaration', './expression',
-        './if-else-statement', './if-statement', './else-statement', './trycatch-statement', './try-statement', './catch-statement', './reply-statement', './return-statement', './type-converter-definition', './type-definition',
+        './if-else-statement', './if-statement', './else-statement', './trycatch-statement', './try-statement', './catch-statement', './reply-statement', './while-statement', './return-statement', './type-converter-definition', './type-definition',
         './type-element', './variable-declaration', './package-definition', './import-declaration', './resource-arg'],
     function (ballerinaAstRoot, serviceDefinition, functionDefinition, connectorDefinition, resourceDefinition,
               workerDeclaration, statement, conditionalStatement, connectionDeclaration, expression,
-              ifElseStatement, ifStatement, elseStatement, tryCatchStatement, tryStatement, catchStatement, replyStatement, returnStatement, typeConverterDefinition, typeDefinition,
+              ifElseStatement, ifStatement, elseStatement, tryCatchStatement, tryStatement, catchStatement, replyStatement, whileStatement, returnStatement, typeConverterDefinition, typeDefinition,
               typeElement, variableDeclaration, packageDefinition, importDeclaration, resourceArgument) {
 
         /**
@@ -203,6 +203,14 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
          */
         BallerinaASTFactory.prototype.createReturnStatement = function (args) {
             return new returnStatement(args);
+        };
+
+        /**
+        * creates WhileStatement
+        * @param args
+        */
+        BallerinaASTFactory.prototype.createWhileStatement = function (args) {
+            return new whileStatement(args);
         };
 
         /**
