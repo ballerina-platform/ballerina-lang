@@ -35,6 +35,7 @@ import org.wso2.siddhi.core.util.extension.holder.EternalReferencedHolder;
 import org.wso2.siddhi.core.util.statistics.MemoryUsageTracker;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -89,6 +90,14 @@ public class ExecutionPlanRuntime {
 
     public Map<String, AbstractDefinition> getStreamDefinitionMap() {
         return streamDefinitionMap;
+    }
+
+    public Map<String, Map<String, AbstractDefinition>> getInnerStreams() {
+        Map<String, Map<String, AbstractDefinition>> innerStreams = new HashMap<>();
+        for (Map.Entry<String, PartitionRuntime> partition : partitionMap.entrySet()) {
+            innerStreams.put(partition.getValue().getElementId(), partition.getValue().getLocalStreamDefinitionMap());
+        }
+        return innerStreams;
     }
 
     public void addCallback(String streamId, StreamCallback streamCallback) {
