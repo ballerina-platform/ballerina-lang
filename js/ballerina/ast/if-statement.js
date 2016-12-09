@@ -23,6 +23,7 @@ define(['lodash', 'log', './conditional-statement'], function (_, log, Condition
      * @param elseIfStatements The 'else if' statements of an IF condition.
      * @constructor
      */
+
     var IfStatement = function () {
         ConditionalStatement.call(this);
     };
