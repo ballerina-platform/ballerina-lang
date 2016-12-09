@@ -25,7 +25,11 @@ function (require, _, log, EventChannel, AbstractStatementSourceGenVisitor) {
     ElseStatementVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
     ElseStatementVisitor.prototype.constructor = ElseStatementVisitor;
 
-    ElseStatementVisitor.prototype.beginVisitIfStatement = function(elseStatement){
+    ElseStatementVisitor.prototype.canVisitElseStatement = function(elseStatement){
+        return true;
+    };
+
+    ElseStatementVisitor.prototype.beginVisitElseStatement = function(elseStatement){
         /**
         * set the configuration start for the if statement definition language construct
         * If we need to add additional parameters which are dynamically added to the configuration start
@@ -35,11 +39,11 @@ function (require, _, log, EventChannel, AbstractStatementSourceGenVisitor) {
         log.info('Begin visit Else Statement Definition');
     };
 
-    ElseStatementVisitor.prototype.visitIfStatement = function(elseStatement){
-        log.info('Visit If Else Statement Definition');
+    ElseStatementVisitor.prototype.visitElseStatement = function(elseStatement){
+        log.info('Visit Else Statement Definition');
     };
 
-    ElseStatementVisitor.prototype.endVisitIfStatement = function(elseStatement){
+    ElseStatementVisitor.prototype.endVisitElseStatement = function(elseStatement){
         this.appendSource('}\n');
         this.getParent().appendSource(this.getGeneratedSource());
         log.info('End Visit Else Statement Definition');
@@ -50,10 +54,6 @@ function (require, _, log, EventChannel, AbstractStatementSourceGenVisitor) {
         var statementVisitorFactory = new StatementVisitorFactory();
         var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
         statement.accept(statementVisitor);
-    };
-
-    ElseStatementVisitor.prototype.canVisitElseStatement = function(elseStatement){
-        return true;
     };
 
     return ElseStatementVisitor;

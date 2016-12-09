@@ -31,17 +31,17 @@ function(require, _, log, EventChannel, AbstractStatementSourceGenVisitor) {
 
     IfStatementVisitor.prototype.beginVisitIfStatement = function(ifStatement){
         this.appendSource('If {');
-        log.info('Begin Visit If Else Statement Definition');
+        log.info('Begin Visit If Statement Definition');
     };
 
     IfStatementVisitor.prototype.visitIfStatement = function(ifStatement){
-        log.info('Visit If Else Statement Definition');
+        log.info('Visit If Statement Definition');
     };
 
     IfStatementVisitor.prototype.endVisitIfStatement = function(ifStatement){
         this.appendSource('}\n');
         this.getParent().appendSource(this.getGeneratedSource());
-        log.info('End Visit If Else Statement Definition');
+        log.info('End Visit If Statement Definition');
     };
 
     IfStatementVisitor.prototype.visitStatement = function (statement) {
