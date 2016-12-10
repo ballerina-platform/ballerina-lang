@@ -17,19 +17,13 @@
  */
 package org.wso2.ballerina.core.parser.visitor;
 
-import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.parser.BallerinaBaseVisitor;
 import org.wso2.ballerina.core.parser.BallerinaParser;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
- * Visitor for function body
+ * visitor for typeName
  */
-public class FunctionBodyVisitor extends BallerinaBaseVisitor {
-
-    List<Statement> statementList = new ArrayList<>();
+public class TypeNameVisitor extends BallerinaBaseVisitor {
 
     /**
      * {@inheritDoc}
@@ -40,16 +34,33 @@ public class FunctionBodyVisitor extends BallerinaBaseVisitor {
      * @param ctx
      */
     @Override
-    public Object visitFunctionBody(BallerinaParser.FunctionBodyContext ctx) {
+    public Object visitTypeName(BallerinaParser.TypeNameContext ctx) {
+        return super.visitTypeName(ctx);
+    }
 
-        // Read assignment statements
-        StatementVisitor sv = new StatementVisitor();
-        for (BallerinaParser.StatementContext sc : ctx.statement()) {
-            Statement statement = (Statement) sc.accept(sv);
-            statementList.add(statement);
-        }
+    /**
+     * {@inheritDoc}
+     * <p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
+     *
+     * @param ctx
+     */
+    @Override
+    public Object visitUnqualifiedTypeName(BallerinaParser.UnqualifiedTypeNameContext ctx) {
+        return super.visitUnqualifiedTypeName(ctx);
+    }
 
-        //StatementVisitor statementVisitor = new StatementVisitor();
-        return statementList;
+    /**
+     * {@inheritDoc}
+     * <p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
+     *
+     * @param ctx
+     */
+    @Override
+    public Object visitQualifiedTypeName(BallerinaParser.QualifiedTypeNameContext ctx) {
+        return super.visitQualifiedTypeName(ctx);
     }
 }

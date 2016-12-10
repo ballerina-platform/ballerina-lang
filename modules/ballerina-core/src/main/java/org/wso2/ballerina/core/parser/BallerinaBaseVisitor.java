@@ -543,6 +543,16 @@ public class BallerinaBaseVisitor<T> extends AbstractParseTreeVisitor<T> impleme
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
 	@Override public T visitExpressionList(BallerinaParser.ExpressionListContext ctx) { return visitChildren(ctx); }
+
+	/**
+	 * Visit a parse tree produced by {@link BallerinaParser#expression}.
+	 *
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	@Override
+	public T visitExpression(BallerinaParser.ExpressionContext ctx) { return visitChildren(ctx); }
+
 	/**
 	 * {@inheritDoc}
 	 *
@@ -675,7 +685,7 @@ public class BallerinaBaseVisitor<T> extends AbstractParseTreeVisitor<T> impleme
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitBinaryDivitionExpression(BallerinaParser.BinaryDivitionExpressionContext ctx) { return visitChildren(ctx); }
+	@Override public T visitBinaryDivisionExpression(BallerinaParser.BinaryDivitionExpressionContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *

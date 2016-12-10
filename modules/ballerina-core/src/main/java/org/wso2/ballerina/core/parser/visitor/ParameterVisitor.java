@@ -17,10 +17,27 @@
  */
 package org.wso2.ballerina.core.parser.visitor;
 
+import org.wso2.ballerina.core.model.Identifier;
+import org.wso2.ballerina.core.model.Parameter;
+import org.wso2.ballerina.core.model.types.Type;
 import org.wso2.ballerina.core.parser.BallerinaBaseVisitor;
+import org.wso2.ballerina.core.parser.BallerinaParser;
 
 /**
- * Visitor for return statement
+ * visitor for parameter
  */
-public class ReturnStatementVisitor extends BallerinaBaseVisitor {
+public class ParameterVisitor extends BallerinaBaseVisitor {
+    /**
+     * {@inheritDoc}
+     * <p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
+     *
+     * @param ctx
+     */
+    @Override
+    public Object visitParameter(BallerinaParser.ParameterContext ctx) {
+        TypeNameVisitor typeNameVisitor = new TypeNameVisitor();
+        return new Parameter((Type) ctx.typeName().accept(typeNameVisitor), new Identifier(ctx.Identifier().getText()));
+    }
 }

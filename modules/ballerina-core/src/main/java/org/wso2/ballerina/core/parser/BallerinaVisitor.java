@@ -470,6 +470,12 @@ public interface BallerinaVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitExpressionList(BallerinaParser.ExpressionListContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitExpression(BallerinaParser.ExpressionContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link BallerinaParser#functionInvocationStatement}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -597,7 +603,7 @@ public interface BallerinaVisitor<T> extends ParseTreeVisitor<T> {
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitBinaryDivitionExpression(BallerinaParser.BinaryDivitionExpressionContext ctx);
+	T visitBinaryDivisionExpression(BallerinaParser.BinaryDivitionExpressionContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code binaryModExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.
