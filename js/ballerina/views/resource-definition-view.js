@@ -16,9 +16,9 @@
  * under the License.
  */
 define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../ast/resource-definition',
-        './point', './life-line', './action-processor-view'],
+        './point', './life-line', './action-processor-view', './statement-view-factory'],
     function (_, log, d3, $, D3utils, BallerinaView, ResourceDefinition,
-              Point, LifeLine,ActionProcessor) {
+              Point, LifeLine,ActionProcessor, StatementViewFactory) {
 
         /**
          * The view to represent a resource definition which is an AST visitor.
@@ -111,6 +111,17 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
         ResourceDefinitionView.prototype.getBoundingBox = function () {
             return this._boundingBox;
+        };
+
+        ResourceDefinitionView.prototype.canVisit = function () {
+            return true;
+        };
+
+        ResourceDefinitionView.prototype.visitStatement = function (statement) {
+            var statementViewFactory = new StatementViewFactory();
+            var args = {model: statement, container: this._container, viewOptions: undefined};
+            var statementView = statementViewFactory.getStatementView(args);
+            statementView.render();
         };
 
         /**
@@ -262,6 +273,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             var defaultProcessor = new ActionProcessor(processorViewOpts);
             defaultProcessor.render();
 
+            this._model.accept(this);
             log.debug("Rendering Resource View");
         };
 

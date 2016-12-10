@@ -187,6 +187,16 @@ ol#breadcrumbList {
     object-fit: contain;
 }
 
+.statement-rect {
+    fill-opacity: 0;
+    stroke: #000000;
+    stroke-width: 1;
+}
+
+.statement-text {
+    text-anchor: middle;
+    dominant-baseline: central;
+}
 /*//////////////////////////////////////////////////*/
 /** Service container related styles | Start -> **/
 

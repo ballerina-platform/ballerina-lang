@@ -130,28 +130,28 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace']
 
             serviceDefinition_passthroughService.addChild(resource_passthrough);
 
-           //Create Smaple If-else
-           var ifElseStatement1 = ballerinaASTFactory.createIfElseStatement();
-           var ifStatement1 = ballerinaASTFactory.createIfStatement();
-           var elseStatement1 = ballerinaASTFactory.createElseStatement();
-           ifElseStatement1.addChild(ifStatement1);
-           ifElseStatement1.addChild(elseStatement1);
-           ifStatement1.setCondition("Condition1");
-           resource_passthrough.addChild(ifElseStatement1);
+            //Create Smaple If-else
+            // var ifElseStatement1 = ballerinaASTFactory.createIfElseStatement();
+            // var ifStatement1 = ballerinaASTFactory.createIfStatement();
+            // var elseStatement1 = ballerinaASTFactory.createElseStatement();
+            // ifElseStatement1.addChild(ifStatement1);
+            // ifElseStatement1.addChild(elseStatement1);
+            // ifStatement1.setCondition("Condition1");
+            // resource_passthrough.addChild(ifElseStatement1);
 
-           //creating while statement
-           var whileStatement1 = ballerinaASTFactory.createWhileStatement();
-           whileStatement1.setCondition("Condition2");
-           resource_passthrough.addChild(whileStatement1);
+            //creating while statement
+            // var whileStatement1 = ballerinaASTFactory.createWhileStatement();
+            // whileStatement1.setCondition("Condition2");
+            // resource_passthrough.addChild(whileStatement1);
 
-           // Create Sample try-catch statement
-           var tryCatchStatement = ballerinaASTFactory.createTryCatchStatement();
-           var tryStatement = ballerinaASTFactory.createTryStatement();
-           var catchStatement = ballerinaASTFactory.createCatchStatement();
-           catchStatement.setExceptionType("ArithmeticException ex");
-           tryCatchStatement.addChild(tryStatement);
-           tryCatchStatement.addChild(catchStatement);
-           resource_passthrough.addChild(tryCatchStatement);
+            // Create Sample try-catch statement
+            var tryCatchStatement = ballerinaASTFactory.createTryCatchStatement();
+            var tryStatement = ballerinaASTFactory.createTryStatement();
+            var catchStatement = ballerinaASTFactory.createCatchStatement();
+            catchStatement.setExceptionType("ArithmeticException ex");
+            tryCatchStatement.addChild(tryStatement);
+            tryCatchStatement.addChild(catchStatement);
+            resource_passthrough.addChild(tryCatchStatement);
             // Create sample Worker Declaration
             var workerDeclaration1 = ballerinaASTFactory.createWorkerDeclaration();
             var workerDeclaration2 = ballerinaASTFactory.createWorkerDeclaration();
@@ -167,17 +167,17 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace']
             ballerinaAstRoot1.addChild(functionDefinition1);
             ballerinaAstRoot1.setFunctionDefinitions(functionDefinitions);
 
-           serviceDefinitions.push(serviceDefinition_passthroughService);
-           ballerinaAstRoot1.setServiceDefinitions(serviceDefinitions);
-           ballerinaAstRoot1.addChild(serviceDefinition_passthroughService);
-           ballerinaAstRoot1.accept(sourceGenVisitor);
+            serviceDefinitions.push(serviceDefinition_passthroughService);
+            ballerinaAstRoot1.setServiceDefinitions(serviceDefinitions);
+            ballerinaAstRoot1.addChild(serviceDefinition_passthroughService);
+            // ballerinaAstRoot1.accept(sourceGenVisitor);
 
             //Create environment and add add package list
-           var ballerinaEnvironment = new Ballerina.env.Environment();
+            var ballerinaEnvironment = new Ballerina.env.Environment();
 
-           this.generateToolPallet(ballerinaEnvironment, toolPallet);
+            this.generateToolPallet(ballerinaEnvironment, toolPallet);
 
-           var fileEditor = new Ballerina.views.BallerinaFileEditor({
+            var fileEditor = new Ballerina.views.BallerinaFileEditor({
                 model: ballerinaAstRoot1,
                 viewOptions: ballerinaEditorOptions
             });
