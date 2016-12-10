@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.JSONType;
 import org.wso2.ballerina.core.model.types.StringType;
+import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.JSONValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
@@ -55,16 +56,17 @@ public class Rename extends AbstractJSONFunction {
     private static final Logger log = LoggerFactory.getLogger(Rename.class);
 
     @Override
-    public void interpret(Context ctx) {
+    public BValue[] execute(Context ctx) {
         log.info("Rename Native Function Invoked.");
         // Accessing Parameters.
-        JSONValue json = (JSONValue) getArgumentValue(ctx, 0).getBValue();
-        String jsonPath = getArgumentValue(ctx, 1).getString();
-        String oldKey = getArgumentValue(ctx, 2).getString();
-        String newKey = getArgumentValue(ctx, 3).getString();
+        JSONValue json = (JSONValue) getArgument(ctx, 0).getBValue();
+        String jsonPath = getArgument(ctx, 1).getString();
+        String oldKey = getArgument(ctx, 2).getString();
+        String newKey = getArgument(ctx, 3).getString();
         
         // Rename the element key
         WriteContext jsonCtx = JsonPath.parse(json.getValue());
         jsonCtx.renameKey(jsonPath, oldKey, newKey);
+        return VOID_RETURN;
     }
 }

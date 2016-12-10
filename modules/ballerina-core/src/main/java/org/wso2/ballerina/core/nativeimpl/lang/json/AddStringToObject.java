@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.JSONType;
 import org.wso2.ballerina.core.model.types.StringType;
+import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.JSONValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
@@ -58,16 +59,17 @@ public class AddStringToObject extends AbstractJSONFunction {
     private static final Logger log = LoggerFactory.getLogger(AddStringToObject.class);
 
     @Override
-    public void interpret(Context ctx) {
+    public BValue[] execute(Context ctx) {
         log.info("AddStringToObject Native Function Invoked.");
         // Accessing Parameters.
-        JSONValue json = (JSONValue) getArgumentValue(ctx, 0).getBValue();
-        String jsonPath = getArgumentValue(ctx, 1).getString();
-        String key = getArgumentValue(ctx, 2).getString();
-        String value = getArgumentValue(ctx, 3).getString();
+        JSONValue json = (JSONValue) getArgument(ctx, 0).getBValue();
+        String jsonPath = getArgument(ctx, 1).getString();
+        String key = getArgument(ctx, 2).getString();
+        String value = getArgument(ctx, 3).getString();
         
         // Adding the value to JSON Object
         WriteContext jsonCtx = JsonPath.parse(json.getValue());
         jsonCtx.put(jsonPath, key, value);
+        return getBValues();
     }
 }

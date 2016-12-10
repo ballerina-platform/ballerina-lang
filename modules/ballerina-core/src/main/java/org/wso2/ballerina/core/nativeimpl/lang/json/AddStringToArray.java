@@ -20,13 +20,13 @@ package org.wso2.ballerina.core.nativeimpl.lang.json;
 
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.WriteContext;
-
 import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.JSONType;
 import org.wso2.ballerina.core.model.types.StringType;
+import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.JSONValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
@@ -55,15 +55,16 @@ public class AddStringToArray extends AbstractJSONFunction {
     private static final Logger log = LoggerFactory.getLogger(AddStringToArray.class);
 
     @Override
-    public void interpret(Context ctx) {
+    public BValue[] execute(Context ctx) {
         log.info("AddStringToObject Native Function Invoked.");
         // Accessing Parameters.
-        JSONValue json = (JSONValue) getArgumentValue(ctx, 0).getBValue();
-        String jsonPath = getArgumentValue(ctx, 1).getString();
-        String value = getArgumentValue(ctx, 2).getString();
+        JSONValue json = (JSONValue) getArgument(ctx, 0).getBValue();
+        String jsonPath = getArgument(ctx, 1).getString();
+        String value = getArgument(ctx, 2).getString();
         
         // Adding the value to JSON Array
         WriteContext jsonCtx = JsonPath.parse(json.getValue());
         jsonCtx.add(jsonPath, value);
+        return VOID_RETURN;
     }
 }

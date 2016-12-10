@@ -61,11 +61,11 @@ public class GetString extends AbstractJSONFunction {
     private static final Logger log = LoggerFactory.getLogger(GetString.class);
 
     @Override
-    public void interpret(Context ctx) {
+    public BValue[] execute(Context ctx) {
         log.info("GetJSONElement Native Function Invoked.");
         // Accessing Parameters.
-        JSONValue json = (JSONValue) getArgumentValue(ctx, 0).getBValue();
-        String jsonPath = getArgumentValue(ctx, 1).getString();
+        JSONValue json = (JSONValue) getArgument(ctx, 0).getBValue();
+        String jsonPath = getArgument(ctx, 1).getString();
         
         // Getting the value from JSON
         ReadContext jsonCtx = JsonPath.parse(json.getValue());
@@ -96,6 +96,6 @@ public class GetString extends AbstractJSONFunction {
         }
         
         // Setting output value.
-        setReturnTypes(ctx, result);
+        return getBValues(result);
     }
 }

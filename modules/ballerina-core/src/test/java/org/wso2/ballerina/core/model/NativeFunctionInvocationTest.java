@@ -36,7 +36,6 @@ import org.wso2.ballerina.core.model.types.Type;
 import org.wso2.ballerina.core.model.values.BValueRef;
 import org.wso2.ballerina.core.model.values.StringValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
-import org.wso2.ballerina.core.nativeimpl.lang.echo.EchoString;
 import org.wso2.ballerina.core.nativeimpl.lang.system.Print;
 import org.wso2.ballerina.core.nativeimpl.lang.system.Println;
 
@@ -113,7 +112,7 @@ public class NativeFunctionInvocationTest {
         FunctionInvocationExpr functionInvocationExpression = new FunctionInvocationExpr(
                 new Identifier("echoString"), expressions);
         // Creating new test function.
-        AbstractNativeFunction nativeFunction = new EchoString();
+        AbstractNativeFunction nativeFunction = new EchoStringNativeFunction();
         functionInvocationExpression.setFunction(nativeFunction);
 
         AssignStmt assignStmt = new AssignStmt(varRefExprValue, functionInvocationExpression);
