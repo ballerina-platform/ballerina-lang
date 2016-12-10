@@ -22,14 +22,14 @@ package org.wso2.ballerina.core.model.values;
  *
  * @since 1.0.0
  */
-public class BooleanValue implements BValue {
+public class BooleanValue implements BValue<Boolean> {
     private boolean value;
 
     public BooleanValue(boolean value) {
         this.value = value;
     }
 
-    public boolean getValue() {
+    public Boolean getValue() {
         return value;
     }
 

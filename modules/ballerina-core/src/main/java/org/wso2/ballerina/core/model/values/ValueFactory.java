@@ -21,7 +21,9 @@ import org.wso2.ballerina.core.model.types.BooleanType;
 import org.wso2.ballerina.core.model.types.DoubleType;
 import org.wso2.ballerina.core.model.types.FloatType;
 import org.wso2.ballerina.core.model.types.IntType;
+import org.wso2.ballerina.core.model.types.JSONType;
 import org.wso2.ballerina.core.model.types.LongType;
+import org.wso2.ballerina.core.model.types.MessageType;
 import org.wso2.ballerina.core.model.types.StringType;
 import org.wso2.ballerina.core.model.types.Type;
 
@@ -45,6 +47,10 @@ public class ValueFactory {
             return new BValueRef(new DoubleValue(0));
         } else if (type instanceof BooleanType) {
             return new BValueRef(new BooleanValue(false));
+        } else if (type instanceof JSONType) {
+            return new BValueRef(new JSONValue("{}"));
+        } else if (type instanceof MessageType) {
+            return new BValueRef(new MessageValue(null));
         } else {
             throw new RuntimeException("Unsupported type: " + type.getName());
         }

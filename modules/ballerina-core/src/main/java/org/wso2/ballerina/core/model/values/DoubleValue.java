@@ -22,14 +22,14 @@ package org.wso2.ballerina.core.model.values;
  *
  * @since 1.0.0
  */
-public class DoubleValue implements BValue {
+public class DoubleValue implements BValue<Double> {
     private double value;
 
     public DoubleValue(double value) {
         this.value = value;
     }
 
-    public double getValue() {
+    public Double getValue() {
         return value;
     }
 

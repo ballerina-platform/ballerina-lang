@@ -19,11 +19,19 @@ package org.wso2.ballerina.core.model.values;
 
 /**
  * {@code BValue} represents any value in Ballerina
- *
  * @see StringValue
  * @see DoubleValue
  * @see IntValue
  * @since 1.0.0
+ * 
+ * @param <T>   Java type associated with this Ballerina value 
  */
-public interface BValue {
+public interface BValue<T> {
+    
+    /**
+     * Get the java value associated with this ballerina value.
+     * 
+     * @return  Java value associated with this ballerina value
+     */
+    public T getValue();
 }
