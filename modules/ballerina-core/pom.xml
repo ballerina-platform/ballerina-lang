@@ -62,6 +62,10 @@
             <groupId>com.jayway.jsonpath</groupId>
             <artifactId>json-path</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.orbit.org.apache.tapestry</groupId>
+            <artifactId>tapestry-json</artifactId>
+        </dependency>
     </dependencies>
 
     <properties>
@@ -78,9 +82,10 @@
             org.wso2.carbon.kernel.startupresolver.*;version="${carbon.kernel.package.import.version.range}",
             org.slf4j.*;version="${slf4j.logging.package.import.version.range}",
             org.antlr.v4.runtime.*,
-
             org.wso2.carbon.messaging.*;version="${carbon.messaging.package.import.version.range}",
             org.wso2.carbon.deployment.engine.*;version="${carbon.deployment.export.version}",
+            com.google.code.gson.*;version="${gson.import.version.range}",
+            com.jayway.jsonpath.*;version="${jayway.jsonpath.import.version.range}",
         </import.package>
         <carbon.component>
             startup.listener;componentName="ballerina-native-provider";
