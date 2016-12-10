@@ -3,11 +3,8 @@ package org.wso2.ballerina.core.parser;
 import org.antlr.v4.runtime.atn.*;
 import org.antlr.v4.runtime.dfa.DFA;
 import org.antlr.v4.runtime.*;
-import org.antlr.v4.runtime.misc.*;
 import org.antlr.v4.runtime.tree.*;
 import java.util.List;
-import java.util.Iterator;
-import java.util.ArrayList;
 
 @SuppressWarnings({"all", "warnings", "unchecked", "unused", "cast"})
 public class BallerinaParser extends Parser {
@@ -6075,7 +6072,7 @@ public class BallerinaParser extends Parser {
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitBinaryDivitionExpression(this);
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitBinaryDivisionExpression(this);
 			else return visitor.visitChildren(this);
 		}
 	}

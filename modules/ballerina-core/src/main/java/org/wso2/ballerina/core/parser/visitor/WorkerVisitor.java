@@ -17,16 +17,20 @@
  */
 package org.wso2.ballerina.core.parser.visitor;
 
-import org.wso2.ballerina.core.model.Identifier;
 import org.wso2.ballerina.core.model.VariableDcl;
-import org.wso2.ballerina.core.model.types.Type;
+import org.wso2.ballerina.core.model.Worker;
+import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.parser.BallerinaBaseVisitor;
 import org.wso2.ballerina.core.parser.BallerinaParser;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * Visitor for variable declaration
+ * visitor for worker
  */
-public class VariableDeclarationVisitor extends BallerinaBaseVisitor {
+public class WorkerVisitor extends BallerinaBaseVisitor {
+
     /**
      * {@inheritDoc}
      * <p>
@@ -36,9 +40,20 @@ public class VariableDeclarationVisitor extends BallerinaBaseVisitor {
      * @param ctx
      */
     @Override
-    public Object visitVariableDeclaration(BallerinaParser.VariableDeclarationContext ctx) {
-        TypeNameVisitor typeNameVisitor = new TypeNameVisitor();
-        return new VariableDcl((Type) ctx.typeName().accept(typeNameVisitor),
-                new Identifier(ctx.Identifier().getText()), null);
+    public Object visitWorkerDeclaration(BallerinaParser.WorkerDeclarationContext ctx) {
+        List<VariableDcl> variableDclList = new ArrayList<>();
+        VariableDeclarationVisitor variableDeclarationVisitor = new VariableDeclarationVisitor();
+        for (BallerinaParser.VariableDeclarationContext varDclCtx : ctx.variableDeclaration()) {
+            variableDclList.add((VariableDcl) varDclCtx.accept(variableDeclarationVisitor));
+        }
+
+        List<Statement> statementList = new ArrayList<>();
+        StatementVisitor statementVisitor = new StatementVisitor();
+        for (BallerinaParser.StatementContext statementContext : ctx.statement()) {
+            //todo check getChild(0)
+            statementList.add((Statement) statementContext.accept(statementVisitor));
+        }
+
+        return new Worker(variableDclList, statementList);
     }
 }

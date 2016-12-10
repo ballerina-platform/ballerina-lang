@@ -17,12 +17,12 @@
  */
 package org.wso2.ballerina.core.parser.visitor;
 
+import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.Resource;
+import org.wso2.ballerina.core.model.VariableDcl;
 import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.parser.BallerinaBaseVisitor;
 import org.wso2.ballerina.core.parser.BallerinaParser;
-
-import java.util.List;
 
 /**
  * Visitor for resource
@@ -41,10 +41,23 @@ public class ResourceVisitor extends BallerinaBaseVisitor {
     public Object visitResourceDefinition(BallerinaParser.ResourceDefinitionContext ctx) {
         Resource resourceObject = new Resource(ctx.Identifier().getText());
 
-        FunctionBodyVisitor functionBodyVisitor = new FunctionBodyVisitor();
-        List<Statement> statementList = (List<Statement>) ctx.functionBody().accept(functionBodyVisitor);
+        AnnotationVisitor annotationVisitor = new AnnotationVisitor();
+        for (BallerinaParser.AnnotationContext annotationContext : ctx.annotation()) {
+            resourceObject.addAnnotation((Annotation) annotationContext.accept(annotationVisitor));
+        }
 
-        resourceObject.setStatements(statementList);
+        VariableDeclarationVisitor variableDeclarationVisitor = new VariableDeclarationVisitor();
+        for (BallerinaParser.VariableDeclarationContext variableDeclarationContext :
+                ctx.functionBody().variableDeclaration()) {
+            resourceObject.addVariable((VariableDcl) variableDeclarationContext.accept(variableDeclarationVisitor));
+        }
+
+        StatementVisitor statementVisitor = new StatementVisitor();
+        for (int i = 0; i < ctx.functionBody().statement().size(); i++) {
+            resourceObject.addStatement((Statement) (ctx.functionBody().statement(i).
+                    getChild(0).accept(statementVisitor)));
+        }
+
         return resourceObject;
     }
 }
