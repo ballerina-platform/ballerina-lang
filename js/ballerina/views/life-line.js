@@ -66,7 +66,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', 'app/diagram-core/models/poi
             this._viewOptions.text.class = _.get(options, "text.class", "client lifeline-title");
             this._viewOptions.action = _.get(options, "action", {});
             this._viewOptions.action.value = _.get(options, "action.value", "Action");
-            this._viewOptions.resourceWorker = _.get(options, "worker.value", false);
+            this._viewOptions.child = _.get(options, "child.value", false);
 
             // Make the lifeline uneditable by default
             if (_.get(options, "editable", false)) {
@@ -149,7 +149,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', 'app/diagram-core/models/poi
     LifeLine.prototype.render = function () {
         // Creating group for lifeline.
         // a group element is passed for default worker
-        if(this._viewOptions.resourceWorker ){
+        if(this._viewOptions.child ){
            this._lifelineGroup = D3Utils.group((this._canvas)).classed("client", true);
         }
         else{

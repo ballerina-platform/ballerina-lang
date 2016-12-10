@@ -26,7 +26,7 @@ define(['./ballerina-ast-factory', './ballerina-ast-root', './conditional-statem
             BallerinaASTFactory: BallerinaASTFactory,
             BallerinaASTRoot: BallerinaASTRoot,
             ConditionalStatement: ConditionalStatement,
-            ConnectionDeclaration: ConnectorDeclaration,
+            ConnectorDeclaration: ConnectorDeclaration,
             ConnectorDefinition: ConnectorDefinition,
             ConstantDefinition: ConstantDefinition,
             Expression: Expression,

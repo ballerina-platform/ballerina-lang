@@ -16,9 +16,9 @@
  * under the License.
  */
 define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../ast/resource-definition',
-        './point', './life-line', './action-processor-view', './statement-view-factory'],
+        './point', './life-line', './action-processor-view', './connector-declaration-view', './statement-view-factory'],
     function (_, log, d3, $, D3utils, BallerinaView, ResourceDefinition,
-              Point, LifeLine,ActionProcessor, StatementViewFactory) {
+              Point, LifeLine,ActionProcessor,ConnectorDeclarationView, StatementViewFactory) {
 
         /**
          * The view to represent a resource definition which is an AST visitor.
@@ -32,6 +32,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             this._model = _.get(args, 'model');
             this._container = _.get(args, 'container');
             this._viewOptions = _.get(args, 'viewOptions', {});
+            this._connectorViewList =  [];
+            this._defaultResourceLifeLine = undefined;
 
             if (_.isNil(this._model) || !(this._model instanceof ResourceDefinition)) {
                 log.error("Resource definition is undefined or is of different type." + this._model);
@@ -230,13 +232,15 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                     value: "Resource Worker",
                     class: "lifeline-text"
                 },
-                worker: {
+                child: {
                     value: true
                 }
             };
 
-            var defaultWorker = new LifeLine(contentGroup, defaultWorkerOptions);
-            defaultWorker.render();
+            if (_.isUndefined(this._defaultResourceLifeLine)) {
+                this._defaultResourceLifeLine = new LifeLine(contentGroup, defaultWorkerOptions);
+            }
+            this._defaultResourceLifeLine.render();
            //Drawing processor for resource worker
             var processorCenterPointX = contentStart.x() + 130;
             var processorCenterPointY = contentStart.y() + 75;
@@ -273,13 +277,71 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             var defaultProcessor = new ActionProcessor(processorViewOpts);
             defaultProcessor.render();
 
-            this._model.accept(this);
             log.debug("Rendering Resource View");
+            this.getModel().accept(this);
+        };
+
+        ResourceDefinitionView.prototype.addConnectorViewList = function(view){
+            if (!_.isNil(view)) {
+                this._connectorViewList.push(view);
+            }
+        };
+
+        ResourceDefinitionView.prototype.getConnectorViewList = function(){
+            return this._connectorViewList;
+        };
+        /**
+         * @inheritDoc
+         * @returns {_defaultResourceWorker}
+         */
+        ResourceDefinitionView.prototype.getDefaultResourceLifeLine = function () {
+            return this._defaultResourceLifeLine;
+        };
+
+        ResourceDefinitionView.prototype.canVisitResourceDefinition = function (resourceDefinition) {
+            return true;
+        };
+
+        ResourceDefinitionView.prototype.visitResourceDefinition = function (resourceDefinition) {
+
+        };
+
+        ResourceDefinitionView.prototype.canVisitConnectorDeclaration = function (connectorDeclaration) {
+            return true;
         };
 
         /**
-         * @inheritDoc
+         * Calls the render method for a connector declaration.
+         * @param {ConnectorDeclaration} connectorDeclaration - The connector declaration model.
          */
+        ResourceDefinitionView.prototype.visitConnectorDeclaration = function (connectorDeclaration) {
+            /**
+             * @inheritDoc
+             */
+            log.info("Visiting connector declaration of resource");
+            var connectorContainer = this._container.getElementById("contentGroup");
+            // If more than 1 connector declaration
+            if(this.getConnectorViewList().length > 0 ){
+                var prevView = this.getConnectorViewList().pop(this.getConnectorViewList().length-1);
+                var newCenterPointX = prevView._viewOptions.connectorCenterPointX+ 180;
+                var newCenterPointY = prevView._viewOptions.connectorCenterPointY;
+                var viewOpts = {connectorCenterPointX:newCenterPointX, connectorCenterPointY: newCenterPointY};
+            var connectorDeclarationView =new ConnectorDeclarationView({model: connectorDeclaration,container: connectorContainer, viewOptions: viewOpts});
+        }
+            else{
+                var defaultResourceLifeline = this.getDefaultResourceLifeLine();
+                var resourceViewOpts = defaultResourceLifeline._viewOptions;
+                var connectorCenterPointX = resourceViewOpts.centerPoint.x + 180;
+                var connectorCenterPointY = resourceViewOpts.centerPoint.y;
+                var connectorViewOpts = {connectorCenterPointX: connectorCenterPointX,connectorCenterPointY: connectorCenterPointY};
+                var connectorDeclarationView = new ConnectorDeclarationView({model: connectorDeclaration,container: connectorContainer, viewOptions: connectorViewOpts} );
+            }
+
+            connectorDeclarationView.render();
+            connectorDeclarationView.setParent(this);
+            this.addConnectorViewList(connectorDeclarationView);
+
+        };
         ResourceDefinitionView.prototype.setWidth = function (newWidth) {
             // TODO : Implement
         };
