@@ -22,8 +22,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.ReadContext;
-
-import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.Context;
@@ -36,7 +34,6 @@ import org.wso2.ballerina.core.model.values.IntValue;
 import org.wso2.ballerina.core.model.values.JSONValue;
 import org.wso2.ballerina.core.model.values.LongValue;
 import org.wso2.ballerina.core.model.values.StringValue;
-import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 
@@ -51,21 +48,21 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
         returnType = {StringType.class},
         isPublic = true
 )
-@Component(
-        name = "func.lang.json_getString",
-        immediate = true,
-        service = AbstractNativeFunction.class
-)
+//@Component(
+//        name = "func.lang.json_getString",
+//        immediate = true,
+//        service = AbstractNativeFunction.class
+//)
 public class GetString extends AbstractJSONFunction {
 
     private static final Logger log = LoggerFactory.getLogger(GetString.class);
 
     @Override
-    public void interpret(Context ctx) {
+    public BValue[] execute(Context ctx) {
         log.info("GetJSONElement Native Function Invoked.");
         // Accessing Parameters.
-        JSONValue json = (JSONValue) getArgumentValue(ctx, 0).getBValue();
-        String jsonPath = getArgumentValue(ctx, 1).getString();
+        JSONValue json = (JSONValue) getArgument(ctx, 0).getBValue();
+        String jsonPath = getArgument(ctx, 1).getString();
         
         // Getting the value from JSON
         ReadContext jsonCtx = JsonPath.parse(json.getValue());
@@ -96,6 +93,6 @@ public class GetString extends AbstractJSONFunction {
         }
         
         // Setting output value.
-        setReturnTypes(ctx, result);
+        return getBValues(result);
     }
 }
