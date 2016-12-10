@@ -22,7 +22,7 @@ Every Ballerina program has both a textual representation and a canonical visual
 
 ### Concepts
 
-- *Service*: A `service` is an HTTP web service described by a Swagger. A service is the discrete unit of functionality that can be remotely accessed.
+- *Service*: A `service` is an HTTP web service described by a Swagger file. A service is the discrete unit of functionality that can be remotely accessed.
 - *Resource*: A `resource` is a single request handler within a service. The resource concept is designed to be access protocol independent - but in the initial release of the language it is intended to work with HTTP.
 - *Connector*: A `connector` represents a participant in the integration and is used to interact with an external system. Ballerina includes a set of standard connectors and anyone can program additional connectors in Ballerina itself.
 - *Action*: An `action` is an operation one can execute against a connector - i.e. a single interaction with a participant of the integration.
@@ -82,8 +82,7 @@ Services are singletons. As such all variables defined within a service scope ar
 Services may have the following annotations:
 - TBD - someone will go thru the Swagger spec and propose a detailed list of annotations to be included at each level.
 
-The structure of a ResourceDefinition is as follows:
-
+The structure of a `ResourceDefinition` used to define a `resource` is as follows:
 ```
 [ResourceAnnotations]
 resource ResourceName (Message VariableName[, ([ResourceParamAnnotations] TypeName VariableName)+]) {
@@ -98,9 +97,11 @@ The visual representation of this (without the annotations) in a sequence diagra
 
 ![Resources in a Service](images/bal-resource-skeleton.png)
 
+m1 and m2 are messages that are passed by a client as input to the resource named resource-1 and resource-2, respectively. resource-1 will produce the message response1 as a result, resource-2 will produce response2. In order to compute the response message, resource-1 relays message m1 to connector Connector-1 and will receive response1; similarly, resource-2 relays message m2 to connector Connector-2 and will receive response2.
+
 ### Functions
 
-The structure of a function is as follows:
+The structure of a `function` is as follows:
 
 ```
 [FunctionAnnotations]
@@ -129,7 +130,7 @@ connector ConnectorName ([ConnectorParamAnnotations]TypeName VariableName[(, Typ
 
 Note that ConnectorAnnotations are designed to help the editor provide a better user experience for connector users.
 
-A `connector` defines a set of actions. Actions are operations (functions) that can be executed against a connector. The  structure of an `action` definition is as follows:
+A `connector` defines a set of actions. Actions are operations that can be executed against a connector. The  structure of an `action` definition is as follows:
 
 ```
 [ActionAnnotations]
