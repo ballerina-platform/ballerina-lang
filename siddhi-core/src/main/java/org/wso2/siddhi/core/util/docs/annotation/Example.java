@@ -23,11 +23,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation for storing the return type of a processor
+ * Annotation for storing an example for a processor
  * Can be applied to windows, stream processors, stream functions, function executors and attribute aggregators
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface Return {
-    String[] value();
+public @interface Example {
+    String value();
 }

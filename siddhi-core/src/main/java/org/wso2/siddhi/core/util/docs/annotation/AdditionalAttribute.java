@@ -23,11 +23,14 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation for storing the return type of a processor
- * Can be applied to windows, stream processors, stream functions, function executors and attribute aggregators
+ * Annotation for storing additional attributes returned by a stream processor
+ * This should not be directly applied to any classes
+ * This should only be passed as a parameter to org.wso2.siddhi.core.util.docs.annotation.ReturnEvent
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface Return {
-    String[] value();
+public @interface AdditionalAttribute {
+    String name();
+
+    String[] type();
 }
