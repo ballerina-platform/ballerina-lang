@@ -146,6 +146,8 @@ public class BallerinaBaseListenerImpl extends BallerinaBaseListener {
             annotationList.add(parserAnnotation(annotationContext));
         }
 
+        Annotation[] annotations = annotationList.toArray(new Annotation[annotationList.size()]);
+
         List<Parameter> parameterList = new ArrayList<>();
         ParameterListContext parameterListContext = ctx.parameterList();
         if (parameterListContext != null) { //parameter list is optional
@@ -153,6 +155,8 @@ public class BallerinaBaseListenerImpl extends BallerinaBaseListener {
                 parameterList.add(parserParameter(praCtx));
             }
         }
+
+        Parameter[] parameters = parameterList.toArray(new Parameter[parameterList.size()]);
 
         List<Type> typeList = new ArrayList<>();
         ReturnTypeListContext returnTypeListContext = ctx.returnTypeList();
@@ -162,18 +166,30 @@ public class BallerinaBaseListenerImpl extends BallerinaBaseListener {
             }
         }
 
+        Type[] types = typeList.toArray(new Type[typeList.size()]);
+
         List<VariableDcl> variableDclList = new ArrayList<>();
         for (VariableDeclarationContext variableDeclarationContext : ctx.functionBody().variableDeclaration()) {
             variableDclList.add(parserVariableDclCtx(variableDeclarationContext));
         }
+
+        VariableDcl[] variableDcls = variableDclList.toArray(new VariableDcl[variableDclList.size()]);
 
         Statement[] statementArray = new Statement[ctx.functionBody().statement().size()];
         for (int i = 0; i < ctx.functionBody().statement().size(); i++) {
             statementArray[i] = parserStatementCtx(ctx.functionBody().statement(i).getChild(0));
         }
 
-        Function function = new BallerinaFunction(functionName, isPublicFunction, annotationList, parameterList, null,
-                null, variableDclList, null, new BlockStmt(statementArray));
+        Function function = new BallerinaFunction(
+                functionName,
+                isPublicFunction,
+                annotations,
+                parameters,
+                null,
+                null,
+                variableDcls,
+                null,
+                new BlockStmt(statementArray));
 
         balFile.addFunction(function);
 
@@ -492,30 +508,30 @@ public class BallerinaBaseListenerImpl extends BallerinaBaseListener {
 
     private Operator getOpName(String op) {
         switch (op) {
-        case "+":
-            return Operator.ADD;
-        case "-":
-            return Operator.SUB;
-        case "*":
-            return Operator.MUL;
-        case "/":
-            return Operator.DIV;
-        case "&&":
-            return Operator.AND;
-        case "||":
-            return Operator.OR;
-        case "==":
-            return Operator.EQUAL;
-        case "!=":
-            return Operator.NOT_EQUAL;
-        case ">":
-            return Operator.GREATER_THAN;
-        case ">=":
-            return Operator.GREATER_EQUAL;
-        case "<":
-            return Operator.LESS_THAN;
-        case "<=":
-            return Operator.LESS_EQUAL;
+            case "+":
+                return Operator.ADD;
+            case "-":
+                return Operator.SUB;
+            case "*":
+                return Operator.MUL;
+            case "/":
+                return Operator.DIV;
+            case "&&":
+                return Operator.AND;
+            case "||":
+                return Operator.OR;
+            case "==":
+                return Operator.EQUAL;
+            case "!=":
+                return Operator.NOT_EQUAL;
+            case ">":
+                return Operator.GREATER_THAN;
+            case ">=":
+                return Operator.GREATER_EQUAL;
+            case "<":
+                return Operator.LESS_THAN;
+            case "<=":
+                return Operator.LESS_EQUAL;
         }
         return null;
     }

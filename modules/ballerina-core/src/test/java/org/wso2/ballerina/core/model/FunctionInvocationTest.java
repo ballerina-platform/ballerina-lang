@@ -61,22 +61,22 @@ public class FunctionInvocationTest {
      */
     private BallerinaFunction getAddInternalFunc(Type type,
                                                  TriFunction<Context, Expression, Expression, BValueRef> evalFunc) {
-        List<Annotation> annotations = new ArrayList<>();
+        Annotation[] annotations = new Annotation[0];
 
         Parameter paramX = new Parameter(type, new Identifier("arg1"));
         Parameter paramY = new Parameter(type, new Identifier("arg2"));
-        List<Parameter> parameters = new ArrayList<>(1);
-        parameters.add(paramX);
-        parameters.add(paramY);
+        Parameter[] parameters = new Parameter[2];
+        parameters[0] = paramX;
+        parameters[1] = paramY;
 
-        List<VariableDcl> variableDcls = new ArrayList<>(1);
+        VariableDcl[] variableDcls = new VariableDcl[0];
 
-        List<Type> returnTypes = new ArrayList<>(1);
-        returnTypes.add(type);
+        Type[] returnTypes = new Type[1];
+        returnTypes[0] = type;
 
-        List<Connection> connections = new ArrayList<>();
+        Connection[] connections = new Connection[0];
 
-        List<Worker> workers = new ArrayList<>();
+        Worker[] workers = new Worker[0];
 
         // BallerinaFunction Body
         Identifier idArg1 = new Identifier("arg1");
@@ -113,24 +113,24 @@ public class FunctionInvocationTest {
     private BallerinaFunction getAddFunc(Type type,
                                          TriFunction<Context, Expression, Expression, BValueRef> evalFunc) {
         // Defining the "echoInt" function
-        List<Annotation> annotations = new ArrayList<>();
+        Annotation[] annotations = new Annotation[0];
 
         Parameter paramX = new Parameter(type, new Identifier("x"));
         Parameter paramY = new Parameter(type, new Identifier("y"));
-        List<Parameter> parameters = new ArrayList<>(1);
-        parameters.add(paramX);
-        parameters.add(paramY);
+        Parameter[] parameters = new Parameter[2];
+        parameters[0] = paramX;
+        parameters[1] = paramY;
 
         VariableDcl varDclSUM = new VariableDcl(type, new Identifier("sum"), "");
-        List<VariableDcl> variableDcls = new ArrayList<>(1);
-        variableDcls.add(varDclSUM);
+        VariableDcl[] variableDcls = new VariableDcl[1];
+        variableDcls[0] = varDclSUM;
 
-        List<Type> returnTypes = new ArrayList<>(1);
-        returnTypes.add(type);
+        Type[] returnTypes = new Type[1];
+        returnTypes[0] = type;
 
-        List<Connection> connections = new ArrayList<>();
+        Connection[] connections = new Connection[0];
 
-        List<Worker> workers = new ArrayList<>();
+        Worker[] workers = new Worker[0];
 
         // BallerinaFunction body
         Identifier idX = new Identifier("x");

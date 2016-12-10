@@ -54,11 +54,11 @@ public class FunctionInvocationExpr extends AbstractExpression {
     }
 
     public BValueRef evaluate(Context ctx) {
-        List<Parameter> parameters = calleeFunction.getParameters();
+        Parameter[] parameters = calleeFunction.getParameters();
 
         // Setting up function parameters.
-        BValueRef[] funcParams = new BValueRef[parameters.size()];
-        for (int index = 0; index < parameters.size(); index++) {
+        BValueRef[] funcParams = new BValueRef[parameters.length];
+        for (int index = 0; index < parameters.length; index++) {
             // TODO Think about the copy-by-bValueRef aspect here.
             BValueRef value = expressionList.get(index).evaluate(ctx);
             funcParams[index] = value;
@@ -67,20 +67,20 @@ public class FunctionInvocationExpr extends AbstractExpression {
         // Return bValueRef
         // TODO Support multiple return types
         BValueRef returnValue = null;
-        if (calleeFunction.getReturnTypes().size() > 0) {
-            returnValue = ValueFactory.creteValue(calleeFunction.getReturnTypes().get(0));
+        if (calleeFunction.getReturnTypes().length > 0) {
+            returnValue = ValueFactory.creteValue(calleeFunction.getReturnTypes()[0]);
         }
 
         BValueRef[] localVariables = new BValueRef[0];
         if (calleeFunction instanceof BallerinaFunction) {
             BallerinaFunction function = (BallerinaFunction) calleeFunction;
 
-            List<VariableDcl> variableDcls = function.getVariableDcls();
+            VariableDcl[] variableDcls = function.getVariableDcls();
 
             // Setting up local variables;
-            localVariables = new BValueRef[variableDcls.size()];
-            for (int index = 0; index < variableDcls.size(); index++) {
-                BValueRef value = ValueFactory.creteValue(variableDcls.get(index).getType());
+            localVariables = new BValueRef[variableDcls.length];
+            for (int index = 0; index < variableDcls.length; index++) {
+                BValueRef value = ValueFactory.creteValue(variableDcls[index].getType());
                 localVariables[index] = value;
             }
         }
