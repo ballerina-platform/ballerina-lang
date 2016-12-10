@@ -221,7 +221,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', 'app/diagram-core/models/poi
             this._bottomPolygon = D3Utils.polygon(bottomPolygonPoints, this._lifelineGroup);
             this._bottomPolygon.attr('fill', "#FFFFFF");
             this._bottomPolygon.attr('stroke-width', "1");
-            this._bottomPolygon.attr('stroke', "#000000");
+            this._bottomPolygon.attr('stroke', "#9d9d9d");
 
             // Add text to bottom polygon.
             this._bottomPolygonText = D3Utils.textElement(this._viewOptions.centerPoint.x, centerYPointOfBottomPolygon,
@@ -234,7 +234,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', 'app/diagram-core/models/poi
             this._topPolygon = D3Utils.centeredRect(new Point(this._viewOptions.centerPoint.x, this._viewOptions.centerPoint.y), this._viewOptions.polygon.width, this._viewOptions.polygon.height, 0, 0, this._lifelineGroup);
             this._topPolygon.attr('fill', "#FFFFFF");
             this._topPolygon.attr('stroke-width', "1");
-            this._topPolygon.attr('stroke', "#000000");
+            this._topPolygon.attr('stroke', "#9d9d9d");
 
             // Add text to top polygon.
             this._topPolygonText = D3Utils.textElement(this._viewOptions.centerPoint.x, this._viewOptions.centerPoint.y,
@@ -276,7 +276,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', 'app/diagram-core/models/poi
             this._bottomPolygon = D3Utils.centeredRect(new Point(this._viewOptions.centerPoint.x, this._viewOptions.centerPoint.y + this._viewOptions.line.height + 12), this._viewOptions.polygon.width, this._viewOptions.polygon.height , 0, 0, this._lifelineGroup);
             this._bottomPolygon.attr('fill', "#FFFFFF");
             this._bottomPolygon.attr('stroke-width', "1");
-            this._bottomPolygon.attr('stroke', "#000000");
+            this._bottomPolygon.attr('stroke', "#9d9d9d");
 
 
             // // Add text to bottom polygon.

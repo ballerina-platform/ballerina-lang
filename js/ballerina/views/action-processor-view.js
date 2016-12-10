@@ -61,17 +61,18 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './point'],
             var processorRect = D3utils.centeredRect(new Point(this._viewOptions.centerPoint.x, this._viewOptions.centerPoint.y), this._viewOptions.width
                 , this._viewOptions.height, 0, 0, this._viewOptions.parent);
             processorRect.attr("stroke-width", 1);
-            processorRect.attr("stroke", "#000000").attr("fill", "white");
+            processorRect.attr("stroke", "#9d9d9d").attr("fill", "white");
             var processorConnector = D3utils.line(this._viewOptions.sourcePoint.x, this._viewOptions.sourcePoint.y, this._viewOptions.destinationPoint.x,
                 this._viewOptions.destinationPoint.y, this._viewOptions.parent).classed(" client line", true);
-            processorConnector.attr("stroke", "#000000");
+            processorConnector.attr("stroke", "#9d9d9d");
             //TODO: center text
             var processorText = D3utils.textElement((this._viewOptions.centerPoint.x + 40 - this._viewOptions.width / 2), (this._viewOptions.centerPoint.y + 20 - (this._viewOptions.height / 2)),
                 this._viewOptions.action, this._viewOptions.parent);
             processorText.attr('text-anchor', "start").attr("fill", "#727272");
 
             if (this._viewOptions.inArrow) {
-                D3utils.inputTriangle(this._viewOptions.arrowX, this._viewOptions.arrowY, this._viewOptions.parent);
+                var arrowHead = D3utils.inputTriangle(this._viewOptions.arrowX, this._viewOptions.arrowY, this._viewOptions.parent);
+                arrowHead.attr("stroke","#9d9d9d");
             }
             //TODO logic
             else if (this.viewOptions.outArrow) {
