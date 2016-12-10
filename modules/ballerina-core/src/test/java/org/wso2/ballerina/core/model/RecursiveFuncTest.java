@@ -62,12 +62,12 @@ public class RecursiveFuncTest {
     public BallerinaFunction getfibonacciFunc() {
         // BallerinaFunction parameters
         Parameter paramN = new Parameter(new LongType(), new Identifier("arg2"));
-        List<Parameter> parameters = new ArrayList<>(1);
-        parameters.add(paramN);
+        Parameter[] parameters = new Parameter[1];
+        parameters[0] = paramN;
 
         // Return types
-        List<Type> returnTypes = new ArrayList<>(1);
-        returnTypes.add(new LongType());
+        Type[] returnTypes = new Type[1];
+        returnTypes[0] = new LongType();
 
         // Variable reference expressions
         VariableRefExpr varRefExprN = new VariableRefExpr(new Identifier("n"));
@@ -124,7 +124,7 @@ public class RecursiveFuncTest {
 
         // Create function
         BallerinaFunction function = new BallerinaFunction(new Identifier("fibonacci"), false, null, parameters,
-                returnTypes, null, new ArrayList<>(), null, funcBody);
+                returnTypes, null, new VariableDcl[0], null, funcBody);
 
         fInvoExpr1.setFunction(function);
         fInvoExpr2.setFunction(function);

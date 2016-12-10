@@ -22,8 +22,6 @@ import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.types.Type;
 
-import java.util.List;
-
 /**
  * A {@code BallerinaFunction} is an operation that is executed by a {@code Worker}.
  * <p>
@@ -44,25 +42,25 @@ public class BallerinaFunction implements Function {
 
     private Identifier functionName;
 
-    private List<Annotation> annotations;
-    private List<Parameter> parameters;
-    private List<Connection> connections;
-    private List<VariableDcl> variableDcls;
-    private List<Worker> workers;
+    private Annotation[] annotations;
+    private Parameter[] parameters;
+    private Connection[] connections;
+    private VariableDcl[] variableDcls;
+    private Worker[] workers;
 
-    private List<Type> returnTypes;
+    private Type[] returnTypes;
     private BlockStmt functionBody;
 
     private boolean publicFunc;
 
     public BallerinaFunction(Identifier name,
                              Boolean isPublic,
-                             List<Annotation> annotations,
-                             List<Parameter> parameters,
-                             List<Type> returnTypes,
-                             List<Connection> connections,
-                             List<VariableDcl> variableDcls,
-                             List<Worker> workers,
+                             Annotation[] annotations,
+                             Parameter[] parameters,
+                             Type[] returnTypes,
+                             Connection[] connections,
+                             VariableDcl[] variableDcls,
+                             Worker[] workers,
                              BlockStmt functionBody) {
 
         this.functionName = name;
@@ -94,7 +92,7 @@ public class BallerinaFunction implements Function {
      *
      * @return list of Annotations
      */
-    public List<Annotation> getAnnotations() {
+    public Annotation[] getAnnotations() {
         return annotations;
     }
 
@@ -103,7 +101,7 @@ public class BallerinaFunction implements Function {
      *
      * @return list of Arguments
      */
-    public List<Parameter> getParameters() {
+    public Parameter[] getParameters() {
         return parameters;
     }
 
@@ -113,7 +111,7 @@ public class BallerinaFunction implements Function {
      *
      * @return list of all the Connections belongs to a BallerinaFunction
      */
-    public List<Connection> getConnections() {
+    public Connection[] getConnections() {
         return connections;
     }
 
@@ -123,7 +121,7 @@ public class BallerinaFunction implements Function {
      *
      * @return list of all BallerinaFunction scoped variableDcls
      */
-    public List<VariableDcl> getVariableDcls() {
+    public VariableDcl[] getVariableDcls() {
         return variableDcls;
     }
 
@@ -132,11 +130,11 @@ public class BallerinaFunction implements Function {
      *
      * @return list of Workers
      */
-    public List<Worker> getWorkers() {
+    public Worker[] getWorkers() {
         return workers;
     }
 
-    public List<Type> getReturnTypes() {
+    public Type[] getReturnTypes() {
         return returnTypes;
     }
 
