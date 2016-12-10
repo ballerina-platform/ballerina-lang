@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerina.core.parser.visitor;
 
+import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.parser.BallerinaBaseVisitor;
 import org.wso2.ballerina.core.parser.BallerinaParser;
 
@@ -34,7 +35,7 @@ public class AnnotationVisitor extends BallerinaBaseVisitor {
      */
     @Override
     public Object visitAnnotation(BallerinaParser.AnnotationContext ctx) {
-        return super.visitAnnotation(ctx);
+        return new Annotation(ctx.annotationName().getText(), ctx.elementValue().getText());
     }
 
     /**
