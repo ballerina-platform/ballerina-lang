@@ -18,12 +18,12 @@
 
 package org.wso2.ballerina.core.nativeimpl.lang.message;
 
-import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.JSONType;
 import org.wso2.ballerina.core.model.types.MessageType;
+import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.JSONValue;
 import org.wso2.ballerina.core.model.values.MessageValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
@@ -40,20 +40,20 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
         returnType = {JSONType.class},
         isPublic = true
 )
-@Component(
-        name = "func.lang.echo_getJsonPayload",
-        immediate = true,
-        service = AbstractNativeFunction.class
-)
+//@Component(
+//        name = "func.lang.echo_getJsonPayload",
+//        immediate = true,
+//        service = AbstractNativeFunction.class
+//)
 public class GetJsonPayload extends AbstractNativeFunction {
 
     private static final Logger log = LoggerFactory.getLogger(GetJsonPayload.class);
 
     @Override
-    public void interpret(Context ctx) {
+    public BValue[] execute(Context ctx) {
         log.info("GetJsonPayload Native Function Invoked.");
         // Accessing First Parameter Value.
-        MessageValue msg = (MessageValue) getArgumentValue(ctx, 0).getBValue();
+        MessageValue msg = (MessageValue) getArgument(ctx, 0).getBValue();
         
         JSONValue result;
         if (msg.isAlreadyRead()) {
@@ -65,6 +65,6 @@ public class GetJsonPayload extends AbstractNativeFunction {
         }
         
         // Setting output value.
-        setReturnTypes(ctx, result);
+        return getBValues(result);
     }
 }

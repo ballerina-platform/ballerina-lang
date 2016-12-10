@@ -40,8 +40,11 @@ import java.util.List;
  */
 public abstract class AbstractNativeFunction implements NativeFunction {
 
+    /**
+     * Void RETURN.
+     */
+    public static final BValue[] VOID_RETURN = new BValue[0];
     private static final Logger log = LoggerFactory.getLogger(AbstractNativeFunction.class);
-
     private String packageName, functionName;
     private Identifier identifier;
     private List<Annotation> annotations;
@@ -117,27 +120,13 @@ public abstract class AbstractNativeFunction implements NativeFunction {
     }
 
     /**
-     * Set ReturnTypes of the function.
-     *
-     * @param returnTypes Return types of the function.
-     */
-    public void setReturnTypes(Context context, BValue... returnTypes) {
-        // TODO : Support for multiple return values.
-        if (returnTypes == null || this.returnTypes.size() == 0) {
-            context.getControlStack().getCurrentFrame().returnValue = null;
-            return;
-        }
-        context.getControlStack().getCurrentFrame().returnValue.setBValue(returnTypes[0]);
-    }
-
-    /**
-     * Get Argument value.
+     * Get Argument by index.
      *
      * @param context current {@code {@link Context}} instance.
      * @param index   index of the parameter.
      * @return BValue;
      */
-    public BValueRef getArgumentValue(Context context, int index) {
+    public BValueRef getArgument(Context context, int index) {
         if (index > -1 && index < parameters.size()) {
             return context.getControlStack().getCurrentFrame().parameters[index];
         }
@@ -147,5 +136,34 @@ public abstract class AbstractNativeFunction implements NativeFunction {
     @Override
     public boolean isPublic() {
         return isPublicFunction;
+    }
+
+    @Override
+    public void interpret(Context context) {
+        BValue[] returnValues = execute(context);
+        if (returnValues == null || returnValues.length == 0 || this.returnTypes.size() == 0) {
+            context.getControlStack().getCurrentFrame().returnValue = null;
+            return;
+        }
+        // TODO : Support for multiple return values.
+        context.getControlStack().getCurrentFrame().returnValue.setBValue(returnValues[0]);
+    }
+
+    /**
+     * Where Native Function logic is implemented.
+     *
+     * @param context Current Context instance
+     * @return Native function return BValue array
+     */
+    public abstract BValue[] execute(Context context);
+
+    /**
+     * Util method to construct BValue array.
+     *
+     * @param values
+     * @return
+     */
+    public BValue[] getBValues(BValue... values) {
+        return values;
     }
 }
