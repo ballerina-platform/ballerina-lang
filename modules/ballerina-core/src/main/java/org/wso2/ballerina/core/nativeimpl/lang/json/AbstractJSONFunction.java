@@ -25,8 +25,6 @@ import com.jayway.jsonpath.spi.json.GsonJsonProvider;
 import com.jayway.jsonpath.spi.json.JsonProvider;
 import com.jayway.jsonpath.spi.mapper.GsonMappingProvider;
 import com.jayway.jsonpath.spi.mapper.MappingProvider;
-
-import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 
 import java.util.EnumSet;
@@ -37,9 +35,6 @@ import java.util.Set;
  */
 public abstract class AbstractJSONFunction extends AbstractNativeFunction {
 
-    @Override
-    public abstract void interpret(Context ctx);
-    
     /**
      * Create a JSON function
      */
