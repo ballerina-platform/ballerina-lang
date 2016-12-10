@@ -18,7 +18,6 @@
 
 package org.wso2.ballerina.core.nativeimpl.lang.message;
 
-import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.Context;
@@ -41,11 +40,11 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
         returnType = {JSONType.class},
         isPublic = true
 )
-@Component(
-        name = "func.lang.echo_getJsonPayload",
-        immediate = true,
-        service = AbstractNativeFunction.class
-)
+//@Component(
+//        name = "func.lang.echo_getJsonPayload",
+//        immediate = true,
+//        service = AbstractNativeFunction.class
+//)
 public class GetJsonPayload extends AbstractNativeFunction {
 
     private static final Logger log = LoggerFactory.getLogger(GetJsonPayload.class);

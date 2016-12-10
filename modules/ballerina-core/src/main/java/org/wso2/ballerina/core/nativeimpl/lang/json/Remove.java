@@ -20,8 +20,6 @@ package org.wso2.ballerina.core.nativeimpl.lang.json;
 
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.WriteContext;
-
-import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.Context;
@@ -29,7 +27,6 @@ import org.wso2.ballerina.core.model.types.JSONType;
 import org.wso2.ballerina.core.model.types.StringType;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.JSONValue;
-import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 
@@ -43,12 +40,11 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
                 @Argument(name = "jsonPath", type = StringType.class)},
         isPublic = true
 )
-@Component(
-        name = "func.lang.json_remove",
-        immediate = true,
-        service = AbstractNativeFunction.class
-)
-
+//@Component(
+//        name = "func.lang.json_remove",
+//        immediate = true,
+//        service = AbstractNativeFunction.class
+//)
 public class Remove extends AbstractJSONFunction {
 
     private static final Logger log = LoggerFactory.getLogger(Remove.class);
