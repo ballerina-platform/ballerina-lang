@@ -22,7 +22,7 @@ package org.wso2.ballerina.core.model.values;
  *
  * @since 1.0.0
  */
-public class StringValue implements BValue {
+public class StringValue implements BValue<String> {
     private String value;
 
     public StringValue(String value) {
