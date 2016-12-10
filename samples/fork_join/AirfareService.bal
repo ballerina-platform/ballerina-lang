@@ -25,7 +25,7 @@ service AirfareProviderService {
                 string query;
                 message response;
 
-                payload = message:getXmlPayload(msg);
+                payload = message:getXmlPayload(m);
                 from = xml:get(payload, "reservationInfo/from");
                 to = xml:get(payload, "reservationInfo/to");
                 date = xml:get(payload, "reservationInfo/date");
@@ -42,7 +42,7 @@ service AirfareProviderService {
                 string query;
                 message response;
 
-                payload = message:getXmlPayload(msg);
+                payload = message:getXmlPayload(m);
                 from = xml:get(payload, "reservationInfo/from");
                 to = xml:get(payload, "reservationInfo/to");
                 date = xml:get(payload, "reservationInfo/date");
