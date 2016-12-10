@@ -23,17 +23,17 @@ package org.wso2.ballerina.core.model.values;
  * @since 1.0.0
  */
 public class BValueRef {
-    private BValue bValue;
+    private BValue<?> bValue;
 
-    public BValueRef(BValue bValue) {
+    public BValueRef(BValue<?> bValue) {
         this.bValue = bValue;
     }
 
-    public BValue getBValue() {
+    public BValue<?> getBValue() {
         return this.bValue;
     }
 
-    public void setBValue(BValue bValue) {
+    public void setBValue(BValue<?> bValue) {
         this.bValue = bValue;
     }
 

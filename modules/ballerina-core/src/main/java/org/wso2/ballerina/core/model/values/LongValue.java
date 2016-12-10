@@ -22,14 +22,14 @@ package org.wso2.ballerina.core.model.values;
  *
  * @since 1.0.0
  */
-public class LongValue implements BValue {
+public class LongValue implements BValue<Long> {
     private long value;
 
     public LongValue(long value) {
         this.value = value;
     }
 
-    public long getValue() {
+    public Long getValue() {
         return value;
     }
 

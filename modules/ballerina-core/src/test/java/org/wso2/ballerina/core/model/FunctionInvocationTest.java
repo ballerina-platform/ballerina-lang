@@ -44,7 +44,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Test class to test the functionality of the {@link org.wso2.ballerina.core.model.Function} class
+ * Test class to test the functionality of the {@link BallerinaFunction} class
  *
  * @since 1.0.0
  */
@@ -59,26 +59,26 @@ public class FunctionInvocationTest {
      * return arg1 + arg2;
      * }
      */
-    private Function getAddInternalFunc(Type type,
-                                        TriFunction<Context, Expression, Expression, BValueRef> evalFunc) {
-        List<Annotation> annotations = new ArrayList<>();
+    private BallerinaFunction getAddInternalFunc(Type type,
+                                                 TriFunction<Context, Expression, Expression, BValueRef> evalFunc) {
+        Annotation[] annotations = new Annotation[0];
 
         Parameter paramX = new Parameter(type, new Identifier("arg1"));
         Parameter paramY = new Parameter(type, new Identifier("arg2"));
-        List<Parameter> parameters = new ArrayList<>(1);
-        parameters.add(paramX);
-        parameters.add(paramY);
+        Parameter[] parameters = new Parameter[2];
+        parameters[0] = paramX;
+        parameters[1] = paramY;
 
-        List<VariableDcl> variableDcls = new ArrayList<>(1);
+        VariableDcl[] variableDcls = new VariableDcl[0];
 
-        List<Type> returnTypes = new ArrayList<>(1);
-        returnTypes.add(type);
+        Type[] returnTypes = new Type[1];
+        returnTypes[0] = type;
 
-        List<Connection> connections = new ArrayList<>();
+        Connection[] connections = new Connection[0];
 
-        List<Worker> workers = new ArrayList<>();
+        Worker[] workers = new Worker[0];
 
-        // Function Body
+        // BallerinaFunction Body
         Identifier idArg1 = new Identifier("arg1");
         VariableRefExpr varRefExprArg1 = new VariableRefExpr(idArg1);
         varRefExprArg1.setEvalFunction(VariableRefExpr.createGetParamValueFunc(0));
@@ -96,8 +96,8 @@ public class FunctionInvocationTest {
         statements[0] = returnStmt;
         BlockStmt funcBody = new BlockStmt(statements);
 
-        Function function = new Function(new Identifier("addInternal"), false, annotations, parameters, returnTypes,
-                connections, variableDcls, workers, funcBody);
+        BallerinaFunction function = new BallerinaFunction(new Identifier("addInternal"), false, annotations,
+                parameters, returnTypes, connections, variableDcls, workers, funcBody);
 
         return function;
 
@@ -110,29 +110,29 @@ public class FunctionInvocationTest {
      * return sum;
      * }
      */
-    private Function getAddFunc(Type type,
-                                TriFunction<Context, Expression, Expression, BValueRef> evalFunc) {
+    private BallerinaFunction getAddFunc(Type type,
+                                         TriFunction<Context, Expression, Expression, BValueRef> evalFunc) {
         // Defining the "echoInt" function
-        List<Annotation> annotations = new ArrayList<>();
+        Annotation[] annotations = new Annotation[0];
 
         Parameter paramX = new Parameter(type, new Identifier("x"));
         Parameter paramY = new Parameter(type, new Identifier("y"));
-        List<Parameter> parameters = new ArrayList<>(1);
-        parameters.add(paramX);
-        parameters.add(paramY);
+        Parameter[] parameters = new Parameter[2];
+        parameters[0] = paramX;
+        parameters[1] = paramY;
 
         VariableDcl varDclSUM = new VariableDcl(type, new Identifier("sum"), "");
-        List<VariableDcl> variableDcls = new ArrayList<>(1);
-        variableDcls.add(varDclSUM);
+        VariableDcl[] variableDcls = new VariableDcl[1];
+        variableDcls[0] = varDclSUM;
 
-        List<Type> returnTypes = new ArrayList<>(1);
-        returnTypes.add(type);
+        Type[] returnTypes = new Type[1];
+        returnTypes[0] = type;
 
-        List<Connection> connections = new ArrayList<>();
+        Connection[] connections = new Connection[0];
 
-        List<Worker> workers = new ArrayList<>();
+        Worker[] workers = new Worker[0];
 
-        // Function body
+        // BallerinaFunction body
         Identifier idX = new Identifier("x");
         VariableRefExpr varRefExprX = new VariableRefExpr(idX);
         varRefExprX.setEvalFunction(VariableRefExpr.createGetParamValueFunc(0));
@@ -151,7 +151,7 @@ public class FunctionInvocationTest {
         fInvoExprs.add(varRefExprX);
         fInvoExprs.add(varRefExprY);
         FunctionInvocationExpr fInvoExpr = new FunctionInvocationExpr(new Identifier("addNumbers"), fInvoExprs);
-        Function addInternalFunc = getAddInternalFunc(type, evalFunc);
+        BallerinaFunction addInternalFunc = getAddInternalFunc(type, evalFunc);
         fInvoExpr.setFunction(addInternalFunc);
 
         AssignStmt assignStmt = new AssignStmt(varRefExprSUM, fInvoExpr);
@@ -162,8 +162,8 @@ public class FunctionInvocationTest {
         statements[1] = returnStmt;
 
         BlockStmt funcBody = new BlockStmt(statements);
-        Function function = new Function(new Identifier("addNumbers"), false, annotations, parameters, returnTypes,
-                connections, variableDcls, workers, funcBody);
+        BallerinaFunction function = new BallerinaFunction(new Identifier("addNumbers"), false, annotations, parameters,
+                returnTypes, connections, variableDcls, workers, funcBody);
 
         return function;
     }
@@ -179,7 +179,7 @@ public class FunctionInvocationTest {
             Type type,
             TriFunction<Context, Expression, Expression, BValueRef> evalFunc) {
 
-        // Function invocation
+        // BallerinaFunction invocation
         Identifier idA = new Identifier("argA");
         VariableRefExpr varRefExprA = new VariableRefExpr(idA);
         varRefExprA.setEvalFunction(VariableRefExpr.createGetLocalValueFunc(0));
@@ -194,7 +194,7 @@ public class FunctionInvocationTest {
 
         FunctionInvocationExpr invocationExpr = new FunctionInvocationExpr(new Identifier("add"), expressions);
 
-        Function function = getAddFunc(type, evalFunc);
+        BallerinaFunction function = getAddFunc(type, evalFunc);
         invocationExpr.setFunction(function);
 
         return invocationExpr;
