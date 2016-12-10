@@ -16,9 +16,9 @@
  * under the License.
  */
 define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../ast/resource-definition',
-        'app/diagram-core/models/point', './life-line'],
+        './point', './life-line', './action-processor-view'],
     function (_, log, d3, $, D3utils, BallerinaView, ResourceDefinition,
-              Point, LifeLine) {
+              Point, LifeLine,ActionProcessor) {
 
         /**
          * The view to represent a resource definition which is an AST visitor.
@@ -62,6 +62,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             this._viewOptions.contentWidth = _.get(args, "viewOptions.contentWidth", 1000);
             this._viewOptions.contentHeight = _.get(args, "viewOptions.contentHeight", 360);
             this._viewOptions.collapseIconWidth = _.get(args, "viewOptions.collaspeIconWidth", 1025);
+
 
             BallerinaView.call(this);
         };
@@ -119,6 +120,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
         ResourceDefinitionView.prototype.render = function () {
             // Render resource view
             var svgContainer = $(this._container)[0];
+
             var headingStart = new Point(this._viewOptions.centerPoint.x, this._viewOptions.centerPoint.y);
             var contentStart = new Point(this._viewOptions.centerPoint.x, this._viewOptions.centerPoint.y + this._viewOptions.heading.height);
             //Main container for a resource
@@ -171,10 +173,6 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
             var contentRect = D3utils.rect(contentStart.x(), contentStart.y(), this._viewOptions.contentWidth, this._viewOptions.contentHeight, 0, 0, contentGroup).classed("resource-content", true);
 
-            //TODO: add dynamic properties for arrow
-          //  var arrowLine = D3utils.line(90,250, 120,250, contentGroup);
-           // var arrowHead = D3utils.inputTriangle(115,250,contentGroup);
-
             // On click of collapse icon hide/show resource body
             headingCollapseIcon.on("click", function () {
                 //TODO: trigger event when collapsed/opened
@@ -221,15 +219,48 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                     value: "Resource Worker",
                     class: "lifeline-text"
                 },
-                action: {
-                    value: "Start"
-                },
                 worker: {
                     value: true
                 }
             };
+
             var defaultWorker = new LifeLine(contentGroup, defaultWorkerOptions);
             defaultWorker.render();
+           //Drawing processor for resource worker
+            var processorCenterPointX = contentStart.x() + 130;
+            var processorCenterPointY = contentStart.y() + 75;
+            var processorWidth = 120;
+            var processorHeight = 30;
+            var sourcePointX = processorCenterPointX - (processorWidth/2) -30;
+            var sourcePointY = processorCenterPointY;
+            var destinationPointX =  processorCenterPointX - (processorWidth/2);
+            var  arrowX = destinationPointX - 5;
+            var arrowY = processorCenterPointY;
+
+            var processorViewOpts = {
+                parent: contentGroup,
+                processorWidth: processorWidth,
+                processorHeight: processorHeight,
+                centerPoint: {
+                    x: processorCenterPointX,
+                    y: processorCenterPointY
+                },
+                sourcePoint: {
+                    x: sourcePointX,
+                    y: sourcePointY
+                },
+                destinationPoint: {
+                    x: destinationPointX,
+                    y: sourcePointY
+                },
+                action: "Start",
+                inArrow: true,
+                arrowX: arrowX,
+                arrowY: arrowY
+
+            };
+            var defaultProcessor = new ActionProcessor(processorViewOpts);
+            defaultProcessor.render();
 
             log.debug("Rendering Resource View");
         };
