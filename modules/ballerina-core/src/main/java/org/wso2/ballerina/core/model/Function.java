@@ -21,8 +21,6 @@ package org.wso2.ballerina.core.model;
 import org.wso2.ballerina.core.interpreter.Interpreter;
 import org.wso2.ballerina.core.model.types.Type;
 
-import java.util.List;
-
 /**
  * {@code {@link Function}} represents any Ballerina function.
  */
@@ -47,20 +45,20 @@ public interface Function extends Interpreter {
      *
      * @return list of Annotations
      */
-    List<Annotation> getAnnotations();
+    Annotation[] getAnnotations();
 
     /**
      * Get list of Arguments associated with the function definition
      *
      * @return list of Arguments
      */
-    List<Parameter> getParameters();
+    Parameter[] getParameters();
 
     /**
      * Get list of return Types associated with function defintion.
      * @return list of Return types.
      */
-    List<Type> getReturnTypes();
+    Type[] getReturnTypes();
 
     /**
      * Check whether function is public, which means function is visible outside the package

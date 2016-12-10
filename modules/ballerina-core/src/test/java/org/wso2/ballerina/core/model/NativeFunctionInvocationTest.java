@@ -80,22 +80,22 @@ public class NativeFunctionInvocationTest {
      */
     private Function getFunctionNestedNative() {
 
-        List<Annotation> annotations = new ArrayList<>();
+        Annotation[] annotations = new Annotation[0];
 
         Parameter echo = new Parameter(new StringType(), new Identifier("echo"));
-        List<Parameter> parameters = new ArrayList<>(1);
-        parameters.add(echo);
+        Parameter[] parameters = new Parameter[1];
+        parameters[0] = echo;
 
-        List<Type> returnTypes = new ArrayList<>(1);
-        returnTypes.add(new StringType());
+        Type[] returnTypes = new Type[1];
+        returnTypes[0] = new StringType();
 
-        List<Connection> connections = new ArrayList<>();
+        Connection[] connections = new Connection[0];
 
-        List<Worker> workers = new ArrayList<>();
+        Worker[] workers = new Worker[0];
 
         VariableDcl varDclValue = new VariableDcl(new StringType(), new Identifier("value"), "");
-        List<VariableDcl> variableDcls = new ArrayList<>(1);
-        variableDcls.add(varDclValue);
+        VariableDcl[] variableDcls = new VariableDcl[1];
+        variableDcls[0] = varDclValue;
 
 
         // BallerinaFunction body
