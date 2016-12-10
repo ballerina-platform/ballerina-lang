@@ -23,12 +23,22 @@ define(['lodash', 'log', './conditional-statement'], function (_, log, Condition
      * @param statements The statements list of a while statement.
      * @constructor
      */
-    var WhileStatement = function (condition, statements) {
-        ConditionalStatement.call(condition, statements);
+    var WhileStatement = function () {
+        ConditionalStatement.call(this);
     };
 
     WhileStatement.prototype = Object.create(ConditionalStatement.prototype);
     WhileStatement.prototype.constructor = WhileStatement;
+
+    WhileStatement.prototype.setCondition = function(condition){
+        if(!_.isNil(condition)){
+            this._condition = condition;
+        }
+    };
+
+    WhileStatement.prototype,getCondition = function(){
+        return this._condition;
+    };
 
     return WhileStatement;
 });

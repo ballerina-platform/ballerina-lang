@@ -22,6 +22,7 @@ define(['lodash', 'log', './../visitors/ast-visitor'], function (_, log, ASTVisi
      * @constructor
      */
     var BallerinaView = function () {
+        this._parent = undefined;
         ASTVisitor.call(this);
     };
 
@@ -43,6 +44,12 @@ define(['lodash', 'log', './../visitors/ast-visitor'], function (_, log, ASTVisi
     BallerinaView.prototype.getXPosition = function () {
     };
     BallerinaView.prototype.getYPosition = function () {
+    };
+    BallerinaView.prototype.setParent = function (parent) {
+        this._parent = parent;
+    };
+    BallerinaView.prototype.getParent = function () {
+        return this._parent;
     };
 
     return BallerinaView;

@@ -40,6 +40,8 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
             return this.canVisitTryStatement(node);
         } else if (node instanceof AST.CatchStatement) {
             return this.canVisitCatchStatement(node);
+        } else if (node instanceof AST.WhileStatement) {
+            return this.canVisitWhileStatement(node);
         }
     };
 
@@ -47,14 +49,20 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
      * @param node {ASTNode}
      */
     StatementVisitor.prototype.beginVisit = function (node) {
-        if (node instanceof AST.IfStatement) {
+        if (node instanceof AST.IfElseStatement) {
+            return this.beginVisitStatement(node);
+        } else if (node instanceof AST.IfStatement) {
             return this.beginVisitIfStatement(node);
+        } else if (node instanceof AST.ElseStatement) {
+            return this.beginVisitElseStatement(node);
         } else if (node instanceof AST.TryCatchStatement) {
             return this.beginVisitStatement(node);
         } else if (node instanceof AST.TryStatement) {
             return this.beginVisitTryStatement(node);
         } else if (node instanceof AST.CatchStatement) {
             return this.beginVisitCatchStatement(node);
+        } else if (node instanceof AST.WhileStatement) {
+            return this.beginVisitWhileStatement(node);
         }
     };
 
@@ -74,6 +82,8 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
             return this.visitTryStatement(node);
         } else if (node instanceof AST.CatchStatement) {
             return this.visitCatchStatement(node);
+        } else if (node instanceof AST.WhileStatement) {
+            return this.visitWhileStatement(node);
         }
     };
 
@@ -81,14 +91,20 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
      * @param node {ASTNode}
      */
     StatementVisitor.prototype.endVisit = function (node) {
-        if (node instanceof AST.IfStatement) {
+        if (node instanceof AST.IfElseStatement) {
+            return this.endVisitStatement(node);
+        } else if (node instanceof AST.IfStatement) {
             return this.endVisitIfStatement(node);
+        } else if (node instanceof AST.ElseStatement) {
+            return this.endVisitElseStatement(node);
         } else if (node instanceof AST.TryCatchStatement) {
             return this.endVisitStatement(node);
         } else if (node instanceof AST.TryStatement) {
             return this.endVisitTryStatement(node);
         } else if (node instanceof AST.CatchStatement) {
             return this.endVisitCatchStatement(node);
+        } else if (node instanceof AST.WhileStatement) {
+            return this.endVisitWhileStatement(node);
         }
     };
 
@@ -133,6 +149,16 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
     StatementVisitor.prototype.visitCatchStatement = function (statement) {
     };
     StatementVisitor.prototype.endVisitCatchStatement = function (statement) {
+    };
+
+    StatementVisitor.prototype.canVisitWhileStatement = function (statement) {
+        return false;
+    };
+    StatementVisitor.prototype.beginVisitWhileStatement = function (statement) {
+    };
+    StatementVisitor.prototype.visitWhileStatement = function (statement) {
+    };
+    StatementVisitor.prototype.endVisitWhileStatement = function (statement) {
     };
 
     StatementVisitor.prototype.canVisitStatement = function (statement) {
