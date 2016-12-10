@@ -308,8 +308,24 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
              * @inheritDoc
              */
             log.info("Visiting connector declaration of resource");
-            var connectorContainer = this._container;
-            var connectorDeclarationView = new ConnectorDeclarationView({model: connectorDeclaration,container: connectorContainer} );
+            var connectorContainer = this._container.getElementById("contentGroup");
+            // If more than 1 connector declaration
+            if(this.getConnectorViewList().length > 0 ){
+                var prevView = this.getConnectorViewList().pop(this.getConnectorViewList().length-1);
+                var newCenterPointX = prevView._viewOptions.connectorCenterPointX+ 180;
+                var newCenterPointY = prevView._viewOptions.connectorCenterPointY;
+                var viewOpts = {connectorCenterPointX:newCenterPointX, connectorCenterPointY: newCenterPointY};
+            var connectorDeclarationView =new ConnectorDeclarationView({model: connectorDeclaration,container: connectorContainer, viewOptions: viewOpts});
+        }
+            else{
+                var defaultResourceLifeline = this.getDefaultResourceLifeLine();
+                var resourceViewOpts = defaultResourceLifeline._viewOptions;
+                var connectorCenterPointX = resourceViewOpts.centerPoint.x + 180;
+                var connectorCenterPointY = resourceViewOpts.centerPoint.y;
+                var connectorViewOpts = {connectorCenterPointX: connectorCenterPointX,connectorCenterPointY: connectorCenterPointY};
+                var connectorDeclarationView = new ConnectorDeclarationView({model: connectorDeclaration,container: connectorContainer, viewOptions: connectorViewOpts} );
+            }
+
             connectorDeclarationView.render();
             connectorDeclarationView.setParent(this);
             this.addConnectorViewList(connectorDeclarationView);
