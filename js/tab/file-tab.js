@@ -164,8 +164,8 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace']
             functionDefinition1.addChild(workerDeclaration1);
             functionDefinition1.addChild(workerDeclaration2);
             functionDefinitions.push(functionDefinition1);
-            ballerinaAstRoot.addChild(functionDefinition1);
-            ballerinaAstRoot.setFunctionDefinitions(functionDefinitions);
+            ballerinaAstRoot1.addChild(functionDefinition1);
+            ballerinaAstRoot1.setFunctionDefinitions(functionDefinitions);
 
            serviceDefinitions.push(serviceDefinition_passthroughService);
            ballerinaAstRoot1.setServiceDefinitions(serviceDefinitions);

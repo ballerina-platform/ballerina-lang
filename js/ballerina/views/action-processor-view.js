@@ -59,7 +59,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './point'],
             var processorConnector = D3utils.line(this._viewOptions.sourcePoint.x,this._viewOptions.sourcePoint.y,this._viewOptions.destinationPoint.x,
                 this._viewOptions.destinationPoint.y,this._viewOptions.parent).classed(" client line",true);
             processorConnector.attr("stroke","#000000");
-            //TODO: center text 
+            //TODO: center text
             var processorText = D3utils.textElement((this._viewOptions.centerPoint.x + 40 - this._viewOptions.width/2), (this._viewOptions.centerPoint.y + 20  - (this._viewOptions.height/2)) ,
                 this._viewOptions.action,this._viewOptions.parent);
             processorText.attr('text-anchor', "start").attr("fill","#727272");
