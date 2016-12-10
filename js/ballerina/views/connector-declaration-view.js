@@ -16,8 +16,8 @@
  * under the License.
  */
 
-define(['lodash', 'jquery', './canvas', './../ast/connector-declaration', 'log', 'd3utils'],
-    function (_, $, Canvas, ConnectionDeclaration, log, D3Utils) {
+define(['lodash','d3', 'jquery', './canvas', './../ast/connector-declaration', 'log', 'd3utils'],
+    function (_, d3, $, Canvas, ConnectionDeclaration, log, D3utils) {
 
         /**
          * The view to represent a connection declaration which is an AST visitor.
@@ -79,10 +79,12 @@ define(['lodash', 'jquery', './canvas', './../ast/connector-declaration', 'log',
          * @returns {group} The svg group which contains the elements of the connection declaration view.
          */
         ConnectionDeclarationView.prototype.render = function () {
-            var group = D3Utils.group(this._container);
+            //var group = D3Utils.group(this._container);
             // TODO : Draw the view of the connection view and add it to the above svg group.
             log.info("Rendering the Worker Declaration");
-            return group;
+            var parentContainer = $(this._container)[0];
+            var connectorGroup = D3utils.group(d3.select(parentContainer));
+           // return group;
         };
 
         /**

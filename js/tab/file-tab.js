@@ -107,6 +107,11 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace']
             var resource_passthrough = ballerinaASTFactory.createResourceDefinition();
             resource_passthrough.setResourceName('passthrough');
 
+            //Adding Connector declaration to resource_pasthrough
+            var connector_declaration = ballerinaASTFactory.createConnectorDeclaration();
+            resource_passthrough.setConnections(connector_declaration);
+            resource_passthrough.addChild(connector_declaration);
+
             //Adding custom resource
             var custom_resource = ballerinaASTFactory.createResourceDefinition();
             custom_resource.setResourceName('customResource');

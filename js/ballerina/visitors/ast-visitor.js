@@ -43,6 +43,9 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
         } else if (node instanceof AST.WorkerDeclaration) {
             return this.canVisitWorkerDeclaration(node);
         }
+        else if( node instanceof AST.ConnectorDeclaration){
+            return this.canVisitConnectorDeclaration(node);
+        }
 
     };
 
@@ -67,6 +70,9 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
         } else if (node instanceof AST.WorkerDeclaration) {
             return this.beginVisitWorkerDeclaration(node);
         }
+        else if( node instanceof AST.ConnectorDeclaration){
+            return this.beginVisitConnectorDeclaration(node);
+        }
     };
 
     /**
@@ -90,6 +96,10 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
         } else if(node instanceof AST.WorkerDeclaration){
             return this.visitWorkerDeclaration(node);
         }
+        else if( node instanceof AST.ConnectorDeclaration){
+            return this.visitConnectorDeclaration(node);
+        }
+
     };
 
     /**
@@ -113,6 +123,10 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
         } else if(node instanceof AST.WorkerDeclaration){
             return this.endVisitWorkerDeclaration(node);
         }
+        else if( node instanceof AST.ConnectorDeclaration){
+            return this.endVisitConnectorDeclaration(node);
+        }
+
     };
 
     ASTVisitor.prototype.canVisitBallerinaASTRoot = function(ballerinaASTRoot){
@@ -214,6 +228,17 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
     };
     ASTVisitor.prototype.endVisitStatement = function(statement){
     };
+
+    ASTVisitor.prototype.canVisitConnectorDeclaration = function(connectorDeclaration){
+        return false;
+    }
+    ASTVisitor.prototype.beginVisitConnectorDeclaration = function(connectorDeclaration){
+    };
+    ASTVisitor.prototype.visitConnectorDeclaration = function(connectorDeclaration){
+    };
+    ASTVisitor.prototype.endVisitConnectorDeclaration = function(connectorDeclaration){
+    };
+
 
     return ASTVisitor;
 

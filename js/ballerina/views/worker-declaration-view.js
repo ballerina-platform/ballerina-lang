@@ -127,7 +127,7 @@ define(['lodash', 'jquery', './ballerina-view', './../ast/worker-declaration', '
                 action: {
                     value: "Start"
                 },
-                worker: {
+                child: {
                     value: true
                 }
             };

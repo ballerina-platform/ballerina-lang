@@ -163,7 +163,7 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
                 action: {
                     value: "Start"
                 },
-                worker: {
+                child: {
                     value: true
                 }
             };
