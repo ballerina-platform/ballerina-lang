@@ -1,4 +1,4 @@
-package org.wso2.siddhi.core.annotations;
+package org.wso2.siddhi.core.util.docs.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -6,10 +6,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation for storing a description of a processor
+ * Annotation container for repeated Parameter annotation
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface Description {
-    String value();
+public @interface Parameters {
+    Parameter[] value();
 }

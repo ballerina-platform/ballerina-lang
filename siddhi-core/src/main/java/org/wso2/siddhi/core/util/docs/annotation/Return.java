@@ -1,4 +1,4 @@
-package org.wso2.siddhi.core.annotations;
+package org.wso2.siddhi.core.util.docs.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
