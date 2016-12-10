@@ -20,11 +20,11 @@
  * A module representing the factory for Ballerina AST
  */
 define(['./ballerina-ast-root', './service-definition', './function-definition', './connector-definition', './resource-definition',
-        './worker-declaration', './statement', './conditional-statement', './connection-declaration', './expression',
+        './worker-declaration', './statement', './conditional-statement', './connector-declaration', './expression',
         './if-else-statement', './if-statement', './else-statement', './trycatch-statement', './try-statement', './catch-statement', './reply-statement', './while-statement', './return-statement', './type-converter-definition', './type-definition',
         './type-element', './variable-declaration', './package-definition', './import-declaration', './resource-arg'],
     function (ballerinaAstRoot, serviceDefinition, functionDefinition, connectorDefinition, resourceDefinition,
-              workerDeclaration, statement, conditionalStatement, connectionDeclaration, expression,
+              workerDeclaration, statement, conditionalStatement, connectorDeclaration, expression,
               ifElseStatement, ifStatement, elseStatement, tryCatchStatement, tryStatement, catchStatement, replyStatement, whileStatement, returnStatement, typeConverterDefinition, typeDefinition,
               typeElement, variableDeclaration, packageDefinition, importDeclaration, resourceArgument) {
 
@@ -126,11 +126,11 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
         };
 
         /**
-         * create ConnectionDeclaration
+         * create ConnectorDeclaration
          * @param args
          */
-        BallerinaASTFactory.prototype.createConnectionDeclaration = function (args) {
-            return new connectionDeclaration(args);
+        BallerinaASTFactory.prototype.createConnectorDeclaration = function (args) {
+            return new connectorDeclaration(args);
         };
 
         /**

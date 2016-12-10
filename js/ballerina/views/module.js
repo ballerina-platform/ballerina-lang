@@ -16,11 +16,11 @@
  * under the License.
  */
 define(['./action-definition-view', './ballerina-file-editor', './ballerina-view', './canvas',
-        './connection-declaration-view', './function-definition-view', './reply-statement-view',
+        './connector-declaration-view', './function-definition-view', './reply-statement-view',
         './resource-definition-view', './return-statement-view', './service-definition-view', './throw-statement-view',
         './while-statement-view', './worker-declaration-view', './source-view' ],
     function (ActionDefinitionView, BallerinaFileEditor, BallerinaView, Canvas,
-              ConnectionDeclarationView, FunctionDefinitionView, ReplyStatementView,
+              ConnectorDeclarationView, FunctionDefinitionView, ReplyStatementView,
               ResourceDefinitionView, ReturnStatementView, ServiceDefinitionView, ThrowStatementView,
               WhileStatementView, WorkerDeclarationView, SourceView) {
         return  {
@@ -28,7 +28,7 @@ define(['./action-definition-view', './ballerina-file-editor', './ballerina-view
             ActionDefinitionView: ActionDefinitionView,
             BallerinaFileEditor: BallerinaFileEditor,
             Canvas: Canvas,
-            ConnectionDeclarationView: ConnectionDeclarationView,
+            ConnectionDeclarationView: ConnectorDeclarationView,
             FunctionDefinitionView: FunctionDefinitionView,
             ReplyStatementView: ReplyStatementView,
             ResourceDefinitionView: ResourceDefinitionView,

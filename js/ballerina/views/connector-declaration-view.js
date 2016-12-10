@@ -16,7 +16,7 @@
  * under the License.
  */
 
-define(['lodash', 'jquery', './canvas', './../ast/connection-declaration', 'log', 'd3utils'],
+define(['lodash', 'jquery', './canvas', './../ast/connector-declaration', 'log', 'd3utils'],
     function (_, $, Canvas, ConnectionDeclaration, log, D3Utils) {
 
         /**

@@ -43,6 +43,7 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
         } else if (node instanceof AST.WorkerDeclaration) {
             return this.canVisitWorkerDeclaration(node);
         }
+
     };
 
     /**

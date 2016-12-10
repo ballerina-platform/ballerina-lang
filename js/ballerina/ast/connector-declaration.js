@@ -17,16 +17,16 @@
  */
 define(['lodash', './node'], function(_, ASTNode){
 
-    var ConnectionDeclaration = function(options) {
+    var ConnectorDeclaration = function(options) {
         this._connectionOptions = options || {};
     };
 
-    ConnectionDeclaration.prototype = Object.create(ASTNode.prototype);
-    ConnectionDeclaration.prototype.constructor = ConnectionDeclaration;
+    ConnectorDeclaration.prototype = Object.create(ASTNode.prototype);
+    ConnectorDeclaration.prototype.constructor = ConnectorDeclaration;
 
-    ConnectionDeclaration.prototype.getOptions = function () {
+    ConnectorDeclaration.prototype.getOptions = function () {
         return this._connectionOptions;
     };
 
-    return ConnectionDeclaration;
+    return ConnectorDeclaration;
 });
