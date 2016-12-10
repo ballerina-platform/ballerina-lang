@@ -133,10 +133,10 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
             // Resource related definitions: resourceIcon,collapseIcon
             var def = resourceGroup.append("defs");
-            var pattern = def.append("pattern").attr("id", "toggleIcon").attr("width", "100").attr("height", "100");
-            var image = pattern.append("image").attr("xlink:href", "images/down.svg").attr("x", "0").attr("y", "0").attr("width", "15").attr("height", "28");
-            var pattern2 = def.append("pattern").attr("id", "resourceIcon").attr("width", "100").attr("height", "100");
-            var image2 = pattern2.append("image").attr("xlink:href", "images/dgm-resource.svg").attr("x", "0").attr("y", "5").attr("width", "20").attr("height", "20");
+            var pattern = def.append("pattern").attr("id", "toggleIcon").attr("width", "100%").attr("height", "100");
+            var image = pattern.append("image").attr("xlink:href", "images/down.svg").attr("x", "0").attr("y", "5").attr("width", "14").attr("height", "14");
+            var pattern2 = def.append("pattern").attr("id", "resourceIcon").attr("width", "100%").attr("height", "100");
+            var image2 = pattern2.append("image").attr("xlink:href", "images/dgm-resource.svg").attr("x", "5").attr("y", "5").attr("width", "14").attr("height", "14");
 
             // Resource header container
             var headerGroup = D3utils.group(resourceGroup);
