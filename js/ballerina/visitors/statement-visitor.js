@@ -111,9 +111,6 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
     StatementVisitor.prototype.canVisitIfStatement = function (statement) {
         return false;
     };
-    StatementVisitor.prototype.canVisitElseStatement = function (statement) {
-        return false;
-    };
     StatementVisitor.prototype.beginVisitIfStatement = function (statement) {
     };
     StatementVisitor.prototype.visitIfStatement = function (statement) {
@@ -121,14 +118,14 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
     StatementVisitor.prototype.endVisitIfStatement = function (statement) {
     };
 
-    StatementVisitor.prototype.canVisitTryCatchStatement = function (statement) {
+    StatementVisitor.prototype.canVisitElseStatement = function (statement) {
         return false;
     };
-    StatementVisitor.prototype.beginVisitTryCatchStatement = function (statement) {
+    StatementVisitor.prototype.beginVisitElseStatement = function (statement) {
     };
-    StatementVisitor.prototype.visitTryCatchStatement = function (statement) {
+    StatementVisitor.prototype.visitIfStatement = function (statement) {
     };
-    StatementVisitor.prototype.endVisitTryCatchStatement = function (statement) {
+    StatementVisitor.prototype.endVisitElseStatement = function (statement) {
     };
 
     StatementVisitor.prototype.canVisitTryStatement = function (statement) {

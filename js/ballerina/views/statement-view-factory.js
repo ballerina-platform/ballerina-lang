@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', '../ast/module', './try-catch-statement-view', './try-statement-view', './catch-statement-view'],
-    function (_, log, EventChannel, AST, TryCatchStatementView, TryStatementView, CatchStatementView) {
+define(['lodash', 'log', 'event_channel', '../ast/module', './try-catch-statement-view', './try-statement-view', './catch-statement-view', './if-else-statement-view', './if-statement-view', './else-statement-view'],
+    function (_, log, EventChannel, AST, TryCatchStatementView, TryStatementView, CatchStatementView, IfElseStatementView, IfStatementView, ElseStatementView) {
 
         var StatementViewFactory = function () {
         };
@@ -29,6 +29,12 @@ define(['lodash', 'log', 'event_channel', '../ast/module', './try-catch-statemen
                 return new TryStatementView(args);
             } else if (statement instanceof AST.CatchStatement) {
                 return new CatchStatementView(args);
+            } else if (statement instanceof AST.IfElseStatement) {
+                return new IfElseStatementView(args);
+            } else if (statement instanceof AST.IfStatement) {
+                return new IfStatementView(args);
+            } else if (statement instanceof AST.ElseStatement) {
+                return new ElseStatementView(args);
             }
         };
 

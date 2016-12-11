@@ -138,7 +138,7 @@ define(['require', 'lodash', 'log', './ballerina-statement-view', './../ast/tryc
             this._tryBlockView = tryBlockView;
         };
 
-        TryCatchStatementView.prototype.setTryBlockView = function (catchBlockView) {
+        TryCatchStatementView.prototype.setCatchBlockView = function (catchBlockView) {
             this._catchBlockView = catchBlockView;
         };
 

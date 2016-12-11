@@ -153,19 +153,19 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace']
             // resource_passthrough.addChild(whileStatement1);
 
             // Create Sample try-catch statement
-            var tryCatchStatement = ballerinaASTFactory.createTryCatchStatement();
-            var tryStatement = ballerinaASTFactory.createTryStatement();
-            var catchStatement = ballerinaASTFactory.createCatchStatement();
+            var ifElseStatement = ballerinaASTFactory.createIfElseStatement();
+            var ifStatement = ballerinaASTFactory.createIfStatement();
+            var elseStatement = ballerinaASTFactory.createElseStatement();
             var tryCatchStatement1 = ballerinaASTFactory.createTryCatchStatement();
             var tryStatement1 = ballerinaASTFactory.createTryStatement();
             var catchStatement1 = ballerinaASTFactory.createCatchStatement();
-            catchStatement.setExceptionType("ArithmeticException ex");
+            // catchStatement.setExceptionType("ArithmeticException ex");
             catchStatement1.setExceptionType("ArithmeticException ex");
-            tryCatchStatement.addChild(tryStatement);
-            tryCatchStatement.addChild(catchStatement);
+            ifElseStatement.addChild(ifStatement);
+            ifElseStatement.addChild(elseStatement);
             tryCatchStatement1.addChild(tryStatement1);
             tryCatchStatement1.addChild(catchStatement1);
-            resource_passthrough.addChild(tryCatchStatement);
+            resource_passthrough.addChild(ifElseStatement);
             resource_passthrough.addChild(tryCatchStatement1);
             // Create sample Worker Declaration
             var workerDeclaration1 = ballerinaASTFactory.createWorkerDeclaration();

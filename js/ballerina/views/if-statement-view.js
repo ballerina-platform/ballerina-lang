@@ -15,19 +15,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './../ast/try-statement', 'd3utils', 'd3', './point'],
-    function (require, _, $, log, BallerinaStatementView, TryStatement, D3Utils, d3, Point) {
+define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './../ast/if-statement', 'd3utils', 'd3', './point'],
+    function (require, _, $, log, BallerinaStatementView, IfStatement, D3Utils, d3, Point) {
 
         /**
-         * The view to represent a Try statement which is an AST visitor.
+         * The view to represent a If statement which is an AST visitor.
          * @param {Object} args - Arguments for creating the view.
          * @param {IfStatement} args.model - The If statement model.
          * @param {Object} args.container - The HTML container to which the view should be added to.
-         * @param {Object} args.parent - Parent Statement View, which in this case the try-catch statement
+         * @param {Object} args.parent - Parent Statement View, which in this case the if-else statement
          * @param {Object} [args.viewOptions={}] - Configuration values for the view.
          * @constructor
          */
-        var TryStatementView = function (args) {
+        var IfStatementView = function (args) {
             this._model = _.get(args, "model");
             this._container = _.get(args, "container");
             this._viewOptions = _.get(args, "viewOptions", {});
@@ -35,31 +35,31 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
             BallerinaStatementView.call(this, _.get(args, "parent"));
         };
 
-        TryStatementView.prototype = Object.create(BallerinaStatementView.prototype);
-        TryStatementView.prototype.constructor = TryStatementView;
+        IfStatementView.prototype = Object.create(BallerinaStatementView.prototype);
+        IfStatementView.prototype.constructor = IfStatementView;
 
-        TryStatementView.prototype.canVisitStatement = function(){
+        IfStatementView.prototype.canVisitStatement = function(){
             return true;
         };
 
-        TryStatementView.prototype.canVisitTryStatement = function(){
+        IfStatementView.prototype.canVisitIfStatement = function(){
             return true;
         };
 
         /**
-         * Render the try statement
+         * Render the if statement
          */
-        TryStatementView.prototype.render = function () {
-            var tryGroup = D3Utils.group(this._container);
+        IfStatementView.prototype.render = function () {
+            var ifGroup = D3Utils.group(this._container);
             var x = this.getParent().getXPosition();
             var y = this.getParent().getYPosition();
             var width = 120;
             var height = 60;
-            var outer_rect = D3Utils.rect(x, y, 120, 60, 0, 0, tryGroup).classed('statement-rect', true);
-            var title_rect = D3Utils.rect(x, y, 40, 20, 0, 0, tryGroup).classed('statement-rect', true);
-            var title_text = D3Utils.textElement(x + 20, y + 10, 'Try', tryGroup).classed('statement-text', true);
+            var outer_rect = D3Utils.rect(x, y, 120, 60, 0, 0, ifGroup).classed('statement-rect', true);
+            var title_rect = D3Utils.rect(x, y, 40, 20, 0, 0, ifGroup).classed('statement-rect', true);
+            var title_text = D3Utils.textElement(x + 20, y + 10, 'If', ifGroup).classed('statement-text', true);
 
-            // Set the parent's(TryCatchView) width, height, x, y
+            // Set the parent's(IfElseView) width, height, x, y
             this.getParent().setWidth(width);
             this.getParent().setHeight(height);
             this.getParent().setXPosition(x);
@@ -71,54 +71,54 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
             this.setXPosition(x);
             this.setYPosition(y);
 
-            tryGroup.outerRect = outer_rect;
-            tryGroup.titleRect = title_rect;
-            tryGroup.titleText = title_text;
-            this.setStatementGroup(tryGroup);
+            ifGroup.outerRect = outer_rect;
+            ifGroup.titleRect = title_rect;
+            ifGroup.titleText = title_text;
+            this.setStatementGroup(ifGroup);
             this._model.accept(this);
         };
 
         /**
-         * Set the try statement model
-         * @param {TryStatement} model
+         * Set the if statement model
+         * @param {IfStatement} model
          */
-        TryStatementView.prototype.setModel = function (model) {
-            if (!_.isNil(model) && model instanceof TryStatement) {
+        IfStatementView.prototype.setModel = function (model) {
+            if (!_.isNil(model) && model instanceof IfStatement) {
                 this._model = model;
             } else {
-                log.error("If statement definition is undefined or is of different type." + model);
-                throw "If statement definition is undefined or is of different type." + model;
+                log.error("If Else statement definition is undefined or is of different type." + model);
+                throw "If Else statement definition is undefined or is of different type." + model;
             }
         };
 
         /**
-         * Set the container to draw the try statement
+         * Set the container to draw the if statement
          * @param container
          */
-        TryStatementView.prototype.setContainer = function (container) {
+        IfStatementView.prototype.setContainer = function (container) {
             if (!_.isNil(container)) {
                 this._container = container;
             } else {
-                log.error("Container for If statement is undefined." + container);
-                throw "Container for If statement is undefined." + container;
+                log.error("Container for If Else statement is undefined." + container);
+                throw "Container for If Else statement is undefined." + container;
             }
         };
 
-        TryStatementView.prototype.setViewOptions = function (viewOptions) {
+        IfStatementView.prototype.setViewOptions = function (viewOptions) {
             this._viewOptions = viewOptions;
         };
 
-        TryStatementView.prototype.getModel = function () {
+        IfStatementView.prototype.getModel = function () {
             return this._model;
         };
 
-        TryStatementView.prototype.getContainer = function () {
+        IfStatementView.prototype.getContainer = function () {
             return this._container;
         };
 
-        TryStatementView.prototype.getViewOptions = function () {
+        IfStatementView.prototype.getViewOptions = function () {
             return this._viewOptions;
         };
 
-        return TryStatementView;
+        return IfStatementView;
     });

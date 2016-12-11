@@ -348,8 +348,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 var newCenterPointX = prevView._viewOptions.connectorCenterPointX+ 180;
                 var newCenterPointY = prevView._viewOptions.connectorCenterPointY;
                 var viewOpts = {connectorCenterPointX:newCenterPointX, connectorCenterPointY: newCenterPointY};
-            var connectorDeclarationView =new ConnectorDeclarationView({model: connectorDeclaration,container: connectorContainer, viewOptions: viewOpts});
-        }
+                var connectorDeclarationView =new ConnectorDeclarationView({model: connectorDeclaration,container: connectorContainer, viewOptions: viewOpts});
+            }
             else{
                 var defaultResourceLifeline = this.getDefaultResourceLifeLine();
                 var resourceViewOpts = defaultResourceLifeline._viewOptions;
