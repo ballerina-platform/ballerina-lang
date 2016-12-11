@@ -33,7 +33,6 @@ public class Constants {
      */
     public enum RuntimeMode {
         RUN_FILE, SERVER
-
     };
 
 }

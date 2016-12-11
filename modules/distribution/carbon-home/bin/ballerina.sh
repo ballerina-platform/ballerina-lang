@@ -32,7 +32,7 @@
 
 # OS specific support.  $var _must_ be set to either true or false.
 #ulimit -n 100000
-
+BASE_DIR=$PWD
 cygwin=false;
 darwin=false;
 os400=false;
@@ -261,6 +261,9 @@ status=$START_EXIT_STATUS
 #   -Djava.rmi.server.hostname="your.IP.goes.here"
 
 if [ "$SUB_CMD" = "run-this" ]; then
+   if [[ "$BAL_FILE_NAME" != /* ]]; then
+        BAL_FILE_NAME="$BASE_DIR/$BAL_FILE_NAME"
+   fi
   JAVA_OPTS="$JAVA_OPTS -Dbal-file=$BAL_FILE_NAME"
   echo "Running the Ballerina file $BAL_FILE_NAME"
 fi
