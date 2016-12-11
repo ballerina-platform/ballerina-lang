@@ -41,7 +41,7 @@ import java.util.Map;
  *
  *  [ServiceAnnotations]
  *  service ServiceName {
- *      ConnectionDeclaration;*
+ *      ConnectorDeclaration;*
  *      VariableDeclaration;*
  *      ResourceDefinition;+
  *  }
@@ -55,7 +55,7 @@ public class Service implements Executable {
 
     private Identifier identifier;
     private Map<String, Annotation> annotations = new HashMap<>();
-    private List<Connection> connections = new ArrayList<>();
+    private List<Connector> connectors = new ArrayList<>();
     private List<VariableDcl> variables = new ArrayList<>();
     private List<Resource> resources = new ArrayList<>();
 
@@ -113,30 +113,30 @@ public class Service implements Executable {
     }
 
     /**
-     * Get all Connections declared within the Service scope
+     * Get all Connectors declared within the Service scope
      *
-     * @return list of all the Connections belongs to a Service
+     * @return list of all the Connectors belongs to a Service
      */
-    public List<Connection> getConnections() {
-        return connections;
+    public List<Connector> getConnectors() {
+        return connectors;
     }
 
     /**
-     * Assign connections to the Service
+     * Assign connectors to the Service
      *
-     * @param connections list of connections to be assigned to a Service
+     * @param connectors list of connectors to be assigned to a Service
      */
-    public void setConnections(List<Connection> connections) {
-        this.connections = connections;
+    public void setConnectors(List<Connector> connectors) {
+        this.connectors = connectors;
     }
 
     /**
-     * Add a {@code Connection} to the Service
+     * Add a {@code Connector} to the Service
      *
-     * @param connection Connection to be added to the Service
+     * @param connector Connector to be added to the Service
      */
-    public void addConnection(Connection connection) {
-        connections.add(connection);
+    public void addConnector(Connector connector) {
+        connectors.add(connector);
     }
 
     /**
