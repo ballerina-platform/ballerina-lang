@@ -18,9 +18,9 @@
 
 package org.wso2.ballerina.core.model;
 
+import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.runtime.core.BalCallback;
-import org.wso2.ballerina.core.runtime.core.BalContext;
 import org.wso2.ballerina.core.runtime.core.Executable;
 
 import java.util.ArrayList;
@@ -145,7 +145,7 @@ public class Worker implements Executable {
         statements.add(statement);
     }
 
-    public boolean execute(BalContext context, BalCallback callback) {
+    public boolean execute(Context context, BalCallback callback) {
 
         //Execute statements from here
         if (statements == null || statements.size() == 0) {

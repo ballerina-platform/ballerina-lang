@@ -20,9 +20,9 @@ package org.wso2.ballerina.core.model;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.runtime.Constants;
 import org.wso2.ballerina.core.runtime.core.BalCallback;
-import org.wso2.ballerina.core.runtime.core.BalContext;
 import org.wso2.ballerina.core.runtime.core.Executable;
 import org.wso2.ballerina.core.runtime.core.dispatching.ResourceDispatcher;
 import org.wso2.ballerina.core.runtime.registry.DispatcherRegistry;
@@ -194,7 +194,7 @@ public class Service implements Executable {
     }
 
     @Override
-    public boolean execute(BalContext context, BalCallback callback) {
+    public boolean execute(Context context, BalCallback callback) {
 
         String protocol = (String) context.getProperty(Constants.PROTOCOL);
 
