@@ -76,8 +76,16 @@ public class Context {
         return cMsg;
     }
 
+    public void setCarbonMessage(CarbonMessage cMsg) {
+        this.cMsg = cMsg;
+    }
+
     public Object getProperty(String key) {
         return properties.get(key);
+    }
+
+    public void removeProperty(String key) {
+        properties.remove(key);
     }
 
     public Map<String, Object> getProperties() {
