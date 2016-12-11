@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerina.core.parser.visitor;
 
+import org.wso2.ballerina.core.interpreter.SymbolTable;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.Function;
@@ -28,6 +29,7 @@ import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.model.types.Type;
 import org.wso2.ballerina.core.parser.BallerinaBaseVisitor;
 import org.wso2.ballerina.core.parser.BallerinaParser;
+import org.wso2.ballerina.core.utils.BValueFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +38,12 @@ import java.util.List;
  * Visitor for function
  */
 public class FunctionVisitor extends BallerinaBaseVisitor {
+
+    private SymbolTable functionSymbolTable;
+
+    public FunctionVisitor(SymbolTable parentSymbolTable) {
+        this.functionSymbolTable = new SymbolTable(parentSymbolTable);
+    }
 
     /**
      * {@inheritDoc}
@@ -83,16 +91,19 @@ public class FunctionVisitor extends BallerinaBaseVisitor {
         Type[] types = typeList.toArray(new Type[typeList.size()]);
 
         List<VariableDcl> variableDclList = new ArrayList<>();
-        VariableDeclarationVisitor variableDeclarationVisitor = new VariableDeclarationVisitor();
+        VariableDeclarationVisitor variableDeclarationVisitor = new VariableDeclarationVisitor(functionSymbolTable);
         for (BallerinaParser.VariableDeclarationContext variableDeclarationContext :
                 ctx.functionBody().variableDeclaration()) {
-            variableDclList.add((VariableDcl) variableDeclarationContext.accept(variableDeclarationVisitor));
+            VariableDcl variableDcl = (VariableDcl) variableDeclarationContext.accept(variableDeclarationVisitor);
+            variableDclList.add(variableDcl);
+            functionSymbolTable.put(variableDcl.getIdentifier(),
+                    BValueFactory.createBValueFromVariableDeclaration(variableDcl));
         }
 
         VariableDcl[] variableDcls = variableDclList.toArray(new VariableDcl[variableDclList.size()]);
 
         Statement[] statementArray = new Statement[ctx.functionBody().statement().size()];
-        StatementVisitor statementVisitor = new StatementVisitor();
+        StatementVisitor statementVisitor = new StatementVisitor(functionSymbolTable);
         for (int i = 0; i < ctx.functionBody().statement().size(); i++) {
             statementArray[i] = (Statement) (ctx.functionBody().statement(i).getChild(0).accept(statementVisitor));
         }
@@ -107,5 +118,15 @@ public class FunctionVisitor extends BallerinaBaseVisitor {
                 null,
                 new BlockStmt(statementArray));
         return functionObject;
+    }
+
+    /**
+     * Base method for retrieving the symbol table
+     *
+     * @return symbol table for this instance
+     */
+    @Override
+    public SymbolTable getSymbolTable() {
+        return this.functionSymbolTable;
     }
 }
