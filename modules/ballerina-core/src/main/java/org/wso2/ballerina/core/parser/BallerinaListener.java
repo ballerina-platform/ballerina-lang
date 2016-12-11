@@ -238,6 +238,16 @@ public interface BallerinaListener extends ParseTreeListener {
 	 */
 	void exitQualifiedTypeName(BallerinaParser.QualifiedTypeNameContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#typeConvertorTypes}.
+	 * @param ctx the parse tree
+	 */
+	void enterTypeConvertorTypes(BallerinaParser.TypeConvertorTypesContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#typeConvertorTypes}.
+	 * @param ctx the parse tree
+	 */
+	void exitTypeConvertorTypes(BallerinaParser.TypeConvertorTypesContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#unqualifiedTypeName}.
 	 * @param ctx the parse tree
 	 */
@@ -248,15 +258,125 @@ public interface BallerinaListener extends ParseTreeListener {
 	 */
 	void exitUnqualifiedTypeName(BallerinaParser.UnqualifiedTypeNameContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#typeNameWithOptionalSchema}.
+	 * Enter a parse tree produced by {@link BallerinaParser#simpleType}.
 	 * @param ctx the parse tree
 	 */
-	void enterTypeNameWithOptionalSchema(BallerinaParser.TypeNameWithOptionalSchemaContext ctx);
+	void enterSimpleType(BallerinaParser.SimpleTypeContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#typeNameWithOptionalSchema}.
+	 * Exit a parse tree produced by {@link BallerinaParser#simpleType}.
 	 * @param ctx the parse tree
 	 */
-	void exitTypeNameWithOptionalSchema(BallerinaParser.TypeNameWithOptionalSchemaContext ctx);
+	void exitSimpleType(BallerinaParser.SimpleTypeContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#simpleTypeArray}.
+	 * @param ctx the parse tree
+	 */
+	void enterSimpleTypeArray(BallerinaParser.SimpleTypeArrayContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#simpleTypeArray}.
+	 * @param ctx the parse tree
+	 */
+	void exitSimpleTypeArray(BallerinaParser.SimpleTypeArrayContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#simpleTypeIterate}.
+	 * @param ctx the parse tree
+	 */
+	void enterSimpleTypeIterate(BallerinaParser.SimpleTypeIterateContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#simpleTypeIterate}.
+	 * @param ctx the parse tree
+	 */
+	void exitSimpleTypeIterate(BallerinaParser.SimpleTypeIterateContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#withFullSchemaType}.
+	 * @param ctx the parse tree
+	 */
+	void enterWithFullSchemaType(BallerinaParser.WithFullSchemaTypeContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#withFullSchemaType}.
+	 * @param ctx the parse tree
+	 */
+	void exitWithFullSchemaType(BallerinaParser.WithFullSchemaTypeContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#withFullSchemaTypeArray}.
+	 * @param ctx the parse tree
+	 */
+	void enterWithFullSchemaTypeArray(BallerinaParser.WithFullSchemaTypeArrayContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#withFullSchemaTypeArray}.
+	 * @param ctx the parse tree
+	 */
+	void exitWithFullSchemaTypeArray(BallerinaParser.WithFullSchemaTypeArrayContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#withFullSchemaTypeIterate}.
+	 * @param ctx the parse tree
+	 */
+	void enterWithFullSchemaTypeIterate(BallerinaParser.WithFullSchemaTypeIterateContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#withFullSchemaTypeIterate}.
+	 * @param ctx the parse tree
+	 */
+	void exitWithFullSchemaTypeIterate(BallerinaParser.WithFullSchemaTypeIterateContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#withScheamURLType}.
+	 * @param ctx the parse tree
+	 */
+	void enterWithScheamURLType(BallerinaParser.WithScheamURLTypeContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#withScheamURLType}.
+	 * @param ctx the parse tree
+	 */
+	void exitWithScheamURLType(BallerinaParser.WithScheamURLTypeContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#withSchemaURLTypeArray}.
+	 * @param ctx the parse tree
+	 */
+	void enterWithSchemaURLTypeArray(BallerinaParser.WithSchemaURLTypeArrayContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#withSchemaURLTypeArray}.
+	 * @param ctx the parse tree
+	 */
+	void exitWithSchemaURLTypeArray(BallerinaParser.WithSchemaURLTypeArrayContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#withSchemaURLTypeIterate}.
+	 * @param ctx the parse tree
+	 */
+	void enterWithSchemaURLTypeIterate(BallerinaParser.WithSchemaURLTypeIterateContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#withSchemaURLTypeIterate}.
+	 * @param ctx the parse tree
+	 */
+	void exitWithSchemaURLTypeIterate(BallerinaParser.WithSchemaURLTypeIterateContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#withSchemaIdType}.
+	 * @param ctx the parse tree
+	 */
+	void enterWithSchemaIdType(BallerinaParser.WithSchemaIdTypeContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#withSchemaIdType}.
+	 * @param ctx the parse tree
+	 */
+	void exitWithSchemaIdType(BallerinaParser.WithSchemaIdTypeContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#withScheamIdTypeArray}.
+	 * @param ctx the parse tree
+	 */
+	void enterWithScheamIdTypeArray(BallerinaParser.WithScheamIdTypeArrayContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#withScheamIdTypeArray}.
+	 * @param ctx the parse tree
+	 */
+	void exitWithScheamIdTypeArray(BallerinaParser.WithScheamIdTypeArrayContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#withScheamIdTypeIterate}.
+	 * @param ctx the parse tree
+	 */
+	void enterWithScheamIdTypeIterate(BallerinaParser.WithScheamIdTypeIterateContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#withScheamIdTypeIterate}.
+	 * @param ctx the parse tree
+	 */
+	void exitWithScheamIdTypeIterate(BallerinaParser.WithScheamIdTypeIterateContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#typeName}.
 	 * @param ctx the parse tree
