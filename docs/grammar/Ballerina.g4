@@ -76,7 +76,7 @@ typeDefinitionBody
     ;
 
 typeConvertorDefinition
-    :   'typeconvertor' Identifier '(' typeNameWithOptionalSchema Identifier ')' '('typeNameWithOptionalSchema')' typeConvertorBody
+    :   'typeconvertor' Identifier '(' typeConvertorTypes Identifier ')' '('typeConvertorTypes')' typeConvertorBody
     ;
 
 typeConvertorBody
@@ -107,17 +107,76 @@ qualifiedTypeName
     :   packageName ':' unqualifiedTypeName
     ;
 
-unqualifiedTypeName
-    :   typeNameWithOptionalSchema
-    |   typeNameWithOptionalSchema '[]'
-    |   typeNameWithOptionalSchema '~'
+typeConvertorTypes
+    :   simpleType
+    |   withFullSchemaType
+    |   withSchemaIdType
+    |   withScheamURLType
     ;
 
-typeNameWithOptionalSchema
-    :   Identifier  ('<' ('{' QuotedStringLiteral '}')? Identifier '>')
-    |   Identifier  ('<' ('{' QuotedStringLiteral '}') '>')
-    |   Identifier
+
+unqualifiedTypeName
+    :   simpleType
+    |   simpleTypeArray
+    |   simpleTypeIterate
+    |   withFullSchemaType
+    |   withFullSchemaTypeArray
+    |   withFullSchemaTypeIterate
+    |   withScheamURLType
+    |   withSchemaURLTypeArray
+    |   withSchemaURLTypeIterate
+    |   withSchemaIdType
+    |   withScheamIdTypeArray
+    |   withScheamIdTypeIterate
     ;
+
+simpleType
+    :   Identifier
+    ;
+
+simpleTypeArray
+    :   Identifier '[]'
+    ;
+
+simpleTypeIterate
+    : Identifier '~'
+    ;
+
+withFullSchemaType
+	:	Identifier '<' '{' QuotedStringLiteral '}' Identifier '>'
+	;
+
+withFullSchemaTypeArray
+	:	Identifier '<' '{' QuotedStringLiteral '}' Identifier '>' '[]'
+	;
+
+withFullSchemaTypeIterate
+	:	Identifier '<' '{' QuotedStringLiteral '}' Identifier '>' '~'
+	;
+
+withScheamURLType
+	:	Identifier '<' '{' QuotedStringLiteral '}' '>'
+	;
+
+withSchemaURLTypeArray
+	:	Identifier '<' '{' QuotedStringLiteral '}' '>' '[]'
+	;
+
+withSchemaURLTypeIterate
+	:	Identifier '<' '{' QuotedStringLiteral '}' '>' '~'
+	;
+
+withSchemaIdType
+	:	Identifier '<' Identifier '>'
+	;
+
+withScheamIdTypeArray
+	:	Identifier '<' Identifier '>' '[]'
+	;
+
+withScheamIdTypeIterate
+	:	Identifier '<' Identifier '>' '~'
+	;
 
 typeName
     :   unqualifiedTypeName
