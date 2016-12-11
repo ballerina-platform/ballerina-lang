@@ -20,9 +20,9 @@ package org.wso2.ballerina.core.runtime.core.threading.threadpool;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.runtime.Constants;
 import org.wso2.ballerina.core.runtime.core.BalCallback;
-import org.wso2.ballerina.core.runtime.core.BalContext;
 import org.wso2.ballerina.core.runtime.core.dispatching.ServiceDispatcher;
 import org.wso2.ballerina.core.runtime.registry.DispatcherRegistry;
 
@@ -34,7 +34,7 @@ public class RequestWorkerThread extends WorkerThread {
     private static final Logger logger = LoggerFactory.getLogger(RequestWorkerThread.class);
 
 
-    public RequestWorkerThread(BalContext context, BalCallback callback) {
+    public RequestWorkerThread(Context context, BalCallback callback) {
         super(context, callback);
     }
 

@@ -20,10 +20,10 @@ package org.wso2.ballerina.core.runtime.net.http.source;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.runtime.core.BalCallback;
-import org.wso2.ballerina.core.runtime.core.BalContext;
 import org.wso2.ballerina.core.runtime.core.dispatching.ServiceDispatcher;
 import org.wso2.carbon.messaging.CarbonMessage;
 
@@ -43,7 +43,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
     private Map<String, Map<String, Service>> services = new HashMap<>();
 
     @Override
-    public boolean dispatch(BalContext context, BalCallback callback) {
+    public boolean dispatch(Context context, BalCallback callback) {
 
         CarbonMessage cMsg = context.getCarbonMessage();
         String interfaceId = (String) cMsg.getProperty(org.wso2.carbon.messaging.Constants.LISTENER_INTERFACE_ID);
