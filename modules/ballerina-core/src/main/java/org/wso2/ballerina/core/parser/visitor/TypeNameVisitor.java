@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerina.core.parser.visitor;
 
+import org.wso2.ballerina.core.model.types.IntType;
 import org.wso2.ballerina.core.parser.BallerinaBaseVisitor;
 import org.wso2.ballerina.core.parser.BallerinaParser;
 
@@ -35,7 +36,9 @@ public class TypeNameVisitor extends BallerinaBaseVisitor {
      */
     @Override
     public Object visitTypeName(BallerinaParser.TypeNameContext ctx) {
-        return super.visitTypeName(ctx);
+        // TODO: 12/11/16 Need to implement type parsing
+        IntType intType = new IntType();
+        return intType;
     }
 
     /**

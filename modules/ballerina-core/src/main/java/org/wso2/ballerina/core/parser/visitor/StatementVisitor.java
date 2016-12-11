@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerina.core.parser.visitor;
 
+import org.wso2.ballerina.core.interpreter.SymbolTable;
 import org.wso2.ballerina.core.model.Identifier;
 import org.wso2.ballerina.core.model.Worker;
 import org.wso2.ballerina.core.model.expressions.Expression;
@@ -42,6 +43,11 @@ import java.util.List;
  */
 public class StatementVisitor extends BallerinaBaseVisitor {
 
+    private SymbolTable statementSymbolTable;
+
+    public StatementVisitor(SymbolTable parentSymbolTable) {
+        this.statementSymbolTable = new SymbolTable(parentSymbolTable);
+    }
 
     /**
      * {@inheritDoc}
@@ -96,10 +102,15 @@ public class StatementVisitor extends BallerinaBaseVisitor {
      */
     @Override
     public Object visitAssignmentStatement(BallerinaParser.AssignmentStatementContext ctx) {
-        VariableRefExpr variableRefExpr = new VariableRefExpr(
-                new Identifier(ctx.variableReference().getText()));
-        Expression expression = this.visitExpressionX(ctx.expression());
-        return new AssignStmt(variableRefExpr, expression);
+        // Check the existence of the variable in the symbol table before the assignment
+        try {
+            Identifier value = this.statementSymbolTable.lookup(ctx.variableReference().getText());
+            VariableRefExpr variableRefExpr = new VariableRefExpr(value);
+            Expression expression = this.visitExpressionX(ctx.expression());
+            return new AssignStmt(variableRefExpr, expression);
+        } catch (Exception e) {
+            throw e;
+        }
     }
 
     /**
@@ -220,7 +231,7 @@ public class StatementVisitor extends BallerinaBaseVisitor {
     @Override
     public Object visitForkJoinStatement(BallerinaParser.ForkJoinStatementContext ctx) {
         List<Worker> workerList = new ArrayList<>();
-        WorkerVisitor workerVisitor = new WorkerVisitor();
+        WorkerVisitor workerVisitor = new WorkerVisitor(statementSymbolTable);
         for (BallerinaParser.WorkerDeclarationContext wrkCtx : ctx.workerDeclaration()) {
             workerList.add((Worker) wrkCtx.accept(workerVisitor));
         }
@@ -323,7 +334,7 @@ public class StatementVisitor extends BallerinaBaseVisitor {
      */
     @Override
     public Object visitThrowStatement(BallerinaParser.ThrowStatementContext ctx) {
-        ExpressionVisitor expressionVisitor = new ExpressionVisitor();
+        ExpressionVisitor expressionVisitor = new ExpressionVisitor(statementSymbolTable);
         return new ThrowStmt((Expression) (ctx.expression().accept(expressionVisitor)));
     }
 
@@ -436,8 +447,17 @@ public class StatementVisitor extends BallerinaBaseVisitor {
     }
 
     private Expression visitExpressionX(BallerinaParser.ExpressionContext ctx) {
-        ExpressionVisitor expressionVisitor = new ExpressionVisitor();
+        ExpressionVisitor expressionVisitor = new ExpressionVisitor(statementSymbolTable);
         return (Expression) ctx.accept(expressionVisitor);
     }
 
+    /**
+     * Base method for retrieving the symbol table
+     *
+     * @return symbol table for this instance
+     */
+    @Override
+    public SymbolTable getSymbolTable() {
+        return this.statementSymbolTable;
+    }
 }

@@ -41,10 +41,6 @@ public class FunctionVisitor extends BallerinaBaseVisitor {
 
     private SymbolTable functionSymbolTable;
 
-    public FunctionVisitor() {
-        this.functionSymbolTable = new SymbolTable(null);
-    }
-
     public FunctionVisitor(SymbolTable parentSymbolTable) {
         this.functionSymbolTable = new SymbolTable(parentSymbolTable);
     }
@@ -95,7 +91,7 @@ public class FunctionVisitor extends BallerinaBaseVisitor {
         Type[] types = typeList.toArray(new Type[typeList.size()]);
 
         List<VariableDcl> variableDclList = new ArrayList<>();
-        VariableDeclarationVisitor variableDeclarationVisitor = new VariableDeclarationVisitor();
+        VariableDeclarationVisitor variableDeclarationVisitor = new VariableDeclarationVisitor(functionSymbolTable);
         for (BallerinaParser.VariableDeclarationContext variableDeclarationContext :
                 ctx.functionBody().variableDeclaration()) {
             VariableDcl variableDcl = (VariableDcl) variableDeclarationContext.accept(variableDeclarationVisitor);
@@ -107,7 +103,7 @@ public class FunctionVisitor extends BallerinaBaseVisitor {
         VariableDcl[] variableDcls = variableDclList.toArray(new VariableDcl[variableDclList.size()]);
 
         Statement[] statementArray = new Statement[ctx.functionBody().statement().size()];
-        StatementVisitor statementVisitor = new StatementVisitor();
+        StatementVisitor statementVisitor = new StatementVisitor(functionSymbolTable);
         for (int i = 0; i < ctx.functionBody().statement().size(); i++) {
             statementArray[i] = (Statement) (ctx.functionBody().statement(i).getChild(0).accept(statementVisitor));
         }
@@ -124,7 +120,13 @@ public class FunctionVisitor extends BallerinaBaseVisitor {
         return functionObject;
     }
 
-    public SymbolTable getFunctionSymbolTable() {
-        return functionSymbolTable;
+    /**
+     * Base method for retrieving the symbol table
+     *
+     * @return symbol table for this instance
+     */
+    @Override
+    public SymbolTable getSymbolTable() {
+        return this.functionSymbolTable;
     }
 }

@@ -41,16 +41,20 @@ public class BValueFactory {
     public static BValue createBValueFromVariableDeclaration(VariableDcl variableDcl) {
         BValue bValue;
         if (variableDcl.getType() instanceof IntType) {
-            bValue = new IntValue(Integer.parseInt(variableDcl.getValue()));
+            int value = variableDcl.getValue() != null ? Integer.parseInt(variableDcl.getValue()) : 0;
+            bValue = new IntValue(value);
             return bValue;
         } else if (variableDcl.getType() instanceof FloatType) {
-            bValue = new FloatValue(Float.parseFloat(variableDcl.getValue()));
+            float value = variableDcl.getValue() != null ? Float.parseFloat(variableDcl.getValue()) : 0.0F;
+            bValue = new FloatValue(value);
             return bValue;
         } else if (variableDcl.getType() instanceof DoubleType) {
-            bValue = new DoubleValue(Double.parseDouble(variableDcl.getValue()));
+            double value = variableDcl.getValue() != null ? Double.parseDouble(variableDcl.getValue()) : 0.0;
+            bValue = new DoubleValue(value);
             return bValue;
         } else if (variableDcl.getType() instanceof LongType) {
-            bValue = new LongValue(Long.parseLong(variableDcl.getValue()));
+            long value = variableDcl.getValue() != null ? Long.parseLong(variableDcl.getValue()) : 0L;
+            bValue = new LongValue(value);
             return bValue;
         } else if (variableDcl.getType() instanceof StringType) {
             bValue = new StringValue(variableDcl.getValue());

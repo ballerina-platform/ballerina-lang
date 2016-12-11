@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerina.core.parser.visitor;
 
+import org.wso2.ballerina.core.interpreter.SymbolTable;
 import org.wso2.ballerina.core.model.Identifier;
 import org.wso2.ballerina.core.model.Operator;
 import org.wso2.ballerina.core.model.expressions.AddExpression;
@@ -50,6 +51,12 @@ import java.util.List;
  * Visitor for expressions
  */
 public class ExpressionVisitor extends BallerinaBaseVisitor {
+
+    private SymbolTable expressionSymbolTable;
+
+    public ExpressionVisitor(SymbolTable parentSymbolTable) {
+        this.expressionSymbolTable = new SymbolTable(parentSymbolTable);
+    }
 
     /**
      * Visit a parse tree produced by {@link BallerinaParser#expression}.
@@ -495,5 +502,15 @@ public class ExpressionVisitor extends BallerinaBaseVisitor {
                 return Operator.LESS_EQUAL;
         }
         return null;
+    }
+
+    /**
+     * Base method for retrieving the symbol table
+     *
+     * @return symbol table for this instance
+     */
+    @Override
+    public SymbolTable getSymbolTable() {
+        return this.expressionSymbolTable;
     }
 }

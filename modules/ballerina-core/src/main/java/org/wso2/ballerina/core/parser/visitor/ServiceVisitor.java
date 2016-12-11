@@ -37,10 +37,6 @@ public class ServiceVisitor extends BallerinaBaseVisitor {
 
     private SymbolTable serviceSymbolTable;
 
-    public ServiceVisitor() {
-        this.serviceSymbolTable = new SymbolTable(null);
-    }
-
     public ServiceVisitor(SymbolTable parentSymbolTable) {
         this.serviceSymbolTable = new SymbolTable(parentSymbolTable);
     }
@@ -66,7 +62,7 @@ public class ServiceVisitor extends BallerinaBaseVisitor {
             serviceObject.addAnnotation((Annotation) annotationContext.accept(annotationVisitor));
         }
 
-        VariableDeclarationVisitor variableDeclarationVisitor = new VariableDeclarationVisitor();
+        VariableDeclarationVisitor variableDeclarationVisitor = new VariableDeclarationVisitor(serviceSymbolTable);
         for (BallerinaParser.VariableDeclarationContext variableDeclarationContext :
                 ctx.serviceBody().serviceBodyDeclaration().variableDeclaration()) {
             VariableDcl variableDcl = (VariableDcl) variableDeclarationContext.accept(variableDeclarationVisitor);
@@ -116,8 +112,13 @@ public class ServiceVisitor extends BallerinaBaseVisitor {
         return resources;
     }
 
-    public SymbolTable getServiceSymbolTable() {
-        return serviceSymbolTable;
+    /**
+     * Base method for retrieving the symbol table
+     *
+     * @return symbol table for this instance
+     */
+    @Override
+    public SymbolTable getSymbolTable() {
+        return this.serviceSymbolTable;
     }
-
 }

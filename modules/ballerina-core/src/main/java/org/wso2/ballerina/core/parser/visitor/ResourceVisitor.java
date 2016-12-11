@@ -33,10 +33,6 @@ public class ResourceVisitor extends BallerinaBaseVisitor {
 
     private SymbolTable resourceSymbolTable;
 
-    public ResourceVisitor() {
-        this.resourceSymbolTable = new SymbolTable(null);
-    }
-
     public ResourceVisitor(SymbolTable parentSymbolTable) {
         this.resourceSymbolTable = new SymbolTable(parentSymbolTable);
     }
@@ -58,7 +54,7 @@ public class ResourceVisitor extends BallerinaBaseVisitor {
             resourceObject.addAnnotation((Annotation) annotationContext.accept(annotationVisitor));
         }
 
-        VariableDeclarationVisitor variableDeclarationVisitor = new VariableDeclarationVisitor();
+        VariableDeclarationVisitor variableDeclarationVisitor = new VariableDeclarationVisitor(resourceSymbolTable);
         for (BallerinaParser.VariableDeclarationContext variableDeclarationContext :
                 ctx.functionBody().variableDeclaration()) {
             VariableDcl variableDcl = (VariableDcl) variableDeclarationContext.accept(variableDeclarationVisitor);
@@ -67,7 +63,7 @@ public class ResourceVisitor extends BallerinaBaseVisitor {
                     BValueFactory.createBValueFromVariableDeclaration(variableDcl));
         }
 
-        StatementVisitor statementVisitor = new StatementVisitor();
+        StatementVisitor statementVisitor = new StatementVisitor(resourceSymbolTable);
         for (int i = 0; i < ctx.functionBody().statement().size(); i++) {
             resourceObject.addStatement((Statement) (ctx.functionBody().statement(i).
                     accept(statementVisitor)));
@@ -76,7 +72,13 @@ public class ResourceVisitor extends BallerinaBaseVisitor {
         return resourceObject;
     }
 
-    public SymbolTable getResourceSymbolTable() {
-        return resourceSymbolTable;
+    /**
+     * Base method for retrieving the symbol table
+     *
+     * @return symbol table for this instance
+     */
+    @Override
+    public SymbolTable getSymbolTable() {
+        return this.resourceSymbolTable;
     }
 }

@@ -35,10 +35,6 @@ public class WorkerVisitor extends BallerinaBaseVisitor {
 
     private SymbolTable workerSymbolTable;
 
-    public WorkerVisitor() {
-        this.workerSymbolTable = new SymbolTable(null);
-    }
-
     public WorkerVisitor(SymbolTable parentSymbolTable) {
         this.workerSymbolTable = new SymbolTable(parentSymbolTable);
     }
@@ -54,7 +50,7 @@ public class WorkerVisitor extends BallerinaBaseVisitor {
     @Override
     public Object visitWorkerDeclaration(BallerinaParser.WorkerDeclarationContext ctx) {
         List<VariableDcl> variableDclList = new ArrayList<>();
-        VariableDeclarationVisitor variableDeclarationVisitor = new VariableDeclarationVisitor();
+        VariableDeclarationVisitor variableDeclarationVisitor = new VariableDeclarationVisitor(workerSymbolTable);
         for (BallerinaParser.VariableDeclarationContext varDclCtx : ctx.variableDeclaration()) {
             VariableDcl variableDcl = (VariableDcl) varDclCtx.accept(variableDeclarationVisitor);
             variableDclList.add(variableDcl);
@@ -63,7 +59,7 @@ public class WorkerVisitor extends BallerinaBaseVisitor {
         }
 
         List<Statement> statementList = new ArrayList<>();
-        StatementVisitor statementVisitor = new StatementVisitor();
+        StatementVisitor statementVisitor = new StatementVisitor(workerSymbolTable);
         for (BallerinaParser.StatementContext statementContext : ctx.statement()) {
             //todo check getChild(0)
             statementList.add((Statement) statementContext.accept(statementVisitor));
@@ -71,8 +67,13 @@ public class WorkerVisitor extends BallerinaBaseVisitor {
 
         return new Worker(variableDclList, statementList);
     }
-
-    public SymbolTable getWorkerSymbolTable() {
+    /**
+     * Base method for retrieving the symbol table
+     *
+     * @return symbol table for this instance
+     */
+    @Override
+    public SymbolTable getSymbolTable() {
         return workerSymbolTable;
     }
 }

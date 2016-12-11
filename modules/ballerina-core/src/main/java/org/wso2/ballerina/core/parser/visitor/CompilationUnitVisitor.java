@@ -118,4 +118,14 @@ public class CompilationUnitVisitor extends BallerinaBaseVisitor {
         String packageName = ctx.getText();
         return packageName;
     }
+
+    /**
+     * Base method for retrieving the symbol table
+     *
+     * @return symbol table for this instance
+     */
+    @Override
+    public SymbolTable getSymbolTable() {
+        return this.baseSymbolTable;
+    }
 }
