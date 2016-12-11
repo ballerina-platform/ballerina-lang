@@ -44,11 +44,15 @@ define(['require', 'lodash', 'log', './ballerina-statement-view', './../ast/if-e
                 throw "Container for If Else statement is undefined." + this._container;
             }
 
-            BallerinaStatementView.call(this);
+            BallerinaStatementView.call(this, _.get(args, "parent"));
         };
 
         IfElseStatementView.prototype = Object.create(BallerinaStatementView.prototype);
         IfElseStatementView.prototype.constructor = IfElseStatementView;
+
+        IfElseStatementView.prototype.canVisitIfElseStatement = function (ifElseStatement) {
+            return true;
+        };
 
         IfElseStatementView.prototype.canVisitStatement = function(){
             return true;

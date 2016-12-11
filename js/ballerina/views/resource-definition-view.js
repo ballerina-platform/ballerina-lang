@@ -151,7 +151,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
          */
         ResourceDefinitionView.prototype.visitStatement = function (statement) {
             var statementViewFactory = new StatementViewFactory();
-            var args = {model: statement, container: this._container, viewOptions: undefined};
+            var args = {model: statement, container: this._container, viewOptions: undefined, parent:this};
             var statementView = statementViewFactory.getStatementView(args);
 
             // TODO: we need to keep this value as a configurable value and read from constants
@@ -324,7 +324,6 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             this._defaultActionProcessor = defaultProcessor;
             defaultProcessor.render();
 
-            this.getModel().accept(this);
             log.debug("Rendering Resource View");
             this.getModel().accept(this);
         };

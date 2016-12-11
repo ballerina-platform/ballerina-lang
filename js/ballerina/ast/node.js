@@ -90,7 +90,7 @@ define(['event_channel', 'lodash'], function(EventChannel, _){
                 self.trigger("childVisitedEvent", child);
                 // forward visitor down the hierarchy to visit children of current child
                 // if visitor doesn't support visiting children of current child, it will break
-                // child.accept(visitor);
+                child.accept(visitor);
             });
             visitor.endVisit(this);
         }

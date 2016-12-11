@@ -103,6 +103,20 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace']
             serviceDefinition_passthroughService.setServiceName("PassthroughService");
             serviceDefinition_passthroughService.setBasePath("/account");
 
+            //service definition
+            var serviceDefinition_passthroughService2 = ballerinaASTFactory.createServiceDefinition();
+            serviceDefinition_passthroughService2.setServiceName("PassthroughService2");
+            serviceDefinition_passthroughService2.setBasePath("/account");
+            ballerinaAstRoot1.addChild(serviceDefinition_passthroughService2);
+            // Adding Resources
+            var resource_passthrough2 = ballerinaASTFactory.createResourceDefinition();
+            resource_passthrough2.setResourceName('passthrough2');
+            serviceDefinition_passthroughService2.addChild(resource_passthrough2);
+            // Adding Resources
+            var resource_passthrough3 = ballerinaASTFactory.createResourceDefinition();
+            resource_passthrough3.setResourceName('passthrough3');
+            serviceDefinition_passthroughService2.addChild(resource_passthrough3);
+
             // Adding Resources
             var resource_passthrough = ballerinaASTFactory.createResourceDefinition();
             resource_passthrough.setResourceName('passthrough');
