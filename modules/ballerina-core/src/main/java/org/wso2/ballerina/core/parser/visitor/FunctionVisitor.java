@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerina.core.parser.visitor;
 
+import org.wso2.ballerina.core.interpreter.SymbolTable;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.Function;
@@ -36,6 +37,16 @@ import java.util.List;
  * Visitor for function
  */
 public class FunctionVisitor extends BallerinaBaseVisitor {
+
+    private SymbolTable functionSymbolTable;
+
+    public FunctionVisitor() {
+        this.functionSymbolTable = new SymbolTable(null);
+    }
+
+    public FunctionVisitor(SymbolTable parentSymbolTable) {
+        this.functionSymbolTable = new SymbolTable(parentSymbolTable);
+    }
 
     /**
      * {@inheritDoc}

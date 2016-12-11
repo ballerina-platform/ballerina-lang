@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerina.core.parser.visitor;
 
+import org.wso2.ballerina.core.interpreter.SymbolTable;
 import org.wso2.ballerina.core.model.VariableDcl;
 import org.wso2.ballerina.core.model.Worker;
 import org.wso2.ballerina.core.model.statements.Statement;
@@ -30,6 +31,16 @@ import java.util.List;
  * visitor for worker
  */
 public class WorkerVisitor extends BallerinaBaseVisitor {
+
+    private SymbolTable serviceSymbolTable;
+
+    public WorkerVisitor() {
+        this.serviceSymbolTable = new SymbolTable(null);
+    }
+
+    public WorkerVisitor(SymbolTable parentSymbolTable) {
+        this.serviceSymbolTable = new SymbolTable(parentSymbolTable);
+    }
 
     /**
      * {@inheritDoc}

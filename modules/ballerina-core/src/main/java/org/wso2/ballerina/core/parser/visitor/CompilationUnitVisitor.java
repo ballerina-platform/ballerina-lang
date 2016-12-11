@@ -17,8 +17,12 @@
  */
 package org.wso2.ballerina.core.parser.visitor;
 
+import org.wso2.ballerina.core.interpreter.SymbolTable;
+import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.model.Import;
 import org.wso2.ballerina.core.model.Package;
+import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.parser.BallerinaBaseVisitor;
 import org.wso2.ballerina.core.parser.BallerinaParser;
 
@@ -26,6 +30,47 @@ import org.wso2.ballerina.core.parser.BallerinaParser;
  * Visitor for compilation unit
  */
 public class CompilationUnitVisitor extends BallerinaBaseVisitor {
+
+    BallerinaFile balFile = new BallerinaFile();
+    private SymbolTable baseSymbolTable = new SymbolTable(null);
+
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
+     *
+     * @param ctx
+     */
+    @Override
+    public Object visitCompilationUnit(BallerinaParser.CompilationUnitContext ctx) {
+        // Read the package declaration
+        Package packageName = (Package) this.visitPackageDeclaration(ctx.packageDeclaration());
+        balFile.setPackageName(packageName.getFullQualifiedName());
+
+
+        for (BallerinaParser.ImportDeclarationContext idc : ctx.importDeclaration()) {
+            Import importObject = (Import) this.visitImportDeclaration(idc);
+            balFile.addImport(importObject);
+        }
+
+        // Read the services
+        ServiceVisitor serviceVisitor = new ServiceVisitor(baseSymbolTable);
+        for (BallerinaParser.ServiceDefinitionContext sdc : ctx.serviceDefinition()) {
+            Service serviceObject = (Service) sdc.accept(serviceVisitor);
+            balFile.addService(serviceObject);
+        }
+
+        // Read the functions
+        FunctionVisitor functionVisitor = new FunctionVisitor(baseSymbolTable);
+        for (BallerinaParser.FunctionDefinitionContext fdc : ctx.functionDefinition()) {
+            Function functionObject = (Function) fdc.accept(functionVisitor);
+            balFile.addFunction(functionObject);
+        }
+
+        return balFile;
+    }
 
     /**
      * {@inheritDoc}

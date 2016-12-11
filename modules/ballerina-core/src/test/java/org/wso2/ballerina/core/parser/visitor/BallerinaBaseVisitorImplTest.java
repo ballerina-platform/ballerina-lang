@@ -32,7 +32,7 @@ import java.io.IOException;
 import java.util.List;
 
 public class BallerinaBaseVisitorImplTest {
-    private BallerinaBaseVisitorImpl ballerinaBaseVisitor;
+    private CompilationUnitVisitor ballerinaBaseVisitor;
 
     @BeforeTest
     public void setup() {
@@ -43,7 +43,7 @@ public class BallerinaBaseVisitorImplTest {
             CommonTokenStream ballerinaToken = new CommonTokenStream(ballerinaLexer);
 
             BallerinaParser ballerinaParser = new BallerinaParser(ballerinaToken);
-            ballerinaBaseVisitor = new BallerinaBaseVisitorImpl();
+            ballerinaBaseVisitor = new CompilationUnitVisitor();
             ballerinaBaseVisitor.visit(ballerinaParser.compilationUnit());
 
         } catch (IOException e) {

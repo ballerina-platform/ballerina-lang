@@ -17,11 +17,15 @@
  */
 package org.wso2.ballerina.core.parser.visitor;
 
+import org.wso2.ballerina.core.interpreter.SymbolTable;
+import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.Identifier;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
+import org.wso2.ballerina.core.model.VariableDcl;
 import org.wso2.ballerina.core.parser.BallerinaBaseVisitor;
 import org.wso2.ballerina.core.parser.BallerinaParser;
+import org.wso2.ballerina.core.utils.BValueFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +34,16 @@ import java.util.List;
  * Visitor for service
  */
 public class ServiceVisitor extends BallerinaBaseVisitor {
+
+    private SymbolTable serviceSymbolTable;
+
+    public ServiceVisitor() {
+        this.serviceSymbolTable = new SymbolTable(null);
+    }
+
+    public ServiceVisitor(SymbolTable parentSymbolTable) {
+        this.serviceSymbolTable = new SymbolTable(parentSymbolTable);
+    }
 
     /**
      * {@inheritDoc}
@@ -47,8 +61,19 @@ public class ServiceVisitor extends BallerinaBaseVisitor {
         Service serviceObject = new Service(identifier);
 
         // Read the Annotations
-        // Skipped for the moment
+        AnnotationVisitor annotationVisitor = new AnnotationVisitor();
+        for (BallerinaParser.AnnotationContext annotationContext : ctx.annotation()) {
+            serviceObject.addAnnotation((Annotation) annotationContext.accept(annotationVisitor));
+        }
 
+        VariableDeclarationVisitor variableDeclarationVisitor = new VariableDeclarationVisitor();
+        for (BallerinaParser.VariableDeclarationContext variableDeclarationContext :
+                ctx.serviceBody().serviceBodyDeclaration().variableDeclaration()) {
+            VariableDcl variableDcl = (VariableDcl) variableDeclarationContext.accept(variableDeclarationVisitor);
+            serviceObject.addVariable(variableDcl);
+            serviceSymbolTable.put(variableDcl.getIdentifier(),
+                    BValueFactory.createBValueFromVariableDeclaration(variableDcl));
+        }
         // Create the service body and resources
         List<Resource> resources = (List<Resource>) this.
                 visitServiceBodyDeclaration(ctx.serviceBody().serviceBodyDeclaration());
@@ -82,7 +107,7 @@ public class ServiceVisitor extends BallerinaBaseVisitor {
     public Object visitServiceBodyDeclaration(BallerinaParser.ServiceBodyDeclarationContext ctx) {
         // Read the resources
         List<Resource> resources = new ArrayList<>();
-        ResourceVisitor resourceVisitor = new ResourceVisitor();
+        ResourceVisitor resourceVisitor = new ResourceVisitor(serviceSymbolTable);
         for (BallerinaParser.ResourceDefinitionContext rdc : ctx.resourceDefinition()) {
             Resource resourceObject = (Resource) rdc.accept(resourceVisitor);
             resources.add(resourceObject);
@@ -90,4 +115,5 @@ public class ServiceVisitor extends BallerinaBaseVisitor {
         }
         return resources;
     }
+
 }
