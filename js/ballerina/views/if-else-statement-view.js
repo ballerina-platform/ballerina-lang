@@ -50,10 +50,6 @@ define(['require', 'lodash', 'log', './ballerina-statement-view', './../ast/if-e
         IfElseStatementView.prototype = Object.create(BallerinaStatementView.prototype);
         IfElseStatementView.prototype.constructor = IfElseStatementView;
 
-        IfElseStatementView.prototype.canVisitIfElseStatement = function (ifElseStatement) {
-            return true;
-        };
-
         IfElseStatementView.prototype.canVisitStatement = function(){
             return true;
         };

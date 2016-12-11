@@ -142,10 +142,6 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             return this._boundingBox;
         };
 
-        ResourceDefinitionView.prototype.canVisit = function () {
-            return true;
-        };
-
         /**
          * @param {BallerinaStatementView} statement
          */
