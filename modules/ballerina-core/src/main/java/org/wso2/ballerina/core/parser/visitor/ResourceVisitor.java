@@ -75,4 +75,8 @@ public class ResourceVisitor extends BallerinaBaseVisitor {
 
         return resourceObject;
     }
+
+    public SymbolTable getResourceSymbolTable() {
+        return resourceSymbolTable;
+    }
 }

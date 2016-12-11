@@ -29,6 +29,7 @@ import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.model.types.Type;
 import org.wso2.ballerina.core.parser.BallerinaBaseVisitor;
 import org.wso2.ballerina.core.parser.BallerinaParser;
+import org.wso2.ballerina.core.utils.BValueFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -97,7 +98,10 @@ public class FunctionVisitor extends BallerinaBaseVisitor {
         VariableDeclarationVisitor variableDeclarationVisitor = new VariableDeclarationVisitor();
         for (BallerinaParser.VariableDeclarationContext variableDeclarationContext :
                 ctx.functionBody().variableDeclaration()) {
-            variableDclList.add((VariableDcl) variableDeclarationContext.accept(variableDeclarationVisitor));
+            VariableDcl variableDcl = (VariableDcl) variableDeclarationContext.accept(variableDeclarationVisitor);
+            variableDclList.add(variableDcl);
+            functionSymbolTable.put(variableDcl.getIdentifier(),
+                    BValueFactory.createBValueFromVariableDeclaration(variableDcl));
         }
 
         VariableDcl[] variableDcls = variableDclList.toArray(new VariableDcl[variableDclList.size()]);
@@ -118,5 +122,9 @@ public class FunctionVisitor extends BallerinaBaseVisitor {
                 null,
                 new BlockStmt(statementArray));
         return functionObject;
+    }
+
+    public SymbolTable getFunctionSymbolTable() {
+        return functionSymbolTable;
     }
 }

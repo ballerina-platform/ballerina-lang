@@ -603,7 +603,7 @@ public interface BallerinaVisitor<T> extends ParseTreeVisitor<T> {
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitBinaryDivisionExpression(BallerinaParser.BinaryDivitionExpressionContext ctx);
+	T visitBinaryDivitionExpression(BallerinaParser.BinaryDivitionExpressionContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code binaryModExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.

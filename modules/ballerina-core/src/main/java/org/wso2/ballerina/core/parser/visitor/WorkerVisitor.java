@@ -23,6 +23,7 @@ import org.wso2.ballerina.core.model.Worker;
 import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.parser.BallerinaBaseVisitor;
 import org.wso2.ballerina.core.parser.BallerinaParser;
+import org.wso2.ballerina.core.utils.BValueFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,14 +33,14 @@ import java.util.List;
  */
 public class WorkerVisitor extends BallerinaBaseVisitor {
 
-    private SymbolTable serviceSymbolTable;
+    private SymbolTable workerSymbolTable;
 
     public WorkerVisitor() {
-        this.serviceSymbolTable = new SymbolTable(null);
+        this.workerSymbolTable = new SymbolTable(null);
     }
 
     public WorkerVisitor(SymbolTable parentSymbolTable) {
-        this.serviceSymbolTable = new SymbolTable(parentSymbolTable);
+        this.workerSymbolTable = new SymbolTable(parentSymbolTable);
     }
 
     /**
@@ -55,7 +56,10 @@ public class WorkerVisitor extends BallerinaBaseVisitor {
         List<VariableDcl> variableDclList = new ArrayList<>();
         VariableDeclarationVisitor variableDeclarationVisitor = new VariableDeclarationVisitor();
         for (BallerinaParser.VariableDeclarationContext varDclCtx : ctx.variableDeclaration()) {
-            variableDclList.add((VariableDcl) varDclCtx.accept(variableDeclarationVisitor));
+            VariableDcl variableDcl = (VariableDcl) varDclCtx.accept(variableDeclarationVisitor);
+            variableDclList.add(variableDcl);
+            workerSymbolTable.put(variableDcl.getIdentifier(),
+                    BValueFactory.createBValueFromVariableDeclaration(variableDcl));
         }
 
         List<Statement> statementList = new ArrayList<>();
@@ -66,5 +70,9 @@ public class WorkerVisitor extends BallerinaBaseVisitor {
         }
 
         return new Worker(variableDclList, statementList);
+    }
+
+    public SymbolTable getWorkerSymbolTable() {
+        return workerSymbolTable;
     }
 }

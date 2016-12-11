@@ -78,7 +78,7 @@ public class ExpressionVisitor extends BallerinaBaseVisitor {
         } else if (ctx instanceof BallerinaParser.BinaryPowExpressionContext) {
             return this.visitBinaryPowExpression((BallerinaParser.BinaryPowExpressionContext) ctx);
         } else if (ctx instanceof BallerinaParser.BinaryDivitionExpressionContext) {
-            return this.visitBinaryDivisionExpression((BallerinaParser.BinaryDivitionExpressionContext) ctx);
+            return this.visitBinaryDivitionExpression((BallerinaParser.BinaryDivitionExpressionContext) ctx);
         } else if (ctx instanceof BallerinaParser.BinaryMultiplicationExpressionContext) {
             return this.visitBinaryMultiplicationExpression(
                     (BallerinaParser.BinaryMultiplicationExpressionContext) ctx);
@@ -320,10 +320,9 @@ public class ExpressionVisitor extends BallerinaBaseVisitor {
      * @param ctx
      */
     @Override
-    public Object visitBinaryDivisionExpression(BallerinaParser.BinaryDivitionExpressionContext ctx) {
-        // todo implement divition operator
-        return null;
-    }
+    public Object visitBinaryDivitionExpression(BallerinaParser.BinaryDivitionExpressionContext ctx) {
+        //todo implement division operator
+        return null;    }
 
     /**
      * {@inheritDoc}

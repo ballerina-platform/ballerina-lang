@@ -34,10 +34,13 @@ import org.wso2.ballerina.core.model.values.LongValue;
 import org.wso2.ballerina.core.model.values.MessageValue;
 import org.wso2.ballerina.core.model.values.StringValue;
 
+/**
+ * factory class to create a bValue of given type
+ */
 public class BValueFactory {
     public static BValue createBValueFromVariableDeclaration(VariableDcl variableDcl) {
         BValue bValue;
-        if(variableDcl.getType() instanceof IntType) {
+        if (variableDcl.getType() instanceof IntType) {
             bValue = new IntValue(Integer.parseInt(variableDcl.getValue()));
             return bValue;
         } else if (variableDcl.getType() instanceof FloatType) {

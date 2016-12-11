@@ -489,7 +489,11 @@ public class BallerinaBaseListenerImpl extends BallerinaBaseListener {
 
     private Annotation parserAnnotation(AnnotationContext ctx) {
         //todo implement complex annotations later
-        return new Annotation(ctx.annotationName().getText(), ctx.elementValue().getText());
+        if(ctx.elementValue() != null) {
+            return new Annotation(ctx.annotationName().getText(), ctx.elementValue().getText());
+        } else {
+            return new Annotation(ctx.annotationName().getText());
+        }
     }
 
     private Parameter parserParameter(ParameterContext ctx) {

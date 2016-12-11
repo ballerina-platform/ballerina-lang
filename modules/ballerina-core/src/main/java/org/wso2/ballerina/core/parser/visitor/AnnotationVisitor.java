@@ -35,6 +35,7 @@ public class AnnotationVisitor extends BallerinaBaseVisitor {
      */
     @Override
     public Object visitAnnotation(BallerinaParser.AnnotationContext ctx) {
+        //todo implement complex annotations later
         // element value can be optional if there is only one annotation
         if (ctx.elementValue() != null) {
             return new Annotation(ctx.annotationName().getText(), ctx.elementValue().getText());

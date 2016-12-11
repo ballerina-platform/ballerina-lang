@@ -116,4 +116,8 @@ public class ServiceVisitor extends BallerinaBaseVisitor {
         return resources;
     }
 
+    public SymbolTable getServiceSymbolTable() {
+        return serviceSymbolTable;
+    }
+
 }

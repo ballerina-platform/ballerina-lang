@@ -6072,7 +6072,7 @@ public class BallerinaParser extends Parser {
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitBinaryDivisionExpression(this);
+			if ( visitor instanceof BallerinaVisitor ) return ((BallerinaVisitor<? extends T>)visitor).visitBinaryDivitionExpression(this);
 			else return visitor.visitChildren(this);
 		}
 	}
