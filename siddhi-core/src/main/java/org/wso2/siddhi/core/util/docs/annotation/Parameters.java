@@ -23,9 +23,19 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation container for repeated org.wso2.siddhi.core.util.docs.annotation.Parameter annotation
- * This should not be applied to any class directly
+ * Annotation container for repeated org.wso2.siddhi.core.util.docs.annotation.Parameter annotation.
+ * This should not be applied to any class directly.
  * Use multiple org.wso2.siddhi.core.util.docs.annotation.Parameter annotations instead
+ *
+ * <pre><code>
+ * eg:-
+ *      {@literal @}Parameter(name = "parameter1", type = {"dataType1", "dataType2"})
+ *      {@literal @}Parameter(name = "parameter2", type = {"dataType1", "dataType2"})
+ *      {@literal @}Parameter(name = "parameter3", type = {"dataType1", "dataType2"}. optional=true)
+ *      public CustomProcessor extends ProcessorSuperClass {
+ *          ...
+ *      }
+ * </code></pre>
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)

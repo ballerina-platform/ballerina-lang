@@ -24,8 +24,18 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation for storing the parameters of a processor
+ * Annotation for storing the parameters of a processor.
  * Can be applied to windows, stream processors, stream functions, function executors and attribute aggregators
+ *
+ * <pre><code>
+ * eg:-
+ *      {@literal @}Parameter(name = "parameter1", type = {"dataType1", "dataType2"})
+ *      {@literal @}Parameter(name = "parameter2", type = {"dataType1", "dataType2"})
+ *      {@literal @}Parameter(name = "parameter3", type = {"dataType1", "dataType2"}, optional=true)
+ *      public CustomProcessor extends ProcessorSuperClass {
+ *          ...
+ *      }
+ * </code></pre>
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
@@ -35,5 +45,5 @@ public @interface Parameter {
 
     String[] type();
 
-    boolean optional() default false;
+    boolean optional() default false;       // optional is can be ignored in the annotation
 }

@@ -23,8 +23,16 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation for storing the return type of a processor
+ * Annotation for storing the return type of a processor.
  * Can be applied to windows, stream processors, stream functions, function executors and attribute aggregators
+ *
+ * <pre><code>
+ * eg:-
+ *      {@literal @}Return({"dataType1", "dataType2"})
+ *      public CustomProcessor extends ProcessorSuperClass {
+ *          ...
+ *      }
+ * </code></pre>
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)

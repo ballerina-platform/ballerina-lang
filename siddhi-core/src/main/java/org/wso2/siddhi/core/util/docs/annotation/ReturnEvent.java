@@ -23,9 +23,20 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation for storing additional attributes in the return event of stream processors
+ * Annotation for storing additional attributes in the return event of stream processors.
  * Additional attributes can be defined by passing an array of org.wso2.siddhi.core.util.docs.annotation.AdditionalAttribute
  * Can be applied to stream processors
+ *
+ * <pre><code>
+ * eg:-
+ *      {@literal @}ReturnEvent({
+ *          {@literal @}AdditionalAttribute(name = "attribute1", type = {"dataType1", "dataType2"}),
+ *          {@literal @}AdditionalAttribute(name = "attribute2", type = {"dataType1", "dataType2"})
+ *      })
+ *      public CustomStreamProcessor extends StreamProcessor {
+ *          ...
+ *      }
+ * </code></pre>
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
