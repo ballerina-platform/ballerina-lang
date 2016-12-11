@@ -16,9 +16,9 @@
  * under the License.
  */
 define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../ast/resource-definition',
-        './point', './life-line', './action-processor-view', './connector-declaration-view', './statement-view-factory'],
+        './point', './life-line', './action-processor-view', './connector-declaration-view', './statement-view-factory', 'ballerina/ast/ballerina-ast-factory'],
     function (_, log, d3, $, D3utils, BallerinaView, ResourceDefinition,
-              Point, LifeLine,ActionProcessor,ConnectorDeclarationView, StatementViewFactory) {
+              Point, LifeLine,ActionProcessor,ConnectorDeclarationView, StatementViewFactory, Ballerina) {
 
         /**
          * The view to represent a resource definition which is an AST visitor.
@@ -36,6 +36,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             this._defaultResourceLifeLine = undefined;
             this._statementViewList = [];
             this._defaultActionProcessor = undefined;
+            this._parentView = _.get(args, "parentView");
 
             if (_.isNil(this._model) || !(this._model instanceof ResourceDefinition)) {
                 log.error("Resource definition is undefined or is of different type." + this._model);
@@ -69,10 +70,34 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
 
             BallerinaView.call(this);
+            this.init();
         };
 
         ResourceDefinitionView.prototype = Object.create(BallerinaView.prototype);
         ResourceDefinitionView.prototype.constructor = ResourceDefinitionView;
+
+        ResourceDefinitionView.prototype.init = function(){
+            //Registering event listeners
+            this.listenTo(this._model, 'childVisitedEvent', this.childVisitedCallback);
+            this.listenTo(this._parentView, 'childViewAddedEvent', this.childViewAddedCallback);
+        };
+
+        ResourceDefinitionView.prototype.canVisitResourceDefinition = function (resourceDefinition) {
+            return true;
+        };
+
+        ResourceDefinitionView.prototype.childVisitedCallback = function (child) {
+            this.trigger("childViewAddedEvent", child);
+        };
+
+        ResourceDefinitionView.prototype.childViewAddedCallback = function (child) {
+            var ballerinaASTFactory = new Ballerina();
+            if(ballerinaASTFactory.isResourceDefinition(child)){
+                if(child !== this._model){
+                    log.info("[Eventing] Resource view added : ");
+                };
+            }
+        };
 
         ResourceDefinitionView.prototype.setModel = function (model) {
             if (!_.isNil(model) && model instanceof ResourceDefinition) {
@@ -299,6 +324,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             this._defaultActionProcessor = defaultProcessor;
             defaultProcessor.render();
 
+            this.getModel().accept(this);
             log.debug("Rendering Resource View");
             this.getModel().accept(this);
         };

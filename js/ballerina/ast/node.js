@@ -70,6 +70,8 @@ define(['event_channel', 'lodash'], function(EventChannel, _){
         } else {
             this.children.splice(index, 0, child);
         }
+        //setting the parent node
+        child.setParent(this);
     };
 
     /**
@@ -79,11 +81,13 @@ define(['event_channel', 'lodash'], function(EventChannel, _){
     ASTNode.prototype.accept = function (visitor) {
         if(visitor.canVisit(this)) {
             visitor.beginVisit(this);
+            var self = this;
             _.forEach(this.children, function (child) {
                 // visit current child
                 visitor.visit(child);
-
                 // TODO: Commented the bellow since this gave error when rendering the try catch
+                // firing childVisitedEvent
+                self.trigger("childVisitedEvent", child);
                 // forward visitor down the hierarchy to visit children of current child
                 // if visitor doesn't support visiting children of current child, it will break
                 // child.accept(visitor);

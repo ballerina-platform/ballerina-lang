@@ -17,7 +17,9 @@
  */
 define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, EventChannel, AST) {
 
-    var ASTVisitor = function() {};
+    var ASTVisitor = function() {
+        EventChannel.call(this);
+    };
 
     ASTVisitor.prototype = Object.create(EventChannel.prototype);
     ASTVisitor.prototype.constructor = ASTVisitor;

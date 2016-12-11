@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-view',  './function-definition-view', './../ast/ballerina-ast-root', './../ast/ballerina-ast-factory', './source-view', './../visitors/source-gen/ballerina-ast-root-visitor'],
+define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-view',  './function-definition-view', './../ast/ballerina-ast-root', 'ballerina/ast/ballerina-ast-factory', './source-view', './../visitors/source-gen/ballerina-ast-root-visitor'],
     function (_, $, log, BallerinaView, ServiceDefinitionView, FunctionDefinitionView, BallerinaASTRoot, BallerinaASTFactory, SourceView, SourceGenVisitor) {
 
         /**
@@ -94,11 +94,11 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
         };
 
         BallerinaFileEditor.prototype.canVisitServiceDefinition = function (serviceDefinition) {
-            return true;
+            return false;
         };
 
         BallerinaFileEditor.prototype.canVisitFunctionDefinition = function (functionDefinition) {
-            return true;
+            return false;
         };
 
         /**
@@ -109,9 +109,15 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             var serviceDefinitionView = new ServiceDefinitionView({
                 viewOptions: this._viewOptions,
                 container: this._$designViewContainer,
-                model: serviceDefinition
+                model: serviceDefinition,
+                parentView: this
             });
             serviceDefinitionView.render();
+
+        };
+
+        BallerinaFileEditor.prototype.childVisitedCallback = function (child) {
+            this.trigger("childViewAddedEvent", child);
         };
 
         /**
@@ -147,6 +153,9 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 log.error(errMsg);
                 throw errMsg;
             }
+
+            //Registering event listeners
+            this.listenTo(this._model, 'childVisitedEvent', this.childVisitedCallback);
         };
 
         /**
