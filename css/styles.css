@@ -188,7 +188,7 @@ ol#breadcrumbList {
 }
 
 .statement-rect {
-    fill-opacity: 0;
+    fill: #ffffff;
     stroke: #000000;
     stroke-width: 1;
 }

@@ -18,11 +18,19 @@
 define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './../ast/catch-statement', 'd3utils', 'd3', './point'],
     function (require, _, $, log, BallerinaStatementView, CatchStatement, D3Utils, d3, Point) {
 
+        /**
+         * The view to represent a Catch statement which is an AST visitor.
+         * @param {Object} args - Arguments for creating the view.
+         * @param {TryCatchStatement} args.model - The Try Catch statement model.
+         * @param {Object} args.container - The HTML container to which the view should be added to.
+         * @param {Object} args.parent - Parent Statement View, which in this case the try-catch statement
+         * @param {Object} [args.viewOptions={}] - Configuration values for the view.
+         * @constructor
+         */
         var CatchStatementView = function (args) {
             this._model = _.get(args, "model");
             this._container = _.get(args, "container");
             this._viewOptions = _.get(args, "viewOptions", {});
-            this._viewGroup = undefined;
 
             BallerinaStatementView.call(this, _.get(args, "parent"));
         };
@@ -38,11 +46,14 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
             return true;
         };
 
+        /**
+         * Render the catch statement
+         */
         CatchStatementView.prototype.render = function () {
             var catchGroup = D3Utils.group(this._container);
-            var tryBlockBottomY = parseInt(this.getParent().getTryBlockView().getViewGroup().outerRect.attr('y')) +
-                parseInt(this.getParent().getTryBlockView().getViewGroup().outerRect.attr('height'));
-            var x = parseInt(this.getParent().getTryBlockView().getViewGroup().outerRect.attr('x'));
+            var tryBlockBottomY = parseInt(this.getParent().getTryBlockView().getStatementGroup().outerRect.attr('y')) +
+                parseInt(this.getParent().getTryBlockView().getStatementGroup().outerRect.attr('height'));
+            var x = parseInt(this.getParent().getTryBlockView().getStatementGroup().outerRect.attr('x'));
             var y = tryBlockBottomY;
             var point = new Point(x, y);
             var width = 120;
@@ -55,10 +66,24 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
             catchGroup.outerRect = outer_rect;
             catchGroup.titleRect = title_rect;
             catchGroup.title_text = title_text;
-            this._viewGroup = catchGroup;
+            this.setStatementGroup(catchGroup);
+
+            // Set the parent's(TryCatchView) width, height, x, y
+            this.getParent().setWidth(width);
+            this.getParent().setHeight(this.getParent().getHeight() + height);
+
+            // Set x, y, height, width of the current view
+            this.setWidth(width);
+            this.setHeight(height);
+            this.setXPosition(x);
+            this.setYPosition(y);
             this._model.accept(this);
         };
 
+        /**
+         * set the catch statement model
+         * @param {CatchStatement} model
+         */
         CatchStatementView.prototype.setModel = function (model) {
             if (!_.isNil(model) && model instanceof CatchStatement) {
                 this._model = model;
@@ -68,6 +93,10 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
             }
         };
 
+        /**
+         * Set the container to draw the catch statement
+         * @param {svgGroup} container
+         */
         CatchStatementView.prototype.setContainer = function (container) {
             if (!_.isNil(container)) {
                 this._container = container;
@@ -91,66 +120,6 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
 
         CatchStatementView.prototype.getViewOptions = function () {
             return this._viewOptions;
-        };
-
-        /**
-         * @inheritDoc
-         */
-        CatchStatementView.prototype.setWidth = function (newWidth) {
-            // TODO : Implement
-        };
-
-        /**
-         * @inheritDoc
-         */
-        CatchStatementView.prototype.setHeight = function (newHeight) {
-            // TODO : Implement
-        };
-
-        /**
-         * @inheritDoc
-         */
-        CatchStatementView.prototype.setXPosition = function (xPosition) {
-            // TODO : Implement
-        };
-
-        /**
-         * @inheritDoc
-         */
-        CatchStatementView.prototype.setYPosition = function (yPosition) {
-            // TODO : Implement
-        };
-
-        /**
-         * @inheritDoc
-         */
-        CatchStatementView.prototype.getWidth = function () {
-            // TODO : Implement
-        };
-
-        /**
-         * @inheritDoc
-         */
-        CatchStatementView.prototype.getHeight = function () {
-            // TODO : Implement
-        };
-
-        /**
-         * @inheritDoc
-         */
-        CatchStatementView.prototype.getXPosition = function () {
-            // TODO : Implement
-        };
-
-        /**
-         * @inheritDoc
-         */
-        CatchStatementView.prototype.getYPosition = function () {
-            // TODO : Implement
-        };
-
-        CatchStatementView.prototype.getViewGroup = function () {
-            return this._viewGroup;
         };
 
         return CatchStatementView;

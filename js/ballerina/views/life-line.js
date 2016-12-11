@@ -67,6 +67,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', 'app/diagram-core/models/poi
             this._viewOptions.action = _.get(options, "action", {});
             this._viewOptions.action.value = _.get(options, "action.value", "Action");
             this._viewOptions.child = _.get(options, "child.value", false);
+            this._middleLine = undefined;
 
             // Make the lifeline uneditable by default
             if (_.get(options, "editable", false)) {
@@ -520,6 +521,10 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', 'app/diagram-core/models/poi
             //     }
             // }
         });
+    };
+
+    LifeLine.prototype.getMiddleLine = function () {
+        return this._middleLine;
     };
 
     LifeLine.prototype.getViewOptions = function () {

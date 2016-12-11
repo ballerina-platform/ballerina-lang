@@ -18,11 +18,19 @@
 define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './../ast/try-statement', 'd3utils', 'd3', './point'],
     function (require, _, $, log, BallerinaStatementView, TryStatement, D3Utils, d3, Point) {
 
+        /**
+         * The view to represent a Try statement which is an AST visitor.
+         * @param {Object} args - Arguments for creating the view.
+         * @param {TryCatchStatement} args.model - The Try Catch statement model.
+         * @param {Object} args.container - The HTML container to which the view should be added to.
+         * @param {Object} args.parent - Parent Statement View, which in this case the try-catch statement
+         * @param {Object} [args.viewOptions={}] - Configuration values for the view.
+         * @constructor
+         */
         var TryStatementView = function (args) {
             this._model = _.get(args, "model");
             this._container = _.get(args, "container");
             this._viewOptions = _.get(args, "viewOptions", {});
-            this._viewGroup = undefined;
 
             BallerinaStatementView.call(this, _.get(args, "parent"));
         };
@@ -38,24 +46,42 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
             return true;
         };
 
+        /**
+         * Render the try statement
+         */
         TryStatementView.prototype.render = function () {
             var tryGroup = D3Utils.group(this._container);
-            var x = 180;
-            var y = 210;
-            var point = new Point(x, y);
+            var x = this.getParent().getXPosition();
+            var y = this.getParent().getYPosition();
             var width = 120;
             var height = 60;
-            var outer_rect = D3Utils.rect(x - width/2, y, 120, 60, 0, 0, tryGroup).classed('statement-rect', true);
-            var title_rect = D3Utils.rect(x - width/2, y, 40, 20, 0, 0, tryGroup).classed('statement-rect', true);
-            var title_text = D3Utils.textElement(x - width/2 + 20, y + 10, 'Try', tryGroup).classed('statement-text', true);
-            this._model.accept(this);
+            var outer_rect = D3Utils.rect(x, y, 120, 60, 0, 0, tryGroup).classed('statement-rect', true);
+            var title_rect = D3Utils.rect(x, y, 40, 20, 0, 0, tryGroup).classed('statement-rect', true);
+            var title_text = D3Utils.textElement(x + 20, y + 10, 'Try', tryGroup).classed('statement-text', true);
+
+            // Set the parent's(TryCatchView) width, height, x, y
+            this.getParent().setWidth(width);
+            this.getParent().setHeight(height);
+            this.getParent().setXPosition(x);
+            this.getParent().setYPosition(y);
+
+            // Set x, y, height, width of the current view
+            this.setWidth(width);
+            this.setHeight(height);
+            this.setXPosition(x);
+            this.setYPosition(y);
 
             tryGroup.outerRect = outer_rect;
             tryGroup.titleRect = title_rect;
             tryGroup.titleText = title_text;
-            this._viewGroup = tryGroup;
+            this.setStatementGroup(tryGroup);
+            this._model.accept(this);
         };
 
+        /**
+         * Set the try statement model
+         * @param {TryStatement} model
+         */
         TryStatementView.prototype.setModel = function (model) {
             if (!_.isNil(model) && model instanceof TryStatement) {
                 this._model = model;
@@ -65,6 +91,10 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
             }
         };
 
+        /**
+         * Set the container to draw the try statement
+         * @param container
+         */
         TryStatementView.prototype.setContainer = function (container) {
             if (!_.isNil(container)) {
                 this._container = container;
@@ -88,66 +118,6 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
 
         TryStatementView.prototype.getViewOptions = function () {
             return this._viewOptions;
-        };
-
-        /**
-         * @inheritDoc
-         */
-        TryStatementView.prototype.setWidth = function (newWidth) {
-            // TODO : Implement
-        };
-
-        /**
-         * @inheritDoc
-         */
-        TryStatementView.prototype.setHeight = function (newHeight) {
-            // TODO : Implement
-        };
-
-        /**
-         * @inheritDoc
-         */
-        TryStatementView.prototype.setXPosition = function (xPosition) {
-            // TODO : Implement
-        };
-
-        /**
-         * @inheritDoc
-         */
-        TryStatementView.prototype.setYPosition = function (yPosition) {
-            // TODO : Implement
-        };
-
-        /**
-         * @inheritDoc
-         */
-        TryStatementView.prototype.getWidth = function () {
-            // TODO : Implement
-        };
-
-        /**
-         * @inheritDoc
-         */
-        TryStatementView.prototype.getHeight = function () {
-            // TODO : Implement
-        };
-
-        /**
-         * @inheritDoc
-         */
-        TryStatementView.prototype.getXPosition = function () {
-            // TODO : Implement
-        };
-
-        /**
-         * @inheritDoc
-         */
-        TryStatementView.prototype.getYPosition = function () {
-            // TODO : Implement
-        };
-
-        TryStatementView.prototype.getViewGroup = function () {
-            return this._viewGroup;
         };
 
         return TryStatementView;

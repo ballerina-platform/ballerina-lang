@@ -34,6 +34,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             this._viewOptions = _.get(args, 'viewOptions', {});
             this._connectorViewList =  [];
             this._defaultResourceLifeLine = undefined;
+            this._statementViewList = [];
+            this._defaultActionProcessor = undefined;
 
             if (_.isNil(this._model) || !(this._model instanceof ResourceDefinition)) {
                 log.error("Resource definition is undefined or is of different type." + this._model);
@@ -119,10 +121,29 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             return true;
         };
 
+        /**
+         * @param {BallerinaStatementView} statement
+         */
         ResourceDefinitionView.prototype.visitStatement = function (statement) {
             var statementViewFactory = new StatementViewFactory();
             var args = {model: statement, container: this._container, viewOptions: undefined};
             var statementView = statementViewFactory.getStatementView(args);
+
+            // TODO: we need to keep this value as a configurable value and read from constants
+            var statementsGap = 40;
+            var statementsWidth = 120;
+            if (this._statementViewList.length > 0) {
+                var lastStatement = this._statementViewList[this._statementViewList.length - 1];
+                statementView.setXPosition(lastStatement.getXPosition());
+                statementView.setYPosition(lastStatement.getYPosition() + lastStatement.getHeight() + statementsGap);
+            } else {
+                var x = parseInt(this._defaultResourceLifeLine.getMiddleLine().attr('x1')) - parseInt(statementsWidth/2);
+                // First statement is drawn wrt to the position of the default action processor
+                var y = this._defaultActionProcessor.getHeight() + this._defaultActionProcessor.getYPosition();
+                statementView.setXPosition(x);
+                statementView.setYPosition(y + statementsGap);
+            }
+            this._statementViewList.push(statementView);
             statementView.render();
         };
 
@@ -275,6 +296,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
             };
             var defaultProcessor = new ActionProcessor(processorViewOpts);
+            this._defaultActionProcessor = defaultProcessor;
             defaultProcessor.render();
 
             log.debug("Rendering Resource View");
@@ -393,6 +415,14 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
          */
         ResourceDefinitionView.prototype.getYPosition = function () {
             // TODO : Implement
+        };
+
+        /**
+         * get the Statement View List of the the resource
+         * @returns [_statementViewList] {Array}
+         */
+        ResourceDefinitionView.prototype.getStatementViewList = function () {
+            return this._statementViewList;
         };
 
         return ResourceDefinitionView;

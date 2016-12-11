@@ -23,6 +23,11 @@ define(['lodash', 'log', './../visitors/statement-visitor'], function (_, log, S
      */
     var BallerinaStatementView = function (parent) {
         this._parent = parent;
+        this._statementGroup = undefined;
+        this._width = 0;
+        this._height = 0;
+        this._xPosition = 0;
+        this._yPosition = 0;
         StatementVisitor.call(this);
     };
 
@@ -30,26 +35,40 @@ define(['lodash', 'log', './../visitors/statement-visitor'], function (_, log, S
     BallerinaStatementView.prototype.constructor = BallerinaStatementView;
 
     BallerinaStatementView.prototype.setWidth = function (newWidth) {
+        this._width = newWidth;
     };
     BallerinaStatementView.prototype.setHeight = function (newHeight) {
+        this._height = newHeight;
     };
     BallerinaStatementView.prototype.setXPosition = function (xPosition) {
+        this._xPosition = xPosition;
     };
     BallerinaStatementView.prototype.setYPosition = function (yPosition) {
+        this._yPosition = yPosition;
     };
     BallerinaStatementView.prototype.getWidth = function () {
+        return this._width;
     };
     BallerinaStatementView.prototype.getHeight = function () {
+        return this._height;
     };
     BallerinaStatementView.prototype.getXPosition = function () {
+        return this._xPosition;
     };
     BallerinaStatementView.prototype.getYPosition = function () {
+        return this._yPosition;
     };
     BallerinaStatementView.prototype.setParent = function (parent) {
         this._parent = parent;
     };
     BallerinaStatementView.prototype.getParent = function () {
         return this._parent;
+    };
+    BallerinaStatementView.prototype.getStatementGroup = function () {
+        return this._statementGroup;
+    };
+    BallerinaStatementView.prototype.setStatementGroup = function (getStatementGroup) {
+        this._statementGroup = getStatementGroup;
     };
 
     return BallerinaStatementView;

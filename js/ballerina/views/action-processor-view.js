@@ -47,14 +47,18 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './point'],
             this._viewOptions.arrowY = _.get(args, "arrowY", "undefined");
             this._viewOptions.action = _.get(args, "action", "undefined");
 
-
+            this._width = 0;
+            this._height = 0;
+            this._xPosition = 0;
+            this._yPosition = 0;
         };
+
         ActionProcessorView.prototype.constructor = ActionProcessorView;
         ActionProcessorView.prototype.createPoint = function (x, y) {
             this._x = x || 0;
             this._y = y || 0;
 
-        }
+        };
 
         ActionProcessorView.prototype.render = function () {
             //TODO: move css to classes
@@ -79,7 +83,45 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './point'],
                 D3utils.inputTriangle(this._viewOptions.sourcePoint.x, this._viewOptions.sourcePoint.y, this._viewOptions.parent);
             }
 
+            this._width = this._viewOptions.width;
+            this._height = this._viewOptions.height;
+            this._xPosition = parseInt(processorRect.attr('x'));
+            this._yPosition = parseInt(processorRect.attr('y'));
+
         };
+
+        ActionProcessorView.prototype.setWidth = function (newWidth) {
+            this._width = newWidth;
+        };
+
+        ActionProcessorView.prototype.setHeight = function (newHeight) {
+            this._height = newHeight;
+        };
+
+        ActionProcessorView.prototype.setXPosition = function (newXPosition) {
+            this._xPosition = newXPosition;
+        };
+
+        ActionProcessorView.prototype.setYPosition = function (newYPosition) {
+            this._yPosition = newYPosition;
+        };
+
+        ActionProcessorView.prototype.getWidth = function () {
+            return this._width;
+        };
+
+        ActionProcessorView.prototype.getHeight = function () {
+            return this._height;
+        };
+
+        ActionProcessorView.prototype.getXPosition = function () {
+            return this._xPosition;
+        };
+
+        ActionProcessorView.prototype.getYPosition = function () {
+            return this._yPosition;
+        };
+
         return ActionProcessorView;
 
     });

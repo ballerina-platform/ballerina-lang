@@ -156,10 +156,17 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace']
             var tryCatchStatement = ballerinaASTFactory.createTryCatchStatement();
             var tryStatement = ballerinaASTFactory.createTryStatement();
             var catchStatement = ballerinaASTFactory.createCatchStatement();
+            var tryCatchStatement1 = ballerinaASTFactory.createTryCatchStatement();
+            var tryStatement1 = ballerinaASTFactory.createTryStatement();
+            var catchStatement1 = ballerinaASTFactory.createCatchStatement();
             catchStatement.setExceptionType("ArithmeticException ex");
+            catchStatement1.setExceptionType("ArithmeticException ex");
             tryCatchStatement.addChild(tryStatement);
             tryCatchStatement.addChild(catchStatement);
+            tryCatchStatement1.addChild(tryStatement1);
+            tryCatchStatement1.addChild(catchStatement1);
             resource_passthrough.addChild(tryCatchStatement);
+            resource_passthrough.addChild(tryCatchStatement1);
             // Create sample Worker Declaration
             var workerDeclaration1 = ballerinaASTFactory.createWorkerDeclaration();
             var workerDeclaration2 = ballerinaASTFactory.createWorkerDeclaration();
