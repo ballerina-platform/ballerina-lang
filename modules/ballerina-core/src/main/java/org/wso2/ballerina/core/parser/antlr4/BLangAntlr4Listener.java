@@ -416,10 +416,19 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void enterAnnotation(BallerinaParser.AnnotationContext ctx) {
+        modelBuilder.startAnnotation();
     }
 
     @Override
     public void exitAnnotation(BallerinaParser.AnnotationContext ctx) {
+        boolean valueAvailable = false;
+        String annotationName = ctx.annotationName().getText();
+
+        int childCount = ctx.getChildCount();
+        if (childCount > 2) {
+            valueAvailable = true;
+        }
+        modelBuilder.endAnnotation(annotationName, valueAvailable);
     }
 
     @Override
@@ -444,6 +453,8 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitElementValuePair(BallerinaParser.ElementValuePairContext ctx) {
+        String key = ctx.getChild(0).getText();
+        modelBuilder.createAnnotationKeyValue(key);
     }
 
     @Override
@@ -654,7 +665,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitSimpleVariableIdentifier(BallerinaParser.SimpleVariableIdentifierContext ctx) {
-        modelBuilder.createVarIdentifier(ctx.getText());
+        modelBuilder.createIdentifier(ctx.getText());
     }
 
     @Override
@@ -971,7 +982,9 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
         terminalNode = ctx.QuotedStringLiteral();
         if (terminalNode != null) {
-            modelBuilder.createStringLiteral(terminalNode.getText());
+            String stringLiteral = terminalNode.getText();
+            stringLiteral = stringLiteral.substring(1, stringLiteral.length() - 1);
+            modelBuilder.createStringLiteral(stringLiteral);
         }
 
         terminalNode = ctx.BooleanLiteral();

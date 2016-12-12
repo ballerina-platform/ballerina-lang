@@ -96,6 +96,9 @@ public class Annotation {
         return keyValPairs.get(key);
     }
 
+    /**
+     * Builds an Annotation
+     */
     public static class AnnotationBuilder {
 
         private Identifier name;
