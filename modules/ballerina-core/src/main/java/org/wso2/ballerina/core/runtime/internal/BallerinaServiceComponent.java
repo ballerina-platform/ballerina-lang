@@ -61,6 +61,13 @@ public class BallerinaServiceComponent {
             //Creating the processor and registering the service
             bundleContext.registerService(CarbonMessageProcessor.class, new MessageProcessor(), null);
 
+            // Registering HTTP Listener Manager with transport framework
+            bundleContext.registerService(TransportListenerManager.class, HTTPListenerManager.getInstance(), null);
+
+            // Resister HTTP Dispatchers
+            DispatcherRegistry.getInstance().registerServiceDispatcher(new HTTPServiceDispatcher());
+            DispatcherRegistry.getInstance().registerResourceDispatcher(new HTTPResourceDispatcher());
+
             //Determine the runtime mode
             String runThisBalFile = System.getProperty(SYSTEM_PROP_BAL_FILE);
             if (runThisBalFile != null) {
@@ -70,13 +77,6 @@ public class BallerinaServiceComponent {
                 }
                 BalDeployer.deployBalFile(new File(runThisBalFile));
             }
-
-            // Registering HTTP Listener Manager with transport framework
-            bundleContext.registerService(TransportListenerManager.class, HTTPListenerManager.getInstance(), null);
-
-            // Resister HTTP Dispatchers
-            DispatcherRegistry.getInstance().registerServiceDispatcher(new HTTPServiceDispatcher());
-            DispatcherRegistry.getInstance().registerResourceDispatcher(new HTTPResourceDispatcher());
 
         } catch (Exception ex) {
             String msg = "Error while loading Ballerina";
