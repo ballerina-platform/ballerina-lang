@@ -15,12 +15,17 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.wso2.ballerina.core.model.types;
+package org.wso2.ballerina.core.nativeimpl;
 
 /**
- *  {@code ArrayType} represents an array
- *
- *  @since 1.0.0
+ * Represents Ballerina Native Construct.
  */
-public class ArrayType extends AbstractType {
+public interface NativeConstruct {
+
+    /**
+     * Get Ballerina Package name of the Native function.
+     *
+     * @return Ballerina Package name
+     */
+    String getPackageName();
 }

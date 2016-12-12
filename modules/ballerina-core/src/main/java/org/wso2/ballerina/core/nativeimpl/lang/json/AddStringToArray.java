@@ -23,8 +23,7 @@ import com.jayway.jsonpath.WriteContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.Context;
-import org.wso2.ballerina.core.model.types.JSONType;
-import org.wso2.ballerina.core.model.types.StringType;
+import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.JSONValue;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
@@ -37,9 +36,9 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 @BallerinaFunction(
         packageName = "ballerina.lang.json",
         functionName = "add",
-        args = {@Argument(name = "json", type = JSONType.class), 
-                @Argument(name = "jsonPath", type = StringType.class),
-                @Argument(name = "value", type = StringType.class)},
+        args = {@Argument(name = "json", type = TypeEnum.JSON),
+                @Argument(name = "jsonPath", type = TypeEnum.STRING),
+                @Argument(name = "value", type = TypeEnum.STRING)},
         isPublic = true
 )
 //@Component(

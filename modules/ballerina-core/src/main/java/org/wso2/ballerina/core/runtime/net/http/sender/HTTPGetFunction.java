@@ -22,9 +22,7 @@ import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.Context;
-import org.wso2.ballerina.core.model.types.IntType;
-import org.wso2.ballerina.core.model.types.MessageType;
-import org.wso2.ballerina.core.model.types.StringType;
+import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.IntValue;
 import org.wso2.ballerina.core.model.values.MessageValue;
@@ -43,10 +41,10 @@ import org.wso2.carbon.messaging.MessageProcessorException;
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "get",
-        args = {@Argument(name = "host", type = StringType.class),
-                @Argument(name = "port", type = IntType.class),
-                @Argument(name = "path", type = StringType.class)},
-        returnType = {MessageType.class},
+        args = {@Argument(name = "host", type = TypeEnum.STRING),
+                @Argument(name = "port", type = TypeEnum.INT),
+                @Argument(name = "path", type = TypeEnum.STRING)},
+        returnType = {TypeEnum.MESSAGE},
         isPublic = true
 )
 @Component(

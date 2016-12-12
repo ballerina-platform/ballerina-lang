@@ -3,8 +3,7 @@ package org.wso2.ballerina.core.nativeimpl.lang.message;
 
 import org.osgi.service.component.annotations.Component;
 import org.wso2.ballerina.core.interpreter.Context;
-import org.wso2.ballerina.core.model.types.MessageType;
-import org.wso2.ballerina.core.model.types.StringType;
+import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.MessageValue;
 import org.wso2.ballerina.core.model.values.StringValue;
@@ -18,9 +17,9 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 @BallerinaFunction(
         packageName = "ballerina.lang.message",
         functionName = "getHeader",
-        args = {@Argument(name = "message", type = MessageType.class),
-                @Argument(name = "headerName", type = StringType.class)},
-        returnType = {StringType.class},
+        args = {@Argument(name = "message", type = TypeEnum.MESSAGE),
+                @Argument(name = "headerName", type = TypeEnum.STRING)},
+        returnType = {TypeEnum.STRING},
         isPublic = true
 )
 

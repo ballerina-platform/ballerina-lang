@@ -19,12 +19,12 @@ package org.wso2.ballerina.core.model;
 
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
-import org.wso2.ballerina.core.model.types.ArrayType;
 import org.wso2.ballerina.core.model.types.IntType;
+import org.wso2.ballerina.core.model.values.ArrayValue;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-public class ArrayTypeTest {
+public class ArrayValueTest {
     @BeforeTest
     public void setup() {
     }
@@ -47,7 +47,7 @@ public class ArrayTypeTest {
     @Test
     public void testArrayTypeInsertGet() {
         // ArrayType
-        ArrayType<IntType> integers = new ArrayType<>(4);
+        ArrayValue<IntType> integers = new ArrayValue<>(4);
         IntType int0 = new IntType();
         IntType int1 = new IntType();
         IntType int2 = new IntType();
@@ -66,7 +66,7 @@ public class ArrayTypeTest {
         IntType int1 = new IntType();
         IntType int2 = new IntType();
         IntType int3 = new IntType();
-        ArrayType<IntType> integers = new ArrayType<>(int0, int1, int2, int3);
+        ArrayValue<IntType> integers = new ArrayValue<>(int0, int1, int2, int3);
         assertEquals(integers.get(2), int2);
     }
 }

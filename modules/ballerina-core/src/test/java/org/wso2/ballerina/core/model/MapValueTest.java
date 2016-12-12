@@ -19,7 +19,7 @@ package org.wso2.ballerina.core.model;
 
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
-import org.wso2.ballerina.core.model.types.MapType;
+import org.wso2.ballerina.core.model.values.MapValue;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,7 +27,7 @@ import java.util.Map;
 import static org.testng.AssertJUnit.assertEquals;
 
 
-public class MapTypeTest {
+public class MapValueTest {
     @BeforeTest
     public void setup() {
     }
@@ -58,7 +58,7 @@ public class MapTypeTest {
     public void testMapTypeMap() {
 
         // MapType
-        MapType<String, Integer> map = new MapType<String, Integer>();
+        MapValue<String, Integer> map = new MapValue<String, Integer>();
         map.put("Chanaka", 1);
         map.put("Udaya", 2);
         map.put("Chanaka", 1);
