@@ -23,8 +23,7 @@ import com.jayway.jsonpath.WriteContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.Context;
-import org.wso2.ballerina.core.model.types.JSONType;
-import org.wso2.ballerina.core.model.types.StringType;
+import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.JSONValue;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
@@ -36,10 +35,10 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 @BallerinaFunction(
         packageName = "ballerina.lang.json",
         functionName = "rename",
-        args = {@Argument(name = "json", type = JSONType.class), 
-                @Argument(name = "jsonPath", type = StringType.class),
-                @Argument(name = "oldKey", type = StringType.class),
-                @Argument(name = "newKey", type = StringType.class)},
+        args = {@Argument(name = "json", type = TypeEnum.JSON),
+                @Argument(name = "jsonPath", type = TypeEnum.STRING),
+                @Argument(name = "oldKey", type = TypeEnum.STRING),
+                @Argument(name = "newKey", type = TypeEnum.STRING)},
         isPublic = true
 )
 //@Component(
@@ -59,7 +58,7 @@ public class Rename extends AbstractJSONFunction {
         String jsonPath = getArgument(ctx, 1).getString();
         String oldKey = getArgument(ctx, 2).getString();
         String newKey = getArgument(ctx, 3).getString();
-        
+
         // Rename the element key
         WriteContext jsonCtx = JsonPath.parse(json.getValue());
         jsonCtx.renameKey(jsonPath, oldKey, newKey);

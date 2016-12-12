@@ -21,8 +21,7 @@ package org.wso2.ballerina.core.nativeimpl.lang.message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.Context;
-import org.wso2.ballerina.core.model.types.JSONType;
-import org.wso2.ballerina.core.model.types.MessageType;
+import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.JSONValue;
 import org.wso2.ballerina.core.model.values.MessageValue;
@@ -36,8 +35,8 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 @BallerinaFunction(
         packageName = "ballerina.lang.message",
         functionName = "get",
-        args = {@Argument(name = "message", type = MessageType.class)},
-        returnType = {JSONType.class},
+        args = {@Argument(name = "message", type = TypeEnum.MESSAGE)},
+        returnType = {TypeEnum.JSON},
         isPublic = true
 )
 //@Component(

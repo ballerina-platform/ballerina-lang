@@ -15,17 +15,17 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.wso2.ballerina.core.nativeimpl.annotations;
-
-import org.wso2.ballerina.core.model.types.TypeEnum;
+package org.wso2.ballerina.core.nativeimpl;
 
 /**
- * Represents an Argument of a Native Ballerina Function or Action.
+ * Represents Ballerina Native Construct.
  */
-public @interface Argument {
+public interface NativeConstruct {
 
-    String name();
-
-    TypeEnum type();
-
+    /**
+     * Get Ballerina Package name of the Native function.
+     *
+     * @return Ballerina Package name
+     */
+    String getPackageName();
 }
