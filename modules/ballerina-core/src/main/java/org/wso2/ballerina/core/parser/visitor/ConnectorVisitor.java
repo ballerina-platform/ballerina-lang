@@ -71,7 +71,8 @@ public class ConnectorVisitor extends BallerinaBaseVisitor {
      */
     @Override
     public Object visitConnectorDefinition(BallerinaParser.ConnectorDefinitionContext ctx) {
-        Connector connectorObject = new Connector();
+        Identifier connectorName = new Identifier(ctx.Identifier().getText());
+        Connector connectorObject = new Connector(connectorName, null, null, null, null);
 
         // Read the annotations
         AnnotationVisitor annotationVisitor = new AnnotationVisitor();

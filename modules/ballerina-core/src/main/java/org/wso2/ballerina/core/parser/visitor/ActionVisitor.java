@@ -20,6 +20,7 @@ package org.wso2.ballerina.core.parser.visitor;
 import org.wso2.ballerina.core.interpreter.SymbolTable;
 import org.wso2.ballerina.core.model.Action;
 import org.wso2.ballerina.core.model.Annotation;
+import org.wso2.ballerina.core.model.Identifier;
 import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.VariableDcl;
 import org.wso2.ballerina.core.model.statements.Statement;
@@ -48,8 +49,8 @@ public class ActionVisitor extends BallerinaBaseVisitor {
      */
     @Override
     public Object visitActionDefinition(BallerinaParser.ActionDefinitionContext ctx) {
-//        Identifier actionName = new Identifier(ctx.Identifier(0).getText());
-        Action actionObject = new Action();
+        Identifier actionName = new Identifier(ctx.Identifier(0).getText());
+        Action actionObject = new Action(actionName, null, null, null, null, null, null, null);
 
         // Read the annotations
         AnnotationVisitor annotationVisitor = new AnnotationVisitor();

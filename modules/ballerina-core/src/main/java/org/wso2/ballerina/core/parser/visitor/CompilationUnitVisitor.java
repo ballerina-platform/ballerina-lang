@@ -56,7 +56,7 @@ public class CompilationUnitVisitor extends BallerinaBaseVisitor {
         ConstantVisitor constantVisitor = new ConstantVisitor(baseSymbolTable);
         for (BallerinaParser.ConstantDefinitionContext cdc : ctx.constantDefinition()) {
             VariableDcl constantObject = (VariableDcl) cdc.accept(constantVisitor);
-            balFile.addConstant(constantObject);
+//            balFile.addConstant(constantObject);
             baseSymbolTable.put(constantObject.getIdentifier(),
                     BValueFactory.createBValueFromVariableDeclaration(constantObject));
         }
@@ -84,7 +84,7 @@ public class CompilationUnitVisitor extends BallerinaBaseVisitor {
         ConnectorVisitor connectorVisitor = new ConnectorVisitor(baseSymbolTable);
         for (BallerinaParser.ConnectorDefinitionContext cdc : ctx.connectorDefinition()) {
             Connector connectorObject = (Connector) cdc.accept(connectorVisitor);
-            balFile.addConnector(connectorObject);
+//            balFile.addConnector(connectorObject);
         }
 
         return balFile;
