@@ -19,6 +19,9 @@ package org.wso2.ballerina.core.model.statements;
 
 import org.wso2.ballerina.core.interpreter.Context;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * A BlockStmt represents a list of statements between balanced braces.
  *
@@ -37,6 +40,27 @@ public class BlockStmt implements Statement {
         //TODO Possibly a linked set of statements would do.
         for (Statement stmt : statements) {
             stmt.interpret(ctx);
+        }
+    }
+
+    /**
+     * Builds a {@code BlockStmt}
+     *
+     * @since 1.0.0
+     */
+    public static class BlockStmtBuilder {
+
+        private List<Statement> statementList = new ArrayList<>();
+
+        public BlockStmtBuilder() {
+        }
+
+        public void addStmt(Statement statement) {
+            statementList.add(statement);
+        }
+
+        public BlockStmt build() {
+            return new BlockStmt(statementList.toArray(new Statement[statementList.size()]));
         }
     }
 }
