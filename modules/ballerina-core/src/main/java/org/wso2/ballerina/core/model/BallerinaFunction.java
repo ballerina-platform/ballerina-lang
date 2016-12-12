@@ -40,6 +40,7 @@ import org.wso2.ballerina.core.model.types.Type;
  */
 public class BallerinaFunction implements Function {
 
+    // TODO: Rename this to BFunction after M1.
     private Identifier functionName;
 
     private Annotation[] annotations;
@@ -83,7 +84,7 @@ public class BallerinaFunction implements Function {
      *
      * @return function identifier
      */
-    public Identifier getFunctionName() {
+    public Identifier getIdentifier() {
         return functionName;
     }
 

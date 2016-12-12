@@ -116,7 +116,7 @@ public abstract class AbstractNativeFunction implements NativeConstruct, Functio
     }
 
     @Override
-    public Identifier getFunctionName() {
+    public Identifier getIdentifier() {
         return identifier;
     }
 

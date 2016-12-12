@@ -165,7 +165,7 @@ public class BallerinaFile {
      * @param function a Function to be added to the File
      */
     public void addFunction(Function function) {
-        functions.put(function.getFunctionName().getName(), function);
+        functions.put(function.getName(), function);
     }
 
     /**
