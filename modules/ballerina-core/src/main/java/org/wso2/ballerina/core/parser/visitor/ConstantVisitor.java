@@ -17,14 +17,22 @@
  */
 package org.wso2.ballerina.core.parser.visitor;
 
+import org.wso2.ballerina.core.interpreter.SymbolTable;
+import org.wso2.ballerina.core.model.Identifier;
+import org.wso2.ballerina.core.model.VariableDcl;
+import org.wso2.ballerina.core.model.types.Type;
 import org.wso2.ballerina.core.parser.BallerinaBaseVisitor;
 import org.wso2.ballerina.core.parser.BallerinaParser;
 
 /**
- * Visitor for connector declaration statement
+ * Visitor for constants
  */
-public class ConnectorDeclarationVisitor extends BallerinaBaseVisitor {
+public class ConstantVisitor extends BallerinaBaseVisitor {
+    private SymbolTable constantSymbolTable;
 
+    public ConstantVisitor(SymbolTable parentSymbolTable) {
+        this.constantSymbolTable = new SymbolTable(parentSymbolTable);
+    }
     /**
      * {@inheritDoc}
      * <p>
@@ -34,7 +42,19 @@ public class ConnectorDeclarationVisitor extends BallerinaBaseVisitor {
      * @param ctx
      */
     @Override
-    public Object visitConnectorDeclaration(BallerinaParser.ConnectorDeclarationContext ctx) {
-        return super.visitConnectorDeclaration(ctx);
+    public Object visitConstantDefinition(BallerinaParser.ConstantDefinitionContext ctx) {
+        TypeNameVisitor typeNameVisitor = new TypeNameVisitor();
+        return new VariableDcl((Type) ctx.typeName().accept(typeNameVisitor),
+                new Identifier(ctx.Identifier().getText()), ctx.literalValue().getText());
+    }
+
+    /**
+     * Base method for retrieving the symbol table
+     *
+     * @return symbol table for this instance
+     */
+    @Override
+    public SymbolTable getSymbolTable() {
+        return this.constantSymbolTable;
     }
 }

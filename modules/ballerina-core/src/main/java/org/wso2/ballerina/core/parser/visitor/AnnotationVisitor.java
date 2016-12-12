@@ -25,6 +25,7 @@ import org.wso2.ballerina.core.parser.BallerinaParser;
  * Visitor for annotations
  */
 public class AnnotationVisitor extends BallerinaBaseVisitor {
+
     /**
      * {@inheritDoc}
      * <p>
