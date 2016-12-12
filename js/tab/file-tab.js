@@ -35,9 +35,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace']
         render: function () {
             Tab.prototype.render.call(this);
             var ballerinaEditorOptions = _.get(this.options, 'ballerina_editor');
-            _.set(ballerinaEditorOptions, 'toolPalette', this.getParent().options.toolPalette);
             _.set(ballerinaEditorOptions, 'container', this.$el.get(0));
-            var toolPallet = _.get(this.options.application, 'toolPalette');
 
 //            var ballerinaASTFactory = new Ballerina.ast.BallerinaASTFactory();
 //            var ballerinaAstRoot = ballerinaASTFactory.createBallerinaAstRoot();
@@ -210,7 +208,10 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace']
             //Create environment and add add package list
             var ballerinaEnvironment = new Ballerina.env.Environment();
 
-            this.generateToolPallet(ballerinaEnvironment, toolPallet);
+            //toolPalette.loadToolsFromPackage(package1);
+            //toolPalette.loadToolsFromPackage(package2);
+
+            //this.generateToolPallet(ballerinaEnvironment, toolPalette);
 
             var fileEditor = new Ballerina.views.BallerinaFileEditor({
                 model: ballerinaAstRoot1,
@@ -228,7 +229,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace']
             _.each(packageList, function (pckg) {
                 if (!_.isEmpty(pckg.getServiceDefinitions())) {
                     var service = self.isToolAvailableInPallet(mainElementsToolGroup, "Service");
-                    if (!service) {
+                    if (true) {
                         var serviceDefinitions = pckg.getServiceDefinitions();
                         var serviceDef = {
                             id: "service",

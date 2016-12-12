@@ -310,10 +310,6 @@ div[class*="col-sm-"] {
     right: 0;
 }
 
-.tab-content-default {
-    margin-left: 200px;
-}
-
 #tab-content-wrapper {
     position: relative;
     background-color: white;

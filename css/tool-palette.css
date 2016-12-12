@@ -1,5 +1,5 @@
 
-#tool-palette-container{
+.tool-palette-container{
     border-right: 2px solid #e8e8e8;
     position: fixed;
     width: 200px;

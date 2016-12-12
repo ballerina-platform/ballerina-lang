@@ -15,11 +15,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'log', 'jquery', 'lodash', 'backbone', 'app/menu-bar/menu-bar', 'breadcrumbs', 'file_browser', 'tab/file-tab-list', 'app/tool-palette/tool-palette',
+define(['require', 'log', 'jquery', 'lodash', 'backbone', 'app/menu-bar/menu-bar', 'breadcrumbs', 'file_browser', 'tab/file-tab-list',
 
     'welcome','command','workspace',/* void modules */ 'jquery_ui', 'bootstrap'],
 
-    function (require, log, $, _, Backbone, MenuBar, BreadcrumbController, FileBrowser, TabController, ToolPalette, WelcomeScreen, CommandManager, Workspace) {
+    function (require, log, $, _, Backbone, MenuBar, BreadcrumbController, FileBrowser, TabController, WelcomeScreen, CommandManager, Workspace) {
 
     var Application = Backbone.View.extend(
     /** @lends Application.prototype */
@@ -59,17 +59,11 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'app/menu-bar/menu-bar
             _.set(workspaceExplorerOpts, 'application', this);
             this.workspaceExplorer = new Workspace.Explorer(workspaceExplorerOpts);
 
-            //init tool palette
-            var toolPaletteOpts = _.get(this.config, "tab_controller.tool_palette");
-            _.set(toolPaletteOpts, 'application', this);
-            this.toolPalette = new ToolPalette(toolPaletteOpts);
-
             //init tab controller
             var tabControlOpts = _.get(this.config, "tab_controller");
             _.set(tabControlOpts, 'application', this);
 
             // tab controller will take care of rendering tool palette
-            _.set(tabControlOpts, 'toolPalette', this.toolPalette);
             this.tabController = new TabController(tabControlOpts);
 
             //TODO : get from module
@@ -97,9 +91,6 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'app/menu-bar/menu-bar
             }
             if(!_.has(config, 'workspace_explorer')){
                 log.error('Workspace explorer configuration is not provided.');
-            }
-            if(!_.has(config, 'tab_controller.tool_palette')){
-                log.error('tool_palette configuration is not provided.');
             }
             if(!_.has(config, 'tab_controller')){
                 log.error('tab_controller configuration is not provided.');

@@ -86,11 +86,7 @@
                                 <div class="tab-headers">
                                 </div>
                                 <div  id="tab-content-wrapper" class="grid-background" style="height: 100%;">
-                                    <!-- Start: tool-palette -->
-                                    <div id="tool-palette-container"></div>
-                                    <!-- End: tool-palette -->
                                     <div class="tab-content tab-content-default "></div>
-
                                 </div>
                             </div>
                         </div>
@@ -122,8 +118,11 @@
 <div style="display: none" id="tab-template">
     <!-- Start: Tab -->
     <div>
-        <!-- Start: Canvas Container -->
-        <div class="canvas-container">
+        <!-- Start: design view container -->
+        <div class="design-view-container">
+            <!-- Start: tool-palette -->
+            <div class="tool-palette-container"></div>
+            <!-- End: tool-palette -->
             <!-- Start: TopRight Controls Container -->
             <div class="top-right-controls-container">
                 <div class="package-btn btn-icon"><i class="fw fw-lg fw-info fw-inverse fw-helper fw-helper-circle"></i></div>
@@ -135,16 +134,16 @@
             </div>
             <!-- End: BottomRight Controls Container  -->
         </div>
-        <!-- End: Canvas Container -->
-        <!-- Start: Preview Container -->
-        <div class="source-container" id="source-container-id">
+        <!-- End: design view container -->
+        <!-- Start: source view container -->
+        <div class="source--view-container" id="source-container-id">
             <!-- Start: BottomRight Controls Container -->
             <div class="bottom-right-controls-container">
                 <div class="view-design-btn btn-icon"><i class="fw fw-lg fw-design-view fw-inverse fw-helper fw-helper-circle"></i></div>
             </div>
             <!-- End: BottomRight Controls Container  -->
         </div>
-        <!-- End Preview Container -->
+        <!-- End source view container  -->
         <!-- Start: Preview Container -->
         <div class="preview-container">
         </div>
@@ -337,7 +336,6 @@
             drag_drop_manager: "js/drag-drop/manager",
             main_elements: "js/main-elements/module",
             processors: "js/processors/module",
-            tool_palette: "js/tool-palette/module",
             file_browser: "js/file-browser/file-browser",
             dialogs: "js/dialog/module",
             file_menu: "js/ballerina-menu-bar/file-menu",
@@ -405,9 +403,7 @@
                     headingTop: "top-heading",
                     btnWrap1: "new-btn-wrap col-md-6",
                     btnWrap2:"open-btn-wrap col-md-6"
-
                 }
-
             },
             services:   {
                 workspace:  {
@@ -441,7 +437,6 @@
             },
             tab_controller: {
                 container: "#tabs-container",
-
                 headers:    {
                     // relative selector within container for tab controller
                     container: ".tab-headers",
@@ -462,17 +457,29 @@
                             tab_close_btn: 'close closeTab pull-right'
                         },
                         ballerina_editor: {
-                            design: {
+                            design_view: {
                                 // relative selector within container for a tab
-                                container: '.canvas-container'
+                                container: '.design-view-container',
+                                canvas_container: '.canvas-container',
+                                tool_palette: {
+                                    // relative selector within container for design view
+                                    container: ".tool-palette-container",
+                                    search_bar: {
+                                        cssClass:{
+                                            search_box: 'search-bar',
+                                            search_icon: 'fw fw-search searchIcon',
+                                            search_input: 'search-input'
+                                        }
+                                    }
+                                }
                             },
                             preview: {
                                 // relative selector within container for a tab
                                 container: '.preview-container'
                             },
-                            source: {
+                            source_view: {
                                 // relative selector within container for a tab
-                                container: '.source-container'
+                                container: '.source-view-container'
                             },
                             controls: {
                                 view_source_btn: '.view-source-btn',
@@ -495,18 +502,8 @@
                             }
                         }
                     }
-                },
-                tool_palette: {
-                    // relative selector within container for tab controller
-                    container: "#tool-palette-container",
-                    search_bar: {
-                        cssClass:{
-                            search_box: 'search-bar',
-                            search_icon: 'fw fw-search searchIcon',
-                            search_input: 'search-input'
-                        }
-                    }
                 }
+
             },
             workspace_explorer: {
                 container: "#workspace-explorer",

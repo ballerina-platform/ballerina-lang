@@ -118,7 +118,7 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'd3utils'], function (r
         },
 
         getDragCursorOffset: function () {
-            return {left: 50, top: 50};
+            return {left: 50, top: -10};
         }
 
     });
