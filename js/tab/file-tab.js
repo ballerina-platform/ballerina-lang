@@ -185,14 +185,16 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
              */
             var logicalExp = ballerinaASTFactory.createLogicalExpression();
             logicalExp.setExpression('a > b');
-            resource_passthrough.addChild(logicalExp);
+            //TODO:Commented to view get action statement
+            //resource_passthrough.addChild(logicalExp);
 
             /**
              * Create the sample arithmetic expression
              */
             var arithmeticExp = ballerinaASTFactory.createArithmeticExpression();
             arithmeticExp.setExpression('a = resp + 123');
-            resource_passthrough.addChild(arithmeticExp);
+            //TODO:Commented to view get action statement
+           // resource_passthrough.addChild(arithmeticExp);
 
             // Create Sample try-catch statement
             var ifElseStatement = ballerinaASTFactory.createIfElseStatement();
