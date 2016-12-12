@@ -19,14 +19,19 @@
 package org.wso2.ballerina.core.parser;
 
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.antlr.v4.runtime.tree.TerminalNode;
+import org.wso2.ballerina.core.model.Action;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
-import org.wso2.ballerina.core.model.Function;
+import org.wso2.ballerina.core.model.Connection;
+import org.wso2.ballerina.core.model.Connector;
 import org.wso2.ballerina.core.model.Identifier;
 import org.wso2.ballerina.core.model.Import;
 import org.wso2.ballerina.core.model.Operator;
 import org.wso2.ballerina.core.model.Parameter;
+import org.wso2.ballerina.core.model.Resource;
+import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.model.VariableDcl;
 import org.wso2.ballerina.core.model.Worker;
 import org.wso2.ballerina.core.model.expressions.AddExpression;
@@ -50,11 +55,21 @@ import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.statements.ForkJoinStmt;
 import org.wso2.ballerina.core.model.statements.IfElseStmt;
 import org.wso2.ballerina.core.model.statements.ReplyStmt;
+import org.wso2.ballerina.core.model.statements.ReturnStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.model.statements.ThrowStmt;
 import org.wso2.ballerina.core.model.statements.TryCatchStmt;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
+import org.wso2.ballerina.core.model.types.ArrayType;
+import org.wso2.ballerina.core.model.types.BooleanType;
+import org.wso2.ballerina.core.model.types.DoubleType;
+import org.wso2.ballerina.core.model.types.FloatType;
+import org.wso2.ballerina.core.model.types.IntType;
+import org.wso2.ballerina.core.model.types.IteratorType;
+import org.wso2.ballerina.core.model.types.JSONType;
+import org.wso2.ballerina.core.model.types.LongType;
 import org.wso2.ballerina.core.model.types.Type;
+import org.wso2.ballerina.core.model.types.XMLType;
 import org.wso2.ballerina.core.model.values.BValueRef;
 import org.wso2.ballerina.core.model.values.BooleanValue;
 import org.wso2.ballerina.core.model.values.FloatValue;
@@ -119,20 +134,61 @@ import java.util.List;
 
 public class BallerinaBaseListenerImpl extends BallerinaBaseListener {
 
-    BallerinaFile balFile = new BallerinaFile();
+    private BallerinaFile.BFileBuilder fileBuilder = new BallerinaFile.BFileBuilder();
+    public BallerinaFile balFile = null;
 
     @Override
     public void exitPackageDeclaration(PackageDeclarationContext ctx) {
-        balFile.setPackageName(ctx.packageName().getText());
+        fileBuilder.setPkgName(ctx.packageName().getText());
     }
 
     @Override
     public void exitImportDeclaration(ImportDeclarationContext ctx) {
         if (ctx.Identifier() != null) {
-            balFile.addImport(new Import(ctx.Identifier().getText(), ctx.packageName().getText()));
+            fileBuilder.addImportPackage(new Import(ctx.Identifier().getText(), ctx.packageName().getText()));
         } else {
-            balFile.addImport(new Import(ctx.packageName().getText()));
+            fileBuilder.addImportPackage(new Import(ctx.packageName().getText()));
         }
+    }
+
+    @Override
+    public void exitServiceDefinition(BallerinaParser.ServiceDefinitionContext ctx) {
+
+        Identifier serviceName = new Identifier(ctx.Identifier().getText());
+
+        Annotation[] annotations = new Annotation[ctx.annotation().size()];
+        for (int i = 0; i < annotations.length; i++) {
+            annotations[i] = parserAnnotation(ctx.annotation(i));
+        }
+
+        BallerinaParser.ServiceBodyDeclarationContext serviceBodyCtx = ctx.serviceBody().serviceBodyDeclaration();
+
+        Connection[] connections = null;
+        List<BallerinaParser.ConnectorDeclarationContext> connectorDeclarationContexts = serviceBodyCtx
+                .connectorDeclaration();
+        if (connectorDeclarationContexts != null) {
+            connections = new Connection[connectorDeclarationContexts.size()];
+            for (int i = 0; i < connections.length; i++) {
+                connections[i] = parserConnection(connectorDeclarationContexts.get(i));
+            }
+        }
+
+        VariableDcl[] variables = null;
+        List<VariableDeclarationContext> variableDeclarationContexts = serviceBodyCtx.variableDeclaration();
+        if (variableDeclarationContexts != null) {
+            variables = new VariableDcl[variableDeclarationContexts.size()];
+            for (int i = 0; i < variables.length; i++) {
+                variables[i] = parserVariableDclCtx(variableDeclarationContexts.get(i));
+            }
+        }
+
+        Resource[] resources = new Resource[serviceBodyCtx.resourceDefinition().size()];
+        for (int i = 0; i < resources.length; i++) {
+            resources[i] = parserResource(serviceBodyCtx.resourceDefinition(i));
+        }
+
+        Service service = new Service(serviceName, annotations, connections, variables, resources);
+        fileBuilder.addService(service);
     }
 
     @Override
@@ -162,7 +218,7 @@ public class BallerinaBaseListenerImpl extends BallerinaBaseListener {
         ReturnTypeListContext returnTypeListContext = ctx.returnTypeList();
         if (returnTypeListContext != null) { //return type list is optional
             for (TypeNameContext typeNameContext : returnTypeListContext.typeNameList().typeName()) {
-                parserTypeName(typeNameContext);
+                typeList.add(parserTypeName(typeNameContext));
             }
         }
 
@@ -180,24 +236,50 @@ public class BallerinaBaseListenerImpl extends BallerinaBaseListener {
             statementArray[i] = parserStatementCtx(ctx.functionBody().statement(i).getChild(0));
         }
 
-        Function function = new BallerinaFunction(
-                functionName,
-                isPublicFunction,
-                annotations,
-                parameters,
-                null,
-                null,
-                variableDcls,
-                null,
-                new BlockStmt(statementArray));
+        BallerinaFunction function = new BallerinaFunction(functionName, isPublicFunction, annotations, parameters,
+                types, null, variableDcls, null, new BlockStmt(statementArray));
 
-        balFile.addFunction(function);
+        fileBuilder.addFunction(function);
 
     }
 
     @Override
-    public void exitStatement(StatementContext ctx) {
-        //Statement statement = parserStatementCtx(ctx.getChild(0));//todo can it have multiple children
+    public void exitConnectorDefinition(BallerinaParser.ConnectorDefinitionContext ctx) {
+        Identifier connectorName = new Identifier(ctx.Identifier().getText());
+
+        Annotation[] annotations = new Annotation[ctx.annotation().size()];
+        for (int i = 0; i < annotations.length; i++) {
+            annotations[i] = parserAnnotation(ctx.annotation(i));
+        }
+
+        BallerinaParser.ConnectorBodyContext connectorBodyContext = ctx.connectorBody();
+
+        Connection[] connections = null;
+        List<BallerinaParser.ConnectorDeclarationContext> connectorDeclarationContexts = connectorBodyContext
+                .connectorDeclaration();
+        if (connectorDeclarationContexts != null) {
+            connections = new Connection[connectorDeclarationContexts.size()];
+            for (int i = 0; i < connections.length; i++) {
+                connections[i] = parserConnection(connectorDeclarationContexts.get(i));
+            }
+        }
+
+        VariableDcl[] variables = null;
+        List<VariableDeclarationContext> variableDeclarationContexts = connectorBodyContext.variableDeclaration();
+        if (variableDeclarationContexts != null) {
+            variables = new VariableDcl[variableDeclarationContexts.size()];
+            for (int i = 0; i < variables.length; i++) {
+                variables[i] = parserVariableDclCtx(variableDeclarationContexts.get(i));
+            }
+        }
+
+        Action[] actions = new Action[connectorBodyContext.actionDefinition().size()];
+        for (int i = 0; i < actions.length; i++) {
+            actions[i] = parserAction(connectorBodyContext.actionDefinition(i));
+        }
+
+        Connector connector = new Connector(connectorName, annotations, connections, variables, actions);
+        fileBuilder.addConnector(connector);
     }
 
     private Expression parserExpressionCtx(ParseTree ctx) {
@@ -443,10 +525,21 @@ public class BallerinaBaseListenerImpl extends BallerinaBaseListener {
             return null;
         } else if (ctx instanceof ReturnStatementContext) {
             ReturnStatementContext returnStmtCtx = (ReturnStatementContext) ctx;
-            return new ReplyStmt(parserExpressionCtx(returnStmtCtx));
+            return new ReturnStmt(parserExpressionCtx(returnStmtCtx));
         } else if (ctx instanceof ReplyStatementContext) {
             ReplyStatementContext replyStmtCtx = (ReplyStatementContext) ctx;
-            return new ReplyStmt(parserExpressionCtx(replyStmtCtx));
+            if (replyStmtCtx.children.size() == 2) {
+                return new ReplyStmt(null); //handles 'reply;'
+            } else {
+                if (replyStmtCtx.getChild(1) instanceof TerminalNode) {
+                    TerminalNode node = (TerminalNode) replyStmtCtx.getChild(1);
+                    //todo reply stmt should support Identifier
+                    return new ReplyStmt(new BasicLiteral(new BValueRef(new StringValue(node.getText()))));
+                } else {
+                    return new ReplyStmt(parserExpressionCtx(replyStmtCtx.getChild(1)));
+                }
+
+            }
         } else if (ctx instanceof WorkerInteractionStatementContext) {
             WorkerInteractionStatementContext wkrInteractionStmtCtx = (WorkerInteractionStatementContext) ctx;
             //todo
@@ -489,7 +582,7 @@ public class BallerinaBaseListenerImpl extends BallerinaBaseListener {
 
     private Annotation parserAnnotation(AnnotationContext ctx) {
         //todo implement complex annotations later
-        if(ctx.elementValue() != null) {
+        if (ctx.elementValue() != null) {
             return new Annotation(ctx.annotationName().getText(), ctx.elementValue().getText());
         } else {
             return new Annotation(ctx.annotationName().getText());
@@ -501,43 +594,191 @@ public class BallerinaBaseListenerImpl extends BallerinaBaseListener {
     }
 
     private Type parserTypeName(TypeNameContext ctx) {
-        //todo
-        return null;
-    }
+        if (ctx.qualifiedTypeName() != null) {
+            // custom defined types from other package
+        } else {
+            //primitive, built in or same package defined types
 
-    @Override
-    public void exitLiteralExpression(LiteralExpressionContext ctx) {
-        super.exitLiteralExpression(ctx);
-    }
+            if (ctx.unqualifiedTypeName().simpleType() != null) {
+                return parserSimpleTypes(ctx.unqualifiedTypeName().simpleType());
+            } else if (ctx.unqualifiedTypeName().simpleTypeArray() != null) {
+                return new ArrayType();
+            } else if (ctx.unqualifiedTypeName().simpleTypeIterate() != null) {
+                return new IteratorType();
+            }
 
-    private Operator getOpName(String op) {
-        switch (op) {
-            case "+":
-                return Operator.ADD;
-            case "-":
-                return Operator.SUB;
-            case "*":
-                return Operator.MUL;
-            case "/":
-                return Operator.DIV;
-            case "&&":
-                return Operator.AND;
-            case "||":
-                return Operator.OR;
-            case "==":
-                return Operator.EQUAL;
-            case "!=":
-                return Operator.NOT_EQUAL;
-            case ">":
-                return Operator.GREATER_THAN;
-            case ">=":
-                return Operator.GREATER_EQUAL;
-            case "<":
-                return Operator.LESS_THAN;
-            case "<=":
-                return Operator.LESS_EQUAL;
         }
         return null;
     }
 
+    private Type parserSimpleTypes(BallerinaParser.SimpleTypeContext typeCtx) {
+        switch (typeCtx.Identifier().getText()) {
+        case "int":
+            return new IntType();
+        case "long":
+            return new LongType();
+        case "float":
+            return new FloatType();
+        case "double":
+            return new DoubleType();
+        case "boolean":
+            return new BooleanType();
+        case "xml":
+            return new XMLType();
+        case "json":
+            return new JSONType();
+        }
+        return null;
+    }
+
+    private Connection parserConnection(BallerinaParser.ConnectorDeclarationContext ctx) {
+        return new Connection(ctx.qualifiedReference().get(0).getText(), new Identifier(ctx.Identifier().getText()));
+    }
+
+    private Resource parserResource(BallerinaParser.ResourceDefinitionContext ctx) {
+
+        Identifier resourceName = new Identifier(ctx.Identifier().getText());
+        Annotation[] annotations = new Annotation[ctx.annotation().size()];
+        for (int i = 0; i < annotations.length; i++) {
+            annotations[i] = parserAnnotation(ctx.annotation(i));
+        }
+
+        Parameter[] parameters = new Parameter[ctx.parameterList().parameter()
+                .size()]; //always message in there so not null
+        for (int i = 0; i < parameters.length; i++) {
+            parameters[i] = parserParameter(ctx.parameterList().parameter(i));
+        }
+
+        Connection[] connections = null;
+        List<BallerinaParser.ConnectorDeclarationContext> connectorDeclarationContexts = ctx.functionBody()
+                .connectorDeclaration();
+        if (connectorDeclarationContexts != null) {
+            connections = new Connection[connectorDeclarationContexts.size()];
+            for (int i = 0; i < connections.length; i++) {
+                connections[i] = parserConnection(connectorDeclarationContexts.get(i));
+            }
+        }
+
+        VariableDcl[] variables = null;
+        List<VariableDeclarationContext> variableDeclarationContexts = ctx.functionBody().variableDeclaration();
+        if (variableDeclarationContexts != null) {
+            variables = new VariableDcl[variableDeclarationContexts.size()];
+            for (int i = 0; i < variables.length; i++) {
+                variables[i] = parserVariableDclCtx(variableDeclarationContexts.get(i));
+            }
+        }
+
+        Worker[] workers = null;
+        List<WorkerDeclarationContext> workerDeclarationContexts = ctx.functionBody().workerDeclaration();
+        if (workerDeclarationContexts != null) {
+            workers = new Worker[workerDeclarationContexts.size()];
+            for (int i = 0; i < workers.length; i++) {
+                workers[i] = parserWorker(workerDeclarationContexts.get(i));
+            }
+        }
+
+        Statement[] statements = new Statement[ctx.functionBody().statement().size()];
+        for (int i = 0; i < statements.length; i++) {
+            statements[i] = parserStatementCtx(ctx.functionBody().statement(i).getChild(0));
+        }
+
+        return new Resource(resourceName, annotations, parameters, connections, variables, workers,
+                new BlockStmt(statements));
+    }
+
+    private Action parserAction(BallerinaParser.ActionDefinitionContext ctx) {
+        Identifier actionName = new Identifier(ctx.Identifier(0).getText());
+
+        Annotation[] annotations = new Annotation[ctx.annotation().size()];
+        for (int i = 0; i < annotations.length; i++) {
+            annotations[i] = parserAnnotation(ctx.annotation(i));
+        }
+
+        Parameter[] parameters = new Parameter[ctx.parameterList().parameter().size()];  // atleast one parameter
+        for (int i = 0; i < parameters.length; i++) {
+            parameters[i] = parserParameter(ctx.parameterList().parameter(i));
+        }
+
+        Type[] returnTypes = null;
+
+        ReturnTypeListContext returnTypeListContext1 = ctx.returnTypeList();
+        if (returnTypeListContext1 != null) {
+            returnTypes = new Type[returnTypeListContext1.typeNameList().typeName().size()];
+            for (int i = 0; i < returnTypes.length; i++) {
+                returnTypes[i] = parserTypeName(returnTypeListContext1.typeNameList().typeName(i));
+            }
+        }
+
+        Connection[] connections = null;
+        List<BallerinaParser.ConnectorDeclarationContext> connectorDeclarationContexts = ctx.functionBody()
+                .connectorDeclaration();
+        if (connectorDeclarationContexts != null) {
+            connections = new Connection[connectorDeclarationContexts.size()];
+            for (int i = 0; i < connections.length; i++) {
+                connections[i] = parserConnection(connectorDeclarationContexts.get(i));
+            }
+        }
+
+        VariableDcl[] variables = null;
+        List<VariableDeclarationContext> variableDeclarationContexts = ctx.functionBody().variableDeclaration();
+        if (variableDeclarationContexts != null) {
+            variables = new VariableDcl[variableDeclarationContexts.size()];
+            for (int i = 0; i < variables.length; i++) {
+                variables[i] = parserVariableDclCtx(variableDeclarationContexts.get(i));
+            }
+        }
+
+        Worker[] workers = null;
+        List<WorkerDeclarationContext> workerDeclarationContexts = ctx.functionBody().workerDeclaration();
+        if (workerDeclarationContexts != null) {
+            workers = new Worker[workerDeclarationContexts.size()];
+            for (int i = 0; i < workers.length; i++) {
+                workers[i] = parserWorker(workerDeclarationContexts.get(i));
+            }
+        }
+
+        Statement[] statements = new Statement[ctx.functionBody().statement().size()];
+        for (int i = 0; i < statements.length; i++) {
+            statements[i] = parserStatementCtx(ctx.functionBody().statement(i).getChild(0));
+        }
+
+        return new Action(actionName, annotations, parameters, returnTypes, connections, variables, workers,
+                new BlockStmt(statements));
+    }
+
+    private Operator getOpName(String op) {
+        switch (op) {
+        case "+":
+            return Operator.ADD;
+        case "-":
+            return Operator.SUB;
+        case "*":
+            return Operator.MUL;
+        case "/":
+            return Operator.DIV;
+        case "&&":
+            return Operator.AND;
+        case "||":
+            return Operator.OR;
+        case "==":
+            return Operator.EQUAL;
+        case "!=":
+            return Operator.NOT_EQUAL;
+        case ">":
+            return Operator.GREATER_THAN;
+        case ">=":
+            return Operator.GREATER_EQUAL;
+        case "<":
+            return Operator.LESS_THAN;
+        case "<=":
+            return Operator.LESS_EQUAL;
+        }
+        return null;
+    }
+
+    @Override
+    public void exitCompilationUnit(BallerinaParser.CompilationUnitContext ctx) {
+
+        balFile = fileBuilder.build();
+    }
 }
