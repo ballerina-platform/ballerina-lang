@@ -32,6 +32,8 @@ define(['lodash', 'log', './canvas', './../ast/service-definition', './life-line
             this._resourceViewList = _.get(args, "resourceViewList", []);
             this._viewOptions = _.get(args, "viewOptions", {});
             this._parentView = _.get(args, "parentView");
+            //set initial height for the service container svg
+            this._totalHeight = 150;
 
             if (_.isNil(this._model) || !(this._model instanceof ServiceDefinition)) {
                 log.error("Service definition is undefined or is of different type." + this._model);
@@ -58,6 +60,10 @@ define(['lodash', 'log', './canvas', './../ast/service-definition', './life-line
         };
 
         ServiceDefinitionView.prototype.childVisitedCallback = function (child) {
+            var childView = this.diagramRenderingContext.getViewModelMap()[child];
+            this._totalHeight = this._totalHeight + childView.getBoundingBox().height;
+            this.setServiceContainerHeight(this._totalHeight);
+
             this.trigger("childViewAddedEvent", child);
         };
 
@@ -128,7 +134,8 @@ define(['lodash', 'log', './canvas', './../ast/service-definition', './life-line
          * Rendering the view of the service definition.
          * @returns {Object} - The svg group which the service definition view resides in.
          */
-        ServiceDefinitionView.prototype.render = function () {
+        ServiceDefinitionView.prototype.render = function (diagramRenderingContext) {
+            this.diagramRenderingContext = diagramRenderingContext;
             this.drawAccordionCanvas(this._container, this._viewOptions, this._model.id, 'service');
             var divId = this._model.id;
             var currentContainer = $('#' + divId);
@@ -173,7 +180,8 @@ define(['lodash', 'log', './canvas', './../ast/service-definition', './life-line
             else{
                 var resourceDefinitionView = new ResourceDefinitionView({model: resourceDefinition,container: resourceContainer, parentView: this});
             }
-            resourceDefinitionView.render();
+            this.diagramRenderingContext.getViewModelMap()[resourceDefinition] = resourceDefinitionView;
+            resourceDefinitionView.render(this.diagramRenderingContext);
             this.addResourceViewList(resourceDefinitionView);
         };
 
