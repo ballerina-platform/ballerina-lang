@@ -151,13 +151,13 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             var args = {model: statement, container: this._container, viewOptions: undefined, parent:this};
             var statementView = statementViewFactory.getStatementView(args);
 
-            //TODO: Setting get action invocation's reference connector view
             if(statementViewFactory.isGetActionStatement(statement)){
                 _.each(this.getConnectorViewList(), function (view) {
-                    if(_.isMatch(statement.getConnector(),view.getModel())) {
+                    //TODO: Returns true for both views. Need to fix
+                  var matchFound =  _.isEqual(statement.getConnector(),view.getModel());
+                    if(matchFound) {
                         statementView.setParent(this);
                         statementView.setConnectorView(view);
-                        return;
                     }
                 });
             }
@@ -360,11 +360,11 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             this.getModel().accept(this);
         };
 
-        ResourceDefinitionView.prototype.addConnectorViewList = function(view){
-            if (!_.isNil(view)) {
-                this._connectorViewList.push(view);
-            }
-        };
+        //ResourceDefinitionView.prototype.addConnectorViewList = function(view){
+        //    if (!_.isNil(view)) {
+        //        this._connectorViewList.push(view);
+        //    }
+        //};
 
         ResourceDefinitionView.prototype.getConnectorViewList = function(){
             return this._connectorViewList;
@@ -401,7 +401,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             var connectorContainer = this._container.getElementById("contentGroup");
             // If more than 1 connector declaration
             if(this.getConnectorViewList().length > 0 ){
-                var prevView = this.getConnectorViewList().pop(this.getConnectorViewList().length-1);
+                var connectorList = this.getConnectorViewList();
+                var prevView = connectorList[this._connectorViewList.length - 1];
                 var newCenterPointX = prevView._viewOptions.connectorCenterPointX+ 180;
                 var newCenterPointY = prevView._viewOptions.connectorCenterPointY;
                 var viewOpts = {connectorCenterPointX:newCenterPointX, connectorCenterPointY: newCenterPointY};
@@ -415,10 +416,11 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 var connectorViewOpts = {connectorCenterPointX: connectorCenterPointX,connectorCenterPointY: connectorCenterPointY};
                 var connectorDeclarationView = new ConnectorDeclarationView({model: connectorDeclaration,container: connectorContainer, viewOptions: connectorViewOpts} );
             }
+            this._connectorViewList.push(connectorDeclarationView);
 
             connectorDeclarationView.render();
             connectorDeclarationView.setParent(this);
-            this.addConnectorViewList(connectorDeclarationView);
+
 
         };
         ResourceDefinitionView.prototype.setWidth = function (newWidth) {

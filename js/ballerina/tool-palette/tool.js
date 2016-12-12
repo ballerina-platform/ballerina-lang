@@ -20,9 +20,10 @@ define(['require', 'backbone'], function (require, Backbone) {
 
     var tool = Backbone.Model.extend({
         initialize: function (args) {
-            this._name = _.get(args, 'name', null),
-            this._icon = _.get(args, 'icon', null),
-            this._astNode = _.get(args, 'node', null)
+            this.name = _.get(args, 'name', null);
+            this.icon = _.get(args, 'icon', null);
+            this.nodeFactoryMethod = _.get(args, 'nodeFactoryMethod', null);
+            this.dragCursorOffset = _.get(args, 'dragCursorOffset', undefined);
         },
 
         modelName: "Tool",

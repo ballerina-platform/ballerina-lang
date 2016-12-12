@@ -122,8 +122,11 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             //Adding Connector declaration to resource_pasthrough
             var connector_declaration = ballerinaASTFactory.createConnectorDeclaration();
             var connector_declaration1 = ballerinaASTFactory.createConnectorDeclaration();
-            resource_passthrough.setConnections(connector_declaration);
-            resource_passthrough.setConnections(connector_declaration1);
+            var sList = [];
+            sList.push(connector_declaration);
+            sList.push(connector_declaration1);
+            resource_passthrough.setConnections(sList);
+           // resource_passthrough.setConnections([connector_declaration1]);
             resource_passthrough.addChild(connector_declaration);
             resource_passthrough.addChild(connector_declaration1);
 
@@ -174,21 +177,24 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
              * Create the sample function statement statement
              */
             var functionInvocation = ballerinaASTFactory.createFunctionInvocationStatement();
-            resource_passthrough.addChild(functionInvocation);
+            //TODO:Commented to view get action statement
+            //resource_passthrough.addChild(functionInvocation);
 
             /**
              * Create the sample logical expression
              */
             var logicalExp = ballerinaASTFactory.createLogicalExpression();
             logicalExp.setExpression('a > b');
-            resource_passthrough.addChild(logicalExp);
+            //TODO:Commented to view get action statement
+            //resource_passthrough.addChild(logicalExp);
 
             /**
              * Create the sample arithmetic expression
              */
             var arithmeticExp = ballerinaASTFactory.createArithmeticExpression();
             arithmeticExp.setExpression('a = resp + 123');
-            resource_passthrough.addChild(arithmeticExp);
+            //TODO:Commented to view get action statement
+           // resource_passthrough.addChild(arithmeticExp);
 
             // Create Sample try-catch statement
             var ifElseStatement = ballerinaASTFactory.createIfElseStatement();
@@ -199,16 +205,18 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             var catchStatement1 = ballerinaASTFactory.createCatchStatement();
             // catchStatement.setExceptionType("ArithmeticException ex");
             catchStatement1.setExceptionType("ArithmeticException ex");
-//Create get action statement for connector
 
-            var getActionStatement = ballerinaASTFactory.createGetActionStatement(connector_declaration);
+           //Create get action statement for connector
+            var getActionStatement1 = ballerinaASTFactory.createGetActionStatement(connector_declaration1);
             ifElseStatement.addChild(ifStatement);
             ifElseStatement.addChild(elseStatement);
             tryCatchStatement1.addChild(tryStatement1);
             tryCatchStatement1.addChild(catchStatement1);
-            resource_passthrough.addChild(ifElseStatement);
-            resource_passthrough.addChild(tryCatchStatement1);
-            resource_passthrough.addChild(getActionStatement);
+            //TODO:Commented to view get action statement
+           // resource_passthrough.addChild(ifElseStatement);
+            //TODO:Commented to view get action statement
+            //resource_passthrough.addChild(tryCatchStatement1);
+            resource_passthrough.addChild(getActionStatement1);
             // Create sample Worker Declaration
             var workerDeclaration1 = ballerinaASTFactory.createWorkerDeclaration();
             var workerDeclaration2 = ballerinaASTFactory.createWorkerDeclaration();
@@ -232,11 +240,6 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             //Create environment and add add package list
             var ballerinaEnvironment = new Ballerina.env.Environment();
 
-            //toolPalette.loadToolsFromPackage(package1);
-            //toolPalette.loadToolsFromPackage(package2);
-
-            //this.generateToolPallet(ballerinaEnvironment, toolPalette);
-
             var diagramRenderingContext = new DiagramRenderContext();
 
             var fileEditor = new Ballerina.views.BallerinaFileEditor({
@@ -244,57 +247,8 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
                 viewOptions: ballerinaEditorOptions
             });
             fileEditor.render(diagramRenderingContext);
-        },
-
-        generateToolPallet: function (environment, toolPallet) {
-            var self = this;
-            var mainElementsToolGroup = toolPallet.getElementToolGroups()[0];
-            var statementsToolGroup = toolPallet.getElementToolGroups()[1];
-            var packageList = environment.getPackages();
-
-            _.each(packageList, function (pckg) {
-                if (!_.isEmpty(pckg.getServiceDefinitions())) {
-                    var service = self.isToolAvailableInPallet(mainElementsToolGroup, "Service");
-                    if (true) {
-                        var serviceDefinitions = pckg.getServiceDefinitions();
-                        var serviceDef = {
-                            id: "service",
-                            name: "Service",
-                            icon: "images/tool-icons/lifeline.svg",
-                            title: "Service",
-                            node: serviceDefinitions[0]
-                        };
-                        mainElementsToolGroup.get("toolDefinitions").push(serviceDef);
-                        toolPallet.updateToolGroup(serviceDef, mainElementsToolGroup);
-                    }
-
-                    _.each(pckg.getServiceDefinitions(), function (serviceDef) {
-                        if (!_.isEmpty(serviceDef.getResourceDefinitions())) {
-
-                        }
-                    });
-                }
-                if (!_.isEmpty(pckg.getFunctionDefinitions())) {
-
-                }
-                if (!_.isEmpty(pckg.getConnectorDefinitions())) {
-
-                }
-                if (!_.isEmpty(pckg.getTypeDefinitions())) {
-
-                }
-            });
-        },
-
-        isToolAvailableInPallet: function (elementGroup, name) {
-            var elementGroupDefinitions = elementGroup.get("toolDefinitions");
-            for (var i = 0; i < elementGroupDefinitions.length; i++) {
-                if (elementGroupDefinitions[i].name == name) {
-                    return true;
-                }
-            }
-            return false;
         }
+
     });
 
     return FileTab;

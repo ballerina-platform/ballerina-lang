@@ -73,6 +73,9 @@ define(['lodash','d3', 'jquery', './ballerina-view', './../ast/connector-declara
         ConnectorDeclarationView.prototype.getContainer = function () {
             return this._container;
         };
+        ConnectorDeclarationView.prototype.getViewOptions = function(){
+          return this._viewOptions;
+        }
 
         /**
          * Rendering the view for connection declaration.

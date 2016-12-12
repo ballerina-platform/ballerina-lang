@@ -16,7 +16,7 @@
  * under the License.
  */
 
-define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'd3utils'], function (require, $, d3, Backbone, _, D3Utils) {
+define(['log', 'jquery', 'd3', 'backbone', 'lodash', 'd3utils'], function (log, $, d3, Backbone, _, D3Utils) {
 
     var toolView = Backbone.View.extend({
 
@@ -24,38 +24,41 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'd3utils'], function (r
 
         initialize: function (options) {
             _.extend(this, _.pick(options, ["toolPalette"]));
+            _.set(this, 'options.dragIcon.box.size', '60px');
         },
 
-        createHandleDragStopEvent: function (event, ui) {
-            this.toolPalette.dragDropManager.reset();
+        createHandleDragStopEvent: function(){
+            var toolView = this;
+            return function (event, ui) {
+                if(toolView.toolPalette.dragDropManager.isAtValidDropTarget()){
+                    toolView.toolPalette.dragDropManager.getActivatedDropTarget()
+                        .addChild(toolView.toolPalette.dragDropManager.getTypeBeingDragged());
+                }
+                toolView.toolPalette.dragDropManager.reset();
+                toolView._$divBeingDragged = undefined;
+            };
         },
 
-        createHndleOnDragEvent : function(event,ui){
-            var helperElm = ui.helper;
-            var span = helperElm[0].childNodes;
-            var validator = document.getElementById("validator");
-
-            //Visual feedback on invalid drop targets
-            if(!this.toolPalette.dragDropManager.isAtValidDropTarget()){
-                validator.innerText="X";
-                validator.className = "tool-validator";
-                validator.style.display="block";
-            }
-            else{
-                validator.style.display="none";
-            }
+        createHandleOnDragEvent : function(){
+            var toolView = this;
+            return function (event, ui) {
+                if(!toolView.toolPalette.dragDropManager.isAtValidDropTarget()){
+                    toolView._$divBeingDragged.css('opacity', 0.2);
+                } else {
+                    toolView._$divBeingDragged.css('opacity', 1);
+                }
+            };
         },
 
         createHandleDragStartEvent : function(){
             var toolView = this;
             return function(event,ui){
-                toolView.toolPalette.dragDropManager.setTypeBeingDragged(this.model);
+                toolView.toolPalette.dragDropManager.setTypeBeingDragged(toolView.model.nodeFactoryMethod());
             }
         },
 
         render: function (parent) {
-            //var createCloneCallback = this.model.get("createCloneCallback");
-            var dragCursorOffset = this.getDragCursorOffset();
+            var dragCursorOffset = this.model.dragCursorOffset;
             var self = this;
             this.$el.html(this.toolTemplate(this.model.attributes));
             this.$el.tooltip();
@@ -64,11 +67,11 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'd3utils'], function (r
             this.$el.draggable({
                 helper: _.isUndefined(this.createCloneCallback) ?  'clone' : this.createCloneCallback(self),
                 cursor: 'move',
-                cursorAt: _.isUndefined(dragCursorOffset) ?  { left: -2, top: -2 } : dragCursorOffset,
+                cursorAt: _.isUndefined(dragCursorOffset) ?  { left: 30, top: -10 } : dragCursorOffset,
                 zIndex: 10001,
-                stop: this.createHandleDragStartEvent(),
+                stop: this.createHandleDragStopEvent(),
                 start : this.createHandleDragStartEvent(),
-                drag:this.createHandleDragStartEvent()
+                drag:this.createHandleOnDragEvent()
             });
 
             return this;
@@ -77,48 +80,27 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'd3utils'], function (r
         createContainerForDraggable: function(){
             var body = d3.select("body");
             var div = body.append("div").attr("id", "draggingToolClone");
+            this._$divBeingDragged = $(div.node());
             //For validation feedback
             div.append('span').attr("id","validator");
             return div;
         },
 
-        partialRender: function (parent, attributes) {
-            var dragCursorOffset = this.getDragCursorOffset();
-            var self = this;
-            this.$el.html(this.toolTemplate(attributes));
-            this.$el.tooltip();
-            parent.append(this.$el);
-
-            this.$el.draggable({
-                helper: _.isUndefined(this.createCloneCallback) ? 'clone' : this.createCloneCallback(self),
-                cursor: 'move',
-                cursorAt: _.isUndefined(dragCursorOffset) ? {left: -2, top: -2} : dragCursorOffset,
-                zIndex: 10001,
-                stop: this.createHandleDragStartEvent(),
-                start: this.createHandleDragStartEvent(),
-                drag: this.createHandleDragStartEvent()
-            });
-            return this;
-        },
-
         createCloneCallback: function (view) {
+            var iconSVG,
+                iconSize = _.get(this, 'options.dragIcon.box.size');
+            d3.xml(this.model.icon).mimeType("image/svg+xml").get(function (error, xml) {
+                if (error) throw error;
+                iconSVG = xml.getElementsByTagName("svg")[0];
+                d3.select(iconSVG).attr("width", iconSize).attr("height", iconSize);
+            });
             function cloneCallBack() {
                 var div = view.createContainerForDraggable();
-                d3.xml("images/tool-icons/lifeline.svg").mimeType("image/svg+xml").get(function (error, xml) {
-                    if (error) throw error;
-                    var svg = xml.getElementsByTagName("svg")[0];
-                    d3.select(svg).attr("width", "100px").attr("height", "100px");
-                    d3.select(svg).attr("width", "100px");
-                    div.node().appendChild(svg);
-                });
+                div.node().appendChild(iconSVG);
                 return div.node();
             }
 
             return cloneCallBack;
-        },
-
-        getDragCursorOffset: function () {
-            return {left: 50, top: -10};
         }
 
     });

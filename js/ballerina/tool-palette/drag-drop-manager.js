@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'backbone'], function (_, Backbone) {
+define(['log', 'lodash', 'backbone'], function (log, _, Backbone) {
     var DragDropManager = Backbone.Model.extend(
     /** @lends DragDropManager.prototype */
     {
@@ -32,6 +32,7 @@ define(['lodash', 'backbone'], function (_, Backbone) {
         setTypeBeingDragged: function (type, validateDropTargetCallback) {
             if (!_.isUndefined(type)) {
                 this.set('typeBeingDragged', type);
+                log.debug('started dragging ' + JSON.stringify(type));
             }
             if (!_.isUndefined(validateDropTargetCallback)) {
                 this.set('validateDropTargetCallback', validateDropTargetCallback);
@@ -43,16 +44,21 @@ define(['lodash', 'backbone'], function (_, Backbone) {
         },
 
         reset: function(){
+            this.trigger('drag-stop', this.get('typeBeingDragged'));
             this.set('typeBeingDragged', undefined);
             this.set('validateDropTargetCallback', undefined);
             this.set('activatedDropTarget', undefined);
             this.set('validateDropSourceCallback', undefined);
+
         },
 
         setActivatedDropTarget: function (activatedDropTarget, validateDropSourceCallback) {
             if (!_.isUndefined(activatedDropTarget)) {
+                if (!_.isEqual(activatedDropTarget, this.get('activatedDropTarget'))){
+                    this.trigger('drop-target-changed', activatedDropTarget);
+                }
                 this.set('activatedDropTarget', activatedDropTarget);
-            }
+             }
             if (!_.isUndefined(validateDropSourceCallback)) {
                 this.set('validateDropSourceCallback', validateDropSourceCallback);
             }
@@ -68,8 +74,8 @@ define(['lodash', 'backbone'], function (_, Backbone) {
         },
 
         isAtValidDropTarget: function(){
-            var allowedBySource = false,
-                allowedByTarget = false;
+            var allowedBySource = true,
+                allowedByTarget = true;
             if(!_.isUndefined(this.getActivatedDropTarget())){
                 var validateDropTargetCallback = this.get('validateDropTargetCallback');
                 if(!_.isUndefined(validateDropTargetCallback)){
@@ -86,6 +92,10 @@ define(['lodash', 'backbone'], function (_, Backbone) {
                 return allowedBySource && allowedByTarget;
             }
             return true;
+        },
+
+        isOnDrag: function(){
+            return !_.isNil(this.get('typeBeingDragged'));
         }
     });
 
