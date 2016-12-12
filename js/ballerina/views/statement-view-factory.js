@@ -15,8 +15,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', '../ast/module', './try-catch-statement-view', './try-statement-view', './catch-statement-view', './if-else-statement-view', './if-statement-view', './else-statement-view','./get-action-statement-view'],
-    function (_, log, EventChannel, AST, TryCatchStatementView, TryStatementView, CatchStatementView, IfElseStatementView, IfStatementView, ElseStatementView, GetActionStatementView) {
+define(['lodash', 'log', 'event_channel', '../ast/module', './try-catch-statement-view', './try-statement-view',
+        './catch-statement-view', './if-else-statement-view', './if-statement-view', './else-statement-view', './assignment-view', './function-invocation-view','./get-action-statement-view'],
+    function (_, log, EventChannel, AST, TryCatchStatementView, TryStatementView, CatchStatementView,
+              IfElseStatementView, IfStatementView, ElseStatementView, AssignmentStatementView, FunctionInvocationStatementView, GetActionStatementView) {
 
         var StatementViewFactory = function () {
         };
@@ -35,6 +37,10 @@ define(['lodash', 'log', 'event_channel', '../ast/module', './try-catch-statemen
                 return new IfStatementView(args);
             } else if (statement instanceof AST.ElseStatement) {
                 return new ElseStatementView(args);
+            } else if (statement instanceof AST.Assignment) {
+                return new AssignmentStatementView(args);
+            } else if (statement instanceof AST.FunctionInvocation) {
+                return new FunctionInvocationStatementView(args);
             }
             else if (statement instanceof AST.GetActionStatement) {
                 return new GetActionStatementView(args);

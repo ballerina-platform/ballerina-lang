@@ -8,6 +8,13 @@
     margin-bottom: 0px;
 }
 
+.design-view-container{
+    padding-left: 220px;
+    padding-top: 60px;
+    overflow-y: scroll;
+    height: 85%;
+}
+
 
 .container-outer-div {
     border-radius: 0;
@@ -67,9 +74,13 @@
 
 .source-container{
     display: none;
-    height: 500px;
+    height: 1000px;
 }
 
 .text-editor{
     height: 500px;
+}
+
+.view-source-btn{
+    z-index: 1000;
 }

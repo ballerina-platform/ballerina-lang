@@ -41,7 +41,7 @@ define(['lodash', 'log', './conditional-statement'], function (_, log, Condition
         }
     };
 
-    IfStatement.prototype,getCondition = function(){
+    IfStatement.prototype.getCondition = function(){
         return this._condition;
     };
 

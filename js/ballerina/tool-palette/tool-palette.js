@@ -16,9 +16,9 @@
  * under the License.
  */
 define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-group',
-        'main_elements', 'processors', './drag-drop-manager', 'ballerina'],
+        'main_elements', 'processors', './drag-drop-manager', './../ast/ballerina-ast-factory'],
     function (require, log, $, Backbone, ToolGroupView, ToolGroup,
-              MainElements, Processors, DragDropManager, Ballerina) {
+              MainElements, Processors, DragDropManager, BallerinaASTFactory) {
 
     var ToolPalette = Backbone.View.extend({
         initialize: function (options) {
@@ -31,7 +31,7 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
             var container = $(_.get(options, 'container'));
             // check whether container element exists in dom
             if (!container.length > 0) {
-                errMsg = 'unable to find container for tab list with selector: ' + _.get(options, 'container');
+                errMsg = 'unable to find container for tool palette with selector: ' + _.get(options, 'container');
                 log.error(errMsg);
                 throw errMsg;
             }
@@ -45,7 +45,7 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
 
             var _toolGroups = [];
             // Create main tool group
-            var ballerinaASTFactory = new Ballerina.ast.BallerinaASTFactory();
+            var ballerinaASTFactory = new BallerinaASTFactory();
             var resourceDefinition = ballerinaASTFactory.createResourceDefinition();
             var functionDefinition = ballerinaASTFactory.createFunctionDefinition();
             var serviceDefinition = ballerinaASTFactory.createServiceDefinition();

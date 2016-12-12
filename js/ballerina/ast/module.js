@@ -18,10 +18,12 @@
 define(['./ballerina-ast-factory', './ballerina-ast-root', './conditional-statement', './connector-declaration', './connector-definition',
     './constant-definition', './expression', './function-definition', './if-else-statement', './if-statement', './else-statement', './trycatch-statement', './try-statement', './catch-statement', './node', './reply-statement', './resource-definition',
     './return-statement', './service-definition', './statement', './throw-statement', './type-definition', './type-converter-definition', './type-element',
-    './variable-declaration', './while-statement', './worker-declaration', './package-definition', './import-declaration','./action-invocation-statement','./get-action-statement'],
+    './variable-declaration', './while-statement', './worker-declaration', './package-definition', './import-declaration', './assignment', './function-invocation','./action-invocation-statement','./get-action-statement'],
     function (BallerinaASTFactory, BallerinaASTRoot, ConditionalStatement, ConnectorDeclaration, ConnectorDefinition, ConstantDefinition,
                 Expression, FunctionDefinition, IfElseStatement, IfStatement, ElseStatement, TryCatchStatement, TryStatement, CatchStatement, ASTNode, ReplyStatement, ResourceDefinition, ReturnStatement, ServiceDefinition,
-                Statement, ThrowStatement, TypeConverterDefinition, TypeDefinition, TypeElement, VariableDeclaration, WhileStatement, WorkerDeclaration, PackageDefinition, ImportDeclaration,ActionInvocationStatement,GetActionStatement) {
+                Statement, ThrowStatement, TypeConverterDefinition, TypeDefinition, TypeElement, VariableDeclaration, WhileStatement, WorkerDeclaration, PackageDefinition, ImportDeclaration, Assignment, FunctionInvocation,
+        ActionInvocationStatement,GetActionStatement) {
+
         return  {
             BallerinaASTFactory: BallerinaASTFactory,
             BallerinaASTRoot: BallerinaASTRoot,
@@ -52,6 +54,8 @@ define(['./ballerina-ast-factory', './ballerina-ast-root', './conditional-statem
             WorkerDeclaration: WorkerDeclaration,
             PackageDefinition: PackageDefinition,
             ImportDeclaration: ImportDeclaration,
+            Assignment: Assignment,
+            FunctionInvocation: FunctionInvocation,
             ActionInvocationStatement: ActionInvocationStatement,
             GetActionStatement: GetActionStatement
         }
