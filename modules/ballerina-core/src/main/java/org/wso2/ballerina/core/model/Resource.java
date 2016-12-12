@@ -18,10 +18,10 @@
 
 package org.wso2.ballerina.core.model;
 
-import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.interpreter.ControlStack;
 import org.wso2.ballerina.core.interpreter.StackFrame;
+import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.model.types.MessageType;
 import org.wso2.ballerina.core.model.values.BValueRef;
