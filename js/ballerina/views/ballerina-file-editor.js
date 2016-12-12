@@ -186,7 +186,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
 
             var sourceViewBtn = $(this._viewOptions.container).find(_.get(this._viewOptions, 'controls.view_source_btn'));
             sourceViewBtn.click(function () {
-                self.getViewOptions().toolPalette.hide();
+                self.toolPalette.hide();
                 // Visit the ast model and generate the source
                 var sourceGenVisitor = new SourceGenVisitor();
                 self._model.accept(sourceGenVisitor);
@@ -195,6 +195,8 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 self._sourceView.setContent(sourceGenVisitor.getGeneratedSource());
                 sourceViewContainer.show();
                 self._$designViewContainer.hide();
+                designViewBtn.show();
+                sourceViewBtn.hide();
             });
 
             var designViewBtn = $(this._viewOptions.container).find(_.get(this._viewOptions, 'controls.view_design_btn'));
@@ -202,7 +204,12 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 self.toolPalette.show();
                 sourceViewContainer.hide();
                 self._$designViewContainer.show();
+                sourceViewBtn.show();
+                designViewBtn.hide();
             });
+            // activate design view by default
+            designViewBtn.hide();
+            sourceViewContainer.hide();
     };
 
         /**
