@@ -8,10 +8,20 @@
 }
 
 .design-view-container{
-    padding-left: 220px;
-    padding-top: 60px;
+    padding-left: 200px;
+    padding-top: 0px;
     overflow-y: scroll;
     height: 85%;
+}
+
+.canvas-container{
+    height: 100%;
+    padding-left: 20px;
+    padding-top: 60px;
+}
+
+.design-view-hover{
+    background-color:rgba(0, 128, 0, 0.1);
 }
 
 

@@ -70,6 +70,7 @@ define(['event_channel', 'lodash'], function(EventChannel, _){
         } else {
             this.children.splice(index, 0, child);
         }
+        this.trigger('child-added', child, index);
         //setting the parent node
         child.setParent(this);
     };

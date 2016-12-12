@@ -109,7 +109,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
         BallerinaFileEditor.prototype.visitServiceDefinition = function (serviceDefinition) {
             var serviceDefinitionView = new ServiceDefinitionView({
                 viewOptions: this._viewOptions,
-                container: this._$designViewContainer,
+                container: this._$canvasContainer,
                 model: serviceDefinition,
                 parentView: this
             });
@@ -129,7 +129,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
         BallerinaFileEditor.prototype.visitFunctionDefinition = function (functionDefinition) {
             var functionDefinitionView = new FunctionDefinitionView({
                 viewOptions: this._viewOptions,
-                container: this._$designViewContainer,
+                container: this._$canvasContainer,
                 model: functionDefinition
             });
             functionDefinitionView.render();
@@ -149,6 +149,10 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             // this._viewOptions.container is the root div for tab content
             var container = $(this._viewOptions.container).find(_.get(this._viewOptions, 'design_view.container'));
             this._$designViewContainer = container;
+            var canvasContainer = $('<div></div>');
+            canvasContainer.addClass(_.get(this._viewOptions, 'cssClass.canvas_container'));
+            this._$designViewContainer.append(canvasContainer);
+            this._$canvasContainer = canvasContainer;
             // check whether container element exists in dom
             if (!container.length > 0) {
                 errMsg = 'unable to find container for file editor with selector: ' + _.get(this._viewOptions, 'design_view.container');
@@ -212,6 +216,63 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             // activate design view by default
             designViewBtn.hide();
             sourceViewContainer.hide();
+            this.initDropTarget();
+
+            this._model.on('child-added', function(child){
+                var ballerinaASTFactory = new BallerinaASTFactory();
+                self.visit(child);
+            });
+    };
+
+    BallerinaFileEditor.prototype.initDropTarget = function() {
+        var self = this,
+            dropActiveClass = _.get(this._viewOptions, 'cssClass.design_view_drop'),
+            ballerinaASTFactory = new BallerinaASTFactory();
+
+        // on hover over canvas area
+        this._$canvasContainer.hover(function(event){
+
+            //if someone is dragging a tool from tool-palette
+            if(self.toolPalette.dragDropManager.isOnDrag()){
+
+                if(_.isEqual(self.toolPalette.dragDropManager.getActivatedDropTarget(), self)){
+                    return;
+                }
+
+                // register this as a drop target and validate possible types of nodes to drop - second arg is a call back to validate
+                // tool view will use this to provide feedback on impossible drop zones
+                self.toolPalette.dragDropManager.setActivatedDropTarget(self._model, function(nodeBeingDragged){
+                        if (ballerinaASTFactory.isServiceDefinition(nodeBeingDragged)
+                            || ballerinaASTFactory.isFunctionDefinition(nodeBeingDragged)){
+                            return true;
+                        } else {
+                            return false;
+                        }
+                });
+
+                // indicate drop area
+                self._$canvasContainer.addClass(dropActiveClass);
+
+                // reset ui feed back on drop target change
+                self.toolPalette.dragDropManager.once("drop-target-changed", function(){
+                    self._$canvasContainer.removeClass(dropActiveClass);
+                });
+
+                // reset ui feed back on drop
+                self.toolPalette.dragDropManager.once("drag-stop", function(){
+                    self._$canvasContainer.removeClass(dropActiveClass);
+                });
+            }
+        }, function(event){
+            // reset ui feed back on hover out
+            if(self.toolPalette.dragDropManager.isOnDrag()){
+                if(_.isEqual(self.toolPalette.dragDropManager.getActivatedDropTarget(), self._model)){
+                    self._$canvasContainer.removeClass(dropActiveClass);
+                    self.toolPalette.dragDropManager.off("drag-stop");
+                    self.toolPalette.dragDropManager.off("drop-target-changed");
+                }
+            }
+        })
     };
 
         /**

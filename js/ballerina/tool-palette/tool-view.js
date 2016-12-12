@@ -16,7 +16,7 @@
  * under the License.
  */
 
-define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'd3utils'], function (require, $, d3, Backbone, _, D3Utils) {
+define(['log', 'jquery', 'd3', 'backbone', 'lodash', 'd3utils'], function (log, $, d3, Backbone, _, D3Utils) {
 
     var toolView = Backbone.View.extend({
 
@@ -27,19 +27,27 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'd3utils'], function (r
             _.set(this, 'options.dragIcon.box.size', '60px');
         },
 
-        createHandleDragStopEvent: function (event, ui) {
-            this.toolPalette.dragDropManager.reset();
-            this._$divBeingDragged = undefined;
+        createHandleDragStopEvent: function(){
+            var toolView = this;
+            return function (event, ui) {
+                if(toolView.toolPalette.dragDropManager.isAtValidDropTarget()){
+                    toolView.toolPalette.dragDropManager.getActivatedDropTarget()
+                        .addChild(toolView.toolPalette.dragDropManager.getTypeBeingDragged());
+                }
+                toolView.toolPalette.dragDropManager.reset();
+                toolView._$divBeingDragged = undefined;
+            };
         },
 
-        createHandleOnDragEvent : function(event,ui){
-            //visual feedback on invalid drop targets
-            if(!this.toolPalette.dragDropManager.isAtValidDropTarget()){
-
-            }
-            else{
-
-            }
+        createHandleOnDragEvent : function(){
+            var toolView = this;
+            return function (event, ui) {
+                if(!toolView.toolPalette.dragDropManager.isAtValidDropTarget()){
+                    toolView._$divBeingDragged.css('opacity', 0.2);
+                } else {
+                    toolView._$divBeingDragged.css('opacity', 1);
+                }
+            };
         },
 
         createHandleDragStartEvent : function(){
@@ -72,7 +80,7 @@ define(['require', 'jquery', 'd3', 'backbone', 'lodash', 'd3utils'], function (r
         createContainerForDraggable: function(){
             var body = d3.select("body");
             var div = body.append("div").attr("id", "draggingToolClone");
-            this._$divBeingDragged = div;
+            this._$divBeingDragged = $(div.node());
             //For validation feedback
             div.append('span').attr("id","validator");
             return div;
