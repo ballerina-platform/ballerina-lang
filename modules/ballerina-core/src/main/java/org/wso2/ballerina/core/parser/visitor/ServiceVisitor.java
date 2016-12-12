@@ -62,6 +62,17 @@ public class ServiceVisitor extends BallerinaBaseVisitor {
             serviceObject.addAnnotation((Annotation) annotationContext.accept(annotationVisitor));
         }
 
+//        // Read the Connector declarations
+//        ConnectorVisitor connectorVisitor = new ConnectorVisitor(serviceSymbolTable);
+//        for (BallerinaParser.ConnectorDeclarationContext cdc :
+//                ctx.serviceBody().serviceBodyDeclaration().connectorDeclaration()) {
+//            Connection connection = (Connection) cdc.accept(connectorVisitor);
+//            serviceObject.addConnector();
+//            serviceSymbolTable.put(variableDcl.getIdentifier(),
+//                    BValueFactory.createBValueFromVariableDeclaration(variableDcl));
+//        }
+
+        // Read the variable declarations
         VariableDeclarationVisitor variableDeclarationVisitor = new VariableDeclarationVisitor(serviceSymbolTable);
         for (BallerinaParser.VariableDeclarationContext variableDeclarationContext :
                 ctx.serviceBody().serviceBodyDeclaration().variableDeclaration()) {
@@ -70,7 +81,8 @@ public class ServiceVisitor extends BallerinaBaseVisitor {
             serviceSymbolTable.put(variableDcl.getIdentifier(),
                     BValueFactory.createBValueFromVariableDeclaration(variableDcl));
         }
-        // Create the service body and resources
+
+        // Read the resources
         List<Resource> resources = (List<Resource>) this.
                 visitServiceBodyDeclaration(ctx.serviceBody().serviceBodyDeclaration());
         serviceObject.setResources(resources);
