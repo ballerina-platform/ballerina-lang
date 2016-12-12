@@ -166,6 +166,12 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace']
             // whileStatement1.setCondition("Condition2");
             // resource_passthrough.addChild(whileStatement1);
 
+            /**
+             * Create the sample assignment statement
+             */
+            var assignmentStatement = ballerinaASTFactory.createAssignmentStatement();
+            resource_passthrough.addChild(assignmentStatement);
+
             // Create Sample try-catch statement
             var ifElseStatement = ballerinaASTFactory.createIfElseStatement();
             var ifStatement = ballerinaASTFactory.createIfStatement();
