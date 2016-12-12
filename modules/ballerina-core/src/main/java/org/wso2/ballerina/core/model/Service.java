@@ -33,34 +33,52 @@ import java.util.List;
 import java.util.Map;
 
 /**
- *  A {@code Service} is an HTTP web service described by a Swagger.
- *  A Service is the discrete unit of functionality that can be remotely accessed.
- *  <p>
+ * A {@code Service} is an HTTP web service described by a Swagger.
+ * A Service is the discrete unit of functionality that can be remotely accessed.
+ * <p>
+ * <p>
+ * A Service is defined as follows:
+ * <p>
+ * [ServiceAnnotations]
+ * service ServiceName {
+ * ConnectorDeclaration;*
+ * VariableDeclaration;*
+ * ResourceDefinition;+
+ * }
  *
- *  A Service is defined as follows:
- *
- *  [ServiceAnnotations]
- *  service ServiceName {
- *      ConnectorDeclaration;*
- *      VariableDeclaration;*
- *      ResourceDefinition;+
- *  }
- *
- *  @since 1.0.0
+ * @since 1.0.0
  */
 @SuppressWarnings("unused")
 public class Service implements Executable {
 
     private static final Logger logger = LoggerFactory.getLogger(Service.class);
 
+    // TODO Refactor
     private Identifier identifier;
-    private Map<String, Annotation> annotations = new HashMap<>();
+    private Map<String, Annotation> annotationMap = new HashMap<>();
     private List<Connector> connectors = new ArrayList<>();
     private List<VariableDcl> variables = new ArrayList<>();
-    private List<Resource> resources = new ArrayList<>();
+    private List<Resource> resourceList = new ArrayList<>();
+
+    private Identifier name;
+    private Annotation[] annotations;
+    private Connection[] connections;
+    private VariableDcl[] variableDcls;
+    private Resource[] resources;
+
+    public Service(Identifier serviceName,
+                    Annotation[] annotations,
+                    Connection[] connections,
+                    VariableDcl[] variableDcls,
+                    Resource[] resources) {
+        this.name = serviceName;
+        this.annotations = annotations;
+        this.connections = connections;
+        this.variableDcls = variableDcls;
+        this.resources = resources;
+    }
 
     /**
-     *
      * @param identifier Service Identifier
      */
     public Service(Identifier identifier) {
@@ -83,15 +101,16 @@ public class Service implements Executable {
      * @return Annotation
      */
     public Annotation getAnnotation(String name) {
-        return annotations.get(name);
+        return annotationMap.get(name);
     }
 
     /**
      * Get all the Annotations associated with a Service
+     *
      * @return Map of Annotations
      */
     public Map<String, Annotation> getAnnotations() {
-        return annotations;
+        return annotationMap;
     }
 
     /**
@@ -100,7 +119,7 @@ public class Service implements Executable {
      * @param annotations list of Annotations
      */
     public void setAnnotations(Map<String, Annotation> annotations) {
-        this.annotations = annotations;
+        this.annotationMap = annotations;
     }
 
     /**
@@ -109,7 +128,7 @@ public class Service implements Executable {
      * @param annotation Annotation to be added
      */
     public void addAnnotation(Annotation annotation) {
-        annotations.put(annotation.getName(), annotation);
+        annotationMap.put(annotation.getName(), annotation);
     }
 
     /**
@@ -172,7 +191,7 @@ public class Service implements Executable {
      * @return list of Resources belongs to a Service
      */
     public List<Resource> getResources() {
-        return resources;
+        return resourceList;
     }
 
     /**
@@ -181,7 +200,7 @@ public class Service implements Executable {
      * @param resources List of Resources
      */
     public void setResources(List<Resource> resources) {
-        this.resources = resources;
+        this.resourceList = resources;
     }
 
     /**
@@ -190,7 +209,7 @@ public class Service implements Executable {
      * @param resource a Resource
      */
     public void addResource(Resource resource) {
-        resources.add(resource);
+        resourceList.add(resource);
     }
 
     @Override

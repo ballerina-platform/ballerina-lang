@@ -26,17 +26,43 @@ import org.wso2.ballerina.core.model.expressions.Expression;
  * @since 1.0.0
  */
 public class WhileStmt implements Statement {
-    private Expression condition;
+    private Expression whileCondition;
     private BlockStmt whileBody;
 
-    public WhileStmt(Expression condition, BlockStmt whileBody) {
-        this.condition = condition;
+    public WhileStmt(Expression whileCondition, BlockStmt whileBody) {
+        this.whileCondition = whileCondition;
         this.whileBody = whileBody;
     }
 
     public void interpret(Context ctx) {
-        while (condition.evaluate(ctx).getBoolean()) {
+        while (whileCondition.evaluate(ctx).getBoolean()) {
             whileBody.interpret(ctx);
+        }
+    }
+
+    /**
+     * Builds a {@code WhileStmt} statement
+     *
+     * @since 1.0.0
+     */
+    public static class WhileStmtBuilder {
+
+        private Expression whileCondition;
+        private BlockStmt whileBody;
+
+        public WhileStmtBuilder() {
+        }
+
+        public void setCondition(Expression whileCondition) {
+            this.whileCondition = whileCondition;
+        }
+
+        public void setWhileBody(BlockStmt whileBody) {
+            this.whileBody = whileBody;
+        }
+
+        public WhileStmt build() {
+            return new WhileStmt(whileCondition, whileBody);
         }
     }
 }

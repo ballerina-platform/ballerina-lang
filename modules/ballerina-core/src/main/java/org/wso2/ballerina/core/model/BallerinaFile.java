@@ -43,12 +43,31 @@ public class BallerinaFile {
     private String packageName;
     private List<Import> imports = new ArrayList<>();
     private List<Service> services = new ArrayList<>();
+    private List<Connector> connectorList = new ArrayList<>();
     private Map<String, Function> functions = new HashMap<>();
     private List<StructType> types = new ArrayList<>();
-    private List<Connector> connectors = new ArrayList<>();
-    private List<VariableDcl> constants = new ArrayList<>();
     //TODO: add TypeConverters
+    //TODO: add constants
 
+    public BallerinaFile() {
+
+    }
+
+    private BallerinaFile(
+            String packageName,
+            List<Import> importList,
+            List<Service> serviceList,
+            List<Connector> connectorList,
+            Map<String, Function> functionMap,
+            List<StructType> sTypeList) {
+        this.packageName = packageName;
+        this.imports = importList;
+        this.services = serviceList;
+        this.connectorList = connectorList;
+        this.functions = functionMap;
+        this.types = sTypeList;
+
+    }
 
     /**
      * Get the package name which file belongs to.
@@ -178,57 +197,54 @@ public class BallerinaFile {
     }
 
     /**
-     * Get {@code Connector} list defined in the file
-     *
-     * @return list of Connectors
+     * Builds a BFile which represents physical ballerina source file
      */
-    public List<Connector> getConnectors() {
-        return connectors;
-    }
+    public static class BFileBuilder {
 
-    /**
-     * Set {@code Connector} list
-     *
-     * @param connectors list of Connectors
-     */
-    public void setConnectors(List<Connector> connectors) {
-        this.connectors = connectors;
-    }
+        private String packageName;
+        private List<Import> importList = new ArrayList<>();
+        private List<Service> serviceList = new ArrayList<>();
+        private List<Connector> connectorList = new ArrayList<>();
+        private Map<String, Function> functionList = new HashMap<>();
+        private List<StructType> sTypeList = new ArrayList<>();
 
-    /**
-     * Add a {@code Connector} to the File
-     *
-     * @param connector a Connector
-     */
-    public void addConnector(Connector connector) {
-        connectors.add(connector);
-    }
+        public BFileBuilder() {
 
-    /**
-     * Get {@code Constant} list defined in the file
-     *
-     * @return list of constants
-     */
-    public List<VariableDcl> getConstants() {
-        return constants;
-    }
+        }
 
-    /**
-     * Set {@code Constant} list
-     *
-     * @param constants list of Connectors
-     */
-    public void setConstants(List<VariableDcl> constants) {
-        this.constants = constants;
-    }
+        public void setPkgName(String packageName) {
+            this.packageName = packageName;
+        }
 
-    /**
-     * Add a {@code Constant} to the File
-     *
-     * @param constant a Constant
-     */
-    public void addConstant(VariableDcl constant) {
-        constants.add(constant);
+        public void addFunction(BallerinaFunction function) {
+            this.functionList.put(function.getName(), function);
+        }
+
+        public void addService(Service service) {
+            this.serviceList.add(service);
+        }
+
+        public void addConnector(Connector connector) {
+            this.connectorList.add(connector);
+        }
+
+        public void addImportPackage(Import importPkg) {
+            this.importList.add(importPkg);
+        }
+
+        public void addStructType(StructType structType) {
+            this.sTypeList.add(structType);
+        }
+
+        public BallerinaFile build() {
+            return new BallerinaFile(
+                    packageName,
+                    importList,
+                    serviceList,
+                    connectorList,
+                    functionList,
+                    sTypeList);
+        }
     }
 
 }
