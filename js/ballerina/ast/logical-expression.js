@@ -15,18 +15,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './node'], function (_, ASTNode) {
+define(['lodash', './expression'], function (_, Expression) {
 
     /**
-     * Class to represent a statement in ballerina.
+     * Class to represent an logical expression in ballerina.
      * @constructor
      */
-    var Statement = function () {
-        ASTNode.call(this, 'Statement');
+    var LogicalExpression = function (args) {
+        Expression.call(this, 'LogicalExpression');
     };
 
-    Statement.prototype = Object.create(ASTNode.prototype);
-    Statement.prototype.constructor = Statement;
+    LogicalExpression.prototype = Object.create(Expression.prototype);
+    LogicalExpression.prototype.constructor = LogicalExpression;
 
-    return Statement;
+    return LogicalExpression;
 });
