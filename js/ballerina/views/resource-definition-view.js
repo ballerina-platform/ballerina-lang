@@ -150,6 +150,17 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             var args = {model: statement, container: this._container, viewOptions: undefined, parent:this};
             var statementView = statementViewFactory.getStatementView(args);
 
+            //TODO: Setting get action invocation's reference connector view
+            if(statementViewFactory.isGetActionStatement(statement)){
+                _.each(this.getConnectorViewList(), function (view) {
+                    if(_.isMatch(statement.getConnector(),view.getModel())) {
+                        statementView.setParent(this);
+                        statementView.setConnectorView(view);
+                        return;
+                    }
+                });
+            }
+
             // TODO: we need to keep this value as a configurable value and read from constants
             var statementsGap = 40;
             var statementsWidth = 120;

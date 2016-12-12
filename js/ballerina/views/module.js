@@ -18,11 +18,11 @@
 define(['./action-definition-view', './ballerina-file-editor', './ballerina-view', './canvas',
         './connector-declaration-view', './function-definition-view', './reply-statement-view',
         './resource-definition-view', './return-statement-view', './service-definition-view', './throw-statement-view',
-        './while-statement-view', './worker-declaration-view', './source-view' ],
+        './while-statement-view', './worker-declaration-view', './source-view','./get-action-statement-view' ],
     function (ActionDefinitionView, BallerinaFileEditor, BallerinaView, Canvas,
               ConnectorDeclarationView, FunctionDefinitionView, ReplyStatementView,
               ResourceDefinitionView, ReturnStatementView, ServiceDefinitionView, ThrowStatementView,
-              WhileStatementView, WorkerDeclarationView, SourceView) {
+              WhileStatementView, WorkerDeclarationView, SourceView,GetActionStatementView) {
         return  {
             BallerinaView: BallerinaView,
             ActionDefinitionView: ActionDefinitionView,
@@ -37,7 +37,8 @@ define(['./action-definition-view', './ballerina-file-editor', './ballerina-view
             ThrowStatementView: ThrowStatementView,
             WhileStatementView: WhileStatementView,
             WorkerDeclarationView: WorkerDeclarationView,
-            SourceView: SourceView
+            SourceView: SourceView,
+            GetActionStatementView: GetActionStatementView
         }
     });
 

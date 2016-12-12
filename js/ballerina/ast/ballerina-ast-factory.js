@@ -22,11 +22,11 @@
 define(['./ballerina-ast-root', './service-definition', './function-definition', './connector-definition', './resource-definition',
         './worker-declaration', './statement', './conditional-statement', './connector-declaration', './expression',
         './if-else-statement', './if-statement', './else-statement', './trycatch-statement', './try-statement', './catch-statement', './reply-statement', './while-statement', './return-statement', './type-converter-definition', './type-definition',
-        './type-element', './variable-declaration', './package-definition', './import-declaration', './resource-arg'],
+        './type-element', './variable-declaration', './package-definition', './import-declaration', './resource-arg','./action-invocation-statement','./get-action-statement'],
     function (ballerinaAstRoot, serviceDefinition, functionDefinition, connectorDefinition, resourceDefinition,
               workerDeclaration, statement, conditionalStatement, connectorDeclaration, expression,
               ifElseStatement, ifStatement, elseStatement, tryCatchStatement, tryStatement, catchStatement, replyStatement, whileStatement, returnStatement, typeConverterDefinition, typeDefinition,
-              typeElement, variableDeclaration, packageDefinition, importDeclaration, resourceArgument) {
+              typeElement, variableDeclaration, packageDefinition, importDeclaration, resourceArgument,actionInvocationStatement,getActionStatement) {
 
         /**
          * Constructs BallerinaASTFactory
@@ -140,6 +140,10 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
         BallerinaASTFactory.prototype.createExpression = function (args) {
             return new expression(args);
         };
+
+        BallerinaASTFactory.prototype.createGetActionStatement = function(args){
+            return new getActionStatement(args);
+        }
 
         /**
          * creates If-Else Statement
