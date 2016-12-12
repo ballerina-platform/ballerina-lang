@@ -38,7 +38,7 @@
 .headingRect {
     fill: #FFFFFF;
     stroke-width: 1;
-    stroke: #cbcbcb;
+    stroke: #000000;
 
 }
 
@@ -55,7 +55,7 @@
 }
 
 .httpMethodText {
-    fill: #777777;
+    fill: #000000;
 }
 
 .resourcePathPrefix {
@@ -79,7 +79,7 @@
 .resource-content {
     fill: none;
     stroke-width: 1;
-    stroke: #cbcbcb;
+    stroke: #000000;
 }
 
 .client rect {
@@ -87,7 +87,7 @@
 }
 
 .client polygon {
-    stroke: #9d9d9d;
+    stroke: #000000;
     fill: #FFFFFF;
 }
 
@@ -96,11 +96,11 @@
 }
 
 .client line {
-    stroke: #b7b7b7;
+    stroke: #000000;
 }
 
 .client text {
-    fill: #727272;
+    fill: #000000;
 }
 
 .endpoint > line {

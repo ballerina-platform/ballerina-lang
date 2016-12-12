@@ -11,6 +11,8 @@
 .design-view-container{
     padding-left: 220px;
     padding-top: 60px;
+    overflow-y: scroll;
+    height: 85%;
 }
 
 
