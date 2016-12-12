@@ -18,6 +18,7 @@
 
 package org.wso2.ballerina.core.model;
 
+import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.runtime.core.BalCallback;
 import org.wso2.ballerina.core.runtime.core.BalContext;
@@ -33,28 +34,35 @@ import java.util.Map;
  * The resource concept is designed to be access protocol independent.
  * But in the initial release of the language it is intended to work with HTTP.
  * <p>
- *
  * The structure of a ResourceDefinition is as follows:
+ * <p>
+ * [ResourceAnnotations]
+ * resource ResourceName (Message VariableName[, ([ResourceParamAnnotations] TypeName VariableName)+]) {
+ * ConnectionDeclaration;*
+ * VariableDeclaration;*
+ * WorkerDeclaration;*
+ * Statement;+
+ * }*
  *
- *  [ResourceAnnotations]
- *  resource ResourceName (Message VariableName[, ([ResourceParamAnnotations] TypeName VariableName)+]) {
- *      ConnectionDeclaration;*
- *      VariableDeclaration;*
- *      WorkerDeclaration;*
- *      Statement;+
- *  }*
- *
- *  @since 1.0.0
- *
+ * @since 1.0.0
  */
 @SuppressWarnings("unused")
 public class Resource implements Executable {
 
-    private Map<String, Annotation> annotations = new HashMap<>();
+    // TODO Refactor
+    private Map<String, Annotation> annotationMap = new HashMap<>();
     private List<Parameter> arguments = new ArrayList<>();
-    private List<Worker> workers = new ArrayList<>();
+    private List<Worker> workerList = new ArrayList<>();
     private Worker defaultWorker;
     private String name;
+
+    private Annotation[] annotations;
+    private Parameter[] parameters;
+    private Connection[] connections;
+    private VariableDcl[] variableDcls;
+    private Worker[] workers;
+    private BlockStmt resourceBody;
+    private Identifier resourceName;
 
     public Resource() {
         defaultWorker = new Worker();
@@ -65,6 +73,23 @@ public class Resource implements Executable {
         this.name = name;
     }
 
+    public Resource(Identifier name,
+                    Annotation[] annotations,
+                    Parameter[] parameters,
+                    Connection[] connections,
+                    VariableDcl[] variableDcls,
+                    Worker[] workers,
+                    BlockStmt functionBody) {
+
+        this.resourceName = name;
+        this.annotations = annotations;
+        this.parameters = parameters;
+        this.connections = connections;
+        this.variableDcls = variableDcls;
+        this.workers = workers;
+        this.resourceBody = functionBody;
+    }
+
     /**
      * Get an Annotation from a given name
      *
@@ -72,7 +97,7 @@ public class Resource implements Executable {
      * @return Annotation
      */
     public Annotation getAnnotation(String name) {
-        return annotations.get(name);
+        return annotationMap.get(name);
     }
 
     /**
@@ -81,7 +106,7 @@ public class Resource implements Executable {
      * @return map of Annotations
      */
     public Map<String, Annotation> getAnnotations() {
-        return annotations;
+        return annotationMap;
     }
 
     /**
@@ -90,7 +115,7 @@ public class Resource implements Executable {
      * @param annotations map of Annotations
      */
     public void setAnnotations(Map<String, Annotation> annotations) {
-        this.annotations = annotations;
+        this.annotationMap = annotations;
     }
 
     /**
@@ -99,7 +124,7 @@ public class Resource implements Executable {
      * @param annotation Annotation to be added
      */
     public void addAnnotation(Annotation annotation) {
-        annotations.put(annotation.getName(), annotation);
+        annotationMap.put(annotation.getName(), annotation);
     }
 
     /**
@@ -190,7 +215,7 @@ public class Resource implements Executable {
      * @return list of Workers
      */
     public List<Worker> getWorkers() {
-        return workers;
+        return workerList;
     }
 
     /**
@@ -199,7 +224,7 @@ public class Resource implements Executable {
      * @param workers list of all the Workers
      */
     public void setWorkers(List<Worker> workers) {
-        this.workers = workers;
+        this.workerList = workers;
     }
 
     /**
@@ -208,7 +233,7 @@ public class Resource implements Executable {
      * @param worker Worker to be added to the Resource
      */
     public void addWorker(Worker worker) {
-        workers.add(worker);
+        workerList.add(worker);
     }
 
     /**
