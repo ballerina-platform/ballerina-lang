@@ -15,17 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './ballerina-view', './../ast/get-action-statement', 'd3utils'],
-    function (_, log, BallerinaView, GetActionStatement, D3Utils) {
+define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/get-action-statement', 'd3utils','./action-processor-view'],
+    function (_, d3, log, BallerinaStatementView, GetActionStatement, D3Utils,ActionProcessor) {
 
-        /**
-         * The view to represent a reply statement which is an AST visitor.
-         * @param {Object} args - Arguments for creating the view.
-         * @param {ReplyStatement} args.model - The reply statement model.
-         * @param {Object} args.container - The HTML container to which the view should be added to.
-         * @param {Object} [args.viewOptions={}] - Configuration values for the view.
-         * @constructor
-         */
         var GetActionStatementView = function (args) {
             this._model = _.get(args, "model");
             this._container = _.get(args, "container");
@@ -33,27 +25,28 @@ define(['lodash', 'log', './ballerina-view', './../ast/get-action-statement', 'd
             this._connectorView = {};
 
             if (_.isNil(this._model) || !(this._model instanceof GetActionStatement)) {
-                log.error("Return statement definition is undefined or is of different type." + this._model);
-                throw "Return statement definition is undefined or is of different type." + this._model;
+                log.error("Action statement definition is undefined or is of different type." + this._model);
+                throw "Action statement definition is undefined or is of different type." + this._model;
             }
 
             if (_.isNil(this._container)) {
-                log.error("Container for return statement is undefined." + this._container);
-                throw "Container for return statement is undefined." + this._container;
+                log.error("Container for action statement is undefined." + this._container);
+                throw "Container for action statement is undefined." + this._container;
             }
 
-            BallerinaView.call(this);
+           // BallerinaView.call(this);
+            BallerinaStatementView.call(this, _.get(args, "parent"));
         };
 
-        GetActionStatementView.prototype = Object.create(BallerinaView.prototype);
+        GetActionStatementView.prototype = Object.create(BallerinaStatementView.prototype);
         GetActionStatementView.prototype.constructor = GetActionStatementView;
 
         GetActionStatementView.prototype.setModel = function (model) {
-            if (!_.isNil(model) && model instanceof ReplyStatement) {
+            if (!_.isNil(model) && model instanceof GetActionStatement) {
                 this._model = model;
             } else {
-                log.error("Return statement definition is undefined or is of different type." + model);
-                throw "Return statement definition is undefined or is of different type." + model;
+                log.error("Action statement definition is undefined or is of different type." + model);
+                throw "Action statement definition is undefined or is of different type." + model;
             }
         };
 
@@ -61,8 +54,8 @@ define(['lodash', 'log', './ballerina-view', './../ast/get-action-statement', 'd
             if (!_.isNil(container)) {
                 this._container = container;
             } else {
-                log.error("Container for return statement is undefined." + container);
-                throw "Container for return statement is undefined." + container;
+                log.error("Container for action statement is undefined." + container);
+                throw "Container for action statement is undefined." + container;
             }
         };
 
@@ -90,72 +83,55 @@ define(['lodash', 'log', './ballerina-view', './../ast/get-action-statement', 'd
         }
 
         /**
-         * Rendering the view for reply statement.
-         * @returns {group} The svg group which contains the elements of the reply statement view.
+         * Rendering the view for get-Action statement.
+         * @returns {group} The svg group which contains the elements of the action statement view.
          */
         GetActionStatementView.prototype.render = function () {
-           // var group = D3Utils.draw.group(this._container);
-            // var rect = D3Utils.draw.rect(10, 10, 100, 100, 0, 0, group, "#FFFFFF");
+          var parentGroup = $(this._container)[0].getElementById("contentGroup");
+            var actionStatementGroup = D3Utils.group(d3.select(parentGroup));
+            actionStatementGroup.attr("id","actionStatementGroup");
             log.info("Rendering the Get Action Statement.");
-            // group.rect = rect;
-           // return group;
+            //TODO: make constants
+            var processorWidth = 120;
+            var processorHeight = 30;
+
+           var processorCenterPointX = this.getXPosition() + 60;
+           var processorCenterPointY = this.getYPosition();
+            var processorWidth = 120;
+            var processorHeight = 30;
+            var sourcePointX = processorCenterPointX + 60;
+            var sourcePointY = processorCenterPointY;
+            var destinationPointX =  this.getConnectorView().getViewOptions().connectorCenterPointX;
+            var  arrowX = destinationPointX - 5;
+            var arrowY = processorCenterPointY;
+
+            var processorViewOpts = {
+                parent: actionStatementGroup,
+                processorWidth: processorWidth,
+                processorHeight: processorHeight,
+                centerPoint: {
+                    x: processorCenterPointX,
+                    y: processorCenterPointY
+                },
+                sourcePoint: {
+                    x: sourcePointX,
+                    y: sourcePointY
+                },
+                destinationPoint: {
+                    x: destinationPointX,
+                    y: sourcePointY
+                },
+                action: "Invoke",
+                inArrow: true,
+                arrowX: arrowX,
+                arrowY: arrowY
+
+            };
+         var actionStatementView = new ActionProcessor(processorViewOpts);
+         actionStatementView.render();
+
         };
 
-        /**
-         * @inheritDoc
-         */
-        GetActionStatementView.prototype.setWidth = function (newWidth) {
-            // TODO : Implement
-        };
-
-        /**
-         * @inheritDoc
-         */
-        GetActionStatementView.prototype.setHeight = function (newHeight) {
-            // TODO : Implement
-        };
-
-        /**
-         * @inheritDoc
-         */
-        GetActionStatementView.prototype.setXPosition = function (xPosition) {
-            // TODO : Implement
-        };
-
-        /**
-         * @inheritDoc
-         */
-        GetActionStatementView.prototype.setYPosition = function (yPosition) {
-            // TODO : Implement
-        };
-
-        /**
-         * @inheritDoc
-         */
-        GetActionStatementView.prototype.getWidth = function () {
-            // TODO : Implement
-        };
-
-        /**
-         * @inheritDoc
-         */
-        GetActionStatementView.prototype.getHeight = function () {
-            // TODO : Implement
-        };
-
-        /**
-         * @inheritDoc
-         */
-        GetActionStatementView.prototype.getXPosition = function () {
-            // TODO : Implement
-        };
-
-        /**
-         * @inheritDoc
-         */
-        GetActionStatementView.prototype.getYPosition = function () {
-            // TODO : Implement
-        };
 
         return GetActionStatementView;
     });

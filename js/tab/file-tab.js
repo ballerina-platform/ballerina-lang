@@ -122,8 +122,11 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace']
             //Adding Connector declaration to resource_pasthrough
             var connector_declaration = ballerinaASTFactory.createConnectorDeclaration();
             var connector_declaration1 = ballerinaASTFactory.createConnectorDeclaration();
-            resource_passthrough.setConnections(connector_declaration);
-            resource_passthrough.setConnections(connector_declaration1);
+            var sList = [];
+            sList.push(connector_declaration);
+            sList.push(connector_declaration1);
+            resource_passthrough.setConnections(sList);
+           // resource_passthrough.setConnections([connector_declaration1]);
             resource_passthrough.addChild(connector_declaration);
             resource_passthrough.addChild(connector_declaration1);
 
@@ -174,7 +177,8 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace']
              * Create the sample function statement statement
              */
             var functionInvocation = ballerinaASTFactory.createFunctionInvocationStatement();
-            resource_passthrough.addChild(functionInvocation);
+            //TODO:Commented to view get action statement
+            //resource_passthrough.addChild(functionInvocation);
 
             // Create Sample try-catch statement
             var ifElseStatement = ballerinaASTFactory.createIfElseStatement();
@@ -185,16 +189,18 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace']
             var catchStatement1 = ballerinaASTFactory.createCatchStatement();
             // catchStatement.setExceptionType("ArithmeticException ex");
             catchStatement1.setExceptionType("ArithmeticException ex");
-//Create get action statement for connector
 
-            var getActionStatement = ballerinaASTFactory.createGetActionStatement(connector_declaration);
+           //Create get action statement for connector
+            var getActionStatement1 = ballerinaASTFactory.createGetActionStatement(connector_declaration1);
             ifElseStatement.addChild(ifStatement);
             ifElseStatement.addChild(elseStatement);
             tryCatchStatement1.addChild(tryStatement1);
             tryCatchStatement1.addChild(catchStatement1);
-            resource_passthrough.addChild(ifElseStatement);
-            resource_passthrough.addChild(tryCatchStatement1);
-            resource_passthrough.addChild(getActionStatement);
+            //TODO:Commented to view get action statement
+           // resource_passthrough.addChild(ifElseStatement);
+            //TODO:Commented to view get action statement
+            //resource_passthrough.addChild(tryCatchStatement1);
+            resource_passthrough.addChild(getActionStatement1);
             // Create sample Worker Declaration
             var workerDeclaration1 = ballerinaASTFactory.createWorkerDeclaration();
             var workerDeclaration2 = ballerinaASTFactory.createWorkerDeclaration();
