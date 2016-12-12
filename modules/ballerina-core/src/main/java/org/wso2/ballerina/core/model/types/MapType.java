@@ -17,10 +17,135 @@
 */
 package org.wso2.ballerina.core.model.types;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * {@code MapType} represents a map
- *
+ * @param <K> Key
+ * @param <V> Value
  * @since 1.0.0
  */
-public class MapType extends AbstractType {
+public class MapType<K, V> extends AbstractType {
+
+    private int size;
+    private static final int INITIAL_CAPACITY = 16;
+    private static final int MAX_CAPACITY = 1 << 16;
+    @SuppressWarnings("unchecked")
+    private MapEntry<K, V>[] values = new MapEntry[INITIAL_CAPACITY];
+
+    /**
+     * Retrieve the value for the given key from map
+     * @param key key used to get the value
+     * @return value
+     */
+    public V get(K key) {
+        for (int i = 0; i < size; i++) {
+            if (values[i] != null) {
+                if (values[i].getKey().equals(key)) {
+                    return values[i].getValue();
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Insert a key value pair into the map
+     * @param key key related to the value
+     * @param value value related to the key
+     */
+    public void put(K key, V value) {
+        boolean insert = true;
+        for (int i = 0; i < size; i++) {
+            if (values[i].getKey().equals(key)) {
+                values[i].setValue(value);
+                insert = false;
+            }
+        }
+        if (insert) {
+            ensureCapacity();
+            values[size++] = new MapEntry<>(key, value);
+        }
+    }
+
+    private void ensureCapacity() {
+        if (size == values.length) {
+            int newSize = values.length * 2;
+            if (newSize <= MAX_CAPACITY) {
+                values = Arrays.copyOf(values, newSize);
+            } else {
+                throw new RuntimeException(" Map cannot exceed the maximum size");
+            }
+        }
+    }
+
+    /**
+     * Get the size of the map
+     * @return returns the size of the map
+     */
+    public int size() {
+        return size;
+    }
+
+    /**
+     * Remove an item from the map
+     * @param key key of the item to be removed
+     */
+    public void remove(K key) {
+        for (int i = 0; i < size; i++) {
+            if (values[i].getKey().equals(key)) {
+                values[i] = null;
+                size--;
+                condenseArray(i);
+            }
+        }
+    }
+
+    private void condenseArray(int start) {
+        System.arraycopy(values, start + 1, values, start, (size - start - 1));
+    }
+
+    /**
+     * Retrieve the set of keys related to this map
+     * @return returns the set of keys
+     */
+    public Set<K> keySet() {
+        Set<K> set = new HashSet<>();
+        for (int i = 0; i < size; i++) {
+            set.add(values[i].getKey());
+        }
+        return set;
+    }
+
+    /** Return true if this map is empty. */
+    public boolean isEmpty() {
+        return size() == 0;
+    }
+
+    private class MapEntry<K, V> {
+        private final K key;
+        private V value;
+
+        MapEntry(K key, V value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        K getKey() {
+            return key;
+        }
+
+        V getValue() {
+            return value;
+        }
+
+        void setValue(V value) {
+            this.value = value;
+        }
+    }
+
 }
+
+
