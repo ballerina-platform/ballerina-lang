@@ -17,6 +17,8 @@
  */
 package org.wso2.ballerina.core.runtime.core;
 
+import org.wso2.ballerina.core.interpreter.Context;
+
 /**
  * {@code Executable} is an executable entity of Ballerina
  *
@@ -30,6 +32,6 @@ public interface Executable {
      * @param callback  Ballerina callback
      * @return  whether execution is successful
      */
-    boolean execute(BalContext context, BalCallback callback);
+    boolean execute(Context context, BalCallback callback);
 
 }

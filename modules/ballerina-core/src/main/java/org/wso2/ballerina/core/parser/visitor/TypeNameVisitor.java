@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerina.core.parser.visitor;
 
+import org.wso2.ballerina.core.model.types.IntType;
 import org.wso2.ballerina.core.parser.BallerinaBaseVisitor;
 import org.wso2.ballerina.core.parser.BallerinaParser;
 
@@ -35,7 +36,9 @@ public class TypeNameVisitor extends BallerinaBaseVisitor {
      */
     @Override
     public Object visitTypeName(BallerinaParser.TypeNameContext ctx) {
-        return super.visitTypeName(ctx);
+        // TODO: 12/11/16 Need to implement type parsing
+        IntType intType = new IntType();
+        return intType;
     }
 
     /**
@@ -62,5 +65,161 @@ public class TypeNameVisitor extends BallerinaBaseVisitor {
     @Override
     public Object visitQualifiedTypeName(BallerinaParser.QualifiedTypeNameContext ctx) {
         return super.visitQualifiedTypeName(ctx);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
+     *
+     * @param ctx
+     */
+    @Override
+    public Object visitSimpleType(BallerinaParser.SimpleTypeContext ctx) {
+        return super.visitSimpleType(ctx);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
+     *
+     * @param ctx
+     */
+    @Override
+    public Object visitSimpleTypeArray(BallerinaParser.SimpleTypeArrayContext ctx) {
+        return super.visitSimpleTypeArray(ctx);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
+     *
+     * @param ctx
+     */
+    @Override
+    public Object visitSimpleTypeIterate(BallerinaParser.SimpleTypeIterateContext ctx) {
+        return super.visitSimpleTypeIterate(ctx);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
+     *
+     * @param ctx
+     */
+    @Override
+    public Object visitWithFullSchemaType(BallerinaParser.WithFullSchemaTypeContext ctx) {
+        return super.visitWithFullSchemaType(ctx);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
+     *
+     * @param ctx
+     */
+    @Override
+    public Object visitWithFullSchemaTypeArray(BallerinaParser.WithFullSchemaTypeArrayContext ctx) {
+        return super.visitWithFullSchemaTypeArray(ctx);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
+     *
+     * @param ctx
+     */
+    @Override
+    public Object visitWithFullSchemaTypeIterate(BallerinaParser.WithFullSchemaTypeIterateContext ctx) {
+        return super.visitWithFullSchemaTypeIterate(ctx);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
+     *
+     * @param ctx
+     */
+    @Override
+    public Object visitWithScheamURLType(BallerinaParser.WithScheamURLTypeContext ctx) {
+        return super.visitWithScheamURLType(ctx);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
+     *
+     * @param ctx
+     */
+    @Override
+    public Object visitWithSchemaURLTypeArray(BallerinaParser.WithSchemaURLTypeArrayContext ctx) {
+        return super.visitWithSchemaURLTypeArray(ctx);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
+     *
+     * @param ctx
+     */
+    @Override
+    public Object visitWithSchemaURLTypeIterate(BallerinaParser.WithSchemaURLTypeIterateContext ctx) {
+        return super.visitWithSchemaURLTypeIterate(ctx);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
+     *
+     * @param ctx
+     */
+    @Override
+    public Object visitWithSchemaIdType(BallerinaParser.WithSchemaIdTypeContext ctx) {
+        return super.visitWithSchemaIdType(ctx);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
+     *
+     * @param ctx
+     */
+    @Override
+    public Object visitWithScheamIdTypeArray(BallerinaParser.WithScheamIdTypeArrayContext ctx) {
+        return super.visitWithScheamIdTypeArray(ctx);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
+     *
+     * @param ctx
+     */
+    @Override
+    public Object visitWithScheamIdTypeIterate(BallerinaParser.WithScheamIdTypeIterateContext ctx) {
+        return super.visitWithScheamIdTypeIterate(ctx);
     }
 }

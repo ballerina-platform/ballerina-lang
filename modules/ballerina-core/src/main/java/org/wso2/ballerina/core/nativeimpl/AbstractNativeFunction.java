@@ -40,11 +40,10 @@ import java.util.List;
  */
 public abstract class AbstractNativeFunction implements NativeFunction {
 
-    /**
-     * Void RETURN.
-     */
-    public static final BValue[] VOID_RETURN = new BValue[0];
     private static final Logger log = LoggerFactory.getLogger(AbstractNativeFunction.class);
+
+    /* Void RETURN */
+    public static final BValue[] VOID_RETURN = new BValue[0];
     private String packageName, functionName;
     private Identifier identifier;
     private List<Annotation> annotations;

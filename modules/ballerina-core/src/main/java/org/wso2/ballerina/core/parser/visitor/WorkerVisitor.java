@@ -17,11 +17,13 @@
  */
 package org.wso2.ballerina.core.parser.visitor;
 
+import org.wso2.ballerina.core.interpreter.SymbolTable;
 import org.wso2.ballerina.core.model.VariableDcl;
 import org.wso2.ballerina.core.model.Worker;
 import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.parser.BallerinaBaseVisitor;
 import org.wso2.ballerina.core.parser.BallerinaParser;
+import org.wso2.ballerina.core.utils.BValueFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +32,12 @@ import java.util.List;
  * visitor for worker
  */
 public class WorkerVisitor extends BallerinaBaseVisitor {
+
+    private SymbolTable workerSymbolTable;
+
+    public WorkerVisitor(SymbolTable parentSymbolTable) {
+        this.workerSymbolTable = new SymbolTable(parentSymbolTable);
+    }
 
     /**
      * {@inheritDoc}
@@ -42,18 +50,30 @@ public class WorkerVisitor extends BallerinaBaseVisitor {
     @Override
     public Object visitWorkerDeclaration(BallerinaParser.WorkerDeclarationContext ctx) {
         List<VariableDcl> variableDclList = new ArrayList<>();
-        VariableDeclarationVisitor variableDeclarationVisitor = new VariableDeclarationVisitor();
+        VariableDeclarationVisitor variableDeclarationVisitor = new VariableDeclarationVisitor(workerSymbolTable);
         for (BallerinaParser.VariableDeclarationContext varDclCtx : ctx.variableDeclaration()) {
-            variableDclList.add((VariableDcl) varDclCtx.accept(variableDeclarationVisitor));
+            VariableDcl variableDcl = (VariableDcl) varDclCtx.accept(variableDeclarationVisitor);
+            variableDclList.add(variableDcl);
+            workerSymbolTable.put(variableDcl.getIdentifier(),
+                    BValueFactory.createBValueFromVariableDeclaration(variableDcl));
         }
 
         List<Statement> statementList = new ArrayList<>();
-        StatementVisitor statementVisitor = new StatementVisitor();
+        StatementVisitor statementVisitor = new StatementVisitor(workerSymbolTable);
         for (BallerinaParser.StatementContext statementContext : ctx.statement()) {
             //todo check getChild(0)
             statementList.add((Statement) statementContext.accept(statementVisitor));
         }
 
         return new Worker(variableDclList, statementList);
+    }
+    /**
+     * Base method for retrieving the symbol table
+     *
+     * @return symbol table for this instance
+     */
+    @Override
+    public SymbolTable getSymbolTable() {
+        return workerSymbolTable;
     }
 }

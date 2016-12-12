@@ -19,6 +19,9 @@ package org.wso2.ballerina.core.model.values;
 
 import org.wso2.carbon.messaging.CarbonMessage;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * {@code MessageValue} represents a Carbon Message in Ballerina.
  *
@@ -27,6 +30,7 @@ import org.wso2.carbon.messaging.CarbonMessage;
 public class MessageValue implements BValue<CarbonMessage> {
     private CarbonMessage value;
     private BValue<?> builtPayload;
+    private Map<String, String> headers = new HashMap<>();
 
     /**
      * Create a message in ballerina using a Carbon Message.
@@ -85,4 +89,23 @@ public class MessageValue implements BValue<CarbonMessage> {
     public BValue<?> getBuiltPayload() {
         return this.builtPayload;
     }
+
+    /**
+     * Add  message header.
+     *  @param headerName  Headers Name
+     *  @param headerValue  Headers Value
+     */
+    public void addHeader(String headerName, String headerValue) {
+        headers.put(headerName, headerValue);
+    }
+
+    /**
+     * Get the header value.
+     *
+     * @return  header name
+     */
+    public String getHeaderValue(String headerName) {
+        return headers.get(headerName);
+    }
+
 }

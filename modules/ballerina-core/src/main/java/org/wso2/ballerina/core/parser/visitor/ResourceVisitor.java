@@ -17,17 +17,25 @@
  */
 package org.wso2.ballerina.core.parser.visitor;
 
+import org.wso2.ballerina.core.interpreter.SymbolTable;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.VariableDcl;
 import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.parser.BallerinaBaseVisitor;
 import org.wso2.ballerina.core.parser.BallerinaParser;
+import org.wso2.ballerina.core.utils.BValueFactory;
 
 /**
  * Visitor for resource
  */
 public class ResourceVisitor extends BallerinaBaseVisitor {
+
+    private SymbolTable resourceSymbolTable;
+
+    public ResourceVisitor(SymbolTable parentSymbolTable) {
+        this.resourceSymbolTable = new SymbolTable(parentSymbolTable);
+    }
 
     /**
      * {@inheritDoc}
@@ -46,18 +54,31 @@ public class ResourceVisitor extends BallerinaBaseVisitor {
             resourceObject.addAnnotation((Annotation) annotationContext.accept(annotationVisitor));
         }
 
-        VariableDeclarationVisitor variableDeclarationVisitor = new VariableDeclarationVisitor();
+        VariableDeclarationVisitor variableDeclarationVisitor = new VariableDeclarationVisitor(resourceSymbolTable);
         for (BallerinaParser.VariableDeclarationContext variableDeclarationContext :
                 ctx.functionBody().variableDeclaration()) {
-            resourceObject.addVariable((VariableDcl) variableDeclarationContext.accept(variableDeclarationVisitor));
+            VariableDcl variableDcl = (VariableDcl) variableDeclarationContext.accept(variableDeclarationVisitor);
+            resourceObject.addVariable(variableDcl);
+            resourceSymbolTable.put(variableDcl.getIdentifier(),
+                    BValueFactory.createBValueFromVariableDeclaration(variableDcl));
         }
 
-        StatementVisitor statementVisitor = new StatementVisitor();
+        StatementVisitor statementVisitor = new StatementVisitor(resourceSymbolTable);
         for (int i = 0; i < ctx.functionBody().statement().size(); i++) {
             resourceObject.addStatement((Statement) (ctx.functionBody().statement(i).
-                    getChild(0).accept(statementVisitor)));
+                    accept(statementVisitor)));
         }
 
         return resourceObject;
+    }
+
+    /**
+     * Base method for retrieving the symbol table
+     *
+     * @return symbol table for this instance
+     */
+    @Override
+    public SymbolTable getSymbolTable() {
+        return this.resourceSymbolTable;
     }
 }

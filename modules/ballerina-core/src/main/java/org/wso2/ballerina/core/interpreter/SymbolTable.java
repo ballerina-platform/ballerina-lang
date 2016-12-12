@@ -59,4 +59,17 @@ public class SymbolTable {
         // TODO Implement proper error handling here.
         throw new RuntimeException("Value not found for identifier: " + identifier.getName());
     }
+
+    public Identifier lookup(String identifier1) {
+        Identifier identifier = new Identifier(identifier1);
+        for (SymbolTable t = this; t != null; t = t.parent) {
+            BValue value = t.map.get(identifier);
+            if (value != null) {
+                return identifier;
+            }
+        }
+
+        // TODO Implement proper error handling here.
+        throw new RuntimeException("Value not found for identifier: " + identifier.getName());
+    }
 }

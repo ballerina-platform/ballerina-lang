@@ -20,6 +20,7 @@ package org.wso2.ballerina.core.runtime;
 import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
+import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.Application;
 import org.wso2.ballerina.core.model.BallerinaFile;
@@ -27,7 +28,6 @@ import org.wso2.ballerina.core.model.Identifier;
 import org.wso2.ballerina.core.model.Package;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
-import org.wso2.ballerina.core.runtime.core.BalContext;
 import org.wso2.ballerina.core.runtime.core.dispatching.ServiceDispatcher;
 import org.wso2.ballerina.core.runtime.net.http.source.Constants;
 import org.wso2.ballerina.core.runtime.net.http.source.HTTPResourceDispatcher;
@@ -75,7 +75,7 @@ public class HTTPDispatchingTest {
         CarbonMessage cMsg = new DefaultCarbonMessage();
         cMsg.setProperty(org.wso2.carbon.messaging.Constants.TO, "/base1/sub/foo");
         cMsg.setProperty(Constants.HTTP_METHOD, "GET");
-        BalContext balContext = new BalContext(cMsg);
+        Context balContext = new Context(cMsg);
         balContext.setProperty(org.wso2.ballerina.core.runtime.Constants.PROTOCOL, Constants.PROTOCOL_HTTP);
 
         // Send the message
@@ -109,7 +109,7 @@ public class HTTPDispatchingTest {
         CarbonMessage cMsg = new DefaultCarbonMessage();
         cMsg.setProperty(org.wso2.carbon.messaging.Constants.TO, "/sub/foo");
         cMsg.setProperty(Constants.HTTP_METHOD, "GET");
-        BalContext balContext = new BalContext(cMsg);
+        Context balContext = new Context(cMsg);
         balContext.setProperty(org.wso2.ballerina.core.runtime.Constants.PROTOCOL, Constants.PROTOCOL_HTTP);
 
         // Send the message
@@ -143,7 +143,7 @@ public class HTTPDispatchingTest {
         CarbonMessage cMsg = new DefaultCarbonMessage();
         cMsg.setProperty(org.wso2.carbon.messaging.Constants.TO, "/base3/abc/def");
         cMsg.setProperty(Constants.HTTP_METHOD, "GET");
-        BalContext balContext = new BalContext(cMsg);
+        Context balContext = new Context(cMsg);
         balContext.setProperty(org.wso2.ballerina.core.runtime.Constants.PROTOCOL, Constants.PROTOCOL_HTTP);
 
         // Send the message

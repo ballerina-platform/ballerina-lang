@@ -471,7 +471,6 @@ public interface BallerinaVisitor<T> extends ParseTreeVisitor<T> {
 	T visitExpressionList(BallerinaParser.ExpressionListContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link BallerinaParser#expression}.
-	 *
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
