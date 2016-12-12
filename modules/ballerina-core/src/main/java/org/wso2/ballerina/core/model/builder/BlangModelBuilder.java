@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerina.core.model.builder;
 
+import org.wso2.ballerina.core.interpreter.SymbolTable;
 import org.wso2.ballerina.core.model.Action;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.BallerinaFile;
@@ -90,15 +91,18 @@ public class BlangModelBuilder {
         return bFileBuilder.build();
     }
 
+    // Symbol table related instance variables;
+    private SymbolTable symbolTable = new SymbolTable(null);
+    private int paramIndex = -1;
+    private int localVarIndex = -1;
+
     // Identifiers
-    // -----------
 
     public void createIdentifier(String varName) {
         identifierStack.push(new Identifier(varName));
     }
 
     // Packages and import packages
-    // ----------------------------
 
     public void setPackageName(String pkgName) {
         bFileBuilder.setPkgName(pkgName);
@@ -109,7 +113,6 @@ public class BlangModelBuilder {
     }
 
     // Annotations
-    // -----------
 
     public void startAnnotation() {
         annotationBuilderStack.push(new Annotation.AnnotationBuilder());
@@ -122,7 +125,7 @@ public class BlangModelBuilder {
 //        Annotation.AnnotationBuilder annotationBuilder = annotationBuilderStack.peek();
 //        annotationBuilder.addKeyValuePair(new Identifier(key), value);
 
-        throw new RuntimeException("Key/Value pairs in annotation is not supported");
+        throw new RuntimeException("Key/Value pairs in annotations are not supported");
     }
 
     public void endAnnotation(String name, boolean valueAvailable) {
@@ -140,12 +143,32 @@ public class BlangModelBuilder {
 
 
     // Function parameters and return values
-    // -------------------------------------
 
+    /**
+     * Create a function parameter and a corresponding variable reference expression
+     * <p>
+     * Set the even function to get the value from the function arguments with the correct index.
+     * Store the reference in the symbol table.
+     *
+     * @param paramName name of the function parameter
+     */
     public void createParam(String paramName) {
-        Parameter param = new Parameter(typeQueue.remove(), new Identifier(paramName));
+        paramIndex++;
+
+        Identifier paramNameId = new Identifier(paramName);
+        Type paramType = typeQueue.remove();
+        Parameter param = new Parameter(paramType, paramNameId);
+
+        // Add the parameter to callableUnitBuilder.
         CallableUnitBuilder callableUnitBuilder = cUnitBuilderStack.peek();
         callableUnitBuilder.addParameter(param);
+
+        // Create variable reference expression and set the proper index to access the value
+        VariableRefExpr variableRefExpr = new VariableRefExpr(paramNameId);
+        variableRefExpr.setEvalFunction(VariableRefExpr.createGetParamValueFunc(paramIndex));
+
+        // Store the variable reference in the symbol table
+        symbolTable.putVarRefExpr(paramNameId, variableRefExpr);
     }
 
     public void createType(String typeName) {
@@ -161,25 +184,41 @@ public class BlangModelBuilder {
     }
 
     // Variable declarations, reference expressions
-    // --------------------------------------------
 
     public void createVariableDcl(String varName) {
+        localVarIndex++;
+
         // Create a variable declaration
-        VariableDcl variableDcl = new VariableDcl(typeQueue.remove(), new Identifier(varName));
+        Identifier localVarId = new Identifier(varName);
+        Type localVarType = typeQueue.remove();
+        VariableDcl variableDcl = new VariableDcl(localVarType, localVarId);
 
         // Add this variable declaration to the current callable unit
         CallableUnitBuilder callableUnitBuilder = cUnitBuilderStack.peek();
         callableUnitBuilder.addVariableDcl(variableDcl);
+
+        // Create variable reference expression and set the proper index to access the value
+        VariableRefExpr variableRefExpr = new VariableRefExpr(localVarId);
+        variableRefExpr.setEvalFunction(VariableRefExpr.createGetLocalValueFunc(localVarIndex));
+
+        // Store the variable reference in the symbol table
+        symbolTable.putVarRefExpr(localVarId, variableRefExpr);
     }
 
+    /**
+     * Create variable reference expression
+     * <p>
+     * This method lookup the symbol table for a variable reference of a function parameter or of a local variable.
+     */
     public void createVarRefExpr() {
         Identifier varName = identifierStack.pop();
-        VariableRefExpr variableRefExpr = new VariableRefExpr(varName);
+        VariableRefExpr variableRefExpr = symbolTable.lookupVarRefExpr(varName);
         exprStack.push(variableRefExpr);
+
+        //TODO set type
     }
 
     // Expressions
-    // -----------
 
     public void createBinaryExpr(String opStr) {
         Expression rExpr = exprStack.pop();
@@ -257,6 +296,9 @@ public class BlangModelBuilder {
     }
 
     public void startCallableUnit() {
+        // Create a new symbol table for the callableUnit scope
+        addScopeToSymbolTable();
+
         cUnitBuilderStack.push(new CallableUnitBuilder());
         annotationListStack.push(new ArrayList<>());
     }
@@ -272,6 +314,9 @@ public class BlangModelBuilder {
 
         BallerinaFunction function = callableUnitBuilder.buildFunction();
         bFileBuilder.addFunction(function);
+
+        // Remove the callable unit scope from the symbol table;
+        removeScopeFromSymbolTable();
     }
 
     public void createResource(String name) {
@@ -285,6 +330,9 @@ public class BlangModelBuilder {
         Resource resource = callableUnitBuilder.buildResource();
         CallableUnitGroupBuilder callableUnitGroupBuilder = cUnitGroupBuilderStack.peek();
         callableUnitGroupBuilder.addResource(resource);
+
+        // Remove the callable unit scope from the symbol table;
+        removeScopeFromSymbolTable();
     }
 
     public void createAction(String name) {
@@ -298,11 +346,17 @@ public class BlangModelBuilder {
         Action action = callableUnitBuilder.buildAction();
         CallableUnitGroupBuilder callableUnitGroupBuilder = cUnitGroupBuilderStack.peek();
         callableUnitGroupBuilder.addAction(action);
+
+        // Remove the callable unit scope from the symbol table;
+        removeScopeFromSymbolTable();
     }
 
     // Services and Connectors
 
     public void startCallableUnitGroup() {
+        // Create a new symbol table for the callableUnitGroup scope
+        addScopeToSymbolTable();
+
         cUnitGroupBuilderStack.push(new CallableUnitGroupBuilder());
         annotationListStack.push(new ArrayList<>());
     }
@@ -317,6 +371,9 @@ public class BlangModelBuilder {
 
         Service service = callableUnitGroupBuilder.buildService();
         bFileBuilder.addService(service);
+
+        // Remove the callable unit group scope from the symbol table;
+        removeScopeFromSymbolTable();
     }
 
     public void createConnector(String name) {
@@ -329,10 +386,12 @@ public class BlangModelBuilder {
 
         Connector connector = callableUnitGroupBuilder.buildConnector();
         bFileBuilder.addConnector(connector);
+
+        // Remove the callable unit group scope from the symbol table;
+        removeScopeFromSymbolTable();
     }
 
     // Statements
-    // ----------
 
     public void createAssignmentExpr() {
         VariableRefExpr lExpr = new VariableRefExpr(identifierStack.pop());
@@ -408,7 +467,6 @@ public class BlangModelBuilder {
     }
 
     // Literal Values
-    // --------------
 
     public void createIntegerLiteral(String value) {
         BValue bValue = new IntValue(Integer.parseInt(value));
@@ -435,10 +493,20 @@ public class BlangModelBuilder {
     }
 
     // Private methods
-    // ---------------
 
     private void addToBlockStmt(Statement stmt) {
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.peek();
         blockStmtBuilder.addStmt(stmt);
+    }
+
+    private void addScopeToSymbolTable() {
+        SymbolTable scopeTable = new SymbolTable(this.symbolTable);
+        this.symbolTable = scopeTable;
+    }
+
+    private void removeScopeFromSymbolTable() {
+        this.symbolTable = symbolTable.getParent();
+        localVarIndex = -1;
+        paramIndex = -1;
     }
 }
