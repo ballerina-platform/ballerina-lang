@@ -17,8 +17,8 @@
  */
 define(['lodash', './node'], function(_, ASTNode){
 
-    var Expression = function(expression) {
-        this._expression = expression;
+    var Expression = function(args) {
+        this._expression = _.get(args, 'expression', 'defaultExp');
     };
 
     Expression.prototype = Object.create(ASTNode.prototype);
