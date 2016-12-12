@@ -196,7 +196,43 @@ ol#breadcrumbList {
 /*//////////////////////////////////////////////////*/
 /** Service container related styles | Start -> **/
 
+.service-annotation-button {
+    float: right;
+    position: relative;
+}
 
+.property-panel-svg {
+     width: 100%;
+     min-height: 500px;
+     background: none;
+}
+
+.property-pane-action-button-wrapper {
+    stroke: #000000;
+    stroke-width: 1;
+    fill: #FFFFFF;
+}
+
+.property-pane-form-wrapper {
+    width: 175px;
+    max-height: 250px;
+    border: 1px solid #cdcdcd;
+    border-top: 2px solid #7b7b7b;
+    background: #FFFFFF;
+}
+
+.property-pane-form-heading {
+    height: 20px
+}
+
+.property-pane-form-heading-icon-class{
+
+}
+
+.property-pane-form-body {
+    border: 1px solid #cdcdcd;
+    height: 220px;
+}
 
 /** Service container related styles | -> End **/
 /*//////////////////////////////////////////////////*/
