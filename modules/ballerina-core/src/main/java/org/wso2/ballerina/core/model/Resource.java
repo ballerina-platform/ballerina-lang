@@ -19,7 +19,12 @@
 package org.wso2.ballerina.core.model;
 
 import org.wso2.ballerina.core.interpreter.Context;
+import org.wso2.ballerina.core.interpreter.ControlStack;
+import org.wso2.ballerina.core.interpreter.StackFrame;
 import org.wso2.ballerina.core.model.statements.Statement;
+import org.wso2.ballerina.core.model.types.MessageType;
+import org.wso2.ballerina.core.model.values.BValueRef;
+import org.wso2.ballerina.core.model.values.MessageValue;
 import org.wso2.ballerina.core.runtime.core.BalCallback;
 import org.wso2.ballerina.core.runtime.core.Executable;
 
@@ -244,6 +249,22 @@ public class Resource implements Executable {
 
     @Override
     public boolean execute(Context context, BalCallback callback) {
+        populateDefaultMessage(context);
         return defaultWorker.execute(context, callback);
+    }
+
+    private void populateDefaultMessage(Context context) {
+        // Adding MessageValue to the ControlStack
+        ControlStack controlStack = context.getControlStack();
+        BValueRef[] valueParams = new BValueRef[1];
+        valueParams[0] = new BValueRef(new MessageValue(context.getCarbonMessage()));
+
+        StackFrame stackFrame = new StackFrame(valueParams, null, new BValueRef[0]);
+        // ToDo : StackFrame should be added at the upstream components.
+        controlStack.pushFrame(stackFrame);
+
+        // ToDo : Use generic identifier for message.
+        Parameter paramMessage = new Parameter(new MessageType(), new Identifier("m"));
+        arguments.add(paramMessage);
     }
 }
