@@ -18,6 +18,7 @@
 package org.wso2.ballerina.core.interpreter;
 
 import org.wso2.ballerina.core.model.Identifier;
+import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.values.BValue;
 
 import java.util.HashMap;
@@ -27,16 +28,19 @@ import java.util.Map;
  * {@code SymbolTable} represents a data structure which hold information about the program constructs
  * <p>
  * TODO Please note that, this is the initial version of the implementation. We need to improve this.
+ * TODO Refactor this implementation
  *
  * @since 1.0.0
  */
 public class SymbolTable {
 
     private Map<Identifier, BValue> map;
+    private Map<Identifier, VariableRefExpr> variableRefExprMap;
     private SymbolTable parent;
 
     public SymbolTable(SymbolTable parent) {
-        map = new HashMap<Identifier, BValue>();
+        map = new HashMap<>();
+        variableRefExprMap = new HashMap<>();
         this.parent = parent;
     }
 
@@ -71,5 +75,21 @@ public class SymbolTable {
 
         // TODO Implement proper error handling here.
         throw new RuntimeException("Value not found for identifier: " + identifier.getName());
+    }
+
+    public void putVarRefExpr(Identifier identifier, VariableRefExpr variableRefExpr) {
+        variableRefExprMap.put(identifier, variableRefExpr);
+    }
+
+    public VariableRefExpr lookupVarRefExpr(Identifier identifier) {
+        for (SymbolTable t = this; t != null; t = t.parent) {
+            VariableRefExpr variableRefExpr = t.variableRefExprMap.get(identifier);
+            if (variableRefExpr != null) {
+                return variableRefExpr;
+            }
+        }
+
+        // TODO Implement proper error handling here.
+        throw new RuntimeException("Variable reference '" + identifier.getName() + "'  is not declared.");
     }
 }
