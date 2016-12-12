@@ -18,6 +18,7 @@
 package org.wso2.ballerina.core.model.builder;
 
 import org.wso2.ballerina.core.model.Action;
+import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.Connector;
@@ -57,11 +58,14 @@ import org.wso2.ballerina.core.model.values.FloatValue;
 import org.wso2.ballerina.core.model.values.IntValue;
 import org.wso2.ballerina.core.model.values.StringValue;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 import java.util.Stack;
 
 // TODO Change the method names
+
 /**
  * Builds ballerina language object model
  *
@@ -71,18 +75,30 @@ public class BlangModelBuilder {
 
     private Stack<CallableUnitGroupBuilder> cUnitGroupBuilderStack = new Stack<>();
     private Stack<CallableUnitBuilder> cUnitBuilderStack = new Stack<>();
+    private Stack<Annotation.AnnotationBuilder> annotationBuilderStack = new Stack<>();
     private Stack<BlockStmt.BlockStmtBuilder> blockStmtBuilderStack = new Stack<>();
     private Stack<IfElseStmt.IfElseStmtBuilder> ifElseStmtBuilderStack = new Stack<>();
 
     private Queue<Type> typeQueue = new LinkedList<>();
+    private BallerinaFile.BFileBuilder bFileBuilder = new BallerinaFile.BFileBuilder();
     private Stack<Identifier> identifierStack = new Stack<>();
     private Stack<Expression> exprStack = new Stack<>();
 
-    private BallerinaFile.BFileBuilder bFileBuilder = new BallerinaFile.BFileBuilder();
+    private Stack<List<Annotation>> annotationListStack = new Stack<>();
 
     public BallerinaFile build() {
         return bFileBuilder.build();
     }
+
+    // Identifiers
+    // -----------
+
+    public void createIdentifier(String varName) {
+        identifierStack.push(new Identifier(varName));
+    }
+
+    // Packages and import packages
+    // ----------------------------
 
     public void setPackageName(String pkgName) {
         bFileBuilder.setPkgName(pkgName);
@@ -91,6 +107,37 @@ public class BlangModelBuilder {
     public void addImportPackage(String pkgName) {
         bFileBuilder.addImportPackage(new Import(pkgName));
     }
+
+    // Annotations
+    // -----------
+
+    public void startAnnotation() {
+        annotationBuilderStack.push(new Annotation.AnnotationBuilder());
+    }
+
+    public void createAnnotationKeyValue(String key) {
+//        // Assuming the annotation value is a string literal
+//        String value = exprStack.pop().getBValueRef().getString();
+//
+//        Annotation.AnnotationBuilder annotationBuilder = annotationBuilderStack.peek();
+//        annotationBuilder.addKeyValuePair(new Identifier(key), value);
+
+        throw new RuntimeException("Key/Value pairs in annotation is not supported");
+    }
+
+    public void endAnnotation(String name, boolean valueAvailable) {
+        Annotation.AnnotationBuilder annotationBuilder = annotationBuilderStack.pop();
+        annotationBuilder.setName(new Identifier(name));
+
+        if (valueAvailable) {
+            // Assuming the annotation value is a string literal
+            annotationBuilder.setValue(exprStack.pop().getBValueRef().getString());
+        }
+
+        List<Annotation> annotationList = annotationListStack.peek();
+        annotationList.add(annotationBuilder.build());
+    }
+
 
     // Function parameters and return values
     // -------------------------------------
@@ -123,10 +170,6 @@ public class BlangModelBuilder {
         // Add this variable declaration to the current callable unit
         CallableUnitBuilder callableUnitBuilder = cUnitBuilderStack.peek();
         callableUnitBuilder.addVariableDcl(variableDcl);
-    }
-
-    public void createVarIdentifier(String varName) {
-        identifierStack.push(new Identifier(varName));
     }
 
     public void createVarRefExpr() {
@@ -215,12 +258,17 @@ public class BlangModelBuilder {
 
     public void startCallableUnit() {
         cUnitBuilderStack.push(new CallableUnitBuilder());
+        annotationListStack.push(new ArrayList<>());
     }
 
     public void createFunction(String name, boolean isPublic) {
         CallableUnitBuilder callableUnitBuilder = cUnitBuilderStack.pop();
         callableUnitBuilder.setName(new Identifier(name));
         callableUnitBuilder.setPublic(isPublic);
+
+        List<Annotation> annotationList = annotationListStack.pop();
+        // TODO Improve this implementation
+        annotationList.forEach(callableUnitBuilder::addAnnotation);
 
         BallerinaFunction function = callableUnitBuilder.buildFunction();
         bFileBuilder.addFunction(function);
@@ -229,6 +277,10 @@ public class BlangModelBuilder {
     public void createResource(String name) {
         CallableUnitBuilder callableUnitBuilder = cUnitBuilderStack.pop();
         callableUnitBuilder.setName(new Identifier(name));
+
+        List<Annotation> annotationList = annotationListStack.pop();
+        // TODO Improve this implementation
+        annotationList.forEach(callableUnitBuilder::addAnnotation);
 
         Resource resource = callableUnitBuilder.buildResource();
         CallableUnitGroupBuilder callableUnitGroupBuilder = cUnitGroupBuilderStack.peek();
@@ -239,6 +291,10 @@ public class BlangModelBuilder {
         CallableUnitBuilder callableUnitBuilder = cUnitBuilderStack.pop();
         callableUnitBuilder.setName(new Identifier(name));
 
+        List<Annotation> annotationList = annotationListStack.pop();
+        // TODO Improve this implementation
+        annotationList.forEach(callableUnitBuilder::addAnnotation);
+
         Action action = callableUnitBuilder.buildAction();
         CallableUnitGroupBuilder callableUnitGroupBuilder = cUnitGroupBuilderStack.peek();
         callableUnitGroupBuilder.addAction(action);
@@ -248,11 +304,16 @@ public class BlangModelBuilder {
 
     public void startCallableUnitGroup() {
         cUnitGroupBuilderStack.push(new CallableUnitGroupBuilder());
+        annotationListStack.push(new ArrayList<>());
     }
 
     public void createService(String name) {
         CallableUnitGroupBuilder callableUnitGroupBuilder = cUnitGroupBuilderStack.pop();
         callableUnitGroupBuilder.setName(new Identifier(name));
+
+        List<Annotation> annotationList = annotationListStack.pop();
+        // TODO Improve this implementation
+        annotationList.forEach(callableUnitGroupBuilder::addAnnotation);
 
         Service service = callableUnitGroupBuilder.buildService();
         bFileBuilder.addService(service);
@@ -261,6 +322,10 @@ public class BlangModelBuilder {
     public void createConnector(String name) {
         CallableUnitGroupBuilder callableUnitGroupBuilder = cUnitGroupBuilderStack.pop();
         callableUnitGroupBuilder.setName(new Identifier(name));
+
+        List<Annotation> annotationList = annotationListStack.pop();
+        // TODO Improve this implementation
+        annotationList.forEach(callableUnitGroupBuilder::addAnnotation);
 
         Connector connector = callableUnitGroupBuilder.buildConnector();
         bFileBuilder.addConnector(connector);
