@@ -36,7 +36,7 @@ define(['require','log', 'jquery', 'd3', 'backbone', './tool-view'], function (r
             groupHeaderDiv.attr('class', "tool-group-header");
 
             var groupTitle = $("<a></a>");
-            groupHeaderDiv.append(groupTitle)
+            groupHeaderDiv.append(groupTitle);
             groupTitle.attr('class', "tool-group-header-title")
                       .text(this.model.attributes.toolGroupName);
 
@@ -47,6 +47,7 @@ define(['require','log', 'jquery', 'd3', 'backbone', './tool-view'], function (r
             var groupBodyDiv = $("<div></div>");
             groupDiv.append(groupBodyDiv);
             groupBodyDiv.attr('class', "tool-group-body");
+            this._$toolGroupBody = groupBodyDiv;
 
             this.model.tools.forEach(function (tool) {
                 var toolView = new ToolView({model: tool, toolPalette: self.toolPalette});
@@ -62,15 +63,15 @@ define(['require','log', 'jquery', 'd3', 'backbone', './tool-view'], function (r
                                             .toggleClass("glyphicon-chevron-down");
                     });
             });
+            this.model.on('tool-added', this.onToolAdded);
             return this;
         },
 
-        partialRender: function (parent, tool, group) {
+        onToolAdded: function (tool) {
             var self = this;
-            if (parent.find("#tool-group-" + group.get("toolGroupID")) !== undefined) {
-                var groupBodyDiv = parent.find("#tool-group-" + group.get("toolGroupID")).find(".tool-group-body");
+            if (!_.isUndefined(this._$toolGroupBody)) {
                 var toolView = new ToolView({model: tool, toolPalette: self.toolPalette});
-                toolView.partialRender(groupBodyDiv, tool.attributes);
+                toolView.render(this._$toolGroupBody);
             }
         }
     });

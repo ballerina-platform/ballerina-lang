@@ -240,11 +240,6 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             //Create environment and add add package list
             var ballerinaEnvironment = new Ballerina.env.Environment();
 
-            //toolPalette.loadToolsFromPackage(package1);
-            //toolPalette.loadToolsFromPackage(package2);
-
-            //this.generateToolPallet(ballerinaEnvironment, toolPalette);
-
             var diagramRenderingContext = new DiagramRenderContext();
 
             var fileEditor = new Ballerina.views.BallerinaFileEditor({
@@ -252,57 +247,8 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
                 viewOptions: ballerinaEditorOptions
             });
             fileEditor.render(diagramRenderingContext);
-        },
-
-        generateToolPallet: function (environment, toolPallet) {
-            var self = this;
-            var mainElementsToolGroup = toolPallet.getElementToolGroups()[0];
-            var statementsToolGroup = toolPallet.getElementToolGroups()[1];
-            var packageList = environment.getPackages();
-
-            _.each(packageList, function (pckg) {
-                if (!_.isEmpty(pckg.getServiceDefinitions())) {
-                    var service = self.isToolAvailableInPallet(mainElementsToolGroup, "Service");
-                    if (true) {
-                        var serviceDefinitions = pckg.getServiceDefinitions();
-                        var serviceDef = {
-                            id: "service",
-                            name: "Service",
-                            icon: "images/tool-icons/lifeline.svg",
-                            title: "Service",
-                            node: serviceDefinitions[0]
-                        };
-                        mainElementsToolGroup.get("toolDefinitions").push(serviceDef);
-                        toolPallet.updateToolGroup(serviceDef, mainElementsToolGroup);
-                    }
-
-                    _.each(pckg.getServiceDefinitions(), function (serviceDef) {
-                        if (!_.isEmpty(serviceDef.getResourceDefinitions())) {
-
-                        }
-                    });
-                }
-                if (!_.isEmpty(pckg.getFunctionDefinitions())) {
-
-                }
-                if (!_.isEmpty(pckg.getConnectorDefinitions())) {
-
-                }
-                if (!_.isEmpty(pckg.getTypeDefinitions())) {
-
-                }
-            });
-        },
-
-        isToolAvailableInPallet: function (elementGroup, name) {
-            var elementGroupDefinitions = elementGroup.get("toolDefinitions");
-            for (var i = 0; i < elementGroupDefinitions.length; i++) {
-                if (elementGroupDefinitions[i].name == name) {
-                    return true;
-                }
-            }
-            return false;
         }
+
     });
 
     return FileTab;

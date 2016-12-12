@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'backbone'], function (_, Backbone) {
+define(['log', 'lodash', 'backbone'], function (log, _, Backbone) {
     var DragDropManager = Backbone.Model.extend(
     /** @lends DragDropManager.prototype */
     {
@@ -32,6 +32,7 @@ define(['lodash', 'backbone'], function (_, Backbone) {
         setTypeBeingDragged: function (type, validateDropTargetCallback) {
             if (!_.isUndefined(type)) {
                 this.set('typeBeingDragged', type);
+                log.debug('started dragging ' + JSON.stringify(type));
             }
             if (!_.isUndefined(validateDropTargetCallback)) {
                 this.set('validateDropTargetCallback', validateDropTargetCallback);

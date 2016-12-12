@@ -21,17 +21,16 @@ define(['require', 'jquery', 'backbone', './tool'], function (require, $, Backbo
         initialize: function (attributes) {
             this.tools = [];
             var self = this;
-            _.forEach( attributes.toolDefinitions,  function(toolDefinition, toolId){
-                    var tool = new Tool(toolDefinition);
-                    self.tools.push(tool);
+            _.forEach( attributes.toolDefinitions,  function(toolDefinition){
+                    self.addTool(toolDefinition);
                 }
             );
         },
 
-        addNewTool: function (definition, currentObj) {
+        addTool: function (definition) {
             var newTool = new Tool(definition);
-            currentObj.tools.push(newTool);
-            return newTool;
+            this.tools.push(newTool);
+            this.trigger('tool-added', newTool);
         },
 
         modelName: "ToolGroup",
