@@ -28,7 +28,13 @@ public enum TypeEnum {
     FLOAT("float"),
     DOUBLE("double"),
     BOOLEAN("boolean"),
-    STRING("string");
+    STRING("string"),
+    MESSAGE("message"),
+    XML("xml"),
+    JSON("json"),
+    MAP("map"),
+    ARRAY("array");
+
 
     private String name;
 

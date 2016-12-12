@@ -18,7 +18,7 @@
 
 package org.wso2.ballerina.core.nativeimpl.annotations;
 
-import org.wso2.ballerina.core.model.types.Type;
+import org.wso2.ballerina.core.model.types.TypeEnum;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -58,7 +58,7 @@ public @interface BallerinaFunction {
      *
      * @return return types.
      */
-    Class<? extends Type>[] returnType() default {};
+    TypeEnum[] returnType() default {};
 
     /**
      * Indicate Native function is public or not.
@@ -66,4 +66,11 @@ public @interface BallerinaFunction {
      * @return indicate native function is public or not.
      */
     boolean isPublic() default false;
+
+    /**
+     * Constants related this function.
+     *
+     * @return
+     */
+    BallerinaConstant[] consts() default {};
 }

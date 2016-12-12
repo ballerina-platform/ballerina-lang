@@ -79,6 +79,10 @@ public class TypeC {
                 return new XMLType();
             case "json":
                 return new JSONType();
+            case "map":
+                return new MapType();
+            case "array":
+                return new ArrayType();
             default:
                 //TODO use proper exceptions here
                 throw new RuntimeException("Unknown type");
