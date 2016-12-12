@@ -22,11 +22,11 @@
 define(['./ballerina-ast-root', './service-definition', './function-definition', './connector-definition', './resource-definition',
         './worker-declaration', './statement', './conditional-statement', './connector-declaration', './expression',
         './if-else-statement', './if-statement', './else-statement', './trycatch-statement', './try-statement', './catch-statement', './reply-statement', './while-statement', './return-statement', './type-converter-definition', './type-definition',
-        './type-element', './variable-declaration', './package-definition', './import-declaration', './resource-arg', './assignment'],
+        './type-element', './variable-declaration', './package-definition', './import-declaration', './resource-arg', './assignment', './function-invocation'],
     function (ballerinaAstRoot, serviceDefinition, functionDefinition, connectorDefinition, resourceDefinition,
               workerDeclaration, statement, conditionalStatement, connectorDeclaration, expression,
               ifElseStatement, ifStatement, elseStatement, tryCatchStatement, tryStatement, catchStatement, replyStatement, whileStatement, returnStatement, typeConverterDefinition, typeDefinition,
-              typeElement, variableDeclaration, packageDefinition, importDeclaration, resourceArgument, assignmentStatement) {
+              typeElement, variableDeclaration, packageDefinition, importDeclaration, resourceArgument, assignmentStatement, functionInvocation) {
 
         /**
          * Constructs BallerinaASTFactory
@@ -203,6 +203,14 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
          */
         BallerinaASTFactory.prototype.createReplyStatement = function (args) {
             return new replyStatement(args);
+        };
+
+        /**
+         * creates FunctionInvocationStatement
+         * @param args
+         */
+        BallerinaASTFactory.prototype.createFunctionInvocationStatement = function (args) {
+            return new functionInvocation(args);
         };
 
         /**

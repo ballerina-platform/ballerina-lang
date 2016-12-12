@@ -15,45 +15,45 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './node'], function (_, ASTNode) {
+define(['lodash', './statement'], function (_, Statement) {
 
     /**
      * Class to represent an assignment in ballerina.
      * @constructor
      */
-    var Assignment = function (args) {
-        this._packageName = _.get(args, 'package', 'default');
+    var FunctionInvocation = function (args) {
+        this._packageName = _.get(args, 'package', 'pkg');
         this._functionName = _.get(args, 'function', 'default');
-        this._params = _.get(args, 'params', '');
-        ASTNode.call(this, 'Assignment');
+        this._params = _.get(args, 'params', []);
+        Statement.call(this, 'FunctionInvocation');
     };
 
-    Assignment.prototype = Object.create(ASTNode.prototype);
-    Assignment.prototype.constructor = Assignment;
+    FunctionInvocation.prototype = Object.create(Statement.prototype);
+    FunctionInvocation.prototype.constructor = FunctionInvocation;
 
-    Assignment.prototype.setPackage = function (packageName) {
+    FunctionInvocation.prototype.setPackageName = function (packageName) {
         this._packageName = packageName;
     };
 
-    Assignment.prototype.setFunctionName = function (functionName) {
+    FunctionInvocation.prototype.setFunctionName = function (functionName) {
         this._functionName = functionName;
     };
 
-    Assignment.prototype.setParams = function (params) {
+    FunctionInvocation.prototype.setParams = function (params) {
         this._params = params;
     };
 
-    Assignment.prototype.getPackageName = function () {
+    FunctionInvocation.prototype.getPackageName = function () {
         return this._packageName;
     };
 
-    Assignment.prototype.getFunctionName = function () {
+    FunctionInvocation.prototype.getFunctionName = function () {
         return this._functionName;
     };
 
-    Assignment.prototype.getParams = function () {
+    FunctionInvocation.prototype.getParams = function () {
         return this._params;
     };
 
-    return Assignment;
+    return FunctionInvocation;
 });

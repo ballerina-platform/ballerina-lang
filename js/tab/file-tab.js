@@ -170,6 +170,12 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace']
             var assignmentStatement = ballerinaASTFactory.createAssignmentStatement();
             resource_passthrough.addChild(assignmentStatement);
 
+            /**
+             * Create the sample function statement statement
+             */
+            var functionInvocation = ballerinaASTFactory.createFunctionInvocationStatement();
+            resource_passthrough.addChild(functionInvocation);
+
             // Create Sample try-catch statement
             var ifElseStatement = ballerinaASTFactory.createIfElseStatement();
             var ifStatement = ballerinaASTFactory.createIfStatement();
