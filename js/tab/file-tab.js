@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace'], function (require, log, jquery, _, Tab, Ballerina, Workspace) {
+define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace', 'ballerina/diagram-render/diagram-render-context'], function (require, log, jquery, _, Tab, Ballerina, Workspace, DiagramRenderContext) {
     var FileTab;
 
     FileTab = Tab.extend({
@@ -180,6 +180,20 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace']
             //TODO:Commented to view get action statement
             //resource_passthrough.addChild(functionInvocation);
 
+            /**
+             * Create the sample logical expression
+             */
+            var logicalExp = ballerinaASTFactory.createLogicalExpression();
+            logicalExp.setExpression('a > b');
+            resource_passthrough.addChild(logicalExp);
+
+            /**
+             * Create the sample arithmetic expression
+             */
+            var arithmeticExp = ballerinaASTFactory.createArithmeticExpression();
+            arithmeticExp.setExpression('a = resp + 123');
+            resource_passthrough.addChild(arithmeticExp);
+
             // Create Sample try-catch statement
             var ifElseStatement = ballerinaASTFactory.createIfElseStatement();
             var ifStatement = ballerinaASTFactory.createIfStatement();
@@ -229,11 +243,13 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace']
 
             //this.generateToolPallet(ballerinaEnvironment, toolPalette);
 
+            var diagramRenderingContext = new DiagramRenderContext();
+
             var fileEditor = new Ballerina.views.BallerinaFileEditor({
                 model: ballerinaAstRoot1,
                 viewOptions: ballerinaEditorOptions
             });
-            fileEditor.render();
+            fileEditor.render(diagramRenderingContext);
         },
 
         generateToolPallet: function (environment, toolPallet) {

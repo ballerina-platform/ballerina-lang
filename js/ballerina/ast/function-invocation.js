@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './statement'], function (_, Statement) {
+define(['lodash', './expression'], function (_, Expression) {
 
     /**
      * Class to represent an assignment in ballerina.
@@ -25,10 +25,10 @@ define(['lodash', './statement'], function (_, Statement) {
         this._packageName = _.get(args, 'package', 'pkg');
         this._functionName = _.get(args, 'function', 'default');
         this._params = _.get(args, 'params', []);
-        Statement.call(this, 'FunctionInvocation');
+        Expression.call(this, 'FunctionInvocation');
     };
 
-    FunctionInvocation.prototype = Object.create(Statement.prototype);
+    FunctionInvocation.prototype = Object.create(Expression.prototype);
     FunctionInvocation.prototype.constructor = FunctionInvocation;
 
     FunctionInvocation.prototype.setPackageName = function (packageName) {

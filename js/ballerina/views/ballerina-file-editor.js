@@ -113,7 +113,8 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 model: serviceDefinition,
                 parentView: this
             });
-            serviceDefinitionView.render();
+            this.diagramRenderingContext.getViewModelMap()[serviceDefinition] = serviceDefinitionView;
+            serviceDefinitionView.render(this.diagramRenderingContext);
 
         };
 
@@ -164,7 +165,8 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
          * @param parent - The parent container.
          * @param options - View options of the file editor.
          */
-        BallerinaFileEditor.prototype.render = function (parent, options) {
+        BallerinaFileEditor.prototype.render = function (diagramRenderingContext, parent, options) {
+            this.diagramRenderingContext = diagramRenderingContext;
             // render tool palette
             var toolPaletteContainer = $(this._viewOptions.container).find(_.get(this._viewOptions, 'design_view.tool_palette.container')).get(0);
             var toolPaletteOpts = _.clone(_.get(this._viewOptions, 'design_view.tool_palette'));

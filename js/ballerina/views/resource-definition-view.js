@@ -16,9 +16,10 @@
  * under the License.
  */
 define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../ast/resource-definition',
-        './point', './life-line', './action-processor-view', './connector-declaration-view', './statement-view-factory', 'ballerina/ast/ballerina-ast-factory'],
+        './point', './life-line', './action-processor-view', './connector-declaration-view',
+        './statement-view-factory', 'ballerina/ast/ballerina-ast-factory', './expression-view-factory'],
     function (_, log, d3, $, D3utils, BallerinaView, ResourceDefinition,
-              Point, LifeLine,ActionProcessor,ConnectorDeclarationView, StatementViewFactory, Ballerina) {
+              Point, LifeLine,ActionProcessor,ConnectorDeclarationView, StatementViewFactory, Ballerina, ExpressionViewFactory) {
 
         /**
          * The view to represent a resource definition which is an AST visitor.
@@ -34,7 +35,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             this._viewOptions = _.get(args, 'viewOptions', {});
             this._connectorViewList =  [];
             this._defaultResourceLifeLine = undefined;
-            this._statementViewList = [];
+            this._statementExpressionViewList = [];
             this._defaultActionProcessor = undefined;
             this._parentView = _.get(args, "parentView");
 
@@ -95,7 +96,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             if(ballerinaASTFactory.isResourceDefinition(child)){
                 if(child !== this._model){
                     log.info("[Eventing] Resource view added : ");
-                };
+                }
             }
         };
 
@@ -164,8 +165,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             // TODO: we need to keep this value as a configurable value and read from constants
             var statementsGap = 40;
             var statementsWidth = 120;
-            if (this._statementViewList.length > 0) {
-                var lastStatement = this._statementViewList[this._statementViewList.length - 1];
+            if (this._statementExpressionViewList.length > 0) {
+                var lastStatement = this._statementExpressionViewList[this._statementExpressionViewList.length - 1];
                 statementView.setXPosition(lastStatement.getXPosition());
                 statementView.setYPosition(lastStatement.getYPosition() + lastStatement.getHeight() + statementsGap);
             } else {
@@ -175,15 +176,39 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 statementView.setXPosition(x);
                 statementView.setYPosition(y + statementsGap);
             }
-            this._statementViewList.push(statementView);
+            this._statementExpressionViewList.push(statementView);
             statementView.render();
+        };
+
+        ResourceDefinitionView.prototype.visitExpression = function (statement) {
+            var expressionViewFactory = new ExpressionViewFactory();
+            var args = {model: statement, container: this._container, viewOptions: undefined, parent:this};
+            var expressionView = expressionViewFactory.getExpressionView(args);
+
+            // TODO: we need to keep this value as a configurable value and read from constants
+            var statementsGap = 40;
+            var expressionWidth = 120;
+            if (this._statementExpressionViewList.length > 0) {
+                var lastStatement = this._statementExpressionViewList[this._statementExpressionViewList.length - 1];
+                expressionView.setXPosition(lastStatement.getXPosition());
+                expressionView.setYPosition(lastStatement.getYPosition() + lastStatement.getHeight() + statementsGap);
+            } else {
+                var x = parseInt(this._defaultResourceLifeLine.getMiddleLine().attr('x1')) - parseInt(expressionWidth/2);
+                // First statement is drawn wrt to the position of the default action processor
+                var y = this._defaultActionProcessor.getHeight() + this._defaultActionProcessor.getYPosition();
+                expressionView.setXPosition(x);
+                expressionView.setYPosition(y + statementsGap);
+            }
+            this._statementExpressionViewList.push(expressionView);
+            expressionView.render();
         };
 
         /**
          * Rendering the view for resource definition.
          * @returns {group} The svg group which contains the elements of the resource definition view.
          */
-        ResourceDefinitionView.prototype.render = function () {
+        ResourceDefinitionView.prototype.render = function (diagramRenderingContext) {
+            this.diagramRenderingContext = diagramRenderingContext;
             // Render resource view
             var svgContainer = $(this._container)[0];
 
@@ -453,10 +478,10 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
         /**
          * get the Statement View List of the the resource
-         * @returns [_statementViewList] {Array}
+         * @returns [_statementExpressionViewList] {Array}
          */
-        ResourceDefinitionView.prototype.getStatementViewList = function () {
-            return this._statementViewList;
+        ResourceDefinitionView.prototype.getStatementExpressionViewList = function () {
+            return this._statementExpressionViewList;
         };
 
         return ResourceDefinitionView;

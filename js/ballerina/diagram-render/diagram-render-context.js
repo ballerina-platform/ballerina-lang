@@ -15,18 +15,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './node'], function (_, ASTNode) {
+
+define([], function () {
 
     /**
-     * Class to represent a statement in ballerina.
+     * Context data conveyor for diagram rendering.
      * @constructor
      */
-    var Statement = function () {
-        ASTNode.call(this, 'Statement');
+    var DiagramRenderContext = function () {
+        // map object for storing view references against models
+        this.viewModelMap = {};
     };
 
-    Statement.prototype = Object.create(ASTNode.prototype);
-    Statement.prototype.constructor = Statement;
+    /**
+     * getter for viewModelMap
+     * @returns {{}|*}
+     */
+    DiagramRenderContext.prototype.getViewModelMap = function () {
+        return this.viewModelMap;
+    };
 
-    return Statement;
+    return DiagramRenderContext;
 });

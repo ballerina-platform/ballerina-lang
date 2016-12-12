@@ -47,10 +47,6 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/function-invoca
         FunctionInvocationStatementView.prototype = Object.create(BallerinaStatementView.prototype);
         FunctionInvocationStatementView.prototype.constructor = FunctionInvocationStatementView;
 
-        FunctionInvocationStatementView.prototype.canVisitStatement = function(){
-            return true;
-        };
-
         FunctionInvocationStatementView.prototype.setModel = function (model) {
             if (!_.isNil(model) && model instanceof FunctionInvocationStatement) {
                 this._model = model;
