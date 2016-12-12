@@ -18,21 +18,20 @@
 
 package org.wso2.ballerina.core.model;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * {@code Application} represents an application in Ballerina.
- *
+ * <p>
  * Ballerina Application contains set of {@code BallerinaFile}s organized into {@code Package}s.
  */
 public class Application {
 
     private String appName;
-    private List<Package> packages = new ArrayList<Package>();
+    private Map<String, Package> packages = new HashMap<>();
 
     /**
-     *
      * @param appName Name of the application, not null
      */
     public Application(String appName) {
@@ -48,17 +47,29 @@ public class Application {
      * @param aPackage a Package
      */
     public void addPackage(Package aPackage) {
-        packages.add(aPackage);
+        packages.put(aPackage.getFullQualifiedName(), aPackage);
     }
 
     /**
-     * Get list of {@code Packages}s in the Application
+     * Get list of {@code Package}s in the Application
      *
      * @return Packages in the Application
      */
-    public List<Package> getPackages() {
+    public Map<String, Package> getPackages() {
         return packages;
     }
+
+
+    /**
+     * Get a {@code Package}
+     * @param fqn full qualified name
+     *
+     * @return a Package
+     */
+    public Package getPackage(String fqn) {
+        return packages.get(fqn);
+    }
+
 
     /**
      * Get the name of the Application
