@@ -45,8 +45,9 @@ public class BallerinaFile {
     private List<Service> services = new ArrayList<>();
     private Map<String, Function> functions = new HashMap<>();
     private List<StructType> types = new ArrayList<>();
+    private List<Connector> connectors = new ArrayList<>();
+    private List<VariableDcl> constants = new ArrayList<>();
     //TODO: add TypeConverters
-    //TODO: add constants
 
 
     /**
@@ -174,6 +175,60 @@ public class BallerinaFile {
      */
     public void addType(StructType type) {
         types.add(type);
+    }
+
+    /**
+     * Get {@code Connector} list defined in the file
+     *
+     * @return list of Connectors
+     */
+    public List<Connector> getConnectors() {
+        return connectors;
+    }
+
+    /**
+     * Set {@code Connector} list
+     *
+     * @param connectors list of Connectors
+     */
+    public void setConnectors(List<Connector> connectors) {
+        this.connectors = connectors;
+    }
+
+    /**
+     * Add a {@code Connector} to the File
+     *
+     * @param connector a Connector
+     */
+    public void addConnector(Connector connector) {
+        connectors.add(connector);
+    }
+
+    /**
+     * Get {@code Constant} list defined in the file
+     *
+     * @return list of constants
+     */
+    public List<VariableDcl> getConstants() {
+        return constants;
+    }
+
+    /**
+     * Set {@code Constant} list
+     *
+     * @param constants list of Connectors
+     */
+    public void setConstants(List<VariableDcl> constants) {
+        this.constants = constants;
+    }
+
+    /**
+     * Add a {@code Constant} to the File
+     *
+     * @param constant a Constant
+     */
+    public void addConstant(VariableDcl constant) {
+        constants.add(constant);
     }
 
 }
