@@ -28,9 +28,9 @@ import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.model.Application;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.Package;
+import org.wso2.ballerina.core.parser.BallerinaBaseListenerImpl;
 import org.wso2.ballerina.core.parser.BallerinaLexer;
 import org.wso2.ballerina.core.parser.BallerinaParser;
-import org.wso2.ballerina.core.parser.visitor.CompilationUnitVisitor;
 import org.wso2.ballerina.core.runtime.registry.ApplicationRegistry;
 import org.wso2.carbon.deployment.engine.Artifact;
 import org.wso2.carbon.deployment.engine.ArtifactType;
@@ -111,8 +111,16 @@ public class BalDeployer implements Deployer {
                 CommonTokenStream ballerinaToken = new CommonTokenStream(ballerinaLexer);
 
                 BallerinaParser ballerinaParser = new BallerinaParser(ballerinaToken);
-                CompilationUnitVisitor ballerinaBaseVisitor = new CompilationUnitVisitor();
-                BallerinaFile balFile = (BallerinaFile) ballerinaBaseVisitor.visit(ballerinaParser.compilationUnit());
+
+//                // Visitor based approach
+//                CompilationUnitVisitor ballerinaBaseVisitor = new CompilationUnitVisitor();
+//                BallerinaFile balFile = (BallerinaFile) ballerinaBaseVisitor.visit(ballerinaParser.compilationUnit());
+
+                // Listener based approach
+                BallerinaBaseListenerImpl ballerinaBaseListener = new BallerinaBaseListenerImpl();
+                ballerinaParser.addParseListener(ballerinaBaseListener);
+                ballerinaParser.compilationUnit();
+                BallerinaFile balFile = ballerinaBaseListener.balFile;
 
                 Application defaultApp = ApplicationRegistry.getInstance().getDefaultApplication();
                 Package aPackage = defaultApp.getPackage(balFile.getPackageName());
