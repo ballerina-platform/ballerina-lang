@@ -18,10 +18,70 @@
 package org.wso2.ballerina.core.model.types;
 
 /**
- *  {@code ArrayType} represents an array
- *
- *  @since 1.0.0
+ * {@code ArrayType} represents an array
+ * @param <T> type of the array
+ * @since 1.0.0
  */
-public class ArrayType extends AbstractType {
+public class ArrayType<T> extends AbstractType {
+
+    private T[] thisArray;
+    private int size;
+
+    /**
+     * Constructor for array inline initialization
+     * @param args variable number of initial values
+     */
+    @SuppressWarnings("unchecked")
+    public ArrayType(T... args) {
+        thisArray = (T[]) new Object[args.length];
+        for (int i = 0; i < args.length; i++) {
+            thisArray[i] = args[i];
+
+        }
+    }
+
+    /**
+     * Constructor for creating an array with size
+     * @param size number of elements to be stored in this array
+     */
+    @SuppressWarnings("unchecked")
+    public ArrayType(int size) {
+        thisArray = (T[]) new Object[size];
+        this.size = size;
+    }
+
+    /**
+     * Constructor for creating an empty array
+     *
+     */
+    public ArrayType() {
+
+    }
+
+    /**
+     * Insert a value into a given position
+     * @param index position
+     * @param value value
+     */
+    public void insert(int index, T value) {
+        thisArray[index] = value;
+    }
+
+    /**
+     * Retrieve a value from a given index
+     * @param index position
+     * @return return value
+     */
+    public T get(int index) {
+        return thisArray[index];
+    }
+
+    /**
+     * Retrieve the size of the array
+     * @return returns the size
+     */
+    public int size() {
+        return size;
+    }
 
 }
