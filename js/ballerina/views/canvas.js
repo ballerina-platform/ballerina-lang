@@ -73,6 +73,7 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
         serviceContainer.attr('name', name);
         serviceContainer.addClass(_.get(options, 'cssClass.outer_box'));
         var canvas = serviceContainer;
+        this._serviceContainer = serviceContainer;
 
         //draw a collapse accordion
         var outerDiv = $('<div></div>');
@@ -123,6 +124,15 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
 
         // append to parent
         parent.append(outerDiv);
+    };
+
+    /**
+     * Set service container height
+     * @param newHeight
+     */
+    Canvas.prototype.setServiceContainerHeight = function (newHeight) {
+        var canvas = _.first($(this._serviceContainer).children());
+        canvas.setAttribute('height', newHeight);
     };
 
     return Canvas;

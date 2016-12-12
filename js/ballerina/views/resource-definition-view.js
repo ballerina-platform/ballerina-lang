@@ -207,7 +207,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
          * Rendering the view for resource definition.
          * @returns {group} The svg group which contains the elements of the resource definition view.
          */
-        ResourceDefinitionView.prototype.render = function () {
+        ResourceDefinitionView.prototype.render = function (diagramRenderingContext) {
+            this.diagramRenderingContext = diagramRenderingContext;
             // Render resource view
             var svgContainer = $(this._container)[0];
 

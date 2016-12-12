@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace'], function (require, log, jquery, _, Tab, Ballerina, Workspace) {
+define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace', 'ballerina/diagram-render/diagram-render-context'], function (require, log, jquery, _, Tab, Ballerina, Workspace, DiagramRenderContext) {
     var FileTab;
 
     FileTab = Tab.extend({
@@ -237,11 +237,13 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace']
 
             //this.generateToolPallet(ballerinaEnvironment, toolPalette);
 
+            var diagramRenderingContext = new DiagramRenderContext();
+
             var fileEditor = new Ballerina.views.BallerinaFileEditor({
                 model: ballerinaAstRoot1,
                 viewOptions: ballerinaEditorOptions
             });
-            fileEditor.render();
+            fileEditor.render(diagramRenderingContext);
         },
 
         generateToolPallet: function (environment, toolPallet) {
