@@ -110,15 +110,15 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             resource_passthrough2.setResourceName('passthrough2');
 
             // Adding ifelse
-            var ifelse1 = ballerinaASTFactory.createIfElseStatement();
-            var if1 = ballerinaASTFactory.createIfStatement();
-            var else1 = ballerinaASTFactory.createElseStatement();
+            var ifelse1 = BallerinaASTFactory.createIfElseStatement();
+            var if1 = BallerinaASTFactory.createIfStatement();
+            var else1 = BallerinaASTFactory.createElseStatement();
             ifelse1.addChild(if1);
             ifelse1.addChild(else1);
 
-            var ifelse2 = ballerinaASTFactory.createIfElseStatement();
-            var if2 = ballerinaASTFactory.createIfStatement();
-            var else2 = ballerinaASTFactory.createElseStatement();
+            var ifelse2 = BallerinaASTFactory.createIfElseStatement();
+            var if2 = BallerinaASTFactory.createIfStatement();
+            var else2 = BallerinaASTFactory.createElseStatement();
             ifelse2.addChild(if2);
             ifelse2.addChild(else2);
             if1.addChild(ifelse2);
