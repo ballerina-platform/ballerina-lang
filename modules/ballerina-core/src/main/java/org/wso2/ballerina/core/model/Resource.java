@@ -52,7 +52,7 @@ import java.util.Map;
  * @since 1.0.0
  */
 @SuppressWarnings("unused")
-public class Resource implements Executable {
+public class Resource implements Executable, Node {
 
     // TODO Refactor
     private Map<String, Annotation> annotationMap = new HashMap<>();
@@ -302,5 +302,10 @@ public class Resource implements Executable {
         // ToDo : Use generic identifier for message.
         Parameter paramMessage = new Parameter(new MessageType(), new Identifier("m"));
         arguments.add(paramMessage);
+    }
+
+    @Override
+    public void visit(NodeVisitor visitor) {
+        visitor.visit(this);
     }
 }

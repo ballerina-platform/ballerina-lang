@@ -18,6 +18,7 @@
 package org.wso2.ballerina.core.model.statements;
 
 import org.wso2.ballerina.core.interpreter.Context;
+import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.expressions.Expression;
 import org.wso2.ballerina.core.model.types.IteratorType;
 
@@ -39,5 +40,10 @@ public class ForeachStmt implements Statement {
 
     public void interpret(Context ctx) {
 
+    }
+
+    @Override
+    public void visit(NodeVisitor visitor) {
+//        visitor.visit(this);
     }
 }

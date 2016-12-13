@@ -30,7 +30,7 @@ import org.wso2.ballerina.core.model.types.Type;
  * @since 1.0.0
  */
 @SuppressWarnings("unused")
-public class VariableDcl {
+public class VariableDcl implements Node {
 
     private Type type;
     private Identifier identifier;
@@ -77,5 +77,10 @@ public class VariableDcl {
      */
     public String getValue() {
         return value;
+    }
+
+    @Override
+    public void visit(NodeVisitor visitor) {
+        visitor.visit(this);
     }
 }

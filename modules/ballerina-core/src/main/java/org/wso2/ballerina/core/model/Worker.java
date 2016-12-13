@@ -42,7 +42,7 @@ import java.util.List;
  *  @since 1.0.0
  */
 @SuppressWarnings("unused")
-public class Worker implements Executable {
+public class Worker implements Executable, Node {
 
     private List<ConnectorDcl> connectorDcls;
     private List<VariableDcl> variables;
@@ -159,5 +159,10 @@ public class Worker implements Executable {
 
 //        return false;
 
+    }
+
+    @Override
+    public void visit(NodeVisitor visitor) {
+        visitor.visit(this);
     }
 }

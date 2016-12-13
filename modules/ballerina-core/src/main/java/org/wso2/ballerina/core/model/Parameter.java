@@ -32,7 +32,7 @@ import java.util.List;
  * @since 1.0.0
  */
 @SuppressWarnings("unused")
-public class Parameter {
+public class Parameter implements Node {
 
     private Type type;
     private Identifier name;
@@ -95,4 +95,8 @@ public class Parameter {
         annotations.add(annotation);
     }
 
+    @Override
+    public void visit(NodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

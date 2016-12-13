@@ -38,7 +38,7 @@ import org.wso2.ballerina.core.model.types.Type;
  *
  * @since 1.0.0
  */
-public class BallerinaFunction implements Function {
+public class BallerinaFunction implements Function, Node {
 
     // TODO: Rename this to BFunction after M1.
     private Identifier functionName;
@@ -155,6 +155,10 @@ public class BallerinaFunction implements Function {
         publicFunc = true;
     }
 
+    public BlockStmt getFunctionBody() {
+        return this.functionBody;
+    }
+
     /**
      * TODO This is the basic implementation of the function interpreter
      *
@@ -162,5 +166,10 @@ public class BallerinaFunction implements Function {
      */
     public void interpret(Context ctx) {
         functionBody.interpret(ctx);
+    }
+
+    @Override
+    public void visit(NodeVisitor visitor) {
+        visitor.visit(this);
     }
 }

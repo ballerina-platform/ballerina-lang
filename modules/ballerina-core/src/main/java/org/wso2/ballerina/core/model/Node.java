@@ -15,26 +15,11 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerina.core.model.expressions;
-
-import org.wso2.ballerina.core.model.NodeVisitor;
-import org.wso2.ballerina.core.model.Operator;
+package org.wso2.ballerina.core.model;
 
 /**
- * {@code BinaryEqualityExpression} represents a equality expression in Ballerina
  *
- * @see EqualExpression
- * @see NotEqualExpression
- * @since 1.0.0
  */
-public class BinaryEqualityExpression extends BinaryExpression {
-
-    public BinaryEqualityExpression(Expression lExpr, Operator op, Expression rExpr) {
-        super(lExpr, op, rExpr);
-    }
-
-    @Override
-    public void visit(NodeVisitor visitor) {
-        visitor.visit(this);
-    }
+public interface Node {
+    void visit(NodeVisitor visitor);
 }
