@@ -165,6 +165,7 @@ define(['lodash', 'log', 'jquery', './canvas', './../ast/service-definition', '.
             var self = this;
             this._model.on('child-added', function(child){
                 self.visit(child);
+                self._model.trigger("childVisitedEvent", child);
             });
         };
 
