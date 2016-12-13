@@ -73,7 +73,12 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
         }
 
         String[] path = uri.split("/");
-        String basePath = "/".concat(path[1]);
+        String basePath;
+        if (path.length > 1) {
+            basePath = "/".concat(path[1]);
+        } else {
+            basePath = "/";
+        }
         String subPath = "";
 
         //TODO: Add regex support
@@ -94,7 +99,10 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
             basePath = Constants.DEFAULT_BASE_PATH;
             subPath = uri;
         } else {
-            subPath = uri.split(basePath)[1];
+            String[] tempPaths = uri.split(basePath);
+            if (tempPaths.length > 1) {
+                subPath = tempPaths[1];
+            }
         }
 
         if (service == null) {
