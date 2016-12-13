@@ -67,7 +67,7 @@ public class Resource implements Executable, Node {
     private VariableDcl[] variableDcls;
     private Worker[] workers;
     private BlockStmt resourceBody;
-    private Identifier resourceName;
+    private SymbolName resourceName;
 
     public Resource() {
         defaultWorker = new Worker();
@@ -78,7 +78,7 @@ public class Resource implements Executable, Node {
         this.name = name;
     }
 
-    public Resource(Identifier name,
+    public Resource(SymbolName name,
                     Annotation[] annotations,
                     Parameter[] parameters,
                     ConnectorDcl[] connectorDcls,
@@ -300,7 +300,7 @@ public class Resource implements Executable, Node {
         controlStack.pushFrame(stackFrame);
 
         // ToDo : Use generic identifier for message.
-        Parameter paramMessage = new Parameter(new MessageType(), new Identifier("m"));
+        Parameter paramMessage = new Parameter(new MessageType(), new SymbolName("m"));
         arguments.add(paramMessage);
     }
 

@@ -60,7 +60,7 @@ public class NativeMessageFunctionTest {
         StackFrame stackFrame = new StackFrame(new BValueRef[0], null, localVariables);
         controlStack.pushFrame(stackFrame);
 
-        Identifier msg = new Identifier("msg");
+        SymbolName msg = new SymbolName("msg");
         VariableRefExpr varRefExprMsg = new VariableRefExpr(msg);
         varRefExprMsg.setEvalFunction(VariableRefExpr.createGetLocalValueFunc(0));
 
@@ -68,7 +68,7 @@ public class NativeMessageFunctionTest {
         nestedFunctionInvokeExpr.add(varRefExprMsg);
 
         FunctionInvocationExpr invocationExpr =
-            new FunctionInvocationExpr(new Identifier("getJsonPayload"), nestedFunctionInvokeExpr);
+            new FunctionInvocationExpr(new SymbolName("getJsonPayload"), nestedFunctionInvokeExpr);
         invocationExpr.setFunction(new GetJsonPayload());
         BValueRef returnValue = invocationExpr.evaluate(ctx);
 
@@ -100,11 +100,11 @@ public class NativeMessageFunctionTest {
         StackFrame stackFrame = new StackFrame(new BValueRef[0], null, localVariables);
         controlStack.pushFrame(stackFrame);
 
-        Identifier msg = new Identifier("msg");
+        SymbolName msg = new SymbolName("msg");
         VariableRefExpr varRefExprMsg = new VariableRefExpr(msg);
         varRefExprMsg.setEvalFunction(VariableRefExpr.createGetLocalValueFunc(0));
         
-        Identifier payload = new Identifier("payload");
+        SymbolName payload = new SymbolName("payload");
         VariableRefExpr varRefExprPayload = new VariableRefExpr(payload);
         varRefExprPayload.setEvalFunction(VariableRefExpr.createGetLocalValueFunc(1));
 
@@ -113,7 +113,7 @@ public class NativeMessageFunctionTest {
         nestedFunctionInvokeExpr.add(varRefExprPayload);
 
         FunctionInvocationExpr invocationExpr =
-            new FunctionInvocationExpr(new Identifier("setJsonPayload"), nestedFunctionInvokeExpr);
+            new FunctionInvocationExpr(new SymbolName("setJsonPayload"), nestedFunctionInvokeExpr);
         invocationExpr.setFunction(new SetJsonPayload());
         invocationExpr.evaluate(ctx);
 
@@ -141,11 +141,11 @@ public class NativeMessageFunctionTest {
         StackFrame stackFrame = new StackFrame(new BValueRef[0], null, localVariables);
         controlStack.pushFrame(stackFrame);
 
-        Identifier msg = new Identifier("msg");
+        SymbolName msg = new SymbolName("msg");
         VariableRefExpr varRefExprMsg = new VariableRefExpr(msg);
         varRefExprMsg.setEvalFunction(VariableRefExpr.createGetLocalValueFunc(0));
 
-        Identifier headerName = new Identifier("headerName");
+        SymbolName headerName = new SymbolName("headerName");
         VariableRefExpr varRefHeaderName = new VariableRefExpr(headerName);
         varRefHeaderName.setEvalFunction(VariableRefExpr.createGetLocalValueFunc(1));
 
@@ -154,7 +154,7 @@ public class NativeMessageFunctionTest {
         nestedFunctionInvokeExpr.add(varRefHeaderName);
 
         FunctionInvocationExpr invocationExpr =
-                new FunctionInvocationExpr(new Identifier("getHeader"), nestedFunctionInvokeExpr);
+                new FunctionInvocationExpr(new SymbolName("getHeader"), nestedFunctionInvokeExpr);
         invocationExpr.setFunction(new GetHeader());
 
         BValueRef returnValue = invocationExpr.evaluate(ctx);

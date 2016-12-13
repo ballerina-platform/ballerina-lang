@@ -35,14 +35,14 @@ import java.util.List;
 public class Parameter implements Node {
 
     private Type type;
-    private Identifier name;
+    private SymbolName name;
     private List<Annotation> annotations;
 
     /**
      * @param type Type of the Argument
      * @param name  Name of the Argument
      */
-    public Parameter(Type type, Identifier name) {
+    public Parameter(Type type, SymbolName name) {
         this.type = type;
         this.name = name;
     }
@@ -52,7 +52,7 @@ public class Parameter implements Node {
      *
      * @return connectorName of the Argument
      */
-    public Identifier getName() {
+    public SymbolName getName() {
         return name;
     }
 

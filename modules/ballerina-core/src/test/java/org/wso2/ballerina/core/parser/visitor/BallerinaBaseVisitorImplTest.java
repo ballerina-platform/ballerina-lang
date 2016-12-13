@@ -75,7 +75,7 @@ public class BallerinaBaseVisitorImplTest {
         Assert.assertEquals(services.size(), 1);
 
         for (Service aService : services) {
-                Assert.assertEquals(aService.getIdentifier().getName(), "HelloService");
+                Assert.assertEquals(aService.getSymbolName().getName(), "HelloService");
         }
     }
 

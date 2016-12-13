@@ -21,8 +21,8 @@ import org.wso2.ballerina.core.interpreter.SymbolTable;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.Function;
-import org.wso2.ballerina.core.model.Identifier;
 import org.wso2.ballerina.core.model.Parameter;
+import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.VariableDcl;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
@@ -56,7 +56,7 @@ public class FunctionVisitor extends BallerinaBaseVisitor {
     @Override
     public Object visitFunctionDefinition(BallerinaParser.FunctionDefinitionContext ctx) {
 
-        Identifier functionName = new Identifier(ctx.Identifier(0).getText());
+        SymbolName functionName = new SymbolName(ctx.Identifier(0).getText());
         boolean isPublicFunction = !ctx.getTokens(31)
                 .isEmpty(); //since function body cannot have public keyword inside.
 
@@ -96,7 +96,7 @@ public class FunctionVisitor extends BallerinaBaseVisitor {
                 ctx.functionBody().variableDeclaration()) {
             VariableDcl variableDcl = (VariableDcl) variableDeclarationContext.accept(variableDeclarationVisitor);
             variableDclList.add(variableDcl);
-            functionSymbolTable.put(variableDcl.getIdentifier(),
+            functionSymbolTable.put(variableDcl.getSymbolName(),
                     BValueFactory.createBValueFromVariableDeclaration(variableDcl));
         }
 

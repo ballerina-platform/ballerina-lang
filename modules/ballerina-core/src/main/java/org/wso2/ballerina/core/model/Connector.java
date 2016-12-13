@@ -45,13 +45,13 @@ public class Connector implements Node {
     private List<VariableDcl> variableDclList;
     private List<Action> actionList;
 
-    private Identifier name;
+    private SymbolName name;
     private Annotation[] annotations;
     private ConnectorDcl[] connectorDcls;
     private VariableDcl[] variableDcls;
     private Action[] actions;
 
-    public Connector(Identifier serviceName,
+    public Connector(SymbolName serviceName,
                      Annotation[] annotations,
                      ConnectorDcl[] connectorDcls,
                      VariableDcl[] variableDcls,

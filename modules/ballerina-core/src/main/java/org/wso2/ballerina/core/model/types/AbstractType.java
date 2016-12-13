@@ -17,7 +17,7 @@
 */
 package org.wso2.ballerina.core.model.types;
 
-import org.wso2.ballerina.core.model.Identifier;
+import org.wso2.ballerina.core.model.SymbolName;
 
 /**
  * {@code AbstractType} is an abstract class for all the types in Ballerina
@@ -25,9 +25,9 @@ import org.wso2.ballerina.core.model.Identifier;
  * @since 1.0.0
  */
 public class AbstractType implements Type {
-    protected Identifier name;
+    protected SymbolName name;
 
-    public Identifier getName() {
+    public SymbolName getName() {
         return name;
     }
 }

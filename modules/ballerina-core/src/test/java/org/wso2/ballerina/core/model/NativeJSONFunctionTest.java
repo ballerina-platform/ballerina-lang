@@ -59,11 +59,11 @@ public class NativeJSONFunctionTest {
         StackFrame stackFrame = new StackFrame(new BValueRef[0], null, localVariables);
         controlStack.pushFrame(stackFrame);
 
-        Identifier msg = new Identifier("msg");
+        SymbolName msg = new SymbolName("msg");
         VariableRefExpr varRefExprMsg = new VariableRefExpr(msg);
         varRefExprMsg.setEvalFunction(VariableRefExpr.createGetLocalValueFunc(0));
 
-        Identifier jsonPath = new Identifier("jsonPath");
+        SymbolName jsonPath = new SymbolName("jsonPath");
         VariableRefExpr varRefExprJsonPath = new VariableRefExpr(jsonPath);
         varRefExprJsonPath.setEvalFunction(VariableRefExpr.createGetLocalValueFunc(1));
 
@@ -72,7 +72,7 @@ public class NativeJSONFunctionTest {
         nestedFunctionInvokeExpr.add(varRefExprJsonPath);
 
         FunctionInvocationExpr invocationExpr =
-            new FunctionInvocationExpr(new Identifier("get"), nestedFunctionInvokeExpr);
+            new FunctionInvocationExpr(new SymbolName("get"), nestedFunctionInvokeExpr);
         invocationExpr.setFunction(new GetString());
         BValueRef returnValue = invocationExpr.evaluate(ctx);
 
@@ -100,17 +100,17 @@ public class NativeJSONFunctionTest {
         controlStack.pushFrame(stackFrame);
 
         // Create expression for:   json msg = `{"name":"Jack"}`;
-        Identifier msg = new Identifier("msg");
+        SymbolName msg = new SymbolName("msg");
         VariableRefExpr varRefExprMsg = new VariableRefExpr(msg);
         varRefExprMsg.setEvalFunction(VariableRefExpr.createGetLocalValueFunc(0));
 
         // Create expression for:   string jsonPath = "$.name";
-        Identifier jsonPath = new Identifier("jsonPath");
+        SymbolName jsonPath = new SymbolName("jsonPath");
         VariableRefExpr varRefExprJsonPath = new VariableRefExpr(jsonPath);
         varRefExprJsonPath.setEvalFunction(VariableRefExpr.createGetLocalValueFunc(1));
         
         // Create expression for:   string value = "Peter";
-        Identifier value = new Identifier("value");
+        SymbolName value = new SymbolName("value");
         VariableRefExpr varRefExprValue = new VariableRefExpr(value);
         varRefExprValue.setEvalFunction(VariableRefExpr.createGetLocalValueFunc(2));
 
@@ -120,7 +120,7 @@ public class NativeJSONFunctionTest {
         nestedFunctionInvokeExpr.add(varRefExprValue);
 
         FunctionInvocationExpr invocationExpr =
-            new FunctionInvocationExpr(new Identifier("set"), nestedFunctionInvokeExpr);
+            new FunctionInvocationExpr(new SymbolName("set"), nestedFunctionInvokeExpr);
         invocationExpr.setFunction(new SetString());
         invocationExpr.evaluate(ctx);
 
@@ -149,22 +149,22 @@ public class NativeJSONFunctionTest {
         controlStack.pushFrame(stackFrame);
 
         // Create expression for:   json msg = `{"name":"Jack"}`;
-        Identifier msg = new Identifier("msg");
+        SymbolName msg = new SymbolName("msg");
         VariableRefExpr varRefExprMsg = new VariableRefExpr(msg);
         varRefExprMsg.setEvalFunction(VariableRefExpr.createGetLocalValueFunc(0));
 
         // Create expression for:   string jsonPath = "$.name";
-        Identifier jsonPath = new Identifier("jsonPath");
+        SymbolName jsonPath = new SymbolName("jsonPath");
         VariableRefExpr varRefExprJsonPath = new VariableRefExpr(jsonPath);
         varRefExprJsonPath.setEvalFunction(VariableRefExpr.createGetLocalValueFunc(1));
         
         // Create expression for:   string key = "address";
-        Identifier key = new Identifier("key");
+        SymbolName key = new SymbolName("key");
         VariableRefExpr varRefExprKey = new VariableRefExpr(key);
         varRefExprKey.setEvalFunction(VariableRefExpr.createGetLocalValueFunc(2));
         
         // Create expression for:   string value = "WSO2";
-        Identifier value = new Identifier("value");
+        SymbolName value = new SymbolName("value");
         VariableRefExpr varRefExprValue = new VariableRefExpr(value);
         varRefExprValue.setEvalFunction(VariableRefExpr.createGetLocalValueFunc(3));
 
@@ -175,7 +175,7 @@ public class NativeJSONFunctionTest {
         nestedFunctionInvokeExpr.add(varRefExprValue);
 
         FunctionInvocationExpr invocationExpr =
-            new FunctionInvocationExpr(new Identifier("add"), nestedFunctionInvokeExpr);
+            new FunctionInvocationExpr(new SymbolName("add"), nestedFunctionInvokeExpr);
         invocationExpr.setFunction(new AddStringToObject());
         invocationExpr.evaluate(ctx);
 
@@ -202,17 +202,17 @@ public class NativeJSONFunctionTest {
         controlStack.pushFrame(stackFrame);
 
         // Create expression for:   json msg = `{"names":["Jack","Peter"]]}`;
-        Identifier msg = new Identifier("msg");
+        SymbolName msg = new SymbolName("msg");
         VariableRefExpr varRefExprMsg = new VariableRefExpr(msg);
         varRefExprMsg.setEvalFunction(VariableRefExpr.createGetLocalValueFunc(0));
 
         // Create expression for:   string jsonPath = "$.name";
-        Identifier jsonPath = new Identifier("jsonPath");
+        SymbolName jsonPath = new SymbolName("jsonPath");
         VariableRefExpr varRefExprJsonPath = new VariableRefExpr(jsonPath);
         varRefExprJsonPath.setEvalFunction(VariableRefExpr.createGetLocalValueFunc(1));
         
         // Create expression for:   value = "Jos";
-        Identifier value = new Identifier("value");
+        SymbolName value = new SymbolName("value");
         VariableRefExpr varRefExprValue = new VariableRefExpr(value);
         varRefExprValue.setEvalFunction(VariableRefExpr.createGetLocalValueFunc(2));
 
@@ -222,7 +222,7 @@ public class NativeJSONFunctionTest {
         nestedFunctionInvokeExpr.add(varRefExprValue);
 
         FunctionInvocationExpr invocationExpr =
-            new FunctionInvocationExpr(new Identifier("add"), nestedFunctionInvokeExpr);
+            new FunctionInvocationExpr(new SymbolName("add"), nestedFunctionInvokeExpr);
         invocationExpr.setFunction(new AddStringToArray());
         invocationExpr.evaluate(ctx);
 
@@ -247,12 +247,12 @@ public class NativeJSONFunctionTest {
         controlStack.pushFrame(stackFrame);
 
         // Create expression for:   json msg = `{"name":"Jack",'address':'WSO2'}`;
-        Identifier msg = new Identifier("msg");
+        SymbolName msg = new SymbolName("msg");
         VariableRefExpr varRefExprMsg = new VariableRefExpr(msg);
         varRefExprMsg.setEvalFunction(VariableRefExpr.createGetLocalValueFunc(0));
 
         // Create expression for:   string jsonPath = "$.address";
-        Identifier jsonPath = new Identifier("jsonPath");
+        SymbolName jsonPath = new SymbolName("jsonPath");
         VariableRefExpr varRefExprJsonPath = new VariableRefExpr(jsonPath);
         varRefExprJsonPath.setEvalFunction(VariableRefExpr.createGetLocalValueFunc(1));
         
@@ -262,7 +262,7 @@ public class NativeJSONFunctionTest {
         nestedFunctionInvokeExpr.add(varRefExprJsonPath);
 
         FunctionInvocationExpr invocationExpr =
-            new FunctionInvocationExpr(new Identifier("remove"), nestedFunctionInvokeExpr);
+            new FunctionInvocationExpr(new SymbolName("remove"), nestedFunctionInvokeExpr);
         invocationExpr.setFunction(new Remove());
         invocationExpr.evaluate(ctx);
 
@@ -291,22 +291,22 @@ public class NativeJSONFunctionTest {
         controlStack.pushFrame(stackFrame);
 
         // Create expression for:   json msg = `{"name":"Jack","address":"WSO2"}`;
-        Identifier msg = new Identifier("msg");
+        SymbolName msg = new SymbolName("msg");
         VariableRefExpr varRefExprMsg = new VariableRefExpr(msg);
         varRefExprMsg.setEvalFunction(VariableRefExpr.createGetLocalValueFunc(0));
 
         // Create expression for:   string jsonPath = "$.address";
-        Identifier jsonPath = new Identifier("jsonPath");
+        SymbolName jsonPath = new SymbolName("jsonPath");
         VariableRefExpr varRefExprJsonPath = new VariableRefExpr(jsonPath);
         varRefExprJsonPath.setEvalFunction(VariableRefExpr.createGetLocalValueFunc(1));
         
         // Create expression for:   string jsonPath = "$.address";
-        Identifier oldKey = new Identifier("oldKey");
+        SymbolName oldKey = new SymbolName("oldKey");
         VariableRefExpr varRefExprOldKey = new VariableRefExpr(oldKey);
         varRefExprOldKey.setEvalFunction(VariableRefExpr.createGetLocalValueFunc(2));
         
         // Create expression for:   string jsonPath = "$.address";
-        Identifier newKey = new Identifier("newKey");
+        SymbolName newKey = new SymbolName("newKey");
         VariableRefExpr varRefExprNewKey = new VariableRefExpr(newKey);
         varRefExprNewKey.setEvalFunction(VariableRefExpr.createGetLocalValueFunc(3));
         
@@ -318,7 +318,7 @@ public class NativeJSONFunctionTest {
         nestedFunctionInvokeExpr.add(varRefExprNewKey);
 
         FunctionInvocationExpr invocationExpr =
-            new FunctionInvocationExpr(new Identifier("rename"), nestedFunctionInvokeExpr);
+            new FunctionInvocationExpr(new SymbolName("rename"), nestedFunctionInvokeExpr);
         invocationExpr.setFunction(new Rename());
         invocationExpr.evaluate(ctx);
 

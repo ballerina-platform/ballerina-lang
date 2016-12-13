@@ -135,7 +135,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
             }
         }
 
-        String basePath = service.getIdentifier().getName();
+        String basePath = service.getSymbolName().getName();
         Annotation basePathAnnotation = service.getAnnotation(Constants.ANNOTATION_NAME_BASE_PATH);
         if (basePathAnnotation != null) {
             basePath = basePathAnnotation.getValue();
