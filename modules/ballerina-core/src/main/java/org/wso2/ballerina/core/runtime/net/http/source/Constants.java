@@ -30,7 +30,7 @@ public class Constants {
 
     public static final String DEFAULT_INTERFACE = "default_http_listener";
     public static final String DEFAULT_BASE_PATH = "/";
-    public static final String DEFAULT_SUB_PATH = "/*";
+    public static final String DEFAULT_SUB_PATH = "\"/*\"";
 
     public static final String PROTOCOL_HTTP = "HTTP";
 
