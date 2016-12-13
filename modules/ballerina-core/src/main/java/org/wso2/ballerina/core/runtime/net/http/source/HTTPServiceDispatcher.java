@@ -25,6 +25,7 @@ import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.runtime.core.BalCallback;
 import org.wso2.ballerina.core.runtime.core.dispatching.ServiceDispatcher;
+import org.wso2.ballerina.core.runtime.net.http.Constants;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 import java.util.HashMap;

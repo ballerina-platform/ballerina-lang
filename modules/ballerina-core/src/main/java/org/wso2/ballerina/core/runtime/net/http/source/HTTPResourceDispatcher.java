@@ -26,6 +26,7 @@ import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.runtime.core.BalCallback;
 import org.wso2.ballerina.core.runtime.core.dispatching.ResourceDispatcher;
+import org.wso2.ballerina.core.runtime.net.http.Constants;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 /**

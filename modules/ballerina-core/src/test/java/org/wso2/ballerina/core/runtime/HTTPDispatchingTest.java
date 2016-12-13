@@ -29,7 +29,7 @@ import org.wso2.ballerina.core.model.Package;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.runtime.core.dispatching.ServiceDispatcher;
-import org.wso2.ballerina.core.runtime.net.http.source.Constants;
+import org.wso2.ballerina.core.runtime.net.http.Constants;
 import org.wso2.ballerina.core.runtime.net.http.source.HTTPResourceDispatcher;
 import org.wso2.ballerina.core.runtime.net.http.source.HTTPServiceDispatcher;
 import org.wso2.ballerina.core.runtime.registry.ApplicationRegistry;
