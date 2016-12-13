@@ -19,11 +19,21 @@ define(['lodash', 'log', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
     function (_, log, $, d3, D3Utils, ASTVisitor, ASTNode, Point) {
 
         /**
-         * A common class for all views in ballerina.
+         * A common class which consists functions of moving or resizing views.
+         * @param {Object} args - Arguments for creating the view.
+         * @param {ASTNode} args.model - Any ASTNode as the model.
+         * @param {Object} args.container - The HTML container to which the view should be added to.
+         * @param {Object} [args.viewOptions={}] - Configuration values for the view.
+         * @param {ToolPalette} args.toolPalette - reference for tool palette
          * @constructor
          */
-        var BallerinaView = function () {
-            ASTVisitor.call(this);
+        var BallerinaView = function (args) {
+            this._parent = _.get(args, "parent");
+            this._model = _.get(args, "model");
+            this._container = _.get(args, "container");
+            this._viewOptions = _.get(args, "viewOptions", {});
+            this.toolPalette = _.get(args, "toolPalette");
+            ASTVisitor.call(this, args);
         };
 
         BallerinaView.prototype = Object.create(ASTVisitor.prototype);
@@ -44,6 +54,13 @@ define(['lodash', 'log', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
         BallerinaView.prototype.getXPosition = function () {
         };
         BallerinaView.prototype.getYPosition = function () {
+        };
+
+        BallerinaView.prototype.setParent = function (parent) {
+            this._parent = parent;
+        };
+        BallerinaView.prototype.getParent = function () {
+            return this._parent;
         };
 
         /**
