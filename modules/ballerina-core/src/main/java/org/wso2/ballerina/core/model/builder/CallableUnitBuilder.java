@@ -20,7 +20,7 @@ package org.wso2.ballerina.core.model.builder;
 import org.wso2.ballerina.core.model.Action;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.BallerinaFunction;
-import org.wso2.ballerina.core.model.Connection;
+import org.wso2.ballerina.core.model.ConnectorDcl;
 import org.wso2.ballerina.core.model.Identifier;
 import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.Resource;
@@ -44,7 +44,7 @@ class CallableUnitBuilder {
     private boolean publicFunc;
     private List<Parameter> parameterList = new ArrayList<>();
     private List<Type> rTypesList = new ArrayList<>();
-    private List<Connection> connectionList = new ArrayList<>();
+    private List<ConnectorDcl> connectorDclList = new ArrayList<>();
     private List<VariableDcl> variableDclList = new ArrayList<>();
     private List<Worker> workerList = new ArrayList<>();
     private BlockStmt body;
@@ -72,8 +72,8 @@ class CallableUnitBuilder {
         this.rTypesList.add(type);
     }
 
-    void addConnectorDcl(Connection connection) {
-        this.connectionList.add(connection);
+    void addConnectorDcl(ConnectorDcl connectorDcl) {
+        this.connectorDclList.add(connectorDcl);
     }
 
     void addVariableDcl(VariableDcl variableDcl) {
@@ -95,7 +95,7 @@ class CallableUnitBuilder {
                 annotationList.toArray(new Annotation[annotationList.size()]),
                 parameterList.toArray(new Parameter[parameterList.size()]),
                 rTypesList.toArray(new Type[rTypesList.size()]),
-                connectionList.toArray(new Connection[connectionList.size()]),
+                connectorDclList.toArray(new ConnectorDcl[connectorDclList.size()]),
                 variableDclList.toArray(new VariableDcl[variableDclList.size()]),
                 workerList.toArray(new Worker[workerList.size()]),
                 body
@@ -107,7 +107,7 @@ class CallableUnitBuilder {
                 name,
                 annotationList.toArray(new Annotation[annotationList.size()]),
                 parameterList.toArray(new Parameter[parameterList.size()]),
-                connectionList.toArray(new Connection[connectionList.size()]),
+                connectorDclList.toArray(new ConnectorDcl[connectorDclList.size()]),
                 variableDclList.toArray(new VariableDcl[variableDclList.size()]),
                 workerList.toArray(new Worker[workerList.size()]),
                 body
@@ -120,7 +120,7 @@ class CallableUnitBuilder {
                 annotationList.toArray(new Annotation[annotationList.size()]),
                 parameterList.toArray(new Parameter[parameterList.size()]),
                 rTypesList.toArray(new Type[rTypesList.size()]),
-                connectionList.toArray(new Connection[connectionList.size()]),
+                connectorDclList.toArray(new ConnectorDcl[connectorDclList.size()]),
                 variableDclList.toArray(new VariableDcl[variableDclList.size()]),
                 workerList.toArray(new Worker[workerList.size()]),
                 body

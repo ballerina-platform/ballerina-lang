@@ -41,24 +41,24 @@ public class Connector {
 
     private List<Annotation> annotationList;
     private List<Parameter> arguments;
-    private List<Connection> connectionList;
+    private List<ConnectorDcl> connectorDclList;
     private List<VariableDcl> variableDclList;
     private List<Action> actionList;
 
     private Identifier name;
     private Annotation[] annotations;
-    private Connection[] connections;
+    private ConnectorDcl[] connectorDcls;
     private VariableDcl[] variableDcls;
     private Action[] actions;
 
     public Connector(Identifier serviceName,
                      Annotation[] annotations,
-                     Connection[] connections,
+                     ConnectorDcl[] connectorDcls,
                      VariableDcl[] variableDcls,
                      Action[] actions) {
         this.name = serviceName;
         this.annotations = annotations;
-        this.connections = connections;
+        this.connectorDcls = connectorDcls;
         this.variableDcls = variableDcls;
         this.actions = actions;
     }
@@ -128,29 +128,29 @@ public class Connector {
      *
      * @return list of all the Connections belongs to a Service
      */
-    public List<Connection> getConnections() {
-        return connectionList;
+    public List<ConnectorDcl> getConnectorDcls() {
+        return connectorDclList;
     }
 
     /**
      * Assign connections to the Connector
      *
-     * @param connections list of connections to be assigned to a Connector
+     * @param connectorDcls list of connections to be assigned to a Connector
      */
-    public void setConnections(List<Connection> connections) {
-        this.connectionList = connections;
+    public void setConnectorDcls(List<ConnectorDcl> connectorDcls) {
+        this.connectorDclList = connectorDcls;
     }
 
     /**
      * Add a {@code Connection} to the Connector
      *
-     * @param connection Connection to be added to the Connector
+     * @param connectorDcl Connection to be added to the Connector
      */
-    public void addConnection(Connection connection) {
-        if (connectionList == null) {
-            connectionList = new ArrayList<Connection>();
+    public void addConnection(ConnectorDcl connectorDcl) {
+        if (connectorDclList == null) {
+            connectorDclList = new ArrayList<ConnectorDcl>();
         }
-        connectionList.add(connection);
+        connectorDclList.add(connectorDcl);
     }
 
     /**

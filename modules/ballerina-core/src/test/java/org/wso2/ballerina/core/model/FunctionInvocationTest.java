@@ -74,7 +74,7 @@ public class FunctionInvocationTest {
         Type[] returnTypes = new Type[1];
         returnTypes[0] = type;
 
-        Connection[] connections = new Connection[0];
+        ConnectorDcl[] connectorDcls = new ConnectorDcl[0];
 
         Worker[] workers = new Worker[0];
 
@@ -97,7 +97,7 @@ public class FunctionInvocationTest {
         BlockStmt funcBody = new BlockStmt(statements);
 
         BallerinaFunction function = new BallerinaFunction(new Identifier("addInternal"), false, annotations,
-                parameters, returnTypes, connections, variableDcls, workers, funcBody);
+                parameters, returnTypes, connectorDcls, variableDcls, workers, funcBody);
 
         return function;
 
@@ -128,7 +128,7 @@ public class FunctionInvocationTest {
         Type[] returnTypes = new Type[1];
         returnTypes[0] = type;
 
-        Connection[] connections = new Connection[0];
+        ConnectorDcl[] connectorDcls = new ConnectorDcl[0];
 
         Worker[] workers = new Worker[0];
 
@@ -163,7 +163,7 @@ public class FunctionInvocationTest {
 
         BlockStmt funcBody = new BlockStmt(statements);
         BallerinaFunction function = new BallerinaFunction(new Identifier("addNumbers"), false, annotations, parameters,
-                returnTypes, connections, variableDcls, workers, funcBody);
+                returnTypes, connectorDcls, variableDcls, workers, funcBody);
 
         return function;
     }

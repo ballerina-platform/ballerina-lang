@@ -20,21 +20,21 @@ package org.wso2.ballerina.core.parser.antlr4;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
-import org.wso2.ballerina.core.model.builder.BlangModelBuilder;
+import org.wso2.ballerina.core.model.builder.BLangModelBuilder;
 import org.wso2.ballerina.core.parser.BallerinaListener;
 import org.wso2.ballerina.core.parser.BallerinaParser;
 
 /**
  * Build the Ballerina language model using the listener events from antlr4 parser
  *
- * @see org.wso2.ballerina.core.model.builder.BlangModelBuilder
+ * @see BLangModelBuilder
  * @since 1.0.0
  */
 public class BLangAntlr4Listener implements BallerinaListener {
 
-    private BlangModelBuilder modelBuilder;
+    private BLangModelBuilder modelBuilder;
 
-    public BLangAntlr4Listener(BlangModelBuilder modelBuilder) {
+    public BLangAntlr4Listener(BLangModelBuilder modelBuilder) {
         this.modelBuilder = modelBuilder;
     }
 

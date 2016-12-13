@@ -62,18 +62,18 @@ public class Service implements Executable {
 
     private Identifier name;
     private Annotation[] annotations;
-    private Connection[] connections;
+    private ConnectorDcl[] connectorDcls;
     private VariableDcl[] variableDcls;
     private Resource[] resources;
 
     public Service(Identifier serviceName,
                     Annotation[] annotations,
-                    Connection[] connections,
+                    ConnectorDcl[] connectorDcls,
                     VariableDcl[] variableDcls,
                     Resource[] resources) {
         this.name = serviceName;
         this.annotations = annotations;
-        this.connections = connections;
+        this.connectorDcls = connectorDcls;
         this.variableDcls = variableDcls;
         this.resources = resources;
     }

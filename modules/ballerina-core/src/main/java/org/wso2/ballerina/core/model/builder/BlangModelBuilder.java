@@ -72,7 +72,7 @@ import java.util.Stack;
  *
  * @since 1.0.0
  */
-public class BlangModelBuilder {
+public class BLangModelBuilder {
 
     private Stack<CallableUnitGroupBuilder> cUnitGroupBuilderStack = new Stack<>();
     private Stack<CallableUnitBuilder> cUnitBuilderStack = new Stack<>();
