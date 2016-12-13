@@ -20,11 +20,6 @@
     padding-top: 60px;
 }
 
-.design-view-hover{
-    background-color:rgba(0, 128, 0, 0.1);
-}
-
-
 .container-outer-div {
     border-radius: 0;
 }
@@ -92,4 +87,22 @@
 
 .view-source-btn{
     z-index: 1000;
+}
+
+/** when on a specific canvas hover **/
+.tab-pane .panel.design-view-hover{
+    background-color:rgba(0, 128, 0, 0.1);
+}
+
+/** when on main canvas hover **/
+.tab-pane .design-view-hover .panel{
+    background-color:rgba(255, 255, 255, 0.8);
+}
+
+.tab-pane .panel.design-view-hover .panel-title{
+    background-color:rgba(0, 128, 0, 0.1);
+}
+
+.design-view-hover{
+    background-color:rgba(0, 128, 0, 0.1);
 }
