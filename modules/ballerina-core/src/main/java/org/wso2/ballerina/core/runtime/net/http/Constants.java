@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.ballerina.core.runtime.net.http.source;
+package org.wso2.ballerina.core.runtime.net.http;
 
 /**
  * Constants for HTTP
@@ -28,24 +28,29 @@ public class Constants {
     public static final String BASE_PATH = "BASE_PATH";
     public static final String SUB_PATH = "SUB_PATH";
 
-    public static final String DEFAULT_INTERFACE = "default_http_listener";
+    public static final String DEFAULT_INTERFACE = "default";
     public static final String DEFAULT_BASE_PATH = "/";
     public static final String DEFAULT_SUB_PATH = "\"/*\"";
 
     public static final String PROTOCOL_HTTP = "HTTP";
-
     public static final String HTTP_METHOD = "HTTP_METHOD";
+
+
+    public static final String HTTP_METHOD_GET = "GET";
+    public static final String HTTP_METHOD_POST = "POST";
+    public static final String HTTP_METHOD_PUT = "PUT";
+    public static final String HTTP_METHOD_DELETE = "DELETE";
+    public static final String HTTP_METHOD_OPTIONS = "OPTIONS";
 
     /* Annotations */
     public static final String ANNOTATION_NAME_SOURCE = "Source";
     public static final String ANNOTATION_NAME_BASE_PATH = "BasePath";
     public static final String ANNOTATION_NAME_PATH = "Path";
-    public static final String ANNOTATION_METHOD_GET = "GET";
-    public static final String ANNOTATION_METHOD_POST = "POST";
-    public static final String ANNOTATION_METHOD_PUT = "PUT";
-    public static final String ANNOTATION_METHOD_DELETE = "DELETE";
-    public static final String ANNOTATION_METHOD_OPTIONS = "OPTIONS";
-
+    public static final String ANNOTATION_METHOD_GET = HTTP_METHOD_GET;
+    public static final String ANNOTATION_METHOD_POST = HTTP_METHOD_POST;
+    public static final String ANNOTATION_METHOD_PUT = HTTP_METHOD_PUT;
+    public static final String ANNOTATION_METHOD_DELETE = HTTP_METHOD_DELETE;
+    public static final String ANNOTATION_METHOD_OPTIONS = HTTP_METHOD_OPTIONS;
 
 
     public static final String ANNOTATION_SOURCE_KEY_INTERFACE = "interface";

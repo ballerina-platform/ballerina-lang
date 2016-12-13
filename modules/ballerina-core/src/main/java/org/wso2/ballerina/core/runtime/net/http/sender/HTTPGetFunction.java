@@ -70,8 +70,10 @@ public class HTTPGetFunction extends AbstractNativeFunction {
         cMsg.setProperty(Constants.HOST, host);
         cMsg.setProperty(Constants.PORT, port);
         cMsg.setProperty(Constants.TO, urlPath);
+        cMsg.setProperty(org.wso2.ballerina.core.runtime.net.http.Constants.HTTP_METHOD,
+                         org.wso2.ballerina.core.runtime.net.http.Constants.ANNOTATION_METHOD_GET);
 
-        cMsg.setProperty(Constants.PROTOCOL, org.wso2.ballerina.core.runtime.net.http.source.Constants.PROTOCOL_HTTP);
+        cMsg.setProperty(Constants.PROTOCOL, org.wso2.ballerina.core.runtime.net.http.Constants.PROTOCOL_HTTP);
 
         // Set Host header
         if (port != 80) {
