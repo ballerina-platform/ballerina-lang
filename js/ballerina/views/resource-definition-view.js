@@ -19,7 +19,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
         './point', './life-line', './action-processor-view', './connector-declaration-view',
         './statement-view-factory', 'ballerina/ast/ballerina-ast-factory', './expression-view-factory'],
     function (_, log, d3, $, D3utils, BallerinaView, ResourceDefinition,
-              Point, LifeLine,ActionProcessor,ConnectorDeclarationView, StatementViewFactory, Ballerina, ExpressionViewFactory) {
+              Point, LifeLine,ActionProcessor,ConnectorDeclarationView, StatementViewFactory, BallerinaASTFactory, ExpressionViewFactory) {
 
         /**
          * The view to represent a resource definition which is an AST visitor.
@@ -92,8 +92,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
         };
 
         ResourceDefinitionView.prototype.childViewAddedCallback = function (child) {
-            var ballerinaASTFactory = new Ballerina();
-            if(ballerinaASTFactory.isResourceDefinition(child)){
+            if(BallerinaASTFactory.isResourceDefinition(child)){
                 if(child !== this._model){
                     log.info("[Eventing] Resource view added : ");
                 }

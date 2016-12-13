@@ -219,15 +219,13 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             this.initDropTarget();
 
             this._model.on('child-added', function(child){
-                var ballerinaASTFactory = new BallerinaASTFactory();
                 self.visit(child);
             });
     };
 
     BallerinaFileEditor.prototype.initDropTarget = function() {
         var self = this,
-            dropActiveClass = _.get(this._viewOptions, 'cssClass.design_view_drop'),
-            ballerinaASTFactory = new BallerinaASTFactory();
+            dropActiveClass = _.get(this._viewOptions, 'cssClass.design_view_drop');
 
         // on hover over canvas area
         this._$canvasContainer.hover(function(event){
@@ -242,12 +240,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 // register this as a drop target and validate possible types of nodes to drop - second arg is a call back to validate
                 // tool view will use this to provide feedback on impossible drop zones
                 self.toolPalette.dragDropManager.setActivatedDropTarget(self._model, function(nodeBeingDragged){
-                        if (ballerinaASTFactory.isServiceDefinition(nodeBeingDragged)
-                            || ballerinaASTFactory.isFunctionDefinition(nodeBeingDragged)){
-                            return true;
-                        } else {
-                            return false;
-                        }
+                        return self._model.canBeParentOf(nodeBeingDragged) && nodeBeingDragged.canBeAChildOf(self._model);
                 });
 
                 // indicate drop area
@@ -257,19 +250,12 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 self.toolPalette.dragDropManager.once("drop-target-changed", function(){
                     self._$canvasContainer.removeClass(dropActiveClass);
                 });
-
-                // reset ui feed back on drop
-                self.toolPalette.dragDropManager.once("drag-stop", function(){
-                    self._$canvasContainer.removeClass(dropActiveClass);
-                });
             }
         }, function(event){
             // reset ui feed back on hover out
             if(self.toolPalette.dragDropManager.isOnDrag()){
                 if(_.isEqual(self.toolPalette.dragDropManager.getActivatedDropTarget(), self._model)){
-                    self._$canvasContainer.removeClass(dropActiveClass);
-                    self.toolPalette.dragDropManager.off("drag-stop");
-                    self.toolPalette.dragDropManager.off("drop-target-changed");
+                    self.toolPalette.dragDropManager.clearActivatedDropTarget();
                 }
             }
         })
