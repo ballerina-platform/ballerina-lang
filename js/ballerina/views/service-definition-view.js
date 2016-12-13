@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './canvas', './../ast/service-definition', './life-line', './resource-definition-view', 'ballerina/ast/ballerina-ast-factory'],
-    function (_, log, Canvas, ServiceDefinition, LifeLine, ResourceDefinitionView, BallerinaASTFactory) {
+define(['lodash', 'log', 'jquery', './canvas', './../ast/service-definition', './life-line', './resource-definition-view', 'ballerina/ast/ballerina-ast-factory'],
+    function (_, log, $, Canvas, ServiceDefinition, LifeLine, ResourceDefinitionView, BallerinaASTFactory) {
 
         /**
          * The view to represent a service definition which is an AST visitor.
@@ -45,7 +45,6 @@ define(['lodash', 'log', './canvas', './../ast/service-definition', './life-line
             }
             this.init();
         };
-
 
         ServiceDefinitionView.prototype = Object.create(Canvas.prototype);
         ServiceDefinitionView.prototype.constructor = ServiceDefinitionView;
@@ -148,6 +147,21 @@ define(['lodash', 'log', './canvas', './../ast/service-definition', './life-line
             this.setChildContainer(_.first($(this._container).children().children()));
             this._clientLifeLine.render();
             this.getModel().accept(this);
+
+            var annotationButton = this._createAnnotationButton(_.first($(this._container).children()));
+
+            // Create property pane for the service.
+            var paneProperties  = {
+                model : this._model,
+                editableProperties: [{
+                    propertyType: "text",
+                    key: "Service Name",
+                    getterMethod: this._model.getServiceName,
+                    setterMethod: this._model.setServiceName
+                }],
+                htmlElement : annotationButton[0]
+            };
+            this.createPropertyPane(paneProperties);
         };
 
         ServiceDefinitionView.prototype.canVisitServiceDefinition = function (serviceDefinition) {
@@ -241,6 +255,10 @@ define(['lodash', 'log', './canvas', './../ast/service-definition', './life-line
          */
         ServiceDefinitionView.prototype.getYPosition = function () {
             // TODO : Implement
+        };
+
+        ServiceDefinitionView.prototype._createAnnotationButton = function(serviceContentDiv) {
+            return $("<div class='service-annotation-button'><div class='view-annotation-btn btn-icon'><i class='fw fw-lg fw-annotation fw-inverse fw-helper fw-helper-circle'></i></div></div>").prependTo(serviceContentDiv);
         };
 
         return ServiceDefinitionView;
