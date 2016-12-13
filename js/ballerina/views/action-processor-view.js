@@ -68,12 +68,12 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './point'],
             //TODO: move css to classes
             var processorRect = D3utils.centeredRect(new Point(this._viewOptions.centerPoint.x, this._viewOptions.centerPoint.y), this._viewOptions.width
                 , this._viewOptions.height, 0, 0, this._viewOptions.parent).classed("action-rect", true);
-            var processorConnector = D3utils.line(this._viewOptions.sourcePoint.x, this._viewOptions.sourcePoint.y, this._viewOptions.destinationPoint.x,
-                this._viewOptions.destinationPoint.y, this._viewOptions.parent).classed("action-line", true);
             //TODO: center text
             var processorText = D3utils.textElement((this._viewOptions.centerPoint.x + centerTextXGap - this._viewOptions.width / 2), (this._viewOptions.centerPoint.y + centerTextYGap - (this._viewOptions.height / 2)),
                 this._viewOptions.action, this._viewOptions.parent).classed("action-text", true);
             if (this._viewOptions.inArrow) {
+                var processorConnector = D3utils.line(this._viewOptions.sourcePoint.x, this._viewOptions.sourcePoint.y, this._viewOptions.destinationPoint.x,
+                    this._viewOptions.destinationPoint.y, this._viewOptions.parent).classed("action-line", true);
                 var arrowHead = D3utils.inputTriangle(this._viewOptions.arrowX, this._viewOptions.arrowY, this._viewOptions.parent).classed("action-arrow", true);
             }
             if (this._viewOptions.outArrow) {
