@@ -16,7 +16,7 @@
  * under the License.
  */
 define(['lodash', 'log', './canvas', './../ast/service-definition', './life-line', './resource-definition-view', 'ballerina/ast/ballerina-ast-factory'],
-    function (_, log, Canvas, ServiceDefinition, LifeLine, ResourceDefinitionView, Ballerina) {
+    function (_, log, Canvas, ServiceDefinition, LifeLine, ResourceDefinitionView, BallerinaASTFactory) {
 
         /**
          * The view to represent a service definition which is an AST visitor.
@@ -68,8 +68,7 @@ define(['lodash', 'log', './canvas', './../ast/service-definition', './life-line
         };
 
         ServiceDefinitionView.prototype.childViewAddedCallback = function (child) {
-            var ballerinaASTFactory = new Ballerina();
-            if (ballerinaASTFactory.isServiceDefinition(child)) {
+            if (BallerinaASTFactory.isServiceDefinition(child)) {
                 if (child !== this._model) {
                     log.info("[Eventing] Service view added : ");
                 }

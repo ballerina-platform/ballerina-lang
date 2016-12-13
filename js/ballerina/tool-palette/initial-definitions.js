@@ -20,14 +20,12 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
 
         var initialToolGroups = [];
 
-        var ballerinaASTFactory = new BallerinaASTFactory();
-
         var createResourceDefTool = {
             id: "resource",
             name: "Resource",
             icon: "images/tool-icons/dgm-resource.svg",
             title: "Resource",
-            nodeFactoryMethod: ballerinaASTFactory.createResourceDefinition
+            nodeFactoryMethod: BallerinaASTFactory.createResourceDefinition
         };
 
         var createServiceDefTool = {
@@ -35,7 +33,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
             name: "Service",
             icon: "images/tool-icons/rest-service.svg",
             title: "Service",
-            nodeFactoryMethod: ballerinaASTFactory.createServiceDefinition
+            nodeFactoryMethod: BallerinaASTFactory.createServiceDefinition
         };
 
         var createFunctionDefTool = {
@@ -43,7 +41,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
             name: "Function",
             icon: "images/tool-icons/function.svg",
             title: "Function",
-            nodeFactoryMethod:  ballerinaASTFactory.createFunctionDefinition
+            nodeFactoryMethod:  BallerinaASTFactory.createFunctionDefinition
         };
 
         var mainToolDefArray = [createServiceDefTool, createResourceDefTool, createFunctionDefTool];
@@ -62,7 +60,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
             name: "Resource",
             icon: "images/tool-icons/dgm-if-else.svg",
             title: "If",
-            nodeFactoryMethod: ballerinaASTFactory.createIfElseStatement
+            nodeFactoryMethod: BallerinaASTFactory.createIfElseStatement
         };
 
         var createTryCatchStatementTool = {
@@ -70,7 +68,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
             name: "TryCatch",
             icon: "images/tool-icons/dgm-try-catch.svg",
             title: "TryCatch",
-            nodeFactoryMethod: ballerinaASTFactory.createTryCatchStatement
+            nodeFactoryMethod: BallerinaASTFactory.createTryCatchStatement
         };
 
         var statementToolDefArray = [createIfStatementTool, createTryCatchStatementTool];
