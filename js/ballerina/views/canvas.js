@@ -17,43 +17,8 @@
  */
 define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor', './ballerina-view'], function(log, _, $, d3, D3Utils, AstVisitor, BallerinaView){
 
-    var Canvas = function(container, viewOptions) {
-
-        // viewOptions.diagram.height = _.get(viewOptions, "diagram.height", "100%");
-        // viewOptions.diagram.width = _.get(viewOptions, "diagram.width", "100%");
-        // viewOptions.diagram.padding =  _.get(viewOptions, "diagram.padding", 50);
-        // viewOptions.diagram.viewBoxWidth =  _.get(viewOptions, "diagram.viewBoxWidth", 1000);
-        // viewOptions.diagram.viewBoxHeight =  _.get(viewOptions, "diagram.viewBoxHeight", 1000);
-        //
-        // viewOptions.diagram.class = viewOptions.diagram.class || "diagram";
-        // viewOptions.diagram.selector = viewOptions.diagram.selector || ".diagram";
-        // viewOptions.diagram.wrapper = viewOptions.diagram.wrapper ||{};
-        // // CHANGED
-        // viewOptions.diagram.wrapperId = viewOptions.wrapperId || "diagramWrapper";
-        // viewOptions.diagram.grid = viewOptions.diagram.grid || {};
-        // viewOptions.diagram.grid.height = viewOptions.diagram.grid.height || 25;
-        // viewOptions.diagram.grid.width = viewOptions.diagram.grid.width || 25;
-        // this.viewOptions = viewOptions;
-        //
-        // this.model = model;
-        // this.container = container;
-        //
-        // if (_.isUndefined(this.container)) {
-        //     log.error("container is not defined");
-        // }
-        //
-        // var d3Container = d3.select(this.container);
-        // // wrap d3 with custom drawing apis
-        // d3Container = D3Utils.decorate(d3Container);
-        // var svg = d3Container.draw.svg(this.viewOptions.diagram);
-        // this._definitions = svg.append("defs");
-        // this._svg = svg;
-        //
-        // this._mainSVGGroup = this.d3svg.draw.group(this._svg).attr("id", this.viewOptions.diagram.wrapperId)
-        //     .attr("width", "100%")
-        //     .attr("height", "100%");
-
-        BallerinaView.call(this);
+    var Canvas = function(args) {
+        BallerinaView.call(this, args);
     };
 
     Canvas.prototype = Object.create(BallerinaView.prototype);
@@ -77,6 +42,7 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
 
         //draw a collapse accordion
         var outerDiv = $('<div></div>');
+
         outerDiv.addClass(_.get(options, 'cssClass.outer_div'));
         var panelHeading = $('<div></div>');
         panelHeading.attr('id', canvas[0].id + 3).attr('role', 'tab');
@@ -124,6 +90,38 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
 
         // append to parent
         parent.append(outerDiv);
+
+        outerDiv.hover(function(event){
+
+            //if someone is dragging a tool from tool-palette
+            if(this.toolPalette.dragDropManager.isOnDrag()){
+
+                if(_.isEqual(this.toolPalette.dragDropManager.getActivatedDropTarget(), self)){
+                    return;
+                }
+
+                // register this as a drop target and validate possible types of nodes to drop - second arg is a call back to validate
+                // tool view will use this to provide feedback on impossible drop zones
+                this.toolPalette.dragDropManager.setActivatedDropTarget(self._model, function(nodeBeingDragged){
+                    return this._model.canBeParentOf(nodeBeingDragged) && nodeBeingDragged.canBeAChildOf(self._model);
+                });
+
+                // indicate drop area
+                this._$canvasContainer.addClass(dropActiveClass);
+
+                // reset ui feed back on drop target change
+                this.toolPalette.dragDropManager.once("drop-target-changed", function(){
+                    this._$canvasContainer.removeClass(dropActiveClass);
+                });
+            }
+        }, function(event){
+            // reset ui feed back on hover out
+            if(self.toolPalette.dragDropManager.isOnDrag()){
+                if(_.isEqual(self.toolPalette.dragDropManager.getActivatedDropTarget(), self._model)){
+                    self.toolPalette.dragDropManager.clearActivatedDropTarget();
+                }
+            }
+        });
     };
 
     /**

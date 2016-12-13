@@ -27,9 +27,8 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/logical-express
          * @constructor
          */
         var LogicalExpressionView = function (args) {
-            this._model = _.get(args, "model");
-            this._container = _.get(args, "container");
-            this._viewOptions = _.get(args, "viewOptions", {});
+
+            BallerinaStatementView.call(this, args);
 
             if (_.isNil(this._model) || !(this._model instanceof LogicalExpression)) {
                 log.error("logical expression undefined or is of different type." + this._model);
@@ -40,8 +39,6 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/logical-express
                 log.error("Container for logical expression is undefined." + this._container);
                 throw "Container for logical expression is undefined." + this._container;
             }
-
-            BallerinaStatementView.call(this);
         };
 
         LogicalExpressionView.prototype = Object.create(BallerinaStatementView.prototype);

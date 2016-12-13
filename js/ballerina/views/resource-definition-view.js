@@ -30,9 +30,9 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
          * @constructor
          */
         var ResourceDefinitionView = function (args) {
-            this._model = _.get(args, 'model');
-            this._container = _.get(args, 'container');
-            this._viewOptions = _.get(args, 'viewOptions', {});
+
+            BallerinaView.call(this, args);
+
             this._connectorViewList =  [];
             this._defaultResourceLifeLine = undefined;
             this._statementExpressionViewList = [];
@@ -69,8 +69,6 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             this._viewOptions.contentHeight = _.get(args, "viewOptions.contentHeight", 360);
             this._viewOptions.collapseIconWidth = _.get(args, "viewOptions.collaspeIconWidth", 1025);
 
-
-            BallerinaView.call(this);
             this.init();
         };
 
@@ -149,7 +147,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             var statementViewFactory = new StatementViewFactory();
             var args = {model: statement, container: this._container, viewOptions: undefined, parent:this};
             var statementView = statementViewFactory.getStatementView(args);
-
+            this.diagramRenderingContext.getViewModelMap()[statement.id] = statementView;
             if(statementViewFactory.isGetActionStatement(statement)){
                 _.each(this.getConnectorViewList(), function (view) {
                   var matchFound =  _.isEqual(statement.getConnector(),view.getModel());
@@ -175,7 +173,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 statementView.setYPosition(y + statementsGap);
             }
             this._statementExpressionViewList.push(statementView);
-            statementView.render();
+            statementView.render(this.diagramRenderingContext);
         };
 
         ResourceDefinitionView.prototype.visitExpression = function (statement) {
@@ -480,6 +478,22 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
          */
         ResourceDefinitionView.prototype.getStatementExpressionViewList = function () {
             return this._statementExpressionViewList;
+        };
+
+        /**
+         * Y distance from one resource's end point to next resource's start point
+         * @returns {number}
+         */
+        ResourceDefinitionView.prototype.getGapBetweenResources = function () {
+            return 10;
+        };
+
+        /**
+         * Height of the resource's heading
+         * @returns {number}
+         */
+        ResourceDefinitionView.prototype.getResourceHeadingHeight = function () {
+            return this._viewOptions.heading.height;
         };
 
         return ResourceDefinitionView;

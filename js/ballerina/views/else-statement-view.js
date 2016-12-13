@@ -28,11 +28,7 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
          * @constructor
          */
         var ElseStatementView = function (args) {
-            this._model = _.get(args, "model");
-            this._container = _.get(args, "container");
-            this._viewOptions = _.get(args, "viewOptions", {});
-
-            BallerinaStatementView.call(this, _.get(args, "parent"));
+            BallerinaStatementView.call(this, args);
         };
 
         ElseStatementView.prototype = Object.create(BallerinaStatementView.prototype);
@@ -49,24 +45,23 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
         /**
          * Render the else statement
          */
-        ElseStatementView.prototype.render = function () {
+        ElseStatementView.prototype.render = function (diagramRenderingContext) {
+            this._diagramRenderingContext = diagramRenderingContext;
             var elseGroup = D3Utils.group(this._container);
             var ifBlockBottomY = parseInt(this.getParent().getIfBlockView().getStatementGroup().outerRect.attr('y')) +
                 parseInt(this.getParent().getIfBlockView().getStatementGroup().outerRect.attr('height'));
             var x = parseInt(this.getParent().getIfBlockView().getStatementGroup().outerRect.attr('x'));
             var y = ifBlockBottomY;
             var point = new Point(x, y);
-            var width = 120;
+            var width = parseInt(this.getParent().getIfBlockView().getStatementGroup().outerRect.attr('width'));
             var height = 60;
-            var outer_rect = D3Utils.rect(x, y, 120, 60, 0, 0, elseGroup).classed('statement-rect', true);
+            var outer_rect = D3Utils.rect(x, y, width, height, 0, 0, elseGroup).classed('statement-rect', true);
             var title_rect = D3Utils.rect(x, y, 40, 20, 0, 0, elseGroup).classed('statement-rect', true);
             var title_text = D3Utils.textElement(x + 20, y + 10, 'Else', elseGroup).classed('statement-text', true);
-            this._model.accept(this);
 
             elseGroup.outerRect = outer_rect;
             elseGroup.titleRect = title_rect;
             elseGroup.title_text = title_text;
-            this.setStatementGroup(elseGroup);
 
             // Set the parent's(IfElseView) width, height, x, y
             this.getParent().setWidth(width);
@@ -77,6 +72,7 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
             this.setHeight(height);
             this.setXPosition(x);
             this.setYPosition(y);
+            this.setStatementGroup(elseGroup);
             this._model.accept(this);
         };
 
@@ -120,6 +116,11 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
 
         ElseStatementView.prototype.getViewOptions = function () {
             return this._viewOptions;
+        };
+
+        ElseStatementView.prototype.childVisitedCallback = function (child) {
+            this.getParent().increaseChildrenWidth();
+            this.trigger("childViewAddedEvent", child);
         };
 
         return ElseStatementView;

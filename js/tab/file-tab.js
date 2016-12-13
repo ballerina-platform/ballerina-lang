@@ -35,7 +35,6 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
         render: function () {
             Tab.prototype.render.call(this);
             var ballerinaEditorOptions = _.get(this.options, 'ballerina_editor');
-            _.set(ballerinaEditorOptions, 'container', this.$el.get(0));
 
 //            var ballerinaASTFactory = new Ballerina.ast.BallerinaASTFactory();
 //            var ballerinaAstRoot = ballerinaASTFactory.createBallerinaAstRoot();
@@ -109,6 +108,21 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             // Adding Resources
             var resource_passthrough2 = BallerinaASTFactory.createResourceDefinition();
             resource_passthrough2.setResourceName('passthrough2');
+
+            // Adding ifelse
+            var ifelse1 = ballerinaASTFactory.createIfElseStatement();
+            var if1 = ballerinaASTFactory.createIfStatement();
+            var else1 = ballerinaASTFactory.createElseStatement();
+            ifelse1.addChild(if1);
+            ifelse1.addChild(else1);
+
+            var ifelse2 = ballerinaASTFactory.createIfElseStatement();
+            var if2 = ballerinaASTFactory.createIfStatement();
+            var else2 = ballerinaASTFactory.createElseStatement();
+            ifelse2.addChild(if2);
+            ifelse2.addChild(else2);
+            if1.addChild(ifelse2);
+            resource_passthrough2.addChild(ifelse1);
             serviceDefinition_passthroughService2.addChild(resource_passthrough2);
             // Adding Resources
             var resource_passthrough3 = BallerinaASTFactory.createResourceDefinition();
@@ -244,6 +258,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
 
             var fileEditor = new Ballerina.views.BallerinaFileEditor({
                 model: ballerinaAstRoot1,
+                container: this.$el.get(0),
                 viewOptions: ballerinaEditorOptions
             });
             fileEditor.render(diagramRenderingContext);

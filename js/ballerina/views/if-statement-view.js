@@ -28,19 +28,11 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
          * @constructor
          */
         var IfStatementView = function (args) {
-            this._model = _.get(args, "model");
-            this._container = _.get(args, "container");
-            this._viewOptions = _.get(args, "viewOptions", {});
-
-            BallerinaStatementView.call(this, _.get(args, "parent"));
+            BallerinaStatementView.call(this, args);
         };
 
         IfStatementView.prototype = Object.create(BallerinaStatementView.prototype);
         IfStatementView.prototype.constructor = IfStatementView;
-
-        IfStatementView.prototype.canVisitStatement = function(){
-            return true;
-        };
 
         IfStatementView.prototype.canVisitIfStatement = function(){
             return true;
@@ -49,7 +41,8 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
         /**
          * Render the if statement
          */
-        IfStatementView.prototype.render = function () {
+        IfStatementView.prototype.render = function (diagramRenderingContext) {
+            this._diagramRenderingContext = diagramRenderingContext;
             var ifGroup = D3Utils.group(this._container);
             var x = this.getParent().getXPosition();
             var y = this.getParent().getYPosition();
@@ -118,6 +111,12 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
 
         IfStatementView.prototype.getViewOptions = function () {
             return this._viewOptions;
+        };
+
+        IfStatementView.prototype.childVisitedCallback = function (child) {
+            this.getParent().increaseChildrenWidth(child);
+            this.getParent().increaseChildrenHeight(child);
+            this.trigger("childViewAddedEvent", child);
         };
 
         return IfStatementView;

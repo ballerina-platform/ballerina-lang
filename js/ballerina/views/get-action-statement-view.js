@@ -19,9 +19,7 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/get-action
     function (_, d3, log, BallerinaStatementView, GetActionStatement, D3Utils,ActionProcessor) {
 
         var GetActionStatementView = function (args) {
-            this._model = _.get(args, "model");
-            this._container = _.get(args, "container");
-            this._viewOptions = _.get(args, "viewOptions", {});
+            BallerinaStatementView.call(this, args);
             this._connectorView = {};
 
             if (_.isNil(this._model) || !(this._model instanceof GetActionStatement)) {
@@ -34,8 +32,6 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/get-action
                 throw "Container for action statement is undefined." + this._container;
             }
 
-           // BallerinaView.call(this);
-            BallerinaStatementView.call(this, _.get(args, "parent"));
         };
 
         GetActionStatementView.prototype = Object.create(BallerinaStatementView.prototype);
