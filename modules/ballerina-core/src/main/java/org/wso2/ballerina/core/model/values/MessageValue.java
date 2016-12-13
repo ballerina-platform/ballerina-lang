@@ -104,8 +104,36 @@ public class MessageValue implements BValue<CarbonMessage> {
      *
      * @return  header name
      */
-    public String getHeaderValue(String headerName) {
+    public String getHeader(String headerName) {
         return headers.get(headerName);
+    }
+
+    /**
+     * Remove the header.
+     *
+     * @param headerName Header name
+     */
+    public void removeHeader(String headerName) {
+        headers.remove(headerName);
+    }
+
+    /**
+     * Replace header value.
+     *
+     * @param headerName  header name
+     * @param headerValue header value
+     */
+    public void setHeader(String headerName, String headerValue) {
+        headers.replace(headerName, headerValue);
+    }
+
+    /**
+     * Get the headers map.
+     *
+     * @return Map instance that contains the headers
+     */
+    public Map<String, String> getHeaders() {
+        return headers;
     }
 
 }
