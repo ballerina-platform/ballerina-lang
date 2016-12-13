@@ -10,7 +10,7 @@ Ballerina is a new special purpose programming language for integration built on
 - Container Native
 - Fun
 
-The conceptual model of Ballerina is that of a sequence diagram. Each participant in the integration (referred to as an `actor` in Ballerina) gets its own lifeline and Ballerina defines a complete syntax and semantics for how the sequence diagram works and executes the desired integration.
+The conceptual model of Ballerina is that of a sequence diagram. Each participant in the integration (referred to as an `connector` in Ballerina) gets its own lifeline and Ballerina defines a complete syntax and semantics for how the sequence diagram works and executes the desired integration.
 
 Ballerina is not designed to be a general purpose language. Instead you should use Ballerina if you need to integrate a collection of network connected systems such as HTTP endpoints, Web APIs, JMS services, and databases. The result of the integration can either be just that - the integration that runs once or repeatedly on a schedule, or a reusable HTTP service that others can run.
 
@@ -501,4 +501,4 @@ Ballerina instead allows the developer (either visually or textually) to mark an
 
 TODO!
 
-Several Ballerina constructs such as actors and resources have configurable parameters. Examples include the URI of an HTTP endpoint and timeout values. These values MAY be set explicitly within the program using annotations but such values can be overridden from outside the program by applying appropriate property values. These values may be set via environment variables or other deployment management approaches.
+Several Ballerina constructs such as connectors and resources have configurable parameters. Examples include the URI of an HTTP endpoint and timeout values. These values MAY be set explicitly within the program using annotations but such values can be overridden from outside the program by applying appropriate property values. These values may be set via environment variables or other deployment management approaches.
