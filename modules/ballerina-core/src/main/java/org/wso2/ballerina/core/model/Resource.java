@@ -91,7 +91,10 @@ public class Resource implements Executable {
         this.parameters = parameters;
         this.connections = connections;
         this.variableDcls = variableDcls;
+
+        /* To Do : Do we pass multiple workers from the model? */
         this.workers = workers;
+        defaultWorker = new Worker();
         this.resourceBody = functionBody;
     }
 
@@ -102,7 +105,14 @@ public class Resource implements Executable {
      * @return Annotation
      */
     public Annotation getAnnotation(String name) {
-        return annotationMap.get(name);
+        /* ToDo : Annotations should be a map. */
+
+        for (Annotation annotation : annotations) {
+            if (annotation.getName().equals(name)) {
+                return annotation;
+            }
+        }
+        return null;
     }
 
     /**

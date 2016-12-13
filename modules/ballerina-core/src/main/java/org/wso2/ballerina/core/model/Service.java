@@ -82,7 +82,7 @@ public class Service implements Executable {
      * @param identifier Service Identifier
      */
     public Service(Identifier identifier) {
-        this.identifier = identifier;
+        this.name = identifier;
     }
 
     /**
@@ -91,7 +91,7 @@ public class Service implements Executable {
      * @return Service Identifier
      */
     public Identifier getIdentifier() {
-        return identifier;
+        return name;
     }
 
     /**
@@ -188,10 +188,10 @@ public class Service implements Executable {
     /**
      * Get all the Resources associated to a Service
      *
-     * @return list of Resources belongs to a Service
+     * @return array of Resources belongs to a Service
      */
-    public List<Resource> getResources() {
-        return resourceList;
+    public Resource[] getResources() {
+        return resources;
     }
 
     /**
@@ -199,8 +199,8 @@ public class Service implements Executable {
      *
      * @param resources List of Resources
      */
-    public void setResources(List<Resource> resources) {
-        this.resourceList = resources;
+    public void setResources(Resource[] resources) {
+        this.resources = resources;
     }
 
     /**

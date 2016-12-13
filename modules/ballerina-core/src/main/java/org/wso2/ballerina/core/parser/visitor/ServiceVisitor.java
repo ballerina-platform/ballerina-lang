@@ -85,7 +85,9 @@ public class ServiceVisitor extends BallerinaBaseVisitor {
         // Read the resources
         List<Resource> resources = (List<Resource>) this.
                 visitServiceBodyDeclaration(ctx.serviceBody().serviceBodyDeclaration());
-        serviceObject.setResources(resources);
+        /* ToDo : Fix the listener properly to handle the new Model API.  */
+        Resource[] resourceArray = new Resource[resources.size()];
+        serviceObject.setResources(resources.toArray(resourceArray));
 
         return serviceObject;
     }
