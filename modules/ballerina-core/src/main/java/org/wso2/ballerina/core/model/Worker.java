@@ -150,9 +150,14 @@ public class Worker implements Executable {
         //Execute statements from here
         if (statements == null || statements.size() == 0) {
             return true; // nothing to execute
+        } else {
+            for (Statement statement : statements) {
+                statement.interpret(context);
+            }
+            return true;
         }
 
-        return false;
+//        return false;
 
     }
 }

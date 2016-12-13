@@ -95,6 +95,7 @@ public class Resource implements Executable {
         /* To Do : Do we pass multiple workers from the model? */
         this.workers = workers;
         defaultWorker = new Worker();
+        defaultWorker.addStatement(functionBody);
         this.resourceBody = functionBody;
     }
 
