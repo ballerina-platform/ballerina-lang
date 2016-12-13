@@ -153,7 +153,6 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
             if(statementViewFactory.isGetActionStatement(statement)){
                 _.each(this.getConnectorViewList(), function (view) {
-                    //TODO: Returns true for both views. Need to fix
                   var matchFound =  _.isEqual(statement.getConnector(),view.getModel());
                     if(matchFound) {
                         statementView.setParent(this);
