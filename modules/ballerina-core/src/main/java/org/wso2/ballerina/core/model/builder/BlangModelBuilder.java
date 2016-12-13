@@ -42,7 +42,7 @@ import org.wso2.ballerina.core.model.expressions.LessThanExpression;
 import org.wso2.ballerina.core.model.expressions.MultExpression;
 import org.wso2.ballerina.core.model.expressions.NotEqualExpression;
 import org.wso2.ballerina.core.model.expressions.OrExpression;
-import org.wso2.ballerina.core.model.expressions.SubstractExpression;
+import org.wso2.ballerina.core.model.expressions.SubtractExpression;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
@@ -232,7 +232,7 @@ public class BLangModelBuilder {
                 break;
 
             case "-":
-                expr = new SubstractExpression(lExpr, rExpr);
+                expr = new SubtractExpression(lExpr, rExpr);
                 break;
 
             case "*":

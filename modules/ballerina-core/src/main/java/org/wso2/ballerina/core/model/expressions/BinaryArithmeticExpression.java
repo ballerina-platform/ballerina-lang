@@ -23,7 +23,7 @@ import org.wso2.ballerina.core.model.Operator;
  * {@code BinaryArithmeticExpression} is the base class for any binary arithmetic expression
  *
  * @see AddExpression
- * @see SubstractExpression
+ * @see SubtractExpression
  * @see MultExpression
  * @since 1.0.0
  */

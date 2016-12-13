@@ -33,7 +33,7 @@ import org.wso2.ballerina.core.model.expressions.LessThanExpression;
 import org.wso2.ballerina.core.model.expressions.MultExpression;
 import org.wso2.ballerina.core.model.expressions.NotEqualExpression;
 import org.wso2.ballerina.core.model.expressions.OrExpression;
-import org.wso2.ballerina.core.model.expressions.SubstractExpression;
+import org.wso2.ballerina.core.model.expressions.SubtractExpression;
 import org.wso2.ballerina.core.model.expressions.UnaryExpression;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.values.BValueRef;
@@ -355,7 +355,7 @@ public class ExpressionVisitor extends BallerinaBaseVisitor {
      */
     @Override
     public Object visitBinarySubExpression(BallerinaParser.BinarySubExpressionContext ctx) {
-        return new SubstractExpression((Expression) this.visitExpression(
+        return new SubtractExpression((Expression) this.visitExpression(
                 (BallerinaParser.ExpressionContext) ctx.children.get(0)),
                 (Expression) visitExpression((BallerinaParser.ExpressionContext) ctx.children.get(2)));
     }
