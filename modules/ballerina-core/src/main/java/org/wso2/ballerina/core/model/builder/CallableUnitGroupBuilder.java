@@ -19,8 +19,8 @@ package org.wso2.ballerina.core.model.builder;
 
 import org.wso2.ballerina.core.model.Action;
 import org.wso2.ballerina.core.model.Annotation;
-import org.wso2.ballerina.core.model.Connection;
 import org.wso2.ballerina.core.model.Connector;
+import org.wso2.ballerina.core.model.ConnectorDcl;
 import org.wso2.ballerina.core.model.Identifier;
 import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.Resource;
@@ -40,7 +40,7 @@ class CallableUnitGroupBuilder {
     private Identifier name;
     private List<Annotation> annotationList = new ArrayList<>();
     private List<Parameter> parameterList = new ArrayList<>();
-    private List<Connection> connectionList = new ArrayList<>();
+    private List<ConnectorDcl> connectorDclList = new ArrayList<>();
     private List<VariableDcl> variableDclList = new ArrayList<>();
     private List<Resource> resourceList = new ArrayList<>();
     private List<Action> actionList = new ArrayList<>();
@@ -57,8 +57,8 @@ class CallableUnitGroupBuilder {
         this.parameterList.add(param);
     }
 
-    void addConnectorDcl(Connection connection) {
-        this.connectionList.add(connection);
+    void addConnectorDcl(ConnectorDcl connectorDcl) {
+        this.connectorDclList.add(connectorDcl);
     }
 
     void addVariableDcl(VariableDcl variableDcl) {
@@ -77,7 +77,7 @@ class CallableUnitGroupBuilder {
         return new Service(
                 name,
                 annotationList.toArray(new Annotation[annotationList.size()]),
-                connectionList.toArray(new Connection[connectionList.size()]),
+                connectorDclList.toArray(new ConnectorDcl[connectorDclList.size()]),
                 variableDclList.toArray(new VariableDcl[variableDclList.size()]),
                 resourceList.toArray(new Resource[resourceList.size()])
         );
@@ -87,7 +87,7 @@ class CallableUnitGroupBuilder {
         return new Connector(
                 name,
                 annotationList.toArray(new Annotation[annotationList.size()]),
-                connectionList.toArray(new Connection[connectionList.size()]),
+                connectorDclList.toArray(new ConnectorDcl[connectorDclList.size()]),
                 variableDclList.toArray(new VariableDcl[variableDclList.size()]),
                 actionList.toArray(new Action[actionList.size()])
         );
