@@ -19,23 +19,16 @@ define(['lodash', 'log', './statement', './expression'], function (_, log, State
 
     /**
      * Class to represent a action invocation to ballerina.
-     * @param condition The condition of a conditional statement.
-     * @param statements The statements of a conditional statement.
+     * @param customStatement represents GET/PUT/POST/DELETE action statement.
      * @constructor
      */
     var ActionInvocationStatement = function (customStatement) {
         Statement.call(this);
-        //this._connector = customStatement.getConnector();
-        //this._message = customStatement.getMessage();
-        //this.path = customStatement.getPath();
+
     };
 
     ActionInvocationStatement.prototype = Object.create(Statement.prototype);
     ActionInvocationStatement.prototype.constructor = ActionInvocationStatement;
-
-    //ActionInvocationStatement.prototype.getConnector = function () {
-    //   return this._connector;
-    //};
 
     return ActionInvocationStatement;
 

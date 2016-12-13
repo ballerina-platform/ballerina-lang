@@ -19,7 +19,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
         './point', './life-line', './action-processor-view', './connector-declaration-view',
         './statement-view-factory', 'ballerina/ast/ballerina-ast-factory', './expression-view-factory'],
     function (_, log, d3, $, D3utils, BallerinaView, ResourceDefinition,
-              Point, LifeLine,ActionProcessor,ConnectorDeclarationView, StatementViewFactory, Ballerina, ExpressionViewFactory) {
+              Point, LifeLine,ActionProcessor,ConnectorDeclarationView, StatementViewFactory, BallerinaASTFactory, ExpressionViewFactory) {
 
         /**
          * The view to represent a resource definition which is an AST visitor.
@@ -30,9 +30,9 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
          * @constructor
          */
         var ResourceDefinitionView = function (args) {
-            this._model = _.get(args, 'model');
-            this._container = _.get(args, 'container');
-            this._viewOptions = _.get(args, 'viewOptions', {});
+
+            BallerinaView.call(this, args);
+
             this._connectorViewList =  [];
             this._defaultResourceLifeLine = undefined;
             this._statementExpressionViewList = [];
@@ -69,8 +69,6 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             this._viewOptions.contentHeight = _.get(args, "viewOptions.contentHeight", 360);
             this._viewOptions.collapseIconWidth = _.get(args, "viewOptions.collaspeIconWidth", 1025);
 
-
-            BallerinaView.call(this);
             this.init();
         };
 
@@ -92,8 +90,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
         };
 
         ResourceDefinitionView.prototype.childViewAddedCallback = function (child) {
-            var ballerinaASTFactory = new Ballerina();
-            if(ballerinaASTFactory.isResourceDefinition(child)){
+            if(BallerinaASTFactory.isResourceDefinition(child)){
                 if(child !== this._model){
                     log.info("[Eventing] Resource view added : ");
                 }
@@ -153,7 +150,6 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             this.diagramRenderingContext.getViewModelMap()[statement.id] = statementView;
             if(statementViewFactory.isGetActionStatement(statement)){
                 _.each(this.getConnectorViewList(), function (view) {
-                    //TODO: Returns true for both views. Need to fix
                   var matchFound =  _.isEqual(statement.getConnector(),view.getModel());
                     if(matchFound) {
                         statementView.setParent(this);
@@ -482,6 +478,22 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
          */
         ResourceDefinitionView.prototype.getStatementExpressionViewList = function () {
             return this._statementExpressionViewList;
+        };
+
+        /**
+         * Y distance from one resource's end point to next resource's start point
+         * @returns {number}
+         */
+        ResourceDefinitionView.prototype.getGapBetweenResources = function () {
+            return 10;
+        };
+
+        /**
+         * Height of the resource's heading
+         * @returns {number}
+         */
+        ResourceDefinitionView.prototype.getResourceHeadingHeight = function () {
+            return this._viewOptions.heading.height;
         };
 
         return ResourceDefinitionView;

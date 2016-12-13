@@ -21,6 +21,10 @@ define(['lodash'], function(_){
     // a custom event channel. You may bind a callback to an event with `on` or
     // remove with `off`; `trigger`-ing an event fires all callbacks in
     // succession.
+    /**
+     * @class EventChannel
+     * @constructor
+     */
     var EventChannel = function(){};
 
     // Regular expression used to split event strings.

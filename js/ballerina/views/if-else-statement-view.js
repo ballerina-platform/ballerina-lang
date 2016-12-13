@@ -28,9 +28,9 @@ define(['require', 'lodash', 'log', './ballerina-statement-view', './../ast/if-e
          * @constructor
          */
         var IfElseStatementView = function (args) {
-            this._model = _.get(args, "model");
-            this._container = _.get(args, "container");
-            this._viewOptions = _.get(args, "viewOptions", {});
+
+            BallerinaStatementView.call(this, args);
+
             this._ifBlockView = undefined;
             this._elseBlockView = undefined;
 
@@ -44,7 +44,6 @@ define(['require', 'lodash', 'log', './ballerina-statement-view', './../ast/if-e
                 throw "Container for If Else statement is undefined." + this._container;
             }
 
-            BallerinaStatementView.call(this, _.get(args, "parent"));
         };
 
         IfElseStatementView.prototype = Object.create(BallerinaStatementView.prototype);

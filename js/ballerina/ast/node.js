@@ -15,13 +15,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['event_channel', 'lodash'], function(EventChannel, _){
+define(['require', 'event_channel', 'lodash'], function(require, EventChannel, _){
 
     /**
      * Constructor for the ASTNode
+     * @class ASTNode
+     * @augments EventChannel
      * @param type
-     * @param configStart
-     * @param configEnd
      * @constructor
      */
     var ASTNode = function(type) {
@@ -63,6 +63,7 @@ define(['event_channel', 'lodash'], function(EventChannel, _){
      * Insert a given child to the children array for a given index or otherwise to the array normally
      * @param child
      * @param index
+     * @fires  ASTNode#child-added
      */
     ASTNode.prototype.addChild = function (child, index) {
         if (_.isUndefined(index)) {
@@ -70,6 +71,9 @@ define(['event_channel', 'lodash'], function(EventChannel, _){
         } else {
             this.children.splice(index, 0, child);
         }
+        /**
+         * @event ASTNode#child-added
+         */
         this.trigger('child-added', child, index);
         //setting the parent node
         child.setParent(this);
@@ -95,6 +99,34 @@ define(['event_channel', 'lodash'], function(EventChannel, _){
             });
             visitor.endVisit(this);
         }
+    };
+
+    /**
+     * Indicates whether this can be the parent node for the give node
+     * Used for drag and drop validations. Override as required.
+     * @param node {ASTNode}
+     * @return {boolean} Default is true
+     */
+    ASTNode.prototype.canBeParentOf = function (node) {
+        return true;
+    };
+
+    /**
+     * Indicates whether this can be a child node of given node.
+     * Used for drag and drop validations. Override as required
+     * @param node {ASTNode}
+     * @return {boolean} Default is true
+     */
+    ASTNode.prototype.canBeAChildOf = function (node) {
+        return true;
+    };
+
+    /**
+     * Get factory.
+     * @return {BallerinaASTFactory}
+     */
+    ASTNode.prototype.getFactory  = function() {
+        return require('./ballerina-ast-factory');
     };
 
     // Auto generated Id for service definitions (for accordion views)

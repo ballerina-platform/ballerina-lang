@@ -35,7 +35,6 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
         render: function () {
             Tab.prototype.render.call(this);
             var ballerinaEditorOptions = _.get(this.options, 'ballerina_editor');
-            _.set(ballerinaEditorOptions, 'container', this.$el.get(0));
 
 //            var ballerinaASTFactory = new Ballerina.ast.BallerinaASTFactory();
 //            var ballerinaAstRoot = ballerinaASTFactory.createBallerinaAstRoot();
@@ -72,20 +71,20 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
 //            ballerinaAstRoot.setFunctionDefinitions(functionDefinitions);
 
             var sourceGenVisitor = new Ballerina.visitors.SourceGen.BallerinaASTRootVisitor();
-            var ballerinaASTFactory = new Ballerina.ast.BallerinaASTFactory();
-            var ballerinaAstRoot1 = ballerinaASTFactory.createBallerinaAstRoot();
+            var BallerinaASTFactory = Ballerina.ast.BallerinaASTFactory;
+            var ballerinaAstRoot1 = BallerinaASTFactory.createBallerinaAstRoot();
 
             //package definition
-            var packageDefinition = ballerinaASTFactory.createPackageDefinition();
+            var packageDefinition = BallerinaASTFactory.createPackageDefinition();
             packageDefinition.setPackageName("samples.passthrough");
             ballerinaAstRoot1.addChild(packageDefinition);
             ballerinaAstRoot1.setPackageDefinition(packageDefinition);
 
             //import declarations
-            var importDeclaration_langMessage = ballerinaASTFactory.createImportDeclaration();
+            var importDeclaration_langMessage = BallerinaASTFactory.createImportDeclaration();
             importDeclaration_langMessage.setPackageName("ballerina.lang.message");
             importDeclaration_langMessage.setParent(ballerinaAstRoot1);
-            var importDeclaration_netHttp = ballerinaASTFactory.createImportDeclaration();
+            var importDeclaration_netHttp = BallerinaASTFactory.createImportDeclaration();
             importDeclaration_netHttp.setPackageName("ballerina.net.http");
             importDeclaration_netHttp.setParent(ballerinaAstRoot1);
             var importDeclarations = [];
@@ -97,17 +96,17 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
 
             //service definition
             var serviceDefinitions = [];
-            var serviceDefinition_passthroughService = ballerinaASTFactory.createServiceDefinition();
+            var serviceDefinition_passthroughService = BallerinaASTFactory.createServiceDefinition();
             serviceDefinition_passthroughService.setServiceName("PassthroughService");
             serviceDefinition_passthroughService.setBasePath("/account");
 
             //service definition
-            var serviceDefinition_passthroughService2 = ballerinaASTFactory.createServiceDefinition();
+            var serviceDefinition_passthroughService2 = BallerinaASTFactory.createServiceDefinition();
             serviceDefinition_passthroughService2.setServiceName("PassthroughService2");
             serviceDefinition_passthroughService2.setBasePath("/account");
             ballerinaAstRoot1.addChild(serviceDefinition_passthroughService2);
             // Adding Resources
-            var resource_passthrough2 = ballerinaASTFactory.createResourceDefinition();
+            var resource_passthrough2 = BallerinaASTFactory.createResourceDefinition();
             resource_passthrough2.setResourceName('passthrough2');
 
             // Adding ifelse
@@ -126,17 +125,17 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             resource_passthrough2.addChild(ifelse1);
             serviceDefinition_passthroughService2.addChild(resource_passthrough2);
             // Adding Resources
-            var resource_passthrough3 = ballerinaASTFactory.createResourceDefinition();
+            var resource_passthrough3 = BallerinaASTFactory.createResourceDefinition();
             resource_passthrough3.setResourceName('passthrough3');
             serviceDefinition_passthroughService2.addChild(resource_passthrough3);
 
             // Adding Resources
-            var resource_passthrough = ballerinaASTFactory.createResourceDefinition();
+            var resource_passthrough = BallerinaASTFactory.createResourceDefinition();
             resource_passthrough.setResourceName('passthrough');
 
             //Adding Connector declaration to resource_pasthrough
-            var connector_declaration = ballerinaASTFactory.createConnectorDeclaration();
-            var connector_declaration1 = ballerinaASTFactory.createConnectorDeclaration();
+            var connector_declaration = BallerinaASTFactory.createConnectorDeclaration();
+            var connector_declaration1 = BallerinaASTFactory.createConnectorDeclaration();
             var sList = [];
             sList.push(connector_declaration);
             sList.push(connector_declaration1);
@@ -146,17 +145,17 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             resource_passthrough.addChild(connector_declaration1);
 
             //Adding custom resource
-            var custom_resource = ballerinaASTFactory.createResourceDefinition();
+            var custom_resource = BallerinaASTFactory.createResourceDefinition();
             custom_resource.setResourceName('customResource');
 
             //Adding resource argument
-            var resourceArgument_m = ballerinaASTFactory.createResourceArgument();
+            var resourceArgument_m = BallerinaASTFactory.createResourceArgument();
             resourceArgument_m.setType("message");
             resourceArgument_m.setIdentifier("m");
             resource_passthrough.setResourceArguments([resourceArgument_m]);
 
             //Adding reply statement
-            var statement_reply = ballerinaASTFactory.createReplyStatement();
+            var statement_reply = BallerinaASTFactory.createReplyStatement();
             statement_reply.setReplyMessage("m");
             var statements = [];
             statements.push(statement_reply);
@@ -185,20 +184,20 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             /**
              * Create the sample assignment statement
              */
-            var assignmentStatement = ballerinaASTFactory.createAssignmentStatement();
+            var assignmentStatement = BallerinaASTFactory.createAssignmentStatement();
             resource_passthrough.addChild(assignmentStatement);
 
             /**
              * Create the sample function statement statement
              */
-            var functionInvocation = ballerinaASTFactory.createFunctionInvocationStatement();
+            var functionInvocation = BallerinaASTFactory.createFunctionInvocationStatement();
             //TODO:Commented to view get action statement
             //resource_passthrough.addChild(functionInvocation);
 
             /**
              * Create the sample logical expression
              */
-            var logicalExp = ballerinaASTFactory.createLogicalExpression();
+            var logicalExp = BallerinaASTFactory.createLogicalExpression();
             logicalExp.setExpression('a > b');
             //TODO:Commented to view get action statement
             //resource_passthrough.addChild(logicalExp);
@@ -206,23 +205,23 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             /**
              * Create the sample arithmetic expression
              */
-            var arithmeticExp = ballerinaASTFactory.createArithmeticExpression();
+            var arithmeticExp = BallerinaASTFactory.createArithmeticExpression();
             arithmeticExp.setExpression('a = resp + 123');
             //TODO:Commented to view get action statement
            // resource_passthrough.addChild(arithmeticExp);
 
             // Create Sample try-catch statement
-            var ifElseStatement = ballerinaASTFactory.createIfElseStatement();
-            var ifStatement = ballerinaASTFactory.createIfStatement();
-            var elseStatement = ballerinaASTFactory.createElseStatement();
-            var tryCatchStatement1 = ballerinaASTFactory.createTryCatchStatement();
-            var tryStatement1 = ballerinaASTFactory.createTryStatement();
-            var catchStatement1 = ballerinaASTFactory.createCatchStatement();
+            var ifElseStatement = BallerinaASTFactory.createIfElseStatement();
+            var ifStatement = BallerinaASTFactory.createIfStatement();
+            var elseStatement = BallerinaASTFactory.createElseStatement();
+            var tryCatchStatement1 = BallerinaASTFactory.createTryCatchStatement();
+            var tryStatement1 = BallerinaASTFactory.createTryStatement();
+            var catchStatement1 = BallerinaASTFactory.createCatchStatement();
             // catchStatement.setExceptionType("ArithmeticException ex");
             catchStatement1.setExceptionType("ArithmeticException ex");
 
            //Create get action statement for connector
-            var getActionStatement1 = ballerinaASTFactory.createGetActionStatement(connector_declaration1);
+            var getActionStatement1 = BallerinaASTFactory.createGetActionStatement(connector_declaration1);
             ifElseStatement.addChild(ifStatement);
             ifElseStatement.addChild(elseStatement);
             tryCatchStatement1.addChild(tryStatement1);
@@ -233,14 +232,14 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             //resource_passthrough.addChild(tryCatchStatement1);
             resource_passthrough.addChild(getActionStatement1);
             // Create sample Worker Declaration
-            var workerDeclaration1 = ballerinaASTFactory.createWorkerDeclaration();
-            var workerDeclaration2 = ballerinaASTFactory.createWorkerDeclaration();
+            var workerDeclaration1 = BallerinaASTFactory.createWorkerDeclaration();
+            var workerDeclaration2 = BallerinaASTFactory.createWorkerDeclaration();
 
             // Create Sample Function Definitions
             var functionDefinitions = [];
             var functionDefinitions1 = [];
 
-            var functionDefinition1 = ballerinaASTFactory.createFunctionDefinition();
+            var functionDefinition1 = BallerinaASTFactory.createFunctionDefinition();
             functionDefinition1.addChild(workerDeclaration1);
             functionDefinition1.addChild(workerDeclaration2);
             functionDefinitions.push(functionDefinition1);
@@ -259,6 +258,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
 
             var fileEditor = new Ballerina.views.BallerinaFileEditor({
                 model: ballerinaAstRoot1,
+                container: this.$el.get(0),
                 viewOptions: ballerinaEditorOptions
             });
             fileEditor.render(diagramRenderingContext);

@@ -27,9 +27,8 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/function-invoca
          * @constructor
          */
         var FunctionInvocationStatementView = function (args) {
-            this._model = _.get(args, "model");
-            this._container = _.get(args, "container");
-            this._viewOptions = _.get(args, "viewOptions", {});
+
+            BallerinaStatementView.call(this, args);
 
             if (_.isNil(this._model) || !(this._model instanceof FunctionInvocationStatement)) {
                 log.error("function invocation statement undefined or is of different type." + this._model);
@@ -41,7 +40,6 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/function-invoca
                 throw "Container for function invocation statement is undefined." + this._container;
             }
 
-            BallerinaStatementView.call(this);
         };
 
         FunctionInvocationStatementView.prototype = Object.create(BallerinaStatementView.prototype);

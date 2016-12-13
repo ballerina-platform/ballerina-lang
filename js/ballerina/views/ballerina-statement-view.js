@@ -21,8 +21,13 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3'], fu
      * A common class which consists functions of moving or resizing views.
      * @constructor
      */
-    var BallerinaStatementView = function (parent) {
-        this._parent = parent;
+    var BallerinaStatementView = function (args) {
+        StatementVisitor.call(this, args);
+        this._parent = _.get(args, "parent");
+        this._model = _.get(args, "model");
+        this._container = _.get(args, "container");
+        this._viewOptions = _.get(args, "viewOptions");
+        this.toolPalette = _.get(args, "toolPalette");
         this._statementGroup = undefined;
         this._width = 0;
         this._height = 0;

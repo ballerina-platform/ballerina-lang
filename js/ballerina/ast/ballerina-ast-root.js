@@ -131,6 +131,30 @@ define(['lodash', './node'], function (_, ASTNode) {
         return this.functionDefinitions;
     };
 
+    /**
+     * This is the root element of ballerina ast - so cannot be a child of anyone.
+     * @param node
+     * @return {boolean}
+     */
+    BallerinaASTRoot.prototype.canBeAChildOf = function (node) {
+        return false;
+    };
+
+    /**
+     * Validates possible immediate child types.
+     * @override
+     * @param node
+     * @return {boolean}
+     */
+    BallerinaASTRoot.prototype.canBeParentOf = function (node) {
+        var BallerinaASTFactory = this.getFactory();
+        return BallerinaASTFactory.isServiceDefinition(node)
+            || BallerinaASTFactory.isFunctionDefinition(node)
+            || BallerinaASTFactory.isConnectorDefinition(node)
+            || BallerinaASTFactory.isTypeDefinition(node)
+            || BallerinaASTFactory.isTypeConverterDefinition(node);
+    };
+
 
     return BallerinaASTRoot;
 });

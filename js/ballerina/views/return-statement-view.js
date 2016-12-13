@@ -27,10 +27,7 @@ define(['lodash', 'log', './ballerina-view', './../ast/return-statement', 'd3uti
          * @constructor
          */
         var ReturnStatementView = function (args) {
-            this._model = _.get(args, "model");
-            this._container = _.get(args, "container");
-            this._viewOptions = _.get(args, "viewOptions", {});
-
+            BallerinaView.call(this, args);
             if (_.isNil(this._model) || !(this._model instanceof ReturnStatement)) {
                 log.error("Return statement definition is undefined or is of different type." + this._model);
                 throw "Return statement definition is undefined or is of different type." + this._model;
@@ -40,8 +37,6 @@ define(['lodash', 'log', './ballerina-view', './../ast/return-statement', 'd3uti
                 log.error("Container for return statement is undefined." + this._container);
                 throw "Container for return statement is undefined." + this._container;
             }
-
-            BallerinaView.call(this);
         };
 
         ReturnStatementView.prototype = Object.create(BallerinaView.prototype);

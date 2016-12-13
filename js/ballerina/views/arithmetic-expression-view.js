@@ -27,10 +27,7 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/arithmetic-expr
          * @constructor
          */
         var ArithmeticExpressionView = function (args) {
-            this._model = _.get(args, "model");
-            this._container = _.get(args, "container");
-            this._viewOptions = _.get(args, "viewOptions", {});
-
+            BallerinaStatementView.call(this, args);
             if (_.isNil(this._model) || !(this._model instanceof ArithmeticExpression)) {
                 log.error("arithmetic expression undefined or is of different type." + this._model);
                 throw "arithmetic expression undefined or is of different type." + this._model;
@@ -40,8 +37,6 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/arithmetic-expr
                 log.error("Container for arithmetic expression is undefined." + this._container);
                 throw "Container for arithmetic expression is undefined." + this._container;
             }
-
-            BallerinaStatementView.call(this);
         };
 
         ArithmeticExpressionView.prototype = Object.create(BallerinaStatementView.prototype);

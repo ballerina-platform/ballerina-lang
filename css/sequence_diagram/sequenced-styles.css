@@ -189,3 +189,21 @@
     stroke-width: 1;
     stroke: #000000;
 }
+
+.action-rect{
+    fill: #FFFFFF;
+    stroke-width: 1;
+    stroke: #9d9d9d;
+}
+
+.action-text{
+text-anchor: start;
+    fill:#727272;
+}
+
+.action-line{
+    stroke: #9d9d9d;
+}
+.action-arrow{
+   stroke: #9d99d;
+}
