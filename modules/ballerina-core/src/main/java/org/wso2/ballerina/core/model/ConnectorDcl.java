@@ -27,7 +27,7 @@ import java.util.List;
  * @since 1.0.0
  */
 @SuppressWarnings("unused")
-public class ConnectorDcl {
+public class ConnectorDcl implements Node {
 
     /* Name of the Connector which Connection is instantiated against */
     String connectorName;
@@ -38,8 +38,7 @@ public class ConnectorDcl {
     List<String> argValues;
 
     /**
-     *
-     * @param connectorName Name of the Connector which Connection is instantiated against
+     * @param connectorName        Name of the Connector which Connection is instantiated against
      * @param connectionIdentifier Identifier of the Connection instance
      */
     public ConnectorDcl(String connectorName, Identifier connectionIdentifier) {
@@ -95,4 +94,8 @@ public class ConnectorDcl {
         argValues.add(arg);
     }
 
+    @Override
+    public void visit(NodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }
