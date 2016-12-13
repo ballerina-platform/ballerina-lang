@@ -1,6 +1,6 @@
 # Introducing Ballerina: A New Programming Language for Integration
 
-Ballerina is a new programming language for integration built on a sequence diagram metaphor. Ballerina is:
+Ballerina is a new special purpose programming language for integration built on a sequence diagram metaphor. Ballerina is:
 - Simple
 - Intuitive
 - Visual
@@ -10,7 +10,7 @@ Ballerina is a new programming language for integration built on a sequence diag
 - Container Native
 - Fun
 
-The conceptual model of Ballerina is that of a sequence diagram. Each participant in the integration (referred to as a `connector` in Ballerina) gets its own lifeline and Ballerina defines a complete syntax and semantics for how the sequence diagram works and executes the desired integration.
+The conceptual model of Ballerina is that of a sequence diagram. Each participant in the integration (referred to as an `actor` in Ballerina) gets its own lifeline and Ballerina defines a complete syntax and semantics for how the sequence diagram works and executes the desired integration.
 
 Ballerina is not designed to be a general purpose language. Instead you should use Ballerina if you need to integrate a collection of network connected systems such as HTTP endpoints, Web APIs, JMS services, and databases. The result of the integration can either be just that - the integration that runs once or repeatedly on a schedule, or a reusable HTTP service that others can run.
 
@@ -191,10 +191,14 @@ If the worker wishes to reply to the enclosing entity, it can do so using a `rep
 
 ### Types & Variables
 
-Ballerina has variables of various types. The type system includes built-in primitives, a
-collection of built-in structured types and array and record type constructors. All variables
+Ballerina has variables of various types. The type system includes built-in primitive or value types, a
+collection of built-in structured types, and array, record and iterator type constructors. All variables
 of primitive types are allocated on the stack while all non-primitive types are allocated
 on a heap using `new`.
+
+The type system is illustrated in the following:
+
+![Ballerina Type System](images/typesystem.png)
 
 #### Declaring Variables
 
@@ -210,12 +214,12 @@ A TypeName may be one of the following built-in primitive types:
 - long
 - float
 - double
+- string
 
 Primitive types do not have to be dynamically allocated as they are always allocated
 on the stack.
 
 A TypeName may also be one of the following built-in non-primitive types:
-- string
 - message
 - map
 - exception
@@ -224,14 +228,14 @@ A TypeName may also be the name of a user defined type.
 
 #### Constructed Types
 
-##### Records
+##### Structured Types (Records)
 User defined record types are defined using a TypeDefinition as follows:
 ```
-[public] type TypeName {
+[public] struct TypeName {
     TypeName VariableName;+
 }
 ```
-If a record type is marked `public` then it may be instantiated from another package.
+If a `struct` is marked `public` then it may be instantiated from another package.
 
 ##### Arrays
 Arrays may be defined using the array constructor `[]` as follows:
@@ -245,7 +249,9 @@ Iterators may be defined using the iterator constructor `~` as follows:
 ```
 TypeName~
 ```
-Iterators are values that can be navigated through using an `iterate` statement.
+Iterator typed values  can be navigated through using an `iterate` statement.
+
+Iterators are currently only available for the built-in types xml and json. In the future we will allow developers to define their own iterators for their types.
 
 
 #### XML & JSON Types
@@ -300,18 +306,15 @@ int[] data = [1, 2, 3, 6, 10];
 #### Type Coercion and Conversion
 
 The built-in `float` and `double` follow the standard IEEE 754 specifications. The `int` and `long` types follow
-the standard 32- and 64-bit integer arithmetic, respectively. Implicit type conversions from
-number types work the same way as defined by these specifications.
+the standard 32- and 64-bit integer arithmetic, respectively.
 
-For lossy type conversions, one must explicitly cast the value to the lower type. For example:
-```
-float f;
-int x;
+The following lossless type coercions are pre-defined in Ballerina:
+- boolean -> int/long/float/double with values 0 or 1 for false or true, respectively
+- int -> long/float/double
+- long -> double
+- float -> double
 
-x = (int) f;
-```
-
-In addition to these built in type coercions and conversions, Ballerina allows one to define
+In addition to these built in type coercions, Ballerina allows one to define
 arbitrary conversions from one non-primitive type to another non-primitive and have the language apply it automatically.
 
 A TypeConvertor is defined as follows:
@@ -330,10 +333,19 @@ Type2 t2;
 t2 = (Type2) t1;
 ```
 
-That is, the registered type convertor is invoked by indicating the type cast as above.
+That is, the registered type convertor is invoked by indicating the type cast as above. Note that while
+the compiler can auto-detect the right convertor to apply we have chosen to force the user to
+request the appropriate convertor by applying a cast.
 
-Functions with message as an argument accept a payload type ( XML, JSON, map, and any user defined type) instead of the message, and automatically wraps the payload data to creates a message. This avoid having to create a message when sending simple data. For example, when calling `send(message)`, the call may use `send("Hello")`. A message is automatically created and passed to send. ( see issue #33)
+##### Built in Type Convertors
 
+In addition to the built-in value type coercions, Ballerina also ships with a few pre-defined type
+convertors to make development easier. The following predefined type convertors are declared in
+the Ballerina package `ballerina.lang.types`:
+- string/xml/json to message: creates a new message with the given string/xml/json as its payload
+- down conversions for numeral types: int -> boolean (0 is false), long -> int/boolean, float -> int/boolean, double -> float/long/int/boolean,
+
+Note that these must be triggered by indicating a type cast to the desired type.
 
 ### Statements
 
