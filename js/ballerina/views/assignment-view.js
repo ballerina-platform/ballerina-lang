@@ -27,9 +27,7 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/assignment', 'd
          * @constructor
          */
         var AssignmentStatementView = function (args) {
-            this._model = _.get(args, "model");
-            this._container = _.get(args, "container");
-            this._viewOptions = _.get(args, "viewOptions", {});
+            BallerinaStatementView.call(this, args);
 
             if (_.isNil(this._model) || !(this._model instanceof AssignmentStatement)) {
                 log.error("Assignment statement undefined or is of different type." + this._model);
@@ -40,8 +38,6 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/assignment', 'd
                 log.error("Container for Assignment statement is undefined." + this._container);
                 throw "Container for Assignment statement is undefined." + this._container;
             }
-
-            BallerinaStatementView.call(this);
         };
 
         AssignmentStatementView.prototype = Object.create(BallerinaStatementView.prototype);

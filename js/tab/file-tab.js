@@ -35,7 +35,6 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
         render: function () {
             Tab.prototype.render.call(this);
             var ballerinaEditorOptions = _.get(this.options, 'ballerina_editor');
-            _.set(ballerinaEditorOptions, 'container', this.$el.get(0));
 
 //            var ballerinaASTFactory = new Ballerina.ast.BallerinaASTFactory();
 //            var ballerinaAstRoot = ballerinaASTFactory.createBallerinaAstRoot();
@@ -244,6 +243,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
 
             var fileEditor = new Ballerina.views.BallerinaFileEditor({
                 model: ballerinaAstRoot1,
+                container: this.$el.get(0),
                 viewOptions: ballerinaEditorOptions
             });
             fileEditor.render(diagramRenderingContext);

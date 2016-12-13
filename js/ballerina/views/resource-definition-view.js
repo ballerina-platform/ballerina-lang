@@ -30,9 +30,9 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
          * @constructor
          */
         var ResourceDefinitionView = function (args) {
-            this._model = _.get(args, 'model');
-            this._container = _.get(args, 'container');
-            this._viewOptions = _.get(args, 'viewOptions', {});
+
+            BallerinaView.call(this, args);
+
             this._connectorViewList =  [];
             this._defaultResourceLifeLine = undefined;
             this._statementExpressionViewList = [];
@@ -69,8 +69,6 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             this._viewOptions.contentHeight = _.get(args, "viewOptions.contentHeight", 360);
             this._viewOptions.collapseIconWidth = _.get(args, "viewOptions.collaspeIconWidth", 1025);
 
-
-            BallerinaView.call(this);
             this.init();
         };
 

@@ -27,10 +27,9 @@ define(['lodash', 'log', './canvas', './../ast/service-definition', './life-line
          * @constructor
          */
         var ServiceDefinitionView = function (args) {
-            this._model = _.get(args, "model");
-            this._container = _.get(args, "container");
+            Canvas.call(this, args);
+
             this._resourceViewList = _.get(args, "resourceViewList", []);
-            this._viewOptions = _.get(args, "viewOptions", {});
             this._parentView = _.get(args, "parentView");
             //set initial height for the service container svg
             this._totalHeight = 170;
@@ -44,8 +43,6 @@ define(['lodash', 'log', './canvas', './../ast/service-definition', './life-line
                 log.error("Container for service definition is undefined." + this._container);
                 throw "Container for service definition is undefined." + this._container;
             }
-
-            Canvas.call(this);
             this.init();
         };
 
@@ -179,7 +176,7 @@ define(['lodash', 'log', './canvas', './../ast/service-definition', './life-line
                 var prevResourceY = prevView.getBoundingBox().y;
                 var newCenterPointY = prevResourceHeight + prevResourceY + 10;
                 var viewOpts = { centerPoint: {y:newCenterPointY}};
-                var resourceDefinitionView = new ResourceDefinitionView({model: resourceDefinition,container: resourceContainer,viewOptions: viewOpts});
+                var resourceDefinitionView = new ResourceDefinitionView({model: resourceDefinition,container: resourceContainer, viewOptions: viewOpts});
             }
             else{
                 var resourceDefinitionView = new ResourceDefinitionView({model: resourceDefinition,container: resourceContainer, parentView: this});
