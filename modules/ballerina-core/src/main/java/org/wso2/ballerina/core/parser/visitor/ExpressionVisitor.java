@@ -18,8 +18,8 @@
 package org.wso2.ballerina.core.parser.visitor;
 
 import org.wso2.ballerina.core.interpreter.SymbolTable;
-import org.wso2.ballerina.core.model.Identifier;
 import org.wso2.ballerina.core.model.Operator;
+import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.expressions.AddExpression;
 import org.wso2.ballerina.core.model.expressions.AndExpression;
 import org.wso2.ballerina.core.model.expressions.BasicLiteral;
@@ -200,7 +200,7 @@ public class ExpressionVisitor extends BallerinaBaseVisitor {
         for (BallerinaParser.ExpressionContext expressionContext : ctx.argumentList().expressionList().expression()) {
             expressionList.add((Expression) this.visitExpression(expressionContext));
         }
-        return new FunctionInvocationExpr(new Identifier(ctx.functionName().getText()), expressionList);
+        return new FunctionInvocationExpr(new SymbolName(ctx.functionName().getText()), expressionList);
     }
 
     /**
@@ -258,7 +258,7 @@ public class ExpressionVisitor extends BallerinaBaseVisitor {
     @Override
     public Object visitVariableReferenceExpression(BallerinaParser.VariableReferenceExpressionContext ctx) {
         //todo can extract whether simple, map , array or struct reference
-        return new VariableRefExpr(new Identifier(ctx.variableReference().getText()));
+        return new VariableRefExpr(new SymbolName(ctx.variableReference().getText()));
     }
 
     /**

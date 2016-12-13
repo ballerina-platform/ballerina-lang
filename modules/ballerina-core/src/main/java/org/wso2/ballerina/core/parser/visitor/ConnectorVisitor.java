@@ -22,8 +22,8 @@ import org.wso2.ballerina.core.model.Action;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.Connector;
 import org.wso2.ballerina.core.model.ConnectorDcl;
-import org.wso2.ballerina.core.model.Identifier;
 import org.wso2.ballerina.core.model.Parameter;
+import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.VariableDcl;
 import org.wso2.ballerina.core.parser.BallerinaBaseVisitor;
 import org.wso2.ballerina.core.parser.BallerinaParser;
@@ -51,7 +51,7 @@ public class ConnectorVisitor extends BallerinaBaseVisitor {
     @Override
     public Object visitConnectorDeclaration(BallerinaParser.ConnectorDeclarationContext ctx) {
         ConnectorDcl connection = new ConnectorDcl(ctx.qualifiedReference().get(0).Identifier().getText(),
-                new Identifier(ctx.Identifier().getText()));
+                new SymbolName(ctx.Identifier().getText()));
         // TODO: 12/11/16 : Need to read the argument list and set to the connection object
 //        if(ctx.expressionList() != null) {
 //            for(BallerinaParser.ExpressionContext ec : ctx.expressionList().expression()) {
@@ -71,7 +71,7 @@ public class ConnectorVisitor extends BallerinaBaseVisitor {
      */
     @Override
     public Object visitConnectorDefinition(BallerinaParser.ConnectorDefinitionContext ctx) {
-        Identifier connectorName = new Identifier(ctx.Identifier().getText());
+        SymbolName connectorName = new SymbolName(ctx.Identifier().getText());
         Connector connectorObject = new Connector(connectorName, null, null, null, null);
 
         // Read the annotations
@@ -100,7 +100,7 @@ public class ConnectorVisitor extends BallerinaBaseVisitor {
                 ctx.connectorBody().variableDeclaration()) {
             VariableDcl variableDcl = (VariableDcl) variableDeclarationContext.accept(variableDeclarationVisitor);
             connectorObject.addVariable(variableDcl);
-            connectorSymbolTable.put(variableDcl.getIdentifier(),
+            connectorSymbolTable.put(variableDcl.getSymbolName(),
                     BValueFactory.createBValueFromVariableDeclaration(variableDcl));
         }
 

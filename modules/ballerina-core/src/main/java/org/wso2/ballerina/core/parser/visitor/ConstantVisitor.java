@@ -18,7 +18,7 @@
 package org.wso2.ballerina.core.parser.visitor;
 
 import org.wso2.ballerina.core.interpreter.SymbolTable;
-import org.wso2.ballerina.core.model.Identifier;
+import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.VariableDcl;
 import org.wso2.ballerina.core.model.types.Type;
 import org.wso2.ballerina.core.parser.BallerinaBaseVisitor;
@@ -45,7 +45,7 @@ public class ConstantVisitor extends BallerinaBaseVisitor {
     public Object visitConstantDefinition(BallerinaParser.ConstantDefinitionContext ctx) {
         TypeNameVisitor typeNameVisitor = new TypeNameVisitor();
         return new VariableDcl((Type) ctx.typeName().accept(typeNameVisitor),
-                new Identifier(ctx.Identifier().getText()), ctx.literalValue().getText());
+                new SymbolName(ctx.Identifier().getText()), ctx.literalValue().getText());
     }
 
     /**

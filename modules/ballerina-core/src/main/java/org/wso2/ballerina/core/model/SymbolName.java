@@ -24,10 +24,10 @@ package org.wso2.ballerina.core.model;
  *
  * @since 1.0.0
  */
-public class Identifier {
+public class SymbolName {
     private String name;
 
-    public Identifier(String name) {
+    public SymbolName(String name) {
         this.name = name;
     }
 
@@ -41,7 +41,7 @@ public class Identifier {
     }
 
     public boolean equals(Object obj) {
-        Identifier other = (Identifier) obj;
+        SymbolName other = (SymbolName) obj;
         return this.name.equals(other.getName());
     }
 

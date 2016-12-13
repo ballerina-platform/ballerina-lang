@@ -21,9 +21,9 @@ import org.wso2.ballerina.core.model.Action;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.ConnectorDcl;
-import org.wso2.ballerina.core.model.Identifier;
 import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.Resource;
+import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.VariableDcl;
 import org.wso2.ballerina.core.model.Worker;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
@@ -39,7 +39,7 @@ import java.util.List;
  */
 class CallableUnitBuilder {
 
-    private Identifier name;
+    private SymbolName name;
     private List<Annotation> annotationList = new ArrayList<>();
     private boolean publicFunc;
     private List<Parameter> parameterList = new ArrayList<>();
@@ -52,7 +52,7 @@ class CallableUnitBuilder {
     CallableUnitBuilder() {
     }
 
-    void setName(Identifier name) {
+    void setName(SymbolName name) {
         this.name = name;
     }
 

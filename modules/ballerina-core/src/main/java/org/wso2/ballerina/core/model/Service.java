@@ -54,19 +54,19 @@ public class Service implements Executable, Node {
     private static final Logger logger = LoggerFactory.getLogger(Service.class);
 
     // TODO Refactor
-    private Identifier identifier;
+    private SymbolName symbolName;
     private Map<String, Annotation> annotationMap = new HashMap<>();
     private List<Connector> connectors = new ArrayList<>();
     private List<VariableDcl> variables = new ArrayList<>();
     private List<Resource> resourceList = new ArrayList<>();
 
-    private Identifier name;
+    private SymbolName name;
     private Annotation[] annotations;
     private ConnectorDcl[] connectorDcls;
     private VariableDcl[] variableDcls;
     private Resource[] resources;
 
-    public Service(Identifier serviceName,
+    public Service(SymbolName serviceName,
                    Annotation[] annotations,
                    ConnectorDcl[] connectorDcls,
                    VariableDcl[] variableDcls,
@@ -79,10 +79,10 @@ public class Service implements Executable, Node {
     }
 
     /**
-     * @param identifier Service Identifier
+     * @param symbolName Service Identifier
      */
-    public Service(Identifier identifier) {
-        this.name = identifier;
+    public Service(SymbolName symbolName) {
+        this.name = symbolName;
     }
 
     /**
@@ -90,7 +90,7 @@ public class Service implements Executable, Node {
      *
      * @return Service Identifier
      */
-    public Identifier getIdentifier() {
+    public SymbolName getSymbolName() {
         return name;
     }
 

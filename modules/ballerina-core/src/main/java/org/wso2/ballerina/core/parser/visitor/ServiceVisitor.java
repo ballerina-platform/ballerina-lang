@@ -19,9 +19,9 @@ package org.wso2.ballerina.core.parser.visitor;
 
 import org.wso2.ballerina.core.interpreter.SymbolTable;
 import org.wso2.ballerina.core.model.Annotation;
-import org.wso2.ballerina.core.model.Identifier;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
+import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.VariableDcl;
 import org.wso2.ballerina.core.parser.BallerinaBaseVisitor;
 import org.wso2.ballerina.core.parser.BallerinaParser;
@@ -53,8 +53,8 @@ public class ServiceVisitor extends BallerinaBaseVisitor {
     public Object visitServiceDefinition(BallerinaParser.ServiceDefinitionContext ctx) {
         // Create the service object
         String serviceName = ctx.Identifier().getText();
-        Identifier identifier = new Identifier(serviceName);
-        Service serviceObject = new Service(identifier);
+        SymbolName symbolName = new SymbolName(serviceName);
+        Service serviceObject = new Service(symbolName);
 
         // Read the Annotations
         AnnotationVisitor annotationVisitor = new AnnotationVisitor();
@@ -78,7 +78,7 @@ public class ServiceVisitor extends BallerinaBaseVisitor {
                 ctx.serviceBody().serviceBodyDeclaration().variableDeclaration()) {
             VariableDcl variableDcl = (VariableDcl) variableDeclarationContext.accept(variableDeclarationVisitor);
             serviceObject.addVariable(variableDcl);
-            serviceSymbolTable.put(variableDcl.getIdentifier(),
+            serviceSymbolTable.put(variableDcl.getSymbolName(),
                     BValueFactory.createBValueFromVariableDeclaration(variableDcl));
         }
 

@@ -33,17 +33,17 @@ public class ConnectorDcl implements Node {
     String connectorName;
 
     /* Name of the Connection instance */
-    Identifier connectionIdentifier;
+    SymbolName connectionSymbolName;
 
     List<String> argValues;
 
     /**
      * @param connectorName        Name of the Connector which Connection is instantiated against
-     * @param connectionIdentifier Identifier of the Connection instance
+     * @param connectionSymbolName Identifier of the Connection instance
      */
-    public ConnectorDcl(String connectorName, Identifier connectionIdentifier) {
+    public ConnectorDcl(String connectorName, SymbolName connectionSymbolName) {
         this.connectorName = connectorName;
-        this.connectionIdentifier = connectionIdentifier;
+        this.connectionSymbolName = connectionSymbolName;
     }
 
     /**
@@ -60,8 +60,8 @@ public class ConnectorDcl implements Node {
      *
      * @return identifier of the Connection instance
      */
-    public Identifier getConnectionIdentifier() {
-        return connectionIdentifier;
+    public SymbolName getConnectionSymbolName() {
+        return connectionSymbolName;
     }
 
     /**

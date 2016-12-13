@@ -17,7 +17,7 @@
 */
 package org.wso2.ballerina.core.model.types;
 
-import org.wso2.ballerina.core.model.Identifier;
+import org.wso2.ballerina.core.model.SymbolName;
 
 /**
  * {@code Field} represents a field declaration in a {@code StructType}
@@ -26,9 +26,9 @@ import org.wso2.ballerina.core.model.Identifier;
  */
 public class Field {
     private Type type;
-    private Identifier name;
+    private SymbolName name;
 
-    public Field(Type type, Identifier name) {
+    public Field(Type type, SymbolName name) {
         this.type = type;
         this.name = name;
     }

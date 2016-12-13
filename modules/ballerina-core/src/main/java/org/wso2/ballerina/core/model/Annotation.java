@@ -34,10 +34,10 @@ public class Annotation implements Node {
 
     // TODO Refactor these instance variables
     private String name;
-    private Identifier identifier;
+    private SymbolName symbolName;
     private String value;
     private Map<String, String> keyValPairs = new HashMap<>();
-    private Map<Identifier, String> elementPair = new HashMap<>();
+    private Map<SymbolName, String> elementPair = new HashMap<>();
 
     public Annotation(String name) {
         this.name = name;
@@ -53,8 +53,8 @@ public class Annotation implements Node {
         this.keyValPairs = keyValPairs;
     }
 
-    public Annotation(Identifier name, String value, Map<Identifier, String> keyValPairs) {
-        this.identifier = name;
+    public Annotation(SymbolName name, String value, Map<SymbolName, String> keyValPairs) {
+        this.symbolName = name;
         this.value = value;
         this.elementPair = keyValPairs;
     }
@@ -106,11 +106,11 @@ public class Annotation implements Node {
      */
     public static class AnnotationBuilder {
 
-        private Identifier name;
+        private SymbolName name;
         private String value;
-        private Map<Identifier, String> keyValPairs = new HashMap<>();
+        private Map<SymbolName, String> keyValPairs = new HashMap<>();
 
-        public void setName(Identifier name) {
+        public void setName(SymbolName name) {
             this.name = name;
         }
 
@@ -118,7 +118,7 @@ public class Annotation implements Node {
             this.value = value;
         }
 
-        public void addKeyValuePair(Identifier key, String value) {
+        public void addKeyValuePair(SymbolName key, String value) {
             this.keyValPairs.put(key, value);
         }
 

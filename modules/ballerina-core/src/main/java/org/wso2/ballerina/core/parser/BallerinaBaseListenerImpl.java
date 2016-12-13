@@ -26,7 +26,7 @@ import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.ConnectorDcl;
 import org.wso2.ballerina.core.model.Connector;
-import org.wso2.ballerina.core.model.Identifier;
+import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.Import;
 import org.wso2.ballerina.core.model.Operator;
 import org.wso2.ballerina.core.model.Parameter;
@@ -154,7 +154,7 @@ public class BallerinaBaseListenerImpl extends BallerinaBaseListener {
     @Override
     public void exitServiceDefinition(BallerinaParser.ServiceDefinitionContext ctx) {
 
-        Identifier serviceName = new Identifier(ctx.Identifier().getText());
+        SymbolName serviceName = new SymbolName(ctx.Identifier().getText());
 
         Annotation[] annotations = new Annotation[ctx.annotation().size()];
         for (int i = 0; i < annotations.length; i++) {
@@ -193,7 +193,7 @@ public class BallerinaBaseListenerImpl extends BallerinaBaseListener {
 
     @Override
     public void exitFunctionDefinition(FunctionDefinitionContext ctx) {
-        Identifier functionName = new Identifier(ctx.Identifier(0).getText());
+        SymbolName functionName = new SymbolName(ctx.Identifier(0).getText());
         boolean isPublicFunction = !ctx.getTokens(31)
                 .isEmpty(); //since function body cannot have public keyword inside.
 
@@ -245,7 +245,7 @@ public class BallerinaBaseListenerImpl extends BallerinaBaseListener {
 
     @Override
     public void exitConnectorDefinition(BallerinaParser.ConnectorDefinitionContext ctx) {
-        Identifier connectorName = new Identifier(ctx.Identifier().getText());
+        SymbolName connectorName = new SymbolName(ctx.Identifier().getText());
 
         Annotation[] annotations = new Annotation[ctx.annotation().size()];
         for (int i = 0; i < annotations.length; i++) {
@@ -307,7 +307,7 @@ public class BallerinaBaseListenerImpl extends BallerinaBaseListener {
         } else if (ctx instanceof VariableReferenceExpressionContext) {
             VariableReferenceExpressionContext binaryExpCtx = (VariableReferenceExpressionContext) ctx;
             //todo can extract whether simple, map , array or struct reference
-            return new VariableRefExpr(new Identifier(binaryExpCtx.variableReference().getText()));
+            return new VariableRefExpr(new SymbolName(binaryExpCtx.variableReference().getText()));
 
         } else if (ctx instanceof TemplateExpressionContext) {
             TemplateExpressionContext binaryExpCtx = (TemplateExpressionContext) ctx;
@@ -322,7 +322,7 @@ public class BallerinaBaseListenerImpl extends BallerinaBaseListener {
             for (ExpressionContext expressionContext : funInoCtx.argumentList().expressionList().expression()) {
                 expressionList.add(parserExpressionCtx(expressionContext));
             }
-            return new FunctionInvocationExpr(new Identifier(funInoCtx.functionName().getText()), expressionList);
+            return new FunctionInvocationExpr(new SymbolName(funInoCtx.functionName().getText()), expressionList);
 
         } else if (ctx instanceof ActionInvocationExpressionContext) {
             ActionInvocationExpressionContext actionInoCtx = (ActionInvocationExpressionContext) ctx;
@@ -442,7 +442,7 @@ public class BallerinaBaseListenerImpl extends BallerinaBaseListener {
             AssignmentStatementContext assignmentStmtCtx = (AssignmentStatementContext) ctx;
 
             VariableRefExpr variableRefExpr = new VariableRefExpr(
-                    new Identifier(assignmentStmtCtx.variableReference().getText()));
+                    new SymbolName(assignmentStmtCtx.variableReference().getText()));
 
             Expression expression = parserExpressionCtx(assignmentStmtCtx.expression());
             return new AssignStmt(variableRefExpr, expression);
@@ -562,7 +562,7 @@ public class BallerinaBaseListenerImpl extends BallerinaBaseListener {
 
     private VariableDcl parserVariableDclCtx(VariableDeclarationContext ctx) {
         //todo value should be removed from constructor
-        return new VariableDcl(parserTypeName(ctx.typeName()), new Identifier(ctx.Identifier().getText()), null);
+        return new VariableDcl(parserTypeName(ctx.typeName()), new SymbolName(ctx.Identifier().getText()), null);
     }
 
     private Worker parserWorker(WorkerDeclarationContext ctx) {
@@ -590,7 +590,7 @@ public class BallerinaBaseListenerImpl extends BallerinaBaseListener {
     }
 
     private Parameter parserParameter(ParameterContext ctx) {
-        return new Parameter(parserTypeName(ctx.typeName()), new Identifier(ctx.Identifier().getText()));
+        return new Parameter(parserTypeName(ctx.typeName()), new SymbolName(ctx.Identifier().getText()));
     }
 
     private Type parserTypeName(TypeNameContext ctx) {
@@ -632,12 +632,12 @@ public class BallerinaBaseListenerImpl extends BallerinaBaseListener {
     }
 
     private ConnectorDcl parserConnection(BallerinaParser.ConnectorDeclarationContext ctx) {
-        return new ConnectorDcl(ctx.qualifiedReference().get(0).getText(), new Identifier(ctx.Identifier().getText()));
+        return new ConnectorDcl(ctx.qualifiedReference().get(0).getText(), new SymbolName(ctx.Identifier().getText()));
     }
 
     private Resource parserResource(BallerinaParser.ResourceDefinitionContext ctx) {
 
-        Identifier resourceName = new Identifier(ctx.Identifier().getText());
+        SymbolName resourceName = new SymbolName(ctx.Identifier().getText());
         Annotation[] annotations = new Annotation[ctx.annotation().size()];
         for (int i = 0; i < annotations.length; i++) {
             annotations[i] = parserAnnotation(ctx.annotation(i));
@@ -687,7 +687,7 @@ public class BallerinaBaseListenerImpl extends BallerinaBaseListener {
     }
 
     private Action parserAction(BallerinaParser.ActionDefinitionContext ctx) {
-        Identifier actionName = new Identifier(ctx.Identifier(0).getText());
+        SymbolName actionName = new SymbolName(ctx.Identifier(0).getText());
 
         Annotation[] annotations = new Annotation[ctx.annotation().size()];
         for (int i = 0; i < annotations.length; i++) {
