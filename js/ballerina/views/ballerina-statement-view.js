@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './../visitors/statement-visitor'], function (_, log, StatementVisitor) {
+define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3'], function (require, _, log, StatementVisitor, d3) {
 
     /**
      * A common class which consists functions of moving or resizing views.
@@ -28,11 +28,26 @@ define(['lodash', 'log', './../visitors/statement-visitor'], function (_, log, S
         this._height = 0;
         this._xPosition = 0;
         this._yPosition = 0;
+        this._childrenViewsList = [];
         StatementVisitor.call(this);
+        this.init();
     };
 
     BallerinaStatementView.prototype = Object.create(StatementVisitor.prototype);
     BallerinaStatementView.prototype.constructor = BallerinaStatementView;
+
+    BallerinaStatementView.prototype.init = function(){
+        //Registering event listeners
+        this.listenTo(this._model, 'childVisitedEvent', this.childVisitedCallback);
+        this.listenTo(this._parentView, 'childViewAddedEvent', this.childViewAddedCallback);
+    };
+
+    BallerinaStatementView.prototype.childVisitedCallback = function (child) {
+        this.trigger("childViewAddedEvent", child);
+    };
+
+    BallerinaStatementView.prototype.childViewAddedCallback = function (child) {
+    };
 
     BallerinaStatementView.prototype.setWidth = function (newWidth) {
         this._width = newWidth;
@@ -69,6 +84,32 @@ define(['lodash', 'log', './../visitors/statement-visitor'], function (_, log, S
     };
     BallerinaStatementView.prototype.setStatementGroup = function (getStatementGroup) {
         this._statementGroup = getStatementGroup;
+    };
+    BallerinaStatementView.prototype.getChildrenViewsList = function () {
+        return this._childrenViewsList;
+    };
+    BallerinaStatementView.prototype.changeWidth = function (dw) {
+    };
+    BallerinaStatementView.prototype.changeHeight = function (dh) {
+    };
+    BallerinaStatementView.prototype.getDiagramRenderingContext = function () {
+        return this._diagramRenderingContext;
+    };
+
+    BallerinaStatementView.prototype.visitStatement = function (statement) {
+        var StatementViewFactory = require('./statement-view-factory');
+        var statementViewFactory = new StatementViewFactory();
+        var args = {model: statement, container: this._statementGroup.node(), viewOptions: undefined, parent:this};
+        var statementView = statementViewFactory.getStatementView(args);
+        this._diagramRenderingContext.getViewModelMap()[statement.id] = statementView;
+        this._childrenViewsList.push(statementView);
+
+        // TODO: we need to keep this value as a configurable value and read from constants
+        var statementsGap = 40;
+        var statementsWidth = 100;
+        statementView.setXPosition(this.getXPosition());
+        statementView.setYPosition(this.getYPosition() + 50);
+        statementView.render(this._diagramRenderingContext);
     };
 
     return BallerinaStatementView;

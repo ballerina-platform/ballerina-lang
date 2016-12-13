@@ -150,7 +150,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             var statementViewFactory = new StatementViewFactory();
             var args = {model: statement, container: this._container, viewOptions: undefined, parent:this};
             var statementView = statementViewFactory.getStatementView(args);
-
+            this.diagramRenderingContext.getViewModelMap()[statement.id] = statementView;
             if(statementViewFactory.isGetActionStatement(statement)){
                 _.each(this.getConnectorViewList(), function (view) {
                     //TODO: Returns true for both views. Need to fix
@@ -177,7 +177,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 statementView.setYPosition(y + statementsGap);
             }
             this._statementExpressionViewList.push(statementView);
-            statementView.render();
+            statementView.render(this.diagramRenderingContext);
         };
 
         ResourceDefinitionView.prototype.visitExpression = function (statement) {

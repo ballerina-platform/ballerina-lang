@@ -64,7 +64,8 @@ define(['require', 'lodash', 'log', './ballerina-statement-view', './../ast/if-e
             var args = {model: statement, container: this.getStatementGroup(), viewOptions: undefined, parent: this};
             var statementView = statementViewFactory.getStatementView(args);
             this._ifBlockView = statementView;
-            statementView.render();
+            this._diagramRenderingContext.getViewModelMap()[statement.id] = statementView;
+            statementView.render(this._diagramRenderingContext);
         };
 
         /**
@@ -77,13 +78,15 @@ define(['require', 'lodash', 'log', './ballerina-statement-view', './../ast/if-e
             var args = {model: statement, container: this.getStatementGroup(), viewOptions: undefined, parent: this};
             var statementView = statementViewFactory.getStatementView(args);
             this._elseBlockView = statementView;
-            statementView.render();
+            this._diagramRenderingContext.getViewModelMap()[statement.id] = statementView;
+            statementView.render(this._diagramRenderingContext);
         };
 
         /**
          * Render the svg group to draw the if and the else statements
          */
-        IfElseStatementView.prototype.render = function () {
+        IfElseStatementView.prototype.render = function (diagramRenderingContext) {
+            this._diagramRenderingContext = diagramRenderingContext;
             var ifElseGroup = D3Utils.group(d3.select(this._container));
             this.setStatementGroup(ifElseGroup);
             this._model.accept(this);
@@ -148,6 +151,33 @@ define(['require', 'lodash', 'log', './ballerina-statement-view', './../ast/if-e
 
         IfElseStatementView.prototype.getElseBlockView = function () {
             return this._elseBlockView;
+        };
+
+        IfElseStatementView.prototype.increaseChildrenWidth = function (child) {
+            var childWidth = (this._diagramRenderingContext.getViewModelMap()[child.id]).getWidth();
+            var childHeight = (this._diagramRenderingContext.getViewModelMap()[child.id]).getHeight();
+            var dw = 20;
+            if (!_.isUndefined(this._elseBlockView)) {
+                this._elseBlockView.getStatementGroup().outerRect.attr('width', childWidth + dw);
+                var currentX = this._elseBlockView.getStatementGroup().outerRect.attr('x');
+                this._elseBlockView.getStatementGroup().outerRect.attr('x', currentX - dw/2);
+            }
+            if (!_.isUndefined(this._ifBlockView)) {
+                this._ifBlockView.getStatementGroup().outerRect.attr('width', childWidth + dw);
+                var currentX = this._ifBlockView.getStatementGroup().outerRect.attr('x');
+                this._ifBlockView.getStatementGroup().outerRect.attr('x', currentX - dw/2);
+            }
+        };
+
+        IfElseStatementView.prototype.increaseChildrenHeight = function (child) {
+            var childHeight = (this._diagramRenderingContext.getViewModelMap()[child.id]).getHeight();
+            var dh = 20;
+            if (!_.isUndefined(this._elseBlockView)) {
+                this._elseBlockView.getStatementGroup().outerRect.attr('height', 190);
+            }
+            if (!_.isUndefined(this._ifBlockView)) {
+                this._ifBlockView.getStatementGroup().outerRect.attr('height', 190);
+            }
         };
 
         return IfElseStatementView;
