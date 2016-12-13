@@ -23,6 +23,7 @@ import org.wso2.ballerina.core.interpreter.StackFrame;
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.model.Identifier;
+import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.VariableDcl;
 import org.wso2.ballerina.core.model.values.BValueRef;
@@ -92,5 +93,10 @@ public class FunctionInvocationExpr extends AbstractExpression {
         calleeFunction.interpret(ctx);
         controlStack.popFrame();
         return returnValue;
+    }
+
+    @Override
+    public void visit(NodeVisitor visitor) {
+        visitor.visit(this);
     }
 }

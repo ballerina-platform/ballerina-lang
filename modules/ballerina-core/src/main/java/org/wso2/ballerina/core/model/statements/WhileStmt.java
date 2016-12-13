@@ -18,6 +18,7 @@
 package org.wso2.ballerina.core.model.statements;
 
 import org.wso2.ballerina.core.interpreter.Context;
+import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.expressions.Expression;
 
 /**
@@ -38,6 +39,11 @@ public class WhileStmt implements Statement {
         while (whileCondition.evaluate(ctx).getBoolean()) {
             whileBody.interpret(ctx);
         }
+    }
+
+    @Override
+    public void visit(NodeVisitor visitor) {
+        visitor.visit(this);
     }
 
     /**

@@ -30,7 +30,7 @@ import java.util.Map;
  * @since 1.0.0
  */
 @SuppressWarnings("unused")
-public class Annotation {
+public class Annotation implements Node {
 
     // TODO Refactor these instance variables
     private String name;
@@ -94,6 +94,11 @@ public class Annotation {
      */
     public String getValueOfKeyValuePair(String key) {
         return keyValPairs.get(key);
+    }
+
+    @Override
+    public void visit(NodeVisitor visitor) {
+        visitor.visit(this);
     }
 
     /**

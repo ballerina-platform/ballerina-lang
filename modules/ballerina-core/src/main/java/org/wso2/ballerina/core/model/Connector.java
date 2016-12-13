@@ -37,7 +37,7 @@ import java.util.List;
  * @since 1.0.0
  */
 @SuppressWarnings("unused")
-public class Connector {
+public class Connector implements Node {
 
     private List<Annotation> annotationList;
     private List<Parameter> arguments;
@@ -213,4 +213,8 @@ public class Connector {
         actionList.add(action);
     }
 
+    @Override
+    public void visit(NodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

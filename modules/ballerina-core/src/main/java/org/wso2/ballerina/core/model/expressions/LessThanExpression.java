@@ -18,6 +18,7 @@
 package org.wso2.ballerina.core.model.expressions;
 
 import org.wso2.ballerina.core.interpreter.Context;
+import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BValueRef;
 import org.wso2.ballerina.core.model.values.BooleanValue;
@@ -62,5 +63,10 @@ public class LessThanExpression extends BinaryCompareExpression {
 
     public LessThanExpression(Expression lExpr, Expression rExpr) {
         super(lExpr, LESS_THAN, rExpr);
+    }
+
+    @Override
+    public void visit(NodeVisitor visitor) {
+        visitor.visit(this);
     }
 }

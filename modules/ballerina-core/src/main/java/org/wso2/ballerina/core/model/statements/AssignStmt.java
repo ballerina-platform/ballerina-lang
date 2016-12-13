@@ -18,6 +18,7 @@
 package org.wso2.ballerina.core.model.statements;
 
 import org.wso2.ballerina.core.interpreter.Context;
+import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.expressions.Expression;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.values.BValueRef;
@@ -41,5 +42,18 @@ public class AssignStmt implements Statement {
         BValueRef lValue = lhsExpr.evaluate(ctx);
 
         lValue.setBValue(rValue.getBValue());
+    }
+
+    public VariableRefExpr getLExpr() {
+        return lhsExpr;
+    }
+
+    public Expression getRExpr() {
+        return rhsExpr;
+    }
+
+    @Override
+    public void visit(NodeVisitor visitor) {
+        visitor.visit(this);
     }
 }

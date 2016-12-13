@@ -49,7 +49,7 @@ import java.util.Map;
  * @since 1.0.0
  */
 @SuppressWarnings("unused")
-public class Service implements Executable {
+public class Service implements Executable, Node {
 
     private static final Logger logger = LoggerFactory.getLogger(Service.class);
 
@@ -67,10 +67,10 @@ public class Service implements Executable {
     private Resource[] resources;
 
     public Service(Identifier serviceName,
-                    Annotation[] annotations,
-                    ConnectorDcl[] connectorDcls,
-                    VariableDcl[] variableDcls,
-                    Resource[] resources) {
+                   Annotation[] annotations,
+                   ConnectorDcl[] connectorDcls,
+                   VariableDcl[] variableDcls,
+                   Resource[] resources) {
         this.name = serviceName;
         this.annotations = annotations;
         this.connectorDcls = connectorDcls;
@@ -224,5 +224,10 @@ public class Service implements Executable {
         }
 
         return resourceDispatcher.dispatch(this, context, callback);
+    }
+
+    @Override
+    public void visit(NodeVisitor visitor) {
+        visitor.visit(this);
     }
 }
