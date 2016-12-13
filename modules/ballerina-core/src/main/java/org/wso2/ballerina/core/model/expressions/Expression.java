@@ -18,6 +18,7 @@
 package org.wso2.ballerina.core.model.expressions;
 
 import org.wso2.ballerina.core.interpreter.Context;
+import org.wso2.ballerina.core.model.Node;
 import org.wso2.ballerina.core.model.types.Type;
 import org.wso2.ballerina.core.model.values.BValueRef;
 
@@ -29,7 +30,7 @@ import org.wso2.ballerina.core.model.values.BValueRef;
  * @see FunctionInvocationExpr
  * @since 1.0.0
  */
-public interface Expression {
+public interface Expression extends Node {
 
     BValueRef evaluate(Context ctx);
 
