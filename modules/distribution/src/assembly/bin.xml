@@ -32,6 +32,7 @@
                 <exclude>LICENSE.txt</exclude>
                 <exclude>release-notes.html</exclude>
                 <exclude>conf/osgi/launch.properties</exclude>
+		<exclude>conf/transports/netty-transports.yml</exclude>
                 <exclude>**/*.ipr</exclude>
                 <exclude>**/*.iwr</exclude>
                 <exclude>**/*.eclipse</exclude>
