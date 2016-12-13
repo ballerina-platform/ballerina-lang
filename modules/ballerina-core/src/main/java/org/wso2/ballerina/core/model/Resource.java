@@ -63,7 +63,7 @@ public class Resource implements Executable {
 
     private Annotation[] annotations;
     private Parameter[] parameters;
-    private Connection[] connections;
+    private ConnectorDcl[] connectorDcls;
     private VariableDcl[] variableDcls;
     private Worker[] workers;
     private BlockStmt resourceBody;
@@ -81,7 +81,7 @@ public class Resource implements Executable {
     public Resource(Identifier name,
                     Annotation[] annotations,
                     Parameter[] parameters,
-                    Connection[] connections,
+                    ConnectorDcl[] connectorDcls,
                     VariableDcl[] variableDcls,
                     Worker[] workers,
                     BlockStmt functionBody) {
@@ -89,7 +89,7 @@ public class Resource implements Executable {
         this.resourceName = name;
         this.annotations = annotations;
         this.parameters = parameters;
-        this.connections = connections;
+        this.connectorDcls = connectorDcls;
         this.variableDcls = variableDcls;
 
         /* To Do : Do we pass multiple workers from the model? */
@@ -176,26 +176,26 @@ public class Resource implements Executable {
      *
      * @return list of all the Connections belongs to the default Worker of the Resource
      */
-    public List<Connection> getConnections() {
-        return defaultWorker.getConnections();
+    public List<ConnectorDcl> getConnectorDcls() {
+        return defaultWorker.getConnectorDcls();
     }
 
     /**
      * Assign connections to the default Worker of the Resource
      *
-     * @param connections list of connections to be assigned to the default Worker of the Resource
+     * @param connectorDcls list of connections to be assigned to the default Worker of the Resource
      */
-    public void setConnections(List<Connection> connections) {
-        defaultWorker.setConnections(connections);
+    public void setConnectorDcls(List<ConnectorDcl> connectorDcls) {
+        defaultWorker.setConnectorDcls(connectorDcls);
     }
 
     /**
      * Add a {@code Connection} to the default Worker of the Resource
      *
-     * @param connection Connection to be added to the default Worker of the Resource
+     * @param connectorDcl Connection to be added to the default Worker of the Resource
      */
-    public void addConnection(Connection connection) {
-        defaultWorker.addConnection(connection);
+    public void addConnection(ConnectorDcl connectorDcl) {
+        defaultWorker.addConnection(connectorDcl);
     }
 
     /**

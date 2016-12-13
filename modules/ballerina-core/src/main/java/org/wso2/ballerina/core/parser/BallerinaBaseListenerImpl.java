@@ -24,7 +24,7 @@ import org.wso2.ballerina.core.model.Action;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
-import org.wso2.ballerina.core.model.Connection;
+import org.wso2.ballerina.core.model.ConnectorDcl;
 import org.wso2.ballerina.core.model.Connector;
 import org.wso2.ballerina.core.model.Identifier;
 import org.wso2.ballerina.core.model.Import;
@@ -163,13 +163,13 @@ public class BallerinaBaseListenerImpl extends BallerinaBaseListener {
 
         BallerinaParser.ServiceBodyDeclarationContext serviceBodyCtx = ctx.serviceBody().serviceBodyDeclaration();
 
-        Connection[] connections = null;
+        ConnectorDcl[] connectorDcls = null;
         List<BallerinaParser.ConnectorDeclarationContext> connectorDeclarationContexts = serviceBodyCtx
                 .connectorDeclaration();
         if (connectorDeclarationContexts != null) {
-            connections = new Connection[connectorDeclarationContexts.size()];
-            for (int i = 0; i < connections.length; i++) {
-                connections[i] = parserConnection(connectorDeclarationContexts.get(i));
+            connectorDcls = new ConnectorDcl[connectorDeclarationContexts.size()];
+            for (int i = 0; i < connectorDcls.length; i++) {
+                connectorDcls[i] = parserConnection(connectorDeclarationContexts.get(i));
             }
         }
 
@@ -187,7 +187,7 @@ public class BallerinaBaseListenerImpl extends BallerinaBaseListener {
             resources[i] = parserResource(serviceBodyCtx.resourceDefinition(i));
         }
 
-        Service service = new Service(serviceName, annotations, connections, variables, resources);
+        Service service = new Service(serviceName, annotations, connectorDcls, variables, resources);
         fileBuilder.addService(service);
     }
 
@@ -254,13 +254,13 @@ public class BallerinaBaseListenerImpl extends BallerinaBaseListener {
 
         BallerinaParser.ConnectorBodyContext connectorBodyContext = ctx.connectorBody();
 
-        Connection[] connections = null;
+        ConnectorDcl[] connectorDcls = null;
         List<BallerinaParser.ConnectorDeclarationContext> connectorDeclarationContexts = connectorBodyContext
                 .connectorDeclaration();
         if (connectorDeclarationContexts != null) {
-            connections = new Connection[connectorDeclarationContexts.size()];
-            for (int i = 0; i < connections.length; i++) {
-                connections[i] = parserConnection(connectorDeclarationContexts.get(i));
+            connectorDcls = new ConnectorDcl[connectorDeclarationContexts.size()];
+            for (int i = 0; i < connectorDcls.length; i++) {
+                connectorDcls[i] = parserConnection(connectorDeclarationContexts.get(i));
             }
         }
 
@@ -278,7 +278,7 @@ public class BallerinaBaseListenerImpl extends BallerinaBaseListener {
             actions[i] = parserAction(connectorBodyContext.actionDefinition(i));
         }
 
-        Connector connector = new Connector(connectorName, annotations, connections, variables, actions);
+        Connector connector = new Connector(connectorName, annotations, connectorDcls, variables, actions);
         fileBuilder.addConnector(connector);
     }
 
@@ -631,8 +631,8 @@ public class BallerinaBaseListenerImpl extends BallerinaBaseListener {
         return null;
     }
 
-    private Connection parserConnection(BallerinaParser.ConnectorDeclarationContext ctx) {
-        return new Connection(ctx.qualifiedReference().get(0).getText(), new Identifier(ctx.Identifier().getText()));
+    private ConnectorDcl parserConnection(BallerinaParser.ConnectorDeclarationContext ctx) {
+        return new ConnectorDcl(ctx.qualifiedReference().get(0).getText(), new Identifier(ctx.Identifier().getText()));
     }
 
     private Resource parserResource(BallerinaParser.ResourceDefinitionContext ctx) {
@@ -649,13 +649,13 @@ public class BallerinaBaseListenerImpl extends BallerinaBaseListener {
             parameters[i] = parserParameter(ctx.parameterList().parameter(i));
         }
 
-        Connection[] connections = null;
+        ConnectorDcl[] connectorDcls = null;
         List<BallerinaParser.ConnectorDeclarationContext> connectorDeclarationContexts = ctx.functionBody()
                 .connectorDeclaration();
         if (connectorDeclarationContexts != null) {
-            connections = new Connection[connectorDeclarationContexts.size()];
-            for (int i = 0; i < connections.length; i++) {
-                connections[i] = parserConnection(connectorDeclarationContexts.get(i));
+            connectorDcls = new ConnectorDcl[connectorDeclarationContexts.size()];
+            for (int i = 0; i < connectorDcls.length; i++) {
+                connectorDcls[i] = parserConnection(connectorDeclarationContexts.get(i));
             }
         }
 
@@ -682,7 +682,7 @@ public class BallerinaBaseListenerImpl extends BallerinaBaseListener {
             statements[i] = parserStatementCtx(ctx.functionBody().statement(i).getChild(0));
         }
 
-        return new Resource(resourceName, annotations, parameters, connections, variables, workers,
+        return new Resource(resourceName, annotations, parameters, connectorDcls, variables, workers,
                 new BlockStmt(statements));
     }
 
@@ -709,13 +709,13 @@ public class BallerinaBaseListenerImpl extends BallerinaBaseListener {
             }
         }
 
-        Connection[] connections = null;
+        ConnectorDcl[] connectorDcls = null;
         List<BallerinaParser.ConnectorDeclarationContext> connectorDeclarationContexts = ctx.functionBody()
                 .connectorDeclaration();
         if (connectorDeclarationContexts != null) {
-            connections = new Connection[connectorDeclarationContexts.size()];
-            for (int i = 0; i < connections.length; i++) {
-                connections[i] = parserConnection(connectorDeclarationContexts.get(i));
+            connectorDcls = new ConnectorDcl[connectorDeclarationContexts.size()];
+            for (int i = 0; i < connectorDcls.length; i++) {
+                connectorDcls[i] = parserConnection(connectorDeclarationContexts.get(i));
             }
         }
 
@@ -742,7 +742,7 @@ public class BallerinaBaseListenerImpl extends BallerinaBaseListener {
             statements[i] = parserStatementCtx(ctx.functionBody().statement(i).getChild(0));
         }
 
-        return new Action(actionName, annotations, parameters, returnTypes, connections, variables, workers,
+        return new Action(actionName, annotations, parameters, returnTypes, connectorDcls, variables, workers,
                 new BlockStmt(statements));
     }
 

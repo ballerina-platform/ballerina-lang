@@ -20,8 +20,8 @@ package org.wso2.ballerina.core.parser.visitor;
 import org.wso2.ballerina.core.interpreter.SymbolTable;
 import org.wso2.ballerina.core.model.Action;
 import org.wso2.ballerina.core.model.Annotation;
-import org.wso2.ballerina.core.model.Connection;
 import org.wso2.ballerina.core.model.Connector;
+import org.wso2.ballerina.core.model.ConnectorDcl;
 import org.wso2.ballerina.core.model.Identifier;
 import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.VariableDcl;
@@ -50,7 +50,7 @@ public class ConnectorVisitor extends BallerinaBaseVisitor {
      */
     @Override
     public Object visitConnectorDeclaration(BallerinaParser.ConnectorDeclarationContext ctx) {
-        Connection connection = new Connection(ctx.qualifiedReference().get(0).Identifier().getText(),
+        ConnectorDcl connection = new ConnectorDcl(ctx.qualifiedReference().get(0).Identifier().getText(),
                 new Identifier(ctx.Identifier().getText()));
         // TODO: 12/11/16 : Need to read the argument list and set to the connection object
 //        if(ctx.expressionList() != null) {
@@ -91,7 +91,7 @@ public class ConnectorVisitor extends BallerinaBaseVisitor {
 
         // Read the connector declarations
         for (BallerinaParser.ConnectorDeclarationContext cdc : ctx.connectorBody().connectorDeclaration()) {
-            connectorObject.addConnection((Connection) this.visitConnectorDeclaration(cdc));
+            connectorObject.addConnection((ConnectorDcl) this.visitConnectorDeclaration(cdc));
         }
 
         // Read the variable declarations

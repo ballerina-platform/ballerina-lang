@@ -44,7 +44,7 @@ import java.util.List;
 @SuppressWarnings("unused")
 public class Worker implements Executable {
 
-    private List<Connection> connections;
+    private List<ConnectorDcl> connectorDcls;
     private List<VariableDcl> variables;
     private List<Statement> statements;
 
@@ -60,29 +60,29 @@ public class Worker implements Executable {
      *
      * @return list of all the Connections belongs to the Worker
      */
-    public List<Connection> getConnections() {
-        return connections;
+    public List<ConnectorDcl> getConnectorDcls() {
+        return connectorDcls;
     }
 
     /**
      * Assign connections to the Worker
      *
-     * @param connections list of connections to be assigned to the Worker
+     * @param connectorDcls list of connections to be assigned to the Worker
      */
-    public void setConnections(List<Connection> connections) {
-        this.connections = connections;
+    public void setConnectorDcls(List<ConnectorDcl> connectorDcls) {
+        this.connectorDcls = connectorDcls;
     }
 
     /**
      * Add a {@code Connection} to the Worker
      *
-     * @param connection Connection to be added to the Worker
+     * @param connectorDcl Connection to be added to the Worker
      */
-    public void addConnection(Connection connection) {
-        if (connections == null) {
-            connections = new ArrayList<Connection>();
+    public void addConnection(ConnectorDcl connectorDcl) {
+        if (connectorDcls == null) {
+            connectorDcls = new ArrayList<ConnectorDcl>();
         }
-        connections.add(connection);
+        connectorDcls.add(connectorDcl);
     }
 
     /**

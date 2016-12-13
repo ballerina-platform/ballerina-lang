@@ -45,7 +45,7 @@ public class BallerinaFunction implements Function {
 
     private Annotation[] annotations;
     private Parameter[] parameters;
-    private Connection[] connections;
+    private ConnectorDcl[] connectorDcls;
     private VariableDcl[] variableDcls;
     private Worker[] workers;
 
@@ -59,7 +59,7 @@ public class BallerinaFunction implements Function {
                              Annotation[] annotations,
                              Parameter[] parameters,
                              Type[] returnTypes,
-                             Connection[] connections,
+                             ConnectorDcl[] connectorDcls,
                              VariableDcl[] variableDcls,
                              Worker[] workers,
                              BlockStmt functionBody) {
@@ -69,7 +69,7 @@ public class BallerinaFunction implements Function {
         this.annotations = annotations;
         this.parameters = parameters;
         this.returnTypes = returnTypes;
-        this.connections = connections;
+        this.connectorDcls = connectorDcls;
         this.variableDcls = variableDcls;
         this.workers = workers;
         this.functionBody = functionBody;
@@ -112,8 +112,8 @@ public class BallerinaFunction implements Function {
      *
      * @return list of all the Connections belongs to a BallerinaFunction
      */
-    public Connection[] getConnections() {
-        return connections;
+    public ConnectorDcl[] getConnectorDcls() {
+        return connectorDcls;
     }
 
 
