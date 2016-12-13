@@ -19,6 +19,7 @@
 package org.wso2.ballerina.core.model.statements;
 
 import org.wso2.ballerina.core.interpreter.Interpreter;
+import org.wso2.ballerina.core.model.Node;
 
 /**
  * Represents a statement. All statements nodes implements this interface.
@@ -28,5 +29,5 @@ import org.wso2.ballerina.core.interpreter.Interpreter;
  *
  * @since 1.0.0
  */
-public interface Statement extends Interpreter   {
+public interface Statement extends Interpreter, Node {
 }
