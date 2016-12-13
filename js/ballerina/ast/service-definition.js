@@ -81,6 +81,20 @@ define(['lodash', './node'], function (_, ASTNode) {
         return this._connectionDeclarations;
     };
 
+
+    /**
+     * Validates possible immediate child types.
+     * @override
+     * @param node
+     * @return {boolean}
+     */
+    ServiceDefinition.prototype.canBeParentOf = function (node) {
+        var BallerinaASTFactory = this.getFactory();
+        return BallerinaASTFactory.isResourceDefinition(node)
+            || BallerinaASTFactory.isVariableDeclaration(node)
+            || BallerinaASTFactory.isConnectorDeclaration(node);
+    };
+
     return ServiceDefinition;
 
 });
