@@ -19,6 +19,7 @@ package org.wso2.ballerina.core.model.expressions;
 
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Identifier;
+import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.values.BValueRef;
 
 import java.util.function.Function;
@@ -52,5 +53,10 @@ public class VariableRefExpr extends AbstractExpression {
 
     public static Function<Context, BValueRef> createGetLocalValueFunc(int index) {
         return context -> context.getControlStack().getCurrentFrame().localVariables[index];
+    }
+
+    @Override
+    public void visit(NodeVisitor visitor) {
+        visitor.visit(this);
     }
 }
