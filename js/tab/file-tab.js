@@ -36,21 +36,21 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             Tab.prototype.render.call(this);
             var ballerinaEditorOptions = _.get(this.options, 'ballerina_editor');
 
-//            var ballerinaASTFactory = new Ballerina.ast.BallerinaASTFactory();
-//            var ballerinaAstRoot = ballerinaASTFactory.createBallerinaAstRoot();
+//            var BallerinaASTFactory = new Ballerina.ast.BallerinaASTFactory();
+//            var ballerinaAstRoot = BallerinaASTFactory.createBallerinaAstRoot();
 //            var serviceDefinitions = [];
 //            var serviceDefinitions1 = [];
 //
 //            // Create sample connector definition
 //            var connectorDefinitions = [];
-//            var connectorDefinition1 = ballerinaASTFactory.createConnectorDefinition();
+//            var connectorDefinition1 = BallerinaASTFactory.createConnectorDefinition();
 //            connectorDefinitions.push(connectorDefinition1);
 //
-//            var serviceDefinition1 = ballerinaASTFactory.createServiceDefinition();
+//            var serviceDefinition1 = BallerinaASTFactory.createServiceDefinition();
 //            serviceDefinition1.setBasePath("/basePath1");
 //
 //            // Create Sample Resource Definitions
-//            var resourceDefinition1 = ballerinaASTFactory.createResourceDefinition();
+//            var resourceDefinition1 = BallerinaASTFactory.createResourceDefinition();
 //
 //            ballerinaAstRoot.addChild(serviceDefinition1);
 //
@@ -65,7 +65,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
 //            var functionDefinitions = [];
 //            var functionDefinitions1 = [];
 //
-//            var functionDefinition1 = ballerinaASTFactory.createFunctionDefinition();
+//            var functionDefinition1 = BallerinaASTFactory.createFunctionDefinition();
 //            functionDefinitions.push(functionDefinition1);
 //            ballerinaAstRoot.addChild(functionDefinition1);
 //            ballerinaAstRoot.setFunctionDefinitions(functionDefinitions);
