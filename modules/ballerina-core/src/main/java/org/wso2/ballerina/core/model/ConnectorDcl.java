@@ -27,7 +27,7 @@ import java.util.List;
  * @since 1.0.0
  */
 @SuppressWarnings("unused")
-public class Connection {
+public class ConnectorDcl {
 
     /* Name of the Connector which Connection is instantiated against */
     String connectorName;
@@ -42,7 +42,7 @@ public class Connection {
      * @param connectorName Name of the Connector which Connection is instantiated against
      * @param connectionIdentifier Identifier of the Connection instance
      */
-    public Connection(String connectorName, Identifier connectionIdentifier) {
+    public ConnectorDcl(String connectorName, Identifier connectionIdentifier) {
         this.connectorName = connectorName;
         this.connectionIdentifier = connectionIdentifier;
     }

@@ -45,7 +45,7 @@ public class Action {
 
     private List<Annotation> annotationList;
     private List<Parameter> arguments;
-    private List<Connection> connectionList;
+    private List<ConnectorDcl> connectorDclList;
     private List<VariableDcl> variables;
     private List<Worker> workerList;
     private List<Statement> statements;
@@ -53,7 +53,7 @@ public class Action {
     private Identifier name;
     private Annotation[] annotations;
     private Parameter[] parameters;
-    private Connection[] connections;
+    private ConnectorDcl[] connectorDcls;
     private VariableDcl[] variableDcls;
     private Worker[] workers;
     private Type[] returnTypes;
@@ -63,7 +63,7 @@ public class Action {
                   Annotation[] annotations,
                   Parameter[] parameters,
                   Type[] returnTypes,
-                  Connection[] connections,
+                  ConnectorDcl[] connectorDcls,
                   VariableDcl[] variableDcls,
                   Worker[] workers,
                   BlockStmt functionBody) {
@@ -72,7 +72,7 @@ public class Action {
         this.annotations = annotations;
         this.parameters = parameters;
         this.returnTypes = returnTypes;
-        this.connections = connections;
+        this.connectorDcls = connectorDcls;
         this.variableDcls = variableDcls;
         this.workers = workers;
         this.functionBody = functionBody;
@@ -145,29 +145,29 @@ public class Action {
      *
      * @return list of all the Connections belongs to a Action
      */
-    public List<Connection> getConnections() {
-        return connectionList;
+    public List<ConnectorDcl> getConnectorDcls() {
+        return connectorDclList;
     }
 
     /**
      * Assign connections to the Action
      *
-     * @param connections list of connections to be assigned to a Action
+     * @param connectorDcls list of connections to be assigned to a Action
      */
-    public void setConnections(List<Connection> connections) {
-        this.connectionList = connections;
+    public void setConnectorDcls(List<ConnectorDcl> connectorDcls) {
+        this.connectorDclList = connectorDcls;
     }
 
     /**
      * Add a {@code Connection} to the Action
      *
-     * @param connection Connection to be added to the Action
+     * @param connectorDcl Connection to be added to the Action
      */
-    public void addConnection(Connection connection) {
-        if (connectionList == null) {
-            connectionList = new ArrayList<Connection>();
+    public void addConnection(ConnectorDcl connectorDcl) {
+        if (connectorDclList == null) {
+            connectorDclList = new ArrayList<ConnectorDcl>();
         }
-        connectionList.add(connection);
+        connectorDclList.add(connectorDcl);
     }
 
     /**

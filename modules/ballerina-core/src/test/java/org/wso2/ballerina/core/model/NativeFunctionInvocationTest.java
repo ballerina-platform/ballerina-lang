@@ -88,7 +88,7 @@ public class NativeFunctionInvocationTest {
         Type[] returnTypes = new Type[1];
         returnTypes[0] = new StringType();
 
-        Connection[] connections = new Connection[0];
+        ConnectorDcl[] connectorDcls = new ConnectorDcl[0];
 
         Worker[] workers = new Worker[0];
 
@@ -132,7 +132,7 @@ public class NativeFunctionInvocationTest {
                 annotations,
                 parameters,
                 returnTypes,
-                connections,
+                connectorDcls,
                 variableDcls,
                 workers,
                 funcBody);
