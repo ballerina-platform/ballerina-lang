@@ -41,7 +41,7 @@ import java.util.List;
  * @since 1.0.0
  */
 @SuppressWarnings("unused")
-public class Action {
+public class Action implements Node {
 
     private List<Annotation> annotationList;
     private List<Parameter> arguments;
@@ -260,4 +260,8 @@ public class Action {
         statements.add(statement);
     }
 
+    @Override
+    public void visit(NodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }
