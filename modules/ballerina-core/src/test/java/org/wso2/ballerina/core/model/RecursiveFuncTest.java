@@ -27,7 +27,7 @@ import org.wso2.ballerina.core.model.expressions.BasicLiteral;
 import org.wso2.ballerina.core.model.expressions.Expression;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.LessEqualExpression;
-import org.wso2.ballerina.core.model.expressions.SubstractExpression;
+import org.wso2.ballerina.core.model.expressions.SubtractExpression;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.statements.IfElseStmt;
@@ -90,15 +90,15 @@ public class RecursiveFuncTest {
 
         // Else body
         // fibonacci(n-1)
-        SubstractExpression subExpr1 = new SubstractExpression(varRefExprN, intLiteral1);
-        subExpr1.setEvalFunc(SubstractExpression.SUB_LONG_FUNC);
+        SubtractExpression subExpr1 = new SubtractExpression(varRefExprN, intLiteral1);
+        subExpr1.setEvalFunc(SubtractExpression.SUB_LONG_FUNC);
         List<Expression> fInvoExprs = new ArrayList<>(1);
         fInvoExprs.add(subExpr1);
         FunctionInvocationExpr fInvoExpr1 = new FunctionInvocationExpr(new Identifier("fibonacci"), fInvoExprs);
 
         // fibonacci(n-2)
-        SubstractExpression subExpr2 = new SubstractExpression(varRefExprN, intLiteral2);
-        subExpr2.setEvalFunc(SubstractExpression.SUB_LONG_FUNC);
+        SubtractExpression subExpr2 = new SubtractExpression(varRefExprN, intLiteral2);
+        subExpr2.setEvalFunc(SubtractExpression.SUB_LONG_FUNC);
         fInvoExprs = new ArrayList<>(1);
         fInvoExprs.add(subExpr2);
         FunctionInvocationExpr fInvoExpr2 = new FunctionInvocationExpr(new Identifier("fibonacci"), fInvoExprs);
