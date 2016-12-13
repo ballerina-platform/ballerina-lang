@@ -27,9 +27,8 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
          * @constructor
          */
         var FunctionDefinitionView = function (args) {
-            this._model = _.get(args, "model");
-            this._container = _.get(args, "container");
-            this._viewOptions = _.get(args, "viewOptions", {});
+            Canvas.call(this, args);
+
             this._defaultWorkerLifeLine = undefined;
             // TODO: Check whether the possibility of adding this to the generic level
             this._workerAndConnectorViews = [];
@@ -44,7 +43,6 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
                 throw "Container for function definition is undefined." + this._container;
             }
 
-            Canvas.call(this);
 
         };
 

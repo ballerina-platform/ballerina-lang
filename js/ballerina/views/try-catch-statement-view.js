@@ -28,9 +28,8 @@ define(['require', 'lodash', 'log', './ballerina-statement-view', './../ast/tryc
          * @constructor
          */
         var TryCatchStatementView = function (args) {
-            this._model = _.get(args, "model");
-            this._container = _.get(args, "container");
-            this._viewOptions = _.get(args, "viewOptions", {});
+            BallerinaStatementView.call(this, args);
+
             this._tryBlockView = undefined;
             this._catchBlockView = undefined;
 
@@ -43,8 +42,6 @@ define(['require', 'lodash', 'log', './ballerina-statement-view', './../ast/tryc
                 log.error("Container for Try Catch statement is undefined." + this._container);
                 throw "Container for Try Catch statement is undefined." + this._container;
             }
-
-            BallerinaStatementView.call(this);
         };
 
         TryCatchStatementView.prototype = Object.create(BallerinaStatementView.prototype);

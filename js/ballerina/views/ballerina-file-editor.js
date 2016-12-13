@@ -28,17 +28,14 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
          * @constructor
          */
         var BallerinaFileEditor = function (args) {
-            this._model = _.get(args, 'model');
+            BallerinaView.call(this, args);
             this._canvasList = _.get(args, 'canvasList', []);
             this._id = _.get(args, "id", "Ballerina File Editor");
-            this._viewOptions = _.get(args, 'viewOptions', {});
 
             if (_.isNil(this._model) || !(this._model instanceof BallerinaASTRoot)) {
                 log.error("Ballerina AST Root is undefined or is of different type." + this._model);
                 throw "Ballerina AST Root is undefined or is of different type." + this._model;
             }
-
-            BallerinaView.call(this);
             this.init();
         };
 
@@ -111,7 +108,8 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 viewOptions: this._viewOptions,
                 container: this._$canvasContainer,
                 model: serviceDefinition,
-                parentView: this
+                parentView: this,
+                toolPalette: this.toolPalette
             });
             this.diagramRenderingContext.getViewModelMap()[serviceDefinition] = serviceDefinitionView;
             serviceDefinitionView.render(this.diagramRenderingContext);
@@ -130,7 +128,9 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             var functionDefinitionView = new FunctionDefinitionView({
                 viewOptions: this._viewOptions,
                 container: this._$canvasContainer,
-                model: functionDefinition
+                model: functionDefinition,
+                parentView: this,
+                toolPalette: this.toolPalette
             });
             functionDefinitionView.render();
         };
@@ -147,7 +147,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 throw errMsg;
             }
             // this._viewOptions.container is the root div for tab content
-            var container = $(this._viewOptions.container).find(_.get(this._viewOptions, 'design_view.container'));
+            var container = $(this._container).find(_.get(this._viewOptions, 'design_view.container'));
             this._$designViewContainer = container;
             var canvasContainer = $('<div></div>');
             canvasContainer.addClass(_.get(this._viewOptions, 'cssClass.canvas_container'));
@@ -172,7 +172,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
         BallerinaFileEditor.prototype.render = function (diagramRenderingContext, parent, options) {
             this.diagramRenderingContext = diagramRenderingContext;
             // render tool palette
-            var toolPaletteContainer = $(this._viewOptions.container).find(_.get(this._viewOptions, 'design_view.tool_palette.container')).get(0);
+            var toolPaletteContainer = $(this._container).find(_.get(this._viewOptions, 'design_view.tool_palette.container')).get(0);
             var toolPaletteOpts = _.clone(_.get(this._viewOptions, 'design_view.tool_palette'));
             toolPaletteOpts.container = toolPaletteContainer;
             this.toolPalette = new ToolPalette(toolPaletteOpts);
@@ -183,14 +183,14 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             var self = this;
 
             // container for per-tab source view TODO improve source view to wrap this logic
-            var sourceViewContainer = $(this._viewOptions.container).find(_.get(this._viewOptions, 'source_view.container'));
+            var sourceViewContainer = $(this._container).find(_.get(this._viewOptions, 'source_view.container'));
             var aceEditorContainer = $('<div></div>');
             aceEditorContainer.addClass(_.get(this._viewOptions, 'cssClass.text_editor_class'));
             sourceViewContainer.append(aceEditorContainer);
             this._sourceView = new SourceView({container: aceEditorContainer.get(0), content: "test content"});
             this._sourceView.render();
 
-            var sourceViewBtn = $(this._viewOptions.container).find(_.get(this._viewOptions, 'controls.view_source_btn'));
+            var sourceViewBtn = $(this._container).find(_.get(this._viewOptions, 'controls.view_source_btn'));
             sourceViewBtn.click(function () {
                 self.toolPalette.hide();
                 // Visit the ast model and generate the source
@@ -205,7 +205,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 sourceViewBtn.hide();
             });
 
-            var designViewBtn = $(this._viewOptions.container).find(_.get(this._viewOptions, 'controls.view_design_btn'));
+            var designViewBtn = $(this._container).find(_.get(this._viewOptions, 'controls.view_design_btn'));
             designViewBtn.click(function () {
                 self.toolPalette.show();
                 sourceViewContainer.hide();
@@ -219,15 +219,13 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             this.initDropTarget();
 
             this._model.on('child-added', function(child){
-                var ballerinaASTFactory = new BallerinaASTFactory();
                 self.visit(child);
             });
     };
 
     BallerinaFileEditor.prototype.initDropTarget = function() {
         var self = this,
-            dropActiveClass = _.get(this._viewOptions, 'cssClass.design_view_drop'),
-            ballerinaASTFactory = new BallerinaASTFactory();
+            dropActiveClass = _.get(this._viewOptions, 'cssClass.design_view_drop');
 
         // on hover over canvas area
         this._$canvasContainer.hover(function(event){
@@ -242,12 +240,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 // register this as a drop target and validate possible types of nodes to drop - second arg is a call back to validate
                 // tool view will use this to provide feedback on impossible drop zones
                 self.toolPalette.dragDropManager.setActivatedDropTarget(self._model, function(nodeBeingDragged){
-                        if (ballerinaASTFactory.isServiceDefinition(nodeBeingDragged)
-                            || ballerinaASTFactory.isFunctionDefinition(nodeBeingDragged)){
-                            return true;
-                        } else {
-                            return false;
-                        }
+                        return self._model.canBeParentOf(nodeBeingDragged) && nodeBeingDragged.canBeAChildOf(self._model);
                 });
 
                 // indicate drop area
@@ -257,19 +250,12 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 self.toolPalette.dragDropManager.once("drop-target-changed", function(){
                     self._$canvasContainer.removeClass(dropActiveClass);
                 });
-
-                // reset ui feed back on drop
-                self.toolPalette.dragDropManager.once("drag-stop", function(){
-                    self._$canvasContainer.removeClass(dropActiveClass);
-                });
             }
         }, function(event){
             // reset ui feed back on hover out
             if(self.toolPalette.dragDropManager.isOnDrag()){
                 if(_.isEqual(self.toolPalette.dragDropManager.getActivatedDropTarget(), self._model)){
-                    self._$canvasContainer.removeClass(dropActiveClass);
-                    self.toolPalette.dragDropManager.off("drag-stop");
-                    self.toolPalette.dragDropManager.off("drop-target-changed");
+                    self.toolPalette.dragDropManager.clearActivatedDropTarget();
                 }
             }
         })

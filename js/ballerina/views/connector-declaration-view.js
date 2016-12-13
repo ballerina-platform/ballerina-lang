@@ -28,9 +28,7 @@ define(['lodash','d3', 'jquery', './ballerina-view', './../ast/connector-declara
          * @constructor
          */
         var ConnectorDeclarationView = function (args) {
-            this._model = _.get(args, "model");
-            this._container = _.get(args, "container");
-            this._viewOptions = _.get(args, "viewOptions", {});
+            BallerinaView.call(this, args);
 
             if (_.isNil(this._model) || !(this._model instanceof ConnectorDeclaration)) {
                 log.error("Connection declaration is undefined or is of different type." + this._model);
@@ -42,7 +40,6 @@ define(['lodash','d3', 'jquery', './ballerina-view', './../ast/connector-declara
                 throw "Container for connection declaration is undefined." + this._container;
             }
 
-            BallerinaView.call(this);
         };
 
         ConnectorDeclarationView.prototype = Object.create(BallerinaView.prototype);

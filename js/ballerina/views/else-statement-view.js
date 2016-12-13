@@ -28,11 +28,7 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
          * @constructor
          */
         var ElseStatementView = function (args) {
-            this._model = _.get(args, "model");
-            this._container = _.get(args, "container");
-            this._viewOptions = _.get(args, "viewOptions", {});
-
-            BallerinaStatementView.call(this, _.get(args, "parent"));
+            BallerinaStatementView.call(this, args);
         };
 
         ElseStatementView.prototype = Object.create(BallerinaStatementView.prototype);

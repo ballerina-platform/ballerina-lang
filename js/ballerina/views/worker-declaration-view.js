@@ -28,9 +28,8 @@ define(['lodash', 'jquery', './ballerina-view', './../ast/worker-declaration', '
          * @constructor
          */
         var WorkerDeclarationView = function (args) {
-            this._model = _.get(args, "model");
-            this._container = _.get(args, "container");
-            this._viewOptions = _.get(args, "viewOptions", {});
+
+            BallerinaView.call(this, args);
             this._workerLifeLine = undefined;
 
             if (_.isNil(this._model) || !(this._model instanceof WorkerDeclaration)) {
@@ -43,7 +42,6 @@ define(['lodash', 'jquery', './ballerina-view', './../ast/worker-declaration', '
                 throw "Container for worker declaration is undefined." + this._container;
             }
 
-            BallerinaView.call(this);
         };
 
         WorkerDeclarationView.prototype = Object.create(BallerinaView.prototype);

@@ -27,9 +27,7 @@ define(['lodash', 'log', './ballerina-view', './../ast/while-statement', 'd3util
          * @constructor
          */
         var WhileStatementView = function (args) {
-            this._model = _.get(args, "model");
-            this._container = _.get(args, "container");
-            this._viewOptions = _.get(args, "viewOptions", {});
+            BallerinaView.call(this, args);
 
             if (_.isNil(this._model) || !(this._model instanceof WhileStatement)) {
                 log.error("While statement definition is undefined or is of different type." + this._model);
@@ -41,7 +39,6 @@ define(['lodash', 'log', './ballerina-view', './../ast/while-statement', 'd3util
                 throw "Container for while statement is undefined." + this._container;
             }
 
-            BallerinaView.call(this);
         };
 
         WhileStatementView.prototype = Object.create(BallerinaView.prototype);
