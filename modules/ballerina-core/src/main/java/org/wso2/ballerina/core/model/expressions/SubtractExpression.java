@@ -33,7 +33,7 @@ import static org.wso2.ballerina.core.model.Operator.SUB;
  *
  * @since 1.0.0
  */
-public class SubstractExpression extends BinaryArithmeticExpression {
+public class SubtractExpression extends BinaryArithmeticExpression {
 
     public static final TriFunction<Context, Expression, Expression, BValueRef> SUB_INT_FUNC =
             (ctx, lExpr, rExpr) -> {
@@ -67,7 +67,7 @@ public class SubstractExpression extends BinaryArithmeticExpression {
                 return new BValueRef(bValue);
             };
 
-    public SubstractExpression(Expression lExpr, Expression rExpr) {
+    public SubtractExpression(Expression lExpr, Expression rExpr) {
         super(lExpr, SUB, rExpr);
     }
 }

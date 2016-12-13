@@ -47,7 +47,7 @@ import org.wso2.ballerina.core.model.expressions.LessThanExpression;
 import org.wso2.ballerina.core.model.expressions.MultExpression;
 import org.wso2.ballerina.core.model.expressions.NotEqualExpression;
 import org.wso2.ballerina.core.model.expressions.OrExpression;
-import org.wso2.ballerina.core.model.expressions.SubstractExpression;
+import org.wso2.ballerina.core.model.expressions.SubtractExpression;
 import org.wso2.ballerina.core.model.expressions.UnaryExpression;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
@@ -381,7 +381,7 @@ public class BallerinaBaseListenerImpl extends BallerinaBaseListener {
 
             BinarySubExpressionContext binaryExpCtx = (BinarySubExpressionContext) ctx;
 
-            return new SubstractExpression(parserExpressionCtx(binaryExpCtx.children.get(0)),
+            return new SubtractExpression(parserExpressionCtx(binaryExpCtx.children.get(0)),
                     parserExpressionCtx(binaryExpCtx.children.get(2)));
 
         } else if (ctx instanceof BinaryOrExpressionContext) {
