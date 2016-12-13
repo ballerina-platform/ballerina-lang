@@ -38,7 +38,7 @@ public interface Function extends Interpreter {
      *
      * @return function identifier
      */
-    Identifier getIdentifier();
+    SymbolName getSymbolName();
 
     /**
      * Get all the Annotations associated with a BallerinaFunction

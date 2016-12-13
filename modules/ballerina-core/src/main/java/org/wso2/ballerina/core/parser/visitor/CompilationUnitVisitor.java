@@ -57,7 +57,7 @@ public class CompilationUnitVisitor extends BallerinaBaseVisitor {
         for (BallerinaParser.ConstantDefinitionContext cdc : ctx.constantDefinition()) {
             VariableDcl constantObject = (VariableDcl) cdc.accept(constantVisitor);
 //            balFile.addConstant(constantObject);
-            baseSymbolTable.put(constantObject.getIdentifier(),
+            baseSymbolTable.put(constantObject.getSymbolName(),
                     BValueFactory.createBValueFromVariableDeclaration(constantObject));
         }
 

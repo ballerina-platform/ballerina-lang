@@ -17,7 +17,7 @@
 */
 package org.wso2.ballerina.core.interpreter;
 
-import org.wso2.ballerina.core.model.Identifier;
+import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.carbon.messaging.CarbonMessage;
 
@@ -55,11 +55,11 @@ public class Context {
         return controlStack;
     }
 
-    public BValue lookup(Identifier id) {
+    public BValue lookup(SymbolName id) {
         return table.get(id);
     }
 
-    public void put(Identifier id, BValue value) {
+    public void put(SymbolName id, BValue value) {
         table.put(id, value);
     }
 

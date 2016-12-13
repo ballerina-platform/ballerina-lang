@@ -28,19 +28,19 @@ import org.wso2.ballerina.core.model.values.BValue;
 public class Const {
 
     private Type type;
-    private Identifier identifier;
+    private SymbolName symbolName;
     private BValue value;
 
     /**
      * Constructing a Ballerina Const Statement.
      *
      * @param type       Type of the constant
-     * @param identifier Identifier of the constant
+     * @param symbolName Identifier of the constant
      * @param value      bValueRef of the constant
      */
-    public Const(Type type, Identifier identifier, BValue value) {
+    public Const(Type type, SymbolName symbolName, BValue value) {
         this.type = type;
-        this.identifier = identifier;
+        this.symbolName = symbolName;
         this.value = value;
     }
 
@@ -58,8 +58,8 @@ public class Const {
      *
      * @return identifier of the constant declaration
      */
-    public Identifier getIdentifier() {
-        return identifier;
+    public SymbolName getSymbolName() {
+        return symbolName;
     }
 
     /**

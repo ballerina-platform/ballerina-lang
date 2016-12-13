@@ -50,7 +50,7 @@ public class Action implements Node {
     private List<Worker> workerList;
     private List<Statement> statements;
 
-    private Identifier name;
+    private SymbolName name;
     private Annotation[] annotations;
     private Parameter[] parameters;
     private ConnectorDcl[] connectorDcls;
@@ -59,7 +59,7 @@ public class Action implements Node {
     private Type[] returnTypes;
     private BlockStmt functionBody;
 
-    public Action(Identifier name,
+    public Action(SymbolName name,
                   Annotation[] annotations,
                   Parameter[] parameters,
                   Type[] returnTypes,

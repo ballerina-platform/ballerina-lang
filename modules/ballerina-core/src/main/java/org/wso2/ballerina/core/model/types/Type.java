@@ -17,7 +17,7 @@
 */
 package org.wso2.ballerina.core.model.types;
 
-import org.wso2.ballerina.core.model.Identifier;
+import org.wso2.ballerina.core.model.SymbolName;
 
 /**
  * Represents a type. All types implements this interface.
@@ -26,6 +26,6 @@ import org.wso2.ballerina.core.model.Identifier;
  */
 public interface Type {
 
-    Identifier getName();
+    SymbolName getName();
 
 }
