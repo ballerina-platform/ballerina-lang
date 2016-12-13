@@ -41,8 +41,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './point'],
             this._viewOptions.destinationPoint.x = _.get(args, "destinationPoint.x", "undefined");
             this._viewOptions.destinationPoint.y = _.get(args, "destinationPoint.y", "undefined");
 
-            this._viewOptions.inArrow = _.get(args, "inArrow", "undefined");
-            this._viewOptions.outArrow = _.get(args, "outArrow", "undefined");
+            this._viewOptions.inArrow = _.get(args, "inArrow", false);
+            this._viewOptions.outArrow = _.get(args, "outArrow", false);
             this._viewOptions.arrowX = _.get(args, "arrowX", "undefined");
             this._viewOptions.arrowY = _.get(args, "arrowY", "undefined");
             this._viewOptions.action = _.get(args, "action", "undefined");
@@ -61,26 +61,25 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './point'],
         };
 
         ActionProcessorView.prototype.render = function () {
+
+            var lineGap = 8;
+            var centerTextXGap = 40;
+            var centerTextYGap = 20;
             //TODO: move css to classes
             var processorRect = D3utils.centeredRect(new Point(this._viewOptions.centerPoint.x, this._viewOptions.centerPoint.y), this._viewOptions.width
-                , this._viewOptions.height, 0, 0, this._viewOptions.parent);
-            processorRect.attr("stroke-width", 1);
-            processorRect.attr("stroke", "#9d9d9d").attr("fill", "white");
+                , this._viewOptions.height, 0, 0, this._viewOptions.parent).classed("action-rect", true);
             var processorConnector = D3utils.line(this._viewOptions.sourcePoint.x, this._viewOptions.sourcePoint.y, this._viewOptions.destinationPoint.x,
-                this._viewOptions.destinationPoint.y, this._viewOptions.parent).classed(" client line", true);
-            processorConnector.attr("stroke", "#9d9d9d");
+                this._viewOptions.destinationPoint.y, this._viewOptions.parent).classed("action-line", true);
             //TODO: center text
-            var processorText = D3utils.textElement((this._viewOptions.centerPoint.x + 40 - this._viewOptions.width / 2), (this._viewOptions.centerPoint.y + 20 - (this._viewOptions.height / 2)),
-                this._viewOptions.action, this._viewOptions.parent);
-            processorText.attr('text-anchor', "start").attr("fill", "#727272");
-
+            var processorText = D3utils.textElement((this._viewOptions.centerPoint.x + centerTextXGap - this._viewOptions.width / 2), (this._viewOptions.centerPoint.y + centerTextYGap - (this._viewOptions.height / 2)),
+                this._viewOptions.action, this._viewOptions.parent).classed("action-text", true);
             if (this._viewOptions.inArrow) {
-                var arrowHead = D3utils.inputTriangle(this._viewOptions.arrowX, this._viewOptions.arrowY, this._viewOptions.parent);
-                arrowHead.attr("stroke","#9d9d9d");
+                var arrowHead = D3utils.inputTriangle(this._viewOptions.arrowX, this._viewOptions.arrowY, this._viewOptions.parent).classed("action-arrow", true);
             }
-            //TODO logic
-            else if (this.viewOptions.outArrow) {
-                D3utils.inputTriangle(this._viewOptions.sourcePoint.x, this._viewOptions.sourcePoint.y, this._viewOptions.parent);
+            if (this._viewOptions.outArrow) {
+                var processorConnector2 = D3utils.line(this._viewOptions.sourcePoint.x, this._viewOptions.sourcePoint.y + lineGap, this._viewOptions.destinationPoint.x,
+                    this._viewOptions.destinationPoint.y + lineGap, this._viewOptions.parent).classed("action-line", true);
+                D3utils.outputTriangle(this._viewOptions.sourcePoint.x, this._viewOptions.sourcePoint.y + lineGap, this._viewOptions.parent).classed("action-arrow", true);
             }
 
             this._width = this._viewOptions.width;

@@ -123,6 +123,7 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/get-action
                 },
                 action: "Invoke",
                 inArrow: true,
+                outArrow: true,
                 arrowX: arrowX,
                 arrowY: arrowY
 
