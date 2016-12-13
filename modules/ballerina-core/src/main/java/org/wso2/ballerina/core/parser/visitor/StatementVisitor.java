@@ -18,7 +18,7 @@
 package org.wso2.ballerina.core.parser.visitor;
 
 import org.wso2.ballerina.core.interpreter.SymbolTable;
-import org.wso2.ballerina.core.model.Identifier;
+import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.Worker;
 import org.wso2.ballerina.core.model.expressions.BasicLiteral;
 import org.wso2.ballerina.core.model.expressions.Expression;
@@ -107,7 +107,7 @@ public class StatementVisitor extends BallerinaBaseVisitor {
     public Object visitAssignmentStatement(BallerinaParser.AssignmentStatementContext ctx) {
         // Check the existence of the variable in the symbol table before the assignment
         try {
-            Identifier value = this.statementSymbolTable.lookup(ctx.variableReference().getText());
+            SymbolName value = this.statementSymbolTable.lookup(ctx.variableReference().getText());
             VariableRefExpr variableRefExpr = new VariableRefExpr(value);
             Expression expression = this.visitExpressionX(ctx.expression());
             return new AssignStmt(variableRefExpr, expression);

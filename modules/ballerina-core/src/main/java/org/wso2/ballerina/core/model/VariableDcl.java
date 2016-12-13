@@ -33,23 +33,23 @@ import org.wso2.ballerina.core.model.types.Type;
 public class VariableDcl implements Node {
 
     private Type type;
-    private Identifier identifier;
+    private SymbolName symbolName;
     private String value;
 
     /**
      * @param type       Type of the variable
-     * @param identifier Identifier of the variable
+     * @param symbolName Identifier of the variable
      * @param value      bValueRef of the variable
      */
-    public VariableDcl(Type type, Identifier identifier, String value) {
+    public VariableDcl(Type type, SymbolName symbolName, String value) {
         this.type = type;
-        this.identifier = identifier;
+        this.symbolName = symbolName;
         this.value = value;
     }
 
-    public VariableDcl(Type type, Identifier identifier) {
+    public VariableDcl(Type type, SymbolName symbolName) {
         this.type = type;
-        this.identifier = identifier;
+        this.symbolName = symbolName;
     }
 
     /**
@@ -66,8 +66,8 @@ public class VariableDcl implements Node {
      *
      * @return identifier of the variable declaration
      */
-    public Identifier getIdentifier() {
-        return identifier;
+    public SymbolName getSymbolName() {
+        return symbolName;
     }
 
     /**

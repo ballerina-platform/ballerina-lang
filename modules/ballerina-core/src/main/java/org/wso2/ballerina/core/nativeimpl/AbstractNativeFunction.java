@@ -24,8 +24,8 @@ import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.Const;
 import org.wso2.ballerina.core.model.Function;
-import org.wso2.ballerina.core.model.Identifier;
 import org.wso2.ballerina.core.model.Parameter;
+import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.types.Type;
 import org.wso2.ballerina.core.model.types.TypeC;
 import org.wso2.ballerina.core.model.values.BValue;
@@ -48,7 +48,7 @@ public abstract class AbstractNativeFunction implements NativeConstruct, Functio
     public static final BValue[] VOID_RETURN = new BValue[0];
     private static final Logger log = LoggerFactory.getLogger(AbstractNativeFunction.class);
     private String packageName, functionName;
-    private Identifier identifier;
+    private SymbolName symbolName;
     private List<Annotation> annotations;
     private List<Parameter> parameters;
     private List<Type> returnTypes;
@@ -70,13 +70,13 @@ public abstract class AbstractNativeFunction implements NativeConstruct, Functio
         BallerinaFunction function = this.getClass().getAnnotation(BallerinaFunction.class);
         packageName = function.packageName();
         functionName = function.functionName();
-        identifier = new Identifier(functionName);
+        symbolName = new SymbolName(functionName);
         isPublicFunction = function.isPublic();
         Arrays.stream(function.args()).
                 forEach(argument -> {
                     try {
                         parameters.add(new Parameter(TypeC.getType(argument.type().getName())
-                                , new Identifier(argument.name())));
+                                , new SymbolName(argument.name())));
                     } catch (RuntimeException e) {
                         // TODO: Fix this when TypeC.getType method is improved.
                         log.warn("Error while processing Parameters for Native ballerina function {}:{}.",
@@ -112,12 +112,11 @@ public abstract class AbstractNativeFunction implements NativeConstruct, Functio
 
     @Override
     public String getName() {
-        return identifier.getName();
+        return symbolName.getName();
     }
 
-    @Override
-    public Identifier getIdentifier() {
-        return identifier;
+    public SymbolName getSymbolName() {
+        return symbolName;
     }
 
     @Override

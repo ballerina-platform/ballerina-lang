@@ -63,7 +63,7 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
         }
 
         log.error("No matching Resource found to dispatch the request with Path : " + subPath +
-                  " , Method : " + method + " in Service : " + service.getIdentifier().getName());
+                  " , Method : " + method + " in Service : " + service.getSymbolName().getName());
 
         return false;
     }

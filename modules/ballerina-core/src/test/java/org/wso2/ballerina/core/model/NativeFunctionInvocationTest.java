@@ -81,7 +81,7 @@ public class NativeFunctionInvocationTest {
 
         Annotation[] annotations = new Annotation[0];
 
-        Parameter echo = new Parameter(new StringType(), new Identifier("echo"));
+        Parameter echo = new Parameter(new StringType(), new SymbolName("echo"));
         Parameter[] parameters = new Parameter[1];
         parameters[0] = echo;
 
@@ -92,17 +92,17 @@ public class NativeFunctionInvocationTest {
 
         Worker[] workers = new Worker[0];
 
-        VariableDcl varDclValue = new VariableDcl(new StringType(), new Identifier("value"), "");
+        VariableDcl varDclValue = new VariableDcl(new StringType(), new SymbolName("value"), "");
         VariableDcl[] variableDcls = new VariableDcl[1];
         variableDcls[0] = varDclValue;
 
 
         // BallerinaFunction body
-        Identifier idEcho = new Identifier("echo");
+        SymbolName idEcho = new SymbolName("echo");
         VariableRefExpr varRefEcho = new VariableRefExpr(idEcho);
         varRefEcho.setEvalFunction(VariableRefExpr.createGetParamValueFunc(0));
 
-        Identifier idValue = new Identifier("value");
+        SymbolName idValue = new SymbolName("value");
         VariableRefExpr varRefExprValue = new VariableRefExpr(idValue);
         varRefExprValue.setEvalFunction(VariableRefExpr.createGetLocalValueFunc(0));
 
@@ -110,7 +110,7 @@ public class NativeFunctionInvocationTest {
         expressions.add(varRefEcho);
 
         FunctionInvocationExpr functionInvocationExpression = new FunctionInvocationExpr(
-                new Identifier("echoString"), expressions);
+                new SymbolName("echoString"), expressions);
         // Creating new test function.
         AbstractNativeFunction nativeFunction = new EchoStringNativeFunction();
         functionInvocationExpression.setFunction(nativeFunction);
@@ -127,7 +127,7 @@ public class NativeFunctionInvocationTest {
         // Creating new function
 
         BallerinaFunction function = new BallerinaFunction(
-                new Identifier("nestedNative"),
+                new SymbolName("nestedNative"),
                 false,
                 annotations,
                 parameters,
@@ -158,7 +158,7 @@ public class NativeFunctionInvocationTest {
             string echo = nestedNative(original)
           */
 
-        Identifier original = new Identifier("original");
+        SymbolName original = new SymbolName("original");
         VariableRefExpr varRefExprOriginal = new VariableRefExpr(original);
         varRefExprOriginal.setEvalFunction(VariableRefExpr.createGetLocalValueFunc(0));
 
@@ -166,7 +166,7 @@ public class NativeFunctionInvocationTest {
         nestedFunctionInvokeExpr.add(varRefExprOriginal);
 
         FunctionInvocationExpr invocationExpr = new FunctionInvocationExpr(
-                new Identifier("nestedNative"), nestedFunctionInvokeExpr);
+                new SymbolName("nestedNative"), nestedFunctionInvokeExpr);
         invocationExpr.setFunction(getFunctionNestedNative());
 
         BValueRef returnValue = invocationExpr.evaluate(ctx);
@@ -195,7 +195,7 @@ public class NativeFunctionInvocationTest {
             // Out is -> Hello World...!Hello World...!\n
           */
 
-        Identifier original = new Identifier("original");
+        SymbolName original = new SymbolName("original");
         VariableRefExpr varRefExprOriginal = new VariableRefExpr(original);
         varRefExprOriginal.setEvalFunction(VariableRefExpr.createGetLocalValueFunc(0));
 
@@ -203,14 +203,14 @@ public class NativeFunctionInvocationTest {
         nestedFunctionInvokeExpr.add(varRefExprOriginal);
 
         FunctionInvocationExpr invocationExprPrint = new FunctionInvocationExpr(
-                new Identifier("print"), nestedFunctionInvokeExpr);
+                new SymbolName("print"), nestedFunctionInvokeExpr);
         invocationExprPrint.setFunction(new Print());
 
         invocationExprPrint.evaluate(ctx);
 
         nestedFunctionInvokeExpr.add(varRefExprOriginal);
         FunctionInvocationExpr invocationExprPrintln = new FunctionInvocationExpr(
-                new Identifier("println"), nestedFunctionInvokeExpr);
+                new SymbolName("println"), nestedFunctionInvokeExpr);
         invocationExprPrintln.setFunction(new Println());
 
         invocationExprPrintln.evaluate(ctx);

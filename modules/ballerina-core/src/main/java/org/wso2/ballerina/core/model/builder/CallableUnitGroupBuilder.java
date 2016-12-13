@@ -21,10 +21,10 @@ import org.wso2.ballerina.core.model.Action;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.Connector;
 import org.wso2.ballerina.core.model.ConnectorDcl;
-import org.wso2.ballerina.core.model.Identifier;
 import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
+import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.VariableDcl;
 
 import java.util.ArrayList;
@@ -37,7 +37,7 @@ import java.util.List;
  */
 class CallableUnitGroupBuilder {
 
-    private Identifier name;
+    private SymbolName name;
     private List<Annotation> annotationList = new ArrayList<>();
     private List<Parameter> parameterList = new ArrayList<>();
     private List<ConnectorDcl> connectorDclList = new ArrayList<>();
@@ -45,7 +45,7 @@ class CallableUnitGroupBuilder {
     private List<Resource> resourceList = new ArrayList<>();
     private List<Action> actionList = new ArrayList<>();
 
-    void setName(Identifier name) {
+    void setName(SymbolName name) {
         this.name = name;
     }
 
