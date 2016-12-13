@@ -126,10 +126,13 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
             }
         }
 
-        String basePath = Constants.DEFAULT_BASE_PATH;
+        String basePath = service.getIdentifier().getName();
         Annotation basePathAnnotation = service.getAnnotation(Constants.ANNOTATION_NAME_BASE_PATH);
         if (basePathAnnotation != null) {
             basePath = basePathAnnotation.getValue();
+        }
+        if (!basePath.startsWith("/")) {
+            basePath = "/".concat(basePath);
         }
 
         Map<String, Service> servicesOnInterface = services.get(listenerInterface);
