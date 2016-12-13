@@ -25,6 +25,7 @@ import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.runtime.core.BalCallback;
 import org.wso2.ballerina.core.runtime.core.dispatching.ServiceDispatcher;
+import org.wso2.ballerina.core.runtime.net.http.Constants;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 import java.util.HashMap;
@@ -126,10 +127,13 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
             }
         }
 
-        String basePath = Constants.DEFAULT_BASE_PATH;
+        String basePath = service.getIdentifier().getName();
         Annotation basePathAnnotation = service.getAnnotation(Constants.ANNOTATION_NAME_BASE_PATH);
         if (basePathAnnotation != null) {
             basePath = basePathAnnotation.getValue();
+        }
+        if (!basePath.startsWith("/")) {
+            basePath = "/".concat(basePath);
         }
 
         Map<String, Service> servicesOnInterface = services.get(listenerInterface);

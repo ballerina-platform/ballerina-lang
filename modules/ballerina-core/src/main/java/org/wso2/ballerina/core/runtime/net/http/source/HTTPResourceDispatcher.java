@@ -26,6 +26,7 @@ import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.runtime.core.BalCallback;
 import org.wso2.ballerina.core.runtime.core.dispatching.ResourceDispatcher;
+import org.wso2.ballerina.core.runtime.net.http.Constants;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
@@ -45,14 +46,15 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
 
         for (Resource resource : service.getResources()) {
             Annotation subPathAnnotation = resource.getAnnotation(Constants.ANNOTATION_NAME_PATH);
-            if (subPathAnnotation == null) {
+            String subPathAnnotationVal;
+            if (subPathAnnotation != null) {
+                subPathAnnotationVal = subPathAnnotation.getValue();
+            } else {
                 if (log.isDebugEnabled()) {
-                    log.debug("Path not specified in the Resource");
+                    log.debug("Path not specified in the Resource, using Resource name as the Path");
                 }
-                continue;
+                subPathAnnotationVal = "/".concat(resource.getName());
             }
-
-            String subPathAnnotationVal = subPathAnnotation.getValue();
 
             if ((subPath.startsWith(subPathAnnotationVal) || Constants.DEFAULT_SUB_PATH.equals(subPathAnnotationVal)) &&
                 (resource.getAnnotation(method) != null)) {
