@@ -482,6 +482,22 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             return this._statementExpressionViewList;
         };
 
+        /**
+         * Y distance from one resource's end point to next resource's start point
+         * @returns {number}
+         */
+        ResourceDefinitionView.prototype.getGapBetweenResources = function () {
+            return 10;
+        };
+
+        /**
+         * Height of the resource's heading
+         * @returns {number}
+         */
+        ResourceDefinitionView.prototype.getResourceHeadingHeight = function () {
+            return this._viewOptions.heading.height;
+        };
+
         return ResourceDefinitionView;
 
     });
