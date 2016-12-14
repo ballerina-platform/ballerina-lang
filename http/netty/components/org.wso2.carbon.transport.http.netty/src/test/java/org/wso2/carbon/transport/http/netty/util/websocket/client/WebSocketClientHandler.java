@@ -29,7 +29,7 @@ import org.wso2.carbon.transport.http.netty.listener.WebSocketSourceHandler;
 /**
  * Client Handler for WebSocket
  */
-public class WebSocketClientHandler extends ChannelInboundHandlerAdapter{
+public class WebSocketClientHandler extends ChannelInboundHandlerAdapter {
 
     Logger logger = LoggerFactory.getLogger(WebSocketSourceHandler.class);
 

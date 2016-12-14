@@ -32,13 +32,11 @@ import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.messaging.websocket.BinaryWebSocketCarbonMessage;
 import org.wso2.carbon.messaging.websocket.CloseWebSocketCarbonMessage;
 import org.wso2.carbon.messaging.websocket.TextWebSocketCarbonMessage;
-import org.wso2.carbon.messaging.websocket.WebSocketCarbonMessage;
 import org.wso2.carbon.messaging.websocket.WebSocketResponder;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.carbon.transport.http.netty.internal.WebSocketResponderImpl;
-import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 
 import java.net.InetSocketAddress;

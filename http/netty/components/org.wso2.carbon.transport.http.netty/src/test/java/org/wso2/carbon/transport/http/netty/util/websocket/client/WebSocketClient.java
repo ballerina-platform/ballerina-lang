@@ -64,8 +64,7 @@ public class WebSocketClient {
         return isDone;
     }
 
-    public boolean sendAndReceiveWebSocketFrames(){
-        System.out.println(channel);
+    public boolean sendAndReceiveWebSocketFrames() {
         ChannelFuture channelFuture = channel.writeAndFlush(new TextWebSocketFrame("Test"));
         if (channelFuture.isDone()) {
             return true;

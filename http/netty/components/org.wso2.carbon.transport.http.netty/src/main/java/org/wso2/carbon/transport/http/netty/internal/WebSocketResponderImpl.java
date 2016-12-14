@@ -30,6 +30,9 @@ import org.wso2.carbon.messaging.websocket.TextWebSocketCarbonMessage;
 import org.wso2.carbon.messaging.websocket.WebSocketCarbonMessage;
 import org.wso2.carbon.messaging.websocket.WebSocketResponder;
 
+/**
+ * This class is responsible for sending server-side responses to a given client
+ */
 public class WebSocketResponderImpl implements WebSocketResponder {
 
     private final ChannelHandlerContext ctx;

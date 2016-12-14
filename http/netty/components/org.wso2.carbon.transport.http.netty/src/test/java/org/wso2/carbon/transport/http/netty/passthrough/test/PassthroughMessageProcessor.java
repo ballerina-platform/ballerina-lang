@@ -18,7 +18,6 @@
 
 package org.wso2.carbon.transport.http.netty.passthrough.test;
 
-import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,7 +56,7 @@ public class PassthroughMessageProcessor implements CarbonMessageProcessor {
 
                         carbonCallback.done(carbonMessage);
                     } else if (carbonMessage.getProperty(Constants.IS_WEBSOCKET_FRAME) != null
-                            && (boolean)carbonMessage.getProperty(Constants.IS_WEBSOCKET_FRAME)
+                            && (boolean) carbonMessage.getProperty(Constants.IS_WEBSOCKET_FRAME)
                             && carbonMessage.getProperty(Constants.WEBSOCKET_FRAME) instanceof WebSocketFrame) {
                         logger.info("WebSocket Frame received for URI : " +
                             carbonMessage.getProperty(Constants.TO));

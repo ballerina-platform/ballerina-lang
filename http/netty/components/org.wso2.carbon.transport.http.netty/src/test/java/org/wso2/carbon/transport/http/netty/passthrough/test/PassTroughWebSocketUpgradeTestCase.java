@@ -18,9 +18,10 @@
 
 package org.wso2.carbon.transport.http.netty.passthrough.test;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
@@ -37,6 +38,7 @@ import static org.testng.Assert.assertTrue;
  */
 public class PassTroughWebSocketUpgradeTestCase {
 
+    Logger logger = LoggerFactory.getLogger(PassTroughWebSocketUpgradeTestCase.class);
     private ListenerConfiguration listenerConfiguration;
     private SenderConfiguration senderConfiguration;
     private HTTPTransportListener httpTransportListener;
@@ -57,17 +59,12 @@ public class PassTroughWebSocketUpgradeTestCase {
     public void testHandshake() throws URISyntaxException {
         try {
             assertTrue(client.handhshake(TestUtil.TEST_HOST, TestUtil.TEST_ESB_PORT));
+            logger.info("Handshake test completed.");
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            logger.error("Handshake interruption.");
             assertTrue(false);
         }
     }
-
-    @Test(groups = "passthroughUPGRADE")
-    public void test1Temp(){
-        while (true);
-    }
-
 
     @AfterClass(groups = "passthroughUPGRADE")
     public void cleaUp() {
