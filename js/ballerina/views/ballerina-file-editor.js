@@ -229,7 +229,8 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             dropActiveClass = _.get(this._viewOptions, 'cssClass.design_view_drop');
 
         // on hover over canvas area
-        this._$canvasContainer.hover(function(event){
+        this._$canvasContainer
+            .mouseover(function(event){
 
             //if someone is dragging a tool from tool-palette
             if(self.toolPalette.dragDropManager.isOnDrag()){
@@ -252,13 +253,15 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                     self._$canvasContainer.removeClass(dropActiveClass);
                 });
             }
-        }, function(event){
+            event.stopPropagation();
+        }).mouseout(function(event){
             // reset ui feed back on hover out
             if(self.toolPalette.dragDropManager.isOnDrag()){
                 if(_.isEqual(self.toolPalette.dragDropManager.getActivatedDropTarget(), self._model)){
                     self.toolPalette.dragDropManager.clearActivatedDropTarget();
                 }
             }
+            event.stopPropagation();
         })
     };
 

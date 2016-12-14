@@ -93,7 +93,7 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
 
         var self = this,
             dropActiveClass = _.get(options, 'cssClass.design_view_drop');
-        outerDiv.hover(function(event){
+        outerDiv.mouseover(function(event){
 
             //if someone is dragging a tool from tool-palette
             if(self.toolPalette.dragDropManager.isOnDrag()){
@@ -116,13 +116,15 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
                     outerDiv.removeClass(dropActiveClass);
                 });
             }
-        }, function(event){
+            event.stopPropagation();
+        }).mouseout(function(event){
             // reset ui feed back on hover out
             if(self.toolPalette.dragDropManager.isOnDrag()){
                 if(_.isEqual(self.toolPalette.dragDropManager.getActivatedDropTarget(), self._model)){
                     self.toolPalette.dragDropManager.clearActivatedDropTarget();
                 }
             }
+            event.stopPropagation();
         });
     };
 
