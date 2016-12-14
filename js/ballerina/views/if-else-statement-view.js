@@ -33,6 +33,7 @@ define(['require', 'lodash', 'log', './ballerina-statement-view', './../ast/if-e
 
             this._ifBlockView = undefined;
             this._elseBlockView = undefined;
+            this._totalHeight = 0;
 
             if (_.isNil(this._model) || !(this._model instanceof IfElseStatement)) {
                 log.error("If Else statement definition is undefined or is of different type." + this._model);
@@ -44,6 +45,8 @@ define(['require', 'lodash', 'log', './ballerina-statement-view', './../ast/if-e
                 throw "Container for If Else statement is undefined." + this._container;
             }
 
+            this.init();
+
         };
 
         IfElseStatementView.prototype = Object.create(BallerinaStatementView.prototype);
@@ -51,6 +54,11 @@ define(['require', 'lodash', 'log', './ballerina-statement-view', './../ast/if-e
 
         IfElseStatementView.prototype.canVisitStatement = function(){
             return true;
+        };
+
+        IfElseStatementView.prototype.init = function () {
+            //Registering event listeners
+            this.listenTo(this._parentView, 'childViewAddedEvent', this.childViewAddedCallback);
         };
 
         /**
@@ -65,6 +73,11 @@ define(['require', 'lodash', 'log', './ballerina-statement-view', './../ast/if-e
             this._ifBlockView = statementView;
             this._diagramRenderingContext.getViewModelMap()[statement.id] = statementView;
             statementView.render(this._diagramRenderingContext);
+
+            //adjust if-else statement's height
+            this._totalHeight = this._totalHeight + statementView.getBoundingBox().height;
+            this.setIfElseStatementHeight(this._totalHeight);
+            this.trigger("childViewAddedEvent", statement);
         };
 
         /**
@@ -79,6 +92,11 @@ define(['require', 'lodash', 'log', './ballerina-statement-view', './../ast/if-e
             this._elseBlockView = statementView;
             this._diagramRenderingContext.getViewModelMap()[statement.id] = statementView;
             statementView.render(this._diagramRenderingContext);
+
+            //adjust if-else statement's height
+            this._totalHeight = this._totalHeight + statementView.getBoundingBox().height;
+            this.setIfElseStatementHeight(this._totalHeight);
+            this.trigger("childViewAddedEvent", statement);
         };
 
         /**
@@ -120,6 +138,15 @@ define(['require', 'lodash', 'log', './ballerina-statement-view', './../ast/if-e
 
         IfElseStatementView.prototype.setViewOptions = function (viewOptions) {
             this._viewOptions = viewOptions;
+        };
+
+
+        /**
+         * setting the height for the bounding box
+         * @param height
+         */
+        IfElseStatementView.prototype.setIfElseStatementHeight = function (height){
+            this.setBoundingBox(this.getBoundingBox().width, height, this.getBoundingBox().x, this.getBoundingBox().y);
         };
 
         /**

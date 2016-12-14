@@ -72,7 +72,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             this._viewOptions.totalHeightGap = 50;
 
             //setting initial height for resource container
-            this._totalHeight = 330;
+            this._totalHeight = 230;
             this.init();
         };
 
