@@ -36,7 +36,6 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
 
     private static final Logger log = LoggerFactory.getLogger(HTTPResourceDispatcher.class);
 
-
     @Override
     public boolean dispatch(Service service, Context context, BalCallback callback) {
         CarbonMessage cMsg = context.getCarbonMessage();
@@ -55,15 +54,18 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
                 }
                 subPathAnnotationVal = "/".concat(resource.getName());
             }
+            if (subPathAnnotationVal.startsWith("\"")) {
+                subPathAnnotationVal = subPathAnnotationVal.substring(1, subPathAnnotationVal.length() - 1);
+            }
 
-            if ((subPath.startsWith(subPathAnnotationVal) || Constants.DEFAULT_SUB_PATH.equals(subPathAnnotationVal)) &&
-                (resource.getAnnotation(method) != null)) {
+            if ((subPath.startsWith(subPathAnnotationVal) || Constants.DEFAULT_SUB_PATH.equals(subPathAnnotationVal))
+                    && (resource.getAnnotation(method) != null)) {
                 return resource.execute(context, callback);
             }
         }
 
         log.error("No matching Resource found to dispatch the request with Path : " + subPath +
-                  " , Method : " + method + " in Service : " + service.getSymbolName().getName());
+                " , Method : " + method + " in Service : " + service.getSymbolName().getName());
 
         return false;
     }
