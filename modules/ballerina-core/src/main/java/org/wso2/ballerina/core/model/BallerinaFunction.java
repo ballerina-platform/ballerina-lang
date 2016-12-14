@@ -56,6 +56,8 @@ public class BallerinaFunction implements Function, Node {
 
     private boolean publicFunc;
 
+    private int stackFrameSize;
+
     public BallerinaFunction(SymbolName name,
                              Boolean isPublic,
                              Annotation[] annotations,
@@ -162,6 +164,10 @@ public class BallerinaFunction implements Function, Node {
         return returnTypes;
     }
 
+    public TypeC[] getReturnTypesC() {
+        return returnTypesC;
+    }
+
     /**
      * Check whether function is public, which means function is visible outside the package
      *
@@ -180,6 +186,14 @@ public class BallerinaFunction implements Function, Node {
 
     public BlockStmt getFunctionBody() {
         return this.functionBody;
+    }
+
+    public int getStackFrameSize() {
+        return stackFrameSize;
+    }
+
+    public void setStackFrameSize(int exprCacheSize) {
+        this.stackFrameSize = exprCacheSize;
     }
 
     /**
