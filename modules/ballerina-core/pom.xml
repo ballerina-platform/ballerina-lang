@@ -58,14 +58,13 @@
             <groupId>org.wso2.orbit.net.sf.saxon</groupId>
             <artifactId>Saxon-HE</artifactId>
           </dependency>
-    <dependency>
+        <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
         </dependency>
         <dependency>
             <groupId>com.jayway.jsonpath</groupId>
             <artifactId>json-path</artifactId>
-
         </dependency>
         <dependency>
             <groupId>org.apache.ws.commons.axiom</groupId>
@@ -84,6 +83,10 @@
             <artifactId>commons-logging</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.wso2.orbit.org.apache.tapestry</groupId>
+            <artifactId>tapestry-json</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-activation_1.1_spec</artifactId>
         </dependency>
@@ -95,7 +98,6 @@
             <groupId>org.apache.james</groupId>
             <artifactId>apache-mime4j-core</artifactId>
         </dependency>
-
     </dependencies>
 
     <properties>
@@ -115,6 +117,8 @@
             org.apache.axiom.*;version="0.0.0",
             org.wso2.carbon.messaging.*;version="${carbon.messaging.package.import.version.range}",
             org.wso2.carbon.deployment.engine.*;version="${carbon.deployment.export.version}",
+            com.google.code.gson.*;version="${gson.import.version.range}",
+            com.jayway.jsonpath.*;version="${jayway.jsonpath.import.version.range}",
         </import.package>
         <carbon.component>
             startup.listener;componentName="ballerina-native-provider";

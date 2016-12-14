@@ -18,6 +18,7 @@
 
 package org.wso2.ballerina.core.nativeimpl.lang.json;
 
+import com.google.gson.JsonElement;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.WriteContext;
 
@@ -31,9 +32,10 @@ import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 
 /**
- * Insert a named element to a JSON Object. This method will add a new string element with
- * the given name, to the location identified by the given jsonpath. If an element with 
- * the same 'name' already exists, then it will update value of the existing element.
+ * Insert a named element to a JSON Object. This method will add a new JSON element with
+ * the given name and value, to the location identified by the given jsonpath. If an
+ * element with the same 'name' already exists, then it will update value of the existing
+ * element.
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.json",
@@ -41,15 +43,15 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
         args = {@Argument(name = "json", type = TypeEnum.JSON),
                 @Argument(name = "jsonPath", type = TypeEnum.STRING),
                 @Argument(name = "key", type = TypeEnum.STRING),
-                @Argument(name = "value", type = TypeEnum.STRING)},
+                @Argument(name = "value", type = TypeEnum.JSON)},
         isPublic = true
 )
 @Component(
-        name = "func.lang.json_addStringToObject",
+        name = "func.lang.json_addJSONToObject",
         immediate = true,
         service = AbstractNativeFunction.class
 )
-public class AddStringToObject extends AbstractJSONFunction {
+public class AddJSONToObject extends AbstractJSONFunction {
 
     @Override
     public BValue<?>[] execute(Context ctx) {
@@ -57,7 +59,7 @@ public class AddStringToObject extends AbstractJSONFunction {
         JSONValue json = (JSONValue) getArgument(ctx, 0).getBValue();
         String jsonPath = getArgument(ctx, 1).getString();
         String key = getArgument(ctx, 2).getString();
-        String value = getArgument(ctx, 3).getString();
+        JsonElement value = getArgument(ctx, 3).getJSON();
 
         // Adding the value to JSON Object
         WriteContext jsonCtx = JsonPath.parse(json.getValue());
