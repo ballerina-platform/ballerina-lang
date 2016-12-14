@@ -151,7 +151,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
 
             var annotationButton = this._createAnnotationButton(this.getChildContainer());
 
-            Create property pane for the service.
+           // Create property pane for the service.
             var paneProperties = {
                 model: this._model,
                 editableProperties: [{
