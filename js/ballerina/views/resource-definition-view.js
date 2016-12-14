@@ -163,12 +163,18 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             this.diagramRenderingContext.getViewModelMap()[statement.id] = statementView;
             statementView.setParent(this);
             if(statementViewFactory.isGetActionStatement(statement)){
-                _.each(this.getConnectorViewList(), function (view) {
-                  var matchFound =  _.isEqual(statement.getConnector(),view.getModel());
+                _.each(this.diagramRenderingContext.getViewModelMap(),function(view){
+                    var matchFound =  _.isEqual(statement.getConnector(),view.getModel());
                     if(matchFound) {
                         statementView.setConnectorView(view);
                     }
                 });
+                //_.each(this.getConnectorViewList(), function (view) {
+                //  var matchFound =  _.isEqual(statement.getConnector(),view.getModel());
+                //    if(matchFound) {
+                //        statementView.setConnectorView(view);
+                //    }
+                //});
             }
 
             // TODO: we need to keep this value as a configurable value and read from constants
@@ -375,12 +381,6 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             this.getModel().accept(this);
         };
 
-        //ResourceDefinitionView.prototype.addConnectorViewList = function(view){
-        //    if (!_.isNil(view)) {
-        //        this._connectorViewList.push(view);
-        //    }
-        //};
-
         ResourceDefinitionView.prototype.getConnectorViewList = function(){
             return this._connectorViewList;
         };
@@ -431,6 +431,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 var connectorViewOpts = {connectorCenterPointX: connectorCenterPointX,connectorCenterPointY: connectorCenterPointY};
                 var connectorDeclarationView = new ConnectorDeclarationView({model: connectorDeclaration,container: connectorContainer, viewOptions: connectorViewOpts} );
             }
+            this.diagramRenderingContext.getViewModelMap()[connectorDeclaration.id] = connectorDeclarationView;
             this._connectorViewList.push(connectorDeclarationView);
 
             connectorDeclarationView.render();
