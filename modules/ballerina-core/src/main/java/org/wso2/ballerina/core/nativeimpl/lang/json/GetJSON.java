@@ -18,10 +18,13 @@
 
 package org.wso2.ballerina.core.nativeimpl.lang.json;
 
+import com.google.gson.JsonElement;
 import com.jayway.jsonpath.JsonPath;
-import com.jayway.jsonpath.WriteContext;
+import com.jayway.jsonpath.ReadContext;
 
 import org.osgi.service.component.annotations.Component;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BValue;
@@ -31,37 +34,47 @@ import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 
 /**
- * Insert a named element to a JSON Object. This method will add a new string element with
- * the given name, to the location identified by the given jsonpath. If an element with 
- * the same 'name' already exists, then it will update value of the existing element.
+ * Evaluate jsonpath on a JSON object and returns the matching JSON.
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.json",
-        functionName = "add",
+        functionName = "getJson",
         args = {@Argument(name = "json", type = TypeEnum.JSON),
-                @Argument(name = "jsonPath", type = TypeEnum.STRING),
-                @Argument(name = "key", type = TypeEnum.STRING),
-                @Argument(name = "value", type = TypeEnum.STRING)},
+                @Argument(name = "jsonPath", type = TypeEnum.STRING)},
+        returnType = {TypeEnum.JSON},
         isPublic = true
 )
 @Component(
-        name = "func.lang.json_addStringToObject",
+        name = "func.lang.json_getJson",
         immediate = true,
         service = AbstractNativeFunction.class
 )
-public class AddStringToObject extends AbstractJSONFunction {
+public class GetJSON extends AbstractJSONFunction {
+
+    private static final Logger log = LoggerFactory.getLogger(GetJSON.class);
 
     @Override
     public BValue<?>[] execute(Context ctx) {
         // Accessing Parameters.
         JSONValue json = (JSONValue) getArgument(ctx, 0).getBValue();
         String jsonPath = getArgument(ctx, 1).getString();
-        String key = getArgument(ctx, 2).getString();
-        String value = getArgument(ctx, 3).getString();
-
-        // Adding the value to JSON Object
-        WriteContext jsonCtx = JsonPath.parse(json.getValue());
-        jsonCtx.put(jsonPath, key, value);
-        return getBValues();
+        
+        // Getting the value from JSON
+        ReadContext jsonCtx = JsonPath.parse(json.getValue());
+        JsonElement element = jsonCtx.read(jsonPath);
+        BValue<?> result = null;
+        if (element == null) {
+            log.error("No matching element found for jsonpath: " + jsonPath);
+        } else if (element.isJsonPrimitive()) {
+            String errorMsg = "The element matching: " + jsonPath + " is a primitive, not a JSON.";
+            log.error(errorMsg);
+            throw new RuntimeException(errorMsg);
+        } else {
+            // if the resulting value is a complex object, return is as a JSONType object
+            result = new JSONValue(element);
+        }
+        
+        // Setting output value.
+        return getBValues(result);
     }
 }

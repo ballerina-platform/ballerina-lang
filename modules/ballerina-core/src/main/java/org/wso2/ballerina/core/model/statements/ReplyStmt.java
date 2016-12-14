@@ -34,7 +34,7 @@ public class ReplyStmt implements Statement {
     }
 
     public void interpret(Context ctx) {
-
+         ctx.getBalCallback().done(ctx.getCarbonMessage());
     }
 
     @Override

@@ -31,7 +31,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 
 /**
- * Insert a named element to a JSON Object. This method will add a new string element with
+ * Insert a named element to a JSON Object. This method will add a new boolean element with
  * the given name, to the location identified by the given jsonpath. If an element with 
  * the same 'name' already exists, then it will update value of the existing element.
  */
@@ -41,15 +41,15 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
         args = {@Argument(name = "json", type = TypeEnum.JSON),
                 @Argument(name = "jsonPath", type = TypeEnum.STRING),
                 @Argument(name = "key", type = TypeEnum.STRING),
-                @Argument(name = "value", type = TypeEnum.STRING)},
+                @Argument(name = "value", type = TypeEnum.BOOLEAN)},
         isPublic = true
 )
 @Component(
-        name = "func.lang.json_addStringToObject",
+        name = "func.lang.json_addBooleanToObject",
         immediate = true,
         service = AbstractNativeFunction.class
 )
-public class AddStringToObject extends AbstractJSONFunction {
+public class AddBooleanToObject extends AbstractJSONFunction {
 
     @Override
     public BValue<?>[] execute(Context ctx) {
@@ -57,7 +57,7 @@ public class AddStringToObject extends AbstractJSONFunction {
         JSONValue json = (JSONValue) getArgument(ctx, 0).getBValue();
         String jsonPath = getArgument(ctx, 1).getString();
         String key = getArgument(ctx, 2).getString();
-        String value = getArgument(ctx, 3).getString();
+        boolean value = getArgument(ctx, 3).getBoolean();
 
         // Adding the value to JSON Object
         WriteContext jsonCtx = JsonPath.parse(json.getValue());
