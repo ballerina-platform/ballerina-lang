@@ -42,8 +42,16 @@ public class ReturnStmt implements Statement {
         this.exprs = exprs;
     }
 
+    public Expression[] getExprs() {
+        return exprs;
+    }
+
     public void interpret(Context ctx) {
-        ctx.getControlStack().getCurrentFrame().returnValue.setBValue(expr.evaluate(ctx).getBValue());
+        for (Expression expr : exprs) {
+            expr.evaluate(ctx);
+        }
+
+//        ctx.getControlStack().getCurrentFrame().returnValue.setBValue(expr.evaluate(ctx).getBValue());
     }
 
     @Override
