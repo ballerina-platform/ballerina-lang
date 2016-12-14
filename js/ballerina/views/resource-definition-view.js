@@ -69,8 +69,10 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             this._viewOptions.contentHeight = _.get(args, "viewOptions.contentHeight", 360);
             this._viewOptions.collapseIconWidth = _.get(args, "viewOptions.collaspeIconWidth", 1025);
 
+            this._viewOptions.totalHeightGap = 50;
+
             //setting initial height for resource container
-            this._totalHeight = 300;
+            this._totalHeight = 330;
             this.init();
         };
 
@@ -97,6 +99,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 var staticHeights = this.getGapBetweenStatements();
                 this._totalHeight = this._totalHeight + childView.getBoundingBox().height + staticHeights;
                 this.setResourceContainerHeight(this._totalHeight);
+                this.trigger("resourceHeightChangedEvent", this._totalHeight);
             };
 
             this.trigger("childViewAddedEvent", child);
@@ -421,7 +424,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 var newCenterPointX = prevView._viewOptions.connectorCenterPointX+ 180;
                 var newCenterPointY = prevView._viewOptions.connectorCenterPointY;
                 var viewOpts = {connectorCenterPointX:newCenterPointX, connectorCenterPointY: newCenterPointY};
-                var connectorDeclarationView =new ConnectorDeclarationView({model: connectorDeclaration,container: connectorContainer, viewOptions: viewOpts});
+                var connectorDeclarationView =new ConnectorDeclarationView({model: connectorDeclaration,container: connectorContainer, viewOptions: viewOpts, parentView: this});
             }
             else{
                 var defaultResourceLifeline = this.getDefaultResourceLifeLine();
@@ -429,7 +432,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 var connectorCenterPointX = resourceViewOpts.centerPoint.x + 180;
                 var connectorCenterPointY = resourceViewOpts.centerPoint.y;
                 var connectorViewOpts = {connectorCenterPointX: connectorCenterPointX,connectorCenterPointY: connectorCenterPointY};
-                var connectorDeclarationView = new ConnectorDeclarationView({model: connectorDeclaration,container: connectorContainer, viewOptions: connectorViewOpts} );
+                var connectorDeclarationView = new ConnectorDeclarationView({model: connectorDeclaration,container: connectorContainer, viewOptions: connectorViewOpts, parentView: this} );
             }
             this.diagramRenderingContext.getViewModelMap()[connectorDeclaration.id] = connectorDeclarationView;
             this._connectorViewList.push(connectorDeclarationView);
@@ -447,6 +450,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
         ResourceDefinitionView.prototype.setResourceContainerHeight = function (height){
             this._resourceGroup.attr("height", height);
             this._contentRect.attr("height", height);
+            this._defaultResourceLifeLine.setLineHeight(height - this._viewOptions.totalHeightGap);
             this.setBoundingBox(this.getBoundingBox().width, height, this.getBoundingBox().x, this.getBoundingBox().y);
         };
 

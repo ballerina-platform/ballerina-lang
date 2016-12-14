@@ -28,6 +28,8 @@ define(['lodash','d3', 'jquery', './ballerina-view', './../ast/connector-declara
          * @constructor
          */
         var ConnectorDeclarationView = function (args) {
+            this._totalHeightGap = 50;
+            this._parentView = _.get(args, "parentView");
             BallerinaView.call(this, args);
 
             if (_.isNil(this._model) || !(this._model instanceof ConnectorDeclaration)) {
@@ -40,10 +42,23 @@ define(['lodash','d3', 'jquery', './ballerina-view', './../ast/connector-declara
                 throw "Container for connection declaration is undefined." + this._container;
             }
 
+            this.init();
         };
 
         ConnectorDeclarationView.prototype = Object.create(BallerinaView.prototype);
         ConnectorDeclarationView.prototype.constructor = ConnectorDeclaration;
+
+        ConnectorDeclarationView.prototype.init = function () {
+            this.listenTo(this._parentView, 'resourceHeightChangedEvent', this.resourceHeightChangedCallback);
+        };
+
+        /**
+         * Callback function for resource's height changed event
+         * @param height
+         */
+        ConnectorDeclarationView.prototype.resourceHeightChangedCallback = function (height) {
+            this.setConnectorHeight(height - this._totalHeightGap);
+        };
 
         ConnectorDeclarationView.prototype.setModel = function (model) {
             if (!_.isNil(model) && model instanceof ConnectorDeclaration) {
@@ -123,6 +138,7 @@ define(['lodash','d3', 'jquery', './ballerina-view', './../ast/connector-declara
             };
 
             var connectorDecLifeLine = new LifeLine(connectorGroup, defaultConnectorOptions);
+            this._connectorDecLifeLine = connectorDecLifeLine;
             connectorDecLifeLine = connectorDecLifeLine.render();
             var self = this;
             $(connectorDecLifeLine)[0].on("mouseover",function(event){
@@ -130,6 +146,14 @@ define(['lodash','d3', 'jquery', './ballerina-view', './../ast/connector-declara
 
             });
            // return group;
+        };
+
+        /**
+         * change the connector's height
+         * @param height
+         */
+        ConnectorDeclarationView.prototype.setConnectorHeight = function (height) {
+            this._connectorDecLifeLine.setLineHeight(height);
         };
 
         /**
