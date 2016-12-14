@@ -57,7 +57,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
 
         ServiceDefinitionView.prototype.childVisitedCallback = function (child) {
             //setting height of the service view
-            var childView = this.diagramRenderingContext.getViewModelMap()[child];
+            var childView = this.diagramRenderingContext.getViewModelMap()[child.id];
             var staticHeights = childView.getGapBetweenResources() + childView.getResourceHeadingHeight();
             this._totalHeight = this._totalHeight + childView.getBoundingBox().height + staticHeights;
             this.setServiceContainerHeight(this._totalHeight);
@@ -216,7 +216,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
             else{
                 var resourceDefinitionView = new ResourceDefinitionView({model: resourceDefinition,container: resourceContainer, parentView: this});
             }
-            this.diagramRenderingContext.getViewModelMap()[resourceDefinition] = resourceDefinitionView;
+            this.diagramRenderingContext.getViewModelMap()[resourceDefinition.id] = resourceDefinitionView;
             resourceDefinitionView.render(this.diagramRenderingContext);
             this.addResourceViewList(resourceDefinitionView);
         };

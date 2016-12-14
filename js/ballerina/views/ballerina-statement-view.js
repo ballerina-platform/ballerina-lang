@@ -117,5 +117,14 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3'], fu
         statementView.render(this._diagramRenderingContext);
     };
 
+    BallerinaStatementView.prototype.setBoundingBox = function (width, height, x, y) {
+        if (!_.isNil(width) || !_.isNil(height) || !_.isNil(x) || !_.isNil(y))
+            this._boundingBox = {"width": width, "height": height, "x": x, "y": y};
+    };
+
+    BallerinaStatementView.prototype.getBoundingBox = function () {
+        return this._boundingBox;
+    };
+
     return BallerinaStatementView;
 });
