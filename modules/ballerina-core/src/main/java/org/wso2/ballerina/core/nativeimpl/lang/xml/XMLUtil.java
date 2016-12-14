@@ -1,4 +1,4 @@
-package org.wso2.ballerina.core.utils;
+package org.wso2.ballerina.core.nativeimpl.lang.xml;
 
 import net.sf.saxon.om.Sequence;
 import net.sf.saxon.s9api.DocumentBuilder;
@@ -17,7 +17,7 @@ import org.apache.axiom.om.xpath.AXIOMXPath;
 import org.jaxen.JaxenException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.ballerina.core.model.types.XMLType;
+import org.wso2.ballerina.core.model.values.XMLValue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,19 +35,19 @@ public class XMLUtil {
     /**
      * Evaluate xpath using Saxon-HE library.
      *
-     * @param xmlType    Original message which needs to be used for evaluate xpath
+     * @param ori    Original message which needs to be used for evaluate xpath
      * @param xpath      xpath String to be used for evaluation
      * @param nameSpaces namespaces map
      * @return Object this can be XMLType or String
      */
-    public static Object get(XMLType xmlType, String xpath, Map<String, String> nameSpaces) {
+    public static Object get(XMLValue ori, String xpath, Map<String, String> nameSpaces) {
         try {
 
             XPathCompiler xPathCompiler = processor.newXPathCompiler();
 
             DocumentBuilder builder = processor.newDocumentBuilder();
 
-            XdmNode doc = builder.build(xmlType.getOmElement().getSAXSource(true));
+            XdmNode doc = builder.build(ori.getValue().getSAXSource(true));
 
             if (nameSpaces != null && !nameSpaces.isEmpty()) {
                 for (Map.Entry<String, String> entry : nameSpaces.entrySet()) {
@@ -64,7 +64,7 @@ public class XMLUtil {
             if (!(sequence instanceof TinyElementImpl)) {
                 return xdmValue.toString();
             } else {
-                return new XMLType(xdmValue.toString());
+                return new XMLValue(xdmValue.toString());
             }
         } catch (SaxonApiException e) {
             LOG.error("Cannot evaluate XPath , may be syntax of xpath is wrong", e);
@@ -76,12 +76,12 @@ public class XMLUtil {
     /**
      * Method for modify XML messages
      *
-     * @param xmlType    original message
+     * @param ori    original message
      * @param xpath      xpath location for set the value
      * @param nameSpaces namespaces to be added
      * @param value      String value to be set
      */
-    public static void set(XMLType xmlType, String xpath, Map<String, String> nameSpaces, String value) {
+    public static void set(XMLValue ori, String xpath, Map<String, String> nameSpaces, String value) {
         try {
             AXIOMXPath axiomxPath = new AXIOMXPath(xpath);
             if (nameSpaces != null && !nameSpaces.isEmpty()) {
@@ -90,7 +90,7 @@ public class XMLUtil {
 
                 }
             }
-            Object ob = axiomxPath.evaluate(xmlType.getOmElement());
+            Object ob = axiomxPath.evaluate(ori.getValue());
             if (ob instanceof ArrayList) {
                 List list = (List) ob;
 
@@ -115,12 +115,12 @@ public class XMLUtil {
     /**
      * Method for modify XML messages
      *
-     * @param xmlType    original message
+     * @param ori    original message
      * @param xpath      xpath location for set the value
      * @param nameSpaces namespaces to be added
      * @param value      String value to be set
      */
-    public static void set(XMLType xmlType, String xpath, Map<String, String> nameSpaces, XMLType value) {
+    public static void set(XMLValue ori, String xpath, Map<String, String> nameSpaces, XMLValue value) {
         try {
             AXIOMXPath axiomxPath = new AXIOMXPath(xpath);
             if (nameSpaces != null && !nameSpaces.isEmpty()) {
@@ -129,7 +129,7 @@ public class XMLUtil {
 
                 }
             }
-            Object ob = axiomxPath.evaluate(xmlType.getOmElement());
+            Object ob = axiomxPath.evaluate(ori.getValue());
             if (ob instanceof ArrayList) {
                 List list = (List) ob;
 
@@ -138,7 +138,7 @@ public class XMLUtil {
                         OMNode omNode = (OMNode) obj;
                         OMContainer omContainer = omNode.getParent();
                         omNode.detach();
-                        omContainer.addChild(value.getOmElement());
+                        omContainer.addChild(value.getValue());
                     }
                 }
             }
@@ -148,7 +148,7 @@ public class XMLUtil {
 
     }
 
-    public static void remove(XMLType xmlType, String xpath, Map<String, String> nameSpaces) {
+    public static void remove(XMLValue ori, String xpath, Map<String, String> nameSpaces) {
         try {
             AXIOMXPath axiomxPath = new AXIOMXPath(xpath);
             if (nameSpaces != null && !nameSpaces.isEmpty()) {
@@ -157,7 +157,7 @@ public class XMLUtil {
 
                 }
             }
-            Object ob = axiomxPath.evaluate(xmlType.getOmElement());
+            Object ob = axiomxPath.evaluate(ori.getValue());
             if (ob instanceof ArrayList) {
                 List list = (List) ob;
 
