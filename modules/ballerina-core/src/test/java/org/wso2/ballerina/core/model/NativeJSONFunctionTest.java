@@ -17,6 +17,8 @@
 */
 package org.wso2.ballerina.core.model;
 
+import com.google.gson.JsonElement;
+
 import org.testng.Assert;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.interpreter.ControlStack;
@@ -28,6 +30,8 @@ import org.wso2.ballerina.core.model.values.JSONValue;
 import org.wso2.ballerina.core.model.values.StringValue;
 import org.wso2.ballerina.core.nativeimpl.lang.json.AddStringToArray;
 import org.wso2.ballerina.core.nativeimpl.lang.json.AddStringToObject;
+import org.wso2.ballerina.core.nativeimpl.lang.json.GetInt;
+import org.wso2.ballerina.core.nativeimpl.lang.json.GetJSON;
 import org.wso2.ballerina.core.nativeimpl.lang.json.GetString;
 import org.wso2.ballerina.core.nativeimpl.lang.json.Remove;
 import org.wso2.ballerina.core.nativeimpl.lang.json.Rename;
@@ -77,8 +81,83 @@ public class NativeJSONFunctionTest {
         String returnVal = (String) returnValue.getBValue().getValue();
         Assert.assertEquals(returnVal, "Jack");
     }
-    
 
+//    @Test
+    public void testGetInt() {
+        Context ctx = new Context();
+        ControlStack controlStack = ctx.getControlStack();
+
+        /*
+         * json msg = `{"price":100}`;
+         * string jsonPath = "$.price";
+         * string result = json:get(msg, jsonPath);
+         */
+        BValueRef[] localVariables = new BValueRef[2];
+        localVariables[0] = new BValueRef(new JSONValue("{'price':100}"));
+        localVariables[1] = new BValueRef(new StringValue("$.price"));
+//        StackFrame stackFrame = new StackFrame(new BValueRef[0], null, localVariables);
+//        controlStack.pushFrame(stackFrame);
+
+        SymbolName msg = new SymbolName("msg");
+        VariableRefExpr varRefExprMsg = new VariableRefExpr(msg);
+        varRefExprMsg.setEvalFunction(VariableRefExpr.createGetLocalValueFunc(0));
+
+        SymbolName jsonPath = new SymbolName("jsonPath");
+        VariableRefExpr varRefExprJsonPath = new VariableRefExpr(jsonPath);
+        varRefExprJsonPath.setEvalFunction(VariableRefExpr.createGetLocalValueFunc(1));
+
+        List<Expression> nestedFunctionInvokeExpr = new ArrayList<>(2);
+        nestedFunctionInvokeExpr.add(varRefExprMsg);
+        nestedFunctionInvokeExpr.add(varRefExprJsonPath);
+
+        FunctionInvocationExpr invocationExpr =
+            new FunctionInvocationExpr(new SymbolName("get"), nestedFunctionInvokeExpr);
+        invocationExpr.setFunction(new GetInt());
+        BValueRef returnValue = invocationExpr.evaluate(ctx);
+
+        int returnVal = returnValue.getInt();
+        Assert.assertEquals(returnVal, 100);
+    }
+    
+//    @Test
+    public void testGetJSON() {
+        Context ctx = new Context();
+        ControlStack controlStack = ctx.getControlStack();
+
+        /*
+         * json msg = `{"price":100}`;
+         * string jsonPath = "$.price";
+         * string result = json:get(msg, jsonPath);
+         */
+        BValueRef[] localVariables = new BValueRef[2];
+        localVariables[0] = new BValueRef(new JSONValue("{'name':{'fname':'Jack','lname':'Peter'}}"));
+        localVariables[1] = new BValueRef(new StringValue("$.name"));
+//        StackFrame stackFrame = new StackFrame(new BValueRef[0], null, localVariables);
+//        controlStack.pushFrame(stackFrame);
+
+        SymbolName msg = new SymbolName("msg");
+        VariableRefExpr varRefExprMsg = new VariableRefExpr(msg);
+        varRefExprMsg.setEvalFunction(VariableRefExpr.createGetLocalValueFunc(0));
+
+        SymbolName jsonPath = new SymbolName("jsonPath");
+        VariableRefExpr varRefExprJsonPath = new VariableRefExpr(jsonPath);
+        varRefExprJsonPath.setEvalFunction(VariableRefExpr.createGetLocalValueFunc(1));
+
+        List<Expression> nestedFunctionInvokeExpr = new ArrayList<>(2);
+        nestedFunctionInvokeExpr.add(varRefExprMsg);
+        nestedFunctionInvokeExpr.add(varRefExprJsonPath);
+
+        FunctionInvocationExpr invocationExpr =
+            new FunctionInvocationExpr(new SymbolName("get"), nestedFunctionInvokeExpr);
+        invocationExpr.setFunction(new GetJSON());
+        BValueRef returnValue = invocationExpr.evaluate(ctx);
+
+        Assert.assertTrue(returnValue.getBValue() instanceof JSONValue);
+        
+        JsonElement returnVal = returnValue.getJSON();
+        Assert.assertEquals(returnVal.toString(), "{\"fname\":\"Jack\",\"lname\":\"Peter\"}");
+    }
+    
 //    @Test
     public void testSetString() {
         Context ctx = new Context();

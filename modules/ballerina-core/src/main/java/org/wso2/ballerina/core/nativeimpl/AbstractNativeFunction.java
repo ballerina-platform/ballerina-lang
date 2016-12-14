@@ -143,7 +143,7 @@ public abstract class AbstractNativeFunction implements NativeConstruct, Functio
      */
     public BValueRef getArgument(Context context, int index) {
         if (index > -1 && index < parameters.size()) {
-            return context.getControlStack().getCurrentFrame().parameters[index];
+            return context.getControlStack().getCurrentFrame().values[index];
         }
         throw new ArgumentOutOfRangeException(index);
     }

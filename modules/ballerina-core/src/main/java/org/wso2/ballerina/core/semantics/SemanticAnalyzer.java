@@ -64,8 +64,7 @@ import org.wso2.ballerina.core.model.types.TypeC;
  */
 public class SemanticAnalyzer implements NodeVisitor {
 
-    private int localVarOffset = -1;
-    private int exprValOffset = -1;
+    private int stackFrameOffset = -1;
 
     // TODO Check the possibility of passing this symbol table as constructor parameter to this class.
     // TODO Need to pass the global scope
@@ -108,19 +107,28 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         Parameter[] parameters = bFunction.getParameters();
         for (Parameter parameter : parameters) {
-            localVarOffset++;
+            stackFrameOffset++;
             visit(parameter);
         }
 
         VariableDcl[] variableDcls = bFunction.getVariableDcls();
         for (VariableDcl variableDcl : variableDcls) {
-            localVarOffset++;
+            stackFrameOffset++;
             visit(variableDcl);
         }
 
-
         BlockStmt blockStmt = bFunction.getFunctionBody();
         blockStmt.accept(this);
+
+        // Here we need to calculate size of the BValue array which will be created in the stack frame
+        // Values in the stack frame are stored in the following order.
+        // -- Parameter values --
+        // -- Return values    --
+        // -- Local var values --
+        // -- Temp values      --
+        // These temp values are results of intermediate expression evaluations.
+        int sizeOfStackFrame = stackFrameOffset + 1;
+        bFunction.setStackFrameSize(sizeOfStackFrame);
 
         // Close the symbol scope
         closeScope();
@@ -151,7 +159,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         TypeC type = parameter.getTypeC();
-        symbol = new Symbol(type, localVarOffset);
+        symbol = new Symbol(type, stackFrameOffset);
         symName.setSymbol(symbol);
 
         symbolTable.insert(symName, symbol);
@@ -168,7 +176,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         TypeC type = variableDcl.getTypeC();
-        symbol = new Symbol(type, localVarOffset);
+        symbol = new Symbol(type, stackFrameOffset);
         symName.setSymbol(symbol);
 
         symbolTable.insert(symName, symbol);
@@ -226,8 +234,8 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(AddExpression addExpr) {
-        exprValOffset++;
-        addExpr.setOffset(exprValOffset);
+        stackFrameOffset++;
+        addExpr.setOffset(stackFrameOffset);
 
         Expression rExpr = addExpr.getRExpr();
         rExpr.accept(this);
@@ -349,14 +357,11 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     private void openScope() {
-        localVarOffset = -1;
-        exprValOffset = -1;
         symbolTable.openScope();
     }
 
     private void closeScope() {
-        localVarOffset = -1;
-        exprValOffset = -1;
+        stackFrameOffset = -1;
         symbolTable.closeScope();
     }
 }
