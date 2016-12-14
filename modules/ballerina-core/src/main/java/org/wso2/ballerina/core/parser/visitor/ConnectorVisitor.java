@@ -100,7 +100,7 @@ public class ConnectorVisitor extends BallerinaBaseVisitor {
                 ctx.connectorBody().variableDeclaration()) {
             VariableDcl variableDcl = (VariableDcl) variableDeclarationContext.accept(variableDeclarationVisitor);
             connectorObject.addVariable(variableDcl);
-            connectorSymbolTable.put(variableDcl.getSymbolName(),
+            connectorSymbolTable.put(variableDcl.getName(),
                     BValueFactory.createBValueFromVariableDeclaration(variableDcl));
         }
 

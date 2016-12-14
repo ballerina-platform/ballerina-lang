@@ -15,27 +15,20 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerina.core.model.expressions;
-
-import org.wso2.ballerina.core.model.NodeVisitor;
-import org.wso2.ballerina.core.model.Operator;
+package org.wso2.ballerina.core.interpreter;
 
 /**
- * {@code BinaryArithmeticExpression} is the base class for any binary arithmetic expression
  *
- * @see AddExpression
- * @see SubtractExpression
- * @see MultExpression
- * @since 1.0.0
  */
-public class BinaryArithmeticExpression extends BinaryExpression {
+public class BContext {
 
-    public BinaryArithmeticExpression(Expression lExpr, Operator op, Expression rExpr) {
-        super(lExpr, op, rExpr);
+    private ControlStack controlStack;
+
+    public BContext() {
+        this.controlStack = new ControlStack();
     }
 
-    @Override
-    public void accept(NodeVisitor visitor) {
-        visitor.visit(this);
+    public ControlStack getControlStack() {
+        return controlStack;
     }
 }

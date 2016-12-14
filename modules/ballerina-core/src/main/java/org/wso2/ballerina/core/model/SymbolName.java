@@ -25,10 +25,18 @@ package org.wso2.ballerina.core.model;
  * @since 1.0.0
  */
 public class SymbolName {
+
     private String name;
+    private SymType symType;
+    private Symbol symbol;
 
     public SymbolName(String name) {
         this.name = name;
+    }
+
+    public SymbolName(String name, SymType symType) {
+        this.name = name;
+        this.symType = symType;
     }
 
     /**
@@ -40,12 +48,29 @@ public class SymbolName {
         return name;
     }
 
+    public void setSymType(SymType symType) {
+        this.symType = symType;
+    }
+
+    public void setSymbol(Symbol symbol) {
+        this.symbol = symbol;
+    }
+
     public boolean equals(Object obj) {
         SymbolName other = (SymbolName) obj;
-        return this.name.equals(other.getName());
+        return this.name.equals(other.getName()) && this.symType == other.symType;
     }
 
     public int hashCode() {
         return name.length();
+    }
+
+    /**
+     *
+     */
+    public enum SymType {
+        VARIABLE,
+        CALLABLE_UNIT,
+        CALLABLE_UNIT_GROUP
     }
 }

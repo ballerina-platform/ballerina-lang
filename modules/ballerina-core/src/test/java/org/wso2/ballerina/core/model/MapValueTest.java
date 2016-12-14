@@ -17,8 +17,6 @@
  */
 package org.wso2.ballerina.core.model;
 
-import org.testng.annotations.BeforeTest;
-import org.testng.annotations.Test;
 import org.wso2.ballerina.core.model.values.MapValue;
 
 import java.util.HashMap;
@@ -28,11 +26,11 @@ import static org.testng.AssertJUnit.assertEquals;
 
 
 public class MapValueTest {
-    @BeforeTest
+//    @BeforeTest
     public void setup() {
     }
 
-    @Test
+//    @Test
     public void testStandardJavaMap() {
         // Standard Map
         Map<String, Integer> map = new HashMap<String, Integer>();
@@ -54,7 +52,7 @@ public class MapValueTest {
         assertEquals(map.size(), 101);
     }
 
-    @Test
+//    @Test
     public void testMapTypeMap() {
 
         // MapType

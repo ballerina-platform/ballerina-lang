@@ -2,7 +2,6 @@ package org.wso2.ballerina.core.model.expressions;
 
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.interpreter.ControlStack;
-import org.wso2.ballerina.core.interpreter.StackFrame;
 import org.wso2.ballerina.core.model.Action;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.Parameter;
@@ -34,7 +33,7 @@ public class ConnectorActionInvocationExpr extends AbstractExpression {
     }
 
     @Override
-    public void visit(NodeVisitor visitor) {
+    public void accept(NodeVisitor visitor) {
 
     }
 
@@ -60,15 +59,15 @@ public class ConnectorActionInvocationExpr extends AbstractExpression {
         VariableDcl[] variableDcls = calleeAction.getVariableDcls();
 
         // Setting up local variables;
-        BValueRef[] localVariables  = new BValueRef[variableDcls.length];
+        BValueRef[] localVariables = new BValueRef[variableDcls.length];
         for (int index = 0; index < variableDcls.length; index++) {
             BValueRef value = ValueFactory.creteValue(variableDcls[index].getType());
             localVariables[index] = value;
         }
 
         ControlStack controlStack = ctx.getControlStack();
-        StackFrame stackFrame = new StackFrame(funcParams, returnValue, localVariables);
-        controlStack.pushFrame(stackFrame);
+//        StackFrame stackFrame = new StackFrame(funcParams, returnValue, localVariables);
+//        controlStack.pushFrame(stackFrame);
 
         calleeAction.interpret(ctx);
         controlStack.popFrame();
