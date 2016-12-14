@@ -472,22 +472,22 @@ public class BLangModelBuilder {
 
     public void createIntegerLiteral(String value) {
         BValue bValue = new IntValue(Integer.parseInt(value));
-        exprStack.push(new BasicLiteral(new BValueRef(bValue)));
+        createLiteral(new BValueRef(bValue), TypeC.INT_TYPE);
     }
 
     public void createFloatLiteral(String value) {
         BValue bValue = new FloatValue(Float.parseFloat(value));
-        exprStack.push(new BasicLiteral(new BValueRef(bValue)));
+        createLiteral(new BValueRef(bValue), TypeC.FLOAT_TYPE);
     }
 
     public void createStringLiteral(String value) {
         BValue bValue = new StringValue(value);
-        exprStack.push(new BasicLiteral(new BValueRef(bValue)));
+        createLiteral(new BValueRef(bValue), TypeC.STRING_TYPE);
     }
 
     public void createBooleanLiteral(String value) {
         BValue bValue = new BooleanValue(Boolean.parseBoolean(value));
-        exprStack.push(new BasicLiteral(new BValueRef(bValue)));
+        createLiteral(new BValueRef(bValue), TypeC.BOOLEAN_TYPE);
     }
 
     public void createNullLiteral(String value) {
@@ -509,6 +509,12 @@ public class BLangModelBuilder {
             addInReverseOrder(builder);
             builder.addExpression(expr);
         }
+    }
+
+    private void createLiteral(BValueRef bValueRef, TypeC type) {
+        BasicLiteral basicLiteral = new BasicLiteral(bValueRef);
+        basicLiteral.setType(type);
+        exprStack.push(basicLiteral);
     }
 
 //    private void addScopeToSymbolTable() {

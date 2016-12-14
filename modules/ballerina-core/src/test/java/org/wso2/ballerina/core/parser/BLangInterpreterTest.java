@@ -26,7 +26,10 @@ import org.wso2.ballerina.core.interpreter.ControlStack;
 import org.wso2.ballerina.core.interpreter.StackFrame;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
+import org.wso2.ballerina.core.model.VariableDcl;
 import org.wso2.ballerina.core.model.builder.BLangModelBuilder;
+import org.wso2.ballerina.core.model.types.TypeC;
+import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BValueRef;
 import org.wso2.ballerina.core.model.values.IntValue;
 import org.wso2.ballerina.core.parser.antlr4.BLangAntlr4Listener;
@@ -79,12 +82,18 @@ public class BLangInterpreterTest {
         BContext ctx = new BContext();
         ControlStack controlStack = ctx.getControlStack();
 
-        int sizeOfValueArray =  function.getStackFrameSize();
+        int sizeOfValueArray = function.getStackFrameSize();
 
         BValueRef[] values = new BValueRef[sizeOfValueArray];
         values[0] = new BValueRef(new IntValue(10));
         values[1] = new BValueRef(new IntValue(1000));
         values[2] = new BValueRef(new IntValue(20));
+
+        // Create default values for all declared local variables
+        VariableDcl[] variableDcls = function.getVariableDcls();
+        for (int i = 0; i < variableDcls.length; i++) {
+            values[i + 3] = BValueRef.getDefaultValue(variableDcls[i].getTypeC());
+        }
 
         BValueRef[] returnVals = new BValueRef[function.getReturnTypesC().length];
 
@@ -95,11 +104,11 @@ public class BLangInterpreterTest {
         function.accept(interpreter);
 
         int expectedA = returnVals[0].getInt();
-        int actualA = 1020;
+        int actualA = 1030;
         Assert.assertEquals(actualA, expectedA);
 
         int expectedB = returnVals[1].getInt();
-        int actualB = 40;
+        int actualB = 32;
         Assert.assertEquals(actualB, expectedB);
 
 //        System.out.println(expectedA);

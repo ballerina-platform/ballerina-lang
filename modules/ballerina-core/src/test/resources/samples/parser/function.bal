@@ -1,5 +1,7 @@
 function test(int a, int b, int c) (int, int) {
 
+    int x;
+    x = 10;
     a = c;
     a = b ;
 
@@ -7,7 +9,7 @@ function test(int a, int b, int c) (int, int) {
         a = b + c;
     }
 
-    b = c + c;
+    b = c + 1 + x;
 
-    return a, b;
+    return a + x, b + 1;
 }
