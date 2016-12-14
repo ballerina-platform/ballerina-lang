@@ -30,7 +30,9 @@ import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
+import org.wso2.carbon.messaging.Header;
 
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -67,9 +69,9 @@ public class Clone  extends AbstractNativeFunction {
     private MessageValue getCopyOfMessage(MessageValue originalMessage) {
         MessageValue newMessageObj = new MessageValue(new DefaultCarbonMessage());
         // Clone headers
-        Map<String, String> copyHeaderMap = originalMessage.getHeaders().entrySet().stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-        copyHeaderMap.forEach(newMessageObj::addHeader);
+        List<Header> allHeaders = originalMessage.getHeaders();
+        newMessageObj.setHeaderList(allHeaders);
+
         // Clone payload
         if (originalMessage.isAlreadyRead()) {
             newMessageObj.setBuiltPayload(Utils.getBValueCopy(originalMessage.getBuiltPayload()));

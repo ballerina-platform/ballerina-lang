@@ -1,7 +1,8 @@
 package ballerina.lang.message;
 
 // validate these methods with the servlet spec
-native function getHeader (message m, string key) (string[]);
+native function getHeader (message m, string key) (string);
+native function getHeaders (message m, string key) (string[]);
 native function setHeader (message m, string key, string value);
 native function addHeader (message m, string key, string value);
 native function removeHeader (message m, string key);
