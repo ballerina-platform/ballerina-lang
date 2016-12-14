@@ -18,20 +18,31 @@
 
 package org.wso2.carbon.transport.http.netty.listener;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
+import org.wso2.carbon.messaging.websocket.BinaryWebSocketCarbonMessage;
+import org.wso2.carbon.messaging.websocket.CloseWebSocketCarbonMessage;
+import org.wso2.carbon.messaging.websocket.TextWebSocketCarbonMessage;
+import org.wso2.carbon.messaging.websocket.WebSocketCarbonMessage;
+import org.wso2.carbon.messaging.websocket.WebSocketResponder;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
+import org.wso2.carbon.transport.http.netty.internal.WebSocketResponderImpl;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 
 import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
 
 /**
  * {@link SourceHandler} only handles the HTTP requests
@@ -42,6 +53,7 @@ public class WebSocketSourceHandler extends SourceHandler {
 
     private static Logger log = LoggerFactory.getLogger(WebSocketSourceHandler.class);
     private final String uri;
+    private CarbonMessage cMsg;
 
     public WebSocketSourceHandler(ConnectionManager connectionManager,
                                   ListenerConfiguration listenerConfiguration,
@@ -61,12 +73,34 @@ public class WebSocketSourceHandler extends SourceHandler {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 
+        WebSocketResponder webSocketResponder = new WebSocketResponderImpl(ctx);
+        cMsg = null;
+
         if (msg instanceof WebSocketFrame) {
-            WebSocketFrame webSocketFrame = (WebSocketFrame) msg;
-            CarbonMessage carbonMessage = setupBasicCarbonMessage(ctx);
-            carbonMessage.setProperty(Constants.IS_WEBSOCKET_FRAME, true);
-            carbonMessage.setProperty(Constants.WEBSOCKET_FRAME, webSocketFrame);
-            publishToMessageProcessor(carbonMessage);
+
+            if (msg instanceof TextWebSocketFrame) {
+                TextWebSocketFrame textWebSocketFrame = (TextWebSocketFrame) msg;
+                String text = textWebSocketFrame.text();
+                cMsg = new TextWebSocketCarbonMessage(text, webSocketResponder);
+
+            } else if (msg instanceof BinaryWebSocketFrame) {
+                BinaryWebSocketFrame binaryWebSocketFrame = (BinaryWebSocketFrame) msg;
+                boolean finalFragment = binaryWebSocketFrame.isFinalFragment();
+                ByteBuf byteBuf = binaryWebSocketFrame.content();
+                byte[] bytes = byteBuf.array();
+                ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
+                cMsg = new BinaryWebSocketCarbonMessage(byteBuffer, finalFragment, webSocketResponder);
+
+            } else if (msg instanceof CloseWebSocketFrame) {
+                CloseWebSocketFrame closeWebSocketFrame = (CloseWebSocketFrame) msg;
+                String reasonText = closeWebSocketFrame.reasonText();
+                int statusCode = closeWebSocketFrame.statusCode();
+                cMsg = new CloseWebSocketCarbonMessage(statusCode, reasonText, webSocketResponder);
+            }
+
+            setupBasicCarbonMessageProperties(ctx);
+            cMsg.setProperty(Constants.IS_WEBSOCKET_FRAME, true);
+            publishToMessageProcessor(cMsg);
         } else {
             log.error("Expecting WebSocketFrame. Unknown type.");
         }
@@ -99,15 +133,13 @@ public class WebSocketSourceHandler extends SourceHandler {
 
 
     /*
-     Extract all the necessary details from ChannelHandlerContext
+     Extract all the necessary properties from ChannelHandlerContext
      Add them into a CarbonMessage
      Note : This method only add details of ChannelHandlerContext to the CarbonMessage
      Adding other custom details should be done separately
      @return basic CarbonMessage with necessary details
      */
-    private CarbonMessage setupBasicCarbonMessage(ChannelHandlerContext ctx) {
-
-        CarbonMessage cMsg = new HTTPCarbonMessage();
+    private void setupBasicCarbonMessageProperties(ChannelHandlerContext ctx) {
         if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
             HTTPTransportContextHolder.getInstance().getHandlerExecutor().executeAtSourceRequestReceiving(cMsg);
         }
@@ -129,6 +161,5 @@ public class WebSocketSourceHandler extends SourceHandler {
         ChannelHandler handler = ctx.handler();
 
         cMsg.setProperty(Constants.CHANNEL_ID, ((SourceHandler) handler).getListenerConfiguration().getId());
-        return cMsg;
     }
 }

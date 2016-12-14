@@ -63,6 +63,11 @@ public class PassTroughWebSocketUpgradeTestCase {
         }
     }
 
+    @Test(groups = "passthroughUPGRADE")
+    public void test1Temp(){
+        while (true);
+    }
+
 
     @AfterClass(groups = "passthroughUPGRADE")
     public void cleaUp() {

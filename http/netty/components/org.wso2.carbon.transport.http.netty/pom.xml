@@ -87,6 +87,7 @@
         <dependency>
             <groupId>org.wso2.carbon.messaging</groupId>
             <artifactId>org.wso2.carbon.messaging</artifactId>
+            <version>1.0.12-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.orbit.com.lmax</groupId>
