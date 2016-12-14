@@ -39,6 +39,10 @@ public class VariableRefExpr extends AbstractExpression {
         this.symbolName = symbolName;
     }
 
+    public SymbolName getSymbolName() {
+        return symbolName;
+    }
+
     public void setEvalFunction(Function<Context, BValueRef> evalFunction) {
         this.evalFunction = evalFunction;
     }
