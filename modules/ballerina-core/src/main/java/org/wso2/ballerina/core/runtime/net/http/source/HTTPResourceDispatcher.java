@@ -20,12 +20,13 @@ package org.wso2.ballerina.core.runtime.net.http.source;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.runtime.core.BalCallback;
-import org.wso2.ballerina.core.runtime.core.BalContext;
 import org.wso2.ballerina.core.runtime.core.dispatching.ResourceDispatcher;
+import org.wso2.ballerina.core.runtime.net.http.Constants;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
@@ -37,7 +38,7 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
 
 
     @Override
-    public boolean dispatch(Service service, BalContext context, BalCallback callback) {
+    public boolean dispatch(Service service, Context context, BalCallback callback) {
         CarbonMessage cMsg = context.getCarbonMessage();
 
         String method = (String) cMsg.getProperty(Constants.HTTP_METHOD);
@@ -45,14 +46,15 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
 
         for (Resource resource : service.getResources()) {
             Annotation subPathAnnotation = resource.getAnnotation(Constants.ANNOTATION_NAME_PATH);
-            if (subPathAnnotation == null) {
+            String subPathAnnotationVal;
+            if (subPathAnnotation != null) {
+                subPathAnnotationVal = subPathAnnotation.getValue();
+            } else {
                 if (log.isDebugEnabled()) {
-                    log.debug("Path not specified in the Resource");
+                    log.debug("Path not specified in the Resource, using Resource name as the Path");
                 }
-                continue;
+                subPathAnnotationVal = "/".concat(resource.getName());
             }
-
-            String subPathAnnotationVal = subPathAnnotation.getValue();
 
             if ((subPath.startsWith(subPathAnnotationVal) || Constants.DEFAULT_SUB_PATH.equals(subPathAnnotationVal)) &&
                 (resource.getAnnotation(method) != null)) {
@@ -61,7 +63,7 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
         }
 
         log.error("No matching Resource found to dispatch the request with Path : " + subPath +
-                  " , Method : " + method + " in Service : " + service.getIdentifier().getName());
+                  " , Method : " + method + " in Service : " + service.getSymbolName().getName());
 
         return false;
     }

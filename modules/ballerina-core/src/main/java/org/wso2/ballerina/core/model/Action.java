@@ -18,7 +18,9 @@
 
 package org.wso2.ballerina.core.model;
 
+import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
+import org.wso2.ballerina.core.model.types.Type;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,27 +29,54 @@ import java.util.List;
  * An {@code Action} is a operation (function) that can be executed against a connector.
  * <p>
  * The structure of an action definition is as follows:
- *  [ActionAnnotations]
- *  action ActionName (ConnectorName VariableName[, ([ActionParamAnnotations] TypeName VariableName)+]) (TypeName*)
- *  [throws exception] {
- *      ConnectionDeclaration;*
- *      VariableDeclaration;*
- *      WorkerDeclaration;*
- *      Statement;+
- *  }
+ * [ActionAnnotations]
+ * action ActionName (ConnectorName VariableName[, ([ActionParamAnnotations] TypeName VariableName)+]) (TypeName*)
+ * [throws exception] {
+ * ConnectionDeclaration;*
+ * VariableDeclaration;*
+ * WorkerDeclaration;*
+ * Statement;+
+ * }
  *
- *  @since 1.0.0
- *
+ * @since 1.0.0
  */
 @SuppressWarnings("unused")
-public class Action {
+public class Action implements Node {
 
-    private List<Annotation> annotations;
+    private List<Annotation> annotationList;
     private List<Parameter> arguments;
-    private List<Connection> connections;
+    private List<ConnectorDcl> connectorDclList;
     private List<VariableDcl> variables;
-    private List<Worker> workers;
+    private List<Worker> workerList;
     private List<Statement> statements;
+
+    private SymbolName name;
+    private Annotation[] annotations;
+    private Parameter[] parameters;
+    private ConnectorDcl[] connectorDcls;
+    private VariableDcl[] variableDcls;
+    private Worker[] workers;
+    private Type[] returnTypes;
+    private BlockStmt functionBody;
+
+    public Action(SymbolName name,
+                  Annotation[] annotations,
+                  Parameter[] parameters,
+                  Type[] returnTypes,
+                  ConnectorDcl[] connectorDcls,
+                  VariableDcl[] variableDcls,
+                  Worker[] workers,
+                  BlockStmt functionBody) {
+
+        this.name = name;
+        this.annotations = annotations;
+        this.parameters = parameters;
+        this.returnTypes = returnTypes;
+        this.connectorDcls = connectorDcls;
+        this.variableDcls = variableDcls;
+        this.workers = workers;
+        this.functionBody = functionBody;
+    }
 
     /**
      * Get all the Annotations associated with an Action
@@ -55,7 +84,7 @@ public class Action {
      * @return list of Annotations
      */
     public List<Annotation> getAnnotations() {
-        return annotations;
+        return annotationList;
     }
 
     /**
@@ -64,7 +93,7 @@ public class Action {
      * @param annotations list of Annotations
      */
     public void setAnnotations(List<Annotation> annotations) {
-        this.annotations = annotations;
+        this.annotationList = annotations;
     }
 
     /**
@@ -74,10 +103,11 @@ public class Action {
      */
     public void addAnnotation(Annotation annotation) {
         // Since model is generated sequentially no chance of synchronizing issues
-        if (annotations == null) {  // TODO: based on the usage of this and setAnnotation methods we may move this logic
-            annotations = new ArrayList<Annotation>();
+        // TODO: based on the usage of this and setAnnotation methods we may move this logic
+        if (annotationList == null) {
+            annotationList = new ArrayList<Annotation>();
         }
-        annotations.add(annotation);
+        annotationList.add(annotation);
     }
 
     /**
@@ -115,29 +145,29 @@ public class Action {
      *
      * @return list of all the Connections belongs to a Action
      */
-    public List<Connection> getConnections() {
-        return connections;
+    public List<ConnectorDcl> getConnectorDcls() {
+        return connectorDclList;
     }
 
     /**
      * Assign connections to the Action
      *
-     * @param connections list of connections to be assigned to a Action
+     * @param connectorDcls list of connections to be assigned to a Action
      */
-    public void setConnections(List<Connection> connections) {
-        this.connections = connections;
+    public void setConnectorDcls(List<ConnectorDcl> connectorDcls) {
+        this.connectorDclList = connectorDcls;
     }
 
     /**
      * Add a {@code Connection} to the Action
      *
-     * @param connection Connection to be added to the Action
+     * @param connectorDcl Connection to be added to the Action
      */
-    public void addConnection(Connection connection) {
-        if (connections == null) {
-            connections = new ArrayList<Connection>();
+    public void addConnection(ConnectorDcl connectorDcl) {
+        if (connectorDclList == null) {
+            connectorDclList = new ArrayList<ConnectorDcl>();
         }
-        connections.add(connection);
+        connectorDclList.add(connectorDcl);
     }
 
     /**
@@ -176,7 +206,7 @@ public class Action {
      * @return list of Workers
      */
     public List<Worker> getWorkers() {
-        return workers;
+        return workerList;
     }
 
     /**
@@ -185,7 +215,7 @@ public class Action {
      * @param workers list of all the Workers
      */
     public void setWorkers(List<Worker> workers) {
-        this.workers = workers;
+        this.workerList = workers;
     }
 
     /**
@@ -194,10 +224,10 @@ public class Action {
      * @param worker Worker to be added to the Action
      */
     public void addWorker(Worker worker) {
-        if (workers == null) {
-            workers = new ArrayList<Worker>();
+        if (workerList == null) {
+            workerList = new ArrayList<Worker>();
         }
-        workers.add(worker);
+        workerList.add(worker);
     }
 
     /**
@@ -230,4 +260,8 @@ public class Action {
         statements.add(statement);
     }
 
+    @Override
+    public void visit(NodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

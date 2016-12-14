@@ -20,6 +20,7 @@ package org.wso2.ballerina.core.runtime.core;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.runtime.Constants;
 import org.wso2.ballerina.core.runtime.core.threading.threadpool.RequestWorkerThread;
 import org.wso2.ballerina.core.runtime.core.threading.threadpool.ThreadPoolFactory;
@@ -46,7 +47,7 @@ public class MessageProcessor implements CarbonMessageProcessor {
             //TODO: Handler error
             return false;
         }
-        BalContext balContext = new BalContext(cMsg);
+        Context balContext = new Context(cMsg);
         balContext.setProperty(Constants.PROTOCOL, protocol);
 
         RequestWorkerThread workerThread =

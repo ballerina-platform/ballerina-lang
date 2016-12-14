@@ -17,11 +17,15 @@
  */
 package org.wso2.ballerina.core.parser.visitor;
 
-import org.wso2.ballerina.core.model.Identifier;
+import org.wso2.ballerina.core.interpreter.SymbolTable;
+import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
+import org.wso2.ballerina.core.model.SymbolName;
+import org.wso2.ballerina.core.model.VariableDcl;
 import org.wso2.ballerina.core.parser.BallerinaBaseVisitor;
 import org.wso2.ballerina.core.parser.BallerinaParser;
+import org.wso2.ballerina.core.utils.BValueFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +34,12 @@ import java.util.List;
  * Visitor for service
  */
 public class ServiceVisitor extends BallerinaBaseVisitor {
+
+    private SymbolTable serviceSymbolTable;
+
+    public ServiceVisitor(SymbolTable parentSymbolTable) {
+        this.serviceSymbolTable = new SymbolTable(parentSymbolTable);
+    }
 
     /**
      * {@inheritDoc}
@@ -43,16 +53,41 @@ public class ServiceVisitor extends BallerinaBaseVisitor {
     public Object visitServiceDefinition(BallerinaParser.ServiceDefinitionContext ctx) {
         // Create the service object
         String serviceName = ctx.Identifier().getText();
-        Identifier identifier = new Identifier(serviceName);
-        Service serviceObject = new Service(identifier);
+        SymbolName symbolName = new SymbolName(serviceName);
+        Service serviceObject = new Service(symbolName);
 
         // Read the Annotations
-        // Skipped for the moment
+        AnnotationVisitor annotationVisitor = new AnnotationVisitor();
+        for (BallerinaParser.AnnotationContext annotationContext : ctx.annotation()) {
+            serviceObject.addAnnotation((Annotation) annotationContext.accept(annotationVisitor));
+        }
 
-        // Create the service body and resources
+//        // Read the Connector declarations
+//        ConnectorVisitor connectorVisitor = new ConnectorVisitor(serviceSymbolTable);
+//        for (BallerinaParser.ConnectorDeclarationContext cdc :
+//                ctx.serviceBody().serviceBodyDeclaration().connectorDeclaration()) {
+//            Connection connection = (Connection) cdc.accept(connectorVisitor);
+//            serviceObject.addConnector();
+//            serviceSymbolTable.put(variableDcl.getIdentifier(),
+//                    BValueFactory.createBValueFromVariableDeclaration(variableDcl));
+//        }
+
+        // Read the variable declarations
+        VariableDeclarationVisitor variableDeclarationVisitor = new VariableDeclarationVisitor(serviceSymbolTable);
+        for (BallerinaParser.VariableDeclarationContext variableDeclarationContext :
+                ctx.serviceBody().serviceBodyDeclaration().variableDeclaration()) {
+            VariableDcl variableDcl = (VariableDcl) variableDeclarationContext.accept(variableDeclarationVisitor);
+            serviceObject.addVariable(variableDcl);
+            serviceSymbolTable.put(variableDcl.getSymbolName(),
+                    BValueFactory.createBValueFromVariableDeclaration(variableDcl));
+        }
+
+        // Read the resources
         List<Resource> resources = (List<Resource>) this.
                 visitServiceBodyDeclaration(ctx.serviceBody().serviceBodyDeclaration());
-        serviceObject.setResources(resources);
+        /* ToDo : Fix the listener properly to handle the new Model API.  */
+        Resource[] resourceArray = new Resource[resources.size()];
+        serviceObject.setResources(resources.toArray(resourceArray));
 
         return serviceObject;
     }
@@ -82,12 +117,22 @@ public class ServiceVisitor extends BallerinaBaseVisitor {
     public Object visitServiceBodyDeclaration(BallerinaParser.ServiceBodyDeclarationContext ctx) {
         // Read the resources
         List<Resource> resources = new ArrayList<>();
-        ResourceVisitor resourceVisitor = new ResourceVisitor();
+        ResourceVisitor resourceVisitor = new ResourceVisitor(serviceSymbolTable);
         for (BallerinaParser.ResourceDefinitionContext rdc : ctx.resourceDefinition()) {
             Resource resourceObject = (Resource) rdc.accept(resourceVisitor);
             resources.add(resourceObject);
             //serviceObject.addResource(resourceObject);
         }
         return resources;
+    }
+
+    /**
+     * Base method for retrieving the symbol table
+     *
+     * @return symbol table for this instance
+     */
+    @Override
+    public SymbolTable getSymbolTable() {
+        return this.serviceSymbolTable;
     }
 }

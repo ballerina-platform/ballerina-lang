@@ -18,34 +18,8 @@
 package org.wso2.ballerina.core.model;
 
 /**
- * {@code Identifier} represents an identifier in Ballerina
- * <p>
- * Here only the name of the identifier is stored.
  *
- * @since 1.0.0
  */
-public class Identifier {
-    private String name;
-
-    public Identifier(String name) {
-        this.name = name;
-    }
-
-    /**
-     * Get the name of the Identifier
-     *
-     * @return name of the Identifier
-     */
-    public String getName() {
-        return name;
-    }
-
-    public boolean equals(Object obj) {
-        Identifier other = (Identifier) obj;
-        return this.name.equals(other.getName());
-    }
-
-    public int hashCode() {
-        return name.length();
-    }
+public interface Node {
+    void visit(NodeVisitor visitor);
 }

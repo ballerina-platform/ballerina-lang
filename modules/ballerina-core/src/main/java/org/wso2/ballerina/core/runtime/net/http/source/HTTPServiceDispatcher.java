@@ -20,11 +20,12 @@ package org.wso2.ballerina.core.runtime.net.http.source;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.runtime.core.BalCallback;
-import org.wso2.ballerina.core.runtime.core.BalContext;
 import org.wso2.ballerina.core.runtime.core.dispatching.ServiceDispatcher;
+import org.wso2.ballerina.core.runtime.net.http.Constants;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 import java.util.HashMap;
@@ -43,7 +44,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
     private Map<String, Map<String, Service>> services = new HashMap<>();
 
     @Override
-    public boolean dispatch(BalContext context, BalCallback callback) {
+    public boolean dispatch(Context context, BalCallback callback) {
 
         CarbonMessage cMsg = context.getCarbonMessage();
         String interfaceId = (String) cMsg.getProperty(org.wso2.carbon.messaging.Constants.LISTENER_INTERFACE_ID);
@@ -72,7 +73,12 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
         }
 
         String[] path = uri.split("/");
-        String basePath = "/".concat(path[1]);
+        String basePath;
+        if (path.length > 1) {
+            basePath = "/".concat(path[1]);
+        } else {
+            basePath = "/";
+        }
         String subPath = "";
 
         //TODO: Add regex support
@@ -93,7 +99,10 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
             basePath = Constants.DEFAULT_BASE_PATH;
             subPath = uri;
         } else {
-            subPath = uri.split(basePath)[1];
+            String[] tempPaths = uri.split(basePath);
+            if (tempPaths.length > 1) {
+                subPath = tempPaths[1];
+            }
         }
 
         if (service == null) {
@@ -126,10 +135,13 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
             }
         }
 
-        String basePath = Constants.DEFAULT_BASE_PATH;
+        String basePath = service.getSymbolName().getName();
         Annotation basePathAnnotation = service.getAnnotation(Constants.ANNOTATION_NAME_BASE_PATH);
         if (basePathAnnotation != null) {
             basePath = basePathAnnotation.getValue();
+        }
+        if (!basePath.startsWith("/")) {
+            basePath = "/".concat(basePath);
         }
 
         Map<String, Service> servicesOnInterface = services.get(listenerInterface);

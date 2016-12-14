@@ -89,15 +89,15 @@ public class WhileStmtTest {
      * @return
      */
     private WhileStmt getWhileStmtObject() {
-        Identifier idX = new Identifier("x");
+        SymbolName idX = new SymbolName("x");
         VariableRefExpr varRefExprX = new VariableRefExpr(idX);
         varRefExprX.setEvalFunction(VariableRefExpr.createGetLocalValueFunc(0));
 
-        Identifier idY = new Identifier("y");
+        SymbolName idY = new SymbolName("y");
         VariableRefExpr varRefExprY = new VariableRefExpr(idY);
         varRefExprY.setEvalFunction(VariableRefExpr.createGetLocalValueFunc(1));
 
-        Identifier idZ = new Identifier("z");
+        SymbolName idZ = new SymbolName("z");
         VariableRefExpr varRefExprZ = new VariableRefExpr(idZ);
         varRefExprZ.setEvalFunction(VariableRefExpr.createGetLocalValueFunc(2));
 

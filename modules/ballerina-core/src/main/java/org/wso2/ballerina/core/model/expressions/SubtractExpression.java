@@ -18,6 +18,7 @@
 package org.wso2.ballerina.core.model.expressions;
 
 import org.wso2.ballerina.core.interpreter.Context;
+import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BValueRef;
 import org.wso2.ballerina.core.model.values.DoubleValue;
@@ -33,7 +34,7 @@ import static org.wso2.ballerina.core.model.Operator.SUB;
  *
  * @since 1.0.0
  */
-public class SubstractExpression extends BinaryArithmeticExpression {
+public class SubtractExpression extends BinaryArithmeticExpression {
 
     public static final TriFunction<Context, Expression, Expression, BValueRef> SUB_INT_FUNC =
             (ctx, lExpr, rExpr) -> {
@@ -67,7 +68,12 @@ public class SubstractExpression extends BinaryArithmeticExpression {
                 return new BValueRef(bValue);
             };
 
-    public SubstractExpression(Expression lExpr, Expression rExpr) {
+    public SubtractExpression(Expression lExpr, Expression rExpr) {
         super(lExpr, SUB, rExpr);
+    }
+
+    @Override
+    public void visit(NodeVisitor visitor) {
+        visitor.visit(this);
     }
 }

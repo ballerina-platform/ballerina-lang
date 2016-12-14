@@ -27,24 +27,23 @@ import java.util.List;
  * @since 1.0.0
  */
 @SuppressWarnings("unused")
-public class Connection {
+public class ConnectorDcl implements Node {
 
     /* Name of the Connector which Connection is instantiated against */
     String connectorName;
 
     /* Name of the Connection instance */
-    Identifier connectionIdentifier;
+    SymbolName connectionSymbolName;
 
     List<String> argValues;
 
     /**
-     *
-     * @param connectorName Name of the Connector which Connection is instantiated against
-     * @param connectionIdentifier Identifier of the Connection instance
+     * @param connectorName        Name of the Connector which Connection is instantiated against
+     * @param connectionSymbolName Identifier of the Connection instance
      */
-    public Connection(String connectorName, Identifier connectionIdentifier) {
+    public ConnectorDcl(String connectorName, SymbolName connectionSymbolName) {
         this.connectorName = connectorName;
-        this.connectionIdentifier = connectionIdentifier;
+        this.connectionSymbolName = connectionSymbolName;
     }
 
     /**
@@ -61,8 +60,8 @@ public class Connection {
      *
      * @return identifier of the Connection instance
      */
-    public Identifier getConnectionIdentifier() {
-        return connectionIdentifier;
+    public SymbolName getConnectionSymbolName() {
+        return connectionSymbolName;
     }
 
     /**
@@ -95,4 +94,8 @@ public class Connection {
         argValues.add(arg);
     }
 
+    @Override
+    public void visit(NodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

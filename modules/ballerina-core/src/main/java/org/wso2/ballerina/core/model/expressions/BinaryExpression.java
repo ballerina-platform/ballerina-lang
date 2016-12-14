@@ -18,6 +18,7 @@
 package org.wso2.ballerina.core.model.expressions;
 
 import org.wso2.ballerina.core.interpreter.Context;
+import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.Operator;
 import org.wso2.ballerina.core.model.values.BValueRef;
 import org.wso2.ballerina.core.utils.TriFunction;
@@ -47,5 +48,10 @@ public class BinaryExpression extends UnaryExpression {
 
     public BValueRef evaluate(Context ctx) {
         return evalFunc.apply(ctx, lExpr, rExpr);
+    }
+
+    @Override
+    public void visit(NodeVisitor visitor) {
+        visitor.visit(this);
     }
 }

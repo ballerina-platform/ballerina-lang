@@ -18,7 +18,11 @@
 package org.wso2.ballerina.core.model.statements;
 
 import org.wso2.ballerina.core.interpreter.Context;
+import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.expressions.Expression;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * {@code ReturnStmt} represents a return statement
@@ -28,11 +32,42 @@ import org.wso2.ballerina.core.model.expressions.Expression;
 public class ReturnStmt implements Statement {
     private Expression expr;
 
+    private Expression[] exprs;
+
     public ReturnStmt(Expression expr) {
         this.expr = expr;
     }
 
+    private ReturnStmt(Expression[] exprs) {
+        this.exprs = exprs;
+    }
+
     public void interpret(Context ctx) {
         ctx.getControlStack().getCurrentFrame().returnValue.setBValue(expr.evaluate(ctx).getBValue());
+    }
+
+    @Override
+    public void visit(NodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    /**
+     * Builds a {@code ReturnStmt} statement
+     *
+     * @since 1.0.0
+     */
+    public static class ReturnStmtBuilder {
+        List<Expression> expressionList = new ArrayList<>();
+
+        public ReturnStmtBuilder() {
+        }
+
+        public void addExpression(Expression expr) {
+            expressionList.add(expr);
+        }
+
+        public ReturnStmt build() {
+            return new ReturnStmt(expressionList.toArray(new Expression[expressionList.size()]));
+        }
     }
 }

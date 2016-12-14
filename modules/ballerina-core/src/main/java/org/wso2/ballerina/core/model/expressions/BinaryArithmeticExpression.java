@@ -17,13 +17,14 @@
 */
 package org.wso2.ballerina.core.model.expressions;
 
+import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.Operator;
 
 /**
  * {@code BinaryArithmeticExpression} is the base class for any binary arithmetic expression
  *
  * @see AddExpression
- * @see SubstractExpression
+ * @see SubtractExpression
  * @see MultExpression
  * @since 1.0.0
  */
@@ -31,5 +32,10 @@ public class BinaryArithmeticExpression extends BinaryExpression {
 
     public BinaryArithmeticExpression(Expression lExpr, Operator op, Expression rExpr) {
         super(lExpr, op, rExpr);
+    }
+
+    @Override
+    public void visit(NodeVisitor visitor) {
+        visitor.visit(this);
     }
 }

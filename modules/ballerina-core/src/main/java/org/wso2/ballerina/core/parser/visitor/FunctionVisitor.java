@@ -17,16 +17,33 @@
  */
 package org.wso2.ballerina.core.parser.visitor;
 
+import org.wso2.ballerina.core.interpreter.SymbolTable;
+import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.Function;
-import org.wso2.ballerina.core.model.Identifier;
+import org.wso2.ballerina.core.model.Parameter;
+import org.wso2.ballerina.core.model.SymbolName;
+import org.wso2.ballerina.core.model.VariableDcl;
+import org.wso2.ballerina.core.model.statements.BlockStmt;
+import org.wso2.ballerina.core.model.statements.Statement;
+import org.wso2.ballerina.core.model.types.Type;
 import org.wso2.ballerina.core.parser.BallerinaBaseVisitor;
 import org.wso2.ballerina.core.parser.BallerinaParser;
+import org.wso2.ballerina.core.utils.BValueFactory;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Visitor for function
  */
 public class FunctionVisitor extends BallerinaBaseVisitor {
+
+    private SymbolTable functionSymbolTable;
+
+    public FunctionVisitor(SymbolTable parentSymbolTable) {
+        this.functionSymbolTable = new SymbolTable(parentSymbolTable);
+    }
 
     /**
      * {@inheritDoc}
@@ -38,12 +55,78 @@ public class FunctionVisitor extends BallerinaBaseVisitor {
      */
     @Override
     public Object visitFunctionDefinition(BallerinaParser.FunctionDefinitionContext ctx) {
-        Identifier identifier = new Identifier(ctx.Identifier().get(0).getText());
-        Function functionObject = new BallerinaFunction(identifier, false, null, null, null, null, null, null, null);
 
-        //FunctionBodyVisitor functionBodyVisitor = new FunctionBodyVisitor();
-        //List<Statement> statementList = (List<Statement>) ctx.functionBody().accept(functionBodyVisitor);
+        SymbolName functionName = new SymbolName(ctx.Identifier(0).getText());
+        boolean isPublicFunction = !ctx.getTokens(31)
+                .isEmpty(); //since function body cannot have public keyword inside.
 
+        List<Annotation> annotationList = new ArrayList<>();
+        AnnotationVisitor annotationVisitor = new AnnotationVisitor();
+        for (BallerinaParser.AnnotationContext annotationContext : ctx.annotation()) {
+            annotationList.add((Annotation) annotationContext.accept(annotationVisitor));
+        }
+
+        Annotation[] annotations = annotationList.toArray(new Annotation[annotationList.size()]);
+
+        List<Parameter> parameterList = new ArrayList<>();
+        ParameterVisitor parameterVisitor = new ParameterVisitor();
+        BallerinaParser.ParameterListContext parameterListContext = ctx.parameterList();
+        if (parameterListContext != null) { //parameter list is optional
+            for (BallerinaParser.ParameterContext praCtx : parameterListContext.parameter()) {
+                parameterList.add((Parameter) praCtx.accept(parameterVisitor));
+            }
+        }
+
+        Parameter[] parameters = parameterList.toArray(new Parameter[parameterList.size()]);
+
+        List<Type> typeList = new ArrayList<>();
+        TypeNameVisitor typeNameVisitor = new TypeNameVisitor();
+        BallerinaParser.ReturnTypeListContext returnTypeListContext = ctx.returnTypeList();
+        if (returnTypeListContext != null) { //return type list is optional
+            for (BallerinaParser.TypeNameContext typeNameContext : returnTypeListContext.typeNameList().typeName()) {
+                typeList.add((Type) typeNameContext.accept(typeNameVisitor));
+            }
+        }
+
+        Type[] types = typeList.toArray(new Type[typeList.size()]);
+
+        List<VariableDcl> variableDclList = new ArrayList<>();
+        VariableDeclarationVisitor variableDeclarationVisitor = new VariableDeclarationVisitor(functionSymbolTable);
+        for (BallerinaParser.VariableDeclarationContext variableDeclarationContext :
+                ctx.functionBody().variableDeclaration()) {
+            VariableDcl variableDcl = (VariableDcl) variableDeclarationContext.accept(variableDeclarationVisitor);
+            variableDclList.add(variableDcl);
+            functionSymbolTable.put(variableDcl.getSymbolName(),
+                    BValueFactory.createBValueFromVariableDeclaration(variableDcl));
+        }
+
+        VariableDcl[] variableDcls = variableDclList.toArray(new VariableDcl[variableDclList.size()]);
+
+        Statement[] statementArray = new Statement[ctx.functionBody().statement().size()];
+        StatementVisitor statementVisitor = new StatementVisitor(functionSymbolTable);
+        for (int i = 0; i < ctx.functionBody().statement().size(); i++) {
+            statementArray[i] = (Statement) (ctx.functionBody().statement(i).getChild(0).accept(statementVisitor));
+        }
+        Function functionObject = new BallerinaFunction(
+                functionName,
+                isPublicFunction,
+                annotations,
+                parameters,
+                types,
+                null,
+                variableDcls,
+                null,
+                new BlockStmt(statementArray));
         return functionObject;
+    }
+
+    /**
+     * Base method for retrieving the symbol table
+     *
+     * @return symbol table for this instance
+     */
+    @Override
+    public SymbolTable getSymbolTable() {
+        return this.functionSymbolTable;
     }
 }

@@ -20,9 +20,9 @@ package org.wso2.ballerina.core.model;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.runtime.Constants;
 import org.wso2.ballerina.core.runtime.core.BalCallback;
-import org.wso2.ballerina.core.runtime.core.BalContext;
 import org.wso2.ballerina.core.runtime.core.Executable;
 import org.wso2.ballerina.core.runtime.core.dispatching.ResourceDispatcher;
 import org.wso2.ballerina.core.runtime.registry.DispatcherRegistry;
@@ -33,38 +33,56 @@ import java.util.List;
 import java.util.Map;
 
 /**
- *  A {@code Service} is an HTTP web service described by a Swagger.
- *  A Service is the discrete unit of functionality that can be remotely accessed.
- *  <p>
+ * A {@code Service} is an HTTP web service described by a Swagger.
+ * A Service is the discrete unit of functionality that can be remotely accessed.
+ * <p>
+ * <p>
+ * A Service is defined as follows:
+ * <p>
+ * [ServiceAnnotations]
+ * service ServiceName {
+ * ConnectorDeclaration;*
+ * VariableDeclaration;*
+ * ResourceDefinition;+
+ * }
  *
- *  A Service is defined as follows:
- *
- *  [ServiceAnnotations]
- *  service ServiceName {
- *      ConnectionDeclaration;*
- *      VariableDeclaration;*
- *      ResourceDefinition;+
- *  }
- *
- *  @since 1.0.0
+ * @since 1.0.0
  */
 @SuppressWarnings("unused")
-public class Service implements Executable {
+public class Service implements Executable, Node {
 
     private static final Logger logger = LoggerFactory.getLogger(Service.class);
 
-    private Identifier identifier;
-    private Map<String, Annotation> annotations = new HashMap<>();
-    private List<Connection> connections = new ArrayList<>();
+    // TODO Refactor
+    private SymbolName symbolName;
+    private Map<String, Annotation> annotationMap = new HashMap<>();
+    private List<Connector> connectors = new ArrayList<>();
     private List<VariableDcl> variables = new ArrayList<>();
-    private List<Resource> resources = new ArrayList<>();
+    private List<Resource> resourceList = new ArrayList<>();
+
+    private SymbolName name;
+    private Annotation[] annotations;
+    private ConnectorDcl[] connectorDcls;
+    private VariableDcl[] variableDcls;
+    private Resource[] resources;
+
+    public Service(SymbolName serviceName,
+                   Annotation[] annotations,
+                   ConnectorDcl[] connectorDcls,
+                   VariableDcl[] variableDcls,
+                   Resource[] resources) {
+        this.name = serviceName;
+        this.annotations = annotations;
+        this.connectorDcls = connectorDcls;
+        this.variableDcls = variableDcls;
+        this.resources = resources;
+    }
 
     /**
-     *
-     * @param identifier Service Identifier
+     * @param symbolName Service Identifier
      */
-    public Service(Identifier identifier) {
-        this.identifier = identifier;
+    public Service(SymbolName symbolName) {
+        this.name = symbolName;
     }
 
     /**
@@ -72,8 +90,8 @@ public class Service implements Executable {
      *
      * @return Service Identifier
      */
-    public Identifier getIdentifier() {
-        return identifier;
+    public SymbolName getSymbolName() {
+        return name;
     }
 
     /**
@@ -83,15 +101,16 @@ public class Service implements Executable {
      * @return Annotation
      */
     public Annotation getAnnotation(String name) {
-        return annotations.get(name);
+        return annotationMap.get(name);
     }
 
     /**
      * Get all the Annotations associated with a Service
+     *
      * @return Map of Annotations
      */
     public Map<String, Annotation> getAnnotations() {
-        return annotations;
+        return annotationMap;
     }
 
     /**
@@ -100,7 +119,7 @@ public class Service implements Executable {
      * @param annotations list of Annotations
      */
     public void setAnnotations(Map<String, Annotation> annotations) {
-        this.annotations = annotations;
+        this.annotationMap = annotations;
     }
 
     /**
@@ -109,34 +128,34 @@ public class Service implements Executable {
      * @param annotation Annotation to be added
      */
     public void addAnnotation(Annotation annotation) {
-        annotations.put(annotation.getName(), annotation);
+        annotationMap.put(annotation.getName(), annotation);
     }
 
     /**
-     * Get all Connections declared within the Service scope
+     * Get all Connectors declared within the Service scope
      *
-     * @return list of all the Connections belongs to a Service
+     * @return list of all the Connectors belongs to a Service
      */
-    public List<Connection> getConnections() {
-        return connections;
+    public List<Connector> getConnectors() {
+        return connectors;
     }
 
     /**
-     * Assign connections to the Service
+     * Assign connectors to the Service
      *
-     * @param connections list of connections to be assigned to a Service
+     * @param connectors list of connectors to be assigned to a Service
      */
-    public void setConnections(List<Connection> connections) {
-        this.connections = connections;
+    public void setConnectors(List<Connector> connectors) {
+        this.connectors = connectors;
     }
 
     /**
-     * Add a {@code Connection} to the Service
+     * Add a {@code Connector} to the Service
      *
-     * @param connection Connection to be added to the Service
+     * @param connector Connector to be added to the Service
      */
-    public void addConnection(Connection connection) {
-        connections.add(connection);
+    public void addConnector(Connector connector) {
+        connectors.add(connector);
     }
 
     /**
@@ -169,9 +188,9 @@ public class Service implements Executable {
     /**
      * Get all the Resources associated to a Service
      *
-     * @return list of Resources belongs to a Service
+     * @return array of Resources belongs to a Service
      */
-    public List<Resource> getResources() {
+    public Resource[] getResources() {
         return resources;
     }
 
@@ -180,7 +199,7 @@ public class Service implements Executable {
      *
      * @param resources List of Resources
      */
-    public void setResources(List<Resource> resources) {
+    public void setResources(Resource[] resources) {
         this.resources = resources;
     }
 
@@ -190,11 +209,11 @@ public class Service implements Executable {
      * @param resource a Resource
      */
     public void addResource(Resource resource) {
-        resources.add(resource);
+        resourceList.add(resource);
     }
 
     @Override
-    public boolean execute(BalContext context, BalCallback callback) {
+    public boolean execute(Context context, BalCallback callback) {
 
         String protocol = (String) context.getProperty(Constants.PROTOCOL);
 
@@ -205,5 +224,10 @@ public class Service implements Executable {
         }
 
         return resourceDispatcher.dispatch(this, context, callback);
+    }
+
+    @Override
+    public void visit(NodeVisitor visitor) {
+        visitor.visit(this);
     }
 }

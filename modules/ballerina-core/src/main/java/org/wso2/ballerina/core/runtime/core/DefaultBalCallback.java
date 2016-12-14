@@ -18,6 +18,7 @@
 
 package org.wso2.ballerina.core.runtime.core;
 
+import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.carbon.messaging.CarbonCallback;
 
 /**
@@ -32,7 +33,7 @@ public class DefaultBalCallback implements BalCallback {
     }
 
     @Override
-    public void done(BalContext balContext) {
+    public void done(Context balContext) {
         carbonCallback.done(balContext.getCarbonMessage());
     }
 }

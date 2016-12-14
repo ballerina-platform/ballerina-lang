@@ -30,10 +30,14 @@ import java.util.Map;
  * @since 1.0.0
  */
 @SuppressWarnings("unused")
-public class Annotation {
+public class Annotation implements Node {
 
-    private String name, value;
+    // TODO Refactor these instance variables
+    private String name;
+    private SymbolName symbolName;
+    private String value;
     private Map<String, String> keyValPairs = new HashMap<>();
+    private Map<SymbolName, String> elementPair = new HashMap<>();
 
     public Annotation(String name) {
         this.name = name;
@@ -47,6 +51,12 @@ public class Annotation {
     public Annotation(String name, Map<String, String> keyValPairs) {
         this.name = name;
         this.keyValPairs = keyValPairs;
+    }
+
+    public Annotation(SymbolName name, String value, Map<SymbolName, String> keyValPairs) {
+        this.symbolName = name;
+        this.value = value;
+        this.elementPair = keyValPairs;
     }
 
     /**
@@ -84,6 +94,37 @@ public class Annotation {
      */
     public String getValueOfKeyValuePair(String key) {
         return keyValPairs.get(key);
+    }
+
+    @Override
+    public void visit(NodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    /**
+     * Builds an Annotation
+     */
+    public static class AnnotationBuilder {
+
+        private SymbolName name;
+        private String value;
+        private Map<SymbolName, String> keyValPairs = new HashMap<>();
+
+        public void setName(SymbolName name) {
+            this.name = name;
+        }
+
+        public void setValue(String value) {
+            this.value = value;
+        }
+
+        public void addKeyValuePair(SymbolName key, String value) {
+            this.keyValPairs.put(key, value);
+        }
+
+        public Annotation build() {
+            return new Annotation(name, value, keyValPairs);
+        }
     }
 
 }

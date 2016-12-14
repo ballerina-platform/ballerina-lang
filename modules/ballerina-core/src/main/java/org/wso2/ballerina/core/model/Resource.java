@@ -18,9 +18,15 @@
 
 package org.wso2.ballerina.core.model;
 
+import org.wso2.ballerina.core.interpreter.Context;
+import org.wso2.ballerina.core.interpreter.ControlStack;
+import org.wso2.ballerina.core.interpreter.StackFrame;
+import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
+import org.wso2.ballerina.core.model.types.MessageType;
+import org.wso2.ballerina.core.model.values.BValueRef;
+import org.wso2.ballerina.core.model.values.MessageValue;
 import org.wso2.ballerina.core.runtime.core.BalCallback;
-import org.wso2.ballerina.core.runtime.core.BalContext;
 import org.wso2.ballerina.core.runtime.core.Executable;
 
 import java.util.ArrayList;
@@ -33,28 +39,35 @@ import java.util.Map;
  * The resource concept is designed to be access protocol independent.
  * But in the initial release of the language it is intended to work with HTTP.
  * <p>
- *
  * The structure of a ResourceDefinition is as follows:
+ * <p>
+ * [ResourceAnnotations]
+ * resource ResourceName (Message VariableName[, ([ResourceParamAnnotations] TypeName VariableName)+]) {
+ * ConnectionDeclaration;*
+ * VariableDeclaration;*
+ * WorkerDeclaration;*
+ * Statement;+
+ * }*
  *
- *  [ResourceAnnotations]
- *  resource ResourceName (Message VariableName[, ([ResourceParamAnnotations] TypeName VariableName)+]) {
- *      ConnectionDeclaration;*
- *      VariableDeclaration;*
- *      WorkerDeclaration;*
- *      Statement;+
- *  }*
- *
- *  @since 1.0.0
- *
+ * @since 1.0.0
  */
 @SuppressWarnings("unused")
-public class Resource implements Executable {
+public class Resource implements Executable, Node {
 
-    private Map<String, Annotation> annotations = new HashMap<>();
+    // TODO Refactor
+    private Map<String, Annotation> annotationMap = new HashMap<>();
     private List<Parameter> arguments = new ArrayList<>();
-    private List<Worker> workers = new ArrayList<>();
+    private List<Worker> workerList = new ArrayList<>();
     private Worker defaultWorker;
     private String name;
+
+    private Annotation[] annotations;
+    private Parameter[] parameters;
+    private ConnectorDcl[] connectorDcls;
+    private VariableDcl[] variableDcls;
+    private Worker[] workers;
+    private BlockStmt resourceBody;
+    private SymbolName resourceName;
 
     public Resource() {
         defaultWorker = new Worker();
@@ -65,6 +78,27 @@ public class Resource implements Executable {
         this.name = name;
     }
 
+    public Resource(SymbolName name,
+                    Annotation[] annotations,
+                    Parameter[] parameters,
+                    ConnectorDcl[] connectorDcls,
+                    VariableDcl[] variableDcls,
+                    Worker[] workers,
+                    BlockStmt functionBody) {
+
+        this.resourceName = name;
+        this.annotations = annotations;
+        this.parameters = parameters;
+        this.connectorDcls = connectorDcls;
+        this.variableDcls = variableDcls;
+
+        /* To Do : Do we pass multiple workers from the model? */
+        this.workers = workers;
+        defaultWorker = new Worker();
+        defaultWorker.addStatement(functionBody);
+        this.resourceBody = functionBody;
+    }
+
     /**
      * Get an Annotation from a given name
      *
@@ -72,7 +106,14 @@ public class Resource implements Executable {
      * @return Annotation
      */
     public Annotation getAnnotation(String name) {
-        return annotations.get(name);
+        /* ToDo : Annotations should be a map. */
+
+        for (Annotation annotation : annotations) {
+            if (annotation.getName().equals(name)) {
+                return annotation;
+            }
+        }
+        return null;
     }
 
     /**
@@ -81,7 +122,7 @@ public class Resource implements Executable {
      * @return map of Annotations
      */
     public Map<String, Annotation> getAnnotations() {
-        return annotations;
+        return annotationMap;
     }
 
     /**
@@ -90,7 +131,7 @@ public class Resource implements Executable {
      * @param annotations map of Annotations
      */
     public void setAnnotations(Map<String, Annotation> annotations) {
-        this.annotations = annotations;
+        this.annotationMap = annotations;
     }
 
     /**
@@ -99,7 +140,7 @@ public class Resource implements Executable {
      * @param annotation Annotation to be added
      */
     public void addAnnotation(Annotation annotation) {
-        annotations.put(annotation.getName(), annotation);
+        annotationMap.put(annotation.getName(), annotation);
     }
 
     /**
@@ -135,26 +176,26 @@ public class Resource implements Executable {
      *
      * @return list of all the Connections belongs to the default Worker of the Resource
      */
-    public List<Connection> getConnections() {
-        return defaultWorker.getConnections();
+    public List<ConnectorDcl> getConnectorDcls() {
+        return defaultWorker.getConnectorDcls();
     }
 
     /**
      * Assign connections to the default Worker of the Resource
      *
-     * @param connections list of connections to be assigned to the default Worker of the Resource
+     * @param connectorDcls list of connections to be assigned to the default Worker of the Resource
      */
-    public void setConnections(List<Connection> connections) {
-        defaultWorker.setConnections(connections);
+    public void setConnectorDcls(List<ConnectorDcl> connectorDcls) {
+        defaultWorker.setConnectorDcls(connectorDcls);
     }
 
     /**
      * Add a {@code Connection} to the default Worker of the Resource
      *
-     * @param connection Connection to be added to the default Worker of the Resource
+     * @param connectorDcl Connection to be added to the default Worker of the Resource
      */
-    public void addConnection(Connection connection) {
-        defaultWorker.addConnection(connection);
+    public void addConnection(ConnectorDcl connectorDcl) {
+        defaultWorker.addConnection(connectorDcl);
     }
 
     /**
@@ -190,7 +231,7 @@ public class Resource implements Executable {
      * @return list of Workers
      */
     public List<Worker> getWorkers() {
-        return workers;
+        return workerList;
     }
 
     /**
@@ -199,7 +240,7 @@ public class Resource implements Executable {
      * @param workers list of all the Workers
      */
     public void setWorkers(List<Worker> workers) {
-        this.workers = workers;
+        this.workerList = workers;
     }
 
     /**
@@ -208,7 +249,7 @@ public class Resource implements Executable {
      * @param worker Worker to be added to the Resource
      */
     public void addWorker(Worker worker) {
-        workers.add(worker);
+        workerList.add(worker);
     }
 
     /**
@@ -243,7 +284,28 @@ public class Resource implements Executable {
     }
 
     @Override
-    public boolean execute(BalContext context, BalCallback callback) {
+    public boolean execute(Context context, BalCallback callback) {
+        populateDefaultMessage(context);
         return defaultWorker.execute(context, callback);
+    }
+
+    private void populateDefaultMessage(Context context) {
+        // Adding MessageValue to the ControlStack
+        ControlStack controlStack = context.getControlStack();
+        BValueRef[] valueParams = new BValueRef[1];
+        valueParams[0] = new BValueRef(new MessageValue(context.getCarbonMessage()));
+
+        StackFrame stackFrame = new StackFrame(valueParams, null, new BValueRef[0]);
+        // ToDo : StackFrame should be added at the upstream components.
+        controlStack.pushFrame(stackFrame);
+
+        // ToDo : Use generic identifier for message.
+        Parameter paramMessage = new Parameter(new MessageType(), new SymbolName("m"));
+        arguments.add(paramMessage);
+    }
+
+    @Override
+    public void visit(NodeVisitor visitor) {
+        visitor.visit(this);
     }
 }

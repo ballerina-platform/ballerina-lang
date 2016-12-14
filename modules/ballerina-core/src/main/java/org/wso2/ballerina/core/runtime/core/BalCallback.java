@@ -18,10 +18,12 @@
 
 package org.wso2.ballerina.core.runtime.core;
 
+import org.wso2.ballerina.core.interpreter.Context;
+
 /**
  * {@BalCallback} represent the Callback interface for Ballerina
  */
 public interface BalCallback {
-    void done(BalContext balContext);
+    void done(Context balContext);
 
 }

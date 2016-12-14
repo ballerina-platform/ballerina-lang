@@ -30,21 +30,26 @@ import org.wso2.ballerina.core.model.types.Type;
  * @since 1.0.0
  */
 @SuppressWarnings("unused")
-public class VariableDcl {
+public class VariableDcl implements Node {
 
     private Type type;
-    private Identifier identifier;
+    private SymbolName symbolName;
     private String value;
 
     /**
      * @param type       Type of the variable
-     * @param identifier Identifier of the variable
+     * @param symbolName Identifier of the variable
      * @param value      bValueRef of the variable
      */
-    public VariableDcl(Type type, Identifier identifier, String value) {
+    public VariableDcl(Type type, SymbolName symbolName, String value) {
         this.type = type;
-        this.identifier = identifier;
+        this.symbolName = symbolName;
         this.value = value;
+    }
+
+    public VariableDcl(Type type, SymbolName symbolName) {
+        this.type = type;
+        this.symbolName = symbolName;
     }
 
     /**
@@ -61,8 +66,8 @@ public class VariableDcl {
      *
      * @return identifier of the variable declaration
      */
-    public Identifier getIdentifier() {
-        return identifier;
+    public SymbolName getSymbolName() {
+        return symbolName;
     }
 
     /**
@@ -72,5 +77,10 @@ public class VariableDcl {
      */
     public String getValue() {
         return value;
+    }
+
+    @Override
+    public void visit(NodeVisitor visitor) {
+        visitor.visit(this);
     }
 }

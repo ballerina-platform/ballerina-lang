@@ -17,17 +17,25 @@
  */
 package org.wso2.ballerina.core.parser.visitor;
 
+import org.wso2.ballerina.core.interpreter.SymbolTable;
+import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.Resource;
+import org.wso2.ballerina.core.model.VariableDcl;
 import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.parser.BallerinaBaseVisitor;
 import org.wso2.ballerina.core.parser.BallerinaParser;
-
-import java.util.List;
+import org.wso2.ballerina.core.utils.BValueFactory;
 
 /**
  * Visitor for resource
  */
 public class ResourceVisitor extends BallerinaBaseVisitor {
+
+    private SymbolTable resourceSymbolTable;
+
+    public ResourceVisitor(SymbolTable parentSymbolTable) {
+        this.resourceSymbolTable = new SymbolTable(parentSymbolTable);
+    }
 
     /**
      * {@inheritDoc}
@@ -41,10 +49,36 @@ public class ResourceVisitor extends BallerinaBaseVisitor {
     public Object visitResourceDefinition(BallerinaParser.ResourceDefinitionContext ctx) {
         Resource resourceObject = new Resource(ctx.Identifier().getText());
 
-        FunctionBodyVisitor functionBodyVisitor = new FunctionBodyVisitor();
-        List<Statement> statementList = (List<Statement>) ctx.functionBody().accept(functionBodyVisitor);
+        AnnotationVisitor annotationVisitor = new AnnotationVisitor();
+        for (BallerinaParser.AnnotationContext annotationContext : ctx.annotation()) {
+            resourceObject.addAnnotation((Annotation) annotationContext.accept(annotationVisitor));
+        }
 
-        resourceObject.setStatements(statementList);
+        VariableDeclarationVisitor variableDeclarationVisitor = new VariableDeclarationVisitor(resourceSymbolTable);
+        for (BallerinaParser.VariableDeclarationContext variableDeclarationContext :
+                ctx.functionBody().variableDeclaration()) {
+            VariableDcl variableDcl = (VariableDcl) variableDeclarationContext.accept(variableDeclarationVisitor);
+            resourceObject.addVariable(variableDcl);
+            resourceSymbolTable.put(variableDcl.getSymbolName(),
+                    BValueFactory.createBValueFromVariableDeclaration(variableDcl));
+        }
+
+        StatementVisitor statementVisitor = new StatementVisitor(resourceSymbolTable);
+        for (int i = 0; i < ctx.functionBody().statement().size(); i++) {
+            resourceObject.addStatement((Statement) (ctx.functionBody().statement(i).
+                    accept(statementVisitor)));
+        }
+
         return resourceObject;
+    }
+
+    /**
+     * Base method for retrieving the symbol table
+     *
+     * @return symbol table for this instance
+     */
+    @Override
+    public SymbolTable getSymbolTable() {
+        return this.resourceSymbolTable;
     }
 }

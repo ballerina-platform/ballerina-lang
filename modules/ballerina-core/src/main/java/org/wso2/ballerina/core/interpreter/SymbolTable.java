@@ -17,7 +17,8 @@
 */
 package org.wso2.ballerina.core.interpreter;
 
-import org.wso2.ballerina.core.model.Identifier;
+import org.wso2.ballerina.core.model.SymbolName;
+import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.values.BValue;
 
 import java.util.HashMap;
@@ -27,16 +28,19 @@ import java.util.Map;
  * {@code SymbolTable} represents a data structure which hold information about the program constructs
  * <p>
  * TODO Please note that, this is the initial version of the implementation. We need to improve this.
+ * TODO Refactor this implementation
  *
  * @since 1.0.0
  */
 public class SymbolTable {
 
-    private Map<Identifier, BValue> map;
+    private Map<SymbolName, BValue> map;
+    private Map<SymbolName, VariableRefExpr> variableRefExprMap;
     private SymbolTable parent;
 
     public SymbolTable(SymbolTable parent) {
-        map = new HashMap<Identifier, BValue>();
+        map = new HashMap<>();
+        variableRefExprMap = new HashMap<>();
         this.parent = parent;
     }
 
@@ -44,19 +48,48 @@ public class SymbolTable {
         return parent;
     }
 
-    public void put(Identifier identifier, BValue value) {
-        map.put(identifier, value);
+    public void put(SymbolName symbolName, BValue value) {
+        map.put(symbolName, value);
     }
 
-    public BValue get(Identifier identifier) {
+    public BValue get(SymbolName symbolName) {
         for (SymbolTable t = this; t != null; t = t.parent) {
-            BValue value = t.map.get(identifier);
+            BValue value = t.map.get(symbolName);
             if (value != null) {
                 return value;
             }
         }
 
         // TODO Implement proper error handling here.
-        throw new RuntimeException("Value not found for identifier: " + identifier.getName());
+        throw new RuntimeException("Value not found for identifier: " + symbolName.getName());
+    }
+
+    public SymbolName lookup(String identifier1) {
+        SymbolName symbolName = new SymbolName(identifier1);
+        for (SymbolTable t = this; t != null; t = t.parent) {
+            BValue value = t.map.get(symbolName);
+            if (value != null) {
+                return symbolName;
+            }
+        }
+
+        // TODO Implement proper error handling here.
+        throw new RuntimeException("Value not found for identifier: " + symbolName.getName());
+    }
+
+    public void putVarRefExpr(SymbolName symbolName, VariableRefExpr variableRefExpr) {
+        variableRefExprMap.put(symbolName, variableRefExpr);
+    }
+
+    public VariableRefExpr lookupVarRefExpr(SymbolName symbolName) {
+        for (SymbolTable t = this; t != null; t = t.parent) {
+            VariableRefExpr variableRefExpr = t.variableRefExprMap.get(symbolName);
+            if (variableRefExpr != null) {
+                return variableRefExpr;
+            }
+        }
+
+        // TODO Implement proper error handling here.
+        throw new RuntimeException("Variable reference '" + symbolName.getName() + "'  is not declared.");
     }
 }

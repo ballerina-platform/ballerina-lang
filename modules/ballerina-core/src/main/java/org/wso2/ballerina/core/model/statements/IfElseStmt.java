@@ -18,29 +18,96 @@
 package org.wso2.ballerina.core.model.statements;
 
 import org.wso2.ballerina.core.interpreter.Context;
+import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.expressions.Expression;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * {@code IfElseStmt} represents a if/else statement.
+ * {@code IfElseStmt} represents a if/else if/else statement.
  *
  * @since 1.0.0
  */
 public class IfElseStmt implements Statement {
-    private Expression condition;
-    private Statement thenBlock;
-    private Statement elseBlock;
+    private Expression ifCondition;
+    private Statement thenBody;
+    private ElseIfBlock[] elseIfBlocks;
+    private Statement elseBody;
 
-    public IfElseStmt(Expression condition, Statement thenBlock, Statement elseBlock) {
-        this.condition = condition;
-        this.thenBlock = thenBlock;
-        this.elseBlock = elseBlock;
+    public IfElseStmt(Expression ifCondition, Statement thenBody, Statement elseBody) {
+        this.ifCondition = ifCondition;
+        this.thenBody = thenBody;
+        this.elseBody = elseBody;
+    }
+
+    private IfElseStmt(Expression ifCondition, Statement thenBody, ElseIfBlock[] elseIfBlocks, Statement elseBody) {
+        this.ifCondition = ifCondition;
+        this.thenBody = thenBody;
+        this.elseIfBlocks = elseIfBlocks;
+        this.elseBody = elseBody;
     }
 
     public void interpret(Context ctx) {
-        if (condition.evaluate(ctx).getBoolean()) {
-            thenBlock.interpret(ctx);
+        if (ifCondition.evaluate(ctx).getBoolean()) {
+            thenBody.interpret(ctx);
         } else {
-            elseBlock.interpret(ctx);
+            elseBody.interpret(ctx);
+        }
+    }
+
+    @Override
+    public void visit(NodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    private static class ElseIfBlock {
+        Expression elseIfCondition;
+        BlockStmt elseIfBody;
+
+        public ElseIfBlock(Expression elseIfCondition, BlockStmt elseIfBody) {
+            this.elseIfCondition = elseIfCondition;
+            this.elseIfBody = elseIfBody;
+        }
+    }
+
+    /**
+     * Builds a {@code IfElseStmt} statement
+     *
+     * @since 1.0.0
+     */
+    public static class IfElseStmtBuilder {
+
+        private Expression ifCondition;
+        private Statement thenBody;
+        private List<ElseIfBlock> elseIfBlockList = new ArrayList<>();
+        private Statement elseBody;
+
+        public IfElseStmtBuilder() {
+        }
+
+        public void setIfCondition(Expression ifCondition) {
+            this.ifCondition = ifCondition;
+        }
+
+        public void setThenBody(BlockStmt thenBody) {
+            this.thenBody = thenBody;
+        }
+
+        public void addElseIfBlock(Expression elseIfCondition, BlockStmt elseIfBody) {
+            this.elseIfBlockList.add(new ElseIfBlock(elseIfCondition, elseIfBody));
+        }
+
+        public void setElseBody(BlockStmt elseBody) {
+            this.elseBody = elseBody;
+        }
+
+        public IfElseStmt build() {
+            return new IfElseStmt(
+                    ifCondition,
+                    thenBody,
+                    elseIfBlockList.toArray(new ElseIfBlock[elseIfBlockList.size()]),
+                    elseBody);
         }
     }
 }
