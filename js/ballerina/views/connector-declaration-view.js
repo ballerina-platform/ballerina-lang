@@ -121,8 +121,14 @@ define(['lodash','d3', 'jquery', './ballerina-view', './../ast/connector-declara
                     value: true
                 }
             };
+
             var connectorDecLifeLine = new LifeLine(connectorGroup, defaultConnectorOptions);
-            connectorDecLifeLine.render();
+            connectorDecLifeLine = connectorDecLifeLine.render();
+            var self = this;
+            $(connectorDecLifeLine)[0].on("mouseover",function(event){
+            log.info("Mouse over event for connectors");
+
+            });
            // return group;
         };
 

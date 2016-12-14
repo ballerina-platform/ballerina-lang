@@ -230,19 +230,44 @@ ol#breadcrumbList {
     border: 1px solid #cdcdcd;
     border-top: 2px solid #7b7b7b;
     background: #FFFFFF;
+    position: relative;
+    z-index:10000;
 }
 
 .property-pane-form-heading {
-    height: 20px
+    height: 20px;
+    border-bottom: 1px solid #cdcdcd;
+    padding-bottom: 23px;
 }
 
-.property-pane-form-heading-icon-class{
+.property-pane-form-heading-icon{
+    padding-left: 10px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
 
+.property-pane-form-heading-text {
+    padding-left: 7px;
+}
+
+.property-pane-form-heading-close-icon {
+    float: right;
+    padding-right: 10px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    opacity: 0.3;
+    cursor: pointer;
+}
+
+.property-pane-form-heading-close-icon:hover {
+    opacity: 1;
 }
 
 .property-pane-form-body {
-    border: 1px solid #cdcdcd;
-    height: 220px;
+}
+
+.property-pane-form-body-property-wrapper {
+    padding: 7px 7px 0px;
 }
 
 /** Service container related styles | -> End **/

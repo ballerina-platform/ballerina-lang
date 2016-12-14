@@ -88,6 +88,7 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/get-action
             actionStatementGroup.attr("id","actionStatementGroup");
             log.info("Rendering the Get Action Statement.");
             //TODO: make constants
+            var processorViewOpts = {};
             var processorWidth = 120;
             var processorHeight = 30;
 
@@ -95,35 +96,55 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/get-action
            var processorCenterPointY = this.getYPosition();
             var processorWidth = 120;
             var processorHeight = 30;
-            var sourcePointX = processorCenterPointX + 60;
-            var sourcePointY = processorCenterPointY;
-            var destinationPointX =  this.getConnectorView().getViewOptions().connectorCenterPointX;
-            var  arrowX = destinationPointX - 5;
-            var arrowY = processorCenterPointY;
+            if(!_.isNil(this.getConnectorView())) {
+                var sourcePointX = processorCenterPointX + 60;
+                var sourcePointY = processorCenterPointY;
+                var destinationPointX = this.getConnectorView().getViewOptions().connectorCenterPointX;
+                var arrowX = destinationPointX - 5;
+                var arrowY = processorCenterPointY;
+            }
+            if(!this.getModel().isUserDropped){
+                 processorViewOpts = {
+                    parent: actionStatementGroup,
+                    root: parentGroup,
+                    processorWidth: processorWidth,
+                    processorHeight: processorHeight,
+                    centerPoint: {
+                        x: processorCenterPointX,
+                        y: processorCenterPointY
+                    },
+                    sourcePoint: {
+                        x: sourcePointX,
+                        y: sourcePointY
+                    },
+                    destinationPoint: {
+                        x: destinationPointX,
+                        y: sourcePointY
+                    },
+                    action: "Invoke",
+                    inArrow: true,
+                    outArrow: true,
+                    arrowX: arrowX,
+                    arrowY: arrowY
 
-            var processorViewOpts = {
-                parent: actionStatementGroup,
-                processorWidth: processorWidth,
-                processorHeight: processorHeight,
-                centerPoint: {
-                    x: processorCenterPointX,
-                    y: processorCenterPointY
-                },
-                sourcePoint: {
-                    x: sourcePointX,
-                    y: sourcePointY
-                },
-                destinationPoint: {
-                    x: destinationPointX,
-                    y: sourcePointY
-                },
-                action: "Invoke",
-                inArrow: true,
-                outArrow: true,
-                arrowX: arrowX,
-                arrowY: arrowY
+                };
+            }
+            else{
+                processorViewOpts = {
+                    parent: actionStatementGroup,
+                    root: parentGroup,
+                    processorWidth: processorWidth,
+                    processorHeight: processorHeight,
+                    centerPoint: {
+                        x: processorCenterPointX,
+                        y: processorCenterPointY
+                    },
+                    action: "Invoke"
 
-            };
+
+                };
+            }
+
          var actionStatementView = new ActionProcessor(processorViewOpts);
          actionStatementView.render();
 

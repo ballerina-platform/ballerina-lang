@@ -57,7 +57,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
 
         var createIfStatementTool = {
             id: "if",
-            name: "Resource",
+            name: "If",
             icon: "images/tool-icons/dgm-if-else.svg",
             title: "If",
             nodeFactoryMethod: BallerinaASTFactory.createIfElseStatement
@@ -97,6 +97,56 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
             toolDefinitions: []
         });
         initialToolGroups.push(connectorsToolGroup);
+
+        var createGetActionTool = {
+            id: "get",
+            name: "Get",
+            icon: "images/tool-icons/dgm-resource.svg",
+            title: "Get",
+            nodeFactoryMethod: BallerinaASTFactory.createGetActionStatement
+        };
+
+        var createPostActionTool = {
+            id: "post",
+            name: "Post",
+            icon: "images/tool-icons/rest-service.svg",
+            title: "Post",
+            nodeFactoryMethod: BallerinaASTFactory.createGetActionStatement
+        };
+
+        var createPutActionTool = {
+            id: "put",
+            name: "Put",
+            icon: "images/tool-icons/rest-service.svg",
+            title: "Put",
+            nodeFactoryMethod: BallerinaASTFactory.createGetActionStatement
+        };
+
+        var createDeleteActionTool = {
+            id: "delete",
+            name: "Delete",
+            icon: "images/tool-icons/rest-service.svg",
+            title: "Delete",
+            nodeFactoryMethod: BallerinaASTFactory.createGetActionStatement
+        };
+
+        var createExecuteActionTool = {
+            id: "execute",
+            name: "Execute",
+            icon: "images/tool-icons/rest-service.svg",
+            title: "Execute",
+            nodeFactoryMethod: BallerinaASTFactory.createGetActionStatement
+        };
+
+        var httpConnectorToolArray = [createGetActionTool, createPostActionTool, createPutActionTool, createDeleteActionTool, createExecuteActionTool];
+
+        // Create http-connectors tool group
+        var httpConnectorsToolGroup = new ToolGroup({
+            toolGroupName: "HTTP-Connectors",
+            toolGroupID: "http-connectors-tool-group",
+            toolDefinitions: httpConnectorToolArray
+        });
+        initialToolGroups.push(httpConnectorsToolGroup);
 
         return initialToolGroups;
 });

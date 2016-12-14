@@ -145,7 +145,11 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
 
         BallerinaASTFactory.createGetActionStatement = function(args){
             return new getActionStatement(args);
-        }
+        };
+
+        BallerinaASTFactory.createActionInvocationStatement = function(args) {
+            return new actionInvocationStatement(args);
+        };
 
         /**
          * creates If-Else Statement
