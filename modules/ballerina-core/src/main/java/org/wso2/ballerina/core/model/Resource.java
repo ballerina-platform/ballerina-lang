@@ -18,6 +18,8 @@
 
 package org.wso2.ballerina.core.model;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.interpreter.ControlStack;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
@@ -27,11 +29,13 @@ import org.wso2.ballerina.core.model.values.BValueRef;
 import org.wso2.ballerina.core.model.values.MessageValue;
 import org.wso2.ballerina.core.runtime.core.BalCallback;
 import org.wso2.ballerina.core.runtime.core.Executable;
+import org.wso2.carbon.messaging.Header;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * A {@code Resource} is a single request handler within a {@code Service}.
@@ -52,6 +56,8 @@ import java.util.Map;
  */
 @SuppressWarnings("unused")
 public class Resource implements Executable, Node {
+
+    private static final Logger LOG = LoggerFactory.getLogger(Resource.class);
 
     // TODO Refactor
     private Map<String, Annotation> annotationMap = new HashMap<>();
@@ -292,7 +298,17 @@ public class Resource implements Executable, Node {
         // Adding MessageValue to the ControlStack
         ControlStack controlStack = context.getControlStack();
         BValueRef[] valueParams = new BValueRef[1];
-        valueParams[0] = new BValueRef(new MessageValue(context.getCarbonMessage()));
+        // Populate MessageValue with CarbonMessages' headers.
+        MessageValue messageValue = new MessageValue(context.getCarbonMessage());
+        List<Header> headerList = context.getCarbonMessage().getHeaders().getAll();
+        messageValue.setHeaderList(headerList);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Populate headers from CarbonMessage.");
+            Consumer<Header> headerPrint = (Header header) -> LOG
+                    .debug("Header: " + header.getName() + " -> " + header.getValue());
+            headerList.forEach(headerPrint);
+        }
+        valueParams[0] = new BValueRef(messageValue);
 
 //        StackFrame stackFrame = new StackFrame(valueParams, null, new BValueRef[0]);
         // ToDo : StackFrame should be added at the upstream components.
