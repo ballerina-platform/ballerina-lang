@@ -75,7 +75,20 @@ public class BallerinaServiceComponent {
                 if (log.isDebugEnabled()) {
                     log.debug("Runtime mode is set to : " + Constants.RuntimeMode.RUN_FILE);
                 }
-                BalDeployer.deployBalFile(new File(runThisBalFile));
+                // Check for file existence before calling the deployer
+                File f = new File(runThisBalFile);
+                if (f.exists()) {
+                    BalDeployer.deployBalFile(f);
+                } else {
+                    // Check whether this is path relative to the bin directory (ballerina.sh)
+                    String relativePath = System.getProperty("user.dir") + "/bin/" + runThisBalFile;
+                    File fRelative = new File(relativePath);
+                    if (fRelative.exists()) {
+                        BalDeployer.deployBalFile(fRelative);
+                    } else {
+                        log.warn("File " + runThisBalFile + " not found in the given location");
+                    }
+                }
             }
 
         } catch (Exception ex) {

@@ -18,6 +18,8 @@
 
 package org.wso2.ballerina.core.model;
 
+import org.wso2.ballerina.core.interpreter.Context;
+import org.wso2.ballerina.core.interpreter.Interpreter;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.model.types.Type;
@@ -42,7 +44,7 @@ import java.util.List;
  * @since 1.0.0
  */
 @SuppressWarnings("unused")
-public class Action implements Node {
+public class Action implements Node, Interpreter {
 
     private List<Annotation> annotationList;
     private List<Parameter> arguments;
@@ -60,6 +62,7 @@ public class Action implements Node {
     private Type[] returnTypes;
     private TypeC[] returnTypesC;
     private BlockStmt functionBody;
+    private BlockStmt actionBody;
 
     public Action(SymbolName name,
                   Annotation[] annotations,
@@ -68,7 +71,7 @@ public class Action implements Node {
                   ConnectorDcl[] connectorDcls,
                   VariableDcl[] variableDcls,
                   Worker[] workers,
-                  BlockStmt functionBody) {
+                  BlockStmt actionBody) {
 
         this.name = name;
         this.annotations = annotations;
@@ -77,7 +80,7 @@ public class Action implements Node {
         this.connectorDcls = connectorDcls;
         this.variableDcls = variableDcls;
         this.workers = workers;
-        this.functionBody = functionBody;
+        this.actionBody = actionBody;
     }
 
     public Action(SymbolName name,
@@ -136,8 +139,8 @@ public class Action implements Node {
      *
      * @return list of Arguments
      */
-    public List<Parameter> getArguments() {
-        return arguments;
+    public Parameter[] getParameters() {
+        return parameters;
     }
 
     /**
@@ -279,6 +282,19 @@ public class Action implements Node {
             statements = new ArrayList<Statement>();
         }
         statements.add(statement);
+    }
+
+    public Type[] getReturnTypes() {
+        return returnTypes;
+    }
+
+    public VariableDcl[] getVariableDcls() {
+        return variableDcls;
+    }
+
+    @Override
+    public void interpret(Context ctx) {
+        actionBody.interpret(ctx);
     }
 
     @Override
