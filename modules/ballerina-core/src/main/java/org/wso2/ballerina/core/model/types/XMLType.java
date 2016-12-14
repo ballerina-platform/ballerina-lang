@@ -17,62 +17,11 @@
 */
 package org.wso2.ballerina.core.model.types;
 
-import org.apache.axiom.om.OMElement;
-import org.apache.axiom.om.impl.builder.StAXOMBuilder;
-import org.apache.axiom.om.util.AXIOMUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.InputStream;
-import javax.xml.stream.XMLStreamException;
-
-
 /**
  * {@code XMLType} represents an XML Element
  *
  * @since 1.0.0
  */
 public class XMLType extends AbstractType {
-
-    private static final Logger LOG = LoggerFactory.getLogger(XMLType.class);
-
-    private OMElement omElement;
-
-
-    public XMLType(){
-
-    }
-
-    public XMLType(String value) {
-        if (value != null) {
-            try {
-                omElement = AXIOMUtil.stringToOM(value);
-            } catch (XMLStreamException e) {
-                LOG.error("Cannot create OMElement from given String, maybe malformed String ", e);
-            }
-        }
-    }
-
-    public XMLType(OMElement omElement) {
-        this.omElement = omElement;
-    }
-
-    public XMLType(InputStream inputStream) {
-        if (inputStream != null) {
-            try {
-                omElement = new StAXOMBuilder(inputStream).getDocumentElement();
-            } catch (XMLStreamException e) {
-                LOG.error("Cannot create OMElement from given source, maybe malformed XML Stream", e);
-            }
-        }
-    }
-
-    /**
-     * @return OMElement provides Axiom Object
-     */
-    public OMElement getOmElement() {
-        return omElement;
-    }
-
 
 }
