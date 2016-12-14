@@ -147,6 +147,7 @@ public class Worker implements Executable, Node {
 
     public boolean execute(Context context, BalCallback callback) {
 
+        context.setBalCallback(callback);
         //Execute statements from here
         if (statements == null || statements.size() == 0) {
             return true; // nothing to execute
