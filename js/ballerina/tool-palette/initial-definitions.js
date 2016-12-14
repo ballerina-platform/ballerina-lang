@@ -57,7 +57,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
 
         var createIfStatementTool = {
             id: "if",
-            name: "Resource",
+            name: "If",
             icon: "images/tool-icons/dgm-if-else.svg",
             title: "If",
             nodeFactoryMethod: BallerinaASTFactory.createIfElseStatement
@@ -103,7 +103,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
             name: "Get",
             icon: "images/tool-icons/dgm-resource.svg",
             title: "Get",
-            nodeFactoryMethod: BallerinaASTFactory.createActionInvocationStatement
+            nodeFactoryMethod: BallerinaASTFactory.createGetActionStatement
         };
 
         var createPostActionTool = {
@@ -111,7 +111,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
             name: "Post",
             icon: "images/tool-icons/rest-service.svg",
             title: "Post",
-            nodeFactoryMethod: BallerinaASTFactory.createActionInvocationStatement
+            nodeFactoryMethod: BallerinaASTFactory.createGetActionStatement
         };
 
         var createPutActionTool = {
@@ -119,7 +119,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
             name: "Put",
             icon: "images/tool-icons/rest-service.svg",
             title: "Put",
-            nodeFactoryMethod: BallerinaASTFactory.createActionInvocationStatement
+            nodeFactoryMethod: BallerinaASTFactory.createGetActionStatement
         };
 
         var createDeleteActionTool = {
@@ -127,7 +127,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
             name: "Delete",
             icon: "images/tool-icons/rest-service.svg",
             title: "Delete",
-            nodeFactoryMethod: BallerinaASTFactory.createActionInvocationStatement
+            nodeFactoryMethod: BallerinaASTFactory.createGetActionStatement
         };
 
         var createExecuteActionTool = {
@@ -135,7 +135,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
             name: "Execute",
             icon: "images/tool-icons/rest-service.svg",
             title: "Execute",
-            nodeFactoryMethod: BallerinaASTFactory.createActionInvocationStatement
+            nodeFactoryMethod: BallerinaASTFactory.createGetActionStatement
         };
 
         var httpConnectorToolArray = [createGetActionTool, createPostActionTool, createPutActionTool, createDeleteActionTool, createExecuteActionTool];
