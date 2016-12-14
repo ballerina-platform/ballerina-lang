@@ -58,29 +58,39 @@ public class ServiceVisitor extends BallerinaBaseVisitor {
 
         // Read the Annotations
         AnnotationVisitor annotationVisitor = new AnnotationVisitor();
+        Annotation[] annotations = new Annotation[ctx.annotation().size()];
+        int index = 0;
         for (BallerinaParser.AnnotationContext annotationContext : ctx.annotation()) {
-            serviceObject.addAnnotation((Annotation) annotationContext.accept(annotationVisitor));
+            annotations[index] = (Annotation) annotationContext.accept(annotationVisitor);
+            index++;
         }
+        serviceObject.setAnnotations(annotations);
 
-//        // Read the Connector declarations
-//        ConnectorVisitor connectorVisitor = new ConnectorVisitor(serviceSymbolTable);
-//        for (BallerinaParser.ConnectorDeclarationContext cdc :
-//                ctx.serviceBody().serviceBodyDeclaration().connectorDeclaration()) {
-//            Connection connection = (Connection) cdc.accept(connectorVisitor);
-//            serviceObject.addConnector();
-//            serviceSymbolTable.put(variableDcl.getIdentifier(),
-//                    BValueFactory.createBValueFromVariableDeclaration(variableDcl));
-//        }
+
+        //        // Read the Connector declarations
+        //        ConnectorVisitor connectorVisitor = new ConnectorVisitor(serviceSymbolTable);
+        //        for (BallerinaParser.ConnectorDeclarationContext cdc :
+        //                ctx.serviceBody().serviceBodyDeclaration().connectorDeclaration()) {
+        //            Connection connection = (Connection) cdc.accept(connectorVisitor);
+        //            serviceObject.addConnector();
+        //            serviceSymbolTable.put(variableDcl.getIdentifier(),
+        //                    BValueFactory.createBValueFromVariableDeclaration(variableDcl));
+        //        }
 
         // Read the variable declarations
         VariableDeclarationVisitor variableDeclarationVisitor = new VariableDeclarationVisitor(serviceSymbolTable);
-        for (BallerinaParser.VariableDeclarationContext variableDeclarationContext :
-                ctx.serviceBody().serviceBodyDeclaration().variableDeclaration()) {
+        VariableDcl[] variableDcls = new VariableDcl[ctx.serviceBody().serviceBodyDeclaration().variableDeclaration()
+                .size()];
+        int variableIndex = 0;
+        for (BallerinaParser.VariableDeclarationContext variableDeclarationContext : ctx.serviceBody()
+                .serviceBodyDeclaration().variableDeclaration()) {
             VariableDcl variableDcl = (VariableDcl) variableDeclarationContext.accept(variableDeclarationVisitor);
-            serviceObject.addVariable(variableDcl);
-            serviceSymbolTable.put(variableDcl.getName(),
-                    BValueFactory.createBValueFromVariableDeclaration(variableDcl));
+            variableDcls[variableIndex] = variableDcl;
+            serviceSymbolTable
+                    .put(variableDcl.getName(), BValueFactory.createBValueFromVariableDeclaration(variableDcl));
+            variableIndex++;
         }
+        serviceObject.setVariableDcls(variableDcls);
 
         // Read the resources
         List<Resource> resources = (List<Resource>) this.
