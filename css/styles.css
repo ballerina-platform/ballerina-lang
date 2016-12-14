@@ -220,7 +220,7 @@ ol#breadcrumbList {
 
 .property-pane-action-button-wrapper {
     stroke: #000000;
-    stroke-width: 1;
+    stroke-width: 0.5;
     fill: #FFFFFF;
 }
 
@@ -230,7 +230,7 @@ ol#breadcrumbList {
     border: 1px solid #cdcdcd;
     border-top: 2px solid #7b7b7b;
     background: #FFFFFF;
-    position: relative;
+    position: absolute;
     z-index:10000;
 }
 
@@ -267,7 +267,7 @@ ol#breadcrumbList {
 }
 
 .property-pane-form-body-property-wrapper {
-    padding: 7px 7px 0px;
+    padding: 7px 7px 2px 7px;
 }
 
 /** Service container related styles | -> End **/

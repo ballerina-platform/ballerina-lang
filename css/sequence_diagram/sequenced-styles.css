@@ -279,3 +279,7 @@ text-anchor: start;
     cursor: pointer;
     fill: url(#annotationIcon);
 }
+
+.if-else-svg-group{
+    cursor: pointer;
+}
