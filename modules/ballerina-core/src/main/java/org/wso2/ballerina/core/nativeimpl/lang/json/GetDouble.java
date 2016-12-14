@@ -43,7 +43,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
         functionName = "getDouble",
         args = {@Argument(name = "json", type = TypeEnum.JSON),
                 @Argument(name = "jsonPath", type = TypeEnum.STRING)},
-        returnType = {TypeEnum.INT},
+        returnType = {TypeEnum.DOUBLE},
         isPublic = true
 )
 @Component(

@@ -110,6 +110,47 @@
                 <version>${antlr4.runtime.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.apache.ws.commons.axiom</groupId>
+                <artifactId>axiom-api</artifactId>
+                <version>${orbit.version.axiom}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.ws.commons.axiom</groupId>
+                <artifactId>axiom-impl</artifactId>
+                <version>${orbit.version.axiom}</version>
+            </dependency>
+            <dependency>
+                <groupId>jaxen</groupId>
+                <artifactId>jaxen</artifactId>
+                <version>${jaxen.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-logging</groupId>
+                <artifactId>commons-logging</artifactId>
+                <version>${commons.logging.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.specs</groupId>
+                <artifactId>geronimo-activation_1.1_spec</artifactId>
+                <version>${geronimo.activation}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.specs</groupId>
+                <artifactId>geronimo-stax-api_1.0_spec</artifactId>
+                <version>${geronimo.stax}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.james</groupId>
+                <artifactId>apache-mime4j-core</artifactId>
+                <version>${mime4j.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.wso2.orbit.net.sf.saxon</groupId>
+                <artifactId>Saxon-HE</artifactId>
+                <version>${saxon.wso2.version}</version>
+            </dependency>
+             <dependency>
                 <groupId>org.osgi</groupId>
                 <artifactId>org.osgi.core</artifactId>
                 <version>${osgi.api.version}</version>
@@ -134,7 +175,7 @@
                 <artifactId>slf4j-log4j12</artifactId>
                 <version>${slf4j.version}</version>
             </dependency>
-            
+
             <!-- JSON dependencies -->
             <dependency>
                 <groupId>com.google.code.gson</groupId>
@@ -288,11 +329,23 @@
 
         <antlr4.runtime.version>4.5.1.wso2v1</antlr4.runtime.version>
         
+        <!-- json dependencies -->
         <gson.version>2.7</gson.version>
         <gson.import.version.range>[2.7, 2.8.0)</gson.import.version.range>
         <jayway.jsonpath.version>2.2.0</jayway.jsonpath.version>
         <jayway.jsonpath.import.version.range>[2.2.0,2.3.0)</jayway.jsonpath.import.version.range>
         <tapestry.json.orbit.version>5.4.1.wso2v1</tapestry.json.orbit.version>
+        
+        <!-- xml depependencies -->
+        <orbit.version.axiom>1.2.20</orbit.version.axiom>
+        <saxon.wso2.version>9.7.0.wso2v1</saxon.wso2.version>
+        <javax.mail.version>1.4</javax.mail.version>
+        <jaxen.version>1.1.6</jaxen.version>
+        <commons.logging.version>1.2</commons.logging.version>
+        <geronimo.activation>1.1</geronimo.activation>
+        <geronimo.stax>1.0.1</geronimo.stax>
+        <mime4j.version>0.7.2</mime4j.version>
+
     </properties>
 
     <modules>
