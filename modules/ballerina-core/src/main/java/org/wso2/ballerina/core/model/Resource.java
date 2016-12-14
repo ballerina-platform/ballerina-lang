@@ -20,7 +20,6 @@ package org.wso2.ballerina.core.model;
 
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.interpreter.ControlStack;
-import org.wso2.ballerina.core.interpreter.StackFrame;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.model.types.MessageType;
@@ -295,9 +294,9 @@ public class Resource implements Executable, Node {
         BValueRef[] valueParams = new BValueRef[1];
         valueParams[0] = new BValueRef(new MessageValue(context.getCarbonMessage()));
 
-        StackFrame stackFrame = new StackFrame(valueParams, null, new BValueRef[0]);
+//        StackFrame stackFrame = new StackFrame(valueParams, null, new BValueRef[0]);
         // ToDo : StackFrame should be added at the upstream components.
-        controlStack.pushFrame(stackFrame);
+//        controlStack.pushFrame(stackFrame);
 
         // ToDo : Use generic identifier for message.
         Parameter paramMessage = new Parameter(new MessageType(), new SymbolName("m"));
