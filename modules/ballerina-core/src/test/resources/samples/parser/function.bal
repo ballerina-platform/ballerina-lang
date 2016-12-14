@@ -1,6 +1,13 @@
 function test(int a, int b, int c) (int, int) {
 
-    a = b + c;
-    a =  a + b;
-    return a + b, b;
+    a = c;
+    a = b ;
+
+    while ( a == b ) {
+        a = b + c;
+    }
+
+    b = c + c;
+
+    return a, b;
 }
