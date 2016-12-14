@@ -18,7 +18,6 @@
 package org.wso2.ballerina.core.model;
 
 import org.testng.Assert;
-import org.testng.annotations.Test;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.interpreter.ControlStack;
 import org.wso2.ballerina.core.interpreter.StackFrame;
@@ -131,7 +130,7 @@ public class RecursiveFuncTest {
         return function;
     }
 
-    @Test
+//    @Test
     public void testRecursiveFInvocation() {
         Context ctx = new Context();
         ControlStack controlStack = ctx.getControlStack();
