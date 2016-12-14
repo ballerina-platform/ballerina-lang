@@ -114,9 +114,34 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
         };
 
         IfStatementView.prototype.childVisitedCallback = function (child) {
-            this.getParent().increaseChildrenWidth(child);
-            this.getParent().increaseChildrenHeight(child);
-            this.trigger("childViewAddedEvent", child);
+            var childView = this._diagramRenderingContext.getViewModelMap()[child.id];
+            var childMetrics = {
+                width: childView.getWidth(),
+                height: childView.getHeight(),
+                x: childView.getXPosition(),
+                y: childView.getYPosition()
+            };
+            this.getParent().changeChildrenMetrics(childMetrics);
+        };
+
+        IfStatementView.prototype.changeMetricsCallback = function (baseMetrics) {
+            var dw = 20;
+            var dh = 20;
+            var oldX = parseInt(baseMetrics.x);
+            var oldHeight = parseInt(this.getHeight());
+            var newHeight = baseMetrics.height + dh/2 + 30;
+
+            this.getStatementGroup().outerRect.attr('width', baseMetrics.width + dw);
+            this.getStatementGroup().outerRect.attr('height', newHeight);
+            this.getStatementGroup().outerRect.attr('x', oldX - dw/2);
+            this.getStatementGroup().titleRect.attr('x', oldX - dw/2);
+            this.getStatementGroup().titleText.attr('x', oldX + 20 - dw/2);
+            this.setWidth(baseMetrics.width + dw);
+            this.setHeight(newHeight);
+            this.getParent().setWidth(baseMetrics.width + dw);
+            this.getParent().setHeight(this.getParent().getHeight() + newHeight - oldHeight);
+            this.getParent().setXPosition(oldX - dw/2);
+            this.getParent().setWidth(baseMetrics.width + dw);
         };
 
         return IfStatementView;

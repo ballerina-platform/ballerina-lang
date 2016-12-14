@@ -34,10 +34,6 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
         ElseStatementView.prototype = Object.create(BallerinaStatementView.prototype);
         ElseStatementView.prototype.constructor = ElseStatementView;
 
-        ElseStatementView.prototype.canVisitStatement = function(){
-            return true;
-        };
-
         ElseStatementView.prototype.canVisitElseStatement = function(){
             return true;
         };
@@ -61,11 +57,13 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
 
             elseGroup.outerRect = outer_rect;
             elseGroup.titleRect = title_rect;
-            elseGroup.title_text = title_text;
+            elseGroup.titleText = title_text;
 
             // Set the parent's(IfElseView) width, height, x, y
             this.getParent().setWidth(width);
             this.getParent().setHeight(this.getParent().getHeight() + height);
+            this.getParent().setXPosition(x);
+            this.getParent().setYPosition(y);
 
             // Set x, y, height, width of the current view
             this.setWidth(width);
@@ -119,8 +117,34 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
         };
 
         ElseStatementView.prototype.childVisitedCallback = function (child) {
-            this.getParent().increaseChildrenWidth();
-            this.trigger("childViewAddedEvent", child);
+            var childView = this._diagramRenderingContext.getViewModelMap()[child.id];
+            var childMetrics = {
+                width: childView.getWidth(),
+                height: childView.getHeight(),
+                x: childView.getXPosition(),
+                y: childView.getYPosition()
+            };
+            this.getParent().changeChildrenMetrics(childMetrics);
+        };
+
+        ElseStatementView.prototype.changeMetricsCallback = function (baseMetrics) {
+            var dw = 20;
+            var dh = 20;
+            var oldX = parseInt(baseMetrics.x);
+            var oldHeight = parseInt(this.getHeight());
+            var newHeight = baseMetrics.height + dh/2 + 30;
+
+            this.getStatementGroup().outerRect.attr('width', baseMetrics.width + dw);
+            this.getStatementGroup().outerRect.attr('height', newHeight);
+            this.getStatementGroup().outerRect.attr('x', oldX - dw/2);
+            this.getStatementGroup().titleRect.attr('x', oldX - dw/2);
+            this.getStatementGroup().titleText.attr('x', oldX + 20 - dw/2);
+            this.setWidth(baseMetrics.width + dw);
+            this.setHeight(newHeight);
+            this.getParent().setWidth(baseMetrics.width + dw);
+            this.getParent().setHeight(this.getParent().getHeight() + newHeight - oldHeight);
+            this.getParent().setXPosition(oldX - dw/2);
+            this.getParent().setWidth(baseMetrics.width + dw);
         };
 
         return ElseStatementView;
