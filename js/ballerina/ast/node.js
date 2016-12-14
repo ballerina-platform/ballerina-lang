@@ -80,6 +80,23 @@ define(['require', 'event_channel', 'lodash'], function(require, EventChannel, _
     };
 
     /**
+     * Remove a given child from the AST tree
+     * @param child
+     * @param index
+     * @fires  ASTNode#child-removed
+     */
+    ASTNode.prototype.removeChild = function (child) {
+        var parentModelChildren = this.children;
+        for (var itr = 0; itr < parentModelChildren.length; itr++) {
+            if (parentModelChildren[itr].id === child.id) {
+                parentModelChildren.splice(itr, 1);
+                this.trigger("childRemovedEvent", child);
+                break;
+            }
+        }
+    };
+
+    /**
      * Accept function in visitor pattern
      * @param visitor {ASTVisitor}
      */

@@ -83,9 +83,9 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/assignment', 'd
             var height = 30;
             var x = this.getXPosition();
             var y = this.getYPosition();
-            var assignmentRect = D3Utils.rect(x, y, 120, 30, 0, 0, group).classed('statement-rect', true);
+            var assignmentRect = D3Utils.rect(x, y, 120, 30, 0, 0, group).classed('statement-rect', true).attr('id', '_'+this._model.id); // added attribute 'id' starting with '_' to be compatible with HTML4
             var assignmentText = this._model.getVariableAccessor() + ' = ' +this._model.getExpression();
-            var expressionText = D3Utils.textElement(x + width/2, y + height/2, assignmentText, group).classed('statement-text', true);
+            var expressionText = D3Utils.textElement(x + width/2, y + height/2, assignmentText, group).classed('statement-text', true).attr('id', '_'+this._model.id);
             // Set x, y, height, width of the current view
             this.setWidth(width);
             this.setHeight(height);
