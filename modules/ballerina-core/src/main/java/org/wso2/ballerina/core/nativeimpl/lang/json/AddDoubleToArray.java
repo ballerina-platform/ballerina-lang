@@ -39,7 +39,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
         functionName = "add",
         args = {@Argument(name = "json", type = TypeEnum.JSON),
                 @Argument(name = "jsonPath", type = TypeEnum.STRING),
-                @Argument(name = "value", type = TypeEnum.INT)},
+                @Argument(name = "value", type = TypeEnum.DOUBLE)},
         isPublic = true
 )
 @Component(

@@ -43,7 +43,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
         functionName = "getString",
         args = {@Argument(name = "json", type = TypeEnum.JSON),
                 @Argument(name = "jsonPath", type = TypeEnum.STRING)},
-        returnType = {TypeEnum.JSON},
+        returnType = {TypeEnum.STRING},
         isPublic = true
 )
 @Component(
