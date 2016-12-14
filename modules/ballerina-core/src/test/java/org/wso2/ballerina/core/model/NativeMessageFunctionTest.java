@@ -31,11 +31,14 @@ import org.wso2.ballerina.core.model.values.JSONValue;
 import org.wso2.ballerina.core.model.values.MessageValue;
 import org.wso2.ballerina.core.model.values.StringValue;
 import org.wso2.ballerina.core.nativeimpl.lang.message.AddHeader;
+import org.wso2.ballerina.core.nativeimpl.lang.message.Clone;
 import org.wso2.ballerina.core.nativeimpl.lang.message.GetHeader;
 import org.wso2.ballerina.core.nativeimpl.lang.message.GetJsonPayload;
+import org.wso2.ballerina.core.nativeimpl.lang.message.GetStringPayload;
 import org.wso2.ballerina.core.nativeimpl.lang.message.RemoveHeader;
 import org.wso2.ballerina.core.nativeimpl.lang.message.SetHeader;
 import org.wso2.ballerina.core.nativeimpl.lang.message.SetJsonPayload;
+import org.wso2.ballerina.core.nativeimpl.lang.message.SetStringPayload;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
 
 import java.util.ArrayList;
@@ -125,6 +128,125 @@ public class NativeMessageFunctionTest {
         
         String returnVal = newPayload.toString();
         Assert.assertEquals(returnVal, "{\"name\":\"Jack\",\"address\":\"WSO2\"}");
+    }
+
+    @Test
+    public void testClone() {
+        Context ctx = new Context();
+        ControlStack controlStack = ctx.getControlStack();
+
+        DefaultCarbonMessage carbonMsg = new DefaultCarbonMessage();
+        String payloadStr = "This is a test String.";
+        carbonMsg.setStringMessageBody(payloadStr);
+
+        MessageValue messageValue = new MessageValue(carbonMsg);
+        messageValue.addHeader("Content-Type", "application/json");
+        messageValue.addHeader("Accept", "text/plain");
+
+        BValueRef[] localVariables = new BValueRef[1];
+        localVariables[0] = new BValueRef(messageValue);
+        StackFrame stackFrame = new StackFrame(new BValueRef[0], null, localVariables);
+        controlStack.pushFrame(stackFrame);
+
+        SymbolName msg = new SymbolName("msg");
+        VariableRefExpr varRefExprMsg = new VariableRefExpr(msg);
+        varRefExprMsg.setEvalFunction(VariableRefExpr.createGetLocalValueFunc(0));
+
+        List<Expression> nestedFunctionInvokeExpr = new ArrayList<>(1);
+        nestedFunctionInvokeExpr.add(varRefExprMsg);
+
+        FunctionInvocationExpr invocationExpr = new FunctionInvocationExpr(new SymbolName("clone"),
+                nestedFunctionInvokeExpr);
+        invocationExpr.setFunction(new Clone());
+        BValueRef returnValue = invocationExpr.evaluate(ctx);
+        BValue<?> result = returnValue.getBValue();
+        Assert.assertTrue(result instanceof MessageValue);
+        MessageValue resultMsg = (MessageValue) result;
+
+        Assert.assertEquals(((StringValue) resultMsg.getBuiltPayload()).getValue(), "This is a test String.");
+        Assert.assertEquals(resultMsg.getHeader("Content-Type"), "application/json");
+
+        messageValue.removeHeader("Content-Type");
+        messageValue.setBuiltPayload(new StringValue("Hello World!"));
+
+        Assert.assertEquals(((StringValue) resultMsg.getBuiltPayload()).getValue(), "This is a test String.");
+        Assert.assertNotNull(resultMsg.getHeader("Content-Type"));
+
+        messageValue.setHeader("Accept", "text/xml");
+        Assert.assertEquals(resultMsg.getHeader("Accept"), "text/plain");
+    }
+
+    @Test
+    public void testGetStringPayload() {
+        Context ctx = new Context();
+        ControlStack controlStack = ctx.getControlStack();
+
+        DefaultCarbonMessage carbonMsg = new DefaultCarbonMessage();
+        String payloadStr = "This is a test String.";
+        carbonMsg.setStringMessageBody(payloadStr);
+
+        BValueRef[] localVariables = new BValueRef[1];
+        localVariables[0] = new BValueRef(new MessageValue(carbonMsg));
+        StackFrame stackFrame = new StackFrame(new BValueRef[0], null, localVariables);
+        controlStack.pushFrame(stackFrame);
+
+        SymbolName msg = new SymbolName("msg");
+        VariableRefExpr varRefExprMsg = new VariableRefExpr(msg);
+        varRefExprMsg.setEvalFunction(VariableRefExpr.createGetLocalValueFunc(0));
+
+        List<Expression> nestedFunctionInvokeExpr = new ArrayList<>(1);
+        nestedFunctionInvokeExpr.add(varRefExprMsg);
+
+        FunctionInvocationExpr invocationExpr = new FunctionInvocationExpr(new SymbolName("getStringPayload"),
+                nestedFunctionInvokeExpr);
+        invocationExpr.setFunction(new GetStringPayload());
+        BValueRef returnValue = invocationExpr.evaluate(ctx);
+
+        BValue<?> result = returnValue.getBValue();
+        Assert.assertTrue(result instanceof StringValue);
+
+        String returnVal = ((StringValue) result).getValue();
+        Assert.assertEquals(returnVal, "This is a test String.");
+    }
+
+    @Test
+    public void testSetStringPayload() {
+        Context ctx = new Context();
+        ControlStack controlStack = ctx.getControlStack();
+
+        String payloadStr = "This is a test String.";
+
+        // carbon message with empty payload
+        DefaultCarbonMessage carbonMsg = new DefaultCarbonMessage();
+
+        BValueRef[] localVariables = new BValueRef[2];
+        localVariables[0] = new BValueRef(new MessageValue(carbonMsg));
+        localVariables[1] = new BValueRef(new StringValue(payloadStr));
+        StackFrame stackFrame = new StackFrame(new BValueRef[0], null, localVariables);
+        controlStack.pushFrame(stackFrame);
+
+        SymbolName msg = new SymbolName("msg");
+        VariableRefExpr varRefExprMsg = new VariableRefExpr(msg);
+        varRefExprMsg.setEvalFunction(VariableRefExpr.createGetLocalValueFunc(0));
+
+        SymbolName payload = new SymbolName("payload");
+        VariableRefExpr varRefExprPayload = new VariableRefExpr(payload);
+        varRefExprPayload.setEvalFunction(VariableRefExpr.createGetLocalValueFunc(1));
+
+        List<Expression> nestedFunctionInvokeExpr = new ArrayList<>(2);
+        nestedFunctionInvokeExpr.add(varRefExprMsg);
+        nestedFunctionInvokeExpr.add(varRefExprPayload);
+
+        FunctionInvocationExpr invocationExpr = new FunctionInvocationExpr(new SymbolName("setStringPayload"),
+                nestedFunctionInvokeExpr);
+        invocationExpr.setFunction(new SetStringPayload());
+        invocationExpr.evaluate(ctx);
+
+        BValue<?> newPayload = ((MessageValue) localVariables[0].getBValue()).getBuiltPayload();
+        Assert.assertTrue(newPayload instanceof StringValue);
+
+        String returnVal = ((StringValue) newPayload).getValue();
+        Assert.assertEquals(returnVal, "This is a test String.");
     }
 
     @Test

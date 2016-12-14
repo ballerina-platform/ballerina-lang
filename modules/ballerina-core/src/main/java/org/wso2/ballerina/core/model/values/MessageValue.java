@@ -21,9 +21,7 @@ import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.Header;
 import org.wso2.carbon.messaging.Headers;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * {@code MessageValue} represents a Carbon Message in Ballerina.
