@@ -46,6 +46,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './point'],
             this._viewOptions.arrowX = _.get(args, "arrowX", "undefined");
             this._viewOptions.arrowY = _.get(args, "arrowY", "undefined");
             this._viewOptions.action = _.get(args, "action", "undefined");
+            this._viewOptions.root = _.get(args, "root", "undefined");
 
             this._width = 0;
             this._height = 0;
@@ -68,6 +69,22 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './point'],
             //TODO: move css to classes
             var processorRect = D3utils.centeredRect(new Point(this._viewOptions.centerPoint.x, this._viewOptions.centerPoint.y), this._viewOptions.width
                 , this._viewOptions.height, 0, 0, this._viewOptions.parent).classed("action-rect", true);
+
+            var parent =  this._viewOptions.parent;
+            var main = this._viewOptions.root;
+            main = d3.select(main);
+            var opts =  this._viewOptions;
+
+            processorRect.on("mousedown",function(){
+                d3.event.preventDefault();
+                d3.event.stopPropagation();
+                var m = d3.mouse(this);
+                drawTempArrow(main,opts);
+
+            });
+
+
+
             //TODO: center text
             var processorText = D3utils.textElement((this._viewOptions.centerPoint.x + centerTextXGap - this._viewOptions.width / 2), (this._viewOptions.centerPoint.y + centerTextYGap - (this._viewOptions.height / 2)),
                 this._viewOptions.action, this._viewOptions.parent).classed("action-text", true);
@@ -86,6 +103,37 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './point'],
             this._height = this._viewOptions.height;
             this._xPosition = parseInt(processorRect.attr('x'));
             this._yPosition = parseInt(processorRect.attr('y'));
+
+
+            function drawTempArrow(parentContainer,viewOptions){
+               var line = parentContainer.append("line")
+                    .attr("x1", viewOptions.sourcePoint.x )
+                    .attr("y1",viewOptions.sourcePoint.y)
+                    .attr("x2",240 )
+                    .attr("y2", 323 )
+                    .attr("stroke","#9d9d9d");
+                var points = "" +  viewOptions.sourcePoint.x + "," + ( viewOptions.sourcePoint.y - 5) + " " + ( viewOptions.sourcePoint.x + 5) + "," + ( viewOptions.sourcePoint.y) + " " +  viewOptions.sourcePoint.x + "," + ( viewOptions.sourcePoint.y + 5);
+                var arrowPoint = parentContainer.append("polyline")
+                    .attr("points", points);
+
+                parentContainer.on("mousemove", function () {
+                    log.info("in mousemove");
+                    var m = d3.mouse(this);
+                    line.attr("x2", m[0]);
+                    line.attr("y2", m[1]);
+                    var newPoints = "" +  m[0] + "," + (m[1] - 5) + " " + ( m[0] + 5) + "," + ( m[1]) + " " +  m[0] + "," + ( m[1] + 5);
+                   arrowPoint.attr("points",newPoints);
+                });
+
+                parentContainer.on("mouseup", function () {
+                    // unbind current listeners
+                    main.on("mousemove", null);
+                    main.on("mouseup", null);
+                   // line.remove();
+                   // arrowPoint.remove();
+                });
+
+            }
 
         };
 

@@ -103,6 +103,7 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/get-action
 
             var processorViewOpts = {
                 parent: actionStatementGroup,
+                root: parentGroup,
                 processorWidth: processorWidth,
                 processorHeight: processorHeight,
                 centerPoint: {
