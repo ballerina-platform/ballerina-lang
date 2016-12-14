@@ -78,7 +78,7 @@ public class ServiceVisitor extends BallerinaBaseVisitor {
                 ctx.serviceBody().serviceBodyDeclaration().variableDeclaration()) {
             VariableDcl variableDcl = (VariableDcl) variableDeclarationContext.accept(variableDeclarationVisitor);
             serviceObject.addVariable(variableDcl);
-            serviceSymbolTable.put(variableDcl.getSymbolName(),
+            serviceSymbolTable.put(variableDcl.getName(),
                     BValueFactory.createBValueFromVariableDeclaration(variableDcl));
         }
 
