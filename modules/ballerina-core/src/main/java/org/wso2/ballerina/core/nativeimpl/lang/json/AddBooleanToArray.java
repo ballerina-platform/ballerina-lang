@@ -31,37 +31,34 @@ import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 
 /**
- * Insert a named element to a JSON Object. This method will add a new string element with
- * the given name, to the location identified by the given jsonpath. If an element with 
- * the same 'name' already exists, then it will update value of the existing element.
+ * Insert a boolean to a JSON Array. This method will add a new boolean element
+ * to the end of the JSON Array identified by the given jsonpath.
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.json",
         functionName = "add",
         args = {@Argument(name = "json", type = TypeEnum.JSON),
                 @Argument(name = "jsonPath", type = TypeEnum.STRING),
-                @Argument(name = "key", type = TypeEnum.STRING),
-                @Argument(name = "value", type = TypeEnum.STRING)},
+                @Argument(name = "value", type = TypeEnum.BOOLEAN)},
         isPublic = true
 )
 @Component(
-        name = "func.lang.json_addStringToObject",
+        name = "func.lang.json_addBooleanToArray",
         immediate = true,
         service = AbstractNativeFunction.class
 )
-public class AddStringToObject extends AbstractJSONFunction {
+public class AddBooleanToArray extends AbstractJSONFunction {
 
     @Override
     public BValue<?>[] execute(Context ctx) {
         // Accessing Parameters.
         JSONValue json = (JSONValue) getArgument(ctx, 0).getBValue();
         String jsonPath = getArgument(ctx, 1).getString();
-        String key = getArgument(ctx, 2).getString();
-        String value = getArgument(ctx, 3).getString();
-
-        // Adding the value to JSON Object
+        boolean value = getArgument(ctx, 2).getBoolean();
+        
+        // Adding the value to JSON Array
         WriteContext jsonCtx = JsonPath.parse(json.getValue());
-        jsonCtx.put(jsonPath, key, value);
-        return getBValues();
+        jsonCtx.add(jsonPath, value);
+        return VOID_RETURN;
     }
 }
