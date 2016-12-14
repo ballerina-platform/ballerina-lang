@@ -75,12 +75,12 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(BallerinaFile file) {
 
         for (Service service : file.getServices()) {
-            service.visit(this);
+            service.accept(this);
         }
 
         for (Function function : file.getFunctions().values()) {
             BallerinaFunction bFunction = (BallerinaFunction) function;
-            bFunction.visit(this);
+            bFunction.accept(this);
         }
     }
 
@@ -120,7 +120,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
 
         BlockStmt blockStmt = bFunction.getFunctionBody();
-        blockStmt.visit(this);
+        blockStmt.accept(this);
 
         // Close the symbol scope
         closeScope();
@@ -182,16 +182,16 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(AssignStmt assignStmt) {
         Expression rExpr = assignStmt.getRExpr();
-        rExpr.visit(this);
+        rExpr.accept(this);
 
         Expression lExpr = assignStmt.getLExpr();
-        lExpr.visit(this);
+        lExpr.accept(this);
     }
 
     @Override
     public void visit(BlockStmt blockStmt) {
         for (Statement stmt : blockStmt.getStatements()) {
-            stmt.visit(this);
+            stmt.accept(this);
         }
     }
 
@@ -215,7 +215,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         Expression[] exprs = returnStmt.getExprs();
 
         for (Expression expr : exprs) {
-            expr.visit(this);
+            expr.accept(this);
         }
     }
 
@@ -230,10 +230,10 @@ public class SemanticAnalyzer implements NodeVisitor {
         addExpr.setOffset(exprValOffset);
 
         Expression rExpr = addExpr.getRExpr();
-        rExpr.visit(this);
+        rExpr.accept(this);
 
         Expression lExpr = addExpr.getLExpr();
-        lExpr.visit(this);
+        lExpr.accept(this);
 
         if (lExpr.getType() != rExpr.getType()) {
             throw new RuntimeException("Incompatible types in the add expression: " + lExpr.getType()

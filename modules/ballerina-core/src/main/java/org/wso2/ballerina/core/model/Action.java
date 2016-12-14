@@ -298,7 +298,7 @@ public class Action implements Node, Interpreter {
     }
 
     @Override
-    public void visit(NodeVisitor visitor) {
+    public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 }
