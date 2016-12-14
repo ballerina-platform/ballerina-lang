@@ -20,7 +20,6 @@ package org.wso2.ballerina.core.model;
 import org.testng.Assert;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.interpreter.ControlStack;
-import org.wso2.ballerina.core.interpreter.StackFrame;
 import org.wso2.ballerina.core.model.expressions.AddExpression;
 import org.wso2.ballerina.core.model.expressions.BasicLiteral;
 import org.wso2.ballerina.core.model.expressions.Expression;
@@ -137,8 +136,8 @@ public class RecursiveFuncTest {
 
         BValueRef[] parameters = new BValueRef[1];
         parameters[0] = new BValueRef(new LongValue(20));
-        StackFrame stackFrame = new StackFrame(parameters, new BValueRef(null), new BValueRef[0]);
-        controlStack.pushFrame(stackFrame);
+//        StackFrame stackFrame = new StackFrame(parameters, new BValueRef(null), new BValueRef[0]);
+//        controlStack.pushFrame(stackFrame);
 
         // BallerinaFunction invocation
         VariableRefExpr varRefExprA = new VariableRefExpr(new SymbolName("argA"));

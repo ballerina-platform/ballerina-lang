@@ -28,9 +28,15 @@ import org.wso2.ballerina.core.model.values.BValueRef;
 import org.wso2.ballerina.core.model.values.JSONValue;
 import org.wso2.ballerina.core.model.values.MessageValue;
 import org.wso2.ballerina.core.model.values.StringValue;
+import org.wso2.ballerina.core.nativeimpl.lang.message.AddHeader;
+import org.wso2.ballerina.core.nativeimpl.lang.message.Clone;
 import org.wso2.ballerina.core.nativeimpl.lang.message.GetHeader;
 import org.wso2.ballerina.core.nativeimpl.lang.message.GetJsonPayload;
+import org.wso2.ballerina.core.nativeimpl.lang.message.GetStringPayload;
+import org.wso2.ballerina.core.nativeimpl.lang.message.RemoveHeader;
+import org.wso2.ballerina.core.nativeimpl.lang.message.SetHeader;
 import org.wso2.ballerina.core.nativeimpl.lang.message.SetJsonPayload;
+import org.wso2.ballerina.core.nativeimpl.lang.message.SetStringPayload;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
 
 import java.util.ArrayList;
@@ -123,6 +129,125 @@ public class NativeMessageFunctionTest {
     }
 
 //    @Test
+    public void testClone() {
+        Context ctx = new Context();
+        ControlStack controlStack = ctx.getControlStack();
+
+        DefaultCarbonMessage carbonMsg = new DefaultCarbonMessage();
+        String payloadStr = "This is a test String.";
+        carbonMsg.setStringMessageBody(payloadStr);
+
+        MessageValue messageValue = new MessageValue(carbonMsg);
+        messageValue.addHeader("Content-Type", "application/json");
+        messageValue.addHeader("Accept", "text/plain");
+
+        BValueRef[] localVariables = new BValueRef[1];
+        localVariables[0] = new BValueRef(messageValue);
+//        StackFrame stackFrame = new StackFrame(new BValueRef[0], null, localVariables);
+//        controlStack.pushFrame(stackFrame);
+
+        SymbolName msg = new SymbolName("msg");
+        VariableRefExpr varRefExprMsg = new VariableRefExpr(msg);
+        varRefExprMsg.setEvalFunction(VariableRefExpr.createGetLocalValueFunc(0));
+
+        List<Expression> nestedFunctionInvokeExpr = new ArrayList<>(1);
+        nestedFunctionInvokeExpr.add(varRefExprMsg);
+
+        FunctionInvocationExpr invocationExpr = new FunctionInvocationExpr(new SymbolName("clone"),
+                nestedFunctionInvokeExpr);
+        invocationExpr.setFunction(new Clone());
+        BValueRef returnValue = invocationExpr.evaluate(ctx);
+        BValue<?> result = returnValue.getBValue();
+        Assert.assertTrue(result instanceof MessageValue);
+        MessageValue resultMsg = (MessageValue) result;
+
+        Assert.assertEquals(((StringValue) resultMsg.getBuiltPayload()).getValue(), "This is a test String.");
+        Assert.assertEquals(resultMsg.getHeader("Content-Type"), "application/json");
+
+        messageValue.removeHeader("Content-Type");
+        messageValue.setBuiltPayload(new StringValue("Hello World!"));
+
+        Assert.assertEquals(((StringValue) resultMsg.getBuiltPayload()).getValue(), "This is a test String.");
+        Assert.assertNotNull(resultMsg.getHeader("Content-Type"));
+
+        messageValue.setHeader("Accept", "text/xml");
+        Assert.assertEquals(resultMsg.getHeader("Accept"), "text/plain");
+    }
+
+//    @Test
+    public void testGetStringPayload() {
+        Context ctx = new Context();
+        ControlStack controlStack = ctx.getControlStack();
+
+        DefaultCarbonMessage carbonMsg = new DefaultCarbonMessage();
+        String payloadStr = "This is a test String.";
+        carbonMsg.setStringMessageBody(payloadStr);
+
+        BValueRef[] localVariables = new BValueRef[1];
+        localVariables[0] = new BValueRef(new MessageValue(carbonMsg));
+//        StackFrame stackFrame = new StackFrame(new BValueRef[0], null, localVariables);
+//        controlStack.pushFrame(stackFrame);
+
+        SymbolName msg = new SymbolName("msg");
+        VariableRefExpr varRefExprMsg = new VariableRefExpr(msg);
+        varRefExprMsg.setEvalFunction(VariableRefExpr.createGetLocalValueFunc(0));
+
+        List<Expression> nestedFunctionInvokeExpr = new ArrayList<>(1);
+        nestedFunctionInvokeExpr.add(varRefExprMsg);
+
+        FunctionInvocationExpr invocationExpr = new FunctionInvocationExpr(new SymbolName("getStringPayload"),
+                nestedFunctionInvokeExpr);
+        invocationExpr.setFunction(new GetStringPayload());
+        BValueRef returnValue = invocationExpr.evaluate(ctx);
+
+        BValue<?> result = returnValue.getBValue();
+        Assert.assertTrue(result instanceof StringValue);
+
+        String returnVal = ((StringValue) result).getValue();
+        Assert.assertEquals(returnVal, "This is a test String.");
+    }
+
+//    @Test
+    public void testSetStringPayload() {
+        Context ctx = new Context();
+        ControlStack controlStack = ctx.getControlStack();
+
+        String payloadStr = "This is a test String.";
+
+        // carbon message with empty payload
+        DefaultCarbonMessage carbonMsg = new DefaultCarbonMessage();
+
+        BValueRef[] localVariables = new BValueRef[2];
+        localVariables[0] = new BValueRef(new MessageValue(carbonMsg));
+        localVariables[1] = new BValueRef(new StringValue(payloadStr));
+//        StackFrame stackFrame = new StackFrame(new BValueRef[0], null, localVariables);
+//        controlStack.pushFrame(stackFrame);
+
+        SymbolName msg = new SymbolName("msg");
+        VariableRefExpr varRefExprMsg = new VariableRefExpr(msg);
+        varRefExprMsg.setEvalFunction(VariableRefExpr.createGetLocalValueFunc(0));
+
+        SymbolName payload = new SymbolName("payload");
+        VariableRefExpr varRefExprPayload = new VariableRefExpr(payload);
+        varRefExprPayload.setEvalFunction(VariableRefExpr.createGetLocalValueFunc(1));
+
+        List<Expression> nestedFunctionInvokeExpr = new ArrayList<>(2);
+        nestedFunctionInvokeExpr.add(varRefExprMsg);
+        nestedFunctionInvokeExpr.add(varRefExprPayload);
+
+        FunctionInvocationExpr invocationExpr = new FunctionInvocationExpr(new SymbolName("setStringPayload"),
+                nestedFunctionInvokeExpr);
+        invocationExpr.setFunction(new SetStringPayload());
+        invocationExpr.evaluate(ctx);
+
+        BValue<?> newPayload = ((MessageValue) localVariables[0].getBValue()).getBuiltPayload();
+        Assert.assertTrue(newPayload instanceof StringValue);
+
+        String returnVal = ((StringValue) newPayload).getValue();
+        Assert.assertEquals(returnVal, "This is a test String.");
+    }
+
+//    @Test
     public void testGetHeader() {
         Context ctx = new Context();
         ControlStack controlStack = ctx.getControlStack();
@@ -157,5 +282,163 @@ public class NativeMessageFunctionTest {
 
         BValueRef returnValue = invocationExpr.evaluate(ctx);
         Assert.assertEquals(returnValue.getString(), "Bar");
+    }
+
+//    @Test
+    public void testBasicHeaderFunctions() {
+        Context ctx = new Context();
+
+        // carbon message with empty payload
+        DefaultCarbonMessage carbonMsg = new DefaultCarbonMessage();
+        MessageValue messageVal = new MessageValue(carbonMsg);
+
+        // Adding new header values
+        String headerName1 = "Content-Type";
+        String headerValue1 = "application/json";
+        addHeader(ctx, messageVal, headerName1, headerValue1);
+        String headerName2 = "Accept";
+        String headerValue2 = "text/plain";
+        addHeader(ctx, messageVal, headerName2, headerValue2);
+
+        // Get newly added headers
+        BValueRef returnValue = getHeader(ctx, messageVal, headerName1);
+        Assert.assertEquals(returnValue.getString(), "application/json");
+        returnValue = getHeader(ctx, messageVal, headerName2);
+        Assert.assertEquals(returnValue.getString(), "text/plain");
+
+        // Remove header
+        removeHeader(ctx, messageVal, headerName1);
+        returnValue = getHeader(ctx, messageVal, headerName1);
+        Assert.assertNull(returnValue.getString());
+
+        // Set header
+        setHeader(ctx, messageVal, headerName2, "application/pdf");
+        returnValue = getHeader(ctx, messageVal, headerName2);
+        Assert.assertNotEquals(returnValue.getString(), "text/plain");
+        Assert.assertEquals(returnValue.getString(), "application/pdf");
+    }
+
+    private BValueRef getHeader(Context ctx, MessageValue messageVal, String key) {
+        ControlStack controlStack = ctx.getControlStack();
+        BValueRef[] localVariables = new BValueRef[2];
+        localVariables[0] = new BValueRef(messageVal);
+        localVariables[1] = new BValueRef(new StringValue(key));
+
+//        StackFrame stackFrame = new StackFrame(new BValueRef[0], null, localVariables);
+//        controlStack.pushFrame(stackFrame);
+
+        SymbolName msg = new SymbolName("msg");
+        VariableRefExpr varRefExprMsg = new VariableRefExpr(msg);
+        varRefExprMsg.setEvalFunction(VariableRefExpr.createGetLocalValueFunc(0));
+
+        SymbolName headerName = new SymbolName("headerName");
+        VariableRefExpr varRefHeaderName = new VariableRefExpr(headerName);
+        varRefHeaderName.setEvalFunction(VariableRefExpr.createGetLocalValueFunc(1));
+
+        List<Expression> nestedFunctionInvokeExpr = new ArrayList<>(2);
+        nestedFunctionInvokeExpr.add(varRefExprMsg);
+        nestedFunctionInvokeExpr.add(varRefHeaderName);
+
+        FunctionInvocationExpr invocationExpr = new FunctionInvocationExpr(new SymbolName("getHeader"),
+                nestedFunctionInvokeExpr);
+        invocationExpr.setFunction(new GetHeader());
+
+        return invocationExpr.evaluate(ctx);
+    }
+
+    private void addHeader(Context ctx, MessageValue messageVal, String key, String value) {
+        ControlStack controlStack = ctx.getControlStack();
+        BValueRef[] localVariables = new BValueRef[3];
+        localVariables[0] = new BValueRef(messageVal);
+        localVariables[1] = new BValueRef(new StringValue(key));
+        localVariables[2] = new BValueRef(new StringValue(value));
+
+//        StackFrame stackFrame = new StackFrame(new BValueRef[0], null, localVariables);
+//        controlStack.pushFrame(stackFrame);
+
+        SymbolName msg = new SymbolName("msg");
+        VariableRefExpr varRefExprMsg = new VariableRefExpr(msg);
+        varRefExprMsg.setEvalFunction(VariableRefExpr.createGetLocalValueFunc(0));
+
+        SymbolName headerName = new SymbolName("headerName");
+        VariableRefExpr varRefHeaderName = new VariableRefExpr(headerName);
+        varRefHeaderName.setEvalFunction(VariableRefExpr.createGetLocalValueFunc(1));
+
+        SymbolName headerValue = new SymbolName("headerValue");
+        VariableRefExpr varRefHeaderValue = new VariableRefExpr(headerValue);
+        varRefHeaderValue.setEvalFunction(VariableRefExpr.createGetLocalValueFunc(2));
+
+        List<Expression> nestedFunctionInvokeExpr = new ArrayList<>(3);
+        nestedFunctionInvokeExpr.add(varRefExprMsg);
+        nestedFunctionInvokeExpr.add(varRefHeaderName);
+        nestedFunctionInvokeExpr.add(varRefHeaderValue);
+
+        FunctionInvocationExpr invocationExpr = new FunctionInvocationExpr(new SymbolName("addHeader"),
+                nestedFunctionInvokeExpr);
+        invocationExpr.setFunction(new AddHeader());
+
+        invocationExpr.evaluate(ctx);
+    }
+
+    private BValueRef removeHeader(Context ctx, MessageValue messageVal, String key) {
+        ControlStack controlStack = ctx.getControlStack();
+        BValueRef[] localVariables = new BValueRef[2];
+        localVariables[0] = new BValueRef(messageVal);
+        localVariables[1] = new BValueRef(new StringValue(key));
+
+//        StackFrame stackFrame = new StackFrame(new BValueRef[0], null, localVariables);
+//        controlStack.pushFrame(stackFrame);
+
+        SymbolName msg = new SymbolName("msg");
+        VariableRefExpr varRefExprMsg = new VariableRefExpr(msg);
+        varRefExprMsg.setEvalFunction(VariableRefExpr.createGetLocalValueFunc(0));
+
+        SymbolName headerName = new SymbolName("headerName");
+        VariableRefExpr varRefHeaderName = new VariableRefExpr(headerName);
+        varRefHeaderName.setEvalFunction(VariableRefExpr.createGetLocalValueFunc(1));
+
+        List<Expression> nestedFunctionInvokeExpr = new ArrayList<>(2);
+        nestedFunctionInvokeExpr.add(varRefExprMsg);
+        nestedFunctionInvokeExpr.add(varRefHeaderName);
+
+        FunctionInvocationExpr invocationExpr = new FunctionInvocationExpr(new SymbolName("removeHeader"),
+                nestedFunctionInvokeExpr);
+        invocationExpr.setFunction(new RemoveHeader());
+
+        return invocationExpr.evaluate(ctx);
+    }
+
+    private void setHeader(Context ctx, MessageValue messageVal, String key, String value) {
+        ControlStack controlStack = ctx.getControlStack();
+        BValueRef[] localVariables = new BValueRef[3];
+        localVariables[0] = new BValueRef(messageVal);
+        localVariables[1] = new BValueRef(new StringValue(key));
+        localVariables[2] = new BValueRef(new StringValue(value));
+
+//        StackFrame stackFrame = new StackFrame(new BValueRef[0], null, localVariables);
+//        controlStack.pushFrame(stackFrame);
+
+        SymbolName msg = new SymbolName("msg");
+        VariableRefExpr varRefExprMsg = new VariableRefExpr(msg);
+        varRefExprMsg.setEvalFunction(VariableRefExpr.createGetLocalValueFunc(0));
+
+        SymbolName headerName = new SymbolName("headerName");
+        VariableRefExpr varRefHeaderName = new VariableRefExpr(headerName);
+        varRefHeaderName.setEvalFunction(VariableRefExpr.createGetLocalValueFunc(1));
+
+        SymbolName headerValue = new SymbolName("headerValue");
+        VariableRefExpr varRefHeaderValue = new VariableRefExpr(headerValue);
+        varRefHeaderValue.setEvalFunction(VariableRefExpr.createGetLocalValueFunc(2));
+
+        List<Expression> nestedFunctionInvokeExpr = new ArrayList<>(3);
+        nestedFunctionInvokeExpr.add(varRefExprMsg);
+        nestedFunctionInvokeExpr.add(varRefHeaderName);
+        nestedFunctionInvokeExpr.add(varRefHeaderValue);
+
+        FunctionInvocationExpr invocationExpr = new FunctionInvocationExpr(new SymbolName("setHeader"),
+                nestedFunctionInvokeExpr);
+        invocationExpr.setFunction(new SetHeader());
+
+        invocationExpr.evaluate(ctx);
     }
 }

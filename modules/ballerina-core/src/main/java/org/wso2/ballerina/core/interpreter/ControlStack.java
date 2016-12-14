@@ -50,7 +50,19 @@ public class ControlStack {
         return currentFrame;
     }
 
-    public void setExprVal(int offset, BValueRef bValueRef) {
-        currentFrame.exprValues[offset] = bValueRef;
+    public BValueRef getValue(int offset) {
+        return currentFrame.values[offset];
+    }
+
+    public void setValue(int offset, BValueRef bValueRef) {
+        currentFrame.values[offset] = bValueRef;
+    }
+
+    public BValueRef getReturnValue(int offset) {
+        return currentFrame.returnValues[offset];
+    }
+
+    public void setReturnValue(int offset, BValueRef bValueRef) {
+        currentFrame.returnValues[offset] = bValueRef;
     }
 }
