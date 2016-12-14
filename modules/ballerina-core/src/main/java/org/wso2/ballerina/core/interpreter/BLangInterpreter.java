@@ -158,7 +158,30 @@ public class BLangInterpreter implements NodeVisitor {
 
     @Override
     public void visit(IfElseStmt ifElseStmt) {
+        Expression expr = ifElseStmt.getCondition();
+        expr.accept(this);
+        BValueRef result = getValue(expr);
 
+        if (result.getBoolean()) {
+            ifElseStmt.getThenBody().accept(this);
+            return;
+        }
+
+        for (IfElseStmt.ElseIfBlock elseIfBlock : ifElseStmt.getElseIfBlocks()) {
+            Expression elseIfCondition = elseIfBlock.getElseIfCondition();
+            elseIfCondition.accept(this);
+            result = getValue(elseIfCondition);
+
+            if (result.getBoolean()) {
+                elseIfBlock.getElseIfBody().accept(this);
+                return;
+            }
+        }
+
+        Statement elseBody = ifElseStmt.getElseBody();
+        if (elseBody != null) {
+            elseBody.accept(this);
+        }
     }
 
     @Override
@@ -194,6 +217,11 @@ public class BLangInterpreter implements NodeVisitor {
     }
 
     @Override
+    public void visit(BasicLiteral basicLiteral) {
+
+    }
+
+    @Override
     public void visit(AddExpression addExpr) {
         Expression rExpr = addExpr.getRExpr();
         rExpr.accept(this);
@@ -210,11 +238,6 @@ public class BLangInterpreter implements NodeVisitor {
 
     @Override
     public void visit(AndExpression andExpression) {
-
-    }
-
-    @Override
-    public void visit(BasicLiteral basicLiteral) {
 
     }
 
