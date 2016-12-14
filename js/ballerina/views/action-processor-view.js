@@ -107,7 +107,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './point'],
             }
             if (this._viewOptions.outArrow) {
                 var processorConnector2 = D3utils.line(this._viewOptions.sourcePoint.x, this._viewOptions.sourcePoint.y + lineGap, this._viewOptions.destinationPoint.x,
-                    this._viewOptions.destinationPoint.y + lineGap, this._viewOptions.parent).classed("action-line", true);
+                    this._viewOptions.destinationPoint.y + lineGap, this._viewOptions.parent).classed("action-dash-line", true);
                 D3utils.outputTriangle(this._viewOptions.sourcePoint.x, this._viewOptions.sourcePoint.y + lineGap, this._viewOptions.parent).classed("action-arrow", true);
             }
 
