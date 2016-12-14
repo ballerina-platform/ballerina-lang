@@ -145,6 +145,7 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/get-action
                 };
             }
 
+            this.setBoundingBox(processorWidth, processorHeight, processorCenterPointX, processorCenterPointY);
          var actionStatementView = new ActionProcessor(processorViewOpts);
          actionStatementView.render();
 

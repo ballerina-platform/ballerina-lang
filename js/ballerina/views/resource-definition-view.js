@@ -69,6 +69,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             this._viewOptions.contentHeight = _.get(args, "viewOptions.contentHeight", 360);
             this._viewOptions.collapseIconWidth = _.get(args, "viewOptions.collaspeIconWidth", 1025);
 
+            //setting initial height for resource container
+            this._totalHeight = 300;
             this.init();
         };
 
@@ -85,7 +87,18 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             return true;
         };
 
+        /**
+         * callback function for childVisited event
+         * @param child
+         */
         ResourceDefinitionView.prototype.childVisitedCallback = function (child) {
+            if (BallerinaASTFactory.isStatement(child)) {
+                var childView = this.diagramRenderingContext.getViewModelMap()[child.id];
+                var staticHeights = this.getGapBetweenStatements();
+                this._totalHeight = this._totalHeight + childView.getBoundingBox().height + staticHeights;
+                this.setResourceContainerHeight(this._totalHeight);
+            };
+
             this.trigger("childViewAddedEvent", child);
         };
 
@@ -172,6 +185,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 statementView.setXPosition(x);
                 statementView.setYPosition(y + statementsGap);
             }
+            this.diagramRenderingContext.getViewModelMap()[statement.id] = statementView;
             this._statementExpressionViewList.push(statementView);
             statementView.render(this.diagramRenderingContext);
         };
@@ -212,6 +226,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             var contentStart = new Point(this._viewOptions.centerPoint.x, this._viewOptions.centerPoint.y + this._viewOptions.heading.height);
             //Main container for a resource
             var resourceGroup = D3utils.group(d3.select(svgContainer));
+            this._resourceGroup = resourceGroup;
             resourceGroup.attr("id", "resourceGroup");
             resourceGroup.attr("width", this._viewOptions.heading.width).attr("height", this._viewOptions.heading.height + this._viewOptions.contentHeight);
             resourceGroup.attr("x", headingStart.x()).attr("y", contentStart.y());
@@ -223,7 +238,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             var pattern = def.append("pattern").attr("id", "toggleIcon").attr("width", "100%").attr("height", "100");
             var image = pattern.append("image").attr("xlink:href", "images/down.svg").attr("x", "0").attr("y", "5").attr("width", "14").attr("height", "14");
             var pattern2 = def.append("pattern").attr("id", "resourceIcon").attr("width", "100%").attr("height", "100");
-            var image2 = pattern2.append("image").attr("xlink:href", "images/dgm-resource.svg").attr("x", "5").attr("y", "5").attr("width", "14").attr("height", "14");
+            var image2 = pattern2.append("image").attr("xlink:href", "images/dmg-resource.svg").attr("x", "5").attr("y", "5").attr("width", "14").attr("height", "14");
 
             // Resource header container
             var headerGroup = D3utils.group(resourceGroup);
@@ -232,6 +247,9 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             var headingRect = D3utils.rect(headingStart.x(), headingStart.y(), this._viewOptions.heading.width, this._viewOptions.heading.height, 0, 0, headerGroup).classed("headingRect", true);
 
             // Drawing resource icon
+            var headingRectIconHolder = D3utils.rect(headingStart.x(), headingStart.y(), this._viewOptions.heading.icon.width,
+                this._viewOptions.heading.icon.height, 0, 0, headerGroup).classed("resourceHeadingIconHolder",true);
+
             var headingRectIcon = D3utils.rect(headingStart.x(), headingStart.y(), this._viewOptions.heading.icon.width,
                 this._viewOptions.heading.icon.height, 0, 0, headerGroup).classed("headingRectIcon", true);
 
@@ -259,6 +277,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             contentGroup.attr('id', "contentGroup");
 
             var contentRect = D3utils.rect(contentStart.x(), contentStart.y(), this._viewOptions.contentWidth, this._viewOptions.contentHeight, 0, 0, contentGroup).classed("resource-content", true);
+            this._contentRect = contentRect;
 
             // On click of collapse icon hide/show resource body
             headingCollapseIcon.on("click", function () {
@@ -419,6 +438,17 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
 
         };
+
+        /**
+         * setting resource container height and setting the height for the bounding box
+         * @param height
+         */
+        ResourceDefinitionView.prototype.setResourceContainerHeight = function (height){
+            this._resourceGroup.attr("height", height);
+            this._contentRect.attr("height", height);
+            this.setBoundingBox(this.getBoundingBox().width, height, this.getBoundingBox().x, this.getBoundingBox().y);
+        };
+
         ResourceDefinitionView.prototype.setWidth = function (newWidth) {
             // TODO : Implement
         };
@@ -485,6 +515,14 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
          * @returns {number}
          */
         ResourceDefinitionView.prototype.getGapBetweenResources = function () {
+            return 10;
+        };
+
+        /**
+         * Y distance from one statement's end point to next statement's start point
+         * @returns {number}
+         */
+        ResourceDefinitionView.prototype.getGapBetweenStatements = function () {
             return 10;
         };
 
