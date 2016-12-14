@@ -73,22 +73,19 @@ define(['lodash', 'log', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
          * @param {Point} args.viewOptions.position - The position at which the property pane to be created.
          */
         BallerinaView.prototype.createPropertyPane = function (args) {
-            var model = _.get(args, "model");
-            var htmlElement = _.get(args, "htmlElement");
+            var activatorElement = _.get(args, "activatorElement");
+            var paneAppendElement = _.get(args, "paneAppendElement");
             var editableProperties = _.get(args, "editableProperties", []);
 
-            if (_.isNil(model) || !(model instanceof ASTNode)) {
-                log.error("Unable to render property pane as model is undefined." + model);
-                throw "Unable to render property pane as model is undefined." + model;
-            }
-
-            if (_.isNil(htmlElement)) {
-                log.error("Unable to render property pane as the html element is undefined." + htmlElement);
-                throw "Unable to render property pane as the html element is undefined." + htmlElement;
+            if (_.isNil(activatorElement)) {
+                log.error("Unable to render property pane as the html element is undefined." + activatorElement);
+                throw "Unable to render property pane as the html element is undefined." + activatorElement;
             }
 
             var viewOptions = _.get(args, "viewOptions", {});
-            viewOptions.position = _.get(args, "viewOptions.position", new Point(50, 0));
+            viewOptions.position = _.get(args, "viewOptions.position", {});
+            viewOptions.position.x = _.get(args, "viewOptions.position.x", 50);
+            viewOptions.position.y = _.get(args, "viewOptions.position.y", 0);
 
             viewOptions.actionButton = _.get(args, "viewOptions.actionButton", {});
             viewOptions.actionButton.class = _.get(args, "actionButton.class", "property-pane-action-button");
@@ -109,35 +106,49 @@ define(['lodash', 'log', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
             viewOptions.propertyForm.wrapper.class = _.get(args, "propertyForm.wrapper", "property-pane-form-wrapper");
             viewOptions.propertyForm.heading = _.get(args, "propertyForm.heading", {});
             viewOptions.propertyForm.heading.class = _.get(args, "propertyForm.heading.class", "property-pane-form-heading");
-            viewOptions.propertyForm.heading.iconClass = _.get(args, "propertyForm.heading.class", "property-pane-form-heading-icon-class");
+            viewOptions.propertyForm.heading.iconClass = _.get(args, "propertyForm.heading.class", "property-pane-form-heading-icon");
+            viewOptions.propertyForm.heading.textClass = _.get(args, "propertyForm.heading.class", "property-pane-form-heading-text");
+            viewOptions.propertyForm.heading.iconCloseClass = _.get(args, "propertyForm.heading.class", "property-pane-form-heading-close-icon");
             viewOptions.propertyForm.body = _.get(args, "propertyForm.body", {});
             viewOptions.propertyForm.body.class = _.get(args, "propertyForm.body.class", "property-pane-form-body");
+            viewOptions.propertyForm.body.property = _.get(args, "propertyForm.body.property", {});
+            viewOptions.propertyForm.body.property.wrapper = _.get(args, "propertyForm.body.property.wrapper", "property-pane-form-body-property-wrapper");
 
-            $(htmlElement).click(function () {
+            $(activatorElement).click(function () {
+
+                // if (_.isNil(this.getAttribute("data-showing-property-menu")) || this.getAttribute("data-showing-property-menu") == "false") {
+                //     this.setAttribute("data-showing-property-menu", "true");
+                // } else {
+                //     return;
+                // }
 
                 // Calculating the width of the action button pane.
                 var propertyButtonPaneRectWidth = viewOptions.actionButton.enableEdit ? viewOptions.actionButton.width : 0;
                 propertyButtonPaneRectWidth += viewOptions.actionButton.enableDisabling ? viewOptions.actionButton.width : 0;
                 propertyButtonPaneRectWidth += viewOptions.actionButton.enableDelete ? viewOptions.actionButton.width : 0;
 
-                var propertyButtonPaneSVG = htmlElement;
-                if (htmlElement instanceof HTMLElement) {
+                var propertyButtonPaneSVG = activatorElement;
+                if (activatorElement instanceof HTMLElement) {
                     var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-                    svg.setAttribute("x", $(htmlElement).offset().left);
-                    svg.setAttribute("y", $(htmlElement).offset().top);
+                    svg.setAttribute("x", $(activatorElement).offset().left);
+                    svg.setAttribute("y", $(activatorElement).offset().top);
                     svg.setAttribute("width", propertyButtonPaneRectWidth);
                     svg.setAttribute("height", viewOptions.actionButton.height);
-                    propertyButtonPaneSVG = $(svg).prependTo(htmlElement.parentElement);
+                    propertyButtonPaneSVG = $(svg).prependTo(activatorElement.parentElement);
+                } else {
+                    propertyButtonPaneSVG = activatorElement.parentElement;
                 }
 
-                var propertyButtonPaneGroup = D3Utils.group(d3.select(propertyButtonPaneSVG[0]));
+                //
+
+                var propertyButtonPaneGroup = D3Utils.group(d3.select(propertyButtonPaneSVG));
 
                 // Creating the action button pane.
-                var propertyButtonPaneRect = D3Utils.rect(viewOptions.position.x, viewOptions.position.y,
+                var propertyButtonPaneRect = D3Utils.rect(viewOptions.position.x - (propertyButtonPaneRectWidth / 2), viewOptions.position.y + 3,
                     propertyButtonPaneRectWidth, viewOptions.actionButton.height, 0, 0, propertyButtonPaneGroup)
                     .classed(viewOptions.actionButton.wrapper.class, true);
 
-                var svgDefinitions = d3.select(propertyButtonPaneSVG[0]).append("defs");
+                var svgDefinitions = d3.select(propertyButtonPaneSVG).append("defs");
 
                 var editButtonRect;
                 var disableButtonRect;
@@ -156,7 +167,7 @@ define(['lodash', 'log', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
                         .attr("height", "14");
 
                     // Creating the edit action button.
-                    editButtonRect = D3Utils.rect(viewOptions.position.x, viewOptions.position.y,
+                    editButtonRect = D3Utils.rect(viewOptions.position.x - (propertyButtonPaneRectWidth / 2), viewOptions.position.y + 3,
                         viewOptions.actionButton.width, viewOptions.actionButton.height, 0, 0, propertyButtonPaneGroup)
                         .classed(viewOptions.actionButton.class, true).classed(viewOptions.actionButton.editClass, true);
                 }
@@ -175,10 +186,10 @@ define(['lodash', 'log', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
                         .attr("width", "14")
                         .attr("height", "14");
 
-                    var disableButtonXPosition = viewOptions.actionButton.enableEdit ? viewOptions.actionButton.width : 0;
+                    var disableButtonXPosition = viewOptions.position.x + (viewOptions.actionButton.enableEdit ? viewOptions.actionButton.width : 0);
 
                     // Creating the edit action button.
-                    disableButtonRect = D3Utils.rect(disableButtonXPosition, viewOptions.position.y,
+                    disableButtonRect = D3Utils.rect(disableButtonXPosition - (propertyButtonPaneRectWidth / 2), viewOptions.position.y + 3,
                         viewOptions.actionButton.width, viewOptions.actionButton.height, 0, 0, propertyButtonPaneGroup)
                         .classed(viewOptions.actionButton.class, true).classed(viewOptions.actionButton.disableClass, true);
                 }
@@ -196,42 +207,62 @@ define(['lodash', 'log', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
                         .attr("width", "14")
                         .attr("height", "14");
 
-                    var editButtonXPosition = viewOptions.actionButton.enableEdit ? viewOptions.actionButton.width : 0;
+                    var editButtonXPosition = viewOptions.position.x + (viewOptions.actionButton.enableEdit ? viewOptions.actionButton.width : 0);
                     editButtonXPosition += viewOptions.actionButton.enableDisabling ? viewOptions.actionButton.width : 0;
 
                     // Creating the delete action button.
-                    deleteButtonRect = D3Utils.rect(editButtonXPosition, viewOptions.position.y,
+                    deleteButtonRect = D3Utils.rect(editButtonXPosition - (propertyButtonPaneRectWidth / 2), viewOptions.position.y,
                         viewOptions.actionButton.width, viewOptions.actionButton.height, 0, 0, propertyButtonPaneGroup)
                         .classed(viewOptions.actionButton.class, true).classed(viewOptions.actionButton.deleteClass, true);
                 }
 
                 // Adding on click event for edit button.
                 $(editButtonRect.node()).click(function () {
+
+                    // Show only one property pane
+                    if (_.isNil(this.getAttribute("data-showing-property-pane")) || this.getAttribute("data-showing-property-pane") == "false") {
+                        this.setAttribute("data-showing-property-pane", "true");
+                    } else {
+                        return;
+                    }
+
                     // Hiding property button pane.
-                    $(propertyButtonPaneGroup.node()).hide();
+                    $(propertyButtonPaneGroup.node()).remove();
 
                     var propertyPaneWrapper = $("<div/>", {
-                        "class": viewOptions.propertyForm.wrapper.class
-                    }).appendTo(htmlElement);
+                        "class": viewOptions.propertyForm.wrapper.class /*+ " nano"*/
+                    }).appendTo($(".canvas-container"));
 
                     var propertyPaneHeading = $("<div/>", {
                         "class": viewOptions.propertyForm.heading.class
                     }).appendTo(propertyPaneWrapper);
 
-                    var editIcon = $("<img/>", {
-                        "href": viewOptions.propertyForm.heading.iconClass
+                    var editIcon = $("<i/>", {
+                        "class": "fw fw-edit " + viewOptions.propertyForm.heading.iconClass
                     }).appendTo(propertyPaneHeading);
 
-                    var editTitle = $("<span>Edit</span>").appendTo(propertyPaneHeading);
+                    var editTitle = $("<span class='" + viewOptions.propertyForm.heading.textClass +"'>Edit</span>")
+                        .appendTo(propertyPaneHeading);
 
-                    var closeIcon = $("<img/>").appendTo(propertyPaneHeading);
+                    var closeIcon = $("<i/>", {
+                        "class": "fw fw-cancel " + viewOptions.propertyForm.heading.iconCloseClass
+                    }).appendTo(propertyPaneHeading);
+
+                    $(closeIcon).click(function (editButton) {
+                        editButton.setAttribute("data-showing-property-menu", "false");
+                        $(propertyPaneWrapper).remove();
+                    }.bind(this, this));
 
                     var propertyPaneBody = $("<div/>", {
-                        "class": viewOptions.propertyForm.body.class
+                        "class": viewOptions.propertyForm.body.class /*+ " nano-content"*/
                     }).appendTo(propertyPaneWrapper);
 
+                    // $(".nano").nanoScroller();
+
                     _.forEach(editableProperties, function (editableProperty) {
-                        var propertyWrapper = $("<div/>").appendTo(propertyPaneBody);
+                        var propertyWrapper = $("<div/>", {
+                            "class": viewOptions.propertyForm.body.property.wrapper
+                        }).appendTo(propertyPaneBody);
                         switch (editableProperty.propertyType) {
                             case "text":
                                 createTextBox(editableProperty, propertyWrapper);
@@ -249,10 +280,10 @@ define(['lodash', 'log', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
                     });
 
                     function createTextBox(property, propertyWrapper) {
-                        var propertyTitle = $("<span>" + property.key + "<span/>").appendTo(propertyWrapper);
-                        var propertyValue = $("<input type='text'>" + property.getterMethod.call() + "<input/>").appendTo(propertyWrapper);
+                        var propertyTitle = $("<span>" + property.key + " :<span/>").appendTo(propertyWrapper);
+                        var propertyValue = $("<input type='text' value='" + property.getterMethod.call(property.model) + "'>").appendTo(propertyWrapper);
                         $(propertyValue).keyup(function () {
-                            property.setterMethod.call($(this).val());
+                            property.setterMethod.call(property.model, $(this).val());
                         });
                     }
 
