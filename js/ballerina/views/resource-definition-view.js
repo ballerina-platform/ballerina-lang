@@ -223,7 +223,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             var pattern = def.append("pattern").attr("id", "toggleIcon").attr("width", "100%").attr("height", "100");
             var image = pattern.append("image").attr("xlink:href", "images/down.svg").attr("x", "0").attr("y", "5").attr("width", "14").attr("height", "14");
             var pattern2 = def.append("pattern").attr("id", "resourceIcon").attr("width", "100%").attr("height", "100");
-            var image2 = pattern2.append("image").attr("xlink:href", "images/dgm-resource.svg").attr("x", "5").attr("y", "5").attr("width", "14").attr("height", "14");
+            var image2 = pattern2.append("image").attr("xlink:href", "images/dmg-resource.svg").attr("x", "5").attr("y", "5").attr("width", "14").attr("height", "14");
 
             // Resource header container
             var headerGroup = D3utils.group(resourceGroup);
@@ -232,6 +232,9 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             var headingRect = D3utils.rect(headingStart.x(), headingStart.y(), this._viewOptions.heading.width, this._viewOptions.heading.height, 0, 0, headerGroup).classed("headingRect", true);
 
             // Drawing resource icon
+            var headingRectIconHolder = D3utils.rect(headingStart.x(), headingStart.y(), this._viewOptions.heading.icon.width,
+                this._viewOptions.heading.icon.height, 0, 0, headerGroup).classed("resourceHeadingIconHolder",true);
+
             var headingRectIcon = D3utils.rect(headingStart.x(), headingStart.y(), this._viewOptions.heading.icon.width,
                 this._viewOptions.heading.icon.height, 0, 0, headerGroup).classed("headingRectIcon", true);
 

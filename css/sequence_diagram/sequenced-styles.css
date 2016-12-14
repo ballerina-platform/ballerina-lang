@@ -45,6 +45,9 @@
 .headingRectIcon {
     fill: url(#resourceIcon);
 }
+.resourceHeadingIconHolder{
+    fill:#000000;
+}
 
 .headingCollapseIcon {
     fill: url(#toggleIcon);
