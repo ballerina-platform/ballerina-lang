@@ -148,11 +148,11 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             var args = {model: statement, container: this._container, viewOptions: undefined, parent:this};
             var statementView = statementViewFactory.getStatementView(args);
             this.diagramRenderingContext.getViewModelMap()[statement.id] = statementView;
+            statementView.setParent(this);
             if(statementViewFactory.isGetActionStatement(statement)){
                 _.each(this.getConnectorViewList(), function (view) {
                   var matchFound =  _.isEqual(statement.getConnector(),view.getModel());
                     if(matchFound) {
-                        statementView.setParent(this);
                         statementView.setConnectorView(view);
                     }
                 });

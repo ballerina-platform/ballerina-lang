@@ -69,13 +69,25 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './point'],
             //TODO: move css to classes
             var processorRect = D3utils.centeredRect(new Point(this._viewOptions.centerPoint.x, this._viewOptions.centerPoint.y), this._viewOptions.width
                 , this._viewOptions.height, 0, 0, this._viewOptions.parent).classed("action-rect", true);
-
+//TODO: TO MOVE
             var parent =  this._viewOptions.parent;
             var main = this._viewOptions.root;
             main = d3.select(main);
             var opts =  this._viewOptions;
 
-            processorRect.on("mousedown",function(){
+            var processorConnectorPoint = D3utils.circle(((this._viewOptions.centerPoint.x - this._viewOptions.width/2) + this._viewOptions.width),((this._viewOptions.centerPoint.y - this._viewOptions.height/2) + 15), 10,this._viewOptions.parent);
+            processorConnectorPoint.attr("fill-opacity",0.01);
+
+            processorConnectorPoint.on("mouseover",function(){
+              processorConnectorPoint.style("fill", "red").style("fill-opacity", 0.5)
+                    .style("cursor", 'url(images/BlackHandwriting.cur), pointer');
+            });
+
+            processorConnectorPoint.on("mouseout",function(){
+                processorConnectorPoint.style("fill", "#2c3e50").style("fill-opacity",0.01);
+            });
+
+            processorConnectorPoint.on("mousedown",function(){
                 d3.event.preventDefault();
                 d3.event.stopPropagation();
                 var m = d3.mouse(this);
@@ -83,7 +95,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './point'],
 
             });
 
-
+//TODO: TO MOVE
 
             //TODO: center text
             var processorText = D3utils.textElement((this._viewOptions.centerPoint.x + centerTextXGap - this._viewOptions.width / 2), (this._viewOptions.centerPoint.y + centerTextYGap - (this._viewOptions.height / 2)),
@@ -103,7 +115,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './point'],
             this._height = this._viewOptions.height;
             this._xPosition = parseInt(processorRect.attr('x'));
             this._yPosition = parseInt(processorRect.attr('y'));
-
+//TODO: TO MOVE
 
             function drawTempArrow(parentContainer,viewOptions){
                var line = parentContainer.append("line")
@@ -134,6 +146,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './point'],
                 });
 
             }
+            //TODO: TO MOVE
 
         };
 
