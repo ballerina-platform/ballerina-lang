@@ -38,7 +38,6 @@ define(['log', 'lodash', 'backbone'], function (log, _, Backbone) {
         setTypeBeingDragged: function (type, validateDropTargetCallback) {
             if (!_.isUndefined(type)) {
                 this.set('typeBeingDragged', type);
-                log.debug('started dragging ' + JSON.stringify(type));
             }
             if (!_.isUndefined(validateDropTargetCallback)) {
                 this.set('validateDropTargetCallback', validateDropTargetCallback);
