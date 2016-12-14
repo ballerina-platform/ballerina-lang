@@ -37,6 +37,10 @@ public class UnaryExpression extends AbstractExpression {
         this.rExpr = rExpr;
     }
 
+    public Expression getRExpr() {
+        return rExpr;
+    }
+
     @Override
     public BValueRef evaluate(Context ctx) {
         return null;
