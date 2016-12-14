@@ -33,7 +33,7 @@ public class GetHeader extends AbstractNativeFunction {
     public BValue[] execute(Context ctx) {
         MessageValue msg = (MessageValue) getArgument(ctx, 0).getBValue();
         String headerName = ((StringValue) getArgument(ctx, 1).getBValue()).getValue();
-        String headerValue = msg.getHeaderValue(headerName);
+        String headerValue = msg.getHeader(headerName);
         return getBValues(new StringValue(headerValue));
     }
 }
