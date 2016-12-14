@@ -187,6 +187,16 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             var assignmentStatement = BallerinaASTFactory.createAssignmentStatement();
             resource_passthrough.addChild(assignmentStatement);
 
+            var assignmentStatement2 = BallerinaASTFactory.createAssignmentStatement();
+            resource_passthrough.addChild(assignmentStatement2);
+            var assignmentStatement3 = BallerinaASTFactory.createAssignmentStatement();
+            resource_passthrough.addChild(assignmentStatement3);
+            var assignmentStatement4 = BallerinaASTFactory.createAssignmentStatement();
+            resource_passthrough.addChild(assignmentStatement4);
+            var assignmentStatement5 = BallerinaASTFactory.createAssignmentStatement();
+            resource_passthrough.addChild(assignmentStatement5);
+
+
             /**
              * Create the sample function statement statement
              */

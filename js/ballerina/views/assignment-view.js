@@ -91,6 +91,7 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/assignment', 'd
             this.setHeight(height);
             this.setXPosition(x);
             this.setYPosition(y);
+            this.setBoundingBox(width, height, x, y);
             log.info("Rendering assignment statement view.");
             return group;
         };
