@@ -289,6 +289,10 @@ public class BLangInterpreter implements NodeVisitor {
     }
 
     public BValueRef getValue(Expression expr) {
+        if (expr instanceof BasicLiteral) {
+            return expr.getBValueRef();
+        }
+
         return controlStack.getValue(expr.getOffset());
     }
 
