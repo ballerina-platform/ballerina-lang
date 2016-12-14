@@ -404,8 +404,9 @@ public class BLangModelBuilder {
 
     public void createReturnStmt() {
         ReturnStmt.ReturnStmtBuilder returnStmtBuilder = new ReturnStmt.ReturnStmtBuilder();
-        while (!exprStack.isEmpty()) {
-            returnStmtBuilder.addExpression(exprStack.pop());
+
+        if (!exprStack.isEmpty()) {
+            addInReverseOrder(returnStmtBuilder);
         }
 
         ReturnStmt returnStmt = returnStmtBuilder.build();
@@ -498,6 +499,16 @@ public class BLangModelBuilder {
     private void addToBlockStmt(Statement stmt) {
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.peek();
         blockStmtBuilder.addStmt(stmt);
+    }
+
+    private void addInReverseOrder(ReturnStmt.ReturnStmtBuilder builder) {
+        Expression expr = exprStack.pop();
+        if (exprStack.isEmpty()) {
+            builder.addExpression(expr);
+        } else {
+            addInReverseOrder(builder);
+            builder.addExpression(expr);
+        }
     }
 
 //    private void addScopeToSymbolTable() {
