@@ -211,20 +211,31 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(IfElseStmt ifElseStmt) {
+        Expression expr = ifElseStmt.getCondition();
+        expr.accept(this);
 
-    }
+        if (expr.getType() != TypeC.BOOLEAN_TYPE) {
+            throw new RuntimeException("Incompatible types: expected a boolean expression");
+        }
 
-    @Override
-    public void visit(ReplyStmt replyStmt) {
+        Statement thenBody = ifElseStmt.getThenBody();
+        thenBody.accept(this);
 
-    }
+        for (IfElseStmt.ElseIfBlock elseIfBlock : ifElseStmt.getElseIfBlocks()) {
+            Expression elseIfCondition = elseIfBlock.getElseIfCondition();
+            elseIfCondition.accept(this);
 
-    @Override
-    public void visit(ReturnStmt returnStmt) {
-        Expression[] exprs = returnStmt.getExprs();
+            if (elseIfCondition.getType() != TypeC.BOOLEAN_TYPE) {
+                throw new RuntimeException("Incompatible types: expected a boolean expression");
+            }
 
-        for (Expression expr : exprs) {
-            expr.accept(this);
+            Statement elseIfBody = elseIfBlock.getElseIfBody();
+            elseIfBody.accept(this);
+        }
+
+        Statement elseBody = ifElseStmt.getElseBody();
+        if (elseBody != null) {
+            elseBody.accept(this);
         }
     }
 
@@ -244,6 +255,26 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         blockStmt.accept(this);
+    }
+
+    @Override
+    public void visit(ReplyStmt replyStmt) {
+
+    }
+
+    @Override
+    public void visit(ReturnStmt returnStmt) {
+        Expression[] exprs = returnStmt.getExprs();
+
+        for (Expression expr : exprs) {
+            expr.accept(this);
+        }
+    }
+
+    // Expressions
+
+    @Override
+    public void visit(BasicLiteral basicLiteral) {
     }
 
     @Override
@@ -287,10 +318,6 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(AndExpression andExpr) {
-    }
-
-    @Override
-    public void visit(BasicLiteral basicLiteral) {
     }
 
     @Override
