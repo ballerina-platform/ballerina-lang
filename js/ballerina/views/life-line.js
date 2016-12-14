@@ -285,12 +285,14 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', 'app/diagram-core/models/poi
 
 
             // // Add text to bottom polygon.
-             this._bottomPolygonText = D3Utils.textElement((this._viewOptions.centerPoint.x + 5 - this._viewOptions.polygon.width/2), (this._viewOptions.centerPoint.y + this._viewOptions.line.height +25 -this._viewOptions.polygon.height/2) ,
+             this._bottomPolygonText = D3Utils.textElement((this._viewOptions.centerPoint.x + 1), (this._viewOptions.centerPoint.y + this._viewOptions.line.height + 10) ,
                  this._viewOptions.text.value, this._lifelineGroup)
                  .classed(this._viewOptions.text.class, true).classed("genericT", true);
-            //
+           
             // // Centering the text to the middle of the bottom polygon.
-             this._bottomPolygonText.attr('dominant-baseline', "middle");
+            // Centering the text to the middle of the top polygon.
+            this._bottomPolygonText.attr('text-anchor', "middle");
+            this._bottomPolygonText.attr('alignment-baseline', "central");
         }
 
         // Adding property editor buttons.
