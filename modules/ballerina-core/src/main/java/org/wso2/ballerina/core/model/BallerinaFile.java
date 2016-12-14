@@ -38,7 +38,7 @@ import java.util.Map;
  * @since 1.0.0
  */
 @SuppressWarnings("unused")
-public class BallerinaFile {
+public class BallerinaFile implements Node {
 
     private String packageName;
     private List<Import> imports = new ArrayList<>();
@@ -194,6 +194,11 @@ public class BallerinaFile {
      */
     public void addType(StructType type) {
         types.add(type);
+    }
+
+    @Override
+    public void visit(NodeVisitor visitor) {
+        visitor.visit(this);
     }
 
     /**
