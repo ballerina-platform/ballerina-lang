@@ -142,10 +142,13 @@ public class BLangInterpreter implements NodeVisitor {
         Expression lExpr = assignStmt.getLExpr();
         lExpr.accept(this);
 
-        BValueRef rValue = rExpr.getBValueRef();
-        BValueRef lValue = lExpr.getBValueRef();
+        BValueRef rValue = getValue(rExpr);
+        BValueRef lValue = getValue(lExpr);
 
         lValue.setBValue(rValue.getBValue());
+
+        // TODO this optional .. we need think about this BValueRef thing again
+        setValue(lExpr, lValue);
     }
 
     @Override
@@ -165,7 +168,13 @@ public class BLangInterpreter implements NodeVisitor {
 
     @Override
     public void visit(ReturnStmt returnStmt) {
+        Expression[] exprs = returnStmt.getExprs();
 
+        for (int i = 0; i < exprs.length; i++) {
+            Expression expr = exprs[i];
+            expr.accept(this);
+            controlStack.setReturnValue(i, getValue(expr));
+        }
     }
 
     @Override
@@ -181,11 +190,11 @@ public class BLangInterpreter implements NodeVisitor {
         Expression lExpr = addExpr.getLExpr();
         lExpr.accept(this);
 
-        BValueRef rValue = rExpr.getBValueRef();
-        BValueRef lValue = lExpr.getBValueRef();
+        BValueRef rValue = getValue(rExpr);
+        BValueRef lValue = getValue(lExpr);
 
         BValueRef result = addExpr.getEvalFunc().apply(lValue, rValue);
-        controlStack.setExprVal(addExpr.getOffset(), result);
+        controlStack.setValue(addExpr.getOffset(), result);
     }
 
     @Override
@@ -256,5 +265,13 @@ public class BLangInterpreter implements NodeVisitor {
     @Override
     public void visit(VariableRefExpr variableRefExpr) {
 
+    }
+
+    public BValueRef getValue(Expression expr) {
+        return controlStack.getValue(expr.getOffset());
+    }
+
+    public void setValue(Expression expr, BValueRef valueRef) {
+        controlStack.setValue(expr.getOffset(), valueRef);
     }
 }
