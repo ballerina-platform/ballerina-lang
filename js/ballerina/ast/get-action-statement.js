@@ -18,12 +18,11 @@
 define(['lodash', 'log', './action-invocation-statement'], function (_, log, actionInvocationStatement) {
 
 
-    var getActionStatement = function (connector,message,path) {
-        if(!_.isNil(connector)){
-            this._connector = connector;
-        }
-        this._message = message || [];
-        this._path = path;
+    var getActionStatement = function (args) {
+        this._connector = _.get(args, 'connector');
+        this._message =  _.get(args, 'message')    || [];
+        this._path = _.get(args, 'path');
+        this.isUserDropped = _.get(args, 'isUserDropped') || false;
         actionInvocationStatement.call(this);
     };
 

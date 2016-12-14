@@ -88,6 +88,7 @@ define(['require', 'lodash', 'log', './ballerina-statement-view', './../ast/if-e
             this._diagramRenderingContext = diagramRenderingContext;
             var ifElseGroup = D3Utils.group(d3.select(this._container));
             this.setStatementGroup(ifElseGroup);
+            this.setBoundingBox(this.getWidth(), this.getHeight(), this.getXPosition(), this.getYPosition());
             this._model.accept(this);
         };
 

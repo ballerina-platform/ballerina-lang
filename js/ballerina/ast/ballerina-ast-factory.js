@@ -145,7 +145,11 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
 
         BallerinaASTFactory.createGetActionStatement = function(args){
             return new getActionStatement(args);
-        }
+        };
+
+        BallerinaASTFactory.createActionInvocationStatement = function(args) {
+            return new actionInvocationStatement(args);
+        };
 
         /**
          * creates If-Else Statement
@@ -376,12 +380,12 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
         };
 
         /**
-         * is ConnectionDeclaration
+         * is ConnectorDeclaration
          * @param child - Object for instanceof check
          * @returns {boolean} - true if same type, else false
          */
-        BallerinaASTFactory.isConnectionDeclaration = function (child) {
-            return child instanceof connectionDeclaration;
+        BallerinaASTFactory.isConnectorDeclaration = function (child) {
+            return child instanceof connectorDeclaration;
         };
 
         /**

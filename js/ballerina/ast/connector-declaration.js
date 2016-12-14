@@ -19,7 +19,7 @@ define(['lodash', './node'], function(_, ASTNode){
 
     var ConnectorDeclaration = function(options) {
         this._connectionOptions = options || {};
-        this._uid = uuid();
+        ASTNode.call(this);
     };
 
     ConnectorDeclaration.prototype = Object.create(ASTNode.prototype);

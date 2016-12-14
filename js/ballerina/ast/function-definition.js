@@ -47,6 +47,20 @@ define(['lodash', './callable-definition'], function (_, CallableDefinition) {
     FunctionDefinition.prototype.getArgs = function () {
         return this.args;
     };
+    
+    /**
+     * Validates possible immediate child types.
+     * @override
+     * @param node
+     * @return {boolean}
+     */
+    FunctionDefinition.prototype.canBeParentOf = function (node) {
+        var BallerinaASTFactory = this.getFactory();
+        return BallerinaASTFactory.isConnectorDeclaration(node)
+            || BallerinaASTFactory.isVariableDeclaration(node)
+            || BallerinaASTFactory.isWorkerDeclaration(node)
+            || BallerinaASTFactory.isStatement(node);
+    };
 
     return FunctionDefinition;
 

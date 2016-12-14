@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './canvas', './../ast/service-definition', './life-line', './resource-definition-view', 'ballerina/ast/ballerina-ast-factory'],
-    function (_, log, Canvas, ServiceDefinition, LifeLine, ResourceDefinitionView, BallerinaASTFactory) {
+define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './../ast/service-definition', './life-line', './resource-definition-view', 'ballerina/ast/ballerina-ast-factory'],
+    function (_, log, d3, D3utils, $, Canvas, Point, ServiceDefinition, LifeLine, ResourceDefinitionView, BallerinaASTFactory) {
 
         /**
          * The view to represent a service definition which is an AST visitor.
@@ -46,7 +46,6 @@ define(['lodash', 'log', './canvas', './../ast/service-definition', './life-line
             this.init();
         };
 
-
         ServiceDefinitionView.prototype = Object.create(Canvas.prototype);
         ServiceDefinitionView.prototype.constructor = ServiceDefinitionView;
 
@@ -58,7 +57,7 @@ define(['lodash', 'log', './canvas', './../ast/service-definition', './life-line
 
         ServiceDefinitionView.prototype.childVisitedCallback = function (child) {
             //setting height of the service view
-            var childView = this.diagramRenderingContext.getViewModelMap()[child];
+            var childView = this.diagramRenderingContext.getViewModelMap()[child.id];
             var staticHeights = childView.getGapBetweenResources() + childView.getResourceHeadingHeight();
             this._totalHeight = this._totalHeight + childView.getBoundingBox().height + staticHeights;
             this.setServiceContainerHeight(this._totalHeight);
@@ -143,11 +142,47 @@ define(['lodash', 'log', './canvas', './../ast/service-definition', './life-line
             this._container = currentContainer;
 
             // Creating client lifeline.
+
             this._clientLifeLine = new LifeLine(_.first($(this._container).children().children()));
             //Store parent container for child elements of this serviceDefView
             this.setChildContainer(_.first($(this._container).children().children()));
             this._clientLifeLine.render();
             this.getModel().accept(this);
+
+            var annotationButton = this._createAnnotationButton(this.getChildContainer());
+
+           // Create property pane for the service.
+            var paneProperties = {
+                model: this._model,
+                editableProperties: [{
+                    propertyType: "text",
+                    key: "Service Name",
+                    model: this._model,
+                    getterMethod: this._model.getServiceName,
+                    setterMethod: this._model.setServiceName
+                },
+                    {
+                        propertyType: "text",
+                        key: "Base Path",
+                        model: this._model,
+                        getterMethod: this._model.getBasePath,
+                        setterMethod: this._model.setBasePath
+                    }],
+                activatorElement: annotationButton.node(),
+                paneAppendElement: _.first($(this._container).children()),
+                viewOptions: {
+                    position: {
+                        x: parseFloat(annotationButton.attr("cx")),
+                        y: parseFloat(annotationButton.attr("cy")) + parseFloat(annotationButton.attr("r"))
+                    }
+                }
+            };
+            this.createPropertyPane(paneProperties);
+            var self = this;
+            this._model.on('child-added', function(child){
+                self.visit(child);
+                self._model.trigger("childVisitedEvent", child);
+            });
         };
 
         ServiceDefinitionView.prototype.canVisitServiceDefinition = function (serviceDefinition) {
@@ -181,7 +216,7 @@ define(['lodash', 'log', './canvas', './../ast/service-definition', './life-line
             else{
                 var resourceDefinitionView = new ResourceDefinitionView({model: resourceDefinition,container: resourceContainer, parentView: this});
             }
-            this.diagramRenderingContext.getViewModelMap()[resourceDefinition] = resourceDefinitionView;
+            this.diagramRenderingContext.getViewModelMap()[resourceDefinition.id] = resourceDefinitionView;
             resourceDefinitionView.render(this.diagramRenderingContext);
             this.addResourceViewList(resourceDefinitionView);
         };
@@ -241,6 +276,33 @@ define(['lodash', 'log', './canvas', './../ast/service-definition', './life-line
          */
         ServiceDefinitionView.prototype.getYPosition = function () {
             // TODO : Implement
+        };
+
+        // TODO : Move this to SVG
+        ServiceDefinitionView.prototype._createAnnotationButton = function(serviceContentSvg) {
+            var svgDefinitions = d3.select(serviceContentSvg).append("defs");
+
+            var annotationButtonPattern = svgDefinitions.append("pattern")
+                .attr("id", "annotationIcon")
+                .attr("width", "100%")
+                .attr("height", "100%");
+
+            annotationButtonPattern.append("image")
+                .attr("xlink:href", "images/annotation.svg")
+                .attr("x", 0)
+                .attr("y", 0)
+                .attr("width", 18.67)
+                .attr("height", 18.67);
+
+            var annotationIconGroup = D3utils.group(d3.select(serviceContentSvg));
+
+            var annotationIconBackgroundCircle = D3utils.circle(1435, 30, 18.675, annotationIconGroup)
+                .classed("annotation-icon-background-circle", true);
+
+            var annotationIconRect = D3utils.centeredRect(new Point(1435, 30), 18.67, 18.67, 0, 0, annotationIconGroup)
+                .classed("annotation-icon-rect", true);
+
+            return annotationIconBackgroundCircle;
         };
 
         return ServiceDefinitionView;

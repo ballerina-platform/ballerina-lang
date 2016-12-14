@@ -196,7 +196,68 @@ ol#breadcrumbList {
 /*//////////////////////////////////////////////////*/
 /** Service container related styles | Start -> **/
 
+.service-annotation-button {
+    float: right;
+    position: relative;
+}
 
+.property-panel-svg {
+     width: 100%;
+     min-height: 500px;
+     background: none;
+}
+
+.property-pane-action-button-wrapper {
+    stroke: #000000;
+    stroke-width: 1;
+    fill: #FFFFFF;
+}
+
+.property-pane-form-wrapper {
+    width: 175px;
+    max-height: 250px;
+    border: 1px solid #cdcdcd;
+    border-top: 2px solid #7b7b7b;
+    background: #FFFFFF;
+    position: relative;
+    z-index:10000;
+}
+
+.property-pane-form-heading {
+    height: 20px;
+    border-bottom: 1px solid #cdcdcd;
+    padding-bottom: 23px;
+}
+
+.property-pane-form-heading-icon{
+    padding-left: 10px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.property-pane-form-heading-text {
+    padding-left: 7px;
+}
+
+.property-pane-form-heading-close-icon {
+    float: right;
+    padding-right: 10px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    opacity: 0.3;
+    cursor: pointer;
+}
+
+.property-pane-form-heading-close-icon:hover {
+    opacity: 1;
+}
+
+.property-pane-form-body {
+}
+
+.property-pane-form-body-property-wrapper {
+    padding: 7px 7px 0px;
+}
 
 /** Service container related styles | -> End **/
 /*//////////////////////////////////////////////////*/

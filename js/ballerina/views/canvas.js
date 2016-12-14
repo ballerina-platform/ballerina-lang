@@ -91,36 +91,40 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
         // append to parent
         parent.append(outerDiv);
 
-        outerDiv.hover(function(event){
+        var self = this,
+            dropActiveClass = _.get(options, 'cssClass.design_view_drop');
+        outerDiv.mouseover(function(event){
 
             //if someone is dragging a tool from tool-palette
-            if(this.toolPalette.dragDropManager.isOnDrag()){
+            if(self.toolPalette.dragDropManager.isOnDrag()){
 
-                if(_.isEqual(this.toolPalette.dragDropManager.getActivatedDropTarget(), self)){
+                if(_.isEqual(self.toolPalette.dragDropManager.getActivatedDropTarget(), self)){
                     return;
                 }
 
                 // register this as a drop target and validate possible types of nodes to drop - second arg is a call back to validate
                 // tool view will use this to provide feedback on impossible drop zones
-                this.toolPalette.dragDropManager.setActivatedDropTarget(self._model, function(nodeBeingDragged){
-                    return this._model.canBeParentOf(nodeBeingDragged) && nodeBeingDragged.canBeAChildOf(self._model);
+                self.toolPalette.dragDropManager.setActivatedDropTarget(self._model, function(nodeBeingDragged){
+                    return self._model.canBeParentOf(nodeBeingDragged) && nodeBeingDragged.canBeAChildOf(self._model);
                 });
 
                 // indicate drop area
-                this._$canvasContainer.addClass(dropActiveClass);
+                outerDiv.addClass(dropActiveClass);
 
                 // reset ui feed back on drop target change
-                this.toolPalette.dragDropManager.once("drop-target-changed", function(){
-                    this._$canvasContainer.removeClass(dropActiveClass);
+                self.toolPalette.dragDropManager.once("drop-target-changed", function(){
+                    outerDiv.removeClass(dropActiveClass);
                 });
             }
-        }, function(event){
+            event.stopPropagation();
+        }).mouseout(function(event){
             // reset ui feed back on hover out
             if(self.toolPalette.dragDropManager.isOnDrag()){
                 if(_.isEqual(self.toolPalette.dragDropManager.getActivatedDropTarget(), self._model)){
                     self.toolPalette.dragDropManager.clearActivatedDropTarget();
                 }
             }
+            event.stopPropagation();
         });
     };
 

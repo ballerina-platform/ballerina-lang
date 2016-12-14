@@ -293,7 +293,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', 'app/diagram-core/models/poi
         if (_.get(this._viewOptions, "editable", false)) {
            // this.addEditableAndDeletable();
         }
-
+         return this._lifelineGroup;
         // TODO : Implement draggable.
     };
 

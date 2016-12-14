@@ -45,6 +45,9 @@
 .headingRectIcon {
     fill: url(#resourceIcon);
 }
+.resourceHeadingIconHolder{
+    fill:#000000;
+}
 
 .headingCollapseIcon {
     fill: url(#toggleIcon);
@@ -206,4 +209,52 @@ text-anchor: start;
 }
 .action-arrow{
    stroke: #9d99d;
+}
+
+.property-pane-action-button-edit {
+    opacity: 0.3;
+    fill: url(#editIcon);
+}
+
+.property-pane-action-button-edit:hover {
+    cursor: pointer;
+    opacity: 1;
+    fill: url(#editIcon);
+}
+
+.property-pane-action-button-disable {
+    opacity: 0.3;
+    fill: url(#disableIcon);
+}
+
+.property-pane-action-button-disable:hover {
+    cursor: pointer;
+    opacity: 1;
+    fill: url(#disableIcon);
+}
+
+.property-pane-action-button-delete {
+    opacity: 0.3;
+    fill: url(#deleteIcon);
+}
+
+.property-pane-action-button-delete:hover {
+    cursor: pointer;
+    opacity: 1;
+    fill: url(#deleteIcon);
+}
+
+.annotation-icon-background-circle {
+    opacity: 0.4;
+    cursor: pointer;
+}
+
+.annotation-icon-background-circle:hover {
+    opacity: 1;
+    cursor: pointer;
+}
+
+.annotation-icon-rect {
+    cursor: pointer;
+    fill: url(#annotationIcon);
 }
