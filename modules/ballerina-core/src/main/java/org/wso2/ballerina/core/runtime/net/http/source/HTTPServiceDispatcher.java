@@ -88,7 +88,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
                 basePath = basePath.concat("/").concat(path[i]);
                 service = servicesOnInterface.get(basePath);
                 if (service != null) {
-                     break;
+                    break;
                 }
             }
         }
@@ -126,20 +126,22 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
     public void serviceRegistered(Service service) {
 
         String listenerInterface = Constants.DEFAULT_INTERFACE;
-        Annotation sourceAnnotation = service.getAnnotation(Constants.ANNOTATION_NAME_SOURCE);
-        if (sourceAnnotation != null) {
-            String sourceInterfaceVal =
-                    sourceAnnotation.getValueOfKeyValuePair(Constants.ANNOTATION_SOURCE_KEY_INTERFACE);
-            if (sourceInterfaceVal != null) {   //TODO: Filter non-http protocols
-                listenerInterface = sourceInterfaceVal;
+        String basePath = service.getSymbolName().getName();
+        for (Annotation annotation : service.getAnnotations()) {
+            if (annotation.getName().equals(Constants.ANNOTATION_NAME_SOURCE)) {
+                String sourceInterfaceVal = annotation
+                        .getValueOfKeyValuePair(Constants.ANNOTATION_SOURCE_KEY_INTERFACE);
+                if (sourceInterfaceVal != null) {   //TODO: Filter non-http protocols
+                    listenerInterface = sourceInterfaceVal;
+                }
+            } else if (annotation.getName().equals(Constants.ANNOTATION_NAME_BASE_PATH)) {
+                basePath = annotation.getValue();
             }
         }
-
-        String basePath = service.getSymbolName().getName();
-        Annotation basePathAnnotation = service.getAnnotation(Constants.ANNOTATION_NAME_BASE_PATH);
-        if (basePathAnnotation != null) {
-            basePath = basePathAnnotation.getValue();
+        if (basePath.startsWith("\"")) {
+            basePath = basePath.substring(1, basePath.length() - 1);
         }
+
         if (!basePath.startsWith("/")) {
             basePath = "/".concat(basePath);
         }
@@ -153,8 +155,8 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
         }
         if (servicesOnInterface.containsKey(basePath)) {
             //TODO: Through deployment exception
-            throw new RuntimeException("Service with base path :" + basePath
-                                       + " already exists in listener : " + listenerInterface);
+            throw new RuntimeException(
+                    "Service with base path :" + basePath + " already exists in listener : " + listenerInterface);
         }
 
         servicesOnInterface.put(basePath, service);
@@ -165,21 +167,19 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
     public void serviceUnregistered(Service service) {
 
         String listenerInterface = Constants.DEFAULT_INTERFACE;
-        Annotation sourceAnnotation = service.getAnnotation(Constants.ANNOTATION_NAME_SOURCE);
-        if (sourceAnnotation != null) {
-            String sourceInterfaceVal =
-                    sourceAnnotation.getValueOfKeyValuePair(Constants.ANNOTATION_SOURCE_KEY_INTERFACE);
-            if (sourceInterfaceVal != null) {
-                listenerInterface = sourceInterfaceVal;
+        String basePath = Constants.DEFAULT_BASE_PATH;
+
+        for (Annotation annotation : service.getAnnotations()) {
+            if (annotation.getName().equals(Constants.ANNOTATION_NAME_SOURCE)) {
+                String sourceInterfaceVal = annotation
+                        .getValueOfKeyValuePair(Constants.ANNOTATION_SOURCE_KEY_INTERFACE);
+                if (sourceInterfaceVal != null) {   //TODO: Filter non-http protocols
+                    listenerInterface = sourceInterfaceVal;
+                }
+            } else if (annotation.getName().equals(Constants.ANNOTATION_NAME_BASE_PATH)) {
+                basePath = annotation.getValue();
             }
         }
-
-        String basePath = Constants.DEFAULT_BASE_PATH;
-        Annotation basePathAnnotation = service.getAnnotation(Constants.ANNOTATION_NAME_BASE_PATH);
-        if (basePathAnnotation != null) {
-            basePath = basePathAnnotation.getValue();
-        }
-
         Map<String, Service> servicesOnInterface = services.get(listenerInterface);
         if (servicesOnInterface != null) {
             servicesOnInterface.remove(basePath);

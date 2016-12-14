@@ -33,7 +33,6 @@
     <url>http://wso2.org</url>
     <description>This feature contains the bundles related to ballerina Core</description>
 
-
     <dependencies>
         <dependency>
             <groupId>org.wso2.ballerina</groupId>
@@ -62,6 +61,50 @@
         <dependency>
             <groupId>org.wso2.orbit.org.antlr</groupId>
             <artifactId>antlr4-runtime</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.jayway.jsonpath</groupId>
+            <artifactId>json-path</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.orbit.org.apache.tapestry</groupId>
+            <artifactId>tapestry-json</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.orbit.net.sf.saxon</groupId>
+            <artifactId>Saxon-HE</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.ws.commons.axiom</groupId>
+            <artifactId>axiom-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.ws.commons.axiom</groupId>
+            <artifactId>axiom-impl</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jaxen</groupId>
+            <artifactId>jaxen</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-activation_1.1_spec</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-stax-api_1.0_spec</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.james</groupId>
+            <artifactId>apache-mime4j-core</artifactId>
         </dependency>
     </dependencies>
 
@@ -118,6 +161,46 @@
                                 <bundle>
                                     <symbolicName>org.wso2.carbon.deployment.engine</symbolicName>
                                     <version>${carbon.deployment.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>com.google.gson</symbolicName>
+                                    <version>${gson.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>com.jayway.jsonpath.json-path</symbolicName>
+                                    <version>${jayway.jsonpath.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>tapestry-json</symbolicName>
+                                    <version>${tapestry.json.orbit.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName> Saxon-HE</symbolicName>
+                                    <version>${saxon.wso2.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.apache.ws.commons.axiom.axiom-api</symbolicName>
+                                    <version>${orbit.version.axiom}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.apache.geronimo.specs.geronimo-activation_1.1_spec</symbolicName>
+                                    <version>${geronimo.activation}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.apache.geronimo.specs.geronimo-stax-api_1.0_spec</symbolicName>
+                                    <version>${geronimo.stax}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>jaxen</symbolicName>
+                                    <version>${jaxen.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.apache.commons.logging</symbolicName>
+                                    <version>${commons.logging.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.apache.james.apache-mime4j-core</symbolicName>
+                                    <version>${mime4j.version}</version>
                                 </bundle>
                             </bundles>
                         </configuration>

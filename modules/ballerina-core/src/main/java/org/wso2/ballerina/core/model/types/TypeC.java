@@ -24,8 +24,10 @@ import static org.wso2.ballerina.core.model.types.TypeConstants.BOOLEAN_TNAME;
 import static org.wso2.ballerina.core.model.types.TypeConstants.DOUBLE_TNAME;
 import static org.wso2.ballerina.core.model.types.TypeConstants.FLOAT_TNAME;
 import static org.wso2.ballerina.core.model.types.TypeConstants.INT_TNAME;
+import static org.wso2.ballerina.core.model.types.TypeConstants.JSON_TNAME;
 import static org.wso2.ballerina.core.model.types.TypeConstants.LONG_TNAME;
 import static org.wso2.ballerina.core.model.types.TypeConstants.STRING_TNAME;
+import static org.wso2.ballerina.core.model.types.TypeConstants.XML_TNAME;
 
 /**
  * {@code TypeC} represent a type in Ballerina
@@ -41,12 +43,14 @@ public class TypeC {
     protected static final Map<String, TypeC> TYPE_MAP = new HashMap<>(20);
 
 
-    public static final TypeC INT_TYPE       = new TypeC(INT_TNAME);
-    public static final TypeC LONG_TYPE      = new TypeC(LONG_TNAME);
-    public static final TypeC FLOAT_TYPE     = new TypeC(FLOAT_TNAME);
-    public static final TypeC DOUBLE_TYPE    = new TypeC(DOUBLE_TNAME);
-    public static final TypeC BOOLEAN_TYPE   = new TypeC(BOOLEAN_TNAME);
-    public static final TypeC STRING_TYPE   = new TypeC(STRING_TNAME);
+    public static final TypeC INT_TYPE = new TypeC(INT_TNAME);
+    public static final TypeC LONG_TYPE = new TypeC(LONG_TNAME);
+    public static final TypeC FLOAT_TYPE = new TypeC(FLOAT_TNAME);
+    public static final TypeC DOUBLE_TYPE = new TypeC(DOUBLE_TNAME);
+    public static final TypeC BOOLEAN_TYPE = new TypeC(BOOLEAN_TNAME);
+    public static final TypeC STRING_TYPE = new TypeC(STRING_TNAME);
+    public static final TypeC XML_TYPE = new TypeC(XML_TNAME);
+    public static final TypeC JSON_TYPE = new TypeC(JSON_TNAME);
 
 
     /**
@@ -57,6 +61,23 @@ public class TypeC {
     protected TypeC(String typeName) {
         this.typeName = typeName;
         TYPE_MAP.put(typeName, this);
+    }
+
+    public String toString() {
+        return typeName;
+    }
+
+    public boolean equals(Object obj) {
+        TypeC other = (TypeC) obj;
+        return this.typeName.equals(other.typeName);
+    }
+
+    public int hashCode() {
+        return typeName.length();
+    }
+
+    public static TypeC getTypeC(String typeName) {
+        return TYPE_MAP.get(typeName);
     }
 
     public static Type getType(String typeName) {

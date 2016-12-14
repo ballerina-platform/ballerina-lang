@@ -22,17 +22,16 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.ReadContext;
+
+import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.model.values.BooleanValue;
-import org.wso2.ballerina.core.model.values.DoubleValue;
-import org.wso2.ballerina.core.model.values.IntValue;
 import org.wso2.ballerina.core.model.values.JSONValue;
-import org.wso2.ballerina.core.model.values.LongValue;
 import org.wso2.ballerina.core.model.values.StringValue;
+import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 
@@ -41,24 +40,23 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.json",
-        functionName = "get",
+        functionName = "getString",
         args = {@Argument(name = "json", type = TypeEnum.JSON),
                 @Argument(name = "jsonPath", type = TypeEnum.STRING)},
         returnType = {TypeEnum.STRING},
         isPublic = true
 )
-//@Component(
-//        name = "func.lang.json_getString",
-//        immediate = true,
-//        service = AbstractNativeFunction.class
-//)
+@Component(
+        name = "func.lang.json_getString",
+        immediate = true,
+        service = AbstractNativeFunction.class
+)
 public class GetString extends AbstractJSONFunction {
 
     private static final Logger log = LoggerFactory.getLogger(GetString.class);
 
     @Override
-    public BValue[] execute(Context ctx) {
-        log.info("GetJSONElement Native Function Invoked.");
+    public BValue<?>[] execute(Context ctx) {
         // Accessing Parameters.
         JSONValue json = (JSONValue) getArgument(ctx, 0).getBValue();
         String jsonPath = getArgument(ctx, 1).getString();
@@ -72,23 +70,17 @@ public class GetString extends AbstractJSONFunction {
         } else if (element.isJsonPrimitive()) {
             // if the resulting value is a primitive, return the respective primitive value object
             JsonPrimitive value = element.getAsJsonPrimitive();
-            if (value.isBoolean()) {
-                result = new BooleanValue(value.getAsBoolean());
-            } else if (value.isNumber()) {
-                Number number = value.getAsNumber();
-                if (number instanceof Integer) {
-                    result = new IntValue(number.intValue());
-                } else if (number instanceof Long) {
-                    result = new LongValue(number.longValue());
-                } else {
-                    result = new DoubleValue(number.doubleValue());
-                }
-            } else {
+            if (value.isString()) {
                 result = new StringValue(value.getAsString());
+            } else {
+                String errorMsg = "The element matching path: " + jsonPath + " is not a String.";
+                log.error(errorMsg);
+                throw new RuntimeException(errorMsg);
             }
         } else {
-            // if the resulting value is a complex object, return is as a JSONType object
-            result = new JSONValue(element);
+            String errorMsg = "The element matching path: " + jsonPath + " is not a String.";
+            log.error(errorMsg);
+            throw new RuntimeException(errorMsg);
         }
         
         // Setting output value.
