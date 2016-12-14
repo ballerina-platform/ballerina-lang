@@ -49,7 +49,6 @@ import org.wso2.ballerina.core.model.statements.IfElseStmt;
 import org.wso2.ballerina.core.model.statements.ReturnStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
-import org.wso2.ballerina.core.model.types.Type;
 import org.wso2.ballerina.core.model.types.TypeC;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BValueRef;
@@ -79,7 +78,7 @@ public class BLangModelBuilder {
     private Stack<BlockStmt.BlockStmtBuilder> blockStmtBuilderStack = new Stack<>();
     private Stack<IfElseStmt.IfElseStmtBuilder> ifElseStmtBuilderStack = new Stack<>();
 
-    private Queue<Type> typeQueue = new LinkedList<>();
+    private Queue<TypeC> typeQueue = new LinkedList<>();
     private BallerinaFile.BFileBuilder bFileBuilder = new BallerinaFile.BFileBuilder();
     private Stack<SymbolName> symbolNameStack = new Stack<>();
     private Stack<Expression> exprStack = new Stack<>();
@@ -154,8 +153,8 @@ public class BLangModelBuilder {
     public void createParam(String paramName) {
 //        paramIndex++;
 
-        SymbolName paramNameId = new SymbolName(paramName);
-        Type paramType = typeQueue.remove();
+        SymbolName paramNameId = new SymbolName(paramName, SymbolName.SymType.VARIABLE);
+        TypeC paramType = typeQueue.remove();
         Parameter param = new Parameter(paramType, paramNameId);
 
         // Add the parameter to callableUnitBuilder.
@@ -171,7 +170,7 @@ public class BLangModelBuilder {
     }
 
     public void createType(String typeName) {
-        Type type = TypeC.getType(typeName);
+        TypeC type = TypeC.getTypeC(typeName);
         typeQueue.add(type);
     }
 
@@ -188,8 +187,8 @@ public class BLangModelBuilder {
 //        localVarIndex++;
 
         // Create a variable declaration
-        SymbolName localVarId = new SymbolName(varName);
-        Type localVarType = typeQueue.remove();
+        SymbolName localVarId = new SymbolName(varName, SymbolName.SymType.VARIABLE);
+        TypeC localVarType = typeQueue.remove();
         VariableDcl variableDcl = new VariableDcl(localVarType, localVarId);
 
         // Add this variable declaration to the current callable unit
@@ -210,12 +209,11 @@ public class BLangModelBuilder {
      * This method lookup the symbol table for a variable reference of a function parameter or of a local variable.
      */
     public void createVarRefExpr() {
-        SymbolName varName = symbolNameStack.pop();
-        VariableRefExpr variableRefExpr = new VariableRefExpr(varName);
-//        VariableRefExpr variableRefExpr = symbolTable.lookupVarRefExpr(varName);
-        exprStack.push(variableRefExpr);
+        SymbolName symName = symbolNameStack.pop();
+        symName.setSymType(SymbolName.SymType.VARIABLE);
 
-        //TODO set type
+        VariableRefExpr variableRefExpr = new VariableRefExpr(symName);
+        exprStack.push(variableRefExpr);
     }
 
     // Expressions
@@ -305,7 +303,7 @@ public class BLangModelBuilder {
 
     public void createFunction(String name, boolean isPublic) {
         CallableUnitBuilder callableUnitBuilder = cUnitBuilderStack.pop();
-        callableUnitBuilder.setName(new SymbolName(name));
+        callableUnitBuilder.setName(new SymbolName(name, SymbolName.SymType.CALLABLE_UNIT));
         callableUnitBuilder.setPublic(isPublic);
 
         List<Annotation> annotationList = annotationListStack.pop();
@@ -321,7 +319,7 @@ public class BLangModelBuilder {
 
     public void createResource(String name) {
         CallableUnitBuilder callableUnitBuilder = cUnitBuilderStack.pop();
-        callableUnitBuilder.setName(new SymbolName(name));
+        callableUnitBuilder.setName(new SymbolName(name, SymbolName.SymType.CALLABLE_UNIT));
 
         List<Annotation> annotationList = annotationListStack.pop();
         // TODO Improve this implementation
@@ -337,7 +335,7 @@ public class BLangModelBuilder {
 
     public void createAction(String name) {
         CallableUnitBuilder callableUnitBuilder = cUnitBuilderStack.pop();
-        callableUnitBuilder.setName(new SymbolName(name));
+        callableUnitBuilder.setName(new SymbolName(name, SymbolName.SymType.CALLABLE_UNIT));
 
         List<Annotation> annotationList = annotationListStack.pop();
         // TODO Improve this implementation
@@ -363,7 +361,7 @@ public class BLangModelBuilder {
 
     public void createService(String name) {
         CallableUnitGroupBuilder callableUnitGroupBuilder = cUnitGroupBuilderStack.pop();
-        callableUnitGroupBuilder.setName(new SymbolName(name));
+        callableUnitGroupBuilder.setName(new SymbolName(name, SymbolName.SymType.CALLABLE_UNIT_GROUP));
 
         List<Annotation> annotationList = annotationListStack.pop();
         // TODO Improve this implementation
@@ -378,7 +376,7 @@ public class BLangModelBuilder {
 
     public void createConnector(String name) {
         CallableUnitGroupBuilder callableUnitGroupBuilder = cUnitGroupBuilderStack.pop();
-        callableUnitGroupBuilder.setName(new SymbolName(name));
+        callableUnitGroupBuilder.setName(new SymbolName(name, SymbolName.SymType.CALLABLE_UNIT_GROUP));
 
         List<Annotation> annotationList = annotationListStack.pop();
         // TODO Improve this implementation
@@ -394,7 +392,10 @@ public class BLangModelBuilder {
     // Statements
 
     public void createAssignmentExpr() {
-        VariableRefExpr lExpr = new VariableRefExpr(symbolNameStack.pop());
+        SymbolName symName = symbolNameStack.pop();
+        symName.setSymType(SymbolName.SymType.VARIABLE);
+
+        VariableRefExpr lExpr = new VariableRefExpr(symName);
         Expression rExpr = exprStack.pop();
         AssignStmt assignStmt = new AssignStmt(lExpr, rExpr);
 

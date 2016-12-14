@@ -34,7 +34,7 @@ public class ConnectorActionInvocationExpr extends AbstractExpression {
     }
 
     @Override
-    public void visit(NodeVisitor visitor) {
+    public void accept(NodeVisitor visitor) {
 
     }
 
