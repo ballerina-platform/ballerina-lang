@@ -19,13 +19,13 @@ package org.wso2.ballerina.core.parser;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.testng.Assert;
+import org.wso2.ballerina.core.interpreter.BContext;
 import org.wso2.ballerina.core.interpreter.BLangInterpreter;
-import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.interpreter.ControlStack;
 import org.wso2.ballerina.core.interpreter.StackFrame;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
-import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.model.builder.BLangModelBuilder;
 import org.wso2.ballerina.core.model.values.BValueRef;
 import org.wso2.ballerina.core.model.values.IntValue;
@@ -35,7 +35,7 @@ import org.wso2.ballerina.core.semantics.SemanticAnalyzer;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-public class ListenerTest {
+public class BLangInterpreterTest {
 
     private BLangAntlr4Listener langModelBuilder;
     private BallerinaFile bFile;
@@ -68,17 +68,7 @@ public class ListenerTest {
             SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer();
             bFile.accept(semanticAnalyzer);
 
-            ///
-
-            BallerinaFunction function = (BallerinaFunction) bFile.getFunctions().get("jj");
-
-            BLangInterpreter interpreter = new BLangInterpreter(null);
-
-            function.accept(interpreter);
-
             // Linker
-
-            // Interpret ///
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -86,24 +76,35 @@ public class ListenerTest {
     }
 
     public void testFuncInvocation() {
+        BallerinaFunction function = (BallerinaFunction) bFile.getFunctions().get(funcName);
 
         // Create control stack and the stack frame
-        Context ctx = new Context();
+        BContext ctx = new BContext();
         ControlStack controlStack = ctx.getControlStack();
 
-        BValueRef[] localVariables = new BValueRef[3];
-        localVariables[0] = new BValueRef(new IntValue(10));
-        localVariables[1] = new BValueRef(new IntValue(50));
-        localVariables[2] = new BValueRef(new IntValue(20));
+        int sizeOfValueArray =  function.getStackFrameSize();
 
-        StackFrame stackFrame = new StackFrame(new BValueRef[0], new BValueRef(null), localVariables);
+        BValueRef[] values = new BValueRef[sizeOfValueArray];
+        values[0] = new BValueRef(new IntValue(10));
+        values[1] = new BValueRef(new IntValue(1000));
+        values[2] = new BValueRef(new IntValue(20));
+
+        BValueRef[] returnVals = new BValueRef[function.getReturnTypesC().length];
+
+        StackFrame stackFrame = new StackFrame(values, returnVals);
         controlStack.pushFrame(stackFrame);
 
-        Function function = bFile.getFunctions().get(funcName);
+        BLangInterpreter interpreter = new BLangInterpreter(ctx);
+        function.accept(interpreter);
+
+        int expected = returnVals[0].getInt();
+        int actual = 3020;
+        Assert.assertEquals(actual, expected);
     }
 
     public static void main(String[] args) {
-        ListenerTest test = new ListenerTest();
+        BLangInterpreterTest test = new BLangInterpreterTest();
         test.setup();
+        test.testFuncInvocation();
     }
 }
