@@ -66,7 +66,7 @@ public class LessThanExpression extends BinaryCompareExpression {
     }
 
     @Override
-    public void visit(NodeVisitor visitor) {
+    public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 }

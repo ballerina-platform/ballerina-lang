@@ -19,10 +19,12 @@ package org.wso2.ballerina.core.parser;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.wso2.ballerina.core.interpreter.BLangInterpreter;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.interpreter.ControlStack;
 import org.wso2.ballerina.core.interpreter.StackFrame;
 import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.model.builder.BLangModelBuilder;
 import org.wso2.ballerina.core.model.values.BValueRef;
@@ -50,6 +52,9 @@ public class ListenerTest {
 
             BallerinaParser ballerinaParser = new BallerinaParser(ballerinaToken);
 
+
+
+
             BLangModelBuilder modelBuilder = new BLangModelBuilder();
             langModelBuilder = new BLangAntlr4Listener(modelBuilder);
 
@@ -61,7 +66,15 @@ public class ListenerTest {
 
 
             SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer();
-            bFile.visit(semanticAnalyzer);
+            bFile.accept(semanticAnalyzer);
+
+            ///
+
+            BallerinaFunction function = (BallerinaFunction) bFile.getFunctions().get("jj");
+
+            BLangInterpreter interpreter = new BLangInterpreter(null);
+
+            function.accept(interpreter);
 
             // Linker
 

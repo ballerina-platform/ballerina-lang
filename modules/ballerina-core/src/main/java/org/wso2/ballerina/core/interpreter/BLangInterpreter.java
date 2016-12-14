@@ -90,7 +90,7 @@ public class BLangInterpreter implements NodeVisitor {
 
     @Override
     public void visit(BallerinaFunction function) {
-        function.getFunctionBody().visit(this);
+        function.getFunctionBody().accept(this);
     }
 
     @Override
@@ -130,17 +130,17 @@ public class BLangInterpreter implements NodeVisitor {
 
         Statement[] stmts = blockStmt.getStatements();
         for (Statement stmt : stmts) {
-            stmt.visit(this);
+            stmt.accept(this);
         }
     }
 
     @Override
     public void visit(AssignStmt assignStmt) {
         Expression rExpr = assignStmt.getRExpr();
-        rExpr.visit(this);
+        rExpr.accept(this);
 
         Expression lExpr = assignStmt.getLExpr();
-        lExpr.visit(this);
+        lExpr.accept(this);
 
         BValueRef rValue = rExpr.getBValueRef();
         BValueRef lValue = lExpr.getBValueRef();
@@ -176,10 +176,10 @@ public class BLangInterpreter implements NodeVisitor {
     @Override
     public void visit(AddExpression addExpr) {
         Expression rExpr = addExpr.getRExpr();
-        rExpr.visit(this);
+        rExpr.accept(this);
 
         Expression lExpr = addExpr.getLExpr();
-        lExpr.visit(this);
+        lExpr.accept(this);
 
         BValueRef rValue = rExpr.getBValueRef();
         BValueRef lValue = lExpr.getBValueRef();
