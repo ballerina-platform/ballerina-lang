@@ -80,7 +80,8 @@
 }
 
 .resource-content {
-    fill: none;
+    fill: #008000;
+    fill-opacity: 0;
     stroke-width: 1;
     stroke: #000000;
 }

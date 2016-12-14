@@ -103,6 +103,16 @@
     background-color:rgba(0, 128, 0, 0.1);
 }
 
+.tab-pane .panel.design-view-hover rect.resource-content{
+    fill: #fff;
+    fill-opacity: 0.8;
+}
+
 .design-view-hover{
     background-color:rgba(0, 128, 0, 0.1);
+}
+
+.design-view-hover-svg{
+    fill: #008000;
+    fill-opacity: 0.2;
 }

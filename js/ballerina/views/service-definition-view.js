@@ -211,10 +211,12 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
                 var prevResourceY = prevView.getBoundingBox().y;
                 var newCenterPointY = prevResourceHeight + prevResourceY + 10;
                 var viewOpts = { centerPoint: {y:newCenterPointY}};
-                var resourceDefinitionView = new ResourceDefinitionView({model: resourceDefinition,container: resourceContainer, viewOptions: viewOpts});
+                var resourceDefinitionView = new ResourceDefinitionView({model: resourceDefinition,container: resourceContainer,
+                    toolPalette: this.toolPalette, viewOptions: viewOpts});
             }
             else{
-                var resourceDefinitionView = new ResourceDefinitionView({model: resourceDefinition,container: resourceContainer, parentView: this});
+                var resourceDefinitionView = new ResourceDefinitionView({model: resourceDefinition,container: resourceContainer,
+                    toolPalette: this.toolPalette, parentView: this});
             }
             this.diagramRenderingContext.getViewModelMap()[resourceDefinition.id] = resourceDefinitionView;
             resourceDefinitionView.render(this.diagramRenderingContext);

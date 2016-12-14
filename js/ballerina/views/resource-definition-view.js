@@ -70,6 +70,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             this._viewOptions.collapseIconWidth = _.get(args, "viewOptions.collaspeIconWidth", 1025);
 
             this._viewOptions.totalHeightGap = 50;
+            this._viewOptions.hoverClass = _.get(args, "viewOptions.cssClass.hover_svg", 'design-view-hover-svg');
 
             //setting initial height for resource container
             this._totalHeight = 230;
@@ -254,6 +255,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             headerGroup.attr("id", "headerGroup");
 
             var headingRect = D3utils.rect(headingStart.x(), headingStart.y(), this._viewOptions.heading.width, this._viewOptions.heading.height, 0, 0, headerGroup).classed("headingRect", true);
+            this._headingRect = headingRect;
 
             // Drawing resource icon
             var headingRectIconHolder = D3utils.rect(headingStart.x(), headingStart.y(), this._viewOptions.heading.icon.width,
@@ -287,6 +289,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
             var contentRect = D3utils.rect(contentStart.x(), contentStart.y(), this._viewOptions.contentWidth, this._viewOptions.contentHeight, 0, 0, contentGroup).classed("resource-content", true);
             this._contentRect = contentRect;
+            contentRect.attr("fill", "#fff");
 
             // On click of collapse icon hide/show resource body
             headingCollapseIcon.on("click", function () {
@@ -382,6 +385,64 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
             log.debug("Rendering Resource View");
             this.getModel().accept(this);
+            this.initResourceLevelDropTarget();
+            var self = this;
+            this._model.on('child-added', function(child){
+                self.visit(child);
+            });
+        };
+
+        ResourceDefinitionView.prototype.initResourceLevelDropTarget = function(){
+            var self = this,
+                hoverClass = this._viewOptions.hoverClass;
+            var mouseOverHandler = function() {
+                //if someone is dragging a tool from tool-palette
+                if(self.toolPalette.dragDropManager.isOnDrag()){
+
+                    if(_.isEqual(self.toolPalette.dragDropManager.getActivatedDropTarget(), self)){
+                        return;
+                    }
+
+                    // register this as a drop target and validate possible types of nodes to drop - second arg is a call back to validate
+                    // tool view will use this to provide feedback on impossible drop zones
+                    self.toolPalette.dragDropManager.setActivatedDropTarget(self._model, function(nodeBeingDragged){
+                        var nodeFactory = self._model.getFactory();
+                        // IMPORTANT: override resource definition node's default validation logic
+                        // This drop zone is for worker and connector declarations only.
+                        // Statements should only be allowed on top of default worker's drop zone.
+                        return nodeFactory.isConnectorDeclaration(nodeBeingDragged)
+                            || nodeFactory.isWorkerDeclaration(nodeBeingDragged);
+                    });
+
+                    // indicate drop area
+                    self._contentRect.classed(hoverClass, true);
+                    self._headingRect.classed(hoverClass, true);
+
+                    // reset ui feed back on drop target change
+                    self.toolPalette.dragDropManager.once("drop-target-changed", function(){
+                        self._contentRect.classed(hoverClass, false);
+                        self._headingRect.classed(hoverClass, false);
+                    });
+                }
+                d3.event.stopPropagation();
+
+            };
+
+            var mouseOutHandler = function() {
+                // reset ui feed back on hover out
+                if(self.toolPalette.dragDropManager.isOnDrag()){
+                    if(_.isEqual(self.toolPalette.dragDropManager.getActivatedDropTarget(), self._model)){
+                        self._contentRect.classed('design-view-hover-svg', false);
+                        self._headingRect.classed('design-view-hover-svg', false);
+                    }
+                }
+                d3.event.stopPropagation();
+
+            };
+            this._contentRect.on("mouseover", mouseOverHandler);
+            this._headingRect.on("mouseover", mouseOverHandler);
+            this._contentRect.on("mouseout", mouseOutHandler);
+            this._headingRect.on("mouseout", mouseOutHandler);
         };
 
         ResourceDefinitionView.prototype.getConnectorViewList = function(){

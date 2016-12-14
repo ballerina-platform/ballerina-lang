@@ -63,15 +63,15 @@ define(['require','log', 'jquery', 'd3', 'backbone', './tool-view'], function (r
                                             .toggleClass("glyphicon-chevron-down");
                     });
             });
-            this.model.on('tool-added', this.onToolAdded);
+            this.model.on('tool-added', this.onToolAdded, this);
             return this;
         },
 
         onToolAdded: function (tool) {
             var self = this;
-            if (!_.isUndefined(this._$toolGroupBody)) {
+            if (!_.isUndefined(self._$toolGroupBody)) {
                 var toolView = new ToolView({model: tool, toolPalette: self.toolPalette});
-                toolView.render(this._$toolGroupBody);
+                toolView.render(self._$toolGroupBody);
             }
         }
     });
