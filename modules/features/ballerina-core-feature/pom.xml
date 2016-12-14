@@ -33,7 +33,6 @@
     <url>http://wso2.org</url>
     <description>This feature contains the bundles related to ballerina Core</description>
 
-
     <dependencies>
         <dependency>
             <groupId>org.wso2.ballerina</groupId>
@@ -62,6 +61,18 @@
         <dependency>
             <groupId>org.wso2.orbit.org.antlr</groupId>
             <artifactId>antlr4-runtime</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.jayway.jsonpath</groupId>
+            <artifactId>json-path</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.orbit.org.apache.tapestry</groupId>
+            <artifactId>tapestry-json</artifactId>
         </dependency>
     </dependencies>
 
@@ -118,6 +129,18 @@
                                 <bundle>
                                     <symbolicName>org.wso2.carbon.deployment.engine</symbolicName>
                                     <version>${carbon.deployment.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>com.google.gson</symbolicName>
+                                    <version>${gson.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>com.jayway.jsonpath.json-path</symbolicName>
+                                    <version>${jayway.jsonpath.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>tapestry-json</symbolicName>
+                                    <version>${tapestry.json.orbit.version}</version>
                                 </bundle>
                             </bundles>
                         </configuration>
