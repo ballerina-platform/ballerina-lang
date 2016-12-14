@@ -18,8 +18,7 @@
 
 package org.wso2.ballerina.core.nativeimpl.lang.message;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.osgi.service.component.annotations.Component;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BValue;
@@ -34,23 +33,20 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.message",
-        functionName = "get",
+        functionName = "getJsonPayload",
         args = {@Argument(name = "message", type = TypeEnum.MESSAGE)},
         returnType = {TypeEnum.JSON},
         isPublic = true
 )
-//@Component(
-//        name = "func.lang.echo_getJsonPayload",
-//        immediate = true,
-//        service = AbstractNativeFunction.class
-//)
+@Component(
+        name = "func.lang.echo_getJsonPayload",
+        immediate = true,
+        service = AbstractNativeFunction.class
+)
 public class GetJsonPayload extends AbstractNativeFunction {
-
-    private static final Logger log = LoggerFactory.getLogger(GetJsonPayload.class);
 
     @Override
     public BValue[] execute(Context ctx) {
-        log.info("GetJsonPayload Native Function Invoked.");
         // Accessing First Parameter Value.
         MessageValue msg = (MessageValue) getArgument(ctx, 0).getBValue();
         
