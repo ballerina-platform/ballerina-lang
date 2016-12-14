@@ -19,6 +19,7 @@ package org.wso2.ballerina.core.interpreter;
 
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.values.BValue;
+import org.wso2.ballerina.core.runtime.core.BalCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 import java.util.HashMap;
@@ -37,6 +38,9 @@ public class Context {
     private ControlStack controlStack;
 
     private CarbonMessage cMsg;
+
+    private BalCallback balCallback;
+
 
     protected Map<String, Object> properties = new HashMap();
 
@@ -96,4 +100,11 @@ public class Context {
         properties.put(key, value);
     }
 
+    public BalCallback getBalCallback() {
+        return balCallback;
+    }
+
+    public void setBalCallback(BalCallback balCallback) {
+        this.balCallback = balCallback;
+    }
 }
