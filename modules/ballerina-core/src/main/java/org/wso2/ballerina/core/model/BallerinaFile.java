@@ -43,11 +43,31 @@ public class BallerinaFile {
     private String packageName;
     private List<Import> imports = new ArrayList<>();
     private List<Service> services = new ArrayList<>();
+    private List<Connector> connectorList = new ArrayList<>();
     private Map<String, Function> functions = new HashMap<>();
     private List<StructType> types = new ArrayList<>();
     //TODO: add TypeConverters
     //TODO: add constants
 
+    public BallerinaFile() {
+
+    }
+
+    private BallerinaFile(
+            String packageName,
+            List<Import> importList,
+            List<Service> serviceList,
+            List<Connector> connectorList,
+            Map<String, Function> functionMap,
+            List<StructType> sTypeList) {
+        this.packageName = packageName;
+        this.imports = importList;
+        this.services = serviceList;
+        this.connectorList = connectorList;
+        this.functions = functionMap;
+        this.types = sTypeList;
+
+    }
 
     /**
      * Get the package name which file belongs to.
@@ -145,7 +165,7 @@ public class BallerinaFile {
      * @param function a Function to be added to the File
      */
     public void addFunction(Function function) {
-        functions.put(function.getFunctionName().getName(), function);
+        functions.put(function.getName(), function);
     }
 
     /**
@@ -174,6 +194,57 @@ public class BallerinaFile {
      */
     public void addType(StructType type) {
         types.add(type);
+    }
+
+    /**
+     * Builds a BFile which represents physical ballerina source file
+     */
+    public static class BFileBuilder {
+
+        private String packageName;
+        private List<Import> importList = new ArrayList<>();
+        private List<Service> serviceList = new ArrayList<>();
+        private List<Connector> connectorList = new ArrayList<>();
+        private Map<String, Function> functionList = new HashMap<>();
+        private List<StructType> sTypeList = new ArrayList<>();
+
+        public BFileBuilder() {
+
+        }
+
+        public void setPkgName(String packageName) {
+            this.packageName = packageName;
+        }
+
+        public void addFunction(BallerinaFunction function) {
+            this.functionList.put(function.getName(), function);
+        }
+
+        public void addService(Service service) {
+            this.serviceList.add(service);
+        }
+
+        public void addConnector(Connector connector) {
+            this.connectorList.add(connector);
+        }
+
+        public void addImportPackage(Import importPkg) {
+            this.importList.add(importPkg);
+        }
+
+        public void addStructType(StructType structType) {
+            this.sTypeList.add(structType);
+        }
+
+        public BallerinaFile build() {
+            return new BallerinaFile(
+                    packageName,
+                    importList,
+                    serviceList,
+                    connectorList,
+                    functionList,
+                    sTypeList);
+        }
     }
 
 }

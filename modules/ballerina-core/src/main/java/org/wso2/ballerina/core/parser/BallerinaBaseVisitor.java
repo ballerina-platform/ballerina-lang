@@ -1,6 +1,7 @@
 // Generated from Ballerina.g4 by ANTLR 4.5.3
 package org.wso2.ballerina.core.parser;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
+import org.wso2.ballerina.core.interpreter.SymbolTable;
 
 /**
  * This class provides an empty implementation of {@link BallerinaVisitor},
@@ -11,6 +12,13 @@ import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
  * operations with no return type.
  */
 public class BallerinaBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements BallerinaVisitor<T> {
+	/**
+	 * Base method for retrieving the symbol table
+	 * @return symbol table for this instance
+     */
+	public SymbolTable getSymbolTable() {
+		return new SymbolTable(null);
+	}
 	/**
 	 * {@inheritDoc}
 	 *
@@ -543,6 +551,14 @@ public class BallerinaBaseVisitor<T> extends AbstractParseTreeVisitor<T> impleme
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
 	@Override public T visitExpressionList(BallerinaParser.ExpressionListContext ctx) { return visitChildren(ctx); }
+	/**
+	 * Visit a parse tree produced by {@link BallerinaParser#expression}.
+	 *
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	@Override
+	public T visitExpression(BallerinaParser.ExpressionContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *

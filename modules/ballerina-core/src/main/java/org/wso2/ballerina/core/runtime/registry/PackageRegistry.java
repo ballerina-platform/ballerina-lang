@@ -18,8 +18,8 @@
 
 package org.wso2.ballerina.core.runtime.registry;
 
-import org.wso2.ballerina.core.model.NativeFunction;
 import org.wso2.ballerina.core.model.Package;
+import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 
 import java.util.HashMap;
 
@@ -54,7 +54,7 @@ public class PackageRegistry {
      *
      * @param function AbstractNativeFunction instance.
      */
-    public void registerNativeFunction(NativeFunction function) {
+    public void registerNativeFunction(AbstractNativeFunction function) {
         Package aPackage = packages.get(function.getPackageName());
         if (aPackage == null) {
             aPackage = new Package(function.getPackageName());
@@ -72,7 +72,7 @@ public class PackageRegistry {
      *
      * @param function AbstractNativeFunction instance.
      */
-    public void unregisterNativeFunctions(NativeFunction function) {
+    public void unregisterNativeFunctions(AbstractNativeFunction function) {
         Package aPackage = packages.get(function.getPackageName());
         if (aPackage == null) {
             // Nothing to do.

@@ -22,8 +22,9 @@ import org.wso2.ballerina.core.interpreter.ControlStack;
 import org.wso2.ballerina.core.interpreter.StackFrame;
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.Function;
-import org.wso2.ballerina.core.model.Identifier;
+import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.Parameter;
+import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.VariableDcl;
 import org.wso2.ballerina.core.model.values.BValueRef;
 import org.wso2.ballerina.core.model.values.ValueFactory;
@@ -37,11 +38,11 @@ import java.util.List;
  */
 public class FunctionInvocationExpr extends AbstractExpression {
 
-    private Identifier functionName;
+    private SymbolName functionName;
     private List<Expression> expressionList;
     private Function calleeFunction;
 
-    public FunctionInvocationExpr(Identifier functionName, List<Expression> expressionList) {
+    public FunctionInvocationExpr(SymbolName functionName, List<Expression> expressionList) {
         this.functionName = functionName;
         this.expressionList = expressionList;
     }
@@ -92,5 +93,10 @@ public class FunctionInvocationExpr extends AbstractExpression {
         calleeFunction.interpret(ctx);
         controlStack.popFrame();
         return returnValue;
+    }
+
+    @Override
+    public void visit(NodeVisitor visitor) {
+        visitor.visit(this);
     }
 }

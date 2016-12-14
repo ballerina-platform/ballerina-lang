@@ -17,8 +17,12 @@
 */
 package org.wso2.ballerina.core.interpreter;
 
-import org.wso2.ballerina.core.model.Identifier;
+import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.values.BValue;
+import org.wso2.carbon.messaging.CarbonMessage;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * {@code Context} represents the runtime state of a program.
@@ -27,10 +31,22 @@ import org.wso2.ballerina.core.model.values.BValue;
  */
 public class Context {
 
+    //TODO: Rename this into BContext and move this to runtime package
+
     private SymbolTable table;
     private ControlStack controlStack;
 
+    private CarbonMessage cMsg;
+
+    protected Map<String, Object> properties = new HashMap();
+
     public Context() {
+        table = new SymbolTable(null);
+        controlStack = new ControlStack();
+    }
+
+    public Context(CarbonMessage cMsg) {
+        this.cMsg = cMsg;
         table = new SymbolTable(null);
         controlStack = new ControlStack();
     }
@@ -39,11 +55,11 @@ public class Context {
         return controlStack;
     }
 
-    public BValue lookup(Identifier id) {
+    public BValue lookup(SymbolName id) {
         return table.get(id);
     }
 
-    public void put(Identifier id, BValue value) {
+    public void put(SymbolName id, BValue value) {
         table.put(id, value);
     }
 
@@ -55,4 +71,29 @@ public class Context {
     public void switchToParent() {
         table = table.getParent();
     }
+
+    public CarbonMessage getCarbonMessage() {
+        return cMsg;
+    }
+
+    public void setCarbonMessage(CarbonMessage cMsg) {
+        this.cMsg = cMsg;
+    }
+
+    public Object getProperty(String key) {
+        return properties.get(key);
+    }
+
+    public void removeProperty(String key) {
+        properties.remove(key);
+    }
+
+    public Map<String, Object> getProperties() {
+        return properties;
+    }
+
+    public void setProperty(String key, Object value) {
+        properties.put(key, value);
+    }
+
 }

@@ -17,13 +17,16 @@
  */
 package org.wso2.ballerina.core.parser.visitor;
 
+import org.wso2.ballerina.core.model.Parameter;
+import org.wso2.ballerina.core.model.SymbolName;
+import org.wso2.ballerina.core.model.types.Type;
 import org.wso2.ballerina.core.parser.BallerinaBaseVisitor;
 import org.wso2.ballerina.core.parser.BallerinaParser;
 
 /**
- * Visitor for literal expression
+ * visitor for parameter
  */
-public class LiteralExpressionVisitor extends BallerinaBaseVisitor {
+public class ParameterVisitor extends BallerinaBaseVisitor {
     /**
      * {@inheritDoc}
      * <p>
@@ -33,7 +36,8 @@ public class LiteralExpressionVisitor extends BallerinaBaseVisitor {
      * @param ctx
      */
     @Override
-    public Object visitLiteralExpression(BallerinaParser.LiteralExpressionContext ctx) {
-        return super.visitLiteralExpression(ctx);
+    public Object visitParameter(BallerinaParser.ParameterContext ctx) {
+        TypeNameVisitor typeNameVisitor = new TypeNameVisitor();
+        return new Parameter((Type) ctx.typeName().accept(typeNameVisitor), new SymbolName(ctx.Identifier().getText()));
     }
 }

@@ -17,6 +17,10 @@
  */
 package org.wso2.ballerina.core.parser.visitor;
 
+import org.wso2.ballerina.core.interpreter.SymbolTable;
+import org.wso2.ballerina.core.model.SymbolName;
+import org.wso2.ballerina.core.model.VariableDcl;
+import org.wso2.ballerina.core.model.types.Type;
 import org.wso2.ballerina.core.parser.BallerinaBaseVisitor;
 import org.wso2.ballerina.core.parser.BallerinaParser;
 
@@ -24,6 +28,11 @@ import org.wso2.ballerina.core.parser.BallerinaParser;
  * Visitor for variable declaration
  */
 public class VariableDeclarationVisitor extends BallerinaBaseVisitor {
+    private SymbolTable variableDeclarationSymbolTable;
+
+    public VariableDeclarationVisitor(SymbolTable parentSymbolTable) {
+        this.variableDeclarationSymbolTable = new SymbolTable(parentSymbolTable);
+    }
     /**
      * {@inheritDoc}
      * <p>
@@ -34,6 +43,18 @@ public class VariableDeclarationVisitor extends BallerinaBaseVisitor {
      */
     @Override
     public Object visitVariableDeclaration(BallerinaParser.VariableDeclarationContext ctx) {
-        return super.visitVariableDeclaration(ctx);
+        TypeNameVisitor typeNameVisitor = new TypeNameVisitor();
+        return new VariableDcl((Type) ctx.typeName().accept(typeNameVisitor),
+                new SymbolName(ctx.Identifier().getText()), null);
+    }
+
+    /**
+     * Base method for retrieving the symbol table
+     *
+     * @return symbol table for this instance
+     */
+    @Override
+    public SymbolTable getSymbolTable() {
+        return this.variableDeclarationSymbolTable;
     }
 }

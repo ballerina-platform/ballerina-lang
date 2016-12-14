@@ -13,11 +13,10 @@ import ballerina.net.http;
 service PassthroughService {
 
     // circuit breaker scenario
-
+    int a;
     resource passthrough (message m) {
         //...
-
-
-        reply m;
+    a = 10;
+    reply m;
     }
 }

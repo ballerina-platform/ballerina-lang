@@ -17,7 +17,8 @@
  */
 package org.wso2.ballerina.core.parser.visitor;
 
-import org.wso2.ballerina.core.model.Identifier;
+import org.wso2.ballerina.core.interpreter.SymbolTable;
+import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.parser.BallerinaBaseVisitor;
 import org.wso2.ballerina.core.parser.BallerinaParser;
 
@@ -25,6 +26,11 @@ import org.wso2.ballerina.core.parser.BallerinaParser;
  * Visitor for variable accessor
  */
 public class VariableAccessorVisitor extends BallerinaBaseVisitor {
+    private SymbolTable variableAccessorSymbolTable;
+
+    public VariableAccessorVisitor(SymbolTable parentSymbolTable) {
+        this.variableAccessorSymbolTable = new SymbolTable(parentSymbolTable);
+    }
 
     /**
      * {@inheritDoc}
@@ -36,9 +42,17 @@ public class VariableAccessorVisitor extends BallerinaBaseVisitor {
      */
     @Override
     public Object visitVariableReferenceExpression(BallerinaParser.VariableReferenceExpressionContext ctx) {
-        Identifier identifier = new Identifier(ctx.getText());
-        return identifier;
+        SymbolName symbolName = new SymbolName(ctx.getText());
+        return symbolName;
     }
 
-
+    /**
+     * Base method for retrieving the symbol table
+     *
+     * @return symbol table for this instance
+     */
+    @Override
+    public SymbolTable getSymbolTable() {
+        return this.variableAccessorSymbolTable;
+    }
 }

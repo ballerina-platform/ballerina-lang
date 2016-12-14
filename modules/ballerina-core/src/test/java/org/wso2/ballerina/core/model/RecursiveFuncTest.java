@@ -27,7 +27,7 @@ import org.wso2.ballerina.core.model.expressions.BasicLiteral;
 import org.wso2.ballerina.core.model.expressions.Expression;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.LessEqualExpression;
-import org.wso2.ballerina.core.model.expressions.SubstractExpression;
+import org.wso2.ballerina.core.model.expressions.SubtractExpression;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.statements.IfElseStmt;
@@ -61,7 +61,7 @@ public class RecursiveFuncTest {
      */
     public BallerinaFunction getfibonacciFunc() {
         // BallerinaFunction parameters
-        Parameter paramN = new Parameter(new LongType(), new Identifier("arg2"));
+        Parameter paramN = new Parameter(new LongType(), new SymbolName("arg2"));
         Parameter[] parameters = new Parameter[1];
         parameters[0] = paramN;
 
@@ -70,7 +70,7 @@ public class RecursiveFuncTest {
         returnTypes[0] = new LongType();
 
         // Variable reference expressions
-        VariableRefExpr varRefExprN = new VariableRefExpr(new Identifier("n"));
+        VariableRefExpr varRefExprN = new VariableRefExpr(new SymbolName("n"));
         varRefExprN.setEvalFunction(VariableRefExpr.createGetParamValueFunc(0));
 
         // If else statement
@@ -90,18 +90,18 @@ public class RecursiveFuncTest {
 
         // Else body
         // fibonacci(n-1)
-        SubstractExpression subExpr1 = new SubstractExpression(varRefExprN, intLiteral1);
-        subExpr1.setEvalFunc(SubstractExpression.SUB_LONG_FUNC);
+        SubtractExpression subExpr1 = new SubtractExpression(varRefExprN, intLiteral1);
+        subExpr1.setEvalFunc(SubtractExpression.SUB_LONG_FUNC);
         List<Expression> fInvoExprs = new ArrayList<>(1);
         fInvoExprs.add(subExpr1);
-        FunctionInvocationExpr fInvoExpr1 = new FunctionInvocationExpr(new Identifier("fibonacci"), fInvoExprs);
+        FunctionInvocationExpr fInvoExpr1 = new FunctionInvocationExpr(new SymbolName("fibonacci"), fInvoExprs);
 
         // fibonacci(n-2)
-        SubstractExpression subExpr2 = new SubstractExpression(varRefExprN, intLiteral2);
-        subExpr2.setEvalFunc(SubstractExpression.SUB_LONG_FUNC);
+        SubtractExpression subExpr2 = new SubtractExpression(varRefExprN, intLiteral2);
+        subExpr2.setEvalFunc(SubtractExpression.SUB_LONG_FUNC);
         fInvoExprs = new ArrayList<>(1);
         fInvoExprs.add(subExpr2);
-        FunctionInvocationExpr fInvoExpr2 = new FunctionInvocationExpr(new Identifier("fibonacci"), fInvoExprs);
+        FunctionInvocationExpr fInvoExpr2 = new FunctionInvocationExpr(new SymbolName("fibonacci"), fInvoExprs);
 
         // fibonacci(n-1) + fibonacci(n-2)
         AddExpression addExpression = new AddExpression(fInvoExpr1, fInvoExpr2);
@@ -123,7 +123,7 @@ public class RecursiveFuncTest {
         BlockStmt funcBody = new BlockStmt(funcBodyStmts);
 
         // Create function
-        BallerinaFunction function = new BallerinaFunction(new Identifier("fibonacci"), false, null, parameters,
+        BallerinaFunction function = new BallerinaFunction(new SymbolName("fibonacci"), false, null, parameters,
                 returnTypes, null, new VariableDcl[0], null, funcBody);
 
         fInvoExpr1.setFunction(function);
@@ -142,13 +142,13 @@ public class RecursiveFuncTest {
         controlStack.pushFrame(stackFrame);
 
         // BallerinaFunction invocation
-        VariableRefExpr varRefExprA = new VariableRefExpr(new Identifier("argA"));
+        VariableRefExpr varRefExprA = new VariableRefExpr(new SymbolName("argA"));
         varRefExprA.setEvalFunction(VariableRefExpr.createGetParamValueFunc(0));
 
         List<Expression> expressions = new ArrayList<>(1);
         expressions.add(varRefExprA);
 
-        FunctionInvocationExpr invocationExpr = new FunctionInvocationExpr(new Identifier("fibonacci"), expressions);
+        FunctionInvocationExpr invocationExpr = new FunctionInvocationExpr(new SymbolName("fibonacci"), expressions);
         invocationExpr.setFunction(getfibonacciFunc());
 
 

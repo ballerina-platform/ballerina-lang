@@ -26,24 +26,42 @@ import java.util.List;
  * Ballerina includes a set of standard Connectors.
  * <p>
  * A Connector is defined as follows:
- *
+ * <p>
  * [ConnectorAnnotations]
  * connector ConnectorName ([ConnectorParamAnnotations]TypeName VariableName[(, TypeName VariableName)*]) {
- *      ConnectionDeclaration;*
- *      VariableDeclaration;*
- *      ActionDefinition;+
+ * ConnectionDeclaration;*
+ * VariableDeclaration;*
+ * ActionDefinition;+
  * }
  *
  * @since 1.0.0
  */
 @SuppressWarnings("unused")
-public class Connector {
+public class Connector implements Node {
 
-    private List<Annotation> annotations;
+    private List<Annotation> annotationList;
     private List<Parameter> arguments;
-    private List<Connection> connections;
-    private List<VariableDcl> variables;
-    private List<Action> actions;
+    private List<ConnectorDcl> connectorDclList;
+    private List<VariableDcl> variableDclList;
+    private List<Action> actionList;
+
+    private SymbolName name;
+    private Annotation[] annotations;
+    private ConnectorDcl[] connectorDcls;
+    private VariableDcl[] variableDcls;
+    private Action[] actions;
+
+    public Connector(SymbolName serviceName,
+                     Annotation[] annotations,
+                     ConnectorDcl[] connectorDcls,
+                     VariableDcl[] variableDcls,
+                     Action[] actions) {
+        this.name = serviceName;
+        this.annotations = annotations;
+        this.connectorDcls = connectorDcls;
+        this.variableDcls = variableDcls;
+        this.actions = actions;
+    }
 
     /**
      * Get all the Annotations associated with a Connector
@@ -51,7 +69,7 @@ public class Connector {
      * @return list of Annotations
      */
     public List<Annotation> getAnnotations() {
-        return annotations;
+        return annotationList;
     }
 
     /**
@@ -60,7 +78,7 @@ public class Connector {
      * @param annotations list of Annotations
      */
     public void setAnnotations(List<Annotation> annotations) {
-        this.annotations = annotations;
+        this.annotationList = annotations;
     }
 
     /**
@@ -69,10 +87,10 @@ public class Connector {
      * @param annotation Annotation to be added
      */
     public void addAnnotation(Annotation annotation) {
-        if (annotations == null) {
-            annotations = new ArrayList<Annotation>();
+        if (annotationList == null) {
+            annotationList = new ArrayList<Annotation>();
         }
-        annotations.add(annotation);
+        annotationList.add(annotation);
     }
 
     /**
@@ -110,29 +128,29 @@ public class Connector {
      *
      * @return list of all the Connections belongs to a Service
      */
-    public List<Connection> getConnections() {
-        return connections;
+    public List<ConnectorDcl> getConnectorDcls() {
+        return connectorDclList;
     }
 
     /**
      * Assign connections to the Connector
      *
-     * @param connections list of connections to be assigned to a Connector
+     * @param connectorDcls list of connections to be assigned to a Connector
      */
-    public void setConnections(List<Connection> connections) {
-        this.connections = connections;
+    public void setConnectorDcls(List<ConnectorDcl> connectorDcls) {
+        this.connectorDclList = connectorDcls;
     }
 
     /**
      * Add a {@code Connection} to the Connector
      *
-     * @param connection Connection to be added to the Connector
+     * @param connectorDcl Connection to be added to the Connector
      */
-    public void addConnection(Connection connection) {
-        if (connections == null) {
-            connections = new ArrayList<Connection>();
+    public void addConnection(ConnectorDcl connectorDcl) {
+        if (connectorDclList == null) {
+            connectorDclList = new ArrayList<ConnectorDcl>();
         }
-        connections.add(connection);
+        connectorDclList.add(connectorDcl);
     }
 
     /**
@@ -141,7 +159,7 @@ public class Connector {
      * @return list of all Connector scoped variables
      */
     public List<VariableDcl> getVariables() {
-        return variables;
+        return variableDclList;
     }
 
     /**
@@ -150,7 +168,7 @@ public class Connector {
      * @param variables list of variables
      */
     public void setVariables(List<VariableDcl> variables) {
-        this.variables = variables;
+        this.variableDclList = variables;
     }
 
     /**
@@ -159,10 +177,10 @@ public class Connector {
      * @param variable variable to be added to the Connector
      */
     public void addVariable(VariableDcl variable) {
-        if (variables == null) {
-            variables = new ArrayList<VariableDcl>();
+        if (variableDclList == null) {
+            variableDclList = new ArrayList<VariableDcl>();
         }
-        variables.add(variable);
+        variableDclList.add(variable);
     }
 
     /**
@@ -171,7 +189,7 @@ public class Connector {
      * @return list of all Actions
      */
     public List<Action> getActions() {
-        return actions;
+        return actionList;
     }
 
     /**
@@ -180,7 +198,7 @@ public class Connector {
      * @param actions list of Actions
      */
     public void setActions(List<Action> actions) {
-        this.actions = actions;
+        this.actionList = actions;
     }
 
     /**
@@ -189,10 +207,14 @@ public class Connector {
      * @param action Action to be added to the Connector
      */
     public void addAction(Action action) {
-        if (actions == null) {
-            actions = new ArrayList<Action>();
+        if (actionList == null) {
+            actionList = new ArrayList<Action>();
         }
-        actions.add(action);
+        actionList.add(action);
     }
 
+    @Override
+    public void visit(NodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

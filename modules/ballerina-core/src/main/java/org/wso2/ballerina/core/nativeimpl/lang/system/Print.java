@@ -19,7 +19,8 @@ package org.wso2.ballerina.core.nativeimpl.lang.system;
 
 import org.osgi.service.component.annotations.Component;
 import org.wso2.ballerina.core.interpreter.Context;
-import org.wso2.ballerina.core.model.types.StringType;
+import org.wso2.ballerina.core.model.types.TypeEnum;
+import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
@@ -30,7 +31,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 @BallerinaFunction(
         packageName = "ballerina.lang.system",
         functionName = "print",
-        args = {@Argument(name = "string", type = StringType.class)},
+        args = {@Argument(name = "string", type = TypeEnum.STRING)},
         isPublic = true
 )
 @Component(
@@ -38,10 +39,11 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
         immediate = true,
         service = AbstractNativeFunction.class
 )
-public class Print extends AbstractNativeFunction  {
+public class Print extends AbstractNativeFunction {
 
-    public void interpret(Context ctx) {
-        String param1 = ctx.getControlStack().getCurrentFrame().parameters[0].getString();
+    public BValue[] execute(Context ctx) {
+        String param1 = getArgument(ctx, 0).getString();
         System.out.print(param1);
+        return VOID_RETURN;
     }
 }

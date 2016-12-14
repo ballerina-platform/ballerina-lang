@@ -18,9 +18,9 @@
 
 package org.wso2.ballerina.core.model;
 
+import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.runtime.core.BalCallback;
-import org.wso2.ballerina.core.runtime.core.BalContext;
 import org.wso2.ballerina.core.runtime.core.Executable;
 
 import java.util.ArrayList;
@@ -42,9 +42,9 @@ import java.util.List;
  *  @since 1.0.0
  */
 @SuppressWarnings("unused")
-public class Worker implements Executable {
+public class Worker implements Executable, Node {
 
-    private List<Connection> connections;
+    private List<ConnectorDcl> connectorDcls;
     private List<VariableDcl> variables;
     private List<Statement> statements;
 
@@ -60,29 +60,29 @@ public class Worker implements Executable {
      *
      * @return list of all the Connections belongs to the Worker
      */
-    public List<Connection> getConnections() {
-        return connections;
+    public List<ConnectorDcl> getConnectorDcls() {
+        return connectorDcls;
     }
 
     /**
      * Assign connections to the Worker
      *
-     * @param connections list of connections to be assigned to the Worker
+     * @param connectorDcls list of connections to be assigned to the Worker
      */
-    public void setConnections(List<Connection> connections) {
-        this.connections = connections;
+    public void setConnectorDcls(List<ConnectorDcl> connectorDcls) {
+        this.connectorDcls = connectorDcls;
     }
 
     /**
      * Add a {@code Connection} to the Worker
      *
-     * @param connection Connection to be added to the Worker
+     * @param connectorDcl Connection to be added to the Worker
      */
-    public void addConnection(Connection connection) {
-        if (connections == null) {
-            connections = new ArrayList<Connection>();
+    public void addConnection(ConnectorDcl connectorDcl) {
+        if (connectorDcls == null) {
+            connectorDcls = new ArrayList<ConnectorDcl>();
         }
-        connections.add(connection);
+        connectorDcls.add(connectorDcl);
     }
 
     /**
@@ -145,14 +145,24 @@ public class Worker implements Executable {
         statements.add(statement);
     }
 
-    public boolean execute(BalContext context, BalCallback callback) {
+    public boolean execute(Context context, BalCallback callback) {
 
         //Execute statements from here
         if (statements == null || statements.size() == 0) {
             return true; // nothing to execute
+        } else {
+            for (Statement statement : statements) {
+                statement.interpret(context);
+            }
+            return true;
         }
 
-        return false;
+//        return false;
 
+    }
+
+    @Override
+    public void visit(NodeVisitor visitor) {
+        visitor.visit(this);
     }
 }

@@ -17,7 +17,7 @@
 */
 package org.wso2.ballerina.core.nativeimpl.annotations;
 
-import org.wso2.ballerina.core.model.types.Type;
+import org.wso2.ballerina.core.model.types.TypeEnum;
 
 /**
  * Represents an Argument of a Native Ballerina Function or Action.
@@ -26,6 +26,6 @@ public @interface Argument {
 
     String name();
 
-    Class<? extends Type> type();
+    TypeEnum type();
 
 }

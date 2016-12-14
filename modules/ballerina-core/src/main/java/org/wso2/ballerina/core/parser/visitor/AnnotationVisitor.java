@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerina.core.parser.visitor;
 
+import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.parser.BallerinaBaseVisitor;
 import org.wso2.ballerina.core.parser.BallerinaParser;
 
@@ -24,6 +25,7 @@ import org.wso2.ballerina.core.parser.BallerinaParser;
  * Visitor for annotations
  */
 public class AnnotationVisitor extends BallerinaBaseVisitor {
+
     /**
      * {@inheritDoc}
      * <p>
@@ -34,7 +36,13 @@ public class AnnotationVisitor extends BallerinaBaseVisitor {
      */
     @Override
     public Object visitAnnotation(BallerinaParser.AnnotationContext ctx) {
-        return super.visitAnnotation(ctx);
+        //todo implement complex annotations later
+        // element value can be optional if there is only one annotation
+        if (ctx.elementValue() != null) {
+            return new Annotation(ctx.annotationName().getText(), ctx.elementValue().getText());
+        } else {
+            return new Annotation(ctx.annotationName().getText());
+        }
     }
 
     /**

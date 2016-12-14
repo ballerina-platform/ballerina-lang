@@ -18,11 +18,20 @@
 
 package org.wso2.ballerina.core.runtime.deployer;
 
+import org.antlr.v4.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.CommonTokenStream;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerina.core.model.Application;
+import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.Package;
+import org.wso2.ballerina.core.parser.BallerinaBaseListenerImpl;
+import org.wso2.ballerina.core.parser.BallerinaLexer;
+import org.wso2.ballerina.core.parser.BallerinaParser;
+import org.wso2.ballerina.core.runtime.registry.ApplicationRegistry;
 import org.wso2.carbon.deployment.engine.Artifact;
 import org.wso2.carbon.deployment.engine.ArtifactType;
 import org.wso2.carbon.deployment.engine.Deployer;
@@ -96,7 +105,32 @@ public class BalDeployer implements Deployer {
             inputStream = new FileInputStream(file);
 
             if (file.getName().endsWith(FILE_EXTENSION)) {
-                //TODO: Create object model and register application from here
+                ANTLRInputStream antlrInputStream = new ANTLRInputStream(inputStream);
+
+                BallerinaLexer ballerinaLexer = new BallerinaLexer(antlrInputStream);
+                CommonTokenStream ballerinaToken = new CommonTokenStream(ballerinaLexer);
+
+                BallerinaParser ballerinaParser = new BallerinaParser(ballerinaToken);
+
+//                // Visitor based approach
+//                CompilationUnitVisitor ballerinaBaseVisitor = new CompilationUnitVisitor();
+//                BallerinaFile balFile = (BallerinaFile) ballerinaBaseVisitor.visit(ballerinaParser.compilationUnit());
+
+                // Listener based approach
+                BallerinaBaseListenerImpl ballerinaBaseListener = new BallerinaBaseListenerImpl();
+                ballerinaParser.addParseListener(ballerinaBaseListener);
+                ballerinaParser.compilationUnit();
+                BallerinaFile balFile = ballerinaBaseListener.balFile;
+
+                Application defaultApp = ApplicationRegistry.getInstance().getDefaultApplication();
+                Package aPackage = defaultApp.getPackage(balFile.getPackageName());
+                if (aPackage == null) {
+                    aPackage = new Package(balFile.getPackageName());
+                    defaultApp.addPackage(aPackage);
+                }
+                aPackage.addFiles(balFile);
+                ApplicationRegistry.getInstance().updatePackage(aPackage);
+
                 log.info("Deploying ballerina file : " + file.getName());
             }
         } catch (IOException e) {

@@ -22,14 +22,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Annotation;
-import org.wso2.ballerina.core.model.Identifier;
-import org.wso2.ballerina.core.model.NativeFunction;
+import org.wso2.ballerina.core.model.Const;
+import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.model.Parameter;
+import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.types.Type;
+import org.wso2.ballerina.core.model.types.TypeC;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BValueRef;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
+import org.wso2.ballerina.core.nativeimpl.annotations.Utils;
 import org.wso2.ballerina.core.nativeimpl.exceptions.ArgumentOutOfRangeException;
+import org.wso2.ballerina.core.nativeimpl.exceptions.MalformedEntryException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,21 +42,24 @@ import java.util.List;
 /**
  * {@code {@link AbstractNativeFunction}} represents a Abstract implementation of Native Ballerina Function.
  */
-public abstract class AbstractNativeFunction implements NativeFunction {
+public abstract class AbstractNativeFunction implements NativeConstruct, Function {
 
+    /* Void RETURN */
+    public static final BValue[] VOID_RETURN = new BValue[0];
     private static final Logger log = LoggerFactory.getLogger(AbstractNativeFunction.class);
-
     private String packageName, functionName;
-    private Identifier identifier;
+    private SymbolName symbolName;
     private List<Annotation> annotations;
     private List<Parameter> parameters;
     private List<Type> returnTypes;
     private boolean isPublicFunction;
+    private List<Const> constants;
 
     public AbstractNativeFunction() {
         parameters = new ArrayList<>();
         returnTypes = new ArrayList<>();
         annotations = new ArrayList<>();
+        constants = new ArrayList<>();
         buildModel();
     }
 
@@ -63,27 +70,39 @@ public abstract class AbstractNativeFunction implements NativeFunction {
         BallerinaFunction function = this.getClass().getAnnotation(BallerinaFunction.class);
         packageName = function.packageName();
         functionName = function.functionName();
-        identifier = new Identifier(functionName);
+        symbolName = new SymbolName(functionName);
         isPublicFunction = function.isPublic();
         Arrays.stream(function.args()).
                 forEach(argument -> {
                     try {
-                        parameters.add(new Parameter(argument.type().newInstance()
-                                , new Identifier(argument.name())));
-                    } catch (InstantiationException | IllegalAccessException e) {
+                        parameters.add(new Parameter(TypeC.getType(argument.type().getName())
+                                , new SymbolName(argument.name())));
+                    } catch (RuntimeException e) {
+                        // TODO: Fix this when TypeC.getType method is improved.
                         log.warn("Error while processing Parameters for Native ballerina function {}:{}.",
                                 packageName, functionName, e);
                     }
                 });
         Arrays.stream(function.returnType()).forEach(
-                aClass -> {
+                returnType -> {
                     try {
-                        returnTypes.add((Type) aClass.newInstance());
-                    } catch (InstantiationException | IllegalAccessException e) {
+                        returnTypes.add(TypeC.getType(returnType.getName()));
+                    } catch (RuntimeException e) {
+                        // TODO: Fix this when TypeC.getType method is improved.
                         log.warn("Error while processing ReturnTypes for Native ballerina function {}:{}.",
                                 packageName, functionName, e);
                     }
                 });
+        Arrays.stream(function.consts()).forEach(
+                constant -> {
+                    try {
+                        constants.add(Utils.getConst(constant));
+                    } catch (MalformedEntryException e) {
+                        log.warn("Error while processing pre defined const {} for Native ballerina function {}:{}.",
+                                constant.identifier(), packageName, functionName, e);
+                    }
+                }
+        );
         // TODO: Handle Ballerina Annotations.
     }
 
@@ -93,12 +112,11 @@ public abstract class AbstractNativeFunction implements NativeFunction {
 
     @Override
     public String getName() {
-        return identifier.getName();
+        return symbolName.getName();
     }
 
-    @Override
-    public Identifier getFunctionName() {
-        return identifier;
+    public SymbolName getSymbolName() {
+        return symbolName;
     }
 
     @Override
@@ -117,27 +135,13 @@ public abstract class AbstractNativeFunction implements NativeFunction {
     }
 
     /**
-     * Set ReturnTypes of the function.
-     *
-     * @param returnTypes Return types of the function.
-     */
-    public void setReturnTypes(Context context, BValue... returnTypes) {
-        // TODO : Support for multiple return values.
-        if (returnTypes == null || this.returnTypes.size() == 0) {
-            context.getControlStack().getCurrentFrame().returnValue = null;
-            return;
-        }
-        context.getControlStack().getCurrentFrame().returnValue.setBValue(returnTypes[0]);
-    }
-
-    /**
-     * Get Argument value.
+     * Get Argument by index.
      *
      * @param context current {@code {@link Context}} instance.
      * @param index   index of the parameter.
      * @return BValue;
      */
-    public BValueRef getArgumentValue(Context context, int index) {
+    public BValueRef getArgument(Context context, int index) {
         if (index > -1 && index < parameters.size()) {
             return context.getControlStack().getCurrentFrame().parameters[index];
         }
@@ -148,4 +152,39 @@ public abstract class AbstractNativeFunction implements NativeFunction {
     public boolean isPublic() {
         return isPublicFunction;
     }
+
+    @Override
+    public void interpret(Context context) {
+        BValue[] returnValues = execute(context);
+        if (returnValues == null || returnValues.length == 0 || this.returnTypes.size() == 0) {
+            context.getControlStack().getCurrentFrame().returnValue = null;
+            return;
+        }
+        // TODO : Support for multiple return values.
+        context.getControlStack().getCurrentFrame().returnValue.setBValue(returnValues[0]);
+    }
+
+    /**
+     * Where Native Function logic is implemented.
+     *
+     * @param context Current Context instance
+     * @return Native function return BValue array
+     */
+    public abstract BValue[] execute(Context context);
+
+    /**
+     * Util method to construct BValue array.
+     *
+     * @param values
+     * @return
+     */
+    public BValue[] getBValues(BValue... values) {
+        return values;
+    }
+
+
+    public Const[] getFunctionConstats() {
+        return constants.toArray(new Const[constants.size()]);
+    }
+
 }

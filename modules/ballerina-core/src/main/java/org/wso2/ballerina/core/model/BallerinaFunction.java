@@ -38,13 +38,14 @@ import org.wso2.ballerina.core.model.types.Type;
  *
  * @since 1.0.0
  */
-public class BallerinaFunction implements Function {
+public class BallerinaFunction implements Function, Node {
 
-    private Identifier functionName;
+    // TODO: Rename this to BFunction after M1.
+    private SymbolName functionName;
 
     private Annotation[] annotations;
     private Parameter[] parameters;
-    private Connection[] connections;
+    private ConnectorDcl[] connectorDcls;
     private VariableDcl[] variableDcls;
     private Worker[] workers;
 
@@ -53,12 +54,12 @@ public class BallerinaFunction implements Function {
 
     private boolean publicFunc;
 
-    public BallerinaFunction(Identifier name,
+    public BallerinaFunction(SymbolName name,
                              Boolean isPublic,
                              Annotation[] annotations,
                              Parameter[] parameters,
                              Type[] returnTypes,
-                             Connection[] connections,
+                             ConnectorDcl[] connectorDcls,
                              VariableDcl[] variableDcls,
                              Worker[] workers,
                              BlockStmt functionBody) {
@@ -68,7 +69,7 @@ public class BallerinaFunction implements Function {
         this.annotations = annotations;
         this.parameters = parameters;
         this.returnTypes = returnTypes;
-        this.connections = connections;
+        this.connectorDcls = connectorDcls;
         this.variableDcls = variableDcls;
         this.workers = workers;
         this.functionBody = functionBody;
@@ -83,7 +84,7 @@ public class BallerinaFunction implements Function {
      *
      * @return function identifier
      */
-    public Identifier getFunctionName() {
+    public SymbolName getSymbolName() {
         return functionName;
     }
 
@@ -111,8 +112,8 @@ public class BallerinaFunction implements Function {
      *
      * @return list of all the Connections belongs to a BallerinaFunction
      */
-    public Connection[] getConnections() {
-        return connections;
+    public ConnectorDcl[] getConnectorDcls() {
+        return connectorDcls;
     }
 
 
@@ -154,6 +155,10 @@ public class BallerinaFunction implements Function {
         publicFunc = true;
     }
 
+    public BlockStmt getFunctionBody() {
+        return this.functionBody;
+    }
+
     /**
      * TODO This is the basic implementation of the function interpreter
      *
@@ -161,5 +166,10 @@ public class BallerinaFunction implements Function {
      */
     public void interpret(Context ctx) {
         functionBody.interpret(ctx);
+    }
+
+    @Override
+    public void visit(NodeVisitor visitor) {
+        visitor.visit(this);
     }
 }

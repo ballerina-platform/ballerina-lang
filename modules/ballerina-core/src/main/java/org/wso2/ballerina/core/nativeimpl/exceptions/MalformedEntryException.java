@@ -15,17 +15,30 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.wso2.ballerina.core.model;
+package org.wso2.ballerina.core.nativeimpl.exceptions;
 
 /**
- * Represents Ballerina Native function.
+ * Thrown when Given entry is not convertible.
  */
-public interface NativeFunction extends Function {
+public class MalformedEntryException extends Exception {
 
     /**
-     * Get Ballerina Package name of the Native function.
+     * Constructs a new exception with the specified detail message and
+     * cause.
      *
-     * @return Ballerina Package name
+     * @param message the detail message.
+     * @param cause   the cause.
      */
-    String getPackageName();
+    public MalformedEntryException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    /**
+     * Constructs a new exception with the specified detail message.
+     *
+     * @param message the detail message.
+     */
+    public MalformedEntryException(String message) {
+        super(message);
+    }
 }
