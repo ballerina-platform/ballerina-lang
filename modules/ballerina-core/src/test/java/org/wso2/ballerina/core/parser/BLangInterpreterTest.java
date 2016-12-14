@@ -52,9 +52,6 @@ public class BLangInterpreterTest {
 
             BallerinaParser ballerinaParser = new BallerinaParser(ballerinaToken);
 
-
-
-
             BLangModelBuilder modelBuilder = new BLangModelBuilder();
             langModelBuilder = new BLangAntlr4Listener(modelBuilder);
 
@@ -97,9 +94,16 @@ public class BLangInterpreterTest {
         BLangInterpreter interpreter = new BLangInterpreter(ctx);
         function.accept(interpreter);
 
-        int expected = returnVals[0].getInt();
-        int actual = 3020;
-        Assert.assertEquals(actual, expected);
+        int expectedA = returnVals[0].getInt();
+        int actualA = 1020;
+        Assert.assertEquals(actualA, expectedA);
+
+        int expectedB = returnVals[1].getInt();
+        int actualB = 40;
+        Assert.assertEquals(actualB, expectedB);
+
+//        System.out.println(expectedA);
+//        System.out.println(expectedB);
     }
 
     public static void main(String[] args) {
