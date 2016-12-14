@@ -152,31 +152,8 @@ define(['require', 'lodash', 'log', './ballerina-statement-view', './../ast/if-e
             return this._elseBlockView;
         };
 
-        IfElseStatementView.prototype.increaseChildrenWidth = function (child) {
-            var childWidth = (this._diagramRenderingContext.getViewModelMap()[child.id]).getWidth();
-            var childHeight = (this._diagramRenderingContext.getViewModelMap()[child.id]).getHeight();
-            var dw = 20;
-            if (!_.isUndefined(this._elseBlockView)) {
-                this._elseBlockView.getStatementGroup().outerRect.attr('width', childWidth + dw);
-                var currentX = this._elseBlockView.getStatementGroup().outerRect.attr('x');
-                this._elseBlockView.getStatementGroup().outerRect.attr('x', currentX - dw/2);
-            }
-            if (!_.isUndefined(this._ifBlockView)) {
-                this._ifBlockView.getStatementGroup().outerRect.attr('width', childWidth + dw);
-                var currentX = this._ifBlockView.getStatementGroup().outerRect.attr('x');
-                this._ifBlockView.getStatementGroup().outerRect.attr('x', currentX - dw/2);
-            }
-        };
-
-        IfElseStatementView.prototype.increaseChildrenHeight = function (child) {
-            var childHeight = (this._diagramRenderingContext.getViewModelMap()[child.id]).getHeight();
-            var dh = 20;
-            if (!_.isUndefined(this._elseBlockView)) {
-                this._elseBlockView.getStatementGroup().outerRect.attr('height', 190);
-            }
-            if (!_.isUndefined(this._ifBlockView)) {
-                this._ifBlockView.getStatementGroup().outerRect.attr('height', 190);
-            }
+        IfElseStatementView.prototype.changeChildrenMetrics = function (baseMetrics) {
+            this.trigger("changeStatementMetricsEvent", baseMetrics);
         };
 
         return IfElseStatementView;

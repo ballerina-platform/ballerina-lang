@@ -143,7 +143,7 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
     };
     StatementVisitor.prototype.beginVisitElseStatement = function (statement) {
     };
-    StatementVisitor.prototype.visitIfStatement = function (statement) {
+    StatementVisitor.prototype.visitElseStatement = function (statement) {
     };
     StatementVisitor.prototype.endVisitElseStatement = function (statement) {
     };

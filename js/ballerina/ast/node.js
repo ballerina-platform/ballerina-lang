@@ -90,7 +90,6 @@ define(['require', 'event_channel', 'lodash'], function(require, EventChannel, _
             _.forEach(this.children, function (child) {
                 // visit current child
                 visitor.visit(child);
-                // TODO: Commented the bellow since this gave error when rendering the try catch
                 // firing childVisitedEvent
                 self.trigger("childVisitedEvent", child);
                 // forward visitor down the hierarchy to visit children of current child

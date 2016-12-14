@@ -44,11 +44,11 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3'], fu
     BallerinaStatementView.prototype.init = function(){
         //Registering event listeners
         this.listenTo(this._model, 'childVisitedEvent', this.childVisitedCallback);
-        this.listenTo(this._parentView, 'childViewAddedEvent', this.childViewAddedCallback);
+        this.listenTo(this._parent, 'changeStatementMetricsEvent', this.changeMetricsCallback);
     };
 
     BallerinaStatementView.prototype.childVisitedCallback = function (child) {
-        this.trigger("childViewAddedEvent", child);
+        // this.trigger("childViewAddedEvent", child);
     };
 
     BallerinaStatementView.prototype.childViewAddedCallback = function (child) {
@@ -97,6 +97,8 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3'], fu
     };
     BallerinaStatementView.prototype.changeHeight = function (dh) {
     };
+    BallerinaStatementView.prototype.changeMetricsCallback = function (baseMetrics) {
+    };
     BallerinaStatementView.prototype.getDiagramRenderingContext = function () {
         return this._diagramRenderingContext;
     };
@@ -113,7 +115,7 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3'], fu
         var statementsGap = 40;
         var statementsWidth = 100;
         statementView.setXPosition(this.getXPosition());
-        statementView.setYPosition(this.getYPosition() + 50);
+        statementView.setYPosition(this.getYPosition() + 30);
         statementView.render(this._diagramRenderingContext);
     };
 
