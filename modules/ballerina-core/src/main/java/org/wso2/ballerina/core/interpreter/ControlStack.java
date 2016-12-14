@@ -17,6 +17,8 @@
 */
 package org.wso2.ballerina.core.interpreter;
 
+import org.wso2.ballerina.core.model.values.BValueRef;
+
 import java.util.Stack;
 
 /**
@@ -30,7 +32,7 @@ public class ControlStack {
     private StackFrame currentFrame;
 
     public ControlStack() {
-        stack = new Stack<StackFrame>();
+        stack = new Stack<>();
     }
 
     public StackFrame pushFrame(StackFrame frame) {
@@ -46,5 +48,9 @@ public class ControlStack {
 
     public StackFrame getCurrentFrame() {
         return currentFrame;
+    }
+
+    public void setExprVal(int offset, BValueRef bValueRef) {
+        currentFrame.exprValues[offset] = bValueRef;
     }
 }

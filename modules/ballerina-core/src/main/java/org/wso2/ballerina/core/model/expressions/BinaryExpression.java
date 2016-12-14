@@ -23,6 +23,8 @@ import org.wso2.ballerina.core.model.Operator;
 import org.wso2.ballerina.core.model.values.BValueRef;
 import org.wso2.ballerina.core.utils.TriFunction;
 
+import java.util.function.BiFunction;
+
 /**
  * {@code BinaryExpression} represents a binary expression
  *
@@ -36,14 +38,27 @@ public class BinaryExpression extends UnaryExpression {
 
     protected Expression lExpr;
     protected TriFunction<Context, Expression, Expression, BValueRef> evalFunc;
+    protected BiFunction<BValueRef, BValueRef, BValueRef> evalFuncNew;
 
     public BinaryExpression(Expression lExpr, Operator op, Expression rExpr) {
         super(op, rExpr);
         this.lExpr = lExpr;
     }
 
+    public Expression getLExpr() {
+        return lExpr;
+    }
+
     public void setEvalFunc(TriFunction<Context, Expression, Expression, BValueRef> evalFunc) {
         this.evalFunc = evalFunc;
+    }
+
+    public BiFunction<BValueRef, BValueRef, BValueRef> getEvalFunc() {
+        return evalFuncNew;
+    }
+
+    public void setEvalFunc(BiFunction<BValueRef, BValueRef, BValueRef> evalFunc) {
+        this.evalFuncNew = evalFunc;
     }
 
     public BValueRef evaluate(Context ctx) {
@@ -51,7 +66,7 @@ public class BinaryExpression extends UnaryExpression {
     }
 
     @Override
-    public void visit(NodeVisitor visitor) {
+    public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 }

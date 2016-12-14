@@ -112,9 +112,9 @@ public class BalDeployer implements Deployer {
 
                 BallerinaParser ballerinaParser = new BallerinaParser(ballerinaToken);
 
-//                // Visitor based approach
-//                CompilationUnitVisitor ballerinaBaseVisitor = new CompilationUnitVisitor();
-//                BallerinaFile balFile = (BallerinaFile) ballerinaBaseVisitor.visit(ballerinaParser.compilationUnit());
+//              // Visitor based approach
+//              CompilationUnitVisitor ballerinaBaseVisitor = new CompilationUnitVisitor();
+//              BallerinaFile balFile = (BallerinaFile) ballerinaBaseVisitor.accept(ballerinaParser.compilationUnit());
 
                 // Listener based approach
                 BallerinaBaseListenerImpl ballerinaBaseListener = new BallerinaBaseListenerImpl();
