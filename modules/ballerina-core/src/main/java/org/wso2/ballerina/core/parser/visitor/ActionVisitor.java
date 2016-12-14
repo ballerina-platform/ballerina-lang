@@ -24,6 +24,7 @@ import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.VariableDcl;
 import org.wso2.ballerina.core.model.statements.Statement;
+import org.wso2.ballerina.core.model.types.Type;
 import org.wso2.ballerina.core.parser.BallerinaBaseVisitor;
 import org.wso2.ballerina.core.parser.BallerinaParser;
 import org.wso2.ballerina.core.utils.BValueFactory;
@@ -50,7 +51,7 @@ public class ActionVisitor extends BallerinaBaseVisitor {
     @Override
     public Object visitActionDefinition(BallerinaParser.ActionDefinitionContext ctx) {
         SymbolName actionName = new SymbolName(ctx.Identifier(0).getText());
-        Action actionObject = new Action(actionName, null, null, null, null, null, null, null);
+        Action actionObject = new Action(actionName, null, null, new Type[0], null, null, null, null);
 
         // Read the annotations
         AnnotationVisitor annotationVisitor = new AnnotationVisitor();
@@ -85,7 +86,7 @@ public class ActionVisitor extends BallerinaBaseVisitor {
                 ctx.functionBody().variableDeclaration()) {
             VariableDcl variableDcl = (VariableDcl) variableDeclarationContext.accept(variableDeclarationVisitor);
             actionObject.addVariable(variableDcl);
-            actionSymbolTable.put(variableDcl.getSymbolName(),
+            actionSymbolTable.put(variableDcl.getName(),
                     BValueFactory.createBValueFromVariableDeclaration(variableDcl));
         }
 

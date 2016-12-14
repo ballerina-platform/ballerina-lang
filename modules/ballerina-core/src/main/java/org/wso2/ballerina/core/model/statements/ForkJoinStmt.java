@@ -45,7 +45,7 @@ public class ForkJoinStmt implements Statement {
     }
 
     @Override
-    public void visit(NodeVisitor visitor) {
-//        visitor.visit(this);
+    public void accept(NodeVisitor visitor) {
+//        visitor.accept(this);
     }
 }

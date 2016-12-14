@@ -37,13 +37,17 @@ public class UnaryExpression extends AbstractExpression {
         this.rExpr = rExpr;
     }
 
+    public Expression getRExpr() {
+        return rExpr;
+    }
+
     @Override
     public BValueRef evaluate(Context ctx) {
         return null;
     }
 
     @Override
-    public void visit(NodeVisitor visitor) {
+    public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 }

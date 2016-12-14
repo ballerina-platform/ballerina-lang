@@ -96,7 +96,7 @@ public class FunctionVisitor extends BallerinaBaseVisitor {
                 ctx.functionBody().variableDeclaration()) {
             VariableDcl variableDcl = (VariableDcl) variableDeclarationContext.accept(variableDeclarationVisitor);
             variableDclList.add(variableDcl);
-            functionSymbolTable.put(variableDcl.getSymbolName(),
+            functionSymbolTable.put(variableDcl.getName(),
                     BValueFactory.createBValueFromVariableDeclaration(variableDcl));
         }
 

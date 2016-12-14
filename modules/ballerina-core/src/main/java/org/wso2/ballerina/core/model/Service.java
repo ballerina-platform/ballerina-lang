@@ -27,18 +27,13 @@ import org.wso2.ballerina.core.runtime.core.Executable;
 import org.wso2.ballerina.core.runtime.core.dispatching.ResourceDispatcher;
 import org.wso2.ballerina.core.runtime.registry.DispatcherRegistry;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 /**
  * A {@code Service} is an HTTP web service described by a Swagger.
  * A Service is the discrete unit of functionality that can be remotely accessed.
- * <p>
- * <p>
+ * <p/>
+ * <p/>
  * A Service is defined as follows:
- * <p>
+ * <p/>
  * [ServiceAnnotations]
  * service ServiceName {
  * ConnectorDeclaration;*
@@ -55,10 +50,6 @@ public class Service implements Executable, Node {
 
     // TODO Refactor
     private SymbolName symbolName;
-    private Map<String, Annotation> annotationMap = new HashMap<>();
-    private List<Connector> connectors = new ArrayList<>();
-    private List<VariableDcl> variables = new ArrayList<>();
-    private List<Resource> resourceList = new ArrayList<>();
 
     private SymbolName name;
     private Annotation[] annotations;
@@ -66,11 +57,8 @@ public class Service implements Executable, Node {
     private VariableDcl[] variableDcls;
     private Resource[] resources;
 
-    public Service(SymbolName serviceName,
-                   Annotation[] annotations,
-                   ConnectorDcl[] connectorDcls,
-                   VariableDcl[] variableDcls,
-                   Resource[] resources) {
+    public Service(SymbolName serviceName, Annotation[] annotations, ConnectorDcl[] connectorDcls,
+            VariableDcl[] variableDcls, Resource[] resources) {
         this.name = serviceName;
         this.annotations = annotations;
         this.connectorDcls = connectorDcls;
@@ -94,95 +82,28 @@ public class Service implements Executable, Node {
         return name;
     }
 
-    /**
-     * Get an Annotation associated with a Service for a given name
-     *
-     * @param name name of the Annotation
-     * @return Annotation
-     */
-    public Annotation getAnnotation(String name) {
-        return annotationMap.get(name);
+    public Annotation[] getAnnotations() {
+        return annotations;
     }
 
-    /**
-     * Get all the Annotations associated with a Service
-     *
-     * @return Map of Annotations
-     */
-    public Map<String, Annotation> getAnnotations() {
-        return annotationMap;
+    public ConnectorDcl[] getConnectorDcls() {
+        return connectorDcls;
     }
 
-    /**
-     * Set list of all the Annotations
-     *
-     * @param annotations list of Annotations
-     */
-    public void setAnnotations(Map<String, Annotation> annotations) {
-        this.annotationMap = annotations;
+    public VariableDcl[] getVariableDcls() {
+        return variableDcls;
     }
 
-    /**
-     * Add an {@code Annotation} to the Service
-     *
-     * @param annotation Annotation to be added
-     */
-    public void addAnnotation(Annotation annotation) {
-        annotationMap.put(annotation.getName(), annotation);
+    public void setAnnotations(Annotation[] annotations) {
+        this.annotations = annotations;
     }
 
-    /**
-     * Get all Connectors declared within the Service scope
-     *
-     * @return list of all the Connectors belongs to a Service
-     */
-    public List<Connector> getConnectors() {
-        return connectors;
+    public void setConnectorDcls(ConnectorDcl[] connectorDcls) {
+        this.connectorDcls = connectorDcls;
     }
 
-    /**
-     * Assign connectors to the Service
-     *
-     * @param connectors list of connectors to be assigned to a Service
-     */
-    public void setConnectors(List<Connector> connectors) {
-        this.connectors = connectors;
-    }
-
-    /**
-     * Add a {@code Connector} to the Service
-     *
-     * @param connector Connector to be added to the Service
-     */
-    public void addConnector(Connector connector) {
-        connectors.add(connector);
-    }
-
-    /**
-     * Get all the variables declared in the scope of Service
-     *
-     * @return list of all Service scoped variables
-     */
-    public List<VariableDcl> getVariables() {
-        return variables;
-    }
-
-    /**
-     * Assign variables to the Service
-     *
-     * @param variables list of variables
-     */
-    public void setVariables(List<VariableDcl> variables) {
-        this.variables = variables;
-    }
-
-    /**
-     * Add a {@code Variable} to the Service
-     *
-     * @param variable variable to be added to the Service
-     */
-    public void addVariable(VariableDcl variable) {
-        variables.add(variable);
+    public void setVariableDcls(VariableDcl[] variableDcls) {
+        this.variableDcls = variableDcls;
     }
 
     /**
@@ -203,15 +124,6 @@ public class Service implements Executable, Node {
         this.resources = resources;
     }
 
-    /**
-     * Add a {@code Resource} to the Service
-     *
-     * @param resource a Resource
-     */
-    public void addResource(Resource resource) {
-        resourceList.add(resource);
-    }
-
     @Override
     public boolean execute(Context context, BalCallback callback) {
 
@@ -227,7 +139,7 @@ public class Service implements Executable, Node {
     }
 
     @Override
-    public void visit(NodeVisitor visitor) {
+    public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 }

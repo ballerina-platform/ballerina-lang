@@ -34,11 +34,11 @@ public class ReplyStmt implements Statement {
     }
 
     public void interpret(Context ctx) {
-
+         ctx.getBalCallback().done(ctx.getCarbonMessage());
     }
 
     @Override
-    public void visit(NodeVisitor visitor) {
+    public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 }

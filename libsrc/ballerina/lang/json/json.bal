@@ -7,3 +7,5 @@ native function get(json j, string jsonPath) (string);
 native function set(json j, string jsonPath, string value);
 
 native function remove(json j, string jsonPath);
+
+native function rename(json j, string jsonPath, string oldKey, string newKey);
