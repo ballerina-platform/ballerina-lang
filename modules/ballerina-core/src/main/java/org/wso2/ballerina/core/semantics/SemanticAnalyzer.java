@@ -36,6 +36,7 @@ import org.wso2.ballerina.core.model.Worker;
 import org.wso2.ballerina.core.model.expressions.AddExpression;
 import org.wso2.ballerina.core.model.expressions.AndExpression;
 import org.wso2.ballerina.core.model.expressions.BasicLiteral;
+import org.wso2.ballerina.core.model.expressions.BinaryExpression;
 import org.wso2.ballerina.core.model.expressions.EqualExpression;
 import org.wso2.ballerina.core.model.expressions.Expression;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
@@ -229,19 +230,28 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(WhileStmt whileStmt) {
+        Expression expr = whileStmt.getCondition();
+        expr.accept(this);
 
+        if (expr.getType() != TypeC.BOOLEAN_TYPE) {
+            throw new RuntimeException("Incompatible types: expected a boolean expression");
+        }
+
+        BlockStmt blockStmt = whileStmt.getBody();
+        if (blockStmt.getStatements().length == 0) {
+            // This can be optimized later to skip the while statement
+            throw new RuntimeException("No statements in the while loop");
+        }
+
+        blockStmt.accept(this);
     }
 
     @Override
     public void visit(AddExpression addExpr) {
-        stackFrameOffset++;
-        addExpr.setOffset(stackFrameOffset);
+        visitBinaryExpr(addExpr);
 
         Expression rExpr = addExpr.getRExpr();
-        rExpr.accept(this);
-
         Expression lExpr = addExpr.getLExpr();
-        lExpr.accept(this);
 
         if (lExpr.getType() != rExpr.getType()) {
             throw new RuntimeException("Incompatible types in the add expression: " + lExpr.getType()
@@ -285,8 +295,21 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     @Override
-    public void visit(EqualExpression equalExpr) {
+    public void visit(EqualExpression expr) {
+        visitBinaryExpr(expr);
 
+        Expression rExpr = expr.getRExpr();
+        Expression lExpr = expr.getLExpr();
+
+        if (lExpr.getType() != rExpr.getType()) {
+            throw new RuntimeException("Incompatible types in the add expression: " + lExpr.getType()
+                    + " vs " + rExpr.getType());
+        }
+
+        if (lExpr.getType() == TypeC.INT_TYPE) {
+            expr.setType(TypeC.BOOLEAN_TYPE);
+            expr.setEvalFunc(EqualExpression.EQUAL_INT_FUNC_NEW);
+        }
     }
 
     @Override
@@ -363,5 +386,13 @@ public class SemanticAnalyzer implements NodeVisitor {
     private void closeScope() {
         stackFrameOffset = -1;
         symbolTable.closeScope();
+    }
+
+    private void visitBinaryExpr(BinaryExpression expr) {
+        stackFrameOffset++;
+        expr.setOffset(stackFrameOffset);
+
+        expr.getRExpr().accept(this);
+        expr.getLExpr().accept(this);
     }
 }

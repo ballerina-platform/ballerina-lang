@@ -30,9 +30,18 @@ public class WhileStmt implements Statement {
     private Expression whileCondition;
     private BlockStmt whileBody;
 
+    // TODO Make this constructor private
     public WhileStmt(Expression whileCondition, BlockStmt whileBody) {
         this.whileCondition = whileCondition;
         this.whileBody = whileBody;
+    }
+
+    public Expression getCondition() {
+        return whileCondition;
+    }
+
+    public BlockStmt getBody() {
+        return whileBody;
     }
 
     public void interpret(Context ctx) {

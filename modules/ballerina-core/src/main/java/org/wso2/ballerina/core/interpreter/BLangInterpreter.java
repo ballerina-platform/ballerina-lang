@@ -162,6 +162,22 @@ public class BLangInterpreter implements NodeVisitor {
     }
 
     @Override
+    public void visit(WhileStmt whileStmt) {
+        Expression expr = whileStmt.getCondition();
+        expr.accept(this);
+        BValueRef result = getValue(expr);
+
+        while (result.getBoolean()) {
+            // Interpret the statements in the while body.
+            whileStmt.getBody().accept(this);
+
+            // Now evaluate the condition again to decide whether to continue the loop or not.
+            expr.accept(this);
+            result = getValue(expr);
+        }
+    }
+
+    @Override
     public void visit(ReplyStmt replyStmt) {
 
     }
@@ -175,11 +191,6 @@ public class BLangInterpreter implements NodeVisitor {
             expr.accept(this);
             controlStack.setReturnValue(i, getValue(expr));
         }
-    }
-
-    @Override
-    public void visit(WhileStmt whileStmt) {
-
     }
 
     @Override
@@ -208,8 +219,18 @@ public class BLangInterpreter implements NodeVisitor {
     }
 
     @Override
-    public void visit(EqualExpression equalExpression) {
+    public void visit(EqualExpression equalExpr) {
+        Expression rExpr = equalExpr.getRExpr();
+        rExpr.accept(this);
 
+        Expression lExpr = equalExpr.getLExpr();
+        lExpr.accept(this);
+
+        BValueRef rValue = getValue(rExpr);
+        BValueRef lValue = getValue(lExpr);
+
+        BValueRef result = equalExpr.getEvalFunc().apply(lValue, rValue);
+        controlStack.setValue(equalExpr.getOffset(), result);
     }
 
     @Override
