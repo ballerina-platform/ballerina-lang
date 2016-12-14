@@ -67,7 +67,7 @@ public class GreaterThanExpression extends BinaryCompareExpression {
     }
 
     @Override
-    public void visit(NodeVisitor visitor) {
+    public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 }
