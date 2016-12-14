@@ -201,6 +201,17 @@ ol#breadcrumbList {
     position: relative;
 }
 
+.service-variable-button {
+    float: right;
+    position: relative;
+    display:block;
+}
+
+.service-variable-typebutton {
+
+    float: right;
+}
+
 .property-panel-svg {
      width: 100%;
      min-height: 500px;

@@ -149,8 +149,9 @@ define(['lodash', 'log', 'jquery', './canvas', './../ast/service-definition', '.
             this.getModel().accept(this);
 
             var annotationButton = this._createAnnotationButton(_.first($(this._container).children()));
+            var variableButton = this._createVariableButton(_.first($(this._container).children()));
 
-            // Create property pane for the service.
+            // Create property panel for the service.
             var paneProperties  = {
                 model : this._model,
                 editableProperties: [{
@@ -159,6 +160,7 @@ define(['lodash', 'log', 'jquery', './canvas', './../ast/service-definition', '.
                     getterMethod: this._model.getServiceName,
                     setterMethod: this._model.setServiceName
                 }],
+                htmlElement : variableButton[0],
                 htmlElement : annotationButton[0]
             };
             this.createPropertyPane(paneProperties);
@@ -265,6 +267,11 @@ define(['lodash', 'log', 'jquery', './canvas', './../ast/service-definition', '.
         ServiceDefinitionView.prototype._createAnnotationButton = function(serviceContentDiv) {
             return $("<div class='service-annotation-button'><div class='view-annotation-btn btn-icon'><i class='fw fw-lg fw-annotation fw-inverse fw-helper fw-helper-circle'></i></div></div>").prependTo(serviceContentDiv);
         };
+
+        ServiceDefinitionView.prototype._createVariableButton = function(serviceContentDiv) {
+            return $("<div background-color: lightblue;><button class='service-variable-typebutton'>+</button><button class='service-variable-typebutton' data-toggle='tooltip' data-placement='top' title='Hooray'>bln_variable</button><button class='service-variable-typebutton'>Endpoint</button><button class='service-variable-typebutton'>str_variable</button><button class='service-variable-typebutton'>int_variable</button><button class='service-variable-typebutton'>msg_variable</button><div class='service-variable-button'><div class='view-variable-btn btn-icon'><i class='fw fw-lg fw-variable fw-inverse fw-helper fw-helper-circle'></i></div></div></div>").prependTo(serviceContentDiv);
+        };
+
 
         return ServiceDefinitionView;
     });
