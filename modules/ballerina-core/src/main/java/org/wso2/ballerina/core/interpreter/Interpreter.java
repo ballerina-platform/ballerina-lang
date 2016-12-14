@@ -25,4 +25,5 @@ package org.wso2.ballerina.core.interpreter;
  */
 public interface Interpreter {
     void interpret(Context ctx);
+
 }
