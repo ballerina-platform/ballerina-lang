@@ -28,8 +28,6 @@ import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.VariableDcl;
 import org.wso2.ballerina.core.model.builder.BLangModelBuilder;
-import org.wso2.ballerina.core.model.types.TypeC;
-import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BValueRef;
 import org.wso2.ballerina.core.model.values.IntValue;
 import org.wso2.ballerina.core.parser.antlr4.BLangAntlr4Listener;
@@ -48,7 +46,7 @@ public class BLangInterpreterTest {
     public void setup() {
         try {
             ANTLRInputStream antlrInputStream = new ANTLRInputStream(new FileInputStream(
-                    getClass().getClassLoader().getResource("samples/parser/function.bal").getFile()));
+                    getClass().getClassLoader().getResource("samples/parser/ifcondition.bal").getFile()));
 
             BallerinaLexer ballerinaLexer = new BallerinaLexer(antlrInputStream);
             CommonTokenStream ballerinaToken = new CommonTokenStream(ballerinaLexer);
@@ -103,12 +101,12 @@ public class BLangInterpreterTest {
         BLangInterpreter interpreter = new BLangInterpreter(ctx);
         function.accept(interpreter);
 
-        int expectedA = returnVals[0].getInt();
-        int actualA = 1030;
+        int expectedA = 310;
+        int actualA = returnVals[0].getInt();
         Assert.assertEquals(actualA, expectedA);
 
-        int expectedB = returnVals[1].getInt();
-        int actualB = 32;
+        int expectedB = 21;
+        int actualB = returnVals[1].getInt();
         Assert.assertEquals(actualB, expectedB);
 
 //        System.out.println(expectedA);
