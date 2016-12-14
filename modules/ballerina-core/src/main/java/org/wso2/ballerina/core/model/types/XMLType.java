@@ -23,8 +23,9 @@ import org.apache.axiom.om.util.AXIOMUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.xml.stream.XMLStreamException;
 import java.io.InputStream;
+import javax.xml.stream.XMLStreamException;
+
 
 /**
  * {@code XMLType} represents an XML Element
@@ -37,6 +38,10 @@ public class XMLType extends AbstractType {
 
     private OMElement omElement;
 
+
+    public XMLType(){
+
+    }
 
     public XMLType(String value) {
         if (value != null) {

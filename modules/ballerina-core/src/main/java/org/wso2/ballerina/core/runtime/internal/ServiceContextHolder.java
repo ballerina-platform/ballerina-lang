@@ -19,6 +19,7 @@
 package org.wso2.ballerina.core.runtime.internal;
 
 
+import org.wso2.ballerina.core.runtime.Constants;
 import org.wso2.carbon.messaging.TransportSender;
 
 import java.util.HashMap;
@@ -30,6 +31,8 @@ import java.util.Map;
 public class ServiceContextHolder {
 
     private Map<String, TransportSender> transportSenders = new HashMap<>();
+
+    private Constants.RuntimeMode runtimeMode = Constants.RuntimeMode.SERVER;
 
     private ServiceContextHolder() {
     }
@@ -52,5 +55,13 @@ public class ServiceContextHolder {
         //TODO: need to write a logic to identify the correct sender
         Map.Entry<String, TransportSender> senderEntry = transportSenders.entrySet().iterator().next();
         return senderEntry.getValue();
+    }
+
+    public void setRuntimeMode(Constants.RuntimeMode runtimeMode) {
+        this.runtimeMode = runtimeMode;
+    }
+
+    public Constants.RuntimeMode getRuntimeMode() {
+        return runtimeMode;
     }
 }

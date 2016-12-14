@@ -22,6 +22,7 @@ service FaultyService {
 
 function faultyFunction(message in) (message) throws exception {
       http:HttpConnector e1 = new http:HttpEndpoint ("http://localhost:2222");
-      message response = http:HttpConnector.get (e1, "/test", in);
+      message response;
+      response = http:HttpConnector.get (e1, "/test", in);
       return response;
   }

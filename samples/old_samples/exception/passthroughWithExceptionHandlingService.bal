@@ -10,7 +10,7 @@ import ballerina.lang.json;
 @Service(title = "NYSEService", description = "NYSE service")
 service PassthroughWithExceptionHandlingService {
 
-  http.HttpConnector nyseEP = new http.HttpConnector("http://localhost:8080/exchange/", {"timeOut" : 30000});
+  http:HttpConnector nyseEP = new http:HttpConnector("http://localhost:8080/exchange/", {"timeOut" : 30000});
 
   @GET
   @PUT
@@ -18,11 +18,12 @@ service PassthroughWithExceptionHandlingService {
   @Path ("/passthrough")
   resource passthrough (message m) {
     message response;
+    json error;
     try {
-        response = http:sendPost (nyse_ep, m);
+        response = http:HttpConnector.sendPost (nyse_ep, m);
     } catch (exception e) {
         message:setHeader(m, HTTP.StatusCode, 500);// need to discuss
-        json error = `{"error":"backend failed", "causedby":e.message}`;
+        error = `{"error":"backend failed", "causedby":e.message}`;
         message:setPayload(m, error);
     }
     reply response;

@@ -4,6 +4,8 @@ import ballerina.net.http;
 
 function init(TwitterConnector t) throws exception {
     json loginReq;
+    message loginMessage;
+    message response;
 
     if (t.username == nil) {
         loginReq = `{"clientKey" : "$t.clientKey", "clientSecret" : "$t.clientSecret"}`;
@@ -11,30 +13,31 @@ function init(TwitterConnector t) throws exception {
         loginReq = `{"userName" : "$t.userName", "password" : "$t.password"}`;
     }
 
-    message loginMessage = new message;
+    loginMessage = new message;
     message:setPayload(loginMessage, loginReq);
-    message response = http:post(twitterEP, "/token", loginMessage);
+    response = http:post(twitterEP, "/token", loginMessage);
     t.oAuthToken = json:get(message:getPayload(response), "$.oAuthToken");
 }
 
-connector TwitterConnector(
-    string username, string password, string clientKey, string clientSecret, string oAuthToken,
-    map options){
-    //arguments in the above signature becomes attributes in the connectors
-    
-    boolean loggedIn = false; 
-    http:HttpConnector httpConnection = new http:HttpConnector("https://api.twitter.com", {"timeOut" : 300});
+connector Twitter(string username, string password,
+                string clientKey, string clientSecret, string oAuthToken, map options) {
 
-    action tweet(TwitterConnector t, string tweet) throws exception {
+    http:HttpConnector h = new http:HttpConnector("https://api.twitter.com", {"timeOut" : 300});
+
+    boolean loggedIn; // default value get assigned
+    action tweet(Twitter t, string tweet) throws exception {
+        json tweetJson;
+        message tweetMsg;
+
         if(!loggedIn){
-            init(t)
-            loggedIn = true
+            init(t);
+            loggedIn = true;
         }
-        json tweetJson = `{"message" : "$tweet"}`;
-        message tweetMsg = new message;
+        tweetJson = `{"message" : "$tweet"}`;
+        tweetMsg = new message;
         message:setPayload(tweetMsg, tweetJson);
         message:setHeader(tweetMsg, "Authorization", "Bearer " + t.oAuthToken);
-        http:post(httpConnection, "/tweet", tweetMsg);
+        http:HttpConnector.post(h, "/tweet", tweetMsg);
     }
-}
 
+}

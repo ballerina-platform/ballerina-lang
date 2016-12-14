@@ -18,58 +18,109 @@
 
 package org.wso2.ballerina.core.model;
 
+import org.wso2.ballerina.core.interpreter.Context;
+import org.wso2.ballerina.core.interpreter.ControlStack;
+import org.wso2.ballerina.core.interpreter.StackFrame;
+import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
+import org.wso2.ballerina.core.model.types.MessageType;
+import org.wso2.ballerina.core.model.values.BValueRef;
+import org.wso2.ballerina.core.model.values.MessageValue;
+import org.wso2.ballerina.core.runtime.core.BalCallback;
+import org.wso2.ballerina.core.runtime.core.Executable;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A {@code Resource} is a single request handler within a {@code Service}.
  * The resource concept is designed to be access protocol independent.
  * But in the initial release of the language it is intended to work with HTTP.
  * <p>
- *
  * The structure of a ResourceDefinition is as follows:
+ * <p>
+ * [ResourceAnnotations]
+ * resource ResourceName (Message VariableName[, ([ResourceParamAnnotations] TypeName VariableName)+]) {
+ * ConnectionDeclaration;*
+ * VariableDeclaration;*
+ * WorkerDeclaration;*
+ * Statement;+
+ * }*
  *
- *  [ResourceAnnotations]
- *  resource ResourceName (Message VariableName[, ([ResourceParamAnnotations] TypeName VariableName)+]) {
- *      ConnectionDeclaration;*
- *      VariableDeclaration;*
- *      WorkerDeclaration;*
- *      Statement;+
- *  }*
- *
- *  @since 1.0.0
- *
+ * @since 1.0.0
  */
 @SuppressWarnings("unused")
-public class Resource {
+public class Resource implements Executable {
 
-    private List<Annotation> annotations;
-    private List<Parameter> arguments;
-    private List<Worker> workers;
+    // TODO Refactor
+    private Map<String, Annotation> annotationMap = new HashMap<>();
+    private List<Parameter> arguments = new ArrayList<>();
+    private List<Worker> workerList = new ArrayList<>();
     private Worker defaultWorker;
+    private String name;
+
+    private Annotation[] annotations;
+    private Parameter[] parameters;
+    private Connection[] connections;
+    private VariableDcl[] variableDcls;
+    private Worker[] workers;
+    private BlockStmt resourceBody;
+    private Identifier resourceName;
 
     public Resource() {
         defaultWorker = new Worker();
     }
 
-    /**
-     * Get all the Annotations associated with a Resource
-     *
-     * @return list of Annotations
-     */
-    public List<Annotation> getAnnotations() {
-        return annotations;
+    public Resource(String name) {
+        defaultWorker = new Worker();
+        this.name = name;
+    }
+
+    public Resource(Identifier name,
+                    Annotation[] annotations,
+                    Parameter[] parameters,
+                    Connection[] connections,
+                    VariableDcl[] variableDcls,
+                    Worker[] workers,
+                    BlockStmt functionBody) {
+
+        this.resourceName = name;
+        this.annotations = annotations;
+        this.parameters = parameters;
+        this.connections = connections;
+        this.variableDcls = variableDcls;
+        this.workers = workers;
+        this.resourceBody = functionBody;
     }
 
     /**
-     * Set list of all the Annotations
+     * Get an Annotation from a given name
      *
-     * @param annotations list of Annotations
+     * @param name name of the annotation
+     * @return Annotation
      */
-    public void setAnnotations(List<Annotation> annotations) {
-        this.annotations = annotations;
+    public Annotation getAnnotation(String name) {
+        return annotationMap.get(name);
+    }
+
+    /**
+     * Get all the Annotations associated with a Resource
+     *
+     * @return map of Annotations
+     */
+    public Map<String, Annotation> getAnnotations() {
+        return annotationMap;
+    }
+
+    /**
+     * Set Annotations
+     *
+     * @param annotations map of Annotations
+     */
+    public void setAnnotations(Map<String, Annotation> annotations) {
+        this.annotationMap = annotations;
     }
 
     /**
@@ -78,10 +129,7 @@ public class Resource {
      * @param annotation Annotation to be added
      */
     public void addAnnotation(Annotation annotation) {
-        if (annotations == null) {
-            annotations = new ArrayList<Annotation>();
-        }
-        annotations.add(annotation);
+        annotationMap.put(annotation.getName(), annotation);
     }
 
     /**
@@ -108,9 +156,6 @@ public class Resource {
      * @param argument Argument to be added to the Resource definition
      */
     public void addArgument(Parameter argument) {
-        if (arguments == null) {
-            arguments = new ArrayList<Parameter>();
-        }
         arguments.add(argument);
     }
 
@@ -175,7 +220,7 @@ public class Resource {
      * @return list of Workers
      */
     public List<Worker> getWorkers() {
-        return workers;
+        return workerList;
     }
 
     /**
@@ -184,7 +229,7 @@ public class Resource {
      * @param workers list of all the Workers
      */
     public void setWorkers(List<Worker> workers) {
-        this.workers = workers;
+        this.workerList = workers;
     }
 
     /**
@@ -193,10 +238,7 @@ public class Resource {
      * @param worker Worker to be added to the Resource
      */
     public void addWorker(Worker worker) {
-        if (workers == null) {
-            workers = new ArrayList<Worker>();
-        }
-        workers.add(worker);
+        workerList.add(worker);
     }
 
     /**
@@ -226,4 +268,28 @@ public class Resource {
         defaultWorker.addStatement(statement);
     }
 
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public boolean execute(Context context, BalCallback callback) {
+        populateDefaultMessage(context);
+        return defaultWorker.execute(context, callback);
+    }
+
+    private void populateDefaultMessage(Context context) {
+        // Adding MessageValue to the ControlStack
+        ControlStack controlStack = context.getControlStack();
+        BValueRef[] valueParams = new BValueRef[1];
+        valueParams[0] = new BValueRef(new MessageValue(context.getCarbonMessage()));
+
+        StackFrame stackFrame = new StackFrame(valueParams, null, new BValueRef[0]);
+        // ToDo : StackFrame should be added at the upstream components.
+        controlStack.pushFrame(stackFrame);
+
+        // ToDo : Use generic identifier for message.
+        Parameter paramMessage = new Parameter(new MessageType(), new Identifier("m"));
+        arguments.add(paramMessage);
+    }
 }

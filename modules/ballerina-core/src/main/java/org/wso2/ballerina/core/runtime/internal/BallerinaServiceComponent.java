@@ -26,9 +26,20 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerina.core.runtime.Constants;
 import org.wso2.ballerina.core.runtime.core.MessageProcessor;
+import org.wso2.ballerina.core.runtime.deployer.BalDeployer;
+import org.wso2.ballerina.core.runtime.net.http.source.HTTPListenerManager;
+import org.wso2.ballerina.core.runtime.net.http.source.HTTPResourceDispatcher;
+import org.wso2.ballerina.core.runtime.net.http.source.HTTPServiceDispatcher;
+import org.wso2.ballerina.core.runtime.registry.DispatcherRegistry;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
+import org.wso2.carbon.messaging.TransportListenerManager;
 import org.wso2.carbon.messaging.TransportSender;
+
+import java.io.File;
+
+import static org.wso2.ballerina.core.runtime.Constants.SYSTEM_PROP_BAL_FILE;
 
 
 /**
@@ -49,6 +60,24 @@ public class BallerinaServiceComponent {
 
             //Creating the processor and registering the service
             bundleContext.registerService(CarbonMessageProcessor.class, new MessageProcessor(), null);
+
+            // Registering HTTP Listener Manager with transport framework
+            bundleContext.registerService(TransportListenerManager.class, HTTPListenerManager.getInstance(), null);
+
+            // Resister HTTP Dispatchers
+            DispatcherRegistry.getInstance().registerServiceDispatcher(new HTTPServiceDispatcher());
+            DispatcherRegistry.getInstance().registerResourceDispatcher(new HTTPResourceDispatcher());
+
+            //Determine the runtime mode
+            String runThisBalFile = System.getProperty(SYSTEM_PROP_BAL_FILE);
+            if (runThisBalFile != null) {
+                ServiceContextHolder.getInstance().setRuntimeMode(Constants.RuntimeMode.RUN_FILE);
+                if (log.isDebugEnabled()) {
+                    log.debug("Runtime mode is set to : " + Constants.RuntimeMode.RUN_FILE);
+                }
+                BalDeployer.deployBalFile(new File(runThisBalFile));
+            }
+
         } catch (Exception ex) {
             String msg = "Error while loading Ballerina";
             log.error(msg, ex);

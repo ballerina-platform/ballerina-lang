@@ -25,6 +25,15 @@ under the License.
             <class name="org.wso2.ballerina.core.model.FunctionInvocationTest" />
             <class name="org.wso2.ballerina.core.model.WhileStmtTest" />
             <class name="org.wso2.ballerina.core.model.IfElseStmtTest" />
+            <class name="org.wso2.ballerina.core.model.RecursiveFuncTest" />
+            <class name="org.wso2.ballerina.core.model.NativeFunctionInvocationTest" />
+        </classes>
+    </test>
+    <test name="ballerina-parser-unit-tests" preserve-order="true" parallel="false">
+        <classes>
+            <class name="org.wso2.ballerina.core.parser.BallerinaBaseListenerImplTest" />
+            <class name="org.wso2.ballerina.core.parser.WhileStatemetParserTest" />
+            <class name="org.wso2.ballerina.core.parser.visitor.BallerinaBaseVisitorImplTest" />
         </classes>
     </test>
 </suite>

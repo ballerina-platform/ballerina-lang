@@ -4,16 +4,18 @@ import ballerina.lang.message;
 import ballerina.lang.json;
 
 @Path ("/transform")
-@Source (interface = "localhost")
+@Source (interface = "default_http_listener")
 @Service (title = "TransformService", description = "Transforms the inbound message")
 service transformService {
 
 	@POST
 	resource transform (message m) {
-	    json<Person> in = message:getPayload(m);
+	    json<Person> in;
+	    json<Driver> out;
+	    in = m:getPayload(m);
 	    //here type converter kicks in
-	    json<Driver> out  = (json<Driver>)in;
-	    message:setPayload(m, out);
+	    out  = (json<Driver>)in;
+	    m:setPayload(out);
 	    reply m;
 	}
 }

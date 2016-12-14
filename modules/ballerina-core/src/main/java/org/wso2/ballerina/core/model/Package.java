@@ -97,7 +97,6 @@ public class Package {
             }
         });
 
-        privateFunctions.putAll(file.getFunctions());
         types.addAll(file.getTypes());
     }
 
@@ -116,7 +115,7 @@ public class Package {
      *
      * @return map of public Functions
      */
-    public Map getPublicFunctions() {
+    public Map<String, Function> getPublicFunctions() {
         return publicFunctions;
     }
 
@@ -135,7 +134,7 @@ public class Package {
      *
      * @return map of private Functions
      */
-    public Map getPrivateFunctions() {
+    public Map<String, Function> getPrivateFunctions() {
         return privateFunctions;
     }
 

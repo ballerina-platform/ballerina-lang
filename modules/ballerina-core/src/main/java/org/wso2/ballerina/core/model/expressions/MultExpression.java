@@ -18,7 +18,6 @@
 package org.wso2.ballerina.core.model.expressions;
 
 import org.wso2.ballerina.core.interpreter.Context;
-import org.wso2.ballerina.core.model.Operator;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BValueRef;
 import org.wso2.ballerina.core.model.values.DoubleValue;
@@ -26,6 +25,8 @@ import org.wso2.ballerina.core.model.values.FloatValue;
 import org.wso2.ballerina.core.model.values.IntValue;
 import org.wso2.ballerina.core.model.values.LongValue;
 import org.wso2.ballerina.core.utils.TriFunction;
+
+import static org.wso2.ballerina.core.model.Operator.MUL;
 
 /**
  * {@code MultExpression} represents a binary multiply expression
@@ -66,10 +67,7 @@ public class MultExpression extends BinaryArithmeticExpression {
                 return new BValueRef(bValue);
             };
 
-    public MultExpression(Expression lExpr, Operator op, Expression rExpr) {
-        super(lExpr, op, rExpr);
-    }
-
-    public void selectMultFunc() {
+    public MultExpression(Expression lExpr, Expression rExpr) {
+        super(lExpr, MUL, rExpr);
     }
 }

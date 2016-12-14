@@ -30,13 +30,17 @@ import java.util.Map;
  */
 public class ApplicationRegistry {
 
+    private static final String DEFAULT_APPLICATION = "DEFAULT_APPLICATION";
+
     private Map<String, Application> applications = new HashMap<String, Application>();
 
     private static ApplicationRegistry instance = new ApplicationRegistry();
 
-    private ApplicationRegistry() {}
+    private ApplicationRegistry() {
+        applications.put(DEFAULT_APPLICATION, new Application(DEFAULT_APPLICATION));
+    }
 
-    public ApplicationRegistry getInstance() {
+    public static ApplicationRegistry getInstance() {
         return instance;
     }
 
@@ -44,7 +48,7 @@ public class ApplicationRegistry {
         applications.put(application.getAppName(), application);
 
         // Notify source dispatchers
-        application.getPackages().forEach(aPackage -> {
+        application.getPackages().forEach((name, aPackage) -> {
             aPackage.getServices().forEach(service -> {
                 DispatcherRegistry.getInstance().getServiceDispatchers().forEach((protocol, dispatcher) -> {
                     dispatcher.serviceRegistered(service);
@@ -57,7 +61,7 @@ public class ApplicationRegistry {
         applications.remove(application.getAppName());
 
         // Notify source dispatchers
-        application.getPackages().forEach(aPackage -> {
+        application.getPackages().forEach((name, aPackage) -> {
             aPackage.getServices().forEach(service -> {
                 DispatcherRegistry.getInstance().getServiceDispatchers().forEach((protocol, dispatcher) -> {
                     dispatcher.serviceUnregistered(service);
@@ -66,8 +70,20 @@ public class ApplicationRegistry {
         });
     }
 
+    public void updatePackage(org.wso2.ballerina.core.model.Package aPackage) {
+        aPackage.getServices().forEach(service -> {
+            DispatcherRegistry.getInstance().getServiceDispatchers().forEach((protocol, dispatcher) -> {
+                dispatcher.serviceRegistered(service);
+            });
+        });
+    }
+
     public Application getApplication(String appName) {
         return applications.get(appName);
+    }
+
+    public Application getDefaultApplication() {
+        return applications.get(DEFAULT_APPLICATION);
     }
 
 }

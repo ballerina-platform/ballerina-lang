@@ -29,8 +29,6 @@ import org.wso2.ballerina.core.model.values.BValueRef;
  */
 public class BasicLiteral extends AbstractExpression {
 
-    private BValueRef bValueRef;
-
     public BasicLiteral(BValueRef bValueRef) {
         this.bValueRef = bValueRef;
     }

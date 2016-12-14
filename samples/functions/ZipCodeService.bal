@@ -15,16 +15,18 @@ service PassthroughService {
     @GET
     @Path ("/*")
     resource zipCodeResource (message m, @QueryParam("country") string country, @QueryParam("zipCode") string zipCode) {
-
+        boolean isValid;
+        json successMessage;
+        json failedMessage;
         // Calling a public function in the imported package.
-        boolean isValid = zipcodeUtil:validateZipCode (country, zipCode);
+        isValid = zipcodeUtil:validateZipCode (country, zipCode);
 
         if (isValid) {
-            json successMessage = `{"Successful" : "ValidZipCode"}`;
+            successMessage = `{"Successful" : "ValidZipCode"}`;
             message:setPayload(m, successMessage);
             message:setHeader(response, "Status", 200);
         } else {
-            json failedMessage = `{"Failed" : "Invalid ZipCode"}`;
+            failedMessage = `{"Failed" : "Invalid ZipCode"}`;
             message:setPayload(m, failedMessage);
             message:setHeader(response, "Status", 500);
         }

@@ -76,7 +76,7 @@ typeDefinitionBody
     ;
 
 typeConvertorDefinition
-    :   'typeconvertor' Identifier '(' typeNameWithOptionalSchema Identifier ')' '('typeNameWithOptionalSchema')' typeConvertorBody
+    :   'typeconvertor' Identifier '(' typeConvertorTypes Identifier ')' '('typeConvertorTypes')' typeConvertorBody
     ;
 
 typeConvertorBody
@@ -88,7 +88,6 @@ constantDefinition
 
 variableDeclaration
     :   typeName Identifier ';'
-    |   inlineAssignmentExpression
     ;
 
 // typeName below is only 'message' type
@@ -108,17 +107,76 @@ qualifiedTypeName
     :   packageName ':' unqualifiedTypeName
     ;
 
-unqualifiedTypeName
-    :   typeNameWithOptionalSchema
-    |   typeNameWithOptionalSchema '[]'
-    |   typeNameWithOptionalSchema '~'
+typeConvertorTypes
+    :   simpleType
+    |   withFullSchemaType
+    |   withSchemaIdType
+    |   withScheamURLType
     ;
 
-typeNameWithOptionalSchema
-    :   Identifier  ('<' ('{' DoubleQuotedStringLiteral '}')? Identifier '>')
-    |   Identifier  ('<' ('{' DoubleQuotedStringLiteral '}') '>')
-    |   Identifier
+
+unqualifiedTypeName
+    :   simpleType
+    |   simpleTypeArray
+    |   simpleTypeIterate
+    |   withFullSchemaType
+    |   withFullSchemaTypeArray
+    |   withFullSchemaTypeIterate
+    |   withScheamURLType
+    |   withSchemaURLTypeArray
+    |   withSchemaURLTypeIterate
+    |   withSchemaIdType
+    |   withScheamIdTypeArray
+    |   withScheamIdTypeIterate
     ;
+
+simpleType
+    :   Identifier
+    ;
+
+simpleTypeArray
+    :   Identifier '[]'
+    ;
+
+simpleTypeIterate
+    : Identifier '~'
+    ;
+
+withFullSchemaType
+	:	Identifier '<' '{' QuotedStringLiteral '}' Identifier '>'
+	;
+
+withFullSchemaTypeArray
+	:	Identifier '<' '{' QuotedStringLiteral '}' Identifier '>' '[]'
+	;
+
+withFullSchemaTypeIterate
+	:	Identifier '<' '{' QuotedStringLiteral '}' Identifier '>' '~'
+	;
+
+withScheamURLType
+	:	Identifier '<' '{' QuotedStringLiteral '}' '>'
+	;
+
+withSchemaURLTypeArray
+	:	Identifier '<' '{' QuotedStringLiteral '}' '>' '[]'
+	;
+
+withSchemaURLTypeIterate
+	:	Identifier '<' '{' QuotedStringLiteral '}' '>' '~'
+	;
+
+withSchemaIdType
+	:	Identifier '<' Identifier '>'
+	;
+
+withScheamIdTypeArray
+	:	Identifier '<' Identifier '>' '[]'
+	;
+
+withScheamIdTypeIterate
+	:	Identifier '<' Identifier '>' '~'
+	;
 
 typeName
     :   unqualifiedTypeName
@@ -130,8 +188,7 @@ qualifiedReference
     ;
 
 parameterList
-    :   parameter ',' parameterList
-    |   parameter
+    :   parameter (',' parameter)*
     ;
 
 parameter
@@ -145,7 +202,7 @@ packageName
 literalValue
     :   IntegerLiteral
     |   FloatingPointLiteral
-    |   DoubleQuotedStringLiteral
+    |   QuotedStringLiteral
     |   BooleanLiteral
     |   NullLiteral
     ;
@@ -163,7 +220,7 @@ literalValue
      ;
 
  elementValuePair
-     :   assignmentExpression
+     :    Identifier '=' elementValue
      ;
 
  elementValue
@@ -175,63 +232,6 @@ literalValue
  elementValueArrayInitializer
      :   '{' (elementValue (',' elementValue)*)? (',')? '}'
      ;
-
-assignmentStatement
-    :   (assignmentExpression ';'
-    |   inlineAssignmentExpression
-    |   statementExpression ';')+
-    ;
-
-variableAccessor
-    :   Identifier
-    |   Identifier '['IntegerLiteral']'
-    |   Identifier'['DoubleQuotedStringLiteral']'
-    |   Identifier '.' variableAccessor
-    ;
-
-initializeTypeStatement
-    :   'new' (packageName ':' )? Identifier ('(' expressionList? ')')?
-    ;
-
-assignmentExpression
-    :   variableAccessor '=' statementExpression
-    ;
-
-inlineAssignmentExpression
-    :   typeName assignmentExpression ';'
-    ;
-
-statementExpression
-    :   expression
-    |   functionInovationExpression
-    |   actionInovationExpression
-    |   initializeTypeStatement
-    ;
-
-argumentList
-    :   '(' expressionList ')'
-    ;
-
-expressionList
-    :   expression (',' expression)*
-    ;
-
-functionInovationExpression
-    :   functionInovation argumentList
-    ;
-
-actionInovationExpression
-    :   actionInovation argumentList
-    ;
-
-functionInovation
-    :   (packageName | Identifier) ':' Identifier
-    ;
-
-actionInovation
-    :   packageName ':' Identifier '.' Identifier
-    ;
-
 
  //============================================================================================================
 // STATEMENTS / BLOCKS
@@ -249,11 +249,24 @@ statement
     |   replyStatement
     |   workerInteractionStatement
     |   commentStatement
-    |   actionInovationExpression
+    |   actionInvocationStatement
+    |   functionInvocationStatement
+    ;
+
+assignmentStatement
+    :   variableReference '=' expression ';'
     ;
 
 ifElseStatement
-    :   'if' '(' expression ')' '{' statement* '}' ('else' 'if' '(' expression ')' '{' statement* '}')* ('else' '{' statement*'}' )?
+    :   'if' '(' expression ')' '{' statement* '}' elseIfClause* elseClause?
+    ;
+
+elseIfClause
+    :   'else' 'if' '(' expression ')' '{' statement* '}'
+    ;
+
+elseClause
+    :   'else' '{' statement*'}'
     ;
 
 iterateStatement
@@ -292,7 +305,6 @@ tryCatchStatement
     :   'try' '{' statement+ '}' catchClause
     ;
 
-
 // below tyeName is only 'exception'
 catchClause
     :   'catch' '(' typeName Identifier ')' '{' statement+ '}'
@@ -330,41 +342,69 @@ commentStatement
     :   LINE_COMMENT
     ;
 
-backQuoteString
+actionInvocationStatement
+    :   expression ';'
+    ;
+
+variableReference
+    :   Identifier                          # simpleVariableIdentifier// simple identifier
+    |   Identifier '['expression']'         # mapArrayVariableIdentifier// array and map reference
+    |   Identifier ('.' variableReference)+ # structFieldIdentifier// struct field reference
+    ;
+
+argumentList
+    :   '(' expressionList ')'
+    ;
+
+expressionList
+    :   expression (',' expression)*
+    ;
+
+functionInvocationStatement
+    :   expression ';'
+    ;
+
+functionName
+    :   (packageName ':')? Identifier
+    ;
+
+actionInvocation
+    :   packageName ':' Identifier '.' Identifier
+    ;
+
+backtickString
    :   BacktickStringLiteral
    ;
 
 expression
-    :   primary                                             # literalExpression
-    |   backQuoteString                                     # templateExpression
-    |   expression '.' Identifier                           # accessMemberDotExpression
-    |   (packageName | Identifier) ':' Identifier           # inlineFunctionInovcationExpression
-    |   expression '[' expression ']'                       # accessArrayElementExpression
-    |   expression '(' expressionList? ')'                  # argumentListExpression
-    |   '(' typeName ')' expression                         # typeCastingExpression
-    |   ('+'|'-'|'!') expression                            # preSingleDualExpression
-    |   expression ('*'|'/'|'%') expression                 # binrayMulDivPercentExpression
-    |   expression ('+'|'-') expression                     # binaryPlusMinusExpression
-    |   expression ('<=' | '>=' | '>' | '<') expression     # binaryComparisonExpression
-    |   expression ('==' | '!=') expression                 # binrayEqualExpression
-    |   expression '&&' expression                          # binrayAndExpression
-    |   expression '||' expression                          # binrayOrExpression
-    |   '{' DoubleQuotedStringLiteral ':' literal '}'       # mapInitializerExpression
+    :   literalValue                                                        # literalExpression
+    |   variableReference                                                   # variableReferenceExpression
+    |   backtickString                                                      # templateExpression
+    |   functionName argumentList                                           # functionInvocationExpression
+    |   actionInvocation argumentList                                       # actionInvocationExpression
+    |   '(' typeName ')' expression                                         # typeCastingExpression
+    |   ('+'|'-'|'!') expression                                            # unaryExpression
+    |   '(' expression ')'                                                  # bracedExpression
+    |   expression ('^') expression                                         # binaryPowExpression
+    |   expression ('/') expression                                         # binaryDivitionExpression
+    |   expression ('*') expression                                         # binaryMultiplicationExpression
+    |   expression ('%') expression                                         # binaryModExpression
+    |   expression ('&&') expression                                        # binaryAndExpression
+    |   expression ('+') expression                                         # binaryAddExpression
+    |   expression ('-') expression                                         # binarySubExpression
+    |   expression ('||') expression                                        # binaryOrExpression
+    |   expression ('>') expression                                         # binaryGTExpression
+    |   expression ('>=') expression                                        # binaryGEExpression
+    |   expression ('<') expression                                         # binaryLTExpression
+    |   expression ('<=') expression                                        # binaryLEExpression
+    |   expression ('==') expression                                        # binaryEqualExpression
+    |   expression ('!=') expression                                        # binaryNotEqualExpression
+    |   '{' mapInitKeyValue (',' mapInitKeyValue)* '}'                      # mapInitializerExpression
+    |   'new' (packageName ':' )? Identifier ('(' expressionList? ')')?     # typeInitializeExpression
     ;
 
-literal
-    :   IntegerLiteral
-    |   FloatingPointLiteral
-    |   DoubleQuotedStringLiteral
-    |   SingleQuotedStringLiteral
-    |   BooleanLiteral
-    |   NullLiteral
-    ;
-
-primary
-    :   '(' expression ')'
-    |   literal
-    |   Identifier
+mapInitKeyValue
+    :   QuotedStringLiteral ':' literalValue
     ;
 
 // LEXER
@@ -403,7 +443,6 @@ PUBLIC          :   'public';
 ANY             :   'any';
 ALL             :   'all';
 AS              :   'as';
-EMPTYARRAY      :  '[]';
 TIMEOUT         :   'timeout';
 SENDARROW       :   '->';
 RECEIVEARROW    :   '<-';
@@ -644,12 +683,8 @@ BooleanLiteral
 
 // §3.10.5 String Literals
 
-DoubleQuotedStringLiteral
+QuotedStringLiteral
     :   '"' StringCharacters? '"'
-    ;
-
-SingleQuotedStringLiteral
-    :   '\'' StringCharacters? '\''
     ;
 
 BacktickStringLiteral
@@ -736,13 +771,6 @@ LetterOrDigit
     |   // covers UTF-16 surrogate pairs encodings for U+10000 to U+10FFFF
         [\uD800-\uDBFF] [\uDC00-\uDFFF]
     ;
-
-//
-// Additional symbols not defined in the lexical specification
-//
-
-AT : '@';
-ELLIPSIS : '...';
 
 //
 // Whitespace and comments

@@ -47,6 +47,11 @@ public class VariableDcl {
         this.value = value;
     }
 
+    public VariableDcl(Type type, Identifier identifier) {
+        this.type = type;
+        this.identifier = identifier;
+    }
+
     /**
      * Get the type of the variable
      *

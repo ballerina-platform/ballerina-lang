@@ -25,6 +25,10 @@ import org.wso2.ballerina.core.utils.TriFunction;
 /**
  * {@code BinaryExpression} represents a binary expression
  *
+ * @see BinaryCompareExpression
+ * @see BinaryArithmeticExpression
+ * @see BinaryLogicalExpression
+ * @see BinaryEqualityExpression
  * @since 1.0.0
  */
 public class BinaryExpression extends UnaryExpression {

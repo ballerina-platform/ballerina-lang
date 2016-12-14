@@ -12,21 +12,13 @@ import net.sf.saxon.tree.tiny.TinyElementImpl;
 import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.om.OMAttribute;
 import org.apache.axiom.om.OMContainer;
-import org.apache.axiom.om.OMDocument;
 import org.apache.axiom.om.OMNode;
-import org.apache.axiom.om.impl.builder.StAXOMBuilder;
-import org.apache.axiom.om.impl.jaxp.OMSource;
 import org.apache.axiom.om.xpath.AXIOMXPath;
 import org.jaxen.JaxenException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.model.types.XMLType;
 
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -39,33 +31,6 @@ public class XMLUtil {
     private static Processor processor = new Processor(false);
 
     private static final Logger LOG = LoggerFactory.getLogger(Processor.class);
-
-    public static void main(String[] args) {
-        String x = "<bookstore>\n" + "\n" + "<book>\n" + "  <title lang=\"eng\">Harry Potter</title>\n"
-                + "  <price>29.99</price>\n" + "</book>\n" + "\n" + "<book>\n"
-                + "  <title lang=\"eng\">Learning XML</title>\n" + "  <price>39.95</price>\n" + "</book>\n" + "\n"
-                + "</bookstore>";
-        byte[] bytes = x.getBytes();
-        InputStream inputStream = new ByteArrayInputStream(bytes);
-        XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
-
-        try {
-            XMLStreamReader streamReader = xmlInputFactory.createXMLStreamReader(inputStream, "UTF-8");
-            StAXOMBuilder builder = new StAXOMBuilder(streamReader);
-            OMDocument om = builder.getDocument();
-
-            XMLType xmlType = new XMLType(om.getOMDocumentElement());
-
-            set(xmlType, "/*/book[1]/title/@lang", null, "test");
-
-            //            System.out.println(get(xmlType, "/A/B", null));
-            //            System.out.println(get(xmlType, "/A/B/C/text()", null));
-
-        } catch (XMLStreamException e) {
-            e.printStackTrace();
-        }
-
-    }
 
     /**
      * Evaluate xpath using Saxon-HE library.
@@ -82,11 +47,11 @@ public class XMLUtil {
 
             DocumentBuilder builder = processor.newDocumentBuilder();
 
-            XdmNode doc = builder.build(new OMSource(xmlType.getOmElement()));
+            XdmNode doc = builder.build(xmlType.getOmElement().getSAXSource(true));
 
             if (nameSpaces != null && !nameSpaces.isEmpty()) {
-                for (String key : nameSpaces.keySet()) {
-                    xPathCompiler.declareNamespace(key, nameSpaces.get(key));
+                for (Map.Entry<String, String> entry : nameSpaces.entrySet()) {
+                    xPathCompiler.declareNamespace(entry.getKey(), entry.getValue());
                 }
             }
             XPathSelector selector = xPathCompiler.compile(xpath).load();
@@ -110,17 +75,18 @@ public class XMLUtil {
 
     /**
      * Method for modify XML messages
-     * @param xmlType original message
-     * @param xpath xpath location for set the value
+     *
+     * @param xmlType    original message
+     * @param xpath      xpath location for set the value
      * @param nameSpaces namespaces to be added
-     * @param value String value to be set
+     * @param value      String value to be set
      */
     public static void set(XMLType xmlType, String xpath, Map<String, String> nameSpaces, String value) {
         try {
             AXIOMXPath axiomxPath = new AXIOMXPath(xpath);
             if (nameSpaces != null && !nameSpaces.isEmpty()) {
-                for (String key : nameSpaces.keySet()) {
-                    axiomxPath.addNamespace(key, nameSpaces.get(key));
+                for (Map.Entry<String, String> entry : nameSpaces.entrySet()) {
+                    axiomxPath.addNamespace(entry.getKey(), entry.getValue());
 
                 }
             }
@@ -141,24 +107,25 @@ public class XMLUtil {
                 }
             }
         } catch (JaxenException e) {
-            e.printStackTrace();
+            LOG.error("Cannot evaluate XPath , may be syntax of xpath is wrong", e);
         }
 
     }
 
     /**
-     *  Method for modify XML messages
-     * @param xmlType original message
-     * @param xpath xpath location for set the value
+     * Method for modify XML messages
+     *
+     * @param xmlType    original message
+     * @param xpath      xpath location for set the value
      * @param nameSpaces namespaces to be added
-     * @param value String value to be set
+     * @param value      String value to be set
      */
     public static void set(XMLType xmlType, String xpath, Map<String, String> nameSpaces, XMLType value) {
         try {
             AXIOMXPath axiomxPath = new AXIOMXPath(xpath);
             if (nameSpaces != null && !nameSpaces.isEmpty()) {
-                for (String key : nameSpaces.keySet()) {
-                    axiomxPath.addNamespace(key, nameSpaces.get(key));
+                for (Map.Entry<String, String> entry : nameSpaces.entrySet()) {
+                    axiomxPath.addNamespace(entry.getKey(), (entry.getValue()));
 
                 }
             }
@@ -176,7 +143,34 @@ public class XMLUtil {
                 }
             }
         } catch (JaxenException e) {
-            e.printStackTrace();
+            LOG.error("Cannot evaluate XPath , may be syntax of xpath is wrong", e);
+        }
+
+    }
+
+    public static void remove(XMLType xmlType, String xpath, Map<String, String> nameSpaces) {
+        try {
+            AXIOMXPath axiomxPath = new AXIOMXPath(xpath);
+            if (nameSpaces != null && !nameSpaces.isEmpty()) {
+                for (Map.Entry<String, String> entry : nameSpaces.entrySet()) {
+                    axiomxPath.addNamespace(entry.getKey(), entry.getValue());
+
+                }
+            }
+            Object ob = axiomxPath.evaluate(xmlType.getOmElement());
+            if (ob instanceof ArrayList) {
+                List list = (List) ob;
+
+                for (Object obj : list) {
+                    if (obj instanceof OMNode) {
+                        OMNode omNode = (OMNode) obj;
+                        omNode.detach();
+
+                    }
+                }
+            }
+        } catch (JaxenException e) {
+            LOG.error("Cannot evaluate XPath , may be syntax of xpath is wrong", e);
         }
 
     }

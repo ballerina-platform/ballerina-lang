@@ -17,7 +17,9 @@ service TravelManagerService {
     @Path ("/reservation")
     resource passthrough (message m) {
         message response;
-        json jsonMsg = json:getPayload(m);
+        json jsonMsg;
+        json errorMsg;
+        jsonMsg= json:getPayload(m);
         try {
           if (json:get(jsonMsg, "$.TravelpediaReservation.reservationType") == "CAR-RENTAL") {
               response = http:HttpConnector.sendPost(hotelEP, m);
@@ -25,7 +27,7 @@ service TravelManagerService {
               response = http:HttpConnector.sendPost(carRentalEP, m);
           }
         } catch (exception e) {
-            json errorMsg = `{"error" : "Error while sending to backend"}`;
+            errorMsg = `{"error" : "Error while sending to backend"}`;
             message:setPayload (response, errorMsg);
             message:setHeader (response, "Status", 500);
         }

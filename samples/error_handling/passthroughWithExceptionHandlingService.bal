@@ -18,11 +18,12 @@ service PassthroughWithExceptionHandlingService {
   @Path ("/passthrough")
   resource passthrough (message m) {
     message response;
+    json error;
     try {
         response = http:HttpConnector.sendPost (nyse_ep, m);
     } catch (exception e) {
         message:setHeader(m, HTTP.StatusCode, 500);// need to discuss
-        json error = `{"error":"backend failed", "causedby":e.message}`;
+        error = `{"error":"backend failed", "causedby":e.message}`;
         message:setPayload(m, error);
     }
     reply response;

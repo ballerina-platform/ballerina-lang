@@ -1,9 +1,13 @@
 package samples.datamapping;
 
 typeconvertor mapRequestToHotelRequest (xmlElement<t1> in) (xmlElement<t2>) {
-  string name = xml:get(in, "/name", nil);
-  xmlElement<smalladdr> addr = mapAddress (xml:get (in, "/address", nil));
-  xmlElement out =
+  string name;
+  xmlElement<smalladdr> addr;
+  xmlElement out;
+
+  name = xml:get(in, "/name", nil);
+  addr = mapAddress (xml:get (in, "/address", nil));
+  out =
     `<Hotels>
        <name>$name</name>
        $addr
@@ -12,16 +16,21 @@ typeconvertor mapRequestToHotelRequest (xmlElement<t1> in) (xmlElement<t2>) {
 }
 
 typeconvertor mapAddress (xmlElement<bigaddr> in) (xmlElement<smalladdr>) {
-  string addrstring = xml:get(in, "/address/number", nil) + " " +
+  string addrstring;
+  addrstring = xml:get(in, "/address/number", nil) + " " +
                           xml:get(in, "/address/street", nil) + ", " +
                           xml:get(in, "/address/city", nil);
   return `<address>$addrstring</address>`;
 }
 
 typeconvertor requestToCarRequest (xmlElement<t1> in) (xmlElement<t2>) {
-  string category = xml:get(in, "/category", nil);
-  xmlElement<smallDetails> details = mapDetails (xml:get (in, "/details", nil));
-  xmlElement out =
+  string category;
+  xmlElement<smallDetails> details;
+  xmlElement out;
+
+  category = xml:get(in, "/category", nil);
+  details = mapDetails (xml:get (in, "/details", nil));
+  out =
     `<Cars>
        <category>$category</category>
        $details
@@ -30,7 +39,8 @@ typeconvertor requestToCarRequest (xmlElement<t1> in) (xmlElement<t2>) {
 }
 
 typeconvertor mapDetails (xmlElement<bigDetails> in) (xmlElement<smallDetails>) {
-  string details = xml:get(in, "/order/capacity", nil) + " " +
+  string details;
+  details = xml:get(in, "/order/capacity", nil) + " " +
                           xml:get(in, "/order/pickup", nil) + ", " +
                           xml:get(in, "/order/destination", nil);
   return `<address>$details</address>`;

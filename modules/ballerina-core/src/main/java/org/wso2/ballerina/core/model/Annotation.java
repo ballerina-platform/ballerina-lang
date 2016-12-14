@@ -32,8 +32,16 @@ import java.util.Map;
 @SuppressWarnings("unused")
 public class Annotation {
 
-    private String name, value;
+    // TODO Refactor these instance variables
+    private String name;
+    private Identifier identifier;
+    private String value;
     private Map<String, String> keyValPairs = new HashMap<>();
+    private Map<Identifier, String> elementPair = new HashMap<>();
+
+    public Annotation(String name) {
+        this.name = name;
+    }
 
     public Annotation(String name, String value) {
         this.name = name;
@@ -43,6 +51,12 @@ public class Annotation {
     public Annotation(String name, Map<String, String> keyValPairs) {
         this.name = name;
         this.keyValPairs = keyValPairs;
+    }
+
+    public Annotation(Identifier name, String value, Map<Identifier, String> keyValPairs) {
+        this.identifier = name;
+        this.value = value;
+        this.elementPair = keyValPairs;
     }
 
     /**
@@ -80,6 +94,32 @@ public class Annotation {
      */
     public String getValueOfKeyValuePair(String key) {
         return keyValPairs.get(key);
+    }
+
+    /**
+     * Builds an Annotation
+     */
+    public static class AnnotationBuilder {
+
+        private Identifier name;
+        private String value;
+        private Map<Identifier, String> keyValPairs = new HashMap<>();
+
+        public void setName(Identifier name) {
+            this.name = name;
+        }
+
+        public void setValue(String value) {
+            this.value = value;
+        }
+
+        public void addKeyValuePair(Identifier key, String value) {
+            this.keyValPairs.put(key, value);
+        }
+
+        public Annotation build() {
+            return new Annotation(name, value, keyValPairs);
+        }
     }
 
 }
