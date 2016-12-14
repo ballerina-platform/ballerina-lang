@@ -23,6 +23,7 @@ import org.wso2.ballerina.core.interpreter.Interpreter;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.model.types.Type;
+import org.wso2.ballerina.core.model.types.TypeC;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,6 +60,8 @@ public class Action implements Node, Interpreter {
     private VariableDcl[] variableDcls;
     private Worker[] workers;
     private Type[] returnTypes;
+    private TypeC[] returnTypesC;
+    private BlockStmt functionBody;
     private BlockStmt actionBody;
 
     public Action(SymbolName name,
@@ -78,6 +81,25 @@ public class Action implements Node, Interpreter {
         this.variableDcls = variableDcls;
         this.workers = workers;
         this.actionBody = actionBody;
+    }
+
+    public Action(SymbolName name,
+                  Annotation[] annotations,
+                  Parameter[] parameters,
+                  TypeC[] returnTypes,
+                  ConnectorDcl[] connectorDcls,
+                  VariableDcl[] variableDcls,
+                  Worker[] workers,
+                  BlockStmt functionBody) {
+
+        this.name = name;
+        this.annotations = annotations;
+        this.parameters = parameters;
+        this.returnTypesC = returnTypes;
+        this.connectorDcls = connectorDcls;
+        this.variableDcls = variableDcls;
+        this.workers = workers;
+        this.functionBody = functionBody;
     }
 
     /**
@@ -276,7 +298,7 @@ public class Action implements Node, Interpreter {
     }
 
     @Override
-    public void visit(NodeVisitor visitor) {
+    public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 }

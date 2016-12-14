@@ -15,27 +15,28 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerina.core.model.expressions;
+package org.wso2.ballerina.core.model;
 
-import org.wso2.ballerina.core.model.NodeVisitor;
-import org.wso2.ballerina.core.model.Operator;
+import org.wso2.ballerina.core.model.types.TypeC;
 
 /**
- * {@code BinaryArithmeticExpression} is the base class for any binary arithmetic expression
  *
- * @see AddExpression
- * @see SubtractExpression
- * @see MultExpression
- * @since 1.0.0
  */
-public class BinaryArithmeticExpression extends BinaryExpression {
+public class Symbol {
+    private TypeC type;
 
-    public BinaryArithmeticExpression(Expression lExpr, Operator op, Expression rExpr) {
-        super(lExpr, op, rExpr);
+    private int offset;
+
+    public Symbol(TypeC type, int offset) {
+        this.type = type;
+        this.offset = offset;
     }
 
-    @Override
-    public void accept(NodeVisitor visitor) {
-        visitor.visit(this);
+    public TypeC getType() {
+        return type;
+    }
+
+    public int getOffset() {
+        return offset;
     }
 }

@@ -19,6 +19,7 @@
 package org.wso2.ballerina.core.model;
 
 import org.wso2.ballerina.core.model.types.Type;
+import org.wso2.ballerina.core.model.types.TypeC;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +36,7 @@ import java.util.List;
 public class Parameter implements Node {
 
     private Type type;
+    private TypeC typeC;
     private SymbolName name;
     private List<Annotation> annotations;
 
@@ -44,6 +46,11 @@ public class Parameter implements Node {
      */
     public Parameter(Type type, SymbolName name) {
         this.type = type;
+        this.name = name;
+    }
+
+    public Parameter(TypeC typeC, SymbolName name) {
+        this.typeC = typeC;
         this.name = name;
     }
 
@@ -63,6 +70,10 @@ public class Parameter implements Node {
      */
     public Type getType() {
         return type;
+    }
+
+    public TypeC getTypeC() {
+        return typeC;
     }
 
     /**
@@ -96,7 +107,7 @@ public class Parameter implements Node {
     }
 
     @Override
-    public void visit(NodeVisitor visitor) {
+    public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 }

@@ -26,13 +26,18 @@ import org.wso2.ballerina.core.model.values.BValueRef;
  * @since 1.0.0
  */
 public class StackFrame {
-    public BValueRef[] parameters;
-    public BValueRef returnValue;
-    public BValueRef[] localVariables;
+    public BValueRef[] values;
+    public BValueRef[] returnValues;
 
-    public StackFrame(BValueRef[] parameters, BValueRef returnValue, BValueRef[] localVariables) {
-        this.parameters = parameters;
-        this.returnValue = returnValue;
-        this.localVariables = localVariables;
+
+    // TODO Remove the following variable
+    public BValueRef returnValue = new BValueRef(null);
+    public BValueRef[] localVariables;
+    public BValueRef[] exprValues;
+    public BValueRef[] parameters;
+
+    public StackFrame(BValueRef[] values, BValueRef[] returnValues) {
+        this.values = values;
+        this.returnValues = returnValues;
     }
 }
