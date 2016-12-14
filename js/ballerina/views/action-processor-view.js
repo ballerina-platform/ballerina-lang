@@ -66,7 +66,6 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './point'],
             var lineGap = 8;
             var centerTextXGap = 40;
             var centerTextYGap = 20;
-            //TODO: move css to classes
             var processorRect = D3utils.centeredRect(new Point(this._viewOptions.centerPoint.x, this._viewOptions.centerPoint.y), this._viewOptions.width
                 , this._viewOptions.height, 0, 0, this._viewOptions.parent).classed("action-rect", true);
 //TODO: TO MOVE
