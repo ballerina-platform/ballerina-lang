@@ -22,10 +22,12 @@ define(['lodash', 'log', 'event_channel', '../../ast/module',
 './if-else-statement-visitor',
 './if-statement-visitor',
 './else-statement-visitor',
-'./while-statement-visitor'],
+'./while-statement-visitor',
+'./assignment-statement-visitor',
+'./get-action-statement-visitor'],
 function (_, log, EventChannel, AST,
 TryCatchStatementVisitor, TryStatementVisitor, CatchStatementVisitor, IfElseStatementVisitor, IfStatementVisitor,
-ElseStatementVisitor, WhileStatementVisitor) {
+ElseStatementVisitor, WhileStatementVisitor, AssignmentStatementVisitor, GetActionStatementVisitor) {
 
     var StatementVisitorFactor = function () {
     };
@@ -45,6 +47,10 @@ ElseStatementVisitor, WhileStatementVisitor) {
             return new ElseStatementVisitor(parent.getParent());
         } else if (statement instanceof AST.WhileStatement) {
             return new WhileStatementVisitor(parent);
+        } else if (statement instanceof AST.Assignment) {
+            return new AssignmentStatementVisitor(parent);
+        } else if (statement instanceof AST.GetActionStatement) {
+            return new GetActionStatementVisitor(parent);
         }
     };
 
