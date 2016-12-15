@@ -63,7 +63,7 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
         }
         panelTitle.append(panelIcon);
         var titleLink = $('<a>' + canvas[0].getAttribute('name') + '</a>');
-        if (title !== undefined) {
+        if (this.title !== undefined) {
             titleLink.append("&nbsp;" + title);
         }
         titleLink.addClass(_.get(options, 'cssClass.title_link'));
