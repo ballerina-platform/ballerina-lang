@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/get-action-statement','./point', 'd3utils','./action-processor-view'],
-    function (_, d3, log, BallerinaStatementView, GetActionStatement,Point, D3Utils,ActionProcessor) {
+define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/get-action-statement','./point', 'd3utils'],
+    function (_, d3, log, BallerinaStatementView, GetActionStatement,Point, D3Utils) {
 
         var GetActionStatementView = function (args) {
             BallerinaStatementView.call(this, args);

@@ -16,10 +16,10 @@
  * under the License.
  */
 define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../ast/resource-definition',
-        './point', './life-line', './action-processor-view', './connector-declaration-view',
+        './life-line', './point', './connector-declaration-view',
         './statement-view-factory', 'ballerina/ast/ballerina-ast-factory', './expression-view-factory'],
     function (_, log, d3, $, D3utils, BallerinaView, ResourceDefinition,
-              Point, LifeLine,ActionProcessor,ConnectorDeclarationView, StatementViewFactory, BallerinaASTFactory, ExpressionViewFactory) {
+              LifeLine, Point, ConnectorDeclarationView, StatementViewFactory, BallerinaASTFactory, ExpressionViewFactory) {
 
         /**
          * The view to represent a resource definition which is an AST visitor.
@@ -36,7 +36,6 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             this._connectorViewList =  [];
             this._defaultResourceLifeLine = undefined;
             this._statementExpressionViewList = [];
-            this._defaultActionProcessor = undefined;
             this._parentView = _.get(args, "parentView");
 
             if (_.isNil(this._model) || !(this._model instanceof ResourceDefinition)) {
@@ -196,9 +195,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 x = lastStatement.getXPosition();
                 y = lastStatement.getYPosition() + lastStatement.getHeight() + statementsGap;
             } else {
-                x = parseInt(this._defaultResourceLifeLine.getMiddleLine().attr('x1')) - parseInt(statementsWidth/2);
-                // First statement is drawn wrt to the position of the default action processor
-                y = this._defaultActionProcessor.getHeight() + this._defaultActionProcessor.getYPosition() + statementsGap;
+                var x = parseInt(this._defaultResourceLifeLine.getMiddleLine().attr('x1')) - parseInt(statementsWidth/2);
                 statementView.setXPosition(x);
             }
             this.diagramRenderingContext.getViewModelMap()[statement.id] = statementView;
@@ -221,8 +218,6 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 expressionView.setYPosition(lastStatement.getYPosition() + lastStatement.getHeight() + statementsGap);
             } else {
                 var x = parseInt(this._defaultResourceLifeLine.getMiddleLine().attr('x1')) - parseInt(expressionWidth/2);
-                // First statement is drawn wrt to the position of the default action processor
-                var y = this._defaultActionProcessor.getHeight() + this._defaultActionProcessor.getYPosition();
                 expressionView.setXPosition(x);
                 expressionView.setYPosition(y + statementsGap);
             }
@@ -353,43 +348,6 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 this._defaultResourceLifeLine = new LifeLine(contentGroup, defaultWorkerOptions);
             }
             this._defaultResourceLifeLine.render();
-            //Drawing processor for resource worker
-            var processorCenterPointX = contentStart.x() + 130;
-            var processorCenterPointY = contentStart.y() + 75;
-            var processorWidth = 120;
-            var processorHeight = 30;
-            var sourcePointX = processorCenterPointX - (processorWidth/2) -30;
-            var sourcePointY = processorCenterPointY;
-            var destinationPointX =  processorCenterPointX - (processorWidth/2);
-            var  arrowX = destinationPointX - 5;
-            var arrowY = processorCenterPointY;
-
-            var processorViewOpts = {
-                parent: contentGroup,
-                processorWidth: processorWidth,
-                processorHeight: processorHeight,
-                centerPoint: {
-                    x: processorCenterPointX,
-                    y: processorCenterPointY
-                },
-                sourcePoint: {
-                    x: sourcePointX,
-                    y: sourcePointY
-                },
-                destinationPoint: {
-                    x: destinationPointX,
-                    y: sourcePointY
-                },
-                action: "Start",
-                inArrow: true,
-                arrowX: arrowX,
-                arrowY: arrowY
-
-            };
-            var defaultProcessor = new ActionProcessor(processorViewOpts);
-            this._defaultActionProcessor = defaultProcessor;
-            defaultProcessor.render();
-
             log.debug("Rendering Resource View");
             this.getModel().accept(this);
             this.initResourceLevelDropTarget();
