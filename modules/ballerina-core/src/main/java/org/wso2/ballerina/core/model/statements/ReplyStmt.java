@@ -27,10 +27,16 @@ import org.wso2.ballerina.core.model.expressions.Expression;
  * @since 1.0.0
  */
 public class ReplyStmt implements Statement {
+
     private Expression replyExpr;
 
     public ReplyStmt(Expression replyExpr) {
         this.replyExpr = replyExpr;
+    }
+
+
+    public Expression getReplyExpr() {
+        return replyExpr;
     }
 
     public void interpret(Context ctx) {
@@ -40,5 +46,25 @@ public class ReplyStmt implements Statement {
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    /**
+     * Builds a {@code ReturnStmt} statement
+     *
+     * @since 1.0.0
+     */
+    public static class ReplyStmtBuilder {
+        Expression replyExpr;
+
+        public ReplyStmtBuilder() {
+        }
+
+        public void setExpression(Expression expr) {
+            replyExpr = expr;
+        }
+
+        public ReplyStmt build() {
+            return new ReplyStmt(replyExpr);
+        }
     }
 }

@@ -24,6 +24,7 @@ import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.interpreter.BContext;
 import org.wso2.ballerina.core.interpreter.BLangInterpreter;
+import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.interpreter.StackFrame;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
@@ -112,7 +113,7 @@ public class LocalFuncInvocationTest {
         BValueRef[] results = new BValueRef[1];
         StackFrame stackFrame = new StackFrame(results, null);
 
-        BContext bContext = new BContext();
+        Context bContext = new Context();
         bContext.getControlStack().pushFrame(stackFrame);
         BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
         funcIExpr.accept(bLangInterpreter);

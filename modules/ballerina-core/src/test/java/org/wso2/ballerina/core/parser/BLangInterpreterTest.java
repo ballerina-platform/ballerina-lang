@@ -24,6 +24,7 @@ import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.interpreter.BContext;
 import org.wso2.ballerina.core.interpreter.BLangInterpreter;
+import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.interpreter.ControlStack;
 import org.wso2.ballerina.core.interpreter.StackFrame;
 import org.wso2.ballerina.core.model.BallerinaFile;
@@ -80,7 +81,7 @@ public class BLangInterpreterTest {
         BallerinaFunction function = (BallerinaFunction) bFile.getFunctions().get(funcName);
 
         // Create control stack and the stack frame
-        BContext ctx = new BContext();
+        Context ctx = new Context();
         ControlStack controlStack = ctx.getControlStack();
 
         int sizeOfValueArray = function.getStackFrameSize();
