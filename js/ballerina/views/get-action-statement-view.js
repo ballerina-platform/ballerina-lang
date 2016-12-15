@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/get-action-statement', 'd3utils','./action-processor-view'],
-    function (_, d3, log, BallerinaStatementView, GetActionStatement, D3Utils,ActionProcessor) {
+define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/get-action-statement','./point', 'd3utils','./action-processor-view'],
+    function (_, d3, log, BallerinaStatementView, GetActionStatement,Point, D3Utils,ActionProcessor) {
 
         var GetActionStatementView = function (args) {
             BallerinaStatementView.call(this, args);
@@ -146,8 +146,31 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/get-action
             }
 
             this.setBoundingBox(processorWidth, processorHeight, processorCenterPointX, processorCenterPointY);
-         var actionStatementView = new ActionProcessor(processorViewOpts);
-         actionStatementView.render();
+
+
+            var lineGap = 8;
+            var centerTextXGap = 40;
+            var centerTextYGap = 20;
+            var processorRect = D3Utils.centeredRect(new Point(processorCenterPointX,processorCenterPointY), processorWidth
+                , processorHeight, 0, 0, actionStatementGroup).classed("action-rect", true);
+
+            var processorConnectorPoint = D3Utils.circle(((processorCenterPointX - processorWidth /2) + processorWidth),((processorCenterPointY - processorHeight/2) + 15), 10,actionStatementGroup);
+            processorConnectorPoint.attr("fill-opacity",0.01);
+
+            var processorText = D3Utils.textElement((processorCenterPointX + centerTextXGap -  processorWidth / 2), (processorCenterPointY + centerTextYGap - (processorHeight / 2)),
+                "Invoke", actionStatementGroup).classed("action-text", true);
+
+            this.processorRect = processorRect;
+
+
+
+
+
+
+      //   var actionStatementView = new ActionProcessor(processorViewOpts);
+        // actionStatementView.render();
+
+
 
         };
 
