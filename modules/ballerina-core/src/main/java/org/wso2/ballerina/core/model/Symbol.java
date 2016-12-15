@@ -20,7 +20,10 @@ package org.wso2.ballerina.core.model;
 import org.wso2.ballerina.core.model.types.TypeC;
 
 /**
+ * {@code Symbol} represents a data structure that simply defines the type of variables,
+ * function invocation exprs etc
  *
+ * @since 1.0.0
  */
 public class Symbol {
     private TypeC type;
