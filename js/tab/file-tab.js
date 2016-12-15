@@ -128,15 +128,15 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             ifelse3.addChild(if3);
             ifelse3.addChild(else3);
             if1.addChild(ifelse2);
-            if2.addChild(ifelse3);
+            else1.addChild(ifelse3);
             var ifelse4 = BallerinaASTFactory.createIfElseStatement();
             var if4 = BallerinaASTFactory.createIfStatement();
             var else4 = BallerinaASTFactory.createElseStatement();
             ifelse4.addChild(if4);
             ifelse4.addChild(else4);
-            if1.addChild(ifelse4);
+            // if1.addChild(ifelse4);
             //
-            if2.addChild(ifelse3);
+            // if2.addChild(ifelse3);
             // resource_passthrough2.addChild(ifelse1);
             serviceDefinition_passthroughService2.addChild(resource_passthrough2);
             // Adding Resources
