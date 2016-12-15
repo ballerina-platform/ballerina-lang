@@ -124,7 +124,7 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
          */
         FunctionDefinitionView.prototype.render = function (diagramRenderingContext) {
             this.diagramRenderingContext = diagramRenderingContext;
-            this.drawAccordionCanvas(this._container, this._viewOptions, this._model.id, this._model.type.toLowerCase());
+            this.drawAccordionCanvas(this._container, this._viewOptions, this._model.id, this._model.type.toLowerCase(), undefined);
             var divId = this._model.id;
             var currentContainer = $('#'+ divId);
             this._container = currentContainer;
