@@ -20,7 +20,6 @@ package org.wso2.ballerina.core.parser.visitor;
 import org.wso2.ballerina.core.interpreter.SymbolTable;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.Worker;
-import org.wso2.ballerina.core.model.expressions.BasicLiteral;
 import org.wso2.ballerina.core.model.expressions.Expression;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
@@ -33,8 +32,6 @@ import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.model.statements.ThrowStmt;
 import org.wso2.ballerina.core.model.statements.TryCatchStmt;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
-import org.wso2.ballerina.core.model.values.BValueRef;
-import org.wso2.ballerina.core.model.values.StringValue;
 import org.wso2.ballerina.core.parser.BallerinaBaseVisitor;
 import org.wso2.ballerina.core.parser.BallerinaParser;
 
@@ -370,9 +367,6 @@ public class StatementVisitor extends BallerinaBaseVisitor {
     public Object visitReplyStatement(BallerinaParser.ReplyStatementContext ctx) {
         if (ctx.expression() != null) {
             Expression expression = this.visitExpressionX(ctx.expression());
-            return new ReplyStmt(expression);
-        } else if (ctx.Identifier() != null) {
-            Expression expression = new BasicLiteral(new BValueRef(new StringValue(ctx.Identifier().getText())));
             return new ReplyStmt(expression);
         } else {
             return new ReplyStmt(null);

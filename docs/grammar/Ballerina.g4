@@ -320,7 +320,7 @@ returnStatement
 
 // below Identifier is only a type of 'message'
 replyStatement
-    :   'reply' (Identifier | expression)? ';'
+    :   'reply' expression? ';'
     ;
 
 workerInteractionStatement
