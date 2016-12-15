@@ -24,6 +24,7 @@ define(['log', 'jquery', 'd3', 'backbone', 'lodash', 'd3utils'], function (log, 
 
         initialize: function (options) {
             _.extend(this, _.pick(options, ["toolPalette"]));
+            this._options = options;
             _.set(this, 'options.dragIcon.box.size', '60px');
         },
 
@@ -35,7 +36,8 @@ define(['log', 'jquery', 'd3', 'backbone', 'lodash', 'd3utils'], function (log, 
                         .addChild(toolView.toolPalette.dragDropManager.getTypeBeingDragged());
                 }
                 toolView.toolPalette.dragDropManager.reset();
-                toolView._$divBeingDragged = undefined;
+                toolView._$disabledIcon = undefined;
+                toolView._$draggedToolIcon = undefined;
             };
         },
 
@@ -43,9 +45,11 @@ define(['log', 'jquery', 'd3', 'backbone', 'lodash', 'd3utils'], function (log, 
             var toolView = this;
             return function (event, ui) {
                 if(!toolView.toolPalette.dragDropManager.isAtValidDropTarget()){
-                    toolView._$divBeingDragged.css('opacity', 0.2);
+                    toolView._$disabledIcon.show();
+                    toolView._$draggedToolIcon.css('opacity', 0.1);
                 } else {
-                    toolView._$divBeingDragged.css('opacity', 1);
+                    toolView._$disabledIcon.hide();
+                    toolView._$draggedToolIcon.css('opacity', 1);
                 }
             };
         },
@@ -58,7 +62,8 @@ define(['log', 'jquery', 'd3', 'backbone', 'lodash', 'd3utils'], function (log, 
         },
 
         render: function (parent) {
-            var dragCursorOffset = this.model.dragCursorOffset;
+            var dragCursorOffset = _.isUndefined(this.model.dragCursorOffset) ?  { left: 30, top: -10 } : this.model.dragCursorOffset;
+            this._dragCursorOffset = dragCursorOffset;
             var self = this;
             this.$el.html(this.toolTemplate(this.model.attributes));
             this.$el.tooltip();
@@ -67,7 +72,7 @@ define(['log', 'jquery', 'd3', 'backbone', 'lodash', 'd3utils'], function (log, 
             this.$el.draggable({
                 helper: _.isUndefined(this.createCloneCallback) ?  'clone' : this.createCloneCallback(self),
                 cursor: 'move',
-                cursorAt: _.isUndefined(dragCursorOffset) ?  { left: 30, top: -10 } : dragCursorOffset,
+                cursorAt: dragCursorOffset,
                 zIndex: 10001,
                 stop: this.createHandleDragStopEvent(),
                 start : this.createHandleDragStartEvent(),
@@ -79,15 +84,21 @@ define(['log', 'jquery', 'd3', 'backbone', 'lodash', 'd3utils'], function (log, 
 
         createContainerForDraggable: function(){
             var body = d3.select("body");
-            var div = body.append("div").attr("id", "draggingToolClone");
-            this._$divBeingDragged = $(div.node());
+            var div = body.append("div").attr("id", "draggingToolClone")
+                        .classed(_.get(this._options, 'cssClass.dragContainer'), true);
+
             //For validation feedback
-            div.append('span').attr("id","validator");
+            var disabledIconDiv = div.append('div').classed(_.get(this._options, 'cssClass.disabledIconContainer'), true);
+            disabledIconDiv.append('i').classed(_.get(this._options, 'cssClass.disabledIcon'), true);
+            this._$disabledIcon = $(disabledIconDiv.node());
+            this._$disabledIcon.css('top', this._dragCursorOffset.top + 20);
+            this._$disabledIcon.css('left', this._dragCursorOffset.left - 10);
             return div;
         },
 
         createCloneCallback: function (view) {
             var iconSVG,
+                self = this,
                 iconSize = _.get(this, 'options.dragIcon.box.size');
             d3.xml(this.model.icon).mimeType("image/svg+xml").get(function (error, xml) {
                 if (error) throw error;
@@ -97,6 +108,7 @@ define(['log', 'jquery', 'd3', 'backbone', 'lodash', 'd3utils'], function (log, 
             function cloneCallBack() {
                 var div = view.createContainerForDraggable();
                 div.node().appendChild(iconSVG);
+                self._$draggedToolIcon = $(iconSVG);
                 return div.node();
             }
 

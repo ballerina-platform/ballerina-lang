@@ -160,7 +160,7 @@ define(['log', 'lodash', 'backbone'], function (log, _, Backbone) {
                     && allowedBySourceValidateCallBack
                     && allowedByTargetValidateCallBack;
             }
-            return false;
+            return true;
         },
 
         /**

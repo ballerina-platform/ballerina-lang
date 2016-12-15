@@ -100,3 +100,18 @@
     top: 20px;
     color: darkgray;
 }
+
+.tool-drag-container{
+    position: relative;
+}
+
+.tool-disabled-icon{
+    color: red;
+}
+
+.disabled-icon-container{
+    display: none;
+    position: absolute;
+    right: 0px;
+    top: 0px;
+}

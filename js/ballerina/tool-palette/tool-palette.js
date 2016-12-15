@@ -58,12 +58,15 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
             // End of adding search bar
             this._$parent_el.append(toolPaletteDiv);
             this.$el = toolPaletteDiv;
-            this._toolGroups.forEach(function (group) {
-                var groupView = new ToolGroupView({model: group, toolPalette: self});
+
+            this._toolGroups.forEach(function (group){
+                var toolGroupOptions = _.clone(_.get(self._options, 'toolGroup'));
+                _.set(toolGroupOptions, 'toolPalette', self);
+                _.set(toolGroupOptions, 'model', group);
+                var groupView = new ToolGroupView(toolGroupOptions);
                 groupView.render(self.$el);
                 self.$el.addClass('non-user-selectable');
             });
-
             return this;
         },
 

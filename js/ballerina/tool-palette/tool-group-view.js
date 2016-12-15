@@ -21,6 +21,7 @@ define(['require','log', 'jquery', 'd3', 'backbone', './tool-view'], function (r
 
         initialize: function (options) {
             log.debug("toolGroupview init");
+            this._options = options;
             _.extend(this, _.pick(options, ["toolPalette"]));
         },
 
@@ -50,7 +51,10 @@ define(['require','log', 'jquery', 'd3', 'backbone', './tool-view'], function (r
             this._$toolGroupBody = groupBodyDiv;
 
             this.model.tools.forEach(function (tool) {
-                var toolView = new ToolView({model: tool, toolPalette: self.toolPalette});
+                var toolOptions = _.clone(_.get(self._options, 'tool'));
+                _.set(toolOptions, 'toolPalette', self.toolPalette);
+                _.set(toolOptions, 'model', tool);
+                var toolView = new ToolView(toolOptions);
                 toolView.render(groupBodyDiv);
             });
 
@@ -70,7 +74,10 @@ define(['require','log', 'jquery', 'd3', 'backbone', './tool-view'], function (r
         onToolAdded: function (tool) {
             var self = this;
             if (!_.isUndefined(self._$toolGroupBody)) {
-                var toolView = new ToolView({model: tool, toolPalette: self.toolPalette});
+                var toolOptions = _.clone(_.get(self._options, 'tool'));
+                _.set(toolOptions, 'toolPalette', self.toolPalette);
+                _.set(toolOptions, 'model', tool);
+                var toolView = new ToolView(toolOptions);
                 toolView.render(self._$toolGroupBody);
             }
         }
