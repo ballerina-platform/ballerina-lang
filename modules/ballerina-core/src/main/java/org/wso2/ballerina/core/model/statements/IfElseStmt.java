@@ -77,6 +77,9 @@ public class IfElseStmt implements Statement {
         visitor.visit(this);
     }
 
+    /**
+     * Represent an else if block of an if statement
+     */
     public static class ElseIfBlock {
         Expression elseIfCondition;
         BlockStmt elseIfBody;
