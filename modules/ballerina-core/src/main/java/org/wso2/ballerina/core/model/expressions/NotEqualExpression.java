@@ -73,7 +73,7 @@ public class NotEqualExpression extends BinaryEqualityExpression {
     }
 
     @Override
-    public void visit(NodeVisitor visitor) {
+    public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 }

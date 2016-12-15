@@ -24,6 +24,8 @@ import org.wso2.ballerina.core.model.values.BValueRef;
 import org.wso2.ballerina.core.model.values.BooleanValue;
 import org.wso2.ballerina.core.utils.TriFunction;
 
+import java.util.function.BiFunction;
+
 import static org.wso2.ballerina.core.model.Operator.EQUAL;
 
 /**
@@ -32,6 +34,12 @@ import static org.wso2.ballerina.core.model.Operator.EQUAL;
  * @since 1.0.0
  */
 public class EqualExpression extends BinaryEqualityExpression {
+
+    public static final BiFunction<BValueRef, BValueRef, BValueRef> EQUAL_INT_FUNC_NEW =
+            (lVal, rVal) -> {
+                BValue resultVal = new BooleanValue(lVal.getInt() == rVal.getInt());
+                return new BValueRef(resultVal);
+            };
 
     public static final TriFunction<Context, Expression, Expression, BValueRef> EQUAL_INT_FUNC =
             (ctx, lExpr, rExpr) -> {
@@ -73,7 +81,7 @@ public class EqualExpression extends BinaryEqualityExpression {
     }
 
     @Override
-    public void visit(NodeVisitor visitor) {
+    public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 }

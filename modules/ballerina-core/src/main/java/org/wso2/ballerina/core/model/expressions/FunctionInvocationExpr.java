@@ -19,7 +19,6 @@ package org.wso2.ballerina.core.model.expressions;
 
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.interpreter.ControlStack;
-import org.wso2.ballerina.core.interpreter.StackFrame;
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.model.NodeVisitor;
@@ -87,8 +86,8 @@ public class FunctionInvocationExpr extends AbstractExpression {
         }
 
         ControlStack controlStack = ctx.getControlStack();
-        StackFrame stackFrame = new StackFrame(funcParams, returnValue, localVariables);
-        controlStack.pushFrame(stackFrame);
+//        StackFrame stackFrame = new StackFrame(funcParams, returnValue, localVariables);
+//        controlStack.pushFrame(stackFrame);
 
         calleeFunction.interpret(ctx);
         controlStack.popFrame();
@@ -96,7 +95,7 @@ public class FunctionInvocationExpr extends AbstractExpression {
     }
 
     @Override
-    public void visit(NodeVisitor visitor) {
+    public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 }

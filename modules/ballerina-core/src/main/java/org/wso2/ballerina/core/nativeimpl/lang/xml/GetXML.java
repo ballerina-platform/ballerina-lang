@@ -27,7 +27,6 @@ import net.sf.saxon.s9api.XPathSelector;
 import net.sf.saxon.s9api.XdmNode;
 import net.sf.saxon.s9api.XdmValue;
 import net.sf.saxon.tree.tiny.TinyElementImpl;
-import net.sf.saxon.tree.tiny.TinyParentNodeImpl;
 
 import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
