@@ -111,6 +111,22 @@ define(['require', 'lodash', 'jquery', 'd3', 'log'], function (require, _, $, d3
     };
 
     /**
+     * Draw a generic svg line
+     * @param start {Point}
+     * @param end {Point}
+     * @param parent
+     * @returns Generic svg line
+     */
+    var lineFromPoints = function (start, end, parent) {
+        logParentUndefined(parent);
+        return parent.append("line")
+            .attr("x1", start.x())
+            .attr("y1", start.y())
+            .attr("x2", end.x())
+            .attr("y2", end.y());
+    };
+
+    /**
      * Draw a generic svg text Element
      * @param x
      * @param y
@@ -125,6 +141,26 @@ define(['require', 'lodash', 'jquery', 'd3', 'log'], function (require, _, $, d3
             .attr("y", y)
             .text(function () {
                 return textContent;
+            });
+    };
+
+    /**
+     * Draw a centered svg text Element on a given point
+     *
+     * @param center {Point}
+     * @param text {String}
+     * @param parent {SVGElement}
+     * @returns svg text element
+     */
+    var centeredText = function (center, text, parent) {
+        logParentUndefined(parent);
+        return parent.append("text")
+            .attr("x", center.x())
+            .attr("y", center.y())
+            .attr('text-anchor', "middle")
+            .attr('alignment-baseline', "central")
+            .text(function () {
+                return text;
             });
     };
 
@@ -216,7 +252,9 @@ define(['require', 'lodash', 'jquery', 'd3', 'log'], function (require, _, $, d3
     draw.centeredRect = centeredRect;
     draw.rect = rect;
     draw.line = line;
+    draw.lineFromPoints = lineFromPoints;
     draw.textElement = textElement;
+    draw.centeredText = centeredText;
     draw.circle = circle;
     draw.group = group;
     draw.svg = svg;

@@ -25,13 +25,13 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
         './catch-statement', './reply-statement', './while-statement', './return-statement',
         './type-converter-definition', './type-definition', './type-element', './variable-declaration',
         './package-definition', './import-declaration', './resource-arg', './assignment', './function-invocation',
-        './action-invocation-statement','./get-action-statement', './arithmetic-expression', './logical-expression'],
+        './action-invocation-statement', './arithmetic-expression', './logical-expression'],
     function (ballerinaAstRoot, serviceDefinition, functionDefinition, connectorDefinition, resourceDefinition,
               workerDeclaration, statement, conditionalStatement, connectorDeclaration, expression,
               ifElseStatement, ifStatement, elseStatement, elseIfStatement, tryCatchStatement, tryStatement, catchStatement, replyStatement,
               whileStatement, returnStatement, typeConverterDefinition, typeDefinition, typeElement, variableDeclaration,
               packageDefinition, importDeclaration, resourceArgument, assignmentStatement, functionInvocation,
-              actionInvocationStatement, getActionStatement, arithmeticExpression, logicalExpression) {
+              actionInvocationStatement, arithmeticExpression, logicalExpression) {
 
 
         /**
@@ -146,10 +146,6 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
          */
         BallerinaASTFactory.createExpression = function (args) {
             return new expression(args);
-        };
-
-        BallerinaASTFactory.createGetActionStatement = function(args){
-            return new getActionStatement(args);
         };
 
         BallerinaASTFactory.createActionInvocationStatement = function(args) {
@@ -516,6 +512,17 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
          */
         BallerinaASTFactory.isResourceArgument = function (child) {
             return child instanceof resourceArgument;
+        };
+
+        /**
+         * instanceof check for ActionInvocationStatement
+         * @param child - Object for instanceof check
+         * @returns {boolean} - true if same type, else false
+         */
+        BallerinaASTFactory.isActionInvocationStatement = function(statement){
+            if (statement instanceof actionInvocationStatement){
+                return true;
+            }
         };
         
         return BallerinaASTFactory;

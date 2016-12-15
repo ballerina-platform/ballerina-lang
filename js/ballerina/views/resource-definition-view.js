@@ -16,10 +16,10 @@
  * under the License.
  */
 define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../ast/resource-definition',
-        './life-line', './point', './connector-declaration-view',
+        './default-worker', './point', './connector-declaration-view',
         './statement-view-factory', 'ballerina/ast/ballerina-ast-factory', './expression-view-factory'],
     function (_, log, d3, $, D3utils, BallerinaView, ResourceDefinition,
-              LifeLine, Point, ConnectorDeclarationView, StatementViewFactory, BallerinaASTFactory, ExpressionViewFactory) {
+              DefaultWorkerView, Point, ConnectorDeclarationView, StatementViewFactory, BallerinaASTFactory, ExpressionViewFactory) {
 
         /**
          * The view to represent a resource definition which is an AST visitor.
@@ -34,7 +34,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             BallerinaView.call(this, args);
 
             this._connectorViewList =  [];
-            this._defaultResourceLifeLine = undefined;
+            this._defaultWorker = undefined;
             this._statementExpressionViewList = [];
             this._parentView = _.get(args, "parentView");
 
@@ -49,9 +49,13 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             }
 
             // Center point of the resource
-            this._viewOptions.centerPoint = _.get(args, "viewOptions.centerPoint", {});
-            this._viewOptions.centerPoint.x = _.get(args, "viewOptions.centerPoint.x", 50);
-            this._viewOptions.centerPoint.y = _.get(args, "viewOptions.centerPoint.y", 100);
+            this._viewOptions.centerPoint = _.get(args, "viewOptions.centerPoint", new Point(50, 100));
+
+            // Center point of the default worker
+            this._viewOptions.defaultWorker = _.get(args, "viewOptions.defaultWorker", {});
+            this._viewOptions.defaultWorker.offsetTop = _.get(args, "viewOptions.defaultWorker.offsetTop", 50);
+            this._viewOptions.defaultWorker.center = _.get(args, "viewOptions.defaultWorker.centerPoint",
+                            this._viewOptions.centerPoint.clone().move(130, 25));
 
             // View options for height and width of the heading box.
             this._viewOptions.heading = _.get(args, "viewOptions.heading", {});
@@ -69,6 +73,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             this._viewOptions.collapseIconWidth = _.get(args, "viewOptions.collaspeIconWidth", 1025);
 
             this._viewOptions.totalHeightGap = 50;
+            this._viewOptions.LifeLineCenterGap = 180;
+            this._viewOptions.defua = 180;
             this._viewOptions.hoverClass = _.get(args, "viewOptions.cssClass.hover_svg", 'design-view-hover-svg');
 
             //setting initial height for resource container
@@ -97,11 +103,13 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
         ResourceDefinitionView.prototype.childVisitedCallback = function (child) {
             if (BallerinaASTFactory.isStatement(child)) {
                 var childView = this.diagramRenderingContext.getViewModelMap()[child.id];
+                if(!childView){
+                    return;
+                }
                 var staticHeights = this.getGapBetweenStatements();
                 this._totalHeight = this._totalHeight + childView.getBoundingBox().height + staticHeights;
                 this.setResourceContainerHeight(this._totalHeight);
             };
-
             this.trigger("childViewAddedEvent", child);
         };
 
@@ -165,64 +173,54 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
          * @param {BallerinaStatementView} statement
          */
         ResourceDefinitionView.prototype.visitStatement = function (statement) {
-            var statementViewFactory = new StatementViewFactory();
-            var args = {model: statement, container: this._container, viewOptions: undefined, toolPalette: this.toolPalette,messageManager: this.messageManager, parent:this};
-            var statementView = statementViewFactory.getStatementView(args);
-            this.diagramRenderingContext.getViewModelMap()[statement.id] = statementView;
-            statementView.setParent(this);
-            var x = 0;
-            var y = 0;
-            if(statementViewFactory.isGetActionStatement(statement)){
-                _.each(this.diagramRenderingContext.getViewModelMap(),function(view){
-                    var matchFound =  _.isEqual(statement.getConnector(),view.getModel());
-                    if(matchFound) {
-                        statementView.setConnectorView(view);
-                    }
-                });
-                //_.each(this.getConnectorViewList(), function (view) {
-                //  var matchFound =  _.isEqual(statement.getConnector(),view.getModel());
-                //    if(matchFound) {
-                //        statementView.setConnectorView(view);
-                //    }
-                //});
-            }
-
-            // TODO: we need to keep this value as a configurable value and read from constants
-            var statementsGap = 40;
-            var statementsWidth = 120;
-            if (this._statementExpressionViewList.length > 0) {
-                var lastStatement = this._statementExpressionViewList[this._statementExpressionViewList.length - 1];
-                x = lastStatement.getXPosition();
-                y = lastStatement.getYPosition() + lastStatement.getHeight() + statementsGap;
-            } else {
-                var x = parseInt(this._defaultResourceLifeLine.getMiddleLine().attr('x1')) - parseInt(statementsWidth/2);
-                statementView.setXPosition(x);
-            }
-            this.diagramRenderingContext.getViewModelMap()[statement.id] = statementView;
-            this._statementExpressionViewList.push(statementView);
-            statementView.setBoundingBox(0, 0, x, y);
-            statementView.render(this.diagramRenderingContext);
+            //var statementViewFactory = new StatementViewFactory();
+            //var args = {model: statement, container: this._contentGroup.node(), viewOptions: undefined,
+            //    toolPalette: this.toolPalette,messageManager: this.messageManager, parent:this};
+            //var statementView = statementViewFactory.getStatementView(args);
+            //this.diagramRenderingContext.getViewModelMap()[statement.id] = statementView;
+            //statementView.setParent(this);
+            //if(statement.getFactory().isActionInvocationStatement(statement)){
+            //    var connectorDeclarationView = this.diagramRenderingContext.getViewModelMap()[statement.getConnector().id];
+            //}
+            //
+            //// TODO: we need to keep this value as a configurable value and read from constants
+            //var statementsGap = 40;
+            //var statementsWidth = 120;
+            //if (this._statementExpressionViewList.length > 0) {
+            //    var lastStatement = this._statementExpressionViewList[this._statementExpressionViewList.length - 1];
+            //    statementView.setXPosition(lastStatement.getXPosition());
+            //    statementView.setYPosition(lastStatement.getYPosition() + lastStatement.getHeight() + statementsGap);
+            //} else {
+            //    var defaultWorkerTopCenter = this._defaultWorker.getTopCenter();
+            //    var x = defaultWorkerTopCenter.x() - parseInt(statementsWidth/2);
+            //    var y = defaultWorkerTopCenter.y() + this._viewOptions.defaultWorker.offsetTop;
+            //    statementView.setXPosition(x);
+            //    statementView.setYPosition(y + statementsGap);
+            //}
+            //this.diagramRenderingContext.getViewModelMap()[statement.id] = statementView;
+            //this._statementExpressionViewList.push(statementView);
+            //statementView.render(this.diagramRenderingContext);
         };
 
         ResourceDefinitionView.prototype.visitExpression = function (statement) {
-            var expressionViewFactory = new ExpressionViewFactory();
-            var args = {model: statement, container: this._container, viewOptions: undefined, parent:this};
-            var expressionView = expressionViewFactory.getExpressionView(args);
-
-            // TODO: we need to keep this value as a configurable value and read from constants
-            var statementsGap = 40;
-            var expressionWidth = 120;
-            if (this._statementExpressionViewList.length > 0) {
-                var lastStatement = this._statementExpressionViewList[this._statementExpressionViewList.length - 1];
-                expressionView.setXPosition(lastStatement.getXPosition());
-                expressionView.setYPosition(lastStatement.getYPosition() + lastStatement.getHeight() + statementsGap);
-            } else {
-                var x = parseInt(this._defaultResourceLifeLine.getMiddleLine().attr('x1')) - parseInt(expressionWidth/2);
-                expressionView.setXPosition(x);
-                expressionView.setYPosition(y + statementsGap);
-            }
-            this._statementExpressionViewList.push(expressionView);
-            expressionView.render();
+            //var expressionViewFactory = new ExpressionViewFactory();
+            //var args = {model: statement, container: this._contentGroup.node(), viewOptions: undefined, parent:this};
+            //var expressionView = expressionViewFactory.getExpressionView(args);
+            //
+            //// TODO: we need to keep this value as a configurable value and read from constants
+            //var statementsGap = 40;
+            //var expressionWidth = 120;
+            //if (this._statementExpressionViewList.length > 0) {
+            //    var lastStatement = this._statementExpressionViewList[this._statementExpressionViewList.length - 1];
+            //    expressionView.setXPosition(lastStatement.getXPosition());
+            //    expressionView.setYPosition(lastStatement.getYPosition() + lastStatement.getHeight() + statementsGap);
+            //} else {
+            //    var x = this._defaultWorker.getMidPoint() - parseInt(expressionWidth/2);
+            //    expressionView.setXPosition(x);
+            //    expressionView.setYPosition(y + statementsGap);
+            //}
+            //this._statementExpressionViewList.push(expressionView);
+            //expressionView.render();
         };
 
         /**
@@ -234,62 +232,83 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             // Render resource view
             var svgContainer = $(this._container)[0];
 
-            var headingStart = new Point(this._viewOptions.centerPoint.x, this._viewOptions.centerPoint.y);
-            var contentStart = new Point(this._viewOptions.centerPoint.x, this._viewOptions.centerPoint.y + this._viewOptions.heading.height);
+            var headingStart = new Point(this._viewOptions.centerPoint.x(), this._viewOptions.centerPoint.y());
+            var contentStart = new Point(this._viewOptions.centerPoint.x(),
+                this._viewOptions.centerPoint.y() + this._viewOptions.heading.height);
             //Main container for a resource
-            var resourceGroup = D3utils.group(d3.select(svgContainer));
+            var resourceGroup = D3utils.group(svgContainer);
             this._resourceGroup = resourceGroup;
-            resourceGroup.attr("id", "resourceGroup_" +this._model.id);
-            resourceGroup.attr("width", this._viewOptions.heading.width).attr("height", this._viewOptions.heading.height + this._viewOptions.contentHeight);
+            resourceGroup.attr("id", "resourceGroup");
+            resourceGroup.attr("width", this._viewOptions.heading.width)
+                .attr("height", this._viewOptions.heading.height + this._viewOptions.contentHeight);
             resourceGroup.attr("x", headingStart.x()).attr("y", contentStart.y());
 
-            this.setBoundingBox(this._viewOptions.heading.width, this._viewOptions.heading.height + this._viewOptions.contentHeight, headingStart.x(), contentStart.y());
+            this.setBoundingBox(this._viewOptions.heading.width, this._viewOptions.heading.height
+                + this._viewOptions.contentHeight, headingStart.x(), contentStart.y());
 
             // Resource related definitions: resourceIcon,collapseIcon
             var def = resourceGroup.append("defs");
             var pattern = def.append("pattern").attr("id", "toggleIcon").attr("width", "100%").attr("height", "100");
-            var image = pattern.append("image").attr("xlink:href", "images/down.svg").attr("x", "0").attr("y", "5").attr("width", "14").attr("height", "14");
+            var image = pattern.append("image").attr("xlink:href", "images/down.svg").attr("x", "0")
+                .attr("y", "5").attr("width", "14").attr("height", "14");
             var pattern2 = def.append("pattern").attr("id", "resourceIcon").attr("width", "100%").attr("height", "100");
-            var image2 = pattern2.append("image").attr("xlink:href", "images/dmg-resource.svg").attr("x", "5").attr("y", "5").attr("width", "14").attr("height", "14");
+            var image2 = pattern2.append("image").attr("xlink:href", "images/dmg-resource.svg")
+                .attr("x", "5").attr("y", "5").attr("width", "14").attr("height", "14");
 
             // Resource header container
             var headerGroup = D3utils.group(resourceGroup);
             headerGroup.attr("id", "headerGroup");
 
-            var headingRect = D3utils.rect(headingStart.x(), headingStart.y(), this._viewOptions.heading.width, this._viewOptions.heading.height, 0, 0, headerGroup).classed("headingRect", true);
+            var headingRect = D3utils.rect(headingStart.x(), headingStart.y(),
+                this._viewOptions.heading.width, this._viewOptions.heading.height,
+                0, 0, headerGroup).classed("headingRect", true);
             this._headingRect = headingRect;
 
             // Drawing resource icon
-            var headingRectIconHolder = D3utils.rect(headingStart.x(), headingStart.y(), this._viewOptions.heading.icon.width,
+            var headingRectIconHolder = D3utils.rect(headingStart.x(),
+                headingStart.y(), this._viewOptions.heading.icon.width,
                 this._viewOptions.heading.icon.height, 0, 0, headerGroup).classed("resourceHeadingIconHolder",true);
 
             var headingRectIcon = D3utils.rect(headingStart.x(), headingStart.y(), this._viewOptions.heading.icon.width,
                 this._viewOptions.heading.icon.height, 0, 0, headerGroup).classed("headingRectIcon", true);
 
             //Resource  heading collapse icon
-            var headingCollapseIcon = D3utils.rect(this._viewOptions.collapseIconWidth, headingStart.y(), this._viewOptions.heading.icon.width,
+            var headingCollapseIcon = D3utils.rect(this._viewOptions.collapseIconWidth, headingStart.y(),
+                this._viewOptions.heading.icon.width,
                 this._viewOptions.heading.icon.height, 0, 0, headerGroup).classed("headingCollapseIcon", true);
 
             // Create rect for the http method text
-            var httpMethodRect = D3utils.rect(headingStart.x() + this._viewOptions.heading.icon.width, headingStart.y() + 0.5, this._viewOptions.heading.icon.width + 25,
+            var httpMethodRect = D3utils.rect(headingStart.x() + this._viewOptions.heading.icon.width, headingStart.y()
+                + 0.5, this._viewOptions.heading.icon.width + 25,
                 this._viewOptions.heading.icon.height - 1, 0, 0, headerGroup).classed("httpMethodRect", true);
 
             // Set HTTP Method
-            var httpMethodText = D3utils.textElement(headingStart.x() + this._viewOptions.heading.icon.width + 5, headingStart.y() + 4, this._model.getResourceMethod(), headerGroup).classed("httpMethodText", true);
+            var httpMethodText = D3utils.textElement(headingStart.x()
+                + this._viewOptions.heading.icon.width + 5, headingStart.y() + 4, this._model.getResourceMethod(),
+                headerGroup).classed("httpMethodText", true);
             httpMethodText.attr('dominant-baseline', "text-before-edge");
 
             // Setting resource path prefix
-            var resourcePathPrefix = D3utils.textElement(headingStart.x() + this._viewOptions.heading.icon.width + 55, headingStart.y() + 4, "Path: ", headerGroup).classed("resourcePathPrefix", true);
+            var resourcePathPrefix = D3utils.textElement(headingStart.x() +
+                this._viewOptions.heading.icon.width + 55, headingStart.y() + 4, "Path: ",
+                headerGroup).classed("resourcePathPrefix", true);
             resourcePathPrefix.attr('dominant-baseline', "text-before-edge");
 
-            var resourcePath = D3utils.textElement(headingStart.x() + this._viewOptions.heading.icon.width + 90, headingStart.y() + 4, this._model.getResourcePath(), headerGroup);
+            var resourcePath = D3utils.textElement(headingStart.x() +
+                this._viewOptions.heading.icon.width + 90, headingStart.y() + 4,
+                this._model.getResourcePath(), headerGroup);
             resourcePath.attr('dominant-baseline', "text-before-edge");
 
             // Container for resource body
             var contentGroup = D3utils.group(resourceGroup);
             contentGroup.attr('id', "contentGroup");
 
-            var contentRect = D3utils.rect(contentStart.x(), contentStart.y(), this._viewOptions.contentWidth, this._viewOptions.contentHeight, 0, 0, contentGroup).classed("resource-content", true);
+            this._contentGroup = contentGroup;
+
+            var contentRect = D3utils.rect(contentStart.x(), contentStart.y(),
+                this._viewOptions.contentWidth, this._viewOptions.contentHeight, 0, 0,
+                contentGroup).classed("resource-content", true);
+
             this._contentRect = contentRect;
             contentRect.attr("fill", "#fff");
 
@@ -307,47 +326,13 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
             });
 
-
-            // Drawing default worker
-            var defaultWorkerOptions = {
-                editable: true,
-                centerPoint: {
-                    x: contentStart.x() + 130,
-                    y: contentStart.y() + 25
-                },
-                class: "lifeline",
-                polygon: {
-                    shape: "rect",
-                    width: 120,
-                    height: 30,
-                    roundX: 0,
-                    roundY: 0,
-                    class: "lifeline-polygon"
-                },
-                droppableRect: {
-                    width: 100,
-                    height: 300,
-                    roundX: 0,
-                    roundY: 0,
-                    class: "lifeline-droppableRect"
-                },
-                line: {
-                    height: 280,
-                    class: "lifeline-line"
-                },
-                text: {
-                    value: "Resource Worker",
-                    class: "lifeline-text"
-                },
-                child: {
-                    value: true
-                }
-            };
-
-            if (_.isUndefined(this._defaultResourceLifeLine)) {
-                this._defaultResourceLifeLine = new LifeLine(contentGroup, defaultWorkerOptions);
+            if (_.isUndefined(this._defaultWorker)) {
+                var defaultWorkerOpts = {};
+                _.set(defaultWorkerOpts, 'container', contentGroup.node());
+                _.set(defaultWorkerOpts, 'centerPoint', this._viewOptions.defaultWorker.center);
+                this._defaultWorker = new DefaultWorkerView(defaultWorkerOpts);
             }
-            this._defaultResourceLifeLine.render();
+            this._defaultWorker.render();
             log.debug("Rendering Resource View");
             this.getModel().accept(this);
             this.initResourceLevelDropTarget();
@@ -417,8 +402,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
          * @inheritDoc
          * @returns {_defaultResourceWorker}
          */
-        ResourceDefinitionView.prototype.getDefaultResourceLifeLine = function () {
-            return this._defaultResourceLifeLine;
+        ResourceDefinitionView.prototype.getDefaultWorker = function () {
+            return this._defaultWorker;
         };
 
         ResourceDefinitionView.prototype.canVisitResourceDefinition = function (resourceDefinition) {
@@ -438,35 +423,21 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
          * @param {ConnectorDeclaration} connectorDeclaration - The connector declaration model.
          */
         ResourceDefinitionView.prototype.visitConnectorDeclaration = function (connectorDeclaration) {
-            /**
-             * @inheritDoc
-             */
-            log.info("Visiting connector declaration of resource");
-            var connectorContainer = this._container.getElementById("contentGroup");
-            // If more than 1 connector declaration
-            if(this.getConnectorViewList().length > 0 ){
-                var connectorList = this.getConnectorViewList();
-                var prevView = connectorList[this._connectorViewList.length - 1];
-                var newCenterPointX = prevView._viewOptions.connectorCenterPointX+ 180;
-                var newCenterPointY = prevView._viewOptions.connectorCenterPointY;
-                var viewOpts = {connectorCenterPointX:newCenterPointX, connectorCenterPointY: newCenterPointY};
-                var connectorDeclarationView =new ConnectorDeclarationView({model: connectorDeclaration,container: connectorContainer, viewOptions: viewOpts});
-            }
-            else{
-                var defaultResourceLifeline = this.getDefaultResourceLifeLine();
-                var resourceViewOpts = defaultResourceLifeline._viewOptions;
-                var connectorCenterPointX = resourceViewOpts.centerPoint.x + 180;
-                var connectorCenterPointY = resourceViewOpts.centerPoint.y;
-                var connectorViewOpts = {connectorCenterPointX: connectorCenterPointX,connectorCenterPointY: connectorCenterPointY};
-                var connectorDeclarationView = new ConnectorDeclarationView({model: connectorDeclaration,container: connectorContainer, viewOptions: connectorViewOpts} );
-            }
+            var connectorContainer = this._contentGroup.node(),
+                connectorOpts = {model: connectorDeclaration, container: connectorContainer, parentView: this},
+                connectorDeclarationView,
+                center;
+
+            var lastLifeLine = this.getLastLifeLine();
+                center = lastLifeLine.getTopCenter().clone().move(this._viewOptions.LifeLineCenterGap, 0);
+
+            _.set(connectorOpts, 'centerPoint', center);
+            connectorDeclarationView = new ConnectorDeclarationView(connectorOpts);
             this.diagramRenderingContext.getViewModelMap()[connectorDeclaration.id] = connectorDeclarationView;
             this._connectorViewList.push(connectorDeclarationView);
 
             connectorDeclarationView.render();
             connectorDeclarationView.setParent(this);
-
-
         };
 
         /**
@@ -476,61 +447,19 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
         ResourceDefinitionView.prototype.setResourceContainerHeight = function (height){
             this._resourceGroup.attr("height", height);
             this._contentRect.attr("height", height);
+            this._defaultWorker.setHeight(height - this._viewOptions.totalHeightGap);
             this.setBoundingBox(this.getBoundingBox().width, height, this.getBoundingBox().x, this.getBoundingBox().y);
         };
 
-        ResourceDefinitionView.prototype.setWidth = function (newWidth) {
-            // TODO : Implement
+        ResourceDefinitionView.prototype.getLastLifeLine = function () {
+            if(this.getConnectorViewList().length > 0 ){
+                return _.last(this.getConnectorViewList());
+            }
+            else{
+                return this.getDefaultWorker();
+            }
         };
 
-        /**
-         * @inheritDoc
-         */
-        ResourceDefinitionView.prototype.setHeight = function (newHeight) {
-            // TODO : Implement
-        };
-
-        /**
-         * @inheritDoc
-         */
-        ResourceDefinitionView.prototype.setXPosition = function (xPosition) {
-            // TODO : Implement
-        };
-
-        /**
-         * @inheritDoc
-         */
-        ResourceDefinitionView.prototype.setYPosition = function (yPosition) {
-            // TODO : Implement
-        };
-
-        /**
-         * @inheritDoc
-         */
-        ResourceDefinitionView.prototype.getWidth = function () {
-            // TODO : Implement
-        };
-
-        /**
-         * @inheritDoc
-         */
-        ResourceDefinitionView.prototype.getHeight = function () {
-            // TODO : Implement
-        };
-
-        /**
-         * @inheritDoc
-         */
-        ResourceDefinitionView.prototype.getXPosition = function () {
-            // TODO : Implement
-        };
-
-        /**
-         * @inheritDoc
-         */
-        ResourceDefinitionView.prototype.getYPosition = function () {
-            // TODO : Implement
-        };
 
         /**
          * get the Statement View List of the the resource
@@ -565,6 +494,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
         };
 
         return ResourceDefinitionView;
+
 
     });
 

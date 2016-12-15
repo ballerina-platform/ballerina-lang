@@ -32,13 +32,16 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
         return this._mainSVGGroup;
     };
 
-    Canvas.prototype.drawAccordionCanvas = function (parent, options, id, name, title) {
-        var serviceContainer = $('<div style="position:relative; top:0; right:0;"><svg class="service-container"></svg></div>');
-        serviceContainer.attr('id', id);
-        serviceContainer.attr('name', name);
-        serviceContainer.addClass(_.get(options, 'cssClass.outer_box'));
-        var canvas = serviceContainer;
-        this._serviceContainer = serviceContainer;
+    Canvas.prototype.drawAccordionCanvas = function (parent, options, id, name) {
+        var svgContainer = $('<div style="position:relative; top:0; right:0;"></div>');
+        svgContainer.attr('id', id);
+        svgContainer.attr('name', name);
+        svgContainer.addClass(_.get(options, 'cssClass.outer_box'));
+        var canvas = svgContainer;
+        this._serviceContainer = svgContainer;
+        var svg = $('<svg class="service-container"></svg>');
+        svgContainer.append(svg);
+        this._rootGroup = D3Utils.group(d3.select(svg.get(0)));
 
         //draw a collapse accordion
         var outerDiv = $('<div></div>');
@@ -127,7 +130,7 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
     };
 
     /**
-     * Set service container height
+     * Set canvas container height
      * @param newHeight
      */
     Canvas.prototype.setServiceContainerHeight = function (newHeight) {

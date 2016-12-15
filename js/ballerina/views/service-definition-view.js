@@ -15,8 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './../ast/service-definition', './life-line', './resource-definition-view', 'ballerina/ast/ballerina-ast-factory'],
-    function (_, log, d3, D3utils, $, Canvas, Point, ServiceDefinition, LifeLine, ResourceDefinitionView, BallerinaASTFactory) {
+define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './../ast/service-definition',
+        './client-life-line', './resource-definition-view', 'ballerina/ast/ballerina-ast-factory'],
+    function (_, log, d3, D3utils, $, Canvas, Point, ServiceDefinition, ClientLifeLine, ResourceDefinitionView, BallerinaASTFactory) {
 
         /**
          * The view to represent a service definition which is an AST visitor.
@@ -47,7 +48,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
         };
 
         ServiceDefinitionView.prototype = Object.create(Canvas.prototype);
-        ServiceDefinitionView.prototype.constructor = ServiceDefinitionView;
+         ServiceDefinitionView.prototype.constructor = ServiceDefinitionView;
 
         ServiceDefinitionView.prototype.init = function(){
             //Registering event listeners
@@ -124,7 +125,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
         };
 
         ServiceDefinitionView.prototype.getChildContainer = function () {
-            return this._childContainer;
+            return this._rootGroup;
         };
 
         ServiceDefinitionView.prototype.getViewOptions = function () {
@@ -144,20 +145,21 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
 
             // Creating client lifeline.
 
-            this._clientLifeLine = new LifeLine(_.first($(this._container).children().children()));
-            //Store parent container for child elements of this serviceDefView
-            this.setChildContainer(_.first($(this._container).children().children()));
+            var lifeLineArgs = {};
+            _.set(lifeLineArgs, 'container', this._rootGroup.node());
+            _.set(lifeLineArgs, 'centerPoint', new Point(50, 50));
+
+            this._clientLifeLine = new ClientLifeLine(lifeLineArgs);
             this._clientLifeLine.render();
             this.getModel().accept(this);
-
             var self = this;
             this._model.on('child-added', function (child) {
                 self.visit(child);
                 self._model.trigger("childVisitedEvent", child);
             });
 
-            var annotationButton = this._createAnnotationButton(this.getChildContainer());
-            var variableButton = this._createVariableButton(this.getChildContainer());
+            var annotationButton = this._createAnnotationButton(this.getChildContainer().node());
+             var variableButton = this._createVariableButton(this.getChildContainer().node());
 
             var variableProperties = {
                 model: this._model,
@@ -216,7 +218,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
 
             var variableList = serviceModel.getVariableDeclarations();
 
-            for (variableCount = 0; variableCount < variableList.length; variableCount++) {
+            for(var variableCount = 0; variableCount < variableList.length; variableCount++){
                 var variableSelect = $("<p><label for=" + variableList[variableCount].getIdentifier() + ">" +
                     variableList[variableCount].getType() + ":" + variableList[variableCount].getIdentifier() + "</label></p>").appendTo(variablePaneWrapper);
             }
@@ -255,17 +257,13 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
                 var prevResourceHeight = prevView.getBoundingBox().height;
                 var prevResourceY = prevView.getBoundingBox().y;
                 var newCenterPointY = prevResourceHeight + prevResourceY + 10;
-                var viewOpts = {centerPoint: {y: newCenterPointY}};
-                var resourceDefinitionView = new ResourceDefinitionView({
-                    model: resourceDefinition, container: resourceContainer,
-                    toolPalette: this.toolPalette, messageManager: this.messageManager, viewOptions: viewOpts
-                });
+                var viewOpts = { centerPoint:new Point(50, newCenterPointY)};
+                var resourceDefinitionView = new ResourceDefinitionView({model: resourceDefinition,container: resourceContainer,
+                    toolPalette: this.toolPalette, messageManager: this.messageManager, viewOptions: viewOpts});
             }
-            else {
-                var resourceDefinitionView = new ResourceDefinitionView({
-                    model: resourceDefinition, container: resourceContainer,
-                    toolPalette: this.toolPalette, messageManager: this.messageManager, parentView: this
-                });
+            else{
+                var resourceDefinitionView = new ResourceDefinitionView({model: resourceDefinition, container: resourceContainer,
+                    toolPalette: this.toolPalette,messageManager: this.messageManager, parentView: this});
             }
             this.diagramRenderingContext.getViewModelMap()[resourceDefinition.id] = resourceDefinitionView;
             resourceDefinitionView.render(this.diagramRenderingContext);
@@ -277,7 +275,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
          * @param height
          */
         ServiceDefinitionView.prototype.setClientLifelineHeight = function (height) {
-            this._clientLifeLine.setLineHeight(height);
+            this._clientLifeLine.setHeight(height);
         };
 
         /**

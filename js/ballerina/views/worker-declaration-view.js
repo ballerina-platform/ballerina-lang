@@ -78,65 +78,7 @@ define(['lodash', 'jquery', './ballerina-view', './../ast/worker-declaration', '
          * @returns {Object} - The svg group which the worker declaration view resides in.
          */
         WorkerDeclarationView.prototype.render = function () {
-            var centerX = 0;
-            var centerY = 25;
-            var lifeLineOffset = 50;
 
-            // CenterX calculated with respect to the already drawn workers, connectors or default worker
-            if (this.getParent().getWorkerAndConnectorViews().length > 0) {
-                var lastDrawnLifeLine = this.getParent().getWorkerAndConnectorViews()[this.getParent().
-                getWorkerAndConnectorViews().length - 1].getWorkerLifeLine();
-                centerX = lastDrawnLifeLine.getViewOptions().centerPoint.x + lastDrawnLifeLine
-                        .getViewOptions().polygon.width + lifeLineOffset;
-            } else if (!_.isUndefined(this.getParent().getDefaultWorkerLifeLine())) {
-                centerX = this.getParent().getDefaultWorkerLifeLine().getViewOptions().centerPoint.x + this.getParent()
-                        .getDefaultWorkerLifeLine().getViewOptions().polygon.width + lifeLineOffset;
-            }
-            var defaultWorkerOptions = {
-                editable: true,
-                centerPoint: {
-                    x: centerX,
-                    y: centerY
-                },
-                class: "lifeline",
-                polygon: {
-                    shape: "rect",
-                    width: 120,
-                    height: 30,
-                    roundX: 0,
-                    roundY: 0,
-                    class: "lifeline-polygon"
-                },
-                droppableRect: {
-                    width: 100,
-                    height: 300,
-                    roundX: 0,
-                    roundY: 0,
-                    class: "lifeline-droppableRect"
-                },
-                line: {
-                    height: 280,
-                    class: "lifeline-line"
-                },
-                text: {
-                    value: "Worker",
-                    class: "lifeline-text"
-                },
-                action: {
-                    value: "Start"
-                },
-                child: {
-                    value: true
-                }
-            };
-
-            // Add a group to the svg
-            var containerGroup = D3Utils.group(d3.select(_.first($(this._container).children().children())));
-
-            this._workerLifeLine = new LifeLine(containerGroup, defaultWorkerOptions);
-            this._workerLifeLine.render();
-            this.getModel().accept(this);
-            return containerGroup;
         };
 
         /**

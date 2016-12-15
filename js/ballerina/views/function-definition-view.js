@@ -15,9 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-definition', './life-line', 'd3utils', 'd3',
-        './worker-declaration-view', './statement-view-factory'],
-    function (_, log, EventChannel, Canvas, FunctionDefinition, LifeLine, D3Utils, d3, WorkerDeclarationView, StatementViewFactory) {
+define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-definition', './default-worker', 'd3utils', 'd3',
+        './worker-declaration-view', './statement-view-factory', './point'],
+    function (_, log, EventChannel, Canvas, FunctionDefinition, DefaultWorkerView, D3Utils, d3, WorkerDeclarationView, StatementViewFactory, Point) {
 
         /**
          * The view to represent a function definition which is an AST visitor.
@@ -44,7 +44,6 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
                 log.error("Container for function definition is undefined." + this._container);
                 throw "Container for function definition is undefined." + this._container;
             }
-
 
         };
 
@@ -129,52 +128,15 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
             var currentContainer = $('#'+ divId);
             this._container = currentContainer;
 
-            // TODO: Default worker's center point coordinates has to get with respect to the outer container margins
-            // Drawing default worker
-            var defaultWorkerOptions = {
-                editable: true,
-                centerPoint: {
-                    x: 130,
-                    y: 25
-                },
-                class: "lifeline",
-                polygon: {
-                    shape: "rect",
-                    width: 120,
-                    height: 30,
-                    roundX: 0,
-                    roundY: 0,
-                    class: "lifeline-polygon"
-                },
-                droppableRect: {
-                    width: 100,
-                    height: 300,
-                    roundX: 0,
-                    roundY: 0,
-                    class: "lifeline-droppableRect"
-                },
-                line: {
-                    height: 280,
-                    class: "lifeline-line"
-                },
-                text: {
-                    value: "Default Worker",
-                    class: "lifeline-text"
-                },
-                action: {
-                    value: "Start"
-                },
-                child: {
-                    value: true
-                }
-            };
 
-            // Add a group to the svg
-            var containerGroup = D3Utils.group(d3.select(_.first($(this._container).children().children())));
+            // Creating default worker
+            var defaultWorkerOpts = {};
+            _.set(defaultWorkerOpts, 'container', this._rootGroup.node());
+            _.set(defaultWorkerOpts, 'centerPoint', new Point(130, 25));
 
             // Check whether there is already created default worker and otherwise we create a new one
             if (_.isUndefined(this._defaultWorkerLifeLine)) {
-                this._defaultWorkerLifeLine = new LifeLine(containerGroup, defaultWorkerOptions);
+                this._defaultWorkerLifeLine = new DefaultWorkerView(defaultWorkerOpts);
             }
             this._defaultWorkerLifeLine.render();
             this.getModel().accept(this);
@@ -192,7 +154,7 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
             var x = 0;
             var y = 0;
             statementView.setParent(this);
-            if(statementViewFactory.isGetActionStatement(statement)){
+            if(statement.getFactory().isActionInvocationStatement(statement)){
                 _.each(this.diagramRenderingContext.getViewModelMap(),function(view){
                     var matchFound =  _.isEqual(statement.getConnector(),view.getModel());
                     if(matchFound) {
@@ -215,9 +177,7 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
                 x = lastStatement.getXPosition();
                 y = lastStatement.getYPosition() + lastStatement.getHeight() + statementsGap;
             } else {
-                var defaultWorkerRectBottom = 40;
-                y = defaultWorkerRectBottom;
-                x = parseInt(this._defaultWorkerLifeLine.getMiddleLine().attr('x1')) - parseInt(statementsWidth/2);
+                var x = parseInt(this._defaultWorkerLifeLine.getMidPoint()) - parseInt(statementsWidth/2);
 
             }
             this.diagramRenderingContext.getViewModelMap()[statement.id] = statementView;

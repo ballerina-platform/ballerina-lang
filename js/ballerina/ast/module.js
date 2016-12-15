@@ -20,11 +20,11 @@ define(['./ballerina-ast-factory', './ballerina-ast-root', './conditional-statem
     './return-statement', './service-definition', './statement', './throw-statement', './type-definition', './type-converter-definition', './type-element',
     './variable-declaration', './while-statement', './worker-declaration', './package-definition',
         './import-declaration', './assignment', './function-invocation','./action-invocation-statement',
-        './get-action-statement', './arithmetic-expression', './logical-expression'],
+        './arithmetic-expression', './logical-expression'],
     function (BallerinaASTFactory, BallerinaASTRoot, ConditionalStatement, ConnectorDeclaration, ConnectorDefinition, ConstantDefinition,
                 Expression, FunctionDefinition, IfElseStatement, IfStatement, ElseStatement, ElseIfStatement, TryCatchStatement, TryStatement, CatchStatement, ASTNode, ReplyStatement, ResourceDefinition, ReturnStatement, ServiceDefinition,
                 Statement, ThrowStatement, TypeConverterDefinition, TypeDefinition, TypeElement, VariableDeclaration, WhileStatement, WorkerDeclaration, PackageDefinition, ImportDeclaration, Assignment, FunctionInvocation,
-              ActionInvocationStatement,GetActionStatement, ArithmeticExpression, LogicalExpression) {
+              ActionInvocationStatement, ArithmeticExpression, LogicalExpression) {
 
         return  {
             BallerinaASTFactory: BallerinaASTFactory,
@@ -61,8 +61,7 @@ define(['./ballerina-ast-factory', './ballerina-ast-root', './conditional-statem
             FunctionInvocation: FunctionInvocation,
             ArithmeticExpression: ArithmeticExpression,
             LogicalExpression: LogicalExpression,
-            ActionInvocationStatement: ActionInvocationStatement,
-            GetActionStatement: GetActionStatement
+            ActionInvocationStatement: ActionInvocationStatement
         }
     });
 

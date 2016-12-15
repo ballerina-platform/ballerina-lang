@@ -267,8 +267,8 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             catchStatement1.setExceptionType("ArithmeticException ex");
 
            //Create get action statement for connector
-            var actionOpts = {connector:connector_declaration1, isUserDropped:false};
-            var getActionStatement1 = BallerinaASTFactory.createGetActionStatement(actionOpts);
+            var actionOpts = {connector:connector_declaration1};
+            var getActionStatement1 = BallerinaASTFactory.createActionInvocationStatement(actionOpts);
            // var actionOpts2 = {connector:connector_declaration, isUserDropped:false};
            // var getActionStatement2 = BallerinaASTFactory.createGetActionStatement(actionOpts2);
             ifElseStatement.addChild(ifStatement);

@@ -15,12 +15,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'jquery', 'lodash', 'backbone'], function (require, $, _, Backbone) {
+define([ 'lodash', 'event_channel'], function ( _, EventChannel) {
 
     var Point = function (x, y) {
         this._x = x || 0;
         this._y = y || 0;
     };
+
+    Point.prototype = Object.create(EventChannel.prototype);
+    Point.prototype.constructor = Point;
 
     /**
      * Gets or sets X coordinate of the Point.
@@ -30,7 +33,9 @@ define(['require', 'jquery', 'lodash', 'backbone'], function (require, $, _, Bac
         if (newX === undefined) {
             return this._x;
         }
+        var dx = newX - this._x ;
         this._x = newX;
+        this.trigger('moved', {dx: dx, dy: 0});
     };
 
     /**
@@ -41,7 +46,16 @@ define(['require', 'jquery', 'lodash', 'backbone'], function (require, $, _, Bac
         if (newY === undefined) {
             return this._y;
         }
-        this._x = newY;
+        var dy = newY - this._y;
+        this._y = newY;
+        this.trigger('moved', {dx: 0, dy: dy});
+    };
+
+    /**
+     * Clone
+     */
+    Point.prototype.clone = function () {
+        return new Point(this._x, this._y);
     };
 
     /**
@@ -52,6 +66,7 @@ define(['require', 'jquery', 'lodash', 'backbone'], function (require, $, _, Bac
     Point.prototype.move = function (dx, dy) {
         this.x(this.x() + dx);
         this.y(this.y() + dy);
+        this.trigger('moved', {dx: dx, dy: dy});
         return this;
     };
 
