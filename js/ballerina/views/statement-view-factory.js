@@ -41,8 +41,7 @@ define(['lodash', 'log', 'event_channel', '../ast/module', './try-catch-statemen
                 return new AssignmentStatementView(args);
             } else if (statement instanceof AST.FunctionInvocation) {
                 return new FunctionInvocationStatementView(args);
-            }
-            else if (statement instanceof AST.GetActionStatement) {
+            } else if (statement instanceof AST.GetActionStatement) {
                 return new GetActionStatementView(args);
             }
         };
@@ -51,6 +50,6 @@ define(['lodash', 'log', 'event_channel', '../ast/module', './try-catch-statemen
             if (statement instanceof AST.GetActionStatement){
                 return true;
             }
-        }
+        };
         return StatementViewFactory;
     });
