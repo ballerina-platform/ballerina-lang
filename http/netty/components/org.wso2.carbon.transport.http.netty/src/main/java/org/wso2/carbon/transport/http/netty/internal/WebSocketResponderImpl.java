@@ -18,7 +18,6 @@
 
 package org.wso2.carbon.transport.http.netty.internal;
 
-import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
@@ -30,8 +29,6 @@ import org.wso2.carbon.messaging.websocket.CloseWebSocketCarbonMessage;
 import org.wso2.carbon.messaging.websocket.TextWebSocketCarbonMessage;
 import org.wso2.carbon.messaging.websocket.WebSocketCarbonMessage;
 import org.wso2.carbon.messaging.websocket.WebSocketResponder;
-
-import java.nio.ByteBuffer;
 
 /**
  * This class is responsible for sending server-side responses to a given client
