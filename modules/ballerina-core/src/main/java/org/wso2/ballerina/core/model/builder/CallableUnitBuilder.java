@@ -33,9 +33,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * {@code CallableUnitBuilder} builds Functions, Actions and Resources
+ * {@code CallableUnitBuilder} is a builder class responsible for building Functions, Actions and Resources
  * <p/>
- * A CallableUnit represents a Function, an Action or a Resource
+ * A CallableUnit represents a Function, an Action or a Resource.
+ *
+ * @since 1.0.0
  */
 class CallableUnitBuilder {
 
