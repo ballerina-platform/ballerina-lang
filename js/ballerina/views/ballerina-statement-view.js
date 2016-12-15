@@ -111,8 +111,9 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3'], fu
         var statementView = statementViewFactory.getStatementView(args);
         this._diagramRenderingContext.getViewModelMap()[statement.id] = statementView;
         this._childrenViewsList.push(statementView);
-        statementView.setXPosition(this.getXPosition());
-        statementView.setYPosition(this.getYPosition() + 30);
+        var statementWidthDefault = 120;
+        var x = this.getBoundingBox().x + this.getBoundingBox().width/2 - statementWidthDefault/2;
+        statementView.setBoundingBox(0, 0, x, this.getBoundingBox().y + 30);
         statementView.render(this._diagramRenderingContext);
     };
 

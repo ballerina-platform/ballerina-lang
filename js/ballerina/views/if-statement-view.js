@@ -44,28 +44,16 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
         IfStatementView.prototype.render = function (diagramRenderingContext) {
             this._diagramRenderingContext = diagramRenderingContext;
             var ifGroup = D3Utils.group(this._container);
-            var x = this.getParent().getXPosition();
-            var y = this.getParent().getYPosition();
+            var x = this.getParent().getBoundingBox().x;
+            var y = this.getParent().getBoundingBox().y;
             var width = 120;
             var height = 60;
-            var outer_rect = D3Utils.rect(x, y, 120, 60, 0, 0, ifGroup).classed('statement-rect', true);
+            var outer_rect = D3Utils.rect(x, y, width, 60, 0, 0, ifGroup).classed('statement-rect', true);
             var title_rect = D3Utils.rect(x, y, 40, 20, 0, 0, ifGroup).classed('statement-rect', true);
             var title_text = D3Utils.textElement(x + 20, y + 10, 'If', ifGroup).classed('statement-text', true);
-
-            // Set the parent's(IfElseView) width, height, x, y
-            this.getParent().setWidth(width);
-            this.getParent().setHeight(height);
-            this.getParent().setXPosition(x);
-            this.getParent().setYPosition(y);
-
-            // Set x, y, height, width of the current view
-            this.setWidth(width);
-            this.setHeight(height);
-            this.setXPosition(x);
-            this.setYPosition(y);
+            // Set the bounding box of the parent (If-else-statement wrapper view)
+            this.getParent().setBoundingBox(width, height + this.getParent().getBoundingBox().height, x, y);
             this.setBoundingBox(width, height, x, y);
-
-
             ifGroup.outerRect = outer_rect;
             ifGroup.titleRect = title_rect;
             ifGroup.titleText = title_text;
@@ -117,38 +105,21 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
 
         IfStatementView.prototype.childVisitedCallback = function (child) {
             var childView = this._diagramRenderingContext.getViewModelMap()[child.id];
-            var childMetrics = {
-                width: childView.getWidth(),
-                height: childView.getHeight(),
-                x: childView.getXPosition(),
-                y: childView.getYPosition()
-            };
-            this.getParent().changeChildrenMetrics(childMetrics);
+            var childBoundingBox = childView.getBoundingBox();
+            this.getParent().changeChildrenMetrics(childBoundingBox);
         };
 
-        IfStatementView.prototype.changeMetricsCallback = function (baseMetrics) {
-            var dw = 20;
-            var dh = 20;
-            var oldX = parseInt(baseMetrics.x);
-            var oldHeight = parseInt(this.getHeight());
-            var newHeight = baseMetrics.height + dh/2 + 30;
-            var newWidth = baseMetrics.width + dw;
-            var newX = oldX - dw/2;
-            var newY = baseMetrics.y;
+        IfStatementView.prototype.changeMetricsCallback = function (childBoundingBox) {
 
-            this.getStatementGroup().outerRect.attr('width', newWidth);
-            this.getStatementGroup().outerRect.attr('height', newHeight);
-            this.getStatementGroup().outerRect.attr('x', newX);
-            this.getStatementGroup().titleRect.attr('x', newX);
-            this.getStatementGroup().titleText.attr('x', oldX + 20 - dw/2);
-            this.setWidth(newWidth);
-            this.setHeight(newHeight);
-            this.getParent().setWidth(newWidth);
-            this.getParent().setHeight(this.getParent().getHeight() + newHeight - oldHeight);
-            this.getParent().setXPosition(newX);
-            this.getParent().setWidth(newWidth);
+            var parentBoundingBox = this.getParent().getBoundingBox();
 
-            this.setBoundingBox(newWidth, newHeight, newX, newY);
+            this.getStatementGroup().outerRect.attr('width', parentBoundingBox.width);
+            this.getStatementGroup().outerRect.attr('height', childBoundingBox.height + 40);
+            this.getStatementGroup().outerRect.attr('x', parentBoundingBox.x);
+            this.getStatementGroup().titleRect.attr('x', parentBoundingBox.x);
+            this.getStatementGroup().titleText.attr('x', parentBoundingBox.x + 20);
+
+            this.setBoundingBox(parentBoundingBox.width, parentBoundingBox.height, parentBoundingBox.x, parentBoundingBox.y);
         };
 
         return IfStatementView;
