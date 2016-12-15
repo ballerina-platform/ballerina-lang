@@ -18,6 +18,7 @@
 
 package org.wso2.ballerina.core.model;
 
+import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.types.StructType;
 
 import java.util.ArrayList;
@@ -46,6 +47,7 @@ public class BallerinaFile implements Node {
     private List<Connector> connectorList = new ArrayList<>();
     private Map<String, Function> functions = new HashMap<>();
     private List<StructType> types = new ArrayList<>();
+    private FunctionInvocationExpr[] funcIExprs;
     //TODO: add TypeConverters
     //TODO: add constants
 
@@ -59,14 +61,16 @@ public class BallerinaFile implements Node {
             List<Service> serviceList,
             List<Connector> connectorList,
             Map<String, Function> functionMap,
-            List<StructType> sTypeList) {
+            List<StructType> sTypeList,
+            FunctionInvocationExpr[] funcIExprs) {
+
         this.packageName = packageName;
         this.imports = importList;
         this.services = serviceList;
         this.connectorList = connectorList;
         this.functions = functionMap;
         this.types = sTypeList;
-
+        this.funcIExprs = funcIExprs;
     }
 
     /**
@@ -168,6 +172,10 @@ public class BallerinaFile implements Node {
         functions.put(function.getName(), function);
     }
 
+    public FunctionInvocationExpr[] getFuncIExprs() {
+        return funcIExprs;
+    }
+
     /**
      * Get {@code Type} list defined in the File
      *
@@ -212,6 +220,7 @@ public class BallerinaFile implements Node {
         private List<Connector> connectorList = new ArrayList<>();
         private Map<String, Function> functionList = new HashMap<>();
         private List<StructType> sTypeList = new ArrayList<>();
+        private List<FunctionInvocationExpr> funcIExprList = new ArrayList<>();
 
         public BFileBuilder() {
 
@@ -241,6 +250,10 @@ public class BallerinaFile implements Node {
             this.sTypeList.add(structType);
         }
 
+        public void addFuncIExpr(FunctionInvocationExpr expr) {
+            this.funcIExprList.add(expr);
+        }
+
         public BallerinaFile build() {
             return new BallerinaFile(
                     packageName,
@@ -248,7 +261,9 @@ public class BallerinaFile implements Node {
                     serviceList,
                     connectorList,
                     functionList,
-                    sTypeList);
+                    sTypeList,
+                    funcIExprList.toArray(new FunctionInvocationExpr[funcIExprList.size()])
+            );
         }
     }
 
