@@ -17,6 +17,10 @@
 */
 package org.wso2.ballerina.core.model;
 
+import org.wso2.ballerina.core.model.types.Type;
+
+import java.util.Arrays;
+
 /**
  * {@code Identifier} represents an identifier in Ballerina
  * <p>
@@ -29,6 +33,7 @@ public class SymbolName {
     private String name;
     private SymType symType;
     private Symbol symbol;
+    private Type[] parameters;
 
     public SymbolName(String name) {
         this.name = name;
@@ -37,6 +42,12 @@ public class SymbolName {
     public SymbolName(String name, SymType symType) {
         this.name = name;
         this.symType = symType;
+    }
+
+    public SymbolName(String name, SymType symType, Type[] parameters) {
+        this.name = name;
+        this.symType = symType;
+        this.parameters = parameters;
     }
 
     /**
@@ -56,13 +67,22 @@ public class SymbolName {
         this.symbol = symbol;
     }
 
-    public boolean equals(Object obj) {
-        SymbolName other = (SymbolName) obj;
-        return this.name.equals(other.getName()) && this.symType == other.symType;
+    public Type[] getParameters() {
+        return parameters;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        SymbolName other = (SymbolName) obj;
+        return this.name.equals(other.getName()) && this.symType == other.symType && (
+                this.symType == SymType.CALLABLE_UNIT && Arrays.equals(this.parameters, other.parameters));
+    }
+
+    @Override
     public int hashCode() {
-        return name.length();
+        int result = name.hashCode();
+        result = 31 * result + symType.hashCode();
+        return result;
     }
 
     /**
