@@ -44,6 +44,10 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/while-statement
         WhileStatementView.prototype = Object.create(BallerinaStatementView.prototype);
         WhileStatementView.prototype.constructor = WhileStatementView;
 
+        WhileStatementView.prototype.canVisitWhileStatement = function(whileStatement){
+            return true;
+        };
+
         WhileStatementView.prototype.setModel = function (model) {
             if (!_.isNil(model) && model instanceof WhileStatement) {
                 this._model = model;
