@@ -19,6 +19,8 @@ package org.wso2.ballerina.core.model.values;
 
 import com.google.gson.JsonElement;
 
+import org.apache.axiom.om.OMElement;
+
 /**
  * {@code BValueRef} is a container for a BValue
  *
@@ -65,5 +67,13 @@ public class BValueRef {
     
     public JsonElement getJSON() {
         return ((JSONValue) bValue).getValue();
+    }
+    
+    public OMElement getXML() {
+        return ((XMLValue) bValue).getValue();
+    }
+    
+    public MapValue getMap() {
+        return ((MapValue) bValue);
     }
 }
