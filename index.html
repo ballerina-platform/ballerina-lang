@@ -15,6 +15,7 @@
     <link href="css/styles.css" rel="stylesheet" type="text/css"/>
     <link href="css/welcome-screen.css" rel="stylesheet" type="text/css"/>
     <link href="css/tab-styles.css" rel="stylesheet" type="text/css"/>
+    <link href="css/notification.css" rel="stylesheet" type="text/css"/>
     <link href="lib/nanoscroller_0.8.7/nanoscroller.css" rel="stylesheet" type="text/css"/>
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
@@ -87,6 +88,7 @@
                                 </div>
                                 <div  id="tab-content-wrapper" class="grid-background" style="height: 100%;">
                                     <div class="tab-content tab-content-default "></div>
+                                    <div class="notification-container" id="notification-container"></div>
                                 </div>
                             </div>
                         </div>
@@ -504,6 +506,9 @@
                                 canvas: 'panel-body',
                                 design_view_drop: 'design-view-hover',
                                 canvas_container: 'canvas-container'
+                            },
+                            notifications: {
+                                container: '#notification-container'
                             }
                         }
                     }
@@ -517,6 +522,9 @@
                     container: 'workspace-explorer-container',
                     separator: 'workspace-explorer-separator'
                 }
+            },
+            dialog: {
+                container: $('body'),
             }
         };
         app = new Application(config);
