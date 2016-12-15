@@ -100,6 +100,7 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/function-invoca
             this.setXPosition(x);
             this.setYPosition(y);
             log.info("Rendering function invocation statement view.");
+            this.getModel().accept(this);
             return group;
         };
 
