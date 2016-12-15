@@ -217,7 +217,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
              */
             var functionInvocation = BallerinaASTFactory.createFunctionInvocationStatement();
             //TODO:Commented to view get action statement
-            //resource_passthrough.addChild(functionInvocation);
+            resource_passthrough.addChild(functionInvocation);
 
             /**
              * Create the sample logical expression
@@ -225,7 +225,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             var logicalExp = BallerinaASTFactory.createLogicalExpression();
             logicalExp.setExpression('a > b');
             //TODO:Commented to view get action statement
-            //resource_passthrough.addChild(logicalExp);
+            resource_passthrough.addChild(logicalExp);
 
             /**
              * Create the sample arithmetic expression
@@ -233,7 +233,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             var arithmeticExp = BallerinaASTFactory.createArithmeticExpression();
             arithmeticExp.setExpression('a = resp + 123');
             //TODO:Commented to view get action statement
-           // resource_passthrough.addChild(arithmeticExp);
+           resource_passthrough.addChild(arithmeticExp);
 
             // Create Sample try-catch statement
             var ifElseStatement = BallerinaASTFactory.createIfElseStatement();
