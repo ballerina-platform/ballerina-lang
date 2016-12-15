@@ -62,6 +62,7 @@ define(['require','log', 'jquery', 'd3', 'backbone', './tool-view'], function (r
             this.$el = groupDiv;
 
             groupHeaderDiv.click(function(){
+                groupHeaderDiv.toggleClass("tool-group-header-collapse");
                 groupBodyDiv.slideToggle(500, function () {
                         groupCollapseIcon.toggleClass("glyphicon-chevron-up")
                                             .toggleClass("glyphicon-chevron-down");

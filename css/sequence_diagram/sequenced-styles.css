@@ -31,6 +31,10 @@
     fill-opacity: 1;
 }
 
+.tool-group-header-collapse {
+    background-color: #f3f3f3;
+}
+
 .resource > line {
     stroke: #000000;
 }
