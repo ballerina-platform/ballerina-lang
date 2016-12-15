@@ -20,7 +20,7 @@ package org.wso2.ballerina.core.parser;
 
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
-import org.wso2.ballerina.core.model.Action;
+import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
@@ -273,7 +273,7 @@ public class BallerinaBaseListenerImpl extends BallerinaBaseListener {
             }
         }
 
-        Action[] actions = new Action[connectorBodyContext.actionDefinition().size()];
+        BallerinaAction[] actions = new BallerinaAction[connectorBodyContext.actionDefinition().size()];
         for (int i = 0; i < actions.length; i++) {
             actions[i] = parserAction(connectorBodyContext.actionDefinition(i));
         }
@@ -686,7 +686,7 @@ public class BallerinaBaseListenerImpl extends BallerinaBaseListener {
                 new BlockStmt(statements));
     }
 
-    private Action parserAction(BallerinaParser.ActionDefinitionContext ctx) {
+    private BallerinaAction parserAction(BallerinaParser.ActionDefinitionContext ctx) {
         SymbolName actionName = new SymbolName(ctx.Identifier(0).getText());
 
         Annotation[] annotations = new Annotation[ctx.annotation().size()];
@@ -742,7 +742,7 @@ public class BallerinaBaseListenerImpl extends BallerinaBaseListener {
             statements[i] = parserStatementCtx(ctx.functionBody().statement(i).getChild(0));
         }
 
-        return new Action(actionName, annotations, parameters, returnTypes, connectorDcls, variables, workers,
+        return new BallerinaAction(actionName, annotations, parameters, returnTypes, connectorDcls, variables, workers,
                 new BlockStmt(statements));
     }
 
