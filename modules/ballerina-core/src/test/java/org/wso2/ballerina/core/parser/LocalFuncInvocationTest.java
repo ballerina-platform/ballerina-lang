@@ -20,6 +20,8 @@ package org.wso2.ballerina.core.parser;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.testng.Assert;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Test;
 import org.wso2.ballerina.core.interpreter.BContext;
 import org.wso2.ballerina.core.interpreter.BLangInterpreter;
 import org.wso2.ballerina.core.interpreter.StackFrame;
@@ -47,7 +49,7 @@ public class LocalFuncInvocationTest {
     private BallerinaFile bFile;
     private String funcName = "process";
 
-    //    @BeforeTest
+    @BeforeTest
     public void setup() {
         try {
             ANTLRInputStream antlrInputStream = new ANTLRInputStream(new FileInputStream(
@@ -87,6 +89,7 @@ public class LocalFuncInvocationTest {
         }
     }
 
+    @Test
     public void testLocalFuncInvocation() {
         BValueRef valueRefA = new BValueRef(new IntValue(100));
         BasicLiteral basicLiteralA = new BasicLiteral(valueRefA);
@@ -114,7 +117,6 @@ public class LocalFuncInvocationTest {
         BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
         funcIExpr.accept(bLangInterpreter);
 
-        System.out.println("Result: " + results[0].getInt());
         int actual = results[0].getInt();
         int expected = 116;
 
