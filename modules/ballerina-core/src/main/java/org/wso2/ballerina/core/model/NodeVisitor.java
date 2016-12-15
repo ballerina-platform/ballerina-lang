@@ -55,7 +55,7 @@ public interface NodeVisitor {
 
     void visit(BallerinaFunction function);
 
-    void visit(Action action);
+    void visit(BallerinaAction action);
 
     void visit(Worker worker);
 
