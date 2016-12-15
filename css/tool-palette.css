@@ -1,14 +1,14 @@
 
 .tool-palette-container{
-    border-right: 1px solid #c9c9c9;
+    border-right: 2px solid #e8e8e8;
     position: absolute;
     width: 200px;
     left: 0px;
     top: 0px;
     background-color: #ffffff;
     height: 100%;
-    border-left: 2px solid #c7c7c7;
-    margin-top: 2px;
+    /*border-left: 2px solid #c7c7c7;
+    margin-top: 2px;*/
 }
 
 .tool-group{
@@ -18,7 +18,7 @@
 
 .tool-group-header{
     cursor: pointer;
-    padding: 10px 1px;
+    padding: 10px 1px 18px;
 }
 
 .tool-group-header-title{
@@ -90,18 +90,21 @@
     padding:10px;
 }
 .search-input{
-    background-color: #f9f9f9;
+    background-color: #f0f0f0;
     font-size: 12px;
     font-style: italic;
     padding:5px;
     border: 1px solid #d9d9d9;
-    width: 100%;
+    /*width: 100%;*/
 }
 .searchIcon{
     position: absolute;
-    right: 17px;
+    left: 158px;
+    top: 20px;
+    color: darkgray;
+    /*right: 17px;
     top: 18px;
-    color: #7b7b7b;
+    color: #7b7b7b;*/
 }
 
 .tool-drag-container{
