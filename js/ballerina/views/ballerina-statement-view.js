@@ -28,6 +28,7 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3'], fu
         this._container = _.get(args, "container");
         this._viewOptions = _.get(args, "viewOptions");
         this.toolPalette = _.get(args, "toolPalette");
+        this.messageManager = _.get(args, "messageManager");
         this._statementGroup = undefined;
         this._width = 0;
         this._height = 0;

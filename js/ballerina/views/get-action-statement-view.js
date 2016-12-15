@@ -161,7 +161,27 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/get-action
                 "Invoke", actionStatementGroup).classed("action-text", true);
 
             this.processorRect = processorRect;
+            this.processorConnectPoint = processorConnectorPoint;
+            this.sourcePoint = new Point(sourcePointX, sourcePointY);
+            this.parentContainer = d3.select(parentGroup);
+              var self = this;
+            this.processorConnectPoint.on("mousedown",function(){
+                d3.event.preventDefault();
+                d3.event.stopPropagation();
+                var m = d3.mouse(this);
 
+                self.messageManager.startDrawMessage(self._model,self.sourcePoint,self.parentContainer);
+
+            });
+
+            this.processorConnectPoint.on("mouseover",function(){
+                processorConnectorPoint.style("fill", "red").style("fill-opacity", 0.5)
+                    .style("cursor", 'url(images/BlackHandwriting.cur), pointer');
+            });
+
+            this.processorConnectPoint.on("mouseout",function(){
+                processorConnectorPoint.style("fill", "#2c3e50").style("fill-opacity",0.01);
+            });
 
 
 
