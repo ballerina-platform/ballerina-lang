@@ -33,6 +33,7 @@ define(['lodash', 'log', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
             this._container = _.get(args, "container");
             this._viewOptions = _.get(args, "viewOptions", {});
             this.toolPalette = _.get(args, "toolPalette");
+            this.messageManager =  _.get(args, "messageManager");
             ASTVisitor.call(this, args);
         };
 

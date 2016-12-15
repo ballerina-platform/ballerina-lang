@@ -141,10 +141,10 @@ define(['lodash','d3', 'jquery', './ballerina-view', './../ast/connector-declara
             this._connectorDecLifeLine = connectorDecLifeLine;
             connectorDecLifeLine = connectorDecLifeLine.render();
             var self = this;
-            $(connectorDecLifeLine)[0].on("mouseover",function(event){
-            log.info("Mouse over event for connectors");
-
-            });
+            //$(connectorDecLifeLine)[0].on("mouseover",function(event){
+            //log.info("Mouse over event for connectors");
+            //
+            //});
            // return group;
         };
 

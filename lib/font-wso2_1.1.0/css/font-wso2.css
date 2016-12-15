@@ -320,6 +320,10 @@
     content:"\e6e6";
 }
 
+.fw-variable:after {
+    content:"\e6e6";
+}
+
 .fw-api:before {
     content:"\e601";
 }

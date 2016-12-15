@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './ballerina-view', './../ast/while-statement', 'd3utils'],
-    function (_, log, BallerinaView, WhileStatement, D3Utils) {
+define(['lodash', 'log', './ballerina-statement-view', './../ast/while-statement', 'd3utils', 'd3'],
+    function (_, log, BallerinaStatementView, WhileStatement, D3Utils, d3) {
 
         /**
          * The view to represent a while statement which is an AST visitor.
@@ -27,7 +27,7 @@ define(['lodash', 'log', './ballerina-view', './../ast/while-statement', 'd3util
          * @constructor
          */
         var WhileStatementView = function (args) {
-            BallerinaView.call(this, args);
+            BallerinaStatementView.call(this, args);
 
             if (_.isNil(this._model) || !(this._model instanceof WhileStatement)) {
                 log.error("While statement definition is undefined or is of different type." + this._model);
@@ -41,8 +41,12 @@ define(['lodash', 'log', './ballerina-view', './../ast/while-statement', 'd3util
 
         };
 
-        WhileStatementView.prototype = Object.create(BallerinaView.prototype);
+        WhileStatementView.prototype = Object.create(BallerinaStatementView.prototype);
         WhileStatementView.prototype.constructor = WhileStatementView;
+
+        WhileStatementView.prototype.canVisitWhileStatement = function(whileStatement){
+            return true;
+        };
 
         WhileStatementView.prototype.setModel = function (model) {
             if (!_.isNil(model) && model instanceof WhileStatement) {
@@ -79,59 +83,31 @@ define(['lodash', 'log', './ballerina-view', './../ast/while-statement', 'd3util
         };
 
         /**
-         * @inheritDoc
+         * Render the svg group to draw the if and the else statements
          */
-        WhileStatementView.prototype.setWidth = function (newWidth) {
-            // TODO : Implement
-        };
+        WhileStatementView.prototype.render = function (diagramRenderingContext) {
+            this._diagramRenderingContext = diagramRenderingContext;
+            var whileGroup = D3Utils.group(d3.select(this._container));
+            var x = this.getXPosition();
+            var y = this.getYPosition();
+            var width = 120;
+            var height = 60;
+            var outer_rect = D3Utils.rect(x, y, 120, 60, 0, 0, whileGroup).classed('statement-rect', true);
+            var title_rect = D3Utils.rect(x, y, 40, 20, 0, 0, whileGroup).classed('statement-rect', true);
+            var title_text = D3Utils.textElement(x + 20, y + 10, 'While', whileGroup).classed('statement-text', true);
 
-        /**
-         * @inheritDoc
-         */
-        WhileStatementView.prototype.setHeight = function (newHeight) {
-            // TODO : Implement
-        };
+            // Set x, y, height, width of the current view
+            this.setWidth(width);
+            this.setHeight(height);
+            this.setXPosition(x);
+            this.setYPosition(y);
+            this.setBoundingBox(width, height, x, y);
 
-        /**
-         * @inheritDoc
-         */
-        WhileStatementView.prototype.setXPosition = function (xPosition) {
-            // TODO : Implement
-        };
-
-        /**
-         * @inheritDoc
-         */
-        WhileStatementView.prototype.setYPosition = function (yPosition) {
-            // TODO : Implement
-        };
-
-        /**
-         * @inheritDoc
-         */
-        WhileStatementView.prototype.getWidth = function () {
-            // TODO : Implement
-        };
-
-        /**
-         * @inheritDoc
-         */
-        WhileStatementView.prototype.getHeight = function () {
-            // TODO : Implement
-        };
-
-        /**
-         * @inheritDoc
-         */
-        WhileStatementView.prototype.getXPosition = function () {
-            // TODO : Implement
-        };
-
-        /**
-         * @inheritDoc
-         */
-        WhileStatementView.prototype.getYPosition = function () {
-            // TODO : Implement
+            whileGroup.outerRect = outer_rect;
+            whileGroup.titleRect = title_rect;
+            whileGroup.titleText = title_text;
+            this.setStatementGroup(whileGroup);
+            this._model.accept(this);
         };
 
         return WhileStatementView;

@@ -78,22 +78,6 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', 'app/diagram-core/models/poi
 
     LifeLine.prototype.constructor = LifeLine;
 
-    LifeLine.prototype.getLifeLineOptions = function () {
-      return this._viewOptions;
-    };
-
-    /**
-     * Redraws the lifeline.
-     * @param options The lifeline options. Use #getLifeLineOptions() to get the existing options of a lifeline.
-     */
-    LifeLine.prototype.reRender = function(options) {
-        this._viewOptions = options;
-        // Deleting existing lifeline.
-        this._lifelineGroup.remove();
-        // Redrawing the lifeline.
-        this.render();
-    };
-
     /**
      * Update the height of the line.
      * @param newHeight The new height value.
@@ -239,7 +223,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', 'app/diagram-core/models/poi
             this._topPolygon = D3Utils.centeredRect(new Point(this._viewOptions.centerPoint.x, this._viewOptions.centerPoint.y), this._viewOptions.polygon.width, this._viewOptions.polygon.height, 0, 0, this._lifelineGroup);
             this._topPolygon.attr('fill', "#FFFFFF");
             this._topPolygon.attr('stroke-width', "1");
-            this._topPolygon.attr('stroke', "#9d9d9d");
+            this._topPolygon.attr('stroke', "#333333");
 
             // Add text to top polygon.
             this._topPolygonText = D3Utils.textElement(this._viewOptions.centerPoint.x, this._viewOptions.centerPoint.y,
@@ -281,8 +265,12 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', 'app/diagram-core/models/poi
             this._bottomPolygon = D3Utils.centeredRect(new Point(this._viewOptions.centerPoint.x, this._viewOptions.centerPoint.y + this._viewOptions.line.height + 12), this._viewOptions.polygon.width, this._viewOptions.polygon.height , 0, 0, this._lifelineGroup);
             this._bottomPolygon.attr('fill', "#FFFFFF");
             this._bottomPolygon.attr('stroke-width', "1");
-            this._bottomPolygon.attr('stroke', "#9d9d9d");
+            this._bottomPolygon.attr('stroke', "#333333");
 
+            if(this._viewOptions.text.value == "Resource Worker") {
+                this._topPolygon.style('stroke-width', "2");
+                this._bottomPolygon.style('stroke-width', "2");
+            }
 
             // // Add text to bottom polygon.
              this._bottomPolygonText = D3Utils.textElement((this._viewOptions.centerPoint.x + 1), (this._viewOptions.centerPoint.y + this._viewOptions.line.height + 10) ,
@@ -301,232 +289,6 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', 'app/diagram-core/models/poi
         }
          return this._lifelineGroup;
         // TODO : Implement draggable.
-    };
-
-    // TODO : Implement rendering processors
-    LifeLine.prototype.renderProcessors = function () {
-        // Minimum length for a Lifeline
-        var minimumLength = 250;
-        // Distance from lifeline's center point to first processor.
-        var initDistance = 60;
-        // Space between two processors
-        var distanceBetweenProcessors = 30;
-        var centerPoint = this.modelAttr('centerPoint');
-        var xValue = centerPoint.x();
-        var yValue = centerPoint.y();
-        yValue += initDistance;
-
-        var initialHeight = parseInt(this.d3el.line.attr("y2")) - parseInt(this.d3el.line.attr("y1"));
-        var totalIncrementedHeight = 0;
-        var previousHeight = 0;
-
-        for (var id in this.modelAttr("children").models) {
-
-            if (this.modelAttr("children").models[id] instanceof Processor) {
-                var processor = this.modelAttr("children").models[id];
-                var processorViewOptions = {
-                    model: processor,
-                    center: new DiagramCore.Models.Point({x: xValue, y: yValue}),
-                    canvas: this.canvas,
-                    serviceView: this.serviceView
-                };
-                var processorView = new ProcessorView(processorViewOptions);
-                processorView.render();
-                processor.setY(yValue);
-                yValue += processor.getHeight() + distanceBetweenProcessors;
-                previousHeight = processor.getHeight();
-            } else {
-                var messagePoint = this.modelAttr("children").models[id];
-                if (messagePoint.direction() == "outbound") {
-                    if (!_.isUndefined(messagePoint.forceY) && _.isEqual(messagePoint.forceY, true)) {
-                        yValue = messagePoint.y();
-                    }
-                    messagePoint.y(yValue);
-                    messagePoint.x(xValue);
-                } else {
-                    if (!_.isUndefined(messagePoint.forceY) && _.isEqual(messagePoint.forceY, true)) {
-                        yValue = messagePoint.y();
-                    }
-                    var sourceY = messagePoint.message().source().y();
-                    if (yValue < sourceY) {
-                        messagePoint.y(sourceY);
-                    } else {
-                        messagePoint.y(yValue);
-                        messagePoint.message().source().y(yValue);
-                    }
-                    messagePoint.x(xValue);
-                }
-                yValue += 60;
-                totalIncrementedHeight = totalIncrementedHeight + 40;
-            }
-        }
-
-        var totalHeight = parseInt(yValue) - parseInt(this.d3el.line.attr("y1"));
-        if (totalHeight < minimumLength) {
-            totalHeight = minimumLength;
-        }
-        if (!_.isUndefined(this.serviceView.model.highestLifeline) && this.serviceView.model.highestLifeline !== null) {
-            if (this.serviceView.model.highestLifeline.getHeight() > totalHeight) {
-                totalHeight = this.serviceView.model.highestLifeline.getHeight();
-            }
-            var maxHeight = this.serviceView.model.highestLifeline.getHeight();
-        }
-        this.model.setHeight(totalHeight);
-        this.adjustHeight(this.d3el, totalHeight - initialHeight);
-
-        if (this.serviceView.model.highestLifeline == undefined || maxHeight < this.model.getHeight()) {
-            this.serviceView.model.highestLifeline = this.model;
-            this.serviceView.render();
-            return false;
-        }
-        return this.d3el;
-    };
-
-    // TODO : Implement rendering messages
-    LifeLine.prototype.renderMessages = function () {
-        for (var id in this.modelAttr("children").models) {
-            var messagePoint = this.modelAttr("children").models[id];
-            if ((messagePoint instanceof MessagePoint)) {
-                var linkView = new MessageLinkView({
-                    model: messagePoint.message(),
-                    options: {class: "message"},
-                    serviceView: this.serviceView
-                });
-                linkView.render("#" + this.serviceView.model.wrapperId, "messages");
-            }
-        }
-    };
-
-    // TODO : Fix icons and field creations
-    LifeLine.prototype.addEditableAndDeletable = function () {
-        var optionMenuStartX = this._viewOptions.centerPoint.x + 2 + (this._viewOptions.polygon.width + 30) / 2;
-        var optionMenuStartY = this._viewOptions.centerPoint.y - this._viewOptions.polygon.height / 2;
-        var optionsMenuGroup = D3Utils.group(this._lifelineGroup).classed("option-menu option-menu-hide", true);
-
-        var optionsMenuWrapper = D3Utils.rect(optionMenuStartX + 8,
-            optionMenuStartY,
-            30,
-            58,
-            0,
-            0,
-            optionsMenuGroup, "#f8f8f3").attr("style", "stroke: #ede9dc; stroke-width: 1; opacity:0.5; cursor: pointer").on("mouseover", function () {
-            d3.select(this).attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: .7; cursor: pointer");
-        }).on("mouseout", function () {
-            d3.select(this).attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: 0.5; cursor: pointer");
-        });
-
-        var deleteOption = D3Utils.rect(optionMenuStartX + 11,
-            optionMenuStartY + 3,
-            24,
-            24,
-            0,
-            0,
-            optionsMenuGroup, "url(#delIcon)").attr("style", "opacity:0.5; cursor: pointer").on("mouseover", function () {
-            d3.select(this).attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: 1; cursor: pointer");
-            optionsMenuWrapper.attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: .7");
-        }).on("mouseout", function () {
-            d3.select(this).attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: 0.5; cursor: pointer");
-            optionsMenuWrapper.attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: 0.5; cursor: pointer");
-        });
-
-        var editOption = D3Utils.rect(optionMenuStartX + 11,
-            optionMenuStartY + 32,
-            24,
-            24,
-            0,
-            0,
-            optionsMenuGroup, "url(#editIcon)").attr("style", "opacity:0.5; cursor: pointer").on("mouseover", function () {
-            d3.select(this).attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: 1; cursor: pointer");
-            optionsMenuWrapper.attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: .7; cursor: pointer");
-        }).on("mouseout", function () {
-            d3.select(this).attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: 0.5; cursor: pointer");
-            optionsMenuWrapper.attr("style", "stroke: #ede9dc; stroke-width: 1; opacity: 0.5; cursor: pointer");
-        });
-
-        var viewObj = this;
-
-        this._lifelineGroup.on("click", (function () {
-            // viewObj.serviceView.model.selectedNode = viewObj.model;
-            if (optionsMenuGroup.classed("option-menu-hide")) {
-                optionsMenuGroup.classed("option-menu-hide", false);
-                optionsMenuGroup.classed("option-menu-show", true);
-
-                // if (viewObj.serviceView.model.selectedOptionsGroup) {
-                //     viewObj.serviceView.model.selectedOptionsGroup.classed("option-menu-hide", true);
-                //     viewObj.serviceView.model.selectedOptionsGroup.classed("option-menu-show", false);
-                // }
-                // if (viewObj.serviceView.model.propertyWindow) {
-                //     viewObj.serviceView.model.propertyWindow = false;
-                //     viewObj.serviceView.enableDragZoomOptions();
-                //     $('#property-pane-svg').empty();
-                // }
-                // viewObj.serviceView.model.selectedOptionsGroup = optionsMenuGroup;
-
-            } else {
-                optionsMenuGroup.classed("option-menu-hide", true);
-                optionsMenuGroup.classed("option-menu-show", false);
-                // viewObj.serviceView.model.propertyWindow = false;
-                // viewObj.serviceView.enableDragZoomOptions();
-                // viewObj.serviceView.model.selectedOptionsGroup = null;
-                // viewObj.serviceView.render();
-            }
-        }));
-
-        editOption.on("click", function () {
-
-            // if (viewObj.serviceView.model.propertyWindow) {
-            //     viewObj.serviceView.model.propertyWindow = false;
-            //     viewObj.serviceView.enableDragZoomOptions();
-            //     viewObj.serviceView.render();
-            //
-            // } else {
-            //     viewObj.serviceView.model.selectedMainElementText = {
-            //         top: viewObj.d3el.svgTitle,
-            //         bottom: viewObj.d3el.svgTitleBottom
-            //     };
-            //
-            //     var options = {
-            //         x: parseFloat(this.getAttribute("x")) + 6,
-            //         y: parseFloat(this.getAttribute("y")) + 21
-            //     };
-            //
-            //     viewObj.serviceView.selectedNode = viewObj.model;
-            //
-            //     viewObj.serviceView.drawPropertiesPane(d3Ref, options,
-            //         viewObj.model.get("utils").getMyParameters(viewObj.model),
-            //         viewObj.model.get('utils').getMyPropertyPaneSchema(
-            //             viewObj.model));
-            // }
-        });
-
-        deleteOption.on("click", function () {
-            //Get the parent of the model and delete it from the parent
-            // if (~viewObj.model.get("title").indexOf("Resource")) {
-            //     var resourceElements = viewObj.serviceView.model.get("diagramResourceElements").models;
-            //     for (var itr = 0; itr < resourceElements.length; itr++) {
-            //         if (resourceElements[itr].cid === viewObj.model.cid) {
-            //             resourceElements.splice(itr, 1);
-            //             var currentResources = viewObj.serviceView.model.resourceLifeLineCounter();
-            //             viewObj.serviceView.model.resourceLifeLineCounter(currentResources - 1);
-            //             viewObj.serviceView.model.get("diagramResourceElements").length -= 1;
-            //             viewObj.serviceView.render();
-            //             break;
-            //         }
-            //     }
-            // } else {
-            //     var endpointElements = viewObj.serviceView.model.get("diagramEndpointElements").models;
-            //     for (var itr = 0; itr < endpointElements.length; itr++) {
-            //         if (endpointElements[itr].cid === viewObj.model.cid) {
-            //             endpointElements.splice(itr, 1);
-            //             var currentEndpoints = viewObj.serviceView.model.endpointLifeLineCounter();
-            //             viewObj.serviceView.model.endpointLifeLineCounter(currentEndpoints - 1);
-            //             viewObj.serviceView.model.get("diagramEndpointElements").length -= 1;
-            //             viewObj.serviceView.render();
-            //             break;
-            //         }
-            //     }
-            // }
-        });
     };
 
     LifeLine.prototype.getMiddleLine = function () {

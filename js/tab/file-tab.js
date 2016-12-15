@@ -128,20 +128,33 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             ifelse3.addChild(if3);
             ifelse3.addChild(else3);
             if1.addChild(ifelse2);
-            if2.addChild(ifelse3);
-            // var ifelse4 = BallerinaASTFactory.createIfElseStatement();
-            // var if4 = BallerinaASTFactory.createIfStatement();
-            // var else4 = BallerinaASTFactory.createElseStatement();
-            // ifelse4.addChild(if4);
-            // ifelse4.addChild(else4);
+            else1.addChild(ifelse3);
+            var ifelse4 = BallerinaASTFactory.createIfElseStatement();
+            var if4 = BallerinaASTFactory.createIfStatement();
+            var else4 = BallerinaASTFactory.createElseStatement();
+            ifelse4.addChild(if4);
+            ifelse4.addChild(else4);
             // if1.addChild(ifelse4);
             //
             // if2.addChild(ifelse3);
-            resource_passthrough2.addChild(ifelse1);
+            // resource_passthrough2.addChild(ifelse1);
             serviceDefinition_passthroughService2.addChild(resource_passthrough2);
             // Adding Resources
             var resource_passthrough3 = BallerinaASTFactory.createResourceDefinition();
             resource_passthrough3.setResourceName('passthrough3');
+            var service_variable_declaration = [];
+
+            var variable1 = BallerinaASTFactory.createVariableDeclaration();
+            variable1.setType('string');
+            variable1.setIdentifier('wso2');
+            service_variable_declaration.push(variable1);
+
+            var variable2 = BallerinaASTFactory.createVariableDeclaration();
+            variable2.setType('int');
+            variable2.setIdentifier('2');
+            service_variable_declaration.push(variable2);
+
+            serviceDefinition_passthroughService.setVariableDeclarations(service_variable_declaration);
             serviceDefinition_passthroughService2.addChild(resource_passthrough3);
 
             // Adding Resources
@@ -192,9 +205,10 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             // resource_passthrough.addChild(ifElseStatement1);
 
             //creating while statement
-            // var whileStatement1 = ballerinaASTFactory.createWhileStatement();
-            // whileStatement1.setCondition("Condition2");
-            // resource_passthrough.addChild(whileStatement1);
+            var whileStatement1 = BallerinaASTFactory.createWhileStatement();
+            whileStatement1.setCondition("Condition2");
+
+            resource_passthrough.addChild(whileStatement1);
 
             /**
              * Create the sample assignment statement
@@ -217,7 +231,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
              */
             var functionInvocation = BallerinaASTFactory.createFunctionInvocationStatement();
             //TODO:Commented to view get action statement
-            //resource_passthrough.addChild(functionInvocation);
+            // resource_passthrough.addChild(functionInvocation);
 
             /**
              * Create the sample logical expression
@@ -225,7 +239,8 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             var logicalExp = BallerinaASTFactory.createLogicalExpression();
             logicalExp.setExpression('a > b');
             //TODO:Commented to view get action statement
-            //resource_passthrough.addChild(logicalExp);
+            // resource_passthrough.addChild(logicalExp);
+            whileStatement1.addChild(functionInvocation);
 
             /**
              * Create the sample arithmetic expression
@@ -233,7 +248,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             var arithmeticExp = BallerinaASTFactory.createArithmeticExpression();
             arithmeticExp.setExpression('a = resp + 123');
             //TODO:Commented to view get action statement
-           // resource_passthrough.addChild(arithmeticExp);
+           resource_passthrough.addChild(arithmeticExp);
 
             // Create Sample try-catch statement
             var ifElseStatement = BallerinaASTFactory.createIfElseStatement();
@@ -271,6 +286,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             var functionDefinition1 = BallerinaASTFactory.createFunctionDefinition();
             functionDefinition1.addChild(workerDeclaration1);
             functionDefinition1.addChild(workerDeclaration2);
+            functionDefinition1.addChild(ifelse1);
             functionDefinitions.push(functionDefinition1);
             ballerinaAstRoot1.addChild(functionDefinition1);
             ballerinaAstRoot1.setFunctionDefinitions(functionDefinitions);

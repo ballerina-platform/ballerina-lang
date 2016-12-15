@@ -31,6 +31,10 @@
     fill-opacity: 1;
 }
 
+.tool-group-header-collapse {
+    background-color: #f3f3f3;
+}
+
 .resource > line {
     stroke: #000000;
 }
@@ -80,7 +84,8 @@
 }
 
 .resource-content {
-    fill: none;
+    fill: #008000;
+    fill-opacity: 0;
     stroke-width: 1;
     stroke: #000000;
 }
@@ -196,12 +201,12 @@
 .action-rect{
     fill: #FFFFFF;
     stroke-width: 1;
-    stroke: #9d9d9d;
+    stroke: #333333;
 }
 
 .action-text{
 text-anchor: start;
-    fill:#727272;
+    fill:#333333;
 }
 
 .action-line{
@@ -254,6 +259,16 @@ text-anchor: start;
     cursor: pointer;
 }
 
+.variable-icon-background-circle {
+    opacity: 0.4;
+    cursor: pointer;
+}
+
+.variable-icon-background-circle:hover {
+    opacity: 1;
+    cursor: pointer;
+}
+
 .annotation-icon-background-circle:hover {
     opacity: 1;
     cursor: pointer;
@@ -262,4 +277,13 @@ text-anchor: start;
 .annotation-icon-rect {
     cursor: pointer;
     fill: url(#annotationIcon);
+}
+
+.variable-icon-rect {
+    cursor: pointer;
+    fill: url(#annotationIcon);
+}
+
+.if-else-svg-group{
+    cursor: pointer;
 }

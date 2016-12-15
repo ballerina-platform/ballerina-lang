@@ -37,7 +37,7 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
             }
             this._$parent_el = container;
             this._options = options;
-            this._toolGroups = initialTools;
+            this._toolGroups = _.cloneDeep(initialTools);
             this.dragDropManager = new DragDropManager();
         },
 
@@ -58,12 +58,15 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
             // End of adding search bar
             this._$parent_el.append(toolPaletteDiv);
             this.$el = toolPaletteDiv;
-            this._toolGroups.forEach(function (group) {
-                var groupView = new ToolGroupView({model: group, toolPalette: self});
+
+            this._toolGroups.forEach(function (group){
+                var toolGroupOptions = _.clone(_.get(self._options, 'toolGroup'));
+                _.set(toolGroupOptions, 'toolPalette', self);
+                _.set(toolGroupOptions, 'model', group);
+                var groupView = new ToolGroupView(toolGroupOptions);
                 groupView.render(self.$el);
                 self.$el.addClass('non-user-selectable');
             });
-
             return this;
         },
 
@@ -76,8 +79,34 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
 
         },
 
-        getElementToolGroups: function () {
-            return this._toolGroups;
+        /**
+         * Adds a new tool to a particular tool group
+         * @param groupID {String} ID of the tool group to which the tool should be added.
+         * @param toolDef {Object} Tool definition
+         * @param toolDef.id {String} Tool ID
+         * @param toolDef.name {String} Tool Name
+         * @param toolDef.icon {String} Path to SVG Icon
+         * @param toolDef.title {String} Tooltip text
+         * @param toolDef.nodeFactoryMethod {Function} Factory method to create new node upon drag.
+         *
+         */
+        addNewToolToGroup: function(groupID, toolDef){
+           var error,
+               toolGroup = _.find(this._toolGroups, function(group){
+               return _.isEqual(group.get('toolGroupID'), groupID);
+           });
+           if(_.isNil(toolGroup)){
+               error = 'cannot find a tool group with id ' + groupID;
+               log.error(error);
+               return;
+           }
+           if(!_.isNil(toolDef)){
+               toolGroup.addTool(toolDef);
+           }
+        },
+
+        addConnectorTool: function(toolDef){
+            this.addNewToolToGroup('connectors-tool-group', toolDef);
         },
 
         hide: function () {

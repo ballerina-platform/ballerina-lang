@@ -28,6 +28,7 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3'], fu
         this._container = _.get(args, "container");
         this._viewOptions = _.get(args, "viewOptions");
         this.toolPalette = _.get(args, "toolPalette");
+        this.messageManager = _.get(args, "messageManager");
         this._statementGroup = undefined;
         this._width = 0;
         this._height = 0;
@@ -110,13 +111,21 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3'], fu
         var statementView = statementViewFactory.getStatementView(args);
         this._diagramRenderingContext.getViewModelMap()[statement.id] = statementView;
         this._childrenViewsList.push(statementView);
-
-        // TODO: we need to keep this value as a configurable value and read from constants
-        var statementsGap = 40;
-        var statementsWidth = 100;
         statementView.setXPosition(this.getXPosition());
         statementView.setYPosition(this.getYPosition() + 30);
         statementView.render(this._diagramRenderingContext);
+    };
+
+    BallerinaStatementView.prototype.visitExpression = function (statement) {
+        var ExpressionViewFactory = require('./expression-view-factory');
+        var expressionViewFactory = new ExpressionViewFactory();
+        var args = {model: statement, container: this._statementGroup.node(), viewOptions: undefined, parent:this};
+        var expressionView = expressionViewFactory.getExpressionView(args);
+        this._diagramRenderingContext.getViewModelMap()[statement.id] = expressionView;
+        this._childrenViewsList.push(expressionView);
+        expressionView.setXPosition(this.getXPosition());
+        expressionView.setYPosition(this.getYPosition() + 30);
+        expressionView.render(this._diagramRenderingContext);
     };
 
     BallerinaStatementView.prototype.setBoundingBox = function (width, height, x, y) {

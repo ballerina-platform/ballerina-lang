@@ -6,7 +6,7 @@
     }
 }
 
-.nano { background: #bba; width: 500px; height: 500px; }
+.nano { background: #333; width: 500px; height: 500px; }
 .nano .nano-content { padding: 10px; }
 .nano .nano-pane   { background: #888; }
 .nano .nano-slider { background: #111; }
@@ -317,3 +317,13 @@ div[class*="col-sm-"] {
 
 /** ace editor (source view) related styles | -> End **/
 /*//////////////////////////////////////////////////*/
+.breadcrumb{
+    min-height: 20px;
+}
+footer.footer {
+    min-height: 25px;
+    height: 25px;
+}
+footer > .container p, footer > .container-fluid p {
+    line-height: 28px;
+}
