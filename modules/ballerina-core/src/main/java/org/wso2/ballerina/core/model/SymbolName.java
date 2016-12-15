@@ -19,8 +19,6 @@ package org.wso2.ballerina.core.model;
 
 import org.wso2.ballerina.core.model.types.Type;
 
-import java.util.Arrays;
-
 /**
  * {@code Identifier} represents an identifier in Ballerina
  * <p>
@@ -74,8 +72,7 @@ public class SymbolName {
     @Override
     public boolean equals(Object obj) {
         SymbolName other = (SymbolName) obj;
-        return this.name.equals(other.getName()) && this.symType == other.symType && (
-                this.symType == SymType.CALLABLE_UNIT && Arrays.equals(this.parameters, other.parameters));
+        return this.name.equals(other.getName()) && this.symType == other.symType;
     }
 
     @Override
