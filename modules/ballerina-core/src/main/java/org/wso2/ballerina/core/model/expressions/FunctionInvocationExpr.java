@@ -39,11 +39,29 @@ public class FunctionInvocationExpr extends AbstractExpression {
 
     private SymbolName functionName;
     private List<Expression> expressionList;
+    private Expression[] exprs;
     private Function calleeFunction;
 
     public FunctionInvocationExpr(SymbolName functionName, List<Expression> expressionList) {
         this.functionName = functionName;
         this.expressionList = expressionList;
+    }
+
+    public FunctionInvocationExpr(SymbolName functionName, Expression[] exprs) {
+        this.functionName = functionName;
+        this.exprs = exprs;
+    }
+
+    public SymbolName getFunctionName() {
+        return functionName;
+    }
+
+    public Expression[] getExprs() {
+        return exprs;
+    }
+
+    public Function getFunction() {
+        return calleeFunction;
     }
 
     public void setFunction(Function function) {
