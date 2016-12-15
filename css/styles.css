@@ -273,6 +273,26 @@ ol#breadcrumbList {
     width: 100%;
 }
 
+.service-annotation-wrapper {
+    position: absolute;
+}
+
+.service-annotation-header-wrapper {
+    margin: 0 10px 0 10px;
+}
+
+.service-annotation-header-wrapper input[type=text] {
+    margin-left:10px;
+}
+
+.service-annotation-header-wrapper span {
+    margin-left:10px;
+}
+
+.service-annotation-header-tick {
+    cursor: pointer;
+}
+
 /** Service container related styles | -> End **/
 /*//////////////////////////////////////////////////*/
 

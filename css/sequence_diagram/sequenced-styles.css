@@ -287,3 +287,7 @@ text-anchor: start;
 .if-else-svg-group{
     cursor: pointer;
 }
+
+.service-annotation-header-pane {
+    fill: #eaeaea
+}

@@ -186,6 +186,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
             };
 
             this.createVariablePane(variableProperties);
+            this._createAnnotationButtonPane(annotationButton);
         };
 
         ServiceDefinitionView.prototype.createVariablePane = function (args) {
@@ -328,6 +329,167 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
             // TODO : Implement
         };
 
+        ServiceDefinitionView.prototype._createAnnotationButtonPane = function (annotationButton) {
+            var paneWidth = 400;
+            var paneHeadingHeight = annotationButton.attr("r") * 2;
+            var paneContentHeight = 300;
+            var wrapperDivClass = "service-annotation-wrapper";
+            var headerWrapperDivClass = "service-annotation-header-wrapper";
+            var contentWrapperDivClass = "service-annotation-content-wrapper";
+            var headerTickDivClass = "service-annotation-header-tick";
+
+            var data = [
+                {
+                    annotationType: "BasePath",
+                    annotationValue: this._model.getBasePath(),
+                    setterMethod: this._model.setBasePath
+                },
+                {
+                    annotationType: "ServiceName",
+                    annotationValue: this._model.getServiceName(),
+                    setterMethod: this._model.setServiceName
+                },
+                {
+                    annotationType: "Source:interface",
+                    annotationValue: this._model.getSource().interface,
+                    setterMethod: this._model.setSource
+                }
+            ];
+            $(annotationButton.node()).click({model: this._model}, function (event) {
+
+                if (_.isNil($(annotationButton.node()).data("showing")) || $(annotationButton.node()).data("showing") == "false") {
+                    $(annotationButton.node()).data("showing", true);
+                } else {
+                    return;
+                }
+
+                var model = event.data.model;
+                event.stopPropagation();
+
+                var annotationButtonRectHoverEvent = $(annotationButton.node()).next().hover;
+                $($(annotationButton.node()).next()).unbind("hover");
+
+                annotationButton.style("opacity", 1);
+
+                var divSvgWrapper = annotationButton.node().ownerSVGElement.parentElement;
+
+                var paneStartingX = annotationButton.attr("cx") - paneWidth;
+                var paneStartingY = annotationButton.attr("cy") - annotationButton.attr("r");
+
+                // Heading background.
+                var headingBackground = d3.select(annotationButton.node().parentElement).insert("rect", ":first-child")
+                    .attr("x", paneStartingX)
+                    .attr("y", paneStartingY)
+                    .attr("width", paneWidth)
+                    .attr("height", paneHeadingHeight)
+                    .classed("service-annotation-header-pane", true);
+
+                var annotationEditorWrapper = $("<div/>", {
+                    class: wrapperDivClass
+                }).width(paneWidth).offset({top: 72.325, left: 1174.33}).appendTo(divSvgWrapper);
+
+                // Creating header content.
+                var headerWrapper = $("<div/>", {
+                    class: headerWrapperDivClass,
+                    click: function (event) {
+                        event.stopPropagation();
+                    }
+                }).height(paneHeadingHeight).appendTo(annotationEditorWrapper);
+
+                var annotationTypeDropDown = $("<select />").appendTo(headerWrapper);
+                _.forEach(data, function (annotation) {
+                    $("<option />", {
+                        value: annotation.annotationType,
+                        text: annotation.annotationType
+                    }).appendTo(annotationTypeDropDown);
+                });
+
+                var annotationValueInput = $("<input type='text' value='" + data[0].annotationValue + "'>").appendTo(headerWrapper);
+                $(annotationTypeDropDown).change(function () {
+                    var selectedAnnotationType = $(this).val();
+                    var selectedAnnotation = _.filter(data, function (annotation) {
+                        return annotation.annotationType == selectedAnnotationType;
+                    });
+                    annotationValueInput.val(_.first(selectedAnnotation).annotationValue);
+                });
+
+                // Add/Done button
+                var tickSpan = $("<span/>", {
+                    class: headerTickDivClass + " fw-stack fw-lg"
+                }).appendTo(headerWrapper);
+
+                var tickSquare = $("<i/>", {
+                    class: "fw fw-square fw-stack-2x",
+                    css: {
+                        opacity: 0.4
+                    }
+                }).appendTo(tickSpan);
+
+                var tickCheck = $("<i/>", {
+                    class: "fw fw-check fw-stack-1x fw-inverse"
+                }).appendTo(tickSpan);
+
+                $(tickCheck).hover(
+                    function () {
+                        $(tickSquare).css("opacity", 1);
+                    },
+                    function () {
+                        $(tickSquare).css("opacity", 0.4);
+                    }
+                );
+
+
+                $(tickSpan).click(function () {
+                    var selectedDropdownAnnotationType = $(annotationTypeDropDown).val();
+                    var newAnnotationValue = $(annotationValueInput).val();
+                    var annotationToUpdate = _.first(_.filter(data, function (annotation) {
+                        return annotation.annotationType == selectedDropdownAnnotationType;
+                    }));
+                    annotationToUpdate.setterMethod.call(model, newAnnotationValue);
+                });
+
+                $(window).click(function () {
+                    $(headingBackground.node()).remove();
+                    $(annotationEditorWrapper).remove();
+                    $(annotationButton.node()).data("showing", "false");
+
+                    $(this).unbind("click");
+                });
+
+                // Creating content.
+                var contentWrapper = $("<div/>", {
+                    class: contentWrapperDivClass
+                }).width(paneWidth).height(paneHeadingHeight).offset({
+                    top: 72.325 + paneHeadingHeight,
+                    left: 1174.33
+                }).appendTo(annotationEditorWrapper);
+
+                // using JSON.stringify pretty print capability:
+                var editorJson = "{";
+                _.forEach(data, function (annotation, index) {
+                    editorJson += "\"" + annotation.annotationType + "\":\"" + annotation.annotationValue + "\"";
+                    if (index != data.length - 1) {
+                        editorJson += ",";
+                    }
+                });
+                editorJson += "}";
+
+                log.debug(editorJson);
+                var str = JSON.stringify(JSON.parse(editorJson), undefined, 4);
+
+                $("<textarea/>", {
+                    val: str,
+                    css: {
+                        width: paneWidth,
+                        "max-height": paneContentHeight
+                    }
+                }).appendTo(contentWrapper);
+
+                // TODO : Correctly implement
+                $(contentWrapper).remove();
+            });
+        };
+
         ServiceDefinitionView.prototype._createAnnotationButton = function (serviceContentSvg) {
             var svgDefinitions = d3.select(serviceContentSvg).append("defs");
 
@@ -384,8 +546,9 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
                 }
             );
 
-            $(annotationIconRect.node()).click(function () {
+            $(annotationIconRect.node()).click(function (event) {
                 $(annotationIconBackgroundCircle.node()).trigger("click");
+                event.stopPropagation();
             });
 
             return annotationIconBackgroundCircle;

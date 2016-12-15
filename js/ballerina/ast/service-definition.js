@@ -20,6 +20,8 @@ define(['lodash', './node'], function (_, ASTNode) {
     var ServiceDefinition = function (args) {
         this._serviceName = _.get(args, 'serviceName');
         this._basePath = _.get(args, 'basePath', "/");
+        this._source = _.get(args, 'source', {});
+        this._source.interface = _.get(args, 'source.interface', "default_http_listener");
         this._resourceDefinitions = _.get(args, 'resourceDefinitions', []);
         this._variableDeclarations = _.get(args, 'variableDeclarations', []);
         this._connectionDeclarations = _.get(args, 'connectionDeclarations', []);
@@ -40,6 +42,12 @@ define(['lodash', './node'], function (_, ASTNode) {
     ServiceDefinition.prototype.setBasePath = function (basePath) {
         if (!_.isNil(basePath)) {
             this._basePath = basePath;
+        }
+    };
+
+    ServiceDefinition.prototype.setSource = function (source) {
+        if (!_.isNil(source)) {
+            this._source = source;
         }
     };
 
@@ -67,6 +75,10 @@ define(['lodash', './node'], function (_, ASTNode) {
 
     ServiceDefinition.prototype.getBasePath = function () {
         return this._basePath;
+    };
+
+    ServiceDefinition.prototype.getSource = function () {
+        return this._source;
     };
 
     ServiceDefinition.prototype.getResourceDefinitions = function () {

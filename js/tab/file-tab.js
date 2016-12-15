@@ -99,6 +99,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             var serviceDefinition_passthroughService = BallerinaASTFactory.createServiceDefinition();
             serviceDefinition_passthroughService.setServiceName("PassthroughService");
             serviceDefinition_passthroughService.setBasePath("/account");
+            serviceDefinition_passthroughService.setSource({})
 
             //service definition
             var serviceDefinition_passthroughService2 = BallerinaASTFactory.createServiceDefinition();
