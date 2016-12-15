@@ -72,13 +72,12 @@ public class SemanticAnalyzer implements NodeVisitor {
     private SymTable symbolTable = new SymTable();
 
     @Override
-    public void visit(BallerinaFile file) {
-
-        for (Service service : file.getServices()) {
+    public void visit(BallerinaFile bFile) {
+        for (Service service : bFile.getServices()) {
             service.accept(this);
         }
 
-        for (Function function : file.getFunctions().values()) {
+        for (Function function : bFile.getFunctions().values()) {
             BallerinaFunction bFunction = (BallerinaFunction) function;
             bFunction.accept(this);
         }
@@ -86,7 +85,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(Service service) {
-        ;
+
     }
 
     @Override
@@ -124,9 +123,9 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Here we need to calculate size of the BValue array which will be created in the stack frame
         // Values in the stack frame are stored in the following order.
         // -- Parameter values --
-        // -- Return values    --
         // -- Local var values --
         // -- Temp values      --
+        // -- Return values    --
         // These temp values are results of intermediate expression evaluations.
         int sizeOfStackFrame = stackFrameOffset + 1;
         bFunction.setStackFrameSize(sizeOfStackFrame);
@@ -339,8 +338,14 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     @Override
-    public void visit(FunctionInvocationExpr functionInvocationExpr) {
+    public void visit(FunctionInvocationExpr funcIExpr) {
+        visitExpr(funcIExpr);
 
+        for (Expression expr : funcIExpr.getExprs()) {
+            expr.accept(this);
+        }
+
+        // TODO store the types of each func argument expression
     }
 
     @Override
@@ -402,7 +407,6 @@ public class SemanticAnalyzer implements NodeVisitor {
         symName.setSymbol(symbol);
         variableRefExpr.setType(symbol.getType());
         variableRefExpr.setOffset(symbol.getOffset());
-//        variableRefExpr.setEvalFunction(VariableRefExpr.createGetLocalValueFunc(symbol.getOffset()));
     }
 
     private void openScope() {
@@ -415,10 +419,14 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     private void visitBinaryExpr(BinaryExpression expr) {
-        stackFrameOffset++;
-        expr.setOffset(stackFrameOffset);
+        visitExpr(expr);
 
         expr.getRExpr().accept(this);
         expr.getLExpr().accept(this);
+    }
+
+    private void visitExpr(Expression expr) {
+        stackFrameOffset++;
+        expr.setOffset(stackFrameOffset);
     }
 }
