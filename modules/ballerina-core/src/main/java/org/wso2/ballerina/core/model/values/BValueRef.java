@@ -99,4 +99,26 @@ public class BValueRef {
             throw new RuntimeException("Unsupported type: " + type);
         }
     }
+
+    public static boolean isValueType(TypeC type) {
+        if (type == TypeC.INT_TYPE ||
+                type == TypeC.STRING_TYPE ||
+                type == TypeC.LONG_TYPE ||
+                type == TypeC.FLOAT_TYPE ||
+                type == TypeC.DOUBLE_TYPE ||
+                type == TypeC.BOOLEAN_TYPE) {
+            return true;
+        }
+
+        return false;
+    }
+
+    // TODO we need to improve this logic
+    public static BValueRef clone(TypeC type, BValueRef bValueRef) {
+        if (isValueType(type)) {
+            return new BValueRef(bValueRef.getBValue());
+        }
+
+        throw new RuntimeException("Cloning reference types are not yet supported in Ballerina");
+    }
 }
