@@ -16,9 +16,9 @@
  * under the License.
  */
 define(['lodash', 'log', 'event_channel', '../ast/module', './try-catch-statement-view', './try-statement-view',
-        './catch-statement-view', './if-else-statement-view', './if-statement-view', './else-statement-view', './assignment-view', './function-invocation-view','./get-action-statement-view'],
+        './catch-statement-view', './if-else-statement-view', './if-statement-view', './else-statement-view', './assignment-view', './function-invocation-view','./get-action-statement-view', './while-statement-view'],
     function (_, log, EventChannel, AST, TryCatchStatementView, TryStatementView, CatchStatementView,
-              IfElseStatementView, IfStatementView, ElseStatementView, AssignmentStatementView, FunctionInvocationStatementView, GetActionStatementView) {
+              IfElseStatementView, IfStatementView, ElseStatementView, AssignmentStatementView, FunctionInvocationStatementView, GetActionStatementView, WhileStatementView) {
 
         var StatementViewFactory = function () {
         };
@@ -43,6 +43,8 @@ define(['lodash', 'log', 'event_channel', '../ast/module', './try-catch-statemen
                 return new FunctionInvocationStatementView(args);
             } else if (statement instanceof AST.GetActionStatement) {
                 return new GetActionStatementView(args);
+            } else if (statement instanceof AST.WhileStatement) {
+                return new WhileStatementView(args);
             }
         };
 
