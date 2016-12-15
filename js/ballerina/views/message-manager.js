@@ -41,7 +41,7 @@ define(['log', 'lodash','d3','./point', 'backbone'], function (log, _, d3,Point,
     MessageManager.prototype.startDrawMessage = function(source,sourcePoint,parent){
         this.setMessageSource(source);
 
-        this.trigger("message-draw-start",source);
+       // this.trigger("message-draw-start",source);
 
         var tempLine =  parent.append("line")
             .attr("x1", sourcePoint.x() )
