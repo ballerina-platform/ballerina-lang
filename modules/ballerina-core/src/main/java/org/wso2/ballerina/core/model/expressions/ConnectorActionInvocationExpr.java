@@ -2,7 +2,7 @@ package org.wso2.ballerina.core.model.expressions;
 
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.interpreter.ControlStack;
-import org.wso2.ballerina.core.model.Action;
+import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.SymbolName;
@@ -21,14 +21,14 @@ public class ConnectorActionInvocationExpr extends AbstractExpression {
 
     private SymbolName actionName;
     private List<Expression> expressionList;
-    private Action calleeAction;
+    private BallerinaAction calleeAction;
 
     public ConnectorActionInvocationExpr(SymbolName actionName, List<Expression> expressionList) {
         this.actionName = actionName;
         this.expressionList = expressionList;
     }
 
-    public void setCalleeAction(Action calleeAction) {
+    public void setCalleeAction(BallerinaAction calleeAction) {
         this.calleeAction = calleeAction;
     }
 
