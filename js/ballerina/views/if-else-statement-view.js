@@ -32,6 +32,7 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
             BallerinaStatementView.call(this, args);
 
             this._ifBlockView = undefined;
+            this._elseIfViews = [];
             this._elseBlockView = undefined;
             this._totalHeight = 0;
 
@@ -71,6 +72,24 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
             var args = {model: statement, container: this.getStatementGroup(), viewOptions: undefined, parent: this};
             var statementView = statementViewFactory.getStatementView(args);
             this._ifBlockView = statementView;
+            this._diagramRenderingContext.getViewModelMap()[statement.id] = statementView;
+            statementView.render(this._diagramRenderingContext);
+
+            //adjust if-else statement's height
+            this._totalHeight = this._totalHeight + statementView.getBoundingBox().height;
+            this.setIfElseStatementHeight(this._totalHeight);
+            this.trigger("childViewAddedEvent", statement);
+        };
+
+        /**
+         * Visit If Else Statement
+         * @param {IfElseStatement} statement
+         */
+        IfElseStatementView.prototype.visitElseIfStatement = function(statement){
+            var StatementViewFactory = require('./statement-view-factory');
+            var statementViewFactory = new StatementViewFactory();
+            var args = {model: statement, container: this.getStatementGroup(), viewOptions: undefined, parent: this};
+            var statementView = statementViewFactory.getStatementView(args);
             this._diagramRenderingContext.getViewModelMap()[statement.id] = statementView;
             statementView.render(this._diagramRenderingContext);
 
@@ -209,6 +228,14 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
 
         IfElseStatementView.prototype.getElseBlockView = function () {
             return this._elseBlockView;
+        };
+
+        IfElseStatementView.prototype.getElseIfViewList = function () {
+            return this._elseIfViews;
+        };
+
+        IfElseStatementView.prototype.getLastElseIf = function () {
+            return this._elseIfViews[this._elseIfViews.length - 1];
         };
 
         IfElseStatementView.prototype.changeChildrenMetrics = function (baseMetrics) {

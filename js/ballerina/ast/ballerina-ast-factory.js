@@ -21,14 +21,14 @@
  */
 define(['./ballerina-ast-root', './service-definition', './function-definition', './connector-definition', './resource-definition',
         './worker-declaration', './statement', './conditional-statement', './connector-declaration', './expression',
-        './if-else-statement', './if-statement', './else-statement', './trycatch-statement', './try-statement',
+        './if-else-statement', './if-statement', './else-statement', './else-if-statement', './trycatch-statement', './try-statement',
         './catch-statement', './reply-statement', './while-statement', './return-statement',
         './type-converter-definition', './type-definition', './type-element', './variable-declaration',
         './package-definition', './import-declaration', './resource-arg', './assignment', './function-invocation',
         './action-invocation-statement','./get-action-statement', './arithmetic-expression', './logical-expression'],
     function (ballerinaAstRoot, serviceDefinition, functionDefinition, connectorDefinition, resourceDefinition,
               workerDeclaration, statement, conditionalStatement, connectorDeclaration, expression,
-              ifElseStatement, ifStatement, elseStatement, tryCatchStatement, tryStatement, catchStatement, replyStatement,
+              ifElseStatement, ifStatement, elseStatement, elseIfStatement, tryCatchStatement, tryStatement, catchStatement, replyStatement,
               whileStatement, returnStatement, typeConverterDefinition, typeDefinition, typeElement, variableDeclaration,
               packageDefinition, importDeclaration, resourceArgument, assignmentStatement, functionInvocation,
               actionInvocationStatement, getActionStatement, arithmeticExpression, logicalExpression) {
@@ -178,6 +178,14 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
          */
         BallerinaASTFactory.createElseStatement = function (args) {
             return new elseStatement(args);
+        };
+
+        /**
+         * creates Else If Statement
+         * @param args
+         */
+        BallerinaASTFactory.createElseIfStatement = function (args) {
+            return new elseIfStatement(args);
         };
 
         /**

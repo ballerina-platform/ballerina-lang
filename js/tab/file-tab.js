@@ -113,7 +113,11 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             var ifelse1 = BallerinaASTFactory.createIfElseStatement();
             var if1 = BallerinaASTFactory.createIfStatement();
             var else1 = BallerinaASTFactory.createElseStatement();
+            var elseIf1 = BallerinaASTFactory.createElseIfStatement();
+            var elseIf2 = BallerinaASTFactory.createElseIfStatement();
             ifelse1.addChild(if1);
+            ifelse1.addChild(elseIf1);
+            ifelse1.addChild(elseIf2);
             ifelse1.addChild(else1);
 
             var ifelse2 = BallerinaASTFactory.createIfElseStatement();
@@ -127,8 +131,8 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             var else3 = BallerinaASTFactory.createElseStatement();
             ifelse3.addChild(if3);
             ifelse3.addChild(else3);
-            if1.addChild(ifelse2);
-            else1.addChild(ifelse3);
+            // if1.addChild(ifelse2);
+            // else1.addChild(ifelse3);
             var ifelse4 = BallerinaASTFactory.createIfElseStatement();
             var if4 = BallerinaASTFactory.createIfStatement();
             var else4 = BallerinaASTFactory.createElseStatement();
@@ -137,7 +141,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             // if1.addChild(ifelse4);
             //
             // if2.addChild(ifelse3);
-            // resource_passthrough2.addChild(ifelse1);
+            resource_passthrough2.addChild(ifelse1);
             serviceDefinition_passthroughService2.addChild(resource_passthrough2);
             // Adding Resources
             var resource_passthrough3 = BallerinaASTFactory.createResourceDefinition();
@@ -208,7 +212,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             var whileStatement1 = BallerinaASTFactory.createWhileStatement();
             whileStatement1.setCondition("Condition2");
 
-            resource_passthrough.addChild(whileStatement1);
+            // resource_passthrough.addChild(whileStatement1);
 
             /**
              * Create the sample assignment statement
@@ -240,7 +244,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             logicalExp.setExpression('a > b');
             //TODO:Commented to view get action statement
             // resource_passthrough.addChild(logicalExp);
-            whileStatement1.addChild(functionInvocation);
+            // whileStatement1.addChild(functionInvocation);
 
             /**
              * Create the sample arithmetic expression
