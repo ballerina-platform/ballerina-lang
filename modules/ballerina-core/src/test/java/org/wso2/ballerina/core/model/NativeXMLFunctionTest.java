@@ -19,7 +19,6 @@ package org.wso2.ballerina.core.model;
 
 import org.apache.axiom.om.OMElement;
 import org.testng.Assert;
-import org.testng.annotations.Test;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.interpreter.ControlStack;
 import org.wso2.ballerina.core.model.expressions.Expression;
@@ -40,7 +39,7 @@ import java.util.List;
  */
 public class NativeXMLFunctionTest {
 
-    @Test
+    //@Test
     public void testGetString() {
         Context ctx = new Context();
         ControlStack controlStack = ctx.getControlStack();
@@ -87,7 +86,7 @@ public class NativeXMLFunctionTest {
         Assert.assertEquals(returnVal, "Jack");
     }
     
-    @Test
+    //@Test
     public void testGetXML() {
         Context ctx = new Context();
         ControlStack controlStack = ctx.getControlStack();
