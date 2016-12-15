@@ -34,6 +34,7 @@ import org.wso2.ballerina.core.model.expressions.BasicLiteral;
 import org.wso2.ballerina.core.model.expressions.BinaryExpression;
 import org.wso2.ballerina.core.model.expressions.EqualExpression;
 import org.wso2.ballerina.core.model.expressions.Expression;
+import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.GreaterEqualExpression;
 import org.wso2.ballerina.core.model.expressions.GreaterThanExpression;
 import org.wso2.ballerina.core.model.expressions.LessEqualExpression;
@@ -83,13 +84,16 @@ public class BLangModelBuilder {
     private Stack<SymbolName> symbolNameStack = new Stack<>();
     private Stack<Expression> exprStack = new Stack<>();
 
+    // Holds ExpressionLists required for return statements, function/action invocations and connector declarations
+    private Stack<List<Expression>> exprListStack = new Stack<>();
+
     private Stack<List<Annotation>> annotationListStack = new Stack<>();
 
     public BallerinaFile build() {
         return bFileBuilder.build();
     }
 
-    // Symbol table related instance variables;
+    // Symbol table _related instance variables;
 //    private SymbolTable symbolTable = new SymbolTable(null);
 //    private int paramIndex = -1;
 //    private int localVarIndex = -1;
@@ -279,6 +283,32 @@ public class BLangModelBuilder {
         exprStack.push(expr);
     }
 
+    public void startExprList() {
+        exprListStack.push(new ArrayList<>());
+    }
+
+    public void endExprList(int exprCount) {
+        List<Expression> exprList = exprListStack.peek();
+        addExprToList(exprList, exprCount);
+    }
+
+    public void createFunctionInvocationExpr() {
+        CallableUnitInvocationExprBuilder cIExprBuilder = new CallableUnitInvocationExprBuilder();
+        cIExprBuilder.setExpressionList(exprListStack.pop());
+        cIExprBuilder.setName(symbolNameStack.pop());
+
+        FunctionInvocationExpr invocationExpr = cIExprBuilder.buildFuncInvocExpr();
+        exprStack.push(invocationExpr);
+
+        // Storing a reference to the function invocation expression
+        // This is useful in linking phase
+        bFileBuilder.addFuncIExpr(invocationExpr);
+    }
+
+    public void createActionInvocationExpr() {
+
+    }
+
     // Functions, Actions and Resources
 
     public void startCallableUnitBody() {
@@ -405,9 +435,8 @@ public class BLangModelBuilder {
     public void createReturnStmt() {
         ReturnStmt.ReturnStmtBuilder returnStmtBuilder = new ReturnStmt.ReturnStmtBuilder();
 
-        if (!exprStack.isEmpty()) {
-            addInReverseOrder(returnStmtBuilder);
-        }
+        // Get the expression list from the expression list stack
+        returnStmtBuilder.setExpressionList(exprListStack.pop());
 
         ReturnStmt returnStmt = returnStmtBuilder.build();
         addToBlockStmt(returnStmt);
@@ -517,14 +546,23 @@ public class BLangModelBuilder {
         exprStack.push(basicLiteral);
     }
 
-//    private void addScopeToSymbolTable() {
-//        SymbolTable scopeTable = new SymbolTable(this.symbolTable);
-//        this.symbolTable = scopeTable;
-//    }
+    /**
+     * @param exprList List<Expression>
+     * @param n        number of expression to be added the given list
+     */
+    private void addExprToList(List<Expression> exprList, int n) {
 
-//    private void removeScopeFromSymbolTable() {
-//        this.symbolTable = symbolTable.getParent();
-//        localVarIndex = -1;
-//        paramIndex = -1;
-//    }
+        if (exprStack.isEmpty()) {
+            throw new IllegalStateException("Expression stack cannot be empty in processing an ExpressionList");
+        }
+
+        if (n == 1) {
+            Expression expr = exprStack.pop();
+            exprList.add(expr);
+        } else {
+            Expression expr = exprStack.pop();
+            addExprToList(exprList, n - 1);
+            exprList.add(expr);
+        }
+    }
 }
