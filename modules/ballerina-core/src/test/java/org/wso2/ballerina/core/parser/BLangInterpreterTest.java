@@ -20,6 +20,8 @@ package org.wso2.ballerina.core.parser;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.testng.Assert;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Test;
 import org.wso2.ballerina.core.interpreter.BContext;
 import org.wso2.ballerina.core.interpreter.BLangInterpreter;
 import org.wso2.ballerina.core.interpreter.ControlStack;
@@ -42,7 +44,7 @@ public class BLangInterpreterTest {
     private BallerinaFile bFile;
     private String funcName = "test";
 
-    //    @BeforeTest
+    @BeforeTest
     public void setup() {
         try {
             ANTLRInputStream antlrInputStream = new ANTLRInputStream(new FileInputStream(
@@ -73,6 +75,7 @@ public class BLangInterpreterTest {
         }
     }
 
+    @Test
     public void testFuncInvocation() {
         BallerinaFunction function = (BallerinaFunction) bFile.getFunctions().get(funcName);
 
@@ -108,9 +111,6 @@ public class BLangInterpreterTest {
         int expectedB = 21;
         int actualB = returnVals[1].getInt();
         Assert.assertEquals(actualB, expectedB);
-
-//        System.out.println(expectedA);
-//        System.out.println(expectedB);
     }
 
     public static void main(String[] args) {
