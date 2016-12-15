@@ -85,7 +85,10 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(Service service) {
-
+        // Visit the set of resources in a service
+        for (Resource resource : service.getResources()) {
+            resource.accept(this);
+        }
     }
 
     @Override
@@ -95,6 +98,32 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(Resource resource) {
+        // Visit the contents within a resource
+        // Open a new symbol scope
+        openScope();
+
+        // TODO create a Symbol for this function( with parameter and return types)
+
+        Parameter[] parameters = resource.getParameters();
+        for (Parameter parameter : parameters) {
+            stackFrameOffset++;
+            visit(parameter);
+        }
+
+        VariableDcl[] variableDcls = resource.getVariableDcls();
+        for (VariableDcl variableDcl : variableDcls) {
+            stackFrameOffset++;
+            visit(variableDcl);
+        }
+
+        BlockStmt blockStmt = resource.getResourceBody();
+        blockStmt.accept(this);
+
+        int sizeOfStackFrame = stackFrameOffset + 1;
+        resource.setStackFrameSize(sizeOfStackFrame);
+
+        // Close the symbol scope
+        closeScope();
 
     }
 

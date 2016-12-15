@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.interpreter.ControlStack;
+import org.wso2.ballerina.core.interpreter.StackFrame;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.model.types.MessageType;
@@ -65,6 +66,7 @@ public class Resource implements Executable, Node {
     private List<Worker> workerList = new ArrayList<>();
     private Worker defaultWorker;
     private String name;
+    private int stackFrameSize;
 
     private Annotation[] annotations;
     private Parameter[] parameters;
@@ -284,14 +286,62 @@ public class Resource implements Executable, Node {
         defaultWorker.addStatement(statement);
     }
 
+
+    /**
+     *  Get resource body
+     * @return returns the block statement
+     */
+    public BlockStmt getResourceBody() {
+        return resourceBody;
+    }
+
+
+    /**
+     * Get variable declarations
+     * @return returns the variable declarations
+     */
+    public VariableDcl[] getVariableDcls() {
+        return variableDcls;
+    }
+
     public String getName() {
         return name;
     }
 
     @Override
     public boolean execute(Context context, BalCallback callback) {
+        setupBallerinaRuntime(context);
         populateDefaultMessage(context);
         return defaultWorker.execute(context, callback);
+    }
+
+    private void setupBallerinaRuntime(Context ctx) {
+
+        // Create control stack and the stack frame
+        //BContext ctx = new BContext();
+        ControlStack controlStack = ctx.getControlStack();
+
+        int sizeOfValueArray = this.getStackFrameSize();
+
+        BValueRef[] values = new BValueRef[sizeOfValueArray];
+
+        int i = 0;
+        Parameter[] parameters = this.getParameters();
+        for (Parameter param: parameters) {
+            values[i] = BValueRef.getDefaultValue(param.getTypeC());
+            i++;
+        }
+
+        // Create default values for all declared local variables
+        VariableDcl[] variableDcls = this.getVariableDcls();
+        for (VariableDcl variableDcl : variableDcls) {
+            values[i] = BValueRef.getDefaultValue(variableDcl.getTypeC());
+            i++;
+        }
+
+        StackFrame stackFrame = new StackFrame(values, null);
+        controlStack.pushFrame(stackFrame);
+
     }
 
     private void populateDefaultMessage(Context context) {
@@ -319,8 +369,21 @@ public class Resource implements Executable, Node {
         arguments.add(paramMessage);
     }
 
+    public int getStackFrameSize() {
+        return stackFrameSize;
+    }
+
+    public void setStackFrameSize(int stackFrameSize) {
+        this.stackFrameSize = stackFrameSize;
+    }
+
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+
+    public Parameter[] getParameters() {
+        return parameters;
     }
 }
