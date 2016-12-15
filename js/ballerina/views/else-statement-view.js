@@ -44,10 +44,20 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
         ElseStatementView.prototype.render = function (diagramRenderingContext) {
             this._diagramRenderingContext = diagramRenderingContext;
             var elseGroup = D3Utils.group(this._container);
-            var ifBlockBottomY = parseInt(this.getParent().getIfBlockView().getStatementGroup().outerRect.attr('y')) +
-                parseInt(this.getParent().getIfBlockView().getStatementGroup().outerRect.attr('height'));
-            var x = parseInt(this.getParent().getIfBlockView().getStatementGroup().outerRect.attr('x'));
-            var y = ifBlockBottomY;
+            var x = 0;
+            var y = 0;
+
+            // If we have more than one else if we get the position of the last else if
+            var lastElseIf = this.getParent().getLastElseIf();
+            if (!_.isUndefined(lastElseIf)) {
+                x = parseInt(lastElseIf.getStatementGroup().outerRect.attr('x'));
+                y = parseInt(lastElseIf.getStatementGroup().outerRect.attr('y')) +
+                    parseInt(lastElseIf.getStatementGroup().outerRect.attr('height'));
+            } else {
+                y = parseInt(this.getParent().getIfBlockView().getStatementGroup().outerRect.attr('y')) +
+                    parseInt(this.getParent().getIfBlockView().getStatementGroup().outerRect.attr('height'));
+                x = parseInt(this.getParent().getIfBlockView().getStatementGroup().outerRect.attr('x'));
+            }
             var point = new Point(x, y);
             var width = parseInt(this.getParent().getIfBlockView().getStatementGroup().outerRect.attr('width'));
             var height = 60;

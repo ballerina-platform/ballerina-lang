@@ -317,6 +317,7 @@ div[class*="col-sm-"] {
 
 /** ace editor (source view) related styles | -> End **/
 /*//////////////////////////////////////////////////*/
+/*
 .breadcrumb{
     min-height: 20px;
 }
@@ -326,4 +327,4 @@ footer.footer {
 }
 footer > .container p, footer > .container-fluid p {
     line-height: 28px;
-}
+}*/

@@ -29,13 +29,5 @@ var IfElseStatement = function () {
     IfElseStatement.prototype = Object.create(Statement.prototype);
     IfElseStatement.prototype.constructor = IfElseStatement;
 
-    IfElseStatement.prototype.setCondition = function(condition){
-        if (!_.isNil(condition)) {
-            this._condition = condition;
-        } else {
-            log.error("Cannot set undefined to the condition.");
-        }
-    };
-
     return IfElseStatement;
 });
