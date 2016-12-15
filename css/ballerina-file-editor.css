@@ -15,9 +15,9 @@
 }
 
 .canvas-container{
-    height: 100%;
     padding-left: 20px;
     padding-top: 60px;
+    padding-bottom: 60px;
 }
 
 .container-outer-div {
