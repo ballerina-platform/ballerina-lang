@@ -43,9 +43,8 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
         } else if (node instanceof AST.WhileStatement) {
             return this.canVisitWhileStatement(node);
         } else if (node instanceof AST.Assignment) {
-            return this.canVisitStatement(node);
-        }
-        else if (node instanceof AST.GetActionStatement) {
+            return this.canVisitAssignment(node);
+        } else if (node instanceof AST.GetActionStatement) {
             return this.canVisitGetActionStatement(node);
         }
     };
@@ -69,9 +68,8 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
         } else if (node instanceof AST.WhileStatement) {
             return this.beginVisitWhileStatement(node);
         } else if (node instanceof AST.Assignment) {
-            return this.beginVisitStatement(node);
-        }
-        else if (node instanceof AST.GetActionStatement) {
+            return this.beginVisitAssignment(node);
+        } else if (node instanceof AST.GetActionStatement) {
             return this.beginVisitGetActionStatement(node);
         }
     };
@@ -95,9 +93,8 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
         } else if (node instanceof AST.WhileStatement) {
             return this.visitWhileStatement(node);
         } else if (node instanceof AST.Assignment) {
-            return this.visitStatement(node);
-        }
-        else if (node instanceof AST.GetActionStatement) {
+            return this.visitAssignment(node);
+        } else if (node instanceof AST.GetActionStatement) {
             return this.visitGetActionStatement(node);
         }
     };
@@ -121,9 +118,8 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
         } else if (node instanceof AST.WhileStatement) {
             return this.endVisitWhileStatement(node);
         } else if (node instanceof AST.Assignment) {
-            return this.endVisitStatement(node);
-        }
-        else if (node instanceof AST.GetActionStatement) {
+            return this.endVisitAssignment(node);
+        } else if (node instanceof AST.GetActionStatement) {
             return this.endVisitGetActionStatement(node);
         }
     };
