@@ -70,6 +70,10 @@ public class ReturnStmt implements Statement {
         public ReturnStmtBuilder() {
         }
 
+        public void setExpressionList(List<Expression> expressionList) {
+            this.expressionList = expressionList;
+        }
+
         public void addExpression(Expression expr) {
             expressionList.add(expr);
         }
