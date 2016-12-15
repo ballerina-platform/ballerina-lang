@@ -16,14 +16,14 @@
 
 package org.wso2.ballerina.core.nativeimpl.connectors.http;
 
-import org.osgi.service.component.annotations.Component;
+//import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.Context;
-import org.wso2.ballerina.core.model.types.TypeEnum;
+//import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
-import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAction;
+//import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
+//import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.NativeConnector;
 import org.wso2.ballerina.core.runtime.internal.ServiceContextHolder;
@@ -34,10 +34,10 @@ import org.wso2.carbon.messaging.MessageProcessorException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-/**
- * Execute post method to given URI
- */
-@BallerinaAction(
+///**
+// * Execute post method to given URI
+// */
+/*@BallerinaAction(
         packageName = "ballerina.net.http",
         actionName = "post",
         args = {
@@ -45,11 +45,15 @@ import java.net.URL;
                 @Argument(name = "path", type = TypeEnum.STRING),
                 @Argument(name = "message", type = TypeEnum.MESSAGE)
         },
-        returnType = { TypeEnum.MESSAGE })
-@Component(
+        returnType = { TypeEnum.MESSAGE })*/
+/*@Component(
         name = "func.net.http.sendPost",
         immediate = true,
-        service = AbstractNativeAction.class)
+        service = AbstractNativeAction.class)*/
+
+/**
+ * dsf
+ */
 public class Post extends AbstractNativeAction {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Post.class);
