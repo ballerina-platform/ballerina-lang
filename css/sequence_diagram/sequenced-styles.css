@@ -281,7 +281,7 @@ text-anchor: start;
 
 .variable-icon-rect {
     cursor: pointer;
-    fill: url(#annotationIcon);
+    fill: url(#variableIcon);
 }
 
 .if-else-svg-group{
