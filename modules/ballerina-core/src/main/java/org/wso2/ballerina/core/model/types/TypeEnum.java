@@ -33,8 +33,8 @@ public enum TypeEnum {
     XML("xml"),
     JSON("json"),
     MAP("map"),
-    ARRAY("array");
-
+    ARRAY("array"),
+    CONNECTOR("connector");
 
     private String name;
 

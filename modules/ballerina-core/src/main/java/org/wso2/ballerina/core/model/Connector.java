@@ -43,19 +43,19 @@ public class Connector implements Node {
     private List<Parameter> arguments;
     private List<ConnectorDcl> connectorDclList;
     private List<VariableDcl> variableDclList;
-    private List<Action> actionList;
+    private List<BallerinaAction> actionList;
 
     private SymbolName name;
     private Annotation[] annotations;
     private ConnectorDcl[] connectorDcls;
     private VariableDcl[] variableDcls;
-    private Action[] actions;
+    private BallerinaAction[] actions;
 
     public Connector(SymbolName serviceName,
                      Annotation[] annotations,
                      ConnectorDcl[] connectorDcls,
                      VariableDcl[] variableDcls,
-                     Action[] actions) {
+                     BallerinaAction[] actions) {
         this.name = serviceName;
         this.annotations = annotations;
         this.connectorDcls = connectorDcls;
@@ -188,7 +188,7 @@ public class Connector implements Node {
      *
      * @return list of all Actions
      */
-    public List<Action> getActions() {
+    public List<BallerinaAction> getActions() {
         return actionList;
     }
 
@@ -197,7 +197,7 @@ public class Connector implements Node {
      *
      * @param actions list of Actions
      */
-    public void setActions(List<Action> actions) {
+    public void setActions(List<BallerinaAction> actions) {
         this.actionList = actions;
     }
 
@@ -206,9 +206,9 @@ public class Connector implements Node {
      *
      * @param action Action to be added to the Connector
      */
-    public void addAction(Action action) {
+    public void addAction(BallerinaAction action) {
         if (actionList == null) {
-            actionList = new ArrayList<Action>();
+            actionList = new ArrayList<BallerinaAction>();
         }
         actionList.add(action);
     }
