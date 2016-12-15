@@ -43,5 +43,12 @@ function(require, _, log, EventChannel, AbstractStatementSourceGenVisitor) {
         statement.accept(statementVisitor);
     };
 
+    IfElseStatementVisitor.prototype.visitElseIfStatement = function(statement){
+        var StatementVisitorFactory = require('./statement-visitor-factory');
+        var statementVisitorFactory = new StatementVisitorFactory();
+        var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
+        statement.accept(statementVisitor);
+    };
+
     return IfElseStatementVisitor;
 });

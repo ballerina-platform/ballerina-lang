@@ -34,6 +34,8 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
             return this.canVisitIfStatement(node);
         } else if (node instanceof AST.ElseStatement) {
             return this.canVisitElseStatement(node);
+        }  else if (node instanceof AST.ElseIfStatement) {
+            return this.canVisitElseIfStatement(node);
         } else if (node instanceof AST.TryCatchStatement) {
             return this.canVisitStatement(node);
         } else if (node instanceof AST.TryStatement) {
@@ -61,6 +63,8 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
             return this.beginVisitIfStatement(node);
         } else if (node instanceof AST.ElseStatement) {
             return this.beginVisitElseStatement(node);
+        } else if (node instanceof AST.ElseIfStatement) {
+            return this.beginVisitElseIfStatement(node);
         } else if (node instanceof AST.TryCatchStatement) {
             return this.beginVisitStatement(node);
         } else if (node instanceof AST.TryStatement) {
@@ -88,6 +92,8 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
             return this.visitIfStatement(node);
         } else if (node instanceof AST.ElseStatement) {
             return this.visitElseStatement(node);
+        }  else if (node instanceof AST.ElseIfStatement) {
+            return this.visitElseIfStatement(node);
         } else if (node instanceof AST.TryCatchStatement) {
             return this.visitStatement(node);
         } else if (node instanceof AST.TryStatement) {
@@ -115,6 +121,8 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
             return this.endVisitIfStatement(node);
         } else if (node instanceof AST.ElseStatement) {
             return this.endVisitElseStatement(node);
+        }  else if (node instanceof AST.ElseIfStatement) {
+            return this.endVisitElseIfStatement(node);
         } else if (node instanceof AST.TryCatchStatement) {
             return this.endVisitStatement(node);
         } else if (node instanceof AST.TryStatement) {
@@ -150,6 +158,16 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
     StatementVisitor.prototype.visitElseStatement = function (statement) {
     };
     StatementVisitor.prototype.endVisitElseStatement = function (statement) {
+    };
+
+    StatementVisitor.prototype.canVisitElseIfStatement = function (statement) {
+        return false;
+    };
+    StatementVisitor.prototype.beginVisitElseIfStatement = function (statement) {
+    };
+    StatementVisitor.prototype.visitElseIfStatement = function (statement) {
+    };
+    StatementVisitor.prototype.endVisitElseIfStatement = function (statement) {
     };
 
     StatementVisitor.prototype.canVisitTryStatement = function (statement) {
