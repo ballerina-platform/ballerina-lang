@@ -197,12 +197,12 @@
 .action-rect{
     fill: #FFFFFF;
     stroke-width: 1;
-    stroke: #9d9d9d;
+    stroke: #333333;
 }
 
 .action-text{
 text-anchor: start;
-    fill:#727272;
+    fill:#333333;
 }
 
 .action-line{
