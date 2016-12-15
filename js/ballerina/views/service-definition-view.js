@@ -343,11 +343,6 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
                 .attr("width", 18.67)
                 .attr("height", 18.67);
 
-            // xPosition = Width of the outer div - radius of the annotation button.
-            $(serviceContentSvg.parentElement).resize(function(){
-                log.debug("WIDTH : " + $(this).width());
-            });
-
             var outerBoxPadding = parseInt($(serviceContentSvg.parentElement).css("padding"), 10);
             // xPosition = Width of the outer div - padding of outer box - radius of the annotation button - 20(additional value).
             var xPosition = $(serviceContentSvg.parentElement.parentElement).prev().width() - outerBoxPadding - 18.675 - 20;
@@ -362,6 +357,24 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
             var annotationIconRect = D3utils.centeredRect(new Point(xPosition, yPosition), 18.67, 18.67, 0, 0, annotationIconGroup)
                 .classed("annotation-icon-rect", true);
 
+            // Positioning the icon when window is zoomed out or in.
+            $(window).resize(function () {
+                var outerBoxPadding = parseInt($(serviceContentSvg.parentElement).css("padding"), 10);
+
+                // xPosition = Width of the outer div - padding of outer box - radius of the annotation button - 20(additional value).
+                var xPosition = $(serviceContentSvg.parentElement.parentElement).prev().width() - outerBoxPadding - 18.675 - 20;
+
+                $(annotationIconBackgroundCircle.node()).remove();
+                $(annotationIconRect.node()).remove();
+
+                annotationIconBackgroundCircle = D3utils.circle(xPosition, yPosition, 18.675, annotationIconGroup)
+                    .classed("annotation-icon-background-circle", true);
+
+                annotationIconRect = D3utils.centeredRect(new Point(xPosition, yPosition), 18.67, 18.67, 0, 0, annotationIconGroup)
+                    .classed("annotation-icon-rect", true);
+            });
+
+            // Get the hover effect of the circle on the icon hover.
             $(annotationIconRect.node()).hover(
                 function () {
                     annotationIconBackgroundCircle.style("opacity", 1);
@@ -401,6 +414,23 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
             var variableIconRect = D3utils.centeredRect(new Point(xPosition, 30), 18.67, 18.67, 0, 0, variableIconGroup)
                 .classed("variable-icon-rect", true);
 
+            // Positioning the icon when window is zoomed out or in.
+            $(window).resize(function () {
+                var outerBoxPadding = parseInt($(serviceContentSvg.parentElement).css("padding"), 10);
+                // xPosition = Width of the outer div - padding of outer box - radius of the annotation button - 20(additional value).
+                var xPosition = $(serviceContentSvg.parentElement.parentElement).prev().width() - outerBoxPadding - 18.675 - 20;
+
+                $(variableIconBackgroundCircle.node()).remove();
+                $(variableIconRect.node()).remove();
+
+                variableIconBackgroundCircle = D3utils.circle(xPosition, 30, 18.675, variableIconGroup)
+                    .classed("variable-icon-background-circle", true);
+
+                variableIconRect = D3utils.centeredRect(new Point(xPosition, 30), 18.67, 18.67, 0, 0, variableIconGroup)
+                    .classed("variable-icon-rect", true);
+            });
+
+            // Get the hover effect of the circle on the icon hover.
             $(variableIconRect.node()).hover(
                 function () {
                     variableIconBackgroundCircle.style("opacity", 1);
