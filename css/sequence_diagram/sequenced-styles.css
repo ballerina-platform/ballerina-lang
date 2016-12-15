@@ -80,7 +80,8 @@
 }
 
 .resource-content {
-    fill: none;
+    fill: #008000;
+    fill-opacity: 0;
     stroke-width: 1;
     stroke: #000000;
 }
@@ -206,6 +207,11 @@ text-anchor: start;
 
 .action-line{
     stroke: #9d9d9d;
+}
+.action-dash-line{
+    stroke: #9d9d9d;
+    stroke-dasharray: 5,5;
+
 }
 .action-arrow{
    stroke: #9d99d;

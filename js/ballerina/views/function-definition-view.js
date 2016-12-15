@@ -15,8 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-definition', './life-line', 'd3utils', 'd3', './worker-declaration-view'],
-    function (_, log, EventChannel, Canvas, FunctionDefinition, LifeLine, D3Utils, d3, WorkerDeclarationView) {
+define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-definition', './life-line', 'd3utils', 'd3',
+        './worker-declaration-view', './statement-view-factory'],
+    function (_, log, EventChannel, Canvas, FunctionDefinition, LifeLine, D3Utils, d3, WorkerDeclarationView, StatementViewFactory) {
 
         /**
          * The view to represent a function definition which is an AST visitor.
@@ -27,6 +28,7 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
          * @constructor
          */
         var FunctionDefinitionView = function (args) {
+            this._statementExpressionViewList = [];
             Canvas.call(this, args);
 
             this._defaultWorkerLifeLine = undefined;
@@ -120,7 +122,8 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
          * Rendering the view for function definition.
          * @returns {group} The svg group which contains the elements of the function definition view.
          */
-        FunctionDefinitionView.prototype.render = function () {
+        FunctionDefinitionView.prototype.render = function (diagramRenderingContext) {
+            this.diagramRenderingContext = diagramRenderingContext;
             this.drawAccordionCanvas(this._container, this._viewOptions, this._model.id, 'function');
             var divId = this._model.id;
             var currentContainer = $('#'+ divId);
@@ -178,59 +181,47 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
         };
 
         /**
-         * @inheritDoc
+         * @param {BallerinaStatementView} statement
          */
-        FunctionDefinitionView.prototype.setWidth = function (newWidth) {
-            // TODO : Implement
-        };
+        FunctionDefinitionView.prototype.visitStatement = function (statement) {
+            var statementViewFactory = new StatementViewFactory();
+            var containerGroup = d3.select(_.first($(this._container).children().children())).node();
+            var args = {model: statement, container: containerGroup, viewOptions: undefined, parent:this};
+            var statementView = statementViewFactory.getStatementView(args);
+            this.diagramRenderingContext.getViewModelMap()[statement.id] = statementView;
+            statementView.setParent(this);
+            if(statementViewFactory.isGetActionStatement(statement)){
+                _.each(this.diagramRenderingContext.getViewModelMap(),function(view){
+                    var matchFound =  _.isEqual(statement.getConnector(),view.getModel());
+                    if(matchFound) {
+                        statementView.setConnectorView(view);
+                    }
+                });
+                //_.each(this.getConnectorViewList(), function (view) {
+                //  var matchFound =  _.isEqual(statement.getConnector(),view.getModel());
+                //    if(matchFound) {
+                //        statementView.setConnectorView(view);
+                //    }
+                //});
+            }
 
-        /**
-         * @inheritDoc
-         */
-        FunctionDefinitionView.prototype.setHeight = function (newHeight) {
-            // TODO : Implement
-        };
-
-        /**
-         * @inheritDoc
-         */
-        FunctionDefinitionView.prototype.setXPosition = function (xPosition) {
-            // TODO : Implement
-        };
-
-        /**
-         * @inheritDoc
-         */
-        FunctionDefinitionView.prototype.setYPosition = function (yPosition) {
-            // TODO : Implement
-        };
-
-        /**
-         * @inheritDoc
-         */
-        FunctionDefinitionView.prototype.getWidth = function () {
-            // TODO : Implement
-        };
-
-        /**
-         * @inheritDoc
-         */
-        FunctionDefinitionView.prototype.getHeight = function () {
-            // TODO : Implement
-        };
-
-        /**
-         * @inheritDoc
-         */
-        FunctionDefinitionView.prototype.getXPosition = function () {
-            // TODO : Implement
-        };
-
-        /**
-         * @inheritDoc
-         */
-        FunctionDefinitionView.prototype.getYPosition = function () {
-            // TODO : Implement
+            // TODO: we need to keep this value as a configurable value and read from constants
+            var statementsGap = 40;
+            var statementsWidth = 120;
+            if (this._statementExpressionViewList.length > 0) {
+                var lastStatement = this._statementExpressionViewList[this._statementExpressionViewList.length - 1];
+                statementView.setXPosition(lastStatement.getXPosition());
+                statementView.setYPosition(lastStatement.getYPosition() + lastStatement.getHeight() + statementsGap);
+            } else {
+                var x = parseInt(this._defaultWorkerLifeLine.getMiddleLine().attr('x1')) - parseInt(statementsWidth/2);
+                var defaultWorkerRectBottom = 40;
+                var y = defaultWorkerRectBottom;
+                statementView.setXPosition(x);
+                statementView.setYPosition(y + statementsGap);
+            }
+            this.diagramRenderingContext.getViewModelMap()[statement.id] = statementView;
+            this._statementExpressionViewList.push(statementView);
+            statementView.render(this.diagramRenderingContext);
         };
 
         /**

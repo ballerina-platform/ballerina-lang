@@ -142,8 +142,8 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
 
         // Create http-connectors tool group
         var httpConnectorsToolGroup = new ToolGroup({
-            toolGroupName: "HTTP-Connectors",
-            toolGroupID: "http-connectors-tool-group",
+            toolGroupName: "HTTP-Connector Actions",
+            toolGroupID: "http-connector-tool-group",
             toolDefinitions: httpConnectorToolArray
         });
         initialToolGroups.push(httpConnectorsToolGroup);

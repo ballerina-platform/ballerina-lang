@@ -118,20 +118,24 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', 'app/diagram-core/models/poi
             // Updating the height of the line.
             this._middleLine.attr("y2", parseFloat(this._middleLine.attr("y1")) + newHeight);
 
-            // Positioning bottom polygon.
-            var newPoints = "";
-            var pointsOfBottomPolygon = this._bottomPolygon.attr("points").split(" ");
-            _.forEach(pointsOfBottomPolygon, function(point, index){
-                if (index != 0) {
-                    var coordinate = point.split(",");
-                    newPoints += coordinate[0] + "," + (parseFloat(coordinate[1]) + parseFloat(lineHeightDifference));
-                    if (index != pointsOfBottomPolygon.length - 1) {
-                        newPoints += " ";
+            if (this._viewOptions.polygon.shape == "rect") {
+                this._bottomPolygon.attr("y", parseFloat(this._bottomPolygon.attr("y")) + lineHeightDifference);
+            }else if(this._viewOptions.polygon.shape == "diamond"){
+                // Positioning bottom polygon.
+                var newPoints = "";
+                var pointsOfBottomPolygon = this._bottomPolygon.attr("points").split(" ");
+                _.forEach(pointsOfBottomPolygon, function(point, index){
+                    if (index != 0) {
+                        var coordinate = point.split(",");
+                        newPoints += coordinate[0] + "," + (parseFloat(coordinate[1]) + parseFloat(lineHeightDifference));
+                        if (index != pointsOfBottomPolygon.length - 1) {
+                            newPoints += " ";
+                        }
                     }
-                }
-            });
+                });
 
-            this._bottomPolygon.attr("points", newPoints);
+                this._bottomPolygon.attr("points", newPoints);
+            }
 
             // Position bottom polygon text.
             this._bottomPolygonText.attr("y", parseFloat(this._bottomPolygonText.attr("y")) + lineHeightDifference);
@@ -281,12 +285,14 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', 'app/diagram-core/models/poi
 
 
             // // Add text to bottom polygon.
-             this._bottomPolygonText = D3Utils.textElement((this._viewOptions.centerPoint.x + 5 - this._viewOptions.polygon.width/2), (this._viewOptions.centerPoint.y + this._viewOptions.line.height +25 -this._viewOptions.polygon.height/2) ,
+             this._bottomPolygonText = D3Utils.textElement((this._viewOptions.centerPoint.x + 1), (this._viewOptions.centerPoint.y + this._viewOptions.line.height + 10) ,
                  this._viewOptions.text.value, this._lifelineGroup)
                  .classed(this._viewOptions.text.class, true).classed("genericT", true);
-            //
+           
             // // Centering the text to the middle of the bottom polygon.
-             this._bottomPolygonText.attr('dominant-baseline', "middle");
+            // Centering the text to the middle of the top polygon.
+            this._bottomPolygonText.attr('text-anchor', "middle");
+            this._bottomPolygonText.attr('alignment-baseline', "central");
         }
 
         // Adding property editor buttons.

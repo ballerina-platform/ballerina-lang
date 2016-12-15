@@ -51,9 +51,14 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
         /**
          * creates ServiceDefinition
          * @param args
+         * @param setDefaults - if this is set to true, default values will be set to the serviceDefinition
          */
-        BallerinaASTFactory.createServiceDefinition = function (args) {
-            return new serviceDefinition(args);
+        BallerinaASTFactory.createServiceDefinition = function (args, setDefaults) {
+            var serviceDef = new serviceDefinition(args);
+            if(setDefaults){
+                serviceDef.addChild(BallerinaASTFactory.createResourceDefinition(args));
+            }
+            return serviceDef;
         };
 
         /**
