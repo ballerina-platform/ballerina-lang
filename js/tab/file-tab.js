@@ -194,6 +194,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             //creating while statement
             var whileStatement1 = BallerinaASTFactory.createWhileStatement();
             whileStatement1.setCondition("Condition2");
+
             resource_passthrough.addChild(whileStatement1);
 
             /**
@@ -217,7 +218,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
              */
             var functionInvocation = BallerinaASTFactory.createFunctionInvocationStatement();
             //TODO:Commented to view get action statement
-            resource_passthrough.addChild(functionInvocation);
+            // resource_passthrough.addChild(functionInvocation);
 
             /**
              * Create the sample logical expression
@@ -225,7 +226,8 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             var logicalExp = BallerinaASTFactory.createLogicalExpression();
             logicalExp.setExpression('a > b');
             //TODO:Commented to view get action statement
-            resource_passthrough.addChild(logicalExp);
+            // resource_passthrough.addChild(logicalExp);
+            whileStatement1.addChild(functionInvocation);
 
             /**
              * Create the sample arithmetic expression
