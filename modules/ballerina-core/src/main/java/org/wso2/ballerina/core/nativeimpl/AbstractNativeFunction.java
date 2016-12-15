@@ -30,6 +30,7 @@ import org.wso2.ballerina.core.model.types.Type;
 import org.wso2.ballerina.core.model.types.TypeC;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BValueRef;
+import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Utils;
 import org.wso2.ballerina.core.nativeimpl.exceptions.ArgumentOutOfRangeException;
@@ -70,9 +71,15 @@ public abstract class AbstractNativeFunction implements NativeConstruct, Functio
         BallerinaFunction function = this.getClass().getAnnotation(BallerinaFunction.class);
         packageName = function.packageName();
         functionName = function.functionName();
-        symbolName = new SymbolName(functionName);
+
+        Argument[] methodParams = function.args();
+        Type[] params = new Type[methodParams.length];
+        for (int i = 0; i < methodParams.length; i++) {
+            params[i] = TypeC.getType(methodParams[i].type().getName());
+        }
+        symbolName = new SymbolName(packageName + "." + functionName, SymbolName.SymType.CALLABLE_UNIT, params);
         isPublicFunction = function.isPublic();
-        Arrays.stream(function.args()).
+        Arrays.stream(methodParams).
                 forEach(argument -> {
                     try {
                         parameters.add(new Parameter(TypeC.getType(argument.type().getName())
