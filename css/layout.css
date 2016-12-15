@@ -317,3 +317,13 @@ div[class*="col-sm-"] {
 
 /** ace editor (source view) related styles | -> End **/
 /*//////////////////////////////////////////////////*/
+.breadcrumb{
+    min-height: 20px;
+}
+footer.footer {
+    min-height: 25px;
+    height: 25px;
+}
+footer > .container p, footer > .container-fluid p {
+    line-height: 28px;
+}
