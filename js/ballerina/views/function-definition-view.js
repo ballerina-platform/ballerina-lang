@@ -121,7 +121,7 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
          * @returns {group} The svg group which contains the elements of the function definition view.
          */
         FunctionDefinitionView.prototype.render = function () {
-            this.drawAccordionCanvas(this._container, this._viewOptions, this._model.id, 'function');
+            this.drawAccordionCanvas(this._container, this._viewOptions, this._model.id, this._model.type.toLowerCase());
             var divId = this._model.id;
             var currentContainer = $('#'+ divId);
             this._container = currentContainer;

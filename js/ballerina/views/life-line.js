@@ -283,6 +283,12 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', 'app/diagram-core/models/poi
             this._bottomPolygon.attr('stroke-width', "1");
             this._bottomPolygon.attr('stroke', "#9d9d9d");
 
+            if(this._viewOptions.text.value == "Resource Worker") {
+                this._topPolygon.style('stroke-width', "2");
+                this._bottomPolygon.style('stroke-width', "2");
+                this._topPolygon.attr('stroke', "#333333");
+                this._bottomPolygon.attr('stroke', "#333333");
+            }
 
             // // Add text to bottom polygon.
              this._bottomPolygonText = D3Utils.textElement((this._viewOptions.centerPoint.x + 1), (this._viewOptions.centerPoint.y + this._viewOptions.line.height + 10) ,
