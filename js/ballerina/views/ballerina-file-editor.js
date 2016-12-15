@@ -132,7 +132,8 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 parentView: this,
                 toolPalette: this.toolPalette
             });
-            functionDefinitionView.render();
+            this.diagramRenderingContext.getViewModelMap()[functionDefinition.id] = functionDefinitionView;
+            functionDefinitionView.render(this.diagramRenderingContext);
         };
 
         /**
