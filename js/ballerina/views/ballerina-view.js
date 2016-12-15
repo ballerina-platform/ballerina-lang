@@ -312,13 +312,7 @@ define(['lodash', 'log', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
                 // Adding on click event for delete button.
                 $(deleteButtonRect.node()).click(function () {
                     log.info("initializing delete");
-                    //Test for children in resource definition
-                    //var child = model.children[0].children[0];
-
-                    //Test for delete resource definition
-                    //var child = model.children[0];
-
-                    //Test for delete service definition
+                    //TODO: get each element as child
                     var child = model;
                     var parent = child.parent;
                     parent.removeChild(child);
@@ -329,13 +323,7 @@ define(['lodash', 'log', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
 
         BallerinaView.prototype.childViewRemovedCallback = function (child) {
             log.info("[Eventing] Child element view removed. ");
-            //var group = $(this._container)[0].getElementById("assignmentStatementGroup_" +child.id);
-            //var group = $(this._container)[0].getElementById("actionStatementGroup_" +child.id);
-           // var group = $(this._container)[0].getElementById("connectorGroup_" +child.id);
-            /*var childView = this.diagramRenderingContext.getViewModelMap()[child.id];
-            var group = $(childView._container)[0].getElementById("resourceGroup_" +child.id);*/
-            //(d3.select(group)).remove();
-            $(this._container.querySelectorAll("#_" +child.id)).remove();
+            //TODO: logic to remove each element from each container
         };
 
         return BallerinaView;
