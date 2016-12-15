@@ -617,6 +617,9 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitReplyStatement(BallerinaParser.ReplyStatementContext ctx) {
+        // Here the expression is only a message reference
+        //modelBuilder.createVarRefExpr();
+        modelBuilder.createReplyStmt();
     }
 
     @Override

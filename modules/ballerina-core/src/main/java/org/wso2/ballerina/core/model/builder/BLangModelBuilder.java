@@ -47,6 +47,7 @@ import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.statements.IfElseStmt;
+import org.wso2.ballerina.core.model.statements.ReplyStmt;
 import org.wso2.ballerina.core.model.statements.ReturnStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
@@ -434,6 +435,13 @@ public class BLangModelBuilder {
 
         ReturnStmt returnStmt = returnStmtBuilder.build();
         addToBlockStmt(returnStmt);
+    }
+
+    public void createReplyStmt() {
+        ReplyStmt.ReplyStmtBuilder replyStmtBuilder = new ReplyStmt.ReplyStmtBuilder();
+        ReplyStmt replyStmt = replyStmtBuilder.build();
+        replyStmtBuilder.setExpression(exprStack.pop());
+        addToBlockStmt(replyStmt);
     }
 
     public void startWhileStmt() {

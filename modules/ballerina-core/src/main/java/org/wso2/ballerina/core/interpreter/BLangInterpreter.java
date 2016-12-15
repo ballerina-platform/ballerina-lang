@@ -56,15 +56,17 @@ import org.wso2.ballerina.core.model.statements.WhileStmt;
 import org.wso2.ballerina.core.model.types.TypeC;
 import org.wso2.ballerina.core.model.values.BValueRef;
 
+import java.util.List;
+
 /**
  *
  */
 public class BLangInterpreter implements NodeVisitor {
 
-    private BContext bContext;
+    private Context bContext;
     private ControlStack controlStack;
 
-    public BLangInterpreter(BContext bContext) {
+    public BLangInterpreter(Context bContext) {
         this.bContext = bContext;
         this.controlStack = bContext.getControlStack();
     }
@@ -86,7 +88,7 @@ public class BLangInterpreter implements NodeVisitor {
 
     @Override
     public void visit(Resource resource) {
-
+        resource.getResourceBody().accept(this);
     }
 
     @Override
@@ -101,7 +103,10 @@ public class BLangInterpreter implements NodeVisitor {
 
     @Override
     public void visit(Worker worker) {
-
+        List<Statement> stmts = worker.getStatements();
+        for (Statement stmt : stmts) {
+            stmt.accept(this);
+        }
     }
 
     @Override
