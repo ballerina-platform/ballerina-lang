@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'lodash', 'log', './ballerina-statement-view', './../ast/if-else-statement', 'd3utils', 'd3', 'jquery', './../ast/if-statement', './../ast/if-else-statement'],
-    function (require, _, log, BallerinaStatementView, IfElseStatement, D3Utils, d3, $, IfStatement, IfElseStatement) {
+define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statement-view', './../ast/if-else-statement', 'd3utils', 'd3', 'jquery', './../ast/if-statement', './../ast/if-else-statement'],
+    function (require, _, log, PropertyPaneUtils, BallerinaStatementView, IfElseStatement, D3Utils, d3, $, IfStatement, IfElseStatement) {
 
         /**
          * The view to represent a If Else statement which is an AST visitor.
@@ -244,14 +244,39 @@ define(['require', 'lodash', 'log', './ballerina-statement-view', './../ast/if-e
             viewOptions.propertyForm.body.property = _.get(args, "propertyForm.body.property", {});
             viewOptions.propertyForm.body.property.wrapper = _.get(args, "propertyForm.body.property.wrapper", "property-pane-form-body-property-wrapper");
 
+            viewOptions.propertyForm.body.addIfElse = _.get(args, "propertyForm.body.addIfElse", {});
+            viewOptions.propertyForm.body.addIfElse.text = _.get(args, "propertyForm.body.addIfElse.text", "Add");
+            viewOptions.propertyForm.body.addIfElse.class = _.get(args, "propertyForm.body.addIfElse.class", "property-pane-form-body-add-button");
+
+            // Adding a css class for 'if else' group.
             ifElseGroup.classed("if-else-svg-group", true);
 
+            // Adding click event for 'if else' group.
+            $(ifElseGroup.node()).click(function (ifElseView, event) {
 
-            $(ifElseGroup.node()).click(function (ifElseView) {
+                log.debug("Clicked if else group");
+
+                event.stopPropagation();
+
+                // Not allowing to click the if else group mulutiple times.
+                if ($("." + viewOptions.actionButton.wrapper.class).length > 0) {
+                    log.debug("if else group is already clicked");
+                    return;
+                }
+
+                // Adding style to the elements of the if else group.
+                $(ifElseView.getIfBlockView().getStatementGroup().outerRect.node()).css("stroke", "#edb284");
+                $(ifElseView.getIfBlockView().getStatementGroup().titleRect.node()).css("stroke", "#edb284");
+                $(ifElseView.getElseBlockView().getStatementGroup().outerRect.node()).css("stroke", "#edb284");
+                $(ifElseView.getElseBlockView().getStatementGroup().titleRect.node()).css("stroke", "#edb284");
+
+                // Get the bounding box of the if else view.
                 var ifElseBoundingBox = ifElseView.getBoundingBox();
-                // Calculating width for edit and delete button
+
+                // Calculating width for edit and delete button.
                 var propertyButtonPaneRectWidth = viewOptions.actionButton.width * 2;
 
+                // Creating an SVG group for the edit and delete buttons.
                 var propertyButtonPaneGroup = D3Utils.group(ifElseGroup);
 
                 // Adding svg definitions needed for styling edit and delete buttons.
@@ -280,6 +305,7 @@ define(['require', 'lodash', 'log', './ballerina-statement-view', './../ast/if-e
                     .attr("width", "14")
                     .attr("height", "14");
 
+                // Bottom center point.
                 var centerPointX = ifElseBoundingBox.x + (ifElseBoundingBox.width / 2);
                 var centerPointY = ifElseBoundingBox.y + ifElseBoundingBox.height;
 
@@ -291,12 +317,17 @@ define(['require', 'lodash', 'log', './ballerina-statement-view', './../ast/if-e
                     // Right point of the polygon.
                     " " + (centerPointX + 3) + "," + (centerPointY + 3);
 
-                var smallArrow = D3Utils.polygon(smallArrowPoints, propertyButtonPaneGroup);
+                var smallArrow = D3Utils.polygon(smallArrowPoints, ifElseGroup);
 
                 // Creating the action button pane border.
                 var propertyButtonPaneRect = D3Utils.rect(centerPointX - (propertyButtonPaneRectWidth / 2), centerPointY + 3,
                     propertyButtonPaneRectWidth, viewOptions.actionButton.height, 0, 0, propertyButtonPaneGroup)
                     .classed(viewOptions.actionButton.wrapper.class, true);
+
+                // Not allowing to click background elements.
+                $(propertyButtonPaneRect.node()).click(function(event){
+                    event.stopPropagation();
+                });
 
                 // Creating the edit action button.
                 var editButtonRect = D3Utils.rect(centerPointX - (propertyButtonPaneRectWidth / 2), centerPointY + 3,
@@ -308,20 +339,50 @@ define(['require', 'lodash', 'log', './ballerina-statement-view', './../ast/if-e
                     viewOptions.actionButton.width, viewOptions.actionButton.height, 0, 0, propertyButtonPaneGroup)
                     .classed(viewOptions.actionButton.class, true).classed(viewOptions.actionButton.deleteClass, true);
 
+                // When the outside of the propertyButtonPaneRect is clicked.
+                $(window).click(function (event) {
+                    log.debug("window click");
+                    $(propertyButtonPaneGroup.node()).remove();
+                    $(smallArrow.node()).remove();
+
+                    // Resetting border color on if else block.
+                    $(ifElseView.getIfBlockView().getStatementGroup().outerRect.node()).css("stroke", "#000000");
+                    $(ifElseView.getIfBlockView().getStatementGroup().titleRect.node()).css("stroke", "#000000");
+                    $(ifElseView.getElseBlockView().getStatementGroup().outerRect.node()).css("stroke", "#000000");
+                    $(ifElseView.getElseBlockView().getStatementGroup().titleRect.node()).css("stroke", "#000000");
+
+                    // Remove this handler.
+                    $(this).unbind("click");
+                });
+
                 // Adding on click event for edit button.
-                $(editButtonRect.node()).click(function (position) {
+                $(editButtonRect.node()).click(function (event) {
+
+                    log.debug("Clicked edit button");
+
+                    var parentSVG = propertyButtonPaneGroup.node().ownerSVGElement;
+
+                    event.stopPropagation();
 
                     // Hiding property button pane.
                     $(propertyButtonPaneGroup.node()).remove();
 
                     // 175 is the width set in css
                     var propertyPaneWrapper = $("<div/>", {
-                        "class": viewOptions.propertyForm.wrapper.class /*+ " nano"*/
-                    }).offset({ top: position.top, left: position.left - (175 / 2)}).prependTo('body');
+                        class: viewOptions.propertyForm.wrapper.class /*+ " nano"*/,
+                        css : {
+                            "margin": (parseInt($(parentSVG.parentElement).css("padding"), 10) + 3) + "px"
+                        },
+                        click : function(event){
+                            event.stopPropagation();
+                        }
+                    }).offset({ top: centerPointY, left: centerPointX - (175 / 2)}).appendTo(parentSVG.parentElement);
 
-                    $(window).scroll(function(){
-                        alert(2);
-                    })
+                    // When the outside of the propertyPaneWrapper is clicked.
+                    $(window).click(function (event) {
+                        log.debug("window click");
+                        closeAllPopUps();
+                    });
 
                     var propertyPaneHeading = $("<div/>", {
                         "class": viewOptions.propertyForm.heading.class
@@ -338,67 +399,52 @@ define(['require', 'lodash', 'log', './ballerina-statement-view', './../ast/if-e
                         "class": "fw fw-cancel " + viewOptions.propertyForm.heading.iconCloseClass
                     }).appendTo(propertyPaneHeading);
 
-                    $(closeIcon).click(function (editButton) {
-                        editButton.setAttribute("data-showing-property-menu", "false");
-                        $(propertyPaneWrapper).remove();
-                    }.bind(this, this));
+                    // When the "X" button is clicked.
+                    $(closeIcon).click(function () {
+                        closeAllPopUps();
+                    });
 
+                    // Div which contains the form for the properties.
                     var propertyPaneBody = $("<div/>", {
                         "class": viewOptions.propertyForm.body.class /*+ " nano-content"*/
                     }).appendTo(propertyPaneWrapper);
 
-                    // $(".nano").nanoScroller();
+                    // Creating the property form.
+                    PropertyPaneUtils.createPropertyForm(propertyPaneBody,
+                        viewOptions.propertyForm.body.property.wrapper, editableProperties);
 
-                    _.forEach(editableProperties, function (editableProperty) {
-                        var propertyWrapper = $("<div/>", {
-                            "class": viewOptions.propertyForm.body.property.wrapper
-                        }).appendTo(propertyPaneBody);
-                        switch (editableProperty.propertyType) {
-                            case "text":
-                                createTextBox(editableProperty, propertyWrapper);
-                                break;
-                            case "checkbox":
-                                createCheckBox(editableProperty, propertyWrapper);
-                                break;
-                            case "dropdown":
-                                createDropdown(editableProperty, propertyWrapper);
-                                break;
-                            default:
-                                log.error("Unknown property type found when creating property editor.");
-                                throw "Unknown property type found when creating property editor.";
-                        }
+                    // Adding "Add" button.
+                    var buttonPane = $("<div/>").appendTo(propertyPaneBody);
+                    var addButton = $("<button/>", {
+                        class : viewOptions.propertyForm.body.addIfElse.class,
+                        text : viewOptions.propertyForm.body.addIfElse.text
+
+                    }).appendTo(buttonPane);
+
+                    $(addButton).click(function(){
+                        // TODO : Write add implementation.
                     });
 
-                    function createTextBox(property, propertyWrapper) {
-                        var propertyTitle = $("<span>" + property.key + " :<span/>").appendTo(propertyWrapper);
-                        var propertyValue = $("<input type='text' value='" + property.getterMethod.call(property.model) + "'>").appendTo(propertyWrapper);
-                        $(propertyValue).keyup(function () {
-                            property.setterMethod.call(property.model, $(this).val());
-                        });
+                    // Close the popups of property pane body.
+                    function closeAllPopUps() {
+                        $(propertyPaneWrapper).remove();
+
+                        // Resetting border color on if else block.
+                        $(ifElseView.getIfBlockView().getStatementGroup().outerRect.node()).css("stroke", "#000000");
+                        $(ifElseView.getIfBlockView().getStatementGroup().titleRect.node()).css("stroke", "#000000");
+                        $(ifElseView.getElseBlockView().getStatementGroup().outerRect.node()).css("stroke", "#000000");
+                        $(ifElseView.getElseBlockView().getStatementGroup().titleRect.node()).css("stroke", "#000000");
+
+                        // Remove the small arrow.
+                        $(smallArrow.node()).remove();
+
+                        $(this).unbind('click');
                     }
 
-                    function createCheckBox(property, propertyWrapper) {
-                        var isChecked = property.getterMethod.call() ? "checked" : "";
-                        var propertyValue = $("<input type='checkbox' " + property.key + " " + isChecked + "/>").appendTo(propertyWrapper);
-                        $(propertyValue).change(function () {
-                            property.setterMethod.call($(this).val());
-                        });
-                    }
-
-                    function createDropdown(property, propertyWrapper) {
-                        var propertyTitle = $("<span>" + property.key + "<span/>").appendTo(propertyWrapper);
-                        var propertyValue = $("<select />");
-                        for (var val in data) {
-                            $("<option />", {value: val, text: data[val]}).appendTo(propertyValue);
-                        }
-
-                        $(propertyValue).appendTo(propertyWrapper);
-
-                    }
-                }.bind(editButtonRect.node(), $(propertyButtonPaneRect.node()).offset()));
+                });
 
                 $(deleteButtonRect.node()).click(function(){
-
+                    // TODO : Implement
                 });
 
             }.bind(ifElseGroup.node(), this));

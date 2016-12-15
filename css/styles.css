@@ -231,7 +231,6 @@ ol#breadcrumbList {
     border-top: 2px solid #7b7b7b;
     background: #FFFFFF;
     position: absolute;
-    z-index:10000;
 }
 
 .property-pane-form-heading {
@@ -268,6 +267,10 @@ ol#breadcrumbList {
 
 .property-pane-form-body-property-wrapper {
     padding: 7px 7px 2px 7px;
+}
+
+.property-pane-form-body-add-button {
+    width: 100%;
 }
 
 /** Service container related styles | -> End **/
