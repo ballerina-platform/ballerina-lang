@@ -48,6 +48,22 @@ public class IfElseStmt implements Statement {
         this.elseBody = elseBody;
     }
 
+    public Expression getCondition() {
+        return ifCondition;
+    }
+
+    public Statement getThenBody() {
+        return thenBody;
+    }
+
+    public ElseIfBlock[] getElseIfBlocks() {
+        return elseIfBlocks;
+    }
+
+    public Statement getElseBody() {
+        return elseBody;
+    }
+
     public void interpret(Context ctx) {
         if (ifCondition.evaluate(ctx).getBoolean()) {
             thenBody.interpret(ctx);
@@ -57,17 +73,28 @@ public class IfElseStmt implements Statement {
     }
 
     @Override
-    public void visit(NodeVisitor visitor) {
+    public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 
-    private static class ElseIfBlock {
+    /**
+     * Represent an else if block of an if statement
+     */
+    public static class ElseIfBlock {
         Expression elseIfCondition;
         BlockStmt elseIfBody;
 
         public ElseIfBlock(Expression elseIfCondition, BlockStmt elseIfBody) {
             this.elseIfCondition = elseIfCondition;
             this.elseIfBody = elseIfBody;
+        }
+
+        public Expression getElseIfCondition() {
+            return elseIfCondition;
+        }
+
+        public BlockStmt getElseIfBody() {
+            return elseIfBody;
         }
     }
 

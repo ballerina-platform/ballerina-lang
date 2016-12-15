@@ -18,8 +18,9 @@
 package org.wso2.ballerina.core.model.values;
 
 import com.google.gson.JsonElement;
-
 import org.apache.axiom.om.OMElement;
+import org.wso2.ballerina.core.model.types.TypeC;
+
 
 /**
  * {@code BValueRef} is a container for a BValue
@@ -64,7 +65,7 @@ public class BValueRef {
     public String getString() {
         return ((StringValue) bValue).getValue();
     }
-    
+
     public JsonElement getJSON() {
         return ((JSONValue) bValue).getValue();
     }
@@ -75,5 +76,32 @@ public class BValueRef {
     
     public MapValue getMap() {
         return ((MapValue) bValue);
+    }
+
+    // TODO How about storing these default values in hash map. This would avoid creating new objects for each
+    // TODO every variable declaration.
+    // TODO One option is to implement a pool of BValue objects
+    public static BValueRef getDefaultValue(TypeC type) {
+        if (type == TypeC.INT_TYPE) {
+            return new BValueRef(new IntValue(0));
+        } else if (type == TypeC.STRING_TYPE) {
+            return new BValueRef(new StringValue(""));
+        } else if (type == TypeC.LONG_TYPE) {
+            return new BValueRef(new LongValue(0));
+        } else if (type == TypeC.FLOAT_TYPE) {
+            return new BValueRef(new FloatValue(0));
+        } else if (type == TypeC.DOUBLE_TYPE) {
+            return new BValueRef(new DoubleValue(0));
+        } else if (type == TypeC.BOOLEAN_TYPE) {
+            return new BValueRef(new BooleanValue(false));
+        } else if (type == TypeC.JSON_TYPE) {
+            return new BValueRef(new JSONValue("{}"));
+        } else if (type == TypeC.XML_TYPE) {
+            return new BValueRef(new XMLValue("<root></root>"));
+        } else if (type == TypeC.MESSAGE_TYPE) {
+            return new BValueRef(new MessageValue(null));
+        } else {
+            throw new RuntimeException("Unsupported type: " + type);
+        }
     }
 }

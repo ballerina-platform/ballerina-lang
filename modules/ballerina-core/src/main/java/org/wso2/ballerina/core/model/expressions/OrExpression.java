@@ -41,7 +41,7 @@ public class OrExpression extends BinaryLogicalExpression {
     }
 
     @Override
-    public void visit(NodeVisitor visitor) {
+    public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 }

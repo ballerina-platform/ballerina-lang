@@ -22,7 +22,6 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.interpreter.ControlStack;
-import org.wso2.ballerina.core.interpreter.StackFrame;
 import org.wso2.ballerina.core.model.expressions.Expression;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
@@ -53,11 +52,12 @@ public class NativeXMLFunctionTest {
          * string result = json:get(msg, jsonPath);
          */
         BValueRef[] localVariables = new BValueRef[3];
-        localVariables[0] = new BValueRef(new XMLValue("<persons><person><name>Jack</name><address>wso2</address></person></persons>"));
+        localVariables[0] = new BValueRef(new XMLValue("<persons><person><name>Jack</name><address>wso2</address>" +
+            "</person></persons>"));
         localVariables[1] = new BValueRef(new StringValue("/persons/person/name/text()"));
         localVariables[2] = new BValueRef(new MapValue<>());
-        StackFrame stackFrame = new StackFrame(new BValueRef[0], null, localVariables);
-        controlStack.pushFrame(stackFrame);
+        //StackFrame stackFrame = new StackFrame(new BValueRef[0], null, localVariables);
+        //controlStack.pushFrame(stackFrame);
 
         SymbolName msg = new SymbolName("msg");
         VariableRefExpr varRefExprMsg = new VariableRefExpr(msg);
@@ -99,11 +99,12 @@ public class NativeXMLFunctionTest {
          * string result = json:get(msg, jsonPath);
          */
         BValueRef[] localVariables = new BValueRef[3];
-        localVariables[0] = new BValueRef(new XMLValue("<persons><person><name>Jack</name><address>wso2</address></person></persons>"));
+        localVariables[0] = new BValueRef(new XMLValue("<persons><person><name>Jack</name><address>wso2</address>" +
+            "</person></persons>"));
         localVariables[1] = new BValueRef(new StringValue("/persons/person"));
         localVariables[2] = new BValueRef(new MapValue<>());
-        StackFrame stackFrame = new StackFrame(new BValueRef[0], null, localVariables);
-        controlStack.pushFrame(stackFrame);
+        //StackFrame stackFrame = new StackFrame(new BValueRef[0], null, localVariables);
+        //controlStack.pushFrame(stackFrame);
 
         SymbolName msg = new SymbolName("msg");
         VariableRefExpr varRefExprMsg = new VariableRefExpr(msg);
@@ -130,6 +131,7 @@ public class NativeXMLFunctionTest {
         Assert.assertTrue(returnValue.getBValue() instanceof XMLValue);
         
         OMElement returnElement = returnValue.getXML();
-        Assert.assertEquals(returnElement.toString().replaceAll("\\r|\\n|\\t| ", ""), "<person><name>Jack</name><address>wso2</address></person>");
+        Assert.assertEquals(returnElement.toString().replaceAll("\\r|\\n|\\t| ", ""), "<person><name>Jack</name>" +
+            "<address>wso2</address></person>");
     }
 }

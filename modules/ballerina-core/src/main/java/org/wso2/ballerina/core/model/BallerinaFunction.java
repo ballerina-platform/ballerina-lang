@@ -21,6 +21,7 @@ package org.wso2.ballerina.core.model;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.types.Type;
+import org.wso2.ballerina.core.model.types.TypeC;
 
 /**
  * A {@code BallerinaFunction} is an operation that is executed by a {@code Worker}.
@@ -50,9 +51,12 @@ public class BallerinaFunction implements Function, Node {
     private Worker[] workers;
 
     private Type[] returnTypes;
+    private TypeC[] returnTypesC;
     private BlockStmt functionBody;
 
     private boolean publicFunc;
+
+    private int stackFrameSize;
 
     public BallerinaFunction(SymbolName name,
                              Boolean isPublic,
@@ -69,6 +73,27 @@ public class BallerinaFunction implements Function, Node {
         this.annotations = annotations;
         this.parameters = parameters;
         this.returnTypes = returnTypes;
+        this.connectorDcls = connectorDcls;
+        this.variableDcls = variableDcls;
+        this.workers = workers;
+        this.functionBody = functionBody;
+    }
+
+    public BallerinaFunction(SymbolName name,
+                             Boolean isPublic,
+                             Annotation[] annotations,
+                             Parameter[] parameters,
+                             TypeC[] returnTypes,
+                             ConnectorDcl[] connectorDcls,
+                             VariableDcl[] variableDcls,
+                             Worker[] workers,
+                             BlockStmt functionBody) {
+
+        this.functionName = name;
+        this.publicFunc = isPublic;
+        this.annotations = annotations;
+        this.parameters = parameters;
+        this.returnTypesC = returnTypes;
         this.connectorDcls = connectorDcls;
         this.variableDcls = variableDcls;
         this.workers = workers;
@@ -139,6 +164,10 @@ public class BallerinaFunction implements Function, Node {
         return returnTypes;
     }
 
+    public TypeC[] getReturnTypesC() {
+        return returnTypesC;
+    }
+
     /**
      * Check whether function is public, which means function is visible outside the package
      *
@@ -159,6 +188,14 @@ public class BallerinaFunction implements Function, Node {
         return this.functionBody;
     }
 
+    public int getStackFrameSize() {
+        return stackFrameSize;
+    }
+
+    public void setStackFrameSize(int stackFrameSize) {
+        this.stackFrameSize = stackFrameSize;
+    }
+
     /**
      * TODO This is the basic implementation of the function interpreter
      *
@@ -169,7 +206,7 @@ public class BallerinaFunction implements Function, Node {
     }
 
     @Override
-    public void visit(NodeVisitor visitor) {
+    public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 }

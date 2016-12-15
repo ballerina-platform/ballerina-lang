@@ -59,7 +59,7 @@ public class ResourceVisitor extends BallerinaBaseVisitor {
                 ctx.functionBody().variableDeclaration()) {
             VariableDcl variableDcl = (VariableDcl) variableDeclarationContext.accept(variableDeclarationVisitor);
             resourceObject.addVariable(variableDcl);
-            resourceSymbolTable.put(variableDcl.getSymbolName(),
+            resourceSymbolTable.put(variableDcl.getName(),
                     BValueFactory.createBValueFromVariableDeclaration(variableDcl));
         }
 

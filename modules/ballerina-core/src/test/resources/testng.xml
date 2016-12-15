@@ -20,7 +20,7 @@ under the License.
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
 <suite name="ballerina-test-suite">
-    <test name="ballerina-model-unit-tests" preserve-order="true" parallel="false">
+    <!--<test name="ballerina-model-unit-tests" preserve-order="true" parallel="false">
         <classes>
             <class name="org.wso2.ballerina.core.model.FunctionInvocationTest" />
             <class name="org.wso2.ballerina.core.model.WhileStmtTest" />
@@ -38,5 +38,5 @@ under the License.
             <class name="org.wso2.ballerina.core.parser.WhileStatemetParserTest" />
             <class name="org.wso2.ballerina.core.parser.visitor.BallerinaBaseVisitorImplTest" />
         </classes>
-    </test>
+    </test>-->
 </suite>
