@@ -33,7 +33,7 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
     };
 
     Canvas.prototype.drawAccordionCanvas = function (parent, options, id, name) {
-        var serviceContainer = $('<div><svg class="service-container"></svg></div>');
+        var serviceContainer = $('<div style="position:relative; top:0; right:0;"><svg class="service-container"></svg></div>');
         serviceContainer.attr('id', id);
         serviceContainer.attr('name', name);
         serviceContainer.addClass(_.get(options, 'cssClass.outer_box'));

@@ -127,6 +127,19 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             // Adding Resources
             var resource_passthrough3 = BallerinaASTFactory.createResourceDefinition();
             resource_passthrough3.setResourceName('passthrough3');
+            var service_variable_declaration = [];
+
+            var variable1 = BallerinaASTFactory.createVariableDeclaration();
+            variable1.setType('string');
+            variable1.setIdentifier('wso2');
+            service_variable_declaration.push(variable1);
+
+            var variable2 = BallerinaASTFactory.createVariableDeclaration();
+            variable2.setType('int');
+            variable2.setIdentifier('2');
+            service_variable_declaration.push(variable2);
+
+            serviceDefinition_passthroughService.setVariableDeclarations(service_variable_declaration);
             serviceDefinition_passthroughService2.addChild(resource_passthrough3);
 
             // Adding Resources

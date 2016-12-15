@@ -249,12 +249,27 @@ text-anchor: start;
     cursor: pointer;
 }
 
+.variable-icon-background-circle {
+    opacity: 0.4;
+    cursor: pointer;
+}
+
+.variable-icon-background-circle:hover {
+    opacity: 1;
+    cursor: pointer;
+}
+
 .annotation-icon-background-circle:hover {
     opacity: 1;
     cursor: pointer;
 }
 
 .annotation-icon-rect {
+    cursor: pointer;
+    fill: url(#annotationIcon);
+}
+
+.variable-icon-rect {
     cursor: pointer;
     fill: url(#annotationIcon);
 }
