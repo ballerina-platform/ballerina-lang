@@ -85,8 +85,7 @@ public class WebSocketSourceHandler extends SourceHandler {
                 BinaryWebSocketFrame binaryWebSocketFrame = (BinaryWebSocketFrame) msg;
                 boolean finalFragment = binaryWebSocketFrame.isFinalFragment();
                 ByteBuf byteBuf = binaryWebSocketFrame.content();
-                byte[] bytes = byteBuf.array();
-                ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
+                ByteBuffer byteBuffer = byteBuf.nioBuffer();
                 cMsg = new BinaryWebSocketCarbonMessage(byteBuffer, finalFragment, webSocketResponder);
 
             } else if (msg instanceof CloseWebSocketFrame) {
