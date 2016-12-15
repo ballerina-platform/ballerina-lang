@@ -59,7 +59,7 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
 
         IfElseStatementView.prototype.init = function () {
             //Registering event listeners
-            this.listenTo(this._parentView, 'childViewAddedEvent', this.childViewAddedCallback);
+            // this.listenTo(this._parentView, 'childViewAddedEvent', this.childViewAddedCallback);
         };
 
         /**
@@ -76,8 +76,8 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
             statementView.render(this._diagramRenderingContext);
 
             //adjust if-else statement's height
-            this._totalHeight = this._totalHeight + statementView.getBoundingBox().height;
-            this.setIfElseStatementHeight(this._totalHeight);
+            // this._totalHeight = this._totalHeight + statementView.getBoundingBox().height;
+            // this.setIfElseStatementHeight(this._totalHeight);
             this.trigger("childViewAddedEvent", statement);
         };
 
@@ -125,7 +125,6 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
             this._diagramRenderingContext = diagramRenderingContext;
             var ifElseGroup = D3Utils.group(d3.select(this._container));
             this.setStatementGroup(ifElseGroup);
-            this.setBoundingBox(this.getWidth(), this.getHeight(), this.getXPosition(), this.getYPosition());
             this._model.accept(this);
 
             var editableProperties = [];
@@ -196,7 +195,7 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
          * @param height
          */
         IfElseStatementView.prototype.setIfElseStatementHeight = function (height){
-            this.setBoundingBox(this.getBoundingBox().width, height, this.getBoundingBox().x, this.getBoundingBox().y);
+            // this.setBoundingBox(this.getBoundingBox().width, height, this.getBoundingBox().x, this.getBoundingBox().y);
         };
 
         /**
@@ -238,8 +237,16 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
             return this._elseIfViews[this._elseIfViews.length - 1];
         };
 
-        IfElseStatementView.prototype.changeChildrenMetrics = function (baseMetrics) {
-            this.trigger("changeStatementMetricsEvent", baseMetrics);
+        IfElseStatementView.prototype.changeChildrenMetrics = function (childBoundingBox) {
+            var currentX = this.getBoundingBox().x;
+            var currentY = this.getBoundingBox().y;
+            var currentWidth = this.getBoundingBox().width;
+            var currentHeight = this.getBoundingBox().height;
+
+            if (childBoundingBox.x <= this.getBoundingBox().x) {
+                this.setBoundingBox(currentWidth + 20, currentHeight, currentX - 10, currentY);
+            }
+            this.trigger("changeStatementMetricsEvent", childBoundingBox);
         };
 
         IfElseStatementView.prototype._createPropertyPane = function (args) {

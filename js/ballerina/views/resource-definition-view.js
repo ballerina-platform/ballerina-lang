@@ -166,6 +166,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             var statementView = statementViewFactory.getStatementView(args);
             this.diagramRenderingContext.getViewModelMap()[statement.id] = statementView;
             statementView.setParent(this);
+            var x = 0;
+            var y = 0;
             if(statementViewFactory.isGetActionStatement(statement)){
                 _.each(this.diagramRenderingContext.getViewModelMap(),function(view){
                     var matchFound =  _.isEqual(statement.getConnector(),view.getModel());
@@ -186,17 +188,17 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             var statementsWidth = 120;
             if (this._statementExpressionViewList.length > 0) {
                 var lastStatement = this._statementExpressionViewList[this._statementExpressionViewList.length - 1];
-                statementView.setXPosition(lastStatement.getXPosition());
-                statementView.setYPosition(lastStatement.getYPosition() + lastStatement.getHeight() + statementsGap);
+                x = lastStatement.getXPosition();
+                y = lastStatement.getYPosition() + lastStatement.getHeight() + statementsGap;
             } else {
-                var x = parseInt(this._defaultResourceLifeLine.getMiddleLine().attr('x1')) - parseInt(statementsWidth/2);
+                x = parseInt(this._defaultResourceLifeLine.getMiddleLine().attr('x1')) - parseInt(statementsWidth/2);
                 // First statement is drawn wrt to the position of the default action processor
-                var y = this._defaultActionProcessor.getHeight() + this._defaultActionProcessor.getYPosition();
+                y = this._defaultActionProcessor.getHeight() + this._defaultActionProcessor.getYPosition() + statementsGap;
                 statementView.setXPosition(x);
-                statementView.setYPosition(y + statementsGap);
             }
             this.diagramRenderingContext.getViewModelMap()[statement.id] = statementView;
             this._statementExpressionViewList.push(statementView);
+            statementView.setBoundingBox(0, 0, x, y);
             statementView.render(this.diagramRenderingContext);
         };
 

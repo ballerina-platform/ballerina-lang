@@ -189,6 +189,8 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
             var args = {model: statement, container: containerGroup, viewOptions: undefined, parent:this};
             var statementView = statementViewFactory.getStatementView(args);
             this.diagramRenderingContext.getViewModelMap()[statement.id] = statementView;
+            var x = 0;
+            var y = 0;
             statementView.setParent(this);
             if(statementViewFactory.isGetActionStatement(statement)){
                 _.each(this.diagramRenderingContext.getViewModelMap(),function(view){
@@ -210,16 +212,16 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
             var statementsWidth = 120;
             if (this._statementExpressionViewList.length > 0) {
                 var lastStatement = this._statementExpressionViewList[this._statementExpressionViewList.length - 1];
-                statementView.setXPosition(lastStatement.getXPosition());
-                statementView.setYPosition(lastStatement.getYPosition() + lastStatement.getHeight() + statementsGap);
+                x = lastStatement.getXPosition();
+                y = lastStatement.getYPosition() + lastStatement.getHeight() + statementsGap;
             } else {
-                var x = parseInt(this._defaultWorkerLifeLine.getMiddleLine().attr('x1')) - parseInt(statementsWidth/2);
                 var defaultWorkerRectBottom = 40;
-                var y = defaultWorkerRectBottom;
-                statementView.setXPosition(x);
-                statementView.setYPosition(y + statementsGap);
+                y = defaultWorkerRectBottom;
+                x = parseInt(this._defaultWorkerLifeLine.getMiddleLine().attr('x1')) - parseInt(statementsWidth/2);
+
             }
             this.diagramRenderingContext.getViewModelMap()[statement.id] = statementView;
+            statementView.setBoundingBox(0, 0, x, y);
             this._statementExpressionViewList.push(statementView);
             statementView.render(this.diagramRenderingContext);
         };
