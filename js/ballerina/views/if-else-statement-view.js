@@ -294,6 +294,10 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
                 // Adding style to the elements of the if else group.
                 $(ifElseView.getIfBlockView().getStatementGroup().outerRect.node()).css("stroke", "#edb284");
                 $(ifElseView.getIfBlockView().getStatementGroup().titleRect.node()).css("stroke", "#edb284");
+                _.forEach(ifElseView.getElseIfViewList(), function (elseIfView) {
+                    $(elseIfView.getStatementGroup().outerRect.node()).css("stroke", "#edb284");
+                    $(elseIfView.getStatementGroup().titleRect.node()).css("stroke", "#edb284");
+                });
                 $(ifElseView.getElseBlockView().getStatementGroup().outerRect.node()).css("stroke", "#edb284");
                 $(ifElseView.getElseBlockView().getStatementGroup().titleRect.node()).css("stroke", "#edb284");
 
@@ -375,6 +379,10 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
                     // Resetting border color on if else block.
                     $(ifElseView.getIfBlockView().getStatementGroup().outerRect.node()).css("stroke", "#000000");
                     $(ifElseView.getIfBlockView().getStatementGroup().titleRect.node()).css("stroke", "#000000");
+                    _.forEach(ifElseView.getElseIfViewList(), function (elseIfView) {
+                        $(elseIfView.getStatementGroup().outerRect.node()).css("stroke", "#000000");
+                        $(elseIfView.getStatementGroup().titleRect.node()).css("stroke", "#000000");
+                    });
                     $(ifElseView.getElseBlockView().getStatementGroup().outerRect.node()).css("stroke", "#000000");
                     $(ifElseView.getElseBlockView().getStatementGroup().titleRect.node()).css("stroke", "#000000");
 
@@ -459,6 +467,10 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
                         // Resetting border color on if else block.
                         $(ifElseView.getIfBlockView().getStatementGroup().outerRect.node()).css("stroke", "#000000");
                         $(ifElseView.getIfBlockView().getStatementGroup().titleRect.node()).css("stroke", "#000000");
+                        _.forEach(ifElseView.getElseIfViewList(), function (elseIfView) {
+                            $(elseIfView.getStatementGroup().outerRect.node()).css("stroke", "#000000");
+                            $(elseIfView.getStatementGroup().titleRect.node()).css("stroke", "#000000");
+                        });
                         $(ifElseView.getElseBlockView().getStatementGroup().outerRect.node()).css("stroke", "#000000");
                         $(ifElseView.getElseBlockView().getStatementGroup().titleRect.node()).css("stroke", "#000000");
 
