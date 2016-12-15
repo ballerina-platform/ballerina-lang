@@ -204,12 +204,11 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             var sourceViewBtn = $(this._container).find(_.get(this._viewOptions, 'controls.view_source_btn'));
             sourceViewBtn.click(function () {
                 self.toolPalette.hide();
-                // Visit the ast model and generate the source
-                var sourceGenVisitor = new SourceGenVisitor();
-                self._model.accept(sourceGenVisitor);
+                var generatedSource = self.generateSource();
+
                 self.toolPalette.hide();
                 // Get the generated source and append it to the source view container's content
-                self._sourceView.setContent(sourceGenVisitor.getGeneratedSource());
+                self._sourceView.setContent(generatedSource);
                 sourceViewContainer.show();
                 self._$designViewContainer.hide();
                 designViewBtn.show();
@@ -275,6 +274,17 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             event.stopPropagation();
         })
     };
+
+        /**
+         * generate Ballerina source for this editor page
+         * @returns {*}
+         */
+        BallerinaFileEditor.prototype.generateSource = function () {
+            // Visit the ast model and generate the source
+            var sourceGenVisitor = new SourceGenVisitor();
+            this._model.accept(sourceGenVisitor);
+            return sourceGenVisitor.getGeneratedSource();
+        };
 
         /**
          * @inheritDoc

@@ -310,7 +310,12 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
                 container: this.$el.get(0),
                 viewOptions: ballerinaEditorOptions
             });
+            this._fileEditor = fileEditor;
             fileEditor.render(diagramRenderingContext);
+        },
+
+        getBallerinaFileEditor: function () {
+            return this._fileEditor;
         }
 
     });

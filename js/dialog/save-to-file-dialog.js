@@ -191,23 +191,12 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
                 };
 
                 function saveConfiguration() {
-                    var  defaultView = {configLocation:location.val(),configFileName:configName.val(),serviceBasePath: "basePath",servicePackageName: "packageName", serviceProduces:"json", serviceTags:"a,b", serviceDescription:"description"};
-
                     var workspaceServiceURL = "http://localhost:8289/service/workspace";
                     var saveServiceURL = workspaceServiceURL + "/write";
 
-                    var tags = defaultView.serviceTags.split(",");
-                    var tagString = "{";
-                    tags.forEach(function (tag) {
-                        tagString += ('"' + tag + '",');
-                    });
-                    tagString += '}';
-                    var config = '@Path ("' + defaultView.serviceBasePath + '")\n' +
-                        '@Source (interface="default")\n' +
-                        '@Service (tags =' + tagString + ', description = "' + defaultView.serviceDescription + '", produces = ' + defaultView.serviceProduces + ')\n' +
-                        'package ' + defaultView.servicePackageName + ';\n\n';
-                    //config += diagram.parseTree();
-                    var payload = "location=" + (btoa(defaultView.configLocation + "/" + defaultView.configFileName)) + "&config=" + (btoa(config));
+                    var ballerinaFileEditor= app.tabController.activeTab.getBallerinaFileEditor();
+                    var config = ballerinaFileEditor.generateSource();
+                    var payload = "location=" + (btoa(location.val() + "/" + configName.val())) + "&config=" + (btoa(config));
 
                     $.ajax({
                         url: saveServiceURL,
