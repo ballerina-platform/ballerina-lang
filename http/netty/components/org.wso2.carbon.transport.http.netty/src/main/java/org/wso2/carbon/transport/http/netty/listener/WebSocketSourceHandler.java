@@ -52,6 +52,7 @@ public class WebSocketSourceHandler extends SourceHandler {
     private static Logger log = LoggerFactory.getLogger(WebSocketSourceHandler.class);
     private final String uri;
     private CarbonMessage cMsg;
+    private WebSocketResponder webSocketResponder;
 
     public WebSocketSourceHandler(ConnectionManager connectionManager,
                                   ListenerConfiguration listenerConfiguration,
@@ -60,7 +61,11 @@ public class WebSocketSourceHandler extends SourceHandler {
         this.uri = uri;
     }
 
-
+    @Override
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        super.channelActive(ctx);
+        webSocketResponder = new WebSocketResponderImpl(this.ctx);
+    }
 
     /**
      * Read the channel for incoming {@link io.netty.handler.codec.http.websocketx.WebSocketFrame}
@@ -70,8 +75,6 @@ public class WebSocketSourceHandler extends SourceHandler {
      */
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-
-        WebSocketResponder webSocketResponder = new WebSocketResponderImpl(ctx);
         cMsg = null;
 
         if (msg instanceof WebSocketFrame) {

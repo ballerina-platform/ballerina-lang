@@ -36,6 +36,7 @@ import org.wso2.carbon.messaging.websocket.WebSocketResponder;
 public class WebSocketResponderImpl implements WebSocketResponder {
 
     private final ChannelHandlerContext ctx;
+    private int statusCodeLowerLimit = 1000;
 
     public WebSocketResponderImpl(ChannelHandlerContext ctx) {
         this.ctx = ctx;
@@ -64,7 +65,15 @@ public class WebSocketResponderImpl implements WebSocketResponder {
 
             String reasonText = closeWebSocketCarbonMessage.getReasonText();
             int statusCode = closeWebSocketCarbonMessage.getStatusCode();
-            webSocketFrame = new CloseWebSocketFrame(statusCode, reasonText);
+
+            if (statusCode >= statusCodeLowerLimit && reasonText != null) {
+                webSocketFrame = new CloseWebSocketFrame(statusCode, reasonText);
+            } else if (statusCode >= statusCodeLowerLimit && reasonText == null) {
+                webSocketFrame = new CloseWebSocketFrame(statusCode, null);
+            } else {
+                webSocketFrame = new CloseWebSocketFrame();
+            }
+
         }
 
         ctx.channel().write(webSocketFrame);
