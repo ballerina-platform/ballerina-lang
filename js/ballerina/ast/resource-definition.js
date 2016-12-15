@@ -128,5 +128,19 @@ define(['lodash', 'log', './node', './worker-declaration'], function (_, log, AS
         }
     };
 
+    /**
+     * Validates possible immediate child types.
+     * @override
+     * @param node
+     * @return {boolean}
+     */
+    ResourceDefinition.prototype.canBeParentOf = function (node) {
+        var BallerinaASTFactory = this.getFactory();
+        return BallerinaASTFactory.isConnectorDeclaration(node)
+            || BallerinaASTFactory.isVariableDeclaration(node)
+            || BallerinaASTFactory.isWorkerDeclaration(node)
+            || BallerinaASTFactory.isStatement(node);
+    };
+
     return ResourceDefinition;
 });

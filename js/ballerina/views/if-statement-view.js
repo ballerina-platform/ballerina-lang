@@ -63,6 +63,8 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
             this.setHeight(height);
             this.setXPosition(x);
             this.setYPosition(y);
+            this.setBoundingBox(width, height, x, y);
+
 
             ifGroup.outerRect = outer_rect;
             ifGroup.titleRect = title_rect;
@@ -114,9 +116,39 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
         };
 
         IfStatementView.prototype.childVisitedCallback = function (child) {
-            this.getParent().increaseChildrenWidth(child);
-            this.getParent().increaseChildrenHeight(child);
-            this.trigger("childViewAddedEvent", child);
+            var childView = this._diagramRenderingContext.getViewModelMap()[child.id];
+            var childMetrics = {
+                width: childView.getWidth(),
+                height: childView.getHeight(),
+                x: childView.getXPosition(),
+                y: childView.getYPosition()
+            };
+            this.getParent().changeChildrenMetrics(childMetrics);
+        };
+
+        IfStatementView.prototype.changeMetricsCallback = function (baseMetrics) {
+            var dw = 20;
+            var dh = 20;
+            var oldX = parseInt(baseMetrics.x);
+            var oldHeight = parseInt(this.getHeight());
+            var newHeight = baseMetrics.height + dh/2 + 30;
+            var newWidth = baseMetrics.width + dw;
+            var newX = oldX - dw/2;
+            var newY = baseMetrics.y;
+
+            this.getStatementGroup().outerRect.attr('width', newWidth);
+            this.getStatementGroup().outerRect.attr('height', newHeight);
+            this.getStatementGroup().outerRect.attr('x', newX);
+            this.getStatementGroup().titleRect.attr('x', newX);
+            this.getStatementGroup().titleText.attr('x', oldX + 20 - dw/2);
+            this.setWidth(newWidth);
+            this.setHeight(newHeight);
+            this.getParent().setWidth(newWidth);
+            this.getParent().setHeight(this.getParent().getHeight() + newHeight - oldHeight);
+            this.getParent().setXPosition(newX);
+            this.getParent().setWidth(newWidth);
+
+            this.setBoundingBox(newWidth, newHeight, newX, newY);
         };
 
         return IfStatementView;

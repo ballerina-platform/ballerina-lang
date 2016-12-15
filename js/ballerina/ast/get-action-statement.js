@@ -22,7 +22,7 @@ define(['lodash', 'log', './action-invocation-statement'], function (_, log, act
         this._connector = _.get(args, 'connector');
         this._message =  _.get(args, 'message')    || [];
         this._path = _.get(args, 'path');
-        this.isUserDropped = _.get(args, 'isUserDropped');
+        this.isUserDropped = _.get(args, 'isUserDropped') || false;
         actionInvocationStatement.call(this);
     };
 

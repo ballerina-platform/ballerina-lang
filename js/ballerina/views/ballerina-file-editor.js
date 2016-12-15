@@ -132,7 +132,8 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 parentView: this,
                 toolPalette: this.toolPalette
             });
-            functionDefinitionView.render();
+            this.diagramRenderingContext.getViewModelMap()[functionDefinition.id] = functionDefinitionView;
+            functionDefinitionView.render(this.diagramRenderingContext);
         };
 
         /**
@@ -160,6 +161,19 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 throw errMsg;
             }
 
+            var toolPaletteContainer = $(this._container).find(_.get(this._viewOptions, 'design_view.tool_palette.container')).get(0);
+            var toolPaletteOpts = _.clone(_.get(this._viewOptions, 'design_view.tool_palette'));
+            toolPaletteOpts.container = toolPaletteContainer;
+            this.toolPalette = new ToolPalette(toolPaletteOpts);
+            //TODO adding a temporary tool
+            this.toolPalette.addConnectorTool({
+                id: "http-connector-declaration",
+                name: "HTTPConnector",
+                icon: "images/tool-icons/dgm-connector.svg",
+                title: "HTTPConnector",
+                nodeFactoryMethod: this._model.getFactory().createConnectorDeclaration
+            });
+
             //Registering event listeners
             this.listenTo(this._model, 'childVisitedEvent', this.childVisitedCallback);
         };
@@ -172,10 +186,6 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
         BallerinaFileEditor.prototype.render = function (diagramRenderingContext, parent, options) {
             this.diagramRenderingContext = diagramRenderingContext;
             // render tool palette
-            var toolPaletteContainer = $(this._container).find(_.get(this._viewOptions, 'design_view.tool_palette.container')).get(0);
-            var toolPaletteOpts = _.clone(_.get(this._viewOptions, 'design_view.tool_palette'));
-            toolPaletteOpts.container = toolPaletteContainer;
-            this.toolPalette = new ToolPalette(toolPaletteOpts);
             this.toolPalette.render();
 
             this._model.accept(this);
@@ -216,7 +226,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             // activate design view by default
             designViewBtn.hide();
             sourceViewContainer.hide();
-            this.initDropTarget();
+            this.initResourceLevelDropTarget();
 
             this._model.on('child-added', function(child){
                 self.visit(child);
@@ -224,7 +234,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             });
     };
 
-    BallerinaFileEditor.prototype.initDropTarget = function() {
+    BallerinaFileEditor.prototype.initResourceLevelDropTarget = function() {
         var self = this,
             dropActiveClass = _.get(this._viewOptions, 'cssClass.design_view_drop');
 

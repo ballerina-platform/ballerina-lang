@@ -8,16 +8,15 @@
 }
 
 .design-view-container{
-    padding-left: 200px;
     padding-top: 0px;
     overflow-y: scroll;
     height: 85%;
 }
 
 .canvas-container{
-    height: 100%;
     padding-left: 20px;
     padding-top: 60px;
+    padding-bottom: 60px;
 }
 
 .container-outer-div {
@@ -103,6 +102,16 @@
     background-color:rgba(0, 128, 0, 0.1);
 }
 
+.tab-pane .panel.design-view-hover rect.resource-content{
+    fill: #fff;
+    fill-opacity: 0.8;
+}
+
 .design-view-hover{
     background-color:rgba(0, 128, 0, 0.1);
+}
+
+.design-view-hover-svg{
+    fill: #008000;
+    fill-opacity: 0.2;
 }

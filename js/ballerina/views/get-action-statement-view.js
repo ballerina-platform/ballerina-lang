@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/get-action-statement', 'd3utils','./action-processor-view'],
-    function (_, d3, log, BallerinaStatementView, GetActionStatement, D3Utils,ActionProcessor) {
+define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/get-action-statement','./point', 'd3utils','./action-processor-view'],
+    function (_, d3, log, BallerinaStatementView, GetActionStatement,Point, D3Utils,ActionProcessor) {
 
         var GetActionStatementView = function (args) {
             BallerinaStatementView.call(this, args);
@@ -146,8 +146,51 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/get-action
             }
 
             this.setBoundingBox(processorWidth, processorHeight, processorCenterPointX, processorCenterPointY);
-         var actionStatementView = new ActionProcessor(processorViewOpts);
-         actionStatementView.render();
+
+
+            var lineGap = 8;
+            var centerTextXGap = 40;
+            var centerTextYGap = 20;
+            var processorRect = D3Utils.centeredRect(new Point(processorCenterPointX,processorCenterPointY), processorWidth
+                , processorHeight, 0, 0, actionStatementGroup).classed("action-rect", true);
+
+            var processorConnectorPoint = D3Utils.circle(((processorCenterPointX - processorWidth /2) + processorWidth),((processorCenterPointY - processorHeight/2) + 15), 10,actionStatementGroup);
+            processorConnectorPoint.attr("fill-opacity",0.01);
+
+            var processorText = D3Utils.textElement((processorCenterPointX + centerTextXGap -  processorWidth / 2), (processorCenterPointY + centerTextYGap - (processorHeight / 2)),
+                "Invoke", actionStatementGroup).classed("action-text", true);
+
+            this.processorRect = processorRect;
+            this.processorConnectPoint = processorConnectorPoint;
+            this.sourcePoint = new Point(sourcePointX, sourcePointY);
+            this.parentContainer = d3.select(parentGroup);
+              var self = this;
+            this.processorConnectPoint.on("mousedown",function(){
+                d3.event.preventDefault();
+                d3.event.stopPropagation();
+                var m = d3.mouse(this);
+
+                self.messageManager.startDrawMessage(self._model,self.sourcePoint,self.parentContainer);
+
+            });
+
+            this.processorConnectPoint.on("mouseover",function(){
+                processorConnectorPoint.style("fill", "red").style("fill-opacity", 0.5)
+                    .style("cursor", 'url(images/BlackHandwriting.cur), pointer');
+            });
+
+            this.processorConnectPoint.on("mouseout",function(){
+                processorConnectorPoint.style("fill", "#2c3e50").style("fill-opacity",0.01);
+            });
+
+
+
+
+
+      //   var actionStatementView = new ActionProcessor(processorViewOpts);
+        // actionStatementView.render();
+
+
 
         };
 

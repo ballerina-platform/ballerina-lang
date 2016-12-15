@@ -33,6 +33,7 @@ define(['require', 'lodash', 'log', './ballerina-statement-view', './../ast/if-e
 
             this._ifBlockView = undefined;
             this._elseBlockView = undefined;
+            this._totalHeight = 0;
 
             if (_.isNil(this._model) || !(this._model instanceof IfElseStatement)) {
                 log.error("If Else statement definition is undefined or is of different type." + this._model);
@@ -44,6 +45,8 @@ define(['require', 'lodash', 'log', './ballerina-statement-view', './../ast/if-e
                 throw "Container for If Else statement is undefined." + this._container;
             }
 
+            this.init();
+
         };
 
         IfElseStatementView.prototype = Object.create(BallerinaStatementView.prototype);
@@ -51,6 +54,11 @@ define(['require', 'lodash', 'log', './ballerina-statement-view', './../ast/if-e
 
         IfElseStatementView.prototype.canVisitStatement = function(){
             return true;
+        };
+
+        IfElseStatementView.prototype.init = function () {
+            //Registering event listeners
+            this.listenTo(this._parentView, 'childViewAddedEvent', this.childViewAddedCallback);
         };
 
         /**
@@ -65,6 +73,11 @@ define(['require', 'lodash', 'log', './ballerina-statement-view', './../ast/if-e
             this._ifBlockView = statementView;
             this._diagramRenderingContext.getViewModelMap()[statement.id] = statementView;
             statementView.render(this._diagramRenderingContext);
+
+            //adjust if-else statement's height
+            this._totalHeight = this._totalHeight + statementView.getBoundingBox().height;
+            this.setIfElseStatementHeight(this._totalHeight);
+            this.trigger("childViewAddedEvent", statement);
         };
 
         /**
@@ -79,6 +92,11 @@ define(['require', 'lodash', 'log', './ballerina-statement-view', './../ast/if-e
             this._elseBlockView = statementView;
             this._diagramRenderingContext.getViewModelMap()[statement.id] = statementView;
             statementView.render(this._diagramRenderingContext);
+
+            //adjust if-else statement's height
+            this._totalHeight = this._totalHeight + statementView.getBoundingBox().height;
+            this.setIfElseStatementHeight(this._totalHeight);
+            this.trigger("childViewAddedEvent", statement);
         };
 
         /**
@@ -122,6 +140,15 @@ define(['require', 'lodash', 'log', './ballerina-statement-view', './../ast/if-e
             this._viewOptions = viewOptions;
         };
 
+
+        /**
+         * setting the height for the bounding box
+         * @param height
+         */
+        IfElseStatementView.prototype.setIfElseStatementHeight = function (height){
+            this.setBoundingBox(this.getBoundingBox().width, height, this.getBoundingBox().x, this.getBoundingBox().y);
+        };
+
         /**
          * @returns {_model}
          */
@@ -153,31 +180,8 @@ define(['require', 'lodash', 'log', './ballerina-statement-view', './../ast/if-e
             return this._elseBlockView;
         };
 
-        IfElseStatementView.prototype.increaseChildrenWidth = function (child) {
-            var childWidth = (this._diagramRenderingContext.getViewModelMap()[child.id]).getWidth();
-            var childHeight = (this._diagramRenderingContext.getViewModelMap()[child.id]).getHeight();
-            var dw = 20;
-            if (!_.isUndefined(this._elseBlockView)) {
-                this._elseBlockView.getStatementGroup().outerRect.attr('width', childWidth + dw);
-                var currentX = this._elseBlockView.getStatementGroup().outerRect.attr('x');
-                this._elseBlockView.getStatementGroup().outerRect.attr('x', currentX - dw/2);
-            }
-            if (!_.isUndefined(this._ifBlockView)) {
-                this._ifBlockView.getStatementGroup().outerRect.attr('width', childWidth + dw);
-                var currentX = this._ifBlockView.getStatementGroup().outerRect.attr('x');
-                this._ifBlockView.getStatementGroup().outerRect.attr('x', currentX - dw/2);
-            }
-        };
-
-        IfElseStatementView.prototype.increaseChildrenHeight = function (child) {
-            var childHeight = (this._diagramRenderingContext.getViewModelMap()[child.id]).getHeight();
-            var dh = 20;
-            if (!_.isUndefined(this._elseBlockView)) {
-                this._elseBlockView.getStatementGroup().outerRect.attr('height', 190);
-            }
-            if (!_.isUndefined(this._ifBlockView)) {
-                this._ifBlockView.getStatementGroup().outerRect.attr('height', 190);
-            }
+        IfElseStatementView.prototype.changeChildrenMetrics = function (baseMetrics) {
+            this.trigger("changeStatementMetricsEvent", baseMetrics);
         };
 
         return IfElseStatementView;

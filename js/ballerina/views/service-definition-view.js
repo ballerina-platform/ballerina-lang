@@ -136,7 +136,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
          */
         ServiceDefinitionView.prototype.render = function (diagramRenderingContext) {
             this.diagramRenderingContext = diagramRenderingContext;
-            this.drawAccordionCanvas(this._container, this._viewOptions, this._model.id, 'service');
+            this.drawAccordionCanvas(this._container, this._viewOptions, this._model.id, this._model.type.toLowerCase(), this._model._serviceName);
             var divId = this._model.id;
             var currentContainer = $('#' + divId);
             this._container = currentContainer;
@@ -255,10 +255,12 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
                 var prevResourceY = prevView.getBoundingBox().y;
                 var newCenterPointY = prevResourceHeight + prevResourceY + 10;
                 var viewOpts = { centerPoint: {y:newCenterPointY}};
-                var resourceDefinitionView = new ResourceDefinitionView({model: resourceDefinition,container: resourceContainer, viewOptions: viewOpts});
+                var resourceDefinitionView = new ResourceDefinitionView({model: resourceDefinition,container: resourceContainer,
+                    toolPalette: this.toolPalette, messageManager: this.messageManager, viewOptions: viewOpts});
             }
             else{
-                var resourceDefinitionView = new ResourceDefinitionView({model: resourceDefinition,container: resourceContainer, parentView: this});
+                var resourceDefinitionView = new ResourceDefinitionView({model: resourceDefinition,container: resourceContainer,
+                    toolPalette: this.toolPalette,messageManager: this.messageManager, parentView: this});
             }
             this.diagramRenderingContext.getViewModelMap()[resourceDefinition.id] = resourceDefinitionView;
             resourceDefinitionView.render(this.diagramRenderingContext);

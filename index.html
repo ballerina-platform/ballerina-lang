@@ -15,6 +15,7 @@
     <link href="css/styles.css" rel="stylesheet" type="text/css"/>
     <link href="css/welcome-screen.css" rel="stylesheet" type="text/css"/>
     <link href="css/tab-styles.css" rel="stylesheet" type="text/css"/>
+    <link href="css/notification.css" rel="stylesheet" type="text/css"/>
     <link href="lib/nanoscroller_0.8.7/nanoscroller.css" rel="stylesheet" type="text/css"/>
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
@@ -23,8 +24,8 @@
     <script src="lib/html5shiv_3.7.2/html5shiv.min.js"></script>
     <script src="lib/respond_1.4.2/respond.min.js"></script>
     <![endif]-->
-    <link rel="stylesheet" type="text/css" href="css/ballerina-file-editor.css"/>
     <link rel="stylesheet" type="text/css" href="css/sequence_diagram/sequenced-styles.css"/>
+    <link rel="stylesheet" type="text/css" href="css/ballerina-file-editor.css"/>
     <link rel="stylesheet" type="text/css" href="css/menu-bar.css"/>
     <link rel="stylesheet" type="text/css" href="css/tool-palette.css"/>
     <link rel="stylesheet" type="text/css" href="css/workspace-explorer.css"/>
@@ -87,6 +88,7 @@
                                 </div>
                                 <div  id="tab-content-wrapper" class="grid-background" style="height: 100%;">
                                     <div class="tab-content tab-content-default "></div>
+                                    <div class="notification-container" id="notification-container"></div>
                                 </div>
                             </div>
                         </div>
@@ -347,6 +349,9 @@
             alerts: "js/utils/alerts",
             breadcrumbs: "js/breadcrumbs/breadcrumbs"
         },
+        shim: {
+            "bootstrap": {"deps": ['jquery']}
+        },
         map: {
             "*": {
                 // use lodash instead of underscore
@@ -470,6 +475,15 @@
                                             search_icon: 'fw fw-search searchIcon',
                                             search_input: 'search-input'
                                         }
+                                    },
+                                    toolGroup: {
+                                        tool: {
+                                            cssClass: {
+                                                dragContainer: 'tool-drag-container',
+                                                disabledIconContainer: 'disabled-icon-container',
+                                                disabledIcon: 'fw fw-lg fw-disabled tool-disabled-icon'
+                                            }
+                                        }
                                     }
                                 }
                             },
@@ -501,6 +515,9 @@
                                 canvas: 'panel-body',
                                 design_view_drop: 'design-view-hover',
                                 canvas_container: 'canvas-container'
+                            },
+                            notifications: {
+                                container: '#notification-container'
                             }
                         }
                     }
@@ -514,6 +531,9 @@
                     container: 'workspace-explorer-container',
                     separator: 'workspace-explorer-separator'
                 }
+            },
+            dialog: {
+                container: $('body'),
             }
         };
         app = new Application(config);

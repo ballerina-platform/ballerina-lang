@@ -121,8 +121,23 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             var else2 = BallerinaASTFactory.createElseStatement();
             ifelse2.addChild(if2);
             ifelse2.addChild(else2);
+
+            var ifelse3 = BallerinaASTFactory.createIfElseStatement();
+            var if3 = BallerinaASTFactory.createIfStatement();
+            var else3 = BallerinaASTFactory.createElseStatement();
+            ifelse3.addChild(if3);
+            ifelse3.addChild(else3);
             if1.addChild(ifelse2);
-            resource_passthrough2.addChild(ifelse1);
+            else1.addChild(ifelse3);
+            var ifelse4 = BallerinaASTFactory.createIfElseStatement();
+            var if4 = BallerinaASTFactory.createIfStatement();
+            var else4 = BallerinaASTFactory.createElseStatement();
+            ifelse4.addChild(if4);
+            ifelse4.addChild(else4);
+            // if1.addChild(ifelse4);
+            //
+            // if2.addChild(ifelse3);
+            // resource_passthrough2.addChild(ifelse1);
             serviceDefinition_passthroughService2.addChild(resource_passthrough2);
             // Adding Resources
             var resource_passthrough3 = BallerinaASTFactory.createResourceDefinition();
@@ -201,13 +216,13 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             resource_passthrough.addChild(assignmentStatement);
 
             var assignmentStatement2 = BallerinaASTFactory.createAssignmentStatement();
-            resource_passthrough.addChild(assignmentStatement2);
+          //  resource_passthrough.addChild(assignmentStatement2);
             var assignmentStatement3 = BallerinaASTFactory.createAssignmentStatement();
-            resource_passthrough.addChild(assignmentStatement3);
+         //   resource_passthrough.addChild(assignmentStatement3);
             var assignmentStatement4 = BallerinaASTFactory.createAssignmentStatement();
-            resource_passthrough.addChild(assignmentStatement4);
+          //  resource_passthrough.addChild(assignmentStatement4);
             var assignmentStatement5 = BallerinaASTFactory.createAssignmentStatement();
-            resource_passthrough.addChild(assignmentStatement5);
+          //  resource_passthrough.addChild(assignmentStatement5);
 
 
             /**
@@ -215,7 +230,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
              */
             var functionInvocation = BallerinaASTFactory.createFunctionInvocationStatement();
             //TODO:Commented to view get action statement
-            //resource_passthrough.addChild(functionInvocation);
+            resource_passthrough.addChild(functionInvocation);
 
             /**
              * Create the sample logical expression
@@ -223,7 +238,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             var logicalExp = BallerinaASTFactory.createLogicalExpression();
             logicalExp.setExpression('a > b');
             //TODO:Commented to view get action statement
-            //resource_passthrough.addChild(logicalExp);
+            resource_passthrough.addChild(logicalExp);
 
             /**
              * Create the sample arithmetic expression
@@ -231,7 +246,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             var arithmeticExp = BallerinaASTFactory.createArithmeticExpression();
             arithmeticExp.setExpression('a = resp + 123');
             //TODO:Commented to view get action statement
-           // resource_passthrough.addChild(arithmeticExp);
+           resource_passthrough.addChild(arithmeticExp);
 
             // Create Sample try-catch statement
             var ifElseStatement = BallerinaASTFactory.createIfElseStatement();
@@ -246,6 +261,8 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
            //Create get action statement for connector
             var actionOpts = {connector:connector_declaration1, isUserDropped:false};
             var getActionStatement1 = BallerinaASTFactory.createGetActionStatement(actionOpts);
+           // var actionOpts2 = {connector:connector_declaration, isUserDropped:false};
+           // var getActionStatement2 = BallerinaASTFactory.createGetActionStatement(actionOpts2);
             ifElseStatement.addChild(ifStatement);
             ifElseStatement.addChild(elseStatement);
             tryCatchStatement1.addChild(tryStatement1);
@@ -255,6 +272,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             //TODO:Commented to view get action statement
             //resource_passthrough.addChild(tryCatchStatement1);
             resource_passthrough.addChild(getActionStatement1);
+           // resource_passthrough.addChild(getActionStatement2);
             // Create sample Worker Declaration
             var workerDeclaration1 = BallerinaASTFactory.createWorkerDeclaration();
             var workerDeclaration2 = BallerinaASTFactory.createWorkerDeclaration();
@@ -266,6 +284,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             var functionDefinition1 = BallerinaASTFactory.createFunctionDefinition();
             functionDefinition1.addChild(workerDeclaration1);
             functionDefinition1.addChild(workerDeclaration2);
+            functionDefinition1.addChild(ifelse1);
             functionDefinitions.push(functionDefinition1);
             ballerinaAstRoot1.addChild(functionDefinition1);
             ballerinaAstRoot1.setFunctionDefinitions(functionDefinitions);
