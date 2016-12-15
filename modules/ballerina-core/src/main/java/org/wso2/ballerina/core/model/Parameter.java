@@ -28,7 +28,7 @@ import java.util.List;
  * {@code Parameter} represent a Parameter in various signatures.
  *
  * This can be a part of {@link Function}, {@link Resource}
- * or {@link Action} signature
+ * or {@link BallerinaAction} signature
  *
  * @since 1.0.0
  */

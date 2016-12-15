@@ -43,7 +43,6 @@ public class TypeC {
     // TODO Improve this to support modularity of Ballerina
     protected static final Map<String, TypeC> TYPE_MAP = new HashMap<>(20);
 
-
     public static final TypeC INT_TYPE = new TypeC(INT_TNAME);
     public static final TypeC LONG_TYPE = new TypeC(LONG_TNAME);
     public static final TypeC FLOAT_TYPE = new TypeC(FLOAT_TNAME);
@@ -53,7 +52,6 @@ public class TypeC {
     public static final TypeC XML_TYPE = new TypeC(XML_TNAME);
     public static final TypeC JSON_TYPE = new TypeC(JSON_TNAME);
     public static final TypeC MESSAGE_TYPE = new TypeC(MESSAGE_TNAME);
-
 
     /**
      * Create a type from the given name
@@ -70,8 +68,11 @@ public class TypeC {
     }
 
     public boolean equals(Object obj) {
-        TypeC other = (TypeC) obj;
-        return this.typeName.equals(other.typeName);
+        if (obj instanceof TypeC) {
+            TypeC other = (TypeC) obj;
+            return this.typeName.equals(other.typeName);
+        }
+        return false;
     }
 
     public int hashCode() {
@@ -84,31 +85,31 @@ public class TypeC {
 
     public static Type getType(String typeName) {
         switch (typeName) {
-            case "int":
-                return new IntType();
-            case "long":
-                return new LongType();
-            case "float":
-                return new FloatType();
-            case "double":
-                return new DoubleType();
-            case "boolean":
-                return new BooleanType();
-            case "string":
-                return new StringType();
-            case "message":
-                return new MessageType();
-            case "xml":
-                return new XMLType();
-            case "json":
-                return new JSONType();
-            case "map":
-                return new MapType();
-            case "array":
-                return new ArrayType();
-            default:
-                //TODO use proper exceptions here
-                throw new RuntimeException("Unknown type");
+        case "int":
+            return new IntType();
+        case "long":
+            return new LongType();
+        case "float":
+            return new FloatType();
+        case "double":
+            return new DoubleType();
+        case "boolean":
+            return new BooleanType();
+        case "string":
+            return new StringType();
+        case "message":
+            return new MessageType();
+        case "xml":
+            return new XMLType();
+        case "json":
+            return new JSONType();
+        case "map":
+            return new MapType();
+        case "array":
+            return new ArrayType();
+        default:
+            //TODO use proper exceptions here
+            throw new RuntimeException("Unknown type");
         }
 
     }

@@ -17,8 +17,8 @@
 */
 package org.wso2.ballerina.core.model.builder;
 
-import org.wso2.ballerina.core.model.Action;
 import org.wso2.ballerina.core.model.Annotation;
+import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.Connector;
 import org.wso2.ballerina.core.model.ConnectorDcl;
 import org.wso2.ballerina.core.model.Parameter;
@@ -32,7 +32,7 @@ import java.util.List;
 
 /**
  * {@code CallableUnitGroupBuilder} builds Services and Connectors
- * <p>
+ * <p/>
  * A CallableUnitGroup represents a Service or a Connector
  */
 class CallableUnitGroupBuilder {
@@ -43,7 +43,7 @@ class CallableUnitGroupBuilder {
     private List<ConnectorDcl> connectorDclList = new ArrayList<>();
     private List<VariableDcl> variableDclList = new ArrayList<>();
     private List<Resource> resourceList = new ArrayList<>();
-    private List<Action> actionList = new ArrayList<>();
+    private List<BallerinaAction> actionList = new ArrayList<>();
 
     void setName(SymbolName name) {
         this.name = name;
@@ -69,27 +69,21 @@ class CallableUnitGroupBuilder {
         this.resourceList.add(resource);
     }
 
-    void addAction(Action action) {
+    void addAction(BallerinaAction action) {
         this.actionList.add(action);
     }
 
     Service buildService() {
-        return new Service(
-                name,
-                annotationList.toArray(new Annotation[annotationList.size()]),
+        return new Service(name, annotationList.toArray(new Annotation[annotationList.size()]),
                 connectorDclList.toArray(new ConnectorDcl[connectorDclList.size()]),
                 variableDclList.toArray(new VariableDcl[variableDclList.size()]),
-                resourceList.toArray(new Resource[resourceList.size()])
-        );
+                resourceList.toArray(new Resource[resourceList.size()]));
     }
 
     Connector buildConnector() {
-        return new Connector(
-                name,
-                annotationList.toArray(new Annotation[annotationList.size()]),
+        return new Connector(name, annotationList.toArray(new Annotation[annotationList.size()]),
                 connectorDclList.toArray(new ConnectorDcl[connectorDclList.size()]),
                 variableDclList.toArray(new VariableDcl[variableDclList.size()]),
-                actionList.toArray(new Action[actionList.size()])
-        );
+                actionList.toArray(new BallerinaAction[actionList.size()]));
     }
 }

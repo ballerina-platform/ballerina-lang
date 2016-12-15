@@ -28,6 +28,7 @@ under the License.
             <class name="org.wso2.ballerina.core.model.RecursiveFuncTest" />
             <class name="org.wso2.ballerina.core.model.NativeFunctionInvocationTest" />
             <class name="org.wso2.ballerina.core.model.NativeJSONFunctionTest" />
+	        <class name="org.wso2.ballerina.core.model.NativeXMLFunctionTest" />
             <class name="org.wso2.ballerina.core.model.NativeMessageFunctionTest" />
         </classes>
     </test>
