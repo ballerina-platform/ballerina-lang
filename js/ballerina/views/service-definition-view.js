@@ -53,6 +53,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
             //Registering event listeners
             this.listenTo(this._model, 'childVisitedEvent', this.childVisitedCallback);
             this.listenTo(this._parentView, 'childViewAddedEvent', this.childViewAddedCallback);
+            this.listenTo(this._model, 'childRemovedEvent', this.childViewRemovedCallback);
         };
 
         ServiceDefinitionView.prototype.childVisitedCallback = function (child) {

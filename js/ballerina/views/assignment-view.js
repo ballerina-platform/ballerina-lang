@@ -78,22 +78,23 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/assignment', 'd
          * @returns {group} - The SVG group which holds the elements of the assignment statement.
          */
         AssignmentStatementView.prototype.render = function () {
-            var group = D3Utils.group(d3.select(this._container));
+            var parentGroup = $(this._container)[0].getElementById("contentGroup");
+            var assignmentStatementGroup = D3Utils.group(d3.select(parentGroup));
+            assignmentStatementGroup.attr("id","assignmentStatementGroup_" +this._model.id);//added attribute 'id' starting with '_' to be compatible with HTML4
             var width = 120;
             var height = 30;
             var x = this.getXPosition();
             var y = this.getYPosition();
-            var assignmentRect = D3Utils.rect(x, y, 120, 30, 0, 0, group).classed('statement-rect', true).attr('id', '_'+this._model.id); // added attribute 'id' starting with '_' to be compatible with HTML4
+            var assignmentRect = D3Utils.rect(x, y, 120, 30, 0, 0, assignmentStatementGroup).classed('statement-rect', true);
             var assignmentText = this._model.getVariableAccessor() + ' = ' +this._model.getExpression();
-            var expressionText = D3Utils.textElement(x + width/2, y + height/2, assignmentText, group).classed('statement-text', true).attr('id', '_'+this._model.id);
-            // Set x, y, height, width of the current view
+            var expressionText = D3Utils.textElement(x + width/2, y + height/2, assignmentText, assignmentStatementGroup).classed('statement-text', true);
             this.setWidth(width);
             this.setHeight(height);
             this.setXPosition(x);
             this.setYPosition(y);
             this.setBoundingBox(width, height, x, y);
             log.info("Rendering assignment statement view.");
-            return group;
+            return assignmentStatementGroup;
         };
 
         return AssignmentStatementView;

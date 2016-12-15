@@ -85,7 +85,7 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/get-action
         GetActionStatementView.prototype.render = function () {
           var parentGroup = $(this._container)[0].getElementById("contentGroup");
             var actionStatementGroup = D3Utils.group(d3.select(parentGroup));
-            actionStatementGroup.attr("id","actionStatementGroup");
+            actionStatementGroup.attr("id","actionStatementGroup_" +this._model.id);
             log.info("Rendering the Get Action Statement.");
             //TODO: make constants
             var processorViewOpts = {};

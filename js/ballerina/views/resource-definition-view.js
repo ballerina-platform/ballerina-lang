@@ -81,7 +81,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             //Registering event listeners
             this.listenTo(this._model, 'childVisitedEvent', this.childVisitedCallback);
             this.listenTo(this._parentView, 'childViewAddedEvent', this.childViewAddedCallback);
-            //this.listenTo(this._model, 'childRemovedEvent', this.childRemovedCallback);
+            this.listenTo(this._model, 'childRemovedEvent', this.childViewRemovedCallback);
         };
 
         ResourceDefinitionView.prototype.canVisitResourceDefinition = function (resourceDefinition) {
@@ -239,7 +239,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             //Main container for a resource
             var resourceGroup = D3utils.group(d3.select(svgContainer));
             this._resourceGroup = resourceGroup;
-            resourceGroup.attr("id", "resourceGroup");
+            resourceGroup.attr("id", "resourceGroup_" +this._model.id);
             resourceGroup.attr("width", this._viewOptions.heading.width).attr("height", this._viewOptions.heading.height + this._viewOptions.contentHeight);
             resourceGroup.attr("x", headingStart.x()).attr("y", contentStart.y());
 
@@ -540,11 +540,6 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
         ResourceDefinitionView.prototype.getResourceHeadingHeight = function () {
             return this._viewOptions.heading.height;
         };
-
-        /*ResourceDefinitionView.prototype.childRemovedCallback = function (child) {
-            log.info("[Eventing] Child element removed. ");
-            (d3.select(this._container)).selectAll('#_' +child.id).remove();
-        };*/
 
         return ResourceDefinitionView;
 

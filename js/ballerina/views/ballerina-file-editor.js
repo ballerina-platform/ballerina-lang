@@ -162,6 +162,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
 
             //Registering event listeners
             this.listenTo(this._model, 'childVisitedEvent', this.childVisitedCallback);
+            this.listenTo(this._model, 'childRemovedEvent', this.childViewRemovedCallback);
         };
 
         /**

@@ -33,17 +33,11 @@ define(['lodash', 'log', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
             this._container = _.get(args, "container");
             this._viewOptions = _.get(args, "viewOptions", {});
             this.toolPalette = _.get(args, "toolPalette");
-            this.init();
             ASTVisitor.call(this, args);
         };
 
         BallerinaView.prototype = Object.create(ASTVisitor.prototype);
         BallerinaView.prototype.constructor = BallerinaView;
-
-        BallerinaView.prototype.init = function(){
-            //Registering event listeners
-            this.listenTo(this._model, 'childRemovedEvent', this.childRemovedCallback);
-        };
 
         BallerinaView.prototype.setWidth = function (newWidth) {
         };
@@ -317,21 +311,30 @@ define(['lodash', 'log', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
                 // Adding on click event for delete button.
                 $(deleteButtonRect.node()).click(function () {
                     log.info("initializing delete");
-                    //Test for assignment statement
-                    var child = model.children[0].children[2];
-                    log.info("initializing delete1");
+                    //Test for children in resource definition
+                    //var child = model.children[0].children[0];
+
+                    //Test for delete resource definition
+                    //var child = model.children[0];
+
+                    //Test for delete service definition
+                    var child = model;
                     var parent = child.parent;
-                    log.info("initializing delete2");
                     parent.removeChild(child);
-                    log.info("initializing delete3");
                 });
 
             });
         };
 
-        BallerinaView.prototype.childRemovedCallback = function (child) {
-            log.info("[Eventing] Child element removed. ");
-            (d3.select(this._container)).selectAll('#_' +child.id).remove();
+        BallerinaView.prototype.childViewRemovedCallback = function (child) {
+            log.info("[Eventing] Child element view removed. ");
+            //var group = $(this._container)[0].getElementById("assignmentStatementGroup_" +child.id);
+            //var group = $(this._container)[0].getElementById("actionStatementGroup_" +child.id);
+           // var group = $(this._container)[0].getElementById("connectorGroup_" +child.id);
+            /*var childView = this.diagramRenderingContext.getViewModelMap()[child.id];
+            var group = $(childView._container)[0].getElementById("resourceGroup_" +child.id);*/
+            //(d3.select(group)).remove();
+            $(this._container.querySelectorAll("#_" +child.id)).remove();
         };
 
         return BallerinaView;

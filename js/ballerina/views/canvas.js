@@ -42,7 +42,7 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
 
         //draw a collapse accordion
         var outerDiv = $('<div></div>');
-
+        outerDiv.attr('id', '_'+canvas[0].id);//to support HTML4
         outerDiv.addClass(_.get(options, 'cssClass.outer_div'));
         var panelHeading = $('<div></div>');
         panelHeading.attr('id', canvas[0].id + 3).attr('role', 'tab');

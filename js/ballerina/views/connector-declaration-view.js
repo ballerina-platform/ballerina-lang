@@ -99,7 +99,7 @@ define(['lodash','d3', 'jquery', './ballerina-view', './../ast/connector-declara
             log.info("Rendering the Worker Declaration");
             var parentContainer = $(this._container)[0];
             var connectorGroup = D3utils.group(d3.select(parentContainer));
-            connectorGroup.attr("id","connectorGroup");
+            connectorGroup.attr("id","connectorGroup_" +this._model.id);
             var centerPointX = this._viewOptions.connectorCenterPointX;
             var centerPointY = this._viewOptions.connectorCenterPointY;
             var defaultConnectorOptions = {
