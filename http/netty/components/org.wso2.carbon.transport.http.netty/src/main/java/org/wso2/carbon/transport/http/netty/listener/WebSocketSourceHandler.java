@@ -61,9 +61,11 @@ public class WebSocketSourceHandler extends SourceHandler {
         this.uri = uri;
     }
 
+
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         super.channelActive(ctx);
+        //Only one WebSocketResponder is needed for a pipeline
         webSocketResponder = new WebSocketResponderImpl(this.ctx);
     }
 
