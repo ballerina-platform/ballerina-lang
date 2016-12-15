@@ -26,14 +26,14 @@ import org.wso2.carbon.messaging.CarbonMessage;
  */
 public class DefaultBalCallback implements BalCallback {
 
-    CarbonCallback carbonCallback;
+    CarbonCallback parentCallback;
 
-    public DefaultBalCallback(CarbonCallback carbonCallback) {
-        this.carbonCallback = carbonCallback;
+    public DefaultBalCallback(CarbonCallback parentCallback) {
+        this.parentCallback = parentCallback;
     }
 
     @Override
     public void done(CarbonMessage carbonMessage) {
-        carbonCallback.done(carbonMessage);
+        parentCallback.done(carbonMessage);
     }
 }
