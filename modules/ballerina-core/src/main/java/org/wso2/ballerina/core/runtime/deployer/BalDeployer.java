@@ -41,6 +41,7 @@ import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.values.BValueRef;
 import org.wso2.ballerina.core.parser.BallerinaLexer;
 import org.wso2.ballerina.core.parser.BallerinaParser;
+import org.wso2.ballerina.core.parser.BallerinaParserErrorStrategy;
 import org.wso2.ballerina.core.parser.ParserException;
 import org.wso2.ballerina.core.parser.antlr4.BLangAntlr4Listener;
 import org.wso2.ballerina.core.runtime.registry.ApplicationRegistry;
@@ -132,6 +133,7 @@ public class BalDeployer implements Deployer {
                 CommonTokenStream ballerinaToken = new CommonTokenStream(ballerinaLexer);
 
                 BallerinaParser ballerinaParser = new BallerinaParser(ballerinaToken);
+                ballerinaParser.setErrorHandler(new BallerinaParserErrorStrategy());
 
 //              // Visitor based approach
 //              CompilationUnitVisitor ballerinaBaseVisitor = new CompilationUnitVisitor();
