@@ -16,16 +16,17 @@
 
 package org.wso2.ballerina.core.nativeimpl.connectors.http;
 
-//import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.Context;
-//import org.wso2.ballerina.core.model.types.TypeEnum;
-import org.wso2.ballerina.core.model.values.BValue;
-//import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
-//import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAction;
+import org.wso2.ballerina.core.model.Connector;
+import org.wso2.ballerina.core.model.types.TypeEnum;
+import org.wso2.ballerina.core.model.values.ConnectorValue;
+import org.wso2.ballerina.core.model.values.MessageValue;
+import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
+import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
-import org.wso2.ballerina.core.nativeimpl.connectors.NativeConnector;
 import org.wso2.ballerina.core.runtime.internal.ServiceContextHolder;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.Constants;
@@ -34,48 +35,51 @@ import org.wso2.carbon.messaging.MessageProcessorException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-///**
-// * Execute post method to given URI
-// */
-/*@BallerinaAction(
+/**
+ * Execute post method to given URI
+ */
+@BallerinaAction(
         packageName = "ballerina.net.http",
         actionName = "post",
         args = {
-                @Argument(name = "connector", type = TypeEnum.CONNECTOR),
-                @Argument(name = "path", type = TypeEnum.STRING),
+                @Argument(name = "connector",
+                          type = TypeEnum.CONNECTOR), @Argument(name = "path", type = TypeEnum.STRING),
                 @Argument(name = "message", type = TypeEnum.MESSAGE)
         },
-        returnType = { TypeEnum.MESSAGE })*/
-/*@Component(
-        name = "func.net.http.sendPost",
+        returnType = { TypeEnum.MESSAGE })
+@Component(
+        name = "action.net.http.post",
         immediate = true,
-        service = AbstractNativeAction.class)*/
-
-/**
- * dsf
- */
+        service = AbstractNativeAction.class)
 public class Post extends AbstractNativeAction {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Post.class);
 
-    private String path;
-
     /**
      * Constructing HTTP Post method
-     * @param connector NativeConnector HTTP
-     * @param path resource path
      */
-    public Post(NativeConnector connector, String path) {
-        super(connector);
-        this.path = path;
+    public Post() {
+
     }
 
     @Override
-    public BValue[] execute(Context context) {
+    public void execute(Context context) {
         LOGGER.debug("Executing Native Action SendPost ....");
-        CarbonMessage message = context.getCarbonMessage();
+        ConnectorValue connectorValue = (ConnectorValue) getArgument(context, 0).getBValue();
+        String path = getArgument(context, 1).getString();
+        MessageValue messageValue = (MessageValue) getArgument(context, 2).getBValue();
 
-        String uri = ((HTTPConnector) connector).getServiceUri() + path;
+        CarbonMessage message = messageValue.getValue();
+        String uri = null;
+        Connector connector = connectorValue.getValue();
+        if (connector instanceof HTTPConnector) {
+
+            uri = ((HTTPConnector) connector).getServiceUri() + path;
+
+        } else {
+            LOGGER.error("Cannot find Connector");
+            return;
+        }
 
         processRequest(message, uri);
 
@@ -84,7 +88,6 @@ public class Post extends AbstractNativeAction {
         } catch (MessageProcessorException e) {
             LOGGER.error("Cannot Send Message to Endpoint ", e);
         }
-        return new BValue[0];
     }
 
     private void processRequest(CarbonMessage cMsg, String uri) {

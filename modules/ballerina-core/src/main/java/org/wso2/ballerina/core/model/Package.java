@@ -39,6 +39,7 @@ public class Package {
     private List<Service> services = new ArrayList<>();
     private Map<String, Function> publicFunctions = new HashMap<>();
     private Map<String, Function> privateFunctions = new HashMap<>();
+    private Map<String, Action> actions = new HashMap<>();
     private List<StructType> types = new ArrayList<StructType>();
     //TODO: add TypeConverters and Constants
 
@@ -157,4 +158,11 @@ public class Package {
         return types;
     }
 
+    /**
+     *  Get a  {@code Action} in the package
+     * @return Action
+     */
+    public Map<String, Action> getActions() {
+        return actions;
+    }
 }

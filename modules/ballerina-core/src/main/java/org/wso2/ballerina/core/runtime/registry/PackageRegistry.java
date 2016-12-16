@@ -23,6 +23,7 @@ import org.wso2.ballerina.core.model.Symbol;
 import org.wso2.ballerina.core.model.types.CallableUnit;
 import org.wso2.ballerina.core.model.types.CallableUnitType;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
+import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 
 import java.util.HashMap;
@@ -73,6 +74,21 @@ public class PackageRegistry {
     }
 
     /**
+     * Register Native Action.
+     *
+     * @param action AbstractNativeAction instance.
+     */
+    public void registerNativeAction(AbstractNativeAction action) {
+        Package aPackage = packages
+                .computeIfAbsent(action.getPackageName(), k -> new Package(action.getPackageName()));
+        aPackage.getActions().put(action.getName(), action);
+        CallableUnitType callableUnitType = new CallableUnitType(CallableUnit.ACTION, action.getSymbolName());
+        callableUnitType.setParamType(action.getSymbolName().getParameters());
+        callableUnitType.setReturnType(action.getReturnTypes());
+        GlobalScopeHolder.getInstance().insert(action.getSymbolName(), new Symbol(callableUnitType, 0));
+    }
+
+    /**
      * Unregister Native function.
      *
      * @param function AbstractNativeFunction instance.
@@ -88,5 +104,19 @@ public class PackageRegistry {
         } else {
             aPackage.getPrivateFunctions().remove(function.getName());
         }
+    }
+
+    /**
+     * Unregister Native Action.
+     *
+     * @param action AbstractNativeAction instance.
+     */
+    public void unregisterNativeActions(AbstractNativeAction action) {
+        Package aPackage = packages.get(action.getPackageName());
+        if (aPackage == null) {
+            // Nothing to do.
+            return;
+        }
+        aPackage.getActions().remove(action.getName());
     }
 }

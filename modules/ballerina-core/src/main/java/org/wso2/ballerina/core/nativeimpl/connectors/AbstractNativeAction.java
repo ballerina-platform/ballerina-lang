@@ -12,9 +12,11 @@ import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.types.Type;
 import org.wso2.ballerina.core.model.types.TypeC;
 import org.wso2.ballerina.core.model.values.BValue;
+import org.wso2.ballerina.core.model.values.BValueRef;
 import org.wso2.ballerina.core.nativeimpl.NativeConstruct;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Utils;
+import org.wso2.ballerina.core.nativeimpl.exceptions.ArgumentOutOfRangeException;
 import org.wso2.ballerina.core.nativeimpl.exceptions.MalformedEntryException;
 
 import java.util.ArrayList;
@@ -36,9 +38,7 @@ public abstract class AbstractNativeAction implements Action, NativeConstruct, I
     private List<Type> returnTypes;
     private List<Const> constants;
 
-    public AbstractNativeAction(NativeConnector connector) {
-        this.connector = connector;
-
+    public AbstractNativeAction() {
         parameters = new ArrayList<>();
         returnTypes = new ArrayList<>();
         annotations = new ArrayList<>();
@@ -54,7 +54,7 @@ public abstract class AbstractNativeAction implements Action, NativeConstruct, I
         BallerinaAction action = this.getClass().getAnnotation(BallerinaAction.class);
         packageName = action.packageName();
         actionName = action.actionName();
-        symbolName = new SymbolName(actionName);
+        symbolName = new SymbolName(actionName, SymbolName.SymType.CALLABLE_UNIT);
         Arrays.stream(action.args()).
                 forEach(argument -> {
                     try {
@@ -119,6 +119,20 @@ public abstract class AbstractNativeAction implements Action, NativeConstruct, I
         connector.init();
     }
 
-    public abstract BValue[] execute(Context context);
+    /**
+     * Get Argument by index.
+     *
+     * @param context current {@code {@link Context}} instance.
+     * @param index   index of the parameter.
+     * @return BValue;
+     */
+    public BValueRef getArgument(Context context, int index) {
+        if (index > -1 && index < parameters.size()) {
+            return context.getControlStack().getCurrentFrame().values[index];
+        }
+        throw new ArgumentOutOfRangeException(index);
+    }
+
+    public abstract void execute(Context context);
 
 }
