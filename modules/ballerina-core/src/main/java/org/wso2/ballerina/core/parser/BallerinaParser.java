@@ -150,6 +150,7 @@ public class BallerinaParser extends Parser {
 	public BallerinaParser(TokenStream input) {
 		super(input);
 		_interp = new ParserATNSimulator(this,_ATN,_decisionToDFA,_sharedContextCache);
+		setErrorHandler(new BallerinaParserErrorStrategy());
 	}
 	public static class CompilationUnitContext extends ParserRuleContext {
 		public TerminalNode EOF() { return getToken(BallerinaParser.EOF, 0); }
