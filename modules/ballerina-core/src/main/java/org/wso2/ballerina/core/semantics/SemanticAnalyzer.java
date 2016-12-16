@@ -20,9 +20,9 @@ package org.wso2.ballerina.core.semantics;
 import org.wso2.ballerina.core.interpreter.SymTable;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.BallerinaAction;
+import org.wso2.ballerina.core.model.BallerinaConnector;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
-import org.wso2.ballerina.core.model.Connector;
 import org.wso2.ballerina.core.model.ConnectorDcl;
 import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.model.NodeVisitor;
@@ -102,7 +102,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     @Override
-    public void visit(Connector connector) {
+    public void visit(BallerinaConnector connector) {
 
     }
 

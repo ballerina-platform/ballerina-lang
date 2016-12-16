@@ -45,7 +45,7 @@ public class BallerinaFile implements Node {
     private String packageName;
     private List<Import> imports = new ArrayList<>();
     private List<Service> services = new ArrayList<>();
-    private List<Connector> connectorList = new ArrayList<>();
+    private List<BallerinaConnector> connectorList = new ArrayList<>();
     private Map<String, Function> functions = new HashMap<>();
     private List<StructType> types = new ArrayList<>();
     private List<FunctionInvocationExpr> funcIExprList = new ArrayList<>();
@@ -58,7 +58,7 @@ public class BallerinaFile implements Node {
             String packageName,
             List<Import> importList,
             List<Service> serviceList,
-            List<Connector> connectorList,
+            List<BallerinaConnector> connectorList,
             Map<String, Function> functionMap,
             List<StructType> sTypeList,
             List<FunctionInvocationExpr> funcIExprList) {
@@ -230,7 +230,7 @@ public class BallerinaFile implements Node {
         private String packageName;
         private List<Import> importList = new ArrayList<>();
         private List<Service> serviceList = new ArrayList<>();
-        private List<Connector> connectorList = new ArrayList<>();
+        private List<BallerinaConnector> connectorList = new ArrayList<>();
         private Map<String, Function> functionList = new HashMap<>();
         private List<StructType> sTypeList = new ArrayList<>();
         private List<FunctionInvocationExpr> funcIExprList = new ArrayList<>();
@@ -251,7 +251,7 @@ public class BallerinaFile implements Node {
             this.serviceList.add(service);
         }
 
-        public void addConnector(Connector connector) {
+        public void addConnector(BallerinaConnector connector) {
             this.connectorList.add(connector);
         }
 
