@@ -51,6 +51,7 @@ import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.statements.CommentStmt;
+import org.wso2.ballerina.core.model.statements.FunctionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.IfElseStmt;
 import org.wso2.ballerina.core.model.statements.ReplyStmt;
 import org.wso2.ballerina.core.model.statements.ReturnStmt;
@@ -216,6 +217,11 @@ public class BLangInterpreter implements NodeVisitor {
     }
 
     @Override
+    public void visit(FunctionInvocationStmt functionInvocationStmt) {
+        functionInvocationStmt.getFunctionInvocationExpr().accept(this);
+    }
+
+    @Override
     public void visit(ReplyStmt replyStmt) {
 
     }
@@ -277,7 +283,7 @@ public class BLangInterpreter implements NodeVisitor {
         controlStack.pushFrame(stackFrame);
 
         // Check whether we are invoking a native function or not.
-        if (function instanceof  BallerinaFunction) {
+        if (function instanceof BallerinaFunction) {
             BallerinaFunction bFunction = (BallerinaFunction) function;
             bFunction.accept(this);
         } else {

@@ -36,6 +36,7 @@ import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.statements.CommentStmt;
+import org.wso2.ballerina.core.model.statements.FunctionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.IfElseStmt;
 import org.wso2.ballerina.core.model.statements.ReplyStmt;
 import org.wso2.ballerina.core.model.statements.ReturnStmt;
@@ -83,6 +84,8 @@ public interface NodeVisitor {
     void visit(ReturnStmt returnStmt);
 
     void visit(WhileStmt whileStmt);
+
+    void visit(FunctionInvocationStmt functionInvocationStmt);
 
     // Expressions
 
