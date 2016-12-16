@@ -70,10 +70,28 @@ public class ApplicationRegistry {
         });
     }
 
+    /**
+     * Add/Update a package in the application.
+     *  
+     * @param aPackage  Package to be added/updated
+     */
     public void updatePackage(org.wso2.ballerina.core.model.Package aPackage) {
         aPackage.getServices().forEach(service -> {
             DispatcherRegistry.getInstance().getServiceDispatchers().forEach((protocol, dispatcher) -> {
                 dispatcher.serviceRegistered(service);
+            });
+        });
+    }
+    
+    /**
+     * Remove a package from the application, and unregister the associated services.
+     * 
+     * @param aPackage  Package to be removed
+     */
+    public void removePackage(org.wso2.ballerina.core.model.Package aPackage) {
+        aPackage.getServices().forEach(service -> {
+            DispatcherRegistry.getInstance().getServiceDispatchers().forEach((protocol, dispatcher) -> {
+                dispatcher.serviceUnregistered(service);
             });
         });
     }
