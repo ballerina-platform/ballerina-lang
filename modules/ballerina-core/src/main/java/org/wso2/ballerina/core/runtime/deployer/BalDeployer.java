@@ -47,6 +47,7 @@ import org.wso2.ballerina.core.parser.BallerinaParserErrorStrategy;
 import org.wso2.ballerina.core.parser.ParserException;
 import org.wso2.ballerina.core.parser.antlr4.BLangAntlr4Listener;
 import org.wso2.ballerina.core.runtime.registry.ApplicationRegistry;
+import org.wso2.ballerina.core.semantics.InvalidSemanticException;
 import org.wso2.ballerina.core.semantics.SemanticAnalyzer;
 import org.wso2.carbon.deployment.engine.Artifact;
 import org.wso2.carbon.deployment.engine.ArtifactType;
@@ -192,7 +193,7 @@ public class BalDeployer implements Deployer {
             }
         } catch (IOException e) {
             log.error("Error while creating Ballerina object model from file : " + file.getName(), e);
-        } catch (ParserException e) {
+        } catch (ParserException | InvalidSemanticException | IllegalStateException e) {
             log.error("Failed to deploy " + file.getName() + ": " + e.getMessage());
         } finally {
             if (inputStream != null) {
