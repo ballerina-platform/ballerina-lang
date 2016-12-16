@@ -20,10 +20,8 @@ package org.wso2.ballerina.core.model;
 import org.wso2.ballerina.core.model.types.Type;
 
 /**
- * {@code Identifier} represents an identifier in Ballerina
- * <p>
- * Here only the name of the identifier is stored.
- *
+ * {@code SymbolName} represents an identifier in Ballerina
+ * *
  * @since 1.0.0
  */
 public class SymbolName {

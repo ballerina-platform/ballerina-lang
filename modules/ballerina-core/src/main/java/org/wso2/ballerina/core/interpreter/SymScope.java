@@ -24,8 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * {@code SymScope} represents a data structure which allows check the scope of a symbol.
- * <p>
+ * {@code SymScope} represents a data structure which allows us to manage scopes.
  *
  * @since 1.0.0
  */

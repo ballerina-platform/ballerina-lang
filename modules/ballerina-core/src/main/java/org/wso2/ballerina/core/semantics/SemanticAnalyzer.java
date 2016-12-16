@@ -61,7 +61,9 @@ import org.wso2.ballerina.core.model.statements.WhileStmt;
 import org.wso2.ballerina.core.model.types.TypeC;
 
 /**
+ *  {@code SemanticAnalyzer} analyzes semantic properties of a Ballerina program
  *
+ *  @since 1.0.0
  */
 public class SemanticAnalyzer implements NodeVisitor {
 

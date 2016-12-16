@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Builder class for function/action invocation expressions
+ * Builder class for building function/action invocation expressions
  *
  * @since 1.0.0
  */

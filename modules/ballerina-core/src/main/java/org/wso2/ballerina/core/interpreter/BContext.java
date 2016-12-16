@@ -18,7 +18,9 @@
 package org.wso2.ballerina.core.interpreter;
 
 /**
+ * {@code Context} represents the runtime state of a program.
  *
+ * @since 1.0.0
  */
 public class BContext {
 
