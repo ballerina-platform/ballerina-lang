@@ -99,8 +99,8 @@ public class BValueRef {
             return new BValueRef(new XMLValue("<root></root>"));
         } else if (type == TypeC.MESSAGE_TYPE) {
             return new BValueRef(new MessageValue(null));
-        } else if (type == TypeC.MESSAGE_TYPE) {
-            return new BValueRef(new MessageValue(null));
+        } else if (type == TypeC.MAP_TYPE) {
+            return new BValueRef(new MapValue());
         } else if (type == TypeC.CONNECTOR_TYPE) {
             return new BValueRef(new ConnectorValue(null));
         } else {

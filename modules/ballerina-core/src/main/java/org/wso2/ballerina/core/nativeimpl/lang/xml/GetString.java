@@ -34,7 +34,6 @@ import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.model.values.MapValue;
 import org.wso2.ballerina.core.model.values.StringValue;
 import org.wso2.ballerina.core.model.values.XMLValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
@@ -48,8 +47,8 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
         packageName = "ballerina.lang.xml",
         functionName = "getString",
         args = {@Argument(name = "xml", type = TypeEnum.XML),
-                @Argument(name = "xPath", type = TypeEnum.STRING),
-                @Argument(name = "nameSpaces", type = TypeEnum.MAP)},
+                @Argument(name = "xPath", type = TypeEnum.STRING)},
+//                @Argument(name = "nameSpaces", type = TypeEnum.MAP)},
         returnType = {TypeEnum.STRING},
         isPublic = true
 )
@@ -67,7 +66,8 @@ public class GetString extends AbstractNativeFunction {
         // Accessing Parameters.
         XMLValue xml = (XMLValue) getArgument(ctx, 0).getBValue();
         String xPath = getArgument(ctx, 1).getString();
-        MapValue<String, String> nameSpaces = getArgument(ctx, 2).getMap();
+        //MapValue<String, String> nameSpaces = getArgument(ctx, 2).getMap();
+        
         
         // Getting the value from XML
         BValue<?> result = null;
@@ -76,11 +76,11 @@ public class GetString extends AbstractNativeFunction {
             XPathCompiler xPathCompiler = processor.newXPathCompiler();
             DocumentBuilder builder = processor.newDocumentBuilder();
             XdmNode doc = builder.build(xml.getValue().getSAXSource(true));
-            if (nameSpaces != null && !nameSpaces.isEmpty()) {
+            /*if (nameSpaces != null && !nameSpaces.isEmpty()) {
                 for (MapValue<String, String>.MapEntry<String, String> entry : nameSpaces.getValue()) {
                     xPathCompiler.declareNamespace(entry.getKey(), entry.getValue());
                 }
-            }
+            }*/
             XPathSelector selector = xPathCompiler.compile(xPath).load();
             selector.setContextItem(doc);
             XdmValue xdmValue = selector.evaluate();
