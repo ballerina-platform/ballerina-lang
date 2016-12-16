@@ -16,30 +16,28 @@
 
 package org.wso2.ballerina.core.model.types;
 
-import org.wso2.ballerina.core.model.Connector;
-
 /**
  * {@code ConnectorType} represents a  Connector
  *
  * @since 1.0.0
  */
-public class ConnectorType extends TypeC {
-    /**
-     * Create a type from the given name
-     *
-     * @param typeName string name of the type
-     */
-    protected ConnectorType(String typeName) {
-        super(typeName);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof Connector) {
-            Connector connector = (Connector) obj;
-            //  typeName.equals(connector)
-        }
-        return false;
-    }
+public class ConnectorType extends AbstractType {
+//    /**
+//     * Create a type from the given name
+//     *
+//     * @param typeName string name of the type
+//     */
+//    protected ConnectorType(String typeName) {
+//      //  super(typeName);
+//    }
+//
+//    @Override
+//    public boolean equals(Object obj) {
+//        if (obj instanceof BallerinaConnector) {
+//            BallerinaConnector connector = (BallerinaConnector) obj;
+//            //  typeName.equals(connector)
+//        }
+//        return false;
+//    }
 }
 

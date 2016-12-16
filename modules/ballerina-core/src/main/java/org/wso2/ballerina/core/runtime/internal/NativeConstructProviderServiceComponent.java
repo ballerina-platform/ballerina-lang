@@ -26,6 +26,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
+import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 import org.wso2.ballerina.core.runtime.registry.PackageRegistry;
 import org.wso2.carbon.kernel.startupresolver.RequiredCapabilityListener;
 
@@ -88,6 +89,25 @@ public class NativeConstructProviderServiceComponent implements RequiredCapabili
 
     protected void unregisterNativeFunctions(AbstractNativeFunction nativeFunction) {
         PackageRegistry.getInstance().unregisterNativeFunctions(nativeFunction);
+    }
+
+    @Reference(
+            name = "NativeActionProviderService",
+            service = AbstractNativeAction.class,
+            cardinality = ReferenceCardinality.MULTIPLE,
+            policy = ReferencePolicy.DYNAMIC,
+            unbind = "unregisterNativeActions"
+    )
+    protected void registerNativeAction(AbstractNativeAction nativeAction) {
+        PackageRegistry.getInstance().registerNativeAction(nativeAction);
+        if (logger.isDebugEnabled()) {
+            logger.debug("Initialized native action {}:{} ", nativeAction.getPackageName(),
+                    nativeAction.getName());
+        }
+    }
+
+    protected void unregisterNativeActions(AbstractNativeAction nativeAction) {
+        PackageRegistry.getInstance().unregisterNativeActions(nativeAction);
     }
 
 }

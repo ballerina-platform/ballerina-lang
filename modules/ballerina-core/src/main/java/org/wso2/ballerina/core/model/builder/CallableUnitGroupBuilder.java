@@ -19,7 +19,7 @@ package org.wso2.ballerina.core.model.builder;
 
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.BallerinaAction;
-import org.wso2.ballerina.core.model.Connector;
+import org.wso2.ballerina.core.model.BallerinaConnector;
 import org.wso2.ballerina.core.model.ConnectorDcl;
 import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.Resource;
@@ -82,8 +82,8 @@ class CallableUnitGroupBuilder {
                 resourceList.toArray(new Resource[resourceList.size()]));
     }
 
-    Connector buildConnector() {
-        return new Connector(name, annotationList.toArray(new Annotation[annotationList.size()]),
+    BallerinaConnector buildConnector() {
+        return new BallerinaConnector(name, annotationList.toArray(new Annotation[annotationList.size()]),
                 connectorDclList.toArray(new ConnectorDcl[connectorDclList.size()]),
                 variableDclList.toArray(new VariableDcl[variableDclList.size()]),
                 actionList.toArray(new BallerinaAction[actionList.size()]));
