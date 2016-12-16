@@ -42,7 +42,7 @@ public class BallerinaParserErrorStrategy extends DefaultErrorStrategy {
         String mismatchedToken = getTokenErrorDisplay(e.getOffendingToken());
         String expectedToken = e.getExpectedTokens().toString(parser.getVocabulary());
         String msg = "Mismatched input " + mismatchedToken + " in " + parser.getSourceName() + "["+ line + ":" +
-                position + "]. Expecting one of {" + expectedToken + "}";
+                position + "]. Expecting one of " + expectedToken;
         throw new ParserException(msg);
     }
 

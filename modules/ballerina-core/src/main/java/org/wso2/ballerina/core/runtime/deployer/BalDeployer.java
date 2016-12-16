@@ -92,12 +92,16 @@ public class BalDeployer implements Deployer {
     }
 
     @Override
-    public void undeploy(Object o) throws CarbonDeploymentException {
+    public void undeploy(Object key) throws CarbonDeploymentException {
+        undeployBalFile((String) key);
     }
 
     @Override
     public Object update(Artifact artifact) throws CarbonDeploymentException {
-        return null;
+        log.info("Updating " + artifact.getName() + "..");
+        undeployBalFile(artifact.getName());
+        deployBalFile(artifact.getFile());
+        return artifact.getName();
     }
 
     @Override
@@ -155,15 +159,16 @@ public class BalDeployer implements Deployer {
                 runMainFunction(balFile);
 
                 Application defaultApp = ApplicationRegistry.getInstance().getDefaultApplication();
-                Package aPackage = defaultApp.getPackage(balFile.getPackageName());
+                Package aPackage = defaultApp.getPackage(file.getName());
                 if (aPackage == null) {
-                    aPackage = new Package(balFile.getPackageName());
+                    // Create a new package with file-name as the package name
+                    aPackage = new Package(file.getName());
                     defaultApp.addPackage(aPackage);
                 }
                 aPackage.addFiles(balFile);
                 ApplicationRegistry.getInstance().updatePackage(aPackage);
 
-                log.info("Deploying ballerina file : " + file.getName());
+                log.info("Deployed ballerina file : " + file.getName());
             }
         } catch (IOException e) {
             log.error("Error while creating Ballerina object model from file : " + file.getName(), e);
@@ -179,6 +184,23 @@ public class BalDeployer implements Deployer {
         }
     }
 
+    /**
+     * Undeploy a service registered through a ballerina file.
+     * 
+     * @param fileName  Name of the ballerina file
+     */
+    private void undeployBalFile(String fileName) {
+        Application defaultApp = ApplicationRegistry.getInstance().getDefaultApplication();
+        Package aPackage = defaultApp.getPackage(fileName);
+        if (aPackage == null) {
+            log.warn("Could not find service to undeploy: " + fileName + ".");
+            return;
+        }
+        ApplicationRegistry.getInstance().removePackage(aPackage);
+        defaultApp.removePackage(fileName);
+        log.info("Undeployed ballerina file : " + fileName);
+    }
+    
     private static void runMainFunction(BallerinaFile bFile) {
         BallerinaFunction function = (BallerinaFunction) bFile.getFunctions().get("main");
         if (function == null) {
