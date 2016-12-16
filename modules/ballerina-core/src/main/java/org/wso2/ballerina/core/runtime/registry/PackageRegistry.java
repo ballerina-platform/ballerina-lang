@@ -19,11 +19,9 @@
 package org.wso2.ballerina.core.runtime.registry;
 
 import org.wso2.ballerina.core.model.Package;
-import org.wso2.ballerina.core.model.Symbol;
 import org.wso2.ballerina.core.model.types.CallableUnit;
 import org.wso2.ballerina.core.model.types.CallableUnitType;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
-import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 
 import java.util.HashMap;
 
@@ -46,7 +44,7 @@ public class PackageRegistry {
     }
 
     public void registerPackage(Package aPackage) {
-        packages.put(aPackage.getFullQualifiedName(), aPackage);
+        packages.put(aPackage.getFullyQualifiedName(), aPackage);
     }
 
     public Package getPackage(String fqn) {
@@ -61,15 +59,17 @@ public class PackageRegistry {
     public void registerNativeFunction(AbstractNativeFunction function) {
         Package aPackage = packages
                 .computeIfAbsent(function.getPackageName(), k -> new Package(function.getPackageName()));
+
         if (function.isPublic()) {
             aPackage.getPublicFunctions().put(function.getName(), function);
         } else {
             aPackage.getPrivateFunctions().put(function.getName(), function);
         }
+
         CallableUnitType callableUnitType = new CallableUnitType(CallableUnit.FUNCTION, function.getSymbolName());
         callableUnitType.setParamType(function.getSymbolName().getParameters());
-        callableUnitType.setReturnType(function.getReturnTypes());
-        GlobalScopeHolder.getInstance().insert(function.getSymbolName(), new Symbol(callableUnitType, 0));
+//        callableUnitType.setReturnType(function.getReturnTypesC());
+//        GlobalScopeHolder.getInstance().insert(function.getSymbolName(), new Symbol(callableUnitType, 0));
     }
 
     /**
