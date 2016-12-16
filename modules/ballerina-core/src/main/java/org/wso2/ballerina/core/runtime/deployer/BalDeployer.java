@@ -41,6 +41,7 @@ import org.wso2.ballerina.core.model.values.BValueRef;
 import org.wso2.ballerina.core.model.values.IntValue;
 import org.wso2.ballerina.core.parser.BallerinaLexer;
 import org.wso2.ballerina.core.parser.BallerinaParser;
+import org.wso2.ballerina.core.parser.BallerinaParserErrorStrategy;
 import org.wso2.ballerina.core.parser.ParserException;
 import org.wso2.ballerina.core.parser.antlr4.BLangAntlr4Listener;
 import org.wso2.ballerina.core.runtime.registry.ApplicationRegistry;
@@ -96,12 +97,16 @@ public class BalDeployer implements Deployer {
     }
 
     @Override
-    public void undeploy(Object o) throws CarbonDeploymentException {
+    public void undeploy(Object key) throws CarbonDeploymentException {
+        undeployBalFile((String) key);
     }
 
     @Override
     public Object update(Artifact artifact) throws CarbonDeploymentException {
-        return null;
+        log.info("Updating " + artifact.getName() + "...");
+        undeployBalFile(artifact.getName());
+        deployBalFile(artifact.getFile());
+        return artifact.getName();
     }
 
     @Override
@@ -130,6 +135,7 @@ public class BalDeployer implements Deployer {
                 CommonTokenStream ballerinaToken = new CommonTokenStream(ballerinaLexer);
 
                 BallerinaParser ballerinaParser = new BallerinaParser(ballerinaToken);
+                ballerinaParser.setErrorHandler(new BallerinaParserErrorStrategy());
 
 //              // Visitor based approach
 //              CompilationUnitVisitor ballerinaBaseVisitor = new CompilationUnitVisitor();
@@ -158,8 +164,15 @@ public class BalDeployer implements Deployer {
                 // Link function invocations and Run main function
                 linkAndRunMainFunction(balFile);
 
-                Application defaultApp = ApplicationRegistry.getInstance().getDefaultApplication();
-                Package aPackage = defaultApp.getPackage(balFile.getPackageName());
+                // Get the existing application associated with this ballerina config
+                Application app = ApplicationRegistry.getInstance().getApplication(file.getName());
+                if (app == null) {
+                    // Create a new application with ballerina file name, if there is no app currently exists.
+                    app = new Application(file.getName());
+                    ApplicationRegistry.getInstance().registerApplication(app);
+                }
+                
+                Package aPackage = app.getPackage(file.getName());
                 if (aPackage == null) {
                     // check if package name is null
                     if (balFile.getPackageName() != null) {
@@ -167,12 +180,13 @@ public class BalDeployer implements Deployer {
                     } else {
                         aPackage = new Package("default");
                     }
-                    defaultApp.addPackage(aPackage);
+                    app.addPackage(aPackage);
+
                 }
                 aPackage.addFiles(balFile);
                 ApplicationRegistry.getInstance().updatePackage(aPackage);
 
-                log.info("Deploying ballerina file : " + file.getName());
+                log.info("Deployed ballerina file : " + file.getName());
             }
         } catch (IOException e) {
             log.error("Error while creating Ballerina object model from file : " + file.getName(), e);
@@ -187,6 +201,22 @@ public class BalDeployer implements Deployer {
             }
         }
     }
+
+    /**
+     * Undeploy a service registered through a ballerina file.
+     * 
+     * @param fileName  Name of the ballerina file
+     */
+    private void undeployBalFile(String fileName) {
+        Application app = ApplicationRegistry.getInstance().getApplication(fileName);
+        if (app == null) {
+            log.warn("Could not find service to undeploy: " + fileName + ".");
+            return;
+        }
+        ApplicationRegistry.getInstance().unregisterApplication(app);
+        log.info("Undeployed ballerina file : " + fileName);
+    }
+    
 
     private static void linkAndRunMainFunction(BallerinaFile bFile) {
 

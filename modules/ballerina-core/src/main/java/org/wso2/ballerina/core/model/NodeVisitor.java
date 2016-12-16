@@ -49,7 +49,7 @@ public interface NodeVisitor {
 
     void visit(Service service);
 
-    void visit(Connector connector);
+    void visit(BallerinaConnector connector);
 
     void visit(Resource resource);
 
