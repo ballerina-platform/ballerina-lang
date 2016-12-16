@@ -138,6 +138,10 @@ do
           CMD="--debug"
     elif [ "$CMD" = "--debug" ] && [ -z "$PORT" ]; then
           PORT=$c
+    elif [ "$c" = "--bargs" ] || [ "$c" = "-bargs" ] || [ "$c" = "bargs" ]; then
+          CMD="--bargs" 
+    elif [ "$CMD" = "--bargs" ] && [ -z "$BARGS" ]; then
+          BARGS=$c
     elif [ "$c" = "--stop" ] || [ "$c" = "-stop" ] || [ "$c" = "stop" ]; then
           CMD="stop"
     elif [ "$c" = "--start" ] || [ "$c" = "-start" ] || [ "$c" = "start" ]; then
@@ -266,6 +270,13 @@ if [ "$SUB_CMD" = "run-this" ]; then
    fi
   JAVA_OPTS="$JAVA_OPTS -Dbal-file=$BAL_FILE_NAME"
   echo "Running the Ballerina file $BAL_FILE_NAME"
+fi
+
+if [ "$CMD" = "--bargs" ]; then
+  if [[ "$BARGS" != " " ]]; then
+  JAVA_OPTS="$JAVA_OPTS -Dbal-args=$BARGS"
+  echo "Running the Ballerina with arguments $BARGS"
+  fi
 fi
 
 while [ "$status" = "$START_EXIT_STATUS" ]
