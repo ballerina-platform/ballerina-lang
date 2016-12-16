@@ -26,7 +26,7 @@ import org.wso2.ballerina.core.model.Symbol;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.builder.BLangModelBuilder;
 import org.wso2.ballerina.core.model.util.SymbolUtils;
-import org.wso2.ballerina.core.nativeimpl.lang.system.Println;
+import org.wso2.ballerina.core.nativeimpl.connectors.http.Post;
 import org.wso2.ballerina.core.parser.BallerinaLexer;
 import org.wso2.ballerina.core.parser.BallerinaParser;
 import org.wso2.ballerina.core.parser.antlr4.BLangAntlr4Listener;
@@ -46,8 +46,7 @@ public class TestUtils {
 
         ANTLRInputStream antlrInputStream = null;
         try {
-            antlrInputStream = new ANTLRInputStream(
-                    new FileInputStream(fileResource.getFile()));
+            antlrInputStream = new ANTLRInputStream(new FileInputStream(fileResource.getFile()));
         } catch (IOException e) {
             throw new RuntimeException("Unable read file: " + path, e);
         }
@@ -62,7 +61,7 @@ public class TestUtils {
 
         ballerinaParser.addParseListener(langModelBuilder);
         ballerinaParser.compilationUnit();
-//        ballerinaParser.setErrorHandler();
+        //        ballerinaParser.setErrorHandler();
 
         // Get the model for source file
         BallerinaFile bFile = modelBuilder.build();
@@ -71,16 +70,19 @@ public class TestUtils {
         SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(bFile);
         bFile.accept(semanticAnalyzer);
 
-
         // Create a global symbol scope
         SymScope symScope = new SymScope(null);
-        Println println = new Println();
-        SymbolName symbolName = SymbolUtils.generateSymbolName(
-                "ballerina.lang.system:println",
-                println.getParameters());
+        //        Println println = new Println();
+        //        SymbolName symbolName = SymbolUtils.generateSymbolName(
+        //                "ballerina.lang.system:println",
+        //                println.getParameters());
+        //
+        //        Symbol symbol = new Symbol(println,
+        //                SymbolUtils.getTypesOfParams(println.getParameters()), println.getReturnTypesC());
 
-        Symbol symbol = new Symbol(println,
-                SymbolUtils.getTypesOfParams(println.getParameters()), println.getReturnTypesC());
+        Post post = new Post();
+        SymbolName symbolName = SymbolUtils.generateSymbolName("ballerina.net.http:post", post.getParameters());
+        Symbol symbol = new Symbol(post, SymbolUtils.getTypesOfParams(post.getParameters()), post.getReturnTypesC());
 
         symScope.insert(symbolName, symbol);
 

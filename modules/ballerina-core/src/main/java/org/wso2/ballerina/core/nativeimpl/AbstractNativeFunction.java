@@ -59,6 +59,8 @@ public abstract class AbstractNativeFunction implements NativeConstruct, Functio
     private List<Const> constants;
     private int stackFrameSize = 1;
 
+
+
     public AbstractNativeFunction() {
         parameters = new ArrayList<>();
         returnTypes = new ArrayList<>();
@@ -179,13 +181,6 @@ public abstract class AbstractNativeFunction implements NativeConstruct, Functio
         return isPublicFunction;
     }
 
-    public int getStackFrameSize() {
-        return stackFrameSize;
-    }
-
-    public void setStackFrameSize(int stackFrameSize) {
-        this.stackFrameSize = stackFrameSize;
-    }
 
     @Override
     public void interpret(Context context) {
@@ -210,7 +205,7 @@ public abstract class AbstractNativeFunction implements NativeConstruct, Functio
      * Util method to construct BValue array.
      *
      * @param values
-     * @return
+     * @return BValue
      */
     public BValue[] getBValues(BValue... values) {
         return values;
@@ -221,4 +216,13 @@ public abstract class AbstractNativeFunction implements NativeConstruct, Functio
         return constants.toArray(new Const[constants.size()]);
     }
 
+    @Override
+    public int getStackFrameSize() {
+        return stackFrameSize;
+    }
+
+    @Override
+    public void setStackFrameSize(int stackFrameSize) {
+        this.stackFrameSize = stackFrameSize;
+    }
 }

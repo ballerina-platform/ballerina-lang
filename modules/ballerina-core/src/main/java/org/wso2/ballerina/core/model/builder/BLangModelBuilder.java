@@ -28,6 +28,7 @@ import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.VariableDcl;
+import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.AddExpression;
 import org.wso2.ballerina.core.model.expressions.AndExpression;
 import org.wso2.ballerina.core.model.expressions.BasicLiteral;
@@ -295,7 +296,12 @@ public class BLangModelBuilder {
     }
 
     public void createActionInvocationExpr() {
+        CallableUnitInvocationExprBuilder cIExprBuilder = new CallableUnitInvocationExprBuilder();
+        cIExprBuilder.setExpressionList(exprListStack.pop());
+        cIExprBuilder.setName(symbolNameStack.pop());
 
+        ActionInvocationExpr invocationExpr = cIExprBuilder.buildActionInvocExpr();
+        exprStack.push(invocationExpr);
     }
 
     // Functions, Actions and Resources

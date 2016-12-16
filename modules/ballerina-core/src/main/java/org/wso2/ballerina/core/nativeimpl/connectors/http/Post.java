@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Connector;
 import org.wso2.ballerina.core.model.types.TypeEnum;
+import org.wso2.ballerina.core.model.values.BValueRef;
 import org.wso2.ballerina.core.model.values.ConnectorValue;
 import org.wso2.ballerina.core.model.values.MessageValue;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
@@ -57,6 +58,8 @@ public class Post extends AbstractNativeAction {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Post.class);
 
+    private static  final String ASSOCIATES_CONNECTOR_TYPE = "http";
+
     /**
      * Constructing HTTP Post method
      */
@@ -65,7 +68,7 @@ public class Post extends AbstractNativeAction {
     }
 
     @Override
-    public void execute(Context context) {
+    public BValueRef execute(Context context) {
         LOGGER.debug("Executing Native Action Post ....");
         ConnectorValue connectorValue = (ConnectorValue) getArgument(context, 0).getBValue();
         String path = getArgument(context, 1).getString();
@@ -80,7 +83,7 @@ public class Post extends AbstractNativeAction {
 
         } else {
             LOGGER.error("Cannot find Connector");
-            return;
+            return null;
         }
 
         processRequest(message, uri);
@@ -88,9 +91,14 @@ public class Post extends AbstractNativeAction {
         try {
             BalConnectorCallback balConnectorCallback = new BalConnectorCallback(context);
             ServiceContextHolder.getInstance().getSender().send(message, balConnectorCallback);
+            while (!balConnectorCallback.responseArrvied) {
+                LOGGER.debug("Waiting for response");
+            }
+            return balConnectorCallback.valueRef;
         } catch (MessageProcessorException e) {
             LOGGER.error("Cannot Send Message to Endpoint ", e);
         }
+        return null;
     }
 
     private void processRequest(CarbonMessage cMsg, String uri) {
@@ -121,5 +129,8 @@ public class Post extends AbstractNativeAction {
             cMsg.getHeaders().set(Constants.HOST, host);
         }
     }
-
+    @Override
+    public  String getAssociatesConnectorType() {
+        return ASSOCIATES_CONNECTOR_TYPE;
+    }
 }

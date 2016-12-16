@@ -18,6 +18,7 @@
 package org.wso2.ballerina.core.model.builder;
 
 import org.wso2.ballerina.core.model.SymbolName;
+import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.Expression;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 
@@ -51,5 +52,9 @@ class CallableUnitInvocationExprBuilder {
 
     FunctionInvocationExpr buildFuncInvocExpr() {
         return new FunctionInvocationExpr(name, expressionList.toArray(new Expression[expressionList.size()]));
+    }
+
+    ActionInvocationExpr buildActionInvocExpr() {
+        return new ActionInvocationExpr(name, expressionList.toArray(new Expression[expressionList.size()]));
     }
 }
