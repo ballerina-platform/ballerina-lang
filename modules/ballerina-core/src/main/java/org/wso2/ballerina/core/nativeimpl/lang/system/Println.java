@@ -29,15 +29,17 @@ import java.io.PrintStream;
 
 /**
  * Native function ballerina.lang.system:println
+ *
+ * @since 1.0.0
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.system",
-        functionName = "print",
+        functionName = "println",
         args = {@Argument(name = "string", type = TypeEnum.STRING)},
         isPublic = true
 )
 @Component(
-        name = "func.lang.system_println",
+        name = "native.func.ballerina.lang.system.print",
         immediate = true,
         service = AbstractNativeFunction.class
 )
