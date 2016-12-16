@@ -15,7 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3utils', 'property_pane_utils'], function (require, _, log, StatementVisitor, d3, D3Utils, PropertyPaneUtils) {
+define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3utils', 'property_pane_utils', './point', './bounding-box'],
+    function (require, _, log, StatementVisitor, d3, D3Utils, PropertyPaneUtils, Point, BBox) {
 
     /**
      * A common class which consists functions of moving or resizing views.
@@ -30,11 +31,13 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
         this.toolPalette = _.get(args, "toolPalette");
         this.messageManager = _.get(args, "messageManager");
         this._statementGroup = undefined;
-        this._width = 0;
-        this._height = 0;
-        this._xPosition = 0;
-        this._yPosition = 0;
         this._childrenViewsList = [];
+        this._topCenter = _.has(args, "topCenter") ? _.get(args, 'topCenter').clone() : new Point(0,0);
+        this._boundingBox = new  BBox();
+        var self = this;
+        this._topCenter.on("moved", function(offset){
+            self._bottomCenter(offset.dx, offset.dy);
+        });
         StatementVisitor.call(this);
         this.init();
     };
@@ -55,36 +58,13 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
     BallerinaStatementView.prototype.childViewAddedCallback = function (child) {
     };
 
-    BallerinaStatementView.prototype.setWidth = function (newWidth) {
-        this._width = newWidth;
-    };
-    BallerinaStatementView.prototype.setHeight = function (newHeight) {
-        this._height = newHeight;
-    };
-    BallerinaStatementView.prototype.setXPosition = function (xPosition) {
-        this._xPosition = xPosition;
-    };
-    BallerinaStatementView.prototype.setYPosition = function (yPosition) {
-        this._yPosition = yPosition;
-    };
-    BallerinaStatementView.prototype.getWidth = function () {
-        return this._width;
-    };
-    BallerinaStatementView.prototype.getHeight = function () {
-        return this._height;
-    };
-    BallerinaStatementView.prototype.getXPosition = function () {
-        return this._xPosition;
-    };
-    BallerinaStatementView.prototype.getYPosition = function () {
-        return this._yPosition;
-    };
     BallerinaStatementView.prototype.setParent = function (parent) {
         this._parent = parent;
     };
     BallerinaStatementView.prototype.getParent = function () {
         return this._parent;
     };
+
     BallerinaStatementView.prototype.getStatementGroup = function () {
         return this._statementGroup;
     };
@@ -112,8 +92,8 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
         this._diagramRenderingContext.getViewModelMap()[statement.id] = statementView;
         this._childrenViewsList.push(statementView);
         var statementWidthDefault = 120;
-        var x = this.getBoundingBox().x + this.getBoundingBox().width/2 - statementWidthDefault/2;
-        statementView.setBoundingBox(0, 0, x, this.getBoundingBox().y + 30);
+        var x = this.().x + this.getBoundingBox().w()/2 - statementWidthDefault/2;
+        statementView.getBoundingBox().w(0).h(0).x(x).y(this.getBoundingBox().y + 30);
         statementView.render(this._diagramRenderingContext);
     };
 
@@ -128,7 +108,6 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
         expressionView.setYPosition(this.getYPosition() + 30);
         expressionView.render(this._diagramRenderingContext);
     };
-
 
     BallerinaStatementView.prototype._createPropertyPane = function (args) {
         var viewOptions = _.get(args, "viewOptions", {});
@@ -348,11 +327,6 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
             });
 
         }.bind(statementGroup.node(), this));
-    };
-
-    BallerinaStatementView.prototype.setBoundingBox = function (width, height, x, y) {
-        if (!_.isNil(width) || !_.isNil(height) || !_.isNil(x) || !_.isNil(y))
-            this._boundingBox = {"width": width, "height": height, "x": x, "y": y};
     };
 
     BallerinaStatementView.prototype.getBoundingBox = function () {

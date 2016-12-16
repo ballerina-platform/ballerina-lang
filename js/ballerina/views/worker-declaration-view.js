@@ -83,62 +83,6 @@ define(['lodash', 'jquery', './ballerina-view', './../ast/worker-declaration', '
 
         /**
          * @inheritDoc
-         */
-        WorkerDeclarationView.prototype.setWidth = function (newWidth) {
-            // TODO : Implement
-        };
-
-        /**
-         * @inheritDoc
-         */
-        WorkerDeclarationView.prototype.setHeight = function (newHeight) {
-            // TODO : Implement
-        };
-
-        /**
-         * @inheritDoc
-         */
-        WorkerDeclarationView.prototype.setXPosition = function (xPosition) {
-            // TODO : Implement
-        };
-
-        /**
-         * @inheritDoc
-         */
-        WorkerDeclarationView.prototype.setYPosition = function (yPosition) {
-            // TODO : Implement
-        };
-
-        /**
-         * @inheritDoc
-         */
-        WorkerDeclarationView.prototype.getWidth = function () {
-            // TODO : Implement
-        };
-
-        /**
-         * @inheritDoc
-         */
-        WorkerDeclarationView.prototype.getHeight = function () {
-            // TODO : Implement
-        };
-
-        /**
-         * @inheritDoc
-         */
-        WorkerDeclarationView.prototype.getXPosition = function () {
-            // TODO : Implement
-        };
-
-        /**
-         * @inheritDoc
-         */
-        WorkerDeclarationView.prototype.getYPosition = function () {
-            // TODO : Implement
-        };
-
-        /**
-         * @inheritDoc
          * return {_workerLifeLine}
          */
         WorkerDeclarationView.prototype.getWorkerLifeLine = function () {

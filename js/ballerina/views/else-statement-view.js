@@ -119,19 +119,6 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
         ElseStatementView.prototype.childVisitedCallback = function (child) {
             var childView = this._diagramRenderingContext.getViewModelMap()[child.id];
             var childBoundingBox = childView.getBoundingBox();
-            this.getParent().changeChildrenMetrics(childBoundingBox);
-        };
-
-        ElseStatementView.prototype.changeMetricsCallback = function (childBoundingBox) {
-
-            var parentBoundingBox = this.getParent().getBoundingBox();
-            this.getStatementGroup().outerRect.attr('width', parentBoundingBox.width);
-            this.getStatementGroup().outerRect.attr('height', childBoundingBox.height + 40);
-            this.getStatementGroup().outerRect.attr('x', parentBoundingBox.x);
-            this.getStatementGroup().titleRect.attr('x', parentBoundingBox.x);
-            this.getStatementGroup().titleText.attr('x', parentBoundingBox.x + 20);
-
-            this.setBoundingBox(parentBoundingBox.width, parentBoundingBox.height, parentBoundingBox.x, parentBoundingBox.y);
         };
 
         return ElseStatementView;

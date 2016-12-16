@@ -44,15 +44,15 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
         IfStatementView.prototype.render = function (diagramRenderingContext) {
             this._diagramRenderingContext = diagramRenderingContext;
             var ifGroup = D3Utils.group(this._container);
-            var x = this.getParent().getBoundingBox().x;
-            var y = this.getParent().getBoundingBox().y;
+            var x = this.getParent().getBoundingBox().x();
+            var y = this.getParent().getBoundingBox().y();
             var width = 120;
             var height = 60;
             var outer_rect = D3Utils.rect(x, y, width, 60, 0, 0, ifGroup).classed('statement-rect', true);
             var title_rect = D3Utils.rect(x, y, 40, 20, 0, 0, ifGroup).classed('statement-rect', true);
             var title_text = D3Utils.textElement(x + 20, y + 10, 'If', ifGroup).classed('statement-text', true);
             // Set the bounding box of the parent (If-else-statement wrapper view)
-            this.getParent().setBoundingBox(width, height + this.getParent().getBoundingBox().height, x, y);
+            this.getParent().setBoundingBox(width, height + this.getParent().getBoundingBox().h(), x, y);
             this.setBoundingBox(width, height, x, y);
             ifGroup.outerRect = outer_rect;
             ifGroup.titleRect = title_rect;

@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statement-view', './../ast/if-else-statement', 'd3utils', 'd3', 'jquery', './../ast/if-statement', './../ast/if-else-statement'],
-    function (require, _, log, PropertyPaneUtils, BallerinaStatementView, IfElseStatement, D3Utils, d3, $, IfStatement, IfElseStatement) {
+define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statement-view', './../ast/if-else-statement', 'd3utils', 'd3', 'jquery', './../ast/if-statement'],
+    function (require, _, log, PropertyPaneUtils, BallerinaStatementView, IfElseStatement, D3Utils, d3, $, IfStatement) {
 
         /**
          * The view to represent a If Else statement which is an AST visitor.
@@ -74,10 +74,6 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
             this._ifBlockView = statementView;
             this._diagramRenderingContext.getViewModelMap()[statement.id] = statementView;
             statementView.render(this._diagramRenderingContext);
-
-            //adjust if-else statement's height
-            // this._totalHeight = this._totalHeight + statementView.getBoundingBox().height;
-            // this.setIfElseStatementHeight(this._totalHeight);
             this.trigger("childViewAddedEvent", statement);
         };
 
@@ -189,15 +185,6 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
             this._viewOptions = viewOptions;
         };
 
-
-        /**
-         * setting the height for the bounding box
-         * @param height
-         */
-        IfElseStatementView.prototype.setIfElseStatementHeight = function (height){
-            // this.setBoundingBox(this.getBoundingBox().width, height, this.getBoundingBox().x, this.getBoundingBox().y);
-        };
-
         /**
          * @returns {_model}
          */
@@ -236,19 +223,6 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
         IfElseStatementView.prototype.getLastElseIf = function () {
             return this._elseIfViews[this._elseIfViews.length - 1];
         };
-
-        IfElseStatementView.prototype.changeChildrenMetrics = function (childBoundingBox) {
-            var currentX = this.getBoundingBox().x;
-            var currentY = this.getBoundingBox().y;
-            var currentWidth = this.getBoundingBox().width;
-            var currentHeight = this.getBoundingBox().height;
-
-            if (childBoundingBox.x <= this.getBoundingBox().x) {
-                this.setBoundingBox(currentWidth + 20, currentHeight, currentX - 10, currentY);
-            }
-            this.trigger("changeStatementMetricsEvent", childBoundingBox);
-        };
-
 
         return IfElseStatementView;
     });

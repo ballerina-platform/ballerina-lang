@@ -351,3 +351,13 @@ text-anchor: start;
     stroke: #000000;
     fill: #FFFFFF;
 }
+
+.statement-container .main-drop-zone{
+    fill-opacity: 0;
+    fill: #008000;
+    stroke-width: 0;
+}
+
+.statement-container .main-drop-zone-hover{
+    fill-opacity: 0.2;
+}

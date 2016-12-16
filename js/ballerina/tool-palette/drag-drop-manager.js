@@ -75,16 +75,18 @@ define(['log', 'lodash', 'backbone'], function (log, _, Backbone) {
             this.set('validateDropTargetCallback', undefined);
             this.set('activatedDropTarget', undefined);
             this.set('validateDropSourceCallback', undefined);
+            this.set('getDroppedNodeIndexCallBack', undefined);
         },
 
         /**
          * Register a drop target once activated.
          *
          * @param activatedDropTarget {ASTNode} Node which is currently accepting drops.
-         * @param validateDropSourceCallback {DragDropManager~validateDropSourceCallback}
+         * @param [validateDropSourceCallback] {DragDropManager~validateDropSourceCallback}
+         * @param [getDroppedNodeIndexCallBack] {DragDropManager~getDroppedNodeIndex}
          * @fires DragDropManager#drop-target-changed
          */
-        setActivatedDropTarget: function (activatedDropTarget, validateDropSourceCallback) {
+        setActivatedDropTarget: function (activatedDropTarget, validateDropSourceCallback, getDroppedNodeIndexCallBack) {
             if (!_.isUndefined(activatedDropTarget)) {
                 if (!_.isEqual(activatedDropTarget, this.get('activatedDropTarget'))){
                     /**
@@ -98,6 +100,9 @@ define(['log', 'lodash', 'backbone'], function (log, _, Backbone) {
             if (!_.isUndefined(validateDropSourceCallback)) {
                 this.set('validateDropSourceCallback', validateDropSourceCallback);
             }
+            if (!_.isUndefined(getDroppedNodeIndexCallBack)) {
+                this.set('getDroppedNodeIndexCallBack', getDroppedNodeIndexCallBack);
+            }
         },
 
         /**
@@ -109,11 +114,29 @@ define(['log', 'lodash', 'backbone'], function (log, _, Backbone) {
          */
 
         /**
+         * This callback will tell drag drop manager a index where node was dropped and should be added to in child array
+         * @callback DragDropManager~getDroppedNodeIndex
+         * @param {ASTNode} - Node which was dropped
+         * @return {int} flag indicating whether it passed the validations or not.
+         */
+
+        /**
          * Gets currently the node currently being dragged.
          * @return {ASTNode}
          */
         getActivatedDropTarget: function () {
              return this.get('activatedDropTarget');
+        },
+
+        /**
+         * Gets index of currently dropped element.
+         * @return {number} index
+         */
+        getDroppedNodeIndex: function () {
+             if(this.isAtValidDropTarget() && _.isFunction(this.get('getDroppedNodeIndexCallBack'))){
+                 return this.get('getDroppedNodeIndexCallBack')(this.getTypeBeingDragged());
+             }
+             return -1;
         },
 
         /**

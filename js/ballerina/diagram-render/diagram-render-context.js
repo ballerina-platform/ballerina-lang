@@ -35,5 +35,21 @@ define([], function () {
         return this.viewModelMap;
     };
 
+    /**
+     * get view for node
+     * @returns {{}|*}
+     */
+    DiagramRenderContext.prototype.getViewOfModel = function (model) {
+        return _.get(this.viewModelMap, model.id);
+    };
+
+    /**
+     * set view of node
+     * @returns {{}|*}
+     */
+    DiagramRenderContext.prototype.setViewOfModel = function (model, view) {
+        return _.set(this.viewModelMap, model.id, view);
+    };
+
     return DiagramRenderContext;
 });

@@ -83,65 +83,9 @@ define(['lodash', 'log', './ballerina-view', './../ast/throw-statement', 'd3util
          * @returns {Object} - The svg group which the throw statement view resides in.
          */
         ThrowStatementView.prototype.render = function () {
-            var group = D3Utilsgroup(this._container);
+            var group = D3Utils.group(this._container);
             log.info("Rendering the throw Statement.");
             return group;
-        };
-
-        /**
-         * @inheritDoc
-         */
-        ThrowStatementView.prototype.setWidth = function (newWidth) {
-            // TODO : Implement
-        };
-
-        /**
-         * @inheritDoc
-         */
-        ThrowStatementView.prototype.setHeight = function (newHeight) {
-            // TODO : Implement
-        };
-
-        /**
-         * @inheritDoc
-         */
-        ThrowStatementView.prototype.setXPosition = function (xPosition) {
-            // TODO : Implement
-        };
-
-        /**
-         * @inheritDoc
-         */
-        ThrowStatementView.prototype.setYPosition = function (yPosition) {
-            // TODO : Implement
-        };
-
-        /**
-         * @inheritDoc
-         */
-        ThrowStatementView.prototype.getWidth = function () {
-            // TODO : Implement
-        };
-
-        /**
-         * @inheritDoc
-         */
-        ThrowStatementView.prototype.getHeight = function () {
-            // TODO : Implement
-        };
-
-        /**
-         * @inheritDoc
-         */
-        ThrowStatementView.prototype.getXPosition = function () {
-            // TODO : Implement
-        };
-
-        /**
-         * @inheritDoc
-         */
-        ThrowStatementView.prototype.getYPosition = function () {
-            // TODO : Implement
         };
 
         return ThrowStatementView;

@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor', './../ast/node', 'app/diagram-core/models/point'],
-    function (_, log, $, d3, D3Utils, ASTVisitor) {
+define(['lodash', 'log', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor', './../ast/node', 'app/diagram-core/models/point', './bounding-box'],
+    function (_, log, $, d3, D3Utils, ASTVisitor, BBox) {
 
         /**
          * A common class which consists functions of moving or resizing views.
@@ -32,6 +32,7 @@ define(['lodash', 'log', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
             this._model = _.get(args, "model");
             this._container = _.get(args, "container");
             this._viewOptions = _.get(args, "viewOptions", {});
+            this._boundingBox = new BBox();
             this.toolPalette = _.get(args, "toolPalette");
             this.messageManager =  _.get(args, "messageManager");
             ASTVisitor.call(this, args);
@@ -39,23 +40,6 @@ define(['lodash', 'log', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
 
         BallerinaView.prototype = Object.create(ASTVisitor.prototype);
         BallerinaView.prototype.constructor = BallerinaView;
-
-        BallerinaView.prototype.setWidth = function (newWidth) {
-        };
-        BallerinaView.prototype.setHeight = function (newHeight) {
-        };
-        BallerinaView.prototype.setXPosition = function (xPosition) {
-        };
-        BallerinaView.prototype.setYPosition = function (yPosition) {
-        };
-        BallerinaView.prototype.getWidth = function () {
-        };
-        BallerinaView.prototype.getHeight = function () {
-        };
-        BallerinaView.prototype.getXPosition = function () {
-        };
-        BallerinaView.prototype.getYPosition = function () {
-        };
 
         BallerinaView.prototype.setParent = function (parent) {
             this._parent = parent;
@@ -324,6 +308,10 @@ define(['lodash', 'log', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
         BallerinaView.prototype.childViewRemovedCallback = function (child) {
             log.info("[Eventing] Child element view removed. ");
             //TODO: logic to remove each element from each container
+        };
+
+        BallerinaView.prototype.getBoundingBox = function () {
+            return this._boundingBox;
         };
 
         return BallerinaView;

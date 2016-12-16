@@ -145,6 +145,15 @@ define(['require', 'event_channel', 'lodash'], function(require, EventChannel, _
         return require('./ballerina-ast-factory');
     };
 
+    /**
+     * Get index of child.
+     * @param {ASTNode}
+     * @return {number}
+     */
+    ASTNode.prototype.getIndexOfChild  = function(child) {
+        return _.findIndex(this.children, ['id', child.id]);
+    };
+
     // Auto generated Id for service definitions (for accordion views)
     var uuid =  function (){
         function s4() {

@@ -17,10 +17,10 @@
  */
 define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../ast/resource-definition',
         './default-worker', './point', './connector-declaration-view',
-        './statement-view-factory', 'ballerina/ast/ballerina-ast-factory', './expression-view-factory','./message'],
+        './statement-view-factory', 'ballerina/ast/ballerina-ast-factory', './expression-view-factory','./message', './statement-container'],
     function (_, log, d3, $, D3utils, BallerinaView, ResourceDefinition,
               DefaultWorkerView, Point, ConnectorDeclarationView, StatementViewFactory, BallerinaASTFactory, ExpressionViewFactory,
-                MessageView) {
+                MessageView, StatementContainer) {
 
         /**
          * The view to represent a resource definition which is an AST visitor.
@@ -50,14 +50,14 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             }
 
             // Center point of the resource
-            this._viewOptions.centerPoint = _.get(args, "viewOptions.centerPoint", new Point(50, 100));
+            this._viewOptions.topLeft = _.get(args, "viewOptions.topLeft", new Point(50, 100));
             this._viewOptions.startActionOffSet = _.get(args, "viewOptions.startActionOffSet", 60);
 
             // Center point of the default worker
             this._viewOptions.defaultWorker = _.get(args, "viewOptions.defaultWorker", {});
             this._viewOptions.defaultWorker.offsetTop = _.get(args, "viewOptions.defaultWorker.offsetTop", 50);
             this._viewOptions.defaultWorker.center = _.get(args, "viewOptions.defaultWorker.centerPoint",
-                            this._viewOptions.centerPoint.clone().move(160, 60));
+                            this._viewOptions.topLeft.clone().move(160, 60));
 
             // View options for height and width of the heading box.
             this._viewOptions.heading = _.get(args, "viewOptions.heading", {});
@@ -179,11 +179,6 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             this._startActionGroup = group;
         };
 
-        ResourceDefinitionView.prototype.setBoundingBox = function (width, height, x, y) {
-            if (!_.isNil(width) || !_.isNil(height) || !_.isNil(x) || !_.isNil(y))
-                this._boundingBox = {"width": width, "height": height, "x": x, "y": y};
-        };
-
         ResourceDefinitionView.prototype.getModel = function () {
             return this._model;
         };
@@ -196,41 +191,13 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             return this._viewOptions;
         };
 
-        ResourceDefinitionView.prototype.getBoundingBox = function () {
-            return this._boundingBox;
-        };
-
         /**
          * @param {BallerinaStatementView} statement
          */
         ResourceDefinitionView.prototype.visitStatement = function (statement) {
-            //var statementViewFactory = new StatementViewFactory();
-            //var args = {model: statement, container: this._contentGroup.node(), viewOptions: undefined,
-            //    toolPalette: this.toolPalette,messageManager: this.messageManager, parent:this};
-            //var statementView = statementViewFactory.getStatementView(args);
-            //this.diagramRenderingContext.getViewModelMap()[statement.id] = statementView;
-            //statementView.setParent(this);
-            //if(statement.getFactory().isActionInvocationStatement(statement)){
-            //    var connectorDeclarationView = this.diagramRenderingContext.getViewModelMap()[statement.getConnector().id];
-            //}
-            //
-            //// TODO: we need to keep this value as a configurable value and read from constants
-            //var statementsGap = 40;
-            //var statementsWidth = 120;
-            //if (this._statementExpressionViewList.length > 0) {
-            //    var lastStatement = this._statementExpressionViewList[this._statementExpressionViewList.length - 1];
-            //    statementView.setXPosition(lastStatement.getXPosition());
-            //    statementView.setYPosition(lastStatement.getYPosition() + lastStatement.getHeight() + statementsGap);
-            //} else {
-            //    var defaultWorkerTopCenter = this._defaultWorker.getTopCenter();
-            //    var x = defaultWorkerTopCenter.x() - parseInt(statementsWidth/2);
-            //    var y = defaultWorkerTopCenter.y() + this._viewOptions.defaultWorker.offsetTop;
-            //    statementView.setXPosition(x);
-            //    statementView.setYPosition(y + statementsGap);
-            //}
-            //this.diagramRenderingContext.getViewModelMap()[statement.id] = statementView;
-            //this._statementExpressionViewList.push(statementView);
-            //statementView.render(this.diagramRenderingContext);
+            //var args = {model: statement, container: this._contentGroup.node(), viewOptions: {},
+            //    toolPalette: this.toolPalette, messageManager: this.messageManager, parent: this};
+            //this._statementContainer.renderStatement(statement, args);
         };
 
         ResourceDefinitionView.prototype.visitExpression = function (statement) {
@@ -263,9 +230,13 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             // Render resource view
             var svgContainer = $(this._container)[0];
 
-            var headingStart = new Point(this._viewOptions.centerPoint.x(), this._viewOptions.centerPoint.y());
-            var contentStart = new Point(this._viewOptions.centerPoint.x(),
-                this._viewOptions.centerPoint.y() + this._viewOptions.heading.height);
+            // initialize bounding box
+            this.getBoundingBox().fromTopLeft(this._viewOptions.topLeft, this._viewOptions.heading.width, this._viewOptions.heading.height
+                + this._viewOptions.contentHeight);
+
+            var headingStart = new Point(this._viewOptions.topLeft.x(), this._viewOptions.topLeft.y());
+            var contentStart = new Point(this._viewOptions.topLeft.x(),
+                this._viewOptions.topLeft.y() + this._viewOptions.heading.height);
             //Main container for a resource
             var resourceGroup = D3utils.group(svgContainer);
             this._resourceGroup = resourceGroup;
@@ -273,9 +244,6 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             resourceGroup.attr("width", this._viewOptions.heading.width)
                 .attr("height", this._viewOptions.heading.height + this._viewOptions.contentHeight);
             resourceGroup.attr("x", headingStart.x()).attr("y", contentStart.y());
-
-            this.setBoundingBox(this._viewOptions.heading.width, this._viewOptions.heading.height
-                + this._viewOptions.contentHeight, headingStart.x(), contentStart.y());
 
             // Resource related definitions: resourceIcon,collapseIcon
             var def = resourceGroup.append("defs");
@@ -364,15 +332,33 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 this._defaultWorker = new DefaultWorkerView(defaultWorkerOpts);
             }
             this._defaultWorker.render();
-            log.debug("Rendering Resource View");
-            this.getModel().accept(this);
+
             this.initResourceLevelDropTarget();
             this.renderStartAction();
+            this.renderStatementContainer();
+            log.debug("Rendering Resource View");
+            this.getModel().accept(this);
             var self = this;
             this._model.on('child-added', function(child){
                 self.visit(child);
             });
         };
+
+        /**
+         * Render statement container
+         */
+        ResourceDefinitionView.prototype.renderStatementContainer = function(){
+            var statementContainerOpts = {};
+            _.set(statementContainerOpts, 'model', this._model);
+            _.set(statementContainerOpts, 'topCenter', this._defaultWorker.getTopCenter());
+            _.set(statementContainerOpts, 'bottomCenter', this._defaultWorker.getBottomCenter());
+            _.set(statementContainerOpts, 'width', this._defaultWorker.width());
+            _.set(statementContainerOpts, 'container', this._defaultWorker.getContentArea().node());
+            _.set(statementContainerOpts, 'toolPalette', this.toolPalette);
+            this._statementContainer = new StatementContainer(statementContainerOpts);
+            this._statementContainer.render(this.diagramRenderingContext);
+        };
+
 
         ResourceDefinitionView.prototype.initResourceLevelDropTarget = function(){
             var self = this,
@@ -480,7 +466,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             this._resourceGroup.attr("height", height);
             this._contentRect.attr("height", height);
             this._defaultWorker.setHeight(height - this._viewOptions.totalHeightGap);
-            this.setBoundingBox(this.getBoundingBox().width, height, this.getBoundingBox().x, this.getBoundingBox().y);
+            this.getBoundingBox().h(height);
         };
 
         ResourceDefinitionView.prototype.getLastLifeLine = function () {

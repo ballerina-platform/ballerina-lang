@@ -32,8 +32,14 @@ define(['log', 'jquery', 'd3', 'backbone', 'lodash', 'd3utils'], function (log, 
             var toolView = this;
             return function (event, ui) {
                 if(toolView.toolPalette.dragDropManager.isAtValidDropTarget()){
-                    toolView.toolPalette.dragDropManager.getActivatedDropTarget()
-                        .addChild(toolView.toolPalette.dragDropManager.getTypeBeingDragged());
+                    if(toolView.toolPalette.dragDropManager.getDroppedNodeIndex() >= 0){
+                        toolView.toolPalette.dragDropManager.getActivatedDropTarget()
+                            .addChild(toolView.toolPalette.dragDropManager.getTypeBeingDragged(),
+                                toolView.toolPalette.dragDropManager.getDroppedNodeIndex());
+                    } else {
+                        toolView.toolPalette.dragDropManager.getActivatedDropTarget()
+                            .addChild(toolView.toolPalette.dragDropManager.getTypeBeingDragged());
+                    }
                 }
                 toolView.toolPalette.dragDropManager.reset();
                 toolView._$disabledIcon = undefined;

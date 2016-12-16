@@ -74,6 +74,10 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         return this._topCenter.x();
     };
 
+    LifeLineView.prototype.width = function () {
+        return this._topPolygon.attr('width');
+    };
+
     LifeLineView.prototype.render = function () {
         this.renderMiddleLine();
         this.renderTopPolygon();
@@ -99,6 +103,10 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
 
     LifeLineView.prototype.getTopCenter = function () {
         return this._topCenter;
+    };
+
+    LifeLineView.prototype.getBottomCenter = function () {
+        return this._bottomCenter;
     };
 
     LifeLineView.prototype.renderTopPolygon = function () {
@@ -180,26 +188,11 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
     };
 
     LifeLineView.prototype.renderContentArea = function () {
+        this._contentArea = D3Utils.group(this._rootGroup);
+    };
 
-        //var contentX = this._topCenter.x() +  _.get(this._viewOptions, 'content.offsetX'),
-        //    contentY = this._topCenter.y() +  _.get(this._viewOptions, 'content.offsetY'),
-        //    height = this._topCenter.absDistInYFrom(this._bottomCenter) - (2 *  _.get(this._viewOptions, 'content.offsetY'));
-        //
-        //this._contentRect = D3Utils.rect(contentX, contentY,_.get(this._viewOptions, 'content.width'),
-        //                        height, 0, 0, this._rootGroup);
-        //
-        //this._contentRect.attr('style', 'cursor: pointer');
-        //this._contentRect.attr('fill', "#FFFFFF");
-        //this._contentRect.attr("fill-opacity", 0.01);
-        //
-        //this._contentRect.on('mouseover', function () {
-        //    d3.select(this).attr('fill', "green");
-        //    d3.select(this).attr('fill-opacity', 0.1);
-        //}).on('mouseout', function () {
-        //    d3.select(this).attr('fill', "#FFFFFF");
-        //    d3.select(this).attr("fill-opacity", 0.01);
-        //}).on('mouseup', function (data) {
-        //});
+    LifeLineView.prototype.getContentArea = function () {
+        return this._contentArea;
     };
 
     return LifeLineView;

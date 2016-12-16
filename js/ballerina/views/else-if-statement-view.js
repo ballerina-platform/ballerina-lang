@@ -65,8 +65,8 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
             var outer_rect = D3Utils.rect(x, y, width, height, 0, 0, elseIfGroup).classed('statement-rect', true);
             var title_rect = D3Utils.rect(x, y, 40, 20, 0, 0, elseIfGroup).classed('statement-rect', true);
             var title_text = D3Utils.textElement(x + 20, y + 10, 'Else If', elseIfGroup).classed('statement-text', true);
-            this.setBoundingBox(width, height, x, y);
-            this.getParent().setBoundingBox(width, height + this.getParent().getBoundingBox().height, x, y);
+            this.getBoundingBox().x(x).y(y).w(width).h(height);
+            this.getParent().getBoundingBox().x(x).y(y).w(width).h(height + this.getParent().getBoundingBox().h());
             elseIfGroup.outerRect = outer_rect;
             elseIfGroup.titleRect = title_rect;
             elseIfGroup.titleText = title_text;
@@ -121,42 +121,6 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
 
         ElseIfStatementView.prototype.childVisitedCallback = function (child) {
             var childView = this._diagramRenderingContext.getViewModelMap()[child.id];
-            var childBoundingBox = childView.getBoundingBox();
-            this.getParent().changeChildrenMetrics(childBoundingBox);
-        };
-
-        ElseIfStatementView.prototype.changeMetricsCallback = function (childBoundingBox) {
-            // var dw = 20;
-            // var dh = 20;
-            // var oldX = parseInt(baseMetrics.x);
-            // var oldHeight = parseInt(this.getHeight());
-            // var newHeight = baseMetrics.height + dh/2 + 30;
-            // var newWidth = baseMetrics.width + dw;
-            // var newX = oldX - dw/2;
-            // var newY = baseMetrics.y;
-            //
-            // this.getStatementGroup().outerRect.attr('width', newWidth);
-            // this.getStatementGroup().outerRect.attr('height', newHeight);
-            // this.getStatementGroup().outerRect.attr('x', newX);
-            // this.getStatementGroup().titleRect.attr('x', newX);
-            // this.getStatementGroup().titleText.attr('x', oldX + 20 - dw/2);
-            // this.setWidth(newWidth);
-            // this.setHeight(newHeight);
-            // this.getParent().setWidth(newWidth);
-            // this.getParent().setHeight(this.getParent().getHeight() + newHeight - oldHeight);
-            // this.getParent().setXPosition(newX);
-            // this.getParent().setWidth(newWidth);
-            //
-            // this.setBoundingBox(newWidth, newHeight, newX, newY);
-
-            var parentBoundingBox = this.getParent().getBoundingBox();
-            this.getStatementGroup().outerRect.attr('width', parentBoundingBox.width);
-            this.getStatementGroup().outerRect.attr('height', childBoundingBox.height + 40);
-            this.getStatementGroup().outerRect.attr('x', parentBoundingBox.x);
-            this.getStatementGroup().titleRect.attr('x', parentBoundingBox.x);
-            this.getStatementGroup().titleText.attr('x', parentBoundingBox.x + 20);
-
-            this.setBoundingBox(parentBoundingBox.width, parentBoundingBox.height, parentBoundingBox.x, parentBoundingBox.y);
         };
 
         return ElseIfStatementView;

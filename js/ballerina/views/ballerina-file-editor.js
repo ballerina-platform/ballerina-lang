@@ -286,62 +286,6 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             return sourceGenVisitor.getGeneratedSource();
         };
 
-        /**
-         * @inheritDoc
-         */
-        BallerinaFileEditor.prototype.setWidth = function (newWidth) {
-            // TODO : Implement
-        };
-
-        /**
-         * @inheritDoc
-         */
-        BallerinaFileEditor.prototype.setHeight = function (newHeight) {
-            // TODO : Implement
-        };
-
-        /**
-         * @inheritDoc
-         */
-        BallerinaFileEditor.prototype.setXPosition = function (xPosition) {
-            // TODO : Implement
-        };
-
-        /**
-         * @inheritDoc
-         */
-        BallerinaFileEditor.prototype.setYPosition = function (yPosition) {
-            // TODO : Implement
-        };
-
-        /**
-         * @inheritDoc
-         */
-        BallerinaFileEditor.prototype.getWidth = function () {
-            // TODO : Implement
-        };
-
-        /**
-         * @inheritDoc
-         */
-        BallerinaFileEditor.prototype.getHeight = function () {
-            // TODO : Implement
-        };
-
-        /**
-         * @inheritDoc
-         */
-        BallerinaFileEditor.prototype.getXPosition = function () {
-            // TODO : Implement
-        };
-
-        /**
-         * @inheritDoc
-         */
-        BallerinaFileEditor.prototype.getYPosition = function () {
-            // TODO : Implement
-        };
-
         return BallerinaFileEditor;
     });
 

@@ -260,10 +260,10 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
             // If more than 1 resource
             if (this.getResourceViewList().length > 0) {
                 var prevView = this.getResourceViewList().pop(this.getResourceViewList().length - 1);
-                var prevResourceHeight = prevView.getBoundingBox().height;
-                var prevResourceY = prevView.getBoundingBox().y;
-                var newCenterPointY = prevResourceHeight + prevResourceY + 10;
-                var viewOpts = { centerPoint:new Point(50, newCenterPointY)};
+                var prevResourceHeight = prevView.getBoundingBox().h();
+                var prevResourceY = prevView.getBoundingBox().y();
+                var newY = prevResourceHeight + prevResourceY + 10;
+                var viewOpts = { topLeft: new Point( 50, newY)};
                 var resourceDefinitionView = new ResourceDefinitionView({model: resourceDefinition,container: resourceContainer,
                     toolPalette: this.toolPalette, messageManager: this.messageManager, viewOptions: viewOpts, parentView: this});
             }
@@ -282,55 +282,6 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
          */
         ServiceDefinitionView.prototype.setClientLifelineHeight = function (height) {
             this._clientLifeLine.setHeight(height);
-        };
-
-        /**
-         * @inheritDoc
-         */
-        ServiceDefinitionView.prototype.setHeight = function (newHeight) {
-            // TODO : Implement
-        };
-
-        /**
-         * @inheritDoc
-         */
-        ServiceDefinitionView.prototype.setXPosition = function (xPosition) {
-            // TODO : Implement
-        };
-
-        /**
-         * @inheritDoc
-         */
-        ServiceDefinitionView.prototype.setYPosition = function (yPosition) {
-            // TODO : Implement
-        };
-
-        /**
-         * @inheritDoc
-         */
-        ServiceDefinitionView.prototype.getWidth = function () {
-            // TODO : Implement
-        };
-
-        /**
-         * @inheritDoc
-         */
-        ServiceDefinitionView.prototype.getHeight = function () {
-            // TODO : Implement
-        };
-
-        /**
-         * @inheritDoc
-         */
-        ServiceDefinitionView.prototype.getXPosition = function () {
-            // TODO : Implement
-        };
-
-        /**
-         * @inheritDoc
-         */
-        ServiceDefinitionView.prototype.getYPosition = function () {
-            // TODO : Implement
         };
 
         ServiceDefinitionView.prototype._createAnnotationButtonPane = function (annotationButton) {

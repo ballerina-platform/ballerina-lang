@@ -88,13 +88,7 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/assignment', 'd
             var assignmentRect = D3Utils.rect(x, y, 120, 30, 0, 0, assignmentStatementGroup).classed('statement-rect', true);
             var assignmentText = this._model.getVariableAccessor() + ' = ' +this._model.getExpression();
             var expressionText = D3Utils.textElement(x + width/2, y + height/2, assignmentText, assignmentStatementGroup).classed('statement-text', true);
-            this.setWidth(width);
-            this.setHeight(height);
-            this.setXPosition(x);
-            this.setYPosition(y);
-            this.setBoundingBox(width, height, x, y);
-            log.info("Rendering assignment statement view.");
-            return assignmentStatementGroup;
+
         };
 
         return AssignmentStatementView;
