@@ -36,6 +36,7 @@ under the License.
         <classes>
             <class name="org.wso2.ballerina.core.parser.LocalFuncInvocationTest" />
             <class name="org.wso2.ballerina.core.parser.BLangInterpreterTest" />
+            <class name="org.wso2.ballerina.core.parser.InvalidSyntaxParserTest" />
         </classes>
     </test>
 </suite>
