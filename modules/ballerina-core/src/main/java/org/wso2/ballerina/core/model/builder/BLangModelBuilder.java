@@ -46,6 +46,7 @@ import org.wso2.ballerina.core.model.expressions.SubtractExpression;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
+import org.wso2.ballerina.core.model.statements.FunctionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.IfElseStmt;
 import org.wso2.ballerina.core.model.statements.ReplyStmt;
 import org.wso2.ballerina.core.model.statements.ReturnStmt;
@@ -491,6 +492,23 @@ public class BLangModelBuilder {
 
         IfElseStmt ifElseStmt = ifElseStmtBuilder.build();
         addToBlockStmt(ifElseStmt);
+    }
+
+    public void createFunctionInvocationStmt() {
+        CallableUnitInvocationExprBuilder cIExprBuilder = new CallableUnitInvocationExprBuilder();
+        cIExprBuilder.setExpressionList(exprListStack.pop());
+        cIExprBuilder.setName(symbolNameStack.pop());
+
+        FunctionInvocationExpr invocationExpr = cIExprBuilder.buildFuncInvocExpr();
+
+        FunctionInvocationStmt.FunctionInvokeStmtBuilder stmtBuilder = new FunctionInvocationStmt.FunctionInvokeStmtBuilder();
+        stmtBuilder.setFunctionInvocationExpr(invocationExpr);
+        FunctionInvocationStmt functionInvocationStmt = stmtBuilder.build();
+
+        BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder();
+        blockStmtBuilder.addStmt(functionInvocationStmt);
+        blockStmtBuilderStack.push(blockStmtBuilder);
+
     }
 
     // Literal Values
