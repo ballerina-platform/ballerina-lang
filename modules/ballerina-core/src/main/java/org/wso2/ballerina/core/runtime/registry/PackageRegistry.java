@@ -86,7 +86,7 @@ public class PackageRegistry {
         aPackage.getActions().put(action.getName(), action);
         CallableUnitType callableUnitType = new CallableUnitType(CallableUnit.ACTION, action.getSymbolName());
         callableUnitType.setParamType(action.getSymbolName().getParameters());
-        callableUnitType.setReturnType(action.getReturnTypes());
+        callableUnitType.setReturnType(action.getReturnTypesC());
         GlobalScopeHolder.getInstance().insert(action.getSymbolName(), new Symbol(callableUnitType, 0));
     }
 

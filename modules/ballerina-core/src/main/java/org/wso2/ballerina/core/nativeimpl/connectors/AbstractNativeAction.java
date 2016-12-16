@@ -3,7 +3,6 @@ package org.wso2.ballerina.core.nativeimpl.connectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.Context;
-import org.wso2.ballerina.core.interpreter.Interpreter;
 import org.wso2.ballerina.core.model.Action;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.Const;
@@ -26,8 +25,7 @@ import java.util.List;
 /**
  * Represents Native Ballerina Action.
  */
-public abstract class AbstractNativeAction implements Action, NativeConstruct, Interpreter {
-    protected NativeConnector connector;
+public abstract class AbstractNativeAction implements Action, NativeConstruct {
 
     public static final BValue[] VOID_RETURN = new BValue[0];
     private static final Logger log = LoggerFactory.getLogger(AbstractNativeAction.class);
@@ -35,8 +33,10 @@ public abstract class AbstractNativeAction implements Action, NativeConstruct, I
     private SymbolName symbolName;
     private List<Annotation> annotations;
     private List<Parameter> parameters;
-    private List<Type> returnTypes;
+    private List<TypeC> returnTypes;
     private List<Const> constants;
+
+    private int stackFrameSize;
 
     public AbstractNativeAction() {
         parameters = new ArrayList<>();
@@ -54,11 +54,12 @@ public abstract class AbstractNativeAction implements Action, NativeConstruct, I
         BallerinaAction action = this.getClass().getAnnotation(BallerinaAction.class);
         packageName = action.packageName();
         actionName = action.actionName();
-        symbolName = new SymbolName(actionName, SymbolName.SymType.CALLABLE_UNIT);
+        String symName = packageName + ":" + this.getAssociatesConnectorType() + "." + actionName;
+        symbolName = new SymbolName(symName, SymbolName.SymType.CALLABLE_UNIT);
         Arrays.stream(action.args()).
                 forEach(argument -> {
                     try {
-                        parameters.add(new Parameter(TypeC.getType(argument.type().getName()),
+                        parameters.add(new Parameter(TypeC.getTypeC(argument.type().getName()),
                                 new SymbolName(argument.name())));
                     } catch (RuntimeException e) {
                         // TODO: Fix this when TypeC.getType method is improved.
@@ -68,7 +69,7 @@ public abstract class AbstractNativeAction implements Action, NativeConstruct, I
                 });
         Arrays.stream(action.returnType()).forEach(returnType -> {
             try {
-                returnTypes.add(TypeC.getType(returnType.getName()));
+                returnTypes.add(TypeC.getTypeC(returnType.getName()));
             } catch (RuntimeException e) {
                 // TODO: Fix this when TypeC.getType method is improved.
                 log.warn("Error while processing ReturnTypes for Native ballerina action {}:{}.", packageName,
@@ -111,12 +112,12 @@ public abstract class AbstractNativeAction implements Action, NativeConstruct, I
 
     @Override
     public Type[] getReturnTypes() {
-        return returnTypes.toArray(new Type[returnTypes.size()]);
+        return new Type[0];
     }
 
     @Override
-    public void interpret(Context ctx) {
-        connector.init();
+    public TypeC[] getReturnTypesC() {
+        return returnTypes.toArray(new TypeC[returnTypes.size()]);
     }
 
     /**
@@ -133,8 +134,25 @@ public abstract class AbstractNativeAction implements Action, NativeConstruct, I
         throw new ArgumentOutOfRangeException(index);
     }
 
-    public abstract void execute(Context context);
+    public abstract BValueRef execute(Context context);
 
+    @Override
+    public void interpret(Context ctx) {
+        execute(ctx);
 
+        // TODO : Support for multiple return values and to be change after  support statement callback chaning
 
+    }
+
+    @Override
+    public int getStackFrameSize() {
+        return stackFrameSize;
+    }
+
+    @Override
+    public void setStackFrameSize(int stackFrameSize) {
+        this.stackFrameSize = stackFrameSize;
+    }
+
+    public abstract String getAssociatesConnectorType();
 }

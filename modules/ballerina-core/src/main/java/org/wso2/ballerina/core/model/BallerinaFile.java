@@ -19,6 +19,7 @@
 package org.wso2.ballerina.core.model;
 
 import org.wso2.ballerina.core.interpreter.SymScope;
+import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.types.StructType;
 
@@ -49,6 +50,7 @@ public class BallerinaFile implements Node {
     private Map<String, Function> functions = new HashMap<>();
     private List<StructType> types = new ArrayList<>();
     private List<FunctionInvocationExpr> funcIExprList = new ArrayList<>();
+    private List<ActionInvocationExpr> actionIExprList = new ArrayList<>();
     //TODO: add TypeConverters
     //TODO: add constants
 
@@ -61,7 +63,8 @@ public class BallerinaFile implements Node {
             List<BallerinaConnector> connectorList,
             Map<String, Function> functionMap,
             List<StructType> sTypeList,
-            List<FunctionInvocationExpr> funcIExprList) {
+            List<FunctionInvocationExpr> funcIExprList,
+            List<ActionInvocationExpr> actionInvocationExpr) {
 
         this.packageName = packageName;
         this.imports = importList;
@@ -70,6 +73,7 @@ public class BallerinaFile implements Node {
         this.functions = functionMap;
         this.types = sTypeList;
         this.funcIExprList = funcIExprList;
+        this.actionIExprList = actionInvocationExpr;
 
         packageScope = new SymScope();
     }
@@ -181,6 +185,14 @@ public class BallerinaFile implements Node {
         return funcIExprList.toArray(new FunctionInvocationExpr[funcIExprList.size()]);
     }
 
+    public void addActionInvocationExpr(ActionInvocationExpr expr) {
+        this.actionIExprList.add(expr);
+    }
+
+    public ActionInvocationExpr[] getActionIExprs() {
+        return actionIExprList.toArray(new ActionInvocationExpr[actionIExprList.size()]);
+    }
+
     /**
      * Get {@code Type} list defined in the File
      *
@@ -234,6 +246,7 @@ public class BallerinaFile implements Node {
         private Map<String, Function> functionList = new HashMap<>();
         private List<StructType> sTypeList = new ArrayList<>();
         private List<FunctionInvocationExpr> funcIExprList = new ArrayList<>();
+        private List<ActionInvocationExpr> actionIExprList = new ArrayList<>();
 
         public BFileBuilder() {
 
@@ -275,7 +288,8 @@ public class BallerinaFile implements Node {
                     connectorList,
                     functionList,
                     sTypeList,
-                    funcIExprList);
+                    funcIExprList,
+                    actionIExprList);
 
         }
     }

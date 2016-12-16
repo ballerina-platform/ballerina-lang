@@ -16,12 +16,14 @@
 
 package org.wso2.ballerina.core.model;
 
+import org.wso2.ballerina.core.interpreter.Interpreter;
 import org.wso2.ballerina.core.model.types.Type;
+import org.wso2.ballerina.core.model.types.TypeC;
 
 /**
  * {@code {@link Action}} represents any Ballerina Action.
  */
-public interface Action {
+public interface Action extends Interpreter {
 
     /**
      * Get Name of the Action.
@@ -46,9 +48,21 @@ public interface Action {
 
     /**
      * Get list of return Types associated with action definition.
+     *
      * @return list of Return types.
      */
     Type[] getReturnTypes();
 
+    TypeC[] getReturnTypesC();
+
+    /**
+     * get stack frame size
+     */
+    int getStackFrameSize();
+
+    /**
+     * set stack frame size
+     */
+    void setStackFrameSize(int frameSize);
 
 }
