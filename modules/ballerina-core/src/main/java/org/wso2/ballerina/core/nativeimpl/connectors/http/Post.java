@@ -27,6 +27,7 @@ import org.wso2.ballerina.core.model.values.MessageValue;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
+import org.wso2.ballerina.core.nativeimpl.connectors.BalConnectorCallback;
 import org.wso2.ballerina.core.runtime.internal.ServiceContextHolder;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.Constants;
@@ -43,7 +44,8 @@ import java.net.URL;
         actionName = "post",
         args = {
                 @Argument(name = "connector",
-                          type = TypeEnum.CONNECTOR), @Argument(name = "path", type = TypeEnum.STRING),
+                          type = TypeEnum.CONNECTOR),
+                @Argument(name = "path", type = TypeEnum.STRING),
                 @Argument(name = "message", type = TypeEnum.MESSAGE)
         },
         returnType = { TypeEnum.MESSAGE })
@@ -64,7 +66,7 @@ public class Post extends AbstractNativeAction {
 
     @Override
     public void execute(Context context) {
-        LOGGER.debug("Executing Native Action SendPost ....");
+        LOGGER.debug("Executing Native Action Post ....");
         ConnectorValue connectorValue = (ConnectorValue) getArgument(context, 0).getBValue();
         String path = getArgument(context, 1).getString();
         MessageValue messageValue = (MessageValue) getArgument(context, 2).getBValue();
@@ -84,7 +86,8 @@ public class Post extends AbstractNativeAction {
         processRequest(message, uri);
 
         try {
-            ServiceContextHolder.getInstance().getSender().send(message, context.getBalCallback());
+            BalConnectorCallback balConnectorCallback = new BalConnectorCallback(context);
+            ServiceContextHolder.getInstance().getSender().send(message, balConnectorCallback);
         } catch (MessageProcessorException e) {
             LOGGER.error("Cannot Send Message to Endpoint ", e);
         }

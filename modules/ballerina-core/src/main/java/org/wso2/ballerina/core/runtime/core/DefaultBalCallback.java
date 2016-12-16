@@ -26,7 +26,8 @@ import org.wso2.carbon.messaging.CarbonMessage;
  */
 public class DefaultBalCallback implements BalCallback {
 
-    CarbonCallback parentCallback;
+    protected CarbonCallback parentCallback;
+
 
     public DefaultBalCallback(CarbonCallback parentCallback) {
         this.parentCallback = parentCallback;
