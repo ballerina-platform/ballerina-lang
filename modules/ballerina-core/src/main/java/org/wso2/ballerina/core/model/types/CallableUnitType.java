@@ -29,8 +29,8 @@ public class CallableUnitType extends TypeC {
 
     // Name of the callableUnit. i.e. function, action or resource
     private SymbolName symbolName;
-    private Type[] paramType;
-    private Type[] returnType;
+    private TypeC[] paramType;
+    private TypeC[] returnType;
 
     /**
      * Create a type from the given name
@@ -47,11 +47,11 @@ public class CallableUnitType extends TypeC {
         this.symbolName = symbolName;
     }
 
-    public void setParamType(Type[] paramType) {
+    public void setParamType(TypeC[] paramType) {
         this.paramType = paramType;
     }
 
-    public void setReturnType(Type[] returnType) {
+    public void setReturnType(TypeC[] returnType) {
         this.returnType = returnType;
     }
 }

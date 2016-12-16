@@ -92,18 +92,13 @@ public class PackageRegistry {
                 .computeIfAbsent(action.getPackageName(), k -> new Package(action.getPackageName()));
         aPackage.getActions().put(action.getName(), action);
 
-
-        String funcName = action.getPackageName() + ":" + action.getName();
-        SymbolName symbolName = SymbolUtils.generateSymbolName(funcName, action.getParameters());
+        String actionName = action.getSymbolName().getName();
+        SymbolName symbolName = SymbolUtils.generateSymbolName(actionName, action.getParameters());
         Symbol symbol = new Symbol(action, SymbolUtils.getTypesOfParams(action.getParameters()),
                 action.getReturnTypesC());
 
         GlobalScopeHolder.getInstance().insert(symbolName, symbol);
 
-//        CallableUnitType callableUnitType = new CallableUnitType(CallableUnit.ACTION, action.getSymbolName());
-//        callableUnitType.setParamType(action.getSymbolName().getParameters());
-//        callableUnitType.setReturnType(action.getReturnTypes());
-//        GlobalScopeHolder.getInstance().insert(action.getSymbolName(), new Symbol(callableUnitType, 0));
     }
 
     /**

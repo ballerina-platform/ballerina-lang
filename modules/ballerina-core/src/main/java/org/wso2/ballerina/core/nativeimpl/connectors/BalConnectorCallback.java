@@ -29,6 +29,10 @@ public class BalConnectorCallback extends DefaultBalCallback {
 
     private Context context;
 
+    public boolean responseArrvied = false;
+
+    public BValueRef valueRef;
+
     public BalConnectorCallback(Context context) {
         super(context.getBalCallback());
         this.context = context;
@@ -37,8 +41,9 @@ public class BalConnectorCallback extends DefaultBalCallback {
     @Override
     public void done(CarbonMessage carbonMessage) {
         MessageValue messageValue = new MessageValue(carbonMessage);
-        BValueRef valueRef = new BValueRef(messageValue);
+         valueRef = new BValueRef(messageValue);
         context.getControlStack().setValue(4, valueRef);
+        responseArrvied = true;
     }
 
 }
