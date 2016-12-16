@@ -25,12 +25,14 @@ import org.testng.annotations.Test;
 import org.wso2.ballerina.core.interpreter.BContext;
 import org.wso2.ballerina.core.interpreter.BLangInterpreter;
 import org.wso2.ballerina.core.interpreter.Context;
-import org.wso2.ballerina.core.interpreter.ControlStack;
 import org.wso2.ballerina.core.interpreter.StackFrame;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
-import org.wso2.ballerina.core.model.VariableDcl;
+import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.builder.BLangModelBuilder;
+import org.wso2.ballerina.core.model.expressions.BasicLiteral;
+import org.wso2.ballerina.core.model.expressions.Expression;
+import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.values.BValueRef;
 import org.wso2.ballerina.core.model.values.IntValue;
 import org.wso2.ballerina.core.parser.antlr4.BLangAntlr4Listener;
@@ -39,17 +41,20 @@ import org.wso2.ballerina.core.semantics.SemanticAnalyzer;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-public class BLangInterpreterTest {
+/**
+ *
+ */
+public class LocalFuncInvocationTest {
 
     private BLangAntlr4Listener langModelBuilder;
     private BallerinaFile bFile;
-    private String funcName = "test";
+    private String funcName = "process";
 
     @BeforeTest
     public void setup() {
         try {
             ANTLRInputStream antlrInputStream = new ANTLRInputStream(new FileInputStream(
-                    getClass().getClassLoader().getResource("samples/parser/ifcondition.bal").getFile()));
+                    getClass().getClassLoader().getResource("samples/parser/localFuncInvocationTest.bal").getFile()));
 
             BallerinaLexer ballerinaLexer = new BallerinaLexer(antlrInputStream);
             CommonTokenStream ballerinaToken = new CommonTokenStream(ballerinaLexer);
@@ -65,11 +70,20 @@ public class BLangInterpreterTest {
 
             bFile = modelBuilder.build();
 
-
             SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer();
             bFile.accept(semanticAnalyzer);
 
-            // Linker
+            // Linking functions defined in the same source file
+            for (FunctionInvocationExpr expr : bFile.getFuncIExprs()) {
+                SymbolName symName = expr.getFunctionName();
+                BallerinaFunction bFunction = (BallerinaFunction) bFile.getFunctions().get(symName.getName());
+
+                if (bFunction == null) {
+                    throw new IllegalStateException("Undefined function: " + symName.getName());
+                }
+
+                expr.setFunction(bFunction);
+            }
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -77,46 +91,42 @@ public class BLangInterpreterTest {
     }
 
     @Test
-    public void testFuncInvocation() {
-        BallerinaFunction function = (BallerinaFunction) bFile.getFunctions().get(funcName);
+    public void testLocalFuncInvocation() {
+        BValueRef valueRefA = new BValueRef(new IntValue(100));
+        BasicLiteral basicLiteralA = new BasicLiteral(valueRefA);
 
-        // Create control stack and the stack frame
-        Context ctx = new Context();
-        ControlStack controlStack = ctx.getControlStack();
+        BValueRef valueRefB = new BValueRef(new IntValue(5));
+        BasicLiteral basicLiteralB = new BasicLiteral(valueRefB);
 
-        int sizeOfValueArray = function.getStackFrameSize();
+        BValueRef valueRefC = new BValueRef(new IntValue(1));
+        BasicLiteral basicLiteralC = new BasicLiteral(valueRefC);
 
-        BValueRef[] values = new BValueRef[sizeOfValueArray];
-        values[0] = new BValueRef(new IntValue(10));
-        values[1] = new BValueRef(new IntValue(1000));
-        values[2] = new BValueRef(new IntValue(20));
+        Expression[] exprs = new Expression[3];
+        exprs[0] = basicLiteralA;
+        exprs[1] = basicLiteralB;
+        exprs[2] = basicLiteralC;
 
-        // Create default values for all declared local variables
-        VariableDcl[] variableDcls = function.getVariableDcls();
-        for (int i = 0; i < variableDcls.length; i++) {
-            values[i + 3] = BValueRef.getDefaultValue(variableDcls[i].getTypeC());
-        }
+        FunctionInvocationExpr funcIExpr = new FunctionInvocationExpr(new SymbolName(funcName), exprs);
+        funcIExpr.setOffset(0);
+        funcIExpr.setFunction(bFile.getFunctions().get(funcName));
 
-        BValueRef[] returnVals = new BValueRef[function.getReturnTypesC().length];
+        BValueRef[] results = new BValueRef[1];
+        StackFrame stackFrame = new StackFrame(results, null);
 
-        StackFrame stackFrame = new StackFrame(values, returnVals);
-        controlStack.pushFrame(stackFrame);
+        Context bContext = new Context();
+        bContext.getControlStack().pushFrame(stackFrame);
+        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
+        funcIExpr.accept(bLangInterpreter);
 
-        BLangInterpreter interpreter = new BLangInterpreter(ctx);
-        function.accept(interpreter);
+        int actual = results[0].getInt();
+        int expected = 116;
 
-        int expectedA = 310;
-        int actualA = returnVals[0].getInt();
-        Assert.assertEquals(actualA, expectedA);
-
-        int expectedB = 21;
-        int actualB = returnVals[1].getInt();
-        Assert.assertEquals(actualB, expectedB);
+        Assert.assertEquals(actual, expected);
     }
 
     public static void main(String[] args) {
-        BLangInterpreterTest test = new BLangInterpreterTest();
+        LocalFuncInvocationTest test = new LocalFuncInvocationTest();
         test.setup();
-        test.testFuncInvocation();
+        test.testLocalFuncInvocation();
     }
 }

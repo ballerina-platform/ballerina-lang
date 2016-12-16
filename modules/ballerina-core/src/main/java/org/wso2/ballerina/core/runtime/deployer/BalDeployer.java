@@ -25,14 +25,24 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerina.core.interpreter.BLangInterpreter;
+import org.wso2.ballerina.core.interpreter.Context;
+import org.wso2.ballerina.core.interpreter.ControlStack;
+import org.wso2.ballerina.core.interpreter.StackFrame;
 import org.wso2.ballerina.core.model.Application;
 import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.Package;
-import org.wso2.ballerina.core.parser.BallerinaBaseListenerImpl;
+import org.wso2.ballerina.core.model.Parameter;
+import org.wso2.ballerina.core.model.VariableDcl;
+import org.wso2.ballerina.core.model.builder.BLangModelBuilder;
+import org.wso2.ballerina.core.model.values.BValueRef;
 import org.wso2.ballerina.core.parser.BallerinaLexer;
 import org.wso2.ballerina.core.parser.BallerinaParser;
 import org.wso2.ballerina.core.parser.ParserException;
+import org.wso2.ballerina.core.parser.antlr4.BLangAntlr4Listener;
 import org.wso2.ballerina.core.runtime.registry.ApplicationRegistry;
+import org.wso2.ballerina.core.semantics.SemanticAnalyzer;
 import org.wso2.carbon.deployment.engine.Artifact;
 import org.wso2.carbon.deployment.engine.ArtifactType;
 import org.wso2.carbon.deployment.engine.Deployer;
@@ -122,10 +132,27 @@ public class BalDeployer implements Deployer {
 //              BallerinaFile balFile = (BallerinaFile) ballerinaBaseVisitor.accept(ballerinaParser.compilationUnit());
 
                 // Listener based approach
-                BallerinaBaseListenerImpl ballerinaBaseListener = new BallerinaBaseListenerImpl();
+//                BallerinaBaseListenerImpl ballerinaBaseListener = new BallerinaBaseListenerImpl();
+//                ballerinaParser.addParseListener(ballerinaBaseListener);
+//                ballerinaParser.compilationUnit();
+//                BallerinaFile balFile = ballerinaBaseListener.balFile;
+
+                // Builder based approach
+                BLangModelBuilder bLangModelBuilder = new BLangModelBuilder();
+                BLangAntlr4Listener ballerinaBaseListener = new BLangAntlr4Listener(bLangModelBuilder);
                 ballerinaParser.addParseListener(ballerinaBaseListener);
                 ballerinaParser.compilationUnit();
-                BallerinaFile balFile = ballerinaBaseListener.balFile;
+                BallerinaFile balFile = bLangModelBuilder.build();
+
+                SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer();
+                balFile.accept(semanticAnalyzer);
+
+                // Invoke the Linker
+//                BallerinaLinker ballerinaLinker = new BallerinaLinker();
+//                balFile.accept(ballerinaLinker);
+
+                // Run main function
+                runMainFunction(balFile);
 
                 Application defaultApp = ApplicationRegistry.getInstance().getDefaultApplication();
                 Package aPackage = defaultApp.getPackage(balFile.getPackageName());
@@ -150,6 +177,48 @@ public class BalDeployer implements Deployer {
                 }
             }
         }
+    }
+
+    private static void runMainFunction(BallerinaFile bFile) {
+        BallerinaFunction function = (BallerinaFunction) bFile.getFunctions().get("main");
+        if (function == null) {
+            return;
+        }
+
+        // Create control stack and the stack frame
+        Context ctx = new Context();
+        ControlStack controlStack = ctx.getControlStack();
+
+        int sizeOfValueArray = function.getStackFrameSize();
+
+        BValueRef[] values = new BValueRef[sizeOfValueArray];
+//        values[0] = new BValueRef(new IntValue(10));
+//        values[1] = new BVvariableDcls[i]alueRef(new IntValue(1000));
+//        values[2] = new BValueRef(new IntValue(20));
+
+        int i = 0;
+        Parameter[] parameters = function.getParameters();
+        for (Parameter param: parameters) {
+            values[i] = BValueRef.getDefaultValue(param.getTypeC());
+            i++;
+        }
+
+        // Create default values for all declared local variables
+        VariableDcl[] variableDcls = function.getVariableDcls();
+        for (VariableDcl variableDcl : variableDcls) {
+            values[i] = BValueRef.getDefaultValue(variableDcl.getTypeC());
+            i++;
+        }
+
+        BValueRef[] returnVals = new BValueRef[function.getReturnTypesC().length];
+
+        StackFrame stackFrame = new StackFrame(values, returnVals);
+        controlStack.pushFrame(stackFrame);
+
+        BLangInterpreter interpreter = new BLangInterpreter(ctx);
+        function.accept(interpreter);
+
+        log.info("return value: " + returnVals[0].getInt());
     }
 
 }

@@ -17,8 +17,8 @@
 */
 package org.wso2.ballerina.core.interpreter;
 
-import org.wso2.ballerina.core.model.Action;
 import org.wso2.ballerina.core.model.Annotation;
+import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.Connector;
@@ -53,23 +53,28 @@ import org.wso2.ballerina.core.model.statements.ReplyStmt;
 import org.wso2.ballerina.core.model.statements.ReturnStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
+import org.wso2.ballerina.core.model.types.TypeC;
 import org.wso2.ballerina.core.model.values.BValueRef;
 
+import java.util.List;
+
 /**
+ * {@code BLangInterpreter} executes a Ballerina program
  *
+ * @since 1.0.0
  */
 public class BLangInterpreter implements NodeVisitor {
 
-    private BContext bContext;
+    private Context bContext;
     private ControlStack controlStack;
 
-    public BLangInterpreter(BContext bContext) {
+    public BLangInterpreter(Context bContext) {
         this.bContext = bContext;
         this.controlStack = bContext.getControlStack();
     }
 
     @Override
-    public void visit(BallerinaFile file) {
+    public void visit(BallerinaFile bFile) {
 
     }
 
@@ -85,7 +90,7 @@ public class BLangInterpreter implements NodeVisitor {
 
     @Override
     public void visit(Resource resource) {
-
+        resource.getResourceBody().accept(this);
     }
 
     @Override
@@ -94,13 +99,16 @@ public class BLangInterpreter implements NodeVisitor {
     }
 
     @Override
-    public void visit(Action action) {
+    public void visit(BallerinaAction action) {
 
     }
 
     @Override
     public void visit(Worker worker) {
-
+        List<Statement> stmts = worker.getStatements();
+        for (Statement stmt : stmts) {
+            stmt.accept(this);
+        }
     }
 
     @Override
@@ -217,6 +225,62 @@ public class BLangInterpreter implements NodeVisitor {
     }
 
     @Override
+    public void visit(FunctionInvocationExpr funcIExpr) {
+        // Create the Stack frame
+        BallerinaFunction function = (BallerinaFunction) funcIExpr.getFunction();
+
+        int sizeOfValueArray = function.getStackFrameSize();
+        BValueRef[] localVals = new BValueRef[sizeOfValueArray];
+
+        // Create default values for all declared local variables
+        int i = 0;
+        for (Expression arg : funcIExpr.getExprs()) {
+
+            // Evaluate the argument expression
+            arg.accept(this);
+            TypeC argType = arg.getType();
+            BValueRef argValue = getValue(arg);
+
+            // Here we need to handle value types differently from reference types
+            // Value types need to be cloned before passing ot the function : pass by value.
+            // TODO Implement copy-on-write mechanism to improve performance
+            if (BValueRef.isValueType(argType)) {
+                argValue = BValueRef.clone(argType, argValue);
+            }
+
+            // Setting argument value in the stack frame
+            localVals[i] = argValue;
+
+            i++;
+        }
+
+        // Create default values for all declared local variables
+        VariableDcl[] variableDcls = function.getVariableDcls();
+        for (VariableDcl variableDcl : variableDcls) {
+            localVals[i] = BValueRef.getDefaultValue(variableDcl.getTypeC());
+            i++;
+        }
+
+        // Create an array in the stack frame to hold return values;
+        BValueRef[] rVals = new BValueRef[function.getReturnTypesC().length];
+
+        // Create a new stack frame with memory locations to hold parameters, local values, temp expression valuse and
+        // return values;
+        StackFrame stackFrame = new StackFrame(localVals, rVals);
+        controlStack.pushFrame(stackFrame);
+
+        function.accept(this);
+
+        controlStack.popFrame();
+
+        // Setting return values to function invocation expression
+        // TODO At the moment we only support single return value
+        if (rVals.length >= 1) {
+            controlStack.setValue(funcIExpr.getOffset(), rVals[0]);
+        }
+    }
+
+    @Override
     public void visit(BasicLiteral basicLiteral) {
 
     }
@@ -254,11 +318,6 @@ public class BLangInterpreter implements NodeVisitor {
 
         BValueRef result = equalExpr.getEvalFunc().apply(lValue, rValue);
         controlStack.setValue(equalExpr.getOffset(), result);
-    }
-
-    @Override
-    public void visit(FunctionInvocationExpr functionInvocationExpr) {
-
     }
 
     @Override
