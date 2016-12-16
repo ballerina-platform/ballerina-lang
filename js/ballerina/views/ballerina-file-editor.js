@@ -16,8 +16,8 @@
  * under the License.
  */
 define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-view',  './function-definition-view', './../ast/ballerina-ast-root',
-        './../ast/ballerina-ast-factory', './source-view', './../visitors/source-gen/ballerina-ast-root-visitor', './../tool-palette/tool-palette'],
-    function (_, $, log, BallerinaView, ServiceDefinitionView, FunctionDefinitionView, BallerinaASTRoot, BallerinaASTFactory, SourceView, SourceGenVisitor, ToolPalette) {
+        './../ast/ballerina-ast-factory', './../ast/package-definition', './../ast/import-declaration', './source-view', './../visitors/source-gen/ballerina-ast-root-visitor', './../tool-palette/tool-palette'],
+    function (_, $, log, BallerinaView, ServiceDefinitionView, FunctionDefinitionView, BallerinaASTRoot, BallerinaASTFactory, PackageDefinition, ImportDeclaration, SourceView, SourceGenVisitor, ToolPalette) {
 
         /**
          * The view to represent a ballerina file editor which is an AST visitor.
@@ -174,6 +174,8 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 nodeFactoryMethod: this._model.getFactory().createConnectorDeclaration
             });
 
+            this._createPackagePropertyPane(canvasContainer);
+
             //Registering event listeners
             this.listenTo(this._model, 'childVisitedEvent', this.childVisitedCallback);
             this.listenTo(this._model, 'childRemovedEvent', this.childViewRemovedCallback);
@@ -290,6 +292,186 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             log.info("[Eventing] Child element view removed. ");
             //TODO: remove from view map
             $(this._container.querySelector("#_" +child.id)).remove();
+        };
+
+        /**
+         * Creating the package view of a ballerina-file-editor.
+         * @param canvasContainer - The canvas container.
+         * @private
+         */
+        BallerinaFileEditor.prototype._createPackagePropertyPane = function (canvasContainer) {
+            var currentASTRoot = this._model;
+
+            var topRightControlsContainer = $(canvasContainer).siblings(".top-right-controls-container");
+            var propertyPane = topRightControlsContainer.children(".top-right-controls-container-editor-pane");
+
+            var packageButton = $(propertyPane).parent().find(".package-btn");
+
+            // Package button click event.
+            $(packageButton).click(function (event) {
+                // If property pane is already shown, cancel this event.
+                if (!(propertyPane.css("display") == "none")) {
+                    return;
+                }
+
+                // Stopping propagation for the package button.
+                event.stopPropagation();
+
+                // Darkening the package button.
+                packageButton.css("opacity", 1);
+
+                // Showing the property pane.
+                propertyPane.show();
+
+                // Cancelling all event propagation when clicked on the property pane.
+                $(propertyPane).click(function (event) {
+                    log.debug("Property pane clicked");
+                    event.stopPropagation();
+                });
+
+                var importPackageTextBox = propertyPane.find(".action-content-wrapper-heading input[type=text]");
+                var addImportButton = $(propertyPane).find(".action-icon-wrapper");
+
+                // Click event for adding an import.
+                $(addImportButton).click(function () {
+                    log.debug("Adding new import");
+
+                    // Creating new import.
+                    var newImportDeclaration = new ImportDeclaration({
+                        packageName: importPackageTextBox.val()
+                    });
+                    currentASTRoot.addImport(newImportDeclaration);
+
+                    // Updating current imports view.
+                    addImportsToView(currentASTRoot, propertyPane.find(".imports-wrapper"));
+                });
+
+                // Getting package name text box.
+                var packageTextBox = propertyPane.find(".package-name-wrapper input[type=text]");
+
+                // Setting package name to text box.
+                packageTextBox.val(currentASTRoot.getPackageDefinition().getPackageName());
+
+                // Get check mark for package
+                var packageTick = propertyPane.find(".package-name-wrapper i");
+
+                // Saving package name to AST root.
+                $(packageTick).click(function () {
+                    log.debug("Saving package name : " + $(packageTextBox).val());
+                    var newPackageDefinition = new PackageDefinition({packageName: $(packageTextBox).val()});
+                    currentASTRoot.setPackageDefinition(newPackageDefinition);
+                });
+
+                var importsWrapper = propertyPane.find(".imports-wrapper");
+
+                // Adding current imports to view.
+                addImportsToView(currentASTRoot, importsWrapper);
+
+                // When clicked outside of the property pane.
+                $(window).click(function () {
+                    log.debug("Window Click");
+                    propertyPane.hide();
+
+                    // Unbinding all events.
+                    $(this).unbind("click");
+                    $(packageTick).unbind("click");
+                    $(addImportButton).unbind("click");
+                    $(propertyPane).unbind("click");
+
+                    // Resetting import text box.
+                    $(importPackageTextBox).val("");
+
+                    // Resetting the opacity of the packge button.
+                    packageButton.css("opacity", 0.5);
+                });
+
+                /**
+                 * Removes the existing imports in the "Current imports" section and recreating them.
+                 * @param {BallerinaASTRoot} model - The ballerina ast root model.
+                 * @param importsWrapper - The html <div> tag to which an import view to be appended to.
+                 */
+                function addImportsToView(model, importsWrapper) {
+                    // Removing existing imports.
+                    $(importsWrapper).children("div").each(function () {
+                        $(this).remove();
+                    });
+
+                    // Creating the imports according to the model.
+                    _.forEach(model.getImportDeclarations(), function (importDeclaration) {
+                        // Adding the imports.
+                        var importWrapper = $("<div/>").appendTo(importsWrapper);
+                        var importPackageNameSpan = $("<span>" + importDeclaration.getPackageName() + "</span>").appendTo(importWrapper);
+                        var importDelete = $("<i class='fw fw-cancel'></i>").appendTo(importWrapper);
+
+                        // Creating import delete event.
+                        $(importDelete).click({
+                            model: model,
+                            wrapper: importWrapper,
+                            packageName: importDeclaration.getPackageName()
+                        }, function (event) {
+                            log.debug("Delete import clicked :" + event.data.packageName);
+                            $(event.data.wrapper).remove();
+                            event.data.model.deleteImport(event.data.packageName);
+                        });
+                    });
+                }
+            });
+        };
+
+        /**
+         * @inheritDoc
+         */
+        BallerinaFileEditor.prototype.setWidth = function (newWidth) {
+            // TODO : Implement
+        };
+
+        /**
+         * @inheritDoc
+         */
+        BallerinaFileEditor.prototype.setHeight = function (newHeight) {
+            // TODO : Implement
+        };
+
+        /**
+         * @inheritDoc
+         */
+        BallerinaFileEditor.prototype.setXPosition = function (xPosition) {
+            // TODO : Implement
+        };
+
+        /**
+         * @inheritDoc
+         */
+        BallerinaFileEditor.prototype.setYPosition = function (yPosition) {
+            // TODO : Implement
+        };
+
+        /**
+         * @inheritDoc
+         */
+        BallerinaFileEditor.prototype.getWidth = function () {
+            // TODO : Implement
+        };
+
+        /**
+         * @inheritDoc
+         */
+        BallerinaFileEditor.prototype.getHeight = function () {
+            // TODO : Implement
+        };
+
+        /**
+         * @inheritDoc
+         */
+        BallerinaFileEditor.prototype.getXPosition = function () {
+            // TODO : Implement
+        };
+
+        /**
+         * @inheritDoc
+         */
+        BallerinaFileEditor.prototype.getYPosition = function () {
+            // TODO : Implement
         };
 
         return BallerinaFileEditor;

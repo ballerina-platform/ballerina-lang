@@ -29,6 +29,10 @@ html{
     max-height: 100vh;
 }
 
+.font-bold {
+    font-weight: bold;
+}
+
 #main-navbar{
     border-width: 2px 0 2px 0;
 }
@@ -42,6 +46,9 @@ html{
     display: none!important;
 }
 
+hr {
+    margin: 3px 0;
+}
 
 /**
 * Remove padding coming from

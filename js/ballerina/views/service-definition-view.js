@@ -566,7 +566,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
                 }).appendTo(tickSpan);
 
                 var tickCheck = $("<i/>", {
-                    class: "fw fw-check fw-stack-1x fw-inverse"
+                    class: "fw fw-check fw-stack-1x fw-inverse controls-container-font-action"
                 }).appendTo(tickSpan);
 
                 $(tickCheck).hover(

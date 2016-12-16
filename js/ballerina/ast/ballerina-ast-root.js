@@ -19,7 +19,7 @@
 /**
  * Module for BallerinaASTRoot
  */
-define(['lodash', './node'], function (_, ASTNode) {
+define(['lodash', 'log', './node', './import-declaration'], function (_, log, ASTNode, ImportDeclaration) {
 
     /**
      * Constructs BallerinaASTRoot
@@ -79,14 +79,6 @@ define(['lodash', './node'], function (_, ASTNode) {
     };
 
     /**
-     * Getter function for ServiceDefinition
-     * @returns {Array}
-     */
-    BallerinaASTRoot.prototype.getServiceDefinitions = function () {
-        return this.serviceDefinitions;
-    };
-
-    /**
      * Setter function for ConnectorDefinition
      * @param connectorDefinitions
      */
@@ -98,14 +90,6 @@ define(['lodash', './node'], function (_, ASTNode) {
                 connectorDefinition.setParent(self);
             });
         }
-    };
-
-    /**
-     * Getter function for ServiceDefinition
-     * @returns {Array}
-     */
-    BallerinaASTRoot.prototype.getConnectorDefinitions = function () {
-        return this.connectorDefinitions;
     };
 
     /**
@@ -123,6 +107,38 @@ define(['lodash', './node'], function (_, ASTNode) {
     };
 
     /**
+     * Getter function for PackageDefinition
+     * @return {*}
+     */
+    BallerinaASTRoot.prototype.getPackageDefinition = function () {
+        return this.packageDefinition;
+    };
+
+    /**
+     * Getter function for PackageDefinition
+     * @return {*}
+     */
+    BallerinaASTRoot.prototype.getImportDeclarations = function () {
+        return this.importDeclarations;
+    };
+
+    /**
+     * Getter function for ServiceDefinition
+     * @returns {Array}
+     */
+    BallerinaASTRoot.prototype.getServiceDefinitions = function () {
+        return this.serviceDefinitions;
+    };
+
+    /**
+     * Getter function for ServiceDefinition
+     * @returns {Array}
+     */
+    BallerinaASTRoot.prototype.getConnectorDefinitions = function () {
+        return this.connectorDefinitions;
+    };
+
+    /**
      * Getter function for FunctionDefinition
      * @returns {Array}
      */
@@ -137,6 +153,28 @@ define(['lodash', './node'], function (_, ASTNode) {
      */
     BallerinaASTRoot.prototype.canBeAChildOf = function (node) {
         return false;
+    };
+
+    /**
+     * Deletes an import with given package name.
+     */
+    BallerinaASTRoot.prototype.deleteImport = function (packageName) {
+        _.remove(this.importDeclarations, function (importDeclaration) {
+            return importDeclaration.getPackageName() == packageName;
+        });
+    };
+
+    /**
+     * Adds new import declaration.
+     * @param {ImportDeclaration} importDeclaration - New import declaration.
+     */
+    BallerinaASTRoot.prototype.addImport = function (importDeclaration) {
+        if (!_.isNil(importDeclaration) && importDeclaration instanceof ImportDeclaration) {
+            this.importDeclarations.push(importDeclaration);
+        } else {
+            log.error("Invalid import declaration received for AST root." + importDeclaration);
+            throw "Invalid import declaration received for AST root." + importDeclaration;
+        }
     };
 
     /**

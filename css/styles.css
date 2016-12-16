@@ -385,19 +385,142 @@ input.variable-type-exception {
 }
 
 .service-annotation-header-wrapper {
-    margin: 0 10px 0 10px;
+    margin: 3px 10px 0 10px;
 }
 
 .service-annotation-header-wrapper input[type=text] {
-    margin-left:10px;
+    height: 25px;
+    margin-top: 2px;
+    border: 1px solid #ccc;
+    width: 50%;
+    margin-left: 10px;
+    padding-left: 5px;
 }
 
 .service-annotation-header-wrapper span {
-    margin-left:10px;
+    margin-left: 10px;
+    height: 25px;
+    width: 25px;
+    overflow: hidden;
+    margin-top: 2px;
 }
 
-.service-annotation-header-tick {
+.controls-container-action-wrapper {
+
+}
+
+.top-right-controls-container-editor-pane {
+    display: none;
+}
+
+.controls-container-font-action {
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+.package-btn {
+    position: absolute;
+    right: 0;
+    top: 3px;
+    z-index:30;
+}
+
+.main-action-wrapper {
+    position: absolute;
+    right: 17px;
+    width: 400px;
+    overflow: hidden;
+    z-index: 20;
+    top: 0px;
+}
+
+.action-icon-wrapper {
+    position: absolute;
+    top: 8px;
+    right: 28px;
+    height: 25px;
+    width: 25px;
+    overflow: hidden;
+    font-size: 9px;
     cursor: pointer;
+    opacity: 0.4;
+}
+
+.action-icon-wrapper:hover {
+    opacity: 1;
+}
+
+.action-content-wrapper {
+    background-color: #eaeaea;
+    border: 1px solid #f0f0f0;
+}
+
+.action-content-wrapper-body {
+    background-color: white;
+    padding:10px;
+}
+
+.action-content-wrapper-heading{
+    height: 37px;
+    padding-left: 10px;
+    padding-top: 6px;
+}
+
+.action-content-wrapper-heading input[type=text] {
+    padding-left: 7px;
+    margin-left: 2px;
+    width: 276px;
+    border: 1px solid #ccc;
+}
+
+.package-name-wrapper span {
+    font-weight: bold;
+}
+
+.package-name-wrapper input[type=text] {
+    padding-left: 7px;
+    margin-left: 2px;
+    width: 290px;
+    border: 1px solid #ccc;
+}
+
+.package-name-wrapper i {
+    float: right;
+    cursor: pointer;
+    padding-top: 7px;
+    color: #999;
+    font-size: 9px;
+    padding-right: 3px;
+}
+
+.imports-wrapper {
+    padding-top: 10px;
+    max-height: 330px;
+    overflow: scroll;
+}
+
+.imports-wrapper div {
+    padding: 4px;
+}
+
+.imports-wrapper div:hover {
+    background-color: #f5f5f5;
+    color: #111;
+}
+
+.imports-wrapper div span {
+    font-style: italic;
+    cursor: default;
+    color: #a7a7a7;
+}
+
+.imports-wrapper i {
+    float: right;
+    cursor: pointer;
+    padding-top: 7px;
+    color: #999;
+    font-size: 9px;
+    padding-right: 3px;
 }
 
 /** Service container related styles | -> End **/
