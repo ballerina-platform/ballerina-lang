@@ -292,10 +292,6 @@ public class BLangModelBuilder {
 
         FunctionInvocationExpr invocationExpr = cIExprBuilder.buildFuncInvocExpr();
         exprStack.push(invocationExpr);
-
-        // Storing a reference to the function invocation expression
-        // This is useful in linking phase
-        bFileBuilder.addFuncIExpr(invocationExpr);
     }
 
     public void createActionInvocationExpr() {
