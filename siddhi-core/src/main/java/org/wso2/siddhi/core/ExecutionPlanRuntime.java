@@ -94,8 +94,8 @@ public class ExecutionPlanRuntime {
 
     public Map<String, Map<String, AbstractDefinition>> getPartitionedInnerStreamDefinitionMap() {
         Map<String, Map<String, AbstractDefinition>> innerStreams = new HashMap<>();
-        for (Map.Entry<String, PartitionRuntime> partition : partitionMap.entrySet()) {
-            innerStreams.put(partition.getValue().getElementId(), partition.getValue().getLocalStreamDefinitionMap());
+        for (PartitionRuntime partition : partitionMap.values()) {
+            innerStreams.put(partition.getElementId(), partition.getLocalStreamDefinitionMap());
         }
         return innerStreams;
     }

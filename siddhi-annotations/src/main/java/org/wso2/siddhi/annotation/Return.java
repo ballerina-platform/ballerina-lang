@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -15,7 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.util.docs.annotation;
+package org.wso2.siddhi.annotation;
+
+import org.wso2.siddhi.annotation.util.DataType;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -23,15 +25,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation container for repeated org.wso2.siddhi.core.util.docs.annotation.Parameter annotation.
- * This should not be applied to any class directly.
- * Use multiple org.wso2.siddhi.core.util.docs.annotation.Parameter annotations instead
+ * Annotation for storing the return type of a processor.
+ * Can be applied to function executors and attribute aggregators
  *
  * <pre><code>
  * eg:-
- *      {@literal @}Parameter(name = "parameter1", type = {"dataType1", "dataType2"})
- *      {@literal @}Parameter(name = "parameter2", type = {"dataType1", "dataType2"})
- *      {@literal @}Parameter(name = "parameter3", type = {"dataType1", "dataType2"}. optional=true)
+ *      {@literal @}Return(type = {DataType.INT, DataType.LONG}, description = "Description about the return value")
  *      public CustomProcessor extends ProcessorSuperClass {
  *          ...
  *      }
@@ -39,6 +38,8 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface Parameters {
-    Parameter[] value();
+public @interface Return {
+    DataType[] type();
+
+    String description() default "";
 }

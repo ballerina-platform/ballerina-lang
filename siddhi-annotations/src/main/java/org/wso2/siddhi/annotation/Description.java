@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.util.docs.annotation;
+package org.wso2.siddhi.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -23,23 +23,19 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation for storing additional attributes in the return event of stream processors.
- * Additional attributes can be defined by passing an array of org.wso2.siddhi.core.util.docs.annotation.AdditionalAttribute
- * Can be applied to stream processors
+ * Annotation for storing the description about a processor.
+ * Can be applied to windows, stream processors, stream functions, function executors and attribute aggregators
  *
  * <pre><code>
  * eg:-
- *      {@literal @}ReturnEvent({
- *          {@literal @}AdditionalAttribute(name = "attribute1", type = {"dataType1", "dataType2"}),
- *          {@literal @}AdditionalAttribute(name = "attribute2", type = {"dataType1", "dataType2"})
- *      })
- *      public CustomStreamProcessor extends StreamProcessor {
+ *      {@literal @}Description({"Description about the CustomProcessor"})
+ *      public CustomProcessor extends ProcessorSuperClass {
  *          ...
  *      }
  * </code></pre>
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface ReturnEvent {
-    AdditionalAttribute[] value();
+public @interface Description {
+    String value();
 }
