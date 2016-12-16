@@ -292,6 +292,14 @@ text-anchor: start;
     fill: #eaeaea
 }
 
+.client-life-line{
+    cursor: pointer;
+}
+
+.client-life-line text{
+    cursor: pointer;
+}
+
 .client-life-line polygon{
     stroke: #000000;
     fill: #FFFFFF;
@@ -299,6 +307,13 @@ text-anchor: start;
 
 .client-life-line line{
     stroke: #000000;
+}
+
+.default-worker-life-line{
+    cursor: pointer;
+}
+.default-worker-life-line text{
+    cursor: pointer;
 }
 
 .default-worker-life-line rect{
@@ -312,11 +327,26 @@ text-anchor: start;
     stroke-width: 2px;
 }
 
+.connector-life-line {
+    cursor: pointer;
+}
+
+.connector-life-line text {
+    cursor: pointer;
+}
+
 .connector-life-line rect{
     stroke: #000000;
     fill: #FFFFFF;
 }
 
+
 .connector-life-line line{
     stroke: #000000;
+}
+
+
+.start-action{
+    stroke: #000000;
+    fill: #FFFFFF;
 }

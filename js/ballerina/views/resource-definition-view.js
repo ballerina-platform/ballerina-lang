@@ -17,9 +17,10 @@
  */
 define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../ast/resource-definition',
         './default-worker', './point', './connector-declaration-view',
-        './statement-view-factory', 'ballerina/ast/ballerina-ast-factory', './expression-view-factory'],
+        './statement-view-factory', 'ballerina/ast/ballerina-ast-factory', './expression-view-factory','./message'],
     function (_, log, d3, $, D3utils, BallerinaView, ResourceDefinition,
-              DefaultWorkerView, Point, ConnectorDeclarationView, StatementViewFactory, BallerinaASTFactory, ExpressionViewFactory) {
+              DefaultWorkerView, Point, ConnectorDeclarationView, StatementViewFactory, BallerinaASTFactory, ExpressionViewFactory,
+                MessageView) {
 
         /**
          * The view to represent a resource definition which is an AST visitor.
@@ -50,6 +51,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
             // Center point of the resource
             this._viewOptions.centerPoint = _.get(args, "viewOptions.centerPoint", new Point(50, 100));
+            this._viewOptions.startActionOffSet = _.get(args, "viewOptions.startActionOffSet", 60);
 
             // Center point of the default worker
             this._viewOptions.defaultWorker = _.get(args, "viewOptions.defaultWorker", {});
@@ -71,6 +73,13 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             this._viewOptions.contentWidth = _.get(args, "viewOptions.contentWidth", 1000);
             this._viewOptions.contentHeight = _.get(args, "viewOptions.contentHeight", 360);
             this._viewOptions.collapseIconWidth = _.get(args, "viewOptions.collaspeIconWidth", 1025);
+
+            this._viewOptions.startAction = _.get(args, "viewOptions.startAction", {
+                width: 120,
+                height: 30,
+                title: 'start',
+                cssClass: 'start-action'
+            });
 
             this._viewOptions.totalHeightGap = 50;
             this._viewOptions.LifeLineCenterGap = 180;
@@ -146,6 +155,28 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
         ResourceDefinitionView.prototype.setViewOptions = function (viewOptions) {
             this._viewOptions = viewOptions;
+        };
+
+        /**
+         * Render Start Action
+         */
+        ResourceDefinitionView.prototype.renderStartAction = function () {
+
+            var prefs = this._viewOptions.startAction;
+            var group = D3utils.group(this._contentGroup).classed(prefs.cssClass, true);
+            var center = this._viewOptions.defaultWorker.center.clone()
+                            .move(0, _.get(this._viewOptions, "startActionOffSet"));
+
+            var rect = D3utils.centeredRect(center, prefs.width, prefs.height, 0, 0, group);
+            var text = D3utils.centeredText(center, prefs.title, group);
+            var messageStart = this._parentView.getClientTopCenter().clone();
+            messageStart.y(center.y());
+            var messageEnd = messageStart.clone();
+            messageEnd.x(center.x() - prefs.width/2);
+            var messageView = new MessageView({container: group.node(), start: messageStart, end: messageEnd});
+            messageView.render();
+
+            this._startActionGroup = group;
         };
 
         ResourceDefinitionView.prototype.setBoundingBox = function (width, height, x, y) {
@@ -336,6 +367,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             log.debug("Rendering Resource View");
             this.getModel().accept(this);
             this.initResourceLevelDropTarget();
+            this.renderStartAction();
             var self = this;
             this._model.on('child-added', function(child){
                 self.visit(child);

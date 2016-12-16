@@ -133,6 +133,10 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
             return this._viewOptions;
         };
 
+        ServiceDefinitionView.prototype.getClientTopCenter = function () {
+            return this._clientLifeLine.getTopCenter();
+        };
+
         /**
          * Rendering the view of the service definition.
          * @returns {Object} - The svg group which the service definition view resides in.
@@ -261,7 +265,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
                 var newCenterPointY = prevResourceHeight + prevResourceY + 10;
                 var viewOpts = { centerPoint:new Point(50, newCenterPointY)};
                 var resourceDefinitionView = new ResourceDefinitionView({model: resourceDefinition,container: resourceContainer,
-                    toolPalette: this.toolPalette, messageManager: this.messageManager, viewOptions: viewOpts});
+                    toolPalette: this.toolPalette, messageManager: this.messageManager, viewOptions: viewOpts, parentView: this});
             }
             else{
                 var resourceDefinitionView = new ResourceDefinitionView({model: resourceDefinition, container: resourceContainer,
