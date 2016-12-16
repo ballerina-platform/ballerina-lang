@@ -39,6 +39,7 @@ import org.wso2.ballerina.core.model.builder.BLangModelBuilder;
 import org.wso2.ballerina.core.model.values.BValueRef;
 import org.wso2.ballerina.core.parser.BallerinaLexer;
 import org.wso2.ballerina.core.parser.BallerinaParser;
+import org.wso2.ballerina.core.parser.ParserException;
 import org.wso2.ballerina.core.parser.antlr4.BLangAntlr4Listener;
 import org.wso2.ballerina.core.runtime.registry.ApplicationRegistry;
 import org.wso2.ballerina.core.semantics.SemanticAnalyzer;
@@ -116,7 +117,11 @@ public class BalDeployer implements Deployer {
 
             if (file.getName().endsWith(FILE_EXTENSION)) {
                 ANTLRInputStream antlrInputStream = new ANTLRInputStream(inputStream);
-
+                
+                // Setting the name of the source file being parsed, to the antlr inputstream.
+                // This is required by the parser-error strategy.
+                antlrInputStream.name = file.getName();
+                
                 BallerinaLexer ballerinaLexer = new BallerinaLexer(antlrInputStream);
                 CommonTokenStream ballerinaToken = new CommonTokenStream(ballerinaLexer);
 
@@ -162,6 +167,8 @@ public class BalDeployer implements Deployer {
             }
         } catch (IOException e) {
             log.error("Error while creating Ballerina object model from file : " + file.getName(), e);
+        } catch (ParserException e) {
+            log.error("Failed to deploy " + file.getName() + ": " + e.getMessage());
         } finally {
             if (inputStream != null) {
                 try {
