@@ -213,7 +213,7 @@ public class BLangInterpreter implements NodeVisitor {
 
     @Override
     public void visit(FunctionInvocationStmt functionInvocationStmt) {
-
+        functionInvocationStmt.getFunctionInvocationExpr().accept(this);
     }
 
     @Override
@@ -278,7 +278,7 @@ public class BLangInterpreter implements NodeVisitor {
         controlStack.pushFrame(stackFrame);
 
         // Check whether we are invoking a native function or not.
-        if (function instanceof  BallerinaFunction) {
+        if (function instanceof BallerinaFunction) {
             BallerinaFunction bFunction = (BallerinaFunction) function;
             bFunction.accept(this);
         } else {
