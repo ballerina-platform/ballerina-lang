@@ -28,7 +28,7 @@ public class SymbolName {
 
     private String name;
     private SymType symType;
-    private Symbol symbol;
+//    private Symbol symbol;
     private Type[] parameters;
 
     public SymbolName(String name) {
@@ -59,9 +59,9 @@ public class SymbolName {
         this.symType = symType;
     }
 
-    public void setSymbol(Symbol symbol) {
-        this.symbol = symbol;
-    }
+//    public void setSymbol(Symbol symbol) {
+//        this.symbol = symbol;
+//    }
 
     public Type[] getParameters() {
         return parameters;
@@ -70,13 +70,13 @@ public class SymbolName {
     @Override
     public boolean equals(Object obj) {
         SymbolName other = (SymbolName) obj;
-        return this.name.equals(other.getName()) && this.symType == other.symType;
+        return this.name.equals(other.getName());
     }
 
     @Override
     public int hashCode() {
         int result = name.hashCode();
-        result = 31 * result + symType.hashCode();
+        result = 31 * result;
         return result;
     }
 
