@@ -132,6 +132,7 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
             // Creating default worker
             var defaultWorkerOpts = {};
             _.set(defaultWorkerOpts, 'container', this._rootGroup.node());
+            _.set(defaultWorkerOpts, 'title', 'FunctionWorker');
             _.set(defaultWorkerOpts, 'centerPoint', new Point(130, 25));
 
             // Check whether there is already created default worker and otherwise we create a new one
