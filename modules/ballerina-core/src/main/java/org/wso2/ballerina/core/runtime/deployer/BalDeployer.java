@@ -278,7 +278,7 @@ public class BalDeployer implements Deployer {
         controlStack.pushFrame(stackFrame);
         BLangInterpreter interpreter = new BLangInterpreter(ctx);
         function.accept(interpreter);
-        log.info("return value: " + returnVals[0].getInt());
+        //log.info("return value: " + returnVals[0].getInt());
     }
 
 
