@@ -28,12 +28,18 @@ import org.wso2.ballerina.core.model.SymbolName;
  */
 public class SymTable {
 
-    SymScope global;
-    SymScope current;
+//    private SymScope global;
+    private SymScope current;
 
     public SymTable() {
-        global = new SymScope();
-        current = global;
+//        global = new SymScope();
+        current = new SymScope();
+    }
+
+    public SymTable(SymScope symScope) {
+//        if (symScope)
+//        global = symScope;
+        current = symScope;
     }
 
     public void openScope() {
