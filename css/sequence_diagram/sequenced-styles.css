@@ -219,6 +219,7 @@ text-anchor: start;
 }
 .action-arrow{
    stroke: #9d99d;
+    fill: #000000;
 }
 
 .property-pane-action-button-edit {

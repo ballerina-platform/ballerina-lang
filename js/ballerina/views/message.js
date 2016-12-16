@@ -64,6 +64,8 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         var self = this;
         this._line = D3Utils.lineFromPoints(this._start, this._end, this._rootGroup)
             .classed(_.get(this._viewOptions, 'cssClass.line'), true);
+        var arrowHeadWidth = 5;
+        this._arrowHead = D3Utils.inputTriangle(this._end.x() - arrowHeadWidth, this._end.y(), this._rootGroup).classed("action-arrow", true);
 
         this._start.on('moved', function(offset){
             var x1 = self._line.attr('x1');
@@ -80,6 +82,11 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
 
             self._line.attr('x2', x2 + offset.dx)
                 .attr('y2', y2 + offset.dy);
+
+            x2 = self._line.attr('x2');
+            y2 = self._line.attr('y2');
+            var points = "" + x2 + "," + (y2 - 5) + " " + (x2 + 5) + "," + (y2) + " " + x2 + "," + (y2 + 5);
+            self._arrowHead.attr('points', points);
 
         });
 
