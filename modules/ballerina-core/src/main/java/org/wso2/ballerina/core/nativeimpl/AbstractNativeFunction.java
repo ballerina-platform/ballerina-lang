@@ -26,6 +26,7 @@ import org.wso2.ballerina.core.model.Const;
 import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.SymbolName;
+import org.wso2.ballerina.core.model.VariableDcl;
 import org.wso2.ballerina.core.model.types.Type;
 import org.wso2.ballerina.core.model.types.TypeC;
 import org.wso2.ballerina.core.model.values.BValue;
@@ -52,9 +53,11 @@ public abstract class AbstractNativeFunction implements NativeConstruct, Functio
     private SymbolName symbolName;
     private List<Annotation> annotations;
     private List<Parameter> parameters;
-    private List<Type> returnTypes;
+    private List<TypeC> returnTypes;
+    private TypeC[] returnTypesC;
     private boolean isPublicFunction;
     private List<Const> constants;
+    private int stackFrameSize = 1;
 
     public AbstractNativeFunction() {
         parameters = new ArrayList<>();
@@ -73,16 +76,12 @@ public abstract class AbstractNativeFunction implements NativeConstruct, Functio
         functionName = function.functionName();
 
         Argument[] methodParams = function.args();
-        Type[] params = new Type[methodParams.length];
-        for (int i = 0; i < methodParams.length; i++) {
-            params[i] = TypeC.getType(methodParams[i].type().getName());
-        }
-        symbolName = new SymbolName(packageName + "." + functionName, SymbolName.SymType.CALLABLE_UNIT, params);
+        symbolName = new SymbolName(packageName + "." + functionName);
         isPublicFunction = function.isPublic();
         Arrays.stream(methodParams).
                 forEach(argument -> {
                     try {
-                        parameters.add(new Parameter(TypeC.getType(argument.type().getName())
+                        parameters.add(new Parameter(TypeC.getTypeC(argument.type().getName())
                                 , new SymbolName(argument.name())));
                     } catch (RuntimeException e) {
                         // TODO: Fix this when TypeC.getType method is improved.
@@ -93,13 +92,14 @@ public abstract class AbstractNativeFunction implements NativeConstruct, Functio
         Arrays.stream(function.returnType()).forEach(
                 returnType -> {
                     try {
-                        returnTypes.add(TypeC.getType(returnType.getName()));
+                        returnTypes.add(TypeC.getTypeC(returnType.getName()));
                     } catch (RuntimeException e) {
                         // TODO: Fix this when TypeC.getType method is improved.
                         log.warn("Error while processing ReturnTypes for Native ballerina function {}:{}.",
                                 packageName, functionName, e);
                     }
                 });
+
         Arrays.stream(function.consts()).forEach(
                 constant -> {
                     try {
@@ -127,6 +127,11 @@ public abstract class AbstractNativeFunction implements NativeConstruct, Functio
     }
 
     @Override
+    public void setSymbolName(SymbolName symbolName) {
+        this.symbolName = symbolName;
+    }
+
+    @Override
     public Annotation[] getAnnotations() {
         return annotations.toArray(new Annotation[annotations.size()]);
     }
@@ -136,9 +141,23 @@ public abstract class AbstractNativeFunction implements NativeConstruct, Functio
         return parameters.toArray(new Parameter[parameters.size()]);
     }
 
+    /**
+     * Get all the variableDcls declared in the scope of BallerinaFunction
+     *
+     * @return list of all BallerinaFunction scoped variableDcls
+     */
+    public VariableDcl[] getVariableDcls() {
+        return new VariableDcl[0];
+    }
+
     @Override
     public Type[] getReturnTypes() {
-        return returnTypes.toArray(new Type[returnTypes.size()]);
+        return new Type[0];
+    }
+
+    @SuppressWarnings("unchecked")
+    public TypeC[] getReturnTypesC() {
+        return returnTypes.toArray(new TypeC[returnTypes.size()]);
     }
 
     /**
@@ -158,6 +177,14 @@ public abstract class AbstractNativeFunction implements NativeConstruct, Functio
     @Override
     public boolean isPublic() {
         return isPublicFunction;
+    }
+
+    public int getStackFrameSize() {
+        return stackFrameSize;
+    }
+
+    public void setStackFrameSize(int stackFrameSize) {
+        this.stackFrameSize = stackFrameSize;
     }
 
     @Override
