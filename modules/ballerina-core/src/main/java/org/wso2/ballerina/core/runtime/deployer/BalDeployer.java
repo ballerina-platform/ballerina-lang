@@ -33,10 +33,12 @@ import org.wso2.ballerina.core.model.Application;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.Package;
+import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.VariableDcl;
 import org.wso2.ballerina.core.model.builder.BLangModelBuilder;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
+import org.wso2.ballerina.core.model.types.TypeC;
 import org.wso2.ballerina.core.model.values.BValueRef;
 import org.wso2.ballerina.core.model.values.IntValue;
 import org.wso2.ballerina.core.parser.BallerinaLexer;
@@ -224,11 +226,9 @@ public class BalDeployer implements Deployer {
         for (FunctionInvocationExpr expr : bFile.getFuncIExprs()) {
             SymbolName symName = expr.getFunctionName();
             BallerinaFunction bFunction = (BallerinaFunction) bFile.getFunctions().get(symName.getName());
-
             if (bFunction == null) {
                 throw new IllegalStateException("Undefined function: " + symName.getName());
             }
-
             expr.setFunction(bFunction);
         }
 
@@ -237,21 +237,21 @@ public class BalDeployer implements Deployer {
             return;
         }
 
+        // Check whether this is a standard main function with one integer argument
+        // This will be changed to string[] args once we have the array support
+        Parameter[] parameters = function.getParameters();
+        if (parameters.length != 1 || parameters[0].getTypeC() != TypeC.INT_TYPE) {
+            log.info("main function is not comply with standard main function in ballerina, hence skipping");
+            return;
+        }
+
         // Execute main function
         // Create control stack and the stack frame
         Context ctx = new Context();
         ControlStack controlStack = ctx.getControlStack();
-
         int sizeOfValueArray = function.getStackFrameSize();
-
         BValueRef[] values = new BValueRef[sizeOfValueArray];
-
         int i = 0;
-//        Parameter[] parameters = function.getParameters();
-//        for (Parameter param: parameters) {
-//            values[i] = BValueRef.getDefaultValue(param.getTypeC());
-//            i++;
-//        }
 
         // Main function only have one input parameter
         // Read from command line arguments
@@ -273,13 +273,10 @@ public class BalDeployer implements Deployer {
         }
 
         BValueRef[] returnVals = new BValueRef[function.getReturnTypesC().length];
-
         StackFrame stackFrame = new StackFrame(values, returnVals);
         controlStack.pushFrame(stackFrame);
-
         BLangInterpreter interpreter = new BLangInterpreter(ctx);
         function.accept(interpreter);
-
         log.info("return value: " + returnVals[0].getInt());
     }
 
