@@ -33,6 +33,7 @@ public class Symbol {
     private TypeC[] paramTypes;
     private TypeC[] returnTypes;
     private Function function;
+    private Action action;
 
     public Symbol(TypeC type, int offset) {
         this.type = type;
@@ -41,6 +42,12 @@ public class Symbol {
 
     public Symbol(Function function, TypeC[] paramTypes, TypeC[] returnTypes) {
         this.function = function;
+        this.paramTypes = paramTypes;
+        this.returnTypes = returnTypes;
+    }
+
+    public Symbol(Action action, TypeC[] paramTypes, TypeC[] returnTypes) {
+        this.action = action;
         this.paramTypes = paramTypes;
         this.returnTypes = returnTypes;
     }
