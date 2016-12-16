@@ -343,7 +343,7 @@ commentStatement
     ;
 
 actionInvocationStatement
-    :   expression ';'
+    :   actionInvocation argumentList ';'
     ;
 
 variableReference
@@ -361,7 +361,7 @@ expressionList
     ;
 
 functionInvocationStatement
-    :   expression ';'
+    :   functionName argumentList ';'
     ;
 
 functionName
