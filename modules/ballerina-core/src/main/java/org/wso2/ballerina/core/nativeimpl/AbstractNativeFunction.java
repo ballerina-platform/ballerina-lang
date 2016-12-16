@@ -57,7 +57,7 @@ public abstract class AbstractNativeFunction implements NativeConstruct, Functio
     private TypeC[] returnTypesC;
     private boolean isPublicFunction;
     private List<Const> constants;
-    private int stackFrameSize = 1;
+    private int stackFrameSize;
 
     public AbstractNativeFunction() {
         parameters = new ArrayList<>();
@@ -76,7 +76,10 @@ public abstract class AbstractNativeFunction implements NativeConstruct, Functio
         functionName = function.functionName();
 
         Argument[] methodParams = function.args();
-        symbolName = new SymbolName(packageName + "." + functionName);
+
+        stackFrameSize = methodParams.length;
+
+        symbolName = new SymbolName(packageName + ":" + functionName);
         isPublicFunction = function.isPublic();
         Arrays.stream(methodParams).
                 forEach(argument -> {
