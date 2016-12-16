@@ -214,4 +214,9 @@ public class BallerinaConnector implements Connector , Node {
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
+
+    @Override
+    public Parameter[] getParameters() {
+        return new Parameter[0];
+    }
 }
