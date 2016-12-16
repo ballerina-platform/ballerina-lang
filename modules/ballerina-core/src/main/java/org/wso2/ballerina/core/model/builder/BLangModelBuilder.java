@@ -512,10 +512,7 @@ public class BLangModelBuilder {
         stmtBuilder.setFunctionInvocationExpr(invocationExpr);
         FunctionInvocationStmt functionInvocationStmt = stmtBuilder.build();
 
-        BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder();
-        blockStmtBuilder.addStmt(functionInvocationStmt);
-        blockStmtBuilderStack.push(blockStmtBuilder);
-
+        blockStmtBuilderStack.peek().addStmt(functionInvocationStmt);
     }
 
     // Literal Values
