@@ -35,6 +35,10 @@ public class FunctionInvocationStmt implements Statement {
         this.functionInvocationExpr = functionInvocationExpr;
     }
 
+    public FunctionInvocationExpr getFunctionInvocationExpr() {
+        return functionInvocationExpr;
+    }
+
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);

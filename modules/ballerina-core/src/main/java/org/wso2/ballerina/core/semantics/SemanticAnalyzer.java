@@ -297,7 +297,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(FunctionInvocationStmt functionInvocationStmt) {
-
+        functionInvocationStmt.getFunctionInvocationExpr().accept(this);
     }
 
     @Override
