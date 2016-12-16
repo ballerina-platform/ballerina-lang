@@ -1,6 +1,7 @@
 package org.wso2.ballerina.core.nativeimpl.connectors.http;
 
 import org.wso2.ballerina.core.model.types.TypeEnum;
+import org.wso2.ballerina.core.model.values.BValueRef;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaConnector;
 import org.wso2.ballerina.core.nativeimpl.connectors.NativeConnector;
@@ -11,8 +12,9 @@ import org.wso2.ballerina.core.nativeimpl.connectors.NativeConnector;
 @BallerinaConnector(
         packageName = "ballerina.net.connectors.http",
         connectorName = "HTTPConnector",
-        args = { @Argument(name = "serviceUri", type = TypeEnum.STRING),
-                 @Argument(name = "timeout", type = TypeEnum.INT)
+        args = {
+                @Argument(name = "serviceUri", type = TypeEnum.STRING),
+                @Argument(name = "timeout", type = TypeEnum.INT)
         })
 public class HTTPConnector extends NativeConnector {
 
@@ -21,15 +23,13 @@ public class HTTPConnector extends NativeConnector {
     private String serviceUri;
     private int timeout;
 
-    public HTTPConnector(String serviceUri, int timeout) {
-        this.serviceUri = serviceUri;
-        this.timeout = timeout;
-    }
-
     @Override
-    public boolean init() {
-
-        return false;
+    public boolean init(BValueRef[] bValueRefs) {
+        if (bValueRefs != null && bValueRefs.length == 2) {
+            serviceUri = bValueRefs[0].getString();
+            timeout = bValueRefs[1].getInt();
+        }
+        return true;
     }
 
     public String getServiceUri() {
@@ -38,5 +38,10 @@ public class HTTPConnector extends NativeConnector {
 
     public int getTimeout() {
         return timeout;
+    }
+
+    @Override
+    public String getPackageName() {
+        return null;
     }
 }

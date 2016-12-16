@@ -33,6 +33,7 @@ import org.wso2.ballerina.core.model.Symbol;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.VariableDcl;
 import org.wso2.ballerina.core.model.Worker;
+import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.AddExpression;
 import org.wso2.ballerina.core.model.expressions.AndExpression;
 import org.wso2.ballerina.core.model.expressions.BasicLiteral;
@@ -53,6 +54,7 @@ import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.statements.CommentStmt;
+import org.wso2.ballerina.core.model.statements.FunctionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.IfElseStmt;
 import org.wso2.ballerina.core.model.statements.ReplyStmt;
 import org.wso2.ballerina.core.model.statements.ReturnStmt;
@@ -295,6 +297,11 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     @Override
+    public void visit(FunctionInvocationStmt functionInvocationStmt) {
+        functionInvocationStmt.getFunctionInvocationExpr().accept(this);
+    }
+
+    @Override
     public void visit(ReplyStmt replyStmt) {
 
     }
@@ -322,8 +329,10 @@ public class SemanticAnalyzer implements NodeVisitor {
         Expression lExpr = addExpr.getLExpr();
 
         if (lExpr.getType() != rExpr.getType()) {
-            throw new InvalidSemanticException("Incompatible types in the add expression: " + lExpr.getType()
-                    + " vs " + rExpr.getType());
+
+            throw new RuntimeException(
+                    "Incompatible types in the add expression: " + lExpr.getType() + " vs " + rExpr.getType());
+
         }
 
         // We need to find a better implementation than this.
@@ -331,22 +340,22 @@ public class SemanticAnalyzer implements NodeVisitor {
             addExpr.setType(TypeC.INT_TYPE);
             addExpr.setEvalFunc(AddExpression.ADD_INT_FUNC_NEW);
 
-//        }
-//        else if (lExpr.getType() == TypeC.LONG_TYPE) {
-//            addExpr.setType(TypeC.LONG_TYPE);
-//            addExpr.setEvalFunc(AddExpression.ADD_LONG_FUNC);
-//
-//        } else if (lExpr.getType() == TypeC.FLOAT_TYPE) {
-//            addExpr.setType(TypeC.FLOAT_TYPE);
-//            addExpr.setEvalFunc(AddExpression.ADD_FLOAT_FUNC);
-//
-//        } else if (lExpr.getType() == TypeC.DOUBLE_TYPE) {
-//            addExpr.setType(TypeC.DOUBLE_TYPE);
-//            addExpr.setEvalFunc(AddExpression.ADD_DOUBLE_FUNC);
-//
-//        } else if (lExpr.getType() == TypeC.STRING_TYPE) {
-//            addExpr.setType(TypeC.STRING_TYPE);
-//            addExpr.setEvalFunc(AddExpression.ADD_STRING_FUNC);
+            //        }
+            //        else if (lExpr.getType() == TypeC.LONG_TYPE) {
+            //            addExpr.setType(TypeC.LONG_TYPE);
+            //            addExpr.setEvalFunc(AddExpression.ADD_LONG_FUNC);
+            //
+            //        } else if (lExpr.getType() == TypeC.FLOAT_TYPE) {
+            //            addExpr.setType(TypeC.FLOAT_TYPE);
+            //            addExpr.setEvalFunc(AddExpression.ADD_FLOAT_FUNC);
+            //
+            //        } else if (lExpr.getType() == TypeC.DOUBLE_TYPE) {
+            //            addExpr.setType(TypeC.DOUBLE_TYPE);
+            //            addExpr.setEvalFunc(AddExpression.ADD_DOUBLE_FUNC);
+            //
+            //        } else if (lExpr.getType() == TypeC.STRING_TYPE) {
+            //            addExpr.setType(TypeC.STRING_TYPE);
+            //            addExpr.setEvalFunc(AddExpression.ADD_STRING_FUNC);
 
         } else {
             throw new InvalidSemanticException("Add operation is not supported for type: " + lExpr.getType());
@@ -365,8 +374,10 @@ public class SemanticAnalyzer implements NodeVisitor {
         Expression lExpr = expr.getLExpr();
 
         if (lExpr.getType() != rExpr.getType()) {
-            throw new InvalidSemanticException("Incompatible types in the add expression: " + lExpr.getType()
-                    + " vs " + rExpr.getType());
+
+            throw new RuntimeException(
+                    "Incompatible types in the add expression: " + lExpr.getType() + " vs " + rExpr.getType());
+
         }
 
         if (lExpr.getType() == TypeC.INT_TYPE) {
@@ -384,7 +395,6 @@ public class SemanticAnalyzer implements NodeVisitor {
             expr.accept(this);
         }
 
-
         // Can we do this bit in the linker
         SymbolName symbolName = funcIExpr.getFunctionName();
 
@@ -399,6 +409,11 @@ public class SemanticAnalyzer implements NodeVisitor {
         bFile.addFuncInvocationExpr(funcIExpr);
 
         // TODO store the types of each func argument expression
+    }
+
+    @Override
+    public void visit(ActionInvocationExpr actionInvocationExpr) {
+
     }
 
     @Override
@@ -457,7 +472,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             throw new InvalidSemanticException("Undeclared variable: " + symName.getName());
         }
 
-//        symName.setSymbol(symbol);
+        //        symName.setSymbol(symbol);
         variableRefExpr.setType(symbol.getType());
         variableRefExpr.setOffset(symbol.getOffset());
     }

@@ -197,6 +197,7 @@ public class BallerinaFunction implements Function, Node {
         return stackFrameSize;
     }
 
+
     public void setStackFrameSize(int stackFrameSize) {
         this.stackFrameSize = stackFrameSize;
     }

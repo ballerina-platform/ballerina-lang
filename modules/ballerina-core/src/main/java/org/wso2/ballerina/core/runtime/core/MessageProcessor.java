@@ -63,6 +63,6 @@ public class MessageProcessor implements CarbonMessageProcessor {
     }
 
     public String getId() {
-        return null;
+        return "ballerina-message-processor";
     }
 }
