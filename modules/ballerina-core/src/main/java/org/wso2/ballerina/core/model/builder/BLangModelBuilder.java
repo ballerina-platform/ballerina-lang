@@ -65,10 +65,8 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Stack;
 
-// TODO Change the method names
-
 /**
- * Builds ballerina language object model
+ * {@code BLangModelBuilder} provides an high-level API to create Ballerina language object model.
  *
  * @since 1.0.0
  */

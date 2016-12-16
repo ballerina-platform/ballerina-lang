@@ -22,7 +22,7 @@ import org.wso2.ballerina.core.model.values.BValueRef;
 import java.util.Stack;
 
 /**
- * {@code ControlStack} is used to manage functions calls and returns.
+ * {@code ControlStack} represents function call stack.
  *
  * @since 1.0.0
  */

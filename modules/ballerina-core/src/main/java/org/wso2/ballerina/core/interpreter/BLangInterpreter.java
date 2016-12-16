@@ -59,7 +59,9 @@ import org.wso2.ballerina.core.model.values.BValueRef;
 import java.util.List;
 
 /**
+ * {@code BLangInterpreter} executes a Ballerina program
  *
+ * @since 1.0.0
  */
 public class BLangInterpreter implements NodeVisitor {
 
@@ -223,46 +225,6 @@ public class BLangInterpreter implements NodeVisitor {
     }
 
     @Override
-    public void visit(BasicLiteral basicLiteral) {
-
-    }
-
-    @Override
-    public void visit(AddExpression addExpr) {
-        Expression rExpr = addExpr.getRExpr();
-        rExpr.accept(this);
-
-        Expression lExpr = addExpr.getLExpr();
-        lExpr.accept(this);
-
-        BValueRef rValue = getValue(rExpr);
-        BValueRef lValue = getValue(lExpr);
-
-        BValueRef result = addExpr.getEvalFunc().apply(lValue, rValue);
-        controlStack.setValue(addExpr.getOffset(), result);
-    }
-
-    @Override
-    public void visit(AndExpression andExpression) {
-
-    }
-
-    @Override
-    public void visit(EqualExpression equalExpr) {
-        Expression rExpr = equalExpr.getRExpr();
-        rExpr.accept(this);
-
-        Expression lExpr = equalExpr.getLExpr();
-        lExpr.accept(this);
-
-        BValueRef rValue = getValue(rExpr);
-        BValueRef lValue = getValue(lExpr);
-
-        BValueRef result = equalExpr.getEvalFunc().apply(lValue, rValue);
-        controlStack.setValue(equalExpr.getOffset(), result);
-    }
-
-    @Override
     public void visit(FunctionInvocationExpr funcIExpr) {
         // Create the Stack frame
         BallerinaFunction function = (BallerinaFunction) funcIExpr.getFunction();
@@ -316,6 +278,46 @@ public class BLangInterpreter implements NodeVisitor {
         if (rVals.length >= 1) {
             controlStack.setValue(funcIExpr.getOffset(), rVals[0]);
         }
+    }
+
+    @Override
+    public void visit(BasicLiteral basicLiteral) {
+
+    }
+
+    @Override
+    public void visit(AddExpression addExpr) {
+        Expression rExpr = addExpr.getRExpr();
+        rExpr.accept(this);
+
+        Expression lExpr = addExpr.getLExpr();
+        lExpr.accept(this);
+
+        BValueRef rValue = getValue(rExpr);
+        BValueRef lValue = getValue(lExpr);
+
+        BValueRef result = addExpr.getEvalFunc().apply(lValue, rValue);
+        controlStack.setValue(addExpr.getOffset(), result);
+    }
+
+    @Override
+    public void visit(AndExpression andExpression) {
+
+    }
+
+    @Override
+    public void visit(EqualExpression equalExpr) {
+        Expression rExpr = equalExpr.getRExpr();
+        rExpr.accept(this);
+
+        Expression lExpr = equalExpr.getLExpr();
+        lExpr.accept(this);
+
+        BValueRef rValue = getValue(rExpr);
+        BValueRef lValue = getValue(lExpr);
+
+        BValueRef result = equalExpr.getEvalFunc().apply(lValue, rValue);
+        controlStack.setValue(equalExpr.getOffset(), result);
     }
 
     @Override
