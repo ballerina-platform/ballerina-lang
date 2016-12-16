@@ -183,6 +183,10 @@
                                     <version>${orbit.version.axiom}</version>
                                 </bundle>
                                 <bundle>
+                                    <symbolicName>org.apache.ws.commons.axiom.axiom-impl</symbolicName>
+                                    <version>${orbit.version.axiom}</version>
+                                </bundle>
+                                <bundle>
                                     <symbolicName>org.apache.geronimo.specs.geronimo-activation_1.1_spec</symbolicName>
                                     <version>${geronimo.activation}</version>
                                 </bundle>
