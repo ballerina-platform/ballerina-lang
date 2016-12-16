@@ -29,15 +29,14 @@ import org.wso2.ballerina.core.interpreter.BLangInterpreter;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.interpreter.ControlStack;
 import org.wso2.ballerina.core.interpreter.StackFrame;
+import org.wso2.ballerina.core.linker.BLangLinker;
 import org.wso2.ballerina.core.model.Application;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.Package;
 import org.wso2.ballerina.core.model.Parameter;
-import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.VariableDcl;
 import org.wso2.ballerina.core.model.builder.BLangModelBuilder;
-import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.types.TypeC;
 import org.wso2.ballerina.core.model.values.BValueRef;
 import org.wso2.ballerina.core.model.values.IntValue;
@@ -46,7 +45,9 @@ import org.wso2.ballerina.core.parser.BallerinaParser;
 import org.wso2.ballerina.core.parser.BallerinaParserErrorStrategy;
 import org.wso2.ballerina.core.parser.ParserException;
 import org.wso2.ballerina.core.parser.antlr4.BLangAntlr4Listener;
+import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 import org.wso2.ballerina.core.runtime.registry.ApplicationRegistry;
+import org.wso2.ballerina.core.semantics.InvalidSemanticException;
 import org.wso2.ballerina.core.semantics.SemanticAnalyzer;
 import org.wso2.carbon.deployment.engine.Artifact;
 import org.wso2.carbon.deployment.engine.ArtifactType;
@@ -192,7 +193,7 @@ public class BalDeployer implements Deployer {
             }
         } catch (IOException e) {
             log.error("Error while creating Ballerina object model from file : " + file.getName(), e);
-        } catch (ParserException e) {
+        } catch (ParserException | InvalidSemanticException | IllegalStateException e) {
             log.error("Failed to deploy " + file.getName() + ": " + e.getMessage());
         } finally {
             if (inputStream != null) {
@@ -222,15 +223,18 @@ public class BalDeployer implements Deployer {
 
     private static void linkAndRunMainFunction(BallerinaFile bFile) {
 
-        // Linking functions defined in the same source file
-        for (FunctionInvocationExpr expr : bFile.getFuncIExprs()) {
-            SymbolName symName = expr.getFunctionName();
-            BallerinaFunction bFunction = (BallerinaFunction) bFile.getFunctions().get(symName.getName());
-            if (bFunction == null) {
-                throw new IllegalStateException("Undefined function: " + symName.getName());
-            }
-            expr.setFunction(bFunction);
-        }
+//        // Linking functions defined in the same source file
+//        for (FunctionInvocationExpr expr : bFile.getFuncIExprs()) {
+//            SymbolName symName = expr.getFunctionName();
+//            BallerinaFunction bFunction = (BallerinaFunction) bFile.getFunctions().get(symName.getName());
+//            if (bFunction == null) {
+//                throw new IllegalStateException("Undefined function: " + symName.getName());
+//            }
+//            expr.setFunction(bFunction);
+//        }
+
+        BLangLinker bLangLinker = new BLangLinker(bFile);
+        bLangLinker.link(GlobalScopeHolder.getInstance().getScope());
 
         BallerinaFunction function = (BallerinaFunction) bFile.getFunctions().get("main");
         if (function == null) {
@@ -277,7 +281,7 @@ public class BalDeployer implements Deployer {
         controlStack.pushFrame(stackFrame);
         BLangInterpreter interpreter = new BLangInterpreter(ctx);
         function.accept(interpreter);
-        log.info("return value: " + returnVals[0].getInt());
+        //log.info("return value: " + returnVals[0].getInt());
     }
 
 

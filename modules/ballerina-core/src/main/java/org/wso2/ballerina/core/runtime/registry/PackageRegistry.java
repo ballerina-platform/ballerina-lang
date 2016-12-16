@@ -20,8 +20,8 @@ package org.wso2.ballerina.core.runtime.registry;
 
 import org.wso2.ballerina.core.model.Package;
 import org.wso2.ballerina.core.model.Symbol;
-import org.wso2.ballerina.core.model.types.CallableUnit;
-import org.wso2.ballerina.core.model.types.CallableUnitType;
+import org.wso2.ballerina.core.model.SymbolName;
+import org.wso2.ballerina.core.model.util.SymbolUtils;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
@@ -69,8 +69,15 @@ public class PackageRegistry {
             aPackage.getPrivateFunctions().put(function.getName(), function);
         }
 
-        CallableUnitType callableUnitType = new CallableUnitType(CallableUnit.FUNCTION, function.getSymbolName());
-        callableUnitType.setParamType(function.getSymbolName().getParameters());
+        String funcName = function.getName();
+        SymbolName symbolName = SymbolUtils.generateSymbolName(funcName, function.getParameters());
+        Symbol symbol = new Symbol(function, SymbolUtils.getTypesOfParams(function.getParameters()),
+                function.getReturnTypesC());
+
+        GlobalScopeHolder.getInstance().insert(symbolName, symbol);
+
+//        CallableUnitType callableUnitType = new CallableUnitType(CallableUnit.FUNCTION, function.getSymbolName());
+//        callableUnitType.setParamType(function.getSymbolName().getParameters());
 //        callableUnitType.setReturnType(function.getReturnTypesC());
 //        GlobalScopeHolder.getInstance().insert(function.getSymbolName(), new Symbol(callableUnitType, 0));
     }
@@ -84,10 +91,14 @@ public class PackageRegistry {
         Package aPackage = packages
                 .computeIfAbsent(action.getPackageName(), k -> new Package(action.getPackageName()));
         aPackage.getActions().put(action.getName(), action);
-        CallableUnitType callableUnitType = new CallableUnitType(CallableUnit.ACTION, action.getSymbolName());
-        callableUnitType.setParamType(action.getSymbolName().getParameters());
-        callableUnitType.setReturnType(action.getReturnTypesC());
-        GlobalScopeHolder.getInstance().insert(action.getSymbolName(), new Symbol(callableUnitType, 0));
+
+        String actionName = action.getSymbolName().getName();
+        SymbolName symbolName = SymbolUtils.generateSymbolName(actionName, action.getParameters());
+        Symbol symbol = new Symbol(action, SymbolUtils.getTypesOfParams(action.getParameters()),
+                action.getReturnTypesC());
+
+        GlobalScopeHolder.getInstance().insert(symbolName, symbol);
+
     }
 
     /**

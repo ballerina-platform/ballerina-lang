@@ -33,6 +33,7 @@ public abstract class AbstractNativeAction implements Action, NativeConstruct {
     private SymbolName symbolName;
     private List<Annotation> annotations;
     private List<Parameter> parameters;
+
     private List<TypeC> returnTypes;
     private List<Const> constants;
 
@@ -113,11 +114,13 @@ public abstract class AbstractNativeAction implements Action, NativeConstruct {
     @Override
     public Type[] getReturnTypes() {
         return new Type[0];
+
     }
 
     @Override
     public TypeC[] getReturnTypesC() {
         return returnTypes.toArray(new TypeC[returnTypes.size()]);
+
     }
 
     /**

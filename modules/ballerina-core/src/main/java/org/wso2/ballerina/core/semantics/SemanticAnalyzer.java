@@ -196,7 +196,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         Symbol symbol = symbolTable.lookup(symName);
         if (symbol != null) {
-            throw new RuntimeException("Duplicate parameter name: " + symName.getName());
+            throw new InvalidSemanticException("Duplicate parameter name: " + symName.getName());
         }
 
         TypeC type = parameter.getTypeC();
@@ -212,7 +212,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         Symbol symbol = symbolTable.lookup(symName);
         if (symbol != null) {
-            throw new RuntimeException("Duplicate variable declaration with name: " + symName.getName());
+            throw new InvalidSemanticException("Duplicate variable declaration with name: " + symName.getName());
         }
 
         TypeC type = variableDcl.getTypeC();
@@ -253,7 +253,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         expr.accept(this);
 
         if (expr.getType() != TypeC.BOOLEAN_TYPE) {
-            throw new RuntimeException("Incompatible types: expected a boolean expression");
+            throw new InvalidSemanticException("Incompatible types: expected a boolean expression");
         }
 
         Statement thenBody = ifElseStmt.getThenBody();
@@ -264,7 +264,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             elseIfCondition.accept(this);
 
             if (elseIfCondition.getType() != TypeC.BOOLEAN_TYPE) {
-                throw new RuntimeException("Incompatible types: expected a boolean expression");
+                throw new InvalidSemanticException("Incompatible types: expected a boolean expression");
             }
 
             Statement elseIfBody = elseIfBlock.getElseIfBody();
@@ -283,13 +283,13 @@ public class SemanticAnalyzer implements NodeVisitor {
         expr.accept(this);
 
         if (expr.getType() != TypeC.BOOLEAN_TYPE) {
-            throw new RuntimeException("Incompatible types: expected a boolean expression");
+            throw new InvalidSemanticException("Incompatible types: expected a boolean expression");
         }
 
         BlockStmt blockStmt = whileStmt.getBody();
         if (blockStmt.getStatements().length == 0) {
             // This can be optimized later to skip the while statement
-            throw new RuntimeException("No statements in the while loop");
+            throw new InvalidSemanticException("No statements in the while loop");
         }
 
         blockStmt.accept(this);
@@ -323,8 +323,10 @@ public class SemanticAnalyzer implements NodeVisitor {
         Expression lExpr = addExpr.getLExpr();
 
         if (lExpr.getType() != rExpr.getType()) {
+
             throw new RuntimeException(
                     "Incompatible types in the add expression: " + lExpr.getType() + " vs " + rExpr.getType());
+
         }
 
         // We need to find a better implementation than this.
@@ -350,7 +352,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             //            addExpr.setEvalFunc(AddExpression.ADD_STRING_FUNC);
 
         } else {
-            throw new RuntimeException("Add operation is not supported for type: " + lExpr.getType());
+            throw new InvalidSemanticException("Add operation is not supported for type: " + lExpr.getType());
         }
     }
 
@@ -366,8 +368,10 @@ public class SemanticAnalyzer implements NodeVisitor {
         Expression lExpr = expr.getLExpr();
 
         if (lExpr.getType() != rExpr.getType()) {
+
             throw new RuntimeException(
                     "Incompatible types in the add expression: " + lExpr.getType() + " vs " + rExpr.getType());
+
         }
 
         if (lExpr.getType() == TypeC.INT_TYPE) {
@@ -459,7 +463,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         Symbol symbol = symbolTable.lookup(symName);
         // Then set the type correctly..
         if (symbol == null) {
-            throw new RuntimeException("Undeclared variable: " + symName.getName());
+            throw new InvalidSemanticException("Undeclared variable: " + symName.getName());
         }
 
         //        symName.setSymbol(symbol);

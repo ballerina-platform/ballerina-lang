@@ -25,6 +25,7 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 import org.wso2.ballerina.core.runtime.registry.PackageRegistry;
@@ -68,6 +69,7 @@ public class NativeConstructProviderServiceComponent implements RequiredCapabili
 
         if (bundleContext != null) {
             bundleContext.registerService(PackageRegistry.class, PackageRegistry.getInstance(), null);
+            bundleContext.registerService(SymScope.class, GlobalScopeHolder.getInstance().getScope(), null);
         }
     }
 
