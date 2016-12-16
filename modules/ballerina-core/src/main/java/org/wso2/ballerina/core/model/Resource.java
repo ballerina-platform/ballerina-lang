@@ -310,7 +310,7 @@ public class Resource implements Executable, Node {
 
     @Override
     public boolean execute(Context context, BalCallback callback) {
-        setupBallerinaRuntime(context);
+        //setupBallerinaRuntime(context);
         populateDefaultMessage(context);
         return defaultWorker.execute(context, callback);
     }
@@ -347,7 +347,7 @@ public class Resource implements Executable, Node {
     private void populateDefaultMessage(Context context) {
         // Adding MessageValue to the ControlStack
         ControlStack controlStack = context.getControlStack();
-        BValueRef[] valueParams = new BValueRef[1];
+        BValueRef[] valueParams = new BValueRef[this.stackFrameSize];
         // Populate MessageValue with CarbonMessages' headers.
         MessageValue messageValue = new MessageValue(context.getCarbonMessage());
         List<Header> headerList = context.getCarbonMessage().getHeaders().getAll();
@@ -359,10 +359,20 @@ public class Resource implements Executable, Node {
             headerList.forEach(headerPrint);
         }
         valueParams[0] = new BValueRef(messageValue);
+        
+        int i = 1;
+        // Create default values for all declared local variables
+        VariableDcl[] variableDcls = this.getVariableDcls();
+        for (VariableDcl variableDcl : variableDcls) {
+            valueParams[i] = BValueRef.getDefaultValue(variableDcl.getTypeC());
+            i++;
+        }
+        
+        BValueRef[] ret = new BValueRef[1];
 
-//        StackFrame stackFrame = new StackFrame(valueParams, null, new BValueRef[0]);
+        StackFrame stackFrame = new StackFrame(valueParams, ret);
         // ToDo : StackFrame should be added at the upstream components.
-//        controlStack.pushFrame(stackFrame);
+        controlStack.pushFrame(stackFrame);
 
         // ToDo : Use generic identifier for message.
         Parameter paramMessage = new Parameter(new MessageType(), new SymbolName("m"));
