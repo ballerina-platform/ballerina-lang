@@ -19,9 +19,9 @@ package org.wso2.ballerina.core.model.builder;
 
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.BallerinaAction;
+import org.wso2.ballerina.core.model.BallerinaConnector;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
-import org.wso2.ballerina.core.model.Connector;
 import org.wso2.ballerina.core.model.Import;
 import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.Resource;
@@ -401,7 +401,7 @@ public class BLangModelBuilder {
         // TODO Improve this implementation
         annotationList.forEach(callableUnitGroupBuilder::addAnnotation);
 
-        Connector connector = callableUnitGroupBuilder.buildConnector();
+        BallerinaConnector connector = callableUnitGroupBuilder.buildConnector();
         bFileBuilder.addConnector(connector);
 
         // Remove the callable unit group scope from the symbol table;

@@ -25,7 +25,7 @@ import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.ConnectorDcl;
-import org.wso2.ballerina.core.model.Connector;
+import org.wso2.ballerina.core.model.BallerinaConnector;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.Import;
 import org.wso2.ballerina.core.model.Operator;
@@ -278,7 +278,7 @@ public class BallerinaBaseListenerImpl extends BallerinaBaseListener {
             actions[i] = parserAction(connectorBodyContext.actionDefinition(i));
         }
 
-        Connector connector = new Connector(connectorName, annotations, connectorDcls, variables, actions);
+        BallerinaConnector connector = new BallerinaConnector(connectorName, annotations, connectorDcls, variables, actions);
         fileBuilder.addConnector(connector);
     }
 
