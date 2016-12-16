@@ -35,7 +35,8 @@ public abstract class AbstractNativeAction implements Action, NativeConstruct, I
     private SymbolName symbolName;
     private List<Annotation> annotations;
     private List<Parameter> parameters;
-    private List<Type> returnTypes;
+//    private List<Type> returnTypes;
+    private List<TypeC> returnTypes;
     private List<Const> constants;
 
     public AbstractNativeAction() {
@@ -58,7 +59,7 @@ public abstract class AbstractNativeAction implements Action, NativeConstruct, I
         Arrays.stream(action.args()).
                 forEach(argument -> {
                     try {
-                        parameters.add(new Parameter(TypeC.getType(argument.type().getName()),
+                        parameters.add(new Parameter(TypeC.getTypeC(argument.type().getName()),
                                 new SymbolName(argument.name())));
                     } catch (RuntimeException e) {
                         // TODO: Fix this when TypeC.getType method is improved.
@@ -68,7 +69,7 @@ public abstract class AbstractNativeAction implements Action, NativeConstruct, I
                 });
         Arrays.stream(action.returnType()).forEach(returnType -> {
             try {
-                returnTypes.add(TypeC.getType(returnType.getName()));
+                returnTypes.add(TypeC.getTypeC(returnType.getName()));
             } catch (RuntimeException e) {
                 // TODO: Fix this when TypeC.getType method is improved.
                 log.warn("Error while processing ReturnTypes for Native ballerina action {}:{}.", packageName,
@@ -111,7 +112,12 @@ public abstract class AbstractNativeAction implements Action, NativeConstruct, I
 
     @Override
     public Type[] getReturnTypes() {
-        return returnTypes.toArray(new Type[returnTypes.size()]);
+        return new Type[0];
+    }
+
+    @Override
+    public TypeC[] getReturnTypesC() {
+        return returnTypes.toArray(new TypeC[returnTypes.size()]);
     }
 
     @Override

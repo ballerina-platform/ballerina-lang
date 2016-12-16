@@ -18,33 +18,54 @@
 package org.wso2.ballerina.core.nativeimpl;
 
 import org.testng.annotations.BeforeTest;
-import org.wso2.ballerina.core.interpreter.SymScope;
+import org.testng.annotations.Test;
+import org.wso2.ballerina.core.interpreter.BLangInterpreter;
+import org.wso2.ballerina.core.interpreter.Context;
+import org.wso2.ballerina.core.interpreter.StackFrame;
 import org.wso2.ballerina.core.model.BallerinaFile;
-import org.wso2.ballerina.core.nativeimpl.lang.system.Println;
+import org.wso2.ballerina.core.model.SymbolName;
+import org.wso2.ballerina.core.model.expressions.BasicLiteral;
+import org.wso2.ballerina.core.model.expressions.Expression;
+import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
+import org.wso2.ballerina.core.model.values.BValueRef;
+import org.wso2.ballerina.core.model.values.StringValue;
 import org.wso2.ballerina.core.utils.TestUtils;
 
 public class NativeFunctionTest {
 
     private BallerinaFile bFile;
-    private SymScope globalScope;
+    private String funcName = "invokeNativeFunction";
 
     @BeforeTest
     public void setup() {
-        bFile = TestUtils.parseBalFile("samples/parser/ifcondition.bal");
-
-        globalScope = new SymScope();
-
-        Println printlnFunc = new Println();
-
-        printlnFunc.getParameters();
-
-
+        bFile = TestUtils.parseBalFile("bal_files/nativeimpl/println.bal");
     }
 
-
-
+    @Test
     public void testNativeFuncInvocation() {
+        BValueRef valueRefA = new BValueRef(new StringValue("Hello World"));
+        BasicLiteral basicLiteralA = new BasicLiteral(valueRefA);
 
+        Expression[] exprs = new Expression[1];
+        exprs[0] = basicLiteralA;
+
+        FunctionInvocationExpr funcIExpr = new FunctionInvocationExpr(new SymbolName(funcName), exprs);
+        funcIExpr.setOffset(0);
+        funcIExpr.setFunction(bFile.getFunctions().get(funcName));
+
+        BValueRef[] results = new BValueRef[1];
+        StackFrame stackFrame = new StackFrame(results, null);
+
+        Context bContext = new Context();
+        bContext.getControlStack().pushFrame(stackFrame);
+        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
+        funcIExpr.accept(bLangInterpreter);
+    }
+
+    public static void main(String[] args) {
+        NativeFunctionTest test = new NativeFunctionTest();
+        test.setup();
+        test.testNativeFuncInvocation();
     }
 
 }

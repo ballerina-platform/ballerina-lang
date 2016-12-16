@@ -33,7 +33,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.system",
-        functionName = "Log",
+        functionName = "log",
         args = {@Argument(name = "logLevel", type = TypeEnum.INT),
                 @Argument(name = "string", type = TypeEnum.STRING)},
         isPublic = true,

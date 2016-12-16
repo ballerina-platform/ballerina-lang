@@ -17,6 +17,7 @@
 package org.wso2.ballerina.core.model;
 
 import org.wso2.ballerina.core.model.types.Type;
+import org.wso2.ballerina.core.model.types.TypeC;
 
 /**
  * {@code {@link Action}} represents any Ballerina Action.
@@ -49,6 +50,8 @@ public interface Action {
      * @return list of Return types.
      */
     Type[] getReturnTypes();
+
+    TypeC[] getReturnTypesC();
 
 
 }

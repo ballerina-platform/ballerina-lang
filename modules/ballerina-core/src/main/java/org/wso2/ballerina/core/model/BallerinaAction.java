@@ -98,6 +98,11 @@ public class BallerinaAction implements Action, Node, Interpreter {
         return returnTypes;
     }
 
+    @Override
+    public TypeC[] getReturnTypesC() {
+        return returnTypesC;
+    }
+
     public VariableDcl[] getVariableDcls() {
         return variableDcls;
     }
