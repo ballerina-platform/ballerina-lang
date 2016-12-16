@@ -66,8 +66,7 @@ public class GetStringPayload extends AbstractNativeFunction {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Payload in String:" + result.getValue());
         }
+        
         return getBValues(result);
     }
-
-
 }
