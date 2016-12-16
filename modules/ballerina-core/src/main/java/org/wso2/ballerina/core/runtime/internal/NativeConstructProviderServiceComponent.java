@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
+import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
 import org.wso2.ballerina.core.runtime.registry.PackageRegistry;
 import org.wso2.carbon.kernel.startupresolver.RequiredCapabilityListener;
 
@@ -108,23 +109,21 @@ public class NativeConstructProviderServiceComponent implements RequiredCapabili
         PackageRegistry.getInstance().unregisterNativeActions(nativeAction);
     }
 
-    //    @Reference(
-    //            name = "NativeConnectorProviderService",
-    //            service = NativeConnector.class,
-    //            cardinality = ReferenceCardinality.MULTIPLE,
-    //            policy = ReferencePolicy.DYNAMIC,
-    //            unbind = "unregisterNativeConnectorFactory"
-    //    )
-    //    protected void registerNativeConnectorFactory(NativeConnectorFactory connectorFactory) {
-    //        PackageRegistry.getInstance().registerNativeAction(nativeAction);
-    //        if (logger.isDebugEnabled()) {
-    //            logger.debug("Initialized native action {}:{} ", nativeAction.getPackageName(),
-    //                    nativeAction.getName());
-    //        }
-    //    }
-    //
-    //    protected void unregisterNativeActions(AbstractNativeAction nativeAction) {
-    //        PackageRegistry.getInstance().unregisterNativeActions(nativeAction);
-    //    }
+    @Reference(
+            name = "NativeConnectorProviderService",
+            service = AbstractNativeConnector.class,
+            cardinality = ReferenceCardinality.MULTIPLE,
+            policy = ReferencePolicy.DYNAMIC,
+            unbind = "unregisterNativeConnectors")
+    protected void registerNativeConnectors(AbstractNativeConnector connector) {
+        PackageRegistry.getInstance().registerNativeConnector(connector);
+        if (logger.isDebugEnabled()) {
+            logger.debug("Initialized native action {}:{} ", connector.getPackageName(), connector.getSymbolName());
+        }
+    }
+
+    protected void unregisterNativeConnectors(AbstractNativeConnector connector) {
+        //  PackageRegistry.getInstance().unregisterNativeActions(nativeAction);
+    }
 
 }
