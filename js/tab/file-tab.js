@@ -169,7 +169,13 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
 
             //Adding Connector declaration to resource_pasthrough
             var connector_declaration = BallerinaASTFactory.createConnectorDeclaration();
+            connector_declaration.setConnectorType('http:HttpConnector');
+            connector_declaration.setConnectorName('nyseEP');
+            connector_declaration.setUri('http://localhost:8080/exchange/nyse/');
             var connector_declaration1 = BallerinaASTFactory.createConnectorDeclaration();
+            connector_declaration1.setConnectorType('http:HttpConnector');
+            connector_declaration1.setConnectorName('nasdaqEP');
+            connector_declaration1.setUri('http://localhost:8080/exchange/nasdaq/');
             var sList = [];
             sList.push(connector_declaration);
             sList.push(connector_declaration1);

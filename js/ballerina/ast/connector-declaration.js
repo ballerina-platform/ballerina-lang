@@ -19,6 +19,9 @@ define(['lodash', './node'], function(_, ASTNode){
 
     var ConnectorDeclaration = function(options) {
         this._connectionOptions = options || {};
+        this._connectorName = '';
+        this._connectorType = '';
+        this._uri = '';
         ASTNode.call(this);
     };
 
@@ -28,15 +31,29 @@ define(['lodash', './node'], function(_, ASTNode){
     ConnectorDeclaration.prototype.getOptions = function () {
         return this._connectionOptions;
     };
-    // Auto generated Id for service definitions (to identify connector view based model )
-    var uuid =  function (){
-        function s4() {
-            return Math.floor((1 + Math.random()) * 0x10000)
-                .toString(16)
-                .substring(1);
-        }
-        return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-            s4() + '-' + s4() + s4() + s4();
+
+    ConnectorDeclaration.prototype.setConnectionOptions = function (opts) {
+        this._connectionOptions = opts;
     };
+    ConnectorDeclaration.prototype.setConnectorName = function (name) {
+        this._connectorName = name;
+    };
+    ConnectorDeclaration.prototype.setConnectorType = function (type) {
+        this._connectorType = type;
+    };
+    ConnectorDeclaration.prototype.setUri = function (uri) {
+        this._uri = uri;
+    };
+
+    ConnectorDeclaration.prototype.getConnectorName = function () {
+        return this._connectorName;
+    };
+    ConnectorDeclaration.prototype.getConnectorType = function () {
+        return this._connectorType;
+    };
+    ConnectorDeclaration.prototype.getUri = function () {
+        return this._uri;
+    };
+
     return ConnectorDeclaration;
 });
