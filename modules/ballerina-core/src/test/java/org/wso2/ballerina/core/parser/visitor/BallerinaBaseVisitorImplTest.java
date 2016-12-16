@@ -19,17 +19,12 @@ package org.wso2.ballerina.core.parser.visitor;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
-import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
-import org.testng.annotations.Test;
-import org.wso2.ballerina.core.model.Import;
-import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.parser.BallerinaLexer;
 import org.wso2.ballerina.core.parser.BallerinaParser;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.List;
 
 public class BallerinaBaseVisitorImplTest {
     private CompilationUnitVisitor ballerinaBaseVisitor;
@@ -50,33 +45,33 @@ public class BallerinaBaseVisitorImplTest {
         }
     }
 
-    @Test
-    public void testPackageParser() {
-        Assert.assertEquals(ballerinaBaseVisitor.balFile.getPackageName(), "samples.parser");
-    }
+//    @Test
+//    public void testPackageParser() {
+//        Assert.assertEquals(ballerinaBaseVisitor.balFile.getPackageName(), "samples.parser");
+//    }
+//
+//    @Test
+//    public void testImportParser() {
+//        List<Import> imports = ballerinaBaseVisitor.balFile.getImports();
+//        Assert.assertEquals(imports.size(), 2);
+//
+//        for (Import anImport : imports) {
+//            if (anImport.getPackageName().equalsIgnoreCase("ballerina.connectors.twitter")) {
+//                Assert.assertEquals(anImport.getImportName(), "twitter");
+//            } else if (anImport.getPackageName().equalsIgnoreCase("ballerina.connectors.salesforce")) {
+//                Assert.assertEquals(anImport.getImportName(), "sf");
+//            }
+//        }
+//    }
 
-    @Test
-    public void testImportParser() {
-        List<Import> imports = ballerinaBaseVisitor.balFile.getImports();
-        Assert.assertEquals(imports.size(), 2);
-
-        for (Import anImport : imports) {
-            if (anImport.getPackageName().equalsIgnoreCase("ballerina.connectors.twitter")) {
-                Assert.assertEquals(anImport.getImportName(), "twitter");
-            } else if (anImport.getPackageName().equalsIgnoreCase("ballerina.connectors.salesforce")) {
-                Assert.assertEquals(anImport.getImportName(), "sf");
-            }
-        }
-    }
-
-    @Test
-    public void testServiceParser() {
-        List<Service> services = ballerinaBaseVisitor.balFile.getServices();
-        Assert.assertEquals(services.size(), 1);
-
-        for (Service aService : services) {
-                Assert.assertEquals(aService.getSymbolName().getName(), "HelloService");
-        }
-    }
+//    @Test
+//    public void testServiceParser() {
+//        List<Service> services = ballerinaBaseVisitor.balFile.getServices();
+//        Assert.assertEquals(services.size(), 1);
+//
+//        for (Service aService : services) {
+//                Assert.assertEquals(aService.getSymbolName().getName(), "HelloService");
+//        }
+//    }
 
 }

@@ -56,6 +56,10 @@ public class FunctionInvocationExpr extends AbstractExpression {
         return functionName;
     }
 
+    public void setFunctionName(SymbolName symbolName) {
+        this.functionName = symbolName;
+    }
+
     public Expression[] getExprs() {
         return exprs;
     }
@@ -85,9 +89,9 @@ public class FunctionInvocationExpr extends AbstractExpression {
         // Return bValueRef
         // TODO Support multiple return types
         BValueRef returnValue = null;
-        if (calleeFunction.getReturnTypes().length > 0) {
-            returnValue = ValueFactory.creteValue(calleeFunction.getReturnTypes()[0]);
-        }
+//        if (calleeFunction.getReturnTypes().length > 0) {
+//            returnValue = ValueFactory.creteValue(calleeFunction.getReturnTypes()[0]);
+//        }
 
         BValueRef[] localVariables = new BValueRef[0];
         if (calleeFunction instanceof BallerinaFunction) {
