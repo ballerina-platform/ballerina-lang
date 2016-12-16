@@ -108,6 +108,21 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/while-statement
             whileGroup.titleText = title_text;
             this.setStatementGroup(whileGroup);
             this._model.accept(this);
+
+            // Creating property pane
+            var editableProperties = [];
+            var editableProperty = {
+                propertyType: "text",
+                key: "Condition",
+                model: this._model,
+                getterMethod: this._model.getCondition,
+                setterMethod: this._model.setCondition
+            };
+            editableProperties.push(editableProperty);
+            this._createPropertyPane({
+                statementGroup:whileGroup,
+                editableProperties: editableProperties
+            });
         };
 
         return WhileStatementView;

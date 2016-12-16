@@ -36,7 +36,7 @@ define(['lodash', 'log', './conditional-statement'], function (_, log, Condition
         }
     };
 
-    WhileStatement.prototype,getCondition = function(){
+    WhileStatement.prototype.getCondition = function(){
         return this._condition;
     };
 

@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3'], function (require, _, log, StatementVisitor, d3) {
+define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3utils', 'property_pane_utils'], function (require, _, log, StatementVisitor, d3, D3Utils, PropertyPaneUtils) {
 
     /**
      * A common class which consists functions of moving or resizing views.
@@ -127,6 +127,224 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3'], fu
         expressionView.setXPosition(this.getXPosition());
         expressionView.setYPosition(this.getYPosition() + 30);
         expressionView.render(this._diagramRenderingContext);
+    };
+
+
+    BallerinaStatementView.prototype._createPropertyPane = function (args) {
+        var viewOptions = _.get(args, "viewOptions", {});
+        var statementGroup = _.get(args, "statementGroup", null);
+        var editableProperties = _.get(args, "editableProperties", []);
+
+        viewOptions.actionButton = _.get(args, "viewOptions.actionButton", {});
+        viewOptions.actionButton.class = _.get(args, "actionButton.class", "property-pane-action-button");
+        viewOptions.actionButton.wrapper = _.get(args, "actionButton.wrapper", {});
+        viewOptions.actionButton.wrapper.class = _.get(args, "actionButton.wrapper.class", "property-pane-action-button-wrapper");
+        viewOptions.actionButton.editClass = _.get(args, "viewOptions.actionButton.editClass", "property-pane-action-button-edit");
+        viewOptions.actionButton.disableClass = _.get(args, "viewOptions.actionButton.disableClass", "property-pane-action-button-disable");
+        viewOptions.actionButton.deleteClass = _.get(args, "viewOptions.actionButton.deleteClass", "property-pane-action-button-delete");
+
+        viewOptions.actionButton.width = _.get(args, "viewOptions.action.button.width", 22);
+        viewOptions.actionButton.height = _.get(args, "viewOptions.action.button.height", 22);
+
+        viewOptions.propertyForm = _.get(args, "propertyForm", {});
+        viewOptions.propertyForm.wrapper = _.get(args, "propertyForm.wrapper", {});
+        viewOptions.propertyForm.wrapper.class = _.get(args, "propertyForm.wrapper", "property-pane-form-wrapper");
+        viewOptions.propertyForm.heading = _.get(args, "propertyForm.heading", {});
+        viewOptions.propertyForm.heading.class = _.get(args, "propertyForm.heading.class", "property-pane-form-heading");
+        viewOptions.propertyForm.heading.iconClass = _.get(args, "propertyForm.heading.class", "property-pane-form-heading-icon");
+        viewOptions.propertyForm.heading.textClass = _.get(args, "propertyForm.heading.class", "property-pane-form-heading-text");
+        viewOptions.propertyForm.heading.iconCloseClass = _.get(args, "propertyForm.heading.class", "property-pane-form-heading-close-icon");
+        viewOptions.propertyForm.body = _.get(args, "propertyForm.body", {});
+        viewOptions.propertyForm.body.class = _.get(args, "propertyForm.body.class", "property-pane-form-body");
+        viewOptions.propertyForm.body.property = _.get(args, "propertyForm.body.property", {});
+        viewOptions.propertyForm.body.property.wrapper = _.get(args, "propertyForm.body.property.wrapper", "property-pane-form-body-property-wrapper");
+
+        viewOptions.propertyForm.body.addStatement = _.get(args, "propertyForm.body.addStatement", {});
+        viewOptions.propertyForm.body.addStatement.text = _.get(args, "propertyForm.body.addStatement.text", "Add");
+        viewOptions.propertyForm.body.addStatement.class = _.get(args, "propertyForm.body.addStatement.class", "property-pane-form-body-add-button");
+
+        // Adding a css class for 'if else' group.
+        statementGroup.classed("if-else-svg-group", true);
+
+        // Adding click event for 'statement' group.
+        $(statementGroup.node()).click(function (statementView, event) {
+
+            log.debug("Clicked statement group");
+
+            event.stopPropagation();
+
+            // Not allowing to click the statement group multiple times.
+            if ($("." + viewOptions.actionButton.wrapper.class).length > 0) {
+                log.debug("statement group is already clicked");
+                return;
+            }
+
+            // Get the bounding box of the if else view.
+            var statementBoundingBox = statementView.getBoundingBox();
+
+            // Calculating width for edit and delete button.
+            var propertyButtonPaneRectWidth = viewOptions.actionButton.width * 2;
+
+            // Creating an SVG group for the edit and delete buttons.
+            var propertyButtonPaneGroup = D3Utils.group(statementGroup);
+
+            // Adding svg definitions needed for styling edit and delete buttons.
+            var svgDefinitions = propertyButtonPaneGroup.append("defs");
+            var editButtonPattern = svgDefinitions.append("pattern")
+                .attr("id", "editIcon")
+                .attr("width", "100%")
+                .attr("height", "100%");
+
+            editButtonPattern.append("image")
+                .attr("xlink:href", "images/edit.svg")
+                .attr("x", (viewOptions.actionButton.width / 2) - (14 / 2))
+                .attr("y", (viewOptions.actionButton.height / 2) - (14 / 2))
+                .attr("width", "14")
+                .attr("height", "14");
+
+            var deleteButtonPattern = svgDefinitions.append("pattern")
+                .attr("id", "deleteIcon")
+                .attr("width", "100%")
+                .attr("height", "100%");
+
+            deleteButtonPattern.append("image")
+                .attr("xlink:href", "images/delete.svg")
+                .attr("x", (viewOptions.actionButton.width / 2) - (14 / 2))
+                .attr("y", (viewOptions.actionButton.height / 2) - (14 / 2))
+                .attr("width", "14")
+                .attr("height", "14");
+
+            // Bottom center point.
+            var centerPointX = statementBoundingBox.x + (statementBoundingBox.width / 2);
+            var centerPointY = statementBoundingBox.y + statementBoundingBox.height;
+
+            var smallArrowPoints =
+                // Bottom point of the polygon.
+                " " + centerPointX + "," + centerPointY +
+                // Left point of the polygon
+                " " + (centerPointX - 3) + "," + (centerPointY + 3) +
+                // Right point of the polygon.
+                " " + (centerPointX + 3) + "," + (centerPointY + 3);
+
+            var smallArrow = D3Utils.polygon(smallArrowPoints, statementGroup);
+
+            // Creating the action button pane border.
+            var propertyButtonPaneRect = D3Utils.rect(centerPointX - (propertyButtonPaneRectWidth / 2), centerPointY + 3,
+                propertyButtonPaneRectWidth, viewOptions.actionButton.height, 0, 0, propertyButtonPaneGroup)
+                .classed(viewOptions.actionButton.wrapper.class, true);
+
+            // Not allowing to click background elements.
+            $(propertyButtonPaneRect.node()).click(function(event){
+                event.stopPropagation();
+            });
+
+            // Creating the edit action button.
+            var editButtonRect = D3Utils.rect(centerPointX - (propertyButtonPaneRectWidth / 2), centerPointY + 3,
+                viewOptions.actionButton.width, viewOptions.actionButton.height, 0, 0, propertyButtonPaneGroup)
+                .classed(viewOptions.actionButton.class, true).classed(viewOptions.actionButton.editClass, true);
+
+            // Creating the delete action button.
+            var deleteButtonRect = D3Utils.rect(centerPointX + viewOptions.actionButton.width  - (propertyButtonPaneRectWidth / 2), centerPointY + 3,
+                viewOptions.actionButton.width, viewOptions.actionButton.height, 0, 0, propertyButtonPaneGroup)
+                .classed(viewOptions.actionButton.class, true).classed(viewOptions.actionButton.deleteClass, true);
+
+            // When the outside of the propertyButtonPaneRect is clicked.
+            $(window).click(function (event) {
+                log.debug("window click");
+                $(propertyButtonPaneGroup.node()).remove();
+                $(smallArrow.node()).remove();
+
+                // Remove this handler.
+                $(this).unbind("click");
+            });
+
+            // Adding on click event for edit button.
+            $(editButtonRect.node()).click(function (event) {
+
+                log.debug("Clicked edit button");
+
+                var parentSVG = propertyButtonPaneGroup.node().ownerSVGElement;
+
+                event.stopPropagation();
+
+                // Hiding property button pane.
+                $(propertyButtonPaneGroup.node()).remove();
+
+                // 175 is the width set in css
+                var propertyPaneWrapper = $("<div/>", {
+                    class: viewOptions.propertyForm.wrapper.class /*+ " nano"*/,
+                    css : {
+                        "margin": (parseInt($(parentSVG.parentElement).css("padding"), 10) + 3) + "px"
+                    },
+                    click : function(event){
+                        event.stopPropagation();
+                    }
+                }).offset({ top: centerPointY, left: centerPointX - (175 / 2)}).appendTo(parentSVG.parentElement);
+
+                // When the outside of the propertyPaneWrapper is clicked.
+                $(window).click(function (event) {
+                    log.debug("window click");
+                    closeAllPopUps();
+                });
+
+                var propertyPaneHeading = $("<div/>", {
+                    "class": viewOptions.propertyForm.heading.class
+                }).appendTo(propertyPaneWrapper);
+
+                var editIcon = $("<i/>", {
+                    "class": "fw fw-edit " + viewOptions.propertyForm.heading.iconClass
+                }).appendTo(propertyPaneHeading);
+
+                var editTitle = $("<span class='" + viewOptions.propertyForm.heading.textClass +"'>Edit</span>")
+                    .appendTo(propertyPaneHeading);
+
+                var closeIcon = $("<i/>", {
+                    "class": "fw fw-cancel " + viewOptions.propertyForm.heading.iconCloseClass
+                }).appendTo(propertyPaneHeading);
+
+                // When the "X" button is clicked.
+                $(closeIcon).click(function () {
+                    closeAllPopUps();
+                });
+
+                // Div which contains the form for the properties.
+                var propertyPaneBody = $("<div/>", {
+                    "class": viewOptions.propertyForm.body.class /*+ " nano-content"*/
+                }).appendTo(propertyPaneWrapper);
+
+                // Creating the property form.
+                PropertyPaneUtils.createPropertyForm(propertyPaneBody,
+                    viewOptions.propertyForm.body.property.wrapper, editableProperties);
+
+                // Adding "Add" button.
+                var buttonPane = $("<div/>").appendTo(propertyPaneBody);
+                var addButton = $("<button/>", {
+                    class : viewOptions.propertyForm.body.addStatement.class,
+                    text : viewOptions.propertyForm.body.addStatement.text
+
+                }).appendTo(buttonPane);
+
+                $(addButton).click(function(){
+                    // TODO : Write add implementation.
+                });
+
+                // Close the popups of property pane body.
+                function closeAllPopUps() {
+                    $(propertyPaneWrapper).remove();
+
+                    // Remove the small arrow.
+                    $(smallArrow.node()).remove();
+
+                    $(this).unbind('click');
+                }
+
+            });
+
+            $(deleteButtonRect.node()).click(function(){
+                // TODO : Implement
+            });
+
+        }.bind(statementGroup.node(), this));
     };
 
     BallerinaStatementView.prototype.setBoundingBox = function (width, height, x, y) {
