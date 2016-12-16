@@ -341,7 +341,10 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
             });
 
             $(deleteButtonRect.node()).click(function(){
-                // TODO : Implement
+                log.info("initializing delete");
+                var child = statementView;
+                var parent = child.parent;
+                parent.removeChild(child);
             });
 
         }.bind(statementGroup.node(), this));

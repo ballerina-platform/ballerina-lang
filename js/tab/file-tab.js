@@ -117,9 +117,9 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             var elseIf1 = BallerinaASTFactory.createElseIfStatement();
             var elseIf2 = BallerinaASTFactory.createElseIfStatement();
             ifelse1.addChild(if1);
-            ifelse1.addChild(elseIf1);
-            // ifelse1.addChild(elseIf2);
-            ifelse1.addChild(else1);
+            //ifelse1.addChild(elseIf1);
+            //ifelse1.addChild(elseIf2);
+            //ifelse1.addChild(else1);
 
             var ifelse2 = BallerinaASTFactory.createIfElseStatement();
             var if2 = BallerinaASTFactory.createIfStatement();
