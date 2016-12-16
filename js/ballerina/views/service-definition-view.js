@@ -34,6 +34,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
             this._parentView = _.get(args, "parentView");
             //set initial height for the service container svg
             this._totalHeight = 170;
+            _.set(this._viewOptions, 'client.center', new Point(100, 50));
 
             if (_.isNil(this._model) || !(this._model instanceof ServiceDefinition)) {
                 log.error("Service definition is undefined or is of different type." + this._model);
@@ -65,7 +66,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
             this.setServiceContainerHeight(this._totalHeight);
 
             //setting client lifeline's height. Value is calculated by reducing required amount of height from the total height of the service.
-            this.setClientLifelineHeight(this._totalHeight - 150);
+            this.setClientLifelineHeight(this._totalHeight);
 
             this.trigger("childViewAddedEvent", child);
         };
@@ -145,9 +146,10 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
 
             // Creating client lifeline.
 
+            var clientCenter = _.get(this._viewOptions, 'client.center');
             var lifeLineArgs = {};
             _.set(lifeLineArgs, 'container', this._rootGroup.node());
-            _.set(lifeLineArgs, 'centerPoint', new Point(50, 50));
+            _.set(lifeLineArgs, 'centerPoint', clientCenter);
 
             this._clientLifeLine = new ClientLifeLine(lifeLineArgs);
             this._clientLifeLine.render();

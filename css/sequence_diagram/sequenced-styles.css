@@ -291,3 +291,32 @@ text-anchor: start;
 .service-annotation-header-pane {
     fill: #eaeaea
 }
+
+.client-life-line polygon{
+    stroke: #000000;
+    fill: #FFFFFF;
+}
+
+.client-life-line line{
+    stroke: #000000;
+}
+
+.default-worker-life-line rect{
+    stroke: #000000;
+    fill: #FFFFFF;
+    stroke-width: 2px;
+}
+
+.default-worker-life-line line{
+    stroke: #000000;
+    stroke-width: 2px;
+}
+
+.connector-life-line rect{
+    stroke: #000000;
+    fill: #FFFFFF;
+}
+
+.connector-life-line line{
+    stroke: #000000;
+}

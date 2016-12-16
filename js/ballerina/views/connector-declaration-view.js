@@ -30,6 +30,8 @@ define(['lodash','d3', 'jquery', './ballerina-view', './../ast/connector-declara
         var ConnectorDeclarationView = function (args) {
             this._totalHeightGap = 50;
             this._parentView = _.get(args, "parentView");
+            _.set(args, 'title',  _.get(args, 'title', 'Connector'));
+            _.set(args, 'cssClass.group',  _.get(args, 'cssClass.group', 'connector-life-line'));
             LifeLine.call(this, args);
 
             if (_.isNil(this._model) || !(this._model instanceof ConnectorDeclaration)) {

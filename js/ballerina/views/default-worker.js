@@ -32,10 +32,8 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './life-line'], f
      * @constructor
      */
     var DefaultWorkerView = function (args) {
-        _.set(args, 'rect.width', 120);
-        _.set(args, 'rect.height', 30);
-        _.set(args, 'rect.round', 0);
-        _.set(args, 'line.height', 240);
+        _.set(args, 'title',  _.get(args, 'title', 'ResourceWorker'));
+        _.set(args, 'cssClass.group',  _.get(args, 'cssClass.group', 'default-worker-life-line'));
         LifeLine.call(this, args);
     };
 

@@ -32,6 +32,8 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './life-line'], f
      * @constructor
      */
     var ClientLifeLineView = function (args) {
+        _.set(args, 'title',  _.get(args, 'title', 'client'));
+        _.set(args, 'cssClass.group',  _.get(args, 'cssClass.group', 'client-life-line'));
         LifeLine.call(this, args);
     };
 
@@ -65,8 +67,8 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './life-line'], f
      * @private
      */
     ClientLifeLineView.prototype._calculatePolygonPoints = function(point){
-        var polygonYOffset = this._viewOptions.rect.height / 2;
-        var polygonXOffset = this._viewOptions.rect.width / 2;
+        var polygonYOffset = 40,
+            polygonXOffset = 40;
         var topPolygonPoints =
             // Bottom point of the polygon.
             " " + point.x() + "," + (point.y() + polygonYOffset) +

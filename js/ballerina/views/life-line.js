@@ -46,14 +46,16 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         this._viewOptions = args;
         this._topCenter = this._viewOptions.centerPoint.clone();
 
-        _.set(this._viewOptions, 'rect.width', 120);
-        _.set(this._viewOptions, 'rect.height', 30);
-        _.set(this._viewOptions, 'rect.round', 0);
-        _.set(this._viewOptions, 'line.height', 240);
-        _.set(this._viewOptions, 'content.width', 140);
-        _.set(this._viewOptions, 'content.offsetY', 20);
-        _.set(this._viewOptions, 'content.offsetX', 60);
-        _.set(this._viewOptions, 'cssClass.title', 'life-line-title');
+        _.set(this._viewOptions, 'title',  _.get(this._viewOptions, 'title', 'life-line'));
+        _.set(this._viewOptions, 'rect.width', _.get(this._viewOptions, 'rect.width', 120));
+        _.set(this._viewOptions, 'rect.height', _.get(this._viewOptions, 'rect.height', 30));
+        _.set(this._viewOptions, 'rect.round', _.get(this._viewOptions, 'rect.round', 0));
+        _.set(this._viewOptions, 'line.height', _.get(this._viewOptions, 'line.height', 240));
+        _.set(this._viewOptions, 'content.width', _.get(this._viewOptions, 'content.width', 140));
+        _.set(this._viewOptions, 'content.offsetY', _.get(this._viewOptions, 'content.offsetY', 40));
+        _.set(this._viewOptions, 'content.offsetX', _.get(this._viewOptions, 'content.offsetX', 60));
+        _.set(this._viewOptions, 'cssClass.title', _.get(this._viewOptions, 'cssClass.title', 'life-line-title'));
+        _.set(this._viewOptions, 'cssClass.group', _.get(this._viewOptions, 'cssClass.group', 'life-line'));
 
         this._bottomCenter = this._topCenter.clone().move(0, _.get(this._viewOptions, 'line.height' ));
 
@@ -73,10 +75,10 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
     };
 
     LifeLineView.prototype.render = function () {
-        this.renderTopPolygon();
-        this.renderTitle();
         this.renderMiddleLine();
+        this.renderTopPolygon();
         this.renderBottomPolygon();
+        this.renderTitle();
         this.renderContentArea();
         return this;
     };
@@ -167,7 +169,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
                 .attr('y1', y1 + offset.dy)
         });
 
-        this._topCenter.on('moved', function (offset) {
+        this._bottomCenter.on('moved', function (offset) {
             var x2 = parseFloat(self._middleLine.attr('x2'));
             var y2 = parseFloat(self._middleLine.attr('y2'));
             self._middleLine
@@ -179,25 +181,25 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
 
     LifeLineView.prototype.renderContentArea = function () {
 
-        var contentX = this._topCenter.x() +  _.get(this._viewOptions, 'content.offsetX'),
-            contentY = this._topCenter.y() +  _.get(this._viewOptions, 'content.offsetY'),
-            height = this._topCenter.absDistInYFrom(this._bottomCenter) - (2 *  _.get(this._viewOptions, 'content.offsetY'));
-
-        this._contentRect = D3Utils.rect(contentX, contentY,_.get(this._viewOptions, 'content.width'),
-                                height, 0, 0, this._rootGroup);
-
-        this._contentRect.attr('style', 'cursor: pointer');
-        this._contentRect.attr('fill', "#FFFFFF");
-        this._contentRect.attr("fill-opacity", 0.01);
-
-        this._contentRect.on('mouseover', function () {
-            d3.select(this).attr('fill', "green");
-            d3.select(this).attr('fill-opacity', 0.1);
-        }).on('mouseout', function () {
-            d3.select(this).attr('fill', "#FFFFFF");
-            d3.select(this).attr("fill-opacity", 0.01);
-        }).on('mouseup', function (data) {
-        });
+        //var contentX = this._topCenter.x() +  _.get(this._viewOptions, 'content.offsetX'),
+        //    contentY = this._topCenter.y() +  _.get(this._viewOptions, 'content.offsetY'),
+        //    height = this._topCenter.absDistInYFrom(this._bottomCenter) - (2 *  _.get(this._viewOptions, 'content.offsetY'));
+        //
+        //this._contentRect = D3Utils.rect(contentX, contentY,_.get(this._viewOptions, 'content.width'),
+        //                        height, 0, 0, this._rootGroup);
+        //
+        //this._contentRect.attr('style', 'cursor: pointer');
+        //this._contentRect.attr('fill', "#FFFFFF");
+        //this._contentRect.attr("fill-opacity", 0.01);
+        //
+        //this._contentRect.on('mouseover', function () {
+        //    d3.select(this).attr('fill', "green");
+        //    d3.select(this).attr('fill-opacity', 0.1);
+        //}).on('mouseout', function () {
+        //    d3.select(this).attr('fill', "#FFFFFF");
+        //    d3.select(this).attr("fill-opacity", 0.01);
+        //}).on('mouseup', function (data) {
+        //});
     };
 
     return LifeLineView;

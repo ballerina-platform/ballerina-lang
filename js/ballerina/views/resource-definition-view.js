@@ -55,7 +55,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             this._viewOptions.defaultWorker = _.get(args, "viewOptions.defaultWorker", {});
             this._viewOptions.defaultWorker.offsetTop = _.get(args, "viewOptions.defaultWorker.offsetTop", 50);
             this._viewOptions.defaultWorker.center = _.get(args, "viewOptions.defaultWorker.centerPoint",
-                            this._viewOptions.centerPoint.clone().move(130, 25));
+                            this._viewOptions.centerPoint.clone().move(160, 60));
 
             // View options for height and width of the heading box.
             this._viewOptions.heading = _.get(args, "viewOptions.heading", {});
