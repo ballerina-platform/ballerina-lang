@@ -14,10 +14,23 @@
  * limitations under the License.
  */
 
-package org.wso2.ballerina.core.model;
+package org.wso2.ballerina.core.model.values;
+
+import org.wso2.ballerina.core.model.Connector;
 
 /**
- * A common interface represents Ballerina Connectors and Native Connectors
+ * A value holder for connector
  */
-public interface Connector {
+public class ConnectorValue implements BValue<Connector> {
+
+    private Connector connector;
+
+    public ConnectorValue(Connector connector) {
+        this.connector = connector;
+    }
+
+    @Override
+    public Connector getValue() {
+        return connector;
+    }
 }

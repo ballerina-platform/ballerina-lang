@@ -18,8 +18,8 @@
 package org.wso2.ballerina.core.parser.visitor;
 
 import org.wso2.ballerina.core.interpreter.SymbolTable;
+import org.wso2.ballerina.core.model.BallerinaConnector;
 import org.wso2.ballerina.core.model.BallerinaFile;
-import org.wso2.ballerina.core.model.Connector;
 import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.model.Import;
 import org.wso2.ballerina.core.model.Package;
@@ -83,7 +83,7 @@ public class CompilationUnitVisitor extends BallerinaBaseVisitor {
         // Read the connectors
         ConnectorVisitor connectorVisitor = new ConnectorVisitor(baseSymbolTable);
         for (BallerinaParser.ConnectorDefinitionContext cdc : ctx.connectorDefinition()) {
-            Connector connectorObject = (Connector) cdc.accept(connectorVisitor);
+            BallerinaConnector connectorObject = (BallerinaConnector) cdc.accept(connectorVisitor);
 //            balFile.addConnector(connectorObject);
         }
 
