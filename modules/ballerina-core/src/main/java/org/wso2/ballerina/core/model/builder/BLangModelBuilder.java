@@ -507,7 +507,8 @@ public class BLangModelBuilder {
 
         FunctionInvocationExpr invocationExpr = cIExprBuilder.buildFuncInvocExpr();
 
-        FunctionInvocationStmt.FunctionInvokeStmtBuilder stmtBuilder = new FunctionInvocationStmt.FunctionInvokeStmtBuilder();
+        FunctionInvocationStmt.FunctionInvokeStmtBuilder stmtBuilder =
+                new FunctionInvocationStmt.FunctionInvokeStmtBuilder();
         stmtBuilder.setFunctionInvocationExpr(invocationExpr);
         FunctionInvocationStmt functionInvocationStmt = stmtBuilder.build();
 

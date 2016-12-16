@@ -49,6 +49,11 @@ public class FunctionInvocationStmt implements Statement {
 
     }
 
+    /**
+     * Builds a {@code FunctionInvokeStmt} statement
+     *
+     * @since 1.0.0
+     */
     public static class FunctionInvokeStmtBuilder {
         private FunctionInvocationExpr functionInvocationExpr;
 
