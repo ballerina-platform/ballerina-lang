@@ -55,6 +55,7 @@ public interface Action extends Interpreter {
 
     TypeC[] getReturnTypesC();
 
+
     /**
      * get stack frame size
      */
@@ -64,5 +65,6 @@ public interface Action extends Interpreter {
      * set stack frame size
      */
     void setStackFrameSize(int frameSize);
+
 
 }

@@ -26,6 +26,7 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.runtime.Constants;
 import org.wso2.ballerina.core.runtime.core.MessageProcessor;
 import org.wso2.ballerina.core.runtime.deployer.BalDeployer;
@@ -111,6 +112,21 @@ public class BallerinaServiceComponent {
 
     protected void removeTransportSender(TransportSender transportSender) {
         ServiceContextHolder.getInstance().removeTransportSender(transportSender);
+    }
+
+    @Reference(
+            name = "global-symbolic-scope",
+            service = SymScope.class,
+            cardinality = ReferenceCardinality.MANDATORY,
+            policy = ReferencePolicy.DYNAMIC,
+            unbind = "removeSymbolicScope"
+    )
+    protected void addSymbolicScope(SymScope symScope) {
+//        ServiceContextHolder.getInstance().addTransportSender(transportSender);
+    }
+
+    protected void removeSymbolicScope(SymScope symScope) {
+//        ServiceContextHolder.getInstance().removeTransportSender(transportSender);
     }
 
 }

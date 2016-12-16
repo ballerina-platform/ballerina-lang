@@ -27,6 +27,7 @@ import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.builder.BLangModelBuilder;
 import org.wso2.ballerina.core.model.util.SymbolUtils;
 import org.wso2.ballerina.core.nativeimpl.connectors.http.Post;
+import org.wso2.ballerina.core.nativeimpl.lang.system.Log;
 import org.wso2.ballerina.core.parser.BallerinaLexer;
 import org.wso2.ballerina.core.parser.BallerinaParser;
 import org.wso2.ballerina.core.parser.antlr4.BLangAntlr4Listener;
@@ -72,6 +73,7 @@ public class TestUtils {
 
         // Create a global symbol scope
         SymScope symScope = new SymScope(null);
+
         //        Println println = new Println();
         //        SymbolName symbolName = SymbolUtils.generateSymbolName(
         //                "ballerina.lang.system:println",
@@ -84,7 +86,29 @@ public class TestUtils {
         SymbolName symbolName = SymbolUtils.generateSymbolName("ballerina.net.http:post", post.getParameters());
         Symbol symbol = new Symbol(post, SymbolUtils.getTypesOfParams(post.getParameters()), post.getReturnTypesC());
 
+
+
+//        Println println = new Println();
+//        SymbolName symbolName = SymbolUtils.generateSymbolName(
+//                "ballerina.lang.system:println",
+//                println.getParameters());
+//
+//        Symbol symbol = new Symbol(println,
+//                SymbolUtils.getTypesOfParams(println.getParameters()), println.getReturnTypesC());
+
+
         symScope.insert(symbolName, symbol);
+
+        Log log = new Log();
+        symbolName = SymbolUtils.generateSymbolName(
+                "ballerina.lang.system:log",
+                log.getParameters());
+
+        symbol = new Symbol(log,
+                SymbolUtils.getTypesOfParams(log.getParameters()), log.getReturnTypesC());
+
+        symScope.insert(symbolName, symbol);
+
 
         // Linker
         BLangLinker linker = new BLangLinker(bFile);

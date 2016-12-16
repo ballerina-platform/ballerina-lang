@@ -33,7 +33,7 @@ public class Symbol {
     private TypeC[] paramTypes;
     private TypeC[] returnTypes;
     private Function function;
-
+    
     private Action action;
 
     public Symbol(TypeC type, int offset) {

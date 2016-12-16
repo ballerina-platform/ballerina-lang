@@ -1,3 +1,4 @@
-function nestedNative(string name){
-    ballerina.lang.system.println(name);
+function invokeNativeFunction(string name){
+    int a;
+    a = ballerina.lang.system:log(3, "sameera");
 }
