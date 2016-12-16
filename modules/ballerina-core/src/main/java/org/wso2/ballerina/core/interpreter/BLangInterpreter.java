@@ -288,7 +288,7 @@ public class BLangInterpreter implements NodeVisitor {
             bFunction.accept(this);
         } else {
             AbstractNativeFunction nativeFunction = (AbstractNativeFunction) function;
-            nativeFunction.execute(bContext);
+            nativeFunction.executeNative(bContext);
         }
 
         controlStack.popFrame();
