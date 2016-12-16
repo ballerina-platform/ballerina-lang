@@ -17,7 +17,7 @@
 */
 package org.wso2.ballerina.core.model;
 
-import org.wso2.ballerina.core.model.types.Type;
+import org.wso2.ballerina.core.model.types.TypeC;
 
 /**
  * {@code SymbolName} represents an identifier in Ballerina
@@ -29,7 +29,7 @@ public class SymbolName {
     private String name;
     private SymType symType;
 //    private Symbol symbol;
-    private Type[] parameters;
+    private TypeC[] parameters;
 
     public SymbolName(String name) {
         this.name = name;
@@ -40,7 +40,7 @@ public class SymbolName {
         this.symType = symType;
     }
 
-    public SymbolName(String name, SymType symType, Type[] parameters) {
+    public SymbolName(String name, SymType symType, TypeC[] parameters) {
         this.name = name;
         this.symType = symType;
         this.parameters = parameters;
@@ -63,7 +63,7 @@ public class SymbolName {
 //        this.symbol = symbol;
 //    }
 
-    public Type[] getParameters() {
+    public TypeC[] getParameters() {
         return parameters;
     }
 

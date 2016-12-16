@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerina.core.interpreter;
 
+import org.wso2.ballerina.core.model.Action;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.BallerinaConnector;
@@ -30,6 +31,7 @@ import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.model.VariableDcl;
 import org.wso2.ballerina.core.model.Worker;
+import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.AddExpression;
 import org.wso2.ballerina.core.model.expressions.AndExpression;
 import org.wso2.ballerina.core.model.expressions.BasicLiteral;
@@ -49,6 +51,7 @@ import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.statements.CommentStmt;
+import org.wso2.ballerina.core.model.statements.FunctionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.IfElseStmt;
 import org.wso2.ballerina.core.model.statements.ReplyStmt;
 import org.wso2.ballerina.core.model.statements.ReturnStmt;
@@ -87,7 +90,9 @@ public class BLangInterpreter implements NodeVisitor {
 
     @Override
     public void visit(BallerinaConnector connector) {
-
+        for (Action action : connector.getActions()) {
+            ((BallerinaAction) action).accept(this);
+        }
     }
 
     @Override
@@ -102,6 +107,7 @@ public class BLangInterpreter implements NodeVisitor {
 
     @Override
     public void visit(BallerinaAction action) {
+        action.interpret(bContext);
 
     }
 
@@ -211,6 +217,11 @@ public class BLangInterpreter implements NodeVisitor {
     }
 
     @Override
+    public void visit(FunctionInvocationStmt functionInvocationStmt) {
+        functionInvocationStmt.getFunctionInvocationExpr().accept(this);
+    }
+
+    @Override
     public void visit(ReplyStmt replyStmt) {
 
     }
@@ -272,7 +283,7 @@ public class BLangInterpreter implements NodeVisitor {
         controlStack.pushFrame(stackFrame);
 
         // Check whether we are invoking a native function or not.
-        if (function instanceof  BallerinaFunction) {
+        if (function instanceof BallerinaFunction) {
             BallerinaFunction bFunction = (BallerinaFunction) function;
             bFunction.accept(this);
         } else {
@@ -286,6 +297,56 @@ public class BLangInterpreter implements NodeVisitor {
         // TODO At the moment we only support single return value
         if (rVals.length >= 1) {
             controlStack.setValue(funcIExpr.getOffset(), rVals[0]);
+        }
+    }
+
+    @Override
+    public void visit(ActionInvocationExpr actionInvocationExpr) {
+        Action action = actionInvocationExpr.getCalleeAction();
+        int sizeOfValueArray = action.getStackFrameSize();
+        BValueRef[] localVals = new BValueRef[sizeOfValueArray];
+
+        // Create default values for all declared local variables
+        int i = 0;
+        for (Expression arg : actionInvocationExpr.getExperssions()) {
+
+            // Evaluate the argument expression
+            arg.accept(this);
+            TypeC argType = arg.getType();
+            BValueRef argValue = getValue(arg);
+
+            // Here we need to handle value types differently from reference types
+            // Value types need to be cloned before passing ot the function : pass by value.
+            // TODO Implement copy-on-write mechanism to improve performance
+            if (BValueRef.isValueType(argType)) {
+                argValue = BValueRef.clone(argType, argValue);
+            }
+
+            // Setting argument value in the stack frame
+            localVals[i] = argValue;
+
+            i++;
+        }
+
+        // Create an array in the stack frame to hold return values;
+        BValueRef[] rVals = new BValueRef[action.getReturnTypesC().length];
+
+        // Create a new stack frame with memory locations to hold parameters, local values, temp expression valuse and
+        // return values;
+        StackFrame stackFrame = new StackFrame(localVals, rVals);
+        controlStack.pushFrame(stackFrame);
+        if (action instanceof BallerinaAction) {
+            ((BallerinaAction) action).accept(this);
+        } else {
+
+        }
+
+        controlStack.popFrame();
+
+        // Setting return values to function invocation expression
+        // TODO At the moment we only support single return value
+        if (rVals.length >= 1) {
+            controlStack.setValue(actionInvocationExpr.getOffset(), rVals[0]);
         }
     }
 

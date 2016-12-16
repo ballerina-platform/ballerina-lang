@@ -28,6 +28,7 @@ import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.VariableDcl;
+import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.AddExpression;
 import org.wso2.ballerina.core.model.expressions.AndExpression;
 import org.wso2.ballerina.core.model.expressions.BasicLiteral;
@@ -46,6 +47,7 @@ import org.wso2.ballerina.core.model.expressions.SubtractExpression;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
+import org.wso2.ballerina.core.model.statements.FunctionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.IfElseStmt;
 import org.wso2.ballerina.core.model.statements.ReplyStmt;
 import org.wso2.ballerina.core.model.statements.ReturnStmt;
@@ -295,7 +297,12 @@ public class BLangModelBuilder {
     }
 
     public void createActionInvocationExpr() {
+        CallableUnitInvocationExprBuilder cIExprBuilder = new CallableUnitInvocationExprBuilder();
+        cIExprBuilder.setExpressionList(exprListStack.pop());
+        cIExprBuilder.setName(symbolNameStack.pop());
 
+        ActionInvocationExpr invocationExpr = cIExprBuilder.buildActionInvocExpr();
+        exprStack.push(invocationExpr);
     }
 
     // Functions, Actions and Resources
@@ -491,6 +498,24 @@ public class BLangModelBuilder {
 
         IfElseStmt ifElseStmt = ifElseStmtBuilder.build();
         addToBlockStmt(ifElseStmt);
+    }
+
+    public void createFunctionInvocationStmt() {
+        CallableUnitInvocationExprBuilder cIExprBuilder = new CallableUnitInvocationExprBuilder();
+        cIExprBuilder.setExpressionList(exprListStack.pop());
+        cIExprBuilder.setName(symbolNameStack.pop());
+
+        FunctionInvocationExpr invocationExpr = cIExprBuilder.buildFuncInvocExpr();
+
+        FunctionInvocationStmt.FunctionInvokeStmtBuilder stmtBuilder =
+                new FunctionInvocationStmt.FunctionInvokeStmtBuilder();
+        stmtBuilder.setFunctionInvocationExpr(invocationExpr);
+        FunctionInvocationStmt functionInvocationStmt = stmtBuilder.build();
+
+        BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder();
+        blockStmtBuilder.addStmt(functionInvocationStmt);
+        blockStmtBuilderStack.push(blockStmtBuilder);
+
     }
 
     // Literal Values
