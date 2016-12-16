@@ -80,8 +80,16 @@ public interface Function extends Interpreter {
      */
     boolean isPublic();
 
+    /**
+     * get stack frame size
+     */
     int getStackFrameSize();
 
-    void setStackFrameSize(int stackFrameSize);
+
+    /**
+     * set stack frame size
+     */
+    void setStackFrameSize(int frameSize);
+
 
 }

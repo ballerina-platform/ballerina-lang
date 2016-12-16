@@ -37,7 +37,7 @@ import java.util.List;
  * @since 1.0.0
  */
 @SuppressWarnings("unused")
-public class BallerinaConnector implements Node {
+public class BallerinaConnector implements Connector , Node {
 
     private List<Annotation> annotationList;
     private List<Parameter> arguments;
