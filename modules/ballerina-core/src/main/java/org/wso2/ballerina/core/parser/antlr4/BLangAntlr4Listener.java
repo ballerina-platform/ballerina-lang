@@ -734,6 +734,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitFunctionInvocationStatement(BallerinaParser.FunctionInvocationStatementContext ctx) {
+        modelBuilder.createFunctionInvocationExpr();
     }
 
     @Override
