@@ -203,6 +203,14 @@ public abstract class AbstractNativeFunction implements NativeConstruct, Functio
      * @return Native function return BValue array
      */
     public abstract BValue[] execute(Context context);
+    
+    public void executeNative(Context context) {
+        BValue[] retVals = execute(context);
+        BValueRef[] returnRefs = context.getControlStack().getCurrentFrame().returnValues;
+        if (returnRefs.length != 0) {
+            returnRefs[0] = new BValueRef(retVals[0]);
+        }
+    }
 
     /**
      * Util method to construct BValue array.
