@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BValue;
+import org.wso2.ballerina.core.model.values.BValueRef;
 import org.wso2.ballerina.core.model.values.MessageValue;
 import org.wso2.ballerina.core.model.values.StringValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
@@ -66,6 +67,8 @@ public class GetStringPayload extends AbstractNativeFunction {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Payload in String:" + result.getValue());
         }
+        
+        context.getControlStack().getCurrentFrame().returnValues[0] = new BValueRef(result);
         return getBValues(result);
     }
 
