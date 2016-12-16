@@ -33,13 +33,13 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.message",
-        functionName = "getXMLPayload",
+        functionName = "getXmlPayload",
         args = {@Argument(name = "message", type = TypeEnum.MESSAGE)},
         returnType = {TypeEnum.XML},
         isPublic = true
 )
 @Component(
-        name = "func.lang.echo_getXMLPayload",
+        name = "func.lang.echo_getXmlPayload",
         immediate = true,
         service = AbstractNativeFunction.class
 )
@@ -48,7 +48,6 @@ public class GetXMLPayload extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        log.info("Get XMLPayload Native Function Invoked.");
         // Accessing First Parameter Value.
         MessageValue msg = (MessageValue) getArgument(context, 0).getBValue();
 
