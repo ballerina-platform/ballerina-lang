@@ -20,7 +20,7 @@ package org.wso2.ballerina.core.parser.visitor;
 import org.wso2.ballerina.core.interpreter.SymbolTable;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.BallerinaAction;
-import org.wso2.ballerina.core.model.Connector;
+import org.wso2.ballerina.core.model.BallerinaConnector;
 import org.wso2.ballerina.core.model.ConnectorDcl;
 import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.SymbolName;
@@ -72,7 +72,7 @@ public class ConnectorVisitor extends BallerinaBaseVisitor {
     @Override
     public Object visitConnectorDefinition(BallerinaParser.ConnectorDefinitionContext ctx) {
         SymbolName connectorName = new SymbolName(ctx.Identifier().getText());
-        Connector connectorObject = new Connector(connectorName, null, null, null, null);
+        BallerinaConnector connectorObject = new BallerinaConnector(connectorName, null, null, null, null);
 
         // Read the annotations
         AnnotationVisitor annotationVisitor = new AnnotationVisitor();

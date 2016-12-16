@@ -107,6 +107,8 @@ public class TypeC {
             return new MapType();
         case "array":
             return new ArrayType();
+        case "connector":
+            return new ConnectorType();
         default:
             //TODO use proper exceptions here
             throw new RuntimeException("Unknown type");
