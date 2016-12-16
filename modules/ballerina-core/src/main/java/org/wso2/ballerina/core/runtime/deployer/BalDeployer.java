@@ -226,11 +226,9 @@ public class BalDeployer implements Deployer {
         for (FunctionInvocationExpr expr : bFile.getFuncIExprs()) {
             SymbolName symName = expr.getFunctionName();
             BallerinaFunction bFunction = (BallerinaFunction) bFile.getFunctions().get(symName.getName());
-
             if (bFunction == null) {
                 throw new IllegalStateException("Undefined function: " + symName.getName());
             }
-
             expr.setFunction(bFunction);
         }
 
@@ -251,17 +249,9 @@ public class BalDeployer implements Deployer {
         // Create control stack and the stack frame
         Context ctx = new Context();
         ControlStack controlStack = ctx.getControlStack();
-
         int sizeOfValueArray = function.getStackFrameSize();
-
         BValueRef[] values = new BValueRef[sizeOfValueArray];
-
         int i = 0;
-//        Parameter[] parameters = function.getParameters();
-//        for (Parameter param: parameters) {
-//            values[i] = BValueRef.getDefaultValue(param.getTypeC());
-//            i++;
-//        }
 
         // Main function only have one input parameter
         // Read from command line arguments
@@ -283,13 +273,10 @@ public class BalDeployer implements Deployer {
         }
 
         BValueRef[] returnVals = new BValueRef[function.getReturnTypesC().length];
-
         StackFrame stackFrame = new StackFrame(values, returnVals);
         controlStack.pushFrame(stackFrame);
-
         BLangInterpreter interpreter = new BLangInterpreter(ctx);
         function.accept(interpreter);
-
         log.info("return value: " + returnVals[0].getInt());
     }
 
