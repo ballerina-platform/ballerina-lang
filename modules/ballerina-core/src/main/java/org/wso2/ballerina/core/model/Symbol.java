@@ -26,13 +26,23 @@ import org.wso2.ballerina.core.model.types.TypeC;
  * @since 1.0.0
  */
 public class Symbol {
-    private TypeC type;
 
+    private TypeC type;
     private int offset;
+
+    private TypeC[] paramTypes;
+    private TypeC[] returnTypes;
+    private Function function;
 
     public Symbol(TypeC type, int offset) {
         this.type = type;
         this.offset = offset;
+    }
+
+    public Symbol(Function function, TypeC[] paramTypes, TypeC[] returnTypes) {
+        this.function = function;
+        this.paramTypes = paramTypes;
+        this.returnTypes = returnTypes;
     }
 
     public TypeC getType() {
@@ -42,4 +52,17 @@ public class Symbol {
     public int getOffset() {
         return offset;
     }
+
+    public TypeC[] getParamTypes() {
+        return paramTypes;
+    }
+
+    public TypeC[] getReturnTypes() {
+        return returnTypes;
+    }
+
+    public Function getFunction() {
+        return function;
+    }
 }
+

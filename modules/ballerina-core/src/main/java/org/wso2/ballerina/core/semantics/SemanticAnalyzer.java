@@ -59,11 +59,12 @@ import org.wso2.ballerina.core.model.statements.ReturnStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
 import org.wso2.ballerina.core.model.types.TypeC;
+import org.wso2.ballerina.core.model.util.SymbolUtils;
 
 /**
- *  {@code SemanticAnalyzer} analyzes semantic properties of a Ballerina program
+ * {@code SemanticAnalyzer} analyzes semantic properties of a Ballerina program
  *
- *  @since 1.0.0
+ * @since 1.0.0
  */
 public class SemanticAnalyzer implements NodeVisitor {
 
@@ -71,7 +72,14 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     // TODO Check the possibility of passing this symbol table as constructor parameter to this class.
     // TODO Need to pass the global scope
-    private SymTable symbolTable = new SymTable();
+    private SymTable symbolTable;
+
+    private BallerinaFile bFile;
+
+    public SemanticAnalyzer(BallerinaFile bFile) {
+        this.bFile = bFile;
+        symbolTable = new SymTable(bFile.getPackageScope());
+    }
 
     @Override
     public void visit(BallerinaFile bFile) {
@@ -131,10 +139,11 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(BallerinaFunction bFunction) {
+        // Create a Symbol for this function( with parameter and return types)
+        addFuncSymbol(bFunction);
+
         // Open a new symbol scope
         openScope();
-
-        // TODO create a Symbol for this function( with parameter and return types)
 
         Parameter[] parameters = bFunction.getParameters();
         for (Parameter parameter : parameters) {
@@ -191,7 +200,6 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         TypeC type = parameter.getTypeC();
         symbol = new Symbol(type, stackFrameOffset);
-        symName.setSymbol(symbol);
 
         symbolTable.insert(symName, symbol);
 
@@ -208,7 +216,6 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         TypeC type = variableDcl.getTypeC();
         symbol = new Symbol(type, stackFrameOffset);
-        symName.setSymbol(symbol);
 
         symbolTable.insert(symName, symbol);
     }
@@ -372,9 +379,24 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(FunctionInvocationExpr funcIExpr) {
         visitExpr(funcIExpr);
 
-        for (Expression expr : funcIExpr.getExprs()) {
+        Expression[] exprs = funcIExpr.getExprs();
+        for (Expression expr : exprs) {
             expr.accept(this);
         }
+
+
+        // Can we do this bit in the linker
+        SymbolName symbolName = funcIExpr.getFunctionName();
+
+        TypeC[] paramTypes = new TypeC[exprs.length];
+        for (int i = 0; i < exprs.length; i++) {
+            paramTypes[i] = exprs[i].getType();
+        }
+
+        symbolName = SymbolUtils.generateSymbolName(symbolName.getName(), paramTypes);
+        funcIExpr.setFunctionName(symbolName);
+
+        bFile.addFuncInvocationExpr(funcIExpr);
 
         // TODO store the types of each func argument expression
     }
@@ -435,7 +457,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             throw new RuntimeException("Undeclared variable: " + symName.getName());
         }
 
-        symName.setSymbol(symbol);
+//        symName.setSymbol(symbol);
         variableRefExpr.setType(symbol.getType());
         variableRefExpr.setOffset(symbol.getOffset());
     }
@@ -459,5 +481,15 @@ public class SemanticAnalyzer implements NodeVisitor {
     private void visitExpr(Expression expr) {
         stackFrameOffset++;
         expr.setOffset(stackFrameOffset);
+    }
+
+    private void addFuncSymbol(Function function) {
+        SymbolName symbolName = SymbolUtils.generateSymbolName(function.getName(), function.getParameters());
+        function.setSymbolName(symbolName);
+
+        TypeC[] paramTypes = SymbolUtils.getTypesOfParams(function.getParameters());
+
+        Symbol symbol = new Symbol(function, paramTypes, function.getReturnTypesC());
+        symbolTable.insert(symbolName, symbol);
     }
 }

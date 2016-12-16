@@ -23,6 +23,7 @@ import org.wso2.ballerina.core.model.BallerinaConnector;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.ConnectorDcl;
+import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.Resource;
@@ -55,6 +56,7 @@ import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
 import org.wso2.ballerina.core.model.types.TypeC;
 import org.wso2.ballerina.core.model.values.BValueRef;
+import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 
 import java.util.List;
 
@@ -227,7 +229,7 @@ public class BLangInterpreter implements NodeVisitor {
     @Override
     public void visit(FunctionInvocationExpr funcIExpr) {
         // Create the Stack frame
-        BallerinaFunction function = (BallerinaFunction) funcIExpr.getFunction();
+        Function function =  funcIExpr.getFunction();
 
         int sizeOfValueArray = function.getStackFrameSize();
         BValueRef[] localVals = new BValueRef[sizeOfValueArray];
@@ -269,7 +271,14 @@ public class BLangInterpreter implements NodeVisitor {
         StackFrame stackFrame = new StackFrame(localVals, rVals);
         controlStack.pushFrame(stackFrame);
 
-        function.accept(this);
+        // Check whether we are invoking a native function or not.
+        if (function instanceof  BallerinaFunction) {
+            BallerinaFunction bFunction = (BallerinaFunction) function;
+            bFunction.accept(this);
+        } else {
+            AbstractNativeFunction nativeFunction = (AbstractNativeFunction) function;
+            nativeFunction.execute(bContext);
+        }
 
         controlStack.popFrame();
 
