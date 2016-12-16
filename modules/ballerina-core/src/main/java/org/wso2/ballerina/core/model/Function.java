@@ -20,6 +20,7 @@ package org.wso2.ballerina.core.model;
 
 import org.wso2.ballerina.core.interpreter.Interpreter;
 import org.wso2.ballerina.core.model.types.Type;
+import org.wso2.ballerina.core.model.types.TypeC;
 
 /**
  * {@code {@link Function}} represents any Ballerina function.
@@ -40,6 +41,8 @@ public interface Function extends Interpreter {
      */
     SymbolName getSymbolName();
 
+    void setSymbolName(SymbolName symbolName);
+
     /**
      * Get all the Annotations associated with a BallerinaFunction
      *
@@ -55,10 +58,20 @@ public interface Function extends Interpreter {
     Parameter[] getParameters();
 
     /**
+     * Get all the variableDcls declared in the scope of BallerinaFunction
+     *
+     * @return list of all BallerinaFunction scoped variableDcls
+     */
+    VariableDcl[] getVariableDcls();
+
+    /**
      * Get list of return Types associated with function defintion.
+     *
      * @return list of Return types.
      */
     Type[] getReturnTypes();
+
+    TypeC[] getReturnTypesC();
 
     /**
      * Check whether function is public, which means function is visible outside the package
@@ -66,5 +79,9 @@ public interface Function extends Interpreter {
      * @return whether function is public
      */
     boolean isPublic();
+
+    int getStackFrameSize();
+
+    void setStackFrameSize(int stackFrameSize);
 
 }

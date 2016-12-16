@@ -47,7 +47,7 @@ public class Application {
      * @param aPackage a Package
      */
     public void addPackage(Package aPackage) {
-        packages.put(aPackage.getFullQualifiedName(), aPackage);
+        packages.put(aPackage.getFullyQualifiedName(), aPackage);
     }
 
     /**

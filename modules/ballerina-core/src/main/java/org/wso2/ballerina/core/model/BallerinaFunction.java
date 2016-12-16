@@ -113,6 +113,11 @@ public class BallerinaFunction implements Function, Node {
         return functionName;
     }
 
+    @Override
+    public void setSymbolName(SymbolName symbolName) {
+        this.functionName = symbolName;
+    }
+
     /**
      * Get all the Annotations associated with a BallerinaFunction
      *

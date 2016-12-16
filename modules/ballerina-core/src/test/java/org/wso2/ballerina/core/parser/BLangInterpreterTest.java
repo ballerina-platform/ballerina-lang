@@ -65,12 +65,8 @@ public class BLangInterpreterTest {
 
             bFile = modelBuilder.build();
 
-
-            SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer();
+            SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(bFile);
             bFile.accept(semanticAnalyzer);
-
-            // Linker
-
         } catch (IOException e) {
             e.printStackTrace();
         }

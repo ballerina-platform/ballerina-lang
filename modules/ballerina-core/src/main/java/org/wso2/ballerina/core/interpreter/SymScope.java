@@ -42,6 +42,10 @@ public class SymScope {
         this.symbolMap = new HashMap<>();
     }
 
+    public void setParent(SymScope parent) {
+        this.parent = parent;
+    }
+
     public SymScope openScope() {
         return new SymScope(this);
     }

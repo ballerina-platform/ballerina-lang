@@ -157,7 +157,7 @@ public class BalDeployer implements Deployer {
                 ballerinaParser.compilationUnit();
                 BallerinaFile balFile = bLangModelBuilder.build();
 
-                SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer();
+                SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(balFile);
                 balFile.accept(semanticAnalyzer);
 
                 // Invoke the Linker
