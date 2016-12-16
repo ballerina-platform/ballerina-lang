@@ -45,7 +45,7 @@ import org.wso2.ballerina.core.model.statements.WhileStmt;
  */
 public interface NodeVisitor {
 
-    void visit(BallerinaFile file);
+    void visit(BallerinaFile bFile);
 
     void visit(Service service);
 
@@ -55,7 +55,7 @@ public interface NodeVisitor {
 
     void visit(BallerinaFunction function);
 
-    void visit(Action action);
+    void visit(BallerinaAction action);
 
     void visit(Worker worker);
 

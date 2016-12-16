@@ -18,7 +18,10 @@
 
 package org.wso2.ballerina.core.model;
 
+import org.wso2.ballerina.core.interpreter.BLangInterpreter;
 import org.wso2.ballerina.core.interpreter.Context;
+import org.wso2.ballerina.core.model.statements.BlockStmt;
+import org.wso2.ballerina.core.model.statements.ReplyStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.runtime.core.BalCallback;
 import org.wso2.ballerina.core.runtime.core.Executable;
@@ -148,17 +151,28 @@ public class Worker implements Executable, Node {
     public boolean execute(Context context, BalCallback callback) {
 
         context.setBalCallback(callback);
+
+        BLangInterpreter interpreter = new BLangInterpreter(context);
+        this.accept(interpreter);
         //Execute statements from here
         if (statements == null || statements.size() == 0) {
             return true; // nothing to execute
         } else {
             for (Statement statement : statements) {
-                statement.interpret(context);
+                // TODO: Need a better fix. Interpret reply statement specifically here
+                if (statement instanceof BlockStmt) {
+                    BlockStmt blockStmt = (BlockStmt) statement;
+                    for (Statement statement1 : blockStmt.getStatements()) {
+                        if (statement1 instanceof ReplyStmt) {
+                            statement1.interpret(context);
+                        }
+                    }
+                } else if (statement instanceof ReplyStmt) {
+                    statement.interpret(context);
+                }
             }
             return true;
         }
-
-//        return false;
 
     }
 
