@@ -167,8 +167,9 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
     public void serviceUnregistered(Service service) {
 
         String listenerInterface = Constants.DEFAULT_INTERFACE;
-        String basePath = Constants.DEFAULT_BASE_PATH;
-
+        // String basePath = Constants.DEFAULT_BASE_PATH;
+        String basePath = service.getSymbolName().getName();
+        
         for (Annotation annotation : service.getAnnotations()) {
             if (annotation.getName().equals(Constants.ANNOTATION_NAME_SOURCE)) {
                 String sourceInterfaceVal = annotation
@@ -180,6 +181,15 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
                 basePath = annotation.getValue();
             }
         }
+        
+        if (basePath.startsWith("\"")) {
+            basePath = basePath.substring(1, basePath.length() - 1);
+        }
+
+        if (!basePath.startsWith("/")) {
+            basePath = "/".concat(basePath);
+        }
+        
         Map<String, Service> servicesOnInterface = services.get(listenerInterface);
         if (servicesOnInterface != null) {
             servicesOnInterface.remove(basePath);
