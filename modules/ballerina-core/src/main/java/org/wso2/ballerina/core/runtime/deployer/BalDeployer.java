@@ -34,8 +34,10 @@ import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.Package;
 import org.wso2.ballerina.core.model.Parameter;
+import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.VariableDcl;
 import org.wso2.ballerina.core.model.builder.BLangModelBuilder;
+import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.values.BValueRef;
 import org.wso2.ballerina.core.parser.BallerinaLexer;
 import org.wso2.ballerina.core.parser.BallerinaParser;
@@ -151,13 +153,18 @@ public class BalDeployer implements Deployer {
 //                BallerinaLinker ballerinaLinker = new BallerinaLinker();
 //                balFile.accept(ballerinaLinker);
 
-                // Run main function
-                runMainFunction(balFile);
+                // Link function invocations and Run main function
+                linkAndRunMainFunction(balFile);
 
                 Application defaultApp = ApplicationRegistry.getInstance().getDefaultApplication();
                 Package aPackage = defaultApp.getPackage(balFile.getPackageName());
                 if (aPackage == null) {
-                    aPackage = new Package(balFile.getPackageName());
+                    // check if package name is null
+                    if (balFile.getPackageName() != null) {
+                        aPackage = new Package(balFile.getPackageName());
+                    } else {
+                        aPackage = new Package("default");
+                    }
                     defaultApp.addPackage(aPackage);
                 }
                 aPackage.addFiles(balFile);
@@ -179,7 +186,20 @@ public class BalDeployer implements Deployer {
         }
     }
 
-    private static void runMainFunction(BallerinaFile bFile) {
+    private static void linkAndRunMainFunction(BallerinaFile bFile) {
+
+        // Linking functions defined in the same source file
+        for (FunctionInvocationExpr expr : bFile.getFuncIExprs()) {
+            SymbolName symName = expr.getFunctionName();
+            BallerinaFunction bFunction = (BallerinaFunction) bFile.getFunctions().get(symName.getName());
+
+            if (bFunction == null) {
+                throw new IllegalStateException("Undefined function: " + symName.getName());
+            }
+
+            expr.setFunction(bFunction);
+        }
+
         BallerinaFunction function = (BallerinaFunction) bFile.getFunctions().get("main");
         if (function == null) {
             return;
@@ -192,9 +212,6 @@ public class BalDeployer implements Deployer {
         int sizeOfValueArray = function.getStackFrameSize();
 
         BValueRef[] values = new BValueRef[sizeOfValueArray];
-//        values[0] = new BValueRef(new IntValue(10));
-//        values[1] = new BVvariableDcls[i]alueRef(new IntValue(1000));
-//        values[2] = new BValueRef(new IntValue(20));
 
         int i = 0;
         Parameter[] parameters = function.getParameters();
@@ -220,5 +237,6 @@ public class BalDeployer implements Deployer {
 
         log.info("return value: " + returnVals[0].getInt());
     }
+
 
 }
