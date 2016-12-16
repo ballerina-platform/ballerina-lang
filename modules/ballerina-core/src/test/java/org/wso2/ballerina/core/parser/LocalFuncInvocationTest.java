@@ -26,6 +26,7 @@ import org.wso2.ballerina.core.interpreter.BContext;
 import org.wso2.ballerina.core.interpreter.BLangInterpreter;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.interpreter.StackFrame;
+import org.wso2.ballerina.core.linker.BLangLinker;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.SymbolName;
@@ -37,6 +38,7 @@ import org.wso2.ballerina.core.model.values.BValueRef;
 import org.wso2.ballerina.core.model.values.IntValue;
 import org.wso2.ballerina.core.parser.antlr4.BLangAntlr4Listener;
 import org.wso2.ballerina.core.semantics.SemanticAnalyzer;
+import org.wso2.ballerina.core.utils.TestUtils;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -70,20 +72,24 @@ public class LocalFuncInvocationTest {
 
             bFile = modelBuilder.build();
 
-            SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer();
+            SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(bFile);
             bFile.accept(semanticAnalyzer);
 
             // Linking functions defined in the same source file
-            for (FunctionInvocationExpr expr : bFile.getFuncIExprs()) {
-                SymbolName symName = expr.getFunctionName();
-                BallerinaFunction bFunction = (BallerinaFunction) bFile.getFunctions().get(symName.getName());
+//            for (FunctionInvocationExpr expr : bFile.getFuncIExprs()) {
+//                SymbolName symName = expr.getFunctionName();
+//                BallerinaFunction bFunction = (BallerinaFunction) bFile.getFunctions().get(symName.getName());
+//
+//                if (bFunction == null) {
+//                    throw new IllegalStateException("Undefined function: " + symName.getName());
+//                }
+//
+//                expr.setFunction(bFunction);
+//            }
 
-                if (bFunction == null) {
-                    throw new IllegalStateException("Undefined function: " + symName.getName());
-                }
-
-                expr.setFunction(bFunction);
-            }
+            // Linker
+            BLangLinker linker = new BLangLinker(bFile);
+            linker.link(null);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -92,6 +98,9 @@ public class LocalFuncInvocationTest {
 
     @Test
     public void testLocalFuncInvocation() {
+
+        BallerinaFile bFile = TestUtils.parseBalFile("samples/parser/localFuncInvocationTest.bal");
+
         BValueRef valueRefA = new BValueRef(new IntValue(100));
         BasicLiteral basicLiteralA = new BasicLiteral(valueRefA);
 
@@ -126,7 +135,7 @@ public class LocalFuncInvocationTest {
 
     public static void main(String[] args) {
         LocalFuncInvocationTest test = new LocalFuncInvocationTest();
-        test.setup();
+//        test.setup();
         test.testLocalFuncInvocation();
     }
 }

@@ -18,6 +18,7 @@
 
 package org.wso2.ballerina.core.model;
 
+import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.types.StructType;
 
@@ -47,13 +48,11 @@ public class BallerinaFile implements Node {
     private List<Connector> connectorList = new ArrayList<>();
     private Map<String, Function> functions = new HashMap<>();
     private List<StructType> types = new ArrayList<>();
-    private FunctionInvocationExpr[] funcIExprs;
+    private List<FunctionInvocationExpr> funcIExprList = new ArrayList<>();
     //TODO: add TypeConverters
     //TODO: add constants
 
-    public BallerinaFile() {
-
-    }
+    private SymScope packageScope;
 
     private BallerinaFile(
             String packageName,
@@ -62,7 +61,7 @@ public class BallerinaFile implements Node {
             List<Connector> connectorList,
             Map<String, Function> functionMap,
             List<StructType> sTypeList,
-            FunctionInvocationExpr[] funcIExprs) {
+            List<FunctionInvocationExpr> funcIExprList) {
 
         this.packageName = packageName;
         this.imports = importList;
@@ -70,7 +69,9 @@ public class BallerinaFile implements Node {
         this.connectorList = connectorList;
         this.functions = functionMap;
         this.types = sTypeList;
-        this.funcIExprs = funcIExprs;
+        this.funcIExprList = funcIExprList;
+
+        packageScope = new SymScope();
     }
 
     /**
@@ -172,8 +173,12 @@ public class BallerinaFile implements Node {
         functions.put(function.getName(), function);
     }
 
+    public void addFuncInvocationExpr(FunctionInvocationExpr expr) {
+        this.funcIExprList.add(expr);
+    }
+
     public FunctionInvocationExpr[] getFuncIExprs() {
-        return funcIExprs;
+        return funcIExprList.toArray(new FunctionInvocationExpr[funcIExprList.size()]);
     }
 
     /**
@@ -202,6 +207,14 @@ public class BallerinaFile implements Node {
      */
     public void addType(StructType type) {
         types.add(type);
+    }
+
+    public SymScope getPackageScope() {
+        return packageScope;
+    }
+
+    public void setPackageScope(SymScope packageScope) {
+        this.packageScope = packageScope;
     }
 
     @Override
@@ -262,8 +275,8 @@ public class BallerinaFile implements Node {
                     connectorList,
                     functionList,
                     sTypeList,
-                    funcIExprList.toArray(new FunctionInvocationExpr[funcIExprList.size()])
-            );
+                    funcIExprList);
+
         }
     }
 

@@ -32,7 +32,7 @@ import java.util.Map;
  */
 public class Package {
 
-    private String fullQualifiedName;
+    private String fullyQualifiedName;
     private String name;
 
     private List<BallerinaFile> files = new ArrayList<>();
@@ -44,11 +44,11 @@ public class Package {
 
 
     /**
-     * @param fullQualifiedName Full qualified name of the package
+     * @param fullyQualifiedName Full qualified name of the package
      */
-    public Package(String fullQualifiedName) {
-        this.fullQualifiedName = fullQualifiedName;
-        name = fullQualifiedName.substring(fullQualifiedName.lastIndexOf(".") + 1);
+    public Package(String fullyQualifiedName) {
+        this.fullyQualifiedName = fullyQualifiedName;
+        name = fullyQualifiedName.substring(fullyQualifiedName.lastIndexOf(".") + 1);
     }
 
     /**
@@ -56,8 +56,8 @@ public class Package {
      *
      * @return FQN of the package
      */
-    public String getFullQualifiedName() {
-        return fullQualifiedName;
+    public String getFullyQualifiedName() {
+        return fullyQualifiedName;
     }
 
     /**
