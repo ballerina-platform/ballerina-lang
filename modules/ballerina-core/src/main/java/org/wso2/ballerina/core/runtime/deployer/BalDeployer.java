@@ -33,12 +33,12 @@ import org.wso2.ballerina.core.model.Application;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.Package;
-import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.VariableDcl;
 import org.wso2.ballerina.core.model.builder.BLangModelBuilder;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.values.BValueRef;
+import org.wso2.ballerina.core.model.values.IntValue;
 import org.wso2.ballerina.core.parser.BallerinaLexer;
 import org.wso2.ballerina.core.parser.BallerinaParser;
 import org.wso2.ballerina.core.parser.ParserException;
@@ -56,6 +56,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+
+import static org.wso2.ballerina.core.runtime.Constants.SYSTEM_PROP_BAL_ARGS;
 
 /**
  * {@code BalDeployer} is responsible for all ballerina file deployment tasks
@@ -205,6 +207,7 @@ public class BalDeployer implements Deployer {
             return;
         }
 
+        // Execute main function
         // Create control stack and the stack frame
         Context ctx = new Context();
         ControlStack controlStack = ctx.getControlStack();
@@ -214,10 +217,22 @@ public class BalDeployer implements Deployer {
         BValueRef[] values = new BValueRef[sizeOfValueArray];
 
         int i = 0;
-        Parameter[] parameters = function.getParameters();
-        for (Parameter param: parameters) {
-            values[i] = BValueRef.getDefaultValue(param.getTypeC());
-            i++;
+//        Parameter[] parameters = function.getParameters();
+//        for (Parameter param: parameters) {
+//            values[i] = BValueRef.getDefaultValue(param.getTypeC());
+//            i++;
+//        }
+
+        // Main function only have one input parameter
+        // Read from command line arguments
+        String balArgs = System.getProperty(SYSTEM_PROP_BAL_ARGS);
+
+        // Only integers allowed at the moment
+        if (balArgs != null) {
+            int intValue = Integer.parseInt(balArgs);
+            values[i++] = new BValueRef(new IntValue(intValue));
+        } else {
+            values[i++] = new BValueRef(new IntValue(0));
         }
 
         // Create default values for all declared local variables
