@@ -47,43 +47,6 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
          * Render the else statement
          */
         ElseStatementView.prototype.render = function (diagramRenderingContext) {
-            // this._diagramRenderingContext = diagramRenderingContext;
-            // var elseGroup = D3Utils.group(this._container);
-            // var topC = undefined;
-            //
-            // var x = 0;
-            // var y = 0;
-            //
-            // // If we have more than one else if we get the position of the last else if
-            // var lastElseIf = this.getParent().getLastElseIf();
-            // if (!_.isUndefined(lastElseIf)) {
-            //     topC = new Point(lastElseIf.getBoundingBox().getLeft() + lastElseIf.getBoundingBox().w()/2,
-            //         lastElseIf.getBoundingBox().getBottom());
-            //     this.getTopCenter().x(top);
-            //     this.getTopCenter().y();
-            // } else {
-            //     var ifBlockView = this.getParent().getIfBlockView();
-            //     topC = new Point(ifBlockView.getBoundingBox().x() + ifBlockView.getBoundingBox().w()/2,
-            //         lastElseIf.getBoundingBox().y() + lastElseIf.getBoundingBox().h()/2);
-            //     y = parseInt(this.getParent().getIfBlockView().getStatementGroup().outerRect.attr('y')) +
-            //         parseInt(this.getParent().getIfBlockView().getStatementGroup().outerRect.attr('height'));
-            //     x = parseInt(this.getParent().getBoundingBox().x);
-            // }
-            // var point = new Point(x, y);
-            // var width = parseInt(this.getParent().getBoundingBox().width);
-            // var height = 60;
-            // var outer_rect = D3Utils.rect(x, y, width, height, 0, 0, elseGroup).classed('statement-rect', true);
-            // var title_rect = D3Utils.rect(x, y, 40, 20, 0, 0, elseGroup).classed('statement-rect', true);
-            // var title_text = D3Utils.textElement(x + 20, y + 10, 'Else', elseGroup).classed('statement-text', true);
-            //
-            // elseGroup.outerRect = outer_rect;
-            // elseGroup.titleRect = title_rect;
-            // elseGroup.titleText = title_text;
-            // this.setBoundingBox(width, height, x, y);
-            // this.getParent().setBoundingBox(width, height + this.getParent().getBoundingBox().height, x, y);
-            // this.setStatementGroup(elseGroup);
-            // this._model.accept(this);
-            // this.trigger('sub-component-rendered', this.getBoundingBox());
             this._diagramRenderingContext = diagramRenderingContext;
             var elseGroup = D3Utils.group(this._container);
 
