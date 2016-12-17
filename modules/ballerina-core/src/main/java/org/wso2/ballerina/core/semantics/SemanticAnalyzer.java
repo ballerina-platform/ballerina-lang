@@ -128,6 +128,12 @@ public class SemanticAnalyzer implements NodeVisitor {
             visit(variableDcl);
         }
 
+        ConnectorDcl[] connectorDcls = resource.getConnectorDcls();
+        for (ConnectorDcl connectorDcl : connectorDcls) {
+            stackFrameOffset++;
+            visit(connectorDcl);
+        }
+
         BlockStmt blockStmt = resource.getResourceBody();
         blockStmt.accept(this);
 
@@ -224,6 +230,15 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(ConnectorDcl connectorDcl) {
+        SymbolName symbolName = connectorDcl.getVarName();
+
+        Symbol symbol = symbolTable.lookup(symbolName);
+        if (symbol != null) {
+            throw new InvalidSemanticException("Duplicate connector declaration with name: " + symbolName.getName());
+        }
+
+        symbol = new Symbol(TypeC.CONNECTOR_TYPE, stackFrameOffset);
+        symbolTable.insert(symbolName, symbol);
 
     }
 
