@@ -469,15 +469,24 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
             this._clientLifeLine.setHeight(height);
         };
 
+        /**
+         * Creates the annotation button pane.
+         * @param annotationButton - The annotation button, which is an SVG element(circle).
+         * @private
+         */
         ServiceDefinitionView.prototype._createAnnotationButtonPane = function (annotationButton) {
             var paneWidth = 400;
             var paneHeadingHeight = annotationButton.attr("r") * 2;
-            var paneContentHeight = 300;
-            var wrapperDivClass = "service-annotation-wrapper";
-            var headerWrapperDivClass = "service-annotation-header-wrapper";
-            var contentWrapperDivClass = "service-annotation-content-wrapper";
-            var headerTickDivClass = "service-annotation-header-tick";
+            var mainActionWrapper = "main-action-wrapper service-annotation-main-action-wrapper";
+            var actionContentWrapper = "svg-action-content-wrapper";
+            var actionContentWrapperHeading = "action-content-wrapper-heading service-annotation-wrapper-heading";
+            var actionContentDropdownWrapper = "action-content-dropdown-wrapper input-group-btn";
+            var actionIconWrapper = "action-icon-wrapper";
+            var actionContentWrapperBody = "svg-action-content-wrapper-body service-annotation-details-wrapper";
+            var annotationDetailWrapper = "service-annotation-detail-wrapper";
+            var annotationDetailCellWrapper = "service-annotation-detail-cell-wrapper";
 
+            // Annotation data of the service.
             var data = [
                 {
                     annotationType: "BasePath",
@@ -491,28 +500,34 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
                 },
                 {
                     annotationType: "Source:interface",
-                    annotationValue: this._model.getSource().interface,
+                    annotationValue: ""/*this._model.getSource().interface*/,
                     setterMethod: this._model.setSource
                 }
             ];
+
+            // Showing annotation pane when annotation button is clicked.
             $(annotationButton.node()).click({model: this._model}, function (event) {
 
-                if (_.isNil($(annotationButton.node()).data("showing")) || $(annotationButton.node()).data("showing") == "false") {
+                // Show the annotation pane only if annotation pane is closed.
+                if (_.isNil($(annotationButton.node()).data("showing"))
+                    || $(annotationButton.node()).data("showing") == "false") {
                     $(annotationButton.node()).data("showing", true);
                 } else {
                     return;
                 }
 
                 var model = event.data.model;
+
+                // Stopping event propagation to element behind.
                 event.stopPropagation();
 
-                var annotationButtonRectHoverEvent = $(annotationButton.node()).next().hover;
-                $($(annotationButton.node()).next()).unbind("hover");
-
-                annotationButton.style("opacity", 1);
+                // Adding darkness to the annotation button.
+                var annotationButtonClass = $(annotationButton.node()).attr("class");
+                $(annotationButton.node()).removeAttr("class");
 
                 var divSvgWrapper = annotationButton.node().ownerSVGElement.parentElement;
 
+                // Getting the start location for drawing the background.
                 var paneStartingX = annotationButton.attr("cx") - paneWidth;
                 var paneStartingY = annotationButton.attr("cy") - annotationButton.attr("r");
 
@@ -522,111 +537,235 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
                     .attr("y", paneStartingY)
                     .attr("width", paneWidth)
                     .attr("height", paneHeadingHeight)
-                    .classed("service-annotation-header-pane", true);
+                    .classed("svg-action-content-wrapper-heading", true);
+
+                // Padding value needs to be taken into considering as that starting point of the SVG and its wrapper is
+                // not the same. Difference is the padding.
+                var paddingOfDivSvgWrapper = parseInt($(divSvgWrapper).css("padding"), 10);
 
                 var annotationEditorWrapper = $("<div/>", {
-                    class: wrapperDivClass
-                }).width(paneWidth).offset({top: 72.325, left: 1174.33}).appendTo(divSvgWrapper);
+                    class: mainActionWrapper
+                }).width(paneWidth)
+                    .offset({top: paneStartingY + paddingOfDivSvgWrapper, left: paneStartingX + paddingOfDivSvgWrapper})
+                    .appendTo(divSvgWrapper);
+
+                var annotationActionContentWrapper = $("<div/>", {
+                    class: actionContentWrapper
+                }).appendTo(annotationEditorWrapper);
 
                 // Creating header content.
                 var headerWrapper = $("<div/>", {
-                    class: headerWrapperDivClass,
-                    click: function (event) {
-                        event.stopPropagation();
-                    }
-                }).height(paneHeadingHeight).appendTo(annotationEditorWrapper);
+                    class: actionContentWrapperHeading
+                }).appendTo(annotationActionContentWrapper);
 
-                var annotationTypeDropDown = $("<select />").appendTo(headerWrapper);
-                _.forEach(data, function (annotation) {
-                    $("<option />", {
-                        value: annotation.annotationType,
-                        text: annotation.annotationType
-                    }).appendTo(annotationTypeDropDown);
-                });
-
-                var annotationValueInput = $("<input type='text' value='" + data[0].annotationValue + "'>").appendTo(headerWrapper);
-                $(annotationTypeDropDown).change(function () {
-                    var selectedAnnotationType = $(this).val();
-                    var selectedAnnotation = _.filter(data, function (annotation) {
-                        return annotation.annotationType == selectedAnnotationType;
-                    });
-                    annotationValueInput.val(_.first(selectedAnnotation).annotationValue);
-                });
-
-                // Add/Done button
-                var tickSpan = $("<span/>", {
-                    class: headerTickDivClass + " fw-stack fw-lg"
+                // Creating a wrapper for the annotation type dropwdown.
+                var annotationTypeDropDownWrapper = $("<div/>", {
+                    class: actionContentDropdownWrapper
                 }).appendTo(headerWrapper);
 
-                var tickSquare = $("<i/>", {
-                    class: "fw fw-square fw-stack-2x",
-                    css: {
-                        opacity: 0.4
-                    }
-                }).appendTo(tickSpan);
+                // Creating dropdown button element.
+                var dropdownClickable = $("<button/>", {
+                    class: "btn btn-default dropdown-toggle",
+                    text : "Annotation Type"
+                }).appendTo(annotationTypeDropDownWrapper);
 
-                var tickCheck = $("<i/>", {
-                    class: "fw fw-check fw-stack-1x fw-inverse controls-container-font-action"
-                }).appendTo(tickSpan);
+                // Adding bootstrap attributes to the above button element.
+                dropdownClickable.attr("data-toggle", "dropdown")
+                    .attr("aria-haspopup", true)
+                    .attr("aria-expanded", false);
 
-                $(tickCheck).hover(
-                    function () {
-                        $(tickSquare).css("opacity", 1);
-                    },
-                    function () {
-                        $(tickSquare).css("opacity", 0.4);
-                    }
-                );
+                var dropdownClickableIcon = $("<i class='icon-caret fw fw-down icon-caret'></i>");
 
+                dropdownClickableIcon.appendTo(dropdownClickable);
 
-                $(tickSpan).click(function () {
-                    var selectedDropdownAnnotationType = $(annotationTypeDropDown).val();
-                    var newAnnotationValue = $(annotationValueInput).val();
-                    var annotationToUpdate = _.first(_.filter(data, function (annotation) {
-                        return annotation.annotationType == selectedDropdownAnnotationType;
+                // Creating <ul> tag to add dropdown elements.
+                var dropdownElementsWrapper = $("<ul/>", {
+                    class: "dropdown-menu"
+                }).appendTo(annotationTypeDropDownWrapper);
+
+                // Text input for editing the value of an annotation.
+                var annotationValueInput = $("<input/>", {
+                    type: "text"
+                }).appendTo(headerWrapper);
+
+                // Wrapper for the add and check icon.
+                var addIconWrapper = $("<div/>", {
+                    class: actionIconWrapper
+                }).appendTo(headerWrapper);
+
+                var addButton = $("<span class='fw-stack fw-lg'>" +
+                    "<i class='fw fw-square fw-stack-2x'></i>" +
+                    "<i class='fw fw-add fw-stack-1x fw-inverse'></i>" +
+                    "</span>").appendTo(addIconWrapper);
+
+                // Adding a value to a new annotation.
+                $(addButton).click(function() {
+                    var annotationValue = annotationValueInput.val();
+                    var annotationType = dropdownClickable.text();
+                    var annotation = _.first(_.filter(data, function(annotation){
+                        return annotation.annotationType == annotationType;
                     }));
-                    annotationToUpdate.setterMethod.call(model, newAnnotationValue);
+
+                    annotation.annotationValue = annotationValue;
+
+                    // Recreating the annotation details view.
+                    createCurrentAnnotationView(data, annotationsContentWrapper);
+
+                    // Re-add elements to dropdown.
+                    addAnnotationsToDropdown();
                 });
 
-                $(window).click(function () {
-                    $(headingBackground.node()).remove();
-                    $(annotationEditorWrapper).remove();
-                    $(annotationButton.node()).data("showing", "false");
+                // Add elements to dropdown.
+                addAnnotationsToDropdown();
 
-                    $(this).unbind("click");
-                });
+                // Creating the content editing div.
+                var annotationsContentWrapper = $("<div/>", {
+                    class: actionContentWrapperBody
+                }).appendTo(annotationActionContentWrapper);
 
-                // Creating content.
-                var contentWrapper = $("<div/>", {
-                    class: contentWrapperDivClass
-                }).width(paneWidth).height(paneHeadingHeight).offset({
-                    top: 72.325 + paneHeadingHeight,
-                    left: 1174.33
-                }).appendTo(annotationEditorWrapper);
+                // Creating the annotation details view.
+                createCurrentAnnotationView(data, annotationsContentWrapper);
 
-                // using JSON.stringify pretty print capability:
-                var editorJson = "{";
-                _.forEach(data, function (annotation, index) {
-                    editorJson += "\"" + annotation.annotationType + "\":\"" + annotation.annotationValue + "\"";
-                    if (index != data.length - 1) {
-                        editorJson += ",";
+                // If an item in the dropdown(the button and the li elements) is clicked, we nee to allow propagation as
+                // the dropdown effect is handle through bootstrap.
+                annotationEditorWrapper.click({
+                    dropDown: dropdownClickable,
+                    dropDownList: dropdownElementsWrapper
+                }, function (event) {
+                    if (!(event.target == event.data.dropDown.get(0) ||
+                        (!_.isNil(event.target.parentElement) &&
+                        event.data.dropDownList.get(0) == event.target.parentElement.parentElement))) {
+                        event.stopPropagation();
                     }
                 });
-                editorJson += "}";
 
-                log.debug(editorJson);
-                var str = JSON.stringify(JSON.parse(editorJson), undefined, 4);
+                // Closing the pop-up. But we should not close the pop-up when clicked on an dropdown element(the button
+                // and the li elements) as it is handled through bootstrap.
+                $(window).click({dropDownList: dropdownElementsWrapper}, function (event) {
+                    if (!(!_.isNil(event.target.parentElement) &&
+                        event.data.dropDownList.get(0) == event.target.parentElement.parentElement)) {
+                        $(headingBackground.node().remove());
+                        annotationEditorWrapper.remove();
+                        $(annotationButton.node()).data("showing", "false");
+                        $(annotationButton.node()).attr("class", annotationButtonClass);
 
-                $("<textarea/>", {
-                    val: str,
-                    css: {
-                        width: paneWidth,
-                        "max-height": paneContentHeight
+                        $(event.currentTarget).unbind("click");
                     }
-                }).appendTo(contentWrapper);
+                });
 
-                // TODO : Correctly implement
-                $(contentWrapper).remove();
+                /**
+                 * Adds annotation with values to the dropdown.
+                 */
+                function addAnnotationsToDropdown() {
+                    dropdownElementsWrapper.empty();
+
+                    // Adding dropdown elements.
+                    _.forEach(data, function (annotation) {
+                        if (_.isEmpty(annotation.annotationValue)) {
+                            var dropDownItem = $("<li><a href='#'>" + annotation.annotationType + "</a></li>")
+                                .appendTo(dropdownElementsWrapper);
+
+                            // Creating click event when an dropdown value is select.
+                            $(dropDownItem).click(function () {
+                                var selectedAnnotationType = $(this).text();
+
+                                // Setting the select text value to the dropdown clickable.
+                                dropdownClickable.text(selectedAnnotationType);
+                                // Appending the dropdown arrow to the button.
+                                dropdownClickableIcon.appendTo(dropdownClickable);
+
+                                // Showing the annotation value.
+                                var selectedAnnotation = _.filter(data, function (annotation) {
+                                    return annotation.annotationType == selectedAnnotationType;
+                                });
+                                annotationValueInput.val(_.first(selectedAnnotation).annotationValue);
+                            });
+                        }
+                    });
+                }
+
+                /**
+                 * Creates the annotation detail wrapper and its events.
+                 * @param annotationData - The annotation data.
+                 * @param wrapper - The wrapper element which these details should be appended to.
+                 */
+                function createCurrentAnnotationView(annotationData, wrapper) {
+                    wrapper.empty();
+
+                    // Creating annotation info
+                    _.forEach(annotationData, function (annotation) {
+                        if (!_.isEmpty(annotation.annotationValue)) {
+
+                            var annotationWrapper = $("<div/>", {
+                                class: annotationDetailWrapper
+                            }).appendTo(wrapper);
+
+                            // Creating a wrapper for the annotation type.
+                            var annotationTypeWrapper = $("<div/>", {
+                                text: annotation.annotationType,
+                                class: annotationDetailCellWrapper
+                            }).appendTo(annotationWrapper);
+
+                            // Creating a wrapper for the annotation value.
+                            var annotationValueWrapper = $("<div/>", {
+                                text: ": " + annotation.annotationValue,
+                                class: annotationDetailCellWrapper
+                            }).appendTo(annotationWrapper);
+
+                            var deleteIcon = $("<i class='fw fw-cancel service-annotation-detail-cell-delete-icon'></i>");
+
+                            deleteIcon.appendTo(annotationValueWrapper);
+
+                            // When an annotation detail is clicked.
+                            annotationWrapper.click({
+                                clickedAnnotationValueWrapper: annotationValueWrapper,
+                                annotation: annotation
+                            }, function (event) {
+                                var clickedAnnotationValueWrapper = event.data.clickedAnnotationValueWrapper;
+                                var annotation = event.data.annotation;
+                                // Empty the content inside the annotation value wrapper.
+                                clickedAnnotationValueWrapper.empty();
+
+                                // Changing the background
+                                annotationWrapper.css("background-color", "#f5f5f5");
+
+                                // Creating the text area for the value of the annotation.
+                                var annotationValueTextArea = $("<textarea/>", {
+                                    text: annotation.annotationValue,
+                                    class: "form-control"
+                                }).appendTo(clickedAnnotationValueWrapper);
+
+                                var newDeleteIcon = deleteIcon.clone();
+
+                                // Fixing the delete icon.
+                                newDeleteIcon.appendTo(clickedAnnotationValueWrapper);
+
+                                // Adding in-line display block to override the hovering css.
+                                newDeleteIcon.css("display", "block");
+
+                                // Resetting of other annotations wrapper which has been used for editing.
+                                annotationWrapper.siblings().each(function () {
+
+                                    // Removing the textareas of other annotations and use simple text.
+                                    var annotationValueDiv = $(this).children().eq(1);
+                                    if (annotationValueDiv.find("textarea").length > 0) {
+                                        // Reverting the background color of other annotation editors.
+                                        $(this).removeAttr("style");
+
+                                        var annotationVal = ": " + annotationValueDiv.find("textarea").val();
+                                        annotationValueDiv.empty().text(annotationVal);
+
+                                        var delIcon = deleteIcon.clone();
+
+                                        delIcon.appendTo(annotationValueDiv);
+                                        delIcon.removeAttr("style");
+                                    }
+                                });
+                            });
+                        }
+
+                    });
+                }
             });
         };
 

@@ -496,7 +496,7 @@ input.variable-type-exception {
 .imports-wrapper {
     padding-top: 10px;
     max-height: 330px;
-    overflow: scroll;
+    overflow-y: auto;
 }
 
 .imports-wrapper div {
@@ -521,6 +521,91 @@ input.variable-type-exception {
     color: #999;
     font-size: 9px;
     padding-right: 3px;
+}
+
+.import-wrapper-heading input[type=text] {
+    width: 276px;
+}
+
+.service-annotation-wrapper-heading input[type=text]{
+    width: 200px;
+    margin-left: 5px;
+}
+
+.action-content-dropdown-wrapper {
+    float: left;
+    width: 125px;
+}
+
+.action-content-dropdown-wrapper button {
+    width: 100%;
+    padding: 3px 6px;
+    border: 1px solid #ccc;
+    font-size: 12px;
+}
+
+.action-content-dropdown-wrapper button i {
+    padding-left: 5px !important;
+    font-size: 11px;
+}
+
+.service-annotation-main-action-wrapper {
+    overflow: auto;
+}
+
+.action-content-dropdown-wrapper ul {
+    position: absolute;
+    top: inherit;
+    /*margin-top: 0;*/
+}
+
+.service-annotation-details-wrapper {
+    display: table;
+    width: 100%;
+}
+
+.service-annotation-detail-wrapper {
+    display: table-row;
+    cursor: pointer;
+}
+
+.service-annotation-detail-wrapper:hover {
+    display: table-row;
+    background-color: #f5f5f5;
+}
+
+.service-annotation-detail-cell-wrapper {
+    display: table-cell;
+    padding: 3px 6px 3px 6px;
+}
+
+.service-annotation-detail-cell-wrapper textarea {
+    width: 255px;
+    float: left;
+}
+
+.service-annotation-detail-cell-delete-icon {
+    float: right;
+    font-size: 10px;
+    padding-top: 3px;
+    color: #999;
+    display: none;
+}
+
+.service-annotation-detail-wrapper:hover .service-annotation-detail-cell-delete-icon{
+    display: block;
+}
+
+.svg-action-content-wrapper {
+}
+
+.svg-action-content-wrapper-body {
+    background: #fff;
+    border: 1px solid #f0f0f0;
+}
+
+.svg-action-content-wrapper-heading {
+    fill: #eaeaea;
 }
 
 /** Service container related styles | -> End **/

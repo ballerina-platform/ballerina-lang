@@ -334,16 +334,19 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
 
                 // Click event for adding an import.
                 $(addImportButton).click(function () {
-                    log.debug("Adding new import");
+                    // TODO : Validate new import package name.
+                    if (importPackageTextBox.val() != "") {
+                        log.debug("Adding new import");
 
-                    // Creating new import.
-                    var newImportDeclaration = new ImportDeclaration({
-                        packageName: importPackageTextBox.val()
-                    });
-                    currentASTRoot.addImport(newImportDeclaration);
+                        // Creating new import.
+                        var newImportDeclaration = new ImportDeclaration({
+                            packageName: importPackageTextBox.val()
+                        });
+                        currentASTRoot.addImport(newImportDeclaration);
 
-                    // Updating current imports view.
-                    addImportsToView(currentASTRoot, propertyPane.find(".imports-wrapper"));
+                        // Updating current imports view.
+                        addImportsToView(currentASTRoot, propertyPane.find(".imports-wrapper"));
+                    }
                 });
 
                 // Getting package name text box.
@@ -381,7 +384,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                     // Resetting import text box.
                     $(importPackageTextBox).val("");
 
-                    // Resetting the opacity of the packge button.
+                    // Resetting the opacity of the package button.
                     packageButton.css("opacity", 0.5);
                 });
 
