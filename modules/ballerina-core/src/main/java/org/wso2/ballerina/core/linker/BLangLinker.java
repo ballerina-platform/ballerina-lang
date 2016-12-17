@@ -41,7 +41,6 @@ public class BLangLinker {
     public void link(SymScope globalSymScope) {
         SymScope packageScope = bFile.getPackageScope();
         packageScope.setParent(globalSymScope);
-
         SymTable symTable = new SymTable(packageScope);
 
         FunctionInvocationExpr[] funcIExprs = bFile.getFuncIExprs();
@@ -53,7 +52,6 @@ public class BLangLinker {
                 if (symbol == null) {
                     throw new RuntimeException("Undefined function: " + funcIExpr.getFunctionName().getName());
                 }
-
                 // Linking
                 funcIExpr.setFunction(symbol.getFunction());
             }
@@ -70,7 +68,7 @@ public class BLangLinker {
                 }
 
                 // Linking
-                actionInvocationExpr.setCalleeAction(symbol.getAction());
+                actionInvocationExpr.setAction(symbol.getAction());
             }
 
         }

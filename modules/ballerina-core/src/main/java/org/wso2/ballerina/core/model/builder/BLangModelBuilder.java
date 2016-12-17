@@ -22,6 +22,7 @@ import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.BallerinaConnector;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
+import org.wso2.ballerina.core.model.ConnectorDcl;
 import org.wso2.ballerina.core.model.Import;
 import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.Resource;
@@ -183,8 +184,6 @@ public class BLangModelBuilder {
     // Variable declarations, reference expressions
 
     public void createVariableDcl(String varName) {
-        //        localVarIndex++;
-
         // Create a variable declaration
         SymbolName localVarId = new SymbolName(varName, SymbolName.SymType.VARIABLE);
         TypeC localVarType = typeQueue.remove();
@@ -193,13 +192,25 @@ public class BLangModelBuilder {
         // Add this variable declaration to the current callable unit
         CallableUnitBuilder callableUnitBuilder = cUnitBuilderStack.peek();
         callableUnitBuilder.addVariableDcl(variableDcl);
+    }
 
-        // Create variable reference expression and set the proper index to access the value
-        //        VariableRefExpr variableRefExpr = new VariableRefExpr(localVarId);
-        //        variableRefExpr.setEvalFunction(VariableRefExpr.createGetLocalValueFunc(localVarIndex));
+    public void createConnectorDcl(String varName) {
+        symbolNameStack.pop();
+        SymbolName cSymName = symbolNameStack.pop();
+        List<Expression> exprList = exprListStack.pop();
 
-        // Store the variable reference in the symbol table
-        //        symbolTable.putVarRefExpr(localVarId, variableRefExpr);
+        ConnectorDcl.ConnectorDclBuilder builder = new ConnectorDcl.ConnectorDclBuilder();
+        builder.setConnectorName(cSymName);
+        builder.setVarName(new SymbolName(varName));
+        builder.setExprList(exprList);
+
+        ConnectorDcl connectorDcl = builder.build();
+        if (!cUnitBuilderStack.isEmpty()) {
+            // This connector declaration should added to the relevant function/action or resource
+            cUnitBuilderStack.peek().addConnectorDcl(connectorDcl);
+        } else {
+            cUnitGroupBuilderStack.peek().addConnectorDcl(connectorDcl);
+        }
     }
 
     /**

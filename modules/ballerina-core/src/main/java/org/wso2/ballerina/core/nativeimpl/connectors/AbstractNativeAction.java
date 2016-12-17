@@ -8,6 +8,7 @@ import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.Const;
 import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.SymbolName;
+import org.wso2.ballerina.core.model.VariableDcl;
 import org.wso2.ballerina.core.model.types.Type;
 import org.wso2.ballerina.core.model.types.TypeC;
 import org.wso2.ballerina.core.model.values.BValue;
@@ -111,6 +112,10 @@ public abstract class AbstractNativeAction implements Action, NativeConstruct {
         return parameters.toArray(new Parameter[parameters.size()]);
     }
 
+    public VariableDcl[] getVariableDcls() {
+        return new VariableDcl[0];
+    }
+
     @Override
     public Type[] getReturnTypes() {
         return new Type[0];
@@ -120,7 +125,19 @@ public abstract class AbstractNativeAction implements Action, NativeConstruct {
     @Override
     public TypeC[] getReturnTypesC() {
         return returnTypes.toArray(new TypeC[returnTypes.size()]);
+    }
 
+    public int getStackFrameSize() {
+        return stackFrameSize;
+    }
+
+    public void setStackFrameSize(int stackFrameSize) {
+        this.stackFrameSize = stackFrameSize;
+    }
+
+    @Override
+    public void interpret(Context ctx) {
+//        connector.init();
     }
 
     /**
@@ -139,23 +156,13 @@ public abstract class AbstractNativeAction implements Action, NativeConstruct {
 
     public abstract BValueRef execute(Context context);
 
-    @Override
-    public void interpret(Context ctx) {
-        execute(ctx);
+//    @Override
+//    public void interpret(Context ctx) {
+//        execute(ctx);
 
-        // TODO : Support for multiple return values and to be change after  support statement callback chaning
+    // TODO : Support for multiple return values and to be change after  support statement callback chaning
 
-    }
-
-    @Override
-    public int getStackFrameSize() {
-        return stackFrameSize;
-    }
-
-    @Override
-    public void setStackFrameSize(int stackFrameSize) {
-        this.stackFrameSize = stackFrameSize;
-    }
+//    }
 
     public abstract String getAssociatesConnectorType();
 }
