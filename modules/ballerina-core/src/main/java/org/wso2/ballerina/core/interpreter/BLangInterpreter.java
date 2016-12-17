@@ -36,6 +36,7 @@ import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.AddExpression;
 import org.wso2.ballerina.core.model.expressions.AndExpression;
 import org.wso2.ballerina.core.model.expressions.BasicLiteral;
+import org.wso2.ballerina.core.model.expressions.BinaryExpression;
 import org.wso2.ballerina.core.model.expressions.EqualExpression;
 import org.wso2.ballerina.core.model.expressions.Expression;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
@@ -390,17 +391,7 @@ public class BLangInterpreter implements NodeVisitor {
 
     @Override
     public void visit(AddExpression addExpr) {
-        Expression rExpr = addExpr.getRExpr();
-        rExpr.accept(this);
-
-        Expression lExpr = addExpr.getLExpr();
-        lExpr.accept(this);
-
-        BValueRef rValue = getValue(rExpr);
-        BValueRef lValue = getValue(lExpr);
-
-        BValueRef result = addExpr.getEvalFunc().apply(lValue, rValue);
-        controlStack.setValue(addExpr.getOffset(), result);
+        interpretBinaryExpr(addExpr);
     }
 
     @Override
@@ -410,37 +401,27 @@ public class BLangInterpreter implements NodeVisitor {
 
     @Override
     public void visit(EqualExpression equalExpr) {
-        Expression rExpr = equalExpr.getRExpr();
-        rExpr.accept(this);
-
-        Expression lExpr = equalExpr.getLExpr();
-        lExpr.accept(this);
-
-        BValueRef rValue = getValue(rExpr);
-        BValueRef lValue = getValue(lExpr);
-
-        BValueRef result = equalExpr.getEvalFunc().apply(lValue, rValue);
-        controlStack.setValue(equalExpr.getOffset(), result);
+        interpretBinaryExpr(equalExpr);
     }
 
     @Override
     public void visit(GreaterEqualExpression greaterEqualExpression) {
-
+       interpretBinaryExpr(greaterEqualExpression);
     }
 
     @Override
     public void visit(GreaterThanExpression greaterThanExpression) {
-
+        interpretBinaryExpr(greaterThanExpression);
     }
 
     @Override
     public void visit(LessEqualExpression lessEqualExpression) {
-
+        interpretBinaryExpr(lessEqualExpression);
     }
 
     @Override
     public void visit(LessThanExpression lessThanExpression) {
-
+        interpretBinaryExpr(lessThanExpression);
     }
 
     @Override
@@ -450,7 +431,7 @@ public class BLangInterpreter implements NodeVisitor {
 
     @Override
     public void visit(NotEqualExpression notEqualExpression) {
-
+        interpretBinaryExpr(notEqualExpression);
     }
 
     @Override
@@ -459,8 +440,8 @@ public class BLangInterpreter implements NodeVisitor {
     }
 
     @Override
-    public void visit(SubtractExpression subtractExpression) {
-
+    public void visit(SubtractExpression subExpr) {
+        interpretBinaryExpr(subExpr);
     }
 
     @Override
@@ -483,5 +464,19 @@ public class BLangInterpreter implements NodeVisitor {
 
     public void setValue(Expression expr, BValueRef valueRef) {
         controlStack.setValue(expr.getOffset(), valueRef);
+    }
+
+    private void interpretBinaryExpr(BinaryExpression binaryExpr) {
+        Expression rExpr = binaryExpr.getRExpr();
+        rExpr.accept(this);
+
+        Expression lExpr = binaryExpr.getLExpr();
+        lExpr.accept(this);
+
+        BValueRef rValue = getValue(rExpr);
+        BValueRef lValue = getValue(lExpr);
+
+        BValueRef result = binaryExpr.getEvalFunc().apply(lValue, rValue);
+        controlStack.setValue(binaryExpr.getOffset(), result);
     }
 }

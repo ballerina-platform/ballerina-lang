@@ -35,10 +35,10 @@ import org.wso2.ballerina.core.model.types.Type;
 import org.wso2.ballerina.core.model.values.BValueRef;
 import org.wso2.ballerina.core.model.values.IntValue;
 import org.wso2.ballerina.core.model.values.StringValue;
-import org.wso2.ballerina.core.utils.TriFunction;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiFunction;
 
 /**
  * Test class to test the functionality of the {@link BallerinaFunction} class
@@ -57,7 +57,7 @@ public class FunctionInvocationTest {
      * }
      */
     private BallerinaFunction getAddInternalFunc(Type type,
-                                                 TriFunction<Context, Expression, Expression, BValueRef> evalFunc) {
+            BiFunction<BValueRef, BValueRef, BValueRef> evalFunc) {
         Annotation[] annotations = new Annotation[0];
 
         Parameter paramX = new Parameter(type, new SymbolName("arg1"));
@@ -108,7 +108,7 @@ public class FunctionInvocationTest {
      * }
      */
     private BallerinaFunction getAddFunc(Type type,
-                                         TriFunction<Context, Expression, Expression, BValueRef> evalFunc) {
+            BiFunction<BValueRef, BValueRef, BValueRef> evalFunc) {
         // Defining the "echoInt" function
         Annotation[] annotations = new Annotation[0];
 
@@ -174,7 +174,7 @@ public class FunctionInvocationTest {
      */
     private FunctionInvocationExpr getFunctionInvocationExpr(
             Type type,
-            TriFunction<Context, Expression, Expression, BValueRef> evalFunc) {
+            BiFunction<BValueRef, BValueRef, BValueRef> evalFunc) {
 
         // BallerinaFunction invocation
         SymbolName idA = new SymbolName("argA");
