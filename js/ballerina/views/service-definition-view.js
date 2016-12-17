@@ -16,8 +16,8 @@
  * under the License.
  */
 define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './../ast/service-definition',
-        './client-life-line', './resource-definition-view', 'ballerina/ast/ballerina-ast-factory'],
-    function (_, log, d3, D3utils, $, Canvas, Point, ServiceDefinition, ClientLifeLine, ResourceDefinitionView, BallerinaASTFactory) {
+        './client-life-line', './resource-definition-view', 'ballerina/ast/ballerina-ast-factory', './axis', './connector-declaration-view'],
+    function (_, log, d3, D3utils, $, Canvas, Point, ServiceDefinition, ClientLifeLine, ResourceDefinitionView, BallerinaASTFactory, Axis, ConnectorDeclarationView) {
 
         /**
          * The view to represent a service definition which is an AST visitor.
@@ -30,11 +30,17 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
         var ServiceDefinitionView = function (args) {
             Canvas.call(this, args);
 
+            this._connectorViewList =  _.get(args, "connectorViewList", []);
+            this._viewOptions.LifeLineCenterGap = 180;
             this._resourceViewList = _.get(args, "resourceViewList", []);
             this._parentView = _.get(args, "parentView");
+            this._viewOptions.offsetTop = _.get(args, "viewOptionsOffsetTop", 50);
+            this._viewOptions.topBottomTotalGap = _.get(args, "viewOptionsTopBottomTotalGap", 100);
             //set initial height for the service container svg
             this._totalHeight = 170;
             _.set(this._viewOptions, 'client.center', new Point(100, 50));
+            //set initial connector margin for the service
+            this._lifelineMargin = new Axis(210, false);
 
             if (_.isNil(this._model) || !(this._model instanceof ServiceDefinition)) {
                 log.error("Service definition is undefined or is of different type." + this._model);
@@ -59,16 +65,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
         };
 
         ServiceDefinitionView.prototype.childVisitedCallback = function (child) {
-            //setting height of the service view
-            var childView = this.diagramRenderingContext.getViewModelMap()[child.id];
-            var staticHeights = childView.getGapBetweenResources();
-            this._totalHeight = this._totalHeight + childView.getBoundingBox().h() + staticHeights;
-            this.setServiceContainerHeight(this._totalHeight);
 
-            //setting client lifeline's height. Value is calculated by reducing required amount of height from the total height of the service.
-           // this.setClientLifelineHeight(this._totalHeight);
-
-            this.trigger("childViewAddedEvent", child);
         };
 
         ServiceDefinitionView.prototype.childViewAddedCallback = function (child) {
@@ -291,8 +288,90 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
 
             this.addToResourceViewList(resourceDefinitionView);
 
+            this.listenTo(resourceDefinitionView, 'childConnectorViewAddedEvent', this.childConnectorViewAddedCallback);
+            this.listenTo(resourceDefinitionView, 'defaultWorkerViewAddedEvent',this.defaultWorkerViewAddedCallback);
             resourceDefinitionView.render(this.diagramRenderingContext);
+
+            //setting height of the service view
+            var childView = this.diagramRenderingContext.getViewModelMap()[resourceDefinition.id];
+            var staticHeights = childView.getGapBetweenResources();
+            this._totalHeight = this._totalHeight + childView.getBoundingBox().h() + staticHeights;
+            this.setServiceContainerHeight(this._totalHeight);
+
+            //setting client lifeline's height. Value is calculated by reducing required amount of height from the total height of the service.
+            // this.setClientLifelineHeight(this._totalHeight);
+
+            this.trigger("childViewAddedEvent", resourceDefinition);
         };
+
+        /**
+         * callback function for connector view added event
+         * @param connectorView
+         */
+        ServiceDefinitionView.prototype.childConnectorViewAddedCallback = function (connectorView) {
+            this.updateLifelineMargin(connectorView);
+        };
+
+        /**
+         * callback function for default worker view added event
+         * @param defaultWorkerView
+         */
+        ServiceDefinitionView.prototype.defaultWorkerViewAddedCallback = function (defaultWorkerView) {
+            this.updateLifelineMargin(defaultWorkerView);
+        };
+
+        /**
+         * updates lifeline margin of this service
+         * @param lifeLineView
+         */
+        ServiceDefinitionView.prototype.updateLifelineMargin = function (lifeLineView) {
+            var centerX = lifeLineView.getBoundingBox().getTopCenterX();
+            if (centerX > this.getLifelineMargin().getPosition()) {
+                this.getLifelineMargin().setPosition(centerX);
+            }
+        };
+
+
+        ServiceDefinitionView.prototype.canVisitConnectorDeclaration = function (connectorDeclaration) {
+            return true;
+        };
+
+        /**
+         * Calls the render method for a connector declaration.
+         * @param connectorDeclaration
+         */
+        ServiceDefinitionView.prototype.visitConnectorDeclaration = function (connectorDeclaration) {
+            var connectorContainer = this.getChildContainer().node(),
+                connectorOpts = {
+                    model: connectorDeclaration,
+                    container: connectorContainer,
+                    parentView: this,
+                    lineHeight: this.getBoundingBox().h() - this._viewOptions.topBottomTotalGap
+                },
+                connectorDeclarationView,
+                center;
+
+            center = new Point(this.getLifelineMargin().getPosition(), this._viewOptions.offsetTop).move(this._viewOptions.LifeLineCenterGap, 0);
+            _.set(connectorOpts, 'centerPoint', center);
+            connectorDeclarationView = new ConnectorDeclarationView(connectorOpts);
+            this.diagramRenderingContext.getViewModelMap()[connectorDeclaration.id] = connectorDeclarationView;
+            this._connectorViewList.push(connectorDeclarationView);
+
+            connectorDeclarationView.render();
+            connectorDeclarationView.setParent(this);
+            connectorDeclarationView.listenTo(this.getLifelineMargin(), 'moved', this.updateConnectorPositionCallback);
+        };
+
+        /**
+         * updates connector position
+         * @param dx
+         */
+        ServiceDefinitionView.prototype.updateConnectorPositionCallback = function (dx) {
+            // "this" will be a connector instance
+            this.position(dx, 0);
+            this.getBoundingBox().move(dx, 0);
+        };
+
 
         /**
          * Sets height of the client lifeline
@@ -585,6 +664,22 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
             });
 
             return variableIconBackgroundCircle;
+        };
+
+        /**
+         * set the lifeline margin
+         * @param position
+         */
+        ServiceDefinitionView.prototype.setLifelineMargin = function (position) {
+            this._lifelineMargin.setPosition(position);
+        };
+
+        /**
+         * get the lifeline margin
+         * @returns {Axis|*}
+         */
+        ServiceDefinitionView.prototype.getLifelineMargin = function () {
+            return this._lifelineMargin;
         };
 
         return ServiceDefinitionView;
