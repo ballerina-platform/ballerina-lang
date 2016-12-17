@@ -42,6 +42,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         this._viewOptions = args;
         this._managedStatements = [];
         this._managedInnerDropzones = [];
+        this._lastStatementView = undefined;
 
         _.set(this._viewOptions, 'cssClass.group',  _.get(this._viewOptions, 'cssClass.group', 'statement-container'));
         _.set(this._viewOptions, 'cssClass.mainDropZone',  _.get(this._viewOptions, 'cssClass.mainDropZone', 'main-drop-zone'));
@@ -78,8 +79,9 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         var topCenter, lastStatementView;
         if (!_.isEmpty(this._managedStatements)) {
             var lastStatement = _.last(this._managedStatements),
-                lastStatementViewBBox = this.diagramRenderingContext.getViewOfModel(lastStatement).getBoundingBox(),
-                x = lastStatementViewBBox.getTopCenterX(),
+                lastStatementView = this.diagramRenderingContext.getViewOfModel(lastStatement),
+                lastStatementViewBBox = lastStatementView.getBoundingBox(),
+                x = lastStatementViewBBox.x(),
                 y = lastStatementViewBBox.y() + lastStatementViewBBox.h() + this._gap;
                 topCenter = new Point(x, y);
         } else {
@@ -88,14 +90,25 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         _.set(args, 'topCenter', topCenter);
 
         var statementView = this._statementViewFactory.getStatementView(args);
+        this.setLastStatementView(statementView);
         statementView.render(this.diagramRenderingContext);
 
         this.diagramRenderingContext.setViewOfModel(statement, statementView);
 
         this._managedStatements.push(statement);
         this._createNextInnerDropZone();
-
         return statementView;
+    };
+
+    StatementContainerView.prototype.setLastStatementView = function(lastStatementView){
+            if(!_.isNil(this._lastStatementView)){
+                this.stopListening(this._lastStatementView, 'bottom-edge-moved');
+            }
+            this._lastStatementView = lastStatementView;
+            this.getBoundingBox().y(lastStatementView.getBoundingBox().y() +  _.get(this._viewOptions, 'offset.bottom'));
+            this.listenTo(lastStatementView.getBoundingBox(), 'bottom-edge-moved', function(dy){
+                this.getBoundingBox().h(this.getBoundingBox().h() + dy);
+            })
     };
 
     StatementContainerView.prototype.render = function (diagramRenderingContext) {
@@ -105,6 +118,10 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
                 this._bottomCenter.absDistInYFrom(this._topCenter), 0, 0, this._rootGroup)
                 .classed( _.get(this._viewOptions, 'cssClass.mainDropZone'), true);
 
+        // adjust drop zone height on bottom edge moved
+        this.getBoundingBox().on('bottom-edge-moved', function(offset){
+            self._mainDropZone.attr('height', self._mainDropZone.attr('height') + offset);
+        });
         this.initMainDropZone();
         return this;
     };
