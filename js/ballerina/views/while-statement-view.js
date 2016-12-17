@@ -47,6 +47,9 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/while-statement
             this._viewOptions.contentWidth = _.get(args, "viewOptions.contentWidth", 120);
             this._viewOptions.contentHeight = _.get(args, "viewOptions.contentHeight", 60);
 
+            this.getBoundingBox().fromTopCenter(this._topCenter, this._viewOptions.heading.width, this._viewOptions.heading.height
+                + this._viewOptions.contentHeight);
+
         };
 
         WhileStatementView.prototype = Object.create(BallerinaStatementView.prototype);
@@ -96,9 +99,6 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/while-statement
         WhileStatementView.prototype.render = function (diagramRenderingContext) {
             this._diagramRenderingContext = diagramRenderingContext;
             var whileGroup = D3Utils.group(d3.select(this._container));
-
-            this.getBoundingBox().fromTopCenter(this._topCenter, this._viewOptions.heading.width, this._viewOptions.heading.height
-                + this._viewOptions.contentHeight);
 
             var x = this.getBoundingBox().getLeft();
             var y = this.getBoundingBox().getTop();

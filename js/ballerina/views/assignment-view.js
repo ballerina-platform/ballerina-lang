@@ -42,6 +42,7 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/assignment', 'd
             // View options for height and width of the assignment statement box.
             this._viewOptions.height = _.get(args, "viewOptions.height", 30);
             this._viewOptions.width = _.get(args, "viewOptions.width", 120);
+            this.getBoundingBox().fromTopCenter(this._topCenter, this._viewOptions.width, this._viewOptions.height);
         };
 
         AssignmentStatementView.prototype = Object.create(BallerinaStatementView.prototype);
@@ -83,7 +84,6 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/assignment', 'd
          */
         AssignmentStatementView.prototype.render = function () {
             var assignmentStatementGroup = D3Utils.group(d3.select(this._container));
-            this.getBoundingBox().fromTopCenter(this._topCenter, this._viewOptions.width, this._viewOptions.height);
             assignmentStatementGroup.attr("id","assignmentStatementGroup_" +this._model.id);//added attribute 'id' starting with '_' to be compatible with HTML4
             var width = this.getBoundingBox().w();
             var height = this.getBoundingBox().h();

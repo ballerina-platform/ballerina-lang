@@ -113,15 +113,6 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
          * @param child
          */
         ResourceDefinitionView.prototype.childVisitedCallback = function (child) {
-            if (BallerinaASTFactory.isStatement(child)) {
-                var childView = this.diagramRenderingContext.getViewModelMap()[child.id];
-                if(!childView){
-                    return;
-                }
-                var staticHeights = this.getGapBetweenStatements();
-                this._totalHeight = this._totalHeight + childView.getBoundingBox().h() + staticHeights;
-                this.setResourceContainerHeight(this._totalHeight);
-            };
             this.trigger("childViewAddedEvent", child);
         };
 
@@ -324,6 +315,10 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
             });
 
+            this.getBoundingBox().on("bottom-edge-moved", function(dy){
+                this._contentRect.attr('height', parseFloat(this._contentRect.attr('height')) + dy);
+            }, this);
+
             if (_.isUndefined(this._defaultWorker)) {
                 var defaultWorkerOpts = {};
                 _.set(defaultWorkerOpts, 'container', contentGroup.node());
@@ -355,6 +350,12 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             _.set(statementContainerOpts, 'container', this._defaultWorker.getContentArea().node());
             _.set(statementContainerOpts, 'toolPalette', this.toolPalette);
             this._statementContainer = new StatementContainer(statementContainerOpts);
+            this.listenTo(this._statementContainer.getBoundingBox(), 'bottom-edge-moved', function(dy){
+                    if(this._statementContainer.getBoundingBox().getBottom() > this._defaultWorker.getBottomCenter().y()){
+                        this._defaultWorker.getBottomCenter().move(0, dy);
+                    }
+                    this.getBoundingBox().h(this.getBoundingBox().h() + dy);
+            });
             this._statementContainer.render(this.diagramRenderingContext);
         };
 

@@ -60,6 +60,12 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
 
         this._rootGroup = D3Utils.group(this._containerD3)
             .classed(_.get(this._viewOptions, 'cssClass.group'), true);
+
+        this.getBoundingBox()
+            .x(this._topCenter.x() -  _.get(this._viewOptions, 'rect.width')/2)
+            .y(this._topCenter.y() +  _.get(this._viewOptions, 'rect.height')/2)
+            .w(_.get(this._viewOptions, 'rect.width'))
+            .h(_.get(this._viewOptions, 'line.height') + _.get(this._viewOptions, 'rect.width'));
     };
 
     LifeLineView.prototype = Object.create(BallerinaView.prototype);
@@ -82,11 +88,6 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
     }
 
     LifeLineView.prototype.render = function () {
-        this.getBoundingBox()
-            .x(this._topCenter.x() -  _.get(this._viewOptions, 'rect.width')/2)
-            .y(this._topCenter.y() +  _.get(this._viewOptions, 'rect.height')/2)
-            .w(_.get(this._viewOptions, 'rect.width'))
-            .h(_.get(this._viewOptions, 'line.height') + _.get(this._viewOptions, 'rect.width'));
         this.renderMiddleLine();
         this.renderTopPolygon();
         this.renderBottomPolygon();

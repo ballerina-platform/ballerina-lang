@@ -105,7 +105,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             var serviceDefinition_passthroughService2 = BallerinaASTFactory.createServiceDefinition();
             serviceDefinition_passthroughService2.setServiceName("PassthroughService2");
             serviceDefinition_passthroughService2.setBasePath("/account");
-            ballerinaAstRoot1.addChild(serviceDefinition_passthroughService2);
+           // ballerinaAstRoot1.addChild(serviceDefinition_passthroughService2);
             // Adding Resources
             var resource_passthrough2 = BallerinaASTFactory.createResourceDefinition();
             resource_passthrough2.setResourceName('passthrough2');
@@ -218,15 +218,25 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
 
             //creating while statement
             var whileStatement1 = BallerinaASTFactory.createWhileStatement();
+            var whileStatement2 = BallerinaASTFactory.createWhileStatement();
+            var whileStatement3 = BallerinaASTFactory.createWhileStatement();
+            var whileStatement4 = BallerinaASTFactory.createWhileStatement();
             whileStatement1.setCondition("Condition2");
 
             resource_passthrough.addChild(whileStatement1);
+            resource_passthrough.addChild(whileStatement2);
+            resource_passthrough.addChild(whileStatement3);
+            resource_passthrough.addChild(whileStatement4);
 
             /**
              * Create the sample assignment statement
              */
             var assignmentStatement = BallerinaASTFactory.createAssignmentStatement();
+            var assignmentStatement2 = BallerinaASTFactory.createAssignmentStatement();
+            var assignmentStatement2 = BallerinaASTFactory.createAssignmentStatement();
             resource_passthrough.addChild(assignmentStatement);
+            resource_passthrough.addChild(assignmentStatement2);
+            resource_passthrough.addChild(assignmentStatement2);
 
             var assignmentStatement2 = BallerinaASTFactory.createAssignmentStatement();
           //  resource_passthrough.addChild(assignmentStatement2);
@@ -300,10 +310,11 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             functionDefinition1.addChild(workerDeclaration2);
             // functionDefinition1.addChild(ifelse1);
             functionDefinitions.push(functionDefinition1);
-            ballerinaAstRoot1.addChild(functionDefinition1);
+           // ballerinaAstRoot1.addChild(functionDefinition1);
             ballerinaAstRoot1.setFunctionDefinitions(functionDefinitions);
 
             serviceDefinitions.push(serviceDefinition_passthroughService);
+            ballerinaAstRoot1.setServiceDefinitions(serviceDefinitions);
             ballerinaAstRoot1.setServiceDefinitions(serviceDefinitions);
             ballerinaAstRoot1.addChild(serviceDefinition_passthroughService);
             // ballerinaAstRoot1.accept(sourceGenVisitor);
