@@ -27,9 +27,11 @@ import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.model.types.MessageType;
 import org.wso2.ballerina.core.model.values.BValueRef;
+import org.wso2.ballerina.core.model.values.ConnectorValue;
 import org.wso2.ballerina.core.model.values.MessageValue;
 import org.wso2.ballerina.core.runtime.core.BalCallback;
 import org.wso2.ballerina.core.runtime.core.Executable;
+import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 import org.wso2.carbon.messaging.Header;
 
 import java.util.ArrayList;
@@ -183,8 +185,8 @@ public class Resource implements Executable, Node {
      *
      * @return list of all the Connections belongs to the default Worker of the Resource
      */
-    public List<ConnectorDcl> getConnectorDcls() {
-        return defaultWorker.getConnectorDcls();
+    public ConnectorDcl[] getConnectorDcls() {
+        return connectorDcls;
     }
 
     /**
@@ -366,6 +368,13 @@ public class Resource implements Executable, Node {
         for (VariableDcl variableDcl : variableDcls) {
             valueParams[i] = BValueRef.getDefaultValue(variableDcl.getTypeC());
             i++;
+        }
+
+        for (ConnectorDcl connectorDcl : connectorDcls) {
+            ConnectorValue connectorValue = new ConnectorValue(
+                    GlobalScopeHolder.getInstance().getScope().lookup(connectorDcl.getConnectorName()).getConnector(),
+                    connectorDcl.getArgExprs());
+            valueParams[i] = new BValueRef(connectorValue);
         }
         
         BValueRef[] ret = new BValueRef[1];
