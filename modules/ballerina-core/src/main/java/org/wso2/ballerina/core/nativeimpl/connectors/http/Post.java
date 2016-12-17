@@ -28,14 +28,7 @@ import org.wso2.ballerina.core.model.values.MessageValue;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
-import org.wso2.ballerina.core.nativeimpl.connectors.BalConnectorCallback;
-import org.wso2.ballerina.core.runtime.internal.ServiceContextHolder;
 import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.Constants;
-import org.wso2.carbon.messaging.MessageProcessorException;
-
-import java.net.MalformedURLException;
-import java.net.URL;
 
 /**
  * Execute post method to given URI
@@ -45,97 +38,41 @@ import java.net.URL;
         actionName = "post",
         args = {
                 @Argument(name = "connector",
-                          type = TypeEnum.CONNECTOR),
+                        type = TypeEnum.CONNECTOR),
                 @Argument(name = "path", type = TypeEnum.STRING),
                 @Argument(name = "message", type = TypeEnum.MESSAGE)
         },
-        returnType = { TypeEnum.MESSAGE })
+        returnType = {TypeEnum.MESSAGE})
 @Component(
         name = "action.net.http.post",
         immediate = true,
         service = AbstractNativeAction.class)
-public class Post extends AbstractNativeAction {
+public class Post extends AbstractHTTPAction {
 
     private static final Logger logger = LoggerFactory.getLogger(Post.class);
 
-    private static  final String ASSOCIATES_CONNECTOR_TYPE = "http";
-
-    /**
-     * Constructing HTTP Post method
-     */
-    public Post() {
-    }
-
     @Override
     public BValueRef execute(Context context) {
-        logger.debug("Executing Native Action Post ....");
+
+        logger.debug("Executing Native Action : Post");
+
+        // Extract Argument values
         ConnectorValue connectorValue = (ConnectorValue) getArgument(context, 0).getBValue();
         String path = getArgument(context, 1).getString();
         MessageValue messageValue = (MessageValue) getArgument(context, 2).getBValue();
+        CarbonMessage cMsg = messageValue.getValue();
 
-        CarbonMessage message = messageValue.getValue();
-        String uri = null;
         Connector connector = connectorValue.getValue();
-        if (connector instanceof HTTPConnector) {
-
-            uri = ((HTTPConnector) connector).getServiceUri() + path;
-
-        } else {
-            logger.error("Cannot find Connector");
+        if (!(connector instanceof HTTPConnector)) {
+            logger.error("Need to use a HTTPConnector as the first argument");
             return null;
         }
+        // Prepare the message
+        prepareRequest(connector, path, cMsg);
+        cMsg.setProperty(org.wso2.ballerina.core.runtime.net.http.Constants.HTTP_METHOD,
+                         org.wso2.ballerina.core.runtime.net.http.Constants.HTTP_METHOD_POST);
 
-        processRequest(message, uri);
-
-        try {
-            BalConnectorCallback balConnectorCallback = new BalConnectorCallback(context);
-            ServiceContextHolder.getInstance().getSender().send(message, balConnectorCallback);
-            while (!balConnectorCallback.responseArrived) {
-                synchronized (context) {
-                    if (!balConnectorCallback.responseArrived) {
-                        logger.debug("Waiting for response");
-                        context.wait();
-                    }
-                }
-            }
-            return balConnectorCallback.valueRef;
-        } catch (MessageProcessorException e) {
-            logger.error("Cannot Send Message to Endpoint ", e);
-        } catch (InterruptedException ignore) {
-        }
-        return null;
-    }
-
-    private void processRequest(CarbonMessage cMsg, String uri) {
-
-        URL url = null;
-        try {
-            url = new URL(uri);
-        } catch (MalformedURLException e) {
-            logger.error("URL is malformed ", e);
-            return;
-        }
-        String host = url.getHost();
-        int port = (url.getPort() == -1) ? 80 : url.getPort();
-        String urlPath = url.getPath();
-
-        cMsg.setProperty(Constants.HOST, host);
-        cMsg.setProperty(Constants.PORT, port);
-        cMsg.setProperty(Constants.TO, urlPath);
-
-        //Check for PROTOCOL property and add if not exist
-        if (cMsg.getProperty(Constants.PROTOCOL) == null) {
-            cMsg.setProperty(Constants.PROTOCOL, org.wso2.carbon.transport.http.netty.common.Constants.PROTOCOL_NAME);
-        }
-
-        if (port != 80) {
-            cMsg.getHeaders().set(Constants.HOST, host + ":" + port);
-        } else {
-            cMsg.getHeaders().set(Constants.HOST, host);
-        }
-    }
-    @Override
-    public  String getAssociatesConnectorType() {
-        return ASSOCIATES_CONNECTOR_TYPE;
+        // Execute the operation
+        return executeAction(context, cMsg);
     }
 }
