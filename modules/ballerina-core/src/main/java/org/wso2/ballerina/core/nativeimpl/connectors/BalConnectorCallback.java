@@ -29,7 +29,7 @@ public class BalConnectorCallback extends DefaultBalCallback {
 
     private Context context;
 
-    public boolean responseArrvied = false;
+    public boolean responseArrived = false;
 
     public BValueRef valueRef;
 
@@ -41,9 +41,12 @@ public class BalConnectorCallback extends DefaultBalCallback {
     @Override
     public void done(CarbonMessage carbonMessage) {
         MessageValue messageValue = new MessageValue(carbonMessage);
-         valueRef = new BValueRef(messageValue);
+        valueRef = new BValueRef(messageValue);
         context.getControlStack().setValue(4, valueRef);
-        responseArrvied = true;
+        responseArrived = true;
+        synchronized (context) {
+            context.notifyAll();
+        }
     }
 
 }
