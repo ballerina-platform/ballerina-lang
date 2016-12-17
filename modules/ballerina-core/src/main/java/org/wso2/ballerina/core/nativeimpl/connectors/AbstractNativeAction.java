@@ -3,7 +3,6 @@ package org.wso2.ballerina.core.nativeimpl.connectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.Context;
-import org.wso2.ballerina.core.interpreter.Interpreter;
 import org.wso2.ballerina.core.model.Action;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.Const;
@@ -27,8 +26,7 @@ import java.util.List;
 /**
  * Represents Native Ballerina Action.
  */
-public abstract class AbstractNativeAction implements Action, NativeConstruct, Interpreter {
-    protected NativeConnector connector;
+public abstract class AbstractNativeAction implements Action, NativeConstruct {
 
     public static final BValue[] VOID_RETURN = new BValue[0];
     private static final Logger log = LoggerFactory.getLogger(AbstractNativeAction.class);
@@ -36,6 +34,7 @@ public abstract class AbstractNativeAction implements Action, NativeConstruct, I
     private SymbolName symbolName;
     private List<Annotation> annotations;
     private List<Parameter> parameters;
+
     private List<TypeC> returnTypes;
     private List<Const> constants;
 
@@ -57,7 +56,8 @@ public abstract class AbstractNativeAction implements Action, NativeConstruct, I
         BallerinaAction action = this.getClass().getAnnotation(BallerinaAction.class);
         packageName = action.packageName();
         actionName = action.actionName();
-        symbolName = new SymbolName(actionName, SymbolName.SymType.CALLABLE_UNIT);
+        String symName = packageName + ":" + this.getAssociatesConnectorType() + "." + actionName;
+        symbolName = new SymbolName(symName, SymbolName.SymType.CALLABLE_UNIT);
         Arrays.stream(action.args()).
                 forEach(argument -> {
                     try {
@@ -119,6 +119,7 @@ public abstract class AbstractNativeAction implements Action, NativeConstruct, I
     @Override
     public Type[] getReturnTypes() {
         return new Type[0];
+
     }
 
     @Override
@@ -136,7 +137,7 @@ public abstract class AbstractNativeAction implements Action, NativeConstruct, I
 
     @Override
     public void interpret(Context ctx) {
-        connector.init();
+//        connector.init();
     }
 
     /**
@@ -153,7 +154,15 @@ public abstract class AbstractNativeAction implements Action, NativeConstruct, I
         throw new ArgumentOutOfRangeException(index);
     }
 
-    public abstract void execute(Context context);
+    public abstract BValueRef execute(Context context);
 
+//    @Override
+//    public void interpret(Context ctx) {
+//        execute(ctx);
 
+    // TODO : Support for multiple return values and to be change after  support statement callback chaning
+
+//    }
+
+    public abstract String getAssociatesConnectorType();
 }

@@ -21,11 +21,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.wso2.ballerina.core.model.types.TypeConstants.BOOLEAN_TNAME;
+import static org.wso2.ballerina.core.model.types.TypeConstants.CONNECTOR_TNAME;
 import static org.wso2.ballerina.core.model.types.TypeConstants.DOUBLE_TNAME;
 import static org.wso2.ballerina.core.model.types.TypeConstants.FLOAT_TNAME;
 import static org.wso2.ballerina.core.model.types.TypeConstants.INT_TNAME;
 import static org.wso2.ballerina.core.model.types.TypeConstants.JSON_TNAME;
 import static org.wso2.ballerina.core.model.types.TypeConstants.LONG_TNAME;
+import static org.wso2.ballerina.core.model.types.TypeConstants.MAP_TNAME;
 import static org.wso2.ballerina.core.model.types.TypeConstants.MESSAGE_TNAME;
 import static org.wso2.ballerina.core.model.types.TypeConstants.STRING_TNAME;
 import static org.wso2.ballerina.core.model.types.TypeConstants.XML_TNAME;
@@ -52,6 +54,8 @@ public class TypeC {
     public static final TypeC XML_TYPE = new TypeC(XML_TNAME);
     public static final TypeC JSON_TYPE = new TypeC(JSON_TNAME);
     public static final TypeC MESSAGE_TYPE = new TypeC(MESSAGE_TNAME);
+    public static final TypeC CONNECTOR_TYPE = new TypeC(CONNECTOR_TNAME);
+    public static final TypeC MAP_TYPE = new TypeC(MAP_TNAME);
 
     /**
      * Create a type from the given name

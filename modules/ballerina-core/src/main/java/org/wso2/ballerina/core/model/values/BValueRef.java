@@ -21,7 +21,6 @@ import com.google.gson.JsonElement;
 import org.apache.axiom.om.OMElement;
 import org.wso2.ballerina.core.model.types.TypeC;
 
-
 /**
  * {@code BValueRef} is a container for a BValue
  *
@@ -69,11 +68,11 @@ public class BValueRef {
     public JsonElement getJSON() {
         return ((JSONValue) bValue).getValue();
     }
-    
+
     public OMElement getXML() {
         return ((XMLValue) bValue).getValue();
     }
-    
+
     public MapValue getMap() {
         return ((MapValue) bValue);
     }
@@ -100,6 +99,10 @@ public class BValueRef {
             return new BValueRef(new XMLValue("<root></root>"));
         } else if (type == TypeC.MESSAGE_TYPE) {
             return new BValueRef(new MessageValue(null));
+        } else if (type == TypeC.MAP_TYPE) {
+            return new BValueRef(new MapValue());
+        } else if (type == TypeC.CONNECTOR_TYPE) {
+            return new BValueRef(new ConnectorValue(null));
         } else {
             throw new RuntimeException("Unsupported type: " + type);
         }

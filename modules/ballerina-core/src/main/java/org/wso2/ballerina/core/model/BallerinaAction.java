@@ -19,7 +19,6 @@
 package org.wso2.ballerina.core.model;
 
 import org.wso2.ballerina.core.interpreter.Context;
-import org.wso2.ballerina.core.interpreter.Interpreter;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.types.Type;
 import org.wso2.ballerina.core.model.types.TypeC;
@@ -40,7 +39,7 @@ import org.wso2.ballerina.core.model.types.TypeC;
  * @since 1.0.0
  */
 @SuppressWarnings("unused")
-public class BallerinaAction implements Action, Node, Interpreter {
+public class BallerinaAction implements Action, Node {
 
     private SymbolName name;
     private Annotation[] annotations;
@@ -52,6 +51,7 @@ public class BallerinaAction implements Action, Node, Interpreter {
     private TypeC[] returnTypesC;
     private BlockStmt functionBody;
     private BlockStmt actionBody;
+
     private int stackFrameSize;
 
     public BallerinaAction(SymbolName name, Annotation[] annotations, Parameter[] parameters, Type[] returnTypes,
@@ -101,7 +101,7 @@ public class BallerinaAction implements Action, Node, Interpreter {
 
     @Override
     public TypeC[] getReturnTypesC() {
-        return returnTypesC;
+        return new TypeC[0];
     }
 
     @Override

@@ -22,6 +22,7 @@ import org.wso2.ballerina.core.interpreter.SymTable;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.Symbol;
 import org.wso2.ballerina.core.model.SymbolName;
+import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 
 /**
@@ -40,23 +41,37 @@ public class BLangLinker {
     public void link(SymScope globalSymScope) {
         SymScope packageScope = bFile.getPackageScope();
         packageScope.setParent(globalSymScope);
-
         SymTable symTable = new SymTable(packageScope);
 
         FunctionInvocationExpr[] funcIExprs = bFile.getFuncIExprs();
+        if (funcIExprs != null) {
+            for (FunctionInvocationExpr funcIExpr : funcIExprs) {
+                SymbolName symbolName = funcIExpr.getFunctionName();
 
-        for (FunctionInvocationExpr funcIExpr : funcIExprs) {
-            SymbolName symbolName = funcIExpr.getFunctionName();
-
-            Symbol symbol = symTable.lookup(symbolName);
-            if (symbol == null) {
-                throw new RuntimeException("Undefined function: " + funcIExpr.getFunctionName().getName());
+                Symbol symbol = symTable.lookup(symbolName);
+                if (symbol == null) {
+                    throw new RuntimeException("Undefined function: " + funcIExpr.getFunctionName().getName());
+                }
+                // Linking
+                funcIExpr.setFunction(symbol.getFunction());
             }
-
-            // Linking
-            funcIExpr.setFunction(symbol.getFunction());
         }
 
+        ActionInvocationExpr[] actionIExprs = bFile.getActionIExprs();
+        if (actionIExprs != null) {
+            for (ActionInvocationExpr actionInvocationExpr : actionIExprs) {
+                SymbolName symbolName = actionInvocationExpr.getActionName();
+
+                Symbol symbol = symTable.lookup(symbolName);
+                if (symbol == null) {
+                    throw new RuntimeException("Undefined function: " + actionInvocationExpr.getActionName().getName());
+                }
+
+                // Linking
+                actionInvocationExpr.setAction(symbol.getAction());
+            }
+
+        }
     }
 
 }

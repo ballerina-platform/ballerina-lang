@@ -47,8 +47,8 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
         packageName = "ballerina.lang.xml",
         functionName = "getXml",
         args = {@Argument(name = "xml", type = TypeEnum.XML),
-                @Argument(name = "xPath", type = TypeEnum.STRING),
-                @Argument(name = "nameSpaces", type = TypeEnum.MAP)},
+                @Argument(name = "xPath", type = TypeEnum.STRING)},
+//                @Argument(name = "nameSpaces", type = TypeEnum.MAP)},
         returnType = {TypeEnum.XML},
         isPublic = true
 )

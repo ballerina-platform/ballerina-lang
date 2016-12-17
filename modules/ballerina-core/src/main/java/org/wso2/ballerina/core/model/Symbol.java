@@ -33,7 +33,10 @@ public class Symbol {
     private TypeC[] paramTypes;
     private TypeC[] returnTypes;
     private Function function;
+
     private Action action;
+
+    private Connector connector;
 
     public Symbol(TypeC type, int offset) {
         this.type = type;
@@ -51,6 +54,12 @@ public class Symbol {
         this.paramTypes = paramTypes;
         this.returnTypes = returnTypes;
     }
+
+    public Symbol(Connector connector, TypeC[] paramTypes) {
+        this.connector = connector;
+        this.paramTypes = paramTypes;
+    }
+
 
     public TypeC getType() {
         return type;
@@ -70,6 +79,14 @@ public class Symbol {
 
     public Function getFunction() {
         return function;
+    }
+
+    public Action getAction() {
+        return action;
+    }
+
+    public Connector getConnector() {
+        return connector;
     }
 }
 
