@@ -52,6 +52,7 @@ public class BallerinaAction implements Action, Node, Interpreter {
     private TypeC[] returnTypesC;
     private BlockStmt functionBody;
     private BlockStmt actionBody;
+    private int stackFrameSize;
 
     public BallerinaAction(SymbolName name, Annotation[] annotations, Parameter[] parameters, Type[] returnTypes,
             ConnectorDcl[] connectorDcls, VariableDcl[] variableDcls, Worker[] workers, BlockStmt actionBody) {
@@ -101,6 +102,16 @@ public class BallerinaAction implements Action, Node, Interpreter {
     @Override
     public TypeC[] getReturnTypesC() {
         return returnTypesC;
+    }
+
+    @Override
+    public int getStackFrameSize() {
+        return stackFrameSize;
+    }
+
+    @Override
+    public void setStackFrameSize(int stackFrameSize) {
+        this.stackFrameSize = stackFrameSize;
     }
 
     public VariableDcl[] getVariableDcls() {

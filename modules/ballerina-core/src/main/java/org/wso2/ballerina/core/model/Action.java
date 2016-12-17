@@ -45,13 +45,20 @@ public interface Action {
      */
     Parameter[] getParameters();
 
+    VariableDcl[] getVariableDcls();
+
     /**
      * Get list of return Types associated with action definition.
+     *
      * @return list of Return types.
      */
     Type[] getReturnTypes();
 
     TypeC[] getReturnTypesC();
+
+    int getStackFrameSize();
+
+    void setStackFrameSize(int stackFrameSize);
 
 
 }
