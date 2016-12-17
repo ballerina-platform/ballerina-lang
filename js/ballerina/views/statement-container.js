@@ -79,7 +79,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         if (!_.isEmpty(this._managedStatements)) {
             var lastStatement = _.last(this._managedStatements),
                 lastStatementViewBBox = this.diagramRenderingContext.getViewOfModel(lastStatement).getBoundingBox(),
-                x = lastStatementViewBBox.x(),
+                x = lastStatementViewBBox.getTopCenterX(),
                 y = lastStatementViewBBox.y() + lastStatementViewBBox.h() + this._gap;
                 topCenter = new Point(x, y);
         } else {

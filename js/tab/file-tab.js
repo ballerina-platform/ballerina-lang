@@ -143,7 +143,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             // if2.addChild(ifelse4);
             //
             // if2.addChild(ifelse3);
-            resource_passthrough2.addChild(ifelse1);
+            //resource_passthrough2.addChild(ifelse1);
             serviceDefinition_passthroughService2.addChild(resource_passthrough2);
             // Adding Resources
             var resource_passthrough3 = BallerinaASTFactory.createResourceDefinition();

@@ -100,8 +100,8 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/while-statement
             this.getBoundingBox().fromTopCenter(this._topCenter, this._viewOptions.heading.width, this._viewOptions.heading.height
                 + this._viewOptions.contentHeight);
 
-            var x = this._topCenter.x();
-            var y = this._topCenter.y();
+            var x = this.getBoundingBox().getLeft();
+            var y = this.getBoundingBox().getTop();
             var outer_rect = D3Utils.rect(x, y, this._viewOptions.heading.width, this._viewOptions.contentHeight, 0, 0, whileGroup).classed('statement-rect', true);
             var title_rect = D3Utils.rect(x, y, this._viewOptions.heading.width, this._viewOptions.heading.height, 0, 0, whileGroup).classed('statement-rect', true);
             var title_text = D3Utils.textElement(x + 20, y + 10, 'While', whileGroup).classed('statement-text', true);

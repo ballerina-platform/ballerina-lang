@@ -169,5 +169,9 @@ define([ 'lodash', 'event_channel', './axis', './point'], function ( _, EventCha
         return this._rightEdge.getPosition();
     };
 
+    BBox.prototype.getTopCenterX = function () {
+        return this.getLeft() + this.w()/2;
+    }
+
     return BBox;
 });

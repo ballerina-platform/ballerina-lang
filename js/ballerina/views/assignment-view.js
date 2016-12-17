@@ -38,6 +38,10 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/assignment', 'd
                 log.error("Container for Assignment statement is undefined." + this._container);
                 throw "Container for Assignment statement is undefined." + this._container;
             }
+
+            // View options for height and width of the assignment statement box.
+            this._viewOptions.height = _.get(args, "viewOptions.height", 30);
+            this._viewOptions.width = _.get(args, "viewOptions.width", 120);
         };
 
         AssignmentStatementView.prototype = Object.create(BallerinaStatementView.prototype);
@@ -78,17 +82,27 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/assignment', 'd
          * @returns {group} - The SVG group which holds the elements of the assignment statement.
          */
         AssignmentStatementView.prototype.render = function () {
-            var parentGroup = $(this._container)[0].getElementById("contentGroup");
-            var assignmentStatementGroup = D3Utils.group(d3.select(parentGroup));
+            var assignmentStatementGroup = D3Utils.group(d3.select(this._container));
+            this.getBoundingBox().fromTopCenter(this._topCenter, this._viewOptions.width, this._viewOptions.height);
             assignmentStatementGroup.attr("id","assignmentStatementGroup_" +this._model.id);//added attribute 'id' starting with '_' to be compatible with HTML4
-            var width = 120;
-            var height = 30;
-            var x = this.getXPosition();
-            var y = this.getYPosition();
-            var assignmentRect = D3Utils.rect(x, y, 120, 30, 0, 0, assignmentStatementGroup).classed('statement-rect', true);
+            var width = this.getBoundingBox().w();
+            var height = this.getBoundingBox().h();
+
+            var x = this.getBoundingBox().getLeft();
+            var y = this.getBoundingBox().getTop();
+
+            var assignmentRect = D3Utils.rect(x, y, width, height, 0, 0, assignmentStatementGroup).classed('statement-rect', true);
             var assignmentText = this._model.getVariableAccessor() + ' = ' +this._model.getExpression();
             var expressionText = D3Utils.textElement(x + width/2, y + height/2, assignmentText, assignmentStatementGroup).classed('statement-text', true);
 
+        };
+
+        AssignmentStatementView.prototype.setViewOptions = function (viewOptions) {
+            this._viewOptions = viewOptions;
+        };
+
+        AssignmentStatementView.prototype.getViewOptions = function () {
+            return this._viewOptions;
         };
 
         return AssignmentStatementView;
