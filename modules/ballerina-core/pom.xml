@@ -117,7 +117,7 @@
             org.apache.axiom.*;version="0.0.0",
             org.wso2.carbon.messaging.*;version="${carbon.messaging.package.import.version.range}",
             org.wso2.carbon.deployment.engine.*;version="${carbon.deployment.export.version}",
-            com.google.code.gson.*;version="${gson.import.version.range}",
+            com.google.gson.*;version="${gson.import.version.range}",
             com.jayway.jsonpath.*;version="${jayway.jsonpath.import.version.range}",
             org.jaxen.*;version="${jaxen.import.version.range}",
             net.sf.saxon.*;version="${saxon.import.version.range}"

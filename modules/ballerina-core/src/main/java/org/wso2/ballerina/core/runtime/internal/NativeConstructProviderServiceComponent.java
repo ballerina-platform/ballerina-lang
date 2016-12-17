@@ -28,12 +28,13 @@ import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
+import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
 import org.wso2.ballerina.core.runtime.registry.PackageRegistry;
 import org.wso2.carbon.kernel.startupresolver.RequiredCapabilityListener;
 
 /**
  * Service component for Ballerina native construct providers.
- *
+ * <p/>
  * This will wait until all the Ballerina Native Construct providers availability and register each native
  * construct in PackageRegistry.
  */
@@ -42,8 +43,7 @@ import org.wso2.carbon.kernel.startupresolver.RequiredCapabilityListener;
         immediate = true,
         property = {
                 "componentName=ballerina-native-provider"
-        }
-)
+        })
 public class NativeConstructProviderServiceComponent implements RequiredCapabilityListener {
 
     private static final Logger logger = LoggerFactory.getLogger(NativeConstructProviderServiceComponent.class);
@@ -79,8 +79,7 @@ public class NativeConstructProviderServiceComponent implements RequiredCapabili
             service = AbstractNativeFunction.class,
             cardinality = ReferenceCardinality.MULTIPLE,
             policy = ReferencePolicy.DYNAMIC,
-            unbind = "unregisterNativeFunctions"
-    )
+            unbind = "unregisterNativeFunctions")
     protected void registerNativeFunctions(AbstractNativeFunction nativeFunction) {
         PackageRegistry.getInstance().registerNativeFunction(nativeFunction);
         if (logger.isDebugEnabled()) {
@@ -98,18 +97,33 @@ public class NativeConstructProviderServiceComponent implements RequiredCapabili
             service = AbstractNativeAction.class,
             cardinality = ReferenceCardinality.MULTIPLE,
             policy = ReferencePolicy.DYNAMIC,
-            unbind = "unregisterNativeActions"
-    )
+            unbind = "unregisterNativeActions")
     protected void registerNativeAction(AbstractNativeAction nativeAction) {
         PackageRegistry.getInstance().registerNativeAction(nativeAction);
         if (logger.isDebugEnabled()) {
-            logger.debug("Initialized native action {}:{} ", nativeAction.getPackageName(),
-                    nativeAction.getName());
+            logger.debug("Initialized native action {}:{} ", nativeAction.getPackageName(), nativeAction.getName());
         }
     }
 
     protected void unregisterNativeActions(AbstractNativeAction nativeAction) {
         PackageRegistry.getInstance().unregisterNativeActions(nativeAction);
+    }
+
+    @Reference(
+            name = "NativeConnectorProviderService",
+            service = AbstractNativeConnector.class,
+            cardinality = ReferenceCardinality.MULTIPLE,
+            policy = ReferencePolicy.DYNAMIC,
+            unbind = "unregisterNativeConnectors")
+    protected void registerNativeConnectors(AbstractNativeConnector connector) {
+        PackageRegistry.getInstance().registerNativeConnector(connector);
+        if (logger.isDebugEnabled()) {
+            logger.debug("Initialized native action {}:{} ", connector.getPackageName(), connector.getSymbolName());
+        }
+    }
+
+    protected void unregisterNativeConnectors(AbstractNativeConnector connector) {
+        //  PackageRegistry.getInstance().unregisterNativeActions(nativeAction);
     }
 
 }

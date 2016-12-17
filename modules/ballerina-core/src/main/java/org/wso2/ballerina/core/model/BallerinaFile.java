@@ -63,7 +63,8 @@ public class BallerinaFile implements Node {
             List<BallerinaConnector> connectorList,
             Map<String, Function> functionMap,
             List<StructType> sTypeList,
-            List<FunctionInvocationExpr> funcIExprList) {
+            List<FunctionInvocationExpr> funcIExprList,
+            List<ActionInvocationExpr> actionInvocationExpr) {
 
         this.packageName = packageName;
         this.imports = importList;
@@ -72,6 +73,7 @@ public class BallerinaFile implements Node {
         this.functions = functionMap;
         this.types = sTypeList;
         this.funcIExprList = funcIExprList;
+        this.actionIExprList = actionInvocationExpr;
 
         packageScope = new SymScope();
     }
@@ -244,6 +246,7 @@ public class BallerinaFile implements Node {
         private Map<String, Function> functionList = new HashMap<>();
         private List<StructType> sTypeList = new ArrayList<>();
         private List<FunctionInvocationExpr> funcIExprList = new ArrayList<>();
+        private List<ActionInvocationExpr> actionIExprList = new ArrayList<>();
 
         public BFileBuilder() {
 
@@ -285,7 +288,8 @@ public class BallerinaFile implements Node {
                     connectorList,
                     functionList,
                     sTypeList,
-                    funcIExprList);
+                    funcIExprList,
+                    actionIExprList);
 
         }
     }

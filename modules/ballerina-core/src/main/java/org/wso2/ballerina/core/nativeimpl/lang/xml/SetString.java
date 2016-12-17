@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.model.values.MapValue;
 import org.wso2.ballerina.core.model.values.XMLValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
@@ -50,7 +49,7 @@ import java.util.List;
         functionName = "setString",
         args = {@Argument(name = "xml", type = TypeEnum.XML),
                 @Argument(name = "xPath", type = TypeEnum.STRING),
-                @Argument(name = "nameSpaces", type = TypeEnum.MAP),
+//                @Argument(name = "nameSpaces", type = TypeEnum.MAP),
                 @Argument(name = "value", type = TypeEnum.STRING)},
         isPublic = true
 )
@@ -68,19 +67,19 @@ public class SetString extends AbstractNativeFunction {
         // Accessing Parameters.
         XMLValue xml = (XMLValue) getArgument(ctx, 0).getBValue();
         String xPath = getArgument(ctx, 1).getString();
-        MapValue<String, String> nameSpaces = getArgument(ctx, 2).getMap();
-        String value = getArgument(ctx, 3).getString();
+//        MapValue<String, String> nameSpaces = getArgument(ctx, 2).getMap();
+        String value = getArgument(ctx, 2).getString();
         
         // Setting the value to XML
         try {
             AXIOMXPath axiomxPath = new AXIOMXPath(xPath);
             // set the namespaces
-            if (nameSpaces != null && !nameSpaces.isEmpty()) {
+            /*if (nameSpaces != null && !nameSpaces.isEmpty()) {
                 for (MapValue<String, String>.MapEntry<String, String> entry : nameSpaces.getValue()) {
                     axiomxPath.addNamespace(entry.getKey(), entry.getValue());
 
                 }
-            }
+            }*/
             Object ob = axiomxPath.evaluate(xml.getValue());
             if (ob instanceof ArrayList) {
                 List list = (List) ob;

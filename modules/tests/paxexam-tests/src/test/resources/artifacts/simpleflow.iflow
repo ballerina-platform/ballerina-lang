@@ -1,0 +1,16 @@
+@Path("/stocks")
+@Source(interface="default")
+@Service(tags = {
+    "stock_info",
+    "stock_update"
+}, description = "Rest api for get stocks details", produces = MediaType.APPLICATION_JSON)
+package com.sample;
+
+@GET
+@PUT
+@POST
+@Path("/getStocks")
+resource passthrough(message m) {
+    log(level="custom", status="*******Test for simple integration flow*******");
+    reply m;
+}

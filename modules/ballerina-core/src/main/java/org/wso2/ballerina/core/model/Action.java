@@ -16,13 +16,14 @@
 
 package org.wso2.ballerina.core.model;
 
+import org.wso2.ballerina.core.interpreter.Interpreter;
 import org.wso2.ballerina.core.model.types.Type;
 import org.wso2.ballerina.core.model.types.TypeC;
 
 /**
  * {@code {@link Action}} represents any Ballerina Action.
  */
-public interface Action {
+public interface Action extends Interpreter {
 
     /**
      * Get Name of the Action.
@@ -59,6 +60,4 @@ public interface Action {
     int getStackFrameSize();
 
     void setStackFrameSize(int stackFrameSize);
-
-
 }
