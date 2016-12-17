@@ -39,6 +39,14 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/while-statement
                 throw "Container for while statement is undefined." + this._container;
             }
 
+            // View options for height and width of the heading box.
+            this._viewOptions.heading = _.get(args, "viewOptions.heading", {});
+            this._viewOptions.heading.height = _.get(args, "viewOptions.heading.height", 20);
+            this._viewOptions.heading.width = _.get(args, "viewOptions.heading.width", 120);
+            // View options for height and width of the statements' container box.
+            this._viewOptions.contentWidth = _.get(args, "viewOptions.contentWidth", 120);
+            this._viewOptions.contentHeight = _.get(args, "viewOptions.contentHeight", 60);
+
         };
 
         WhileStatementView.prototype = Object.create(BallerinaStatementView.prototype);
@@ -88,20 +96,15 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/while-statement
         WhileStatementView.prototype.render = function (diagramRenderingContext) {
             this._diagramRenderingContext = diagramRenderingContext;
             var whileGroup = D3Utils.group(d3.select(this._container));
-            var x = this.getXPosition();
-            var y = this.getYPosition();
-            var width = 120;
-            var height = 60;
-            var outer_rect = D3Utils.rect(x, y, 120, 60, 0, 0, whileGroup).classed('statement-rect', true);
-            var title_rect = D3Utils.rect(x, y, 40, 20, 0, 0, whileGroup).classed('statement-rect', true);
-            var title_text = D3Utils.textElement(x + 20, y + 10, 'While', whileGroup).classed('statement-text', true);
 
-            // Set x, y, height, width of the current view
-            this.setWidth(width);
-            this.setHeight(height);
-            this.setXPosition(x);
-            this.setYPosition(y);
-            this.setBoundingBox(width, height, x, y);
+            this.getBoundingBox().fromTopCenter(this._topCenter, this._viewOptions.heading.width, this._viewOptions.heading.height
+                + this._viewOptions.contentHeight);
+
+            var x = this._topCenter.x();
+            var y = this._topCenter.y();
+            var outer_rect = D3Utils.rect(x, y, this._viewOptions.heading.width, this._viewOptions.contentHeight, 0, 0, whileGroup).classed('statement-rect', true);
+            var title_rect = D3Utils.rect(x, y, this._viewOptions.heading.width, this._viewOptions.heading.height, 0, 0, whileGroup).classed('statement-rect', true);
+            var title_text = D3Utils.textElement(x + 20, y + 10, 'While', whileGroup).classed('statement-text', true);
 
             whileGroup.outerRect = outer_rect;
             whileGroup.titleRect = title_rect;
