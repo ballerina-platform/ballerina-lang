@@ -58,6 +58,7 @@ public abstract class AbstractNativeAction implements Action, NativeConstruct {
         actionName = action.actionName();
         String symName = packageName + ":" + this.getAssociatesConnectorType() + "." + actionName;
         symbolName = new SymbolName(symName, SymbolName.SymType.CALLABLE_UNIT);
+        stackFrameSize = action.args().length;
         Arrays.stream(action.args()).
                 forEach(argument -> {
                     try {

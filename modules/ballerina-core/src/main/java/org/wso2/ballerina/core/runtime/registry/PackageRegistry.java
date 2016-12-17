@@ -141,11 +141,11 @@ public class PackageRegistry {
      */
     public void registerNativeConnector(AbstractNativeConnector connector) {
 
-        String actionName = connector.getSymbolName().getName();
-        SymbolName symbolName = SymbolUtils.generateSymbolName(actionName, connector.getParameters());
+        String connectorName = connector.getSymbolName().getName();
+        //SymbolName symbolName = SymbolUtils.generateSymbolName(connectorName, connector.getParameters());
         Symbol symbol = new Symbol(connector, SymbolUtils.getTypesOfParams(connector.getParameters()));
 
-        GlobalScopeHolder.getInstance().insert(symbolName, symbol);
+        GlobalScopeHolder.getInstance().insert(new SymbolName(connectorName), symbol);
 
     }
 
