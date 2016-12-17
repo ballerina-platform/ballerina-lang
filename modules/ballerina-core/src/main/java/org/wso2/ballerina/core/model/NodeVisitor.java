@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerina.core.model;
 
+import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.AddExpression;
 import org.wso2.ballerina.core.model.expressions.AndExpression;
 import org.wso2.ballerina.core.model.expressions.BasicLiteral;
@@ -94,6 +95,8 @@ public interface NodeVisitor {
     void visit(EqualExpression equalExpression);
 
     void visit(FunctionInvocationExpr functionInvocationExpr);
+
+    void visit(ActionInvocationExpr actionInvocationExpr);
 
     void visit(GreaterEqualExpression greaterEqualExpression);
 
