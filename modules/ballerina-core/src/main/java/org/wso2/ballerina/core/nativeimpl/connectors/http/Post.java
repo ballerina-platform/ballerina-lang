@@ -56,7 +56,7 @@ import java.net.URL;
         service = AbstractNativeAction.class)
 public class Post extends AbstractNativeAction {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(Post.class);
+    private static final Logger logger = LoggerFactory.getLogger(Post.class);
 
     private static  final String ASSOCIATES_CONNECTOR_TYPE = "http";
 
@@ -64,12 +64,11 @@ public class Post extends AbstractNativeAction {
      * Constructing HTTP Post method
      */
     public Post() {
-
     }
 
     @Override
     public BValueRef execute(Context context) {
-        LOGGER.debug("Executing Native Action Post ....");
+        logger.debug("Executing Native Action Post ....");
         ConnectorValue connectorValue = (ConnectorValue) getArgument(context, 0).getBValue();
         String path = getArgument(context, 1).getString();
         MessageValue messageValue = (MessageValue) getArgument(context, 2).getBValue();
@@ -82,7 +81,7 @@ public class Post extends AbstractNativeAction {
             uri = ((HTTPConnector) connector).getServiceUri() + path;
 
         } else {
-            LOGGER.error("Cannot find Connector");
+            logger.error("Cannot find Connector");
             return null;
         }
 
@@ -91,12 +90,18 @@ public class Post extends AbstractNativeAction {
         try {
             BalConnectorCallback balConnectorCallback = new BalConnectorCallback(context);
             ServiceContextHolder.getInstance().getSender().send(message, balConnectorCallback);
-            while (!balConnectorCallback.responseArrvied) {
-                LOGGER.debug("Waiting for response");
+            while (!balConnectorCallback.responseArrived) {
+                synchronized (context) {
+                    if (!balConnectorCallback.responseArrived) {
+                        logger.debug("Waiting for response");
+                        context.wait();
+                    }
+                }
             }
             return balConnectorCallback.valueRef;
         } catch (MessageProcessorException e) {
-            LOGGER.error("Cannot Send Message to Endpoint ", e);
+            logger.error("Cannot Send Message to Endpoint ", e);
+        } catch (InterruptedException ignore) {
         }
         return null;
     }
@@ -107,7 +112,7 @@ public class Post extends AbstractNativeAction {
         try {
             url = new URL(uri);
         } catch (MalformedURLException e) {
-            LOGGER.error("URL is malformed ", e);
+            logger.error("URL is malformed ", e);
             return;
         }
         String host = url.getHost();
