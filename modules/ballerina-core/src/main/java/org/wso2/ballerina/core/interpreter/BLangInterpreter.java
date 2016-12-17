@@ -23,6 +23,7 @@ import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.BallerinaConnector;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
+import org.wso2.ballerina.core.model.Connector;
 import org.wso2.ballerina.core.model.ConnectorDcl;
 import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.model.NodeVisitor;
@@ -59,8 +60,10 @@ import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
 import org.wso2.ballerina.core.model.types.TypeC;
 import org.wso2.ballerina.core.model.values.BValueRef;
+import org.wso2.ballerina.core.model.values.ConnectorValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
+import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
 
 import java.util.List;
 
@@ -326,6 +329,21 @@ public class BLangInterpreter implements NodeVisitor {
                 argValue = BValueRef.clone(argType, argValue);
             }
 
+            if (argType == TypeC.CONNECTOR_TYPE) {
+                ConnectorValue connectorValue = (ConnectorValue) argValue.getBValue();
+                Connector connector = connectorValue.getValue();
+                if (connector instanceof AbstractNativeConnector) {
+                    AbstractNativeConnector abstractNativeConnector = (AbstractNativeConnector) connector;
+
+                    Expression[] argExpressions = connectorValue.getArgExprs();
+                    BValueRef[] bValueRefs = new BValueRef[argExpressions.length];
+                    for (int j = 0; j < argExpressions.length; j++) {
+                        bValueRefs[j] = argExpressions[j].evaluate(bContext);
+                    }
+                    abstractNativeConnector.init(bValueRefs);
+                }
+            }
+
             // Setting argument value in the stack frame
             localVals[i] = argValue;
 
@@ -347,7 +365,7 @@ public class BLangInterpreter implements NodeVisitor {
         StackFrame stackFrame = new StackFrame(localVals, rVals);
         controlStack.pushFrame(stackFrame);
 
-        // Check whether we are invoking a native function or not.
+        // Check whether we are invoking a native action or not.
         if (action instanceof BallerinaAction) {
             BallerinaAction bAction = (BallerinaAction) action;
             bAction.accept(this);

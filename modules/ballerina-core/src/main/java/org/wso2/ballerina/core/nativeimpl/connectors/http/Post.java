@@ -41,7 +41,7 @@ import java.net.URL;
  * Execute post method to given URI
  */
 @BallerinaAction(
-        packageName = "ballerina.net.http",
+        packageName = "ballerina.net.connectors.http",
         actionName = "post",
         args = {
                 @Argument(name = "connector",

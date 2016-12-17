@@ -102,7 +102,7 @@ public class BValueRef {
         } else if (type == TypeC.MAP_TYPE) {
             return new BValueRef(new MapValue());
         } else if (type == TypeC.CONNECTOR_TYPE) {
-            return new BValueRef(new ConnectorValue(null));
+            return new BValueRef(new ConnectorValue(null, null));
         } else {
             throw new RuntimeException("Unsupported type: " + type);
         }

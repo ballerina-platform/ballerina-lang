@@ -17,6 +17,7 @@
 package org.wso2.ballerina.core.model.values;
 
 import org.wso2.ballerina.core.model.Connector;
+import org.wso2.ballerina.core.model.expressions.Expression;
 
 /**
  * A value holder for connector
@@ -24,13 +25,19 @@ import org.wso2.ballerina.core.model.Connector;
 public class ConnectorValue implements BValue<Connector> {
 
     private Connector connector;
+    private Expression[] argExprs;
 
-    public ConnectorValue(Connector connector) {
+    public ConnectorValue(Connector connector, Expression[] argExprs) {
         this.connector = connector;
+        this.argExprs = argExprs;
     }
 
     @Override
     public Connector getValue() {
         return connector;
+    }
+
+    public Expression[] getArgExprs() {
+        return argExprs;
     }
 }
