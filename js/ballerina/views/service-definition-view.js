@@ -105,14 +105,18 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
                 }
                 this._resourceViewList.push(view);
 
+                // set lifeline bottom point
+                this._clientLifeLine.getBottomCenter().y(view.getBoundingBox().getBottom()
+                    + this._clientLifeLine.getContentOffset().bottom);
+
                 // listen to new last resource view
                 this.listenTo(_.last(this._resourceViewList).getBoundingBox(), 'bottom-edge-moved',
                     this.onLastResourceBottomEdgeMoved);
             }
         };
 
-        ServiceDefinitionView.prototype.onLastResourceBottomEdgeMoved = function (newBottomEdge) {
-            this._clientLifeLine.getBottomCenter().y(this._clientLifeLine.getContentOffset().bottom + newBottomEdge);
+        ServiceDefinitionView.prototype.onLastResourceBottomEdgeMoved = function (dy) {
+            this._clientLifeLine.getBottomCenter().move(0, dy);
         };
 
          ServiceDefinitionView.prototype.setChildContainer = function (svg) {

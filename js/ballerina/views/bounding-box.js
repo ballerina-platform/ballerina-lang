@@ -153,5 +153,21 @@ define([ 'lodash', 'event_channel', './axis', './point'], function ( _, EventCha
         this.h(h);
     };
 
+    BBox.prototype.getTop =  function () {
+        return this._topEdge.getPosition();
+    };
+
+    BBox.prototype.getBottom =  function () {
+        return this._bottomEdge.getPosition();
+    };
+
+    BBox.prototype.getLeft =  function () {
+        return this._leftEdge.getPosition();
+    };
+
+    BBox.prototype.getRight =  function () {
+        return this._rightEdge.getPosition();
+    };
+
     return BBox;
 });

@@ -88,6 +88,9 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
             //setting initial height for resource container
             this._totalHeight = 230;
+            // initialize bounding box
+            this.getBoundingBox().fromTopLeft(this._viewOptions.topLeft, this._viewOptions.heading.width, this._viewOptions.heading.height
+                + this._viewOptions.contentHeight);
             this.init();
         };
 
@@ -229,10 +232,6 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             this.diagramRenderingContext = diagramRenderingContext;
             // Render resource view
             var svgContainer = $(this._container)[0];
-
-            // initialize bounding box
-            this.getBoundingBox().fromTopLeft(this._viewOptions.topLeft, this._viewOptions.heading.width, this._viewOptions.heading.height
-                + this._viewOptions.contentHeight);
 
             var headingStart = new Point(this._viewOptions.topLeft.x(), this._viewOptions.topLeft.y());
             var contentStart = new Point(this._viewOptions.topLeft.x(),
