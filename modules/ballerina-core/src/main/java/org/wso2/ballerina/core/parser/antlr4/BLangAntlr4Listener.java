@@ -166,6 +166,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitConnectorDeclaration(BallerinaParser.ConnectorDeclarationContext ctx) {
+        modelBuilder.createConnectorDcl(ctx.Identifier().getText());
     }
 
     @Override
@@ -378,6 +379,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitQualifiedReference(BallerinaParser.QualifiedReferenceContext ctx) {
+        modelBuilder.createIdentifier(ctx.getText());
     }
 
     @Override
@@ -752,6 +754,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitActionInvocation(BallerinaParser.ActionInvocationContext ctx) {
+        modelBuilder.createIdentifier(ctx.getText());
     }
 
     @Override
@@ -856,6 +859,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitActionInvocationExpression(BallerinaParser.ActionInvocationExpressionContext ctx) {
+        modelBuilder.createActionInvocationExpr();
     }
 
     @Override

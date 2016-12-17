@@ -632,7 +632,7 @@ public class BallerinaBaseListenerImpl extends BallerinaBaseListener {
     }
 
     private ConnectorDcl parserConnection(BallerinaParser.ConnectorDeclarationContext ctx) {
-        return new ConnectorDcl(ctx.qualifiedReference().get(0).getText(), new SymbolName(ctx.Identifier().getText()));
+        return  null;
     }
 
     private Resource parserResource(BallerinaParser.ResourceDefinitionContext ctx) {
