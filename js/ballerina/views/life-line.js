@@ -52,8 +52,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         _.set(this._viewOptions, 'rect.round', _.get(this._viewOptions, 'rect.round', 0));
         _.set(this._viewOptions, 'line.height', _.get(this._viewOptions, 'line.height', 240));
         _.set(this._viewOptions, 'content.width', _.get(this._viewOptions, 'content.width', 140));
-        _.set(this._viewOptions, 'content.offsetY', _.get(this._viewOptions, 'content.offsetY', 40));
-        _.set(this._viewOptions, 'content.offsetX', _.get(this._viewOptions, 'content.offsetX', 60));
+        _.set(this._viewOptions, 'content.offset', _.get(this._viewOptions, 'content.offset', {top:50, bottom: 50}));
         _.set(this._viewOptions, 'cssClass.title', _.get(this._viewOptions, 'cssClass.title', 'life-line-title'));
         _.set(this._viewOptions, 'cssClass.group', _.get(this._viewOptions, 'cssClass.group', 'life-line'));
 
@@ -78,7 +77,16 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         return this._topPolygon.attr('width');
     };
 
+    LifeLineView.prototype._updateBoundingBox = function () {
+        
+    }
+
     LifeLineView.prototype.render = function () {
+        this.getBoundingBox()
+            .x(this._topCenter.x() -  _.get(this._viewOptions, 'rect.width')/2)
+            .y(this._topCenter.y() +  _.get(this._viewOptions, 'rect.height')/2)
+            .w(_.get(this._viewOptions, 'rect.width'))
+            .h(_.get(this._viewOptions, 'line.height') + _.get(this._viewOptions, 'rect.width'));
         this.renderMiddleLine();
         this.renderTopPolygon();
         this.renderBottomPolygon();
@@ -194,6 +202,11 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
     LifeLineView.prototype.getContentArea = function () {
         return this._contentArea;
     };
+
+    LifeLineView.prototype.getContentOffset = function () {
+        return _.get(this._viewOptions, 'content.offset');
+    };
+
 
     return LifeLineView;
 });

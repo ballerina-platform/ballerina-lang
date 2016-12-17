@@ -61,12 +61,12 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
         ServiceDefinitionView.prototype.childVisitedCallback = function (child) {
             //setting height of the service view
             var childView = this.diagramRenderingContext.getViewModelMap()[child.id];
-            var staticHeights = childView.getGapBetweenResources() + childView.getResourceHeadingHeight();
-            this._totalHeight = this._totalHeight + childView.getBoundingBox().height + staticHeights;
+            var staticHeights = childView.getGapBetweenResources();
+            this._totalHeight = this._totalHeight + childView.getBoundingBox().h() + staticHeights;
             this.setServiceContainerHeight(this._totalHeight);
 
             //setting client lifeline's height. Value is calculated by reducing required amount of height from the total height of the service.
-            this.setClientLifelineHeight(this._totalHeight);
+           // this.setClientLifelineHeight(this._totalHeight);
 
             this.trigger("childViewAddedEvent", child);
         };
@@ -97,17 +97,29 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
             }
         };
 
-        ServiceDefinitionView.prototype.addResourceViewList = function (view) {
+        ServiceDefinitionView.prototype.addToResourceViewList = function (view) {
             if (!_.isNil(view)) {
+                //stop listening to current last resource view - if any
+                if(!_.isEmpty(this._resourceViewList)){
+                    this.stopListening(_.last(this._resourceViewList).getBoundingBox(), 'bottom-edge-moved');
+                }
                 this._resourceViewList.push(view);
+
+                // listen to new last resource view
+                this.listenTo(_.last(this._resourceViewList).getBoundingBox(), 'bottom-edge-moved',
+                    this.onLastResourceBottomEdgeMoved);
             }
         };
 
-        ServiceDefinitionView.prototype.setChildContainer = function (svg) {
+        ServiceDefinitionView.prototype.onLastResourceBottomEdgeMoved = function (newBottomEdge) {
+            this._clientLifeLine.getBottomCenter().y(this._clientLifeLine.getContentOffset().bottom + newBottomEdge);
+        };
+
+         ServiceDefinitionView.prototype.setChildContainer = function (svg) {
             if (!_.isNil(svg)) {
                 this._childContainer = svg;
             }
-        };
+         };
 
         ServiceDefinitionView.prototype.setViewOptions = function (viewOptions) {
             this._viewOptions = viewOptions;
@@ -262,7 +274,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
                 var prevView = this.getResourceViewList().pop(this.getResourceViewList().length - 1);
                 var prevResourceHeight = prevView.getBoundingBox().h();
                 var prevResourceY = prevView.getBoundingBox().y();
-                var newY = prevResourceHeight + prevResourceY + 10;
+                var newY = prevResourceHeight + prevResourceY + prevView.getGapBetweenResources();
                 var viewOpts = { topLeft: new Point( 50, newY)};
                 var resourceDefinitionView = new ResourceDefinitionView({model: resourceDefinition,container: resourceContainer,
                     toolPalette: this.toolPalette, messageManager: this.messageManager, viewOptions: viewOpts, parentView: this});
@@ -272,8 +284,10 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
                     toolPalette: this.toolPalette,messageManager: this.messageManager, parentView: this});
             }
             this.diagramRenderingContext.getViewModelMap()[resourceDefinition.id] = resourceDefinitionView;
+
+            this.addToResourceViewList(resourceDefinitionView);
+
             resourceDefinitionView.render(this.diagramRenderingContext);
-            this.addResourceViewList(resourceDefinitionView);
         };
 
         /**

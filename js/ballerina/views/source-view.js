@@ -42,7 +42,7 @@ define(['log', 'lodash', 'jquery', 'event_channel', 'ace/ace'], function(log, _,
         this._editor = ace.edit(this._container);
         //Avoiding ace warning
         this._editor.$blockScrolling = Infinity;
-        this._editor.setTheme("ace/theme/twilight");
+        //this._editor.setTheme("ace/theme/twilight");
         // this._editor.session.setMode("ace/mode/ballerina"); FIXME: enable ballerina mod for ace
         // var langTools = ace.require("ace/ext/language_tools");
         this._editor.setOptions({

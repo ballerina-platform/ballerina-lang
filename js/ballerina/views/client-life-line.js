@@ -82,6 +82,6 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './life-line'], f
         return topPolygonPoints;
 
     };
-    
+
     return ClientLifeLineView;
 });

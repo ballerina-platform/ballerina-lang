@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor', './../ast/node', 'app/diagram-core/models/point', './bounding-box'],
+define(['lodash', 'log', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor', './bounding-box'],
     function (_, log, $, d3, D3Utils, ASTVisitor, BBox) {
 
         /**
@@ -307,7 +307,6 @@ define(['lodash', 'log', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
 
         BallerinaView.prototype.childViewRemovedCallback = function (child) {
             log.info("[Eventing] Child element view removed. ");
-            //TODO: logic to remove each element from each container
         };
 
         BallerinaView.prototype.getBoundingBox = function () {

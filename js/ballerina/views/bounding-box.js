@@ -35,7 +35,7 @@ define([ 'lodash', 'event_channel', './axis', './point'], function ( _, EventCha
         this._topEdge = new Axis(y , false);
         this._bottomEdge = new Axis(y+ this._h, false);
 
-        var self;
+        var self = this;
         this._leftTop.on('moved', function(offset){
             self.trigger('moved', offset);
         });
@@ -62,7 +62,7 @@ define([ 'lodash', 'event_channel', './axis', './point'], function ( _, EventCha
 
     /**
      * Gets or sets X
-     * @returns {number|void} X
+     * @returns {number|BBox} X
      */
     BBox.prototype.x =  function (newX) {
         if (newX === undefined) {
@@ -75,7 +75,7 @@ define([ 'lodash', 'event_channel', './axis', './point'], function ( _, EventCha
 
     /**
      * Gets or sets y
-     * @returns {number|void} y
+     * @returns {number|BBox} y
      */
     BBox.prototype.y =  function (newY) {
         if (newY === undefined) {
@@ -88,7 +88,7 @@ define([ 'lodash', 'event_channel', './axis', './point'], function ( _, EventCha
 
     /**
      * Gets or sets w
-     * @returns {number|void} w
+     * @returns {number|BBox} w
      */
     BBox.prototype.w =  function (newW) {
         if (newW === undefined) {
@@ -103,7 +103,7 @@ define([ 'lodash', 'event_channel', './axis', './point'], function ( _, EventCha
 
     /**
      * Gets or sets h
-     * @returns {number|void} h
+     * @returns {number|BBox} h
      */
     BBox.prototype.h =  function (newH) {
         if (newH === undefined) {
@@ -115,6 +115,17 @@ define([ 'lodash', 'event_channel', './axis', './point'], function ( _, EventCha
         this.trigger("height-changed", delta);
         return this;
     };
+
+    /**
+     * move
+     * @returns {BBox}
+     */
+    BBox.prototype.move =  function (dx, dy) {
+        this.x(this.x() + dx);
+        this.y(this.y() + dy);
+        return this;
+    };
+
 
     /**
      * init from a top center

@@ -116,7 +116,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                     return;
                 }
                 var staticHeights = this.getGapBetweenStatements();
-                this._totalHeight = this._totalHeight + childView.getBoundingBox().height + staticHeights;
+                this._totalHeight = this._totalHeight + childView.getBoundingBox().h() + staticHeights;
                 this.setResourceContainerHeight(this._totalHeight);
             };
             this.trigger("childViewAddedEvent", child);
@@ -195,9 +195,9 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
          * @param {BallerinaStatementView} statement
          */
         ResourceDefinitionView.prototype.visitStatement = function (statement) {
-            //var args = {model: statement, container: this._contentGroup.node(), viewOptions: {},
-            //    toolPalette: this.toolPalette, messageManager: this.messageManager, parent: this};
-            //this._statementContainer.renderStatement(statement, args);
+            var args = {model: statement, container: this._contentGroup.node(), viewOptions: {},
+                toolPalette: this.toolPalette, messageManager: this.messageManager, parent: this};
+            this._statementContainer.renderStatement(statement, args);
         };
 
         ResourceDefinitionView.prototype.visitExpression = function (statement) {

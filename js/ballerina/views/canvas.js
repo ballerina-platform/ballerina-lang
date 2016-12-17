@@ -38,10 +38,10 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
         svgContainer.attr('name', name);
         svgContainer.addClass(_.get(options, 'cssClass.outer_box'));
         var canvas = svgContainer;
-        this._serviceContainer = svgContainer;
         var svg = $('<svg class="service-container"></svg>');
         svgContainer.append(svg);
         this._rootGroup = D3Utils.group(d3.select(svg.get(0)));
+        this._svg = svg;
 
         //draw a collapse accordion
         var outerDiv = $('<div></div>');
@@ -134,8 +134,8 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
      * @param newHeight
      */
     Canvas.prototype.setServiceContainerHeight = function (newHeight) {
-        var canvas = _.first($(this._serviceContainer).children());
-        canvas.setAttribute('height', newHeight);
+        this._svg.attr('height', newHeight);
+        this.getBoundingBox().h(newHeight);
     };
 
     return Canvas;
