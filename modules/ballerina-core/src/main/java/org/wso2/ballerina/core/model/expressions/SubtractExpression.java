@@ -17,7 +17,6 @@
 */
 package org.wso2.ballerina.core.model.expressions;
 
-import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BValueRef;
@@ -25,7 +24,8 @@ import org.wso2.ballerina.core.model.values.DoubleValue;
 import org.wso2.ballerina.core.model.values.FloatValue;
 import org.wso2.ballerina.core.model.values.IntValue;
 import org.wso2.ballerina.core.model.values.LongValue;
-import org.wso2.ballerina.core.utils.TriFunction;
+
+import java.util.function.BiFunction;
 
 import static org.wso2.ballerina.core.model.Operator.SUB;
 
@@ -36,35 +36,27 @@ import static org.wso2.ballerina.core.model.Operator.SUB;
  */
 public class SubtractExpression extends BinaryArithmeticExpression {
 
-    public static final TriFunction<Context, Expression, Expression, BValueRef> SUB_INT_FUNC =
-            (ctx, lExpr, rExpr) -> {
-                IntValue lValue = (IntValue) lExpr.evaluate(ctx).getBValue();
-                IntValue rValue = (IntValue) rExpr.evaluate(ctx).getBValue();
-                BValue bValue = new IntValue(lValue.getValue() - rValue.getValue());
+    public static final BiFunction<BValueRef, BValueRef, BValueRef> SUB_INT_FUNC =
+            (lVal, rVal) -> {
+                BValue resultVal = new IntValue(lVal.getInt() - rVal.getInt());
+                return new BValueRef(resultVal);
+            };
+
+    public static final BiFunction<BValueRef, BValueRef, BValueRef> SUB_LONG_FUNC =
+            (lVal, rVal) -> {
+                BValue bValue = new LongValue(lVal.getLong() - rVal.getLong());
                 return new BValueRef(bValue);
             };
 
-    public static final TriFunction<Context, Expression, Expression, BValueRef> SUB_LONG_FUNC =
-            (ctx, lExpr, rExpr) -> {
-                LongValue lValue = (LongValue) lExpr.evaluate(ctx).getBValue();
-                LongValue rValue = (LongValue) rExpr.evaluate(ctx).getBValue();
-                BValue bValue = new LongValue(lValue.getValue() - rValue.getValue());
+    public static final BiFunction<BValueRef, BValueRef, BValueRef> SUB_FLOAT_FUNC =
+            (lVal, rVal) -> {
+                BValue bValue = new FloatValue(lVal.getFloat() - rVal.getFloat());
                 return new BValueRef(bValue);
             };
 
-    public static final TriFunction<Context, Expression, Expression, BValueRef> SUB_FLOAT_FUNC =
-            (ctx, lExpr, rExpr) -> {
-                FloatValue lValue = (FloatValue) lExpr.evaluate(ctx).getBValue();
-                FloatValue rValue = (FloatValue) rExpr.evaluate(ctx).getBValue();
-                BValue bValue = new FloatValue(lValue.getValue() - rValue.getValue());
-                return new BValueRef(bValue);
-            };
-
-    public static final TriFunction<Context, Expression, Expression, BValueRef> SUB_DOUBLE_FUNC =
-            (ctx, lExpr, rExpr) -> {
-                DoubleValue lValue = (DoubleValue) lExpr.evaluate(ctx).getBValue();
-                DoubleValue rValue = (DoubleValue) rExpr.evaluate(ctx).getBValue();
-                BValue bValue = new DoubleValue(lValue.getValue() - rValue.getValue());
+    public static final BiFunction<BValueRef, BValueRef, BValueRef> SUB_DOUBLE_FUNC =
+            (lVal, rVal) -> {
+                BValue bValue = new DoubleValue(lVal.getDouble() - rVal.getDouble());
                 return new BValueRef(bValue);
             };
 

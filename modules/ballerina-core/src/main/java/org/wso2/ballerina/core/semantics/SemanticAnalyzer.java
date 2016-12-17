@@ -37,6 +37,7 @@ import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.AddExpression;
 import org.wso2.ballerina.core.model.expressions.AndExpression;
 import org.wso2.ballerina.core.model.expressions.BasicLiteral;
+import org.wso2.ballerina.core.model.expressions.BinaryArithmeticExpression;
 import org.wso2.ballerina.core.model.expressions.BinaryExpression;
 import org.wso2.ballerina.core.model.expressions.EqualExpression;
 import org.wso2.ballerina.core.model.expressions.Expression;
@@ -323,42 +324,15 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(AddExpression addExpr) {
-        visitBinaryExpr(addExpr);
-
-        Expression rExpr = addExpr.getRExpr();
-        Expression lExpr = addExpr.getLExpr();
-
-        if (lExpr.getType() != rExpr.getType()) {
-
-            throw new RuntimeException(
-                    "Incompatible types in the add expression: " + lExpr.getType() + " vs " + rExpr.getType());
-
-        }
+        TypeC arithmeticExprType = verifyBinaryArithmeticExprType(addExpr);
 
         // We need to find a better implementation than this.
-        if (lExpr.getType() == TypeC.INT_TYPE) {
-            addExpr.setType(TypeC.INT_TYPE);
-            addExpr.setEvalFunc(AddExpression.ADD_INT_FUNC_NEW);
-
-            //        }
-            //        else if (lExpr.getType() == TypeC.LONG_TYPE) {
-            //            addExpr.setType(TypeC.LONG_TYPE);
-            //            addExpr.setEvalFunc(AddExpression.ADD_LONG_FUNC);
-            //
-            //        } else if (lExpr.getType() == TypeC.FLOAT_TYPE) {
-            //            addExpr.setType(TypeC.FLOAT_TYPE);
-            //            addExpr.setEvalFunc(AddExpression.ADD_FLOAT_FUNC);
-            //
-            //        } else if (lExpr.getType() == TypeC.DOUBLE_TYPE) {
-            //            addExpr.setType(TypeC.DOUBLE_TYPE);
-            //            addExpr.setEvalFunc(AddExpression.ADD_DOUBLE_FUNC);
-            //
-            //        } else if (lExpr.getType() == TypeC.STRING_TYPE) {
-            //            addExpr.setType(TypeC.STRING_TYPE);
-            //            addExpr.setEvalFunc(AddExpression.ADD_STRING_FUNC);
-
+        if (arithmeticExprType == TypeC.INT_TYPE) {
+            addExpr.setEvalFunc(AddExpression.ADD_INT_FUNC);
+        } else if (arithmeticExprType == TypeC.STRING_TYPE) {
+            addExpr.setEvalFunc(AddExpression.ADD_STRING_FUNC);
         } else {
-            throw new InvalidSemanticException("Add operation is not supported for type: " + lExpr.getType());
+            throw new InvalidSemanticException("Add operation is not supported for type: " + arithmeticExprType);
         }
     }
 
@@ -368,21 +342,16 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(EqualExpression expr) {
-        visitBinaryExpr(expr);
+        TypeC compareExprType = verifyBinaryCompareExprType(expr);
 
-        Expression rExpr = expr.getRExpr();
-        Expression lExpr = expr.getLExpr();
-
-        if (lExpr.getType() != rExpr.getType()) {
-
-            throw new RuntimeException(
-                    "Incompatible types in the add expression: " + lExpr.getType() + " vs " + rExpr.getType());
-
-        }
-
-        if (lExpr.getType() == TypeC.INT_TYPE) {
+        if (compareExprType == TypeC.INT_TYPE) {
+            expr.setEvalFunc(EqualExpression.EQUAL_INT_FUNC);
+        } else if (compareExprType == TypeC.STRING_TYPE) {
             expr.setType(TypeC.BOOLEAN_TYPE);
-            expr.setEvalFunc(EqualExpression.EQUAL_INT_FUNC_NEW);
+            expr.setEvalFunc(EqualExpression.EQUAL_STRING_FUNC);
+        } else {
+            throw new InvalidSemanticException("Equals operation is not supported for type: "
+                    + compareExprType);
         }
     }
 
@@ -418,32 +387,70 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(GreaterEqualExpression greaterEqualExpr) {
+        TypeC compareExprType = verifyBinaryCompareExprType(greaterEqualExpr);
 
+        if (compareExprType == TypeC.INT_TYPE) {
+            greaterEqualExpr.setEvalFunc(GreaterEqualExpression.GREATER_EQUAL_INT_FUNC);
+        } else {
+            throw new InvalidSemanticException("Greater than equal operation is not supported for type: "
+                    + compareExprType);
+        }
     }
 
     @Override
     public void visit(GreaterThanExpression greaterThanExpr) {
+        TypeC compareExprType = verifyBinaryCompareExprType(greaterThanExpr);
 
+        if (compareExprType == TypeC.INT_TYPE) {
+            greaterThanExpr.setEvalFunc(GreaterThanExpression.GREATER_THAN_INT_FUNC);
+        } else {
+            throw new InvalidSemanticException("Greater than operation is not supported for type: "
+                    + compareExprType);
+        }
     }
 
     @Override
     public void visit(LessEqualExpression lessEqualExpr) {
-
+        TypeC compareExprType = verifyBinaryCompareExprType(lessEqualExpr);
+        if (compareExprType == TypeC.INT_TYPE) {
+            lessEqualExpr.setEvalFunc(LessEqualExpression.LESS_EQUAL_INT_FUNC);
+        } else {
+            throw new InvalidSemanticException("Less than equal operation is not supported for type: "
+                    + compareExprType);
+        }
     }
 
     @Override
     public void visit(LessThanExpression lessThanExpr) {
-
+        TypeC compareExprType = verifyBinaryCompareExprType(lessThanExpr);
+        if (compareExprType == TypeC.INT_TYPE) {
+            lessThanExpr.setEvalFunc(LessThanExpression.LESS_THAN_INT_FUNC);
+        } else {
+            throw new InvalidSemanticException("Less than operation is not supported for type: " + compareExprType);
+        }
     }
 
     @Override
     public void visit(MultExpression multExpr) {
-
+        TypeC binaryExprType = verifyBinaryArithmeticExprType(multExpr);
+        if (binaryExprType == TypeC.INT_TYPE) {
+            multExpr.setEvalFunc(MultExpression.MULT_INT_FUNC);
+        } else {
+            throw new InvalidSemanticException("Mult operation is not supported for type: " + binaryExprType);
+        }
     }
 
     @Override
     public void visit(NotEqualExpression notEqualExpr) {
+        TypeC compareExprType = verifyBinaryCompareExprType(notEqualExpr);
 
+        if (compareExprType == TypeC.INT_TYPE) {
+            notEqualExpr.setEvalFunc(NotEqualExpression.NOT_EQUAL_INT_FUNC);
+        } else if (compareExprType == TypeC.STRING_TYPE) {
+            notEqualExpr.setEvalFunc(NotEqualExpression.NOT_EQUAL_STRING_FUNC);
+        } else {
+            throw new InvalidSemanticException("NotEqual operation is not supported for type: " + compareExprType);
+        }
     }
 
     @Override
@@ -453,7 +460,12 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(SubtractExpression subtractExpr) {
-
+        TypeC binaryExprType = verifyBinaryArithmeticExprType(subtractExpr);
+        if (binaryExprType == TypeC.INT_TYPE) {
+            subtractExpr.setEvalFunc(SubtractExpression.SUB_INT_FUNC);
+        } else {
+            throw new InvalidSemanticException("Subtraction operation is not supported for type: " + binaryExprType);
+        }
     }
 
     @Override
@@ -507,4 +519,33 @@ public class SemanticAnalyzer implements NodeVisitor {
         Symbol symbol = new Symbol(function, paramTypes, function.getReturnTypesC());
         symbolTable.insert(symbolName, symbol);
     }
+
+    private TypeC verifyBinaryArithmeticExprType(BinaryArithmeticExpression binaryArithmeticExpr) {
+        TypeC typeC = verifyBinaryExprType(binaryArithmeticExpr);
+        binaryArithmeticExpr.setType(typeC);
+        return typeC;
+    }
+
+    private TypeC verifyBinaryCompareExprType(BinaryExpression binaryExpression) {
+        TypeC typeC = verifyBinaryExprType(binaryExpression);
+        binaryExpression.setType(TypeC.BOOLEAN_TYPE);
+        return typeC;
+    }
+
+    private TypeC verifyBinaryExprType(BinaryExpression binaryExpr) {
+        visitBinaryExpr(binaryExpr);
+
+        Expression rExpr = binaryExpr.getRExpr();
+        Expression lExpr = binaryExpr.getLExpr();
+
+        if (lExpr.getType() != rExpr.getType()) {
+            throw new RuntimeException(
+                    "Incompatible types in binary arithmetic  expression: " + lExpr.getType() + " vs "
+                            + rExpr.getType());
+        }
+        return lExpr.getType();
+
+    }
+
+
 }
