@@ -245,7 +245,7 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
                 this.getBoundingBox().x(componentBBox.x());
             }
             this.getBoundingBox().h(this.getBoundingBox().h() + componentBBox.h());
-            // this.trigger('parent-bbox-modified', this.getBoundingBox());
+            this.trigger('parent-bbox-modified', this.getBoundingBox());
         };
 
         return IfElseStatementView;

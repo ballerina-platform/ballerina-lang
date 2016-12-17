@@ -40,7 +40,7 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
         };
 
         ElseIfStatementView.prototype.init = function () {
-            this.listenTo(this.getParent(), 'parent-bbox-modified', this.modifyView);
+            this.listenTo(this.getParent(), 'parent-bbox-modified', this.parentViewModifiedCallback);
         };
 
         /**
@@ -111,8 +111,14 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
             return this._viewOptions;
         };
 
-        ElseIfStatementView.prototype.modifyView = function (parentBBox) {
-
+        ElseIfStatementView.prototype.parentViewModifiedCallback = function (parentBBox) {
+            if (this.getBoundingBox().w() < parentBBox.w()) {
+                var newWidth = parentBBox.w();
+                this.getStatementGroup().outerRect.attr('width', newWidth);
+                this.getStatementGroup().outerRect.attr('x', parentBBox.x());
+                this.getStatementGroup().titleRect.attr('x', parentBBox.x());
+                this.getStatementGroup().titleText.attr('x', parentBBox.x() + 20);
+            }
         };
 
         return ElseIfStatementView;
