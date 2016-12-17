@@ -33,6 +33,7 @@ import org.wso2.ballerina.core.model.Symbol;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.VariableDcl;
 import org.wso2.ballerina.core.model.Worker;
+import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.AddExpression;
 import org.wso2.ballerina.core.model.expressions.AndExpression;
 import org.wso2.ballerina.core.model.expressions.BasicLiteral;
@@ -384,7 +385,6 @@ public class SemanticAnalyzer implements NodeVisitor {
             expr.accept(this);
         }
 
-
         // Can we do this bit in the linker
         SymbolName symbolName = funcIExpr.getFunctionName();
 
@@ -399,6 +399,30 @@ public class SemanticAnalyzer implements NodeVisitor {
         bFile.addFuncInvocationExpr(funcIExpr);
 
         // TODO store the types of each func argument expression
+    }
+
+    // TODO Duplicate code. fix me
+    @Override
+    public void visit(ActionInvocationExpr actionIExpr) {
+        visitExpr(actionIExpr);
+
+        Expression[] exprs = actionIExpr.getExprs();
+        for (Expression expr : exprs) {
+            expr.accept(this);
+        }
+
+        // Can we do this bit in the linker
+        SymbolName symbolName = actionIExpr.getActionName();
+
+        TypeC[] paramTypes = new TypeC[exprs.length];
+        for (int i = 0; i < exprs.length; i++) {
+            paramTypes[i] = exprs[i].getType();
+        }
+
+        symbolName = SymbolUtils.generateSymbolName(symbolName.getName(), paramTypes);
+        actionIExpr.setActionName(symbolName);
+
+        bFile.addActionIExpr(actionIExpr);
     }
 
     @Override

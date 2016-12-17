@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerina.core.interpreter;
 
+import org.wso2.ballerina.core.model.Action;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.BallerinaConnector;
@@ -30,6 +31,7 @@ import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.model.VariableDcl;
 import org.wso2.ballerina.core.model.Worker;
+import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.AddExpression;
 import org.wso2.ballerina.core.model.expressions.AndExpression;
 import org.wso2.ballerina.core.model.expressions.BasicLiteral;
@@ -57,6 +59,7 @@ import org.wso2.ballerina.core.model.statements.WhileStmt;
 import org.wso2.ballerina.core.model.types.TypeC;
 import org.wso2.ballerina.core.model.values.BValueRef;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
+import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 
 import java.util.List;
 
@@ -229,7 +232,7 @@ public class BLangInterpreter implements NodeVisitor {
     @Override
     public void visit(FunctionInvocationExpr funcIExpr) {
         // Create the Stack frame
-        Function function =  funcIExpr.getFunction();
+        Function function = funcIExpr.getFunction();
 
         int sizeOfValueArray = function.getStackFrameSize();
         BValueRef[] localVals = new BValueRef[sizeOfValueArray];
@@ -272,7 +275,7 @@ public class BLangInterpreter implements NodeVisitor {
         controlStack.pushFrame(stackFrame);
 
         // Check whether we are invoking a native function or not.
-        if (function instanceof  BallerinaFunction) {
+        if (function instanceof BallerinaFunction) {
             BallerinaFunction bFunction = (BallerinaFunction) function;
             bFunction.accept(this);
         } else {
@@ -286,6 +289,70 @@ public class BLangInterpreter implements NodeVisitor {
         // TODO At the moment we only support single return value
         if (rVals.length >= 1) {
             controlStack.setValue(funcIExpr.getOffset(), rVals[0]);
+        }
+    }
+
+    // TODO Duplicate code. fix me
+    @Override
+    public void visit(ActionInvocationExpr actionIExpr) {
+        // Create the Stack frame
+        Action action = actionIExpr.getAction();
+
+        int sizeOfValueArray = action.getStackFrameSize();
+        BValueRef[] localVals = new BValueRef[sizeOfValueArray];
+
+        // Create default values for all declared local variables
+        int i = 0;
+        for (Expression arg : actionIExpr.getExprs()) {
+
+            // Evaluate the argument expression
+            arg.accept(this);
+            TypeC argType = arg.getType();
+            BValueRef argValue = getValue(arg);
+
+            // Here we need to handle value types differently from reference types
+            // Value types need to be cloned before passing ot the function : pass by value.
+            // TODO Implement copy-on-write mechanism to improve performance
+            if (BValueRef.isValueType(argType)) {
+                argValue = BValueRef.clone(argType, argValue);
+            }
+
+            // Setting argument value in the stack frame
+            localVals[i] = argValue;
+
+            i++;
+        }
+
+        // Create default values for all declared local variables
+        VariableDcl[] variableDcls = action.getVariableDcls();
+        for (VariableDcl variableDcl : variableDcls) {
+            localVals[i] = BValueRef.getDefaultValue(variableDcl.getTypeC());
+            i++;
+        }
+
+        // Create an array in the stack frame to hold return values;
+        BValueRef[] rVals = new BValueRef[action.getReturnTypesC().length];
+
+        // Create a new stack frame with memory locations to hold parameters, local values, temp expression values and
+        // return values;
+        StackFrame stackFrame = new StackFrame(localVals, rVals);
+        controlStack.pushFrame(stackFrame);
+
+        // Check whether we are invoking a native function or not.
+        if (action instanceof BallerinaAction) {
+            BallerinaAction bAction = (BallerinaAction) action;
+            bAction.accept(this);
+        } else {
+            AbstractNativeAction nativeAction = (AbstractNativeAction) action;
+            nativeAction.execute(bContext);
+        }
+
+        controlStack.popFrame();
+
+        // Setting return values to function invocation expression
+        // TODO At the moment we only support single return value
+        if (rVals.length >= 1) {
+            controlStack.setValue(actionIExpr.getOffset(), rVals[0]);
         }
     }
 
