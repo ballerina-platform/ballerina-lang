@@ -46,6 +46,8 @@ public interface Action extends Interpreter {
      */
     Parameter[] getParameters();
 
+    VariableDcl[] getVariableDcls();
+
     /**
      * Get list of return Types associated with action definition.
      *
@@ -55,16 +57,7 @@ public interface Action extends Interpreter {
 
     TypeC[] getReturnTypesC();
 
-
-    /**
-     * get stack frame size
-     */
     int getStackFrameSize();
 
-    /**
-     * set stack frame size
-     */
-    void setStackFrameSize(int frameSize);
-
-
+    void setStackFrameSize(int stackFrameSize);
 }

@@ -1,56 +1,71 @@
+/*
+*  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*
+*  WSO2 Inc. licenses this file to you under the Apache License,
+*  Version 2.0 (the "License"); you may not use this file except
+*  in compliance with the License.
+*  You may obtain a copy of the License at
+*
+*    http://www.apache.org/licenses/LICENSE-2.0
+*
+*  Unless required by applicable law or agreed to in writing,
+*  software distributed under the License is distributed on an
+*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+*  KIND, either express or implied.  See the License for the
+*  specific language governing permissions and limitations
+*  under the License.
+*/
 package org.wso2.ballerina.core.model.expressions;
 
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Action;
-import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.values.BValueRef;
-import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 
 /**
- * {@code ConnectorActionInvocationExpr} represents connector action invocation expression
+ * {@code ActionInvocationExpr} represents action invocation expression
  *
  * @since 1.0.0
  */
 public class ActionInvocationExpr extends AbstractExpression {
 
     private SymbolName actionName;
-    private Expression[] experssions;
-    private Action calleeAction;
+    private Expression[] exprs;
+    private Action action;
 
-    public ActionInvocationExpr(SymbolName actionName, Expression[] experssions) {
+    public ActionInvocationExpr(SymbolName actionName, Expression[] exprs) {
         this.actionName = actionName;
-        this.experssions = experssions;
-    }
-
-    public void setCalleeAction(Action calleeAction) {
-        this.calleeAction = calleeAction;
+        this.exprs = exprs;
     }
 
     public SymbolName getActionName() {
         return actionName;
     }
 
-    public Expression[] getExperssions() {
-        return experssions;
+    public void setActionName(SymbolName actionName) {
+        this.actionName = actionName;
     }
 
-    public Action getCalleeAction() {
-        return calleeAction;
+    public Expression[] getExprs() {
+        return exprs;
+    }
+
+    public Action getAction() {
+        return action;
+    }
+
+    public void setAction(Action action) {
+        this.action = action;
     }
 
     @Override
     public void accept(NodeVisitor visitor) {
-
-        visitor.visit((BallerinaAction) calleeAction);
+        visitor.visit(this);
     }
 
     @Override
     public BValueRef evaluate(Context ctx) {
-
-        ((AbstractNativeAction) calleeAction).execute(ctx);
-        //TODO this can be remove after async invocation
-        return ctx.getControlStack().getReturnValue(4);
+        return null;
     }
 }

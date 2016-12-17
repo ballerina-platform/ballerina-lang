@@ -104,6 +104,16 @@ public class BallerinaAction implements Action, Node {
         return new TypeC[0];
     }
 
+    @Override
+    public int getStackFrameSize() {
+        return stackFrameSize;
+    }
+
+    @Override
+    public void setStackFrameSize(int stackFrameSize) {
+        this.stackFrameSize = stackFrameSize;
+    }
+
     public VariableDcl[] getVariableDcls() {
         return variableDcls;
     }
@@ -116,13 +126,5 @@ public class BallerinaAction implements Action, Node {
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
-    }
-
-    public int getStackFrameSize() {
-        return stackFrameSize;
-    }
-
-    public void setStackFrameSize(int stackFrameSize) {
-        this.stackFrameSize = stackFrameSize;
     }
 }

@@ -411,9 +411,28 @@ public class SemanticAnalyzer implements NodeVisitor {
         // TODO store the types of each func argument expression
     }
 
+    // TODO Duplicate code. fix me
     @Override
-    public void visit(ActionInvocationExpr actionInvocationExpr) {
+    public void visit(ActionInvocationExpr actionIExpr) {
+        visitExpr(actionIExpr);
 
+        Expression[] exprs = actionIExpr.getExprs();
+        for (Expression expr : exprs) {
+            expr.accept(this);
+        }
+
+        // Can we do this bit in the linker
+        SymbolName symbolName = actionIExpr.getActionName();
+
+        TypeC[] paramTypes = new TypeC[exprs.length];
+        for (int i = 0; i < exprs.length; i++) {
+            paramTypes[i] = exprs[i].getType();
+        }
+
+        symbolName = SymbolUtils.generateSymbolName(symbolName.getName(), paramTypes);
+        actionIExpr.setActionName(symbolName);
+
+        bFile.addActionIExpr(actionIExpr);
     }
 
     @Override

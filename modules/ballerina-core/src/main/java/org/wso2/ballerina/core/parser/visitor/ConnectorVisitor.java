@@ -50,8 +50,9 @@ public class ConnectorVisitor extends BallerinaBaseVisitor {
      */
     @Override
     public Object visitConnectorDeclaration(BallerinaParser.ConnectorDeclarationContext ctx) {
-        ConnectorDcl connection = new ConnectorDcl(ctx.qualifiedReference().get(0).Identifier().getText(),
-                new SymbolName(ctx.Identifier().getText()));
+        ConnectorDcl connection =  null;
+//                new ConnectorDcl(ctx.qualifiedReference().get(0).Identifier().getText(),
+//                new SymbolName(ctx.Identifier().getText()));
         // TODO: 12/11/16 : Need to read the argument list and set to the connection object
 //        if(ctx.expressionList() != null) {
 //            for(BallerinaParser.ExpressionContext ec : ctx.expressionList().expression()) {

@@ -185,7 +185,7 @@ public class BallerinaFile implements Node {
         return funcIExprList.toArray(new FunctionInvocationExpr[funcIExprList.size()]);
     }
 
-    public void addActionInvocationExpr(ActionInvocationExpr expr) {
+    public void addActionIExpr(ActionInvocationExpr expr) {
         this.actionIExprList.add(expr);
     }
 
