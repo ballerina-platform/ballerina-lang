@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statement-view', './../ast/if-else-statement', 'd3utils', 'd3', 'jquery', './../ast/if-statement'],
-    function (require, _, log, PropertyPaneUtils, BallerinaStatementView, IfElseStatement, D3Utils, d3, $, IfStatement) {
+define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statement-view', './../ast/if-else-statement', 'd3utils', 'd3', 'jquery', './../ast/if-statement', './point'],
+    function (require, _, log, PropertyPaneUtils, BallerinaStatementView, IfElseStatement, D3Utils, d3, $, IfStatement, Point) {
 
         /**
          * The view to represent a If Else statement which is an AST visitor.
@@ -58,8 +58,7 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
         };
 
         IfElseStatementView.prototype.init = function () {
-            //Registering event listeners
-            // this.listenTo(this._parentView, 'childViewAddedEvent', this.childViewAddedCallback);
+            this.listenTo(this._model, 'sub-component-rendered', this.subComponentRenderCallback);
         };
 
         /**
@@ -69,30 +68,39 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
         IfElseStatementView.prototype.visitIfStatement = function(statement){
             var StatementViewFactory = require('./statement-view-factory');
             var statementViewFactory = new StatementViewFactory();
-            var args = {model: statement, container: this.getStatementGroup(), viewOptions: undefined, parent: this};
+            var topCenter = this.getTopCenter().clone();
+            // For the viewOptions currently pass width only.
+            // This is because the initial width of the component should be based on my bounding box values
+            var viewOptions = {width: this.getBoundingBox().w()};
+            var args = {model: statement, container: this.getStatementGroup(), viewOptions: viewOptions, parent: this, topCenter: topCenter};
             var statementView = statementViewFactory.getStatementView(args);
             this._ifBlockView = statementView;
             this._diagramRenderingContext.getViewModelMap()[statement.id] = statementView;
+
+            // TODO: add the js doc annotations
+            this.listenTo(statementView, 'sub-component-rendered', this.subComponentRenderCallback);
             statementView.render(this._diagramRenderingContext);
-            this.trigger("childViewAddedEvent", statement);
         };
 
         /**
-         * Visit If Else Statement
-         * @param {IfElseStatement} statement
+         * Visit Else If Statement
+         * @param {ElseIfStatement} statement
          */
         IfElseStatementView.prototype.visitElseIfStatement = function(statement){
             var StatementViewFactory = require('./statement-view-factory');
             var statementViewFactory = new StatementViewFactory();
-            var args = {model: statement, container: this.getStatementGroup(), viewOptions: undefined, parent: this};
+            var topCenterX = this.getBoundingBox().x() + this.getBoundingBox().w()/2;
+            var topCenterY = this.getBoundingBox().getBottom();
+            var topCenter = new Point(topCenterX, topCenterY);
+            // For the viewOptions currently pass width only.
+            // This is because the initial width of the component should be based on my bounding box values
+            var viewOptions = {width: this.getBoundingBox().w()};
+            var args = {model: statement, container: this.getStatementGroup(), viewOptions: viewOptions, parent: this, topCenter: topCenter};
             var statementView = statementViewFactory.getStatementView(args);
             this._diagramRenderingContext.getViewModelMap()[statement.id] = statementView;
+            // TODO: add the js doc annotations
+            this.listenTo(statementView, 'sub-component-rendered', this.subComponentRenderCallback);
             statementView.render(this._diagramRenderingContext);
-
-            //adjust if-else statement's height
-            this._totalHeight = this._totalHeight + statementView.getBoundingBox().height;
-            this.setIfElseStatementHeight(this._totalHeight);
-            this.trigger("childViewAddedEvent", statement);
         };
 
         /**
@@ -102,16 +110,19 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
         IfElseStatementView.prototype.visitElseStatement = function(statement){
             var StatementViewFactory = require('./statement-view-factory');
             var statementViewFactory = new StatementViewFactory();
-            var args = {model: statement, container: this.getStatementGroup(), viewOptions: undefined, parent: this};
+            var topCenterX = this.getBoundingBox().x() + this.getBoundingBox().w()/2;
+            var topCenterY = this.getBoundingBox().getBottom();
+            var topCenter = new Point(topCenterX, topCenterY);
+            // For the viewOptions currently pass width only.
+            // This is because the initial width of the component should be based on my bounding box values
+            var viewOptions = {width: this.getBoundingBox().w()};
+            var args = {model: statement, container: this.getStatementGroup(), viewOptions: viewOptions, parent: this, topCenter: topCenter};
             var statementView = statementViewFactory.getStatementView(args);
             this._elseBlockView = statementView;
             this._diagramRenderingContext.getViewModelMap()[statement.id] = statementView;
+            // TODO: add the js doc annotations
+            this.listenTo(statementView, 'sub-component-rendered', this.subComponentRenderCallback);
             statementView.render(this._diagramRenderingContext);
-
-            //adjust if-else statement's height
-            this._totalHeight = this._totalHeight + statementView.getBoundingBox().height;
-            this.setIfElseStatementHeight(this._totalHeight);
-            this.trigger("childViewAddedEvent", statement);
         };
 
         /**
@@ -121,6 +132,8 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
             this._diagramRenderingContext = diagramRenderingContext;
             var ifElseGroup = D3Utils.group(d3.select(this._container));
             this.setStatementGroup(ifElseGroup);
+            // Initialize the bounding box
+            this.getBoundingBox().fromTopCenter(this.getTopCenter(), 0, 0);
             this._model.accept(this);
 
             var editableProperties = [];
@@ -222,6 +235,17 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
 
         IfElseStatementView.prototype.getLastElseIf = function () {
             return this._elseIfViews[this._elseIfViews.length - 1];
+        };
+
+        IfElseStatementView.prototype.subComponentRenderCallback = function (componentBBox) {
+            if (this.getBoundingBox().w() < componentBBox.w()) {
+                this.getBoundingBox().w(componentBBox.w());
+            }
+            if (this.getBoundingBox().x() > componentBBox.x()) {
+                this.getBoundingBox().x(componentBBox.x());
+            }
+            this.getBoundingBox().h(this.getBoundingBox().h() + componentBBox.h());
+            // this.trigger('parent-bbox-modified', this.getBoundingBox());
         };
 
         return IfElseStatementView;

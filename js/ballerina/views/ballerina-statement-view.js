@@ -32,6 +32,9 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
         this.messageManager = _.get(args, "messageManager");
         this._statementGroup = undefined;
         this._childrenViewsList = [];
+        if (!_.has(args, 'topCenter')) {
+            log.warn('topCenter has not defined. Default top center will be created');
+        }
         this._topCenter = _.has(args, "topCenter") ? _.get(args, 'topCenter').clone() : new Point(0,0);
         this._boundingBox = new  BBox();
         var self = this;
@@ -327,6 +330,14 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
             });
 
         }.bind(statementGroup.node(), this));
+    };
+
+    BallerinaStatementView.prototype.getTopCenter = function () {
+        return this._topCenter;
+    };
+
+    BallerinaStatementView.prototype.getViewOptions = function () {
+        return this._viewOptions;
     };
 
     BallerinaStatementView.prototype.getBoundingBox = function () {

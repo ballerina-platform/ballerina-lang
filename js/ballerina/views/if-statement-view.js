@@ -29,6 +29,11 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
          */
         var IfStatementView = function (args) {
             BallerinaStatementView.call(this, args);
+            this.init();
+        };
+
+        IfStatementView.prototype.init = function () {
+            this.listenTo(this.getParent(), 'parent-bbox-modified', this.modifyView);
         };
 
         IfStatementView.prototype = Object.create(BallerinaStatementView.prototype);
@@ -44,21 +49,21 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
         IfStatementView.prototype.render = function (diagramRenderingContext) {
             this._diagramRenderingContext = diagramRenderingContext;
             var ifGroup = D3Utils.group(this._container);
-            var x = this.getParent().getBoundingBox().x();
-            var y = this.getParent().getBoundingBox().y();
+            // Default width and height of the if statement.
+            // TODO: Read these from the constants
             var width = 120;
             var height = 60;
-            var outer_rect = D3Utils.rect(x, y, width, 60, 0, 0, ifGroup).classed('statement-rect', true);
-            var title_rect = D3Utils.rect(x, y, 40, 20, 0, 0, ifGroup).classed('statement-rect', true);
-            var title_text = D3Utils.textElement(x + 20, y + 10, 'If', ifGroup).classed('statement-text', true);
-            // Set the bounding box of the parent (If-else-statement wrapper view)
-            this.getParent().setBoundingBox(width, height + this.getParent().getBoundingBox().h(), x, y);
-            this.setBoundingBox(width, height, x, y);
+            // Initialize the bounding box
+            this.getBoundingBox().fromTopCenter(this.getTopCenter(), width, height);
+            var outer_rect = D3Utils.rect(this.getBoundingBox().x(), this.getBoundingBox().y(), width, height, 0, 0, ifGroup).classed('statement-rect', true);
+            var title_rect = D3Utils.rect(this.getBoundingBox().x(), this.getBoundingBox().y(), 40, 20, 0, 0, ifGroup).classed('statement-rect', true);
+            var title_text = D3Utils.textElement(this.getBoundingBox().x() + 20, this.getBoundingBox().y() + 10, 'If', ifGroup).classed('statement-text', true);
             ifGroup.outerRect = outer_rect;
             ifGroup.titleRect = title_rect;
             ifGroup.titleText = title_text;
             this.setStatementGroup(ifGroup);
             this._model.accept(this);
+            this.trigger('sub-component-rendered', this.getBoundingBox());
         };
 
         /**
@@ -103,23 +108,27 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
             return this._viewOptions;
         };
 
-        IfStatementView.prototype.childVisitedCallback = function (child) {
-            var childView = this._diagramRenderingContext.getViewModelMap()[child.id];
-            var childBoundingBox = childView.getBoundingBox();
-            this.getParent().changeChildrenMetrics(childBoundingBox);
-        };
+        // IfStatementView.prototype.childVisitedCallback = function (child) {
+        //     var childView = this._diagramRenderingContext.getViewModelMap()[child.id];
+        //     var childBoundingBox = childView.getBoundingBox();
+        //     this.getParent().changeChildrenMetrics(childBoundingBox);
+        // };
 
-        IfStatementView.prototype.changeMetricsCallback = function (childBoundingBox) {
+        // IfStatementView.prototype.changeMetricsCallback = function (childBoundingBox) {
+        //
+        //     var parentBoundingBox = this.getParent().getBoundingBox();
+        //
+        //     this.getStatementGroup().outerRect.attr('width', parentBoundingBox.width);
+        //     this.getStatementGroup().outerRect.attr('height', childBoundingBox.height + 40);
+        //     this.getStatementGroup().outerRect.attr('x', parentBoundingBox.x);
+        //     this.getStatementGroup().titleRect.attr('x', parentBoundingBox.x);
+        //     this.getStatementGroup().titleText.attr('x', parentBoundingBox.x + 20);
+        //
+        //     this.setBoundingBox(parentBoundingBox.width, parentBoundingBox.height, parentBoundingBox.x, parentBoundingBox.y);
+        // };
 
-            var parentBoundingBox = this.getParent().getBoundingBox();
+        IfStatementView.prototype.modifyView = function (parentBBox) {
 
-            this.getStatementGroup().outerRect.attr('width', parentBoundingBox.width);
-            this.getStatementGroup().outerRect.attr('height', childBoundingBox.height + 40);
-            this.getStatementGroup().outerRect.attr('x', parentBoundingBox.x);
-            this.getStatementGroup().titleRect.attr('x', parentBoundingBox.x);
-            this.getStatementGroup().titleText.attr('x', parentBoundingBox.x + 20);
-
-            this.setBoundingBox(parentBoundingBox.width, parentBoundingBox.height, parentBoundingBox.x, parentBoundingBox.y);
         };
 
         return IfStatementView;

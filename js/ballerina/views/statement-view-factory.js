@@ -16,9 +16,9 @@
  * under the License.
  */
 define(['lodash', 'log', 'event_channel', '../ast/module', './try-catch-statement-view', './try-statement-view',
-        './catch-statement-view', './if-else-statement-view', './if-statement-view', './else-statement-view', './assignment-view', './function-invocation-view','./action-invocation-statement-view', './while-statement-view'],
+        './catch-statement-view', './if-else-statement-view', './if-statement-view', './else-statement-view', './else-if-statement-view', './assignment-view', './function-invocation-view','./action-invocation-statement-view', './while-statement-view'],
     function (_, log, EventChannel, AST, TryCatchStatementView, TryStatementView, CatchStatementView,
-              IfElseStatementView, IfStatementView, ElseStatementView, AssignmentStatementView, FunctionInvocationStatementView, ActionInvocationStatementView, WhileStatementView) {
+              IfElseStatementView, IfStatementView, ElseStatementView, ElseIfStatementView, AssignmentStatementView, FunctionInvocationStatementView, ActionInvocationStatementView, WhileStatementView) {
 
         var StatementViewFactory = function () {
         };

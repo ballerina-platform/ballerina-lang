@@ -29,6 +29,7 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
          */
         var ElseIfStatementView = function (args) {
             BallerinaStatementView.call(this, args);
+            this.init();
         };
 
         ElseIfStatementView.prototype = Object.create(BallerinaStatementView.prototype);
@@ -38,6 +39,10 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
             return true;
         };
 
+        ElseIfStatementView.prototype.init = function () {
+            this.listenTo(this.getParent(), 'parent-bbox-modified', this.modifyView);
+        };
+
         /**
          * Render the else-if statement
          */
@@ -45,36 +50,23 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
             this._diagramRenderingContext = diagramRenderingContext;
             var elseIfGroup = D3Utils.group(this._container);
 
-            var x = 0;
-            var y = 0;
-
-            // If we have more than one else if we get the position of the last else if
-            var lastElseIf = this.getParent().getLastElseIf();
-            if (!_.isUndefined(lastElseIf)) {
-                x = parseInt(this.getParent().getBoundingBox().x);
-                y = parseInt(lastElseIf.getStatementGroup().outerRect.attr('y')) +
-                    parseInt(lastElseIf.getStatementGroup().outerRect.attr('height'));
-            } else {
-                y = parseInt(this.getParent().getIfBlockView().getStatementGroup().outerRect.attr('y')) +
-                    parseInt(this.getParent().getIfBlockView().getStatementGroup().outerRect.attr('height'));
-                x = parseInt(this.getParent().getBoundingBox().x);
-            }
-
-            var width = parseInt(this.getParent().getBoundingBox().width);
+            // Default width and height of the else if statement.
+            // TODO: Read these from the constants
+            // This initial height is read from the viewOptions. Because the else statement's initial width depends on
+            // the parent view's(IfElseStatementView) width
+            var width = this.getViewOptions().width;
             var height = 60;
-            var outer_rect = D3Utils.rect(x, y, width, height, 0, 0, elseIfGroup).classed('statement-rect', true);
-            var title_rect = D3Utils.rect(x, y, 40, 20, 0, 0, elseIfGroup).classed('statement-rect', true);
-            var title_text = D3Utils.textElement(x + 20, y + 10, 'Else If', elseIfGroup).classed('statement-text', true);
-            this.getBoundingBox().x(x).y(y).w(width).h(height);
-            this.getParent().getBoundingBox().x(x).y(y).w(width).h(height + this.getParent().getBoundingBox().h());
+            // Initialize the bounding box
+            this.getBoundingBox().fromTopCenter(this.getTopCenter(), width, height);
+            var outer_rect = D3Utils.rect(this.getBoundingBox().x(), this.getBoundingBox().y(), width, height, 0, 0, elseIfGroup).classed('statement-rect', true);
+            var title_rect = D3Utils.rect(this.getBoundingBox().x(), this.getBoundingBox().y(), 40, 20, 0, 0, elseIfGroup).classed('statement-rect', true);
+            var title_text = D3Utils.textElement(this.getBoundingBox().x() + 20, this.getBoundingBox().y() + 10, 'ElseIf', elseIfGroup).classed('statement-text', true);
             elseIfGroup.outerRect = outer_rect;
             elseIfGroup.titleRect = title_rect;
             elseIfGroup.titleText = title_text;
             this.setStatementGroup(elseIfGroup);
-
-            // Push the rendered statement view to the parent's else-if view list
-            this.getParent().getElseIfViewList().push(this);
             this._model.accept(this);
+            this.trigger('sub-component-rendered', this.getBoundingBox());
         };
 
         /**
@@ -119,8 +111,8 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
             return this._viewOptions;
         };
 
-        ElseIfStatementView.prototype.childVisitedCallback = function (child) {
-            var childView = this._diagramRenderingContext.getViewModelMap()[child.id];
+        ElseIfStatementView.prototype.modifyView = function (parentBBox) {
+
         };
 
         return ElseIfStatementView;
