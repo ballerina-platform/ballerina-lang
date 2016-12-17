@@ -19,6 +19,7 @@
 package org.wso2.ballerina.core.model;
 
 import org.wso2.ballerina.core.interpreter.SymScope;
+import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.types.StructType;
 
@@ -49,6 +50,7 @@ public class BallerinaFile implements Node {
     private Map<String, Function> functions = new HashMap<>();
     private List<StructType> types = new ArrayList<>();
     private List<FunctionInvocationExpr> funcIExprList = new ArrayList<>();
+    private List<ActionInvocationExpr> actionIExprList = new ArrayList<>();
     //TODO: add TypeConverters
     //TODO: add constants
 
@@ -179,6 +181,14 @@ public class BallerinaFile implements Node {
 
     public FunctionInvocationExpr[] getFuncIExprs() {
         return funcIExprList.toArray(new FunctionInvocationExpr[funcIExprList.size()]);
+    }
+
+    public void addActionIExpr(ActionInvocationExpr expr) {
+        this.actionIExprList.add(expr);
+    }
+
+    public ActionInvocationExpr[] getActionIExprs() {
+        return actionIExprList.toArray(new ActionInvocationExpr[actionIExprList.size()]);
     }
 
     /**

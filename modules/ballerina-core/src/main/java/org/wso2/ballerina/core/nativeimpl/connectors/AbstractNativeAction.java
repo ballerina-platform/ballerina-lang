@@ -9,6 +9,7 @@ import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.Const;
 import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.SymbolName;
+import org.wso2.ballerina.core.model.VariableDcl;
 import org.wso2.ballerina.core.model.types.Type;
 import org.wso2.ballerina.core.model.types.TypeC;
 import org.wso2.ballerina.core.model.values.BValue;
@@ -35,9 +36,10 @@ public abstract class AbstractNativeAction implements Action, NativeConstruct, I
     private SymbolName symbolName;
     private List<Annotation> annotations;
     private List<Parameter> parameters;
-//    private List<Type> returnTypes;
     private List<TypeC> returnTypes;
     private List<Const> constants;
+
+    private int stackFrameSize;
 
     public AbstractNativeAction() {
         parameters = new ArrayList<>();
@@ -110,6 +112,10 @@ public abstract class AbstractNativeAction implements Action, NativeConstruct, I
         return parameters.toArray(new Parameter[parameters.size()]);
     }
 
+    public VariableDcl[] getVariableDcls() {
+        return new VariableDcl[0];
+    }
+
     @Override
     public Type[] getReturnTypes() {
         return new Type[0];
@@ -118,6 +124,14 @@ public abstract class AbstractNativeAction implements Action, NativeConstruct, I
     @Override
     public TypeC[] getReturnTypesC() {
         return returnTypes.toArray(new TypeC[returnTypes.size()]);
+    }
+
+    public int getStackFrameSize() {
+        return stackFrameSize;
+    }
+
+    public void setStackFrameSize(int stackFrameSize) {
+        this.stackFrameSize = stackFrameSize;
     }
 
     @Override
@@ -140,7 +154,6 @@ public abstract class AbstractNativeAction implements Action, NativeConstruct, I
     }
 
     public abstract void execute(Context context);
-
 
 
 }
