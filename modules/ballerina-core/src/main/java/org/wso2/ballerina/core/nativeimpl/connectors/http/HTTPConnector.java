@@ -27,13 +27,8 @@ import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
         service = AbstractNativeConnector.class)
 public class HTTPConnector extends AbstractNativeConnector implements ServiceFactory {
 
-    // HTTP connector shared attributes
-
     private String serviceUri;
     private int timeout;
-
-    public HTTPConnector() {
-    }
 
     @Override
     public boolean init(BValueRef[] bValueRefs) {
