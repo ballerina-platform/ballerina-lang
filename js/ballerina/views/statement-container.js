@@ -43,10 +43,13 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         this._managedStatements = [];
         this._managedInnerDropzones = [];
         this._lastStatementView = undefined;
+        this._selectedInnerDropZone = -1;
 
         _.set(this._viewOptions, 'cssClass.group',  _.get(this._viewOptions, 'cssClass.group', 'statement-container'));
         _.set(this._viewOptions, 'cssClass.mainDropZone',  _.get(this._viewOptions, 'cssClass.mainDropZone', 'main-drop-zone'));
         _.set(this._viewOptions, 'cssClass.mainDropZoneHover',  _.get(this._viewOptions, 'cssClass.mainDropZoneHover', 'main-drop-zone-hover'));
+        _.set(this._viewOptions, 'cssClass.innerDropZone',  _.get(this._viewOptions, 'cssClass.innerDropZone', 'inner-drop-zone'));
+        _.set(this._viewOptions, 'cssClass.innerDropZoneHover',  _.get(this._viewOptions, 'cssClass.innerDropZoneHover', 'inner-drop-zone-hover'));
         _.set(this._viewOptions, 'width',  _.get(this._viewOptions, 'width', 120));
         _.set(this._viewOptions, 'height',  _.get(this._viewOptions, 'height', 260));
 
@@ -56,7 +59,8 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         this._topCenter =  _.get(this._viewOptions, 'topCenter').clone();
         this._width =  _.get(this._viewOptions, 'width');
         this._bottomCenter =  _.get(this._viewOptions, 'bottomCenter').clone();
-        this._gap =  _.get(this._viewOptions, 'gap');
+        // this._gap =  _.get(this._viewOptions, 'gap', 30);
+        this._gap = 30;
         this._offset = _.get(this._viewOptions, 'offset');
         this._rootGroup = D3Utils.group(this._containerD3)
             .classed(_.get(this._viewOptions, 'cssClass.group'), true);
@@ -79,6 +83,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
      */
     StatementContainerView.prototype.renderStatement = function (statement, args) {
         var topCenter, lastStatementView;
+        // window.alert(this._selectedInnerDropZone);
         if (!_.isEmpty(this._managedStatements)) {
             var lastStatement = _.last(this._managedStatements),
                 lastStatementView = this.diagramRenderingContext.getViewOfModel(lastStatement),
@@ -98,7 +103,10 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         this.diagramRenderingContext.setViewOfModel(statement, statementView);
 
         this._managedStatements.push(statement);
-        this._createNextInnerDropZone();
+        var topC = new Point(statementView.getBoundingBox().x() + statementView.getBoundingBox().w()/2,
+            statementView.getBoundingBox().getBottom());
+        var dropZoneOptions = {width: 120, height: this._gap, topCenter: topC};
+        this._createNextInnerDropZone(dropZoneOptions);
         return statementView;
     };
 
@@ -124,17 +132,31 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         this.getBoundingBox().on('bottom-edge-moved', function(offset){
             self._mainDropZone.attr('height', parseFloat(self._mainDropZone.attr('height')) + offset);
         });
-        this.initMainDropZone();
+        var dropZoneOptions = {
+            dropZone: this._mainDropZone,
+            hoverClass: _.get(this._viewOptions, 'cssClass.mainDropZoneHover')
+        };
+        this.initDropZone(dropZoneOptions);
         return this;
     };
 
-    StatementContainerView.prototype._createNextInnerDropZone = function(){
-
+    StatementContainerView.prototype._createNextInnerDropZone = function(options){
+        var innerDZone = D3Utils.rect(options.topCenter.x() - options.width/2,
+            options.topCenter.y(), options.width,
+            options.height, 0, 0, this._rootGroup)
+            .classed( _.get(this._viewOptions, 'cssClass.innerDropZone'), true);
+        var dropZoneOptions = {
+            dropZone: innerDZone,
+            hoverClass: _.get(this._viewOptions, 'cssClass.innerDropZoneHover')
+        };
+        this.initDropZone(dropZoneOptions);
+        this._managedInnerDropzones.push(innerDZone);
     };
 
-    StatementContainerView.prototype.initMainDropZone = function () {
-        var self = this,
-            hoverClass = _.get(this._viewOptions, 'cssClass.mainDropZoneHover');
+    StatementContainerView.prototype.initDropZone = function (options) {
+        var dropZone = _.get(options, 'dropZone'),
+            hoverClass = _.get(options, 'hoverClass'),
+            self = this;
 
         var getDroppedNodeIndex = function(node){
             var managedIndex = _.findIndex(self._managedStatements, ['id', node.id]);
@@ -150,6 +172,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         var mouseOverHandler = function() {
             //if someone is dragging a tool from tool-palette
             if(self.toolPalette.dragDropManager.isOnDrag()){
+                self._selectedInnerDropZone = _.findIndex(self._managedInnerDropzones, d3.select(this));
 
                 if(_.isEqual(self.toolPalette.dragDropManager.getActivatedDropTarget(), self)){
                     return;
@@ -166,29 +189,27 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
                 }, getDroppedNodeIndex);
 
                 // indicate drop area
-                self._mainDropZone.classed(hoverClass, true);
+                dropZone.classed(hoverClass, true);
 
                 // reset ui feed back on drop target change
                 self.toolPalette.dragDropManager.once("drop-target-changed", function(){
-                    self._mainDropZone.classed(hoverClass, false);
+                    dropZone.classed(hoverClass, false);
                 });
             }
             d3.event.stopPropagation();
-
         };
 
         var mouseOutHandler = function() {
             // reset ui feed back on hover out
             if(self.toolPalette.dragDropManager.isOnDrag()){
                 if(_.isEqual(self.toolPalette.dragDropManager.getActivatedDropTarget(), self._model)){
-                    self._mainDropZone.classed(hoverClass, false);
+                    dropZone.classed(hoverClass, false);
                 }
             }
             d3.event.stopPropagation();
-
         };
-        this._mainDropZone.on("mouseover", mouseOverHandler);
-        this._mainDropZone.on("mouseout", mouseOutHandler);
+        dropZone.on("mouseover", mouseOverHandler);
+        dropZone.on("mouseout", mouseOutHandler);
     };
 
     return StatementContainerView;

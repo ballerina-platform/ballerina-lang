@@ -157,7 +157,12 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
          * @param args
          */
         BallerinaASTFactory.createIfElseStatement = function (args) {
-            return new ifElseStatement(args);
+            var ifStmt = new ifStatement(args);
+            var elseStmt = new elseStatement(args);
+            var ifElse = new ifElseStatement(args);
+            ifElse.addChild(ifStmt);
+            ifElse.addChild(elseStmt);
+            return ifElse;
         };
 
         /**

@@ -352,6 +352,11 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
         return this._boundingBox;
     };
 
+    BallerinaStatementView.prototype.repositionStatement = function (options) {
+        this.getBoundingBox().y(this.getBoundingBox().y() + options.dy);
+        this.getStatementGroup().attr('transform', ('translate(0,' + options.dy + ')'));
+    };
+
     BallerinaStatementView.prototype.resizeOnChildRendered = function (childBBox) {
         // TODO: Get these from the constants
         var widthIncrease = 20;
