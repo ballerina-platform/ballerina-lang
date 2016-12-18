@@ -35,7 +35,7 @@ import org.wso2.carbon.messaging.CarbonMessage;
  */
 @BallerinaAction(
         packageName = "ballerina.net.connectors.http",
-        actionName = "post",
+        actionName = "get",
         args = {
                 @Argument(name = "connector",
                         type = TypeEnum.CONNECTOR),
@@ -44,17 +44,17 @@ import org.wso2.carbon.messaging.CarbonMessage;
         },
         returnType = {TypeEnum.MESSAGE})
 @Component(
-        name = "action.net.http.post",
+        name = "action.net.http.get",
         immediate = true,
         service = AbstractNativeAction.class)
-public class Post extends AbstractHTTPAction {
+public class Get extends AbstractHTTPAction {
 
-    private static final Logger logger = LoggerFactory.getLogger(Post.class);
+    private static final Logger logger = LoggerFactory.getLogger(Get.class);
 
     @Override
     public BValueRef execute(Context context) {
 
-        logger.debug("Executing Native Action : Post");
+        logger.debug("Executing Native Action : Get");
 
         // Extract Argument values
         ConnectorValue connectorValue = (ConnectorValue) getArgument(context, 0).getBValue();
@@ -70,7 +70,7 @@ public class Post extends AbstractHTTPAction {
         // Prepare the message
         prepareRequest(connector, path, cMsg);
         cMsg.setProperty(org.wso2.ballerina.core.runtime.net.http.Constants.HTTP_METHOD,
-                         org.wso2.ballerina.core.runtime.net.http.Constants.HTTP_METHOD_POST);
+                         org.wso2.ballerina.core.runtime.net.http.Constants.HTTP_METHOD_GET);
 
         // Execute the operation
         return executeAction(context, cMsg);
