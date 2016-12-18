@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerina.core.model.values;
 
+import org.wso2.ballerina.core.message.BallerinaMessageDataSource;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.Header;
 import org.wso2.carbon.messaging.Headers;
@@ -79,6 +80,12 @@ public class MessageValue implements BValue<CarbonMessage> {
      * @param builtMsg  Built payload of this message
      */
     public void setBuiltPayload(BValue<?> builtMsg) {
+        // Set the message data source once the message is built
+        if (builtMsg instanceof XMLValue || builtMsg instanceof JSONValue || builtMsg instanceof StringValue) {
+            BallerinaMessageDataSource ballerinaMessageDataSource = (BallerinaMessageDataSource) builtMsg;
+            ballerinaMessageDataSource.setOutputStream(this.value.getOutputStream());
+            this.value.setMessageDataSource(ballerinaMessageDataSource);
+        }
         this.builtPayload = builtMsg;
     }
 

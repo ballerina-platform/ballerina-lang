@@ -19,23 +19,30 @@ package org.wso2.ballerina.core.model.values;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import org.wso2.ballerina.core.message.BallerinaMessageDataSource;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
 /**
  * {@code JSONValue} represents a JSON value in Ballerina.
  *
  * @since 1.0.0
  */
-public class JSONValue implements BValue<JsonElement> {
+public class JSONValue extends BallerinaMessageDataSource implements BValue<JsonElement> {
     
     // GSON json object model associated with this JSONType object
     private JsonElement value;
     
     // Schema of this JSONType object model
     private JsonElement schema;
+
+    // Output stream to write message out to the socket
+    private OutputStream outputStream;
 
     /**
      * Initialize a {@link JSONValue} from a {@link com.google.gson.JsonElement} object.
@@ -138,4 +145,49 @@ public class JSONValue implements BValue<JsonElement> {
     public void setSchema(JsonElement schema) {
         this.schema = schema;
     }
+
+    @Override
+    public String getValueAsString(String path) {
+        return null;
+    }
+
+    @Override
+    public String getValueAsString(String path, Map<String, String> properties) {
+        return null;
+    }
+
+    @Override
+    public Object getValue(String path) {
+        return null;
+    }
+
+    @Override
+    public Object getDataObject() {
+        return null;
+    }
+
+    @Override
+    public String getContentType() {
+        return null;
+    }
+
+    @Override
+    public void setContentType(String type) {
+
+    }
+
+    @Override
+    public void serializeData() {
+        try {
+            this.outputStream.write(this.value.toString().getBytes());
+        } catch (IOException e) {
+            throw new RuntimeException("Error occurred during writing the message to the output stream");
+        }
+    }
+
+    @Override
+    public void setOutputStream(OutputStream outputStream) {
+        this.outputStream = outputStream;
+    }
+
 }
