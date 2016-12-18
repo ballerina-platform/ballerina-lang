@@ -473,7 +473,25 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             this.diagramRenderingContext.getViewModelMap()[connectorDeclaration.id] = connectorDeclarationView;
             this._connectorViewList.push(connectorDeclarationView);
 
+            connectorDeclarationView._rootGroup.attr('id', '_' +connectorDeclarationView._model.id);
+
             connectorDeclarationView.render();
+
+            // Creating property pane
+            var editableProperties = [];
+            var editableProperty = {
+                propertyType: "text",
+                key: "Name",
+                getterMethod: connectorDeclarationView._model.getConnectorName(),
+                setterMethod: connectorDeclarationView._model.setConnectorName()
+            };
+            editableProperties.push(editableProperty);
+            connectorDeclarationView.createPropertyPane({
+                model: connectorDeclarationView._model,
+                lifeLineGroup:connectorDeclarationView._rootGroup,
+                editableProperties: editableProperties
+            });
+
             connectorDeclarationView.setParent(this);
 
             this.trigger("childConnectorViewAddedEvent", connectorDeclarationView);

@@ -95,6 +95,20 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/assignment', 'd
             var assignmentText = this._model.getVariableAccessor() + ' = ' +this._model.getExpression();
             var expressionText = D3Utils.textElement(x + width/2, y + height/2, assignmentText, assignmentStatementGroup).classed('statement-text', true);
 
+            // Creating property pane
+            var editableProperties = [];
+            var editableProperty = {
+                propertyType: "text",
+                key: "Expression",
+                getterMethod: this._model.getExpression,
+                setterMethod: this._model.setExpression
+            };
+            editableProperties.push(editableProperty);
+            this._createPropertyPane({
+                model: this._model,
+                statementGroup:assignmentStatementGroup,
+                editableProperties: editableProperties
+            });
         };
 
         AssignmentStatementView.prototype.setViewOptions = function (viewOptions) {
