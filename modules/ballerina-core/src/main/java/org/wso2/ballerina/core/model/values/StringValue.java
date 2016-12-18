@@ -17,13 +17,19 @@
 */
 package org.wso2.ballerina.core.model.values;
 
+import org.wso2.ballerina.core.message.BallerinaMessageDataSource;
+
+import java.io.IOException;
+import java.io.OutputStream;
+
 /**
  * {@code StringValue} represents a string value in Ballerina
  *
  * @since 1.0.0
  */
-public class StringValue implements BValue<String> {
+public class StringValue extends BallerinaMessageDataSource implements BValue<String> {
     private String value;
+    private OutputStream outputStream;
 
     public StringValue(String value) {
         this.value = value;
@@ -35,5 +41,19 @@ public class StringValue implements BValue<String> {
 
     public void setValue(String value) {
         this.value = value;
+    }
+
+    @Override
+    public void serializeData() {
+        try {
+            this.outputStream.write(this.value.getBytes());
+        } catch (IOException e) {
+            throw new RuntimeException("Error occurred during writing the message to the output stream");
+        }
+    }
+
+    @Override
+    public void setOutputStream(OutputStream outputStream) {
+        this.outputStream = outputStream;
     }
 }

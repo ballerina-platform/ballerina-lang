@@ -21,8 +21,10 @@ import org.apache.axiom.om.impl.builder.StAXOMBuilder;
 import org.apache.axiom.om.util.AXIOMUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerina.core.message.BallerinaMessageDataSource;
 
 import java.io.InputStream;
+import java.io.OutputStream;
 import javax.xml.stream.XMLStreamException;
 
 
@@ -31,11 +33,13 @@ import javax.xml.stream.XMLStreamException;
  *
  * @since 1.0.0
  */
-public class XMLValue implements BValue<OMElement> {
+public class XMLValue extends BallerinaMessageDataSource implements BValue<OMElement> {
 
     private static final Logger LOG = LoggerFactory.getLogger(XMLValue.class);
 
     private OMElement omElement;
+
+    private OutputStream outputStream;
 
     /**
      * Initialize a {@link XMLValue} from a XML string.
@@ -77,7 +81,21 @@ public class XMLValue implements BValue<OMElement> {
     }
 
     @Override
+    public void setOutputStream(OutputStream outputStream) {
+        this.outputStream = outputStream;
+    }
+
+    @Override
     public OMElement getValue() {
         return omElement;
+    }
+
+    @Override
+    public void serializeData() {
+        try {
+            this.omElement.serialize(this.outputStream);
+        } catch (XMLStreamException e) {
+            throw new RuntimeException("Error occurred during writing the message to the output stream");
+        }
     }
 }
