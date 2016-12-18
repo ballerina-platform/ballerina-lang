@@ -47,6 +47,7 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
          */
         TryStatementView.prototype.render = function () {
             var tryGroup = D3Utils.group(this._container);
+            tryGroup.attr("id","_" +this._model.id);
             var x = this.getParent().getXPosition();
             var y = this.getParent().getYPosition();
             var width = 120;

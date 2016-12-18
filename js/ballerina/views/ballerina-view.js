@@ -55,10 +55,8 @@ define(['lodash', 'log', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
         BallerinaView.prototype.childViewRemovedCallback = function (child) {
             log.info("[Eventing] Child element view removed. ");
             //TODO: remove from view map
-            var childView = this.diagramRenderingContext.getViewModelMap()[child.id];
-            var group = $(childView._container)[0].getElementById("#_" +child.id);
-            (d3.select(group)).remove();
-        };
+            $(this._parentView._container)[0].querySelector("#_" + child.id).remove();
+        }
 
         return BallerinaView;
     });

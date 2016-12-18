@@ -84,7 +84,7 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/assignment', 'd
          */
         AssignmentStatementView.prototype.render = function () {
             var assignmentStatementGroup = D3Utils.group(d3.select(this._container));
-            assignmentStatementGroup.attr("id","assignmentStatementGroup_" +this._model.id);//added attribute 'id' starting with '_' to be compatible with HTML4
+            assignmentStatementGroup.attr("id","_" +this._model.id);//added attribute 'id' starting with '_' to be compatible with HTML4
             var width = this.getBoundingBox().w();
             var height = this.getBoundingBox().h();
 

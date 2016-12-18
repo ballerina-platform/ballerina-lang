@@ -49,6 +49,7 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
         ElseIfStatementView.prototype.render = function (diagramRenderingContext) {
             this._diagramRenderingContext = diagramRenderingContext;
             var elseIfGroup = D3Utils.group(this._container);
+            elseIfGroup.attr("id","_" +this._model.id);
 
             // Default width and height of the else if statement.
             // TODO: Read these from the constants

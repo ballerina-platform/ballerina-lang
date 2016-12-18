@@ -82,6 +82,7 @@ define(['require', 'lodash', 'log', './ballerina-statement-view', './../ast/tryc
          */
         TryCatchStatementView.prototype.render = function () {
             var tryCatchGroup = D3Utils.group(d3.select(this._container));
+            tryCatchGroup.attr("id","_" +this._model.id);
             this.setStatementGroup(tryCatchGroup);
             this._model.accept(this);
         };
