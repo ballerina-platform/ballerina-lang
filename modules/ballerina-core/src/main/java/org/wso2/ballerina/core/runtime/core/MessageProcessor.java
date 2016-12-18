@@ -43,8 +43,9 @@ public class MessageProcessor implements CarbonMessageProcessor {
         Context balContext = new Context(cMsg);
         WorkerThread workerThread = null;
 
-        if (org.wso2.carbon.messaging.Constants.DIRECTION_REQUEST.
+        if (!org.wso2.carbon.messaging.Constants.DIRECTION_RESPONSE.
                 equals(cMsg.getProperty(org.wso2.carbon.messaging.Constants.DIRECTION))) {
+            // For Request
 
             if (log.isDebugEnabled()) {
                 log.debug("ballerina received a request message");
@@ -61,6 +62,7 @@ public class MessageProcessor implements CarbonMessageProcessor {
             workerThread = new RequestWorkerThread(balContext, new DefaultBalCallback(carbonCallback));
 
         } else {
+            // For Response
             workerThread = new ResponseWorkerThread(balContext, new DefaultBalCallback(carbonCallback));
         }
         ThreadPoolFactory.getInstance().getExecutor().execute(workerThread);
