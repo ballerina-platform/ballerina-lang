@@ -60,7 +60,10 @@ import org.wso2.ballerina.core.model.values.BValueRef;
 import org.wso2.ballerina.core.model.values.BooleanValue;
 import org.wso2.ballerina.core.model.values.FloatValue;
 import org.wso2.ballerina.core.model.values.IntValue;
+import org.wso2.ballerina.core.model.values.JSONValue;
 import org.wso2.ballerina.core.model.values.StringValue;
+import org.wso2.ballerina.core.model.values.XMLValue;
+import org.wso2.ballerina.core.nativeimpl.lang.message.Utils;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -287,6 +290,21 @@ public class BLangModelBuilder {
         }
 
         exprStack.push(expr);
+    }
+
+    public void createBackTickString(String stringContent) {
+        String content = Utils.getValueWithinBacktick(stringContent);
+        if (content.startsWith("{")) {
+            BValue bValue = new JSONValue(content);
+            createLiteral(new BValueRef(bValue), TypeC.JSON_TYPE);
+        } else if (content.startsWith("<")) {
+            BValue bValue = new XMLValue(content);
+            createLiteral(new BValueRef(bValue), TypeC.XML_TYPE);
+        } else {
+            BValue bValue = new StringValue(content);
+            createLiteral(new BValueRef(bValue), TypeC.STRING_TYPE);
+        }
+
     }
 
     public void startExprList() {
