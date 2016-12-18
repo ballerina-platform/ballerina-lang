@@ -62,6 +62,7 @@ import org.wso2.ballerina.core.model.statements.WhileStmt;
 import org.wso2.ballerina.core.model.types.TypeC;
 import org.wso2.ballerina.core.model.values.BValueRef;
 import org.wso2.ballerina.core.model.values.ConnectorValue;
+import org.wso2.ballerina.core.model.values.MessageValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
@@ -228,7 +229,9 @@ public class BLangInterpreter implements NodeVisitor {
 
     @Override
     public void visit(ReplyStmt replyStmt) {
-
+        MessageValue messageValue =
+                (MessageValue) controlStack.getCurrentFrame().values[replyStmt.getReplyExpr().getOffset()].getBValue();
+        bContext.getBalCallback().done(messageValue.getValue());
     }
 
     @Override

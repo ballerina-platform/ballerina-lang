@@ -469,8 +469,8 @@ public class BLangModelBuilder {
 
     public void createReplyStmt() {
         ReplyStmt.ReplyStmtBuilder replyStmtBuilder = new ReplyStmt.ReplyStmtBuilder();
-        ReplyStmt replyStmt = replyStmtBuilder.build();
         replyStmtBuilder.setExpression(exprStack.pop());
+        ReplyStmt replyStmt = replyStmtBuilder.build();
         addToBlockStmt(replyStmt);
     }
 

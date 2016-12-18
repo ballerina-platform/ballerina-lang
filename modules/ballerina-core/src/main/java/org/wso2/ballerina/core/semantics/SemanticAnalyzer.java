@@ -319,7 +319,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(ReplyStmt replyStmt) {
-
+        replyStmt.getReplyExpr().accept(this);
     }
 
     @Override
