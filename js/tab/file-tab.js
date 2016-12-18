@@ -138,10 +138,39 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             var if1 = BallerinaASTFactory.createIfStatement();
             var else1 = BallerinaASTFactory.createElseStatement();
             var elseIf1 = BallerinaASTFactory.createElseIfStatement();
+
+            var ifelse2 = BallerinaASTFactory.createIfElseStatement();
+            var if2 = BallerinaASTFactory.createIfStatement();
+            var else2 = BallerinaASTFactory.createElseStatement();
+            ifelse2.addChild(if2);
+            ifelse2.addChild(else2);
+
+            var ifelse3 = BallerinaASTFactory.createIfElseStatement();
+            var if3 = BallerinaASTFactory.createIfStatement();
+            var else3 = BallerinaASTFactory.createElseStatement();
+            ifelse3.addChild(if3);
+            ifelse3.addChild(else3);
+
+            var ifelse4 = BallerinaASTFactory.createIfElseStatement();
+            var if4 = BallerinaASTFactory.createIfStatement();
+            var else4 = BallerinaASTFactory.createElseStatement();
+            ifelse4.addChild(if4);
+            ifelse4.addChild(else4);
+
+            var ifelse5 = BallerinaASTFactory.createIfElseStatement();
+            var if5 = BallerinaASTFactory.createIfStatement();
+            var else5 = BallerinaASTFactory.createElseStatement();
+            ifelse5.addChild(if5);
+            ifelse5.addChild(else5);
+
+            if2.addChild(ifelse4);
+            if1.addChild(ifelse3);
+            else1.addChild(ifelse2);
             ifelse1.addChild(if1);
             ifelse1.addChild(elseIf1);
             ifelse1.addChild(else1);
-            resource_passthrough.addChild(ifelse1);
+            if5.addChild(ifelse1);
+            resource_passthrough.addChild(ifelse5);
 
             //Adding Connector declaration to resource_pasthrough
             var connector_declaration = BallerinaASTFactory.createConnectorDeclaration();

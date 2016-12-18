@@ -344,6 +344,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 this._defaultWorker = new DefaultWorkerView(defaultWorkerOpts);
             }
             this._defaultWorker.render();
+            this.trigger("defaultWorkerViewAddedEvent", this._defaultWorker);
 
             this.initResourceLevelDropTarget();
             this.renderStartAction();
@@ -474,6 +475,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
             connectorDeclarationView.render();
             connectorDeclarationView.setParent(this);
+
+            this.trigger("childConnectorViewAddedEvent", connectorDeclarationView);
         };
 
         /**

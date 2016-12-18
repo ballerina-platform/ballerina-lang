@@ -90,14 +90,14 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
     BallerinaStatementView.prototype.visitStatement = function (statement) {
         var StatementViewFactory = require('./statement-view-factory');
         var statementViewFactory = new StatementViewFactory();
-        var args = {model: statement, container: this._statementGroup.node(), viewOptions: undefined, parent:this};
+        var newStatementGap = 30;
+        var topCenter = new Point(this.getTopCenter().x(), this.getTopCenter().y() + newStatementGap);
+        var args = {model: statement, container: this._statementGroup.node(), viewOptions: undefined, parent:this, topCenter: topCenter};
         var statementView = statementViewFactory.getStatementView(args);
         this._diagramRenderingContext.getViewModelMap()[statement.id] = statementView;
         this._childrenViewsList.push(statementView);
-        var statementWidthDefault = 120;
-        var x = this.getBoundingBox().x() + this.getBoundingBox().w()/2 - statementWidthDefault/2;
-        statementView.getBoundingBox().w(0).h(0).x(x).y(this.getBoundingBox().y + 30);
         statementView.render(this._diagramRenderingContext);
+        this.resizeOnChildRendered(statementView.getBoundingBox());
     };
 
     BallerinaStatementView.prototype.visitExpression = function (statement) {
@@ -350,6 +350,18 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
 
     BallerinaStatementView.prototype.getBoundingBox = function () {
         return this._boundingBox;
+    };
+
+    BallerinaStatementView.prototype.resizeOnChildRendered = function (childBBox) {
+        // TODO: Get these from the constants
+        var widthIncrease = 20;
+        var newHeight = childBBox.getBottom() + widthIncrease/2 - this.getBoundingBox().getTop();
+        this.getBoundingBox().x(childBBox.x() - widthIncrease/2).w(childBBox.w() + widthIncrease).h(newHeight);
+        this.getStatementGroup().outerRect.attr('height', newHeight);
+        this.getStatementGroup().outerRect.attr('width', this.getBoundingBox().w());
+        this.getStatementGroup().outerRect.attr('x', this.getBoundingBox().x());
+        this.getStatementGroup().titleRect.attr('x', this.getBoundingBox().x());
+        this.getStatementGroup().titleText.attr('x', this.getBoundingBox().x() + 20);
     };
 
     return BallerinaStatementView;

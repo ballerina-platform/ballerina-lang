@@ -32,12 +32,12 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
             this.init();
         };
 
-        IfStatementView.prototype.init = function () {
-            this.listenTo(this.getParent(), 'parent-bbox-modified', this.modifyView);
-        };
-
         IfStatementView.prototype = Object.create(BallerinaStatementView.prototype);
         IfStatementView.prototype.constructor = IfStatementView;
+
+        IfStatementView.prototype.init = function () {
+            this.listenTo(this.getParent(), 'parent-bbox-modified', this.parentViewModifiedCallback);
+        };
 
         IfStatementView.prototype.canVisitIfStatement = function(){
             return true;
@@ -109,27 +109,14 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
             return this._viewOptions;
         };
 
-        // IfStatementView.prototype.childVisitedCallback = function (child) {
-        //     var childView = this._diagramRenderingContext.getViewModelMap()[child.id];
-        //     var childBoundingBox = childView.getBoundingBox();
-        //     this.getParent().changeChildrenMetrics(childBoundingBox);
-        // };
-
-        // IfStatementView.prototype.changeMetricsCallback = function (childBoundingBox) {
-        //
-        //     var parentBoundingBox = this.getParent().getBoundingBox();
-        //
-        //     this.getStatementGroup().outerRect.attr('width', parentBoundingBox.width);
-        //     this.getStatementGroup().outerRect.attr('height', childBoundingBox.height + 40);
-        //     this.getStatementGroup().outerRect.attr('x', parentBoundingBox.x);
-        //     this.getStatementGroup().titleRect.attr('x', parentBoundingBox.x);
-        //     this.getStatementGroup().titleText.attr('x', parentBoundingBox.x + 20);
-        //
-        //     this.setBoundingBox(parentBoundingBox.width, parentBoundingBox.height, parentBoundingBox.x, parentBoundingBox.y);
-        // };
-
-        IfStatementView.prototype.modifyView = function (parentBBox) {
-
+        IfStatementView.prototype.parentViewModifiedCallback = function (parentBBox) {
+            if (this.getBoundingBox().w() < parentBBox.w()) {
+                var newWidth = parentBBox.w();
+                this.getStatementGroup().outerRect.attr('width', newWidth);
+                this.getStatementGroup().outerRect.attr('x', parentBBox.x());
+                this.getStatementGroup().titleRect.attr('x', parentBBox.x());
+                this.getStatementGroup().titleText.attr('x', parentBBox.x() + 20);
+            }
         };
 
         return IfStatementView;
