@@ -66,7 +66,6 @@ define([ 'lodash', 'event_channel'], function ( _, EventChannel) {
     Point.prototype.move = function (dx, dy) {
         this.x(this.x() + dx);
         this.y(this.y() + dy);
-        this.trigger('moved', {dx: dx, dy: dy});
         return this;
     };
 
