@@ -31,9 +31,6 @@ import org.wso2.ballerina.core.runtime.Constants;
 import org.wso2.ballerina.core.runtime.core.MessageProcessor;
 import org.wso2.ballerina.core.runtime.deployer.BalDeployer;
 import org.wso2.ballerina.core.runtime.net.http.source.HTTPListenerManager;
-import org.wso2.ballerina.core.runtime.net.http.source.HTTPResourceDispatcher;
-import org.wso2.ballerina.core.runtime.net.http.source.HTTPServiceDispatcher;
-import org.wso2.ballerina.core.runtime.registry.DispatcherRegistry;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.messaging.TransportListenerManager;
 import org.wso2.carbon.messaging.TransportSender;
@@ -64,10 +61,6 @@ public class BallerinaServiceComponent {
 
             // Registering HTTP Listener Manager with transport framework
             bundleContext.registerService(TransportListenerManager.class, HTTPListenerManager.getInstance(), null);
-
-            // Resister HTTP Dispatchers
-            DispatcherRegistry.getInstance().registerServiceDispatcher(new HTTPServiceDispatcher());
-            DispatcherRegistry.getInstance().registerResourceDispatcher(new HTTPResourceDispatcher());
 
             //Determine the runtime mode
             String runThisBalFile = System.getProperty(SYSTEM_PROP_BAL_FILE);
