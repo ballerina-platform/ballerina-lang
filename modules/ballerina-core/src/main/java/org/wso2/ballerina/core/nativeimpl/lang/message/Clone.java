@@ -77,6 +77,7 @@ public class Clone  extends AbstractNativeFunction {
             String payload = Utils.getStringFromInputStream(originalMessage.getValue().getInputStream());
             StringValue result = new StringValue(payload);
             newMessageObj.setBuiltPayload(result);
+            originalMessage.setBuiltPayload(result);
         }
         newMessageObj.setAlreadyRead(true);
         return newMessageObj;
