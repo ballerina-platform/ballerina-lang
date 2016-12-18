@@ -461,7 +461,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
          */
         ResourceDefinitionView.prototype.visitConnectorDeclaration = function (connectorDeclaration) {
             var connectorContainer = this._contentGroup.node(),
-                connectorOpts = {model: connectorDeclaration, container: connectorContainer, parentView: this},
+                // TODO : Please add a proper logic for line height calculation in following line.
+                connectorOpts = {model: connectorDeclaration, container: connectorContainer, parentView: this, lineHeight:this.getBoundingBox().h() - 95},
                 connectorDeclarationView,
                 center;
 
@@ -493,6 +494,10 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             });
 
             connectorDeclarationView.setParent(this);
+
+            this.getBoundingBox().on("bottom-edge-moved", function (dy) {
+                this.getBottomCenter().move(0, dy);
+            }, connectorDeclarationView);
 
             this.trigger("childConnectorViewAddedEvent", connectorDeclarationView);
         };
