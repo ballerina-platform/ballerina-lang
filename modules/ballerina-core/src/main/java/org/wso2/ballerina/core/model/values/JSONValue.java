@@ -26,7 +26,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.Map;
 
 /**
  * {@code JSONValue} represents a JSON value in Ballerina.
@@ -144,36 +143,6 @@ public class JSONValue extends BallerinaMessageDataSource implements BValue<Json
      */
     public void setSchema(JsonElement schema) {
         this.schema = schema;
-    }
-
-    @Override
-    public String getValueAsString(String path) {
-        return null;
-    }
-
-    @Override
-    public String getValueAsString(String path, Map<String, String> properties) {
-        return null;
-    }
-
-    @Override
-    public Object getValue(String path) {
-        return null;
-    }
-
-    @Override
-    public Object getDataObject() {
-        return null;
-    }
-
-    @Override
-    public String getContentType() {
-        return null;
-    }
-
-    @Override
-    public void setContentType(String type) {
-
     }
 
     @Override

@@ -21,7 +21,6 @@ import org.wso2.ballerina.core.message.BallerinaMessageDataSource;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Map;
 
 /**
  * {@code StringValue} represents a string value in Ballerina
@@ -42,36 +41,6 @@ public class StringValue extends BallerinaMessageDataSource implements BValue<St
 
     public void setValue(String value) {
         this.value = value;
-    }
-
-    @Override
-    public String getValueAsString(String path) {
-        return null;
-    }
-
-    @Override
-    public String getValueAsString(String path, Map<String, String> properties) {
-        return null;
-    }
-
-    @Override
-    public Object getValue(String path) {
-        return null;
-    }
-
-    @Override
-    public Object getDataObject() {
-        return null;
-    }
-
-    @Override
-    public String getContentType() {
-        return null;
-    }
-
-    @Override
-    public void setContentType(String type) {
-
     }
 
     @Override

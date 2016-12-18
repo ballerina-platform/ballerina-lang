@@ -25,7 +25,6 @@ import org.wso2.ballerina.core.message.BallerinaMessageDataSource;
 
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Map;
 import javax.xml.stream.XMLStreamException;
 
 
@@ -89,36 +88,6 @@ public class XMLValue extends BallerinaMessageDataSource implements BValue<OMEle
     @Override
     public OMElement getValue() {
         return omElement;
-    }
-
-    @Override
-    public String getValueAsString(String path) {
-        return null;
-    }
-
-    @Override
-    public String getValueAsString(String path, Map<String, String> properties) {
-        return null;
-    }
-
-    @Override
-    public Object getValue(String path) {
-        return null;
-    }
-
-    @Override
-    public Object getDataObject() {
-        return null;
-    }
-
-    @Override
-    public String getContentType() {
-        return null;
-    }
-
-    @Override
-    public void setContentType(String type) {
-
     }
 
     @Override
