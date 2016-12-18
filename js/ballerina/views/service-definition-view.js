@@ -55,7 +55,9 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
         };
 
         ServiceDefinitionView.prototype = Object.create(Canvas.prototype);
-         ServiceDefinitionView.prototype.constructor = ServiceDefinitionView;
+        ServiceDefinitionView.prototype.constructor = ServiceDefinitionView;
+        // TODO move variable types into constant class
+        var variableTypes = ['message','connection','string','int','exception'];
 
         ServiceDefinitionView.prototype.init = function(){
             //Registering event listeners
@@ -210,40 +212,126 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
             this._createAnnotationButtonPane(annotationButton);
         };
 
+        ServiceDefinitionView.prototype.renderVariables = function (variableDeclarationsList, variablePaneWrapper, serviceModel) {
+
+            if (variableDeclarationsList.length > 0) {
+                var variableSetWrapper = $('<div/>').appendTo($(variablePaneWrapper));
+                var variableTable = $('<table/>').appendTo(variableSetWrapper);
+
+                for (var variableCount = 0; variableCount < variableDeclarationsList.length; variableCount++) {
+                    var currentRaw;
+                    if (variableCount % 3 == 0) {
+                        currentRaw = $('<tr/>').appendTo(variableTable);
+                    }
+                    var labelClass = "";
+                    if (variableDeclarationsList[variableCount].getType() === "message") {
+                        labelClass = "variable-type-message";
+                    } else if (variableDeclarationsList[variableCount].getType() === "connection") {
+                        labelClass = "variable-type-connection";
+                    } else if (variableDeclarationsList[variableCount].getType() === "string") {
+                        labelClass = "variable-type-string";
+                    } else if (variableDeclarationsList[variableCount].getType() === "int") {
+                        labelClass = "variable-type-int";
+                    } else {
+                        labelClass = "variable-type-exception";
+                    }
+                    var currentCell = $('<td/>').appendTo(currentRaw);
+                    var variable = $("<label for=" + variableDeclarationsList[variableCount].getIdentifier() + " class=" + labelClass + ">" +
+                        variableDeclarationsList[variableCount].getType() + "</label>" + "<input readonly maxlength='7' size='7' value=" +
+                        variableDeclarationsList[variableCount].getIdentifier() + " class=" + labelClass + ">").appendTo(currentCell);
+                    var removeBtn = $('<button class="variable-list">x</button>').appendTo(currentCell);
+
+                    // variable delete onclick
+                    var self = this;
+                    $(removeBtn).click(serviceModel, function () {
+                        var varList = serviceModel.getVariableDeclarations();
+                        var varType = $($(this.parentNode.getElementsByTagName('label'))[0]).text();
+                        var varIdentifier = $($(this.parentNode.getElementsByTagName('input'))[0]).val();
+                        var index = self.checkExistingVariables(varList, varType, varIdentifier);
+
+                        if (index != -1) {
+                            serviceModel.data.getVariableDeclarations().splice(index, 1);
+                        }
+
+                        log.info($(variable).val());
+
+                        if (variablePaneWrapper.children().length > 1) {
+                            variablePaneWrapper.children()[variablePaneWrapper.children().length - 1].remove()
+                        }
+                        self.renderVariables(variableDeclarationsList, variablePaneWrapper, serviceModel);
+                    });
+
+                    // variable edit onclick
+                    $(variable).click(serviceModel, function (serviceModel) {
+                        log.info('Variable edit');
+                        // ToDo : Render variables here
+                    });
+                }
+            }
+        };
+
+        ServiceDefinitionView.prototype.checkExistingVariables = function (variableList, variableType, variableIdentifier) {
+            var index = -1;
+            for (var varIndex = 0; varIndex < variableList.length; varIndex++) {
+                if (variableList[varIndex].getType() == variableType &&
+                    variableList[varIndex].getIdentifier() == variableIdentifier) {
+                    index = varIndex;
+                    break;
+                }
+            }
+            return index;
+        };
+
         ServiceDefinitionView.prototype.createVariablePane = function (args) {
             var activatorElement = _.get(args, "activatorElement");
             var serviceModel = _.get(args, "model");
             var paneElement = _.get(args, "paneAppendElement");
+            var variableList = serviceModel.getVariableDeclarations();
 
             if (_.isNil(activatorElement)) {
                 log.error("Unable to render property pane as the html element is undefined." + activatorElement);
                 throw "Unable to render property pane as the html element is undefined." + activatorElement;
             }
 
-            var variablePaneWrapper = $('<div id="variableSection" style="position:absolute;top:32px;right:109px;display:none"/>').appendTo($(paneElement));
+            var variablePaneWrapper = $('<div id="variableSection" class="service-variable-pane"/>').appendTo($(paneElement));
             var variableForm = $('<form></form>').appendTo(variablePaneWrapper);
-            var variableText = $("<input id='inputbox'/>").appendTo(variableForm);
-            var variableSelect = $("<select id='customSelect'><option value='message'>message</option><option value='exception'>exception</option><option value='int'>int</option></select>").appendTo(variableForm);
-            var addVariable = $("<button type='button'>Add</button>").appendTo(variableForm);
+            var variableSelect = $("<select/>").appendTo(variableForm);
+            var variableText = $("<input id='inputbox' placeholder='&nbsp;Variable Name'/>").appendTo(variableForm);
+            for(var typeCount = 0;typeCount < variableTypes.length; typeCount ++){
+                var selectOption = $("<option value="+ variableTypes[typeCount]+">"+variableTypes[typeCount] +
+                    "</option>").appendTo($(variableSelect));
+            }
+            var addVariable = $("<button type='button'>+</button>").appendTo(variableForm);
+
+            this.renderVariables(variableList,variablePaneWrapper,serviceModel);
+            var self = this;
 
             $(addVariable).click(serviceModel, function (serviceModel) {
+
+                // ToDo add variable name validation
                 var variableList = serviceModel.data.getVariableDeclarations();
-                var variable2 = BallerinaASTFactory.createVariableDeclaration();
-                variable2.setType('int');
-                variable2.setIdentifier('2');
-                serviceModel.data.getVariableDeclarations().push(variable2);
-                log.info($(variableText).val());
+
+                //filtering empty variable identifier and existing variables
+                if ($(variableText).val() != "" &&
+                    self.checkExistingVariables(variableList, $(variableSelect).val(), $(variableText).val()) == -1) {
+
+                    var variable = BallerinaASTFactory.createVariableDeclaration();
+
+                    //pushing new variable declaration
+                    variable.setType($(variableSelect).val());
+                    variable.setIdentifier($(variableText).val());
+                    serviceModel.data.getVariableDeclarations().push(variable);
+
+                    //remove current variable list
+                    if (variablePaneWrapper.children().length > 1) {
+                        variablePaneWrapper.children()[variablePaneWrapper.children().length - 1].remove()
+                    }
+                    self.renderVariables(variableList, variablePaneWrapper, serviceModel);
+                }
             });
 
-            var variableList = serviceModel.getVariableDeclarations();
-
-            for(var variableCount = 0; variableCount < variableList.length; variableCount++){
-                var variableSelect = $("<p><label for=" + variableList[variableCount].getIdentifier() + ">" +
-                    variableList[variableCount].getType() + ":" + variableList[variableCount].getIdentifier() + "</label></p>").appendTo(variablePaneWrapper);
-            }
-
             $(activatorElement).click(serviceModel, function (serviceModel) {
-                if (paneElement.children[1].style.display == "none") {
+                if(paneElement.children[1].style.display== "none" || paneElement.children[1].style.display == "") {
                     paneElement.children[1].style.display = "inline";
                 } else {
                     paneElement.children[1].style.display = "none";

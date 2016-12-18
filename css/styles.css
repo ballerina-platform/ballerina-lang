@@ -212,6 +212,113 @@ ol#breadcrumbList {
     float: right;
 }
 
+.service-variable-pane {
+    background-color: #f3f3f3;
+    padding: 7px 7px 0 7px;
+    height: 38px;
+    position: absolute;
+    top: 25px;
+    right: 35px;
+    display: block;
+    margin: auto;
+}
+
+.service-variable-pane input {
+    padding-left: 5px;
+    height: 25px;
+    /*margin-right: 5px;*/
+}
+
+.service-variable-pane select {
+    height: 25px;
+    margin-right: 5px;
+}
+
+.service-variable-pane form {
+    width: 326px;
+}
+
+.service-variable-pane input {
+    padding-left: 5px;
+    height: 25px;
+    /*margin-right: 5px;*/
+}
+
+.service-variable-pane form > input {
+    margin-right: 5px;
+}
+
+button.variable-list {
+    font-size: small;
+    margin-right: 2px;
+    height: 20px;
+}
+
+label.variable-type-message {
+    color: white;
+    background-color: mediumseagreen;
+    padding: 0 4px 4px 4px;
+    height: 20px;
+}
+
+input.variable-type-message {
+    border-style: solid;
+    border-color: mediumseagreen;
+    height: 20px;
+}
+
+label.variable-type-connection {
+    color: white;
+    background-color: orange;
+    padding: 0 4px 4px 4px;
+    height: 20px;
+}
+
+input.variable-type-connection {
+    border-style: solid;
+    border-color: orange;
+    height: 20px;
+}
+
+label.variable-type-string {
+    color: white;
+    background-color: purple;
+    padding: 0 4px 4px 4px;
+    height: 20px;
+}
+
+input.variable-type-string {
+    border-style: solid;
+    border-color: purple;
+    height: 20px;
+}
+
+label.variable-type-int {
+    color: white;
+    background-color: darkslateblue;
+    padding: 0 4px 4px 4px;
+    height: 20px;
+}
+
+input.variable-type-int {
+    border-style: solid;
+    border-color: darkslateblue;
+    height: 20px;
+}
+
+label.variable-type-exception {
+    color: white;
+    background-color: darkred;
+    padding: 0 4px 4px 4px;
+    height: 20px;
+}
+
+input.variable-type-exception {
+    border-style: solid;
+    border-color: darkred;
+    height: 20px;
+}
+
 .property-panel-svg {
      width: 100%;
      min-height: 500px;

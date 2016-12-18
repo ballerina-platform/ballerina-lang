@@ -32,7 +32,7 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
         return this._mainSVGGroup;
     };
 
-    Canvas.prototype.drawAccordionCanvas = function (parent, options, id, name) {
+    Canvas.prototype.drawAccordionCanvas = function (parent, options, id, name, title) {
         var svgContainer = $('<div style="position:relative; top:0; right:0;"></div>');
         svgContainer.attr('id', id);
         svgContainer.attr('name', name);
@@ -63,7 +63,7 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
         }
         panelTitle.append(panelIcon);
         var titleLink = $('<a>' + canvas[0].getAttribute('name') + '</a>');
-        if (this.title !== undefined) {
+        if (title !== undefined) {
             titleLink.append("&nbsp;" + title);
         }
         titleLink.addClass(_.get(options, 'cssClass.title_link'));
