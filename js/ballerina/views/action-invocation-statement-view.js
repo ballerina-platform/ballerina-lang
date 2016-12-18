@@ -84,7 +84,7 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
          */
         ActionInvocationStatement.prototype.render = function () {
             var actionStatementGroup = D3Utils.group(d3.select(this._container));
-            actionStatementGroup.attr("id","actionStatementGroup");
+            actionStatementGroup.attr("id","_" +this._model.id);
             log.info("Rendering the Get Action Statement.");
 
         };

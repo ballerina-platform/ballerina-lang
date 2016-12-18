@@ -74,10 +74,14 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
         panelRightIcon.addClass(_.get(options, 'cssClass.panel_right_icon'));
         panelTitle.append(panelRightIcon);
 
+        var panelDeleteIcon = $('<i></i>');
+        panelDeleteIcon.addClass(_.get(options, 'cssClass.panel_delete_icon'));
+        panelTitle.append(panelDeleteIcon);
+
         panelHeading.append(panelTitle);
 
         panelHeading.click(function() {
-            $(this).find('i.right-icon-clickable').toggleClass('fw-down fw-up');
+            $(this).find('i.collapser').toggleClass('fw-down fw-up');
         });
 
         var bodyDiv = $('<div></div>');
@@ -126,6 +130,16 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
                 }
             }
             event.stopPropagation();
+        });
+
+        panelDeleteIcon.click(function(event){
+            log.info("Clicked delete button");
+
+            event.stopPropagation();
+
+            var child = self._model;
+            var parent = child.parent;
+            parent.removeChild(child);
         });
     };
 

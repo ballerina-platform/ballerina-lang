@@ -286,6 +286,12 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             return sourceGenVisitor.getGeneratedSource();
         };
 
+        BallerinaFileEditor.prototype.childViewRemovedCallback = function (child) {
+            log.info("[Eventing] Child element view removed. ");
+            //TODO: remove from view map
+            $(this._container.querySelector("#_" +child.id)).remove();
+        };
+
         return BallerinaFileEditor;
     });
 

@@ -47,6 +47,7 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
          */
         CatchStatementView.prototype.render = function () {
             var catchGroup = D3Utils.group(this._container);
+            catchGroup.attr("id","_" +this._model.id);
             var tryBlockBottomY = parseInt(this.getParent().getTryBlockView().getStatementGroup().outerRect.attr('y')) +
                 parseInt(this.getParent().getTryBlockView().getStatementGroup().outerRect.attr('height'));
             var x = parseInt(this.getParent().getTryBlockView().getStatementGroup().outerRect.attr('x'));

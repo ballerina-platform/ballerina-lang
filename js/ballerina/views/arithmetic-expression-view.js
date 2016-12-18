@@ -74,6 +74,7 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/arithmetic-expr
          */
         ArithmeticExpressionView.prototype.render = function () {
             var group = D3Utils.group(d3.select(this._container));
+            group.attr("id","_" +this._model.id);
             var width = 120;
             var height = 30;
             var x = this.getXPosition();

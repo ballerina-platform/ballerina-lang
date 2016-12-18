@@ -49,6 +49,7 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
         IfStatementView.prototype.render = function (diagramRenderingContext) {
             this._diagramRenderingContext = diagramRenderingContext;
             var ifGroup = D3Utils.group(this._container);
+            ifGroup.attr("id","_" +this._model.id);
             // Default width and height of the if statement.
             // TODO: Read these from the constants
             var width = 120;
