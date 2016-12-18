@@ -647,7 +647,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
 
             var outerBoxPadding = parseInt($(serviceContentSvg.parentElement).css("padding"), 10);
             // xPosition = Width of the outer div - padding of outer box - radius of the annotation button - 20(additional value).
-            var xPosition = $(serviceContentSvg.parentElement.parentElement).prev().width() - outerBoxPadding - 18.675 - 20;
+            var xPosition = $(serviceContentSvg.parentElement.parentElement.parentElement).prev().width() - outerBoxPadding - 18.675 - 40;
             // yPosition = (2 X radius of annotation button) + additional distance.
             var yPosition = 75;
 
@@ -664,7 +664,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
                 var outerBoxPadding = parseInt($(serviceContentSvg.parentElement).css("padding"), 10);
 
                 // xPosition = Width of the outer div - padding of outer box - radius of the annotation button - 20(additional value).
-                var xPosition = $(serviceContentSvg.parentElement.parentElement).prev().width() - outerBoxPadding - 18.675 - 20;
+                var xPosition = $(serviceContentSvg.parentElement.parentElement.parentElement).prev().width() - outerBoxPadding - 18.675 - 40;
 
                 $(annotationIconBackgroundCircle.node()).remove();
                 $(annotationIconRect.node()).remove();
@@ -711,7 +711,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
 
             var outerBoxPadding = parseInt($(serviceContentSvg.parentElement).css("padding"), 10);
             // xPosition = Width of the outer div - padding of outer box - radius of the annotation button - 20(additional value).
-            var xPosition = $(serviceContentSvg.parentElement.parentElement).prev().width() - outerBoxPadding - 18.675 - 20;
+            var xPosition = $(serviceContentSvg.parentElement.parentElement.parentElement).prev().width() - outerBoxPadding - 18.675 - 40;
 
             var variableIconGroup = D3utils.group(d3.select(serviceContentSvg));
 
@@ -725,7 +725,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
             $(window).resize(function () {
                 var outerBoxPadding = parseInt($(serviceContentSvg.parentElement).css("padding"), 10);
                 // xPosition = Width of the outer div - padding of outer box - radius of the annotation button - 20(additional value).
-                var xPosition = $(serviceContentSvg.parentElement.parentElement).prev().width() - outerBoxPadding - 18.675 - 20;
+                var xPosition = $(serviceContentSvg.parentElement.parentElement.parentElement).prev().width() - outerBoxPadding - 18.675 - 40;
 
                 $(variableIconBackgroundCircle.node()).remove();
                 $(variableIconRect.node()).remove();

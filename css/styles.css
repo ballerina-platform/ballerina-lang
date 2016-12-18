@@ -218,8 +218,8 @@ ol#breadcrumbList {
     height: 38px;
     position: absolute;
     top: 25px;
-    right: 35px;
-    display: block;
+    right: 55px;
+    display: none;
     margin: auto;
 }
 
