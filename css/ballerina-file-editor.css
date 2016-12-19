@@ -85,10 +85,15 @@
 }
 
 .text-editor{
-    height: 500px;
+    height: 90%;
 }
 
 .view-source-btn{
+    z-index: 1000;
+}
+
+.view-design-btn{
+    position: relative;
     z-index: 1000;
 }
 
