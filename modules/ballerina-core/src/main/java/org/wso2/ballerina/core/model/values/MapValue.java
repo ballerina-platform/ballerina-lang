@@ -172,6 +172,26 @@ public class MapValue<K, V> implements BValue {
         }
     }
 
+    @Override
+    public StringValue getString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("{");
+        if (!this.isEmpty()) {
+            for (int i = 0; i < this.size(); i++) {
+                if (i > 0) {
+                    sb.append(", ");
+                }
+                MapEntry<K, V> entry = values[i];
+                sb.append(entry.getKey().toString());
+                sb.append("=");
+                sb.append("\"");
+                sb.append(entry.getValue().toString());
+                sb.append("\"");
+            }
+        }
+        sb.append("}");
+        return new StringValue(sb.toString());
+    }
 }
 
 

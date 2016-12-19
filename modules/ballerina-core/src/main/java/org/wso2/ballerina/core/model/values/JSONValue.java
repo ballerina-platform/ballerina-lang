@@ -160,4 +160,8 @@ public class JSONValue extends BallerinaMessageDataSource implements BValue<Json
         this.outputStream = outputStream;
     }
 
+    @Override
+    public StringValue getString() {
+        return new StringValue(this.getValue().toString());
+    }
 }

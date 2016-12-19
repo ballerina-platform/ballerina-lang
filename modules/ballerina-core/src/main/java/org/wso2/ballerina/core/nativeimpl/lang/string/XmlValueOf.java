@@ -16,58 +16,39 @@
  *  under the License.
  */
 
-package org.wso2.ballerina.core.nativeimpl.lang.message;
+package org.wso2.ballerina.core.nativeimpl.lang.string;
 
 import org.osgi.service.component.annotations.Component;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
-import org.wso2.ballerina.core.model.util.MessageUtils;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.model.values.MessageValue;
-import org.wso2.ballerina.core.model.values.StringValue;
+import org.wso2.ballerina.core.model.values.XMLValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 
 /**
- * Native function to get payload as String..
- * ballerina.lang.message:getStringPayload
+ * Native function ballerina.lang.string:valueOf.
+ *
+ * @since 1.0.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.message",
-        functionName = "getStringPayload",
-        args = {@Argument(name = "message", type = TypeEnum.MESSAGE)},
+        packageName = "ballerina.lang.string",
+        functionName = "valueOf",
+        args = {@Argument(name = "xml", type = TypeEnum.XML)},
         returnType = {TypeEnum.STRING},
         isPublic = true
 )
 @Component(
-        name = "func.lang.message_getStringPayload",
+        name = "func.lang.string_xmlValueOf",
         immediate = true,
         service = AbstractNativeFunction.class
 )
-public class GetStringPayload extends AbstractNativeFunction {
-
-    private static final Logger LOG = LoggerFactory.getLogger(GetStringPayload.class);
+public class XmlValueOf extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        MessageValue msg = (MessageValue) getArgument(context, 0).getBValue();
-
-        StringValue result;
-        if (msg.isAlreadyRead()) {
-            result = (StringValue ) msg.getBuiltPayload();
-        } else {
-            String payload = MessageUtils.getStringFromInputStream(msg.getValue().getInputStream());
-            result = new StringValue(payload);
-            msg.setBuiltPayload(result);
-            msg.setAlreadyRead(true);
-        }
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Payload in String:" + result.getValue());
-        }
-        
-        return getBValues(result);
+        XMLValue str = (XMLValue) getArgument(context, 0).getBValue();
+        return getBValues(str.getString());
     }
 }

@@ -39,17 +39,16 @@ import java.io.PrintStream;
         isPublic = true
 )
 @Component(
-        name = "native.func.ballerina.lang.system.print",
+        name = "func.lang.system_printlnString",
         immediate = true,
         service = AbstractNativeFunction.class
 )
-public class Println extends AbstractNativeFunction {
+public class PrintlnString extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
-        String param1 = getArgument(ctx, 0).getString();
         // Had to write "System . out . println" (ignore spaces) in another way to deceive the Check style plugin.
         PrintStream out = System.out;
-        out.println(param1);
+        out.println(getArgument(ctx, 0).getString());
         return VOID_RETURN;
     }
 }
