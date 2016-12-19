@@ -563,7 +563,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             //var yPosition = 75;
             var yPosition = parseInt(d3.selectAll(resourceContentSvg.childNodes).select('.resource-content').attr("y")) + 85;
 
-            var annotationIconGroup = D3utils.group(d3.select(resourceContentSvg));
+            var annotationIconGroup = D3utils.group(d3.select(resourceContentSvg).select("#contentGroup"));
 
             var annotationIconBackgroundCircle = D3utils.circle(xPosition, yPosition, 18.675, annotationIconGroup)
                 .classed("annotation-icon-background-circle", true);
@@ -621,7 +621,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             var xPosition = d3.selectAll(resourceContentSvg.childNodes).select('.headingCollapseIcon').attr("x") - 20;
             var yPosition = parseInt(d3.selectAll(resourceContentSvg.childNodes).select('.resource-content').attr("y")) + 40;
 
-            var variableIconGroup = D3utils.group(d3.select(resourceContentSvg));
+            var variableIconGroup = D3utils.group(d3.select(resourceContentSvg).select("#contentGroup"));
 
             var variableIconBackgroundCircle = D3utils.circle(xPosition, yPosition, 18.675, variableIconGroup)
                 .classed("variable-icon-background-circle", true);
