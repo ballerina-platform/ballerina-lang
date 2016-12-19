@@ -34,7 +34,7 @@ import org.wso2.carbon.messaging.CarbonMessage;
  * {@code Get} is the GET action implementation of the HTTP Connector
  */
 @BallerinaAction(
-        packageName = "ballerina.net.connectors.http",
+        packageName = "ballerina.net.http",
         actionName = "get",
         connectorName = HTTPConnector.CONNECTOR_NAME,
         args = {
