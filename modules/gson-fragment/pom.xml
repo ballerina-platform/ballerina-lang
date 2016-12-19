@@ -52,9 +52,7 @@
                         <Import-Package>
                             *;resolution:=optional
                         </Import-Package>
-                        <Private-Package></Private-Package>
                         <Fragment-Host>com.google.gson</Fragment-Host>
-                        <DynamicImport-Package></DynamicImport-Package>
                     </instructions>
                 </configuration>
             </plugin>
