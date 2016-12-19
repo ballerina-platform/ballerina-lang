@@ -88,7 +88,7 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
 
         var bodyDiv = $('<div></div>');
         bodyDiv.addClass(_.get(options, 'cssClass.body_div'));
-        bodyDiv.attr('id', canvas[0].id).attr('aria-labelledby', canvas[0].id + 3).attr('role', 'tabpanel');
+        bodyDiv.attr('id', canvas[0].id).attr('aria-labelledby', canvas[0].id + 3).attr('role', 'tabpanel').attr('class', 'collapse in');
         bodyDiv.addClass(_.get(options, 'cssClass.canvas'));
         bodyDiv.append(canvas);
 

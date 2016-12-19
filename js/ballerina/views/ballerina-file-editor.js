@@ -292,6 +292,13 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             log.info("[Eventing] Child element view removed. ");
             //TODO: remove canvas container for each delete click
             $(this._$canvasContainer)[0].remove();
+
+            var self = this;
+            self.reDraw({
+                model: self._model,
+                container: self._container,
+                viewOptions: self._viewOptions
+            });
         };
 
         /**
@@ -422,22 +429,34 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
         };
 
         BallerinaFileEditor.prototype.reDraw = function (args) {
-            BallerinaView.call(this, args);
-            this._canvasList = _.get(args, 'canvasList', []);
-            this._id = _.get(args, "id", "Ballerina File Editor");
-
-            if (_.isNil(this._model) || !(this._model instanceof BallerinaASTRoot)) {
-                log.error("Ballerina AST Root is undefined or is of different type." + this._model);
-                throw "Ballerina AST Root is undefined or is of different type." + this._model;
+            /*if (!_.has(this._viewOptions, 'design_view.container')) {
+                errMsg = 'unable to find configuration for container';
+                log.error(errMsg);
+                throw errMsg;
             }
-            this.init();
-            this._model.accept(this);
-            this.initResourceLevelDropTarget();
+            // this._viewOptions.container is the root div for tab content
+            var container = $(this._container).find(_.get(this._viewOptions, 'design_view.container'));
+            this._$designViewContainer = container;
+            var canvasContainer = $('<div></div>');
+            canvasContainer.addClass(_.get(this._viewOptions, 'cssClass.canvas_container'));
+            this._$designViewContainer.append(canvasContainer);
+            this._$canvasContainer = canvasContainer;
+            // check whether container element exists in dom
+            if (!container.length > 0) {
+                errMsg = 'unable to find container for file editor with selector: ' + _.get(this._viewOptions, 'design_view.container');
+                log.error(errMsg);
+                throw errMsg;
+            }
 
-            this._model.on('child-added', function(child){
-                this._model.visit(child);
-                this._model.trigger("childVisitedEvent", child);
-            });
+            //this._createPackagePropertyPane(canvasContainer);
+
+            //Registering event listeners
+            this.listenTo(this._model, 'childVisitedEvent', this.childVisitedCallback);
+            this.listenTo(this._model, 'childRemovedEvent', this.childViewRemovedCallback);*/
+
+            this.init();
+
+            this._model.accept(this);
         };
 
         return BallerinaFileEditor;
