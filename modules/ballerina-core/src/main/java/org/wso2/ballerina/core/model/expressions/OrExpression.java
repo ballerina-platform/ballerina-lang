@@ -19,8 +19,11 @@ package org.wso2.ballerina.core.model.expressions;
 
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.NodeVisitor;
+import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BValueRef;
 import org.wso2.ballerina.core.model.values.BooleanValue;
+
+import java.util.function.BiFunction;
 
 import static org.wso2.ballerina.core.model.Operator.OR;
 
@@ -30,6 +33,13 @@ import static org.wso2.ballerina.core.model.Operator.OR;
  * @since 1.0.0
  */
 public class OrExpression extends BinaryLogicalExpression {
+
+    public static final BiFunction<BValueRef, BValueRef, BValueRef> OR_FUNC =
+            (lVal, rVal) -> {
+                BValue resultVal = new BooleanValue(lVal.getBoolean() || rVal.getBoolean());
+                return new BValueRef(resultVal);
+            };
+
     public OrExpression(Expression lExpr, Expression rExpr) {
         super(lExpr, OR, rExpr);
     }
