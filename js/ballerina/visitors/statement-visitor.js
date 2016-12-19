@@ -43,7 +43,7 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
         } else if (node instanceof AST.CatchStatement) {
             return this.canVisitCatchStatement(node);
         } else if (node instanceof AST.WhileStatement) {
-            return this.canVisitWhileStatement(node);
+            return this.canVisitStatement(node);
         } else if (node instanceof AST.Assignment) {
             return this.canVisitAssignment(node);
         } else if (node instanceof AST.ActionInvocationStatement) {
@@ -74,7 +74,7 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
         } else if (node instanceof AST.CatchStatement) {
             return this.beginVisitCatchStatement(node);
         } else if (node instanceof AST.WhileStatement) {
-            return this.beginVisitWhileStatement(node);
+            return this.beginVisitStatement(node);
         } else if (node instanceof AST.Assignment) {
             return this.beginVisitAssignment(node);
         } else if (node instanceof AST.Expression) {
@@ -105,7 +105,7 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
         } else if (node instanceof AST.CatchStatement) {
             return this.visitCatchStatement(node);
         } else if (node instanceof AST.WhileStatement) {
-            return this.visitWhileStatement(node);
+            return this.visitStatement(node);
         } else if (node instanceof AST.Assignment) {
             return this.visitAssignment(node);
         } else if (node instanceof AST.ActionInvocationStatement) {
@@ -136,7 +136,7 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
         } else if (node instanceof AST.CatchStatement) {
             return this.endVisitCatchStatement(node);
         } else if (node instanceof AST.WhileStatement) {
-            return this.endVisitWhileStatement(node);
+            return this.endVisitStatement(node);
         } else if (node instanceof AST.Assignment) {
             return this.endVisitAssignment(node);
         } else if (node instanceof AST.ActionInvocationStatement) {
