@@ -53,10 +53,25 @@ define(['lodash', 'log', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
         };
 
         BallerinaView.prototype.childViewRemovedCallback = function (child) {
+            var ballerinaFileEditor;
             log.info("[Eventing] Child element view removed. ");
-            //TODO: remove from view map
-            $(this._parentView._container)[0].querySelector("#_" + child.id).remove();
-        }
+            //TODO: remove canvas container for each delete click
+            if(!_.isUndefined(this._parentView._$canvasContainer)) {
+                ballerinaFileEditor = this._parentView;
+            }
+            else {
+                ballerinaFileEditor = this._parentView._parentView;
+            }
+
+            $(ballerinaFileEditor._$canvasContainer)[0].remove();
+
+            var self = ballerinaFileEditor;
+            self.reDraw({
+                model: self._model,
+                container: self._container,
+                viewOptions: self._viewOptions
+             });
+        };
 
         return BallerinaView;
     });

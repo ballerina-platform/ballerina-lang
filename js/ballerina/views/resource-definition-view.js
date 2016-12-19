@@ -407,9 +407,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             _.set(statementContainerOpts, 'toolPalette', this.toolPalette);
             this._statementContainer = new StatementContainer(statementContainerOpts);
             this.listenTo(this._statementContainer.getBoundingBox(), 'bottom-edge-moved', function(dy){
-                    if(this._statementContainer.getBoundingBox().getBottom() > this._defaultWorker.getBottomCenter().y()){
-                        this._defaultWorker.getBottomCenter().move(0, dy);
-                    }
+                    this._defaultWorker.getBottomCenter().y(this._statementContainer.getBoundingBox().getBottom());
                     this.getBoundingBox().h(this.getBoundingBox().h() + dy);
             });
             this._statementContainer.render(this.diagramRenderingContext);

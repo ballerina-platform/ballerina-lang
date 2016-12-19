@@ -53,7 +53,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         _.set(this._viewOptions, 'width',  _.get(this._viewOptions, 'width', 120));
         _.set(this._viewOptions, 'height',  _.get(this._viewOptions, 'height', 260));
 
-        _.set(this._viewOptions, 'offset',  _.get(this._viewOptions, 'offset', {top: 100, bottom: 60 }));
+        _.set(this._viewOptions, 'offset',  _.get(this._viewOptions, 'offset', {top: 100, bottom: 100 }));
         _.set(this._viewOptions, 'gap',  _.get(this._viewOptions, 'gap', 10));
 
         this._topCenter =  _.get(this._viewOptions, 'topCenter').clone();
@@ -82,29 +82,96 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
      * @param args {Object}
      */
     StatementContainerView.prototype.renderStatement = function (statement, args) {
-        var topCenter, lastStatementView;
-        // window.alert(this._selectedInnerDropZone);
+        var topCenter, statementView, newDropZoneTopCenter;
+
         if (!_.isEmpty(this._managedStatements)) {
-            var lastStatement = _.last(this._managedStatements),
-                lastStatementView = this.diagramRenderingContext.getViewOfModel(lastStatement),
-                lastStatementViewBBox = lastStatementView.getBoundingBox(),
-                x = lastStatementViewBBox.getTopCenterX(),
-                y = lastStatementViewBBox.y() + lastStatementViewBBox.h() + this._gap;
-                topCenter = new Point(x, y);
+
+            var hasPendingInnerDropRender = _.gte(this._selectedInnerDropZoneIndex, 0);
+            if(hasPendingInnerDropRender){
+                var nextStatement = _.nth(this._managedStatements, this._selectedInnerDropZoneIndex),
+                    nextStatementView = this.diagramRenderingContext.getViewOfModel(nextStatement),
+                    topX = nextStatementView.getBoundingBox().getTopCenterX();
+                    topY = nextStatementView.getBoundingBox().getTop();
+                    topCenter = new Point(topX, topY);
+
+                _.set(args, 'topCenter', topCenter);
+
+                statementView = this._statementViewFactory.getStatementView(args);
+
+                // move next statementView below
+                var newY = statementView.getBoundingBox().getBottom() + this._gap;
+                nextStatementView.getBoundingBox().y(newY);
+
+                // if current index is not 0, meaning we have to do some logic to swap things to fit new top neighbour
+                if(!_.isEqual(this._selectedInnerDropZoneIndex, 0)){
+                    var prevStatement = _.nth(this._managedStatements, this._selectedInnerDropZoneIndex),
+                        prevStatementView = this.diagramRenderingContext.getViewOfModel(prevStatement);
+
+                    // nextStatementView and the prevStatementView are still the neighbours - separate them.
+                    nextStatementView.stopListening(prevStatementView.getBoundingBox(), "bottom-edge-moved");
+
+                    // make new view listen to previous view
+                    statementView.listenTo(prevStatementView.getBoundingBox(), "bottom-edge-moved", function(offsetY){
+                        statementView.getBoundingBox().move(0, offsetY);
+                    });
+                }
+
+                // make next view listen to new view
+                nextStatementView.listenTo(statementView.getBoundingBox(), "bottom-edge-moved", function(offsetY){
+                    nextStatementView.getBoundingBox().move(0, offsetY);
+                });
+
+                statementView.render(this.diagramRenderingContext);
+
+                // insert at specific position
+                this._managedStatements.splice(this._selectedInnerDropZoneIndex, 0, statement);
+
+                // reset index of activatedInnerDropZone after handling inner drop
+                this._selectedInnerDropZoneIndex = -1;
+
+
+                // render a new innerDropZone at last statement block's top
+                var lastStatementView = this.diagramRenderingContext.getViewOfModel(_.last(this._managedStatements)),
+                    lastStatementViewBBox = lastStatementView.getBoundingBox();
+
+                newDropZoneTopCenter = new Point(lastStatementViewBBox.getTopCenterX(),
+                    lastStatementViewBBox.y() - this._gap);
+
+
+            } else {
+                var lastStatement = _.last(this._managedStatements),
+                    lastStatementView = this.diagramRenderingContext.getViewOfModel(lastStatement),
+                    lastStatementViewBBox = lastStatementView.getBoundingBox(),
+                    topX, topY;
+
+                topX = lastStatementViewBBox.getTopCenterX();
+                topY = lastStatementViewBBox.y() + lastStatementViewBBox.h() + this._gap;
+                topCenter = new Point(topX, topY);
+                _.set(args, 'topCenter', topCenter);
+                statementView = this._statementViewFactory.getStatementView(args);
+                this._managedStatements.push(statement);
+                this.setLastStatementView(statementView);
+                statementView.render(this.diagramRenderingContext);
+
+                newDropZoneTopCenter = new Point(statementView.getBoundingBox().getTopCenterX(),
+                                statementView.getBoundingBox() - this._gap);
+            }
+
         } else {
             topCenter = this._topCenter.clone().move(0, this._offset.top);
-        }
-        _.set(args, 'topCenter', topCenter);
+            _.set(args, 'topCenter', topCenter);
+            statementView = this._statementViewFactory.getStatementView(args);
+            this._managedStatements.push(statement);
+            this.setLastStatementView(statementView);
+            statementView.render(this.diagramRenderingContext);
 
-        var statementView = this._statementViewFactory.getStatementView(args);
-        this.setLastStatementView(statementView);
-        statementView.render(this.diagramRenderingContext);
+            // this is the fist statement - create dropzone on top
+            newDropZoneTopCenter = topCenter.clone().move(0, - this._gap);
+        }
 
         this.diagramRenderingContext.setViewOfModel(statement, statementView);
 
-        this._managedStatements.push(statement);
-        var topC = topCenter.clone().move(0, -this._gap);
-        var dropZoneOptions = {width: 120, height: this._gap, topCenter: topC};
+        var dropZoneOptions = {width: 120, height: this._gap, topCenter: newDropZoneTopCenter};
         this._createNextInnerDropZone(dropZoneOptions);
         return statementView;
     };
@@ -114,8 +181,11 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
                 this.stopListening(this._lastStatementView.getBoundingBox(), 'bottom-edge-moved');
             }
             this._lastStatementView = lastStatementView;
-            this.getBoundingBox().h(this.getBoundingBox().h() + lastStatementView.getBoundingBox().h());
-            this.listenTo(lastStatementView.getBoundingBox(), 'bottom-edge-moved', function(dy){
+
+            this.getBoundingBox().h((this._lastStatementView.getBoundingBox().getBottom() - this.getBoundingBox().getTop()) +
+                    _.get(this._viewOptions, 'offset.bottom'));
+
+            this.listenTo(this._lastStatementView.getBoundingBox(), 'bottom-edge-moved', function(dy){
                     this.getBoundingBox().h(this.getBoundingBox().h() + dy);
             })
     };
@@ -162,7 +232,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
                return -1;
            }
            var neighbourStatement = _.nth(self._managedStatements, self._selectedInnerDropZoneIndex),
-               newNodeIndex = self._model.getIndexOfChild(neighbourStatement) + 1;
+               newNodeIndex = self._model.getIndexOfChild(neighbourStatement);
            log.debug("Index for the dropped node is " + newNodeIndex);
            return newNodeIndex;
         };

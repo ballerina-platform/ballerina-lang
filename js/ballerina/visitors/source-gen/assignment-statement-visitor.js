@@ -30,7 +30,7 @@ define(['require','lodash', 'log', 'event_channel', './abstract-statement-source
         };
 
         AssignmentStatementVisitor.prototype.beginVisitAssignment = function(assignmentStatement){
-            this.appendSource(assignmentStatement.getVariableAccessor() + ' = ' + assignmentStatement.getExpression());
+            this.appendSource(assignmentStatement.getExpression());
             log.debug('Begin Visit assignment Statement Definition');
         };
 

@@ -32,10 +32,10 @@ define(['log', 'jquery', 'd3', 'backbone', 'lodash', 'd3utils'], function (log, 
             var toolView = this;
             return function (event, ui) {
                 if(toolView.toolPalette.dragDropManager.isAtValidDropTarget()){
-                    if(toolView.toolPalette.dragDropManager.getDroppedNodeIndex() >= 0){
+                    var indexForNewNode = toolView.toolPalette.dragDropManager.getDroppedNodeIndex();
+                    if(indexForNewNode >= 0){
                         toolView.toolPalette.dragDropManager.getActivatedDropTarget()
-                            .addChild(toolView.toolPalette.dragDropManager.getTypeBeingDragged(),
-                                toolView.toolPalette.dragDropManager.getDroppedNodeIndex());
+                            .addChild(toolView.toolPalette.dragDropManager.getTypeBeingDragged(), indexForNewNode);
                     } else {
                         toolView.toolPalette.dragDropManager.getActivatedDropTarget()
                             .addChild(toolView.toolPalette.dragDropManager.getTypeBeingDragged());

@@ -25,7 +25,7 @@ define(['require','lodash', 'log', 'event_channel', './abstract-source-gen-visit
         LogicalExpressionVisitor.prototype = Object.create(AbstractSourceGenVisitor.prototype);
         LogicalExpressionVisitor.prototype.constructor = LogicalExpressionVisitor;
 
-        LogicalExpressionVisitor.prototype.canVisitExpression = function(expression){
+        LogicalExpressionVisitor.prototype.canVisitStatement = function(expression){
             if(expression instanceof AST.LogicalExpression) {
                 return true;
             } else {
@@ -33,17 +33,17 @@ define(['require','lodash', 'log', 'event_channel', './abstract-source-gen-visit
             }
         };
 
-        LogicalExpressionVisitor.prototype.beginVisitExpression = function(expression){
+        LogicalExpressionVisitor.prototype.beginVisitStatement = function(expression){
             var source = expression.getExpression();
             this.appendSource(source);
             log.debug('Begin Visit Logical expression');
         };
 
-        LogicalExpressionVisitor.prototype.visitExpression = function(expression){
+        LogicalExpressionVisitor.prototype.visitStatement = function(expression){
             log.debug('Visit Logical expression');
         };
 
-        LogicalExpressionVisitor.prototype.endVisitExpression = function(expression){
+        LogicalExpressionVisitor.prototype.endVisitStatement = function(expression){
             this.appendSource(";\n");
             this.getParent().appendSource(this.getGeneratedSource());
             log.info('End Visit Logical expression');
