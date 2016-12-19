@@ -18,18 +18,15 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-
     <parent>
         <groupId>org.wso2.ballerina</groupId>
         <artifactId>ballerina</artifactId>
         <version>1.0.0-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
-
     <modelVersion>4.0.0</modelVersion>
     <artifactId>ballerina-fragment</artifactId>
     <packaging>bundle</packaging>
-
     <name>WSO2 Ballerina - Fragment</name>
     <url>http://wso2.org</url>
 
@@ -41,25 +38,6 @@
     </dependencies>
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>create-patch-jar</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                        <configuration>
-                            <finalName>patch</finalName>
-                            <archive>
-                                <index>true</index>
-                            </archive>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
@@ -80,7 +58,6 @@
                     </instructions>
                 </configuration>
             </plugin>
-            
              <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -90,7 +67,7 @@
             </plugin>
         </plugins>
     </build>
-        
+
     <properties>
         <gson.export.version>2.7</gson.export.version>
     </properties>
