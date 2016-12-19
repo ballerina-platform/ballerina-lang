@@ -290,8 +290,8 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
 
         BallerinaFileEditor.prototype.childViewRemovedCallback = function (child) {
             log.info("[Eventing] Child element view removed. ");
-            //TODO: remove from view map
-            $(this._container.querySelector("#_" +child.id)).remove();
+            //TODO: remove canvas container for each delete click
+            $(this._$canvasContainer)[0].remove();
         };
 
         /**
@@ -418,6 +418,25 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                         });
                     });
                 }
+            });
+        };
+
+        BallerinaFileEditor.prototype.reDraw = function (args) {
+            BallerinaView.call(this, args);
+            this._canvasList = _.get(args, 'canvasList', []);
+            this._id = _.get(args, "id", "Ballerina File Editor");
+
+            if (_.isNil(this._model) || !(this._model instanceof BallerinaASTRoot)) {
+                log.error("Ballerina AST Root is undefined or is of different type." + this._model);
+                throw "Ballerina AST Root is undefined or is of different type." + this._model;
+            }
+            this.init();
+            this._model.accept(this);
+            this.initResourceLevelDropTarget();
+
+            this._model.on('child-added', function(child){
+                this._model.visit(child);
+                this._model.trigger("childVisitedEvent", child);
             });
         };
 
