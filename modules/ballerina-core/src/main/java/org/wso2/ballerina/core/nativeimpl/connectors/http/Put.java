@@ -31,12 +31,12 @@ import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
- * {@code Post} is the POST action implementation of the HTTP Connector
+ * {@code Put} is the PUT action implementation of the HTTP Connector
  *
  */
 @BallerinaAction(
         packageName = "ballerina.net.connectors.http",
-        actionName = "post",
+        actionName = "put",
         connectorName = HTTPConnector.CONNECTOR_NAME,
         args = {
                 @Argument(name = "connector",
@@ -46,17 +46,17 @@ import org.wso2.carbon.messaging.CarbonMessage;
         },
         returnType = {TypeEnum.MESSAGE})
 @Component(
-        name = "action.net.http.post",
+        name = "action.net.http.put",
         immediate = true,
         service = AbstractNativeAction.class)
-public class Post extends AbstractHTTPAction {
+public class Put extends AbstractHTTPAction {
 
-    private static final Logger logger = LoggerFactory.getLogger(Post.class);
+    private static final Logger logger = LoggerFactory.getLogger(Put.class);
 
     @Override
     public BValueRef execute(Context context) {
 
-        logger.debug("Executing Native Action : Post");
+        logger.debug("Executing Native Action : Put");
 
         // Extract Argument values
         ConnectorValue connectorValue = (ConnectorValue) getArgument(context, 0).getBValue();
@@ -72,7 +72,7 @@ public class Post extends AbstractHTTPAction {
         // Prepare the message
         prepareRequest(connector, path, cMsg);
         cMsg.setProperty(org.wso2.ballerina.core.runtime.net.http.Constants.HTTP_METHOD,
-                         org.wso2.ballerina.core.runtime.net.http.Constants.HTTP_METHOD_POST);
+                         org.wso2.ballerina.core.runtime.net.http.Constants.HTTP_METHOD_PUT);
 
         // Execute the operation
         return executeAction(context, cMsg);
