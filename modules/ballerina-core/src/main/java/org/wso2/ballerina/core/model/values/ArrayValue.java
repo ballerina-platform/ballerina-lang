@@ -17,6 +17,8 @@
 */
 package org.wso2.ballerina.core.model.values;
 
+import java.util.Arrays;
+
 /**
  * {@code ArrayType} represents an array
  *
@@ -97,5 +99,10 @@ public class ArrayValue<T> implements BValue {
     @Override
     public T[] getValue() {
         return thisArray;
+    }
+
+    @Override
+    public StringValue getString() {
+        return new StringValue(Arrays.toString(this.getValue()));
     }
 }

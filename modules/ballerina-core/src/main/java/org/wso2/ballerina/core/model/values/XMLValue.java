@@ -99,4 +99,9 @@ public class XMLValue extends BallerinaMessageDataSource implements BValue<OMEle
             throw new BallerinaException("Error occurred during writing the message to the output stream", e);
         }
     }
+
+    @Override
+    public StringValue getString() {
+        return new StringValue(this.getValue().toString());
+    }
 }

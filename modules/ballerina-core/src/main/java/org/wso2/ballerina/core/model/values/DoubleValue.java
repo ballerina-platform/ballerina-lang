@@ -36,4 +36,9 @@ public class DoubleValue implements BValue<Double> {
     public void setValue(double value) {
         this.value = value;
     }
+
+    @Override
+    public StringValue getString() {
+        return new StringValue(this.getValue().toString());
+    }
 }

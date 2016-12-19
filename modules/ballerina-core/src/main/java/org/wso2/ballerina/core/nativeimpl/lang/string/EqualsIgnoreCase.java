@@ -28,7 +28,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 
 /**
- * Native function ballerina.lang.string:equalsIgnoreCase
+ * Native function ballerina.lang.string:equalsIgnoreCase.
  *
  * @since 1.0.0
  */

@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.wso2.ballerina.core.nativeimpl.lang.message;
+package org.wso2.ballerina.core.model.util;
 
 import com.google.gson.JsonElement;
 import org.wso2.ballerina.core.exception.BallerinaException;
@@ -43,7 +43,7 @@ import java.util.regex.Pattern;
 /**
  * Common Utils methods used in Message.
  */
-public class Utils {
+public class MessageUtils {
 
     /**
      * Convert input stream to String.

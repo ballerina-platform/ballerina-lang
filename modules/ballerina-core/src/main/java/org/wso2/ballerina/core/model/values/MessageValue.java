@@ -18,6 +18,7 @@
 package org.wso2.ballerina.core.model.values;
 
 import org.wso2.ballerina.core.message.BallerinaMessageDataSource;
+import org.wso2.ballerina.core.model.util.MessageUtils;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.Header;
 import org.wso2.carbon.messaging.Headers;
@@ -164,4 +165,15 @@ public class MessageValue implements BValue<CarbonMessage> {
         headers.set(list);
     }
 
+    @Override
+    public StringValue getString() {
+        StringValue value;
+        if (this.isAlreadyRead()) {
+            value = new StringValue(getBuiltPayload().getString().getValue());
+        } else {
+            String payload = MessageUtils.getStringFromInputStream(this.getValue().getInputStream());
+            value = new StringValue(payload);
+        }
+        return value;
+    }
 }

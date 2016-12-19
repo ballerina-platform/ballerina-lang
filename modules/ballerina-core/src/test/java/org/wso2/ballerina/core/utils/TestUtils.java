@@ -27,7 +27,7 @@ import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.builder.BLangModelBuilder;
 import org.wso2.ballerina.core.model.util.LangModelUtils;
 import org.wso2.ballerina.core.nativeimpl.connectors.http.Post;
-import org.wso2.ballerina.core.nativeimpl.lang.system.Log;
+import org.wso2.ballerina.core.nativeimpl.lang.system.LogString;
 import org.wso2.ballerina.core.parser.BallerinaLexer;
 import org.wso2.ballerina.core.parser.BallerinaParser;
 import org.wso2.ballerina.core.parser.antlr4.BLangAntlr4Listener;
@@ -100,7 +100,7 @@ public class TestUtils {
 
         symScope.insert(symbolName, symbol);
 
-        Log log = new Log();
+        LogString log = new LogString();
         symbolName = LangModelUtils.getSymNameWithParams(
                 "ballerina.lang.system:log",
                 log.getParameters());
