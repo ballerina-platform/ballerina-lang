@@ -138,10 +138,6 @@ do
           CMD="--debug"
     elif [ "$CMD" = "--debug" ] && [ -z "$PORT" ]; then
           PORT=$c
-    elif [ "$c" = "--bargs" ] || [ "$c" = "-bargs" ] || [ "$c" = "bargs" ]; then
-          CMD="--bargs" 
-    elif [ "$CMD" = "--bargs" ] && [ -z "$BARGS" ]; then
-          BARGS=$c
     elif [ "$c" = "--stop" ] || [ "$c" = "-stop" ] || [ "$c" = "stop" ]; then
           CMD="stop"
     elif [ "$c" = "--start" ] || [ "$c" = "-start" ] || [ "$c" = "start" ]; then
@@ -153,10 +149,14 @@ do
     elif [ "$c" = "--test" ] || [ "$c" = "-test" ] || [ "$c" = "test" ]; then
           CMD="test"
     elif [ "$c" = "--run" ] || [ "$c" = "-run" ] || [ "$c" = "run" ]; then
-              SUB_CMD="run-this"
-              continue
-    elif [ "$SUB_CMD" = "run-this" ] && [ -z "$BAL_FILE_NAME" ]; then
+          BAL_EXECUTION_CMD="run-this"
+          continue
+    elif [ "$BAL_EXECUTION_CMD" = "run-this" ] && [ -z "$BAL_FILE_NAME" ]; then
           BAL_FILE_NAME=$c
+    elif [ "$c" = "--bargs" ] || [ "$c" = "-bargs" ] || [ "$c" = "bargs" ]; then
+          BAL_EXECUTION_SUB_CMD="bargs" 
+    elif [ "$BAL_EXECUTION_SUB_CMD" = "bargs" ] && [ -z "$BARGS" ]; then
+          BARGS=$c
     else
         args="$args $c"
     fi
@@ -264,7 +264,7 @@ status=$START_EXIT_STATUS
 #To monitor a Carbon server in remote JMX mode on linux host machines, set the below system property.
 #   -Djava.rmi.server.hostname="your.IP.goes.here"
 
-if [ "$SUB_CMD" = "run-this" ]; then
+if [ "$BAL_EXECUTION_CMD" = "run-this" ]; then
    if [[ "$BAL_FILE_NAME" != /* ]]; then
         BAL_FILE_NAME="$BASE_DIR/$BAL_FILE_NAME"
    fi
@@ -272,10 +272,10 @@ if [ "$SUB_CMD" = "run-this" ]; then
   echo "Running the Ballerina file $BAL_FILE_NAME"
 fi
 
-if [ "$CMD" = "--bargs" ]; then
+if [ "$BAL_EXECUTION_SUB_CMD" = "bargs" ]; then
   if [[ "$BARGS" != " " ]]; then
   JAVA_OPTS="$JAVA_OPTS -Dbal-args=$BARGS"
-  echo "Running the Ballerina with arguments $BARGS"
+  echo "Arguments : $BARGS"
   fi
 fi
 
