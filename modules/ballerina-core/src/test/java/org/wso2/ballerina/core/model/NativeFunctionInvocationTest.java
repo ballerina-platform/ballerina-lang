@@ -31,8 +31,8 @@ import org.wso2.ballerina.core.model.types.StringType;
 import org.wso2.ballerina.core.model.types.Type;
 import org.wso2.ballerina.core.model.values.BValueRef;
 import org.wso2.ballerina.core.model.values.StringValue;
-import org.wso2.ballerina.core.nativeimpl.lang.system.Print;
-import org.wso2.ballerina.core.nativeimpl.lang.system.Println;
+import org.wso2.ballerina.core.nativeimpl.lang.system.PrintString;
+import org.wso2.ballerina.core.nativeimpl.lang.system.PrintlnString;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -199,14 +199,14 @@ public class NativeFunctionInvocationTest {
 
         FunctionInvocationExpr invocationExprPrint = new FunctionInvocationExpr(
                 new SymbolName("print"), nestedFunctionInvokeExpr);
-        invocationExprPrint.setFunction(new Print());
+        invocationExprPrint.setFunction(new PrintString());
 
         invocationExprPrint.evaluate(ctx);
 
         nestedFunctionInvokeExpr.add(varRefExprOriginal);
         FunctionInvocationExpr invocationExprPrintln = new FunctionInvocationExpr(
                 new SymbolName("println"), nestedFunctionInvokeExpr);
-        invocationExprPrintln.setFunction(new Println());
+        invocationExprPrintln.setFunction(new PrintlnString());
 
         invocationExprPrintln.evaluate(ctx);
 

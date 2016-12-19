@@ -31,3 +31,5 @@ native function add(json j, string jsonPath, string key, boolean value);
 native function remove(json j, string jsonPath);
 
 native function rename(json j, string jsonPath, string oldKey, string newKey);
+
+native function toString(json j) (string);

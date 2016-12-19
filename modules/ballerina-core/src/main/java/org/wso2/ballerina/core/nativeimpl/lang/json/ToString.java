@@ -16,58 +16,45 @@
  *  under the License.
  */
 
-package org.wso2.ballerina.core.nativeimpl.lang.message;
+package org.wso2.ballerina.core.nativeimpl.lang.json;
 
 import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
-import org.wso2.ballerina.core.model.util.MessageUtils;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.model.values.MessageValue;
-import org.wso2.ballerina.core.model.values.StringValue;
+import org.wso2.ballerina.core.model.values.JSONValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 
 /**
- * Native function to get payload as String..
- * ballerina.lang.message:getStringPayload
+ * Native function ballerina.lang.json:toString
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.message",
-        functionName = "getStringPayload",
-        args = {@Argument(name = "message", type = TypeEnum.MESSAGE)},
+        packageName = "ballerina.lang.json",
+        functionName = "toString",
+        args = {@Argument(name = "json", type = TypeEnum.JSON)},
         returnType = {TypeEnum.STRING},
         isPublic = true
 )
 @Component(
-        name = "func.lang.message_getStringPayload",
+        name = "func.lang.json_toString",
         immediate = true,
         service = AbstractNativeFunction.class
 )
-public class GetStringPayload extends AbstractNativeFunction {
+public class ToString extends AbstractJSONFunction {
 
-    private static final Logger LOG = LoggerFactory.getLogger(GetStringPayload.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ToString.class);
 
     @Override
-    public BValue[] execute(Context context) {
-        MessageValue msg = (MessageValue) getArgument(context, 0).getBValue();
-
-        StringValue result;
-        if (msg.isAlreadyRead()) {
-            result = (StringValue ) msg.getBuiltPayload();
-        } else {
-            String payload = MessageUtils.getStringFromInputStream(msg.getValue().getInputStream());
-            result = new StringValue(payload);
-            msg.setBuiltPayload(result);
-            msg.setAlreadyRead(true);
-        }
+    public BValue<?>[] execute(Context ctx) {
+        // Accessing Parameters.
+        JSONValue json = (JSONValue) getArgument(ctx, 0).getBValue();
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Payload in String:" + result.getValue());
+            LOG.debug("Output JSON: " + json.getString().getValue());
         }
-        
-        return getBValues(result);
+        return getBValues(json.getString());
     }
 }

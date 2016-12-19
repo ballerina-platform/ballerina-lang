@@ -27,7 +27,7 @@ import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.builder.BLangModelBuilder;
 import org.wso2.ballerina.core.model.util.SymbolUtils;
 import org.wso2.ballerina.core.nativeimpl.connectors.http.Post;
-import org.wso2.ballerina.core.nativeimpl.lang.system.Log;
+import org.wso2.ballerina.core.nativeimpl.lang.system.LogString;
 import org.wso2.ballerina.core.parser.BallerinaLexer;
 import org.wso2.ballerina.core.parser.BallerinaParser;
 import org.wso2.ballerina.core.parser.antlr4.BLangAntlr4Listener;
@@ -74,7 +74,7 @@ public class TestUtils {
         // Create a global symbol scope
         SymScope symScope = new SymScope(null);
 
-        //        Println println = new Println();
+        //        PrintlnString println = new PrintlnString();
         //        SymbolName symbolName = SymbolUtils.generateSymbolName(
         //                "ballerina.lang.system:println",
         //                println.getParameters());
@@ -88,7 +88,7 @@ public class TestUtils {
 
 
 
-//        Println println = new Println();
+//        PrintlnString println = new PrintlnString();
 //        SymbolName symbolName = SymbolUtils.generateSymbolName(
 //                "ballerina.lang.system:println",
 //                println.getParameters());
@@ -99,7 +99,7 @@ public class TestUtils {
 
         symScope.insert(symbolName, symbol);
 
-        Log log = new Log();
+        LogString log = new LogString();
         symbolName = SymbolUtils.generateSymbolName(
                 "ballerina.lang.system:log",
                 log.getParameters());
