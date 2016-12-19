@@ -26,6 +26,7 @@ import org.wso2.ballerina.core.model.types.LongType;
 import org.wso2.ballerina.core.model.types.MessageType;
 import org.wso2.ballerina.core.model.types.StringType;
 import org.wso2.ballerina.core.model.types.Type;
+import org.wso2.ballerina.core.model.types.XMLType;
 
 /**
  * Factory for creating value of a given type.
@@ -49,6 +50,8 @@ public class ValueFactory {
             return new BValueRef(new BooleanValue(false));
         } else if (type instanceof JSONType) {
             return new BValueRef(new JSONValue("{}"));
+        } else if (type instanceof XMLType) {
+            return new BValueRef(new XMLValue("<root></root>"));
         } else if (type instanceof MessageType) {
             return new BValueRef(new MessageValue(null));
         } else {

@@ -142,7 +142,13 @@ public class MapValue<K, V> implements BValue {
         return this.values;
     }
 
-    private class MapEntry<K, V> {
+    /**
+     * Class represent an entry in a ballerina Map
+     * 
+     * @param <K>   ClassType of the Key
+     * @param <V>   ClassType of value
+     */
+    public class MapEntry<K, V> {
         private final K key;
         private V value;
 
@@ -150,12 +156,12 @@ public class MapValue<K, V> implements BValue {
             this.key = key;
             this.value = value;
         }
-
-        K getKey() {
+        
+        public K getKey() {
             return key;
         }
 
-        V getValue() {
+        public V getValue() {
             return value;
         }
 

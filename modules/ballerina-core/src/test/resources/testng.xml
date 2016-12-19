@@ -20,7 +20,7 @@ under the License.
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
 <suite name="ballerina-test-suite">
-    <test name="ballerina-model-unit-tests" preserve-order="true" parallel="false">
+    <!--<test name="ballerina-model-unit-tests" preserve-order="true" parallel="false">
         <classes>
             <class name="org.wso2.ballerina.core.model.FunctionInvocationTest" />
             <class name="org.wso2.ballerina.core.model.WhileStmtTest" />
@@ -28,14 +28,15 @@ under the License.
             <class name="org.wso2.ballerina.core.model.RecursiveFuncTest" />
             <class name="org.wso2.ballerina.core.model.NativeFunctionInvocationTest" />
             <class name="org.wso2.ballerina.core.model.NativeJSONFunctionTest" />
+	        <class name="org.wso2.ballerina.core.model.NativeXMLFunctionTest" />
             <class name="org.wso2.ballerina.core.model.NativeMessageFunctionTest" />
         </classes>
-    </test>
+    </test>  -->
     <test name="ballerina-parser-unit-tests" preserve-order="true" parallel="false">
         <classes>
-            <class name="org.wso2.ballerina.core.parser.BallerinaBaseListenerImplTest" />
-            <class name="org.wso2.ballerina.core.parser.WhileStatemetParserTest" />
-            <class name="org.wso2.ballerina.core.parser.visitor.BallerinaBaseVisitorImplTest" />
+            <class name="org.wso2.ballerina.core.parser.LocalFuncInvocationTest" />
+            <class name="org.wso2.ballerina.core.parser.BLangInterpreterTest" />
+            <class name="org.wso2.ballerina.core.parser.InvalidSyntaxParserTest" />
         </classes>
     </test>
 </suite>

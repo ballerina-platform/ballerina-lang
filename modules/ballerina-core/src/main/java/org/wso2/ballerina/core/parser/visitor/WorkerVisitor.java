@@ -54,7 +54,7 @@ public class WorkerVisitor extends BallerinaBaseVisitor {
         for (BallerinaParser.VariableDeclarationContext varDclCtx : ctx.variableDeclaration()) {
             VariableDcl variableDcl = (VariableDcl) varDclCtx.accept(variableDeclarationVisitor);
             variableDclList.add(variableDcl);
-            workerSymbolTable.put(variableDcl.getSymbolName(),
+            workerSymbolTable.put(variableDcl.getName(),
                     BValueFactory.createBValueFromVariableDeclaration(variableDcl));
         }
 

@@ -16,23 +16,38 @@
 
 package org.wso2.ballerina.core.nativeimpl.lang.message;
 
+import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.Context;
+import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.MessageValue;
 import org.wso2.ballerina.core.model.values.XMLValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
+import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
+import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 
 /**
  * Get the payload of the Message as a XML
  */
+@BallerinaFunction(
+        packageName = "ballerina.lang.message",
+        functionName = "getXmlPayload",
+        args = {@Argument(name = "message", type = TypeEnum.MESSAGE)},
+        returnType = {TypeEnum.XML},
+        isPublic = true
+)
+@Component(
+        name = "func.lang.echo_getXmlPayload",
+        immediate = true,
+        service = AbstractNativeFunction.class
+)
 public class GetXMLPayload extends AbstractNativeFunction {
     private static final Logger log = LoggerFactory.getLogger(GetXMLPayload.class);
 
     @Override
     public BValue[] execute(Context context) {
-        log.info("Get XMLPayload Native Function Invoked.");
         // Accessing First Parameter Value.
         MessageValue msg = (MessageValue) getArgument(context, 0).getBValue();
 

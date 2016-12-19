@@ -17,12 +17,12 @@
 */
 package org.wso2.ballerina.core.model.expressions;
 
-import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BValueRef;
 import org.wso2.ballerina.core.model.values.BooleanValue;
-import org.wso2.ballerina.core.utils.TriFunction;
+
+import java.util.function.BiFunction;
 
 import static org.wso2.ballerina.core.model.Operator.NOT_EQUAL;
 
@@ -33,39 +33,34 @@ import static org.wso2.ballerina.core.model.Operator.NOT_EQUAL;
  */
 public class NotEqualExpression extends BinaryEqualityExpression {
 
-    public static final TriFunction<Context, Expression, Expression, BValueRef> NOT_EQUAL_INT_FUNC =
-            (ctx, lExpr, rExpr) -> {
-                boolean result = lExpr.evaluate(ctx).getInt() != rExpr.evaluate(ctx).getInt();
-                BValue bValue = new BooleanValue(result);
-                return new BValueRef(bValue);
+    public static final BiFunction<BValueRef, BValueRef, BValueRef> NOT_EQUAL_INT_FUNC =
+            (lVal, rVal) -> {
+                BValue resultVal = new BooleanValue(lVal.getInt() != rVal.getInt());
+                return new BValueRef(resultVal);
             };
 
-    public static final TriFunction<Context, Expression, Expression, BValueRef> NOT_EQUAL_LONG_FUNC =
-            (ctx, lExpr, rExpr) -> {
-                boolean result = lExpr.evaluate(ctx).getLong() != rExpr.evaluate(ctx).getLong();
-                BValue bValue = new BooleanValue(result);
-                return new BValueRef(bValue);
+    public static final BiFunction<BValueRef, BValueRef, BValueRef> NOT_EQUAL_LONG_FUNC =
+            (lVal, rVal) -> {
+                BValue resultVal = new BooleanValue(lVal.getLong() != rVal.getLong());
+                return new BValueRef(resultVal);
             };
 
-    public static final TriFunction<Context, Expression, Expression, BValueRef> NOT_EQUAL_FLOAT_FUNC =
-            (ctx, lExpr, rExpr) -> {
-                boolean result = lExpr.evaluate(ctx).getFloat() != rExpr.evaluate(ctx).getFloat();
-                BValue bValue = new BooleanValue(result);
-                return new BValueRef(bValue);
+    public static final BiFunction<BValueRef, BValueRef, BValueRef> NOT_EQUAL_FLOAT_FUNC =
+            (lVal, rVal) -> {
+                BValue resultVal = new BooleanValue(lVal.getFloat() != rVal.getFloat());
+                return new BValueRef(resultVal);
             };
 
-    public static final TriFunction<Context, Expression, Expression, BValueRef> NOT_EQUAL_DOUBLE_FUNC =
-            (ctx, lExpr, rExpr) -> {
-                boolean result = lExpr.evaluate(ctx).getDouble() != rExpr.evaluate(ctx).getDouble();
-                BValue bValue = new BooleanValue(result);
-                return new BValueRef(bValue);
+    public static final BiFunction<BValueRef, BValueRef, BValueRef> NOT_EQUAL_DOUBLE_FUNC =
+            (lVal, rVal) -> {
+                BValue resultVal = new BooleanValue(lVal.getDouble() != rVal.getDouble());
+                return new BValueRef(resultVal);
             };
 
-    public static final TriFunction<Context, Expression, Expression, BValueRef> NOT_EQUAL_STRING_FUNC =
-            (ctx, lExpr, rExpr) -> {
-                boolean result = !lExpr.evaluate(ctx).getString().equals(rExpr.evaluate(ctx).getString());
-                BValue bValue = new BooleanValue(result);
-                return new BValueRef(bValue);
+    public static final BiFunction<BValueRef, BValueRef, BValueRef> NOT_EQUAL_STRING_FUNC =
+            (lVal, rVal) -> {
+                BValue resultVal = new BooleanValue(!lVal.getString().equals(rVal.getString()));
+                return new BValueRef(resultVal);
             };
 
     public NotEqualExpression(Expression lExpr, Expression rExpr) {
@@ -73,7 +68,7 @@ public class NotEqualExpression extends BinaryEqualityExpression {
     }
 
     @Override
-    public void visit(NodeVisitor visitor) {
+    public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 }

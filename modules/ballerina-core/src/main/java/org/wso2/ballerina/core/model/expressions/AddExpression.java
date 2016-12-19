@@ -17,7 +17,6 @@
 */
 package org.wso2.ballerina.core.model.expressions;
 
-import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.Operator;
 import org.wso2.ballerina.core.model.values.BValue;
@@ -27,7 +26,8 @@ import org.wso2.ballerina.core.model.values.FloatValue;
 import org.wso2.ballerina.core.model.values.IntValue;
 import org.wso2.ballerina.core.model.values.LongValue;
 import org.wso2.ballerina.core.model.values.StringValue;
-import org.wso2.ballerina.core.utils.TriFunction;
+
+import java.util.function.BiFunction;
 
 /**
  * {@code AddExpression} represents a binary add expression
@@ -36,44 +36,34 @@ import org.wso2.ballerina.core.utils.TriFunction;
  */
 public class AddExpression extends BinaryArithmeticExpression {
 
-    public static final TriFunction<Context, Expression, Expression, BValueRef> ADD_INT_FUNC =
-            (ctx, lExpr, rExpr) -> {
-                IntValue lValue = (IntValue) lExpr.evaluate(ctx).getBValue();
-                IntValue rValue = (IntValue) rExpr.evaluate(ctx).getBValue();
-                BValue bValue = new IntValue(lValue.getValue() + rValue.getValue());
-                return new BValueRef(bValue);
+    public static final BiFunction<BValueRef, BValueRef, BValueRef> ADD_INT_FUNC =
+            (lVal, rVal) -> {
+                BValue resultVal = new IntValue(lVal.getInt() + rVal.getInt());
+                return new BValueRef(resultVal);
             };
 
-    public static final  TriFunction<Context, Expression, Expression, BValueRef> ADD_LONG_FUNC =
-            (ctx, lExpr, rExpr) -> {
-                LongValue lValue = (LongValue) lExpr.evaluate(ctx).getBValue();
-                LongValue rValue = (LongValue) rExpr.evaluate(ctx).getBValue();
-                BValue bValue = new LongValue(lValue.getValue() + rValue.getValue());
-                return new BValueRef(bValue);
+    public static final BiFunction<BValueRef, BValueRef, BValueRef> ADD_LONG_FUNC =
+            (lVal, rVal) -> {
+                BValue resultVal = new LongValue(lVal.getLong() + rVal.getLong());
+                return new BValueRef(resultVal);
             };
 
-    public static final  TriFunction<Context, Expression, Expression, BValueRef> ADD_FLOAT_FUNC =
-            (ctx, lExpr, rExpr) -> {
-                FloatValue lValue = (FloatValue) lExpr.evaluate(ctx).getBValue();
-                FloatValue rValue = (FloatValue) rExpr.evaluate(ctx).getBValue();
-                BValue bValue = new FloatValue(lValue.getValue() + rValue.getValue());
-                return new BValueRef(bValue);
+    public static final BiFunction<BValueRef, BValueRef, BValueRef> ADD_FLOAT_FUNC =
+            (lVal, rVal) -> {
+                BValue resultVal = new FloatValue(lVal.getFloat() + rVal.getFloat());
+                return new BValueRef(resultVal);
             };
 
-    public static final  TriFunction<Context, Expression, Expression, BValueRef> ADD_DOUBLE_FUNC =
-            (ctx, lExpr, rExpr) -> {
-                DoubleValue lValue = (DoubleValue) lExpr.evaluate(ctx).getBValue();
-                DoubleValue rValue = (DoubleValue) rExpr.evaluate(ctx).getBValue();
-                BValue bValue = new DoubleValue(lValue.getValue() + rValue.getValue());
-                return new BValueRef(bValue);
+    public static final BiFunction<BValueRef, BValueRef, BValueRef> ADD_DOUBLE_FUNC =
+            (lVal, rVal) -> {
+                BValue resultVal = new DoubleValue(lVal.getDouble() + rVal.getDouble());
+                return new BValueRef(resultVal);
             };
 
-    public static final  TriFunction<Context, Expression, Expression, BValueRef> ADD_STRING_FUNC =
-            (ctx, lExpr, rExpr) -> {
-                StringValue lValue = (StringValue) lExpr.evaluate(ctx).getBValue();
-                StringValue rValue = (StringValue) rExpr.evaluate(ctx).getBValue();
-                BValue bValue = new StringValue(lValue.getValue() + rValue.getValue());
-                return new BValueRef(bValue);
+    public static final BiFunction<BValueRef, BValueRef, BValueRef> ADD_STRING_FUNC =
+            (lVal, rVal) -> {
+                BValue resultVal = new StringValue(lVal.getString() + rVal.getString());
+                return new BValueRef(resultVal);
             };
 
     public AddExpression(Expression lExpr, Expression rExpr) {
@@ -81,7 +71,7 @@ public class AddExpression extends BinaryArithmeticExpression {
     }
 
     @Override
-    public void visit(NodeVisitor visitor) {
+    public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 }

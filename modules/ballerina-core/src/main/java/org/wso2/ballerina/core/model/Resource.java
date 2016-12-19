@@ -18,6 +18,8 @@
 
 package org.wso2.ballerina.core.model;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.interpreter.ControlStack;
 import org.wso2.ballerina.core.interpreter.StackFrame;
@@ -25,14 +27,18 @@ import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.model.types.MessageType;
 import org.wso2.ballerina.core.model.values.BValueRef;
+import org.wso2.ballerina.core.model.values.ConnectorValue;
 import org.wso2.ballerina.core.model.values.MessageValue;
 import org.wso2.ballerina.core.runtime.core.BalCallback;
 import org.wso2.ballerina.core.runtime.core.Executable;
+import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
+import org.wso2.carbon.messaging.Header;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * A {@code Resource} is a single request handler within a {@code Service}.
@@ -54,12 +60,15 @@ import java.util.Map;
 @SuppressWarnings("unused")
 public class Resource implements Executable, Node {
 
+    private static final Logger LOG = LoggerFactory.getLogger(Resource.class);
+
     // TODO Refactor
     private Map<String, Annotation> annotationMap = new HashMap<>();
     private List<Parameter> arguments = new ArrayList<>();
     private List<Worker> workerList = new ArrayList<>();
     private Worker defaultWorker;
     private String name;
+    private int stackFrameSize;
 
     private Annotation[] annotations;
     private Parameter[] parameters;
@@ -176,8 +185,8 @@ public class Resource implements Executable, Node {
      *
      * @return list of all the Connections belongs to the default Worker of the Resource
      */
-    public List<ConnectorDcl> getConnectorDcls() {
-        return defaultWorker.getConnectorDcls();
+    public ConnectorDcl[] getConnectorDcls() {
+        return connectorDcls;
     }
 
     /**
@@ -279,23 +288,98 @@ public class Resource implements Executable, Node {
         defaultWorker.addStatement(statement);
     }
 
+
+    /**
+     *  Get resource body
+     * @return returns the block statement
+     */
+    public BlockStmt getResourceBody() {
+        return resourceBody;
+    }
+
+
+    /**
+     * Get variable declarations
+     * @return returns the variable declarations
+     */
+    public VariableDcl[] getVariableDcls() {
+        return variableDcls;
+    }
+
     public String getName() {
         return name;
     }
 
     @Override
     public boolean execute(Context context, BalCallback callback) {
+        //setupBallerinaRuntime(context);
         populateDefaultMessage(context);
         return defaultWorker.execute(context, callback);
+    }
+
+    private void setupBallerinaRuntime(Context ctx) {
+
+        // Create control stack and the stack frame
+        //BContext ctx = new BContext();
+        ControlStack controlStack = ctx.getControlStack();
+
+        int sizeOfValueArray = this.getStackFrameSize();
+
+        BValueRef[] values = new BValueRef[sizeOfValueArray];
+
+        int i = 0;
+        Parameter[] parameters = this.getParameters();
+        for (Parameter param: parameters) {
+            values[i] = BValueRef.getDefaultValue(param.getTypeC());
+            i++;
+        }
+
+        // Create default values for all declared local variables
+        VariableDcl[] variableDcls = this.getVariableDcls();
+        for (VariableDcl variableDcl : variableDcls) {
+            values[i] = BValueRef.getDefaultValue(variableDcl.getTypeC());
+            i++;
+        }
+
+        StackFrame stackFrame = new StackFrame(values, null);
+        controlStack.pushFrame(stackFrame);
+
     }
 
     private void populateDefaultMessage(Context context) {
         // Adding MessageValue to the ControlStack
         ControlStack controlStack = context.getControlStack();
-        BValueRef[] valueParams = new BValueRef[1];
-        valueParams[0] = new BValueRef(new MessageValue(context.getCarbonMessage()));
+        BValueRef[] valueParams = new BValueRef[this.stackFrameSize];
+        // Populate MessageValue with CarbonMessages' headers.
+        MessageValue messageValue = new MessageValue(context.getCarbonMessage());
+        List<Header> headerList = context.getCarbonMessage().getHeaders().getAll();
+        messageValue.setHeaderList(headerList);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Populate headers from CarbonMessage.");
+            Consumer<Header> headerPrint = (Header header) -> LOG
+                    .debug("Header: " + header.getName() + " -> " + header.getValue());
+            headerList.forEach(headerPrint);
+        }
+        valueParams[0] = new BValueRef(messageValue);
+        
+        int i = 1;
+        // Create default values for all declared local variables
+        VariableDcl[] variableDcls = this.getVariableDcls();
+        for (VariableDcl variableDcl : variableDcls) {
+            valueParams[i] = BValueRef.getDefaultValue(variableDcl.getTypeC());
+            i++;
+        }
 
-        StackFrame stackFrame = new StackFrame(valueParams, null, new BValueRef[0]);
+        for (ConnectorDcl connectorDcl : connectorDcls) {
+            ConnectorValue connectorValue = new ConnectorValue(
+                    GlobalScopeHolder.getInstance().getScope().lookup(connectorDcl.getConnectorName()).getConnector(),
+                    connectorDcl.getArgExprs());
+            valueParams[i] = new BValueRef(connectorValue);
+        }
+        
+        BValueRef[] ret = new BValueRef[1];
+
+        StackFrame stackFrame = new StackFrame(valueParams, ret);
         // ToDo : StackFrame should be added at the upstream components.
         controlStack.pushFrame(stackFrame);
 
@@ -304,8 +388,21 @@ public class Resource implements Executable, Node {
         arguments.add(paramMessage);
     }
 
+    public int getStackFrameSize() {
+        return stackFrameSize;
+    }
+
+    public void setStackFrameSize(int stackFrameSize) {
+        this.stackFrameSize = stackFrameSize;
+    }
+
     @Override
-    public void visit(NodeVisitor visitor) {
+    public void accept(NodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+
+    public Parameter[] getParameters() {
+        return parameters;
     }
 }

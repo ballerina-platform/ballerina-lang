@@ -18,22 +18,23 @@
 
 package org.wso2.ballerina.core.runtime.core;
 
-import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.carbon.messaging.CarbonCallback;
+import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
  * Default implementation of {@code BalCallback}
  */
 public class DefaultBalCallback implements BalCallback {
 
-    CarbonCallback carbonCallback;
+    protected CarbonCallback parentCallback;
 
-    public DefaultBalCallback(CarbonCallback carbonCallback) {
-        this.carbonCallback = carbonCallback;
+
+    public DefaultBalCallback(CarbonCallback parentCallback) {
+        this.parentCallback = parentCallback;
     }
 
     @Override
-    public void done(Context balContext) {
-        carbonCallback.done(balContext.getCarbonMessage());
+    public void done(CarbonMessage carbonMessage) {
+        parentCallback.done(carbonMessage);
     }
 }

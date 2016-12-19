@@ -32,23 +32,24 @@ import java.util.Map;
  */
 public class Package {
 
-    private String fullQualifiedName;
+    private String fullyQualifiedName;
     private String name;
 
     private List<BallerinaFile> files = new ArrayList<>();
     private List<Service> services = new ArrayList<>();
     private Map<String, Function> publicFunctions = new HashMap<>();
     private Map<String, Function> privateFunctions = new HashMap<>();
+    private Map<String, Action> actions = new HashMap<>();
     private List<StructType> types = new ArrayList<StructType>();
     //TODO: add TypeConverters and Constants
 
 
     /**
-     * @param fullQualifiedName Full qualified name of the package
+     * @param fullyQualifiedName Full qualified name of the package
      */
-    public Package(String fullQualifiedName) {
-        this.fullQualifiedName = fullQualifiedName;
-        name = fullQualifiedName.substring(fullQualifiedName.lastIndexOf(".") + 1);
+    public Package(String fullyQualifiedName) {
+        this.fullyQualifiedName = fullyQualifiedName;
+        name = fullyQualifiedName.substring(fullyQualifiedName.lastIndexOf(".") + 1);
     }
 
     /**
@@ -56,8 +57,8 @@ public class Package {
      *
      * @return FQN of the package
      */
-    public String getFullQualifiedName() {
-        return fullQualifiedName;
+    public String getFullyQualifiedName() {
+        return fullyQualifiedName;
     }
 
     /**
@@ -157,4 +158,11 @@ public class Package {
         return types;
     }
 
+    /**
+     *  Get a  {@code Action} in the package
+     * @return Action
+     */
+    public Map<String, Action> getActions() {
+        return actions;
+    }
 }

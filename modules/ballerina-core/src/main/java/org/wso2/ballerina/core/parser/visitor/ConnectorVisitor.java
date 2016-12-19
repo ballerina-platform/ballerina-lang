@@ -18,9 +18,9 @@
 package org.wso2.ballerina.core.parser.visitor;
 
 import org.wso2.ballerina.core.interpreter.SymbolTable;
-import org.wso2.ballerina.core.model.Action;
 import org.wso2.ballerina.core.model.Annotation;
-import org.wso2.ballerina.core.model.Connector;
+import org.wso2.ballerina.core.model.BallerinaAction;
+import org.wso2.ballerina.core.model.BallerinaConnector;
 import org.wso2.ballerina.core.model.ConnectorDcl;
 import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.SymbolName;
@@ -50,8 +50,9 @@ public class ConnectorVisitor extends BallerinaBaseVisitor {
      */
     @Override
     public Object visitConnectorDeclaration(BallerinaParser.ConnectorDeclarationContext ctx) {
-        ConnectorDcl connection = new ConnectorDcl(ctx.qualifiedReference().get(0).Identifier().getText(),
-                new SymbolName(ctx.Identifier().getText()));
+        ConnectorDcl connection =  null;
+//                new ConnectorDcl(ctx.qualifiedReference().get(0).Identifier().getText(),
+//                new SymbolName(ctx.Identifier().getText()));
         // TODO: 12/11/16 : Need to read the argument list and set to the connection object
 //        if(ctx.expressionList() != null) {
 //            for(BallerinaParser.ExpressionContext ec : ctx.expressionList().expression()) {
@@ -72,7 +73,7 @@ public class ConnectorVisitor extends BallerinaBaseVisitor {
     @Override
     public Object visitConnectorDefinition(BallerinaParser.ConnectorDefinitionContext ctx) {
         SymbolName connectorName = new SymbolName(ctx.Identifier().getText());
-        Connector connectorObject = new Connector(connectorName, null, null, null, null);
+        BallerinaConnector connectorObject = new BallerinaConnector(connectorName, null, null, null, null);
 
         // Read the annotations
         AnnotationVisitor annotationVisitor = new AnnotationVisitor();
@@ -100,14 +101,14 @@ public class ConnectorVisitor extends BallerinaBaseVisitor {
                 ctx.connectorBody().variableDeclaration()) {
             VariableDcl variableDcl = (VariableDcl) variableDeclarationContext.accept(variableDeclarationVisitor);
             connectorObject.addVariable(variableDcl);
-            connectorSymbolTable.put(variableDcl.getSymbolName(),
+            connectorSymbolTable.put(variableDcl.getName(),
                     BValueFactory.createBValueFromVariableDeclaration(variableDcl));
         }
 
         // Read the action definitions
         ActionVisitor actionVisitor = new ActionVisitor(connectorSymbolTable);
         for (BallerinaParser.ActionDefinitionContext adc : ctx.connectorBody().actionDefinition()) {
-            connectorObject.addAction((Action) adc.accept(actionVisitor));
+            connectorObject.addAction((BallerinaAction) adc.accept(actionVisitor));
         }
 
         return connectorObject;

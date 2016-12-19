@@ -192,6 +192,12 @@
                 <artifactId>tapestry-json</artifactId>
                 <version>${tapestry.json.orbit.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-all</artifactId>
+                <version>${mockito.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -200,8 +206,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>${maven.surefire.plugin.version}</version>
-                <inherited>false</inherited>
+                <!-- <inherited>false</inherited> -->
                 <configuration>
                     <environmentVariables>
                         <testEnvironmentVariable>EnvironmentVariable</testEnvironmentVariable>
@@ -313,6 +318,7 @@
         <!-- Dependencies -->
         <carbon.kernel.version>5.1.0</carbon.kernel.version>
         <carbon.kernel.package.import.version.range>[5.0.0, 6.0.0)</carbon.kernel.package.import.version.range>
+        <carbon.kernel.pax.version>5.2.0-SNAPSHOT</carbon.kernel.pax.version>
 
         <carbon.transport.version>2.1.17</carbon.transport.version>
         <carbon.transport.package.import.version.range>[2.0.0, 2.2.0)</carbon.transport.package.import.version.range>
@@ -339,12 +345,24 @@
         <!-- xml depependencies -->
         <orbit.version.axiom>1.2.20</orbit.version.axiom>
         <saxon.wso2.version>9.7.0.wso2v1</saxon.wso2.version>
+        <saxon.import.version.range>[9.7.0.wso2v1,9.8.0)</saxon.import.version.range>
         <javax.mail.version>1.4</javax.mail.version>
         <jaxen.version>1.1.6</jaxen.version>
+        <jaxen.import.version.range>[1.1.6,1.2.0)</jaxen.import.version.range>
         <commons.logging.version>1.2</commons.logging.version>
         <geronimo.activation>1.1</geronimo.activation>
         <geronimo.stax>1.0.1</geronimo.stax>
         <mime4j.version>0.7.2</mime4j.version>
+
+        <!--pax-exam dependencies-->
+        <javax.inject.version>1</javax.inject.version>
+        <pax.exam.version>4.6.0</pax.exam.version>
+        <pax.exam.testng.version>4.6.0</pax.exam.testng.version>
+        <pax.exam.link.mvn.version>4.6.0</pax.exam.link.mvn.version>
+        <ow2.jta.spec.version>1.0.12</ow2.jta.spec.version>
+        <jacoco.version>0.7.5.201505241946</jacoco.version>
+        <maven.paxexam.plugin.version>1.2.4</maven.paxexam.plugin.version>
+        <mockito.version>1.9.0</mockito.version>
 
     </properties>
 
@@ -352,6 +370,7 @@
         <module>modules/ballerina-core</module>
         <module>modules/features</module>
         <module>modules/distribution</module>
+        <module>modules/tests</module>
     </modules>
 
 </project>

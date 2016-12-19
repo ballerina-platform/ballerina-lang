@@ -42,12 +42,20 @@ public class ReturnStmt implements Statement {
         this.exprs = exprs;
     }
 
+    public Expression[] getExprs() {
+        return exprs;
+    }
+
     public void interpret(Context ctx) {
-        ctx.getControlStack().getCurrentFrame().returnValue.setBValue(expr.evaluate(ctx).getBValue());
+        for (Expression expr : exprs) {
+            expr.evaluate(ctx);
+        }
+
+//        ctx.getControlStack().getCurrentFrame().returnValue.setBValue(expr.evaluate(ctx).getBValue());
     }
 
     @Override
-    public void visit(NodeVisitor visitor) {
+    public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 
@@ -60,6 +68,10 @@ public class ReturnStmt implements Statement {
         List<Expression> expressionList = new ArrayList<>();
 
         public ReturnStmtBuilder() {
+        }
+
+        public void setExpressionList(List<Expression> expressionList) {
+            this.expressionList = expressionList;
         }
 
         public void addExpression(Expression expr) {

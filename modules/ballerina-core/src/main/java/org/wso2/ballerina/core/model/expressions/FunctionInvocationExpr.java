@@ -19,7 +19,6 @@ package org.wso2.ballerina.core.model.expressions;
 
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.interpreter.ControlStack;
-import org.wso2.ballerina.core.interpreter.StackFrame;
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.model.NodeVisitor;
@@ -40,11 +39,33 @@ public class FunctionInvocationExpr extends AbstractExpression {
 
     private SymbolName functionName;
     private List<Expression> expressionList;
+    private Expression[] exprs;
     private Function calleeFunction;
 
     public FunctionInvocationExpr(SymbolName functionName, List<Expression> expressionList) {
         this.functionName = functionName;
         this.expressionList = expressionList;
+    }
+
+    public FunctionInvocationExpr(SymbolName functionName, Expression[] exprs) {
+        this.functionName = functionName;
+        this.exprs = exprs;
+    }
+
+    public SymbolName getFunctionName() {
+        return functionName;
+    }
+
+    public void setFunctionName(SymbolName symbolName) {
+        this.functionName = symbolName;
+    }
+
+    public Expression[] getExprs() {
+        return exprs;
+    }
+
+    public Function getFunction() {
+        return calleeFunction;
     }
 
     public void setFunction(Function function) {
@@ -68,9 +89,9 @@ public class FunctionInvocationExpr extends AbstractExpression {
         // Return bValueRef
         // TODO Support multiple return types
         BValueRef returnValue = null;
-        if (calleeFunction.getReturnTypes().length > 0) {
-            returnValue = ValueFactory.creteValue(calleeFunction.getReturnTypes()[0]);
-        }
+//        if (calleeFunction.getReturnTypes().length > 0) {
+//            returnValue = ValueFactory.creteValue(calleeFunction.getReturnTypes()[0]);
+//        }
 
         BValueRef[] localVariables = new BValueRef[0];
         if (calleeFunction instanceof BallerinaFunction) {
@@ -87,8 +108,8 @@ public class FunctionInvocationExpr extends AbstractExpression {
         }
 
         ControlStack controlStack = ctx.getControlStack();
-        StackFrame stackFrame = new StackFrame(funcParams, returnValue, localVariables);
-        controlStack.pushFrame(stackFrame);
+//        StackFrame stackFrame = new StackFrame(funcParams, returnValue, localVariables);
+//        controlStack.pushFrame(stackFrame);
 
         calleeFunction.interpret(ctx);
         controlStack.popFrame();
@@ -96,7 +117,7 @@ public class FunctionInvocationExpr extends AbstractExpression {
     }
 
     @Override
-    public void visit(NodeVisitor visitor) {
+    public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 }

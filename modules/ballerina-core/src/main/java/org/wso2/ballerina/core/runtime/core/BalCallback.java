@@ -18,12 +18,11 @@
 
 package org.wso2.ballerina.core.runtime.core;
 
-import org.wso2.ballerina.core.interpreter.Context;
+import org.wso2.carbon.messaging.CarbonCallback;
 
 /**
  * {@BalCallback} represent the Callback interface for Ballerina
  */
-public interface BalCallback {
-    void done(Context balContext);
+public interface BalCallback extends CarbonCallback {
 
 }

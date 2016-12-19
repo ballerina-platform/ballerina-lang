@@ -17,10 +17,12 @@
 */
 package org.wso2.ballerina.core.interpreter;
 
+import org.wso2.ballerina.core.model.values.BValueRef;
+
 import java.util.Stack;
 
 /**
- * {@code ControlStack} is used to manage functions calls and returns.
+ * {@code ControlStack} represents function call stack.
  *
  * @since 1.0.0
  */
@@ -30,7 +32,7 @@ public class ControlStack {
     private StackFrame currentFrame;
 
     public ControlStack() {
-        stack = new Stack<StackFrame>();
+        stack = new Stack<>();
     }
 
     public StackFrame pushFrame(StackFrame frame) {
@@ -46,5 +48,21 @@ public class ControlStack {
 
     public StackFrame getCurrentFrame() {
         return currentFrame;
+    }
+
+    public BValueRef getValue(int offset) {
+        return currentFrame.values[offset];
+    }
+
+    public void setValue(int offset, BValueRef bValueRef) {
+        currentFrame.values[offset] = bValueRef;
+    }
+
+    public BValueRef getReturnValue(int offset) {
+        return currentFrame.returnValues[offset];
+    }
+
+    public void setReturnValue(int offset, BValueRef bValueRef) {
+        currentFrame.returnValues[offset] = bValueRef;
     }
 }

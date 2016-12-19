@@ -18,7 +18,8 @@
 
 package org.wso2.ballerina.core.model;
 
-import java.util.ArrayList;
+import org.wso2.ballerina.core.model.expressions.Expression;
+
 import java.util.List;
 
 /**
@@ -30,20 +31,17 @@ import java.util.List;
 public class ConnectorDcl implements Node {
 
     /* Name of the Connector which Connection is instantiated against */
-    String connectorName;
+    SymbolName connectorName;
 
     /* Name of the Connection instance */
-    SymbolName connectionSymbolName;
+    SymbolName varName;
 
-    List<String> argValues;
+    Expression[] argExprs;
 
-    /**
-     * @param connectorName        Name of the Connector which Connection is instantiated against
-     * @param connectionSymbolName Identifier of the Connection instance
-     */
-    public ConnectorDcl(String connectorName, SymbolName connectionSymbolName) {
+    public ConnectorDcl(SymbolName connectorName, SymbolName varName, Expression[] argExprs) {
         this.connectorName = connectorName;
-        this.connectionSymbolName = connectionSymbolName;
+        this.varName = varName;
+        this.argExprs = argExprs;
     }
 
     /**
@@ -51,7 +49,7 @@ public class ConnectorDcl implements Node {
      *
      * @return name of the Connector
      */
-    public String getConnectorName() {
+    public SymbolName getConnectorName() {
         return connectorName;
     }
 
@@ -60,8 +58,8 @@ public class ConnectorDcl implements Node {
      *
      * @return identifier of the Connection instance
      */
-    public SymbolName getConnectionSymbolName() {
-        return connectionSymbolName;
+    public SymbolName getVarName() {
+        return varName;
     }
 
     /**
@@ -69,33 +67,40 @@ public class ConnectorDcl implements Node {
      *
      * @return list of argument values
      */
-    public List<String> getArgValues() {
-        return argValues;
-    }
-
-    /**
-     * Assign argument values to the Connection
-     *
-     * @param argValues list of argument values
-     */
-    public void setArgValues(List<String> argValues) {
-        this.argValues = argValues;
-    }
-
-    /**
-     * Add an {@code Argument} value to the Connection
-     *
-     * @param arg argument value
-     */
-    public void addArg(String arg) {
-        if (argValues == null) {
-            argValues = new ArrayList<String>();
-        }
-        argValues.add(arg);
+    public Expression[] getArgExprs() {
+        return argExprs;
     }
 
     @Override
-    public void visit(NodeVisitor visitor) {
+    public void accept(NodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    /**
+     *
+     */
+    public static class ConnectorDclBuilder {
+        private SymbolName connectorName;
+        private SymbolName varName;
+        private List<Expression> exprList;
+
+        public void setConnectorName(SymbolName connectorName) {
+            this.connectorName = connectorName;
+        }
+
+        public void setVarName(SymbolName varName) {
+            this.varName = varName;
+        }
+
+        public void setExprList(List<Expression> exprList) {
+            this.exprList = exprList;
+        }
+
+        public ConnectorDcl build() {
+            return new ConnectorDcl(
+                    connectorName,
+                    varName,
+                    exprList.toArray(new Expression[exprList.size()]));
+        }
     }
 }

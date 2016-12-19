@@ -17,18 +17,33 @@
 */
 package org.wso2.ballerina.core.model;
 
+import org.wso2.ballerina.core.model.types.TypeC;
+
 /**
- * {@code Identifier} represents an identifier in Ballerina
- * <p>
- * Here only the name of the identifier is stored.
- *
+ * {@code SymbolName} represents an identifier in Ballerina
+ * *
  * @since 1.0.0
  */
 public class SymbolName {
+
     private String name;
+    private SymType symType;
+//    private Symbol symbol;
+    private TypeC[] parameters;
 
     public SymbolName(String name) {
         this.name = name;
+    }
+
+    public SymbolName(String name, SymType symType) {
+        this.name = name;
+        this.symType = symType;
+    }
+
+    public SymbolName(String name, SymType symType, TypeC[] parameters) {
+        this.name = name;
+        this.symType = symType;
+        this.parameters = parameters;
     }
 
     /**
@@ -40,12 +55,37 @@ public class SymbolName {
         return name;
     }
 
+    public void setSymType(SymType symType) {
+        this.symType = symType;
+    }
+
+//    public void setSymbol(Symbol symbol) {
+//        this.symbol = symbol;
+//    }
+
+    public TypeC[] getParameters() {
+        return parameters;
+    }
+
+    @Override
     public boolean equals(Object obj) {
         SymbolName other = (SymbolName) obj;
         return this.name.equals(other.getName());
     }
 
+    @Override
     public int hashCode() {
-        return name.length();
+        int result = name.hashCode();
+        result = 31 * result;
+        return result;
+    }
+
+    /**
+     *
+     */
+    public enum SymType {
+        VARIABLE,
+        CALLABLE_UNIT,
+        CALLABLE_UNIT_GROUP
     }
 }

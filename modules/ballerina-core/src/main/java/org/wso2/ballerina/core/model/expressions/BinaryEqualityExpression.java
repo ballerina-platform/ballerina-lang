@@ -34,7 +34,7 @@ public class BinaryEqualityExpression extends BinaryExpression {
     }
 
     @Override
-    public void visit(NodeVisitor visitor) {
+    public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 }

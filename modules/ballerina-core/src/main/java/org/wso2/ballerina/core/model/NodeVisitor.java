@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerina.core.model;
 
+import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.AddExpression;
 import org.wso2.ballerina.core.model.expressions.AndExpression;
 import org.wso2.ballerina.core.model.expressions.BasicLiteral;
@@ -35,6 +36,7 @@ import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.statements.CommentStmt;
+import org.wso2.ballerina.core.model.statements.FunctionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.IfElseStmt;
 import org.wso2.ballerina.core.model.statements.ReplyStmt;
 import org.wso2.ballerina.core.model.statements.ReturnStmt;
@@ -45,15 +47,17 @@ import org.wso2.ballerina.core.model.statements.WhileStmt;
  */
 public interface NodeVisitor {
 
+    void visit(BallerinaFile bFile);
+
     void visit(Service service);
 
-    void visit(Connector connector);
+    void visit(BallerinaConnector connector);
 
     void visit(Resource resource);
 
     void visit(BallerinaFunction function);
 
-    void visit(Action action);
+    void visit(BallerinaAction action);
 
     void visit(Worker worker);
 
@@ -81,9 +85,11 @@ public interface NodeVisitor {
 
     void visit(WhileStmt whileStmt);
 
+    void visit(FunctionInvocationStmt functionInvocationStmt);
+
     // Expressions
 
-    void visit(AddExpression addExpression);
+    void visit(AddExpression addExpr);
 
     void visit(AndExpression andExpression);
 
@@ -92,6 +98,8 @@ public interface NodeVisitor {
     void visit(EqualExpression equalExpression);
 
     void visit(FunctionInvocationExpr functionInvocationExpr);
+
+    void visit(ActionInvocationExpr actionInvocationExpr);
 
     void visit(GreaterEqualExpression greaterEqualExpression);
 

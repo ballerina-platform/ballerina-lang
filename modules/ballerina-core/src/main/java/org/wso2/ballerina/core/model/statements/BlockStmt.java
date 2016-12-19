@@ -49,7 +49,7 @@ public class BlockStmt implements Statement {
     }
 
     @Override
-    public void visit(NodeVisitor visitor) {
+    public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 

@@ -17,8 +17,8 @@
 */
 package org.wso2.ballerina.core.model.builder;
 
-import org.wso2.ballerina.core.model.Action;
 import org.wso2.ballerina.core.model.Annotation;
+import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.ConnectorDcl;
 import org.wso2.ballerina.core.model.Parameter;
@@ -27,15 +27,17 @@ import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.VariableDcl;
 import org.wso2.ballerina.core.model.Worker;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
-import org.wso2.ballerina.core.model.types.Type;
+import org.wso2.ballerina.core.model.types.TypeC;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * {@code CallableUnitBuilder} builds Functions, Actions and Resources
- * <p>
- * A CallableUnit represents a Function, an Action or a Resource
+ * {@code CallableUnitBuilder} is a builder class responsible for building Functions, Actions and Resources
+ * <p/>
+ * A CallableUnit represents a Function, an Action or a Resource.
+ *
+ * @since 1.0.0
  */
 class CallableUnitBuilder {
 
@@ -43,7 +45,7 @@ class CallableUnitBuilder {
     private List<Annotation> annotationList = new ArrayList<>();
     private boolean publicFunc;
     private List<Parameter> parameterList = new ArrayList<>();
-    private List<Type> rTypesList = new ArrayList<>();
+    private List<TypeC> rTypesList = new ArrayList<>();
     private List<ConnectorDcl> connectorDclList = new ArrayList<>();
     private List<VariableDcl> variableDclList = new ArrayList<>();
     private List<Worker> workerList = new ArrayList<>();
@@ -68,7 +70,7 @@ class CallableUnitBuilder {
         this.parameterList.add(param);
     }
 
-    void addReturnType(Type type) {
+    void addReturnType(TypeC type) {
         this.rTypesList.add(type);
     }
 
@@ -89,41 +91,28 @@ class CallableUnitBuilder {
     }
 
     BallerinaFunction buildFunction() {
-        return new BallerinaFunction(
-                name,
-                publicFunc,
-                annotationList.toArray(new Annotation[annotationList.size()]),
+        return new BallerinaFunction(name, publicFunc, annotationList.toArray(new Annotation[annotationList.size()]),
                 parameterList.toArray(new Parameter[parameterList.size()]),
-                rTypesList.toArray(new Type[rTypesList.size()]),
+                rTypesList.toArray(new TypeC[rTypesList.size()]),
                 connectorDclList.toArray(new ConnectorDcl[connectorDclList.size()]),
                 variableDclList.toArray(new VariableDcl[variableDclList.size()]),
-                workerList.toArray(new Worker[workerList.size()]),
-                body
-        );
+                workerList.toArray(new Worker[workerList.size()]), body);
     }
 
     Resource buildResource() {
-        return new Resource(
-                name,
-                annotationList.toArray(new Annotation[annotationList.size()]),
+        return new Resource(name, annotationList.toArray(new Annotation[annotationList.size()]),
                 parameterList.toArray(new Parameter[parameterList.size()]),
                 connectorDclList.toArray(new ConnectorDcl[connectorDclList.size()]),
                 variableDclList.toArray(new VariableDcl[variableDclList.size()]),
-                workerList.toArray(new Worker[workerList.size()]),
-                body
-        );
+                workerList.toArray(new Worker[workerList.size()]), body);
     }
 
-    Action buildAction() {
-        return new Action(
-                name,
-                annotationList.toArray(new Annotation[annotationList.size()]),
+    BallerinaAction buildAction() {
+        return new BallerinaAction(name, annotationList.toArray(new Annotation[annotationList.size()]),
                 parameterList.toArray(new Parameter[parameterList.size()]),
-                rTypesList.toArray(new Type[rTypesList.size()]),
+                rTypesList.toArray(new TypeC[rTypesList.size()]),
                 connectorDclList.toArray(new ConnectorDcl[connectorDclList.size()]),
                 variableDclList.toArray(new VariableDcl[variableDclList.size()]),
-                workerList.toArray(new Worker[workerList.size()]),
-                body
-        );
+                workerList.toArray(new Worker[workerList.size()]), body);
     }
 }
