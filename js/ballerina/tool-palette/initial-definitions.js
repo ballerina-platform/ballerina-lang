@@ -95,7 +95,24 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
             nodeFactoryMethod: BallerinaASTFactory.createActionInvocationStatement
         };
 
-        var statementToolDefArray = [createIfStatementTool, createTryCatchStatementTool, createAssignmentExpressionTool, createLogicalExpressionTool, createActionInvocationTool];
+        var createReplyStatementTool = {
+            id: "Reply",
+            name: "Reply",
+            icon: "images/tool-icons/dgm-try-catch.svg",
+            title: "Reply",
+            nodeFactoryMethod: BallerinaASTFactory.createReplyStatement
+        };
+
+        var createArithmeticExpressionTool = {
+            id: "Arithmetic",
+            name: "Arithmetic",
+            icon: "images/tool-icons/dgm-try-catch.svg",
+            title: "Arithmetic",
+            nodeFactoryMethod: BallerinaASTFactory.createArithmeticExpression
+        };
+
+        var statementToolDefArray = [createIfStatementTool, createTryCatchStatementTool, createAssignmentExpressionTool,
+            createLogicalExpressionTool, createActionInvocationTool, createReplyStatementTool, createArithmeticExpressionTool];
 
         // Create statements tool group
         var statementsToolGroup = new ToolGroup({

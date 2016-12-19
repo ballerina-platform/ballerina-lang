@@ -16,9 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor', './ballerina-view'], function(log, _, $, d3, D3Utils, AstVisitor, BallerinaView){
+define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor', './ballerina-view', './message-manager'], function(log, _, $, d3, D3Utils, AstVisitor, BallerinaView, MessageManager){
 
     var Canvas = function(args) {
+        args.messageManager = new MessageManager();
         BallerinaView.call(this, args);
     };
 

@@ -115,6 +115,8 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
         };
 
         ServiceDefinitionView.prototype.onLastResourceBottomEdgeMoved = function (dy) {
+            this._totalHeight = this._totalHeight + dy;
+            this.setServiceContainerHeight(this._totalHeight);
             this._clientLifeLine.getBottomCenter().move(0, dy);
         };
 
