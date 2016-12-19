@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerina.core.linker;
 
+import org.wso2.ballerina.core.exception.LinkerException;
 import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.interpreter.SymTable;
 import org.wso2.ballerina.core.model.BallerinaFile;
@@ -50,7 +51,7 @@ public class BLangLinker {
 
                 Symbol symbol = symTable.lookup(symbolName);
                 if (symbol == null) {
-                    throw new RuntimeException("Undefined function: " + funcIExpr.getFunctionName().getName());
+                    throw new LinkerException("Undefined function: " + funcIExpr.getFunctionName().getName());
                 }
                 // Linking
                 funcIExpr.setFunction(symbol.getFunction());
@@ -64,7 +65,8 @@ public class BLangLinker {
 
                 Symbol symbol = symTable.lookup(symbolName);
                 if (symbol == null) {
-                    throw new RuntimeException("Undefined function: " + actionInvocationExpr.getActionName().getName());
+                    throw new LinkerException("Undefined function: " +
+                            actionInvocationExpr.getActionName().getName());
                 }
 
                 // Linking

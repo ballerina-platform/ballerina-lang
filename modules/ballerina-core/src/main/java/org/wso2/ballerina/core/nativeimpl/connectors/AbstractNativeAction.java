@@ -17,6 +17,7 @@ package org.wso2.ballerina.core.nativeimpl.connectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Action;
 import org.wso2.ballerina.core.model.Annotation;
@@ -80,7 +81,7 @@ public abstract class AbstractNativeAction implements Action, NativeConstruct {
                     try {
                         parameters.add(new Parameter(TypeC.getTypeC(argument.type().getName()),
                                 new SymbolName(argument.name())));
-                    } catch (RuntimeException e) {
+                    } catch (BallerinaException e) {
                         // TODO: Fix this when TypeC.getType method is improved.
                         log.warn("Error while processing Parameters for Native ballerina action {}:{}.", packageName,
                                 actionName, e);
@@ -89,7 +90,7 @@ public abstract class AbstractNativeAction implements Action, NativeConstruct {
         Arrays.stream(action.returnType()).forEach(returnType -> {
             try {
                 returnTypes.add(TypeC.getTypeC(returnType.getName()));
-            } catch (RuntimeException e) {
+            } catch (BallerinaException e) {
                 // TODO: Fix this when TypeC.getType method is improved.
                 log.warn("Error while processing ReturnTypes for Native ballerina action {}:{}.", packageName,
                         actionName, e);
@@ -181,5 +182,4 @@ public abstract class AbstractNativeAction implements Action, NativeConstruct {
 
 //    }
 
-    public abstract String getAssociatesConnectorType();
 }

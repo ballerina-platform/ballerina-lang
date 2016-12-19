@@ -25,7 +25,6 @@ import org.wso2.ballerina.core.interpreter.ControlStack;
 import org.wso2.ballerina.core.interpreter.StackFrame;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
-import org.wso2.ballerina.core.model.types.MessageType;
 import org.wso2.ballerina.core.model.values.BValueRef;
 import org.wso2.ballerina.core.model.values.ConnectorValue;
 import org.wso2.ballerina.core.model.values.MessageValue;
@@ -44,7 +43,7 @@ import java.util.function.Consumer;
  * A {@code Resource} is a single request handler within a {@code Service}.
  * The resource concept is designed to be access protocol independent.
  * But in the initial release of the language it is intended to work with HTTP.
- * <p>
+ * <p>  
  * The structure of a ResourceDefinition is as follows:
  * <p>
  * [ResourceAnnotations]
@@ -64,7 +63,6 @@ public class Resource implements Executable, Node {
 
     // TODO Refactor
     private Map<String, Annotation> annotationMap = new HashMap<>();
-    private List<Parameter> arguments = new ArrayList<>();
     private List<Worker> workerList = new ArrayList<>();
     private Worker defaultWorker;
     private String name;
@@ -151,34 +149,6 @@ public class Resource implements Executable, Node {
     public void addAnnotation(Annotation annotation) {
         annotationMap.put(annotation.getName(), annotation);
     }
-
-    /**
-     * Get list of Arguments associated with the Resource definition
-     *
-     * @return list of Arguments
-     */
-    public List<Parameter> getArguments() {
-        return arguments;
-    }
-
-    /**
-     * Set Arguments list to the Resource
-     *
-     * @param arguments list of Arguments
-     */
-    public void setArguments(List<Parameter> arguments) {
-        this.arguments = arguments;
-    }
-
-    /**
-     * Add an {@code Argument} to the Resource
-     *
-     * @param argument Argument to be added to the Resource definition
-     */
-    public void addArgument(Parameter argument) {
-        arguments.add(argument);
-    }
-
 
     /**
      * Get all Connections declared within the default Worker scope of the Resource
@@ -312,38 +282,8 @@ public class Resource implements Executable, Node {
 
     @Override
     public boolean execute(Context context, BalCallback callback) {
-        //setupBallerinaRuntime(context);
         populateDefaultMessage(context);
         return defaultWorker.execute(context, callback);
-    }
-
-    private void setupBallerinaRuntime(Context ctx) {
-
-        // Create control stack and the stack frame
-        //BContext ctx = new BContext();
-        ControlStack controlStack = ctx.getControlStack();
-
-        int sizeOfValueArray = this.getStackFrameSize();
-
-        BValueRef[] values = new BValueRef[sizeOfValueArray];
-
-        int i = 0;
-        Parameter[] parameters = this.getParameters();
-        for (Parameter param: parameters) {
-            values[i] = BValueRef.getDefaultValue(param.getTypeC());
-            i++;
-        }
-
-        // Create default values for all declared local variables
-        VariableDcl[] variableDcls = this.getVariableDcls();
-        for (VariableDcl variableDcl : variableDcls) {
-            values[i] = BValueRef.getDefaultValue(variableDcl.getTypeC());
-            i++;
-        }
-
-        StackFrame stackFrame = new StackFrame(values, null);
-        controlStack.pushFrame(stackFrame);
-
     }
 
     private void populateDefaultMessage(Context context) {
@@ -382,10 +322,6 @@ public class Resource implements Executable, Node {
         StackFrame stackFrame = new StackFrame(valueParams, ret);
         // ToDo : StackFrame should be added at the upstream components.
         controlStack.pushFrame(stackFrame);
-
-        // ToDo : Use generic identifier for message.
-        Parameter paramMessage = new Parameter(new MessageType(), new SymbolName("m"));
-        arguments.add(paramMessage);
     }
 
     public int getStackFrameSize() {
@@ -400,7 +336,6 @@ public class Resource implements Executable, Node {
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
-
 
     public Parameter[] getParameters() {
         return parameters;

@@ -42,9 +42,10 @@ import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
         service = AbstractNativeConnector.class)
 public class HTTPConnector extends AbstractNativeConnector implements ServiceFactory {
 
+    public static final String CONNECTOR_NAME = "HTTPConnector";
+
     private String serviceUri;
     private int timeout;
-    public static final String CONNECTOR_NAME = "HTTPConnector";
 
     @Override
     public boolean init(BValueRef[] bValueRefs) {
@@ -75,6 +76,5 @@ public class HTTPConnector extends AbstractNativeConnector implements ServiceFac
 
     @Override
     public void ungetService(Bundle bundle, ServiceRegistration serviceRegistration, Object o) {
-
     }
 }
