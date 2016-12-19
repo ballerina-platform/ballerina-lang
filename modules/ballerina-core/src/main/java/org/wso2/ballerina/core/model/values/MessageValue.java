@@ -17,10 +17,12 @@
 */
 package org.wso2.ballerina.core.model.values;
 
+import org.wso2.ballerina.core.message.BallerinaMessageDataSource;
 import org.wso2.carbon.messaging.CarbonMessage;
+import org.wso2.carbon.messaging.Header;
+import org.wso2.carbon.messaging.Headers;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 /**
  * {@code MessageValue} represents a Carbon Message in Ballerina.
@@ -30,7 +32,7 @@ import java.util.Map;
 public class MessageValue implements BValue<CarbonMessage> {
     private CarbonMessage value;
     private BValue<?> builtPayload;
-    private Map<String, String> headers = new HashMap<>();
+    private Headers headers = new Headers();
 
     /**
      * Create a message in ballerina using a Carbon Message.
@@ -78,6 +80,12 @@ public class MessageValue implements BValue<CarbonMessage> {
      * @param builtMsg  Built payload of this message
      */
     public void setBuiltPayload(BValue<?> builtMsg) {
+        // Set the message data source once the message is built
+        if (builtMsg instanceof XMLValue || builtMsg instanceof JSONValue || builtMsg instanceof StringValue) {
+            BallerinaMessageDataSource ballerinaMessageDataSource = (BallerinaMessageDataSource) builtMsg;
+            ballerinaMessageDataSource.setOutputStream(this.value.getOutputStream());
+            this.value.setMessageDataSource(ballerinaMessageDataSource);
+        }
         this.builtPayload = builtMsg;
     }
 
@@ -96,7 +104,7 @@ public class MessageValue implements BValue<CarbonMessage> {
      *  @param headerValue  Headers Value
      */
     public void addHeader(String headerName, String headerValue) {
-        headers.put(headerName, headerValue);
+        headers.set(headerName, headerValue);
     }
 
     /**
@@ -104,8 +112,56 @@ public class MessageValue implements BValue<CarbonMessage> {
      *
      * @return  header name
      */
-    public String getHeaderValue(String headerName) {
+    public String getHeader(String headerName) {
         return headers.get(headerName);
+    }
+
+    /**
+     * Get header values for the given header name.
+     *
+     * @param headerName header name
+     * @return String array that contains all header values
+     */
+    public String[] getHeaders(String headerName) {
+        List<String> allHeaderValues = headers.getAllBy(headerName);
+        return allHeaderValues.stream().toArray(String[]::new);
+    }
+
+    /**
+     * Remove the header.
+     *
+     * @param headerName Header name
+     */
+    public void removeHeader(String headerName) {
+        headers.remove(headerName);
+    }
+
+    /**
+     * Set header value.
+     *
+     * @param headerName  header name
+     * @param headerValue header value
+     */
+    public void setHeader(String headerName, String headerValue) {
+        headers.set(headerName, headerValue);
+    }
+
+    /**
+     * Get all headers.
+     *
+     * @return List that contains the headers
+     */
+    public List<Header> getHeaders() {
+        return headers.getAll();
+    }
+
+    /**
+     * Set given header list.
+     *
+     * @param list List of Headers
+     */
+    public void setHeaderList(List<Header> list) {
+        headers.set(list);
     }
 
 }

@@ -47,7 +47,7 @@ public class Application {
      * @param aPackage a Package
      */
     public void addPackage(Package aPackage) {
-        packages.put(aPackage.getFullQualifiedName(), aPackage);
+        packages.put(aPackage.getFullyQualifiedName(), aPackage);
     }
 
     /**
@@ -59,7 +59,6 @@ public class Application {
         return packages;
     }
 
-
     /**
      * Get a {@code Package}
      * @param fqn full qualified name
@@ -70,6 +69,14 @@ public class Application {
         return packages.get(fqn);
     }
 
+    /**
+     * Remove a package from this application.
+     * 
+     * @param packageName   Name of the package
+     */
+    public void removePackage(String packageName) {
+        packages.remove(packageName);
+    }
 
     /**
      * Get the name of the Application

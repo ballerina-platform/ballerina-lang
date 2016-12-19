@@ -320,7 +320,7 @@ returnStatement
 
 // below Identifier is only a type of 'message'
 replyStatement
-    :   'reply' (Identifier | expression)? ';'
+    :   'reply' expression? ';'
     ;
 
 workerInteractionStatement
@@ -343,7 +343,7 @@ commentStatement
     ;
 
 actionInvocationStatement
-    :   expression ';'
+    :   actionInvocation argumentList ';'
     ;
 
 variableReference
@@ -361,7 +361,7 @@ expressionList
     ;
 
 functionInvocationStatement
-    :   expression ';'
+    :   functionName argumentList ';'
     ;
 
 functionName

@@ -19,7 +19,13 @@
 package org.wso2.ballerina.core.runtime.registry;
 
 import org.wso2.ballerina.core.model.Package;
+import org.wso2.ballerina.core.model.Symbol;
+import org.wso2.ballerina.core.model.SymbolName;
+import org.wso2.ballerina.core.model.util.SymbolUtils;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
+import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
+import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
+import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 
 import java.util.HashMap;
 
@@ -42,7 +48,7 @@ public class PackageRegistry {
     }
 
     public void registerPackage(Package aPackage) {
-        packages.put(aPackage.getFullQualifiedName(), aPackage);
+        packages.put(aPackage.getFullyQualifiedName(), aPackage);
     }
 
     public Package getPackage(String fqn) {
@@ -55,16 +61,45 @@ public class PackageRegistry {
      * @param function AbstractNativeFunction instance.
      */
     public void registerNativeFunction(AbstractNativeFunction function) {
-        Package aPackage = packages.get(function.getPackageName());
-        if (aPackage == null) {
-            aPackage = new Package(function.getPackageName());
-            packages.put(function.getPackageName(), aPackage);
-        }
+        Package aPackage = packages
+                .computeIfAbsent(function.getPackageName(), k -> new Package(function.getPackageName()));
+
         if (function.isPublic()) {
             aPackage.getPublicFunctions().put(function.getName(), function);
         } else {
             aPackage.getPrivateFunctions().put(function.getName(), function);
         }
+
+        String funcName = function.getName();
+        SymbolName symbolName = SymbolUtils.generateSymbolName(funcName, function.getParameters());
+        Symbol symbol = new Symbol(function, SymbolUtils.getTypesOfParams(function.getParameters()),
+                function.getReturnTypesC());
+
+        GlobalScopeHolder.getInstance().insert(symbolName, symbol);
+
+//        CallableUnitType callableUnitType = new CallableUnitType(CallableUnit.FUNCTION, function.getSymbolName());
+//        callableUnitType.setParamType(function.getSymbolName().getParameters());
+//        callableUnitType.setReturnType(function.getReturnTypesC());
+//        GlobalScopeHolder.getInstance().insert(function.getSymbolName(), new Symbol(callableUnitType, 0));
+    }
+
+    /**
+     * Register Native Action.
+     *
+     * @param action AbstractNativeAction instance.
+     */
+    public void registerNativeAction(AbstractNativeAction action) {
+        Package aPackage = packages
+                .computeIfAbsent(action.getPackageName(), k -> new Package(action.getPackageName()));
+        aPackage.getActions().put(action.getName(), action);
+
+        String actionName = action.getSymbolName().getName();
+        SymbolName symbolName = SymbolUtils.generateSymbolName(actionName, action.getParameters());
+        Symbol symbol = new Symbol(action, SymbolUtils.getTypesOfParams(action.getParameters()),
+                action.getReturnTypesC());
+
+        GlobalScopeHolder.getInstance().insert(symbolName, symbol);
+
     }
 
     /**
@@ -85,4 +120,46 @@ public class PackageRegistry {
         }
     }
 
+    /**
+     * Unregister Native Action.
+     *
+     * @param action AbstractNativeAction instance.
+     */
+    public void unregisterNativeActions(AbstractNativeAction action) {
+        Package aPackage = packages.get(action.getPackageName());
+        if (aPackage == null) {
+            // Nothing to do.
+            return;
+        }
+        aPackage.getActions().remove(action.getName());
+    }
+
+    /**
+     * Register Native Connector.
+     *
+     * @param connector AbstractNativeAction instance.
+     */
+    public void registerNativeConnector(AbstractNativeConnector connector) {
+
+        String connectorName = connector.getSymbolName().getName();
+        //SymbolName symbolName = SymbolUtils.generateSymbolName(CONNECTOR_NAME, connector.getParameters());
+        Symbol symbol = new Symbol(connector, SymbolUtils.getTypesOfParams(connector.getParameters()));
+
+        GlobalScopeHolder.getInstance().insert(new SymbolName(connectorName), symbol);
+
+    }
+
+    /**
+     * Unregister Native Action.
+     *
+     * @param action AbstractNativeAction instance.
+     */
+    public void unregisterNativeConnector(AbstractNativeAction action) {
+        Package aPackage = packages.get(action.getPackageName());
+        if (aPackage == null) {
+            // Nothing to do.
+            return;
+        }
+        aPackage.getActions().remove(action.getName());
+    }
 }

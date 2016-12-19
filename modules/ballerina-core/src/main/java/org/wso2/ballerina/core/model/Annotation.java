@@ -65,7 +65,11 @@ public class Annotation implements Node {
      * @return name of the annotation
      */
     public String getName() {
-        return name;
+        if (this.name != null) {
+            return name;
+        } else {
+            return this.symbolName.getName();
+        }
     }
 
     /**
@@ -97,7 +101,7 @@ public class Annotation implements Node {
     }
 
     @Override
-    public void visit(NodeVisitor visitor) {
+    public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 

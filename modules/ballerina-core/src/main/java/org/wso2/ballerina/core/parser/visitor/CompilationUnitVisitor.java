@@ -18,23 +18,17 @@
 package org.wso2.ballerina.core.parser.visitor;
 
 import org.wso2.ballerina.core.interpreter.SymbolTable;
-import org.wso2.ballerina.core.model.BallerinaFile;
-import org.wso2.ballerina.core.model.Connector;
-import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.model.Import;
 import org.wso2.ballerina.core.model.Package;
-import org.wso2.ballerina.core.model.Service;
-import org.wso2.ballerina.core.model.VariableDcl;
 import org.wso2.ballerina.core.parser.BallerinaBaseVisitor;
 import org.wso2.ballerina.core.parser.BallerinaParser;
-import org.wso2.ballerina.core.utils.BValueFactory;
 
 /**
  * Visitor for compilation unit
  */
 public class CompilationUnitVisitor extends BallerinaBaseVisitor {
 
-    BallerinaFile balFile = new BallerinaFile();
+//    BallerinaFile balFile = null;
     private SymbolTable baseSymbolTable = new SymbolTable(null);
 
 
@@ -49,45 +43,45 @@ public class CompilationUnitVisitor extends BallerinaBaseVisitor {
     @Override
     public Object visitCompilationUnit(BallerinaParser.CompilationUnitContext ctx) {
         // Read the package declaration
-        Package packageName = (Package) this.visitPackageDeclaration(ctx.packageDeclaration());
-        balFile.setPackageName(packageName.getFullQualifiedName());
+//        Package packageName = (Package) this.visitPackageDeclaration(ctx.packageDeclaration());
+//        balFile.setPackageName(packageName.getFullyQualifiedName());
 
         // Read the constants
-        ConstantVisitor constantVisitor = new ConstantVisitor(baseSymbolTable);
-        for (BallerinaParser.ConstantDefinitionContext cdc : ctx.constantDefinition()) {
-            VariableDcl constantObject = (VariableDcl) cdc.accept(constantVisitor);
+//        ConstantVisitor constantVisitor = new ConstantVisitor(baseSymbolTable);
+//        for (BallerinaParser.ConstantDefinitionContext cdc : ctx.constantDefinition()) {
+//            VariableDcl constantObject = (VariableDcl) cdc.accept(constantVisitor);
 //            balFile.addConstant(constantObject);
-            baseSymbolTable.put(constantObject.getSymbolName(),
-                    BValueFactory.createBValueFromVariableDeclaration(constantObject));
-        }
+//            baseSymbolTable.put(constantObject.getName(),
+//                    BValueFactory.createBValueFromVariableDeclaration(constantObject));
+//        }
 
-        for (BallerinaParser.ImportDeclarationContext idc : ctx.importDeclaration()) {
-            Import importObject = (Import) this.visitImportDeclaration(idc);
-            balFile.addImport(importObject);
-        }
+//        for (BallerinaParser.ImportDeclarationContext idc : ctx.importDeclaration()) {
+//            Import importObject = (Import) this.visitImportDeclaration(idc);
+//            balFile.addImport(importObject);
+//        }
 
         // Read the services
-        ServiceVisitor serviceVisitor = new ServiceVisitor(baseSymbolTable);
-        for (BallerinaParser.ServiceDefinitionContext sdc : ctx.serviceDefinition()) {
-            Service serviceObject = (Service) sdc.accept(serviceVisitor);
-            balFile.addService(serviceObject);
-        }
+//        ServiceVisitor serviceVisitor = new ServiceVisitor(baseSymbolTable);
+//        for (BallerinaParser.ServiceDefinitionContext sdc : ctx.serviceDefinition()) {
+//            Service serviceObject = (Service) sdc.accept(serviceVisitor);
+//            balFile.addService(serviceObject);
+//        }
 
         // Read the functions
-        FunctionVisitor functionVisitor = new FunctionVisitor(baseSymbolTable);
-        for (BallerinaParser.FunctionDefinitionContext fdc : ctx.functionDefinition()) {
-            Function functionObject = (Function) fdc.accept(functionVisitor);
-            balFile.addFunction(functionObject);
-        }
+//        FunctionVisitor functionVisitor = new FunctionVisitor(baseSymbolTable);
+//        for (BallerinaParser.FunctionDefinitionContext fdc : ctx.functionDefinition()) {
+//            Function functionObject = (Function) fdc.accept(functionVisitor);
+//            balFile.addFunction(functionObject);
+//        }
 
         // Read the connectors
-        ConnectorVisitor connectorVisitor = new ConnectorVisitor(baseSymbolTable);
-        for (BallerinaParser.ConnectorDefinitionContext cdc : ctx.connectorDefinition()) {
-            Connector connectorObject = (Connector) cdc.accept(connectorVisitor);
+//        ConnectorVisitor connectorVisitor = new ConnectorVisitor(baseSymbolTable);
+//        for (BallerinaParser.ConnectorDefinitionContext cdc : ctx.connectorDefinition()) {
+//            Connector connectorObject = (Connector) cdc.accept(connectorVisitor);
 //            balFile.addConnector(connectorObject);
-        }
+//        }
 
-        return balFile;
+        return null;
     }
 
     /**

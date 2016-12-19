@@ -18,6 +18,7 @@
 
 package org.wso2.ballerina.core.model;
 
+import org.wso2.ballerina.core.interpreter.BLangInterpreter;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.runtime.core.BalCallback;
@@ -147,22 +148,16 @@ public class Worker implements Executable, Node {
 
     public boolean execute(Context context, BalCallback callback) {
 
-        //Execute statements from here
-        if (statements == null || statements.size() == 0) {
-            return true; // nothing to execute
-        } else {
-            for (Statement statement : statements) {
-                statement.interpret(context);
-            }
-            return true;
-        }
+        context.setBalCallback(callback);
 
-//        return false;
+        BLangInterpreter interpreter = new BLangInterpreter(context);
+        this.accept(interpreter);
 
+        return true;
     }
 
     @Override
-    public void visit(NodeVisitor visitor) {
+    public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 }

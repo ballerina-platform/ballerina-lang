@@ -166,6 +166,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitConnectorDeclaration(BallerinaParser.ConnectorDeclarationContext ctx) {
+        modelBuilder.createConnectorDcl(ctx.Identifier().getText());
     }
 
     @Override
@@ -378,6 +379,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitQualifiedReference(BallerinaParser.QualifiedReferenceContext ctx) {
+        modelBuilder.createIdentifier(ctx.getText());
     }
 
     @Override
@@ -411,7 +413,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitLiteralValue(BallerinaParser.LiteralValueContext ctx) {
-        createBasicLiteral(ctx);
+//        createBasicLiteral(ctx);
     }
 
     @Override
@@ -617,6 +619,9 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitReplyStatement(BallerinaParser.ReplyStatementContext ctx) {
+        // Here the expression is only a message reference
+        //modelBuilder.createVarRefExpr();
+        modelBuilder.createReplyStmt();
     }
 
     @Override
@@ -657,6 +662,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitActionInvocationStatement(BallerinaParser.ActionInvocationStatementContext ctx) {
+        modelBuilder.createActionInvocationExpr();
     }
 
     @Override
@@ -694,10 +700,35 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void enterExpressionList(BallerinaParser.ExpressionListContext ctx) {
+
+        modelBuilder.startExprList();
     }
 
     @Override
     public void exitExpressionList(BallerinaParser.ExpressionListContext ctx) {
+        // Here is the production for the argument list
+        // argumentList
+        //    :   '(' expressionList ')'
+        //    ;
+        //
+        // expressionList
+        //    :   expression (',' expression)*
+        //    ;
+
+        // Now we need to calculate the number of arguments in a function or an action.
+        // We can do the by getting the children of expressionList from the ctx
+        // The following count includes the token for the ","  as well.
+        int childCountExprList = ctx.getChildCount();
+
+        // Therefore we need to subtract the numer of ","
+        // e.g. (a, b)          => childCount = 3, noOfArguments = 2;
+        //      (a, b, c)       => childCount = 5, noOfArguments = 3;
+        //      (a, b, c, d)    => childCount = 7, noOfArguments = 4;
+        // Here childCount is always an odd number.
+        // noOfarguments = childCount mod 2 + 1
+        int noOfArguments = childCountExprList / 2 + 1;
+        modelBuilder.endExprList(noOfArguments);
+
     }
 
     @Override
@@ -706,6 +737,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitFunctionInvocationStatement(BallerinaParser.FunctionInvocationStatementContext ctx) {
+        modelBuilder.createFunctionInvocationStmt();
     }
 
     @Override
@@ -714,6 +746,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitFunctionName(BallerinaParser.FunctionNameContext ctx) {
+        modelBuilder.createIdentifier(ctx.getText());
     }
 
     @Override
@@ -722,6 +755,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitActionInvocation(BallerinaParser.ActionInvocationContext ctx) {
+        modelBuilder.createIdentifier(ctx.getText());
     }
 
     @Override
@@ -730,6 +764,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitBacktickString(BallerinaParser.BacktickStringContext ctx) {
+        modelBuilder.createBackTickString(ctx.BacktickStringLiteral().toString());
     }
 
     @Override
@@ -782,6 +817,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitFunctionInvocationExpression(BallerinaParser.FunctionInvocationExpressionContext ctx) {
+        modelBuilder.createFunctionInvocationExpr();
     }
 
     @Override
@@ -825,6 +861,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitActionInvocationExpression(BallerinaParser.ActionInvocationExpressionContext ctx) {
+        modelBuilder.createActionInvocationExpr();
     }
 
     @Override
@@ -895,6 +932,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitLiteralExpression(BallerinaParser.LiteralExpressionContext ctx) {
+        createBasicLiteral(ctx.literalValue());
     }
 
     @Override

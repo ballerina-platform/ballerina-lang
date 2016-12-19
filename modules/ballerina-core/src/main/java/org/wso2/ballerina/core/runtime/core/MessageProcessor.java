@@ -23,7 +23,9 @@ import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.runtime.Constants;
 import org.wso2.ballerina.core.runtime.core.threading.threadpool.RequestWorkerThread;
+import org.wso2.ballerina.core.runtime.core.threading.threadpool.ResponseWorkerThread;
 import org.wso2.ballerina.core.runtime.core.threading.threadpool.ThreadPoolFactory;
+import org.wso2.ballerina.core.runtime.core.threading.threadpool.WorkerThread;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
@@ -37,22 +39,32 @@ public class MessageProcessor implements CarbonMessageProcessor {
     private static final Logger log = LoggerFactory.getLogger(MessageProcessor.class);
 
     public boolean receive(CarbonMessage cMsg, CarbonCallback carbonCallback) throws Exception {
-        if (log.isDebugEnabled()) {
-            log.debug("ballerina received a message");
-        }
 
-        String protocol = (String) cMsg.getProperty(org.wso2.carbon.messaging.Constants.PROTOCOL);
-        if (protocol == null) {
-            log.error("Protocol not defined in the incoming request");
-            //TODO: Handler error
-            return false;
-        }
         Context balContext = new Context(cMsg);
-        balContext.setProperty(Constants.PROTOCOL, protocol);
+        WorkerThread workerThread = null;
 
-        RequestWorkerThread workerThread =
-                new RequestWorkerThread(balContext, new DefaultBalCallback(carbonCallback));
+        if (!org.wso2.carbon.messaging.Constants.DIRECTION_RESPONSE.
+                equals(cMsg.getProperty(org.wso2.carbon.messaging.Constants.DIRECTION))) {
+            // For Request
 
+            if (log.isDebugEnabled()) {
+                log.debug("ballerina received a request message");
+            }
+
+            String protocol = (String) cMsg.getProperty(org.wso2.carbon.messaging.Constants.PROTOCOL);
+            if (protocol == null) {
+                log.error("Protocol not defined in the incoming request");
+                //TODO: Handler error
+                return false;
+            }
+            balContext.setProperty(Constants.PROTOCOL, protocol);
+
+            workerThread = new RequestWorkerThread(balContext, new DefaultBalCallback(carbonCallback));
+
+        } else {
+            // For Response
+            workerThread = new ResponseWorkerThread(balContext, new DefaultBalCallback(carbonCallback));
+        }
         ThreadPoolFactory.getInstance().getExecutor().execute(workerThread);
 
         return false;
@@ -63,6 +75,6 @@ public class MessageProcessor implements CarbonMessageProcessor {
     }
 
     public String getId() {
-        return null;
+        return "ballerina-message-processor";
     }
 }

@@ -17,23 +17,26 @@
 */
 package org.wso2.ballerina.core.model.builder;
 
-import org.wso2.ballerina.core.model.Action;
 import org.wso2.ballerina.core.model.Annotation;
+import org.wso2.ballerina.core.model.BallerinaAction;
+import org.wso2.ballerina.core.model.BallerinaConnector;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
-import org.wso2.ballerina.core.model.Connector;
+import org.wso2.ballerina.core.model.ConnectorDcl;
 import org.wso2.ballerina.core.model.Import;
 import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.VariableDcl;
+import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.AddExpression;
 import org.wso2.ballerina.core.model.expressions.AndExpression;
 import org.wso2.ballerina.core.model.expressions.BasicLiteral;
 import org.wso2.ballerina.core.model.expressions.BinaryExpression;
 import org.wso2.ballerina.core.model.expressions.EqualExpression;
 import org.wso2.ballerina.core.model.expressions.Expression;
+import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.GreaterEqualExpression;
 import org.wso2.ballerina.core.model.expressions.GreaterThanExpression;
 import org.wso2.ballerina.core.model.expressions.LessEqualExpression;
@@ -45,18 +48,22 @@ import org.wso2.ballerina.core.model.expressions.SubtractExpression;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
+import org.wso2.ballerina.core.model.statements.FunctionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.IfElseStmt;
+import org.wso2.ballerina.core.model.statements.ReplyStmt;
 import org.wso2.ballerina.core.model.statements.ReturnStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
-import org.wso2.ballerina.core.model.types.Type;
 import org.wso2.ballerina.core.model.types.TypeC;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BValueRef;
 import org.wso2.ballerina.core.model.values.BooleanValue;
 import org.wso2.ballerina.core.model.values.FloatValue;
 import org.wso2.ballerina.core.model.values.IntValue;
+import org.wso2.ballerina.core.model.values.JSONValue;
 import org.wso2.ballerina.core.model.values.StringValue;
+import org.wso2.ballerina.core.model.values.XMLValue;
+import org.wso2.ballerina.core.nativeimpl.lang.message.Utils;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -64,10 +71,8 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Stack;
 
-// TODO Change the method names
-
 /**
- * Builds ballerina language object model
+ * {@code BLangModelBuilder} provides an high-level API to create Ballerina language object model.
  *
  * @since 1.0.0
  */
@@ -79,21 +84,19 @@ public class BLangModelBuilder {
     private Stack<BlockStmt.BlockStmtBuilder> blockStmtBuilderStack = new Stack<>();
     private Stack<IfElseStmt.IfElseStmtBuilder> ifElseStmtBuilderStack = new Stack<>();
 
-    private Queue<Type> typeQueue = new LinkedList<>();
+    private Queue<TypeC> typeQueue = new LinkedList<>();
     private BallerinaFile.BFileBuilder bFileBuilder = new BallerinaFile.BFileBuilder();
     private Stack<SymbolName> symbolNameStack = new Stack<>();
     private Stack<Expression> exprStack = new Stack<>();
+
+    // Holds ExpressionLists required for return statements, function/action invocations and connector declarations
+    private Stack<List<Expression>> exprListStack = new Stack<>();
 
     private Stack<List<Annotation>> annotationListStack = new Stack<>();
 
     public BallerinaFile build() {
         return bFileBuilder.build();
     }
-
-    // Symbol table related instance variables;
-//    private SymbolTable symbolTable = new SymbolTable(null);
-//    private int paramIndex = -1;
-//    private int localVarIndex = -1;
 
     // Identifiers
 
@@ -118,11 +121,11 @@ public class BLangModelBuilder {
     }
 
     public void createAnnotationKeyValue(String key) {
-//        // Assuming the annotation value is a string literal
-//        String value = exprStack.pop().getBValueRef().getString();
-//
-//        Annotation.AnnotationBuilder annotationBuilder = annotationBuilderStack.peek();
-//        annotationBuilder.addKeyValuePair(new Identifier(key), value);
+        //        // Assuming the annotation value is a string literal
+        //        String value = exprStack.pop().getBValueRef().getString();
+        //
+        //        Annotation.AnnotationBuilder annotationBuilder = annotationBuilderStack.peek();
+        //        annotationBuilder.addKeyValuePair(new Identifier(key), value);
 
         throw new RuntimeException("Key/Value pairs in annotations are not supported");
     }
@@ -140,22 +143,21 @@ public class BLangModelBuilder {
         annotationList.add(annotationBuilder.build());
     }
 
-
     // Function parameters and return values
 
     /**
      * Create a function parameter and a corresponding variable reference expression
-     * <p>
+     * <p/>
      * Set the even function to get the value from the function arguments with the correct index.
      * Store the reference in the symbol table.
      *
      * @param paramName name of the function parameter
      */
     public void createParam(String paramName) {
-//        paramIndex++;
+        //        paramIndex++;
 
-        SymbolName paramNameId = new SymbolName(paramName);
-        Type paramType = typeQueue.remove();
+        SymbolName paramNameId = new SymbolName(paramName, SymbolName.SymType.VARIABLE);
+        TypeC paramType = typeQueue.remove();
         Parameter param = new Parameter(paramType, paramNameId);
 
         // Add the parameter to callableUnitBuilder.
@@ -163,15 +165,15 @@ public class BLangModelBuilder {
         callableUnitBuilder.addParameter(param);
 
         // Create variable reference expression and set the proper index to access the value
-//        VariableRefExpr variableRefExpr = new VariableRefExpr(paramNameId);
-//        variableRefExpr.setEvalFunction(VariableRefExpr.createGetParamValueFunc(paramIndex));
+        //        VariableRefExpr variableRefExpr = new VariableRefExpr(paramNameId);
+        //        variableRefExpr.setEvalFunction(VariableRefExpr.createGetParamValueFunc(paramIndex));
 
         // Store the variable reference in the symbol table
-//        symbolTable.putVarRefExpr(paramNameId, variableRefExpr);
+        //        symbolTable.putVarRefExpr(paramNameId, variableRefExpr);
     }
 
     public void createType(String typeName) {
-        Type type = TypeC.getType(typeName);
+        TypeC type = TypeC.getTypeC(typeName);
         typeQueue.add(type);
     }
 
@@ -185,37 +187,46 @@ public class BLangModelBuilder {
     // Variable declarations, reference expressions
 
     public void createVariableDcl(String varName) {
-//        localVarIndex++;
-
         // Create a variable declaration
-        SymbolName localVarId = new SymbolName(varName);
-        Type localVarType = typeQueue.remove();
+        SymbolName localVarId = new SymbolName(varName, SymbolName.SymType.VARIABLE);
+        TypeC localVarType = typeQueue.remove();
         VariableDcl variableDcl = new VariableDcl(localVarType, localVarId);
 
         // Add this variable declaration to the current callable unit
         CallableUnitBuilder callableUnitBuilder = cUnitBuilderStack.peek();
         callableUnitBuilder.addVariableDcl(variableDcl);
+    }
 
-        // Create variable reference expression and set the proper index to access the value
-//        VariableRefExpr variableRefExpr = new VariableRefExpr(localVarId);
-//        variableRefExpr.setEvalFunction(VariableRefExpr.createGetLocalValueFunc(localVarIndex));
+    public void createConnectorDcl(String varName) {
+        symbolNameStack.pop();
+        SymbolName cSymName = symbolNameStack.pop();
+        List<Expression> exprList = exprListStack.pop();
 
-        // Store the variable reference in the symbol table
-//        symbolTable.putVarRefExpr(localVarId, variableRefExpr);
+        ConnectorDcl.ConnectorDclBuilder builder = new ConnectorDcl.ConnectorDclBuilder();
+        builder.setConnectorName(cSymName);
+        builder.setVarName(new SymbolName(varName));
+        builder.setExprList(exprList);
+
+        ConnectorDcl connectorDcl = builder.build();
+        if (!cUnitBuilderStack.isEmpty()) {
+            // This connector declaration should added to the relevant function/action or resource
+            cUnitBuilderStack.peek().addConnectorDcl(connectorDcl);
+        } else {
+            cUnitGroupBuilderStack.peek().addConnectorDcl(connectorDcl);
+        }
     }
 
     /**
      * Create variable reference expression
-     * <p>
+     * <p/>
      * This method lookup the symbol table for a variable reference of a function parameter or of a local variable.
      */
     public void createVarRefExpr() {
-        SymbolName varName = symbolNameStack.pop();
-        VariableRefExpr variableRefExpr = new VariableRefExpr(varName);
-//        VariableRefExpr variableRefExpr = symbolTable.lookupVarRefExpr(varName);
-        exprStack.push(variableRefExpr);
+        SymbolName symName = symbolNameStack.pop();
+        symName.setSymType(SymbolName.SymType.VARIABLE);
 
-        //TODO set type
+        VariableRefExpr variableRefExpr = new VariableRefExpr(symName);
+        exprStack.push(variableRefExpr);
     }
 
     // Expressions
@@ -223,7 +234,7 @@ public class BLangModelBuilder {
     public void createBinaryExpr(String opStr) {
         Expression rExpr = exprStack.pop();
         Expression lExpr = exprStack.pop();
-//        String opStr = ctx.getChild(1).getText();
+        //        String opStr = ctx.getChild(1).getText();
 
         BinaryExpression expr;
         switch (opStr) {
@@ -281,6 +292,48 @@ public class BLangModelBuilder {
         exprStack.push(expr);
     }
 
+    public void createBackTickString(String stringContent) {
+        String content = Utils.getValueWithinBacktick(stringContent);
+        if (content.startsWith("{")) {
+            BValue bValue = new JSONValue(content);
+            createLiteral(new BValueRef(bValue), TypeC.JSON_TYPE);
+        } else if (content.startsWith("<")) {
+            BValue bValue = new XMLValue(content);
+            createLiteral(new BValueRef(bValue), TypeC.XML_TYPE);
+        } else {
+            BValue bValue = new StringValue(content);
+            createLiteral(new BValueRef(bValue), TypeC.STRING_TYPE);
+        }
+
+    }
+
+    public void startExprList() {
+        exprListStack.push(new ArrayList<>());
+    }
+
+    public void endExprList(int exprCount) {
+        List<Expression> exprList = exprListStack.peek();
+        addExprToList(exprList, exprCount);
+    }
+
+    public void createFunctionInvocationExpr() {
+        CallableUnitInvocationExprBuilder cIExprBuilder = new CallableUnitInvocationExprBuilder();
+        cIExprBuilder.setExpressionList(exprListStack.pop());
+        cIExprBuilder.setName(symbolNameStack.pop());
+
+        FunctionInvocationExpr invocationExpr = cIExprBuilder.buildFuncInvocExpr();
+        exprStack.push(invocationExpr);
+    }
+
+    public void createActionInvocationExpr() {
+        CallableUnitInvocationExprBuilder cIExprBuilder = new CallableUnitInvocationExprBuilder();
+        cIExprBuilder.setExpressionList(exprListStack.pop());
+        cIExprBuilder.setName(symbolNameStack.pop());
+
+        ActionInvocationExpr invocationExpr = cIExprBuilder.buildActionInvocExpr();
+        exprStack.push(invocationExpr);
+    }
+
     // Functions, Actions and Resources
 
     public void startCallableUnitBody() {
@@ -297,7 +350,7 @@ public class BLangModelBuilder {
 
     public void startCallableUnit() {
         // Create a new symbol table for the callableUnit scope
-//        addScopeToSymbolTable();
+        //        addScopeToSymbolTable();
 
         cUnitBuilderStack.push(new CallableUnitBuilder());
         annotationListStack.push(new ArrayList<>());
@@ -305,7 +358,7 @@ public class BLangModelBuilder {
 
     public void createFunction(String name, boolean isPublic) {
         CallableUnitBuilder callableUnitBuilder = cUnitBuilderStack.pop();
-        callableUnitBuilder.setName(new SymbolName(name));
+        callableUnitBuilder.setName(new SymbolName(name, SymbolName.SymType.CALLABLE_UNIT));
         callableUnitBuilder.setPublic(isPublic);
 
         List<Annotation> annotationList = annotationListStack.pop();
@@ -316,12 +369,12 @@ public class BLangModelBuilder {
         bFileBuilder.addFunction(function);
 
         // Remove the callable unit scope from the symbol table;
-//        removeScopeFromSymbolTable();
+        //        removeScopeFromSymbolTable();
     }
 
     public void createResource(String name) {
         CallableUnitBuilder callableUnitBuilder = cUnitBuilderStack.pop();
-        callableUnitBuilder.setName(new SymbolName(name));
+        callableUnitBuilder.setName(new SymbolName(name, SymbolName.SymType.CALLABLE_UNIT));
 
         List<Annotation> annotationList = annotationListStack.pop();
         // TODO Improve this implementation
@@ -332,30 +385,30 @@ public class BLangModelBuilder {
         callableUnitGroupBuilder.addResource(resource);
 
         // Remove the callable unit scope from the symbol table;
-//        removeScopeFromSymbolTable();
+        //        removeScopeFromSymbolTable();
     }
 
     public void createAction(String name) {
         CallableUnitBuilder callableUnitBuilder = cUnitBuilderStack.pop();
-        callableUnitBuilder.setName(new SymbolName(name));
+        callableUnitBuilder.setName(new SymbolName(name, SymbolName.SymType.CALLABLE_UNIT));
 
         List<Annotation> annotationList = annotationListStack.pop();
         // TODO Improve this implementation
         annotationList.forEach(callableUnitBuilder::addAnnotation);
 
-        Action action = callableUnitBuilder.buildAction();
+        BallerinaAction action = callableUnitBuilder.buildAction();
         CallableUnitGroupBuilder callableUnitGroupBuilder = cUnitGroupBuilderStack.peek();
         callableUnitGroupBuilder.addAction(action);
 
         // Remove the callable unit scope from the symbol table;
-//        removeScopeFromSymbolTable();
+        //        removeScopeFromSymbolTable();
     }
 
     // Services and Connectors
 
     public void startCallableUnitGroup() {
         // Create a new symbol table for the callableUnitGroup scope
-//        addScopeToSymbolTable();
+        //        addScopeToSymbolTable();
 
         cUnitGroupBuilderStack.push(new CallableUnitGroupBuilder());
         annotationListStack.push(new ArrayList<>());
@@ -363,7 +416,7 @@ public class BLangModelBuilder {
 
     public void createService(String name) {
         CallableUnitGroupBuilder callableUnitGroupBuilder = cUnitGroupBuilderStack.pop();
-        callableUnitGroupBuilder.setName(new SymbolName(name));
+        callableUnitGroupBuilder.setName(new SymbolName(name, SymbolName.SymType.CALLABLE_UNIT_GROUP));
 
         List<Annotation> annotationList = annotationListStack.pop();
         // TODO Improve this implementation
@@ -373,28 +426,31 @@ public class BLangModelBuilder {
         bFileBuilder.addService(service);
 
         // Remove the callable unit group scope from the symbol table;
-//        removeScopeFromSymbolTable();
+        //        removeScopeFromSymbolTable();
     }
 
     public void createConnector(String name) {
         CallableUnitGroupBuilder callableUnitGroupBuilder = cUnitGroupBuilderStack.pop();
-        callableUnitGroupBuilder.setName(new SymbolName(name));
+        callableUnitGroupBuilder.setName(new SymbolName(name, SymbolName.SymType.CALLABLE_UNIT_GROUP));
 
         List<Annotation> annotationList = annotationListStack.pop();
         // TODO Improve this implementation
         annotationList.forEach(callableUnitGroupBuilder::addAnnotation);
 
-        Connector connector = callableUnitGroupBuilder.buildConnector();
+        BallerinaConnector connector = callableUnitGroupBuilder.buildConnector();
         bFileBuilder.addConnector(connector);
 
         // Remove the callable unit group scope from the symbol table;
-//        removeScopeFromSymbolTable();
+        //        removeScopeFromSymbolTable();
     }
 
     // Statements
 
     public void createAssignmentExpr() {
-        VariableRefExpr lExpr = new VariableRefExpr(symbolNameStack.pop());
+        SymbolName symName = symbolNameStack.pop();
+        symName.setSymType(SymbolName.SymType.VARIABLE);
+
+        VariableRefExpr lExpr = new VariableRefExpr(symName);
         Expression rExpr = exprStack.pop();
         AssignStmt assignStmt = new AssignStmt(lExpr, rExpr);
 
@@ -403,12 +459,19 @@ public class BLangModelBuilder {
 
     public void createReturnStmt() {
         ReturnStmt.ReturnStmtBuilder returnStmtBuilder = new ReturnStmt.ReturnStmtBuilder();
-        while (!exprStack.isEmpty()) {
-            returnStmtBuilder.addExpression(exprStack.pop());
-        }
+
+        // Get the expression list from the expression list stack
+        returnStmtBuilder.setExpressionList(exprListStack.pop());
 
         ReturnStmt returnStmt = returnStmtBuilder.build();
         addToBlockStmt(returnStmt);
+    }
+
+    public void createReplyStmt() {
+        ReplyStmt.ReplyStmtBuilder replyStmtBuilder = new ReplyStmt.ReplyStmtBuilder();
+        replyStmtBuilder.setExpression(exprStack.pop());
+        ReplyStmt replyStmt = replyStmtBuilder.build();
+        addToBlockStmt(replyStmt);
     }
 
     public void startWhileStmt() {
@@ -466,26 +529,41 @@ public class BLangModelBuilder {
         addToBlockStmt(ifElseStmt);
     }
 
+    public void createFunctionInvocationStmt() {
+        CallableUnitInvocationExprBuilder cIExprBuilder = new CallableUnitInvocationExprBuilder();
+        cIExprBuilder.setExpressionList(exprListStack.pop());
+        cIExprBuilder.setName(symbolNameStack.pop());
+
+        FunctionInvocationExpr invocationExpr = cIExprBuilder.buildFuncInvocExpr();
+
+        FunctionInvocationStmt.FunctionInvokeStmtBuilder stmtBuilder =
+                new FunctionInvocationStmt.FunctionInvokeStmtBuilder();
+        stmtBuilder.setFunctionInvocationExpr(invocationExpr);
+        FunctionInvocationStmt functionInvocationStmt = stmtBuilder.build();
+
+        blockStmtBuilderStack.peek().addStmt(functionInvocationStmt);
+    }
+
     // Literal Values
 
     public void createIntegerLiteral(String value) {
         BValue bValue = new IntValue(Integer.parseInt(value));
-        exprStack.push(new BasicLiteral(new BValueRef(bValue)));
+        createLiteral(new BValueRef(bValue), TypeC.INT_TYPE);
     }
 
     public void createFloatLiteral(String value) {
         BValue bValue = new FloatValue(Float.parseFloat(value));
-        exprStack.push(new BasicLiteral(new BValueRef(bValue)));
+        createLiteral(new BValueRef(bValue), TypeC.FLOAT_TYPE);
     }
 
     public void createStringLiteral(String value) {
         BValue bValue = new StringValue(value);
-        exprStack.push(new BasicLiteral(new BValueRef(bValue)));
+        createLiteral(new BValueRef(bValue), TypeC.STRING_TYPE);
     }
 
     public void createBooleanLiteral(String value) {
         BValue bValue = new BooleanValue(Boolean.parseBoolean(value));
-        exprStack.push(new BasicLiteral(new BValueRef(bValue)));
+        createLiteral(new BValueRef(bValue), TypeC.BOOLEAN_TYPE);
     }
 
     public void createNullLiteral(String value) {
@@ -499,14 +577,40 @@ public class BLangModelBuilder {
         blockStmtBuilder.addStmt(stmt);
     }
 
-//    private void addScopeToSymbolTable() {
-//        SymbolTable scopeTable = new SymbolTable(this.symbolTable);
-//        this.symbolTable = scopeTable;
-//    }
+    private void addInReverseOrder(ReturnStmt.ReturnStmtBuilder builder) {
+        Expression expr = exprStack.pop();
+        if (exprStack.isEmpty()) {
+            builder.addExpression(expr);
+        } else {
+            addInReverseOrder(builder);
+            builder.addExpression(expr);
+        }
+    }
 
-//    private void removeScopeFromSymbolTable() {
-//        this.symbolTable = symbolTable.getParent();
-//        localVarIndex = -1;
-//        paramIndex = -1;
-//    }
+    private void createLiteral(BValueRef bValueRef, TypeC type) {
+        BasicLiteral basicLiteral = new BasicLiteral(bValueRef);
+        basicLiteral.setType(type);
+        exprStack.push(basicLiteral);
+    }
+
+    /**
+     * @param exprList List<Expression>
+     * @param n        number of expression to be added the given list
+     */
+    private void addExprToList(List<Expression> exprList, int n) {
+
+        if (exprStack.isEmpty()) {
+            throw new IllegalStateException("Expression stack cannot be empty in processing an ExpressionList");
+        }
+
+        if (n == 1) {
+            Expression expr = exprStack.pop();
+            exprList.add(expr);
+        } else {
+            Expression expr = exprStack.pop();
+            addExprToList(exprList, n - 1);
+            exprList.add(expr);
+        }
+    }
+
 }
