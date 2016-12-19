@@ -26,6 +26,7 @@ import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.Connector;
 import org.wso2.ballerina.core.model.ConnectorDcl;
 import org.wso2.ballerina.core.model.Function;
+import org.wso2.ballerina.core.model.ImportPackage;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.Resource;
@@ -86,6 +87,11 @@ public class BLangInterpreter implements NodeVisitor {
 
     @Override
     public void visit(BallerinaFile bFile) {
+
+    }
+
+    @Override
+    public void visit(ImportPackage importPkg) {
 
     }
 

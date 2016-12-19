@@ -52,8 +52,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitPackageDeclaration(BallerinaParser.PackageDeclarationContext ctx) {
-        String pkgName = ctx.getChild(1).getText();
-        modelBuilder.setPackageName(pkgName);
+        modelBuilder.createPackageDcl();
     }
 
     @Override
@@ -63,8 +62,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
     @Override
     public void exitImportDeclaration(BallerinaParser.ImportDeclarationContext ctx) {
         // TODO Support import ffy.http as fhttp
-        String pkgName = ctx.getChild(1).getText();
-        modelBuilder.addImportPackage(pkgName);
+        modelBuilder.addImportPackage();
     }
 
     @Override
@@ -405,6 +403,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitPackageName(BallerinaParser.PackageNameContext ctx) {
+        modelBuilder.createPackageName(ctx.getText());
     }
 
     @Override
@@ -746,7 +745,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitFunctionName(BallerinaParser.FunctionNameContext ctx) {
-        modelBuilder.createIdentifier(ctx.getText());
+        modelBuilder.createIdentifier(ctx.Identifier().getText());
     }
 
     @Override

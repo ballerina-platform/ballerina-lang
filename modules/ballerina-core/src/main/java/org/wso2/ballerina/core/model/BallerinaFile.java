@@ -43,8 +43,9 @@ import java.util.Map;
 @SuppressWarnings("unused")
 public class BallerinaFile implements Node {
 
-    private String packageName;
-    private List<Import> imports = new ArrayList<>();
+    private String packageName = "main";
+    private ImportPackage[] importPackages;
+
     private List<Service> services = new ArrayList<>();
     private List<BallerinaConnector> connectorList = new ArrayList<>();
     private Map<String, Function> functions = new HashMap<>();
@@ -58,7 +59,7 @@ public class BallerinaFile implements Node {
 
     private BallerinaFile(
             String packageName,
-            List<Import> importList,
+            ImportPackage[] importPackages,
             List<Service> serviceList,
             List<BallerinaConnector> connectorList,
             Map<String, Function> functionMap,
@@ -67,7 +68,7 @@ public class BallerinaFile implements Node {
             List<ActionInvocationExpr> actionInvocationExpr) {
 
         this.packageName = packageName;
-        this.imports = importList;
+        this.importPackages = importPackages;
         this.services = serviceList;
         this.connectorList = connectorList;
         this.functions = functionMap;
@@ -101,26 +102,8 @@ public class BallerinaFile implements Node {
      *
      * @return list of imports
      */
-    public List<Import> getImports() {
-        return imports;
-    }
-
-    /**
-     * Set {@code Import} statement list
-     *
-     * @param imports list of imports
-     */
-    public void setImports(List<Import> imports) {
-        this.imports = imports;
-    }
-
-    /**
-     * Add an {@code Import}
-     *
-     * @param importStmt an import to be added to the file
-     */
-    public void addImport(Import importStmt) {
-        imports.add(importStmt);
+    public ImportPackage[] getImportPackages() {
+        return importPackages;
     }
 
     /**
@@ -240,16 +223,16 @@ public class BallerinaFile implements Node {
     public static class BFileBuilder {
 
         private String packageName;
-        private List<Import> importList = new ArrayList<>();
+        private List<ImportPackage> importPkgList = new ArrayList<>();
         private List<Service> serviceList = new ArrayList<>();
         private List<BallerinaConnector> connectorList = new ArrayList<>();
         private Map<String, Function> functionList = new HashMap<>();
         private List<StructType> sTypeList = new ArrayList<>();
+
         private List<FunctionInvocationExpr> funcIExprList = new ArrayList<>();
         private List<ActionInvocationExpr> actionIExprList = new ArrayList<>();
 
         public BFileBuilder() {
-
         }
 
         public void setPkgName(String packageName) {
@@ -268,8 +251,8 @@ public class BallerinaFile implements Node {
             this.connectorList.add(connector);
         }
 
-        public void addImportPackage(Import importPkg) {
-            this.importList.add(importPkg);
+        public void addImportPackage(ImportPackage importPkg) {
+            this.importPkgList.add(importPkg);
         }
 
         public void addStructType(StructType structType) {
@@ -283,7 +266,7 @@ public class BallerinaFile implements Node {
         public BallerinaFile build() {
             return new BallerinaFile(
                     packageName,
-                    importList,
+                    importPkgList.toArray(new ImportPackage[importPkgList.size()]),
                     serviceList,
                     connectorList,
                     functionList,
@@ -293,5 +276,4 @@ public class BallerinaFile implements Node {
 
         }
     }
-
 }
