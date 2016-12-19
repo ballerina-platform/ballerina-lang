@@ -109,12 +109,24 @@ public class BLangModelBuilder {
 
     // Identifiers
 
-    public void createIdentifier(String varName) {
+    public void createSymbolName(String name) {
         if (pkgNameStack.isEmpty()) {
-            symbolNameStack.push(new SymbolName(varName));
+            symbolNameStack.push(new SymbolName(name));
         } else {
-            symbolNameStack.push(new SymbolName(varName, pkgNameStack.pop()));
+            symbolNameStack.push(new SymbolName(name, pkgNameStack.pop()));
         }
+    }
+
+    public void createSymbolName(String connectorName, String actionName) {
+        SymbolName symbolName;
+        if (pkgNameStack.isEmpty()) {
+            symbolName = new SymbolName(actionName);
+        } else {
+            symbolName = new SymbolName(actionName, pkgNameStack.pop());
+        }
+
+        symbolName.setConnectorName(connectorName);
+        symbolNameStack.push(symbolName);
     }
 
     // Packages and import packages
@@ -218,6 +230,16 @@ public class BLangModelBuilder {
     }
 
     public void createConnectorDcl(String varName) {
+        // Here we build the object model for the following line
+        // ballerina.net.http:HTTPConnector nyseEP = new ballerina.net.http:HTTPConnector("http://..", 100);
+
+        // Here we need to pop the symbolName stack twice as the connector name appears twice in the declaration.
+        if (symbolNameStack.size() < 2) {
+            IllegalStateException ex = new IllegalStateException("symbol stack size should be " +
+                    "greater than or equal to two");
+            throw new ParserException("Failed to parse connector declaration", ex);
+        }
+
         symbolNameStack.pop();
         SymbolName cSymName = symbolNameStack.pop();
         List<Expression> exprList = exprListStack.pop();

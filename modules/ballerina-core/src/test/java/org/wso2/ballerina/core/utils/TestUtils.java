@@ -75,7 +75,7 @@ public class TestUtils {
         SymScope symScope = new SymScope(null);
 
         //        Println println = new Println();
-        //        SymbolName symbolName = SymbolUtils.generateSymNameWithParams(
+        //        SymbolName symbolName = SymbolUtils.getSymNameWithParams(
         //                "ballerina.lang.system:println",
         //                println.getParameters());
         //
@@ -83,14 +83,14 @@ public class TestUtils {
         //                SymbolUtils.getTypesOfParams(println.getParameters()), println.getReturnTypesC());
 
         Post post = new Post();
-        SymbolName symbolName = LangModelUtils.generateSymNameWithParams("ballerina.net.http:post",
+        SymbolName symbolName = LangModelUtils.getSymNameWithParams("ballerina.net.http:post",
                 post.getParameters());
         Symbol symbol = new Symbol(post, LangModelUtils.getTypesOfParams(post.getParameters()),
                 post.getReturnTypesC());
 
 
 //        Println println = new Println();
-//        SymbolName symbolName = SymbolUtils.generateSymNameWithParams(
+//        SymbolName symbolName = SymbolUtils.getSymNameWithParams(
 //                "ballerina.lang.system:println",
 //                println.getParameters());
 //
@@ -101,7 +101,7 @@ public class TestUtils {
         symScope.insert(symbolName, symbol);
 
         Log log = new Log();
-        symbolName = LangModelUtils.generateSymNameWithParams(
+        symbolName = LangModelUtils.getSymNameWithParams(
                 "ballerina.lang.system:log",
                 log.getParameters());
 

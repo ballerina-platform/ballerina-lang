@@ -26,6 +26,7 @@ public class SymbolName {
 
     private String name;
     private String pkgName;
+    private String connectorName;
 
     public SymbolName(String name) {
         this.name = name;
@@ -52,6 +53,14 @@ public class SymbolName {
      */
     public String getPkgName() {
         return pkgName;
+    }
+
+    public String getConnectorName() {
+        return connectorName;
+    }
+
+    public void setConnectorName(String connectorName) {
+        this.connectorName = connectorName;
     }
 
     @Override

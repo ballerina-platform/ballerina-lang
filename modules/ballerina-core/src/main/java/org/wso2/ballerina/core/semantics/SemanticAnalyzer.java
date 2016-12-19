@@ -265,6 +265,12 @@ public class SemanticAnalyzer implements NodeVisitor {
         symbol = new Symbol(TypeC.CONNECTOR_TYPE, stackFrameOffset);
         symbolTable.insert(symbolName, symbol);
 
+        // Setting the connector name with the package name
+        SymbolName connectorName = connectorDcl.getConnectorName();
+        String pkgPath = getPackagePath(connectorName);
+        connectorName = LangModelUtils.getConnectorSymName(connectorName.getName(), pkgPath);
+        connectorDcl.setConnectorName(connectorName);
+
     }
 
     @Override
@@ -375,7 +381,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             paramTypes[i] = exprs[i].getType();
         }
 
-        symbolName = LangModelUtils.generateSymNameWithParams(symbolName.getName(), pkgPath, paramTypes);
+        symbolName = LangModelUtils.getSymNameWithParams(symbolName.getName(), pkgPath, paramTypes);
         funcIExpr.setFunctionName(symbolName);
 
         bFile.addFuncInvocationExpr(funcIExpr);
@@ -398,17 +404,24 @@ public class SemanticAnalyzer implements NodeVisitor {
             expr.accept(this);
         }
 
+        // TODO Check whether first argument is of type Connector (with connector name). e.g. HttpConnector
+
         // Can we do this bit in the linker
-        SymbolName symbolName = actionIExpr.getActionName();
-        String pkgPath = getPackagePath(symbolName);
+        SymbolName symName = actionIExpr.getActionName();
+        if (symName.getConnectorName() == null) {
+            throw new SemanticException("Connector type is not associated with the action invocation");
+        }
+
+        String pkgPath = getPackagePath(symName);
 
         TypeC[] paramTypes = new TypeC[exprs.length];
         for (int i = 0; i < exprs.length; i++) {
             paramTypes[i] = exprs[i].getType();
         }
 
-        symbolName = LangModelUtils.generateSymNameWithParams(symbolName.getName(), pkgPath, paramTypes);
-        actionIExpr.setActionName(symbolName);
+        symName = LangModelUtils.getActionSymName(symName.getName(), symName.getConnectorName(),
+                pkgPath, paramTypes);
+        actionIExpr.setActionName(symName);
 
         bFile.addActionIExpr(actionIExpr);
     }
@@ -579,12 +592,16 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     private void addFuncSymbol(Function function) {
-        SymbolName symbolName = LangModelUtils.generateSymNameWithParams(function.getName(), function.getParameters());
+        SymbolName symbolName = LangModelUtils.getSymNameWithParams(function.getName(), function.getParameters());
         function.setSymbolName(symbolName);
 
         TypeC[] paramTypes = LangModelUtils.getTypesOfParams(function.getParameters());
 
         Symbol symbol = new Symbol(function, paramTypes, function.getReturnTypesC());
+
+        if (symbolTable.lookup(symbolName) != null) {
+            throw new SemanticException("Duplicate function definition: " + symbolName.getName());
+        }
         symbolTable.insert(symbolName, symbol);
     }
 
