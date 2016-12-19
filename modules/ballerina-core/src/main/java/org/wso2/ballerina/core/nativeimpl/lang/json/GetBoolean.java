@@ -22,10 +22,10 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.ReadContext;
-
 import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BValue;
@@ -75,12 +75,12 @@ public class GetBoolean extends AbstractJSONFunction {
             } else {
                 String errorMsg = "The element matching path: " + jsonPath + " is not a Boolean.";
                 log.error(errorMsg);
-                throw new RuntimeException(errorMsg);
+                throw new BallerinaException(errorMsg);
             }
         } else {
             String errorMsg = "The element matching path: " + jsonPath + " is a JSON, not a Boolean.";
             log.error(errorMsg);
-            throw new RuntimeException(errorMsg);
+            throw new BallerinaException(errorMsg);
         }
         
         // Setting output value.

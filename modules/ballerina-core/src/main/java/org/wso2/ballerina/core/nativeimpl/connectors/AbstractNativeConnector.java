@@ -17,6 +17,7 @@ package org.wso2.ballerina.core.nativeimpl.connectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.model.Connector;
 import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.SymbolName;
@@ -64,7 +65,7 @@ public abstract class AbstractNativeConnector implements Connector, NativeConstr
                     try {
                         parameters.add(new Parameter(TypeC.getTypeC(argument.type().getName()),
                                 new SymbolName(argument.name())));
-                    } catch (RuntimeException e) {
+                    } catch (BallerinaException e) {
                         // TODO: Fix this when TypeC.getType method is improved.
                         log.warn("Error while processing Parameters for Native ballerina Connector {}:{}.", packageName,
                                 connectorName, e);

@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerina.core.interpreter;
 
+import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.values.BValue;
@@ -61,7 +62,7 @@ public class SymbolTable {
         }
 
         // TODO Implement proper error handling here.
-        throw new RuntimeException("Value not found for identifier: " + symbolName.getName());
+        throw new BallerinaException("Value not found for identifier: " + symbolName.getName());
     }
 
     public SymbolName lookup(String identifier1) {
@@ -74,7 +75,7 @@ public class SymbolTable {
         }
 
         // TODO Implement proper error handling here.
-        throw new RuntimeException("Value not found for identifier: " + symbolName.getName());
+        throw new BallerinaException("Value not found for identifier: " + symbolName.getName());
     }
 
     public void putVarRefExpr(SymbolName symbolName, VariableRefExpr variableRefExpr) {
@@ -90,6 +91,6 @@ public class SymbolTable {
         }
 
         // TODO Implement proper error handling here.
-        throw new RuntimeException("Variable reference '" + symbolName.getName() + "'  is not declared.");
+        throw new BallerinaException("Variable reference '" + symbolName.getName() + "'  is not declared.");
     }
 }

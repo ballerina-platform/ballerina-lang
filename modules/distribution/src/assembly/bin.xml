@@ -63,6 +63,7 @@
             <outputDirectory>bin</outputDirectory>
             <includes>
                 <include>**/*.sh</include>
+                <include>**/*.bat</include>
             </includes>
             <fileMode>755</fileMode>
         </fileSet>

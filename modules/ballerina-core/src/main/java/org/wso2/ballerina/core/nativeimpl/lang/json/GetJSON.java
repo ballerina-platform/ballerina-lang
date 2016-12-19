@@ -25,6 +25,7 @@ import com.jayway.jsonpath.ReadContext;
 import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BValue;
@@ -67,8 +68,8 @@ public class GetJSON extends AbstractJSONFunction {
             log.error("No matching element found for jsonpath: " + jsonPath);
         } else if (element.isJsonPrimitive()) {
             String errorMsg = "The element matching: " + jsonPath + " is a primitive, not a JSON.";
-            log.error(errorMsg);
-            throw new RuntimeException(errorMsg);
+            // log.error(errorMsg);
+            throw new BallerinaException(errorMsg);
         } else {
             // if the resulting value is a complex object, return is as a JSONType object
             result = new JSONValue(element);

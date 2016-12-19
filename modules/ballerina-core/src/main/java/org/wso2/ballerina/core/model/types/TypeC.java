@@ -17,6 +17,8 @@
 */
 package org.wso2.ballerina.core.model.types;
 
+import org.wso2.ballerina.core.exception.BallerinaException;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -115,7 +117,7 @@ public class TypeC {
             return new ConnectorType();
         default:
             //TODO use proper exceptions here
-            throw new RuntimeException("Unknown type");
+            throw new BallerinaException("Unknown type");
         }
 
     }

@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerina.core.model.values;
 
+import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.message.BallerinaMessageDataSource;
 
 import java.io.IOException;
@@ -48,7 +49,7 @@ public class StringValue extends BallerinaMessageDataSource implements BValue<St
         try {
             this.outputStream.write(this.value.getBytes());
         } catch (IOException e) {
-            throw new RuntimeException("Error occurred during writing the message to the output stream");
+            throw new BallerinaException("Error occurred during writing the message to the output stream", e);
         }
     }
 
