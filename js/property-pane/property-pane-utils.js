@@ -47,6 +47,7 @@ define(['require', 'lodash', 'jquery'], function (require, _, $) {
             var propertyInputValue = $("<input type='text' value='" + propertyValue + "'>").appendTo(propertyWrapper);
             $(propertyInputValue).click(function () {
                 property.setterMethod.call(property.model, $(this).val());
+                property.model.trigger('update-statement-text', $(this).val());
             });
         }
 

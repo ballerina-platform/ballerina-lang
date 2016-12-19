@@ -22,9 +22,9 @@ define(['lodash', './statement'], function (_, Statement) {
      * @constructor
      */
     var Assignment = function (args) {
-        this._variableAccessor = _.get(args, 'accessor', 'var1');
-        this._expression = _.get(args, 'expression', 'exp1');
         Statement.call(this, 'Assignment');
+        this._variableAccessor = _.get(args, 'accessor', 'var1');
+        this._expression = 'exp1';
     };
 
     Assignment.prototype = Object.create(Statement.prototype);
