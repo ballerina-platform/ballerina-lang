@@ -198,10 +198,9 @@
                 <artifactId>mockito-all</artifactId>
                 <version>${mockito.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>org.wso2.ballerina</groupId>
-                <artifactId>ballerina-fragment</artifactId>
+                <artifactId>gson-fragment</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
         </dependencies>

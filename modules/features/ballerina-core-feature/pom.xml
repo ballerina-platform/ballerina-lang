@@ -108,7 +108,7 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.ballerina</groupId>
-            <artifactId>ballerina-fragment</artifactId>
+            <artifactId>gson-fragment</artifactId>
         </dependency>
     </dependencies>
 
@@ -210,9 +210,8 @@
                                     <symbolicName>org.apache.james.apache-mime4j-core</symbolicName>
                                     <version>${mime4j.version}</version>
                                 </bundle>
-                                
                                 <bundle>
-                                    <symbolicName>ballerina-fragment</symbolicName>
+                                    <symbolicName>gson-fragment</symbolicName>
                                     <version>${ballerina.version}</version>
                                 </bundle>
                             </bundles>
