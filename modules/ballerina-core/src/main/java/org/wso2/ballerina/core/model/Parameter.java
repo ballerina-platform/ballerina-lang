@@ -55,9 +55,9 @@ public class Parameter implements Node {
     }
 
     /**
-     * Get connectorName of the Argument
+     * Get CONNECTOR_NAME of the Argument
      *
-     * @return connectorName of the Argument
+     * @return CONNECTOR_NAME of the Argument
      */
     public SymbolName getName() {
         return name;

@@ -30,7 +30,7 @@ import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
  */
 @BallerinaConnector(
         packageName = "ballerina.net.connectors.http",
-        connectorName = "HTTPConnector",
+        connectorName = HTTPConnector.CONNECTOR_NAME,
         args = {
                 @Argument(name = "serviceUri",
                           type = TypeEnum.STRING), @Argument(name = "timeout",
@@ -44,6 +44,7 @@ public class HTTPConnector extends AbstractNativeConnector implements ServiceFac
 
     private String serviceUri;
     private int timeout;
+    public static final String CONNECTOR_NAME = "HTTPConnector";
 
     @Override
     public boolean init(BValueRef[] bValueRefs) {

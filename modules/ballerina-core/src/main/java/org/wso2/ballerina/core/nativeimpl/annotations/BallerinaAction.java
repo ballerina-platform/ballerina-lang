@@ -15,6 +15,7 @@ import java.lang.annotation.Target;
 public @interface BallerinaAction {
     String packageName() default "";
     String actionName() default "";
+    String connectorName() default "";
     Argument[] args() default {};
     TypeEnum[] returnType() default {};
     BallerinaConstant[] consts() default {};
