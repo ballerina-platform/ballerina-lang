@@ -89,9 +89,11 @@
     background: #8d8d8d;
 }
 
-.nav-tabs > li{
-
-}
+.nav-tabs-bar > li > a {
+     border-radius: 0;
+     border: none;
+     margin: 0;
+ }
 
 .nav-tabs > li > a {
     border-radius: 0;
@@ -104,7 +106,7 @@
 }
 
 
-.nav-tabs > li {
+.nav-tabs-bar > li {
     background-color: #c4c4c4;
     width: 120px;
 }
@@ -116,6 +118,21 @@
 .canvas-container{
     background: none;
 }
+
+.nav-tabs-bar > li > a {
+    border-radius: 0;
+    border: none;
+    margin: 0;
+    padding: 0 5px 0 6px;
+}
+
+.nav-tabs-bar>li.active>a{
+    border-top: 1px solid #ccc;
+    border-left: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+}
+
+
 /*
 .tab-content.tab-content-default {
     border: 2px solid #c7c7c7;
