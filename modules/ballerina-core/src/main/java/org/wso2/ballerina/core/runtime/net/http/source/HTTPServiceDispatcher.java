@@ -20,6 +20,7 @@ package org.wso2.ballerina.core.runtime.net.http.source;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.Service;
@@ -155,7 +156,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
         }
         if (servicesOnInterface.containsKey(basePath)) {
             //TODO: Through deployment exception
-            throw new RuntimeException(
+            throw new BallerinaException(
                     "Service with base path :" + basePath + " already exists in listener : " + listenerInterface);
         }
 

@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerina.core.model.values;
 
+import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.model.types.BooleanType;
 import org.wso2.ballerina.core.model.types.DoubleType;
 import org.wso2.ballerina.core.model.types.FloatType;
@@ -55,7 +56,7 @@ public class ValueFactory {
         } else if (type instanceof MessageType) {
             return new BValueRef(new MessageValue(null));
         } else {
-            throw new RuntimeException("Unsupported type: " + type.getName());
+            throw new BallerinaException("Unsupported type: " + type.getName());
         }
     }
 }

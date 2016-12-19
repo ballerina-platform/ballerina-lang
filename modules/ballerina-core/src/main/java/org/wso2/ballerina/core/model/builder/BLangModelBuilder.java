@@ -17,6 +17,9 @@
 */
 package org.wso2.ballerina.core.model.builder;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.wso2.ballerina.core.exception.ParserException;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.BallerinaConnector;
@@ -89,6 +92,9 @@ public class BLangModelBuilder {
     private Stack<SymbolName> symbolNameStack = new Stack<>();
     private Stack<Expression> exprStack = new Stack<>();
 
+    private static final Logger log = LoggerFactory.getLogger(BLangModelBuilder.class);
+
+
     // Holds ExpressionLists required for return statements, function/action invocations and connector declarations
     private Stack<List<Expression>> exprListStack = new Stack<>();
 
@@ -127,7 +133,7 @@ public class BLangModelBuilder {
         //        Annotation.AnnotationBuilder annotationBuilder = annotationBuilderStack.peek();
         //        annotationBuilder.addKeyValuePair(new Identifier(key), value);
 
-        throw new RuntimeException("Key/Value pairs in annotations are not supported");
+        log.warn("Key/Value pairs in annotations are not supported");
     }
 
     public void endAnnotation(String name, boolean valueAvailable) {
@@ -251,7 +257,7 @@ public class BLangModelBuilder {
                 break;
 
             case "/":
-                throw new RuntimeException("Unsupported operator: " + opStr);
+                throw new ParserException("Unsupported operator: " + opStr);
 
             case "&&":
                 expr = new AndExpression(lExpr, rExpr);
@@ -286,7 +292,7 @@ public class BLangModelBuilder {
                 break;
 
             default:
-                throw new RuntimeException("Unsupported operator: " + opStr);
+                throw new ParserException("Unsupported operator: " + opStr);
         }
 
         exprStack.push(expr);

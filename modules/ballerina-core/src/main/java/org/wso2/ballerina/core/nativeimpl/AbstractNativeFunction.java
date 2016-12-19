@@ -20,6 +20,7 @@ package org.wso2.ballerina.core.nativeimpl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.Const;
@@ -88,7 +89,7 @@ public abstract class AbstractNativeFunction implements NativeConstruct, Functio
                     try {
                         parameters.add(new Parameter(TypeC.getTypeC(argument.type().getName())
                                 , new SymbolName(argument.name())));
-                    } catch (RuntimeException e) {
+                    } catch (BallerinaException e) {
                         // TODO: Fix this when TypeC.getType method is improved.
                         log.warn("Error while processing Parameters for Native ballerina function {}:{}.",
                                 packageName, functionName, e);
@@ -98,7 +99,7 @@ public abstract class AbstractNativeFunction implements NativeConstruct, Functio
                 returnType -> {
                     try {
                         returnTypes.add(TypeC.getTypeC(returnType.getName()));
-                    } catch (RuntimeException e) {
+                    } catch (BallerinaException e) {
                         // TODO: Fix this when TypeC.getType method is improved.
                         log.warn("Error while processing ReturnTypes for Native ballerina function {}:{}.",
                                 packageName, functionName, e);

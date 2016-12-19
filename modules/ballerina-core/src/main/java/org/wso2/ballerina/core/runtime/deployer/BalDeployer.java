@@ -25,6 +25,7 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.BLangInterpreter;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.interpreter.ControlStack;
@@ -43,11 +44,9 @@ import org.wso2.ballerina.core.model.values.IntValue;
 import org.wso2.ballerina.core.parser.BallerinaLexer;
 import org.wso2.ballerina.core.parser.BallerinaParser;
 import org.wso2.ballerina.core.parser.BallerinaParserErrorStrategy;
-import org.wso2.ballerina.core.parser.ParserException;
 import org.wso2.ballerina.core.parser.antlr4.BLangAntlr4Listener;
 import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 import org.wso2.ballerina.core.runtime.registry.ApplicationRegistry;
-import org.wso2.ballerina.core.semantics.InvalidSemanticException;
 import org.wso2.ballerina.core.semantics.SemanticAnalyzer;
 import org.wso2.carbon.deployment.engine.Artifact;
 import org.wso2.carbon.deployment.engine.ArtifactType;
@@ -193,8 +192,8 @@ public class BalDeployer implements Deployer {
             }
         } catch (IOException e) {
             log.error("Error while creating Ballerina object model from file : " + file.getName(), e);
-        } catch (ParserException | InvalidSemanticException | IllegalStateException e) {
-            log.error("Failed to deploy " + file.getName() + ": " + e.getMessage());
+        } catch (BallerinaException e) {
+            log.error("Failed to deploy " + file.getName() + ": " + e.getMessage(), e);
         } finally {
             if (inputStream != null) {
                 try {

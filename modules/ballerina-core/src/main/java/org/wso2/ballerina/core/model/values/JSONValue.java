@@ -19,6 +19,7 @@ package org.wso2.ballerina.core.model.values;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.message.BallerinaMessageDataSource;
 
 import java.io.IOException;
@@ -150,7 +151,7 @@ public class JSONValue extends BallerinaMessageDataSource implements BValue<Json
         try {
             this.outputStream.write(this.value.toString().getBytes());
         } catch (IOException e) {
-            throw new RuntimeException("Error occurred during writing the message to the output stream");
+            throw new BallerinaException("Error occurred during writing the message to the output stream", e);
         }
     }
 
