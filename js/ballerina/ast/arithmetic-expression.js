@@ -15,18 +15,27 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './expression'], function (_, Expression) {
+define(['lodash', './statement'], function (_, Statement) {
 
     /**
      * Class to represent an assignment in ballerina.
      * @constructor
      */
     var ArithmeticExpression = function (args) {
-        Expression.call(this, 'ArithmeticExpression');
+        this._expression = 'x = a + b';
+        Statement.call(this, 'ArithmeticExpression');
     };
 
-    ArithmeticExpression.prototype = Object.create(Expression.prototype);
+    ArithmeticExpression.prototype = Object.create(Statement.prototype);
     ArithmeticExpression.prototype.constructor = ArithmeticExpression;
+
+    ArithmeticExpression.prototype.setExpression = function (expression) {
+        this._expression = expression;
+    };
+
+    ArithmeticExpression.prototype.getExpression = function () {
+        return this._expression;
+    };
 
     return ArithmeticExpression;
 });

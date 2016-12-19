@@ -77,17 +77,10 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/arithmetic-expr
             group.attr("id","_" +this._model.id);
             var width = 120;
             var height = 30;
-            var x = this.getXPosition();
-            var y = this.getYPosition();
-            var expressionRect = D3Utils.rect(x, y, 120, 30, 0, 0, group).classed('statement-rect', true);
+            this.getBoundingBox().fromTopCenter(this._topCenter, width, height);
+            var expressionRect = D3Utils.rect(this.getBoundingBox().x(), this.getBoundingBox().y(), width, 30, height, 0, group).classed('statement-rect', true);
             var text = this._model.getExpression();
-
-            var expressionText = D3Utils.textElement(x + width/2, y + height/2, text, group).classed('statement-text', true);
-            // Set x, y, height, width of the current view
-            this.setWidth(width);
-            this.setHeight(height);
-            this.setXPosition(x);
-            this.setYPosition(y);
+            var expressionText = D3Utils.textElement(this.getBoundingBox().x() + width/2, this.getBoundingBox().y() + height/2, text, group).classed('statement-text', true);
             log.info("Rendering arithmetic expression view.");
             return group;
         };
