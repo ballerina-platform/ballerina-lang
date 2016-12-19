@@ -30,37 +30,42 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 import org.wso2.carbon.messaging.CarbonMessage;
 
+import java.util.Locale;
+
 /**
- * {@code Get} is the GET action implementation of the HTTP Connector
+ * {@code Execute} action can be used to invoke execute a http call with any httpVerb
+ *
  */
 @BallerinaAction(
         packageName = "ballerina.net.http",
-        actionName = "get",
+        actionName = "execute",
         connectorName = HTTPConnector.CONNECTOR_NAME,
         args = {
                 @Argument(name = "connector",
                         type = TypeEnum.CONNECTOR),
+                @Argument(name = "httpVerb", type = TypeEnum.STRING),
                 @Argument(name = "path", type = TypeEnum.STRING),
                 @Argument(name = "message", type = TypeEnum.MESSAGE)
         },
         returnType = {TypeEnum.MESSAGE})
 @Component(
-        name = "action.net.http.get",
+        name = "action.net.http.execute",
         immediate = true,
         service = AbstractNativeAction.class)
-public class Get extends AbstractHTTPAction {
+public class Execute extends AbstractHTTPAction {
 
-    private static final Logger logger = LoggerFactory.getLogger(Get.class);
+    private static final Logger logger = LoggerFactory.getLogger(Execute.class);
 
     @Override
     public BValueRef execute(Context context) {
 
-        logger.debug("Executing Native Action : Get");
+        logger.debug("Executing Native Action : Execute");
 
         // Extract Argument values
         ConnectorValue connectorValue = (ConnectorValue) getArgument(context, 0).getBValue();
-        String path = getArgument(context, 1).getString();
-        MessageValue messageValue = (MessageValue) getArgument(context, 2).getBValue();
+        String httpVerb = getArgument(context, 1).getString();
+        String path = getArgument(context, 2).getString();
+        MessageValue messageValue = (MessageValue) getArgument(context, 3).getBValue();
         CarbonMessage cMsg = messageValue.getValue();
 
         Connector connector = connectorValue.getValue();
@@ -71,7 +76,7 @@ public class Get extends AbstractHTTPAction {
         // Prepare the message
         prepareRequest(connector, path, cMsg);
         cMsg.setProperty(org.wso2.ballerina.core.runtime.net.http.Constants.HTTP_METHOD,
-                         org.wso2.ballerina.core.runtime.net.http.Constants.HTTP_METHOD_GET);
+                         httpVerb.trim().toUpperCase(Locale.getDefault()));
 
         // Execute the operation
         return executeAction(context, cMsg);
