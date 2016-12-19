@@ -25,11 +25,12 @@
         <version>1.0.0-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
 
+    <modelVersion>4.0.0</modelVersion>
+    <name>WSO2 Ballerina - Tests</name>
     <artifactId>tests</artifactId>
     <packaging>pom</packaging>
-    <name>Ballerina Tests</name>
+
     <modules>
         <module>test-distribution</module>
         <module>paxexam-tests</module>

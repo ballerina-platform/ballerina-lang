@@ -51,56 +51,17 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
         }
 )
 @Component(
-        name = "func.lang.system_log",
+        name = "func.lang.system_logString",
         immediate = true,
         service = AbstractNativeFunction.class
 )
-public class Log extends AbstractNativeFunction {
+public class LogString extends AbstractNativeFunction {
 
-
-    private static final Logger logger = LoggerFactory.getLogger(Log.class);
+    private static final Logger logger = LoggerFactory.getLogger(LogString.class);
 
     public BValue[] execute(Context ctx) {
         // TODO : Improve this with trace log.
-        switch (getArgument(ctx, 0).getInt()) {
-            case 1:
-                logTrace(getArgument(ctx, 1).getString());
-                break;
-            case 2:
-                logDebug(getArgument(ctx, 1).getString());
-                break;
-            case 3:
-                logInfo(getArgument(ctx, 1).getString());
-                break;
-            case 4:
-                logWarn(getArgument(ctx, 1).getString());
-                break;
-            case 5:
-                logError(getArgument(ctx, 1).getString());
-                break;
-            default:
-        }
+        LogUtil.log(logger, getArgument(ctx, 0).getInt(), getArgument(ctx, 1).getString());
         return VOID_RETURN;
     }
-
-    private void logTrace(String s) {
-        logger.trace(s);
-    }
-
-    private void logDebug(String s) {
-        logger.debug(s);
-    }
-
-    private void logInfo(String s) {
-        logger.info(s);
-    }
-
-    private void logWarn(String s) {
-        logger.warn(s);
-    }
-
-    private void logError(String s) {
-        logger.error(s);
-    }
-
 }

@@ -19,7 +19,7 @@ package org.wso2.ballerina.core.nativeimpl;
 import org.testng.annotations.BeforeTest;
 import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.model.BallerinaFile;
-import org.wso2.ballerina.core.nativeimpl.lang.system.Println;
+import org.wso2.ballerina.core.nativeimpl.lang.system.PrintlnString;
 import org.wso2.ballerina.core.utils.TestUtils;
 
 public class NativeActionTest {
@@ -33,7 +33,7 @@ public class NativeActionTest {
 
         globalScope = new SymScope();
 
-        Println printlnFunc = new Println();
+        PrintlnString printlnFunc = new PrintlnString();
 
         printlnFunc.getParameters();
 

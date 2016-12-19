@@ -36,4 +36,9 @@ public class FloatValue implements BValue<Float> {
     public void setValue(float value) {
         this.value = value;
     }
+
+    @Override
+    public StringValue getString() {
+        return new StringValue(this.getValue().toString());
+    }
 }

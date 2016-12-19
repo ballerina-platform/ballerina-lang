@@ -30,7 +30,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 import java.util.Locale;
 
 /**
- * Native function ballerina.lang.string:toLowerCase
+ * Native function ballerina.lang.string:toLowerCase.
  *
  * @since 1.0.0
  */

@@ -34,4 +34,15 @@ public interface BValue<T> {
      * @return  Java value associated with this ballerina value
      */
     public T getValue();
+
+    /**
+     * Return StringValue representation of the BValue. This will be a simple toString() type behaviour for primitive
+     * types like StringValue, IntValue etc. Complex object types like MessageValue, XMLValue, JSONValue it will be
+     * String XML, JSON representation.
+     *
+     * @return A StringValue that contains the value.
+     */
+    public default StringValue getString() {
+        return new StringValue("Default Method Executed");
+    }
 }

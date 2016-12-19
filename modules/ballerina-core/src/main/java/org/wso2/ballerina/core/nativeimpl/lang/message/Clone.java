@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
+import org.wso2.ballerina.core.model.util.MessageUtils;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.MessageValue;
 import org.wso2.ballerina.core.model.values.StringValue;
@@ -72,9 +73,9 @@ public class Clone  extends AbstractNativeFunction {
 
         // Clone payload
         if (originalMessage.isAlreadyRead()) {
-            newMessageObj.setBuiltPayload(Utils.getBValueCopy(originalMessage.getBuiltPayload()));
+            newMessageObj.setBuiltPayload(MessageUtils.getBValueCopy(originalMessage.getBuiltPayload()));
         } else {
-            String payload = Utils.getStringFromInputStream(originalMessage.getValue().getInputStream());
+            String payload = MessageUtils.getStringFromInputStream(originalMessage.getValue().getInputStream());
             StringValue result = new StringValue(payload);
             newMessageObj.setBuiltPayload(result);
             originalMessage.setBuiltPayload(result);
