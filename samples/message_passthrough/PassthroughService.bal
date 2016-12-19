@@ -13,7 +13,7 @@ service PassthroughService {
         http:HTTPConnector nyseEP = new http:HTTPConnector("http://localhost:9000", 100);
 
         message response;
-        response = http:HTTPConnector.post(nyseEP, "/services/SimpleStockQuoteService", m);
+        response = http:HTTPConnector.post(nyseEP, "/services/nyse", m);
         reply response;
     }
 }
