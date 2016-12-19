@@ -50,6 +50,8 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
             return this.canVisitGetActionStatement(node);
         } else if (node instanceof AST.Expression) {
             return this.canVisitExpression(node);
+        } else if (node instanceof AST.ReplyStatement) {
+            return this.canVisitReplyStatement(node);
         }
     };
 
@@ -79,6 +81,8 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
             return this.beginVisitExpression(node);
         } else if (node instanceof AST.ActionInvocationStatement) {
             return this.beginVisitGetActionStatement(node);
+        } else if (node instanceof AST.ReplyStatement) {
+            return this.beginVisitReplyStatement(node);
         }
     };
 
@@ -108,6 +112,8 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
             return this.visitGetActionStatement(node);
         } else if (node instanceof AST.Expression) {
             return this.visitExpression(node);
+        } else if (node instanceof AST.ReplyStatement) {
+            return this.visitReplyStatement(node);
         }
     };
 
@@ -137,6 +143,8 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
             return this.endVisitGetActionStatement(node);
         } else if (node instanceof AST.Expression) {
             return this.endVisitExpression(node);
+        } else if (node instanceof AST.ReplyStatement) {
+            return this.endVisitReplyStatement(node);
         }
     };
 
@@ -208,6 +216,16 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
     StatementVisitor.prototype.visitStatement = function (statement) {
     };
     StatementVisitor.prototype.endVisitStatement = function (statement) {
+    };
+
+    StatementVisitor.prototype.canVisitReplyStatement = function (statement) {
+        return false;
+    };
+    StatementVisitor.prototype.beginVisitReplyStatement = function (statement) {
+    };
+    StatementVisitor.prototype.visitReplyStatement = function (statement) {
+    };
+    StatementVisitor.prototype.endVisitReplyStatement = function (statement) {
     };
 
     StatementVisitor.prototype.canVisitGetActionStatement = function (statement) {

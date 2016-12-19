@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './ballerina-view', './../ast/reply-statement', 'd3utils'],
-    function (_, log, BallerinaView, ReplyStatement, D3Utils) {
+define(['lodash', 'log', './ballerina-statement-view', './../ast/reply-statement', 'd3utils', 'd3', './point'],
+    function (_, log, BallerinaStatementView, ReplyStatement, D3Utils, d3, Point) {
 
         /**
          * The view to represent a reply statement which is an AST visitor.
@@ -28,7 +28,7 @@ define(['lodash', 'log', './ballerina-view', './../ast/reply-statement', 'd3util
          */
         var ReplyStatementView = function (args) {
 
-            BallerinaView.call(this, args);
+            BallerinaStatementView.call(this, args);
 
             if (_.isNil(this._model) || !(this._model instanceof ReplyStatement)) {
                 log.error("Return statement definition is undefined or is of different type." + this._model);
@@ -41,7 +41,7 @@ define(['lodash', 'log', './ballerina-view', './../ast/reply-statement', 'd3util
             }
         };
 
-        ReplyStatementView.prototype = Object.create(BallerinaView.prototype);
+        ReplyStatementView.prototype = Object.create(BallerinaStatementView.prototype);
         ReplyStatementView.prototype.constructor = ReplyStatementView;
 
         ReplyStatementView.prototype.setModel = function (model) {
@@ -83,12 +83,25 @@ define(['lodash', 'log', './ballerina-view', './../ast/reply-statement', 'd3util
          * @returns {group} The svg group which contains the elements of the reply statement view.
          */
         ReplyStatementView.prototype.render = function () {
-            var group = D3Utils.draw.group(this._container);
-            // var rect = D3Utils.draw.rect(10, 10, 100, 100, 0, 0, group, "#FFFFFF");
+            var width = 120;
+            var height = 30;
+            this.getBoundingBox().fromTopCenter(this.getTopCenter(), width, height);
+            var startActionGroup = D3Utils.group(d3.select(this._container));
+            var line_start = new Point(this.getBoundingBox().x(), this.getBoundingBox().y() + height/2);
+            // FixMe: here 50 is the length of the arrow line. This value has to determine dynamically considering the client lifeline
+            var line_end = new Point(this.getBoundingBox().x() - 50, this.getBoundingBox().y() + height/2);
+            var reply_rect = D3Utils.rect(this.getBoundingBox().x(), this.getBoundingBox().y(), width, height, 0, 0, startActionGroup).classed('statement-rect', true);
+            var reply_text = D3Utils.textElement(this.getBoundingBox().x() + width/2, this.getBoundingBox().y() + height/2, 'Reply', startActionGroup).classed('statement-text', true);
+            this.reply_line = D3Utils.lineFromPoints(line_start,line_end, startActionGroup)
+                .classed('message', true);
+            var arrowHeadWidth = 5;
+            this.reply_arrow_head = D3Utils.outputTriangle(line_end.x(), line_end.y(), startActionGroup).classed("action-arrow", true);
+
             log.info("Rendering the Reply Statement.");
-            // group.rect = rect;
-            return group;
+            return startActionGroup;
         };
+
+
 
         return ReplyStatementView;
     });
