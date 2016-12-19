@@ -31,7 +31,7 @@ import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
- * Execute post method to given URI
+ * {@code Get} is the GET action implementation of the HTTP Connector
  */
 @BallerinaAction(
         packageName = "ballerina.net.connectors.http",
