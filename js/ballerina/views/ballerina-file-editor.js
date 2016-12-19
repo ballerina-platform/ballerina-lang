@@ -455,11 +455,6 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             this._model.accept(this);
 
             this.initResourceLevelDropTarget();
-
-            this._model.on('child-added', function(child){
-                self.visit(child);
-                self._model.trigger("childVisitedEvent", child);
-            });
         };
 
         return BallerinaFileEditor;
