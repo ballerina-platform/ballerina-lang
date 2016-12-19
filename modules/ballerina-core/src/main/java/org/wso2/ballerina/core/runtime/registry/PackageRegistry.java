@@ -71,7 +71,7 @@ public class PackageRegistry {
         }
 
         String funcName = function.getName();
-        SymbolName symbolName = LangModelUtils.generateSymNameWithParams(funcName, function.getParameters());
+        SymbolName symbolName = LangModelUtils.getSymNameWithParams(funcName, function.getParameters());
         Symbol symbol = new Symbol(function, LangModelUtils.getTypesOfParams(function.getParameters()),
                 function.getReturnTypesC());
 
@@ -94,7 +94,7 @@ public class PackageRegistry {
         aPackage.getActions().put(action.getName(), action);
 
         String actionName = action.getSymbolName().getName();
-        SymbolName symbolName = LangModelUtils.generateSymNameWithParams(actionName, action.getParameters());
+        SymbolName symbolName = LangModelUtils.getSymNameWithParams(actionName, action.getParameters());
         Symbol symbol = new Symbol(action, LangModelUtils.getTypesOfParams(action.getParameters()),
                 action.getReturnTypesC());
 
@@ -142,7 +142,7 @@ public class PackageRegistry {
     public void registerNativeConnector(AbstractNativeConnector connector) {
 
         String connectorName = connector.getSymbolName().getName();
-        //SymbolName symbolName = SymbolUtils.generateSymNameWithParams(CONNECTOR_NAME, connector.getParameters());
+        //SymbolName symbolName = SymbolUtils.getSymNameWithParams(CONNECTOR_NAME, connector.getParameters());
         Symbol symbol = new Symbol(connector, LangModelUtils.getTypesOfParams(connector.getParameters()));
 
         GlobalScopeHolder.getInstance().insert(new SymbolName(connectorName), symbol);

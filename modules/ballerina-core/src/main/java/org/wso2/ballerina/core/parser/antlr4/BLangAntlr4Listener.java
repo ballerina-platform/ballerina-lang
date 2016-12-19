@@ -377,7 +377,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitQualifiedReference(BallerinaParser.QualifiedReferenceContext ctx) {
-        modelBuilder.createIdentifier(ctx.getText());
+        modelBuilder.createSymbolName(ctx.Identifier().getText());
     }
 
     @Override
@@ -670,7 +670,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitSimpleVariableIdentifier(BallerinaParser.SimpleVariableIdentifierContext ctx) {
-        modelBuilder.createIdentifier(ctx.getText());
+        modelBuilder.createSymbolName(ctx.getText());
     }
 
     @Override
@@ -745,7 +745,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitFunctionName(BallerinaParser.FunctionNameContext ctx) {
-        modelBuilder.createIdentifier(ctx.Identifier().getText());
+        modelBuilder.createSymbolName(ctx.Identifier().getText());
     }
 
     @Override
@@ -754,7 +754,11 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitActionInvocation(BallerinaParser.ActionInvocationContext ctx) {
-        modelBuilder.createIdentifier(ctx.getText());
+        // Corresponding production
+        // actionInvocation
+        //      :   packageName ':' Identifier '.' Identifier
+        // Here first identifier is the connector name and the second identifier in the action name.
+        modelBuilder.createSymbolName(ctx.Identifier(0).getText(), ctx.Identifier(1).getText());
     }
 
     @Override

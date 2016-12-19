@@ -32,9 +32,8 @@ import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
         packageName = "ballerina.net.http",
         connectorName = HTTPConnector.CONNECTOR_NAME,
         args = {
-                @Argument(name = "serviceUri",
-                          type = TypeEnum.STRING), @Argument(name = "timeout",
-                                                             type = TypeEnum.INT)
+                @Argument(name = "serviceUri", type = TypeEnum.STRING),
+                @Argument(name = "timeout", type = TypeEnum.INT)
         })
 @Component(
         name = "ballerina.net.connectors.http",
