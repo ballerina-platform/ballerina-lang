@@ -39,6 +39,7 @@ import org.wso2.ballerina.core.model.expressions.AndExpression;
 import org.wso2.ballerina.core.model.expressions.BasicLiteral;
 import org.wso2.ballerina.core.model.expressions.BinaryArithmeticExpression;
 import org.wso2.ballerina.core.model.expressions.BinaryExpression;
+import org.wso2.ballerina.core.model.expressions.BinaryLogicalExpression;
 import org.wso2.ballerina.core.model.expressions.EqualExpression;
 import org.wso2.ballerina.core.model.expressions.Expression;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
@@ -334,43 +335,6 @@ public class SemanticAnalyzer implements NodeVisitor {
     // Expressions
 
     @Override
-    public void visit(BasicLiteral basicLiteral) {
-    }
-
-    @Override
-    public void visit(AddExpression addExpr) {
-        TypeC arithmeticExprType = verifyBinaryArithmeticExprType(addExpr);
-
-        // We need to find a better implementation than this.
-        if (arithmeticExprType == TypeC.INT_TYPE) {
-            addExpr.setEvalFunc(AddExpression.ADD_INT_FUNC);
-        } else if (arithmeticExprType == TypeC.STRING_TYPE) {
-            addExpr.setEvalFunc(AddExpression.ADD_STRING_FUNC);
-        } else {
-            throw new InvalidSemanticException("Add operation is not supported for type: " + arithmeticExprType);
-        }
-    }
-
-    @Override
-    public void visit(AndExpression andExpr) {
-    }
-
-    @Override
-    public void visit(EqualExpression expr) {
-        TypeC compareExprType = verifyBinaryCompareExprType(expr);
-
-        if (compareExprType == TypeC.INT_TYPE) {
-            expr.setEvalFunc(EqualExpression.EQUAL_INT_FUNC);
-        } else if (compareExprType == TypeC.STRING_TYPE) {
-            expr.setType(TypeC.BOOLEAN_TYPE);
-            expr.setEvalFunc(EqualExpression.EQUAL_STRING_FUNC);
-        } else {
-            throw new InvalidSemanticException("Equals operation is not supported for type: "
-                    + compareExprType);
-        }
-    }
-
-    @Override
     public void visit(FunctionInvocationExpr funcIExpr) {
         visitExpr(funcIExpr);
 
@@ -420,6 +384,89 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     @Override
+    public void visit(BasicLiteral basicLiteral) {
+    }
+
+    @Override
+    public void visit(UnaryExpression unaryExpr) {
+
+    }
+
+    @Override
+    public void visit(AddExpression addExpr) {
+        TypeC arithmeticExprType = verifyBinaryArithmeticExprType(addExpr);
+
+        // We need to find a better implementation than this.
+        if (arithmeticExprType == TypeC.INT_TYPE) {
+            addExpr.setEvalFunc(AddExpression.ADD_INT_FUNC);
+        } else if (arithmeticExprType == TypeC.STRING_TYPE) {
+            addExpr.setEvalFunc(AddExpression.ADD_STRING_FUNC);
+        } else {
+            throw new InvalidSemanticException("Add operation is not supported for type: " + arithmeticExprType);
+        }
+    }
+
+    @Override
+    public void visit(MultExpression multExpr) {
+        TypeC binaryExprType = verifyBinaryArithmeticExprType(multExpr);
+        if (binaryExprType == TypeC.INT_TYPE) {
+            multExpr.setEvalFunc(MultExpression.MULT_INT_FUNC);
+        } else {
+            throw new InvalidSemanticException("Mult operation is not supported for type: " + binaryExprType);
+        }
+    }
+
+    @Override
+    public void visit(SubtractExpression subtractExpr) {
+        TypeC binaryExprType = verifyBinaryArithmeticExprType(subtractExpr);
+        if (binaryExprType == TypeC.INT_TYPE) {
+            subtractExpr.setEvalFunc(SubtractExpression.SUB_INT_FUNC);
+        } else {
+            throw new InvalidSemanticException("Subtraction operation is not supported for type: " + binaryExprType);
+        }
+    }
+
+    @Override
+    public void visit(AndExpression andExpr) {
+        visitBinaryLogicalExpr(andExpr);
+        andExpr.setEvalFunc(AndExpression.AND_FUNC);
+    }
+
+    @Override
+    public void visit(OrExpression orExpr) {
+        visitBinaryLogicalExpr(orExpr);
+        orExpr.setEvalFunc(OrExpression.OR_FUNC);
+    }
+
+    @Override
+    public void visit(EqualExpression expr) {
+        TypeC compareExprType = verifyBinaryCompareExprType(expr);
+
+        if (compareExprType == TypeC.INT_TYPE) {
+            expr.setEvalFunc(EqualExpression.EQUAL_INT_FUNC);
+        } else if (compareExprType == TypeC.STRING_TYPE) {
+            expr.setType(TypeC.BOOLEAN_TYPE);
+            expr.setEvalFunc(EqualExpression.EQUAL_STRING_FUNC);
+        } else {
+            throw new InvalidSemanticException("Equals operation is not supported for type: "
+                    + compareExprType);
+        }
+    }
+
+    @Override
+    public void visit(NotEqualExpression notEqualExpr) {
+        TypeC compareExprType = verifyBinaryCompareExprType(notEqualExpr);
+
+        if (compareExprType == TypeC.INT_TYPE) {
+            notEqualExpr.setEvalFunc(NotEqualExpression.NOT_EQUAL_INT_FUNC);
+        } else if (compareExprType == TypeC.STRING_TYPE) {
+            notEqualExpr.setEvalFunc(NotEqualExpression.NOT_EQUAL_STRING_FUNC);
+        } else {
+            throw new InvalidSemanticException("NotEqual operation is not supported for type: " + compareExprType);
+        }
+    }
+
+    @Override
     public void visit(GreaterEqualExpression greaterEqualExpr) {
         TypeC compareExprType = verifyBinaryCompareExprType(greaterEqualExpr);
 
@@ -462,49 +509,6 @@ public class SemanticAnalyzer implements NodeVisitor {
         } else {
             throw new InvalidSemanticException("Less than operation is not supported for type: " + compareExprType);
         }
-    }
-
-    @Override
-    public void visit(MultExpression multExpr) {
-        TypeC binaryExprType = verifyBinaryArithmeticExprType(multExpr);
-        if (binaryExprType == TypeC.INT_TYPE) {
-            multExpr.setEvalFunc(MultExpression.MULT_INT_FUNC);
-        } else {
-            throw new InvalidSemanticException("Mult operation is not supported for type: " + binaryExprType);
-        }
-    }
-
-    @Override
-    public void visit(NotEqualExpression notEqualExpr) {
-        TypeC compareExprType = verifyBinaryCompareExprType(notEqualExpr);
-
-        if (compareExprType == TypeC.INT_TYPE) {
-            notEqualExpr.setEvalFunc(NotEqualExpression.NOT_EQUAL_INT_FUNC);
-        } else if (compareExprType == TypeC.STRING_TYPE) {
-            notEqualExpr.setEvalFunc(NotEqualExpression.NOT_EQUAL_STRING_FUNC);
-        } else {
-            throw new InvalidSemanticException("NotEqual operation is not supported for type: " + compareExprType);
-        }
-    }
-
-    @Override
-    public void visit(OrExpression orExpr) {
-
-    }
-
-    @Override
-    public void visit(SubtractExpression subtractExpr) {
-        TypeC binaryExprType = verifyBinaryArithmeticExprType(subtractExpr);
-        if (binaryExprType == TypeC.INT_TYPE) {
-            subtractExpr.setEvalFunc(SubtractExpression.SUB_INT_FUNC);
-        } else {
-            throw new InvalidSemanticException("Subtraction operation is not supported for type: " + binaryExprType);
-        }
-    }
-
-    @Override
-    public void visit(UnaryExpression unaryExpr) {
-
     }
 
     @Override
@@ -574,12 +578,23 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         if (lExpr.getType() != rExpr.getType()) {
             throw new RuntimeException(
-                    "Incompatible types in binary arithmetic  expression: " + lExpr.getType() + " vs "
+                    "Incompatible types in binary expression: " + lExpr.getType() + " vs "
                             + rExpr.getType());
         }
-        return lExpr.getType();
 
+        return lExpr.getType();
     }
 
+    private void visitBinaryLogicalExpr(BinaryLogicalExpression expr) {
+        visitBinaryExpr(expr);
 
+        Expression rExpr = expr.getRExpr();
+        Expression lExpr = expr.getLExpr();
+
+        if (lExpr.getType() == TypeC.BOOLEAN_TYPE && rExpr.getType() == TypeC.BOOLEAN_TYPE) {
+            expr.setType(TypeC.BOOLEAN_TYPE);
+        } else {
+            throw new RuntimeException("Incompatible types used for '&&' operator");
+        }
+    }
 }

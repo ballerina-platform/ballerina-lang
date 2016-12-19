@@ -245,6 +245,8 @@ public class BLangInterpreter implements NodeVisitor {
         }
     }
 
+    // Expressions
+
     @Override
     public void visit(FunctionInvocationExpr funcIExpr) {
         // Create the Stack frame
@@ -393,71 +395,72 @@ public class BLangInterpreter implements NodeVisitor {
     }
 
     @Override
-    public void visit(AddExpression addExpr) {
-        interpretBinaryExpr(addExpr);
-    }
-
-    @Override
-    public void visit(AndExpression andExpression) {
-
-    }
-
-    @Override
-    public void visit(EqualExpression equalExpr) {
-        interpretBinaryExpr(equalExpr);
-    }
-
-    @Override
-    public void visit(GreaterEqualExpression greaterEqualExpression) {
-       interpretBinaryExpr(greaterEqualExpression);
-    }
-
-    @Override
-    public void visit(GreaterThanExpression greaterThanExpression) {
-        interpretBinaryExpr(greaterThanExpression);
-    }
-
-    @Override
-    public void visit(LessEqualExpression lessEqualExpression) {
-        interpretBinaryExpr(lessEqualExpression);
-    }
-
-    @Override
-    public void visit(LessThanExpression lessThanExpression) {
-        interpretBinaryExpr(lessThanExpression);
-    }
-
-    @Override
-    public void visit(MultExpression multExpression) {
-
-    }
-
-    @Override
-    public void visit(NotEqualExpression notEqualExpression) {
-        interpretBinaryExpr(notEqualExpression);
-    }
-
-    @Override
-    public void visit(OrExpression orExpression) {
-
-    }
-
-    @Override
-    public void visit(SubtractExpression subExpr) {
-        interpretBinaryExpr(subExpr);
-    }
-
-    @Override
     public void visit(UnaryExpression unaryExpression) {
 
     }
 
     @Override
-    public void visit(VariableRefExpr variableRefExpr) {
-
+    public void visit(AddExpression addExpr) {
+        visitBinaryExpr(addExpr);
     }
 
-    public BValueRef getValue(Expression expr) {
+    @Override
+    public void visit(SubtractExpression subExpr) {
+        visitBinaryExpr(subExpr);
+    }
+
+    @Override
+    public void visit(MultExpression multExpr) {
+        visitBinaryExpr(multExpr);
+    }
+
+    @Override
+    public void visit(AndExpression andExpr) {
+        visitBinaryExpr(andExpr);
+    }
+
+    @Override
+    public void visit(OrExpression orExpr) {
+        visitBinaryExpr(orExpr);
+    }
+
+    @Override
+    public void visit(EqualExpression equalExpr) {
+        visitBinaryExpr(equalExpr);
+    }
+
+    @Override
+    public void visit(NotEqualExpression notEqualExpression) {
+        visitBinaryExpr(notEqualExpression);
+    }
+
+    @Override
+    public void visit(GreaterEqualExpression greaterEqualExpression) {
+       visitBinaryExpr(greaterEqualExpression);
+    }
+
+    @Override
+    public void visit(GreaterThanExpression greaterThanExpression) {
+        visitBinaryExpr(greaterThanExpression);
+    }
+
+    @Override
+    public void visit(LessEqualExpression lessEqualExpression) {
+        visitBinaryExpr(lessEqualExpression);
+    }
+
+    @Override
+    public void visit(LessThanExpression lessThanExpression) {
+        visitBinaryExpr(lessThanExpression);
+    }
+
+    @Override
+    public void visit(VariableRefExpr variableRefExpr) {
+    }
+
+    // Private methods
+
+    private BValueRef getValue(Expression expr) {
         if (expr instanceof BasicLiteral) {
             return expr.getBValueRef();
         }
@@ -465,11 +468,11 @@ public class BLangInterpreter implements NodeVisitor {
         return controlStack.getValue(expr.getOffset());
     }
 
-    public void setValue(Expression expr, BValueRef valueRef) {
+    private void setValue(Expression expr, BValueRef valueRef) {
         controlStack.setValue(expr.getOffset(), valueRef);
     }
 
-    private void interpretBinaryExpr(BinaryExpression binaryExpr) {
+    private void visitBinaryExpr(BinaryExpression binaryExpr) {
         Expression rExpr = binaryExpr.getRExpr();
         rExpr.accept(this);
 
