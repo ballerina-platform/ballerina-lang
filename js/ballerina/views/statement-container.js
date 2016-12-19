@@ -43,7 +43,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         this._managedStatements = [];
         this._managedInnerDropzones = [];
         this._lastStatementView = undefined;
-        this._selectedInnerDropZone = -1;
+        this._selectedInnerDropZoneIndex = -1;
 
         _.set(this._viewOptions, 'cssClass.group',  _.get(this._viewOptions, 'cssClass.group', 'statement-container'));
         _.set(this._viewOptions, 'cssClass.mainDropZone',  _.get(this._viewOptions, 'cssClass.mainDropZone', 'main-drop-zone'));
@@ -103,8 +103,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         this.diagramRenderingContext.setViewOfModel(statement, statementView);
 
         this._managedStatements.push(statement);
-        var topC = new Point(statementView.getBoundingBox().x() + statementView.getBoundingBox().w()/2,
-            statementView.getBoundingBox().getBottom());
+        var topC = topCenter.clone().move(0, -this._gap);
         var dropZoneOptions = {width: 120, height: this._gap, topCenter: topC};
         this._createNextInnerDropZone(dropZoneOptions);
         return statementView;
@@ -159,20 +158,18 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
             self = this;
 
         var getDroppedNodeIndex = function(node){
-            var managedIndex = _.findIndex(self._managedStatements, ['id', node.id]);
-            if(managedIndex > 0){
-                var previousStatement = _.nth(self._managedStatements, managedIndex - 1);
-                return self._model.getIndexOfChild(previousStatement);
-            } else if(managedIndex == 0){
-                return 0;
-            } else {
-                return -1;
-            }
+           if(!_.gte(self._selectedInnerDropZoneIndex, 0)){
+               return -1;
+           }
+           var neighbourStatement = _.nth(self._managedStatements, self._selectedInnerDropZoneIndex),
+               newNodeIndex = self._model.getIndexOfChild(neighbourStatement) + 1;
+           log.debug("Index for the dropped node is " + newNodeIndex);
+           return newNodeIndex;
         };
         var mouseOverHandler = function() {
             //if someone is dragging a tool from tool-palette
             if(self.toolPalette.dragDropManager.isOnDrag()){
-                self._selectedInnerDropZone = _.findIndex(self._managedInnerDropzones, d3.select(this));
+                self._selectedInnerDropZoneIndex = _.findIndex(self._managedInnerDropzones, d3.select(this));
 
                 if(_.isEqual(self.toolPalette.dragDropManager.getActivatedDropTarget(), self)){
                     return;
