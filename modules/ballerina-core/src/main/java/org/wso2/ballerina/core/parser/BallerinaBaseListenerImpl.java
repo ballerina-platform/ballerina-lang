@@ -27,7 +27,7 @@ import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.ConnectorDcl;
 import org.wso2.ballerina.core.model.BallerinaConnector;
 import org.wso2.ballerina.core.model.SymbolName;
-import org.wso2.ballerina.core.model.Import;
+import org.wso2.ballerina.core.model.ImportPackage;
 import org.wso2.ballerina.core.model.Operator;
 import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.Resource;
@@ -145,9 +145,9 @@ public class BallerinaBaseListenerImpl extends BallerinaBaseListener {
     @Override
     public void exitImportDeclaration(ImportDeclarationContext ctx) {
         if (ctx.Identifier() != null) {
-            fileBuilder.addImportPackage(new Import(ctx.Identifier().getText(), ctx.packageName().getText()));
+            fileBuilder.addImportPackage(new ImportPackage(ctx.Identifier().getText(), ctx.packageName().getText()));
         } else {
-            fileBuilder.addImportPackage(new Import(ctx.packageName().getText()));
+            fileBuilder.addImportPackage(new ImportPackage(ctx.packageName().getText()));
         }
     }
 

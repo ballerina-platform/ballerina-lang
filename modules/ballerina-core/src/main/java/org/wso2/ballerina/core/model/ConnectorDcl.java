@@ -62,6 +62,10 @@ public class ConnectorDcl implements Node {
         return varName;
     }
 
+    public void setConnectorName(SymbolName connectorName) {
+        this.connectorName = connectorName;
+    }
+
     /**
      * Get values of the arguments
      *

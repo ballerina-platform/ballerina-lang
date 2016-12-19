@@ -27,6 +27,7 @@ import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.ConnectorDcl;
 import org.wso2.ballerina.core.model.Function;
+import org.wso2.ballerina.core.model.ImportPackage;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.Resource;
@@ -65,7 +66,10 @@ import org.wso2.ballerina.core.model.statements.ReturnStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
 import org.wso2.ballerina.core.model.types.TypeC;
-import org.wso2.ballerina.core.model.util.SymbolUtils;
+import org.wso2.ballerina.core.model.util.LangModelUtils;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * {@code SemanticAnalyzer} analyzes semantic properties of a Ballerina program
@@ -82,6 +86,10 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     private BallerinaFile bFile;
 
+    // We need to keep a map of import packages.
+    // This is useful when analyzing import functions, actions and types.
+    private Map<String, ImportPackage> importPkgMap = new HashMap<>();
+
     public SemanticAnalyzer(BallerinaFile bFile) {
         this.bFile = bFile;
         symbolTable = new SymTable(bFile.getPackageScope());
@@ -89,6 +97,10 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(BallerinaFile bFile) {
+        for (ImportPackage importPkg : bFile.getImportPackages()) {
+            importPkg.accept(this);
+        }
+
         for (Service service : bFile.getServices()) {
             service.accept(this);
         }
@@ -97,6 +109,15 @@ public class SemanticAnalyzer implements NodeVisitor {
             BallerinaFunction bFunction = (BallerinaFunction) function;
             bFunction.accept(this);
         }
+    }
+
+    @Override
+    public void visit(ImportPackage importPkg) {
+        if (importPkgMap.containsKey(importPkg.getName())) {
+            throw new RuntimeException("Duplicate import package declaration: " + importPkg.getPath());
+        }
+
+        importPkgMap.put(importPkg.getName(), importPkg);
     }
 
     @Override
@@ -244,6 +265,12 @@ public class SemanticAnalyzer implements NodeVisitor {
         symbol = new Symbol(TypeC.CONNECTOR_TYPE, stackFrameOffset);
         symbolTable.insert(symbolName, symbol);
 
+        // Setting the connector name with the package name
+        SymbolName connectorName = connectorDcl.getConnectorName();
+        String pkgPath = getPackagePath(connectorName);
+        connectorName = LangModelUtils.getConnectorSymName(connectorName.getName(), pkgPath);
+        connectorDcl.setConnectorName(connectorName);
+
     }
 
     @Override
@@ -347,18 +374,24 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         // Can we do this bit in the linker
         SymbolName symbolName = funcIExpr.getFunctionName();
+        String pkgPath = getPackagePath(symbolName);
 
         TypeC[] paramTypes = new TypeC[exprs.length];
         for (int i = 0; i < exprs.length; i++) {
             paramTypes[i] = exprs[i].getType();
         }
 
-        symbolName = SymbolUtils.generateSymbolName(symbolName.getName(), paramTypes);
+        symbolName = LangModelUtils.getSymNameWithParams(symbolName.getName(), pkgPath, paramTypes);
         funcIExpr.setFunctionName(symbolName);
 
         bFile.addFuncInvocationExpr(funcIExpr);
 
         // TODO store the types of each func argument expression
+        // Implement semantic analysis for function invocations
+
+        // Identify the package of the function to be invoked.
+
+
     }
 
     // TODO Duplicate code. fix me
@@ -371,16 +404,24 @@ public class SemanticAnalyzer implements NodeVisitor {
             expr.accept(this);
         }
 
+        // TODO Check whether first argument is of type Connector (with connector name). e.g. HttpConnector
+
         // Can we do this bit in the linker
-        SymbolName symbolName = actionIExpr.getActionName();
+        SymbolName symName = actionIExpr.getActionName();
+        if (symName.getConnectorName() == null) {
+            throw new SemanticException("Connector type is not associated with the action invocation");
+        }
+
+        String pkgPath = getPackagePath(symName);
 
         TypeC[] paramTypes = new TypeC[exprs.length];
         for (int i = 0; i < exprs.length; i++) {
             paramTypes[i] = exprs[i].getType();
         }
 
-        symbolName = SymbolUtils.generateSymbolName(symbolName.getName(), paramTypes);
-        actionIExpr.setActionName(symbolName);
+        symName = LangModelUtils.getActionSymName(symName.getName(), symName.getConnectorName(),
+                pkgPath, paramTypes);
+        actionIExpr.setActionName(symName);
 
         bFile.addActionIExpr(actionIExpr);
     }
@@ -551,12 +592,16 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     private void addFuncSymbol(Function function) {
-        SymbolName symbolName = SymbolUtils.generateSymbolName(function.getName(), function.getParameters());
+        SymbolName symbolName = LangModelUtils.getSymNameWithParams(function.getName(), function.getParameters());
         function.setSymbolName(symbolName);
 
-        TypeC[] paramTypes = SymbolUtils.getTypesOfParams(function.getParameters());
+        TypeC[] paramTypes = LangModelUtils.getTypesOfParams(function.getParameters());
 
         Symbol symbol = new Symbol(function, paramTypes, function.getReturnTypesC());
+
+        if (symbolTable.lookup(symbolName) != null) {
+            throw new SemanticException("Duplicate function definition: " + symbolName.getName());
+        }
         symbolTable.insert(symbolName, symbol);
     }
 
@@ -598,5 +643,36 @@ public class SemanticAnalyzer implements NodeVisitor {
         } else {
             throw new BallerinaException("Incompatible types used for '&&' operator");
         }
+    }
+
+    private String getPackagePath(SymbolName symbolName) {
+        // Extract the package name from the function name.
+        // Function name should be in one of the following formats
+        //      1)  sayHello                        ->  No package name. must be a function in the same package.
+        //      2)  hello:sayHello                  ->  Function is defined in the 'hello' package.  User must have
+        //                                              added import declaration. 'import wso2.connector.hello'.
+        //      3)  wso2.connector.hello:sayHello   ->  Function is defined in the wso2.connector.hello package.
+
+        // First check whether there is a packaged name attached to the function.
+        String pkgPath = null;
+        String pkgName = symbolName.getPkgName();
+
+        if (pkgName != null) {
+            // A package name is specified. Check whether it is already listed as an imported package.
+            ImportPackage importPkg = importPkgMap.get(pkgName);
+
+            if (importPkg != null) {
+                // Found the imported package of the pkgName.
+                // Retrieve the package path
+                pkgPath = importPkg.getPath();
+
+            } else {
+                // Package name is not listed in the imported packages.
+                // User may have used the fully qualified package path.
+                // If this package is not available, linker will throw an error.
+                pkgPath = pkgName;
+            }
+        }
+        return pkgPath;
     }
 }
