@@ -833,7 +833,6 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                         if(paneElement.children()[iterator].id == resourceModel.data.id) {
                             $(paneElement.children()[iterator]).css('top', $(this).position().top);
                             $(paneElement.children()[iterator]).css('left', $(this).position().left - 340);
-                            console.log("Panel element Display Status#############################" + paneElement.children()[iterator].style.display);
                             if(paneElement.children()[iterator].style.display== "none" || paneElement.children()[iterator].style.display == "") {
                                 paneElement.children()[iterator].style.display = "inline";
                             } else {
