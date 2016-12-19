@@ -62,7 +62,6 @@ public class Delete extends AbstractHTTPAction {
         ConnectorValue connectorValue = (ConnectorValue) getArgument(context, 0).getBValue();
         String path = getArgument(context, 1).getString();
         MessageValue messageValue = (MessageValue) getArgument(context, 2).getBValue();
-        CarbonMessage cMsg = messageValue.getValue();
 
         Connector connector = connectorValue.getValue();
         if (!(connector instanceof HTTPConnector)) {
@@ -70,6 +69,7 @@ public class Delete extends AbstractHTTPAction {
             return null;
         }
         // Prepare the message
+        CarbonMessage cMsg = messageValue.getValue();
         prepareRequest(connector, path, cMsg);
         cMsg.setProperty(org.wso2.ballerina.core.runtime.net.http.Constants.HTTP_METHOD,
                          org.wso2.ballerina.core.runtime.net.http.Constants.HTTP_METHOD_DELETE);

@@ -34,13 +34,11 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 /**
- * {@code AbstractHTTPAction} is the base class for all HTTP Actions
+ * {@code AbstractHTTPAction} is the base class for all HTTP Connector Actions
  */
 public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractHTTPAction.class);
-
-    private static final String ASSOCIATED_CONNECTOR_TYPE = "HTTPConnector";
 
     protected void prepareRequest(Connector connector, String path, CarbonMessage cMsg) {
 
@@ -91,11 +89,6 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         } catch (InterruptedException ignore) {
         }
         return null;
-    }
-
-    @Override
-    public String getAssociatesConnectorType() {
-        return ASSOCIATED_CONNECTOR_TYPE;
     }
 
 }
