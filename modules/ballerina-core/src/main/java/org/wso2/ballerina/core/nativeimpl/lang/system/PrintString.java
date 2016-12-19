@@ -36,15 +36,14 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
         isPublic = true
 )
 @Component(
-        name = "func.lang.system_print",
+        name = "func.lang.system_printString",
         immediate = true,
         service = AbstractNativeFunction.class
 )
-public class Print extends AbstractNativeFunction {
+public class PrintString extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
-        String param1 = getArgument(ctx, 0).getString();
-        System.out.print(param1);
+        System.out.print(getArgument(ctx, 0).getString());
         return VOID_RETURN;
     }
 }

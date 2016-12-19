@@ -1,6 +1,7 @@
 package samples.fork_join;
 
 import ballerina.lang.message;
+import ballerina.lang.system;
 import ballerina.net.http;
 
 @BasePath ("/AirfareProviderService")
@@ -10,7 +11,7 @@ service AirfareProviderService {
     http:HttpConnector abcAirlineEP = new http:HttpConnector("http://localhost:8080/ABCAirline");
     http:HttpConnector xyzAirlineEP = new http:HttpConnector("http://localhost:8080/XYZAirline");
 
-    xmlElement airfareAggregatedResponse;
+    xml airfareAggregatedResponse;
 
     @POST
     @Path ("/airfare")
@@ -52,9 +53,9 @@ service AirfareProviderService {
             }
         } join (all) (message[] airfareResponses) {
             airfareAggregatedResponse = `<airfareRes></airfareRes>`;
-            xml:appendChild(airfareAggregatedResponse, "/airfareRes", null, airfareResponses[0]);
-            xml:appendChild(airfareAggregatedResponse, "/airfareRes", null, airfareResponses[1]);
-
+            xml:set(airfareAggregatedResponse, "/airfareRes", null, airfareResponses[0]);
+            xml:set(airfareAggregatedResponse, "/airfareRes", null, airfareResponses[1]);
+            system:logDebug(xml:toString(airfareAggregatedResponse));
             reply airfareAggregatedResponse;
         }
    }

@@ -57,4 +57,9 @@ public class StringValue extends BallerinaMessageDataSource implements BValue<St
     public void setOutputStream(OutputStream outputStream) {
         this.outputStream = outputStream;
     }
+
+    @Override
+    public StringValue getString() {
+        return this;
+    }
 }
