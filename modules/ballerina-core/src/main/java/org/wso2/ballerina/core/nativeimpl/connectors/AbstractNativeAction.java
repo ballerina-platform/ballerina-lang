@@ -181,5 +181,4 @@ public abstract class AbstractNativeAction implements Action, NativeConstruct {
 
 //    }
 
-    public abstract String getAssociatesConnectorType();
 }
