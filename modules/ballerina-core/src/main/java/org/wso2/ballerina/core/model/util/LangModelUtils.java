@@ -24,9 +24,9 @@ import org.wso2.ballerina.core.model.types.TypeC;
 /**
  *
  */
-public class SymbolUtils {
+public class LangModelUtils {
 
-    public static SymbolName generateSymbolName(String identifier, Parameter[] parameters) {
+    public static SymbolName getSymNameWithParams(String identifier, Parameter[] parameters) {
         StringBuilder stringBuilder = new StringBuilder(identifier);
         for (Parameter param : parameters) {
             stringBuilder.append("_").append(param.getTypeC());
@@ -34,12 +34,48 @@ public class SymbolUtils {
         return new SymbolName(stringBuilder.toString());
     }
 
-    public static SymbolName generateSymbolName(String identifier, TypeC[] types) {
-        StringBuilder stringBuilder = new StringBuilder(identifier);
-        for (TypeC type : types) {
-            stringBuilder.append("_").append(type);
+    public static SymbolName getSymNameWithParams(String identifier, String pkgPath, TypeC[] types) {
+        String prefix;
+        if (pkgPath == null) {
+            prefix = identifier;
+        } else {
+            prefix = pkgPath + ":" + identifier;
         }
-        return new SymbolName(stringBuilder.toString());
+
+        StringBuilder sBuilder = new StringBuilder(prefix);
+        for (TypeC type : types) {
+            sBuilder.append("_").append(type);
+        }
+
+        return new SymbolName(sBuilder.toString());
+    }
+
+    public static SymbolName getConnectorSymName(String identifier, String pkgPath) {
+        String prefix;
+        if (pkgPath == null) {
+            prefix = identifier;
+        } else {
+            prefix = pkgPath + ":" + identifier;
+        }
+
+        return new SymbolName(prefix);
+    }
+
+    public static SymbolName getActionSymName(String actionName, String connectorName,
+                                              String pkgPath, TypeC[] types) {
+        String prefix;
+        if (pkgPath == null) {
+            prefix = connectorName + "." + actionName;
+        } else {
+            prefix = pkgPath + ":" + connectorName + "." + actionName;
+        }
+
+        StringBuilder sBuilder = new StringBuilder(prefix);
+        for (TypeC type : types) {
+            sBuilder.append("_").append(type);
+        }
+
+        return new SymbolName(sBuilder.toString());
     }
 
     public static TypeC[] getTypesOfParams(Parameter[] parameters) {

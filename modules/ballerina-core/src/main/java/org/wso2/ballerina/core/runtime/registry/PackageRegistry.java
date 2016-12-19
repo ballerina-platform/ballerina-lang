@@ -21,7 +21,7 @@ package org.wso2.ballerina.core.runtime.registry;
 import org.wso2.ballerina.core.model.Package;
 import org.wso2.ballerina.core.model.Symbol;
 import org.wso2.ballerina.core.model.SymbolName;
-import org.wso2.ballerina.core.model.util.SymbolUtils;
+import org.wso2.ballerina.core.model.util.LangModelUtils;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
@@ -71,8 +71,8 @@ public class PackageRegistry {
         }
 
         String funcName = function.getName();
-        SymbolName symbolName = SymbolUtils.generateSymbolName(funcName, function.getParameters());
-        Symbol symbol = new Symbol(function, SymbolUtils.getTypesOfParams(function.getParameters()),
+        SymbolName symbolName = LangModelUtils.getSymNameWithParams(funcName, function.getParameters());
+        Symbol symbol = new Symbol(function, LangModelUtils.getTypesOfParams(function.getParameters()),
                 function.getReturnTypesC());
 
         GlobalScopeHolder.getInstance().insert(symbolName, symbol);
@@ -94,8 +94,8 @@ public class PackageRegistry {
         aPackage.getActions().put(action.getName(), action);
 
         String actionName = action.getSymbolName().getName();
-        SymbolName symbolName = SymbolUtils.generateSymbolName(actionName, action.getParameters());
-        Symbol symbol = new Symbol(action, SymbolUtils.getTypesOfParams(action.getParameters()),
+        SymbolName symbolName = LangModelUtils.getSymNameWithParams(actionName, action.getParameters());
+        Symbol symbol = new Symbol(action, LangModelUtils.getTypesOfParams(action.getParameters()),
                 action.getReturnTypesC());
 
         GlobalScopeHolder.getInstance().insert(symbolName, symbol);
@@ -142,8 +142,8 @@ public class PackageRegistry {
     public void registerNativeConnector(AbstractNativeConnector connector) {
 
         String connectorName = connector.getSymbolName().getName();
-        //SymbolName symbolName = SymbolUtils.generateSymbolName(CONNECTOR_NAME, connector.getParameters());
-        Symbol symbol = new Symbol(connector, SymbolUtils.getTypesOfParams(connector.getParameters()));
+        //SymbolName symbolName = SymbolUtils.getSymNameWithParams(CONNECTOR_NAME, connector.getParameters());
+        Symbol symbol = new Symbol(connector, LangModelUtils.getTypesOfParams(connector.getParameters()));
 
         GlobalScopeHolder.getInstance().insert(new SymbolName(connectorName), symbol);
 

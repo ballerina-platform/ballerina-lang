@@ -18,7 +18,7 @@
 package org.wso2.ballerina.core.parser.visitor;
 
 import org.wso2.ballerina.core.interpreter.SymbolTable;
-import org.wso2.ballerina.core.model.Import;
+import org.wso2.ballerina.core.model.ImportPackage;
 import org.wso2.ballerina.core.model.Package;
 import org.wso2.ballerina.core.parser.BallerinaBaseVisitor;
 import org.wso2.ballerina.core.parser.BallerinaParser;
@@ -111,9 +111,9 @@ public class CompilationUnitVisitor extends BallerinaBaseVisitor {
         String importPackageName = ctx.packageName().getText();
         if (ctx.Identifier() != null) {
             String importAsName = ctx.Identifier().getText();
-            return new Import(importAsName, importPackageName);
+            return new ImportPackage(importAsName, importPackageName);
         } else {
-            return new Import(importPackageName);
+            return new ImportPackage(importPackageName);
         }
     }
 

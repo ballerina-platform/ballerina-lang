@@ -47,7 +47,7 @@ public class BallerinaBaseVisitorImplTest {
 
 //    @Test
 //    public void testPackageParser() {
-//        Assert.assertEquals(ballerinaBaseVisitor.balFile.getPackageName(), "samples.parser");
+//        Assert.assertEquals(ballerinaBaseVisitor.balFile.getPath(), "samples.parser");
 //    }
 //
 //    @Test
@@ -56,10 +56,10 @@ public class BallerinaBaseVisitorImplTest {
 //        Assert.assertEquals(imports.size(), 2);
 //
 //        for (Import anImport : imports) {
-//            if (anImport.getPackageName().equalsIgnoreCase("ballerina.connectors.twitter")) {
-//                Assert.assertEquals(anImport.getImportName(), "twitter");
-//            } else if (anImport.getPackageName().equalsIgnoreCase("ballerina.connectors.salesforce")) {
-//                Assert.assertEquals(anImport.getImportName(), "sf");
+//            if (anImport.getPath().equalsIgnoreCase("ballerina.connectors.twitter")) {
+//                Assert.assertEquals(anImport.getName(), "twitter");
+//            } else if (anImport.getPath().equalsIgnoreCase("ballerina.connectors.salesforce")) {
+//                Assert.assertEquals(anImport.getName(), "sf");
 //            }
 //        }
 //    }

@@ -49,6 +49,8 @@ public interface NodeVisitor {
 
     void visit(BallerinaFile bFile);
 
+    void visit(ImportPackage importPkg);
+
     void visit(Service service);
 
     void visit(BallerinaConnector connector);
