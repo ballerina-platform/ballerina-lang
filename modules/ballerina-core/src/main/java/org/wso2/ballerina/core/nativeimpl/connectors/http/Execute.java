@@ -68,6 +68,10 @@ public class Execute extends AbstractHTTPAction {
         MessageValue messageValue = (MessageValue) getArgument(context, 3).getBValue();
         CarbonMessage cMsg = messageValue.getValue();
 
+        if (httpVerb == null || "".equals(httpVerb)) { // If the verb is not specified, use the verb in incoming message
+            httpVerb = (String) cMsg.getProperty(org.wso2.ballerina.core.runtime.net.http.Constants.HTTP_METHOD);
+        }
+
         Connector connector = connectorValue.getValue();
         if (!(connector instanceof HTTPConnector)) {
             logger.error("Need to use a HTTPConnector as the first argument");
