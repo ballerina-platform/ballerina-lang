@@ -429,7 +429,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
         };
 
         BallerinaFileEditor.prototype.reDraw = function (args) {
-            /*if (!_.has(this._viewOptions, 'design_view.container')) {
+            if (!_.has(this._viewOptions, 'design_view.container')) {
                 errMsg = 'unable to find configuration for container';
                 log.error(errMsg);
                 throw errMsg;
@@ -448,15 +448,18 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 throw errMsg;
             }
 
-            //this._createPackagePropertyPane(canvasContainer);
-
             //Registering event listeners
             this.listenTo(this._model, 'childVisitedEvent', this.childVisitedCallback);
-            this.listenTo(this._model, 'childRemovedEvent', this.childViewRemovedCallback);*/
-
-            this.init();
+            this.listenTo(this._model, 'childRemovedEvent', this.childViewRemovedCallback);
 
             this._model.accept(this);
+
+            this.initResourceLevelDropTarget();
+
+            this._model.on('child-added', function(child){
+                self.visit(child);
+                self._model.trigger("childVisitedEvent", child);
+            });
         };
 
         return BallerinaFileEditor;
