@@ -35,7 +35,7 @@ import org.wso2.carbon.messaging.CarbonMessage;
  *
  */
 @BallerinaAction(
-        packageName = "ballerina.net.connectors.http",
+        packageName = "ballerina.net.http",
         actionName = "delete",
         connectorName = HTTPConnector.CONNECTOR_NAME,
         args = {
