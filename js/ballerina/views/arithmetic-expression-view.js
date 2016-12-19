@@ -82,8 +82,34 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/arithmetic-expr
             var text = this._model.getExpression();
             var expressionText = D3Utils.textElement(this.getBoundingBox().x() + width/2, this.getBoundingBox().y() + height/2, text, group).classed('statement-text', true);
             log.info("Rendering arithmetic expression view.");
+            group.expression_rect = expressionRect;
+            group.expression_text = expressionText;
+            this.setStatementGroup(group);
+            this.listenTo(this._model, 'update-statement-text', this.updateStatementText);
+            this._model.accept(this);
+
+            // Creating property pane
+            var editableProperties = [];
+            var editableProperty = {
+                propertyType: "text",
+                key: "Expression",
+                model: this._model,
+                getterMethod: this._model.getExpression,
+                setterMethod: this._model.setExpression
+            };
+            editableProperties.push(editableProperty);
+            this._createPropertyPane({
+                model: this._model,
+                statementGroup:group,
+                editableProperties: editableProperties
+            });
             return group;
         };
 
+        ArithmeticExpressionView.prototype.updateStatementText = function (updatedText) {
+            if (!_.isUndefined(updatedText) && updatedText !== '') {
+                this.getStatementGroup().expression_text.node().textContent = updatedText;
+            }
+        };
         return ArithmeticExpressionView;
     });

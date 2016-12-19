@@ -91,15 +91,21 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/assignment', 'd
             var x = this.getBoundingBox().getLeft();
             var y = this.getBoundingBox().getTop();
 
-            var assignmentRect = D3Utils.rect(x, y, width, height, 0, 0, assignmentStatementGroup).classed('statement-rect', true);
+            var expressionRect = D3Utils.rect(x, y, width, height, 0, 0, assignmentStatementGroup).classed('statement-rect', true);
             var assignmentText = this._model.getVariableAccessor() + ' = ' +this._model.getExpression();
             var expressionText = D3Utils.textElement(x + width/2, y + height/2, assignmentText, assignmentStatementGroup).classed('statement-text', true);
+            assignmentStatementGroup.expression_rect = expressionRect;
+            assignmentStatementGroup.expression_text = expressionText;
+            this.setStatementGroup(assignmentStatementGroup);
+            this.listenTo(this._model, 'update-statement-text', this.updateStatementText);
+            this._model.accept(this);
 
             // Creating property pane
             var editableProperties = [];
             var editableProperty = {
                 propertyType: "text",
                 key: "Expression",
+                model: this._model,
                 getterMethod: this._model.getExpression,
                 setterMethod: this._model.setExpression
             };
@@ -117,6 +123,12 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/assignment', 'd
 
         AssignmentStatementView.prototype.getViewOptions = function () {
             return this._viewOptions;
+        };
+
+        AssignmentStatementView.prototype.updateStatementText = function (updatedText) {
+            if (!_.isUndefined(updatedText) && updatedText !== '') {
+                this.getStatementGroup().expression_text.node().textContent = updatedText;
+            }
         };
 
         return AssignmentStatementView;
