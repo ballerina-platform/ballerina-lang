@@ -17,33 +17,23 @@
 */
 package org.wso2.ballerina.core.model;
 
-import org.wso2.ballerina.core.model.types.TypeC;
-
 /**
  * {@code SymbolName} represents an identifier in Ballerina
- * *
+ *
  * @since 1.0.0
  */
 public class SymbolName {
 
     private String name;
-    private SymType symType;
-//    private Symbol symbol;
-    private TypeC[] parameters;
+    private String pkgName;
 
     public SymbolName(String name) {
         this.name = name;
     }
 
-    public SymbolName(String name, SymType symType) {
+    public SymbolName(String name, String pkgName) {
         this.name = name;
-        this.symType = symType;
-    }
-
-    public SymbolName(String name, SymType symType, TypeC[] parameters) {
-        this.name = name;
-        this.symType = symType;
-        this.parameters = parameters;
+        this.pkgName = pkgName;
     }
 
     /**
@@ -55,16 +45,13 @@ public class SymbolName {
         return name;
     }
 
-    public void setSymType(SymType symType) {
-        this.symType = symType;
-    }
-
-//    public void setSymbol(Symbol symbol) {
-//        this.symbol = symbol;
-//    }
-
-    public TypeC[] getParameters() {
-        return parameters;
+    /**
+     * Returns the package name of this symbol name
+     *
+     * @return package name of this symbol name
+     */
+    public String getPkgName() {
+        return pkgName;
     }
 
     @Override
@@ -78,14 +65,5 @@ public class SymbolName {
         int result = name.hashCode();
         result = 31 * result;
         return result;
-    }
-
-    /**
-     *
-     */
-    public enum SymType {
-        VARIABLE,
-        CALLABLE_UNIT,
-        CALLABLE_UNIT_GROUP
     }
 }

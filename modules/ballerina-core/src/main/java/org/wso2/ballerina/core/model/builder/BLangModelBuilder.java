@@ -23,7 +23,7 @@ import org.wso2.ballerina.core.model.BallerinaConnector;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.ConnectorDcl;
-import org.wso2.ballerina.core.model.Import;
+import org.wso2.ballerina.core.model.ImportPackage;
 import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
@@ -78,6 +78,8 @@ import java.util.Stack;
  */
 public class BLangModelBuilder {
 
+    private String pkgName;
+
     private Stack<CallableUnitGroupBuilder> cUnitGroupBuilderStack = new Stack<>();
     private Stack<CallableUnitBuilder> cUnitBuilderStack = new Stack<>();
     private Stack<Annotation.AnnotationBuilder> annotationBuilderStack = new Stack<>();
@@ -86,6 +88,7 @@ public class BLangModelBuilder {
 
     private Queue<TypeC> typeQueue = new LinkedList<>();
     private BallerinaFile.BFileBuilder bFileBuilder = new BallerinaFile.BFileBuilder();
+    private Stack<String> pkgNameStack = new Stack<>();
     private Stack<SymbolName> symbolNameStack = new Stack<>();
     private Stack<Expression> exprStack = new Stack<>();
 
@@ -101,17 +104,28 @@ public class BLangModelBuilder {
     // Identifiers
 
     public void createIdentifier(String varName) {
-        symbolNameStack.push(new SymbolName(varName));
+        if (pkgNameStack.isEmpty()) {
+            symbolNameStack.push(new SymbolName(varName));
+        } else {
+            symbolNameStack.push(new SymbolName(varName, pkgNameStack.pop()));
+        }
     }
 
     // Packages and import packages
 
-    public void setPackageName(String pkgName) {
+    public void createPackageName(String pkgName) {
+        pkgNameStack.push(pkgName);
+    }
+
+    public void createPackageDcl() {
+        pkgName = getPkgName();
         bFileBuilder.setPkgName(pkgName);
     }
 
-    public void addImportPackage(String pkgName) {
-        bFileBuilder.addImportPackage(new Import(pkgName));
+    public void addImportPackage() {
+        // TODO implement import as name
+        String pkgName = getPkgName();
+        bFileBuilder.addImportPackage(new ImportPackage(pkgName));
     }
 
     // Annotations
@@ -156,7 +170,7 @@ public class BLangModelBuilder {
     public void createParam(String paramName) {
         //        paramIndex++;
 
-        SymbolName paramNameId = new SymbolName(paramName, SymbolName.SymType.VARIABLE);
+        SymbolName paramNameId = new SymbolName(paramName);
         TypeC paramType = typeQueue.remove();
         Parameter param = new Parameter(paramType, paramNameId);
 
@@ -188,7 +202,7 @@ public class BLangModelBuilder {
 
     public void createVariableDcl(String varName) {
         // Create a variable declaration
-        SymbolName localVarId = new SymbolName(varName, SymbolName.SymType.VARIABLE);
+        SymbolName localVarId = new SymbolName(varName);
         TypeC localVarType = typeQueue.remove();
         VariableDcl variableDcl = new VariableDcl(localVarType, localVarId);
 
@@ -223,7 +237,6 @@ public class BLangModelBuilder {
      */
     public void createVarRefExpr() {
         SymbolName symName = symbolNameStack.pop();
-        symName.setSymType(SymbolName.SymType.VARIABLE);
 
         VariableRefExpr variableRefExpr = new VariableRefExpr(symName);
         exprStack.push(variableRefExpr);
@@ -358,7 +371,7 @@ public class BLangModelBuilder {
 
     public void createFunction(String name, boolean isPublic) {
         CallableUnitBuilder callableUnitBuilder = cUnitBuilderStack.pop();
-        callableUnitBuilder.setName(new SymbolName(name, SymbolName.SymType.CALLABLE_UNIT));
+        callableUnitBuilder.setName(new SymbolName(name, pkgName));
         callableUnitBuilder.setPublic(isPublic);
 
         List<Annotation> annotationList = annotationListStack.pop();
@@ -374,7 +387,7 @@ public class BLangModelBuilder {
 
     public void createResource(String name) {
         CallableUnitBuilder callableUnitBuilder = cUnitBuilderStack.pop();
-        callableUnitBuilder.setName(new SymbolName(name, SymbolName.SymType.CALLABLE_UNIT));
+        callableUnitBuilder.setName(new SymbolName(name, pkgName));
 
         List<Annotation> annotationList = annotationListStack.pop();
         // TODO Improve this implementation
@@ -390,7 +403,7 @@ public class BLangModelBuilder {
 
     public void createAction(String name) {
         CallableUnitBuilder callableUnitBuilder = cUnitBuilderStack.pop();
-        callableUnitBuilder.setName(new SymbolName(name, SymbolName.SymType.CALLABLE_UNIT));
+        callableUnitBuilder.setName(new SymbolName(name, pkgName));
 
         List<Annotation> annotationList = annotationListStack.pop();
         // TODO Improve this implementation
@@ -416,7 +429,7 @@ public class BLangModelBuilder {
 
     public void createService(String name) {
         CallableUnitGroupBuilder callableUnitGroupBuilder = cUnitGroupBuilderStack.pop();
-        callableUnitGroupBuilder.setName(new SymbolName(name, SymbolName.SymType.CALLABLE_UNIT_GROUP));
+        callableUnitGroupBuilder.setName(new SymbolName(name, pkgName));
 
         List<Annotation> annotationList = annotationListStack.pop();
         // TODO Improve this implementation
@@ -431,7 +444,7 @@ public class BLangModelBuilder {
 
     public void createConnector(String name) {
         CallableUnitGroupBuilder callableUnitGroupBuilder = cUnitGroupBuilderStack.pop();
-        callableUnitGroupBuilder.setName(new SymbolName(name, SymbolName.SymType.CALLABLE_UNIT_GROUP));
+        callableUnitGroupBuilder.setName(new SymbolName(name, pkgName));
 
         List<Annotation> annotationList = annotationListStack.pop();
         // TODO Improve this implementation
@@ -448,7 +461,7 @@ public class BLangModelBuilder {
 
     public void createAssignmentExpr() {
         SymbolName symName = symbolNameStack.pop();
-        symName.setSymType(SymbolName.SymType.VARIABLE);
+//        symName.setSymType(SymbolName.SymType.VARIABLE);
 
         VariableRefExpr lExpr = new VariableRefExpr(symName);
         Expression rExpr = exprStack.pop();
@@ -611,6 +624,14 @@ public class BLangModelBuilder {
             addExprToList(exprList, n - 1);
             exprList.add(expr);
         }
+    }
+
+    private String getPkgName() {
+        if (pkgNameStack.isEmpty()) {
+            throw new IllegalStateException("Package name stack is empty");
+        }
+
+        return pkgNameStack.pop();
     }
 
 }
