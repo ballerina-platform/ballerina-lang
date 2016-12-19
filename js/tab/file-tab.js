@@ -288,7 +288,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             catchStatement1.setExceptionType("ArithmeticException ex");
 
            //Create get action statement for connector
-            var actionOpts = {connector:connector_declaration1};
+            var actionOpts = {connector:connector_declaration1, isUserDropped:false};
             var getActionStatement1 = BallerinaASTFactory.createActionInvocationStatement(actionOpts);
            // var actionOpts2 = {connector:connector_declaration, isUserDropped:false};
            // var getActionStatement2 = BallerinaASTFactory.createGetActionStatement(actionOpts2);
@@ -300,7 +300,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
            // resource_passthrough.addChild(ifElseStatement);
             //TODO:Commented to view get action statement
             //resource_passthrough.addChild(tryCatchStatement1);
-            // resource_passthrough.addChild(getActionStatement1);
+             resource_passthrough.addChild(getActionStatement1);
            // resource_passthrough.addChild(getActionStatement2);
             // Create sample Worker Declaration
             var workerDeclaration1 = BallerinaASTFactory.createWorkerDeclaration();

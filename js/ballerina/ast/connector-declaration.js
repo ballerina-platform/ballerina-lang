@@ -32,6 +32,10 @@ define(['lodash', './node'], function(_, ASTNode){
         return this._connectionOptions;
     };
 
+    ConnectorDeclaration.prototype.canBeConnectorOf = function (action) {
+        var BallerinaASTFactory = this.getFactory();
+    };
+
     ConnectorDeclaration.prototype.setConnectionOptions = function (opts) {
         this._connectionOptions = opts;
     };
