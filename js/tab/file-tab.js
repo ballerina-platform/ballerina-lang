@@ -228,7 +228,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             var whileStatement4 = BallerinaASTFactory.createWhileStatement();
             whileStatement1.setCondition("Condition2");
 
-            // resource_passthrough.addChild(whileStatement1);
+            resource_passthrough.addChild(whileStatement1);
             // resource_passthrough.addChild(whileStatement2);
             // resource_passthrough.addChild(whileStatement3);
             // resource_passthrough.addChild(whileStatement4);

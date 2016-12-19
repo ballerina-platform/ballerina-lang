@@ -21,6 +21,7 @@ define(['lodash', './node'], function(_, ASTNode){
         this._connectionOptions = options || {};
         this._connectorName = '';
         this._connectorType = '';
+        this._timeout = '';
         this._uri = '';
         ASTNode.call(this);
     };
@@ -48,6 +49,9 @@ define(['lodash', './node'], function(_, ASTNode){
     ConnectorDeclaration.prototype.setUri = function (uri) {
         this._uri = uri;
     };
+    ConnectorDeclaration.prototype.setTimeout = function (timeout) {
+        this._timeout = timeout;
+    };
 
     ConnectorDeclaration.prototype.getConnectorName = function () {
         return this._connectorName;
@@ -57,6 +61,9 @@ define(['lodash', './node'], function(_, ASTNode){
     };
     ConnectorDeclaration.prototype.getUri = function () {
         return this._uri;
+    };
+    ConnectorDeclaration.prototype.getTimeout = function () {
+        return this._timeout;
     };
 
     return ConnectorDeclaration;

@@ -759,14 +759,29 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             connectorDeclarationView.render();
 
             // Creating property pane
-            var editableProperties = [];
-            var editableProperty = {
-                propertyType: "text",
-                key: "Name",
-                getterMethod: connectorDeclarationView._model.getConnectorName(),
-                setterMethod: connectorDeclarationView._model.setConnectorName()
-            };
-            editableProperties.push(editableProperty);
+            var editableProperties = [
+                {
+                    propertyType: "text",
+                    key: "Name",
+                    model: connectorDeclarationView._model,
+                    getterMethod: connectorDeclarationView._model.getConnectorName,
+                    setterMethod: connectorDeclarationView._model.setConnectorName
+                },
+                {
+                    propertyType: "text",
+                    key: "Uri",
+                    model: connectorDeclarationView._model,
+                    getterMethod: connectorDeclarationView._model.getUri,
+                    setterMethod: connectorDeclarationView._model.setUri
+                },
+                {
+                    propertyType: "text",
+                    key: "Timeout",
+                    model: connectorDeclarationView._model,
+                    getterMethod: connectorDeclarationView._model.getTimeout,
+                    setterMethod: connectorDeclarationView._model.setTimeout
+                }
+            ];
             connectorDeclarationView.createPropertyPane({
                 model: connectorDeclarationView._model,
                 lifeLineGroup:connectorDeclarationView._rootGroup,
