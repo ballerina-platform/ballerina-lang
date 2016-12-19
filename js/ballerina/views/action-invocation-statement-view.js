@@ -182,6 +182,11 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
                 processorConnectorPoint.style("fill", "#2c3e50").style("fill-opacity", 0.01);
             });
 
+            this.getBoundingBox().on('top-edge-moved', function(dy){
+                assignmentRect.attr('y',  parseFloat(assignmentRect.attr('y')) + dy);
+                expressionText.attr('y',  parseFloat(expressionText.attr('y')) + dy);
+                processorConnectorPoint.attr('cy',  parseFloat(processorConnectorPoint.attr('cy')) + dy);
+            });
         };
 
         return ActionInvocationStatement;

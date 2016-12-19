@@ -27,6 +27,7 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/get-action
                 throw "Action statement definition is undefined or is of different type." + this._model;
             }
 
+
             if (_.isNil(this._container)) {
                 log.error("Container for action statement is undefined." + this._container);
                 throw "Container for action statement is undefined." + this._container;

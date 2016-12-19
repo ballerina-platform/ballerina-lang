@@ -70,6 +70,7 @@ define([ 'lodash', 'event_channel', './axis', './point'], function ( _, EventCha
         }
         this._leftTop.x(newX);
         this._leftEdge.setPosition(newX);
+        this._rightEdge.setPosition(newX + this.w());
         return this;
     };
 
@@ -83,6 +84,7 @@ define([ 'lodash', 'event_channel', './axis', './point'], function ( _, EventCha
         }
         this._leftTop.y(newY);
         this._topEdge.setPosition(newY);
+        this._bottomEdge.setPosition(newY + this.h());
         return this;
     };
 
