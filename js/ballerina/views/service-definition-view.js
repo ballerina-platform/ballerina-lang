@@ -333,10 +333,10 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
             });
 
             $(activatorElement).click(serviceModel, function (serviceModel) {
-                if(paneElement.children[1].style.display== "none" || paneElement.children[1].style.display == "") {
-                    paneElement.children[1].style.display = "inline";
+                if(paneElement.children[2].style.display== "none" || paneElement.children[2].style.display == "") {
+                    paneElement.children[2].style.display = "inline";
                 } else {
-                    paneElement.children[1].style.display = "none";
+                    paneElement.children[2].style.display = "none";
                 }
             });
         };

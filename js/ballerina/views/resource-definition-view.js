@@ -382,7 +382,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                         setterMethod: this._model.setResourcePath
                     }],
                 activatorElement: variableButton.node(),
-                paneAppendElement: _.first($(this._container))._groups[0],
+                paneAppendElement: $(".panel-body").children(),
                 viewOptions: {
                     position: {
                         x: parseFloat(variableButton.attr("cx")),
@@ -791,7 +791,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 throw "Unable to render property pane as the html element is undefined." + activatorElement;
             }
 
-            var variablePaneWrapper = $('<div class="resource-variable-pane"/>').appendTo($(paneElement));
+            var variablePaneWrapper = $('<div id="' + resourceModel.id + '" class="resource-variable-pane"/>').appendTo($(paneElement));
             var variableForm = $('<form></form>').appendTo(variablePaneWrapper);
             var variableSelect = $("<select/>").appendTo(variableForm);
             var variableText = $("<input placeholder='&nbsp;Variable Name'/>").appendTo(variableForm);
@@ -829,10 +829,21 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             });
 
             $(activatorElement).click(resourceModel, function (resourceModel) {
-                if(paneElement.children[1].style.display== "none" || paneElement.children[1].style.display == "") {
-                    paneElement.children[1].style.display = "inline";
-                } else {
-                    paneElement.children[1].style.display = "none";
+                for(var iterator = 0;iterator < paneElement.children().length; iterator++) {
+                    console.log(paneElement.children()[iterator]);
+                    if(paneElement.children()[iterator].className == "resource-variable-pane") {
+                        if(paneElement.children()[iterator].id == resourceModel.data.id) {
+                            $(paneElement.children()[iterator]).css('top', $(this).position().top);
+                            $(paneElement.children()[iterator]).css('left', $(this).position().left - 340);
+                            console.log("Panel element Display Status#############################" + paneElement.children()[iterator].style.display);
+                            if(paneElement.children()[iterator].style.display== "none" || paneElement.children()[iterator].style.display == "") {
+                                paneElement.children()[iterator].style.display = "inline";
+                            } else {
+                                paneElement.children()[iterator].style.display = "none";
+                            }
+                            break;
+                        }
+                    }
                 }
             });
         };
