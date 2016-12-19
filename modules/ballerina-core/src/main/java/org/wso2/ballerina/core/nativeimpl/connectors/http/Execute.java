@@ -37,7 +37,7 @@ import java.util.Locale;
  *
  */
 @BallerinaAction(
-        packageName = "ballerina.net.connectors.http",
+        packageName = "ballerina.net.http",
         actionName = "execute",
         connectorName = HTTPConnector.CONNECTOR_NAME,
         args = {
