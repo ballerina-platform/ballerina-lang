@@ -71,18 +71,4 @@ public class BallerinaBaseListenerImplTest {
         }
     }
 
-    public static void main(String[] args) {
-        int a=0;
-        int b;
-        while(a<10) {
-            b=20;
-            while (b>0) {
-                System.out.print("*");
-                b=b-1;
-            }
-            System.out.println("");
-            a=a+1;
-        }
-    }
-
 }
