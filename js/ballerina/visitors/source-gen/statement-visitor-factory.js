@@ -26,11 +26,13 @@ define(['lodash', 'log', 'event_channel', '../../ast/module',
 './while-statement-visitor',
 './assignment-statement-visitor',
 './get-action-statement-visitor',
-'./reply-statement-visitor'],
+'./reply-statement-visitor',
+'./logical-expression-visitor',
+'./arithmetic-expression-visitor'],
 function (_, log, EventChannel, AST,
 TryCatchStatementVisitor, TryStatementVisitor, CatchStatementVisitor, IfElseStatementVisitor, IfStatementVisitor,
 ElseStatementVisitor, ElseIfStatementVisitor, WhileStatementVisitor, AssignmentStatementVisitor, ActionInvocationStatement,
-ReplyStatementVisitor) {
+ReplyStatementVisitor,LogicalExpressionVisitor, AssignmentExpressionVisitor) {
 
     var StatementVisitorFactor = function () {
     };
@@ -58,6 +60,10 @@ ReplyStatementVisitor) {
             return new ActionInvocationStatement(parent);
         } else if (statement instanceof AST.ReplyStatement) {
             return new ReplyStatementVisitor(parent);
+        } else if (statement instanceof AST.LogicalExpression) {
+            return new LogicalExpressionVisitor(parent);
+        } else if (statement instanceof AST.ArithmeticExpression) {
+            return new AssignmentExpressionVisitor(parent);
         }
     };
 

@@ -39,6 +39,9 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/logical-express
                 log.error("Container for logical expression is undefined." + this._container);
                 throw "Container for logical expression is undefined." + this._container;
             }
+            // View options for height and width of the assignment statement box.
+            this._viewOptions.height = _.get(args, "viewOptions.height", 30);
+            this._viewOptions.width = _.get(args, "viewOptions.width", 120);
         };
 
         LogicalExpressionView.prototype = Object.create(BallerinaStatementView.prototype);
@@ -78,17 +81,13 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/logical-express
             var group = D3Utils.group(d3.select(this._container));
             var width = 120;
             var height = 30;
-            var x = this.getXPosition();
-            var y = this.getYPosition();
+            this.getBoundingBox().fromTopCenter(this._topCenter, this._viewOptions.width, this._viewOptions.height);
+            var x = this.getBoundingBox().x();
+            var y = this.getBoundingBox().y();
             var expressionRect = D3Utils.rect(x, y, 120, 30, 0, 0, group).classed('statement-rect', true);
             var text = this._model.getExpression();
 
             var expressionText = D3Utils.textElement(x + width/2, y + height/2, text, group).classed('statement-text', true);
-            // Set x, y, height, width of the current view
-            this.setWidth(width);
-            this.setHeight(height);
-            this.setXPosition(x);
-            this.setYPosition(y);
             log.info("Rendering logical expression view.");
             return group;
         };
