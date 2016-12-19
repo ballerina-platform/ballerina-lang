@@ -31,6 +31,7 @@ import net.sf.saxon.tree.tiny.TinyElementImpl;
 import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BValue;
@@ -89,11 +90,11 @@ public class GetXML extends AbstractNativeFunction {
                 result = new XMLValue(xdmValue.toString());
             } else {
                 String errorMsg = "The element matching path: " + xPath + " is not a XML element.";
-                log.error(errorMsg);
-                throw new RuntimeException(errorMsg);
+                //log.error(errorMsg);
+                throw new BallerinaException(errorMsg);
             }
         } catch (SaxonApiException e) {
-            log.error("Cannot evaluate XPath: " + xPath, e);
+            throw new BallerinaException("Cannot evaluate XPath: " + xPath, e);
         }
         
         // Setting output value.

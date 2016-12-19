@@ -14,40 +14,40 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.ballerina.core.semantics;
+package org.wso2.ballerina.core.exception;
 
 /**
  * Exception thrown when a ballerina config is failed to parse.
  */
-public class InvalidSemanticException extends RuntimeException {
+public class SemanticException extends BallerinaException {
     
     private static final long serialVersionUID = 1L;
 
     /**
-     * Constructs a new {@link InvalidSemanticException} with the specified detail message.
+     * Constructs a new {@link SemanticException} with the specified detail message.
      * 
      * @param message   Error Message
      */
-    public InvalidSemanticException(String message) {
+    public SemanticException(String message) {
         super(message);
     }
     
     /**
-     * Constructs a new {@link InvalidSemanticException} with the specified detail message and cause.
+     * Constructs a new {@link SemanticException} with the specified detail message and cause.
      * 
      * @param message   Error message
      * @param cause     Cause
      */
-    public InvalidSemanticException(String message, Throwable cause) {
+    public SemanticException(String message, Throwable cause) {
         super(message, cause);
     }
 
     /**
-     * Constructs a new {@link InvalidSemanticException} with the cause.
+     * Constructs a new {@link SemanticException} with the cause.
      * 
      * @param cause
      */
-    public InvalidSemanticException(Throwable cause) {
+    public SemanticException(Throwable cause) {
         super(cause);
     }
 }

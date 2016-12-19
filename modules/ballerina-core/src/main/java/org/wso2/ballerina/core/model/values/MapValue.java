@@ -17,6 +17,8 @@
 */
 package org.wso2.ballerina.core.model.values;
 
+import org.wso2.ballerina.core.exception.BallerinaException;
+
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -79,7 +81,7 @@ public class MapValue<K, V> implements BValue {
             if (newSize <= MAX_CAPACITY) {
                 values = Arrays.copyOf(values, newSize);
             } else {
-                throw new RuntimeException(" Map cannot exceed the maximum size");
+                throw new BallerinaException(" Map cannot exceed the maximum size");
             }
         }
     }

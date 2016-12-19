@@ -19,6 +19,7 @@
 package org.wso2.ballerina.core.nativeimpl.lang.message;
 
 import com.google.gson.JsonElement;
+import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.model.types.LongType;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BooleanValue;
@@ -60,7 +61,7 @@ public class Utils {
                 sb.append(str);
             }
         } catch (IOException ioe) {
-            throw new RuntimeException(ioe.getMessage(), ioe);
+            throw new BallerinaException(ioe.getMessage(), ioe);
         } finally {
             try {
                 in.close();
@@ -114,7 +115,7 @@ public class Utils {
             CarbonMessage value = (CarbonMessage) orgBValue.getValue();
             bValue = new MessageValue(value);
         } else {
-            throw new RuntimeException("Unsupported orgBValue: " + orgBValue.getValue());
+            throw new BallerinaException("Unsupported orgBValue: " + orgBValue.getValue());
         }
         return bValue;
     }
