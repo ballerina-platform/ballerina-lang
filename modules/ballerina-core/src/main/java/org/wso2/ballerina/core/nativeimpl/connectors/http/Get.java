@@ -36,6 +36,7 @@ import org.wso2.carbon.messaging.CarbonMessage;
 @BallerinaAction(
         packageName = "ballerina.net.connectors.http",
         actionName = "get",
+        connectorName = HTTPConnector.CONNECTOR_NAME,
         args = {
                 @Argument(name = "connector",
                         type = TypeEnum.CONNECTOR),

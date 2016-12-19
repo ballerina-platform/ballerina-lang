@@ -71,7 +71,8 @@ public abstract class AbstractNativeAction implements Action, NativeConstruct {
         BallerinaAction action = this.getClass().getAnnotation(BallerinaAction.class);
         packageName = action.packageName();
         actionName = action.actionName();
-        String symName = packageName + ":" + this.getAssociatesConnectorType() + "." + actionName;
+        String connectorName = action.connectorName();
+        String symName = packageName + ":" + connectorName + "." + actionName;
         symbolName = new SymbolName(symName, SymbolName.SymType.CALLABLE_UNIT);
         stackFrameSize = action.args().length;
         Arrays.stream(action.args()).

@@ -40,7 +40,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractHTTPAction.class);
 
-    private static final String ASSOCIATED_CONNECTOR_TYPE = "http";
+    private static final String ASSOCIATED_CONNECTOR_TYPE = "HTTPConnector";
 
     protected void prepareRequest(Connector connector, String path, CarbonMessage cMsg) {
 
