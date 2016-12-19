@@ -47,10 +47,9 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './st
             constructedSourceSegment += arguments[id].getType() + ' ' + arguments[id].getIdentifier();
             if (id !== arguments.length - 1) {
                 constructedSourceSegment += ','
-            } else {
-                constructedSourceSegment += ') {'
             }
         }
+        constructedSourceSegment += ') {';
         this.appendSource(constructedSourceSegment);
         log.info('Begin Visit ResourceDefinition');
     };
