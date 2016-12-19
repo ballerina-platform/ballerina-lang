@@ -28,7 +28,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 
 /**
- * Native function ballerina.lang.string:toUpperCase
+ * Native function ballerina.lang.string:length.
  *
  * @since 1.0.0
  */
