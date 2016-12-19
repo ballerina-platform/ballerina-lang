@@ -198,6 +198,11 @@
                 <artifactId>mockito-all</artifactId>
                 <version>${mockito.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.wso2.ballerina</groupId>
+                <artifactId>gson-fragment</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -368,6 +373,7 @@
 
     <modules>
         <module>modules/ballerina-core</module>
+        <module>modules/gson-fragment</module>
         <module>modules/features</module>
         <module>modules/distribution</module>
         <module>modules/tests</module>
