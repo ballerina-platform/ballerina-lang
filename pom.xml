@@ -374,11 +374,10 @@
 
     <modules>
         <module>modules/ballerina-core</module>
-        <module>modules/ballerina-fragment</module>
+        <module>modules/gson-fragment</module>
         <module>modules/features</module>
         <module>modules/distribution</module>
         <module>modules/tests</module>
-        
     </modules>
 
 </project>

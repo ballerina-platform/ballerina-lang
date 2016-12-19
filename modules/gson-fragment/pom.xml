@@ -25,9 +25,9 @@
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>ballerina-fragment</artifactId>
+    <artifactId>gson-fragment</artifactId>
     <packaging>bundle</packaging>
-    <name>WSO2 Ballerina - Fragment</name>
+    <name>GSON Fragment Bundle</name>
     <url>http://wso2.org</url>
 
     <dependencies>
@@ -54,7 +54,7 @@
                         </Import-Package>
                         <Private-Package></Private-Package>
                         <Fragment-Host>com.google.gson</Fragment-Host>
-                        <DynamicImport-Package>*</DynamicImport-Package>
+                        <DynamicImport-Package></DynamicImport-Package>
                     </instructions>
                 </configuration>
             </plugin>
