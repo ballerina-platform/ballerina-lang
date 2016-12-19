@@ -29,7 +29,7 @@ import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
  * Native HTTP Connector.
  */
 @BallerinaConnector(
-        packageName = "ballerina.net.connectors.http",
+        packageName = "ballerina.net.http",
         connectorName = HTTPConnector.CONNECTOR_NAME,
         args = {
                 @Argument(name = "serviceUri",
