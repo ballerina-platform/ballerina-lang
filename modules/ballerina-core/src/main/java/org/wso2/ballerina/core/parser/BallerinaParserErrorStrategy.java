@@ -24,6 +24,7 @@ import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.misc.IntervalSet;
+import org.wso2.ballerina.core.exception.ParserException;
 
 /**
  * Error Handling strategy for {@link BallerinaParser}.

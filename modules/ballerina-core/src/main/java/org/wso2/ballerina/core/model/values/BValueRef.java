@@ -19,6 +19,7 @@ package org.wso2.ballerina.core.model.values;
 
 import com.google.gson.JsonElement;
 import org.apache.axiom.om.OMElement;
+import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.model.types.TypeC;
 
 /**
@@ -104,7 +105,7 @@ public class BValueRef {
         } else if (type == TypeC.CONNECTOR_TYPE) {
             return new BValueRef(new ConnectorValue(null, null));
         } else {
-            throw new RuntimeException("Unsupported type: " + type);
+            throw new BallerinaException("Unsupported type: " + type);
         }
     }
 
@@ -127,6 +128,6 @@ public class BValueRef {
             return new BValueRef(bValueRef.getBValue());
         }
 
-        throw new RuntimeException("Cloning reference types are not yet supported in Ballerina");
+        throw new BallerinaException("Cloning reference types are not yet supported in Ballerina");
     }
 }
