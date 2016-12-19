@@ -1,7 +1,7 @@
 package samples.message_passthrough;
 
 import ballerina.lang.message;
-import ballerina.net.http as http;
+import ballerina.net.http;
 
 
 @BasePath ("/passthrough")
@@ -10,10 +10,10 @@ service PassthroughService {
     @POST
     @Path ("/stocks")
     resource passthrough (message m) {
-        ballerina.net.http:HTTPConnector nyseEP = new ballerina.net.http:HTTPConnector("http://localhost:8280/exchange/nyse/", 100);
+        http:HTTPConnector nyseEP = new http:HTTPConnector("http://localhost:9000", 100);
 
         message response;
-        response = ballerina.net.http:HTTPConnector.post(nyseEP, "/us", m);
+        response = http:HTTPConnector.post(nyseEP, "/services/SimpleStockQuoteService", m);
         reply response;
     }
 }
