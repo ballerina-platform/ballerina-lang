@@ -17,26 +17,34 @@
  */
 define(['lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor'], function(_, log, EventChannel, AbstractStatementSourceGenVisitor) {
 
-    var ReplyStatementVisitor = function(){
-        AbstractStatementSourceGenVisitor.call(this);
+    var ReplyStatementVisitor = function(parent){
+        AbstractStatementSourceGenVisitor.call(this, parent);
     };
 
     ReplyStatementVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
     ReplyStatementVisitor.prototype.constructor = ReplyStatementVisitor;
 
-    ReplyStatementVisitor.prototype.canVisitStatement = function(replyStatement){
+    ReplyStatementVisitor.prototype.canVisitReplyStatement = function(replyStatement){
         return true;
     };
 
-    ReplyStatementVisitor.prototype.beginVisitStatement = function(replyStatement){
+    ReplyStatementVisitor.prototype.beginVisitReplyStatement = function(replyStatement){
+        /**
+         * set the configuration start for the reply statement definition language construct
+         * If we need to add additional parameters which are dynamically added to the configuration start
+         * that particular source generation has to be constructed here
+         */
+        this.appendSource('reply ');
         log.info('Begin Visit Reply Statement Definition');
     };
 
-    ReplyStatementVisitor.prototype.visitStatement = function(replyStatement){
+    ReplyStatementVisitor.prototype.visitReplyStatement = function(replyStatement){
         log.info('Visit Reply Statement Definition');
     };
 
-    ReplyStatementVisitor.prototype.endVisitStatement = function(replyStatement){
+    ReplyStatementVisitor.prototype.endVisitReplyStatement = function(replyStatement){
+        this.appendSource("response;\n");
+        this.getParent().appendSource(this.getGeneratedSource());
         log.info('End Visit Reply Statement Definition');
     };
 
