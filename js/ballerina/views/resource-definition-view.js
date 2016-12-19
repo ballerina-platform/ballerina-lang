@@ -97,12 +97,18 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
         ResourceDefinitionView.prototype = Object.create(BallerinaView.prototype);
         ResourceDefinitionView.prototype.constructor = ResourceDefinitionView;
+        // TODO move variable types into constant class
+        var variableTypes = ['message', 'connection', 'string', 'int', 'exception'];
 
         ResourceDefinitionView.prototype.init = function(){
             //Registering event listeners
             this.listenTo(this._model, 'childVisitedEvent', this.childVisitedCallback);
             this.listenTo(this._parentView, 'childViewAddedEvent', this.childViewAddedCallback);
             this.listenTo(this._model, 'childRemovedEvent', this.childViewRemovedCallback);
+        };
+
+        ResourceDefinitionView.prototype.getChildContainer = function () {
+            return this._resourceGroup;
         };
 
         ResourceDefinitionView.prototype.canVisitResourceDefinition = function (resourceDefinition) {
@@ -355,6 +361,36 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             this._model.on('child-added', function(child){
                 self.visit(child);
             });
+
+            var annotationButton = this._createAnnotationButton(this.getChildContainer().node());
+            var variableButton = this._createVariableButton(this.getChildContainer().node());
+
+            var variableProperties = {
+                model: this._model,
+                editableProperties: [{
+                    propertyType: "text",
+                    key: "Resource Name",
+                    model: this._model,
+                    getterMethod: this._model.getResourceName,
+                    setterMethod: this._model.setResourceName
+                },
+                    {
+                        propertyType: "text",
+                        key: "Resource Path",
+                        model: this._model,
+                        getterMethod: this._model.getResourcePath,
+                        setterMethod: this._model.setResourcePath
+                    }],
+                activatorElement: variableButton.node(),
+                paneAppendElement: _.first($(this._container))._groups[0],
+                viewOptions: {
+                    position: {
+                        x: parseFloat(variableButton.attr("cx")),
+                        y: parseFloat(variableButton.attr("cy")) + parseFloat(variableButton.attr("r"))
+                    }
+                }
+            };
+            this.createVariablePane(variableProperties);
         };
 
         /**
@@ -376,6 +412,250 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                     this.getBoundingBox().h(this.getBoundingBox().h() + dy);
             });
             this._statementContainer.render(this.diagramRenderingContext);
+        };
+
+        ResourceDefinitionView.prototype.renderVariables = function (variableDeclarationsList, variablePaneWrapper, resourceModel) {
+
+            if (variableDeclarationsList.length > 0) {
+                var variableSetWrapper = $('<div/>').appendTo($(variablePaneWrapper));
+                var variableTable = $('<table/>').appendTo(variableSetWrapper);
+
+                for (var variableCount = 0; variableCount < variableDeclarationsList.length; variableCount++) {
+                    var currentRaw;
+                    if (variableCount % 3 == 0) {
+                        currentRaw = $('<tr/>').appendTo(variableTable);
+                    }
+                    var labelClass = "";
+                    if (variableDeclarationsList[variableCount].getType() === "message") {
+                        labelClass = "variable-type-message";
+                    } else if (variableDeclarationsList[variableCount].getType() === "connection") {
+                        labelClass = "variable-type-connection";
+                    } else if (variableDeclarationsList[variableCount].getType() === "string") {
+                        labelClass = "variable-type-string";
+                    } else if (variableDeclarationsList[variableCount].getType() === "int") {
+                        labelClass = "variable-type-int";
+                    } else {
+                        labelClass = "variable-type-exception";
+                    }
+                    var currentCell = $('<td/>').appendTo(currentRaw);
+                    var variable = $("<label for=" + variableDeclarationsList[variableCount].getIdentifier() + " class=" + labelClass + ">" +
+                        variableDeclarationsList[variableCount].getType() + "</label>" + "<input readonly maxlength='7' size='7' value=" +
+                        variableDeclarationsList[variableCount].getIdentifier() + " class=" + labelClass + ">").appendTo(currentCell);
+                    var removeBtn = $('<button class="variable-list">x</button>').appendTo(currentCell);
+
+                    // variable delete onclick
+                    var self = this;
+                    $(removeBtn).click(resourceModel, function () {
+                        var varList = resourceModel.getVariables();
+                        var varType = $($(this.parentNode.getElementsByTagName('label'))[0]).text();
+                        var varIdentifier = $($(this.parentNode.getElementsByTagName('input'))[0]).val();
+                        var index = self.checkExistingVariables(varList, varType, varIdentifier);
+
+                        if (index != -1) {
+                            resourceModel.data.getVariables().splice(index, 1);
+                        }
+
+                        log.info($(variable).val());
+
+                        if (variablePaneWrapper.children().length > 1) {
+                            variablePaneWrapper.children()[variablePaneWrapper.children().length - 1].remove()
+                        }
+                        self.renderVariables(variableDeclarationsList, variablePaneWrapper, resourceModel);
+                    });
+
+                    // variable edit onclick
+                    $(variable).click(resourceModel, function (resourceModel) {
+                        log.info('Variable edit');
+                        // ToDo : Render variables here
+                    });
+                }
+            }
+        };
+
+        ResourceDefinitionView.prototype.checkExistingVariables = function (variableList, variableType, variableIdentifier) {
+            var index = -1;
+            for (var varIndex = 0; varIndex < variableList.length; varIndex++) {
+                if (variableList[varIndex].getType() == variableType &&
+                    variableList[varIndex].getIdentifier() == variableIdentifier) {
+                    index = varIndex;
+                    break;
+                }
+            }
+            return index;
+        };
+
+        ResourceDefinitionView.prototype.createVariablePane = function (args) {
+            var activatorElement = _.get(args, "activatorElement");
+            var resourceModel = _.get(args, "model");
+            var paneElement = _.get(args, "paneAppendElement");
+            var variableList = resourceModel.getVariables();
+
+            if (_.isNil(activatorElement)) {
+                log.error("Unable to render property pane as the html element is undefined." + activatorElement);
+                throw "Unable to render property pane as the html element is undefined." + activatorElement;
+            }
+
+            var variablePaneWrapper = $('<div class="resource-variable-pane"/>').appendTo($(paneElement));
+            var variableForm = $('<form></form>').appendTo(variablePaneWrapper);
+            var variableSelect = $("<select/>").appendTo(variableForm);
+            var variableText = $("<input placeholder='&nbsp;Variable Name'/>").appendTo(variableForm);
+            for(var typeCount = 0;typeCount < variableTypes.length; typeCount ++){
+                var selectOption = $("<option value="+ variableTypes[typeCount]+">"+variableTypes[typeCount] +
+                    "</option>").appendTo($(variableSelect));
+            }
+            var addVariable = $("<button type='button'>+</button>").appendTo(variableForm);
+
+            this.renderVariables(variableList,variablePaneWrapper,resourceModel);
+            var self = this;
+
+            $(addVariable).click(resourceModel, function (resourceModel) {
+
+                // ToDo add variable name validation
+                var variableList = resourceModel.data.getVariables();
+
+                //filtering empty variable identifier and existing variables
+                if ($(variableText).val() != "" &&
+                    self.checkExistingVariables(variableList, $(variableSelect).val(), $(variableText).val()) == -1) {
+
+                    var variable = BallerinaASTFactory.createVariableDeclaration();
+
+                    //pushing new variable declaration
+                    variable.setType($(variableSelect).val());
+                    variable.setIdentifier($(variableText).val());
+                    resourceModel.data.getVariables().push(variable);
+
+                    //remove current variable list
+                    if (variablePaneWrapper.children().length > 1) {
+                        variablePaneWrapper.children()[variablePaneWrapper.children().length - 1].remove()
+                    }
+                    self.renderVariables(variableList, variablePaneWrapper, resourceModel);
+                }
+            });
+
+            $(activatorElement).click(resourceModel, function (resourceModel) {
+                if(paneElement.children[1].style.display== "none" || paneElement.children[1].style.display == "") {
+                    paneElement.children[1].style.display = "inline";
+                } else {
+                    paneElement.children[1].style.display = "none";
+                }
+            });
+        };
+
+        ResourceDefinitionView.prototype._createAnnotationButton = function (resourceContentSvg) {
+            var svgDefinitions = d3.select(resourceContentSvg).append("defs");
+
+            var annotationButtonPattern = svgDefinitions.append("pattern")
+                .attr("id", "annotationIcon")
+                .attr("width", "100%")
+                .attr("height", "100%");
+
+            annotationButtonPattern.append("image")
+                .attr("xlink:href", "images/annotation.svg")
+                .attr("x", 0)
+                .attr("y", 0)
+                .attr("width", 18.67)
+                .attr("height", 18.67);
+
+            // xPosition = Width of the outer div - padding of outer box - radius of the annotation button - 20(additional value).
+            //var xPosition = $(resourceContentSvg.parentElement.parentElement).prev().width() - outerBoxPadding - 18.675 - 40;
+            var xPosition = d3.selectAll(resourceContentSvg.childNodes).select('.headingCollapseIcon').attr("x") - 20;
+            // yPosition = (2 X radius of annotation button) + additional distance.
+            //var yPosition = 75;
+            var yPosition = parseInt(d3.selectAll(resourceContentSvg.childNodes).select('.resource-content').attr("y")) + 85;
+
+            var annotationIconGroup = D3utils.group(d3.select(resourceContentSvg));
+
+            var annotationIconBackgroundCircle = D3utils.circle(xPosition, yPosition, 18.675, annotationIconGroup)
+                .classed("annotation-icon-background-circle", true);
+
+            var annotationIconRect = D3utils.centeredRect(new Point(xPosition, yPosition), 18.67, 18.67, 0, 0, annotationIconGroup)
+                .classed("annotation-icon-rect", true);
+
+            // Positioning the icon when window is zoomed out or in.
+            $(window).resize(function () {
+                $(annotationIconBackgroundCircle.node()).remove();
+                $(annotationIconRect.node()).remove();
+
+                annotationIconBackgroundCircle = D3utils.circle(xPosition, yPosition, 18.675, annotationIconGroup)
+                    .classed("annotation-icon-background-circle", true);
+
+                annotationIconRect = D3utils.centeredRect(new Point(xPosition, yPosition), 18.67, 18.67, 0, 0, annotationIconGroup)
+                    .classed("annotation-icon-rect", true);
+            });
+
+            // Get the hover effect of the circle on the icon hover.
+            $(annotationIconRect.node()).hover(
+                function () {
+                    annotationIconBackgroundCircle.style("opacity", 1);
+                },
+                function () {
+                    $(annotationIconBackgroundCircle.node()).removeAttr("style");
+                }
+            );
+
+            $(annotationIconRect.node()).click(function (event) {
+                $(annotationIconBackgroundCircle.node()).trigger("click");
+                event.stopPropagation();
+            });
+
+            return annotationIconBackgroundCircle;
+        };
+
+        ResourceDefinitionView.prototype._createVariableButton = function (resourceContentSvg) {
+            var svgDefinitions = d3.select(resourceContentSvg).append("defs");
+
+            var variableButtonPattern = svgDefinitions.append("pattern")
+                .attr("id", "variableIcon")
+                .attr("width", "100%")
+                .attr("height", "100%");
+
+            variableButtonPattern.append("image")
+                .attr("xlink:href", "images/variable.svg")
+                .attr("x", 0)
+                .attr("y", 0)
+                .attr("width", 18.67)
+                .attr("height", 18.67);
+
+            // xPosition = Width of the outer div - padding of outer box - radius of the annotation button - 20(additional value).
+            //var xPosition = $(resourceContentSvg).width() - outerBoxPadding - 18.675 - 40;
+            var xPosition = d3.selectAll(resourceContentSvg.childNodes).select('.headingCollapseIcon').attr("x") - 20;
+            var yPosition = parseInt(d3.selectAll(resourceContentSvg.childNodes).select('.resource-content').attr("y")) + 40;
+
+            var variableIconGroup = D3utils.group(d3.select(resourceContentSvg));
+
+            var variableIconBackgroundCircle = D3utils.circle(xPosition, yPosition, 18.675, variableIconGroup)
+                .classed("variable-icon-background-circle", true);
+
+            var variableIconRect = D3utils.centeredRect(new Point(xPosition, yPosition), 18.67, 18.67, 0, 0, variableIconGroup)
+                .classed("variable-icon-rect", true);
+
+            // Positioning the icon when window is zoomed out or in.
+            $(window).resize(function () {
+                $(variableIconBackgroundCircle.node()).remove();
+                $(variableIconRect.node()).remove();
+
+                variableIconBackgroundCircle = D3utils.circle(xPosition, yPosition, 18.675, variableIconGroup)
+                    .classed("variable-icon-background-circle", true);
+
+                variableIconRect = D3utils.centeredRect(new Point(xPosition, yPosition), 18.67, 18.67, 0, 0, variableIconGroup)
+                    .classed("variable-icon-rect", true);
+            });
+
+            // Get the hover effect of the circle on the icon hover.
+            $(variableIconRect.node()).hover(
+                function () {
+                    variableIconBackgroundCircle.style("opacity", 1);
+                },
+                function () {
+                    $(variableIconBackgroundCircle.node()).removeAttr("style");
+                }
+            );
+
+            $(variableIconRect.node()).click(function () {
+                $(variableIconBackgroundCircle.node()).trigger("click");
+            });
+
+            return variableIconBackgroundCircle;
         };
 
 

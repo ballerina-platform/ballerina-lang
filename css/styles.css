@@ -248,6 +248,42 @@ ol#breadcrumbList {
     margin-right: 5px;
 }
 
+.resource-variable-pane {
+    background-color: #f3f3f3;
+    padding: 7px 7px 0 7px;
+    height: 38px;
+    position: absolute;
+    top: 25px;
+    right: 55px;
+    display: block;
+    margin: auto;
+}
+
+.resource-variable-pane input {
+    padding-left: 5px;
+    height: 25px;
+    /*margin-right: 5px;*/
+}
+
+.resource-variable-pane select {
+    height: 25px;
+    margin-right: 5px;
+}
+
+.resource-variable-pane form {
+    width: 326px;
+}
+
+.resource-variable-pane input {
+    padding-left: 5px;
+    height: 25px;
+    /*margin-right: 5px;*/
+}
+
+.resource-variable-pane form > input {
+    margin-right: 5px;
+}
+
 button.variable-list {
     font-size: small;
     margin-right: 2px;
