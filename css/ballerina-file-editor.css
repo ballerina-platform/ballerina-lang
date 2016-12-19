@@ -11,16 +11,16 @@
     padding-left: 200px;
     padding-top: 0px;
     overflow-y: scroll;
-    height: 85%;
+    height: 100%;
 }
 
 .canvas-container{
     padding-left: 20px;
     padding-top: 60px;
     padding-bottom: 60px;
-    /*float: left;
+    float: left;
     height: auto;
-    min-height: 1000px;*/
+    min-height: 1000px;
 }
 
 .container-outer-div {

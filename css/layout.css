@@ -302,6 +302,16 @@ div[class*="col-sm-"] {
 /*//////////////////////////////////////////////////*/
 /** ace editor (source view) related styles | Start -> **/
 
+.tab-headers-bar {
+    background-color: #e4e4e4;
+    height: 20px;
+    border-bottom: 1px solid #ccc;
+}
+
+.nav-tabs-bar{
+     overflow: hidden;
+ }
+
 #sourceViewTab{
     height: 100%;
     width: 100%;
