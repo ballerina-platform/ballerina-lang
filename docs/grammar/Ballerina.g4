@@ -213,7 +213,7 @@ literalValue
      :   '@' annotationName ( '(' ( elementValuePairs | elementValue )? ')' )?
      ;
 
- annotationName : packageName ;
+ annotationName : Identifier ;
 
  elementValuePairs
      :   elementValuePair (',' elementValuePair)*
