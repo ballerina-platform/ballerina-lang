@@ -27,6 +27,8 @@ import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 
+import java.util.Locale;
+
 /**
  * Native function ballerina.lang.string:toLowerCase
  *
@@ -49,7 +51,7 @@ public class ToLowerCase extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
         String param1 = getArgument(context, 0).getString();
-        StringValue lowerCaseString = new StringValue(param1.toLowerCase());
+        StringValue lowerCaseString = new StringValue(param1.toLowerCase(Locale.getDefault()));
         return getBValues(lowerCaseString);
     }
 }

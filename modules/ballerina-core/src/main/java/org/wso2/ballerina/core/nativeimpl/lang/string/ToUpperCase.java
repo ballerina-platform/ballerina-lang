@@ -27,6 +27,8 @@ import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 
+import java.util.Locale;
+
 /**
  * Native function ballerina.lang.string:toUpperCase
  *
@@ -49,7 +51,7 @@ public class ToUpperCase extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
         String param1 = getArgument(context, 0).getString();
-        StringValue upperCaseString = new StringValue(param1.toUpperCase());
+        StringValue upperCaseString = new StringValue(param1.toUpperCase(Locale.getDefault()));
         return getBValues(upperCaseString);
     }
 }
