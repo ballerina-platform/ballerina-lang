@@ -36,4 +36,9 @@ public class BooleanValue implements BValue<Boolean> {
     public void setValue(boolean value) {
         this.value = value;
     }
+
+    @Override
+    public StringValue getString() {
+        return new StringValue(getValue().toString());
+    }
 }

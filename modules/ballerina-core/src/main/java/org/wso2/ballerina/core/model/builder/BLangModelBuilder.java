@@ -58,6 +58,7 @@ import org.wso2.ballerina.core.model.statements.ReturnStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
 import org.wso2.ballerina.core.model.types.TypeC;
+import org.wso2.ballerina.core.model.util.MessageUtils;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BValueRef;
 import org.wso2.ballerina.core.model.values.BooleanValue;
@@ -66,7 +67,6 @@ import org.wso2.ballerina.core.model.values.IntValue;
 import org.wso2.ballerina.core.model.values.JSONValue;
 import org.wso2.ballerina.core.model.values.StringValue;
 import org.wso2.ballerina.core.model.values.XMLValue;
-import org.wso2.ballerina.core.nativeimpl.lang.message.Utils;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -299,7 +299,7 @@ public class BLangModelBuilder {
     }
 
     public void createBackTickString(String stringContent) {
-        String content = Utils.getValueWithinBacktick(stringContent);
+        String content = MessageUtils.getValueWithinBacktick(stringContent);
         if (content.startsWith("{")) {
             BValue bValue = new JSONValue(content);
             createLiteral(new BValueRef(bValue), TypeC.JSON_TYPE);

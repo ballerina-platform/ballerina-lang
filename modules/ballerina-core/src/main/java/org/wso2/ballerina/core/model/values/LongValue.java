@@ -36,4 +36,9 @@ public class LongValue implements BValue<Long> {
     public void setValue(long value) {
         this.value = value;
     }
+
+    @Override
+    public StringValue getString() {
+        return new StringValue(this.getValue().toString());
+    }
 }

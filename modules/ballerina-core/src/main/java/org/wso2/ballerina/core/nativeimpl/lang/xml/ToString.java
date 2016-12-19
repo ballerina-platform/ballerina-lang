@@ -16,58 +16,47 @@
  *  under the License.
  */
 
-package org.wso2.ballerina.core.nativeimpl.lang.message;
+package org.wso2.ballerina.core.nativeimpl.lang.xml;
 
 import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
-import org.wso2.ballerina.core.model.util.MessageUtils;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.model.values.MessageValue;
-import org.wso2.ballerina.core.model.values.StringValue;
+import org.wso2.ballerina.core.model.values.XMLValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 
 /**
- * Native function to get payload as String..
- * ballerina.lang.message:getStringPayload
+ * Native function ballerina.lang.xml:toString
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.message",
-        functionName = "getStringPayload",
-        args = {@Argument(name = "message", type = TypeEnum.MESSAGE)},
+        packageName = "ballerina.lang.xml",
+        functionName = "toString",
+        args = {@Argument(name = "xml", type = TypeEnum.XML)},
         returnType = {TypeEnum.STRING},
         isPublic = true
 )
 @Component(
-        name = "func.lang.message_getStringPayload",
+        name = "func.lang.xml_toString",
         immediate = true,
         service = AbstractNativeFunction.class
 )
-public class GetStringPayload extends AbstractNativeFunction {
+public class ToString extends AbstractNativeFunction {
 
-    private static final Logger LOG = LoggerFactory.getLogger(GetStringPayload.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ToString.class);
 
     @Override
-    public BValue[] execute(Context context) {
-        MessageValue msg = (MessageValue) getArgument(context, 0).getBValue();
+    public BValue<?>[] execute(Context ctx) {
+        // Accessing Parameters.
+        XMLValue xml = (XMLValue) getArgument(ctx, 0).getBValue();
 
-        StringValue result;
-        if (msg.isAlreadyRead()) {
-            result = (StringValue ) msg.getBuiltPayload();
-        } else {
-            String payload = MessageUtils.getStringFromInputStream(msg.getValue().getInputStream());
-            result = new StringValue(payload);
-            msg.setBuiltPayload(result);
-            msg.setAlreadyRead(true);
-        }
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Payload in String:" + result.getValue());
+            LOG.debug("XML toString: " + xml.getString().getValue());
         }
-        
-        return getBValues(result);
+        // Setting output value.
+        return getBValues(xml.getString());
     }
 }

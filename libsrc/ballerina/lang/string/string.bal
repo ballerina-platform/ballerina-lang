@@ -22,3 +22,18 @@ native function toUpper(string s) (string);
 
 native function trim(string s) (string);
 
+native function valueOf(int i) (string);
+
+native function valueOf(long l) (string);
+
+native function valueOf(float f) (string);
+
+native function valueOf(double d) (string);
+
+native function valueOf(boolean b) (string);
+
+native function valueOf(string s) (string);
+
+native function valueOf(xml e) (string);
+
+native function valueOf(json j) (string);
