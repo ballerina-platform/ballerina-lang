@@ -28,28 +28,33 @@ import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 
 /**
- * Native function ballerina.lang.string:trim
+ * Native function ballerina.lang.string:replaceAll
  *
  * @since 1.0.0
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.string",
-        functionName = "trim",
-        args = {@Argument(name = "string", type = TypeEnum.STRING)},
+        functionName = "replaceAll",
+        args = {@Argument(name = "string", type = TypeEnum.STRING),
+                @Argument(name = "string", type = TypeEnum.STRING),
+                @Argument(name = "string", type = TypeEnum.STRING)},
         returnType = {TypeEnum.STRING},
         isPublic = true
 )
 @Component(
-        name = "func.lang.string_trim",
+        name = "func.lang.string_replaceAll",
         immediate = true,
         service = AbstractNativeFunction.class
 )
-public class Trim extends AbstractNativeFunction {
+public class ReplaceAll extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        String param1 = getArgument(context, 0).getString();
-        StringValue trimmedString = new StringValue(param1.trim());
-        return getBValues(trimmedString);
+        String mainString = getArgument(context, 0).getString();
+        String replacePattern = getArgument(context, 1).getString();
+        String replaceWith = getArgument(context, 2).getString();
+
+        String replacedString = mainString.replaceAll(replacePattern, replaceWith);
+        return getBValues(new StringValue(replacedString));
     }
 }

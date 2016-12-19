@@ -28,28 +28,28 @@ import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 
 /**
- * Native function ballerina.lang.string:trim
+ * Native function ballerina.lang.string:toUpperCase
  *
  * @since 1.0.0
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.string",
-        functionName = "trim",
+        functionName = "toUpperCase",
         args = {@Argument(name = "string", type = TypeEnum.STRING)},
         returnType = {TypeEnum.STRING},
         isPublic = true
 )
 @Component(
-        name = "func.lang.string_trim",
+        name = "func.lang.string_toUpperCase",
         immediate = true,
         service = AbstractNativeFunction.class
 )
-public class Trim extends AbstractNativeFunction {
+public class ToUpperCase extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
         String param1 = getArgument(context, 0).getString();
-        StringValue trimmedString = new StringValue(param1.trim());
-        return getBValues(trimmedString);
+        StringValue upperCaseString = new StringValue(param1.toUpperCase());
+        return getBValues(upperCaseString);
     }
 }
