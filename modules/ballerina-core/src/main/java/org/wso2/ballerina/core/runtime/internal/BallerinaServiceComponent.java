@@ -26,6 +26,7 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.runtime.Constants;
 import org.wso2.ballerina.core.runtime.core.MessageProcessor;
@@ -80,15 +81,19 @@ public class BallerinaServiceComponent {
                     if (fRelative.exists()) {
                         BalDeployer.deployBalFile(fRelative);
                     } else {
-                        log.warn("File " + runThisBalFile + " not found in the given location");
+                        throw new BallerinaException("File " + runThisBalFile + " not found in the given location");
                     }
                 }
             }
 
+        } catch (BallerinaException ex) {
+            String msg = "Error while loading Ballerina runtime";
+            log.error(msg, ex);
+            //throw new ParserException(msg, ex);
         } catch (Exception ex) {
             String msg = "Error while loading Ballerina";
             log.error(msg, ex);
-            throw new RuntimeException(msg, ex);
+            //throw new ParserException(msg, ex);
         }
     }
 

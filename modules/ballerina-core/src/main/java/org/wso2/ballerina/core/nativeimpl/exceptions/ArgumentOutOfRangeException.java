@@ -17,10 +17,12 @@
 */
 package org.wso2.ballerina.core.nativeimpl.exceptions;
 
+import org.wso2.ballerina.core.exception.BallerinaException;
+
 /**
  * Thrown when Native function tries to access non existent argument from the Ballerina context.
  */
-public class ArgumentOutOfRangeException extends RuntimeException {
+public class ArgumentOutOfRangeException extends BallerinaException {
 
     /**
      * Construct a new {@code {@link ArgumentOutOfRangeException}} using invalid index as a argument.

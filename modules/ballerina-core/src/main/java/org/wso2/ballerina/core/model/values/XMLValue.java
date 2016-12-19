@@ -21,6 +21,7 @@ import org.apache.axiom.om.impl.builder.StAXOMBuilder;
 import org.apache.axiom.om.util.AXIOMUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.message.BallerinaMessageDataSource;
 
 import java.io.InputStream;
@@ -95,7 +96,7 @@ public class XMLValue extends BallerinaMessageDataSource implements BValue<OMEle
         try {
             this.omElement.serialize(this.outputStream);
         } catch (XMLStreamException e) {
-            throw new RuntimeException("Error occurred during writing the message to the output stream");
+            throw new BallerinaException("Error occurred during writing the message to the output stream", e);
         }
     }
 }
