@@ -382,7 +382,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                         setterMethod: this._model.setResourcePath
                     }],
                 activatorElement: variableButton.node(),
-                paneAppendElement: $(".panel-body").children(),
+                paneAppendElement: $(this._defaultWorker)[0]._container.closest('.panel-body').childNodes[0],
                 viewOptions: {
                     position: {
                         x: parseFloat(variableButton.attr("cx")),
@@ -827,16 +827,15 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             });
 
             $(activatorElement).click(resourceModel, function (resourceModel) {
-                for(var iterator = 0;iterator < paneElement.children().length; iterator++) {
-                    console.log(paneElement.children()[iterator]);
-                    if(paneElement.children()[iterator].className == "resource-variable-pane") {
-                        if(paneElement.children()[iterator].id == resourceModel.data.id) {
-                            $(paneElement.children()[iterator]).css('top', $(this).position().top);
-                            $(paneElement.children()[iterator]).css('left', $(this).position().left - 340);
-                            if(paneElement.children()[iterator].style.display== "none" || paneElement.children()[iterator].style.display == "") {
-                                paneElement.children()[iterator].style.display = "inline";
+                for(var iterator = 0;iterator < paneElement.childNodes.length; iterator++) {
+                    if(paneElement.childNodes[iterator].className == "resource-variable-pane") {
+                        if(paneElement.childNodes[iterator].id == resourceModel.data.id) {
+                            $(paneElement.childNodes[iterator]).css('top', $(this).position().top);
+                            $(paneElement.childNodes[iterator]).css('left', $(this).position().left - 340);
+                            if(paneElement.childNodes[iterator].style.display== "none" || paneElement.childNodes[iterator].style.display == "") {
+                                paneElement.childNodes[iterator].style.display = "inline";
                             } else {
-                                paneElement.children()[iterator].style.display = "none";
+                                paneElement.childNodes[iterator].style.display = "none";
                             }
                             break;
                         }
