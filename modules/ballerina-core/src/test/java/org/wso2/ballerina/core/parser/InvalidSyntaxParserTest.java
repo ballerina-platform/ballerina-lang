@@ -18,39 +18,28 @@
 
 package org.wso2.ballerina.core.parser;
 
-import org.antlr.v4.runtime.ANTLRInputStream;
-import org.antlr.v4.runtime.CommonTokenStream;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.exception.ParserException;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import org.wso2.ballerina.core.model.builder.BLangModelBuilder;
+import org.wso2.ballerina.core.parser.antlr4.BLangAntlr4Listener;
+import org.wso2.ballerina.core.utils.ParserUtils;
 
 public class InvalidSyntaxParserTest {
 
-    private BallerinaBaseListenerImpl ballerinaBaseListener;
     private BallerinaParser ballerinaParser;
 
     @BeforeTest
     public void setup() {
-        try {
-            File file = new File(getClass().getClassLoader().getResource("samples/parser/InvalidSyntaxSample.bal")
-                .getFile());
-            ANTLRInputStream antlrInputStream = new ANTLRInputStream(new FileInputStream(file));
-            antlrInputStream.name = file.getName();
-            BallerinaLexer ballerinaLexer = new BallerinaLexer(antlrInputStream);
-            CommonTokenStream ballerinaToken = new CommonTokenStream(ballerinaLexer);
+        ballerinaParser = ParserUtils.getBallerinaParser("samples/parser/InvalidSyntaxSample.bal");
 
-            ballerinaParser = new BallerinaParser(ballerinaToken);
-            ballerinaBaseListener = new BallerinaBaseListenerImpl();
-            ballerinaParser.setErrorHandler(new BallerinaParserErrorStrategy());
-            ballerinaParser.addParseListener(ballerinaBaseListener);
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.err.println(e.getMessage());
-        }
+        BLangModelBuilder modelBuilder = new BLangModelBuilder();
+        BLangAntlr4Listener langModelBuilder = new BLangAntlr4Listener(modelBuilder);
+        ballerinaParser.addParseListener(langModelBuilder);
+
+//        ballerinaBaseListener = new BallerinaBaseListenerImpl();
+//        ballerinaParser.addParseListener(ballerinaBaseListener);
+        ballerinaParser.setErrorHandler(new BallerinaParserErrorStrategy());
     }
 
     @Test(expectedExceptions = ParserException.class)
