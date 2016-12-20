@@ -27,6 +27,7 @@ import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.ConnectorDcl;
 import org.wso2.ballerina.core.model.ImportPackage;
+import org.wso2.ballerina.core.model.Operator;
 import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
@@ -42,6 +43,7 @@ import org.wso2.ballerina.core.model.expressions.Expression;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.GreaterEqualExpression;
 import org.wso2.ballerina.core.model.expressions.GreaterThanExpression;
+import org.wso2.ballerina.core.model.expressions.InstanceCreationExpr;
 import org.wso2.ballerina.core.model.expressions.LessEqualExpression;
 import org.wso2.ballerina.core.model.expressions.LessThanExpression;
 import org.wso2.ballerina.core.model.expressions.MultExpression;
@@ -147,6 +149,14 @@ public class BLangModelBuilder {
     }
 
     // Annotations
+
+    public void createInstanceCreaterExpr(String typeName) {
+        InstanceCreationExpr expression = new InstanceCreationExpr(Operator.NEW, null);
+        TypeC type = TypeC.getTypeC(typeName);
+        expression.setType(type);
+        exprStack.push(expression);
+
+    }
 
     public void startAnnotation() {
         annotationBuilderStack.push(new Annotation.AnnotationBuilder());

@@ -28,6 +28,7 @@ import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.model.values.BValueRef;
 import org.wso2.ballerina.core.model.values.ConnectorValue;
 import org.wso2.ballerina.core.model.values.MessageValue;
+import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
 import org.wso2.ballerina.core.runtime.core.BalCallback;
 import org.wso2.ballerina.core.runtime.core.Executable;
 import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
@@ -311,10 +312,18 @@ public class Resource implements Executable, Node {
         }
 
         for (ConnectorDcl connectorDcl : connectorDcls) {
-            ConnectorValue connectorValue = new ConnectorValue(
-                    GlobalScopeHolder.getInstance().getScope().lookup(connectorDcl.getConnectorName()).getConnector(),
-                    connectorDcl.getArgExprs());
+            Symbol symbol = GlobalScopeHolder.getInstance().getScope().lookup(connectorDcl.getConnectorName());
+            if (symbol == null) {
+                LOG.error("Connector : " + connectorDcl.getConnectorName() + " not found");
+            }
+            Connector connector = symbol.getConnector();
+            if (connector instanceof AbstractNativeConnector) {
+                //TODO Fix Issue#320
+                connector = ((AbstractNativeConnector) connector).getInstance();
+            }
+            ConnectorValue connectorValue = new ConnectorValue(connector, connectorDcl.getArgExprs());
             valueParams[i] = new BValueRef(connectorValue);
+            i++;
         }
         
         BValueRef[] ret = new BValueRef[1];

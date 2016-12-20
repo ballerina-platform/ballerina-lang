@@ -254,7 +254,11 @@ statement
     ;
 
 assignmentStatement
-    :   variableReference '=' expression ';'
+    :   variableReferenceList '=' expression ';'
+    ;
+
+variableReferenceList
+    :   variableReference (',' variableReference)*
     ;
 
 ifElseStatement
@@ -353,7 +357,7 @@ variableReference
     ;
 
 argumentList
-    :   '(' expressionList ')'
+    :   '(' expressionList? ')'
     ;
 
 expressionList
@@ -744,10 +748,6 @@ ZeroToThree
 
 NullLiteral
     :   'null'
-    ;
-
-VariableReference
-    : DOLLAR_SIGN Identifier
     ;
 
 Identifier

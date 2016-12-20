@@ -15,22 +15,32 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerina.core.interpreter;
+package org.wso2.ballerina.core.model.expressions;
+
+import org.wso2.ballerina.core.model.NodeVisitor;
+import org.wso2.ballerina.core.model.Operator;
 
 /**
- * {@code Context} represents the runtime state of a program.
- *
  * @since 1.0.0
  */
-public class BContext {
+public class InstanceCreationExpr extends UnaryExpression {
 
-    private ControlStack controlStack;
+//    private TypeC newType;
 
-    public BContext() {
-        this.controlStack = new ControlStack();
+    public InstanceCreationExpr(Operator op, Expression rExpr) {
+        super(op, rExpr);
     }
 
-    public ControlStack getControlStack() {
-        return controlStack;
+//    public TypeC getNewType() {
+//        return newType;
+//    }
+//
+//    public void setNewType(TypeC newType) {
+//        this.newType = newType;
+//    }
+
+    @Override
+    public void accept(NodeVisitor visitor) {
+        visitor.visit(this);
     }
 }
