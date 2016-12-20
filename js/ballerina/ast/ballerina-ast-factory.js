@@ -25,13 +25,13 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
         './catch-statement', './reply-statement', './while-statement', './return-statement',
         './type-converter-definition', './type-definition', './type-element', './variable-declaration',
         './package-definition', './import-declaration', './resource-arg', './assignment', './function-invocation',
-        './action-invocation-statement', './arithmetic-expression', './logical-expression'],
+        './action-invocation-statement', './arithmetic-expression', './logical-expression', './action-invocation-expression'],
     function (ballerinaAstRoot, serviceDefinition, functionDefinition, connectorDefinition, resourceDefinition,
               workerDeclaration, statement, conditionalStatement, connectorDeclaration, expression,
               ifElseStatement, ifStatement, elseStatement, elseIfStatement, tryCatchStatement, tryStatement, catchStatement, replyStatement,
               whileStatement, returnStatement, typeConverterDefinition, typeDefinition, typeElement, variableDeclaration,
               packageDefinition, importDeclaration, resourceArgument, assignmentStatement, functionInvocation,
-              actionInvocationStatement, arithmeticExpression, logicalExpression) {
+              actionInvocationStatement, arithmeticExpression, logicalExpression, actionInvocationExpression) {
 
 
         /**
@@ -150,6 +150,10 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
 
         BallerinaASTFactory.createActionInvocationStatement = function(args) {
             return new actionInvocationStatement(args);
+        };
+
+        BallerinaASTFactory.createActionInvocationExpression = function(args) {
+            return new actionInvocationExpression(args);
         };
 
         /**

@@ -39,8 +39,8 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor'],
              * If we need to add additional parameters which are dynamically added to the configuration start
              * that particular source generation has to be constructed here
              */
-            var constructedSource = 'ballerina.net.http:HTTPConnector ' + connectorDeclaration.getConnectorName() + ' = new ' +
-                'ballerina.net.http:HTTPConnector(\"' + connectorDeclaration.getUri() + '", {"timeOut" : ' + connectorDeclaration.getTimeout() + '})';
+            var constructedSource = '\n' +'http:HTTPConnector ' + connectorDeclaration.getConnectorName() + ' = new ' +
+                'http:HTTPConnector(\"' + connectorDeclaration.getUri() + '", {"timeOut" : ' + connectorDeclaration.getTimeout() + '})';
             this.appendSource(constructedSource);
             log.info('Begin Visit Connector Declaration');
         };

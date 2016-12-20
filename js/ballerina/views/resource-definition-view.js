@@ -17,10 +17,10 @@
  */
 define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../ast/resource-definition',
         './default-worker', './point', './connector-declaration-view',
-        './statement-view-factory', 'ballerina/ast/ballerina-ast-factory', './expression-view-factory','./message', './statement-container'],
+        './statement-view-factory', 'ballerina/ast/ballerina-ast-factory', './expression-view-factory','./message', './statement-container', './../ast/variable-declaration'],
     function (_, log, d3, $, D3utils, BallerinaView, ResourceDefinition,
               DefaultWorkerView, Point, ConnectorDeclarationView, StatementViewFactory, BallerinaASTFactory, ExpressionViewFactory,
-                MessageView, StatementContainer) {
+                MessageView, StatementContainer, VariableDeclaration) {
 
         /**
          * The view to represent a resource definition which is an AST visitor.
@@ -98,7 +98,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
         ResourceDefinitionView.prototype = Object.create(BallerinaView.prototype);
         ResourceDefinitionView.prototype.constructor = ResourceDefinitionView;
         // TODO move variable types into constant class
-        var variableTypes = ['message', 'connection', 'string', 'int', 'exception'];
+        var variableTypes = ['message', 'boolean', 'string', 'int', 'float', 'long', 'double', 'json', 'xml'];
 
         ResourceDefinitionView.prototype.init = function(){
             //Registering event listeners
@@ -422,18 +422,28 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
                 for (var variableCount = 0; variableCount < variableDeclarationsList.length; variableCount++) {
                     var currentRaw;
-                    if (variableCount % 3 == 0) {
+                    if (variableCount % 2 == 0) {
                         currentRaw = $('<tr/>').appendTo(variableTable);
                     }
                     var labelClass = "";
                     if (variableDeclarationsList[variableCount].getType() === "message") {
                         labelClass = "variable-type-message";
-                    } else if (variableDeclarationsList[variableCount].getType() === "connection") {
-                        labelClass = "variable-type-connection";
+                    } else if (variableDeclarationsList[variableCount].getType() === "boolean") {
+                        labelClass = "variable-type-boolean";
                     } else if (variableDeclarationsList[variableCount].getType() === "string") {
                         labelClass = "variable-type-string";
                     } else if (variableDeclarationsList[variableCount].getType() === "int") {
                         labelClass = "variable-type-int";
+                    } else if (variableDeclarationsList[variableCount].getType() === "float") {
+                        labelClass = "variable-type-float";
+                    } else if (variableDeclarationsList[variableCount].getType() === "double") {
+                        labelClass = "variable-type-double";
+                    } else if (variableDeclarationsList[variableCount].getType() === "long") {
+                        labelClass = "variable-type-long";
+                    } else if (variableDeclarationsList[variableCount].getType() === "json") {
+                        labelClass = "variable-type-json";
+                    } else if (variableDeclarationsList[variableCount].getType() === "xml") {
+                        labelClass = "variable-type-xml";
                     } else {
                         labelClass = "variable-type-exception";
                     }
@@ -816,7 +826,12 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             $(addVariable).click(resourceModel, function (resourceModel) {
 
                 // ToDo add variable name validation
-                var variableList = resourceModel.data.getVariables();
+                var variableList = null;
+                if(resourceModel.data === undefined) {
+                    variableList = resourceModel.getVariables();
+                } else {
+                    variableList = resourceModel.data.getVariables();
+                }
 
                 //filtering empty variable identifier and existing variables
                 if ($(variableText).val() != "" &&
@@ -827,7 +842,19 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                     //pushing new variable declaration
                     variable.setType($(variableSelect).val());
                     variable.setIdentifier($(variableText).val());
-                    resourceModel.data.getVariables().push(variable);
+                    if (resourceModel.data === undefined) {
+                        resourceModel.getVariables().push(variable);
+                        var index = _.findLastIndex(_.filter(resourceModel.getChildren(), function (child) {
+                            return child instanceof VariableDeclaration;
+                        }));
+                        resourceModel.addChild(variable, index + 1);
+                    } else {
+                        resourceModel.data.getVariables().push(variable);
+                        var index = _.findLastIndex(_.filter(resourceModel.data.getChildren(), function (child) {
+                            return child instanceof VariableDeclaration;
+                        }));
+                        resourceModel.data.addChild(variable, index + 1);
+                    }
 
                     //remove current variable list
                     if (variablePaneWrapper.children().length > 1) {

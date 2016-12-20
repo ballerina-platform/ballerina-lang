@@ -50,6 +50,8 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
             return this.canVisitAssignment(node);
         } else if( node instanceof AST.Expression){
             return this.canVisitExpression(node);
+        } else if(node instanceof AST.VariableDeclaration){
+            return this.canVisitVariableDeclaration(node);
         }
     };
 
@@ -79,6 +81,8 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
             return this.beginVisitAssignment(node);
         } else if (node instanceof AST.Expression) {
             return this.beginVisitExpression(node);
+        } else if(node instanceof AST.VariableDeclaration){
+            return this.beginVisitVariableDeclaration(node);
         }
     };
 
@@ -108,6 +112,8 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
             return this.visitAssignment(node);
         } else if(node instanceof AST.Expression){
             return this.visitExpression(node);
+        } else if(node instanceof AST.VariableDeclaration){
+            return this.visitVariableDeclaration(node);
         }
 
     };
@@ -138,6 +144,8 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
             return this.endVisitAssignment(node);
         } else if(node instanceof AST.Expression){
             return this.endVisitExpression(node);
+        } else if(node instanceof AST.VariableDeclaration){
+            return this.endVisitVariableDeclaration(node);
         }
 
     };
@@ -270,6 +278,16 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
     ASTVisitor.prototype.visitAssignment = function(assignment){
     };
     ASTVisitor.prototype.endVisitAssignment = function(assignment){
+    };
+
+    ASTVisitor.prototype.canVisitVariableDeclaration = function(variableDeclaration){
+        return false;
+    };
+    ASTVisitor.prototype.beginVisitVariableDeclaration = function(variableDeclaration){
+    };
+    ASTVisitor.prototype.visitVariableDeclaration = function(variableDeclaration){
+    };
+    ASTVisitor.prototype.endVisitVariableDeclaration = function(variableDeclaration){
     };
 
     return ASTVisitor;
