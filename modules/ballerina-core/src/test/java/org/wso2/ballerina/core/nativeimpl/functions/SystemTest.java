@@ -38,7 +38,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 
-public class NativeFunctionTest {
+public class SystemTest {
 
     private BallerinaFile bFile;
     private final String funcName = "invokeNativeFunction";
@@ -67,7 +67,7 @@ public class NativeFunctionTest {
     }
 
     @Test
-    public void testNativeFuncSystemPrint() {
+    public void testPrintString() {
         final String s1 = "Hello World...!!!";
         final String s2 = "A Greeting from Ballerina...!!!";
         final String expected = s1 + "\n" + s2;
@@ -77,7 +77,6 @@ public class NativeFunctionTest {
         Context bContext = FunctionUtils.createInvocationContext(1);
         BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
         funcIExpr.accept(bLangInterpreter);
-
         Assert.assertEquals(outContent.toString(), expected);
     }
 
