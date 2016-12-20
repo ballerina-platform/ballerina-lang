@@ -23,6 +23,7 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
      * @constructor
      */
     var ReplyStatement = function (message) {
+        Statement.call(this);
         this._message = message;
     };
 
