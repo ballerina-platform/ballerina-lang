@@ -53,7 +53,9 @@ public class BalStatementCallback implements BalCallback {
         if (nextStatement != null) {
             nextStatement.accept(nodeVisitor);
         } else {
-            balCallback.done(context);
+            if (balCallback != null) {
+                balCallback.done(context);
+            }
         }
     }
 

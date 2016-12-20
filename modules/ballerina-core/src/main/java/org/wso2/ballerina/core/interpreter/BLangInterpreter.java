@@ -169,12 +169,12 @@ public class BLangInterpreter implements NodeVisitor {
     @Override
     public void visit(AssignStmt assignStmt) {
 
-    //    updateCallback(assignStmt);
+        //    updateCallback(assignStmt);
         Expression rExpr = assignStmt.getRExpr();
 
         rExpr.accept(this);
 
-         bContext.setCurrentStatement(assignStmt);
+        bContext.setCurrentStatement(assignStmt);
 
         if (!assignStmt.isHaltExecution()) {
 
@@ -245,7 +245,7 @@ public class BLangInterpreter implements NodeVisitor {
 
     @Override
     public void visit(WhileStmt whileStmt) {
-        updateCallback(whileStmt);
+         updateCallback(whileStmt);
         Expression expr = whileStmt.getCondition();
         expr.accept(this);
         BValueRef result = getValue(expr);
@@ -263,7 +263,7 @@ public class BLangInterpreter implements NodeVisitor {
 
     @Override
     public void visit(FunctionInvocationStmt functionInvocationStmt) {
-   //     updateCallback(functionInvocationStmt);
+        //     updateCallback(functionInvocationStmt);
         functionInvocationStmt.getFunctionInvocationExpr().accept(this);
         continueStatementChain(functionInvocationStmt);
     }
@@ -280,7 +280,7 @@ public class BLangInterpreter implements NodeVisitor {
 
     @Override
     public void visit(ReturnStmt returnStmt) {
-       // updateCallback(returnStmt);
+        // updateCallback(returnStmt);
         Expression[] exprs = returnStmt.getExprs();
 
         for (int i = 0; i < exprs.length; i++) {
@@ -545,12 +545,13 @@ public class BLangInterpreter implements NodeVisitor {
 
         if (statement.getNextSibling() != null) {
             statement.getNextSibling().accept(this);
-        } else if (statement.getNextSibling() == null) {
+        } else if (statement.getNextSibling() == null && bContext.getBalCallback() != null) {
             bContext.getBalCallback().done(bContext);
         }
     }
 
     private void updateCallback(Statement statement) {
+
         BalStatementCallback balStatementCallback = new BalStatementCallback(bContext.getBalCallback(),
                 statement.getNextSibling(), this);
         bContext.setBalCallback(balStatementCallback);

@@ -30,6 +30,8 @@ public class WhileStmt implements Statement {
     private Expression whileCondition;
     private BlockStmt whileBody;
 
+    private Statement nextStatement;
+
     // TODO Make this constructor private
     public WhileStmt(Expression whileCondition, BlockStmt whileBody) {
         this.whileCondition = whileCondition;
@@ -57,12 +59,12 @@ public class WhileStmt implements Statement {
 
     @Override
     public void setNextSibling(Statement statement) {
-
+      nextStatement = statement;
     }
 
     @Override
     public Statement getNextSibling() {
-        return null;
+        return nextStatement;
     }
 
     @Override
