@@ -45,7 +45,9 @@ import org.wso2.ballerina.core.parser.BallerinaLexer;
 import org.wso2.ballerina.core.parser.BallerinaParser;
 import org.wso2.ballerina.core.parser.BallerinaParserErrorStrategy;
 import org.wso2.ballerina.core.parser.antlr4.BLangAntlr4Listener;
+import org.wso2.ballerina.core.runtime.Constants;
 import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
+import org.wso2.ballerina.core.runtime.internal.ServiceContextHolder;
 import org.wso2.ballerina.core.runtime.registry.ApplicationRegistry;
 import org.wso2.ballerina.core.semantics.SemanticAnalyzer;
 import org.wso2.carbon.deployment.engine.Artifact;
@@ -61,9 +63,12 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import static org.wso2.ballerina.core.runtime.Constants.SYSTEM_PROP_BAL_ARGS;
+import static org.wso2.ballerina.core.runtime.Constants.SYSTEM_PROP_BAL_FILE;
 
 /**
  * {@code BalDeployer} is responsible for all ballerina file deployment tasks
+ *
+ * @since 1.0.0
  */
 @Component(
         name = "org.wso2.ballerina.core.runtime.deployer.BalDeployer",
@@ -81,6 +86,10 @@ public class BalDeployer implements Deployer {
 
     @Activate
     protected void activate(BundleContext bundleContext) {
+        String balFile = System.getProperty(SYSTEM_PROP_BAL_FILE);
+        if (balFile != null) {
+            ServiceContextHolder.getInstance().setRuntimeMode(Constants.RuntimeMode.RUN_FILE);
+        }
     }
 
     @Override
@@ -94,13 +103,18 @@ public class BalDeployer implements Deployer {
 
     @Override
     public Object deploy(Artifact artifact) throws CarbonDeploymentException {
-        deployBalFile(artifact.getFile());
+        // Deploy only when server mode
+        if (ServiceContextHolder.getInstance().getRuntimeMode() == Constants.RuntimeMode.SERVER) {
+            deployBalFile(artifact.getFile());
+        }
         return artifact.getFile().getName();
     }
 
     @Override
     public void undeploy(Object key) throws CarbonDeploymentException {
-        undeployBalFile((String) key);
+        if (ServiceContextHolder.getInstance().getRuntimeMode() == Constants.RuntimeMode.SERVER) {
+            undeployBalFile((String) key);
+        }
     }
 
     @Override
@@ -129,7 +143,7 @@ public class BalDeployer implements Deployer {
             if (file.getName().endsWith(FILE_EXTENSION)) {
                 ANTLRInputStream antlrInputStream = new ANTLRInputStream(inputStream);
                 
-                // Setting the name of the source file being parsed, to the antlr inputstream.
+                // Setting the name of the source file being parsed, to the ANTLR input stream.
                 // This is required by the parser-error strategy.
                 antlrInputStream.name = file.getName();
                 
@@ -139,17 +153,6 @@ public class BalDeployer implements Deployer {
                 BallerinaParser ballerinaParser = new BallerinaParser(ballerinaToken);
                 ballerinaParser.setErrorHandler(new BallerinaParserErrorStrategy());
 
-//              // Visitor based approach
-//              CompilationUnitVisitor ballerinaBaseVisitor = new CompilationUnitVisitor();
-//              BallerinaFile balFile = (BallerinaFile) ballerinaBaseVisitor.accept(ballerinaParser.compilationUnit());
-
-                // Listener based approach
-//                BallerinaBaseListenerImpl ballerinaBaseListener = new BallerinaBaseListenerImpl();
-//                ballerinaParser.addParseListener(ballerinaBaseListener);
-//                ballerinaParser.compilationUnit();
-//                BallerinaFile balFile = ballerinaBaseListener.balFile;
-
-                // Builder based approach
                 BLangModelBuilder bLangModelBuilder = new BLangModelBuilder();
                 BLangAntlr4Listener ballerinaBaseListener = new BLangAntlr4Listener(bLangModelBuilder);
                 ballerinaParser.addParseListener(ballerinaBaseListener);
@@ -159,12 +162,12 @@ public class BalDeployer implements Deployer {
                 SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(balFile);
                 balFile.accept(semanticAnalyzer);
 
-                // Invoke the Linker
-//                BallerinaLinker ballerinaLinker = new BallerinaLinker();
-//                balFile.accept(ballerinaLinker);
+                // Link
+                BLangLinker bLangLinker = new BLangLinker(balFile);
+                bLangLinker.link(GlobalScopeHolder.getInstance().getScope());
 
-                // Link function invocations and Run main function
-                linkAndRunMainFunction(balFile);
+                // Run main function
+                executeMainFunction(balFile);
 
                 // Get the existing application associated with this ballerina config
                 Application app = ApplicationRegistry.getInstance().getApplication(file.getName());
@@ -183,7 +186,6 @@ public class BalDeployer implements Deployer {
                         aPackage = new Package("default");
                     }
                     app.addPackage(aPackage);
-
                 }
                 aPackage.addFiles(balFile);
                 ApplicationRegistry.getInstance().updatePackage(aPackage);
@@ -219,23 +221,9 @@ public class BalDeployer implements Deployer {
         log.info("Undeployed ballerina file : " + fileName);
     }
     
+    private static void executeMainFunction(BallerinaFile bFile) {
 
-    private static void linkAndRunMainFunction(BallerinaFile bFile) {
-
-//        // Linking functions defined in the same source file
-//        for (FunctionInvocationExpr expr : bFile.getFuncIExprs()) {
-//            SymbolName symName = expr.getFunctionName();
-//            BallerinaFunction bFunction = (BallerinaFunction) bFile.getFunctions().get(symName.getName());
-//            if (bFunction == null) {
-//                throw new IllegalStateException("Undefined function: " + symName.getName());
-//            }
-//            expr.setFunction(bFunction);
-//        }
-
-        BLangLinker bLangLinker = new BLangLinker(bFile);
-        bLangLinker.link(GlobalScopeHolder.getInstance().getScope());
-
-        BallerinaFunction function = (BallerinaFunction) bFile.getFunctions().get("main");
+        BallerinaFunction function = (BallerinaFunction) bFile.getFunctions().get(Constants.MAIN_FUNCTION_NAME);
         if (function == null) {
             return;
         }
@@ -244,7 +232,7 @@ public class BalDeployer implements Deployer {
         // This will be changed to string[] args once we have the array support
         Parameter[] parameters = function.getParameters();
         if (parameters.length != 1 || parameters[0].getTypeC() != TypeC.INT_TYPE) {
-            log.info("main function is not comply with standard main function in ballerina, hence skipping");
+            log.warn("main function does not comply with standard main function in ballerina, hence skipping...");
             return;
         }
 
@@ -280,8 +268,6 @@ public class BalDeployer implements Deployer {
         controlStack.pushFrame(stackFrame);
         BLangInterpreter interpreter = new BLangInterpreter(ctx);
         function.accept(interpreter);
-        //log.info("return value: " + returnVals[0].getInt());
     }
-
 
 }
