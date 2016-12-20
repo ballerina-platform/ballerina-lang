@@ -39,6 +39,11 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/reply-statement
                 log.error("Container for return statement is undefined." + this._container);
                 throw "Container for return statement is undefined." + this._container;
             }
+
+            // View options for height and width of the assignment statement box.
+            this._viewOptions.height = _.get(args, "viewOptions.height", 30);
+            this._viewOptions.width = _.get(args, "viewOptions.width", 120);
+            this.getBoundingBox().fromTopCenter(this._topCenter, this._viewOptions.width, this._viewOptions.height);
         };
 
         ReplyStatementView.prototype = Object.create(BallerinaStatementView.prototype);
@@ -83,21 +88,35 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/reply-statement
          * @returns {group} The svg group which contains the elements of the reply statement view.
          */
         ReplyStatementView.prototype.render = function () {
-            var width = 120;
-            var height = 30;
-            this.getBoundingBox().fromTopCenter(this.getTopCenter(), width, height);
+            var width =  this._viewOptions.width;
+            var height = this._viewOptions.height;
+
             var startActionGroup = D3Utils.group(d3.select(this._container));
             var line_start = new Point(this.getBoundingBox().x(), this.getBoundingBox().y() + height/2);
             // FixMe: here 50 is the length of the arrow line. This value has to determine dynamically considering the client lifeline
-            var line_end = new Point(this.getBoundingBox().x() - 50, this.getBoundingBox().y() + height/2);
+            var distanceToClient = 50;
+            var line_end = new Point(this.getBoundingBox().x() - distanceToClient, this.getBoundingBox().y() + height/2);
             var reply_rect = D3Utils.rect(this.getBoundingBox().x(), this.getBoundingBox().y(), width, height, 0, 0, startActionGroup).classed('statement-rect', true);
             var reply_text = D3Utils.textElement(this.getBoundingBox().x() + width/2, this.getBoundingBox().y() + height/2, 'Reply', startActionGroup).classed('statement-text', true);
-            this.reply_line = D3Utils.lineFromPoints(line_start,line_end, startActionGroup)
+            var reply_line = D3Utils.lineFromPoints(line_start,line_end, startActionGroup)
                 .classed('message', true);
             var arrowHeadWidth = 5;
-            this.reply_arrow_head = D3Utils.outputTriangle(line_end.x(), line_end.y(), startActionGroup).classed("action-arrow", true);
+            var reply_arrow_head = D3Utils.outputTriangle(line_end.x(), line_end.y(), startActionGroup).classed("action-arrow", true);
 
             log.info("Rendering the Reply Statement.");
+
+            var self = this;
+            this.getBoundingBox().on('top-edge-moved', function(dy){
+                reply_rect.attr('y',  parseFloat(reply_rect.attr('y')) + dy);
+                reply_text.attr('y',  parseFloat(reply_text.attr('y')) + dy);
+                reply_line.attr('y1',  parseFloat(reply_line.attr('y1')) + dy);
+                reply_line.attr('y2',  parseFloat(reply_line.attr('y2')) + dy);
+
+                line_end = new Point(self.getBoundingBox().x() - distanceToClient, self.getBoundingBox().y() + height/2);
+
+                reply_arrow_head.remove();
+                reply_arrow_head = D3Utils.outputTriangle(line_end.x(), line_end.y(), startActionGroup).classed("action-arrow", true);
+            });
             return startActionGroup;
         };
 

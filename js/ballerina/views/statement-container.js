@@ -153,6 +153,11 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
                 this.setLastStatementView(statementView);
                 statementView.render(this.diagramRenderingContext);
 
+                // make new view listen to previous view
+                statementView.listenTo(lastStatementView.getBoundingBox(), "bottom-edge-moved", function(offsetY){
+                    statementView.getBoundingBox().move(0, offsetY);
+                });
+
                 newDropZoneTopCenter = new Point(statementView.getBoundingBox().getTopCenterX(),
                                 statementView.getBoundingBox() - this._gap);
             }
