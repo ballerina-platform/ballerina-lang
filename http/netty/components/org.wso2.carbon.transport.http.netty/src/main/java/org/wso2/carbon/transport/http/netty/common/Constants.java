@@ -175,10 +175,7 @@ public final class Constants {
     public static final String DEFAULT_ADDRESS = "0.0.0.0";
 
     public static final String LOCALHOST = "localhost";
-
-    // WebSocket Related Parameters
-    public static final String IS_WEBSOCKET_FRAME = "IS_WEBSOCKET_FRAME";
-    public static final String WEBSOCKET_FRAME = "WEBSOCKET_CONTENT";
+    public static final String CHANNEL_TO_STRING = "CHANNEL_TO_STRING";
 
     private Constants() {
     }

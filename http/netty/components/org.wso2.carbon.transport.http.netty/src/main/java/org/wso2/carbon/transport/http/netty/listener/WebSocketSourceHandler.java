@@ -19,7 +19,6 @@
 package org.wso2.carbon.transport.http.netty.listener;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
@@ -101,7 +100,6 @@ public class WebSocketSourceHandler extends SourceHandler {
             }
 
             setupBasicCarbonMessageProperties(ctx);
-            cMsg.setProperty(Constants.IS_WEBSOCKET_FRAME, true);
             publishToMessageProcessor(cMsg);
         } else {
             log.error("Expecting WebSocketFrame. Unknown type.");
@@ -149,8 +147,6 @@ public class WebSocketSourceHandler extends SourceHandler {
         cMsg.setProperty(Constants.HOST, ((InetSocketAddress) ctx.channel().remoteAddress()).getHostName());
 
         cMsg.setProperty(Constants.TO, this.uri);
-        cMsg.setProperty(Constants.CHNL_HNDLR_CTX, ctx);
-        cMsg.setProperty(Constants.SRC_HNDLR, this);
 
         cMsg.setProperty(org.wso2.carbon.messaging.Constants.LISTENER_PORT,
                          ((InetSocketAddress) ctx.channel().localAddress()).getPort());
@@ -160,8 +156,6 @@ public class WebSocketSourceHandler extends SourceHandler {
         cMsg.setProperty(Constants.REMOTE_ADDRESS, ctx.channel().remoteAddress());
         cMsg.setProperty(Constants.REMOTE_HOST, ((InetSocketAddress) ctx.channel().remoteAddress()).getHostName());
         cMsg.setProperty(Constants.REMOTE_PORT, ((InetSocketAddress) ctx.channel().remoteAddress()).getPort());
-        ChannelHandler handler = ctx.handler();
-
-        cMsg.setProperty(Constants.CHANNEL_ID, ((SourceHandler) handler).getListenerConfiguration().getId());
+        cMsg.setProperty(Constants.CHANNEL_ID, ctx.channel().toString());
     }
 }
