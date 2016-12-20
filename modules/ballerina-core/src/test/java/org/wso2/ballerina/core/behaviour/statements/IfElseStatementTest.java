@@ -65,7 +65,7 @@ public class IfElseStatementTest {
 
     @Test(description = "Check a == b + 1")
     public void testElseIfBlock() {
-        BValue[] inputArguments = {new IntValue(10), new IntValue(11), new IntValue(20)};
+        BValue[] inputArguments = {new IntValue(11), new IntValue(10), new IntValue(20)};
         FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, funcName, inputArguments);
 
         Context bContext = FunctionUtils.createInvocationContext(2);
@@ -85,7 +85,7 @@ public class IfElseStatementTest {
 
     @Test(description = "Check a == b + 2")
     public void testElseIfSecondBlock() {
-        BValue[] inputArguments = {new IntValue(10), new IntValue(12), new IntValue(20)};
+        BValue[] inputArguments = {new IntValue(12), new IntValue(10), new IntValue(20)};
         FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, funcName, inputArguments);
 
         Context bContext = FunctionUtils.createInvocationContext(2);
