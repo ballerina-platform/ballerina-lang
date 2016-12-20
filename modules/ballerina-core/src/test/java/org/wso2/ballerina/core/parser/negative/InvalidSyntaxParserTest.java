@@ -16,12 +16,14 @@
  * under the License.
  */
 
-package org.wso2.ballerina.core.parser;
+package org.wso2.ballerina.core.parser.negative;
 
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.exception.ParserException;
 import org.wso2.ballerina.core.model.builder.BLangModelBuilder;
+import org.wso2.ballerina.core.parser.BallerinaParser;
+import org.wso2.ballerina.core.parser.BallerinaParserErrorStrategy;
 import org.wso2.ballerina.core.parser.antlr4.BLangAntlr4Listener;
 import org.wso2.ballerina.core.utils.ParserUtils;
 

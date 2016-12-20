@@ -102,7 +102,7 @@ public class FunctionUtils {
     }
 
     /**
-     * Get Value from the Context.
+     * Get Value of the given position from the Context.
      *
      * @param context  Ballerina Context instance.
      * @param position position of the value.
@@ -111,5 +111,16 @@ public class FunctionUtils {
     public static BValueRef getValue(Context context, int position) {
         StackFrame currentFrame = context.getControlStack().getCurrentFrame();
         return currentFrame.values[position];
+    }
+
+    /**
+     * Get First Value from the Context.
+     *
+     * @param context  Ballerina Context instance.
+     * @return BValueRef.
+     */
+    public static BValueRef getValue(Context context) {
+        StackFrame currentFrame = context.getControlStack().getCurrentFrame();
+        return currentFrame.values[0];
     }
 }
