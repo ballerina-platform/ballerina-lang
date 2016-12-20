@@ -104,7 +104,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
 
                 // if current index is not 0, meaning we have to do some logic to swap things to fit new top neighbour
                 if(!_.isEqual(this._selectedInnerDropZoneIndex, 0)){
-                    var prevStatement = _.nth(this._managedStatements, this._selectedInnerDropZoneIndex),
+                    var prevStatement = _.nth(this._managedStatements, this._selectedInnerDropZoneIndex - 1),
                         prevStatementView = this.diagramRenderingContext.getViewOfModel(prevStatement);
 
                     // nextStatementView and the prevStatementView are still the neighbours - separate them.
