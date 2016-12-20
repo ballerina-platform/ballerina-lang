@@ -20,23 +20,35 @@ under the License.
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
 <suite name="ballerina-test-suite">
-    <!--<test name="ballerina-model-unit-tests" preserve-order="true" parallel="false">
-        <classes>
-            <class name="org.wso2.ballerina.core.model.FunctionInvocationTest" />
-            <class name="org.wso2.ballerina.core.model.WhileStmtTest" />
-            <class name="org.wso2.ballerina.core.model.IfElseStmtTest" />
-            <class name="org.wso2.ballerina.core.model.RecursiveFuncTest" />
-            <class name="org.wso2.ballerina.core.model.NativeFunctionInvocationTest" />
-            <class name="org.wso2.ballerina.core.model.NativeJSONFunctionTest" />
-	        <class name="org.wso2.ballerina.core.model.NativeXMLFunctionTest" />
-            <class name="org.wso2.ballerina.core.model.NativeMessageFunctionTest" />
-        </classes>
-    </test>  -->
+    <!-- Parser Level Test Cases -->
     <test name="ballerina-parser-unit-tests" preserve-order="true" parallel="false">
         <classes>
-            <class name="org.wso2.ballerina.core.parser.LocalFuncInvocationTest" />
-            <class name="org.wso2.ballerina.core.parser.BLangInterpreterTest" />
-            <class name="org.wso2.ballerina.core.parser.InvalidSyntaxParserTest" />
+            <!-- Statements -->
+            <class name="org.wso2.ballerina.core.parser.statements.WhileStatementParserTest"/>
+            <class name="org.wso2.ballerina.core.parser.statements.IfElseParserTest"/>
+            <!-- Negative Test cases -->
+            <class name="org.wso2.ballerina.core.parser.negative.InvalidSyntaxParserTest"/>
         </classes>
+    </test>
+    <!-- Behaviour verification Test Cases. -->
+    <test name="ballerina-behaviour-unit-tests" preserve-order="true" parallel="false">
+        <classes>
+            <!-- Statements -->
+            <class name="org.wso2.ballerina.core.behaviour.statements.LocalFuncInvocationTest"/>
+            <class name="org.wso2.ballerina.core.behaviour.statements.WhileStatementTest"/>
+            <class name="org.wso2.ballerina.core.behaviour.statements.IfElseStatementTest"/>
+        </classes>
+    </test>
+    <!-- Native Function Related Test Cases. -->
+    <test name="ballerina-native-functions-unit-tests" preserve-order="true" parallel="false">
+        <packages>
+            <package name="org.wso2.ballerina.core.nativeimpl.functions" />
+        </packages>
+    </test>
+    <!-- Native Connectors Related Test Cases -->
+    <test name="ballerina-native-connectors-unit-tests" preserve-order="true" parallel="false">
+        <packages>
+            <package name="org.wso2.ballerina.core.behaviour.nativeimpl.connectors"/>
+        </packages>
     </test>
 </suite>
