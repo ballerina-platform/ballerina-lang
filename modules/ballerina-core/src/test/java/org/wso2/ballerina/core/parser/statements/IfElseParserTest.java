@@ -15,32 +15,24 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerina.core.model;
+package org.wso2.ballerina.core.parser.statements;
 
-/**
- * {code Operator} represents operators in Ballerina
- *
- * @since 1.0.0
- */
-public enum Operator {
+import org.testng.Assert;
+import org.testng.annotations.Test;
+import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.BallerinaFunction;
+import org.wso2.ballerina.core.utils.ParserUtils;
 
-    ADD("+"),
-    SUB("-"),
-    MUL("*"),
-    DIV("/"),
-    AND("&&"),
-    OR("||"),
-    EQUAL("=="),
-    NOT_EQUAL("!="),
-    GREATER_THAN(">"),
-    GREATER_EQUAL(">="),
-    LESS_THAN("<"),
-    LESS_EQUAL("<="),
-    NEW("new");
+public class IfElseParserTest {
 
-    private final String opValue;
-
-    Operator(String opValue) {
-        this.opValue = opValue;
+    @Test
+    public void testFuncInvocation() {
+        final String funcName = "test";
+        BallerinaFile bFile = ParserUtils.parseBalFile("samples/statements/ifcondition.bal");
+        BallerinaFunction function = (BallerinaFunction) bFile.getFunctions().get(funcName);
+        Assert.assertNotNull(function);
     }
+
+    // TODO: Add Negative test cases.
+
 }

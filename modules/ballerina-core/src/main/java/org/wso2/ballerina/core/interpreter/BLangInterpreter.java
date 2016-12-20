@@ -43,6 +43,7 @@ import org.wso2.ballerina.core.model.expressions.Expression;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.GreaterEqualExpression;
 import org.wso2.ballerina.core.model.expressions.GreaterThanExpression;
+import org.wso2.ballerina.core.model.expressions.InstanceCreationExpr;
 import org.wso2.ballerina.core.model.expressions.LessEqualExpression;
 import org.wso2.ballerina.core.model.expressions.LessThanExpression;
 import org.wso2.ballerina.core.model.expressions.MultExpression;
@@ -291,6 +292,12 @@ public class BLangInterpreter implements NodeVisitor {
     }
 
     // Expressions
+
+    @Override
+    public void visit(InstanceCreationExpr instanceCreationExpr) {
+        BValueRef bValueRef = BValueRef.getDefaultValue(instanceCreationExpr.getType());
+        controlStack.setValue(instanceCreationExpr.getOffset(), bValueRef);
+    }
 
     @Override
     public void visit(FunctionInvocationExpr funcIExpr) {
