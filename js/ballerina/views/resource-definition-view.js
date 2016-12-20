@@ -17,10 +17,10 @@
  */
 define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../ast/resource-definition',
         './default-worker', './point', './connector-declaration-view',
-        './statement-view-factory', 'ballerina/ast/ballerina-ast-factory', './expression-view-factory','./message', './statement-container'],
+        './statement-view-factory', 'ballerina/ast/ballerina-ast-factory', './expression-view-factory','./message', './statement-container', './../ast/variable-declaration'],
     function (_, log, d3, $, D3utils, BallerinaView, ResourceDefinition,
               DefaultWorkerView, Point, ConnectorDeclarationView, StatementViewFactory, BallerinaASTFactory, ExpressionViewFactory,
-                MessageView, StatementContainer) {
+                MessageView, StatementContainer, VariableDeclaration) {
 
         /**
          * The view to represent a resource definition which is an AST visitor.
@@ -844,10 +844,24 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                     variable.setIdentifier($(variableText).val());
                     if(resourceModel.data === undefined) {
                         resourceModel.getVariables().push(variable);
-                        resourceModel.addChild(variable);
+                        var children = resourceModel.getChildren();
+                        var index = -1;
+                        for (var i = 0; i < children.length; i++) {
+                            if (children[i] instanceof VariableDeclaration) {
+                                index = i;
+                            }
+                        }
+                        resourceModel.addChild(variable, index + 1);
                     } else {
                         resourceModel.data.getVariables().push(variable);
-                        resourceModel.data.addChild(variable);
+                        var children = resourceModel.data.getChildren();
+                        var index = -1;
+                        for (var i = 0; i < children.length; i++) {
+                            if (children[i] instanceof VariableDeclaration) {
+                                index = i;
+                            }
+                        }
+                        resourceModel.data.addChild(variable, index + 1);
                     }
 
                     //remove current variable list

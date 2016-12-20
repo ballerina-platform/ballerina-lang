@@ -16,8 +16,8 @@
  * under the License.
  */
 define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './../ast/service-definition',
-        './client-life-line', './resource-definition-view', 'ballerina/ast/ballerina-ast-factory', './axis', './connector-declaration-view'],
-    function (_, log, d3, D3utils, $, Canvas, Point, ServiceDefinition, ClientLifeLine, ResourceDefinitionView, BallerinaASTFactory, Axis, ConnectorDeclarationView) {
+        './client-life-line', './resource-definition-view', 'ballerina/ast/ballerina-ast-factory', './axis', './connector-declaration-view', './../ast/variable-declaration'],
+    function (_, log, d3, D3utils, $, Canvas, Point, ServiceDefinition, ClientLifeLine, ResourceDefinitionView, BallerinaASTFactory, Axis, ConnectorDeclarationView, VariableDeclaration) {
 
         /**
          * The view to represent a service definition which is an AST visitor.
@@ -337,12 +337,26 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
                     variable.setType($(variableSelect).val());
                     variable.setIdentifier($(variableText).val());
 
-                    if(serviceModel.data === undefined) {
+                    if (serviceModel.data === undefined) {
                         serviceModel.getVariableDeclarations().push(variable);
-                        serviceModel.addChild(variable);
+                        var children = serviceModel.getChildren();
+                        var index = -1;
+                        for (var i = 0; i < children.length; i++) {
+                            if (children[i] instanceof VariableDeclaration) {
+                                index = i;
+                            }
+                        }
+                        serviceModel.addChild(variable, index + 1);
                     } else {
                         serviceModel.data.getVariableDeclarations().push(variable);
-                        serviceModel.data.addChild(variable);
+                        var children = serviceModel.data.getChildren();
+                        var index = -1;
+                        for (var i = 0; i < children.length; i++) {
+                            if (children[i] instanceof VariableDeclaration) {
+                                index = i;
+                            }
+                        }
+                        serviceModel.data.addChild(variable, index + 1);
                     }
 
                     //remove current variable list
