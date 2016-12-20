@@ -31,6 +31,9 @@ public class Constants {
     // Name of the system property to hold the input arguments
     public static final String SYSTEM_PROP_BAL_ARGS = "bal-args";
 
+    // Name of the main function
+    public static final String MAIN_FUNCTION_NAME = "main";
+
     /**
      * Runtime modes of Ballerina engine
      */
