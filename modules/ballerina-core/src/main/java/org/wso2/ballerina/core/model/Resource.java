@@ -318,7 +318,7 @@ public class Resource implements Executable, Node {
             }
             Connector connector = symbol.getConnector();
             if (connector instanceof AbstractNativeConnector) {
-                //FIXME Issue#320
+                //TODO Fix Issue#320
                 connector = ((AbstractNativeConnector) connector).getInstance();
             }
             ConnectorValue connectorValue = new ConnectorValue(connector, connectorDcl.getArgExprs());
