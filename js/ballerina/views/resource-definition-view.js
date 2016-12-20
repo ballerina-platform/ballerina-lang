@@ -98,7 +98,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
         ResourceDefinitionView.prototype = Object.create(BallerinaView.prototype);
         ResourceDefinitionView.prototype.constructor = ResourceDefinitionView;
         // TODO move variable types into constant class
-        var variableTypes = ['message', 'connection', 'string', 'int', 'exception'];
+        var variableTypes = ['message', 'boolean', 'string', 'int', 'float', 'long', 'double', 'json', 'xml'];
 
         ResourceDefinitionView.prototype.init = function(){
             //Registering event listeners
@@ -422,18 +422,28 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
                 for (var variableCount = 0; variableCount < variableDeclarationsList.length; variableCount++) {
                     var currentRaw;
-                    if (variableCount % 3 == 0) {
+                    if (variableCount % 2 == 0) {
                         currentRaw = $('<tr/>').appendTo(variableTable);
                     }
                     var labelClass = "";
                     if (variableDeclarationsList[variableCount].getType() === "message") {
                         labelClass = "variable-type-message";
-                    } else if (variableDeclarationsList[variableCount].getType() === "connection") {
-                        labelClass = "variable-type-connection";
+                    } else if (variableDeclarationsList[variableCount].getType() === "boolean") {
+                        labelClass = "variable-type-boolean";
                     } else if (variableDeclarationsList[variableCount].getType() === "string") {
                         labelClass = "variable-type-string";
                     } else if (variableDeclarationsList[variableCount].getType() === "int") {
                         labelClass = "variable-type-int";
+                    } else if (variableDeclarationsList[variableCount].getType() === "float") {
+                        labelClass = "variable-type-float";
+                    } else if (variableDeclarationsList[variableCount].getType() === "double") {
+                        labelClass = "variable-type-double";
+                    } else if (variableDeclarationsList[variableCount].getType() === "long") {
+                        labelClass = "variable-type-long";
+                    } else if (variableDeclarationsList[variableCount].getType() === "json") {
+                        labelClass = "variable-type-json";
+                    } else if (variableDeclarationsList[variableCount].getType() === "xml") {
+                        labelClass = "variable-type-xml";
                     } else {
                         labelClass = "variable-type-exception";
                     }
