@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerina.core.runtime;
+package org.wso2.ballerina.core.behaviour.statements;
 
 import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
@@ -40,7 +40,7 @@ public class LocalFuncInvocationTest {
 
     @BeforeTest
     public void setup() {
-        bFile = ParserUtils.parseBalFile("samples/runtime/localFuncInvocationTest.bal");
+        bFile = ParserUtils.parseBalFile("samples/statements/localFuncInvocationTest.bal");
         // Linker
         BLangLinker linker = new BLangLinker(bFile);
         linker.link(null);
@@ -57,16 +57,10 @@ public class LocalFuncInvocationTest {
         BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
         funcIExpr.accept(bLangInterpreter);
 
-        // TODO: Check this logic.
-        int actual = FunctionUtils.getValue(bContext, 0).getInt();
+        int actual = FunctionUtils.getValue(bContext).getInt();
         int expected = 116;
 
         Assert.assertEquals(actual, expected);
     }
 
-    public static void main(String[] args) {
-        LocalFuncInvocationTest test = new LocalFuncInvocationTest();
-//        test.setup();
-        test.testLocalFuncInvocation();
-    }
 }
