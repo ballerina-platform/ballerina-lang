@@ -322,6 +322,7 @@ public class Resource implements Executable, Node {
             }
             ConnectorValue connectorValue = new ConnectorValue(connector, connectorDcl.getArgExprs());
             valueParams[i] = new BValueRef(connectorValue);
+            i++;
         }
         
         BValueRef[] ret = new BValueRef[1];
