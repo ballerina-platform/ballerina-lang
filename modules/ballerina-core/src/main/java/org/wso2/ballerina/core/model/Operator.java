@@ -35,7 +35,8 @@ public enum Operator {
     GREATER_THAN(">"),
     GREATER_EQUAL(">="),
     LESS_THAN("<"),
-    LESS_EQUAL("<=");
+    LESS_EQUAL("<="),
+    NEW("new");
 
     private final String opValue;
 

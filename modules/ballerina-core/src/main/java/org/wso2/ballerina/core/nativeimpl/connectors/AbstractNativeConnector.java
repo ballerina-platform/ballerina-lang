@@ -48,7 +48,6 @@ public abstract class AbstractNativeConnector implements Connector, NativeConstr
     public AbstractNativeConnector() {
         parameters = new ArrayList<>();
         buildModel();
-
     }
 
     /*
@@ -83,4 +82,13 @@ public abstract class AbstractNativeConnector implements Connector, NativeConstr
     public Parameter[] getParameters() {
         return parameters.toArray(new Parameter[parameters.size()]);
     }
+
+
+    //TODO Fix Issue#320
+    /**
+     * Get an instance of the Connector
+     *
+     * @return an instance
+     */
+    public abstract AbstractNativeConnector  getInstance();
 }

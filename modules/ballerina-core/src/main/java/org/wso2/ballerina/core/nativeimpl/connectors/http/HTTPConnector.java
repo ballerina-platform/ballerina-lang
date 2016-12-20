@@ -55,6 +55,12 @@ public class HTTPConnector extends AbstractNativeConnector implements ServiceFac
         return true;
     }
 
+    //TODO Fix Issue#320
+    @Override
+    public HTTPConnector getInstance() {
+        return new HTTPConnector();
+    }
+
     public String getServiceUri() {
         return serviceUri;
     }
@@ -76,4 +82,5 @@ public class HTTPConnector extends AbstractNativeConnector implements ServiceFac
     @Override
     public void ungetService(Bundle bundle, ServiceRegistration serviceRegistration, Object o) {
     }
+
 }

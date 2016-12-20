@@ -36,12 +36,8 @@ public class Context {
 
     private SymbolTable table;
     private ControlStack controlStack;
-
     private CarbonMessage cMsg;
-
     private BalCallback balCallback;
-
-
 
     protected Map<String, Object> properties = new HashMap();
 
