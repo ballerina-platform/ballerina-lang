@@ -826,7 +826,12 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             $(addVariable).click(resourceModel, function (resourceModel) {
 
                 // ToDo add variable name validation
-                var variableList = resourceModel.data.getVariables();
+                var variableList = null;
+                if(resourceModel.data === undefined) {
+                    variableList = resourceModel.getVariables();
+                } else {
+                    variableList = resourceModel.data.getVariables();
+                }
 
                 //filtering empty variable identifier and existing variables
                 if ($(variableText).val() != "" &&
@@ -837,7 +842,13 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                     //pushing new variable declaration
                     variable.setType($(variableSelect).val());
                     variable.setIdentifier($(variableText).val());
-                    resourceModel.data.getVariables().push(variable);
+                    if(resourceModel.data === undefined) {
+                        resourceModel.getVariables().push(variable);
+                        resourceModel.addChild(variable);
+                    } else {
+                        resourceModel.data.getVariables().push(variable);
+                        resourceModel.data.addChild(variable);
+                    }
 
                     //remove current variable list
                     if (variablePaneWrapper.children().length > 1) {

@@ -336,10 +336,13 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
                     //pushing new variable declaration
                     variable.setType($(variableSelect).val());
                     variable.setIdentifier($(variableText).val());
+                    var index = -1;
                     if(serviceModel.data === undefined) {
                         serviceModel.getVariableDeclarations().push(variable);
+                        serviceModel.addChild(variable);
                     } else {
                         serviceModel.data.getVariableDeclarations().push(variable);
+                        serviceModel.data.addChild(variable);
                     }
 
                     //remove current variable list
