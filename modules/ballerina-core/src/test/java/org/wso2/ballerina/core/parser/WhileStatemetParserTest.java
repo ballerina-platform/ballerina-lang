@@ -18,43 +18,27 @@
 
 package org.wso2.ballerina.core.parser;
 
-import org.antlr.v4.runtime.ANTLRInputStream;
-import org.antlr.v4.runtime.CommonTokenStream;
 import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
+import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.Function;
+import org.wso2.ballerina.core.utils.ParserUtils;
 
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.Map;
 
 public class WhileStatemetParserTest {
-    private BallerinaBaseListenerImpl ballerinaBaseListener;
+
+    private BallerinaFile bFile;
 
     @BeforeTest
     public void setup() {
-        try {
-            ANTLRInputStream antlrInputStream = new ANTLRInputStream(new FileInputStream(
-                    getClass().getClassLoader().getResource("samples/parser/WhileFunction.bal").getFile()));
-
-            BallerinaLexer ballerinaLexer = new BallerinaLexer(antlrInputStream);
-            CommonTokenStream ballerinaToken = new CommonTokenStream(ballerinaLexer);
-
-            BallerinaParser ballerinaParser = new BallerinaParser(ballerinaToken);
-            ballerinaBaseListener = new BallerinaBaseListenerImpl();
-
-            ballerinaParser.addParseListener(ballerinaBaseListener);
-            ballerinaParser.compilationUnit();
-
-        } catch (IOException e) {
-
-        }
+        bFile = ParserUtils.parseBalFile("samples/parser/WhileFunction.bal");
     }
 
     @Test
     public void testWhileStatement() {
-        Map<String, Function> functions = ballerinaBaseListener.balFile.getFunctions();
+        Map<String, Function> functions = bFile.getFunctions();
         Assert.assertEquals(functions.keySet().size(), 1);
         Function fooFunction = functions.get("foo");
         Assert.assertNotNull(fooFunction);

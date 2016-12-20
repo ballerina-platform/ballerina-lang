@@ -17,12 +17,9 @@
 */
 package org.wso2.ballerina.core.parser;
 
-import org.antlr.v4.runtime.ANTLRInputStream;
-import org.antlr.v4.runtime.CommonTokenStream;
 import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
-import org.wso2.ballerina.core.interpreter.BContext;
 import org.wso2.ballerina.core.interpreter.BLangInterpreter;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.interpreter.ControlStack;
@@ -30,46 +27,18 @@ import org.wso2.ballerina.core.interpreter.StackFrame;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.VariableDcl;
-import org.wso2.ballerina.core.model.builder.BLangModelBuilder;
 import org.wso2.ballerina.core.model.values.BValueRef;
 import org.wso2.ballerina.core.model.values.IntValue;
-import org.wso2.ballerina.core.parser.antlr4.BLangAntlr4Listener;
-import org.wso2.ballerina.core.semantics.SemanticAnalyzer;
-
-import java.io.FileInputStream;
-import java.io.IOException;
+import org.wso2.ballerina.core.utils.ParserUtils;
 
 public class BLangInterpreterTest {
 
-    private BLangAntlr4Listener langModelBuilder;
     private BallerinaFile bFile;
-    private String funcName = "test";
+    private final String funcName = "test";
 
     @BeforeTest
     public void setup() {
-        try {
-            ANTLRInputStream antlrInputStream = new ANTLRInputStream(new FileInputStream(
-                    getClass().getClassLoader().getResource("samples/parser/ifcondition.bal").getFile()));
-
-            BallerinaLexer ballerinaLexer = new BallerinaLexer(antlrInputStream);
-            CommonTokenStream ballerinaToken = new CommonTokenStream(ballerinaLexer);
-
-            BallerinaParser ballerinaParser = new BallerinaParser(ballerinaToken);
-
-            BLangModelBuilder modelBuilder = new BLangModelBuilder();
-            langModelBuilder = new BLangAntlr4Listener(modelBuilder);
-
-            ballerinaParser.addParseListener(langModelBuilder);
-            ballerinaParser.compilationUnit();
-//            ballerinaParser.setErrorHandler();
-
-            bFile = modelBuilder.build();
-
-            SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(bFile);
-            bFile.accept(semanticAnalyzer);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        bFile = ParserUtils.parseBalFile("samples/parser/ifcondition.bal");
     }
 
     @Test
@@ -101,11 +70,11 @@ public class BLangInterpreterTest {
         BLangInterpreter interpreter = new BLangInterpreter(ctx);
         function.accept(interpreter);
 
-        int expectedA = 310;
+        final int expectedA = 310;
         int actualA = returnVals[0].getInt();
         Assert.assertEquals(actualA, expectedA);
 
-        int expectedB = 21;
+        final int expectedB = 21;
         int actualB = returnVals[1].getInt();
         Assert.assertEquals(actualB, expectedB);
     }

@@ -49,6 +49,7 @@ public class BallerinaBaseListenerImplTest {
             ballerinaParser.compilationUnit();
 
         } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
