@@ -65,7 +65,7 @@ public class BLangLinker {
 
                 Symbol symbol = symTable.lookup(symbolName);
                 if (symbol == null) {
-                    throw new LinkerException("Undefined function: " +
+                    throw new LinkerException("Undefined action: " +
                             actionInvocationExpr.getActionName().getName());
                 }
 
