@@ -23,12 +23,12 @@ service PassthroughService {
 
         if (isValid) {
             successMessage = `{"Successful" : "ValidZipCode"}`;
-            message:setPayload(m, successMessage);
-            message:setHeader(response, "Status", 200);
+            message:setJsonPayload(m, successMessage);
+            message:setHeader(response, "Status", string:valueOf(200));
         } else {
             failedMessage = `{"Failed" : "Invalid ZipCode"}`;
-            message:setPayload(m, failedMessage);
-            message:setHeader(response, "Status", 500);
+            message:setJsonPayload(m, failedMessage);
+            message:setHeader(response, "Status", string:valueOf(500));
         }
 
         reply m;

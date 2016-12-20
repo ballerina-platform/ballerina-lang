@@ -22,9 +22,9 @@ service PassthroughWithExceptionHandlingService {
     try {
         response = http:HttpConnector.sendPost (nyse_ep, m);
     } catch (exception e) {
-        message:setHeader(m, HTTP.StatusCode, 500);// need to discuss
+        message:setHeader(m, HTTP.StatusCode, string:valueOf(500));// need to discuss
         error = `{"error":"backend failed", "causedby":e.message}`;
-        message:setPayload(m, error);
+        message:setJsonPayload(m, error);
     }
     reply response;
   }
