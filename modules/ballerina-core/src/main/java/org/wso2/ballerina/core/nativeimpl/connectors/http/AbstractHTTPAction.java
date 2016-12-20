@@ -26,8 +26,9 @@ import org.wso2.ballerina.core.model.values.BValueRef;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.BalConnectorCallback;
 import org.wso2.ballerina.core.runtime.internal.ServiceContextHolder;
+import org.wso2.ballerina.core.runtime.net.http.Constants;
 import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.Constants;
+import org.wso2.carbon.messaging.MessageDataSource;
 import org.wso2.carbon.messaging.MessageProcessorException;
 
 import java.net.MalformedURLException;
@@ -73,6 +74,20 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
         try {
             BalConnectorCallback balConnectorCallback = new BalConnectorCallback(context);
+            // Handle the message built scenario
+            if (message.isAlreadyRead()) {
+                MessageDataSource messageDataSource = message.getMessageDataSource();
+                if (messageDataSource != null) {
+                    messageDataSource.serializeData();
+                    message.setEndOfMsgAdded(true);
+                    message.getHeaders().remove(Constants.HTTP_CONTENT_LENGTH);
+                    message.getHeaders()
+                            .set(Constants.HTTP_CONTENT_LENGTH, String.valueOf(message.getFullMessageLength()));
+
+                } else {
+                    logger.error("Message is already built but cannot find the MessageDataSource");
+                }
+            }
             ServiceContextHolder.getInstance().getSender().send(message, balConnectorCallback);
 
             while (!balConnectorCallback.responseArrived) {
