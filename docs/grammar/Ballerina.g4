@@ -353,7 +353,7 @@ variableReference
     ;
 
 argumentList
-    :   '(' expressionList ')'
+    :   '(' expressionList? ')'
     ;
 
 expressionList
@@ -744,10 +744,6 @@ ZeroToThree
 
 NullLiteral
     :   'null'
-    ;
-
-VariableReference
-    : DOLLAR_SIGN Identifier
     ;
 
 Identifier
