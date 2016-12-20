@@ -23,6 +23,8 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.exception.ParserException;
+import org.wso2.ballerina.core.model.builder.BLangModelBuilder;
+import org.wso2.ballerina.core.parser.antlr4.BLangAntlr4Listener;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -30,7 +32,6 @@ import java.io.IOException;
 
 public class InvalidSyntaxParserTest {
 
-    private BallerinaBaseListenerImpl ballerinaBaseListener;
     private BallerinaParser ballerinaParser;
 
     @BeforeTest
@@ -43,10 +44,12 @@ public class InvalidSyntaxParserTest {
             BallerinaLexer ballerinaLexer = new BallerinaLexer(antlrInputStream);
             CommonTokenStream ballerinaToken = new CommonTokenStream(ballerinaLexer);
 
+            BLangModelBuilder modelBuilder = new BLangModelBuilder();
+            BLangAntlr4Listener langModelBuilder = new BLangAntlr4Listener(modelBuilder);
+
             ballerinaParser = new BallerinaParser(ballerinaToken);
-            ballerinaBaseListener = new BallerinaBaseListenerImpl();
             ballerinaParser.setErrorHandler(new BallerinaParserErrorStrategy());
-            ballerinaParser.addParseListener(ballerinaBaseListener);
+            ballerinaParser.addParseListener(langModelBuilder);
         } catch (IOException e) {
             e.printStackTrace();
             System.err.println(e.getMessage());
