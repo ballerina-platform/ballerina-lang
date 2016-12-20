@@ -19,7 +19,7 @@ service TravelManagerService {
         message response;
         json jsonMsg;
         json errorMsg;
-        jsonMsg= json:getPayload(m);
+        jsonMsg = message:getJsonPayload(m);
         try {
           if (json:get(jsonMsg, "$.TravelpediaReservation.reservationType") == "CAR-RENTAL") {
               response = http:HttpConnector.sendPost(hotelEP, m);
@@ -28,8 +28,8 @@ service TravelManagerService {
           }
         } catch (exception e) {
             errorMsg = `{"error" : "Error while sending to backend"}`;
-            message:setPayload (response, errorMsg);
-            message:setHeader (response, "Status", 500);
+            message:setJsonPayload(response, errorMsg);
+            message:setHeader(response, "Status", string:valueOf(500));
         }
         reply response;
     }

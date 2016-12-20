@@ -492,6 +492,16 @@ public class BLangAntlr4Listener implements BallerinaListener {
     }
 
     @Override
+    public void enterVariableReferenceList(BallerinaParser.VariableReferenceListContext ctx) {
+
+    }
+
+    @Override
+    public void exitVariableReferenceList(BallerinaParser.VariableReferenceListContext ctx) {
+
+    }
+
+    @Override
     public void enterIfElseStatement(BallerinaParser.IfElseStatementContext ctx) {
         modelBuilder.startIfElseStmt();
     }
@@ -795,6 +805,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitTypeInitializeExpression(BallerinaParser.TypeInitializeExpressionContext ctx) {
+        modelBuilder.createInstanceCreaterExpr(ctx.Identifier().getText());
     }
 
     @Override

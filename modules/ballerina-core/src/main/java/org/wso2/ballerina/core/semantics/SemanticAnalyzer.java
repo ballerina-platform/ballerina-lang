@@ -48,6 +48,7 @@ import org.wso2.ballerina.core.model.expressions.Expression;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.GreaterEqualExpression;
 import org.wso2.ballerina.core.model.expressions.GreaterThanExpression;
+import org.wso2.ballerina.core.model.expressions.InstanceCreationExpr;
 import org.wso2.ballerina.core.model.expressions.LessEqualExpression;
 import org.wso2.ballerina.core.model.expressions.LessThanExpression;
 import org.wso2.ballerina.core.model.expressions.MultExpression;
@@ -362,6 +363,14 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     // Expressions
+
+    @Override
+    public void visit(InstanceCreationExpr instanceCreationExpr) {
+        visitExpr(instanceCreationExpr);
+
+//        Expression expr = instanceCreationExpr.getRExpr();
+//        expr.accept(this);
+    }
 
     @Override
     public void visit(FunctionInvocationExpr funcIExpr) {

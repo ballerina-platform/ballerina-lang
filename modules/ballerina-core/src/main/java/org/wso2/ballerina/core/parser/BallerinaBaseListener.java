@@ -628,6 +628,18 @@ public class BallerinaBaseListener implements BallerinaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterVariableReferenceList(BallerinaParser.VariableReferenceListContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitVariableReferenceList(BallerinaParser.VariableReferenceListContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterIfElseStatement(BallerinaParser.IfElseStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
