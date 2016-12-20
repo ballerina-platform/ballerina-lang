@@ -445,13 +445,22 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                     // variable delete onclick
                     var self = this;
                     $(removeBtn).click(resourceModel, function () {
-                        var varList = resourceModel.getVariables();
+                        var varList = null;
+                        if(resourceModel.data === undefined) {
+                            varList = resourceModel.getVariables();
+                        } else {
+                            varList = resourceModel.data.getVariables();
+                        }
                         var varType = $($(this.parentNode.getElementsByTagName('label'))[0]).text();
                         var varIdentifier = $($(this.parentNode.getElementsByTagName('input'))[0]).val();
                         var index = self.checkExistingVariables(varList, varType, varIdentifier);
 
                         if (index != -1) {
-                            resourceModel.data.getVariables().splice(index, 1);
+                            if(resourceModel.data === undefined) {
+                                resourceModel.getVariables().splice(index, 1);
+                            } else {
+                                resourceModel.data.getVariables().splice(index, 1);
+                            }
                         }
 
                         log.info($(variable).val());
