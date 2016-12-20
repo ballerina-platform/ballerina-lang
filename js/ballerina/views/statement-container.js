@@ -159,7 +159,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
                 });
 
                 newDropZoneTopCenter = new Point(statementView.getBoundingBox().getTopCenterX(),
-                                statementView.getBoundingBox() - this._gap);
+                                statementView.getBoundingBox().y() - this._gap);
             }
 
         } else {
