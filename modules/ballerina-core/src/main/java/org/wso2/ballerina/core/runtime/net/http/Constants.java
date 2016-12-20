@@ -34,6 +34,11 @@ public class Constants {
 
     public static final String PROTOCOL_HTTP = "HTTP";
     public static final String HTTP_METHOD = "HTTP_METHOD";
+    public static final String HTTP_CONTENT_LENGTH = "Content-Length";
+    public static final String PROTOCOL = "PROTOCOL";
+    public static final String HOST = "HOST";
+    public static final String PORT = "PORT";
+    public static final String TO = "TO";
 
 
     public static final String HTTP_METHOD_GET = "GET";
