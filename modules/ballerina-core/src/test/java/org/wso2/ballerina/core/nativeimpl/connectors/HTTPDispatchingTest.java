@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerina.core.runtime;
+package org.wso2.ballerina.core.nativeimpl.connectors;
 
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
