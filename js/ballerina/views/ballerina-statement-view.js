@@ -91,8 +91,15 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
         var StatementViewFactory = require('./statement-view-factory');
         var statementViewFactory = new StatementViewFactory();
         var newStatementGap = 30;
-        var topCenter = new Point(this.getTopCenter().x(), this.getTopCenter().y() + newStatementGap);
-        var args = {model: statement, container: this._statementGroup.node(), viewOptions: undefined, parent:this, topCenter: topCenter};
+        var topCenter;
+        if (_.isEmpty(this._childrenViewsList)) {
+            topCenter = new Point(this.getTopCenter().x(), this.getTopCenter().y() + newStatementGap);
+        } else {
+            var childX = this.getTopCenter().x();
+            var childY = _.last(this._childrenViewsList).getBoundingBox().getBottom() + newStatementGap;
+            topCenter = new Point(childX, childY);
+        }
+        var args = {model: statement, container: this._statementGroup.node(), viewOptions: {}, parent:this, topCenter: topCenter};
         var statementView = statementViewFactory.getStatementView(args);
         this._diagramRenderingContext.getViewModelMap()[statement.id] = statementView;
         this._childrenViewsList.push(statementView);
@@ -103,7 +110,7 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
     BallerinaStatementView.prototype.visitExpression = function (statement) {
         var ExpressionViewFactory = require('./expression-view-factory');
         var expressionViewFactory = new ExpressionViewFactory();
-        var args = {model: statement, container: this._statementGroup.node(), viewOptions: undefined, parent:this};
+        var args = {model: statement, container: this._statementGroup.node(), viewOptions: {}, parent:this};
         var expressionView = expressionViewFactory.getExpressionView(args);
         this._diagramRenderingContext.getViewModelMap()[statement.id] = expressionView;
         this._childrenViewsList.push(expressionView);
@@ -197,8 +204,8 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
                     .attr("height", "14");
 
                 // Bottom center point.
-                var centerPointX = statementBoundingBox._leftTop._x + (statementBoundingBox._w / 2);
-                var centerPointY = statementBoundingBox._leftTop._y + statementBoundingBox._h;
+                var centerPointX = statementBoundingBox.x()+ (statementBoundingBox.w() / 2);
+                var centerPointY = statementBoundingBox.y()+ statementBoundingBox.h();
 
                 var smallArrowPoints =
                     // Bottom point of the polygon.

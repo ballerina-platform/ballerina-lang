@@ -46,6 +46,8 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
                 throw "Container for If Else statement is undefined." + this._container;
             }
 
+            // Initialize the bounding box
+            this.getBoundingBox().fromTopCenter(this.getTopCenter(), 0, 0);
             this.init();
 
         };
@@ -133,8 +135,6 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
             var ifElseGroup = D3Utils.group(d3.select(this._container));
             ifElseGroup.attr("id","_" +this._model.id);
             this.setStatementGroup(ifElseGroup);
-            // Initialize the bounding box
-            this.getBoundingBox().fromTopCenter(this.getTopCenter(), 0, 0);
             this._model.accept(this);
 
             var editableProperties = [];

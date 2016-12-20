@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define([ 'lodash', 'event_channel', './axis', './point'], function ( _, EventChannel, Axis, Point) {
+define([ 'lodash', 'event_channel'], function ( _, EventChannel) {
 
     /**
      * @class BoundingBox
@@ -27,34 +27,10 @@ define([ 'lodash', 'event_channel', './axis', './point'], function ( _, EventCha
      * @constructor
      */
     var BBox = function (x, y, w, h) {
+        this._x = x || 0;
+        this._y = y || 0;
         this._w = w || 0;
         this._h = h || 0;
-        this._leftTop = new Point(x, y);
-        this._leftEdge = new Axis(x, false);
-        this._rightEdge = new Axis(x + this._w, false);
-        this._topEdge = new Axis(y , false);
-        this._bottomEdge = new Axis(y+ this._h, false);
-
-        var self = this;
-        this._leftTop.on('moved', function(offset){
-            self.trigger('moved', offset);
-        });
-
-        this._leftEdge.on('moved', function(offset){
-            self.trigger('left-edge-moved', offset);
-        });
-
-        this._rightEdge.on('moved', function(offset){
-            self.trigger('right-edge-moved', offset);
-        });
-
-        this._topEdge.on('moved', function(offset){
-            self.trigger('top-edge-moved', offset);
-        });
-
-        this._bottomEdge.on('moved', function(offset){
-            self.trigger('bottom-edge-moved', offset);
-        });
     };
 
     BBox.prototype = Object.create(EventChannel.prototype);
@@ -66,10 +42,13 @@ define([ 'lodash', 'event_channel', './axis', './point'], function ( _, EventCha
      */
     BBox.prototype.x =  function (newX) {
         if (newX === undefined) {
-            return this._leftTop.x();
+            return this._x;
         }
-        this._leftTop.x(newX);
-        this._leftEdge.setPosition(newX);
+        var offset = newX - this._x;
+        this._x = newX;
+        this.trigger('moved', {dx: offset, dy: 0});
+        this.trigger('left-edge-moved', offset);
+        this.trigger('right-edge-moved', offset);
         return this;
     };
 
@@ -79,10 +58,13 @@ define([ 'lodash', 'event_channel', './axis', './point'], function ( _, EventCha
      */
     BBox.prototype.y =  function (newY) {
         if (newY === undefined) {
-            return this._leftTop.y();
+            return this._y;
         }
-        this._leftTop.y(newY);
-        this._topEdge.setPosition(newY);
+        var offset = newY - this._y;
+        this._y = newY;
+        this.trigger('moved', {dx: 0, dy: offset});
+        this.trigger('top-edge-moved', offset);
+        this.trigger('bottom-edge-moved', offset);
         return this;
     };
 
@@ -96,8 +78,8 @@ define([ 'lodash', 'event_channel', './axis', './point'], function ( _, EventCha
         }
         var delta = newW - this._w;
         this._w = newW;
-        this._rightEdge.setPosition(this._leftTop.x() + newW);
-        this.trigger("width-changed", delta);
+        this.trigger('right-edge-moved', delta);
+        this.trigger('width-changed', delta);
         return this;
     };
 
@@ -111,8 +93,8 @@ define([ 'lodash', 'event_channel', './axis', './point'], function ( _, EventCha
         }
         var delta = newH - this._h;
         this._h = newH;
-        this._bottomEdge.setPosition(this._leftTop.y() + newH);
-        this.trigger("height-changed", delta);
+        this.trigger('bottom-edge-moved', delta);
+        this.trigger('height-changed', delta);
         return this;
     };
 
@@ -154,24 +136,24 @@ define([ 'lodash', 'event_channel', './axis', './point'], function ( _, EventCha
     };
 
     BBox.prototype.getTop =  function () {
-        return this._topEdge.getPosition();
+        return this._y;
     };
 
     BBox.prototype.getBottom =  function () {
-        return this._bottomEdge.getPosition();
+        return this._y + this._h;
     };
 
     BBox.prototype.getLeft =  function () {
-        return this._leftEdge.getPosition();
+        return this._x;
     };
 
     BBox.prototype.getRight =  function () {
-        return this._rightEdge.getPosition();
+        return this._x + this._w;
     };
 
     BBox.prototype.getTopCenterX = function () {
         return this.getLeft() + this.w()/2;
-    }
+    };
 
     return BBox;
 });

@@ -253,9 +253,9 @@ ol#breadcrumbList {
     padding: 7px 7px 0 7px;
     height: 38px;
     position: absolute;
-    top: 25px;
-    right: 55px;
-    display: block;
+    /*top: 125px;*/
+    /*right: 740px;*/
+    display: none;
     margin: auto;
 }
 
