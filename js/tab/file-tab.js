@@ -77,6 +77,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             //package definition
             var packageDefinition = BallerinaASTFactory.createPackageDefinition();
             packageDefinition.setPackageName("samples.passthrough");
+            //packageDefinition.setPackageName("samples.echo");
             ballerinaAstRoot1.addChild(packageDefinition);
             ballerinaAstRoot1.setPackageDefinition(packageDefinition);
 
@@ -98,8 +99,8 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             var serviceDefinitions = [];
             var serviceDefinition_passthroughService = BallerinaASTFactory.createServiceDefinition();
             serviceDefinition_passthroughService.setServiceName("PassthroughService");
-            serviceDefinition_passthroughService.setBasePath("/account");
-            serviceDefinition_passthroughService.setSource({})
+            serviceDefinition_passthroughService.setBasePath("/passthrough");
+            serviceDefinition_passthroughService.setSource({});
 
             //service definition
             var serviceDefinition_passthroughService2 = BallerinaASTFactory.createServiceDefinition();
@@ -117,8 +118,8 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             var service_variable_declaration = [];
 
             var variable1 = BallerinaASTFactory.createVariableDeclaration();
-            variable1.setType('string');
-            variable1.setIdentifier('wso2');
+            variable1.setType('message');
+            variable1.setIdentifier('response');
             service_variable_declaration.push(variable1);
             serviceDefinition_passthroughService.addChild(variable1);
 
@@ -134,6 +135,9 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             // Adding Resources
             var resource_passthrough = BallerinaASTFactory.createResourceDefinition();
             resource_passthrough.setResourceName('passthrough');
+            //resource_passthrough.setResourceName('echoResource');
+            resource_passthrough.setResourcePath("/stocks");
+            resource_passthrough.setResourceMethod("POST");
 
             // Add the ifelse
             var ifelse1 = BallerinaASTFactory.createIfElseStatement();
@@ -178,7 +182,9 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             var connector_declaration = BallerinaASTFactory.createConnectorDeclaration();
             connector_declaration.setConnectorType('http:HttpConnector');
             connector_declaration.setConnectorName('nyseEP');
-            connector_declaration.setUri('http://localhost:8080/exchange/nyse/');
+            //connector_declaration.setUri('http://localhost:8080/exchange/nyse/');
+            connector_declaration.setUri('http://localhost:9000');
+            connector_declaration.setTimeout('100');
             var connector_declaration1 = BallerinaASTFactory.createConnectorDeclaration();
             connector_declaration1.setConnectorType('http:HttpConnector');
             connector_declaration1.setConnectorName('nasdaqEP');
@@ -188,7 +194,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             sList.push(connector_declaration1);
             // resource_passthrough.setConnections(sList);
            // resource_passthrough.setConnections([connector_declaration1]);
-           //  resource_passthrough.addChild(connector_declaration);
+            resource_passthrough.addChild(connector_declaration);
            //  resource_passthrough.addChild(connector_declaration1);
 
             //Adding custom resource
@@ -199,18 +205,13 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             var resourceArgument_m = BallerinaASTFactory.createResourceArgument();
             resourceArgument_m.setType("message");
             resourceArgument_m.setIdentifier("m");
-            // resource_passthrough.setResourceArguments([resourceArgument_m]);
-
-            //Adding reply statement
-            var statement_reply = BallerinaASTFactory.createReplyStatement();
-            statement_reply.setReplyMessage("m");
-            var statements = [];
-            statements.push(statement_reply);
-            // resource_passthrough.setStatements(statements);
+            resource_passthrough.setResourceArguments([resourceArgument_m]);
 
             //var resourceDefinitions = [];
             //resourceDefinitions.push(resource_passthrough);
             //resourceDefinitions.push(custom_resource);
+
+            resource_passthrough.addChild(variable1);
 
             serviceDefinition_passthroughService.addChild(resource_passthrough);
 
@@ -241,7 +242,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             var assignmentStatement = BallerinaASTFactory.createAssignmentStatement();
             var assignmentStatement2 = BallerinaASTFactory.createAssignmentStatement();
             var assignmentStatement2 = BallerinaASTFactory.createAssignmentStatement();
-            // resource_passthrough.addChild(assignmentStatement);
+             //resource_passthrough.addChild(assignmentStatement);
             // resource_passthrough.addChild(assignmentStatement2);
             // resource_passthrough.addChild(assignmentStatement2);
 
@@ -271,6 +272,17 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             // resource_passthrough.addChild(logicalExp);
             // whileStatement1.addChild(functionInvocation);
 
+            //Create get action expression for connector
+            var actionOpts = {connector:connector_declaration, isUserDropped:false, path:'/services/nyse', message:'m', action:'post'};
+            var getActionExpression = BallerinaASTFactory.createActionInvocationExpression(actionOpts);
+            getActionExpression.setVariableAccessor(variable1.getIdentifier());
+            resource_passthrough.addChild(getActionExpression);
+
+            //Adding reply statement
+            var statement_reply = BallerinaASTFactory.createReplyStatement();
+            statement_reply.setReplyMessage(resourceArgument_m);
+            resource_passthrough.addChild(statement_reply);
+
             /**
              * Create the sample arithmetic expression
              */
@@ -289,9 +301,6 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             // catchStatement.setExceptionType("ArithmeticException ex");
             catchStatement1.setExceptionType("ArithmeticException ex");
 
-           //Create get action statement for connector
-            var actionOpts = {connector:connector_declaration1, isUserDropped:false};
-            var getActionStatement1 = BallerinaASTFactory.createActionInvocationStatement(actionOpts);
            // var actionOpts2 = {connector:connector_declaration, isUserDropped:false};
            // var getActionStatement2 = BallerinaASTFactory.createGetActionStatement(actionOpts2);
             ifElseStatement.addChild(ifStatement);
@@ -302,7 +311,6 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
            // resource_passthrough.addChild(ifElseStatement);
             //TODO:Commented to view get action statement
             //resource_passthrough.addChild(tryCatchStatement1);
-             resource_passthrough.addChild(getActionStatement1);
            // resource_passthrough.addChild(getActionStatement2);
             // Create sample Worker Declaration
             var workerDeclaration1 = BallerinaASTFactory.createWorkerDeclaration();

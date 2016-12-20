@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './statement', './expression'], function (_, log, Statement, Expression) {
+define(['lodash', 'log', './statement'], function (_, log, Statement) {
 
     /**
      * Class to represent a action invocation to ballerina.
