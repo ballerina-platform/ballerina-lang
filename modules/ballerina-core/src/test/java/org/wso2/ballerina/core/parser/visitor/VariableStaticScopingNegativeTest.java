@@ -20,7 +20,6 @@ package org.wso2.ballerina.core.parser.visitor;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.testng.Assert;
-import org.testng.annotations.Test;
 import org.wso2.ballerina.core.parser.BallerinaLexer;
 import org.wso2.ballerina.core.parser.BallerinaParser;
 
@@ -29,7 +28,7 @@ import java.io.FileInputStream;
 public class VariableStaticScopingNegativeTest {
     private CompilationUnitVisitor ballerinaBaseVisitor;
 
-    @Test
+//    @Test
     public void testVariableScopingResource() {
         try {
             ANTLRInputStream antlrInputStream = new ANTLRInputStream(new FileInputStream(getClass().
