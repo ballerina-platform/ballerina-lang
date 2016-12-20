@@ -83,4 +83,12 @@ public abstract class AbstractNativeConnector implements Connector, NativeConstr
     public Parameter[] getParameters() {
         return parameters.toArray(new Parameter[parameters.size()]);
     }
+
+
+    /**
+     * Get an instance of the Connector
+     *
+     * @return an instance
+     */
+    public abstract AbstractNativeConnector  getInstance();
 }
