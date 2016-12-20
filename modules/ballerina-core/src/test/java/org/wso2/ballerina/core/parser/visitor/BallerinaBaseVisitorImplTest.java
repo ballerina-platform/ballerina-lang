@@ -19,7 +19,6 @@ package org.wso2.ballerina.core.parser.visitor;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
-import org.testng.annotations.BeforeTest;
 import org.wso2.ballerina.core.parser.BallerinaLexer;
 import org.wso2.ballerina.core.parser.BallerinaParser;
 
@@ -29,7 +28,7 @@ import java.io.IOException;
 public class BallerinaBaseVisitorImplTest {
     private CompilationUnitVisitor ballerinaBaseVisitor;
 
-    @BeforeTest
+//    @BeforeTest
     public void setup() {
         try {
             ANTLRInputStream antlrInputStream = new ANTLRInputStream(new FileInputStream(
