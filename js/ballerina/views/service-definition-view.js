@@ -320,7 +320,12 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
             $(addVariable).click(serviceModel, function (serviceModel) {
 
                 // ToDo add variable name validation
-                var variableList = serviceModel.data.getVariableDeclarations();
+                var variableList = null;
+                if(serviceModel.data === undefined) {
+                    variableList = serviceModel.getVariableDeclarations();
+                } else {
+                    variableList = serviceModel.data.getVariableDeclarations();
+                }
 
                 //filtering empty variable identifier and existing variables
                 if ($(variableText).val() != "" &&
@@ -331,7 +336,11 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
                     //pushing new variable declaration
                     variable.setType($(variableSelect).val());
                     variable.setIdentifier($(variableText).val());
-                    serviceModel.data.getVariableDeclarations().push(variable);
+                    if(serviceModel.data === undefined) {
+                        serviceModel.getVariableDeclarations().push(variable);
+                    } else {
+                        serviceModel.data.getVariableDeclarations().push(variable);
+                    }
 
                     //remove current variable list
                     if (variablePaneWrapper.children().length > 1) {

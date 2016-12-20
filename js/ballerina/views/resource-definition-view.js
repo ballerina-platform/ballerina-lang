@@ -382,6 +382,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                         setterMethod: this._model.setResourcePath
                     }],
                 activatorElement: variableButton.node(),
+                variableIconButton: variableButton,
                 paneAppendElement: $(this._defaultWorker)[0]._container.closest('.panel-body').childNodes[0],
                 viewOptions: {
                     position: {
@@ -792,6 +793,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             var resourceModel = _.get(args, "model");
             var paneElement = _.get(args, "paneAppendElement");
             var variableList = resourceModel.getVariables();
+            var variableButton = _.get(args, "variableIconButton");
 
             if (_.isNil(activatorElement)) {
                 log.error("Unable to render property pane as the html element is undefined." + activatorElement);
@@ -835,12 +837,16 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 }
             });
 
+            var paneWidth = 350;
+            var paneStartingX = variableButton.attr("cx") - paneWidth + 5;
+            var paneStartingY = variableButton.attr("cy") - variableButton.attr("r") + 15;
+
             $(activatorElement).click(resourceModel, function (resourceModel) {
                 for(var iterator = 0;iterator < paneElement.childNodes.length; iterator++) {
                     if(paneElement.childNodes[iterator].className == "resource-variable-pane") {
                         if(paneElement.childNodes[iterator].id == resourceModel.data.id) {
-                            $(paneElement.childNodes[iterator]).css('top', $(this).position().top);
-                            $(paneElement.childNodes[iterator]).css('left', $(this).position().left - 340);
+                            $(paneElement.childNodes[iterator]).css('top', paneStartingY);
+                            $(paneElement.childNodes[iterator]).css('left', paneStartingX);
                             if(paneElement.childNodes[iterator].style.display== "none" || paneElement.childNodes[iterator].style.display == "") {
                                 paneElement.childNodes[iterator].style.display = "inline";
                             } else {
