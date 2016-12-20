@@ -25,11 +25,11 @@ function(require, _, log, EventChannel, AbstractStatementSourceGenVisitor) {
     WhileStatementVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
     WhileStatementVisitor.prototype.constructor = WhileStatementVisitor;
 
-    WhileStatementVisitor.prototype.canVisitWhileStatement = function(whileStatement){
+    WhileStatementVisitor.prototype.canVisitStatement = function(whileStatement){
         return true;
     };
 
-    WhileStatementVisitor.prototype.beginVisitWhileStatement = function(whileStatement){
+    WhileStatementVisitor.prototype.beginVisitStatement = function(whileStatement){
         this.appendSource('While(' + whileStatement.getCondition() + '){');
         log.info('Begin Visit If Statement Definition');
     };
@@ -38,7 +38,7 @@ function(require, _, log, EventChannel, AbstractStatementSourceGenVisitor) {
         log.info('Visit If Statement Definition');
     };
 
-    WhileStatementVisitor.prototype.endVisitWhileStatement = function(whileStatement){
+    WhileStatementVisitor.prototype.endVisitStatement = function(whileStatement){
         this.appendSource("}\n");
         this.getParent().appendSource(this.getGeneratedSource());
         log.info('End Visit If Statement Definition');

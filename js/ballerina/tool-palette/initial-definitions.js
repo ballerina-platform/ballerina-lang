@@ -66,7 +66,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
         var createTryCatchStatementTool = {
             id: "TryCatch",
             name: "TryCatch",
-            icon: "images/tool-icons/dgm-try-catch.svg",
+            icon: "images/tool-icons/trycatch.svg",
             title: "TryCatch",
             nodeFactoryMethod: BallerinaASTFactory.createTryCatchStatement
         };
@@ -74,7 +74,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
         var createAssignmentExpressionTool = {
             id: "Assignment",
             name: "Assignment",
-            icon: "images/tool-icons/dgm-try-catch.svg",
+            icon: "images/tool-icons/assign.svg",
             title: "Assignment",
             nodeFactoryMethod: BallerinaASTFactory.createAssignmentStatement
         };
@@ -82,7 +82,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
         var createLogicalExpressionTool = {
             id: "LogicalExpression",
             name: "LogicalExpression",
-            icon: "images/tool-icons/dgm-try-catch.svg",
+            icon: "images/tool-icons/logical.svg",
             title: "LogicalExpression",
             nodeFactoryMethod: BallerinaASTFactory.createLogicalExpression
         };
@@ -90,7 +90,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
         var createActionInvocationTool = {
             id: "ActionInvocation",
             name: "ActionInvocation",
-            icon: "images/tool-icons/dgm-try-catch.svg",
+            icon: "images/tool-icons/actioninvoke.svg",
             title: "ActionInvocation",
             nodeFactoryMethod: BallerinaASTFactory.createActionInvocationStatement
         };

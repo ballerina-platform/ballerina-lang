@@ -246,13 +246,22 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
                     // variable delete onclick
                     var self = this;
                     $(removeBtn).click(serviceModel, function () {
-                        var varList = serviceModel.getVariableDeclarations();
+                        var varList = null;
+                        if(serviceModel.data === undefined) {
+                            varList = serviceModel.getVariableDeclarations();
+                        } else {
+                            varList = serviceModel.data.getVariableDeclarations();
+                        }
                         var varType = $($(this.parentNode.getElementsByTagName('label'))[0]).text();
                         var varIdentifier = $($(this.parentNode.getElementsByTagName('input'))[0]).val();
                         var index = self.checkExistingVariables(varList, varType, varIdentifier);
 
                         if (index != -1) {
-                            serviceModel.data.getVariableDeclarations().splice(index, 1);
+                            if(serviceModel.data === undefined) {
+                                serviceModel.getVariableDeclarations().splice(index, 1);
+                            } else {
+                                serviceModel.data.getVariableDeclarations().splice(index, 1);
+                            }
                         }
 
                         log.info($(variable).val());
@@ -333,10 +342,10 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
             });
 
             $(activatorElement).click(serviceModel, function (serviceModel) {
-                if(paneElement.children[1].style.display== "none" || paneElement.children[1].style.display == "") {
-                    paneElement.children[1].style.display = "inline";
+                if(paneElement.children[2].style.display== "none" || paneElement.children[2].style.display == "") {
+                    paneElement.children[2].style.display = "inline";
                 } else {
-                    paneElement.children[1].style.display = "none";
+                    paneElement.children[2].style.display = "none";
                 }
             });
         };

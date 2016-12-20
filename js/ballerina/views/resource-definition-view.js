@@ -382,7 +382,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                         setterMethod: this._model.setResourcePath
                     }],
                 activatorElement: variableButton.node(),
-                paneAppendElement: _.first($(this._container))._groups[0],
+                paneAppendElement: $(this._defaultWorker)[0]._container.closest('.panel-body').childNodes[0],
                 viewOptions: {
                     position: {
                         x: parseFloat(variableButton.attr("cx")),
@@ -407,9 +407,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             _.set(statementContainerOpts, 'toolPalette', this.toolPalette);
             this._statementContainer = new StatementContainer(statementContainerOpts);
             this.listenTo(this._statementContainer.getBoundingBox(), 'bottom-edge-moved', function(dy){
-                    if(this._statementContainer.getBoundingBox().getBottom() > this._defaultWorker.getBottomCenter().y()){
-                        this._defaultWorker.getBottomCenter().move(0, dy);
-                    }
+                    this._defaultWorker.getBottomCenter().y(this._statementContainer.getBoundingBox().getBottom());
                     this.getBoundingBox().h(this.getBoundingBox().h() + dy);
             });
             this._statementContainer.render(this.diagramRenderingContext);
@@ -447,13 +445,22 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                     // variable delete onclick
                     var self = this;
                     $(removeBtn).click(resourceModel, function () {
-                        var varList = resourceModel.getVariables();
+                        var varList = null;
+                        if(resourceModel.data === undefined) {
+                            varList = resourceModel.getVariables();
+                        } else {
+                            varList = resourceModel.data.getVariables();
+                        }
                         var varType = $($(this.parentNode.getElementsByTagName('label'))[0]).text();
                         var varIdentifier = $($(this.parentNode.getElementsByTagName('input'))[0]).val();
                         var index = self.checkExistingVariables(varList, varType, varIdentifier);
 
                         if (index != -1) {
-                            resourceModel.data.getVariables().splice(index, 1);
+                            if(resourceModel.data === undefined) {
+                                resourceModel.getVariables().splice(index, 1);
+                            } else {
+                                resourceModel.data.getVariables().splice(index, 1);
+                            }
                         }
 
                         log.info($(variable).val());
@@ -791,7 +798,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 throw "Unable to render property pane as the html element is undefined." + activatorElement;
             }
 
-            var variablePaneWrapper = $('<div class="resource-variable-pane"/>').appendTo($(paneElement));
+            var variablePaneWrapper = $('<div id="' + resourceModel.id + '" class="resource-variable-pane"/>').appendTo($(paneElement));
             var variableForm = $('<form></form>').appendTo(variablePaneWrapper);
             var variableSelect = $("<select/>").appendTo(variableForm);
             var variableText = $("<input placeholder='&nbsp;Variable Name'/>").appendTo(variableForm);
@@ -829,10 +836,19 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             });
 
             $(activatorElement).click(resourceModel, function (resourceModel) {
-                if(paneElement.children[1].style.display== "none" || paneElement.children[1].style.display == "") {
-                    paneElement.children[1].style.display = "inline";
-                } else {
-                    paneElement.children[1].style.display = "none";
+                for(var iterator = 0;iterator < paneElement.childNodes.length; iterator++) {
+                    if(paneElement.childNodes[iterator].className == "resource-variable-pane") {
+                        if(paneElement.childNodes[iterator].id == resourceModel.data.id) {
+                            $(paneElement.childNodes[iterator]).css('top', $(this).position().top);
+                            $(paneElement.childNodes[iterator]).css('left', $(this).position().left - 340);
+                            if(paneElement.childNodes[iterator].style.display== "none" || paneElement.childNodes[iterator].style.display == "") {
+                                paneElement.childNodes[iterator].style.display = "inline";
+                            } else {
+                                paneElement.childNodes[iterator].style.display = "none";
+                            }
+                            break;
+                        }
+                    }
                 }
             });
         };
