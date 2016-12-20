@@ -637,6 +637,16 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
 
                     annotation.annotationValue = annotationValue;
 
+                    //Adding annotation values to the model
+                    if(annotationType == 'ServiceName'){
+                        model.setServiceName(annotationValue);
+                    }else if(annotationType == 'BasePath'){
+                        model.setBasePath(annotationValue)
+                    }
+
+                    //Clear the text box and drop down value
+                    annotationValueInput.val("");
+
                     // Recreating the annotation details view.
                     createCurrentAnnotationView(data, annotationsContentWrapper);
 
@@ -748,12 +758,15 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
                             // When an annotation detail is clicked.
                             annotationWrapper.click({
                                 clickedAnnotationValueWrapper: annotationValueWrapper,
+                                clickedAnnotationTypeWrapper :annotationTypeWrapper,
                                 annotation: annotation
                             }, function (event) {
                                 var clickedAnnotationValueWrapper = event.data.clickedAnnotationValueWrapper;
+                                var clickedAnnotationTypeWrapper = event.data.clickedAnnotationTypeWrapper;
                                 var annotation = event.data.annotation;
-                                // Empty the content inside the annotation value wrapper.
+                                // Empty the content inside the annotation value and type wrapper.
                                 clickedAnnotationValueWrapper.empty();
+                                clickedAnnotationTypeWrapper.empty();
 
                                 // Changing the background
                                 annotationWrapper.css("background-color", "#f5f5f5");
@@ -763,6 +776,29 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
                                     text: annotation.annotationValue,
                                     class: "form-control"
                                 }).appendTo(clickedAnnotationValueWrapper);
+
+                                // Creating the area for the type of the annotation.
+                                var annotationTypeTextArea = $("<div/>", {
+                                    text: annotation.annotationType,
+                                    class: annotationDetailCellWrapper
+                                }).appendTo(clickedAnnotationTypeWrapper);
+
+                                //Gets the user input and set it as the annotation value
+                                annotationValueTextArea.on('input', function (e){
+                                    annotation.annotationValue = e.target.value;
+                                });
+
+                                //Gets the annotation type of the edited annotation value
+                                annotationTypeTextArea.on('input', function (e){
+                                    annotation.annotationType = e.target.value;
+                                });
+
+                                //Adding annotation values to the model
+                                if(annotation.annotationType == 'ServiceName'){
+                                    model.setServiceName(annotation.annotationValue);
+                                }else if(annotation.annotationType == 'BasePath'){
+                                    model.setBasePath(annotation.annotationValue)
+                                }
 
                                 var newDeleteIcon = deleteIcon.clone();
 
@@ -783,6 +819,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
 
                                         var annotationVal = ": " + annotationValueDiv.find("textarea").val();
                                         annotationValueDiv.empty().text(annotationVal);
+
 
                                         var delIcon = deleteIcon.clone();
 

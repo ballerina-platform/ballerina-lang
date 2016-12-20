@@ -528,6 +528,11 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                     setterMethod: this._model.setResourceName
                 },
                 {
+                    annotationType: "ResourceMethod",
+                    annotationValue: this._model.getResourceMethod,
+                    setterMethod: this._model.setResourceMethod
+                },
+                {
                     annotationType: "Resource:Action",
                     annotationValue: ""/*this._model.getSource().interface*/,
                     setterMethod: ""
@@ -636,6 +641,18 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                     }));
 
                     annotation.annotationValue = annotationValue;
+
+                    //Adding annotation values to the model
+                    if(annotationType == 'ResourceName'){
+                        model.setResourceName(annotationValue);
+                    }else if(annotationType == 'ResourcePath'){
+                        model.setResourcePath(annotationValue)
+                    }else if(annotationType == 'ResourceMethod'){
+                        model.setResourceMethod(annotationValue);
+                    }
+
+                    //Clear the text box and drop down value
+                    annotationValueInput.val("");
 
                     // Recreating the annotation details view.
                     createCurrentAnnotationView(data, annotationsContentWrapper);
@@ -748,13 +765,15 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                             // When an annotation detail is clicked.
                             annotationWrapper.click({
                                 clickedAnnotationValueWrapper: annotationValueWrapper,
+                                clickedAnnotationTypeWrapper:annotationTypeWrapper,
                                 annotation: annotation
                             }, function (event) {
                                 var clickedAnnotationValueWrapper = event.data.clickedAnnotationValueWrapper;
+                                var clickedAnnotationTypeWrapper = event.data.clickedAnnotationTypeWrapper;
                                 var annotation = event.data.annotation;
                                 // Empty the content inside the annotation value wrapper.
                                 clickedAnnotationValueWrapper.empty();
-
+                                clickedAnnotationTypeWrapper.empty();
                                 // Changing the background
                                 annotationWrapper.css("background-color", "#f5f5f5");
 
@@ -763,6 +782,32 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                                     text: annotation.annotationValue,
                                     class: "form-control"
                                 }).appendTo(clickedAnnotationValueWrapper);
+
+
+                                // Creating the area for the type of the annotation.
+                                var annotationTypeTextArea = $("<div/>", {
+                                    text: annotation.annotationType,
+                                    class: annotationDetailCellWrapper
+                                }).appendTo(clickedAnnotationTypeWrapper);
+
+                                //Gets the user input and set it as the annotation value
+                                annotationValueTextArea.on('input', function (e){
+                                    annotation.annotationValue = e.target.value;
+                                });
+
+                                //Gets the annotation type of the edited annotation value
+                                annotationTypeTextArea.on('input', function (e){
+                                    annotation.annotationType = e.target.value;
+                                });
+
+                                //Adding annotation values to the model
+                                if(annotation.annotationType == 'ResourceName'){
+                                    model.setResourceName(annotation.annotationValue);
+                                }else if(annotation.annotationType == 'ResourcePath'){
+                                    model.setResourcePath(annotation.annotationValue)
+                                }else if(annotation.annotationType == 'ResourceMethod'){
+                                    model.setResourceMethod(annotation.annotationValue);
+                                }
 
                                 var newDeleteIcon = deleteIcon.clone();
 

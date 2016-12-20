@@ -39,6 +39,13 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './st
          * If we need to add additional parameters which are dynamically added to the configuration start
          * that particular source generation has to be constructed here
          */
+        var constructedMethodAnnotation = '@' + resourceDefinition.getResourceMethod() + '\n';
+        this.appendSource(constructedMethodAnnotation);
+
+        var constructedPathAnnotation = '@Path("' + resourceDefinition.getResourcePath() + '")\n';
+        this.appendSource(constructedPathAnnotation);
+
+
         var constructedSourceSegment = 'resource ' + resourceDefinition.getResourceName() + '(';
 
         // Append the resource arguments
