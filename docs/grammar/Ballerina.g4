@@ -254,7 +254,11 @@ statement
     ;
 
 assignmentStatement
-    :   variableReference '=' expression ';'
+    :   variableReferenceList '=' expression ';'
+    ;
+
+variableReferenceList
+    :   variableReference (',' variableReference)*
     ;
 
 ifElseStatement
