@@ -355,6 +355,84 @@ input.variable-type-exception {
     height: 20px;
 }
 
+label.variable-type-boolean {
+    color: white;
+    background-color: darkred;
+    padding: 0 4px 4px 4px;
+    height: 20px;
+}
+
+input.variable-type-boolean {
+    border-style: solid;
+    border-color: darkred;
+    height: 20px;
+}
+
+label.variable-type-double {
+    color: white;
+    background-color: #063B49;
+    padding: 0 4px 4px 4px;
+    height: 20px;
+}
+
+input.variable-type-double {
+    border-style: solid;
+    border-color: #063B49;
+    height: 20px;
+}
+
+label.variable-type-float {
+    color: white;
+    background-color: #009CCC;
+    padding: 0 4px 4px 4px;
+    height: 20px;
+}
+
+input.variable-type-float {
+    border-style: solid;
+    border-color: #009CCC;
+    height: 20px;
+}
+
+label.variable-type-long {
+    color: white;
+    background-color: #4864aa;
+    padding: 0 4px 4px 4px;
+    height: 20px;
+}
+
+input.variable-type-long {
+    border-style: solid;
+    border-color: #4864aa;
+    height: 20px;
+}
+
+label.variable-type-json {
+    color: white;
+    background-color: #004d52;
+    padding: 0 4px 4px 4px;
+    height: 20px;
+}
+
+input.variable-type-json {
+    border-style: solid;
+    border-color: #004d52;
+    height: 20px;
+}
+
+label.variable-type-xml {
+    color: white;
+    background-color: #232323;
+    padding: 0 4px 4px 4px;
+    height: 20px;
+}
+
+input.variable-type-xml {
+    border-style: solid;
+    border-color: #232323;
+    height: 20px;
+}
+
 .property-panel-svg {
      width: 100%;
      min-height: 500px;

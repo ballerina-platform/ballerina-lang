@@ -98,7 +98,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
         ResourceDefinitionView.prototype = Object.create(BallerinaView.prototype);
         ResourceDefinitionView.prototype.constructor = ResourceDefinitionView;
         // TODO move variable types into constant class
-        var variableTypes = ['message', 'connection', 'string', 'int', 'exception'];
+        var variableTypes = ['message', 'boolean', 'string', 'int', 'float', 'long', 'double', 'json', 'xml'];
 
         ResourceDefinitionView.prototype.init = function(){
             //Registering event listeners
@@ -382,6 +382,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                         setterMethod: this._model.setResourcePath
                     }],
                 activatorElement: variableButton.node(),
+                variableIconButton: variableButton,
                 paneAppendElement: $(this._defaultWorker)[0]._container.closest('.panel-body').childNodes[0],
                 viewOptions: {
                     position: {
@@ -421,18 +422,28 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
                 for (var variableCount = 0; variableCount < variableDeclarationsList.length; variableCount++) {
                     var currentRaw;
-                    if (variableCount % 3 == 0) {
+                    if (variableCount % 2 == 0) {
                         currentRaw = $('<tr/>').appendTo(variableTable);
                     }
                     var labelClass = "";
                     if (variableDeclarationsList[variableCount].getType() === "message") {
                         labelClass = "variable-type-message";
-                    } else if (variableDeclarationsList[variableCount].getType() === "connection") {
-                        labelClass = "variable-type-connection";
+                    } else if (variableDeclarationsList[variableCount].getType() === "boolean") {
+                        labelClass = "variable-type-boolean";
                     } else if (variableDeclarationsList[variableCount].getType() === "string") {
                         labelClass = "variable-type-string";
                     } else if (variableDeclarationsList[variableCount].getType() === "int") {
                         labelClass = "variable-type-int";
+                    } else if (variableDeclarationsList[variableCount].getType() === "float") {
+                        labelClass = "variable-type-float";
+                    } else if (variableDeclarationsList[variableCount].getType() === "double") {
+                        labelClass = "variable-type-double";
+                    } else if (variableDeclarationsList[variableCount].getType() === "long") {
+                        labelClass = "variable-type-long";
+                    } else if (variableDeclarationsList[variableCount].getType() === "json") {
+                        labelClass = "variable-type-json";
+                    } else if (variableDeclarationsList[variableCount].getType() === "xml") {
+                        labelClass = "variable-type-xml";
                     } else {
                         labelClass = "variable-type-exception";
                     }
@@ -792,6 +803,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             var resourceModel = _.get(args, "model");
             var paneElement = _.get(args, "paneAppendElement");
             var variableList = resourceModel.getVariables();
+            var variableButton = _.get(args, "variableIconButton");
 
             if (_.isNil(activatorElement)) {
                 log.error("Unable to render property pane as the html element is undefined." + activatorElement);
@@ -814,7 +826,12 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             $(addVariable).click(resourceModel, function (resourceModel) {
 
                 // ToDo add variable name validation
-                var variableList = resourceModel.data.getVariables();
+                var variableList = null;
+                if(resourceModel.data === undefined) {
+                    variableList = resourceModel.getVariables();
+                } else {
+                    variableList = resourceModel.data.getVariables();
+                }
 
                 //filtering empty variable identifier and existing variables
                 if ($(variableText).val() != "" &&
@@ -825,7 +842,13 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                     //pushing new variable declaration
                     variable.setType($(variableSelect).val());
                     variable.setIdentifier($(variableText).val());
-                    resourceModel.data.getVariables().push(variable);
+                    if(resourceModel.data === undefined) {
+                        resourceModel.getVariables().push(variable);
+                        resourceModel.addChild(variable);
+                    } else {
+                        resourceModel.data.getVariables().push(variable);
+                        resourceModel.data.addChild(variable);
+                    }
 
                     //remove current variable list
                     if (variablePaneWrapper.children().length > 1) {
@@ -835,12 +858,16 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 }
             });
 
+            var paneWidth = 350;
+            var paneStartingX = variableButton.attr("cx") - paneWidth + 5;
+            var paneStartingY = variableButton.attr("cy") - variableButton.attr("r") + 15;
+
             $(activatorElement).click(resourceModel, function (resourceModel) {
                 for(var iterator = 0;iterator < paneElement.childNodes.length; iterator++) {
                     if(paneElement.childNodes[iterator].className == "resource-variable-pane") {
                         if(paneElement.childNodes[iterator].id == resourceModel.data.id) {
-                            $(paneElement.childNodes[iterator]).css('top', $(this).position().top);
-                            $(paneElement.childNodes[iterator]).css('left', $(this).position().left - 340);
+                            $(paneElement.childNodes[iterator]).css('top', paneStartingY);
+                            $(paneElement.childNodes[iterator]).css('left', paneStartingX);
                             if(paneElement.childNodes[iterator].style.display== "none" || paneElement.childNodes[iterator].style.display == "") {
                                 paneElement.childNodes[iterator].style.display = "inline";
                             } else {

@@ -115,6 +115,11 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/assignment', 'd
                 statementGroup:assignmentStatementGroup,
                 editableProperties: editableProperties
             });
+
+            this.getBoundingBox().on('top-edge-moved', function(dy){
+                expressionRect.attr('y',  parseFloat(expressionRect.attr('y')) + dy);
+                expressionText.attr('y',  parseFloat(expressionText.attr('y')) + dy);
+            });
         };
 
         AssignmentStatementView.prototype.setViewOptions = function (viewOptions) {

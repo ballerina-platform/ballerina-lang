@@ -204,8 +204,9 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
                     .attr("height", "14");
 
                 // Bottom center point.
-                var centerPointX = statementBoundingBox._x + (statementBoundingBox._w / 2);
-                var centerPointY = statementBoundingBox._y + statementBoundingBox._h;
+
+                var centerPointX = statementBoundingBox.x()+ (statementBoundingBox.w() / 2);
+                var centerPointY = statementBoundingBox.y()+ statementBoundingBox.h();
 
                 var smallArrowPoints =
                     // Bottom point of the polygon.

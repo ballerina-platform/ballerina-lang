@@ -121,11 +121,13 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             variable1.setType('message');
             variable1.setIdentifier('response');
             service_variable_declaration.push(variable1);
+            serviceDefinition_passthroughService.addChild(variable1);
 
             var variable2 = BallerinaASTFactory.createVariableDeclaration();
             variable2.setType('int');
             variable2.setIdentifier('2');
             service_variable_declaration.push(variable2);
+            serviceDefinition_passthroughService.addChild(variable2);
 
             serviceDefinition_passthroughService.setVariableDeclarations(service_variable_declaration);
             serviceDefinition_passthroughService2.addChild(resource_passthrough3);
