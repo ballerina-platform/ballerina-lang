@@ -20,14 +20,49 @@ package org.wso2.ballerina.core.model.statements;
 
 import org.wso2.ballerina.core.interpreter.Interpreter;
 import org.wso2.ballerina.core.model.Node;
+import org.wso2.ballerina.core.model.NodeVisitor;
 
 /**
  * Represents a statement. All statements nodes implements this interface.
- * <p>
+ * <p/>
  * A statement is a tree consisting of one or more of the concrete implementations
  * of this interface.
  *
  * @since 1.0.0
  */
 public interface Statement extends Interpreter, Node {
+
+    /**
+     * set next sibling statement for asynchronous processing
+     *
+     * @param statement
+     */
+    void setNextSibling(Statement statement);
+
+    /**
+     * get next sibling statement
+     *
+     * @return Statement
+     */
+    Statement getNextSibling();
+
+    /**
+     * indicate to halt the execution flow.
+     * @return boolean
+     */
+    boolean isHaltExecution();
+
+    /**
+     * set to halt the execution flow.
+     * @return
+     */
+    void setHaltExecution(boolean value);
+
+    /**
+     * Continue statement execution
+     * @param nodeVisitor
+     */
+    void resumeExecution(NodeVisitor nodeVisitor);
+
+
 }

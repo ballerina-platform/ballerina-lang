@@ -48,4 +48,31 @@ public class ForkJoinStmt implements Statement {
     public void accept(NodeVisitor visitor) {
 //        visitor.accept(this);
     }
+
+    @Override
+    public void setNextSibling(Statement statement) {
+
+    }
+
+    @Override
+    public Statement getNextSibling() {
+        return null;
+    }
+
+    @Override
+    public boolean isHaltExecution() {
+        return false;
+    }
+
+    @Override
+    public void setHaltExecution(boolean value) {
+
+    }
+
+    @Override
+    public void resumeExecution(NodeVisitor nodeVisitor) {
+
+    }
+
+
 }

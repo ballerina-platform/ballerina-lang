@@ -17,7 +17,9 @@
 */
 package org.wso2.ballerina.core.interpreter;
 
+import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.SymbolName;
+import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.runtime.core.BalCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
@@ -38,6 +40,11 @@ public class Context {
     private ControlStack controlStack;
     private CarbonMessage cMsg;
     private BalCallback balCallback;
+
+    private  NodeVisitor currentNodeVisitor;
+    private Statement currentStatement;
+
+    private int currentResultOffset;
 
     protected Map<String, Object> properties = new HashMap();
 
@@ -103,5 +110,29 @@ public class Context {
 
     public void setBalCallback(BalCallback balCallback) {
         this.balCallback = balCallback;
+    }
+
+    public NodeVisitor getCurrentNodeVisitor() {
+        return currentNodeVisitor;
+    }
+
+    public void setCurrentNodeVisitor(NodeVisitor currentNodeVisitor) {
+        this.currentNodeVisitor = currentNodeVisitor;
+    }
+
+    public Statement getCurrentStatement() {
+        return currentStatement;
+    }
+
+    public void setCurrentStatement(Statement currentStatement) {
+        this.currentStatement = currentStatement;
+    }
+
+    public int getCurrentResultOffset() {
+        return currentResultOffset;
+    }
+
+    public void setCurrentResultOffset(int currentResultOffset) {
+        this.currentResultOffset = currentResultOffset;
     }
 }

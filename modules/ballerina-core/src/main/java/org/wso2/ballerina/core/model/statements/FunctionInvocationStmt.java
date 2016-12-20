@@ -31,6 +31,8 @@ public class FunctionInvocationStmt implements Statement {
 
     private FunctionInvocationExpr functionInvocationExpr;
 
+    private Statement nextStatement;
+
     private FunctionInvocationStmt(FunctionInvocationExpr functionInvocationExpr) {
         this.functionInvocationExpr = functionInvocationExpr;
     }
@@ -47,6 +49,30 @@ public class FunctionInvocationStmt implements Statement {
     @Override
     public void interpret(Context ctx) {
 
+    }
+
+    @Override
+    public void setNextSibling(Statement statement) {
+        nextStatement = statement;
+    }
+
+    @Override
+    public Statement getNextSibling() {
+        return nextStatement;
+    }
+
+    @Override
+    public boolean isHaltExecution() {
+        return false;
+    }
+
+    @Override
+    public void setHaltExecution(boolean value) {
+
+    }
+
+    @Override
+    public void resumeExecution(NodeVisitor nodeVisitor) {
     }
 
     /**

@@ -20,6 +20,11 @@ package org.wso2.ballerina.core.model.statements;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.expressions.Expression;
+import org.wso2.ballerina.core.model.values.BValueRef;
+import org.wso2.ballerina.core.model.values.MessageValue;
+import org.wso2.ballerina.core.runtime.core.BalCallback;
+import org.wso2.ballerina.core.runtime.core.DefaultBalCallback;
+import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
  * {@code ReplyStmt} represents a reply statement
@@ -34,18 +39,53 @@ public class ReplyStmt implements Statement {
         this.replyExpr = replyExpr;
     }
 
-
     public Expression getReplyExpr() {
         return replyExpr;
     }
 
     public void interpret(Context ctx) {
-         ctx.getBalCallback().done(ctx.getCarbonMessage());
+        BValueRef bValueRef = ctx.getControlStack().getReturnValue(0);
+        if (bValueRef == null) {
+            bValueRef = ctx.getControlStack().getValue(0);
+        }
+        if (bValueRef != null && bValueRef.getBValue() instanceof MessageValue) {
+            CarbonMessage messageValue = (CarbonMessage) bValueRef.getBValue().getValue();
+            BalCallback callback = ctx.getBalCallback();
+            while (!(callback instanceof DefaultBalCallback)) {
+                callback = (BalCallback) callback.getParentCallback();
+            }
+            callback.done(messageValue);
+        }
     }
 
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public void setNextSibling(Statement statement) {
+
+    }
+
+    @Override
+    public Statement getNextSibling() {
+        return null;
+    }
+
+    @Override
+    public boolean isHaltExecution() {
+        return false;
+    }
+
+    @Override
+    public void setHaltExecution(boolean value) {
+
+    }
+
+    @Override
+    public void resumeExecution(NodeVisitor nodeVisitor) {
+
     }
 
     /**

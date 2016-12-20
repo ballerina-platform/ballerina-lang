@@ -35,6 +35,8 @@ public class IfElseStmt implements Statement {
     private ElseIfBlock[] elseIfBlocks;
     private Statement elseBody;
 
+    private Statement nextStatement;
+
     public IfElseStmt(Expression ifCondition, Statement thenBody, Statement elseBody) {
         this.ifCondition = ifCondition;
         this.thenBody = thenBody;
@@ -76,6 +78,32 @@ public class IfElseStmt implements Statement {
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
+
+    @Override
+    public void setNextSibling(Statement statement) {
+          this.nextStatement = statement;
+    }
+
+    @Override
+    public Statement getNextSibling() {
+        return nextStatement;
+    }
+
+    @Override
+    public boolean isHaltExecution() {
+        return false;
+    }
+
+    @Override
+    public void setHaltExecution(boolean value) {
+
+    }
+
+    @Override
+    public void resumeExecution(NodeVisitor nodeVisitor) {
+
+    }
+
 
     /**
      * Represent an else if block of an if statement

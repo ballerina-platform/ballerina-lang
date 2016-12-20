@@ -55,6 +55,31 @@ public class WhileStmt implements Statement {
         visitor.visit(this);
     }
 
+    @Override
+    public void setNextSibling(Statement statement) {
+
+    }
+
+    @Override
+    public Statement getNextSibling() {
+        return null;
+    }
+
+    @Override
+    public boolean isHaltExecution() {
+        return false;
+    }
+
+    @Override
+    public void setHaltExecution(boolean value) {
+
+    }
+
+    @Override
+    public void resumeExecution(NodeVisitor nodeVisitor) {
+
+    }
+
     /**
      * Builds a {@code WhileStmt} statement
      *

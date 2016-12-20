@@ -148,8 +148,6 @@ public class Worker implements Executable, Node {
 
     public boolean execute(Context context, BalCallback callback) {
 
-        context.setBalCallback(callback);
-
         BLangInterpreter interpreter = new BLangInterpreter(context);
         this.accept(interpreter);
 

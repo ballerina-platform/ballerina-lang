@@ -70,10 +70,11 @@ public interface NodeVisitor {
     void visit(ConnectorDcl connectorDcl);
 
     void visit(VariableDcl variableDcl);
-
-    // Statements
+     // Statements
 
     void visit(AssignStmt assignStmt);
+
+    void resume(AssignStmt assignStmt);
 
     void visit(BlockStmt blockStmt);
 
@@ -82,6 +83,8 @@ public interface NodeVisitor {
     void visit(IfElseStmt ifElseStmt);
 
     void visit(ReplyStmt replyStmt);
+
+
 
     void visit(ReturnStmt returnStmt);
 
