@@ -339,23 +339,15 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
 
                     if (serviceModel.data === undefined) {
                         serviceModel.getVariableDeclarations().push(variable);
-                        var children = serviceModel.getChildren();
-                        var index = -1;
-                        for (var i = 0; i < children.length; i++) {
-                            if (children[i] instanceof VariableDeclaration) {
-                                index = i;
-                            }
-                        }
+                        var index = _.findLastIndex(_.filter(serviceModel.getChildren(), function (child) {
+                            return child instanceof VariableDeclaration;
+                        }));
                         serviceModel.addChild(variable, index + 1);
                     } else {
                         serviceModel.data.getVariableDeclarations().push(variable);
-                        var children = serviceModel.data.getChildren();
-                        var index = -1;
-                        for (var i = 0; i < children.length; i++) {
-                            if (children[i] instanceof VariableDeclaration) {
-                                index = i;
-                            }
-                        }
+                        var index = _.findLastIndex(_.filter(serviceModel.data.getChildren(), function (child) {
+                            return child instanceof VariableDeclaration;
+                        }));
                         serviceModel.data.addChild(variable, index + 1);
                     }
 

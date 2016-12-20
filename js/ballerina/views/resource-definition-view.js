@@ -842,25 +842,17 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                     //pushing new variable declaration
                     variable.setType($(variableSelect).val());
                     variable.setIdentifier($(variableText).val());
-                    if(resourceModel.data === undefined) {
+                    if (resourceModel.data === undefined) {
                         resourceModel.getVariables().push(variable);
-                        var children = resourceModel.getChildren();
-                        var index = -1;
-                        for (var i = 0; i < children.length; i++) {
-                            if (children[i] instanceof VariableDeclaration) {
-                                index = i;
-                            }
-                        }
+                        var index = _.findLastIndex(_.filter(resourceModel.getChildren(), function (child) {
+                            return child instanceof VariableDeclaration;
+                        }));
                         resourceModel.addChild(variable, index + 1);
                     } else {
                         resourceModel.data.getVariables().push(variable);
-                        var children = resourceModel.data.getChildren();
-                        var index = -1;
-                        for (var i = 0; i < children.length; i++) {
-                            if (children[i] instanceof VariableDeclaration) {
-                                index = i;
-                            }
-                        }
+                        var index = _.findLastIndex(_.filter(resourceModel.data.getChildren(), function (child) {
+                            return child instanceof VariableDeclaration;
+                        }));
                         resourceModel.data.addChild(variable, index + 1);
                     }
 
