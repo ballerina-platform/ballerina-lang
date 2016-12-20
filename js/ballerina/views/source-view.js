@@ -29,7 +29,7 @@ define(['log', 'lodash', 'jquery', 'event_channel', 'ace/ace'], function(log, _,
     var SourceView = function (args) {
         this._options = args;
         if(!_.has(args, 'container')){
-            log.error('container is now specified for rendering source view.')
+            log.error('container is not specified for rendering source view.')
         }
         this._container = _.get(args, 'container');
         this._content = _.get(args, 'content');

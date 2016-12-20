@@ -30,7 +30,9 @@ define(['require','lodash', 'log', 'event_channel', './abstract-statement-source
         };
 
         GetActionStatementVisitor.prototype.beginVisitGetActionStatement = function(getAction){
-            this.appendSource('get-action');
+            var self = getAction;
+            this.appendSource(self._variableAccessor + "=" + self._connector._connectorType + "." +self._action +
+                "(" +self._connector._connectorName +",\"" +self._path +"\"," +self._message +")");
             log.debug('Begin Visit get action Statement Definition');
         };
 

@@ -118,8 +118,8 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             var service_variable_declaration = [];
 
             var variable1 = BallerinaASTFactory.createVariableDeclaration();
-            variable1.setType('string');
-            variable1.setIdentifier('wso2');
+            variable1.setType('message');
+            variable1.setIdentifier('response');
             service_variable_declaration.push(variable1);
 
             var variable2 = BallerinaASTFactory.createVariableDeclaration();
@@ -209,6 +209,8 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             //resourceDefinitions.push(resource_passthrough);
             //resourceDefinitions.push(custom_resource);
 
+            resource_passthrough.addChild(variable1);
+
             serviceDefinition_passthroughService.addChild(resource_passthrough);
 
             //Create Smaple If-else
@@ -238,7 +240,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             var assignmentStatement = BallerinaASTFactory.createAssignmentStatement();
             var assignmentStatement2 = BallerinaASTFactory.createAssignmentStatement();
             var assignmentStatement2 = BallerinaASTFactory.createAssignmentStatement();
-            // resource_passthrough.addChild(assignmentStatement);
+             //resource_passthrough.addChild(assignmentStatement);
             // resource_passthrough.addChild(assignmentStatement2);
             // resource_passthrough.addChild(assignmentStatement2);
 
@@ -268,6 +270,12 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             // resource_passthrough.addChild(logicalExp);
             // whileStatement1.addChild(functionInvocation);
 
+            //Create get action expression for connector
+            var actionOpts = {connector:connector_declaration, isUserDropped:false, path:'/services/nyse', message:'m', action:'post'};
+            var getActionExpression = BallerinaASTFactory.createActionInvocationExpression(actionOpts);
+            getActionExpression.setVariableAccessor(variable1.getIdentifier());
+            resource_passthrough.addChild(getActionExpression);
+
             //Adding reply statement
             var statement_reply = BallerinaASTFactory.createReplyStatement();
             statement_reply.setReplyMessage(resourceArgument_m);
@@ -291,9 +299,6 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             // catchStatement.setExceptionType("ArithmeticException ex");
             catchStatement1.setExceptionType("ArithmeticException ex");
 
-           //Create get action statement for connector
-            var actionOpts = {connector:connector_declaration1, isUserDropped:false};
-            var getActionStatement1 = BallerinaASTFactory.createActionInvocationStatement(actionOpts);
            // var actionOpts2 = {connector:connector_declaration, isUserDropped:false};
            // var getActionStatement2 = BallerinaASTFactory.createGetActionStatement(actionOpts2);
             ifElseStatement.addChild(ifStatement);
@@ -304,7 +309,6 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
            // resource_passthrough.addChild(ifElseStatement);
             //TODO:Commented to view get action statement
             //resource_passthrough.addChild(tryCatchStatement1);
-             //resource_passthrough.addChild(getActionStatement1);
            // resource_passthrough.addChild(getActionStatement2);
             // Create sample Worker Declaration
             var workerDeclaration1 = BallerinaASTFactory.createWorkerDeclaration();
