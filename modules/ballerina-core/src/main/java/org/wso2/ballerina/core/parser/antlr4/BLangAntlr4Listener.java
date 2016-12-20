@@ -805,6 +805,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitTypeInitializeExpression(BallerinaParser.TypeInitializeExpressionContext ctx) {
+        modelBuilder.createInstanceCreaterExpr(ctx.Identifier().getText());
     }
 
     @Override
