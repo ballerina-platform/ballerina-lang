@@ -38,6 +38,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 
+/**
+ * Test Native functions in ballerina.lang.system.
+ */
 public class SystemTest {
 
     private BallerinaFile bFile;
@@ -50,7 +53,7 @@ public class SystemTest {
     public void setup() {
         original = System.out;
         System.setOut(new PrintStream(outContent));
-        bFile = ParserUtils.parseBalFile("samples/nativeimpl/println.bal");
+        bFile = ParserUtils.parseBalFile("samples/nativeimpl/systemTest.bal");
 
         // Linking Native functions.
         SymScope symScope = new SymScope(null);
