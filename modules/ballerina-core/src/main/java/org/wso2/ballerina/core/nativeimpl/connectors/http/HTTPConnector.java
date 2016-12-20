@@ -54,7 +54,7 @@ public class HTTPConnector extends AbstractNativeConnector implements ServiceFac
         }
         return true;
     }
-    
+
     @Override
     public HTTPConnector getInstance() {
         return new HTTPConnector();
