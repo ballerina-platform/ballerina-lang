@@ -71,7 +71,7 @@ define(['log', 'lodash','d3','./point', 'backbone','event_channel'], function (l
                  */
                 // this.trigger('drop-target-changed', activatedDropTarget);
             }
-            this.setActivatedDropTarget(activatedDropTarget);
+            this.activatedDropTarget = activatedDropTarget;
         }
         if (!_.isUndefined(validateCallBack)) {
             this.setValidateCallBack(validateCallBack);
@@ -83,35 +83,7 @@ define(['log', 'lodash','d3','./point', 'backbone','event_channel'], function (l
     };
 
     MessageManager.prototype.isAtValidDropTarget = function(){
-        var allowedBySource = true,
-            allowedByTarget = true,
-            allowedBySourceValidateCallBack = true,
-            allowedByTargetValidateCallBack = true;
-
-        if(!_.isUndefined(this.getActivatedDropTarget())){
-
-            allowedBySource = this.getMessageSource.canBeActionOf(this.getActivatedDropTarget());
-            allowedByTarget = this.getActivatedDropTarget().canBeConnectorOf(this.getMessageSource());
-
-            //var validateDropTargetCallback = this.getValidateCallBack();
-            //if(!_.isUndefined(validateDropTargetCallback)){
-            //    if(_.isFunction(validateDropTargetCallback)){
-            //        allowedByTargetValidateCallBack = validateDropTargetCallback(this.getActivatedDropTarget());
-            //    }
-            //}
-            //
-            //var validateDropSourceCallback = this.get('validateDropSourceCallback');
-            //if(!_.isUndefined(validateDropSourceCallback)){
-            //    if(_.isFunction(validateDropSourceCallback)){
-            //        allowedBySourceValidateCallBack = validateDropSourceCallback(this.getTypeBeingDragged());
-            //    }
-            //}
-
-            return allowedBySource && allowedByTarget
-                && allowedBySourceValidateCallBack
-                && allowedByTargetValidateCallBack;
-        }
-        return false;
+        return true;
     };
 
     MessageManager.prototype.reset = function(){
@@ -163,7 +135,6 @@ define(['log', 'lodash','d3','./point', 'backbone','event_channel'], function (l
 
                 var connectorReference = self.getActivatedDropTarget();
                 self.getMessageSource().setConnector(connectorReference);
-                self.getMessageSource().trigger("drawConnectionForAction",startPoint,parent);
             }
             tempLine.remove();
             arrowPoint.remove();

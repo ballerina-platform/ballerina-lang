@@ -47,7 +47,7 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
         } else if (node instanceof AST.Assignment) {
             return this.canVisitAssignment(node);
         } else if (node instanceof AST.ActionInvocationStatement) {
-            return this.canVisitGetActionStatement(node);
+            return this.canVisitActionInvocationExpression(node);
         } else if (node instanceof AST.Expression) {
             return this.canVisitExpression(node);
         } else if (node instanceof AST.ReplyStatement) {
@@ -82,7 +82,7 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
         } else if (node instanceof AST.Expression) {
             return this.beginVisitExpression(node);
         } else if (node instanceof AST.ActionInvocationStatement) {
-            return this.beginVisitGetActionStatement(node);
+            return this.beginVisitActionInvocationExpression(node);
         } else if (node instanceof AST.ReplyStatement) {
             return this.beginVisitReplyStatement(node);
         }  else if (node instanceof AST.FunctionInvocation) {
@@ -113,7 +113,7 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
         } else if (node instanceof AST.Assignment) {
             return this.visitAssignment(node);
         } else if (node instanceof AST.ActionInvocationStatement) {
-            return this.visitGetActionStatement(node);
+            return this.visitActionInvocationExpression(node);
         } else if (node instanceof AST.Expression) {
             return this.visitExpression(node);
         } else if (node instanceof AST.ReplyStatement) {
@@ -146,7 +146,7 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
         } else if (node instanceof AST.Assignment) {
             return this.endVisitAssignment(node);
         } else if (node instanceof AST.ActionInvocationStatement) {
-            return this.endVisitGetActionStatement(node);
+            return this.endVisitActionInvocationExpression(node);
         } else if (node instanceof AST.Expression) {
             return this.endVisitExpression(node);
         } else if (node instanceof AST.ReplyStatement) {
@@ -236,14 +236,14 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
     StatementVisitor.prototype.endVisitReplyStatement = function (statement) {
     };
 
-    StatementVisitor.prototype.canVisitGetActionStatement = function (statement) {
+    StatementVisitor.prototype.canVisitActionInvocationExpression = function (statement) {
         return false;
     };
-    StatementVisitor.prototype.beginVisitGetActionStatement = function (statement) {
+    StatementVisitor.prototype.beginVisitActionInvocationExpression = function (statement) {
     };
-    StatementVisitor.prototype.visitGetActionStatement = function (statement) {
+    StatementVisitor.prototype.visitActionInvocationExpression = function (statement) {
     };
-    StatementVisitor.prototype.endVisitGetActionStatement = function (statement) {
+    StatementVisitor.prototype.endVisitActionInvocationExpression = function (statement) {
     };
 
     StatementVisitor.prototype.canVisitExpression = function (statement) {

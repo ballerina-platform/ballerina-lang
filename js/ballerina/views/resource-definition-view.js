@@ -35,6 +35,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             BallerinaView.call(this, args);
 
             this._connectorViewList =  [];
+            this._connectorList =  [];
             this._defaultWorker = undefined;
             this._statementExpressionViewList = [];
             this._parentView = _.get(args, "parentView");
@@ -228,6 +229,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
          */
         ResourceDefinitionView.prototype.render = function (diagramRenderingContext) {
             this.diagramRenderingContext = diagramRenderingContext;
+            this.diagramRenderingContext.currentResource = this;
             // Render resource view
             var svgContainer = $(this._container)[0];
 
@@ -1087,7 +1089,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
         ResourceDefinitionView.prototype.visitConnectorDeclaration = function (connectorDeclaration) {
             var connectorContainer = this._contentGroup.node(),
                 // TODO : Please add a proper logic for line height calculation in following line.
-                connectorOpts = {model: connectorDeclaration, container: connectorContainer, parentView: this, lineHeight:this.getBoundingBox().h() - 95},
+                connectorOpts = {model: connectorDeclaration, container: connectorContainer, parentView: this, messageManager: this.messageManager, lineHeight:this.getBoundingBox().h() - 95},
                 connectorDeclarationView,
                 center;
 
@@ -1098,6 +1100,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             connectorDeclarationView = new ConnectorDeclarationView(connectorOpts);
             this.diagramRenderingContext.getViewModelMap()[connectorDeclaration.id] = connectorDeclarationView;
             this._connectorViewList.push(connectorDeclarationView);
+            this._connectorList.push(connectorDeclarationView.getModel());
 
             connectorDeclarationView._rootGroup.attr('id', '_' +connectorDeclarationView._model.id);
 
@@ -1137,6 +1140,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
             this.getBoundingBox().on("bottom-edge-moved", function (dy) {
                 this.getBottomCenter().move(0, dy);
+                this.getBoundingBox().h(this.getBoundingBox().h() + dy);
+
             }, connectorDeclarationView);
 
             this.trigger("childConnectorViewAddedEvent", connectorDeclarationView);
