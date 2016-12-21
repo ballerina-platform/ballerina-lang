@@ -45,7 +45,7 @@ define(['require', 'lodash', 'jquery'], function (require, _, $) {
             var propertyTitle = $("<span>" + property.key + " :<span/>").appendTo(propertyWrapper);
             var propertyValue = _.isNil(property.getterMethod.call(property.model)) ? "" : property.getterMethod.call(property.model);
             var propertyInputValue = $("<input type='text' value='" + propertyValue + "'>").appendTo(propertyWrapper);
-            $(propertyInputValue).click(function () {
+            $(propertyInputValue).on("change paste keyup", function () {
                 property.setterMethod.call(property.model, $(this).val());
                 property.model.trigger('update-statement-text', $(this).val());
             });
