@@ -5543,6 +5543,20 @@ public class BallerinaParser extends Parser {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitBinaryDivisionExpression(this);
 		}
 	}
+	public static class ArrayInitializerExpressionContext extends ExpressionContext {
+		public ExpressionListContext expressionList() {
+			return getRuleContext(ExpressionListContext.class,0);
+		}
+		public ArrayInitializerExpressionContext(ExpressionContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).enterArrayInitializerExpression(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitArrayInitializerExpression(this);
+		}
+	}
 	public static class BinaryAndExpressionContext extends ExpressionContext {
 		public List<ExpressionContext> expression() {
 			return getRuleContexts(ExpressionContext.class);
@@ -5575,20 +5589,6 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitBinaryNotEqualExpression(this);
-		}
-	}
-	public static class ArrayinitializerExpressionContext extends ExpressionContext {
-		public ExpressionListContext expressionList() {
-			return getRuleContext(ExpressionListContext.class,0);
-		}
-		public ArrayinitializerExpressionContext(ExpressionContext ctx) { copyFrom(ctx); }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).enterArrayinitializerExpression(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitArrayinitializerExpression(this);
 		}
 	}
 	public static class BinaryModExpressionContext extends ExpressionContext {
@@ -5950,7 +5950,7 @@ public class BallerinaParser extends Parser {
 				break;
 			case 9:
 				{
-				_localctx = new ArrayinitializerExpressionContext(_localctx);
+				_localctx = new ArrayInitializerExpressionContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
 				setState(933);
