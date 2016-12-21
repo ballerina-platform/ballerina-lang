@@ -31,7 +31,8 @@ public class ArrayType extends TypeC {
      *
      * @param typeName string name of the type
      */
-    protected ArrayType(String typeName, TypeC elementType) {
+    ArrayType(String typeName, String elementType) {
         super(typeName);
+        this.elementType = TypeC.getTypeC(elementType);
     }
 }

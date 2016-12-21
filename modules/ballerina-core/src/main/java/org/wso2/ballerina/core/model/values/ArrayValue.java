@@ -17,92 +17,19 @@
 */
 package org.wso2.ballerina.core.model.values;
 
-import java.util.Arrays;
+import org.wso2.ballerina.core.model.types.ArrayType;
 
 /**
- * {@code ArrayType} represents an array
  *
- * @param <T> type of the array
- * @since 1.0.0
  */
-public class ArrayValue<T> implements BValue {
-
-    private T[] thisArray;
-    private int size;
-
-    /**
-     * Constructor for array inline initialization
-     *
-     * @param args variable number of initial values
-     */
-    @SuppressWarnings("unchecked")
-    public ArrayValue(T... args) {
-        thisArray = (T[]) new Object[args.length];
-        for (int i = 0; i < args.length; i++) {
-            thisArray[i] = args[i];
-
-        }
-    }
-
-    /**
-     * Constructor for creating an array with size
-     *
-     * @param size number of elements to be stored in this array
-     */
-    @SuppressWarnings("unchecked")
-    public ArrayValue(int size) {
-        thisArray = (T[]) new Object[size];
-        this.size = size;
-    }
-
-    /**
-     * Constructor for creating an empty array
-     */
-    public ArrayValue() {
-
-    }
-
-    /**
-     * Insert a value into a given position
-     *
-     * @param index position
-     * @param value value
-     */
-    public void insert(int index, T value) {
-        thisArray[index] = value;
-    }
-
-    /**
-     * Retrieve a value from a given index
-     *
-     * @param index position
-     * @return return value
-     */
-    public T get(int index) {
-        return thisArray[index];
-    }
-
-    /**
-     * Retrieve the size of the array
-     *
-     * @return returns the size
-     */
-    public int size() {
-        return size;
-    }
-
-    /**
-     * Get the java value associated with this ballerina value.
-     *
-     * @return Java value associated with this ballerina value
-     */
+public class ArrayValue implements BValue<ArrayType> {
     @Override
-    public T[] getValue() {
-        return thisArray;
+    public ArrayType getValue() {
+        return null;
     }
 
     @Override
     public StringValue getString() {
-        return new StringValue(Arrays.toString(this.getValue()));
+        return null;
     }
 }

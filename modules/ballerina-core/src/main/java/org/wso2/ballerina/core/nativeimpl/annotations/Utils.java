@@ -21,7 +21,7 @@ import org.wso2.ballerina.core.model.Const;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.types.TypeC;
 import org.wso2.ballerina.core.model.types.TypeEnum;
-import org.wso2.ballerina.core.model.values.ArrayValue;
+import org.wso2.ballerina.core.model.values.ArrayValueOld;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BooleanValue;
 import org.wso2.ballerina.core.model.values.DoubleValue;
@@ -95,7 +95,7 @@ public class Utils {
                 case ARRAY:
                     // TODO: improve logic. Current Native Annotation support only Predefined String[] only.
                     String[] values = value.substring(1, value.length() - 1).split(",");
-                    bValue = new ArrayValue<>(values);
+                    bValue = new ArrayValueOld<>(values);
                     break;
                 default:
                     throw new MalformedEntryException("Not supported entry " + typeEnum);

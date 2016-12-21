@@ -15,40 +15,30 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerina.core.model.statements;
+package org.wso2.ballerina.core.model.expressions;
 
-import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.NodeVisitor;
-import org.wso2.ballerina.core.model.expressions.Expression;
-import org.wso2.ballerina.core.model.values.BValueRef;
+import org.wso2.ballerina.core.model.Operator;
 
 /**
- * An {@code AssignStmt} represents an assignment.
+ * {@code NaryExpr} represents an operation with multiple operands.
+ * <p>
+ * Refer: https://en.wikipedia.org/wiki/Arity#n-ary
  *
+ * @see ArrayInitExpr
  * @since 1.0.0
  */
-public class AssignStmt implements Statement {
-    private Expression lhsExpr;
-    private Expression rhsExpr;
+public class NaryExpression extends UnaryExpression {
 
-    public AssignStmt(Expression lhsExpr, Expression rhsExpr) {
-        this.lhsExpr = lhsExpr;
-        this.rhsExpr = rhsExpr;
+    private Expression[] argExprs;
+
+    public NaryExpression(Operator op, Expression rExpr, Expression[] argExprs) {
+        super(op, rExpr);
+        this.argExprs = argExprs;
     }
 
-    public void interpret(Context ctx) {
-        BValueRef rValue = rhsExpr.evaluate(ctx);
-        BValueRef lValue = lhsExpr.evaluate(ctx);
-
-        lValue.setBValue(rValue.getBValue());
-    }
-
-    public Expression getLExpr() {
-        return lhsExpr;
-    }
-
-    public Expression getRExpr() {
-        return rhsExpr;
+    public Expression[] getArgExprs() {
+        return argExprs;
     }
 
     @Override
