@@ -281,6 +281,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitSimpleTypeArray(BallerinaParser.SimpleTypeArrayContext ctx) {
+        modelBuilder.createArrayType(ctx.Identifier().getText());
     }
 
     @Override
@@ -680,7 +681,8 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitSimpleVariableIdentifier(BallerinaParser.SimpleVariableIdentifierContext ctx) {
-        modelBuilder.createSymbolName(ctx.getText());
+        String varName = ctx.getText();
+        modelBuilder.createVarRefExpr(varName);
     }
 
     @Override
@@ -689,6 +691,8 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitMapArrayVariableIdentifier(BallerinaParser.MapArrayVariableIdentifierContext ctx) {
+        String mapArrayVarName = ctx.Identifier().getText();
+        modelBuilder.createMapArrayVarRefExpr(mapArrayVarName);
     }
 
     @Override
@@ -866,7 +870,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitVariableReferenceExpression(BallerinaParser.VariableReferenceExpressionContext ctx) {
-        modelBuilder.createVarRefExpr();
+//        modelBuilder.createVarRefExpr();
     }
 
     @Override
@@ -911,7 +915,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitArrayinitializerExpression(BallerinaParser.ArrayinitializerExpressionContext ctx) {
-
+        modelBuilder.createArrayInitExpr();
     }
 
     @Override
