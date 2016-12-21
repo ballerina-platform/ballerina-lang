@@ -24,7 +24,7 @@ define(['lodash', './statement'], function (_, Statement) {
     var FunctionInvocation = function (args) {
         this._packageName = _.get(args, 'package', 'pkg');
         this._functionName = _.get(args, 'function', 'default');
-        this._params = _.get(args, 'params', []);
+        this._params = _.get(args, 'params');
         Statement.call(this, 'FunctionInvocation');
     };
 
@@ -39,7 +39,6 @@ define(['lodash', './statement'], function (_, Statement) {
         this._functionName = functionName;
     };
 
-    //TODO : separate param string by commas and set to the array
     FunctionInvocation.prototype.setParams = function (params) {
         this._params = params;
     };
@@ -53,7 +52,13 @@ define(['lodash', './statement'], function (_, Statement) {
     };
 
     FunctionInvocation.prototype.getParams = function () {
-        return this._params;
+        var params;
+        if(!_.isUndefined(this._params)) {
+            params = this._params.split(',');
+            return params;
+        }
+        else params = "";
+        return params;
     };
 
     return FunctionInvocation;

@@ -47,7 +47,7 @@ define(['require', 'lodash', 'jquery'], function (require, _, $) {
             var propertyInputValue = $("<input type='text' value='" + propertyValue + "'>").appendTo(propertyWrapper);
             $(propertyInputValue).on("change paste keyup", function () {
                 property.setterMethod.call(property.model, $(this).val());
-                property.model.trigger('update-statement-text', $(this).val());
+                property.model.trigger('update-statement-text', $(this).val(), property.key);
             });
         }
 

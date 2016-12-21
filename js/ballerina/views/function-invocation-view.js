@@ -109,6 +109,11 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/function-invoca
             // TODO : Please revisit these calculations.
             var funInvokeText = D3Utils.textElement(x + width / 2, y + height / 2, text, funInvokeGroup).classed('statement-text', true);
 
+            funInvokeGroup.expression_rect = funInvokeRect;
+            funInvokeGroup.expression_text = funInvokeText;
+            this.setStatementGroup(funInvokeGroup);
+            this.listenTo(this._model, 'update-statement-text', this.updateStatementText);
+
             // Creating property pane
             var editableProperties = [
                 {
@@ -123,7 +128,7 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/function-invoca
                     key: "FunctionName",
                     model: this._model,
                     getterMethod: this._model.getFunctionName,
-                    setterMethod: this._model.getFunctionName
+                    setterMethod: this._model.setFunctionName
                 },
                 {
                     propertyType: "text",
@@ -151,6 +156,22 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/function-invoca
 
         FunctionInvocationStatementView.prototype.getViewOptions = function () {
             return this._viewOptions;
+        };
+
+        FunctionInvocationStatementView.prototype.updateStatementText = function (updatedText) {
+            if (!_.isUndefined(updatedText) && updatedText !== '') {
+                var text = this._model.getPackageName() + ':' + this._model.getFunctionName() + '(';
+                var params = this._model.getParams();
+                for (var id = 0; id < params.length; id++) {
+                    if (id > 0) {
+                        text += ',' + params[id];
+                    } else {
+                        text += params[id];
+                    }
+                }
+                text += ')';
+                this.getStatementGroup().expression_text.node().textContent = text;
+            }
         };
 
         return FunctionInvocationStatementView;
