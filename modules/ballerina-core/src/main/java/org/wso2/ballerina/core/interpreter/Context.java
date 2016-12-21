@@ -44,6 +44,7 @@ public class Context {
     private  NodeVisitor currentNodeVisitor;
     private Statement currentStatement;
 
+    //TODO: remove this later
     private int currentResultOffset;
 
     protected Map<String, Object> properties = new HashMap();
@@ -112,26 +113,50 @@ public class Context {
         this.balCallback = balCallback;
     }
 
+    /**
+     * Current visitor visiting the ballerina model
+     * @return NodeVisitor
+     */
     public NodeVisitor getCurrentNodeVisitor() {
         return currentNodeVisitor;
     }
 
+    /**
+     * Setting current visitor visiting the ballerina model
+     * @param currentNodeVisitor
+     */
     public void setCurrentNodeVisitor(NodeVisitor currentNodeVisitor) {
         this.currentNodeVisitor = currentNodeVisitor;
     }
 
+    /**
+     * Statement currently being executing
+     * @return Statement
+     */
     public Statement getCurrentStatement() {
         return currentStatement;
     }
 
+    /**
+     * Setting current statement visiting the ballerina model
+     * @param currentStatement
+     */
     public void setCurrentStatement(Statement currentStatement) {
         this.currentStatement = currentStatement;
     }
 
+    /**
+     * result offset
+     * @return int
+     */
     public int getCurrentResultOffset() {
         return currentResultOffset;
     }
 
+    /**
+     * Setting current result offset
+     * @param currentResultOffset
+     */
     public void setCurrentResultOffset(int currentResultOffset) {
         this.currentResultOffset = currentResultOffset;
     }
