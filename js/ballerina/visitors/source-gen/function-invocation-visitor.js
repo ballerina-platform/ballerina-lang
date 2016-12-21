@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require','lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor', '../../ast/module'],
-    function(require, _, log, EventChannel, AbstractStatementSourceGenVisitor) {
+define(['require','lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor', '../../ast/function-invocation'],
+    function(require, _, log, EventChannel, AbstractStatementSourceGenVisitor, FunctionInvocation) {
 
         var FunctionInvocationVisitor = function(parent){
             AbstractStatementSourceGenVisitor.call(this,parent);
@@ -25,11 +25,11 @@ define(['require','lodash', 'log', 'event_channel', './abstract-statement-source
         FunctionInvocationVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
         FunctionInvocationVisitor.prototype.constructor = FunctionInvocationVisitor;
 
-        FunctionInvocationVisitor.prototype.canVisitFuncInvocationStatement = function(functionInvocation){
-            return true;
+        FunctionInvocationVisitor.prototype.canVisitStatement = function(functionInvocation){
+            return functionInvocation instanceof FunctionInvocation;
         };
 
-        FunctionInvocationVisitor.prototype.beginVisitFuncInvocationStatement = function(functionInvocation){
+        FunctionInvocationVisitor.prototype.beginVisitStatement = function(functionInvocation){
             var source = functionInvocation.getPackageName() + ':' + functionInvocation.getFunctionName() + '(';
             var params = functionInvocation.getParams();
             for (var id = 0; id < params.length; id ++) {
@@ -48,7 +48,7 @@ define(['require','lodash', 'log', 'event_channel', './abstract-statement-source
             log.debug('Visit Function Invocation expression');
         };
 
-        FunctionInvocationVisitor.prototype.endVisitFuncInvocationStatement = function(functionInvocation){
+        FunctionInvocationVisitor.prototype.endVisitStatement = function(functionInvocation){
             this.appendSource(";\n");
             this.getParent().appendSource(this.getGeneratedSource());
             log.info('End Visit Function Invocation expression');
