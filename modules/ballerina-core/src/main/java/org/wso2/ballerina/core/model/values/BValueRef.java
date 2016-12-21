@@ -97,7 +97,7 @@ public class BValueRef {
         } else if (type == TypeC.JSON_TYPE) {
             return new BValueRef(new JSONValue("{}"));
         } else if (type == TypeC.XML_TYPE) {
-            return new BValueRef(new XMLValue("<root></root>"));
+            return new BValueRef(new XMLValue());
         } else if (type == TypeC.MESSAGE_TYPE) {
             return new BValueRef(new MessageValue(null));
         } else if (type == TypeC.MAP_TYPE) {

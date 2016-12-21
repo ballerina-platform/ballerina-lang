@@ -26,7 +26,7 @@ import net.sf.saxon.s9api.XPathCompiler;
 import net.sf.saxon.s9api.XPathSelector;
 import net.sf.saxon.s9api.XdmNode;
 import net.sf.saxon.s9api.XdmValue;
-import net.sf.saxon.tree.tiny.TinyTextImpl;
+import net.sf.saxon.value.EmptySequence;
 
 import org.osgi.service.component.annotations.Component;
 import org.wso2.ballerina.core.exception.BallerinaException;
@@ -84,13 +84,11 @@ public class GetString extends AbstractNativeFunction {
             selector.setContextItem(doc);
             XdmValue xdmValue = selector.evaluate();
             Sequence sequence = xdmValue.getUnderlyingValue();
-
-            if (sequence instanceof TinyTextImpl) {
-                result = new StringValue(((TinyTextImpl) sequence).getStringValue());
+            
+            if (sequence instanceof EmptySequence) {
+                throw new BallerinaException("The xpath '" + xPath + "' does not match any element.");
             } else {
-                String errorMsg = "The element matching path: " + xPath + " is not a String.";
-                // log.error(errorMsg);
-                throw new BallerinaException(errorMsg);
+                result = new StringValue(xdmValue.toString());
             }
         } catch (SaxonApiException e) {
             ErrorHandler.handleXPathException(OPERATION, e);
