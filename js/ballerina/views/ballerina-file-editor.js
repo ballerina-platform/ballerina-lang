@@ -354,6 +354,8 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                         currentASTRoot.addChild(newImportDeclaration);
                         //Adding import to be displayed in the imports wrapper
                         currentASTRoot.addImport(newImportDeclaration);
+                        //Clear the import value box
+                        importPackageTextBox.val("");
 
                         // Updating current imports view.
                         addImportsToView(currentASTRoot, propertyPane.find(".imports-wrapper"));
@@ -437,16 +439,10 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
 
                             //Removing the deleted imports from the model
                             var childArray = event.data.model.getChildren();
-                            var importsArray = _.filter(childArray, function(child){
-                                return BallerinaASTFactory.isImportDeclaration(child);
+                            var deletedImports= _.filter(childArray, function(child){
+                                return BallerinaASTFactory.isImportDeclaration(child) && child._packageName == event.data.packageName;
                             });
-                            _.forEach(importsArray, function(child){
-                                    var packageName = child._packageName;
-                                    if(packageName == event.data.packageName){
-                                        event.data.model.removeChild(child);
-                                        return true;
-                                }
-                            });
+                            event.data.model.removeChild(deletedImports[0]);
                         });
                     });
                 }
