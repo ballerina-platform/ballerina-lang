@@ -23,7 +23,7 @@ import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
- * A generic call back to be used by statements
+ * A {@code BalStatementCallback} generic call back to be used by statements
  */
 public class BalStatementCallback implements BalCallback {
 
@@ -32,6 +32,12 @@ public class BalStatementCallback implements BalCallback {
 
     private BalCallback balCallback;
 
+    /**
+     * BalStatementCallback for handle statement responses
+     * @param parentCallback
+     * @param statement
+     * @param nodeVisitor
+     */
     public BalStatementCallback(BalCallback parentCallback, Statement statement, NodeVisitor nodeVisitor) {
         this.nextStatement = statement;
         this.nodeVisitor = nodeVisitor;

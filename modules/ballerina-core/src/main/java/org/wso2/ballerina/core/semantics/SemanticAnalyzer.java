@@ -296,17 +296,6 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(BlockStmt blockStmt) {
         Statement previousStmt = null;
-        //        for (Statement stmt : blockStmt.getStatements()) {
-        //            if (previousStmt == null) {
-        //                previousStmt = stmt;
-        //                stmt.accept(this);
-        //            } else {
-        //                stmt.accept(this);
-        //                previousStmt.setNextStatement(stmt);
-        //                previousStmt = stmt;
-        //            }
-        //
-        //        }
         for (Statement stmt : blockStmt.getStatements()) {
             if (blockStmt.getStatements().length == 1) {
                 stmt.accept(this);
@@ -402,8 +391,8 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(InstanceCreationExpr instanceCreationExpr) {
         visitExpr(instanceCreationExpr);
 
-//        Expression expr = instanceCreationExpr.getRExpr();
-//        expr.accept(this);
+        //        Expression expr = instanceCreationExpr.getRExpr();
+        //        expr.accept(this);
     }
 
     @Override

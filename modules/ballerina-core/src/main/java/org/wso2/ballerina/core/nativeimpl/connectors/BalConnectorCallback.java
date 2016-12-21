@@ -23,7 +23,9 @@ import org.wso2.ballerina.core.runtime.core.DefaultBalCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
- * A class used by connectors to receive response from external system and correlate request context with response
+ * A {@code BalConnectorCallback} represents an connector call back responses are arrived here.
+ *
+ * @since 1.0.0
  */
 public class BalConnectorCallback extends DefaultBalCallback {
 
@@ -31,6 +33,10 @@ public class BalConnectorCallback extends DefaultBalCallback {
 
     public BValueRef valueRef;
 
+    /**
+     * BalConnectorCallback
+     * @param context
+     */
     public BalConnectorCallback(Context context) {
         super(context.getBalCallback());
         this.context = context;
