@@ -31,11 +31,10 @@ define(['require','lodash', 'log', 'event_channel', './abstract-statement-source
 
         ActionInvocationExpressionVisitor.prototype.beginVisitStatement = function(action){
             var self = action;
-            // TODO: till the model of the connector setting is done through the invocation arrow draw, connector type & connectorName is set to default
-            // this.appendSource(self._variableAccessor + "=" + self._connector._connectorType + "." +self._action +
-            //     "(" +self._connector._connectorName +",\"" +self._path +"\"," +self._message +")");
-            this.appendSource(self._variableAccessor + "=http:HttpConnector." +self._action +
-                "(" + 'nyseEP' +",\"" +self._path +"\"," +self._message +")");
+            var connectorType = true === _.isUndefined(self._connector) ? undefined : self._connector._connectorType;
+            var connectorName = true === _.isUndefined(self._connector) ? undefined : self._connector._connectorName;
+            this.appendSource(self._variableAccessor + "=" + connectorType + "." +self._action +
+                "(" + connectorName +",\"" +self._path +"\"," +self._message +")");
             log.debug('Begin Visit action invocation expression');
         };
 
