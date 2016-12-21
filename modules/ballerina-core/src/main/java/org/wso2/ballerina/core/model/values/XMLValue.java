@@ -78,6 +78,13 @@ public class XMLValue extends BallerinaMessageDataSource implements BValue<OMEle
         }
     }
 
+    /**
+     * Create an empty XMLValue.
+     */
+    public XMLValue() {
+        // do nothing
+    }
+
     @Override
     public void setOutputStream(OutputStream outputStream) {
         this.outputStream = outputStream;
@@ -99,6 +106,10 @@ public class XMLValue extends BallerinaMessageDataSource implements BValue<OMEle
 
     @Override
     public StringValue getString() {
-        return new StringValue(this.getValue().toString());
+        if (this.getValue() != null) {
+            return new StringValue(this.getValue().toString());
+        } else {
+            return new StringValue("");
+        }
     }
 }

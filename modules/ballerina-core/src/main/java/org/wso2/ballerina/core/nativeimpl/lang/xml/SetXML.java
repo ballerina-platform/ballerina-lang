@@ -70,6 +70,10 @@ public class SetXML extends AbstractNativeFunction {
             // MapValue<String, String> nameSpaces = getArgument(ctx, 2).getMap();
             OMElement value = getArgument(ctx, 2).getXML();
             
+            if (value == null) {
+                return VOID_RETURN;
+            }
+            
             // Setting the value to XML
             AXIOMXPath axiomxPath = new AXIOMXPath(xPath);
             /*if (nameSpaces != null && !nameSpaces.isEmpty()) {
