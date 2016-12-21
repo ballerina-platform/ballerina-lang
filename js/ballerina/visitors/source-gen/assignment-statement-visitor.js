@@ -29,7 +29,7 @@ define(['require','lodash', 'log', 'event_channel', './abstract-statement-source
             return assignmentStatement instanceof AssignmentStatement;
         };
 
-        AssignmentStatementVisitor.prototype.beginVisitAssignment = function(assignmentStatement){
+        AssignmentStatementVisitor.prototype.beginVisitStatement = function(assignmentStatement){
             this.appendSource(assignmentStatement.getExpression());
             log.debug('Begin Visit assignment Statement Definition');
         };
