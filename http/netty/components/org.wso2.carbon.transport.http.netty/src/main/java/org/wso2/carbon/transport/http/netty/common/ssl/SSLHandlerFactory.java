@@ -64,10 +64,13 @@ public class SSLHandlerFactory {
             KeyStore ks = getKeyStore(sslConfig.getKeyStore(), sslConfig.getKeyStorePass());
             // Set up key manager factory to use our key store
             KeyManagerFactory kmf = KeyManagerFactory.getInstance(algorithm);
-            kmf.init(ks, sslConfig.getCertPass() != null ?
-                    sslConfig.getCertPass().toCharArray() :
-                    sslConfig.getKeyStorePass().toCharArray());
-            KeyManager[] keyManagers = kmf.getKeyManagers();
+            KeyManager[] keyManagers = null;
+            if (ks != null) {
+                kmf.init(ks, sslConfig.getCertPass() != null ?
+                        sslConfig.getCertPass().toCharArray() :
+                        sslConfig.getKeyStorePass().toCharArray());
+                keyManagers = kmf.getKeyManagers();
+            }
             TrustManager[] trustManagers = null;
             if (sslConfig.getTrustStore() != null) {
                 this.needClientAuth = true;
@@ -78,6 +81,7 @@ public class SSLHandlerFactory {
             }
             serverContext = SSLContext.getInstance(protocol);
             serverContext.init(keyManagers, trustManagers, null);
+
         } catch (UnrecoverableKeyException | KeyManagementException |
                 NoSuchAlgorithmException | KeyStoreException | IOException e) {
             throw new IllegalArgumentException("Failed to initialize the server-side SSLContext", e);
@@ -85,12 +89,14 @@ public class SSLHandlerFactory {
     }
 
     private static KeyStore getKeyStore(File keyStore, String keyStorePassword) throws IOException {
-        KeyStore ks;
-        try (InputStream is = new FileInputStream(keyStore)) {
-            ks = KeyStore.getInstance("JKS");
-            ks.load(is, keyStorePassword.toCharArray());
-        } catch (CertificateException | NoSuchAlgorithmException | KeyStoreException e) {
-            throw new IOException(e);
+        KeyStore ks = null;
+        if (keyStore != null && keyStorePassword != null) {
+            try (InputStream is = new FileInputStream(keyStore)) {
+                ks = KeyStore.getInstance("JKS");
+                ks.load(is, keyStorePassword.toCharArray());
+            } catch (CertificateException | NoSuchAlgorithmException | KeyStoreException e) {
+                throw new IOException(e);
+            }
         }
         return ks;
     }
