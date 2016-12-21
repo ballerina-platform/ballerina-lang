@@ -46,6 +46,7 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
         };
 
         ElseStatementView.prototype.init = function () {
+            this.listenTo(this._model, 'childRemovedEvent', this.childViewRemovedCallback);
         };
 
         /**

@@ -188,6 +188,8 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
          */
         BallerinaFileEditor.prototype.render = function (diagramRenderingContext, parent, options) {
             this.diagramRenderingContext = diagramRenderingContext;
+            //TODO remove this for adding filecontext to the map
+            this.diagramRenderingContext.ballerinaFileEditor = this;
             // render tool palette
             this.toolPalette.render();
 
