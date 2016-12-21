@@ -16,25 +16,37 @@
  * under the License.
  */
 
-package org.wso2.ballerina.core.runtime.core.threading.threadpool;
+package org.wso2.ballerina.core.runtime.errors.handler;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.runtime.core.BalCallback;
 
 /**
- * Worker Thread which is responsible for response processing
+ * {@code DefaultErrorHandler} is the default error handler implementation
  */
-public class ResponseWorkerThread extends WorkerThread {
+public class DefaultErrorHandler implements ErrorHandler {
 
-    public ResponseWorkerThread(Context context, BalCallback callback) {
-        super(context, callback);
+    private static final Logger log = LoggerFactory.getLogger(DefaultErrorHandler.class);
+
+    private DefaultErrorHandler(){}
+
+    private static DefaultErrorHandler instance = new DefaultErrorHandler();
+
+    public static DefaultErrorHandler getInstance() {
+        return instance;
     }
 
-    public void run() {
-        try {
-            callback.done(context.getCarbonMessage());
-        } catch (Throwable throwable) {
-            handleError(throwable);
-        }
+    @Override
+    public void handleError(Exception ex, Context bContext, BalCallback callback) {
+        log.error(ex.getMessage());
     }
+
+    @Override
+    public String getProtocol() {
+        return null;
+    }
+
+
 }

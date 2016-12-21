@@ -21,9 +21,8 @@ package org.wso2.ballerina.core.nativeimpl.lang.xml;
 import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.xpath.AXIOMXPath;
 import org.jaxen.JaxenException;
+import org.jaxen.XPathSyntaxException;
 import org.osgi.service.component.annotations.Component;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BValue;
@@ -31,6 +30,7 @@ import org.wso2.ballerina.core.model.values.XMLValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
+import org.wso2.ballerina.core.nativeimpl.lang.utils.ErrorHandler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,18 +52,18 @@ import java.util.List;
         service = AbstractNativeFunction.class
 )
 public class Remove extends AbstractNativeFunction {
-
-    private static final Logger log = LoggerFactory.getLogger(Remove.class);
+    
+    private static final String OPERATION = "remove element from xml";
 
     @Override
     public BValue<?>[] execute(Context ctx) {
-        // Accessing Parameters.
-        XMLValue xml = (XMLValue) getArgument(ctx, 0).getBValue();
-        String xPath = getArgument(ctx, 1).getString();
-//        MapValue<String, String> nameSpaces = getArgument(ctx, 2).getMap();
-        
-        // Setting the value to XML
         try {
+            // Accessing Parameters.
+            XMLValue xml = (XMLValue) getArgument(ctx, 0).getBValue();
+            String xPath = getArgument(ctx, 1).getString();
+            // MapValue<String, String> nameSpaces = getArgument(ctx, 2).getMap();
+            
+            // Setting the value to XML
             AXIOMXPath axiomxPath = new AXIOMXPath(xPath);
             /*if (nameSpaces != null && !nameSpaces.isEmpty()) {
                 for (MapValue<String, String>.MapEntry<String, String> entry : nameSpaces.getValue()) {
@@ -83,8 +83,12 @@ public class Remove extends AbstractNativeFunction {
                     }
                 }
             }
+        } catch (XPathSyntaxException e) {
+            ErrorHandler.handleInvalidXPath(OPERATION, e);
         } catch (JaxenException e) {
-            log.error("Cannot evaluate XPath: " + e.getMessage(), e);
+            ErrorHandler.handleXPathException(OPERATION, e);
+        } catch (Throwable e) {
+            ErrorHandler.handleXPathException(OPERATION, e);
         }
         
         return VOID_RETURN;

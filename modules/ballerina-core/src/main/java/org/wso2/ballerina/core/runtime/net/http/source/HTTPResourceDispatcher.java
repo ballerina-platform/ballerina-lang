@@ -20,6 +20,7 @@ package org.wso2.ballerina.core.runtime.net.http.source;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.Resource;
@@ -64,10 +65,9 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
             }
         }
 
-        log.error("No matching Resource found to dispatch the request with Path : " + subPath +
-                " , Method : " + method + " in Service : " + service.getSymbolName().getName());
+        throw new BallerinaException("No matching Resource found to dispatch the request with Path : " + subPath +
+                                     " , Method : " + method + " in Service : " + service.getSymbolName().getName());
 
-        return false;
     }
 
     @Override

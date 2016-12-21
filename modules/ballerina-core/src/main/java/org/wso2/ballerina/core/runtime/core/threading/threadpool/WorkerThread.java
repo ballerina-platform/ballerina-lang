@@ -18,8 +18,14 @@
 
 package org.wso2.ballerina.core.runtime.core.threading.threadpool;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.Context;
+import org.wso2.ballerina.core.runtime.Constants;
 import org.wso2.ballerina.core.runtime.core.BalCallback;
+import org.wso2.ballerina.core.runtime.errors.handler.DefaultErrorHandler;
+import org.wso2.ballerina.core.runtime.errors.handler.ErrorHandler;
+import org.wso2.ballerina.core.runtime.internal.ServiceContextHolder;
 
 /**
  * Worker Thread which is executable through the worker pool
@@ -28,6 +34,8 @@ public abstract class WorkerThread implements Runnable {
 
     protected Context context;
     protected BalCallback callback;
+
+    private static final Logger log = LoggerFactory.getLogger(WorkerThread.class);
 
     public WorkerThread(Context context, BalCallback callback) {
         this.context = context;
@@ -41,4 +49,18 @@ public abstract class WorkerThread implements Runnable {
     public BalCallback getCallback() {
         return callback;
     }
+
+    protected void handleError(Throwable throwable) {
+        log.error("Error while executing ballerina program. " + throwable.getMessage());
+
+        ErrorHandler errorHandler;
+        Object protocol = context.getProperty(Constants.PROTOCOL);
+        if (protocol != null) {
+            errorHandler = ServiceContextHolder.getInstance().getErrorHandler((String) protocol);
+        } else {
+            errorHandler = DefaultErrorHandler.getInstance();
+        }
+        errorHandler.handleError(new Exception(throwable.getMessage(), throwable.getCause()), context, callback);
+    }
+
 }
