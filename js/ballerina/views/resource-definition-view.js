@@ -535,11 +535,6 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                     setterMethod: this._model.setResourceMethod
                 },
                 {
-                    annotationType: "Resource:Action",
-                    annotationValue: ""/*this._model.getSource().interface*/,
-                    setterMethod: ""
-                },
-                {
                     annotationType: "ResourceArgs",
                     annotationValue: this._model.getResourceArguments,
                     setterMethod: this._model.setResourceArguments
