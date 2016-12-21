@@ -85,7 +85,7 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/arithmetic-expr
             group.expression_rect = expressionRect;
             group.expression_text = expressionText;
             this.setStatementGroup(group);
-            this.listenTo(this._model, 'update-statement-text', this.updateStatementText);
+            this.listenTo(this._model, 'update-property-text', this.updateStatementText);
             this._model.accept(this);
 
             // Creating property pane
