@@ -40,8 +40,10 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './re
          * that particular source generation has to be constructed here
          */
 
-        var constructedPathAnnotation = '@BasePath("' + serviceDefinition.getBasePath() + '")\n';
-        this.appendSource(constructedPathAnnotation);
+        if(serviceDefinition.getBasePath()){
+            var constructedPathAnnotation = '@BasePath("' + serviceDefinition.getBasePath() + '")\n';
+            this.appendSource(constructedPathAnnotation);
+        }
 
         var constructedSourceSegment = 'service ' + serviceDefinition.getServiceName() + ' {\n';
         this.appendSource(constructedSourceSegment);
