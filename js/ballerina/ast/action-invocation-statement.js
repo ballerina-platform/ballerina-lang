@@ -23,9 +23,11 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
      * @constructor
      */
     var ActionInvocationStatement = function (args) {
+        Statement.call(this, args);
         this._connector = _.get(args, 'connector');
         this._action = _.get(args, 'action');
-        Statement.call(this, args);
+        this._message =  _.get(args, 'message') || [];
+        this._path = _.get(args, 'path');
     };
 
     ActionInvocationStatement.prototype = Object.create(Statement.prototype);
@@ -49,6 +51,22 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
 
     ActionInvocationStatement.prototype.getAction = function(){
         return this._action;
+    };
+
+    ActionInvocationStatement.prototype.getMessage = function () {
+        return this._message;
+    };
+
+    ActionInvocationStatement.prototype.setMessage = function (message) {
+        this._message = message;
+    };
+
+    ActionInvocationStatement.prototype.getPath = function () {
+        return this._path;
+    };
+
+    ActionInvocationStatement.prototype.setPath = function (path) {
+        this._path = path;
     };
 
     return ActionInvocationStatement;

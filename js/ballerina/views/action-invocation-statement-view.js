@@ -15,10 +15,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-invocation-statement','./point', 'd3utils'],
-    function (_, d3, log, BallerinaStatementView, ActionInvocationStatement, Point, D3Utils) {
+define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-invocation-expression','./point', 'd3utils'],
+    function (_, d3, log, BallerinaStatementView, ActionInvocationExpression, Point, D3Utils) {
 
-        var ActionInvocationStatement = function (args) {
+        var ActionInvocationStatementView = function (args) {
             BallerinaStatementView.call(this, args);
             this._connectorView = {};
 
@@ -39,22 +39,22 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
 
         };
 
-        ActionInvocationStatement.prototype = Object.create(BallerinaStatementView.prototype);
-        ActionInvocationStatement.prototype.constructor = ActionInvocationStatement;
+        ActionInvocationStatementView.prototype = Object.create(BallerinaStatementView.prototype);
+        ActionInvocationStatementView.prototype.constructor = ActionInvocationStatementView;
 
 
-        ActionInvocationStatement.prototype.init = function(){
+        ActionInvocationStatementView.prototype.init = function(){
             this.getModel().on("drawConnectionForAction",this.drawActionConnections,this);
         };
-        ActionInvocationStatement.prototype.setDiagramRenderingContext = function(context){
+        ActionInvocationStatementView.prototype.setDiagramRenderingContext = function(context){
             this._diagramRenderingContext = context;
         };
-        ActionInvocationStatement.prototype.getDiagramRenderingContext = function(){
+        ActionInvocationStatementView.prototype.getDiagramRenderingContext = function(){
             return this._diagramRenderingContext;
         };
 
         // TODO : Please revisit this method. Needs a refactor
-        ActionInvocationStatement.prototype.drawActionConnections = function(startPoint,parent){
+        ActionInvocationStatementView.prototype.drawActionConnections = function(startPoint,parent){
             log.info("Drawing connections for http connector actions");
 
             // TODO : Please alter this logic
@@ -72,8 +72,8 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
             }
         };
 
-        ActionInvocationStatement.prototype.setModel = function (model) {
-            if (!_.isNil(model) && model instanceof ActionInvocationStatement) {
+        ActionInvocationStatementView.prototype.setModel = function (model) {
+            if (!_.isNil(model) && model instanceof ActionInvocationExpression) {
                 this._model = model;
             } else {
                 log.error("Action statement definition is undefined or is of different type." + model);
@@ -81,7 +81,7 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
             }
         };
 
-        ActionInvocationStatement.prototype.setContainer = function (container) {
+        ActionInvocationStatementView.prototype.setContainer = function (container) {
             if (!_.isNil(container)) {
                 this._container = container;
             } else {
@@ -90,26 +90,26 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
             }
         };
 
-        ActionInvocationStatement.prototype.setViewOptions = function (viewOptions) {
+        ActionInvocationStatementView.prototype.setViewOptions = function (viewOptions) {
             this._viewOptions = viewOptions;
         };
 
-        ActionInvocationStatement.prototype.getModel = function () {
+        ActionInvocationStatementView.prototype.getModel = function () {
             return this._model;
         };
 
-        ActionInvocationStatement.prototype.getContainer = function () {
+        ActionInvocationStatementView.prototype.getContainer = function () {
             return this._container;
         };
 
-        ActionInvocationStatement.prototype.getViewOptions = function () {
+        ActionInvocationStatementView.prototype.getViewOptions = function () {
             return this._viewOptions;
         };
 
-        ActionInvocationStatement.prototype.setConnectorView = function(view){
+        ActionInvocationStatementView.prototype.setConnectorView = function(view){
             this._connectorView = view;
         };
-        ActionInvocationStatement.prototype.getConnectorView = function(){
+        ActionInvocationStatementView.prototype.getConnectorView = function(){
             return this._connectorView;
         };
 
@@ -118,7 +118,7 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
          * Rendering the view for get-Action statement.
          * @returns {group} The svg group which contains the elements of the action statement view.
          */
-        ActionInvocationStatement.prototype.render = function (renderingContext) {
+        ActionInvocationStatementView.prototype.render = function (renderingContext) {
             // TODO : Please revisit this method. Needs a refactor
             this.setDiagramRenderingContext(renderingContext);
             log.info("Rendering the Get Action Statement.");
@@ -141,16 +141,39 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
             var assignmentText = "HTTP:get";
             // TODO : Please revisit these calculations.
             var expressionText = D3Utils.textElement(x + width / 2, y + height / 2, assignmentText, assignmentStatementGroup).classed('statement-text', true);
+            this._model.accept(this);
 
             // Creating property pane
-            var editableProperties = [];
-            var editableProperty = {
-                propertyType: "text",
-                key: "Expression",
-                getterMethod: this._model.getExpression,
-                setterMethod: this._model.setExpression
-            };
-            editableProperties.push(editableProperty);
+            var editableProperties = [
+                {
+                    propertyType: "text",
+                    key: "Variable",
+                    model: this._model,
+                    getterMethod: this._model.getVariableAccessor,
+                    setterMethod: this._model.setVariableAccessor
+                },
+                {
+                    propertyType: "text",
+                    key: "Action",
+                    model: this._model,
+                    getterMethod: this._model.getAction,
+                    setterMethod: this._model.setAction
+                },
+                {
+                    propertyType: "text",
+                    key: "Path",
+                    model: this._model,
+                    getterMethod: this._model.getPath,
+                    setterMethod: this._model.setPath
+                },
+                {
+                    propertyType: "text",
+                    key: "Message",
+                    model: this._model,
+                    getterMethod: this._model.getMessage,
+                    setterMethod: this._model.setMessage
+                }
+            ];
             this._createPropertyPane({
                 model: this._model,
                 statementGroup: assignmentStatementGroup,
@@ -189,5 +212,5 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
             });
         };
 
-        return ActionInvocationStatement;
+        return ActionInvocationStatementView;
     });
