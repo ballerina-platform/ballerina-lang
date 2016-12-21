@@ -434,6 +434,17 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                             log.debug("Delete import clicked :" + event.data.packageName);
                             $(event.data.wrapper).remove();
                             event.data.model.deleteImport(event.data.packageName);
+                            //Removing the deleted imports from the model
+                            var childArray = event.data.model.getChildren();
+                            for (var i in childArray){
+                                if(BallerinaASTFactory.isImportDeclaration(childArray[i])){
+                                    var packageName = childArray[i]._packageName;
+                                    if(packageName == event.data.packageName){
+                                        event.data.model.removeChild(childArray[i]);
+                                        break;
+                                    }
+                                }
+                            }
                         });
                     });
                 }
