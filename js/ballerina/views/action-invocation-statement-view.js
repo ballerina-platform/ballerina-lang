@@ -177,11 +177,6 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
                 editableProperties: editableProperties
             });
 
-            // TODO : Remove magic numbers
-            var sourcePointX = x + width;
-            var sourcePointY = y + height / 2;
-
-            this.sourcePoint = new Point(sourcePointX, sourcePointY);
             this.parentContainer = d3.select(parentGroup);
             var self = this;
             this.processorConnectPoint.on("mousedown", function () {
@@ -189,8 +184,17 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
                 d3.event.stopPropagation();
                 var m = d3.mouse(this);
 
-                self.messageManager.startDrawMessage(self._model, self.sourcePoint, self.parentContainer);
+                var width = self.getBoundingBox().w();
+                var height = self.getBoundingBox().h();
+                var x = self.getBoundingBox().getLeft();
+                var y = self.getBoundingBox().getTop();
 
+                // TODO : Remove magic numbers
+                var sourcePointX = x + width;
+                var sourcePointY = y + height / 2;
+
+                self.sourcePoint = new Point(sourcePointX, sourcePointY);
+                self.messageManager.startDrawMessage(self._model, self.sourcePoint, self.parentContainer);
             });
 
             this.processorConnectPoint.on("mouseover", function () {
@@ -208,27 +212,23 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
                 expressionText.attr('y',  parseFloat(expressionText.attr('y')) + dy);
                 processorConnectorPoint.attr('cy',  parseFloat(processorConnectorPoint.attr('cy')) + dy);
 
-                self.processorConnector.attr('y1', parseFloat(self.processorConnector.attr('y1')) + dy);
-                //self.arrowHead.attr('y', parseFloat(self.arrowHead.attr('y')) + dy);
-                self.processorConnector2.attr('y1', parseFloat(self.processorConnector2.attr('y1')) + dy);
+                if(!_.isUndefined(self.processorConnector) && !_.isUndefined(self.processorConnector2)){
+                    self.processorConnector.attr('y1', parseFloat(self.processorConnector.attr('y1')) + dy);
+                    self.processorConnector2.attr('y1', parseFloat(self.processorConnector2.attr('y1')) + dy);
 
+                    var x=  parseFloat(self.processorConnector.attr('x2')) - 5;
+                    var y = parseFloat(self.processorConnector.attr('y2')) + dy;
+                    var arrowHeadPoints = "" + x + "," + (y - 5) + " " + (x + 5) + "," + (y) + " " + x + "," + (y + 5);
+                    self.arrowHead.attr("points", arrowHeadPoints);
 
-                var x=  parseFloat(self.processorConnector.attr('x2')) - 5;
-                var y = parseFloat(self.processorConnector.attr('y2')) + dy;
-                var arrowHeadPoints = "" + x + "," + (y - 5) + " " + (x + 5) + "," + (y) + " " + x + "," + (y + 5);
-                //var arrowHeadPoints = "" + x + "," + y + " " + (x + 5) + "," + (y - 5) + " " + (x + 5) + "," + (y + 5);
-                self.arrowHead.attr("points", arrowHeadPoints);
+                    x= parseFloat(self.processorConnector2.attr('x1'));
+                    var y = parseFloat(self.processorConnector2.attr('y2')) + dy;
+                    var backArrowHeadPoints = "" + x + "," + y + " " + (x + 5) + "," + (y - 5) + " " + (x + 5) + "," + (y + 5);
+                    self.backArrowHead.attr("points", backArrowHeadPoints);
 
-
-                 x= parseFloat(self.processorConnector2.attr('x1'));
-                var y = parseFloat(self.processorConnector2.attr('y2')) + dy;
-                var backArrowHeadPoints = "" + x + "," + y + " " + (x + 5) + "," + (y - 5) + " " + (x + 5) + "," + (y + 5);
-                self.backArrowHead.attr("points", backArrowHeadPoints);
-
-
-                self.processorConnector.attr('y2', parseFloat(self.processorConnector.attr('y2')) + dy);
-                //self.backArrowHead.attr('y', parseFloat(self.backArrowHead.attr('y')) + dy);
-                self.processorConnector2.attr('y2', parseFloat(self.processorConnector2.attr('y2')) + dy);
+                    self.processorConnector.attr('y2', parseFloat(self.processorConnector.attr('y2')) + dy);
+                    self.processorConnector2.attr('y2', parseFloat(self.processorConnector2.attr('y2')) + dy);
+                }
             });
         };
 
