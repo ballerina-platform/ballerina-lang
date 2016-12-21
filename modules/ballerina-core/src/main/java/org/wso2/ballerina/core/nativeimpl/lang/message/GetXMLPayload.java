@@ -17,8 +17,6 @@
 package org.wso2.ballerina.core.nativeimpl.lang.message;
 
 import org.osgi.service.component.annotations.Component;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BValue;
@@ -27,6 +25,7 @@ import org.wso2.ballerina.core.model.values.XMLValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
+import org.wso2.ballerina.core.nativeimpl.lang.utils.ErrorHandler;
 
 /**
  * Get the payload of the Message as a XML
@@ -44,22 +43,33 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
         service = AbstractNativeFunction.class
 )
 public class GetXMLPayload extends AbstractNativeFunction {
-    private static final Logger log = LoggerFactory.getLogger(GetXMLPayload.class);
 
+    private static final String OPERATION = "get xml payload";
+    
     @Override
     public BValue[] execute(Context context) {
-        // Accessing First Parameter Value.
-        MessageValue msg = (MessageValue) getArgument(context, 0).getBValue();
-
-        XMLValue result;
-        if (msg.isAlreadyRead()) {
-            result = (XMLValue) msg.getBuiltPayload();
-        } else {
-            result = new XMLValue(msg.getValue().getInputStream());
-            msg.setBuiltPayload(result);
-            msg.setAlreadyRead(true);
+        XMLValue result = null;
+        try {
+            // Accessing First Parameter Value.
+            MessageValue msg = (MessageValue) getArgument(context, 0).getBValue();
+            
+            if (msg.isAlreadyRead()) {
+                BValue<?> payload = msg.getBuiltPayload();
+                if (payload instanceof XMLValue) {
+                    // if the payload is already xml, return it as it is.
+                    result = (XMLValue) msg.getBuiltPayload();
+                } else {
+                    // else, build the xml from the string representation of the payload.
+                    result = new XMLValue(msg.getBuiltPayload().getString().getValue());
+                }
+            } else {
+                result = new XMLValue(msg.getValue().getInputStream());
+                msg.setBuiltPayload(result);
+                msg.setAlreadyRead(true);
+            }
+        } catch (Throwable e) {
+            ErrorHandler.handleJsonException(OPERATION, e);
         }
-
         // Setting output value.
         return getBValues(result);
     }

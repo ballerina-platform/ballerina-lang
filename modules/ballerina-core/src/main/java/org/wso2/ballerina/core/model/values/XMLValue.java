@@ -19,13 +19,12 @@ package org.wso2.ballerina.core.model.values;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.impl.builder.StAXOMBuilder;
 import org.apache.axiom.om.util.AXIOMUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.message.BallerinaMessageDataSource;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+
 import javax.xml.stream.XMLStreamException;
 
 
@@ -35,11 +34,8 @@ import javax.xml.stream.XMLStreamException;
  * @since 1.0.0
  */
 public class XMLValue extends BallerinaMessageDataSource implements BValue<OMElement> {
-
-    private static final Logger LOG = LoggerFactory.getLogger(XMLValue.class);
-
+    
     private OMElement omElement;
-
     private OutputStream outputStream;
 
     /**
@@ -52,7 +48,8 @@ public class XMLValue extends BallerinaMessageDataSource implements BValue<OMEle
             try {
                 omElement = AXIOMUtil.stringToOM(xmlValue);
             } catch (XMLStreamException e) {
-                LOG.error("Cannot create OMElement from given String, maybe malformed String ", e);
+                throw new BallerinaException("Cannot create OMElement from given String, maybe malformed String: " + 
+                        e.getMessage());
             }
         }
     }
@@ -76,9 +73,16 @@ public class XMLValue extends BallerinaMessageDataSource implements BValue<OMEle
             try {
                 omElement = new StAXOMBuilder(inputStream).getDocumentElement();
             } catch (XMLStreamException e) {
-                LOG.error("Cannot create OMElement from given source, maybe malformed XML Stream", e);
+                throw new BallerinaException("Cannot create OMElement from given source: " + e.getMessage());
             }
         }
+    }
+
+    /**
+     * Create an empty XMLValue.
+     */
+    public XMLValue() {
+        // do nothing
     }
 
     @Override
@@ -102,6 +106,10 @@ public class XMLValue extends BallerinaMessageDataSource implements BValue<OMEle
 
     @Override
     public StringValue getString() {
-        return new StringValue(this.getValue().toString());
+        if (this.getValue() != null) {
+            return new StringValue(this.getValue().toString());
+        } else {
+            return new StringValue("");
+        }
     }
 }
