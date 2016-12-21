@@ -47,6 +47,11 @@ define(['lodash', './node'], function(_, ASTNode){
         this._connectorType = type;
     };
     ConnectorDeclaration.prototype.setUri = function (uri) {
+        // TODO: need a proper way of extracting the protocol
+        if (this.validateUri(uri)) {
+            var tokens = uri.split(":");
+            this.setConnectorType(tokens[0] + ':HTTPConnector');
+        }
         this._uri = uri;
     };
     ConnectorDeclaration.prototype.setTimeout = function (timeout) {
@@ -64,6 +69,11 @@ define(['lodash', './node'], function(_, ASTNode){
     };
     ConnectorDeclaration.prototype.getTimeout = function () {
         return this._timeout;
+    };
+
+    ConnectorDeclaration.prototype.validateUri = function (uri) {
+        var response = uri.search(/^http[s]?\:\/\//);
+        return response !== -1;
     };
 
     return ConnectorDeclaration;

@@ -29,7 +29,7 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
          */
         var IfStatementView = function (args) {
             BallerinaStatementView.call(this, args);
-            _.set(this._viewOptions, 'width', _.get(this._viewOptions, 'width', 120));
+            _.set(this._viewOptions, 'width', _.get(this._viewOptions, 'width', 140));
             _.set(this._viewOptions, 'height', _.get(this._viewOptions, 'height', 100));
             _.set(this._viewOptions, 'contentOffset', _.get(this._viewOptions, 'contentOffset', {top: 10, bottom: 10}));
             // Initialize the bounding box
@@ -113,6 +113,7 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
             _.set(statementContainerOpts, 'bottomCenter', this.getTopCenter().clone().move(0, height));
             _.set(statementContainerOpts, 'width', 80);
             _.set(statementContainerOpts, 'offset', {top: 40, bottom: 10});
+            _.set(statementContainerOpts, 'parent', this);
             _.set(statementContainerOpts, 'container', this._statementContainerGroup.node());
             _.set(statementContainerOpts, 'toolPalette', this.toolPalette);
             var StatementContainer = require('./statement-container');
@@ -122,6 +123,9 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
                     this.getBoundingBox().h(this.getBoundingBox().h() + dy);
                 }
             });
+            this.getBoundingBox().on('top-edge-moved', function (dy) {
+                this._statementContainer.getBoundingBox().y(this._statementContainer.getBoundingBox().y() + dy);
+            }, this);
 
             this.listenTo(this._statementContainer.getBoundingBox(), 'width-changed', function(dw){
                 this.getBoundingBox().w(this.getBoundingBox().w() + dw);

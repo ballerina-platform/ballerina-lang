@@ -102,7 +102,12 @@ define([ 'lodash', 'event_channel'], function ( _, EventChannel) {
      * move
      * @returns {BBox}
      */
-    BBox.prototype.move =  function (dx, dy) {
+    BBox.prototype.move =  function (dx, dy, silent) {
+        if(silent){
+            this._x = this.x() + dx;
+            this._y = this.y() + dy;
+            return this;
+        }
         this.x(this.x() + dx);
         this.y(this.y() + dy);
         return this;
