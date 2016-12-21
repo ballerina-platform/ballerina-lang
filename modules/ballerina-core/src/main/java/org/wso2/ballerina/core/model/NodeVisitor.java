@@ -131,4 +131,6 @@ public interface NodeVisitor {
     void visit(ArrayAccessExpr arrayAccessExpr);
 
     void visit(ArrayInitExpr arrayInitExpr);
+
+    void visit(ResourceInvoker resourceInvoker);
 }

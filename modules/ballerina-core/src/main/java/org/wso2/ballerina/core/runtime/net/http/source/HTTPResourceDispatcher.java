@@ -24,6 +24,7 @@ import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.Resource;
+import org.wso2.ballerina.core.model.ResourceInvoker;
 import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.runtime.core.BalCallback;
 import org.wso2.ballerina.core.runtime.core.dispatching.ResourceDispatcher;
@@ -61,7 +62,7 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
 
             if ((subPath.startsWith(subPathAnnotationVal) || Constants.DEFAULT_SUB_PATH.equals(subPathAnnotationVal))
                     && (resource.getAnnotation(method) != null)) {
-                return resource.execute(context, callback);
+                return new ResourceInvoker(resource).execute(context, callback);
             }
         }
 
