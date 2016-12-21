@@ -128,8 +128,9 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
             }, this);
 
             this.listenTo(this._statementContainer.getBoundingBox(), 'width-changed', function(dw){
-
-                this.getBoundingBox().w(this.getBoundingBox().w() + dw);
+                if(this.getBoundingBox().w() < this._statementContainer.getBoundingBox().w()){
+                    this.getBoundingBox().w(this.getBoundingBox().w() + dw);
+                }
             });
             this._statementContainer.render(this._diagramRenderingContext);
         };

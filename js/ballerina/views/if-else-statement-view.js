@@ -190,10 +190,7 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
             topCenterY = lastViewBlock.getBoundingBox().getBottom();
 
             var topCenter = new Point(topCenterX, topCenterY);
-            // For the viewOptions currently pass width only.
-            // This is because the initial width of the component should be based on my bounding box values
-            var viewOptions = {width: this.getBoundingBox().w()};
-            var args = {model: statement, container: this.getStatementGroup(), viewOptions: viewOptions, parent: this, topCenter: topCenter,
+            var args = {model: statement, container: this.getStatementGroup(), viewOptions: {}, parent: this, topCenter: topCenter,
                 toolPalette: this.toolPalette};
             var statementView = statementViewFactory.getStatementView(args);
             this._elseBlockView = statementView;
