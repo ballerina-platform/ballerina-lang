@@ -276,26 +276,7 @@ public class BLangInterpreter implements NodeVisitor {
         BValueRef[] localVals = new BValueRef[sizeOfValueArray];
 
         // Get values for all the function arguments
-        int i = 0;
-        for (Expression arg : funcIExpr.getExprs()) {
-
-            // Evaluate the argument expression
-            arg.accept(this);
-            TypeC argType = arg.getType();
-            BValueRef argValue = getValue(arg);
-
-            // Here we need to handle value types differently from reference types
-            // Value types need to be cloned before passing ot the function : pass by value.
-            // TODO Implement copy-on-write mechanism to improve performance
-            if (TypeC.isValueType(argType)) {
-                argValue = BValueRef.clone(argType, argValue);
-            }
-
-            // Setting argument value in the stack frame
-            localVals[i] = argValue;
-
-            i++;
-        }
+        int i = populateArgumentValues(funcIExpr.getExprs(), localVals);
 
         // TODO  Handle Connection declarations
 
@@ -332,7 +313,6 @@ public class BLangInterpreter implements NodeVisitor {
         }
     }
 
-    // TODO Duplicate code. fix me
     @Override
     public void visit(ActionInvocationExpr actionIExpr) {
         // Create the Stack frame
@@ -341,26 +321,9 @@ public class BLangInterpreter implements NodeVisitor {
         BValueRef[] localVals = new BValueRef[action.getStackFrameSize()];
 
         // Create default values for all declared local variables
-        int i = 0;
-        for (Expression arg : actionIExpr.getExprs()) {
+        int i = populateArgumentValues(actionIExpr.getExprs(), localVals);
 
-            // Evaluate the argument expression
-            arg.accept(this);
-            TypeC argType = arg.getType();
-            BValueRef argValue = getValue(arg);
-
-            // Here we need to handle value types differently from reference types
-            // Value types need to be cloned before passing ot the function : pass by value.
-            // TODO Implement copy-on-write mechanism to improve performance
-            if (TypeC.isValueType(argType)) {
-                argValue = BValueRef.clone(argType, argValue);
-            }
-
-            // Setting argument value in the stack frame
-            localVals[i] = argValue;
-
-            i++;
-        }
+        // TODO  Handle Connection declarations
 
         // Create default values for all declared local variables
         VariableDcl[] variableDcls = action.getVariableDcls();
@@ -527,7 +490,6 @@ public class BLangInterpreter implements NodeVisitor {
         controlStack.pushFrame(stackFrame);
 
         resource.accept(this);
-
     }
 
     // Private methods
@@ -556,5 +518,28 @@ public class BLangInterpreter implements NodeVisitor {
 
         BValueRef result = binaryExpr.getEvalFunc().apply(lValue, rValue);
         controlStack.setValue(binaryExpr.getOffset(), result);
+    }
+
+    private int populateArgumentValues(Expression[] expressions, BValueRef[] localVals) {
+        int i = 0;
+        for (Expression arg : expressions) {
+            // Evaluate the argument expression
+            arg.accept(this);
+            TypeC argType = arg.getType();
+            BValueRef argValue = getValue(arg);
+
+            // Here we need to handle value types differently from reference types
+            // Value types need to be cloned before passing ot the function : pass by value.
+            // TODO Implement copy-on-write mechanism to improve performance
+            if (TypeC.isValueType(argType)) {
+                argValue = BValueRef.clone(argType, argValue);
+            }
+
+            // Setting argument value in the stack frame
+            localVals[i] = argValue;
+
+            i++;
+        }
+        return i;
     }
 }
