@@ -87,6 +87,14 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
             nodeFactoryMethod: BallerinaASTFactory.createActionInvocationStatement
         };
 
+        var createFunctionInvocationTool = {
+            id: "FunctionInvocation",
+            name: "FunctionInvocation",
+            icon: "images/tool-icons/actioninvoke.svg",
+            title: "FunctionInvocation",
+            nodeFactoryMethod: BallerinaASTFactory.createFunctionInvocationStatement
+        };
+
         var createReplyStatementTool = {
             id: "Reply",
             name: "Reply",
@@ -96,7 +104,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
         };
 
         var statementToolDefArray = [createIfStatementTool, createAssignmentExpressionTool,
-            createActionInvocationTool, createReplyStatementTool];
+            createActionInvocationTool, createFunctionInvocationTool, createReplyStatementTool];
 
         // Create statements tool group
         var statementsToolGroup = new ToolGroup({
