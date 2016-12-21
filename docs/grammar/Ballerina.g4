@@ -390,7 +390,7 @@ expression
     |   ('+'|'-'|'!') expression                                            # unaryExpression
     |   '(' expression ')'                                                  # bracedExpression
     |   expression ('^') expression                                         # binaryPowExpression
-    |   expression ('/') expression                                         # binaryDivitionExpression
+    |   expression ('/') expression                                         # binaryDivisionExpression
     |   expression ('*') expression                                         # binaryMultiplicationExpression
     |   expression ('%') expression                                         # binaryModExpression
     |   expression ('&&') expression                                        # binaryAndExpression
@@ -403,7 +403,7 @@ expression
     |   expression ('<=') expression                                        # binaryLEExpression
     |   expression ('==') expression                                        # binaryEqualExpression
     |   expression ('!=') expression                                        # binaryNotEqualExpression
-    |   '[' expressionList ']'                                              # arrayinitializerExpression
+    |   '[' expressionList ']'                                              # arrayInitializerExpression
     |   '{' mapInitKeyValue (',' mapInitKeyValue)* '}'                      # mapInitializerExpression
     |   'new' (packageName ':' )? Identifier ('(' expressionList? ')')?     # typeInitializeExpression
     ;

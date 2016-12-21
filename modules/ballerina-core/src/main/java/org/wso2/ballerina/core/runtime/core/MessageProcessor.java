@@ -41,9 +41,11 @@ public class MessageProcessor implements CarbonMessageProcessor {
     public boolean receive(CarbonMessage cMsg, CarbonCallback carbonCallback) throws Exception {
 
         Context balContext = new Context(cMsg);
+
         BalCallback balCallback = new DefaultBalCallback(carbonCallback);
         balContext.setBalCallback(balCallback);
         WorkerThread workerThread = null;
+
 
         if (!org.wso2.carbon.messaging.Constants.DIRECTION_RESPONSE.
                 equals(cMsg.getProperty(org.wso2.carbon.messaging.Constants.DIRECTION))) {
@@ -54,9 +56,8 @@ public class MessageProcessor implements CarbonMessageProcessor {
             }
 
             String protocol = (String) cMsg.getProperty(org.wso2.carbon.messaging.Constants.PROTOCOL);
-            if (protocol == null) {
+            if (protocol == null) {  //Ideally we shouldn't get here
                 log.error("Protocol not defined in the incoming request");
-                //TODO: Handler error
                 return false;
             }
             balContext.setProperty(Constants.PROTOCOL, protocol);

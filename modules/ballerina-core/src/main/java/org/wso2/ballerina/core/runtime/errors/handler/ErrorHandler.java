@@ -15,26 +15,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-package org.wso2.ballerina.core.runtime.core.threading.threadpool;
+package org.wso2.ballerina.core.runtime.errors.handler;
 
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.runtime.core.BalCallback;
 
 /**
- * Worker Thread which is responsible for response processing
+ * {@code ErrorHandler} is the interface for protocol specific error handlers in ballerina.
+ *
  */
-public class ResponseWorkerThread extends WorkerThread {
+public interface ErrorHandler {
 
-    public ResponseWorkerThread(Context context, BalCallback callback) {
-        super(context, callback);
-    }
+    void handleError(Exception ex, Context bContext, BalCallback callback);
 
-    public void run() {
-        try {
-            callback.done(context.getCarbonMessage());
-        } catch (Throwable throwable) {
-            handleError(throwable);
-        }
-    }
+    String getProtocol();
+
 }

@@ -36,6 +36,8 @@ import org.wso2.ballerina.core.model.Worker;
 import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.AddExpression;
 import org.wso2.ballerina.core.model.expressions.AndExpression;
+import org.wso2.ballerina.core.model.expressions.ArrayAccessExpr;
+import org.wso2.ballerina.core.model.expressions.ArrayInitExpr;
 import org.wso2.ballerina.core.model.expressions.BasicLiteral;
 import org.wso2.ballerina.core.model.expressions.BinaryExpression;
 import org.wso2.ballerina.core.model.expressions.EqualExpression;
@@ -261,6 +263,10 @@ public class BLangInterpreter implements NodeVisitor {
 
     @Override
     public void visit(FunctionInvocationStmt functionInvocationStmt) {
+        FunctionInvocationExpr functionInvocationExpr = functionInvocationStmt.getFunctionInvocationExpr();
+        if (functionInvocationExpr.getFunction() instanceof BallerinaFunction) {
+            updateCallback(functionInvocationStmt);
+        }
         functionInvocationStmt.getFunctionInvocationExpr().accept(this);
         continueStatementChain(functionInvocationStmt);
     }
@@ -305,7 +311,7 @@ public class BLangInterpreter implements NodeVisitor {
         int sizeOfValueArray = function.getStackFrameSize();
         BValueRef[] localVals = new BValueRef[sizeOfValueArray];
 
-        // Create default values for all declared local variables
+        // Get values for all the function arguments
         int i = 0;
         for (Expression arg : funcIExpr.getExprs()) {
 
@@ -317,7 +323,7 @@ public class BLangInterpreter implements NodeVisitor {
             // Here we need to handle value types differently from reference types
             // Value types need to be cloned before passing ot the function : pass by value.
             // TODO Implement copy-on-write mechanism to improve performance
-            if (BValueRef.isValueType(argType)) {
+            if (TypeC.isValueType(argType)) {
                 argValue = BValueRef.clone(argType, argValue);
             }
 
@@ -326,6 +332,8 @@ public class BLangInterpreter implements NodeVisitor {
 
             i++;
         }
+
+        // TODO  Handle Connection declarations
 
         // Create default values for all declared local variables
         VariableDcl[] variableDcls = function.getVariableDcls();
@@ -381,7 +389,7 @@ public class BLangInterpreter implements NodeVisitor {
             // Here we need to handle value types differently from reference types
             // Value types need to be cloned before passing ot the function : pass by value.
             // TODO Implement copy-on-write mechanism to improve performance
-            if (BValueRef.isValueType(argType)) {
+            if (TypeC.isValueType(argType)) {
                 argValue = BValueRef.clone(argType, argValue);
             }
 
@@ -394,7 +402,8 @@ public class BLangInterpreter implements NodeVisitor {
                     Expression[] argExpressions = connectorValue.getArgExprs();
                     BValueRef[] bValueRefs = new BValueRef[argExpressions.length];
                     for (int j = 0; j < argExpressions.length; j++) {
-                        bValueRefs[j] = argExpressions[j].evaluate(bContext);
+                        argExpressions[j].accept(this);
+                        bValueRefs[j] = getValue(argExpressions[j]);
                     }
                     abstractNativeConnector.init(bValueRefs);
                 }
@@ -502,6 +511,16 @@ public class BLangInterpreter implements NodeVisitor {
 
     @Override
     public void visit(VariableRefExpr variableRefExpr) {
+    }
+
+    @Override
+    public void visit(ArrayAccessExpr arrayAccessExpr) {
+
+    }
+
+    @Override
+    public void visit(ArrayInitExpr arrayInitExpr) {
+
     }
 
     // Private methods

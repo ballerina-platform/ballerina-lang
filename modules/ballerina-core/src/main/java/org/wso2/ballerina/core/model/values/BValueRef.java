@@ -84,24 +84,34 @@ public class BValueRef {
     public static BValueRef getDefaultValue(TypeC type) {
         if (type == TypeC.INT_TYPE) {
             return new BValueRef(new IntValue(0));
+
         } else if (type == TypeC.STRING_TYPE) {
             return new BValueRef(new StringValue(""));
+
         } else if (type == TypeC.LONG_TYPE) {
             return new BValueRef(new LongValue(0));
+
         } else if (type == TypeC.FLOAT_TYPE) {
             return new BValueRef(new FloatValue(0));
+
         } else if (type == TypeC.DOUBLE_TYPE) {
             return new BValueRef(new DoubleValue(0));
+
         } else if (type == TypeC.BOOLEAN_TYPE) {
             return new BValueRef(new BooleanValue(false));
+
         } else if (type == TypeC.JSON_TYPE) {
             return new BValueRef(new JSONValue("{}"));
+
         } else if (type == TypeC.XML_TYPE) {
-            return new BValueRef(new XMLValue("<root></root>"));
+            return new BValueRef(new XMLValue());
+
         } else if (type == TypeC.MESSAGE_TYPE) {
             return new BValueRef(new MessageValue(null));
+
         } else if (type == TypeC.MAP_TYPE) {
             return new BValueRef(new MapValue());
+
         } else if (type == TypeC.CONNECTOR_TYPE) {
             return new BValueRef(new ConnectorValue(null, null));
         } else {
@@ -109,22 +119,9 @@ public class BValueRef {
         }
     }
 
-    public static boolean isValueType(TypeC type) {
-        if (type == TypeC.INT_TYPE ||
-                type == TypeC.STRING_TYPE ||
-                type == TypeC.LONG_TYPE ||
-                type == TypeC.FLOAT_TYPE ||
-                type == TypeC.DOUBLE_TYPE ||
-                type == TypeC.BOOLEAN_TYPE) {
-            return true;
-        }
-
-        return false;
-    }
-
     // TODO we need to improve this logic
     public static BValueRef clone(TypeC type, BValueRef bValueRef) {
-        if (isValueType(type)) {
+        if (TypeC.isValueType(type)) {
             return new BValueRef(bValueRef.getBValue());
         }
 

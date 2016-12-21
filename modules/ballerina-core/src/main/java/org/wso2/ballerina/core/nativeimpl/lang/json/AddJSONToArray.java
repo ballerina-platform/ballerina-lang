@@ -19,7 +19,10 @@
 package org.wso2.ballerina.core.nativeimpl.lang.json;
 
 import com.google.gson.JsonElement;
+import com.jayway.jsonpath.InvalidPathException;
 import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.JsonPathException;
+import com.jayway.jsonpath.PathNotFoundException;
 import com.jayway.jsonpath.WriteContext;
 
 import org.osgi.service.component.annotations.Component;
@@ -30,6 +33,7 @@ import org.wso2.ballerina.core.model.values.JSONValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
+import org.wso2.ballerina.core.nativeimpl.lang.utils.ErrorHandler;
 
 /**
  * Insert a JSON element to a JSON Array. This method will add a new JSON element
@@ -49,17 +53,31 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
         service = AbstractNativeFunction.class
 )
 public class AddJSONToArray extends AbstractJSONFunction {
+    
+    private static final String OPERATION = "add element to json array";
 
     @Override
     public BValue<?>[] execute(Context ctx) {
-        // Accessing Parameters.
-        JSONValue json = (JSONValue) getArgument(ctx, 0).getBValue();
-        String jsonPath = getArgument(ctx, 1).getString();
-        JsonElement value = getArgument(ctx, 2).getJSON();
-        
-        // Adding the value to JSON Array
-        WriteContext jsonCtx = JsonPath.parse(json.getValue());
-        jsonCtx.add(jsonPath, value);
+        String jsonPath = null;
+        try {
+            // Accessing Parameters.
+            JSONValue json = (JSONValue) getArgument(ctx, 0).getBValue();
+            jsonPath = getArgument(ctx, 1).getString();
+            JsonElement value = getArgument(ctx, 2).getJSON();
+
+            // Adding the value to JSON Array
+            WriteContext jsonCtx = JsonPath.parse(json.getValue());
+            jsonCtx.add(jsonPath, value);
+        } catch (PathNotFoundException e) {
+            ErrorHandler.handleNonExistingJsonpPath(OPERATION, jsonPath, e);
+        } catch (InvalidPathException e) {
+            ErrorHandler.handleInvalidJsonPath(OPERATION, e);
+        } catch (JsonPathException e) {
+            ErrorHandler.handleJsonPathException(OPERATION, e);
+        } catch (Throwable e) {
+            ErrorHandler.handleJsonPathException(OPERATION, e);
+        }
+
         return VOID_RETURN;
     }
 }

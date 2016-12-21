@@ -24,10 +24,12 @@ import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BValue;
+import org.wso2.ballerina.core.model.values.StringValue;
 import org.wso2.ballerina.core.model.values.XMLValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
+import org.wso2.ballerina.core.nativeimpl.lang.utils.ErrorHandler;
 
 /**
  * Native function ballerina.lang.xml:toString
@@ -46,17 +48,22 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 )
 public class ToString extends AbstractNativeFunction {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ToString.class);
+    private static final Logger log = LoggerFactory.getLogger(ToString.class);
 
     @Override
     public BValue<?>[] execute(Context ctx) {
-        // Accessing Parameters.
-        XMLValue xml = (XMLValue) getArgument(ctx, 0).getBValue();
-
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("XML toString: " + xml.getString().getValue());
+        StringValue xmlStr = null;
+        try {
+            // Accessing Parameters.
+            XMLValue xml = (XMLValue) getArgument(ctx, 0).getBValue();
+            xmlStr = xml.getString();
+            if (log.isDebugEnabled()) {
+                log.debug("XML toString: " + xml.getString().getValue());
+            }
+        } catch (Throwable e) {
+            ErrorHandler.handleJsonException("convert xml to string", e);
         }
         // Setting output value.
-        return getBValues(xml.getString());
+        return getBValues(xmlStr);
     }
 }

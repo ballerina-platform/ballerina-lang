@@ -281,6 +281,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitSimpleTypeArray(BallerinaParser.SimpleTypeArrayContext ctx) {
+        modelBuilder.createArrayType(ctx.Identifier().getText());
     }
 
     @Override
@@ -680,7 +681,8 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitSimpleVariableIdentifier(BallerinaParser.SimpleVariableIdentifierContext ctx) {
-        modelBuilder.createSymbolName(ctx.getText());
+        String varName = ctx.getText();
+        modelBuilder.createVarRefExpr(varName);
     }
 
     @Override
@@ -689,6 +691,8 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitMapArrayVariableIdentifier(BallerinaParser.MapArrayVariableIdentifierContext ctx) {
+        String mapArrayVarName = ctx.Identifier().getText();
+        modelBuilder.createMapArrayVarRefExpr(mapArrayVarName);
     }
 
     @Override
@@ -866,7 +870,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitVariableReferenceExpression(BallerinaParser.VariableReferenceExpressionContext ctx) {
-        modelBuilder.createVarRefExpr();
+//        modelBuilder.createVarRefExpr();
     }
 
     @Override
@@ -905,21 +909,21 @@ public class BLangAntlr4Listener implements BallerinaListener {
     }
 
     @Override
-    public void enterArrayinitializerExpression(BallerinaParser.ArrayinitializerExpressionContext ctx) {
+    public void enterArrayInitializerExpression(BallerinaParser.ArrayInitializerExpressionContext ctx) {
 
     }
 
     @Override
-    public void exitArrayinitializerExpression(BallerinaParser.ArrayinitializerExpressionContext ctx) {
-
+    public void exitArrayInitializerExpression(BallerinaParser.ArrayInitializerExpressionContext ctx) {
+        modelBuilder.createArrayInitExpr();
     }
 
     @Override
-    public void enterBinaryDivitionExpression(BallerinaParser.BinaryDivitionExpressionContext ctx) {
+    public void enterBinaryDivisionExpression(BallerinaParser.BinaryDivisionExpressionContext ctx) {
     }
 
     @Override
-    public void exitBinaryDivitionExpression(BallerinaParser.BinaryDivitionExpressionContext ctx) {
+    public void exitBinaryDivisionExpression(BallerinaParser.BinaryDivisionExpressionContext ctx) {
         createBinaryExpr(ctx);
     }
 

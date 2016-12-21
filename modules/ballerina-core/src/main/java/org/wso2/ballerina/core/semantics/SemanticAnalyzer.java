@@ -39,6 +39,8 @@ import org.wso2.ballerina.core.model.Worker;
 import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.AddExpression;
 import org.wso2.ballerina.core.model.expressions.AndExpression;
+import org.wso2.ballerina.core.model.expressions.ArrayAccessExpr;
+import org.wso2.ballerina.core.model.expressions.ArrayInitExpr;
 import org.wso2.ballerina.core.model.expressions.BasicLiteral;
 import org.wso2.ballerina.core.model.expressions.BinaryArithmeticExpression;
 import org.wso2.ballerina.core.model.expressions.BinaryExpression;
@@ -66,6 +68,7 @@ import org.wso2.ballerina.core.model.statements.ReplyStmt;
 import org.wso2.ballerina.core.model.statements.ReturnStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
+import org.wso2.ballerina.core.model.types.ArrayType;
 import org.wso2.ballerina.core.model.types.TypeC;
 import org.wso2.ballerina.core.model.util.LangModelUtils;
 
@@ -583,19 +586,46 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(VariableRefExpr variableRefExpr) {
-        SymbolName symName = variableRefExpr.getSymbolName();
+        SymbolName varName = variableRefExpr.getSymbolName();
+
         // Check whether this symName is declared
+        Symbol symbol = getSymbol(varName);
 
-        Symbol symbol = symbolTable.lookup(symName);
-        // Then set the type correctly..
-        if (symbol == null) {
-            throw new SemanticException("Undeclared variable: " + symName.getName());
-        }
-
-        //        symName.setSymbol(symbol);
         variableRefExpr.setType(symbol.getType());
         variableRefExpr.setOffset(symbol.getOffset());
     }
+
+    @Override
+    public void visit(ArrayAccessExpr arrayAccessExpr) {
+        visitExpr(arrayAccessExpr);
+
+        SymbolName arrayVarName = arrayAccessExpr.getSymbolName();
+
+        // Check whether this symName is declared
+        Symbol symbol = getSymbol(arrayVarName);
+
+        // Type returned by the symbol should always be the ArrayType
+        if (!(symbol.getType() instanceof ArrayType)) {
+            throw new SemanticException("Attempt to index non-array variable: " + arrayVarName.getName());
+        }
+
+        arrayAccessExpr.setType(symbol.getType());
+
+        Expression indexExpr = arrayAccessExpr.getRExpr();
+        indexExpr.accept(this);
+
+        if (indexExpr.getType() != TypeC.INT_TYPE) {
+            throw new SemanticException("Array index should be of type int, not " + indexExpr.getType().toString() +
+                    ". Array name: " + arrayVarName.getName());
+        }
+    }
+
+    @Override
+    public void visit(ArrayInitExpr arrayInitExpr) {
+    }
+
+
+    // Private methods.
 
     private void openScope() {
         symbolTable.openScope();
@@ -700,5 +730,16 @@ public class SemanticAnalyzer implements NodeVisitor {
             }
         }
         return pkgPath;
+    }
+
+    private Symbol getSymbol(SymbolName symName) {
+        // Check whether this symName is declared
+        Symbol symbol = symbolTable.lookup(symName);
+
+        if (symbol == null) {
+            throw new SemanticException("Undeclared variable: " + symName.getName());
+        }
+
+        return symbol;
     }
 }

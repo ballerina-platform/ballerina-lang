@@ -23,9 +23,8 @@ import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.xpath.AXIOMXPath;
 import org.jaxen.JaxenException;
+import org.jaxen.XPathSyntaxException;
 import org.osgi.service.component.annotations.Component;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BValue;
@@ -33,6 +32,7 @@ import org.wso2.ballerina.core.model.values.XMLValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
+import org.wso2.ballerina.core.nativeimpl.lang.utils.ErrorHandler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,20 +58,23 @@ import java.util.List;
         service = AbstractNativeFunction.class
 )
 public class SetXML extends AbstractNativeFunction {
-
-    private static final Logger log = LoggerFactory.getLogger(SetXML.class);
+    
+    private static final String OPERATION = "set element in xml";
 
     @Override
     public BValue<?>[] execute(Context ctx) {
-        // Accessing Parameters.
-        XMLValue xml = (XMLValue) getArgument(ctx, 0).getBValue();
-        String xPath = getArgument(ctx, 1).getString();
-//        MapValue<String, String> nameSpaces = getArgument(ctx, 2).getMap();
-        OMElement value = getArgument(ctx, 2).getXML();
-        
-        // Setting the value to XML
         try {
-            // Set namespaces
+            // Accessing Parameters.
+            XMLValue xml = (XMLValue) getArgument(ctx, 0).getBValue();
+            String xPath = getArgument(ctx, 1).getString();
+            // MapValue<String, String> nameSpaces = getArgument(ctx, 2).getMap();
+            OMElement value = getArgument(ctx, 2).getXML();
+            
+            if (value == null) {
+                return VOID_RETURN;
+            }
+            
+            // Setting the value to XML
             AXIOMXPath axiomxPath = new AXIOMXPath(xPath);
             /*if (nameSpaces != null && !nameSpaces.isEmpty()) {
                 for (MapValue<String, String>.MapEntry<String, String> entry : nameSpaces.getValue()) {
@@ -79,6 +82,7 @@ public class SetXML extends AbstractNativeFunction {
 
                 }
             }*/
+            
             Object ob = axiomxPath.evaluate(xml.getValue());
             if (ob instanceof ArrayList) {
                 List<?> list = (List<?>) ob;
@@ -87,12 +91,18 @@ public class SetXML extends AbstractNativeFunction {
                         OMNode omNode = (OMNode) obj;
                         OMContainer omContainer = omNode.getParent();
                         omNode.detach();
-                        omContainer.addChild(value);
+                        // Have to clone and add a new OMElement everytime, due to a bug in axiom.
+                        // Otherwise element will be added to only the last matching element.
+                        omContainer.addChild(value.cloneOMElement());
                     }
                 }
             }
+        } catch (XPathSyntaxException e) {
+            ErrorHandler.handleInvalidXPath(OPERATION, e);
         } catch (JaxenException e) {
-            log.error("Cannot evaluate XPath: " + e.getMessage(), e);
+            ErrorHandler.handleXPathException(OPERATION, e);
+        } catch (Throwable e) {
+            ErrorHandler.handleXPathException(OPERATION, e);
         }
         
         return VOID_RETURN;

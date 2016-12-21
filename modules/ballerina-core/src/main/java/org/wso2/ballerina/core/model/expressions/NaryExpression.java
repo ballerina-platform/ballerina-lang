@@ -15,21 +15,34 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerina.core.model.values;
+package org.wso2.ballerina.core.model.expressions;
 
-import org.wso2.ballerina.core.model.types.ArrayType;
+import org.wso2.ballerina.core.model.NodeVisitor;
+import org.wso2.ballerina.core.model.Operator;
 
 /**
+ * {@code NaryExpr} represents an operation with multiple operands.
+ * <p>
+ * Refer: https://en.wikipedia.org/wiki/Arity#n-ary
  *
+ * @see ArrayInitExpr
+ * @since 1.0.0
  */
-public class ArrayValue implements BValue<ArrayType> {
-    @Override
-    public ArrayType getValue() {
-        return null;
+public class NaryExpression extends UnaryExpression {
+
+    private Expression[] argExprs;
+
+    public NaryExpression(Operator op, Expression rExpr, Expression[] argExprs) {
+        super(op, rExpr);
+        this.argExprs = argExprs;
+    }
+
+    public Expression[] getArgExprs() {
+        return argExprs;
     }
 
     @Override
-    public StringValue getString() {
-        return null;
+    public void accept(NodeVisitor visitor) {
+        visitor.visit(this);
     }
 }

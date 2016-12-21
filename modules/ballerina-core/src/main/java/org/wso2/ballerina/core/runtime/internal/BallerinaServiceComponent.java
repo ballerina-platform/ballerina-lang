@@ -31,6 +31,7 @@ import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.runtime.Constants;
 import org.wso2.ballerina.core.runtime.core.MessageProcessor;
 import org.wso2.ballerina.core.runtime.deployer.BalDeployer;
+import org.wso2.ballerina.core.runtime.errors.handler.ErrorHandler;
 import org.wso2.ballerina.core.runtime.net.http.source.HTTPListenerManager;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.messaging.TransportListenerManager;
@@ -126,5 +127,21 @@ public class BallerinaServiceComponent {
     protected void removeSymbolicScope(SymScope symScope) {
 //        ServiceContextHolder.getInstance().removeTransportSender(transportSender);
     }
+
+    @Reference(
+            name = "error-hander",
+            service = ErrorHandler.class,
+            cardinality = ReferenceCardinality.OPTIONAL,
+            policy = ReferencePolicy.DYNAMIC,
+            unbind = "removeErrorHandler"
+    )
+    protected void addErrorHandler(ErrorHandler errorHandler) {
+        ServiceContextHolder.getInstance().registerErrorHandler(errorHandler);
+    }
+
+    protected void removeErrorHandler(ErrorHandler errorHandler) {
+        ServiceContextHolder.getInstance().unregisterErrorHandler(errorHandler.getProtocol());
+    }
+
 
 }
