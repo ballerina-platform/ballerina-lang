@@ -48,7 +48,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 )
 public class SetStringPayload extends AbstractNativeFunction {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SetStringPayload.class);
+    private static final Logger log = LoggerFactory.getLogger(SetStringPayload.class);
 
     @Override
     public BValue[] execute(Context context) {
@@ -56,8 +56,8 @@ public class SetStringPayload extends AbstractNativeFunction {
         StringValue payload = (StringValue) getArgument(context, 1).getBValue();
         msg.setBuiltPayload(payload);
         msg.setAlreadyRead(true);
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Setting new payload: " + payload.getValue());
+        if (log.isDebugEnabled()) {
+            log.debug("Setting new payload: " + payload.getValue());
         }
         return VOID_RETURN;
     }
