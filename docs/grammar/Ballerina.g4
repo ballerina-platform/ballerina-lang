@@ -403,7 +403,7 @@ expression
     |   expression ('<=') expression                                        # binaryLEExpression
     |   expression ('==') expression                                        # binaryEqualExpression
     |   expression ('!=') expression                                        # binaryNotEqualExpression
-    |   '[' expressionList ']'                                              # arrayinitializerExpression
+    |   '[' expressionList ']'                                              # arrayInitializerExpression
     |   '{' mapInitKeyValue (',' mapInitKeyValue)* '}'                      # mapInitializerExpression
     |   'new' (packageName ':' )? Identifier ('(' expressionList? ')')?     # typeInitializeExpression
     ;
