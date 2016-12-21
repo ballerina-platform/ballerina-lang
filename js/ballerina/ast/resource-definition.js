@@ -24,7 +24,7 @@ define(['lodash', 'log', './node', './worker-declaration'], function (_, log, AS
         this._variableDeclarations = _.get(args, 'variableDeclarations', []);
         this._workerDeclarations = _.get(args, 'workerDeclarations', []);
         this._statements = _.get(args, 'statements', []);
-        this._resourceArguments = _.get(args, 'resourceArguments', []);
+        this._resourceArguments = _.get(args, 'resourceArguments', '');
         this._resourceName = _.get(args, 'resourceName');
 
         // TODO: All the types should be referred from the global constants

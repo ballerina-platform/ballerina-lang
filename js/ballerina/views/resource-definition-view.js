@@ -533,6 +533,11 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                     annotationType: "ResourceMethod",
                     annotationValue: this._model.getResourceMethod,
                     setterMethod: this._model.setResourceMethod
+                },
+                {
+                    annotationType: "ResourceArgs",
+                    annotationValue: this._model.getResourceArguments,
+                    setterMethod: this._model.setResourceArguments
                 }
             ];
 
@@ -647,6 +652,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                     }else if(annotationType == 'ResourceMethod'){
                         var resourceMethods = getResourceMethodAnnotations(annotationValue);
                         model.setResourceMethod(resourceMethods);
+                    }else if(annotationType == 'ResourceArgs'){
+                        model.setResourceArguments(annotationValue);
                     }
 
                     //Clear the text box and drop down value
