@@ -1110,6 +1110,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                     });
                 }
                 d3.event.stopPropagation();
+                //TODO : Remove this and set currentScope/resource properly
+                self.diagramRenderingContext.currentResource = self;
 
             };
 
