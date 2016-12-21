@@ -18,10 +18,10 @@
 
 package org.wso2.ballerina.core.nativeimpl.lang.xml;
 
-import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.om.OMAttribute;
-import org.apache.axiom.om.OMContainer;
-import org.apache.axiom.om.OMNode;
+import org.apache.axiom.om.OMDocument;
+import org.apache.axiom.om.OMElement;
+import org.apache.axiom.om.OMText;
 import org.apache.axiom.om.xpath.AXIOMXPath;
 import org.jaxen.JaxenException;
 import org.jaxen.XPathSyntaxException;
@@ -39,28 +39,29 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Set the string value of a element that matches the given xPath.
- * If the xPath matches to an existing element, this method will update the value of it.
- * If the xPath does not match to an existing element, this method will add a new element
- * to match the xPath.
+ * Add an attribute to the XML element that matches the given xPath.
+ * If the xPath matches to the text value of an existing element or 
+ * If the xPath does not match to an existing element, this operation will
+ * have no effect.
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.xml",
-        functionName = "set",
+        functionName = "addAttribute",
         args = {@Argument(name = "xml", type = TypeEnum.XML),
                 @Argument(name = "xPath", type = TypeEnum.STRING),
 //                @Argument(name = "nameSpaces", type = TypeEnum.MAP),
+                @Argument(name = "name", type = TypeEnum.STRING),
                 @Argument(name = "value", type = TypeEnum.STRING)},
         isPublic = true
 )
 @Component(
-        name = "func.lang.xml_setString",
+        name = "func.lang.xml_addAttribute",
         immediate = true,
         service = AbstractNativeFunction.class
 )
-public class SetString extends AbstractNativeFunction {
+public class AddAttribute extends AbstractNativeFunction {
     
-    private static final String OPERATION = "set string in xml";
+    private static final String OPERATION = "add attribute to xml";
 
     @Override
     public BValue<?>[] execute(Context ctx) {
@@ -69,31 +70,40 @@ public class SetString extends AbstractNativeFunction {
             XMLValue xml = (XMLValue) getArgument(ctx, 0).getBValue();
             String xPath = getArgument(ctx, 1).getString();
             // MapValue<String, String> nameSpaces = getArgument(ctx, 2).getMap();
-            String value = getArgument(ctx, 2).getString();
+            String name = getArgument(ctx, 2).getString();
+            String value = getArgument(ctx, 3).getString();
+            
+            if (value == null) {
+                return VOID_RETURN;
+            }
             
             // Setting the value to XML
             AXIOMXPath axiomxPath = new AXIOMXPath(xPath);
-            // set the namespaces
             /*if (nameSpaces != null && !nameSpaces.isEmpty()) {
                 for (MapValue<String, String>.MapEntry<String, String> entry : nameSpaces.getValue()) {
-                    axiomxPath.addNamespace(entry.getKey(), entry.getValue());
+                    axiomxPath.addNamespace(entry.getKey(), (entry.getValue()));
 
                 }
             }*/
-            Object ob = axiomxPath.evaluate(xml.getValue());
-            if (ob instanceof ArrayList) {
-                List list = (List) ob;
-                for (Object obj : list) {
-                    if (obj instanceof OMNode) {
-                        OMNode omNode = (OMNode) obj;
-                        OMContainer omContainer = omNode.getParent();
-                        omNode.detach();
-                        OMAbstractFactory.getOMFactory().createOMText(omContainer, value);
-                    } else if (obj instanceof OMAttribute) {
-                        OMAttribute omAttribute = (OMAttribute) obj;
-                        omAttribute.setAttributeValue(value);
-                    } else {
-                        ErrorHandler.logWarn(OPERATION, "xPath '" + xPath + "' doesnot refers to a attribute or text.");
+            
+            Object result = axiomxPath.evaluate(xml.getValue());
+            if (result instanceof ArrayList) {
+                List<?> macthingElements = (List<?>) result;
+                if (macthingElements.isEmpty()) {
+                    ErrorHandler.logWarn(OPERATION, "xPath '" + xPath + "' does not match to any element.");
+                } else {
+                    for (Object element : macthingElements) {
+                        if (element instanceof OMText) {
+                            ErrorHandler.logWarn(OPERATION, "xPath '" + xPath + "' refers to the text value of an " +
+                                    "existing element.");
+                        } else if (element instanceof OMDocument) {
+                            ErrorHandler.logWarn(OPERATION, "xPath: '" + xPath + "' refers to the Document element.");
+                        } else if (element instanceof OMAttribute) {
+                            ErrorHandler.logWarn(OPERATION, "xPath '"  + xPath + "' refers to an attribute.");
+                        } else {
+                            OMElement omElement = (OMElement) element;
+                            omElement.addAttribute(name, value, null);
+                        }
                     }
                 }
             }

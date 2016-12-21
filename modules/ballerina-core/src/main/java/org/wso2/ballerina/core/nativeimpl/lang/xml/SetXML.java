@@ -82,6 +82,7 @@ public class SetXML extends AbstractNativeFunction {
 
                 }
             }*/
+            
             Object ob = axiomxPath.evaluate(xml.getValue());
             if (ob instanceof ArrayList) {
                 List<?> list = (List<?>) ob;
@@ -90,7 +91,9 @@ public class SetXML extends AbstractNativeFunction {
                         OMNode omNode = (OMNode) obj;
                         OMContainer omContainer = omNode.getParent();
                         omNode.detach();
-                        omContainer.addChild(value);
+                        // Have to clone and add a new OMElement everytime, due to a bug in axiom.
+                        // Otherwise element will be added to only the last matching element.
+                        omContainer.addChild(value.cloneOMElement());
                     }
                 }
             }

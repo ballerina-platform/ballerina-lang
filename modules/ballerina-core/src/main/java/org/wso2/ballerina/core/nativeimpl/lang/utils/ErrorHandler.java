@@ -34,7 +34,8 @@ public class ErrorHandler {
     /**
      * Handle invalid/malformed jsonpath exceptions.
      * 
-     * @param e     Exception to handle
+     * @param operation     Operation that executed
+     * @param e             Exception to handle
      */
     public static void handleInvalidJsonPath(String operation, Exception e) {
         throw new BallerinaException("Failed to " + operation + ". Invalid jsonpath: " + e.getMessage());
@@ -43,6 +44,7 @@ public class ErrorHandler {
     /**
      * Handle non-existing jsonpath exceptions.
      * 
+     * @param operation Operation that executed
      * @param jsonPath  Jsonpath
      * @param e         Exception to handle
      */
@@ -54,7 +56,8 @@ public class ErrorHandler {
     /**
      * Handle any jsonpath related exception.
      * 
-     * @param e Throwable to handle
+     * @param operation     Operation that executed
+     * @param e             Throwable to handle
      */
     public static void handleJsonPathException(String operation, Throwable e) {
         throw new BallerinaException("Failed to " + operation + ". Error while executing jsonpath: " + e.getMessage());
@@ -63,7 +66,8 @@ public class ErrorHandler {
     /**
      * Handle any malformed json exception.
      * 
-     * @param e Exception to handle
+     * @param operation     Operation that executed
+     * @param e             Exception to handle
      */
     public static void handleMalformedJson(String operation, Exception e) {
         // here local message of the cause is logged whenever possible, to avoid java class being logged
@@ -79,7 +83,8 @@ public class ErrorHandler {
     /**
      * Handle any json related exception.
      * 
-     * @param e Throwable to handle
+     * @param operation     Operation that executed
+     * @param e             Throwable to handle
      */
     public static void handleJsonException(String operation, Throwable e) {
         // here local message  of the cause is logged whenever possible, to avoid java class being logged 
@@ -108,7 +113,8 @@ public class ErrorHandler {
     /**
      * Handle any xpath related exception.
      * 
-     * @param e Throwable to handle
+     * @param operation     Operation that executed
+     * @param e             Throwable to handle
      */
     public static void handleXPathException(String operation, Throwable e) {
         // here local message of the cause is logged whenever possible, to avoid java class being logged 
@@ -122,4 +128,13 @@ public class ErrorHandler {
         }
     }
     
+    /**
+     * Log a warn.
+     * 
+     * @param operation     Operation that executed
+     * @param msg           Warning message
+     */
+    public static void logWarn(String operation, String msg) {
+        log.warn("Failed to " + operation + ". " + msg);
+    }
 }
