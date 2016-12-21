@@ -47,7 +47,7 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
             }
 
             // Initialize the bounding box
-            this.getBoundingBox().fromTopCenter(this.getTopCenter(), 0, 0);
+            this.getBoundingBox().fromTopCenter(this.getTopCenter(), 120, 0);
             this.init();
 
         };
@@ -60,7 +60,6 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
         };
 
         IfElseStatementView.prototype.init = function () {
-            this.listenTo(this._model, 'sub-component-rendered', this.subComponentRenderCallback);
         };
 
         /**
@@ -71,16 +70,16 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
             var StatementViewFactory = require('./statement-view-factory');
             var statementViewFactory = new StatementViewFactory();
             var topCenter = this.getTopCenter().clone();
-            // For the viewOptions currently pass width only.
-            // This is because the initial width of the component should be based on my bounding box values
-            var viewOptions = {width: this.getBoundingBox().w()};
-            var args = {model: statement, container: this.getStatementGroup(), viewOptions: viewOptions, parent: this, topCenter: topCenter};
+            var args = {model: statement, container: this.getStatementGroup(), viewOptions: {}, parent: this, topCenter: topCenter};
             var statementView = statementViewFactory.getStatementView(args);
             this._ifBlockView = statementView;
             this._diagramRenderingContext.getViewModelMap()[statement.id] = statementView;
 
-            // TODO: add the js doc annotations
-            this.listenTo(statementView, 'sub-component-rendered', this.subComponentRenderCallback);
+            this.getBoundingBox().on('top-edge-moved', function(dy){
+                statementView.getBoundingBox().y(statementView.getBoundingBox().y() + dy);
+            });
+            this.getBoundingBox().h(this.getBoundingBox().h() + statementView.getBoundingBox().h());
+
             statementView.render(this._diagramRenderingContext);
         };
 
@@ -93,15 +92,44 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
             var statementViewFactory = new StatementViewFactory();
             var topCenterX = this.getBoundingBox().x() + this.getBoundingBox().w()/2;
             var topCenterY = this.getBoundingBox().getBottom();
+
+            if(_.isEmpty(this._elseIfViews)){
+                topCenterY = this._ifBlockView.getBoundingBox().getBottom();
+            } else {
+                topCenterY = _.last(this._elseIfViews).getBoundingBox().getBottom();
+            }
+
             var topCenter = new Point(topCenterX, topCenterY);
             // For the viewOptions currently pass width only.
             // This is because the initial width of the component should be based on my bounding box values
             var viewOptions = {width: this.getBoundingBox().w()};
             var args = {model: statement, container: this.getStatementGroup(), viewOptions: viewOptions, parent: this, topCenter: topCenter};
             var statementView = statementViewFactory.getStatementView(args);
+
+
+            // bind unbind event handlers
+            if(_.isEmpty(this._elseIfViews)){
+                // this is the first else if part - previously else block should be listening  on if view block
+                if(!_.isNil(this._elseBlockView)){
+                    this._elseBlockView.stopListening(this._ifBlockView.getBoundingBox(), 'bottom-edge-moved');
+                }
+            } else {
+                // else should be listening to current last else if view
+                if(!_.isNil(this._elseBlockView)){
+                    this._elseBlockView.stopListening(_.last(this._elseIfViews).getBoundingBox(), 'bottom-edge-moved');
+                }
+            }
+
+            this._elseIfViews.push(statementView);
             this._diagramRenderingContext.getViewModelMap()[statement.id] = statementView;
-            // TODO: add the js doc annotations
-            this.listenTo(statementView, 'sub-component-rendered', this.subComponentRenderCallback);
+
+            // make else view listen to new last else if
+            if(!_.isNil(this._elseBlockView)){
+                this._elseBlockView.listenTo(_.last(this._elseIfViews).getBoundingBox(), 'bottom-edge-moved', function(dy){
+                    this.getBoundingBox().y( this.getBoundingBox().y() + dy);
+                });
+            }
+            this.getBoundingBox().h(this.getBoundingBox().h() + statementView.getBoundingBox().h());
             statementView.render(this._diagramRenderingContext);
         };
 
@@ -114,6 +142,14 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
             var statementViewFactory = new StatementViewFactory();
             var topCenterX = this.getBoundingBox().x() + this.getBoundingBox().w()/2;
             var topCenterY = this.getBoundingBox().getBottom();
+
+            // find last view
+            var lastViewBlock = this._ifBlockView;
+            if(!_.isEmpty(this._elseIfViews)){
+                lastViewBlock = _.last(this._elseIfViews);
+            }
+            topCenterY = lastViewBlock.getBoundingBox().getBottom();
+
             var topCenter = new Point(topCenterX, topCenterY);
             // For the viewOptions currently pass width only.
             // This is because the initial width of the component should be based on my bounding box values
@@ -122,8 +158,14 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
             var statementView = statementViewFactory.getStatementView(args);
             this._elseBlockView = statementView;
             this._diagramRenderingContext.getViewModelMap()[statement.id] = statementView;
-            // TODO: add the js doc annotations
-            this.listenTo(statementView, 'sub-component-rendered', this.subComponentRenderCallback);
+
+
+            statementView.listenTo(lastViewBlock.getBoundingBox(), 'bottom-edge-moved', function(dy){
+                statementView.getBoundingBox().y(statementView.getBoundingBox().y() + dy);
+            });
+
+            this.getBoundingBox().h(this.getBoundingBox().h() + statementView.getBoundingBox().h());
+
             statementView.render(this._diagramRenderingContext);
         };
 
@@ -237,17 +279,6 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
 
         IfElseStatementView.prototype.getLastElseIf = function () {
             return this._elseIfViews[this._elseIfViews.length - 1];
-        };
-
-        IfElseStatementView.prototype.subComponentRenderCallback = function (componentBBox) {
-            if (this.getBoundingBox().w() < componentBBox.w()) {
-                this.getBoundingBox().w(componentBBox.w());
-            }
-            if (this.getBoundingBox().x() > componentBBox.x()) {
-                this.getBoundingBox().x(componentBBox.x());
-            }
-            this.getBoundingBox().h(this.getBoundingBox().h() + componentBBox.h());
-            this.trigger('parent-bbox-modified', this.getBoundingBox());
         };
 
         return IfElseStatementView;

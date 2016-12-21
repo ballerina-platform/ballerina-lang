@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['log', 'lodash', 'jquery', 'event_channel', 'ace/ace'], function(log, _, $, EventChannel, ace) {
+define(['log', 'lodash', 'jquery', 'event_channel', 'ace/ace', 'beautify'], function(log, _, $, EventChannel, ace, Beautify) {
 
     /**
      * @class SourceView
@@ -65,7 +65,9 @@ define(['log', 'lodash', 'jquery', 'event_channel', 'ace/ace'], function(log, _,
      *
      */
     SourceView.prototype.setContent = function(content){
-        this._editor.session.setValue(content);
+        var beautify = Beautify.js_beautify;
+        var formattedContent = beautify(content, { indent_size: 4 });
+        this._editor.session.setValue(formattedContent);
     };
 
     SourceView.prototype.show = function(){
