@@ -178,7 +178,7 @@ public class Util {
             certPass = keyStorePass;
         }
         if (trustStoreFile == null || trustStorePass == null) {
-            throw new IllegalArgumentException("TrusstoreFile or keyStorePass not defined for " + "HTTPS scheme");
+            throw new IllegalArgumentException("TrusstoreFile or trustStorePass not defined for " + "HTTPS scheme");
         }
         SSLConfig sslConfig = new SSLConfig(null, null).setCertPass(null);
         if (keyStoreFile != null) {
