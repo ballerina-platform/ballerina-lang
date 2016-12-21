@@ -18,6 +18,9 @@
 
 package org.wso2.ballerina.core.runtime.core;
 
+import org.wso2.ballerina.core.interpreter.Context;
+import org.wso2.ballerina.core.model.values.BValueRef;
+import org.wso2.ballerina.core.model.values.MessageValue;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
@@ -28,7 +31,6 @@ public class DefaultBalCallback implements BalCallback {
 
     protected CarbonCallback parentCallback;
 
-
     public DefaultBalCallback(CarbonCallback parentCallback) {
         this.parentCallback = parentCallback;
     }
@@ -36,5 +38,20 @@ public class DefaultBalCallback implements BalCallback {
     @Override
     public void done(CarbonMessage carbonMessage) {
         parentCallback.done(carbonMessage);
+
     }
+
+    @Override
+    public void done(Context context) {
+        BValueRef bValueRef = context.getControlStack().getReturnValue(0);
+        if (bValueRef != null && bValueRef.getBValue() instanceof MessageValue) {
+            parentCallback.done(((MessageValue) bValueRef.getBValue()).getValue());
+        }
+    }
+
+    @Override
+    public CarbonCallback getParentCallback() {
+        return parentCallback;
+    }
+
 }

@@ -114,6 +114,7 @@ public class BallerinaAction implements Action, Node {
         this.stackFrameSize = stackFrameSize;
     }
 
+
     public VariableDcl[] getVariableDcls() {
         return variableDcls;
     }

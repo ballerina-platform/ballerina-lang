@@ -41,6 +41,8 @@ public class MessageProcessor implements CarbonMessageProcessor {
     public boolean receive(CarbonMessage cMsg, CarbonCallback carbonCallback) throws Exception {
 
         Context balContext = new Context(cMsg);
+        BalCallback balCallback = new DefaultBalCallback(carbonCallback);
+        balContext.setBalCallback(balCallback);
         WorkerThread workerThread = null;
 
         if (!org.wso2.carbon.messaging.Constants.DIRECTION_RESPONSE.
@@ -59,11 +61,11 @@ public class MessageProcessor implements CarbonMessageProcessor {
             }
             balContext.setProperty(Constants.PROTOCOL, protocol);
 
-            workerThread = new RequestWorkerThread(balContext, new DefaultBalCallback(carbonCallback));
+            workerThread = new RequestWorkerThread(balContext, balCallback);
 
         } else {
             // For Response
-            workerThread = new ResponseWorkerThread(balContext, new DefaultBalCallback(carbonCallback));
+            workerThread = new ResponseWorkerThread(balContext, balCallback);
         }
         ThreadPoolFactory.getInstance().getExecutor().execute(workerThread);
 

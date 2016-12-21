@@ -277,6 +277,11 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(AssignStmt assignStmt) {
         Expression rExpr = assignStmt.getRExpr();
+        if (rExpr instanceof ActionInvocationExpr) {
+            assignStmt.setHaltExecution(true);
+
+        }
+
         rExpr.accept(this);
 
         Expression lExpr = assignStmt.getLExpr();
@@ -284,9 +289,38 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     @Override
+    public void resume(AssignStmt assignStmt) {
+
+    }
+
+    @Override
     public void visit(BlockStmt blockStmt) {
+        Statement previousStmt = null;
+        //        for (Statement stmt : blockStmt.getStatements()) {
+        //            if (previousStmt == null) {
+        //                previousStmt = stmt;
+        //                stmt.accept(this);
+        //            } else {
+        //                stmt.accept(this);
+        //                previousStmt.setNextStatement(stmt);
+        //                previousStmt = stmt;
+        //            }
+        //
+        //        }
         for (Statement stmt : blockStmt.getStatements()) {
-            stmt.accept(this);
+            if (blockStmt.getStatements().length == 1) {
+                stmt.accept(this);
+            } else if (previousStmt == null && blockStmt.getStatements().length > 1) {
+                previousStmt = stmt;
+            } else if (previousStmt != null) {
+                previousStmt.setNextStatement(stmt);
+                previousStmt.accept(this);
+                previousStmt = stmt;
+            }
+
+        }
+        if (previousStmt != null) {
+            previousStmt.accept(this);
         }
     }
 
@@ -400,7 +434,6 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         // Identify the package of the function to be invoked.
 
-
     }
 
     // TODO Duplicate code. fix me
@@ -428,8 +461,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             paramTypes[i] = exprs[i].getType();
         }
 
-        symName = LangModelUtils.getActionSymName(symName.getName(), symName.getConnectorName(),
-                pkgPath, paramTypes);
+        symName = LangModelUtils.getActionSymName(symName.getName(), symName.getConnectorName(), pkgPath, paramTypes);
         actionIExpr.setActionName(symName);
 
         bFile.addActionIExpr(actionIExpr);
@@ -455,6 +487,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             addExpr.setEvalFunc(AddExpression.ADD_STRING_FUNC);
         } else {
             throw new SemanticException("Add operation is not supported for type: " + arithmeticExprType);
+
         }
     }
 
@@ -500,8 +533,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             expr.setType(TypeC.BOOLEAN_TYPE);
             expr.setEvalFunc(EqualExpression.EQUAL_STRING_FUNC);
         } else {
-            throw new SemanticException("Equals operation is not supported for type: "
-                    + compareExprType);
+            throw new SemanticException("Equals operation is not supported for type: " + compareExprType);
         }
     }
 
@@ -525,8 +557,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         if (compareExprType == TypeC.INT_TYPE) {
             greaterEqualExpr.setEvalFunc(GreaterEqualExpression.GREATER_EQUAL_INT_FUNC);
         } else {
-            throw new SemanticException("Greater than equal operation is not supported for type: "
-                    + compareExprType);
+            throw new SemanticException("Greater than equal operation is not supported for type: " + compareExprType);
         }
     }
 
@@ -537,8 +568,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         if (compareExprType == TypeC.INT_TYPE) {
             greaterThanExpr.setEvalFunc(GreaterThanExpression.GREATER_THAN_INT_FUNC);
         } else {
-            throw new SemanticException("Greater than operation is not supported for type: "
-                    + compareExprType);
+            throw new SemanticException("Greater than operation is not supported for type: " + compareExprType);
         }
     }
 
@@ -548,8 +578,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         if (compareExprType == TypeC.INT_TYPE) {
             lessEqualExpr.setEvalFunc(LessEqualExpression.LESS_EQUAL_INT_FUNC);
         } else {
-            throw new SemanticException("Less than equal operation is not supported for type: "
-                    + compareExprType);
+            throw new SemanticException("Less than equal operation is not supported for type: " + compareExprType);
         }
     }
 
@@ -634,8 +663,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         if (lExpr.getType() != rExpr.getType()) {
             throw new BallerinaException(
-                    "Incompatible types in binary expression: " + lExpr.getType() + " vs "
-                            + rExpr.getType());
+                    "Incompatible types in binary expression: " + lExpr.getType() + " vs " + rExpr.getType());
         }
 
         return lExpr.getType();

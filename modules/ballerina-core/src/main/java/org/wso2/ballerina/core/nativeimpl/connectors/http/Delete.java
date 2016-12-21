@@ -22,7 +22,6 @@ import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Connector;
 import org.wso2.ballerina.core.model.types.TypeEnum;
-import org.wso2.ballerina.core.model.values.BValueRef;
 import org.wso2.ballerina.core.model.values.ConnectorValue;
 import org.wso2.ballerina.core.model.values.MessageValue;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
@@ -32,7 +31,6 @@ import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
  * {@code Delete} is the DELETE action implementation of the HTTP Connector
- *
  */
 @BallerinaAction(
         packageName = "ballerina.net.http",
@@ -40,11 +38,11 @@ import org.wso2.carbon.messaging.CarbonMessage;
         connectorName = HTTPConnector.CONNECTOR_NAME,
         args = {
                 @Argument(name = "connector",
-                        type = TypeEnum.CONNECTOR),
+                          type = TypeEnum.CONNECTOR),
                 @Argument(name = "path", type = TypeEnum.STRING),
                 @Argument(name = "message", type = TypeEnum.MESSAGE)
         },
-        returnType = {TypeEnum.MESSAGE})
+        returnType = { TypeEnum.MESSAGE })
 @Component(
         name = "action.net.http.delete",
         immediate = true,
@@ -54,7 +52,7 @@ public class Delete extends AbstractHTTPAction {
     private static final Logger logger = LoggerFactory.getLogger(Delete.class);
 
     @Override
-    public BValueRef execute(Context context) {
+    public void execute(Context context) {
 
         logger.debug("Executing Native Action : Delete");
 
@@ -66,15 +64,17 @@ public class Delete extends AbstractHTTPAction {
         Connector connector = connectorValue.getValue();
         if (!(connector instanceof HTTPConnector)) {
             logger.error("Need to use a HTTPConnector as the first argument");
-            return null;
+            return;
         }
         // Prepare the message
         CarbonMessage cMsg = messageValue.getValue();
         prepareRequest(connector, path, cMsg);
         cMsg.setProperty(org.wso2.ballerina.core.runtime.net.http.Constants.HTTP_METHOD,
-                         org.wso2.ballerina.core.runtime.net.http.Constants.HTTP_METHOD_DELETE);
+                org.wso2.ballerina.core.runtime.net.http.Constants.HTTP_METHOD_DELETE);
 
         // Execute the operation
-        return executeAction(context, cMsg);
+        executeAction(context, cMsg);
     }
+
+
 }

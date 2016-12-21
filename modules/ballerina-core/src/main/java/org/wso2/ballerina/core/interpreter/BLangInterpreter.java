@@ -53,6 +53,7 @@ import org.wso2.ballerina.core.model.expressions.SubtractExpression;
 import org.wso2.ballerina.core.model.expressions.UnaryExpression;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
+import org.wso2.ballerina.core.model.statements.BalStatementCallback;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.statements.CommentStmt;
 import org.wso2.ballerina.core.model.statements.FunctionInvocationStmt;
@@ -68,6 +69,9 @@ import org.wso2.ballerina.core.model.values.MessageValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
+import org.wso2.ballerina.core.runtime.core.BalCallback;
+import org.wso2.ballerina.core.runtime.core.DefaultBalCallback;
+import org.wso2.carbon.messaging.CarbonMessage;
 
 import java.util.List;
 
@@ -129,6 +133,7 @@ public class BLangInterpreter implements NodeVisitor {
         List<Statement> stmts = worker.getStatements();
         for (Statement stmt : stmts) {
             stmt.accept(this);
+            break;
         }
     }
 
@@ -154,30 +159,50 @@ public class BLangInterpreter implements NodeVisitor {
 
     @Override
     public void visit(BlockStmt blockStmt) {
-        //TODO Improve this to support non-blocking behaviour.
-        //TODO Possibly a linked set of statements would do.
-
-        Statement[] stmts = blockStmt.getStatements();
-        for (Statement stmt : stmts) {
-            stmt.accept(this);
+        updateCallback(blockStmt);
+        if (blockStmt.getFirstChildStatement() != null) {
+            blockStmt.getFirstChildStatement().accept(this);
         }
+        continueStatementChain(blockStmt);
     }
 
     @Override
     public void visit(AssignStmt assignStmt) {
         Expression rExpr = assignStmt.getRExpr();
+
         rExpr.accept(this);
 
+        bContext.setCurrentStatement(assignStmt);
+
+        if (!assignStmt.isHaltExecution()) {
+
+            Expression lExpr = assignStmt.getLExpr();
+            lExpr.accept(this);
+
+            BValueRef rValue = getValue(assignStmt.getRExpr());
+            BValueRef lValue = getValue(lExpr);
+
+            lValue.setBValue(rValue.getBValue());
+
+            // TODO this optional .. we need think about this BValueRef thing again
+            setValue(lExpr, lValue);
+            continueStatementChain(assignStmt);
+        }
+    }
+
+    @Override
+    public void resume(AssignStmt assignStmt) {
         Expression lExpr = assignStmt.getLExpr();
         lExpr.accept(this);
 
-        BValueRef rValue = getValue(rExpr);
+        BValueRef rValue = getValue(assignStmt.getRExpr());
         BValueRef lValue = getValue(lExpr);
 
         lValue.setBValue(rValue.getBValue());
 
         // TODO this optional .. we need think about this BValueRef thing again
         setValue(lExpr, lValue);
+        continueStatementChain(assignStmt);
     }
 
     @Override
@@ -187,6 +212,7 @@ public class BLangInterpreter implements NodeVisitor {
 
     @Override
     public void visit(IfElseStmt ifElseStmt) {
+        updateCallback(ifElseStmt);
         Expression expr = ifElseStmt.getCondition();
         expr.accept(this);
         BValueRef result = getValue(expr);
@@ -211,10 +237,13 @@ public class BLangInterpreter implements NodeVisitor {
         if (elseBody != null) {
             elseBody.accept(this);
         }
+
+        continueStatementChain(ifElseStmt);
     }
 
     @Override
     public void visit(WhileStmt whileStmt) {
+        updateCallback(whileStmt);
         Expression expr = whileStmt.getCondition();
         expr.accept(this);
         BValueRef result = getValue(expr);
@@ -227,18 +256,26 @@ public class BLangInterpreter implements NodeVisitor {
             expr.accept(this);
             result = getValue(expr);
         }
+        continueStatementChain(whileStmt);
     }
 
     @Override
     public void visit(FunctionInvocationStmt functionInvocationStmt) {
         functionInvocationStmt.getFunctionInvocationExpr().accept(this);
+        continueStatementChain(functionInvocationStmt);
     }
 
     @Override
     public void visit(ReplyStmt replyStmt) {
-        MessageValue messageValue =
-                (MessageValue) controlStack.getCurrentFrame().values[replyStmt.getReplyExpr().getOffset()].getBValue();
-        bContext.getBalCallback().done(messageValue.getValue());
+        BValueRef bValueRef = bContext.getControlStack().getCurrentFrame().values[replyStmt.getReplyExpr().getOffset()];
+        if (bValueRef != null && bValueRef.getBValue() instanceof MessageValue) {
+            CarbonMessage messageValue = (CarbonMessage) bValueRef.getBValue().getValue();
+            BalCallback callback = bContext.getBalCallback();
+            while (!(callback instanceof DefaultBalCallback)) {
+                callback = (BalCallback) callback.getParentCallback();
+            }
+            callback.done(messageValue);
+        }
     }
 
     @Override
@@ -390,16 +427,12 @@ public class BLangInterpreter implements NodeVisitor {
             bAction.accept(this);
         } else {
             AbstractNativeAction nativeAction = (AbstractNativeAction) action;
+            bContext.setCurrentNodeVisitor(this);
+            bContext.setCurrentResultOffset(actionIExpr.getOffset());
             nativeAction.execute(bContext);
+
         }
 
-        controlStack.popFrame();
-
-        // Setting return values to function invocation expression
-        // TODO At the moment we only support single return value
-        if (rVals.length >= 1) {
-            controlStack.setValue(actionIExpr.getOffset(), rVals[0]);
-        }
     }
 
     @Override
@@ -497,5 +530,21 @@ public class BLangInterpreter implements NodeVisitor {
 
         BValueRef result = binaryExpr.getEvalFunc().apply(lValue, rValue);
         controlStack.setValue(binaryExpr.getOffset(), result);
+    }
+
+    private void continueStatementChain(Statement statement) {
+
+        if (statement.getNextStatement() != null) {
+            statement.getNextStatement().accept(this);
+        } else if (statement.getNextStatement() == null && bContext.getBalCallback() != null) {
+            bContext.getBalCallback().done(bContext);
+        }
+    }
+
+    private void updateCallback(Statement statement) {
+
+        BalStatementCallback balStatementCallback = new BalStatementCallback(bContext.getBalCallback(),
+                statement.getNextStatement(), this);
+        bContext.setBalCallback(balStatementCallback);
     }
 }

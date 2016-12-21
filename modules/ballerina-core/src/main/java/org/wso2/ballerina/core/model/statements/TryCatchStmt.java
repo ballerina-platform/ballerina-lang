@@ -47,4 +47,30 @@ public class TryCatchStmt implements Statement {
     public void accept(NodeVisitor visitor) {
 //        visitor.accept(this);
     }
-}
+
+    @Override
+    public void setNextStatement(Statement statement) {
+
+    }
+
+    @Override
+    public Statement getNextStatement() {
+        return null;
+    }
+
+    @Override
+    public boolean isHaltExecution() {
+        return false;
+    }
+
+    @Override
+    public void setHaltExecution(boolean value) {
+
+    }
+
+    @Override
+    public void resumeExecution(NodeVisitor nodeVisitor) {
+
+    }
+
+    }

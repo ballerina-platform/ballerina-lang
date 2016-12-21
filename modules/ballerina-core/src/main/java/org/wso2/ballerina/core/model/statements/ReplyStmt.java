@@ -34,18 +34,42 @@ public class ReplyStmt implements Statement {
         this.replyExpr = replyExpr;
     }
 
-
     public Expression getReplyExpr() {
         return replyExpr;
     }
 
     public void interpret(Context ctx) {
-         ctx.getBalCallback().done(ctx.getCarbonMessage());
+
     }
 
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public void setNextStatement(Statement statement) {
+
+    }
+
+    @Override
+    public Statement getNextStatement() {
+        return null;
+    }
+
+    @Override
+    public boolean isHaltExecution() {
+        return false;
+    }
+
+    @Override
+    public void setHaltExecution(boolean value) {
+
+    }
+
+    @Override
+    public void resumeExecution(NodeVisitor nodeVisitor) {
+
     }
 
     /**

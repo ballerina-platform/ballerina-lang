@@ -30,6 +30,8 @@ public class WhileStmt implements Statement {
     private Expression whileCondition;
     private BlockStmt whileBody;
 
+    private Statement nextStatement;
+
     // TODO Make this constructor private
     public WhileStmt(Expression whileCondition, BlockStmt whileBody) {
         this.whileCondition = whileCondition;
@@ -53,6 +55,31 @@ public class WhileStmt implements Statement {
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public void setNextStatement(Statement statement) {
+      nextStatement = statement;
+    }
+
+    @Override
+    public Statement getNextStatement() {
+        return nextStatement;
+    }
+
+    @Override
+    public boolean isHaltExecution() {
+        return false;
+    }
+
+    @Override
+    public void setHaltExecution(boolean value) {
+
+    }
+
+    @Override
+    public void resumeExecution(NodeVisitor nodeVisitor) {
+
     }
 
     /**

@@ -60,4 +60,5 @@ public interface Action extends Interpreter {
     int getStackFrameSize();
 
     void setStackFrameSize(int stackFrameSize);
+
 }

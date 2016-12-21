@@ -56,6 +56,7 @@ public abstract class AbstractNativeAction implements Action, NativeConstruct {
 
     private int stackFrameSize;
 
+
     public AbstractNativeAction() {
         parameters = new ArrayList<>();
         returnTypes = new ArrayList<>();
@@ -155,7 +156,7 @@ public abstract class AbstractNativeAction implements Action, NativeConstruct {
 
     @Override
     public void interpret(Context ctx) {
-//        connector.init();
+        //        connector.init();
     }
 
     /**
@@ -172,14 +173,15 @@ public abstract class AbstractNativeAction implements Action, NativeConstruct {
         throw new ArgumentOutOfRangeException(index);
     }
 
-    public abstract BValueRef execute(Context context);
+    public abstract void execute(Context context);
 
-//    @Override
-//    public void interpret(Context ctx) {
-//        execute(ctx);
+    //    @Override
+    //    public void interpret(Context ctx) {
+    //        execute(ctx);
 
     // TODO : Support for multiple return values and to be change after  support statement callback chaning
 
-//    }
+    //    }
+
 
 }

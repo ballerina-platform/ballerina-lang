@@ -32,6 +32,10 @@ public class AssignStmt implements Statement {
     private VariableRefExpr lhsExpr;
     private Expression rhsExpr;
 
+    private Statement nextStatement;
+
+    private boolean isHalt;
+
     public AssignStmt(VariableRefExpr lhsExpr, Expression rhsExpr) {
         this.lhsExpr = lhsExpr;
         this.rhsExpr = rhsExpr;
@@ -56,4 +60,30 @@ public class AssignStmt implements Statement {
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
+
+    @Override
+    public void setNextStatement(Statement statement) {
+        nextStatement = statement;
+    }
+
+    @Override
+    public Statement getNextStatement() {
+        return nextStatement;
+    }
+
+    @Override
+    public boolean isHaltExecution() {
+        return isHalt;
+    }
+
+    @Override
+    public void setHaltExecution(boolean value) {
+        this.isHalt = value;
+    }
+
+    @Override
+    public void resumeExecution(NodeVisitor nodeVisitor) {
+        nodeVisitor.resume(this);
+    }
+
 }
