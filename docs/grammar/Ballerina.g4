@@ -390,7 +390,7 @@ expression
     |   ('+'|'-'|'!') expression                                            # unaryExpression
     |   '(' expression ')'                                                  # bracedExpression
     |   expression ('^') expression                                         # binaryPowExpression
-    |   expression ('/') expression                                         # binaryDivitionExpression
+    |   expression ('/') expression                                         # binaryDivisionExpression
     |   expression ('*') expression                                         # binaryMultiplicationExpression
     |   expression ('%') expression                                         # binaryModExpression
     |   expression ('&&') expression                                        # binaryAndExpression

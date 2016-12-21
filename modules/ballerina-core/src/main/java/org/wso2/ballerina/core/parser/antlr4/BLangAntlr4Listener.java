@@ -915,11 +915,11 @@ public class BLangAntlr4Listener implements BallerinaListener {
     }
 
     @Override
-    public void enterBinaryDivitionExpression(BallerinaParser.BinaryDivitionExpressionContext ctx) {
+    public void enterBinaryDivisionExpression(BallerinaParser.BinaryDivisionExpressionContext ctx) {
     }
 
     @Override
-    public void exitBinaryDivitionExpression(BallerinaParser.BinaryDivitionExpressionContext ctx) {
+    public void exitBinaryDivisionExpression(BallerinaParser.BinaryDivisionExpressionContext ctx) {
         createBinaryExpr(ctx);
     }
 

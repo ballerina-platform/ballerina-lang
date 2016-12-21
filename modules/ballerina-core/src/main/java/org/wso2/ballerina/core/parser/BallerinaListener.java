@@ -896,6 +896,18 @@ public interface BallerinaListener extends ParseTreeListener {
 	 */
 	void exitFunctionInvocationExpression(BallerinaParser.FunctionInvocationExpressionContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code binaryDivisionExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterBinaryDivisionExpression(BallerinaParser.BinaryDivisionExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code binaryDivisionExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitBinaryDivisionExpression(BallerinaParser.BinaryDivisionExpressionContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code binaryAndExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.
 	 * @param ctx the parse tree
@@ -931,18 +943,6 @@ public interface BallerinaListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitArrayinitializerExpression(BallerinaParser.ArrayinitializerExpressionContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code binaryDivitionExpression}
-	 * labeled alternative in {@link BallerinaParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void enterBinaryDivitionExpression(BallerinaParser.BinaryDivitionExpressionContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code binaryDivitionExpression}
-	 * labeled alternative in {@link BallerinaParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void exitBinaryDivitionExpression(BallerinaParser.BinaryDivitionExpressionContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code binaryModExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.
