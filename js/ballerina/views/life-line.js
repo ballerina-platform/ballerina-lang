@@ -79,6 +79,14 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         return this._topCenter.x();
     };
 
+    LifeLineView.prototype.getMiddleLineCenter = function () {
+        return new Point(this.getMidPoint(), (this._topCenter.y()+ this._bottomCenter.y())/2);
+    };
+
+    LifeLineView.prototype.getMiddleLineHeight = function () {
+        return this._bottomCenter.y() - this._topCenter.y();
+    };
+
     LifeLineView.prototype.width = function () {
         return this._topPolygon.attr('width');
     };
@@ -92,6 +100,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         this.renderTopPolygon();
         this.renderBottomPolygon();
         this.renderTitle();
+        this.renderMiddleRectangle();
         this.renderContentArea();
         return this;
     };
@@ -195,6 +204,8 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         });
 
     };
+
+    LifeLineView.prototype.renderMiddleRectangle = function () {};
 
     LifeLineView.prototype.renderContentArea = function () {
         this._contentArea = D3Utils.group(this._rootGroup);

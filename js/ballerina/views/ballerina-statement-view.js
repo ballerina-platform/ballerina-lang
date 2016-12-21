@@ -161,7 +161,7 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
                 log.debug("Clicked statement group");
 
                 event.stopPropagation();
-
+                $(window).trigger('click');
                 // Not allowing to click the statement group multiple times.
                 if ($("." + viewOptions.actionButton.wrapper.class).length > 0) {
                     log.debug("statement group is already clicked");

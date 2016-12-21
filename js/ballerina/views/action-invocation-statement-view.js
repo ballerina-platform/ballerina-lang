@@ -15,10 +15,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-invocation-statement','./point', 'd3utils'],
-    function (_, d3, log, BallerinaStatementView, ActionInvocationStatement, Point, D3Utils) {
+define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-invocation-expression','./point', 'd3utils'],
+    function (_, d3, log, BallerinaStatementView, ActionInvocationExpression, Point, D3Utils) {
 
-        var ActionInvocationStatement = function (args) {
+        var ActionInvocationStatementView = function (args) {
             BallerinaStatementView.call(this, args);
             this._connectorView = {};
 
@@ -39,41 +39,33 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
 
         };
 
-        ActionInvocationStatement.prototype = Object.create(BallerinaStatementView.prototype);
-        ActionInvocationStatement.prototype.constructor = ActionInvocationStatement;
+        ActionInvocationStatementView.prototype = Object.create(BallerinaStatementView.prototype);
+        ActionInvocationStatementView.prototype.constructor = ActionInvocationStatementView;
 
 
-        ActionInvocationStatement.prototype.init = function(){
+        ActionInvocationStatementView.prototype.init = function(){
             this.getModel().on("drawConnectionForAction",this.drawActionConnections,this);
         };
-        ActionInvocationStatement.prototype.setDiagramRenderingContext = function(context){
+        ActionInvocationStatementView.prototype.setDiagramRenderingContext = function(context){
             this._diagramRenderingContext = context;
         };
-        ActionInvocationStatement.prototype.getDiagramRenderingContext = function(){
+        ActionInvocationStatementView.prototype.getDiagramRenderingContext = function(){
             return this._diagramRenderingContext;
         };
 
         // TODO : Please revisit this method. Needs a refactor
-        ActionInvocationStatement.prototype.drawActionConnections = function(startPoint,parent){
+        ActionInvocationStatementView.prototype.drawActionConnections = function(startPoint,parent){
             log.info("Drawing connections for http connector actions");
-
             // TODO : Please alter this logic
             if(!_.isNil(this.getModel().getConnector())) {
-                var connectorViewOpts = this.getDiagramRenderingContext().getViewModelMap()[this.getModel().getConnector().id].getViewOptions();
-                var connectorCenterPointX = connectorViewOpts.connectorCenterPointX;
-                var connectorCenterPointY = connectorViewOpts.connectorCenterPointY;
-                var startX = Math.round(startPoint.x());
-                var processorConnector = D3Utils.line(Math.round(startPoint.x()), Math.round(startPoint.y()), Math.round(connectorCenterPointX),
-                    Math.round(startPoint.y()), parent).classed("action-line", true);
-                var arrowHead = D3Utils.inputTriangle(Math.round(connectorCenterPointX) - 5, Math.round(startPoint.y()), parent).classed("action-arrow", true);
-                var processorConnector2 = D3Utils.line(Math.round(startPoint.x()), Math.round(startPoint.y()) + 8, Math.round(connectorCenterPointX),
-                    Math.round(startPoint.y()) + 8, parent).classed("action-dash-line", true);
-                D3Utils.outputTriangle(Math.round(startPoint.x()), Math.round(startPoint.y()) + 8, parent).classed("action-arrow", true);
+                var connector = this.getDiagramRenderingContext().getViewModelMap()[this.messageManager.getActivatedDropTarget().id];
+                this._model.setConnector(this.messageManager.getActivatedDropTarget());
+                this.DrawArrow(this.getDiagramRenderingContext());
             }
         };
 
-        ActionInvocationStatement.prototype.setModel = function (model) {
-            if (!_.isNil(model) && model instanceof ActionInvocationStatement) {
+        ActionInvocationStatementView.prototype.setModel = function (model) {
+            if (!_.isNil(model) && model instanceof ActionInvocationExpression) {
                 this._model = model;
             } else {
                 log.error("Action statement definition is undefined or is of different type." + model);
@@ -81,7 +73,7 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
             }
         };
 
-        ActionInvocationStatement.prototype.setContainer = function (container) {
+        ActionInvocationStatementView.prototype.setContainer = function (container) {
             if (!_.isNil(container)) {
                 this._container = container;
             } else {
@@ -90,26 +82,26 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
             }
         };
 
-        ActionInvocationStatement.prototype.setViewOptions = function (viewOptions) {
+        ActionInvocationStatementView.prototype.setViewOptions = function (viewOptions) {
             this._viewOptions = viewOptions;
         };
 
-        ActionInvocationStatement.prototype.getModel = function () {
+        ActionInvocationStatementView.prototype.getModel = function () {
             return this._model;
         };
 
-        ActionInvocationStatement.prototype.getContainer = function () {
+        ActionInvocationStatementView.prototype.getContainer = function () {
             return this._container;
         };
 
-        ActionInvocationStatement.prototype.getViewOptions = function () {
+        ActionInvocationStatementView.prototype.getViewOptions = function () {
             return this._viewOptions;
         };
 
-        ActionInvocationStatement.prototype.setConnectorView = function(view){
+        ActionInvocationStatementView.prototype.setConnectorView = function(view){
             this._connectorView = view;
         };
-        ActionInvocationStatement.prototype.getConnectorView = function(){
+        ActionInvocationStatementView.prototype.getConnectorView = function(){
             return this._connectorView;
         };
 
@@ -118,10 +110,16 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
          * Rendering the view for get-Action statement.
          * @returns {group} The svg group which contains the elements of the action statement view.
          */
-        ActionInvocationStatement.prototype.render = function (renderingContext) {
+        ActionInvocationStatementView.prototype.render = function (renderingContext) {
             // TODO : Please revisit this method. Needs a refactor
             this.setDiagramRenderingContext(renderingContext);
-            log.info("Rendering the Get Action Statement.");
+            var connectorList = this.getDiagramRenderingContext().currentResource._connectorList;
+
+            var connectorModel = _.find(connectorList, ['id', _.get(this._model.getConnector(), 'id')]);
+
+            if(!_.isUndefined(connectorModel)) {
+                this.connector = this.getDiagramRenderingContext().getViewOfModel(connectorModel);
+            }
 
             var assignmentStatementGroup = D3Utils.group(d3.select(this._container));
             var parentGroup = this._container;
@@ -136,21 +134,43 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
             var processorConnectorPoint = D3Utils.circle((x + width), ((y + height / 2)), 10, assignmentStatementGroup);
             processorConnectorPoint.attr("fill-opacity", 0.01);
 
-
             this.processorConnectPoint = processorConnectorPoint;
             var assignmentText = "HTTP:get";
             // TODO : Please revisit these calculations.
             var expressionText = D3Utils.textElement(x + width / 2, y + height / 2, assignmentText, assignmentStatementGroup).classed('statement-text', true);
+            this._model.accept(this);
 
             // Creating property pane
-            var editableProperties = [];
-            var editableProperty = {
-                propertyType: "text",
-                key: "Expression",
-                getterMethod: this._model.getExpression,
-                setterMethod: this._model.setExpression
-            };
-            editableProperties.push(editableProperty);
+            var editableProperties = [
+                {
+                    propertyType: "text",
+                    key: "Variable",
+                    model: this._model,
+                    getterMethod: this._model.getVariableAccessor,
+                    setterMethod: this._model.setVariableAccessor
+                },
+                {
+                    propertyType: "text",
+                    key: "Action",
+                    model: this._model,
+                    getterMethod: this._model.getAction,
+                    setterMethod: this._model.setAction
+                },
+                {
+                    propertyType: "text",
+                    key: "Path",
+                    model: this._model,
+                    getterMethod: this._model.getPath,
+                    setterMethod: this._model.setPath
+                },
+                {
+                    propertyType: "text",
+                    key: "Message",
+                    model: this._model,
+                    getterMethod: this._model.getMessage,
+                    setterMethod: this._model.setMessage
+                }
+            ];
             this._createPropertyPane({
                 model: this._model,
                 statementGroup: assignmentStatementGroup,
@@ -158,8 +178,8 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
             });
 
             // TODO : Remove magic numbers
-            var sourcePointX = x + 60;
-            var sourcePointY = y;
+            var sourcePointX = x + width;
+            var sourcePointY = y + height / 2;
 
             this.sourcePoint = new Point(sourcePointX, sourcePointY);
             this.parentContainer = d3.select(parentGroup);
@@ -182,12 +202,78 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
                 processorConnectorPoint.style("fill", "#2c3e50").style("fill-opacity", 0.01);
             });
 
+            var self = this;
             this.getBoundingBox().on('top-edge-moved', function(dy){
                 assignmentRect.attr('y',  parseFloat(assignmentRect.attr('y')) + dy);
                 expressionText.attr('y',  parseFloat(expressionText.attr('y')) + dy);
                 processorConnectorPoint.attr('cy',  parseFloat(processorConnectorPoint.attr('cy')) + dy);
+
+                self.processorConnector.attr('y1', parseFloat(self.processorConnector.attr('y1')) + dy);
+                //self.arrowHead.attr('y', parseFloat(self.arrowHead.attr('y')) + dy);
+                self.processorConnector2.attr('y1', parseFloat(self.processorConnector2.attr('y1')) + dy);
+
+
+                var x=  parseFloat(self.processorConnector.attr('x2')) - 5;
+                var y = parseFloat(self.processorConnector.attr('y2')) + dy;
+                var arrowHeadPoints = "" + x + "," + (y - 5) + " " + (x + 5) + "," + (y) + " " + x + "," + (y + 5);
+                //var arrowHeadPoints = "" + x + "," + y + " " + (x + 5) + "," + (y - 5) + " " + (x + 5) + "," + (y + 5);
+                self.arrowHead.attr("points", arrowHeadPoints);
+
+
+                 x= parseFloat(self.processorConnector2.attr('x1'));
+                var y = parseFloat(self.processorConnector2.attr('y2')) + dy;
+                var backArrowHeadPoints = "" + x + "," + y + " " + (x + 5) + "," + (y - 5) + " " + (x + 5) + "," + (y + 5);
+                self.backArrowHead.attr("points", backArrowHeadPoints);
+
+
+                self.processorConnector.attr('y2', parseFloat(self.processorConnector.attr('y2')) + dy);
+                //self.backArrowHead.attr('y', parseFloat(self.backArrowHead.attr('y')) + dy);
+                self.processorConnector2.attr('y2', parseFloat(self.processorConnector2.attr('y2')) + dy);
             });
         };
 
-        return ActionInvocationStatement;
+        ActionInvocationStatementView.prototype.DrawArrow = function (context) {
+            var processorConnector = undefined;
+            var arrowHead = undefined;
+            var processorConnector2 = undefined;
+
+            this.setDiagramRenderingContext(context);
+            var connectorList = this.getDiagramRenderingContext().currentResource._connectorList;
+
+            var connectorModel = _.find(connectorList, ['id', _.get(this._model.getConnector(), 'id')]);
+
+            if(!_.isUndefined(connectorModel)) {
+                this.connector = this.getDiagramRenderingContext().getViewOfModel(connectorModel);
+            }
+
+            if(!_.isUndefined(this.connector)) {
+
+                var parent = this.parentContainer;
+                var width = this.getBoundingBox().w();
+                var height = this.getBoundingBox().h();
+                var x = this.getBoundingBox().getLeft();
+                var y = this.getBoundingBox().getTop();
+
+
+                var sourcePointX = x + width;
+                var sourcePointY = y + height / 2;
+
+                var startPoint = new Point(sourcePointX, sourcePointY);
+
+                //var connectorViewOpts = this.getDiagramRenderingContext().getViewModelMap()[this.messageManager.getActivatedDropTarget()].getViewOptions();
+                var connectorCenterPointX = this.connector.getMiddleLineCenter().x();
+                var connectorCenterPointY = this.connector.getMiddleLineCenter().y();
+                var startX = Math.round(startPoint.x());
+                this.processorConnector = D3Utils.line(Math.round(startPoint.x()), Math.round(startPoint.y()), Math.round(connectorCenterPointX),
+                    Math.round(startPoint.y()), parent).classed("action-line", true);
+                this.arrowHead = D3Utils.inputTriangle(Math.round(connectorCenterPointX) - 5, Math.round(startPoint.y()), parent).classed("action-arrow", true);
+                this.processorConnector2 = D3Utils.line(Math.round(startPoint.x()), Math.round(startPoint.y()) + 8, Math.round(connectorCenterPointX),
+                    Math.round(startPoint.y()) + 8, parent).classed("action-dash-line", true);
+                this.backArrowHead = D3Utils.outputTriangle(Math.round(startPoint.x()), Math.round(startPoint.y()) + 8, parent).classed("action-arrow", true);
+
+            }
+        };
+
+        return ActionInvocationStatementView;
+
     });
