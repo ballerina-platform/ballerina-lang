@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerina.core.interpreter;
 
+import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.model.Action;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.BallerinaAction;
@@ -30,7 +31,9 @@ import org.wso2.ballerina.core.model.ImportPackage;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.Resource;
+import org.wso2.ballerina.core.model.ResourceInvoker;
 import org.wso2.ballerina.core.model.Service;
+import org.wso2.ballerina.core.model.Symbol;
 import org.wso2.ballerina.core.model.VariableDcl;
 import org.wso2.ballerina.core.model.Worker;
 import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
@@ -70,6 +73,8 @@ import org.wso2.ballerina.core.model.values.MessageValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
+import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
+import org.wso2.carbon.messaging.Header;
 
 import java.util.List;
 
@@ -333,8 +338,7 @@ public class BLangInterpreter implements NodeVisitor {
         // Create the Stack frame
         Action action = actionIExpr.getAction();
 
-        int sizeOfValueArray = action.getStackFrameSize();
-        BValueRef[] localVals = new BValueRef[sizeOfValueArray];
+        BValueRef[] localVals = new BValueRef[action.getStackFrameSize()];
 
         // Create default values for all declared local variables
         int i = 0;
@@ -350,22 +354,6 @@ public class BLangInterpreter implements NodeVisitor {
             // TODO Implement copy-on-write mechanism to improve performance
             if (TypeC.isValueType(argType)) {
                 argValue = BValueRef.clone(argType, argValue);
-            }
-
-            if (argType == TypeC.CONNECTOR_TYPE) {
-                ConnectorValue connectorValue = (ConnectorValue) argValue.getBValue();
-                Connector connector = connectorValue.getValue();
-                if (connector instanceof AbstractNativeConnector) {
-                    AbstractNativeConnector abstractNativeConnector = (AbstractNativeConnector) connector;
-
-                    Expression[] argExpressions = connectorValue.getArgExprs();
-                    BValueRef[] bValueRefs = new BValueRef[argExpressions.length];
-                    for (int j = 0; j < argExpressions.length; j++) {
-                        argExpressions[j].accept(this);
-                        bValueRefs[j] = getValue(argExpressions[j]);
-                    }
-                    abstractNativeConnector.init(bValueRefs);
-                }
             }
 
             // Setting argument value in the stack frame
@@ -483,6 +471,62 @@ public class BLangInterpreter implements NodeVisitor {
 
     @Override
     public void visit(ArrayInitExpr arrayInitExpr) {
+
+    }
+
+    public void visit(ResourceInvoker resourceInvoker) {
+
+        Resource resource = resourceInvoker.getResource();
+
+        ControlStack controlStack = bContext.getControlStack();
+        BValueRef[] valueParams = new BValueRef[resource.getStackFrameSize()];
+
+        // Populate MessageValue with CarbonMessages' headers.
+        MessageValue messageValue = new MessageValue(bContext.getCarbonMessage());
+        List<Header> headerList = bContext.getCarbonMessage().getHeaders().getAll();
+        messageValue.setHeaderList(headerList);
+
+        valueParams[0] = new BValueRef(messageValue);
+
+        int i = 1;
+        // Create default values for all declared local variables
+        VariableDcl[] variableDcls = resource.getVariableDcls();
+        for (VariableDcl variableDcl : variableDcls) {
+            valueParams[i] = BValueRef.getDefaultValue(variableDcl.getTypeC());
+            i++;
+        }
+
+        for (ConnectorDcl connectorDcl : resource.getConnectorDcls()) {
+            Symbol symbol = GlobalScopeHolder.getInstance().getScope().lookup(connectorDcl.getConnectorName());
+            if (symbol == null) {
+                throw new BallerinaException("Connector : " + connectorDcl.getConnectorName() + " not found");
+            }
+            Connector connector = symbol.getConnector();
+            Expression[] argExpressions = connectorDcl.getArgExprs();
+            BValueRef[] bValueRefs = new BValueRef[argExpressions.length];
+            for (int j = 0; j < argExpressions.length; j++) {
+                argExpressions[j].accept(this);
+                bValueRefs[j] = getValue(argExpressions[j]);
+            }
+
+            if (connector instanceof AbstractNativeConnector) {
+                //TODO Fix Issue#320
+                AbstractNativeConnector nativeConnector = ((AbstractNativeConnector) connector).getInstance();
+                nativeConnector.init(bValueRefs);
+                connector = nativeConnector;
+            }
+            ConnectorValue connectorValue = new ConnectorValue(connector, connectorDcl.getArgExprs());
+
+            valueParams[i] = new BValueRef(connectorValue);
+            i++;
+        }
+
+        BValueRef[] ret = new BValueRef[1];
+
+        StackFrame stackFrame = new StackFrame(valueParams, ret);
+        controlStack.pushFrame(stackFrame);
+
+        resource.accept(this);
 
     }
 
