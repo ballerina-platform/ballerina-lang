@@ -20,7 +20,6 @@ package org.wso2.ballerina.core.model.statements;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.expressions.Expression;
-import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.values.BValueRef;
 
 /**
@@ -29,10 +28,10 @@ import org.wso2.ballerina.core.model.values.BValueRef;
  * @since 1.0.0
  */
 public class AssignStmt implements Statement {
-    private VariableRefExpr lhsExpr;
+    private Expression lhsExpr;
     private Expression rhsExpr;
 
-    public AssignStmt(VariableRefExpr lhsExpr, Expression rhsExpr) {
+    public AssignStmt(Expression lhsExpr, Expression rhsExpr) {
         this.lhsExpr = lhsExpr;
         this.rhsExpr = rhsExpr;
     }
@@ -44,7 +43,7 @@ public class AssignStmt implements Statement {
         lValue.setBValue(rValue.getBValue());
     }
 
-    public VariableRefExpr getLExpr() {
+    public Expression getLExpr() {
         return lhsExpr;
     }
 

@@ -20,6 +20,8 @@ package org.wso2.ballerina.core.model;
 import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.AddExpression;
 import org.wso2.ballerina.core.model.expressions.AndExpression;
+import org.wso2.ballerina.core.model.expressions.ArrayAccessExpr;
+import org.wso2.ballerina.core.model.expressions.ArrayInitExpr;
 import org.wso2.ballerina.core.model.expressions.BasicLiteral;
 import org.wso2.ballerina.core.model.expressions.EqualExpression;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
@@ -125,4 +127,8 @@ public interface NodeVisitor {
     void visit(UnaryExpression unaryExpression);
 
     void visit(VariableRefExpr variableRefExpr);
+
+    void visit(ArrayAccessExpr arrayAccessExpr);
+
+    void visit(ArrayInitExpr arrayInitExpr);
 }

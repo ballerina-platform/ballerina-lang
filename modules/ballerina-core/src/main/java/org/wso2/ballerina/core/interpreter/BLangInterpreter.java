@@ -36,6 +36,8 @@ import org.wso2.ballerina.core.model.Worker;
 import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.AddExpression;
 import org.wso2.ballerina.core.model.expressions.AndExpression;
+import org.wso2.ballerina.core.model.expressions.ArrayAccessExpr;
+import org.wso2.ballerina.core.model.expressions.ArrayInitExpr;
 import org.wso2.ballerina.core.model.expressions.BasicLiteral;
 import org.wso2.ballerina.core.model.expressions.BinaryExpression;
 import org.wso2.ballerina.core.model.expressions.EqualExpression;
@@ -268,7 +270,7 @@ public class BLangInterpreter implements NodeVisitor {
         int sizeOfValueArray = function.getStackFrameSize();
         BValueRef[] localVals = new BValueRef[sizeOfValueArray];
 
-        // Create default values for all declared local variables
+        // Get values for all the function arguments
         int i = 0;
         for (Expression arg : funcIExpr.getExprs()) {
 
@@ -280,7 +282,7 @@ public class BLangInterpreter implements NodeVisitor {
             // Here we need to handle value types differently from reference types
             // Value types need to be cloned before passing ot the function : pass by value.
             // TODO Implement copy-on-write mechanism to improve performance
-            if (BValueRef.isValueType(argType)) {
+            if (TypeC.isValueType(argType)) {
                 argValue = BValueRef.clone(argType, argValue);
             }
 
@@ -289,6 +291,8 @@ public class BLangInterpreter implements NodeVisitor {
 
             i++;
         }
+
+        // TODO  Handle Connection declarations
 
         // Create default values for all declared local variables
         VariableDcl[] variableDcls = function.getVariableDcls();
@@ -344,7 +348,7 @@ public class BLangInterpreter implements NodeVisitor {
             // Here we need to handle value types differently from reference types
             // Value types need to be cloned before passing ot the function : pass by value.
             // TODO Implement copy-on-write mechanism to improve performance
-            if (BValueRef.isValueType(argType)) {
+            if (TypeC.isValueType(argType)) {
                 argValue = BValueRef.clone(argType, argValue);
             }
 
@@ -469,6 +473,16 @@ public class BLangInterpreter implements NodeVisitor {
 
     @Override
     public void visit(VariableRefExpr variableRefExpr) {
+    }
+
+    @Override
+    public void visit(ArrayAccessExpr arrayAccessExpr) {
+
+    }
+
+    @Override
+    public void visit(ArrayInitExpr arrayInitExpr) {
+
     }
 
     // Private methods
