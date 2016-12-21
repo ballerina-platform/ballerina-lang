@@ -905,6 +905,16 @@ public class BLangAntlr4Listener implements BallerinaListener {
     }
 
     @Override
+    public void enterArrayinitializerExpression(BallerinaParser.ArrayinitializerExpressionContext ctx) {
+
+    }
+
+    @Override
+    public void exitArrayinitializerExpression(BallerinaParser.ArrayinitializerExpressionContext ctx) {
+
+    }
+
+    @Override
     public void enterBinaryDivitionExpression(BallerinaParser.BinaryDivitionExpressionContext ctx) {
     }
 
