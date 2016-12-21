@@ -19,7 +19,6 @@ package org.wso2.ballerina.core.nativeimpl.annotations;
 
 import org.wso2.ballerina.core.model.Const;
 import org.wso2.ballerina.core.model.SymbolName;
-import org.wso2.ballerina.core.model.types.Type;
 import org.wso2.ballerina.core.model.types.TypeC;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.ArrayValue;
