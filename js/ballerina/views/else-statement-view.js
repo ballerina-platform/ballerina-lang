@@ -68,6 +68,13 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
                 title_rect.attr("y", parseFloat(title_rect.attr('y'))+ dy);
                 title_text.attr("y", parseFloat(title_text.attr('y')) + dy);
             });
+
+            this.getBoundingBox().on('width-changed', function(dw){
+                outer_rect.attr("x", parseFloat(outer_rect.attr('x')) - dw/2);
+                outer_rect.attr("width", parseFloat(outer_rect.attr('width')) + dw);
+                title_rect.attr("x", parseFloat(title_rect.attr('x')) - dw/2);
+                title_text.attr("x", parseFloat(title_text.attr('x')) - dw/2);
+            });
             this._model.accept(this);
         };
 
