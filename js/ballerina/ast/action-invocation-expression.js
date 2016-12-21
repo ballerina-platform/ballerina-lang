@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './get-action-statement', './action-invocation-statement'], function (_, log, GetActionStatement, ActionInvocationStatement) {
+define(['lodash', 'log', './action-invocation-statement'], function (_, log, ActionInvocationStatement) {
 
     /**
      * Class to represent a action invocation to ballerina.
@@ -27,7 +27,7 @@ define(['lodash', 'log', './get-action-statement', './action-invocation-statemen
         this._variableAccessor = _.get(args, 'accessor');
     };
 
-    ActionInvocationExpression.prototype = Object.create(GetActionStatement.prototype);
+    ActionInvocationExpression.prototype = Object.create(ActionInvocationStatement.prototype);
     ActionInvocationExpression.prototype.constructor = ActionInvocationExpression;
 
     ActionInvocationExpression.prototype.setVariableAccessor = function (accessor) {
