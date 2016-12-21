@@ -111,8 +111,8 @@ public class TypeC {
             return new JSONType();
         case "map":
             return new MapType();
-        case "array":
-            return new ArrayType();
+//        case "array":
+//            return new ArrayType();
         case "connector":
             return new ConnectorType();
         default:

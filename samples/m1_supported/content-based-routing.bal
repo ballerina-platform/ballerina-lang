@@ -9,11 +9,11 @@ import ballerina.lang.system;
 service ContentBasedRouteService {
 
   @POST
-  @Path("/exchange")
+  @Path("/*")
   resource cbrResource (message m) {
     // Connector declarations
-    http:HTTPConnector nyseEP = new http:HTTPConnector("http://localhost:8280/services", 30000);
-    http:HTTPConnector nasdaqEP = new http:HTTPConnector("http://localhost:8280/services", 60000);
+    http:HTTPConnector nyseEP = new http:HTTPConnector("http://localhost:9090/NYSEStocks", 30000);
+    http:HTTPConnector nasdaqEP = new http:HTTPConnector("http://localhost:9090/NASDAQStocks", 60000);
 
     // Variable declarations
     message response;
@@ -22,6 +22,8 @@ service ContentBasedRouteService {
     string result;
     string nameString;
     string nyseString;
+    message request;
+    json requestJson;
 
     // Assignment statements
     nyseString = "NYSE";
@@ -37,12 +39,45 @@ service ContentBasedRouteService {
     nameString = json:getString(jsonMsg, "$.name");
     system:println(nameString);
 
+    // Extract the outgoing json message from request
+    requestJson = json:getJson(jsonMsg, "$");
+    message:setJsonPayload(m, requestJson);
 
     if (nameString == nyseString) {
-        response = http:HTTPConnector.post(nyseEP, "/NYSEProxy", m);
+        response = http:HTTPConnector.post(nyseEP, "/", m);
     } else {
-        response = http:HTTPConnector.post(nasdaqEP, "/NASDAQProxy", m);
+        response = http:HTTPConnector.post(nasdaqEP, "/", m);
     }
+    reply response;
+  }
+}
+
+@BasePath("/NYSEStocks")
+service NYSEStockQuote {
+
+  @POST
+  @Path("/*")
+  resource stocks (message m) {
+    message response;
+    json payload;
+    response = new message;
+    payload = `{"exchange":"nyse", "name":"IBM", "value":"127.50"}`;
+    message:setJsonPayload(response, payload);
+    reply response;
+  }
+}
+
+@BasePath("/NASDAQStocks")
+service NASDAQStockQuote {
+
+  @POST
+  @Path("/*")
+  resource stocks (message m) {
+    message response;
+    json payload;
+    response = new message;
+    payload = `{"exchange":"nasdaq", "name":"IBM", "value":"127.50"}`;
+    message:setJsonPayload(response, payload);
     reply response;
   }
 }

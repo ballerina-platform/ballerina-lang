@@ -27,7 +27,6 @@ import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.ConnectorDcl;
 import org.wso2.ballerina.core.model.ImportPackage;
-import org.wso2.ballerina.core.model.Operator;
 import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
@@ -151,7 +150,7 @@ public class BLangModelBuilder {
     // Annotations
 
     public void createInstanceCreaterExpr(String typeName) {
-        InstanceCreationExpr expression = new InstanceCreationExpr(Operator.NEW, null);
+        InstanceCreationExpr expression = new InstanceCreationExpr(null);
         TypeC type = TypeC.getTypeC(typeName);
         expression.setType(type);
         exprStack.push(expression);
@@ -215,6 +214,13 @@ public class BLangModelBuilder {
     }
 
     public void createType(String typeName) {
+        TypeC type = TypeC.getTypeC(typeName);
+        typeQueue.add(type);
+    }
+
+    public void createArrayType(String typeName) {
+
+        // TODO Create array type name;
         TypeC type = TypeC.getTypeC(typeName);
         typeQueue.add(type);
     }

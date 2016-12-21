@@ -31,6 +31,10 @@ public class ResponseWorkerThread extends WorkerThread {
     }
 
     public void run() {
-        callback.done(context.getCarbonMessage());
+        try {
+            callback.done(context.getCarbonMessage());
+        } catch (Throwable throwable) {
+            handleError(throwable);
+        }
     }
 }

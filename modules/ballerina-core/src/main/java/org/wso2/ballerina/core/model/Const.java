@@ -17,7 +17,7 @@
 */
 package org.wso2.ballerina.core.model;
 
-import org.wso2.ballerina.core.model.types.Type;
+import org.wso2.ballerina.core.model.types.TypeC;
 import org.wso2.ballerina.core.model.values.BValue;
 
 /**
@@ -27,7 +27,7 @@ import org.wso2.ballerina.core.model.values.BValue;
  */
 public class Const {
 
-    private Type type;
+    private TypeC type;
     private SymbolName symbolName;
     private BValue value;
 
@@ -38,7 +38,7 @@ public class Const {
      * @param symbolName Identifier of the constant
      * @param value      bValueRef of the constant
      */
-    public Const(Type type, SymbolName symbolName, BValue value) {
+    public Const(TypeC type, SymbolName symbolName, BValue value) {
         this.type = type;
         this.symbolName = symbolName;
         this.value = value;
@@ -49,7 +49,7 @@ public class Const {
      *
      * @return type of the constant
      */
-    public Type getType() {
+    public TypeC getType() {
         return type;
     }
 

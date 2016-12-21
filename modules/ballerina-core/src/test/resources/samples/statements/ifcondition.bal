@@ -2,8 +2,6 @@ function test(int a, int b, int c) (int, int) {
 
     int x;
     x = 10;
-    a = c;
-    a = b + 2 ;
 
     if ( a == b) {
         a = 100;

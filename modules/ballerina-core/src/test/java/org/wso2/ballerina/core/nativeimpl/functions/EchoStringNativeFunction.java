@@ -17,9 +17,8 @@
  **/
 
 
-package org.wso2.ballerina.core.model;
+package org.wso2.ballerina.core.nativeimpl.functions;
 
-import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.Context;
@@ -34,16 +33,11 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
  * Test Class for Testing Ballerina Service.
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.echo",
+        packageName = "ballerina.test.echo",
         functionName = "echoString",
         args = {@Argument(name = "echoString", type = TypeEnum.STRING)},
         returnType = {TypeEnum.STRING},
         isPublic = true
-)
-@Component(
-        name = "func.lang.echo_echoString",
-        immediate = true,
-        service = AbstractNativeFunction.class
 )
 public class EchoStringNativeFunction extends AbstractNativeFunction {
 

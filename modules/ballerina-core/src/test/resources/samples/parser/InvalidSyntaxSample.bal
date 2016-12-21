@@ -8,6 +8,7 @@ service HelloService {
   @POST
   @Path ("/tweet")
   resource tweet (message m) {
+      // Following line is invalid.
       int b
       reply m;
   }
