@@ -22,6 +22,7 @@ import org.wso2.ballerina.core.exception.BallerinaException;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.wso2.ballerina.core.model.types.TypeConstants.ARRAY_TNAME;
 import static org.wso2.ballerina.core.model.types.TypeConstants.BOOLEAN_TNAME;
 import static org.wso2.ballerina.core.model.types.TypeConstants.CONNECTOR_TNAME;
 import static org.wso2.ballerina.core.model.types.TypeConstants.DOUBLE_TNAME;
@@ -45,7 +46,7 @@ public class TypeC {
 
     //Using a HashMap here, because there won't be any concurrent access
     // TODO Improve this to support modularity of Ballerina
-    protected static final Map<String, TypeC> TYPE_MAP = new HashMap<>(20);
+    private static final Map<String, TypeC> TYPE_MAP = new HashMap<>(20);
 
     public static final TypeC INT_TYPE = new TypeC(INT_TNAME);
     public static final TypeC LONG_TYPE = new TypeC(LONG_TNAME);
@@ -67,6 +68,30 @@ public class TypeC {
     protected TypeC(String typeName) {
         this.typeName = typeName;
         TYPE_MAP.put(typeName, this);
+    }
+
+    public static ArrayType getArrayType(String elementTypeName) {
+        String arrayTypeName = ARRAY_TNAME + elementTypeName;
+
+        ArrayType aType = (ArrayType) TYPE_MAP.get(arrayTypeName);
+        if (aType == null) {
+            aType = new ArrayType(arrayTypeName, elementTypeName);
+        }
+
+        return aType;
+    }
+
+    public static boolean isValueType(TypeC type) {
+        if (type == TypeC.INT_TYPE ||
+                type == TypeC.STRING_TYPE ||
+                type == TypeC.LONG_TYPE ||
+                type == TypeC.FLOAT_TYPE ||
+                type == TypeC.DOUBLE_TYPE ||
+                type == TypeC.BOOLEAN_TYPE) {
+            return true;
+        }
+
+        return false;
     }
 
     public String toString() {
@@ -91,33 +116,33 @@ public class TypeC {
 
     public static Type getType(String typeName) {
         switch (typeName) {
-        case "int":
-            return new IntType();
-        case "long":
-            return new LongType();
-        case "float":
-            return new FloatType();
-        case "double":
-            return new DoubleType();
-        case "boolean":
-            return new BooleanType();
-        case "string":
-            return new StringType();
-        case "message":
-            return new MessageType();
-        case "xml":
-            return new XMLType();
-        case "json":
-            return new JSONType();
-        case "map":
-            return new MapType();
+            case "int":
+                return new IntType();
+            case "long":
+                return new LongType();
+            case "float":
+                return new FloatType();
+            case "double":
+                return new DoubleType();
+            case "boolean":
+                return new BooleanType();
+            case "string":
+                return new StringType();
+            case "message":
+                return new MessageType();
+            case "xml":
+                return new XMLType();
+            case "json":
+                return new JSONType();
+            case "map":
+                return new MapType();
 //        case "array":
 //            return new ArrayType();
-        case "connector":
-            return new ConnectorType();
-        default:
-            //TODO use proper exceptions here
-            throw new BallerinaException("Unknown type");
+            case "connector":
+                return new ConnectorType();
+            default:
+                //TODO use proper exceptions here
+                throw new BallerinaException("Unknown type");
         }
 
     }

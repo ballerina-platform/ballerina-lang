@@ -35,6 +35,8 @@ import org.wso2.ballerina.core.model.VariableDcl;
 import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.AddExpression;
 import org.wso2.ballerina.core.model.expressions.AndExpression;
+import org.wso2.ballerina.core.model.expressions.ArrayAccessExpr;
+import org.wso2.ballerina.core.model.expressions.ArrayInitExpr;
 import org.wso2.ballerina.core.model.expressions.BasicLiteral;
 import org.wso2.ballerina.core.model.expressions.BinaryExpression;
 import org.wso2.ballerina.core.model.expressions.EqualExpression;
@@ -184,7 +186,8 @@ public class BLangModelBuilder {
         annotationList.add(annotationBuilder.build());
     }
 
-    // Function parameters and return values
+
+    // Function parameters and types
 
     /**
      * Create a function parameter and a corresponding variable reference expression
@@ -219,9 +222,7 @@ public class BLangModelBuilder {
     }
 
     public void createArrayType(String typeName) {
-
-        // TODO Create array type name;
-        TypeC type = TypeC.getTypeC(typeName);
+        TypeC type = TypeC.getArrayType(typeName);
         typeQueue.add(type);
     }
 
@@ -231,6 +232,7 @@ public class BLangModelBuilder {
             callableUnitBuilder.addReturnType(typeQueue.remove());
         }
     }
+
 
     // Variable declarations, reference expressions
 
@@ -277,13 +279,28 @@ public class BLangModelBuilder {
     /**
      * Create variable reference expression
      * <p/>
-     * This method lookup the symbol table for a variable reference of a function parameter or of a local variable.
+     * There are three types of variables references as per the grammar file.
+     * 1) Simple variable references. a, b, index etc
+     * 2) Map or array access a[1], m["key"]
+     * 3) Struct field access  Person.name
      */
-    public void createVarRefExpr() {
-        SymbolName symName = symbolNameStack.pop();
+    public void createVarRefExpr(String varName) {
+        SymbolName symName = new SymbolName(varName);
 
         VariableRefExpr variableRefExpr = new VariableRefExpr(symName);
         exprStack.push(variableRefExpr);
+    }
+
+    public void createMapArrayVarRefExpr(String varName) {
+        SymbolName symName = new SymbolName(varName);
+        Expression indexExpr = exprStack.pop();
+
+        ArrayAccessExpr.ArrayAccessExprBuilder builder = new ArrayAccessExpr.ArrayAccessExprBuilder();
+        builder.setVarName(symName);
+        builder.setIndexExpr(indexExpr);
+
+        ArrayAccessExpr accessExpr = builder.build();
+        exprStack.push(accessExpr);
     }
 
     // Expressions
@@ -389,6 +406,16 @@ public class BLangModelBuilder {
 
         ActionInvocationExpr invocationExpr = cIExprBuilder.buildActionInvocExpr();
         exprStack.push(invocationExpr);
+    }
+
+    public void createArrayInitExpr() {
+        List<Expression> argList = exprListStack.pop();
+
+        ArrayInitExpr.ArrayInitExprBuilder builder = new ArrayInitExpr.ArrayInitExprBuilder();
+        builder.setArgList(argList);
+
+        ArrayInitExpr arrayInitExpr = builder.build();
+        exprStack.push(arrayInitExpr);
     }
 
     // Functions, Actions and Resources
@@ -504,13 +531,10 @@ public class BLangModelBuilder {
     // Statements
 
     public void createAssignmentExpr() {
-        SymbolName symName = symbolNameStack.pop();
-//        symName.setSymType(SymbolName.SymType.VARIABLE);
-
-        VariableRefExpr lExpr = new VariableRefExpr(symName);
         Expression rExpr = exprStack.pop();
-        AssignStmt assignStmt = new AssignStmt(lExpr, rExpr);
+        Expression lExpr = exprStack.pop();
 
+        AssignStmt assignStmt = new AssignStmt(lExpr, rExpr);
         addToBlockStmt(assignStmt);
     }
 
@@ -518,7 +542,11 @@ public class BLangModelBuilder {
         ReturnStmt.ReturnStmtBuilder returnStmtBuilder = new ReturnStmt.ReturnStmtBuilder();
 
         // Get the expression list from the expression list stack
-        returnStmtBuilder.setExpressionList(exprListStack.pop());
+        if (!exprListStack.isEmpty()) {
+            // Return statement with empty expression list.
+            // Just a return statement
+            returnStmtBuilder.setExpressionList(exprListStack.pop());
+        }
 
         ReturnStmt returnStmt = returnStmtBuilder.build();
         addToBlockStmt(returnStmt);
