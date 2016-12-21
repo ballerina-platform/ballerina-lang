@@ -42,8 +42,6 @@ public class BalConnectorCallback extends DefaultBalCallback {
         valueRef = new BValueRef(messageValue);
         context.getControlStack().popFrame();
         context.getControlStack().setValue(context.getCurrentResultOffset(), valueRef);
-        context.getControlStack().setReturnValue(0, valueRef);
-
         context.getCurrentStatement().resumeExecution(context.getCurrentNodeVisitor());
     }
 

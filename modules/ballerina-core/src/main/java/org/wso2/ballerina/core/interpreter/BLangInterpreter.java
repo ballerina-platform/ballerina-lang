@@ -267,10 +267,7 @@ public class BLangInterpreter implements NodeVisitor {
 
     @Override
     public void visit(ReplyStmt replyStmt) {
-        BValueRef bValueRef = bContext.getControlStack().getReturnValue(0);
-        if (bValueRef == null) {
-            bValueRef = bContext.getControlStack().getValue(0);
-        }
+        BValueRef bValueRef = bContext.getControlStack().getCurrentFrame().values[replyStmt.getReplyExpr().getOffset()];
         if (bValueRef != null && bValueRef.getBValue() instanceof MessageValue) {
             CarbonMessage messageValue = (CarbonMessage) bValueRef.getBValue().getValue();
             BalCallback callback = bContext.getBalCallback();
