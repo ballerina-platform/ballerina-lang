@@ -1,4 +1,4 @@
-public function foo() {
+public function foo() (int) {
     int x;
     int y;
     int z;
@@ -11,4 +11,5 @@ public function foo() {
         y=y+1;
         z=z+10;
     }
+    return z;
 }

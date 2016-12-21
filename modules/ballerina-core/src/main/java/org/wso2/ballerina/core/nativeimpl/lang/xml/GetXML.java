@@ -73,6 +73,7 @@ public class GetXML extends AbstractNativeFunction {
             XPathCompiler xPathCompiler = processor.newXPathCompiler();
             DocumentBuilder builder = processor.newDocumentBuilder();
             XdmNode doc = builder.build(xml.getValue().getSAXSource(true));
+            // TODO : Add it back once Map support is added.
 //            if (nameSpaces != null && !nameSpaces.isEmpty()) {
 //                for (MapValue<String, String>.MapEntry<String, String> entry : nameSpaces.getValue()) {
 //                    xPathCompiler.declareNamespace(entry.getKey(), entry.getValue());
