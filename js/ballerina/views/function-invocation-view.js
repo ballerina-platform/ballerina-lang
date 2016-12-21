@@ -40,6 +40,10 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/function-invoca
                 throw "Container for function invocation statement is undefined." + this._container;
             }
 
+            // View options for height and width of the function invocation statement box.
+            this._viewOptions.height = _.get(args, "viewOptions.height", 30);
+            this._viewOptions.width = _.get(args, "viewOptions.width", 120);
+            this.getBoundingBox().fromTopCenter(this._topCenter, this._viewOptions.width, this._viewOptions.height);
         };
 
         FunctionInvocationStatementView.prototype = Object.create(BallerinaStatementView.prototype);
@@ -71,17 +75,27 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/function-invoca
             return this._container;
         };
 
+        FunctionInvocationStatementView.prototype.setDiagramRenderingContext = function(context){
+            this._diagramRenderingContext = context;
+        };
+
         /**
          * Renders the view for function invocation statement.
          * @returns {group} - The SVG group which holds the elements of the function invocation statement.
          */
-        FunctionInvocationStatementView.prototype.render = function () {
-            var group = D3Utils.group(d3.select(this._container));
-            var width = 120;
-            var height = 30;
-            var x = this.getXPosition();
-            var y = this.getYPosition();
-            var invocationRect = D3Utils.rect(x, y, 120, 30, 0, 0, group).classed('statement-rect', true);
+        FunctionInvocationStatementView.prototype.render = function (renderingContext) {
+            // TODO : Please revisit this method. Needs a refactor
+            this.setDiagramRenderingContext(renderingContext);
+            log.info("Rendering the Function Invocation Statement.");
+
+            var funInvokeGroup = D3Utils.group(d3.select(this._container));
+            funInvokeGroup.attr("id", "_" + this._model.id);//added attribute 'id' starting with '_' to be compatible with HTML4
+            var width = this.getBoundingBox().w();
+            var height = this.getBoundingBox().h();
+            var x = this.getBoundingBox().getLeft();
+            var y = this.getBoundingBox().getTop();
+
+            var funInvokeRect = D3Utils.rect(x, y, width, height, 0, 0, funInvokeGroup).classed('statement-rect', true)
             var text = this._model.getPackageName() + ':' +this._model.getFunctionName() + '(';
             var params = this._model.getParams();
             for (var id = 0; id < params.length; id ++) {
@@ -92,16 +106,72 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/function-invoca
                 }
             }
             text += ')';
+            // TODO : Please revisit these calculations.
+            var funInvokeText = D3Utils.textElement(x + width / 2, y + height / 2, text, funInvokeGroup).classed('statement-text', true);
 
-            var expressionText = D3Utils.textElement(x + width/2, y + height/2, text, group).classed('statement-text', true);
-            // Set x, y, height, width of the current view
-            this.setWidth(width);
-            this.setHeight(height);
-            this.setXPosition(x);
-            this.setYPosition(y);
-            log.info("Rendering function invocation statement view.");
-            this.getModel().accept(this);
-            return group;
+            funInvokeGroup.expression_rect = funInvokeRect;
+            funInvokeGroup.expression_text = funInvokeText;
+            this.setStatementGroup(funInvokeGroup);
+            this.listenTo(this._model, 'update-statement-text', this.updateStatementText);
+
+            // Creating property pane
+            var editableProperties = [
+                {
+                    propertyType: "text",
+                    key: "PackageName",
+                    model: this._model,
+                    getterMethod: this._model.getPackageName,
+                    setterMethod: this._model.setPackageName
+                },
+                {
+                    propertyType: "text",
+                    key: "FunctionName",
+                    model: this._model,
+                    getterMethod: this._model.getFunctionName,
+                    setterMethod: this._model.setFunctionName
+                },
+                {
+                    propertyType: "text",
+                    key: "Params",
+                    model: this._model,
+                    getterMethod: this._model.getParams,
+                    setterMethod: this._model.setParams
+                }
+            ];
+            this._createPropertyPane({
+                model: this._model,
+                statementGroup: funInvokeGroup,
+                editableProperties: editableProperties
+            });
+
+            this.getBoundingBox().on('top-edge-moved', function(dy){
+                funInvokeRect.attr('y',  parseFloat(funInvokeRect.attr('y')) + dy);
+                funInvokeText.attr('y',  parseFloat(funInvokeText.attr('y')) + dy);
+            });
+        };
+
+        FunctionInvocationStatementView.prototype.setViewOptions = function (viewOptions) {
+            this._viewOptions = viewOptions;
+        };
+
+        FunctionInvocationStatementView.prototype.getViewOptions = function () {
+            return this._viewOptions;
+        };
+
+        FunctionInvocationStatementView.prototype.updateStatementText = function (updatedText) {
+            if (!_.isUndefined(updatedText) && updatedText !== '') {
+                var text = this._model.getPackageName() + ':' + this._model.getFunctionName() + '(';
+                var params = this._model.getParams();
+                for (var id = 0; id < params.length; id++) {
+                    if (id > 0) {
+                        text += ',' + params[id];
+                    } else {
+                        text += params[id];
+                    }
+                }
+                text += ')';
+                this.getStatementGroup().expression_text.node().textContent = text;
+            }
         };
 
         return FunctionInvocationStatementView;

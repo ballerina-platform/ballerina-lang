@@ -92,7 +92,7 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/assignment', 'd
             var y = this.getBoundingBox().getTop();
 
             var expressionRect = D3Utils.rect(x, y, width, height, 0, 0, assignmentStatementGroup).classed('statement-rect', true);
-            var assignmentText = this._model.getVariableAccessor() + ' = ' +this._model.getExpression();
+            var assignmentText = this._model.getExpression();
             var expressionText = D3Utils.textElement(x + width/2, y + height/2, assignmentText, assignmentStatementGroup).classed('statement-text', true);
             assignmentStatementGroup.expression_rect = expressionRect;
             assignmentStatementGroup.expression_text = expressionText;

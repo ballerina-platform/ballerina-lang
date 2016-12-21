@@ -15,20 +15,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './expression'], function (_, Expression) {
+define(['lodash', './statement'], function (_, Statement) {
 
     /**
-     * Class to represent an assignment in ballerina.
+     * Class to represent a function invocation in ballerina.
      * @constructor
      */
     var FunctionInvocation = function (args) {
         this._packageName = _.get(args, 'package', 'pkg');
         this._functionName = _.get(args, 'function', 'default');
-        this._params = _.get(args, 'params', []);
-        Expression.call(this, 'FunctionInvocation');
+        this._params = _.get(args, 'params');
+        Statement.call(this, 'FunctionInvocation');
     };
 
-    FunctionInvocation.prototype = Object.create(Expression.prototype);
+    FunctionInvocation.prototype = Object.create(Statement.prototype);
     FunctionInvocation.prototype.constructor = FunctionInvocation;
 
     FunctionInvocation.prototype.setPackageName = function (packageName) {
@@ -52,7 +52,13 @@ define(['lodash', './expression'], function (_, Expression) {
     };
 
     FunctionInvocation.prototype.getParams = function () {
-        return this._params;
+        var params;
+        if(!_.isUndefined(this._params)) {
+            params = this._params.split(',');
+            return params;
+        }
+        else params = "";
+        return params;
     };
 
     return FunctionInvocation;

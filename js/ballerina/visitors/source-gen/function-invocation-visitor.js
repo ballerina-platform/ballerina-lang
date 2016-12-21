@@ -15,25 +15,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require','lodash', 'log', 'event_channel', './abstract-source-gen-visitor', '../../ast/module'],
-    function(require, _, log, EventChannel, AbstractSourceGenVisitor, AST) {
+define(['require','lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor', '../../ast/function-invocation'],
+    function(require, _, log, EventChannel, AbstractStatementSourceGenVisitor, FunctionInvocation) {
 
         var FunctionInvocationVisitor = function(parent){
-            AbstractSourceGenVisitor.call(this,parent);
+            AbstractStatementSourceGenVisitor.call(this,parent);
         };
 
-        FunctionInvocationVisitor.prototype = Object.create(AbstractSourceGenVisitor.prototype);
+        FunctionInvocationVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
         FunctionInvocationVisitor.prototype.constructor = FunctionInvocationVisitor;
 
-        FunctionInvocationVisitor.prototype.canVisitExpression = function(functionInvocation){
-            if(functionInvocation instanceof AST.FunctionInvocation) {
-                return true;
-            } else {
-                return false;
-            }
+        FunctionInvocationVisitor.prototype.canVisitStatement = function(functionInvocation){
+            return functionInvocation instanceof FunctionInvocation;
         };
 
-        FunctionInvocationVisitor.prototype.beginVisitExpression = function(functionInvocation){
+        FunctionInvocationVisitor.prototype.beginVisitStatement = function(functionInvocation){
             var source = functionInvocation.getPackageName() + ':' + functionInvocation.getFunctionName() + '(';
             var params = functionInvocation.getParams();
             for (var id = 0; id < params.length; id ++) {
@@ -48,11 +44,11 @@ define(['require','lodash', 'log', 'event_channel', './abstract-source-gen-visit
             log.debug('Begin Visit Function Invocation expression');
         };
 
-        FunctionInvocationVisitor.prototype.visitExpression = function(functionInvocation){
+        FunctionInvocationVisitor.prototype.visitFuncInvocationStatement = function(functionInvocation){
             log.debug('Visit Function Invocation expression');
         };
 
-        FunctionInvocationVisitor.prototype.endVisitExpression = function(functionInvocation){
+        FunctionInvocationVisitor.prototype.endVisitStatement = function(functionInvocation){
             this.appendSource(";\n");
             this.getParent().appendSource(this.getGeneratedSource());
             log.info('End Visit Function Invocation expression');

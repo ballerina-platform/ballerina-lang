@@ -202,25 +202,25 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             this._statementContainer.renderStatement(statement, args);
         };
 
-        ResourceDefinitionView.prototype.visitExpression = function (statement) {
-            //var expressionViewFactory = new ExpressionViewFactory();
-            //var args = {model: statement, container: this._contentGroup.node(), viewOptions: undefined, parent:this};
-            //var expressionView = expressionViewFactory.getExpressionView(args);
-            //
-            //// TODO: we need to keep this value as a configurable value and read from constants
-            //var statementsGap = 40;
-            //var expressionWidth = 120;
-            //if (this._statementExpressionViewList.length > 0) {
-            //    var lastStatement = this._statementExpressionViewList[this._statementExpressionViewList.length - 1];
-            //    expressionView.setXPosition(lastStatement.getXPosition());
-            //    expressionView.setYPosition(lastStatement.getYPosition() + lastStatement.getHeight() + statementsGap);
-            //} else {
-            //    var x = this._defaultWorker.getMidPoint() - parseInt(expressionWidth/2);
-            //    expressionView.setXPosition(x);
-            //    expressionView.setYPosition(y + statementsGap);
-            //}
-            //this._statementExpressionViewList.push(expressionView);
-            //expressionView.render();
+        ResourceDefinitionView.prototype.visitExpression = function (expression) {
+           /* var expressionViewFactory = new ExpressionViewFactory();
+            var args = {model: expression, container: this._contentGroup.node(), viewOptions: undefined, parent:this};
+            var expressionView = expressionViewFactory.getExpressionView(args);
+
+             //TODO: we need to keep this value as a configurable value and read from constants
+            var statementsGap = 40;
+            var expressionWidth = 120;
+            if (this._statementExpressionViewList.length > 0) {
+                var lastStatement = this._statementExpressionViewList[this._statementExpressionViewList.length - 1];
+                expressionView.setXPosition(lastStatement.getXPosition());
+                expressionView.setYPosition(lastStatement.getYPosition() + lastStatement.getHeight() + statementsGap);
+            } else {
+               var x = this._defaultWorker.getMidPoint() - parseInt(expressionWidth/2);
+                expressionView.setXPosition(x);
+                expressionView.setYPosition(y + statementsGap);
+            }
+            this._statementExpressionViewList.push(expressionView);
+            expressionView.render();*/
         };
 
         /**
@@ -535,9 +535,9 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                     setterMethod: this._model.setResourceMethod
                 },
                 {
-                    annotationType: "Resource:Action",
-                    annotationValue: ""/*this._model.getSource().interface*/,
-                    setterMethod: ""
+                    annotationType: "ResourceArgs",
+                    annotationValue: this._model.getResourceArguments,
+                    setterMethod: this._model.setResourceArguments
                 }
             ];
 
@@ -652,6 +652,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                     }else if(annotationType == 'ResourceMethod'){
                         var resourceMethods = getResourceMethodAnnotations(annotationValue);
                         model.setResourceMethod(resourceMethods);
+                    }else if(annotationType == 'ResourceArgs'){
+                        model.setResourceArguments(annotationValue);
                     }
 
                     //Clear the text box and drop down value

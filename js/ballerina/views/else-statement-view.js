@@ -64,10 +64,14 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
             elseGroup.titleRect = title_rect;
             elseGroup.titleText = title_text;
             this.setStatementGroup(elseGroup);
-            this.getBoundingBox().on('top-edge-moved', function(dy){
-                outer_rect.attr("y", parseFloat(outer_rect.attr('y')) + dy);
-                title_rect.attr("y", parseFloat(title_rect.attr('y'))+ dy);
-                title_text.attr("y", parseFloat(title_text.attr('y')) + dy);
+
+            this.getBoundingBox().on('moved', function(offset){
+                outer_rect.attr("y", parseFloat(outer_rect.attr('y')) + offset.dy);
+                outer_rect.attr("x", parseFloat(outer_rect.attr('x')) + offset.dx);
+                title_rect.attr("y", parseFloat(title_rect.attr('y')) + offset.dy);
+                title_rect.attr("x", parseFloat(title_rect.attr('x')) + offset.dx);
+                title_text.attr("y", parseFloat(title_text.attr('y')) + offset.dy);
+                title_text.attr("x", parseFloat(title_text.attr('x')) + offset.dx);
             });
 
             this.getBoundingBox().on('width-changed', function(dw){
@@ -78,8 +82,8 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
 
             });
 
-            this.getBoundingBox().on('bottom-edge-moved', function(dy){
-                outer_rect.attr("height", parseFloat(outer_rect.attr('height')) + dy);
+            this.getBoundingBox().on('height-changed', function(dh){
+                outer_rect.attr("height", parseFloat(outer_rect.attr('height')) + dh);
             });
 
             this._rootGroup = elseGroup;
@@ -110,8 +114,8 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
             var height = _.get(this._viewOptions, 'height') -
                 _.get(this._viewOptions, 'contentOffset.top') - _.get(this._viewOptions, 'contentOffset.bottom');
             _.set(statementContainerOpts, 'bottomCenter', this.getTopCenter().clone().move(0, height));
-            _.set(statementContainerOpts, 'width', 80);
-            _.set(statementContainerOpts, 'offset', {top: 40, bottom: 10});
+            _.set(statementContainerOpts, 'width', 120);
+            _.set(statementContainerOpts, 'offset', {top: 40, bottom: 40});
             _.set(statementContainerOpts, 'parent', this);
             _.set(statementContainerOpts, 'container', this._statementContainerGroup.node());
             _.set(statementContainerOpts, 'toolPalette', this.toolPalette);

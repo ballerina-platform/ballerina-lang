@@ -40,7 +40,7 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor'],
              * that particular source generation has to be constructed here
              */
             var constructedSource = '\n' + connectorDeclaration.getConnectorType() + ' ' + connectorDeclaration.getConnectorName() + ' = new ' +
-                connectorDeclaration.getConnectorType() +'(\"' + connectorDeclaration.getUri() + '", {"timeOut" : ' + connectorDeclaration.getTimeout() + '})';
+                connectorDeclaration.getConnectorType() +'(\"' + connectorDeclaration.getUri() + '",'  + connectorDeclaration.getTimeout() + ')';
             this.appendSource(constructedSource);
             log.info('Begin Visit Connector Declaration');
         };

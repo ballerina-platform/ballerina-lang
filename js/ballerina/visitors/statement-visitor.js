@@ -52,6 +52,8 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
             return this.canVisitExpression(node);
         } else if (node instanceof AST.ReplyStatement) {
             return this.canVisitReplyStatement(node);
+        }  else if (node instanceof AST.FunctionInvocation) {
+            return this.canVisitStatement(node);
         }
     };
 
@@ -83,6 +85,8 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
             return this.beginVisitStatement(node);
         } else if (node instanceof AST.ReplyStatement) {
             return this.beginVisitReplyStatement(node);
+        }  else if (node instanceof AST.FunctionInvocation) {
+            return this.beginVisitStatement(node);
         }
     };
 
@@ -114,6 +118,8 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
             return this.visitExpression(node);
         } else if (node instanceof AST.ReplyStatement) {
             return this.visitReplyStatement(node);
+        }  else if (node instanceof AST.FunctionInvocation) {
+            return this.visitStatement(node);
         }
     };
 
@@ -145,6 +151,8 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
             return this.endVisitExpression(node);
         } else if (node instanceof AST.ReplyStatement) {
             return this.endVisitReplyStatement(node);
+        }  else if (node instanceof AST.FunctionInvocation) {
+            return this.endVisitStatement(node);
         }
     };
 
@@ -246,6 +254,16 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
     StatementVisitor.prototype.visitExpression = function (statement) {
     };
     StatementVisitor.prototype.endVisitExpression = function (statement) {
+    };
+
+    StatementVisitor.prototype.canVisitFuncInvocationStatement = function (statement) {
+        return false;
+    };
+    StatementVisitor.prototype.beginVisitFuncInvocationStatement = function (statement) {
+    };
+    StatementVisitor.prototype.visitFuncInvocationStatement= function (statement) {
+    };
+    StatementVisitor.prototype.endVisitFuncInvocationStatement = function (statement) {
     };
 
     return StatementVisitor;
