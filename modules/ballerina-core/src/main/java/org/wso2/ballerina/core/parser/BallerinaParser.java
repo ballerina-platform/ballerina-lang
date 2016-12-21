@@ -5526,6 +5526,37 @@ public class BallerinaParser extends Parser {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitFunctionInvocationExpression(this);
 		}
 	}
+	public static class BinaryDivisionExpressionContext extends ExpressionContext {
+		public List<ExpressionContext> expression() {
+			return getRuleContexts(ExpressionContext.class);
+		}
+		public ExpressionContext expression(int i) {
+			return getRuleContext(ExpressionContext.class,i);
+		}
+		public BinaryDivisionExpressionContext(ExpressionContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).enterBinaryDivisionExpression(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitBinaryDivisionExpression(this);
+		}
+	}
+	public static class ArrayInitializerExpressionContext extends ExpressionContext {
+		public ExpressionListContext expressionList() {
+			return getRuleContext(ExpressionListContext.class,0);
+		}
+		public ArrayInitializerExpressionContext(ExpressionContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).enterArrayInitializerExpression(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitArrayInitializerExpression(this);
+		}
+	}
 	public static class BinaryAndExpressionContext extends ExpressionContext {
 		public List<ExpressionContext> expression() {
 			return getRuleContexts(ExpressionContext.class);
@@ -5558,37 +5589,6 @@ public class BallerinaParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitBinaryNotEqualExpression(this);
-		}
-	}
-	public static class ArrayinitializerExpressionContext extends ExpressionContext {
-		public ExpressionListContext expressionList() {
-			return getRuleContext(ExpressionListContext.class,0);
-		}
-		public ArrayinitializerExpressionContext(ExpressionContext ctx) { copyFrom(ctx); }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).enterArrayinitializerExpression(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitArrayinitializerExpression(this);
-		}
-	}
-	public static class BinaryDivitionExpressionContext extends ExpressionContext {
-		public List<ExpressionContext> expression() {
-			return getRuleContexts(ExpressionContext.class);
-		}
-		public ExpressionContext expression(int i) {
-			return getRuleContext(ExpressionContext.class,i);
-		}
-		public BinaryDivitionExpressionContext(ExpressionContext ctx) { copyFrom(ctx); }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).enterBinaryDivitionExpression(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitBinaryDivitionExpression(this);
 		}
 	}
 	public static class BinaryModExpressionContext extends ExpressionContext {
@@ -5950,7 +5950,7 @@ public class BallerinaParser extends Parser {
 				break;
 			case 9:
 				{
-				_localctx = new ArrayinitializerExpressionContext(_localctx);
+				_localctx = new ArrayInitializerExpressionContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
 				setState(933);
@@ -6063,7 +6063,7 @@ public class BallerinaParser extends Parser {
 						break;
 					case 2:
 						{
-						_localctx = new BinaryDivitionExpressionContext(new ExpressionContext(_parentctx, _parentState));
+						_localctx = new BinaryDivisionExpressionContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
 						setState(967);
 						if (!(precpred(_ctx, 16))) throw new FailedPredicateException(this, "precpred(_ctx, 16)");
