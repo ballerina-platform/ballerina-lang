@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require','lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor'],
-    function(require, _, log, EventChannel, AbstractStatementSourceGenVisitor) {
+define(['require','lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor', '../../ast/assignment'],
+    function(require, _, log, EventChannel, AbstractStatementSourceGenVisitor, AssignmentStatement) {
 
         var AssignmentStatementVisitor = function(parent){
             AbstractStatementSourceGenVisitor.call(this,parent);
@@ -25,20 +25,16 @@ define(['require','lodash', 'log', 'event_channel', './abstract-statement-source
         AssignmentStatementVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
         AssignmentStatementVisitor.prototype.constructor = AssignmentStatementVisitor;
 
-        AssignmentStatementVisitor.prototype.canVisitAssignment = function(assignmentStatement){
-            return true;
+        AssignmentStatementVisitor.prototype.canVisitStatement = function(assignmentStatement){
+            return assignmentStatement instanceof AssignmentStatement;
         };
 
-        AssignmentStatementVisitor.prototype.beginVisitAssignment = function(assignmentStatement){
+        AssignmentStatementVisitor.prototype.beginVisitStatement = function(assignmentStatement){
             this.appendSource(assignmentStatement.getVariableAccessor() + "=" +assignmentStatement.getExpression());
             log.debug('Begin Visit assignment Statement Definition');
         };
 
-        AssignmentStatementVisitor.prototype.visitAssignment = function(assignmentStatement){
-            log.debug('Visit assignment Statement Definition');
-        };
-
-        AssignmentStatementVisitor.prototype.endVisitAssignment = function(assignmentStatement){
+        AssignmentStatementVisitor.prototype.endVisitStatement = function(assignmentStatement){
             this.appendSource(";\n");
             this.getParent().appendSource(this.getGeneratedSource());
             log.debug('End Visit assignment Statement Definition');
