@@ -11,3 +11,6 @@ native function remove(xml e, string xPath, map namespaces);
 //todo: add other functions (append, insertBefore, insertAfter, rename)
 
 native function toString(xml e) (string);
+
+native function addElement(xml e, string xPath, map namespaces);
+native function addAttribute(xml e, string xPath, map namespaces);
