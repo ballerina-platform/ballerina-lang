@@ -648,9 +648,10 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                     if(annotationType == 'ResourceName'){
                         model.setResourceName(annotationValue);
                     }else if(annotationType == 'ResourcePath'){
-                        model.setResourcePath(annotationValue)
+                        model.setResourcePath(annotationValue);
                     }else if(annotationType == 'ResourceMethod'){
-                        model.setResourceMethod(annotationValue);
+                        var resourceMethods = getResourceMethodAnnotations(annotationValue);
+                        model.setResourceMethod(resourceMethods);
                     }
 
                     //Clear the text box and drop down value
@@ -702,6 +703,22 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 });
 
                 /**
+                 * Gets the processed resource method annotations
+                 * @param annotationValue - The annotation value
+                 */
+                function getResourceMethodAnnotations(annotationValue){
+                    //FIXME cannot trim non comma separated strings using map function hence used trim()
+                    var processedAnnotationValue = annotationValue.toLowerCase().trim();
+                    //Check if the annotation value is a comma separated string
+                    if (annotationValue.indexOf(',') > -1) {
+                        processedAnnotationValue = processedAnnotationValue.split(',');
+                        //Trim all elements in the array
+                        processedAnnotationValue = processedAnnotationValue.map(Function.prototype.call, String.prototype.trim);
+                    }
+                    return processedAnnotationValue;
+                }
+
+                /**
                  * Adds annotation with values to the dropdown.
                  */
                 function addAnnotationsToDropdown() {
@@ -743,6 +760,12 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                     // Creating annotation info
                     _.forEach(annotationData, function (annotation) {
                         if (!_.isEmpty(annotation.annotationValue)) {
+
+                            //Gets resource method as a comma separated string and assigns to the annotation value
+                            if(annotation.annotationType == 'ResourceMethod'){
+                                var resourceMethods = getResourceMethodAnnotations(annotation.annotationValue);
+                                annotation.annotationValue = resourceMethods.toString().toUpperCase();
+                            }
 
                             var annotationWrapper = $("<div/>", {
                                 class: annotationDetailWrapper
@@ -806,9 +829,10 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                                 if(annotation.annotationType == 'ResourceName'){
                                     model.setResourceName(annotation.annotationValue);
                                 }else if(annotation.annotationType == 'ResourcePath'){
-                                    model.setResourcePath(annotation.annotationValue)
+                                    model.setResourcePath(annotation.annotationValue);
                                 }else if(annotation.annotationType == 'ResourceMethod'){
-                                    model.setResourceMethod(annotation.annotationValue);
+                                    var resourceMethods = getResourceMethodAnnotations(annotation.annotationValue);
+                                    model.setResourceMethod(resourceMethods);
                                 }
 
                                 var newDeleteIcon = deleteIcon.clone();
