@@ -18,26 +18,15 @@
 package org.wso2.ballerina.core.model.expressions;
 
 import org.wso2.ballerina.core.model.NodeVisitor;
-import org.wso2.ballerina.core.model.Operator;
 
 /**
  * @since 1.0.0
  */
 public class InstanceCreationExpr extends UnaryExpression {
 
-//    private TypeC newType;
-
-    public InstanceCreationExpr(Operator op, Expression rExpr) {
-        super(op, rExpr);
+    public InstanceCreationExpr(Expression rExpr) {
+        super(null, rExpr);
     }
-
-//    public TypeC getNewType() {
-//        return newType;
-//    }
-//
-//    public void setNewType(TypeC newType) {
-//        this.newType = newType;
-//    }
 
     @Override
     public void accept(NodeVisitor visitor) {
