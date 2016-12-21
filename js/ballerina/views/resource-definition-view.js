@@ -910,15 +910,15 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                     variable.setIdentifier($(variableText).val());
                     if (resourceModel.data === undefined) {
                         resourceModel.getVariables().push(variable);
-                        var index = _.findLastIndex(_.filter(resourceModel.getChildren(), function (child) {
+                        var index = _.findLastIndex(resourceModel.getChildren(), function (child) {
                             return child instanceof VariableDeclaration;
-                        }));
+                        });
                         resourceModel.addChild(variable, index + 1);
                     } else {
                         resourceModel.data.getVariables().push(variable);
-                        var index = _.findLastIndex(_.filter(resourceModel.data.getChildren(), function (child) {
+                        var index = _.findLastIndex(resourceModel.data.getChildren(), function (child) {
                             return child instanceof VariableDeclaration;
-                        }));
+                        });
                         resourceModel.data.addChild(variable, index + 1);
                     }
 
