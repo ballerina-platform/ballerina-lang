@@ -20,6 +20,7 @@ package org.wso2.ballerina.core.model.values;
 import org.wso2.ballerina.core.message.BallerinaMessageDataSource;
 import org.wso2.ballerina.core.model.util.MessageUtils;
 import org.wso2.carbon.messaging.CarbonMessage;
+import org.wso2.carbon.messaging.DefaultCarbonMessage;
 import org.wso2.carbon.messaging.Header;
 import org.wso2.carbon.messaging.Headers;
 
@@ -41,7 +42,7 @@ public class MessageValue implements BValue<CarbonMessage> {
      * @param value     Carbon Message
      */
     public MessageValue(CarbonMessage value) {
-        this.value = value;
+        this.value = (value != null) ? value : new DefaultCarbonMessage();
     }
 
     public CarbonMessage getValue() {
