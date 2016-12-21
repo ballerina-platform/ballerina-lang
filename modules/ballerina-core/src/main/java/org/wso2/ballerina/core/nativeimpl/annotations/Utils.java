@@ -49,7 +49,7 @@ public class Utils {
     public static Const getConst(BallerinaConstant constant) throws MalformedEntryException {
         BValue value = getBValueFromTypeEnum(constant.type(), constant.value());
         SymbolName symbolName = new SymbolName(constant.identifier());
-        Type type = TypeC.getType(constant.type().getName());
+        TypeC type = TypeC.getTypeC(constant.type().getName());
         return new Const(type, symbolName, value);
     }
 
