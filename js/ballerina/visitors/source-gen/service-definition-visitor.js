@@ -39,6 +39,10 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './re
          * If we need to add additional parameters which are dynamically added to the configuration start
          * that particular source generation has to be constructed here
          */
+
+        var constructedPathAnnotation = '@BasePath("' + serviceDefinition.getBasePath() + '")\n';
+        this.appendSource(constructedPathAnnotation);
+
         var constructedSourceSegment = 'service ' + serviceDefinition.getServiceName() + ' {\n';
         this.appendSource(constructedSourceSegment);
         log.info('Begin Visit Service Definition');

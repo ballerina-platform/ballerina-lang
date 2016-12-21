@@ -530,6 +530,11 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                     setterMethod: this._model.setResourceName
                 },
                 {
+                    annotationType: "ResourceMethod",
+                    annotationValue: this._model.getResourceMethod,
+                    setterMethod: this._model.setResourceMethod
+                },
+                {
                     annotationType: "Resource:Action",
                     annotationValue: ""/*this._model.getSource().interface*/,
                     setterMethod: ""
@@ -639,6 +644,19 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
                     annotation.annotationValue = annotationValue;
 
+                    //Adding annotation values to the model
+                    if(annotationType == 'ResourceName'){
+                        model.setResourceName(annotationValue);
+                    }else if(annotationType == 'ResourcePath'){
+                        model.setResourcePath(annotationValue);
+                    }else if(annotationType == 'ResourceMethod'){
+                        var resourceMethods = getResourceMethodAnnotations(annotationValue);
+                        model.setResourceMethod(resourceMethods);
+                    }
+
+                    //Clear the text box and drop down value
+                    annotationValueInput.val("");
+
                     // Recreating the annotation details view.
                     createCurrentAnnotationView(data, annotationsContentWrapper);
 
@@ -685,6 +703,22 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 });
 
                 /**
+                 * Gets the processed resource method annotations
+                 * @param annotationValue - The annotation value
+                 */
+                function getResourceMethodAnnotations(annotationValue){
+                    //FIXME cannot trim non comma separated strings using map function hence used trim()
+                    var processedAnnotationValue = annotationValue.toLowerCase().trim();
+                    //Check if the annotation value is a comma separated string
+                    if (annotationValue.indexOf(',') > -1) {
+                        processedAnnotationValue = processedAnnotationValue.split(',');
+                        //Trim all elements in the array
+                        processedAnnotationValue = processedAnnotationValue.map(Function.prototype.call, String.prototype.trim);
+                    }
+                    return processedAnnotationValue;
+                }
+
+                /**
                  * Adds annotation with values to the dropdown.
                  */
                 function addAnnotationsToDropdown() {
@@ -727,6 +761,12 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                     _.forEach(annotationData, function (annotation) {
                         if (!_.isEmpty(annotation.annotationValue)) {
 
+                            //Gets resource method as a comma separated string and assigns to the annotation value
+                            if(annotation.annotationType == 'ResourceMethod'){
+                                var resourceMethods = getResourceMethodAnnotations(annotation.annotationValue);
+                                annotation.annotationValue = resourceMethods.toString().toUpperCase();
+                            }
+
                             var annotationWrapper = $("<div/>", {
                                 class: annotationDetailWrapper
                             }).appendTo(wrapper);
@@ -750,13 +790,15 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                             // When an annotation detail is clicked.
                             annotationWrapper.click({
                                 clickedAnnotationValueWrapper: annotationValueWrapper,
+                                clickedAnnotationTypeWrapper:annotationTypeWrapper,
                                 annotation: annotation
                             }, function (event) {
                                 var clickedAnnotationValueWrapper = event.data.clickedAnnotationValueWrapper;
+                                var clickedAnnotationTypeWrapper = event.data.clickedAnnotationTypeWrapper;
                                 var annotation = event.data.annotation;
                                 // Empty the content inside the annotation value wrapper.
                                 clickedAnnotationValueWrapper.empty();
-
+                                clickedAnnotationTypeWrapper.empty();
                                 // Changing the background
                                 annotationWrapper.css("background-color", "#f5f5f5");
 
@@ -765,6 +807,33 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                                     text: annotation.annotationValue,
                                     class: "form-control"
                                 }).appendTo(clickedAnnotationValueWrapper);
+
+
+                                // Creating the area for the type of the annotation.
+                                var annotationTypeTextArea = $("<div/>", {
+                                    text: annotation.annotationType,
+                                    class: annotationDetailCellWrapper
+                                }).appendTo(clickedAnnotationTypeWrapper);
+
+                                //Gets the user input and set it as the annotation value
+                                annotationValueTextArea.on('input', function (e){
+                                    annotation.annotationValue = e.target.value;
+                                });
+
+                                //Gets the annotation type of the edited annotation value
+                                annotationTypeTextArea.on('input', function (e){
+                                    annotation.annotationType = e.target.value;
+                                });
+
+                                //Adding annotation values to the model
+                                if(annotation.annotationType == 'ResourceName'){
+                                    model.setResourceName(annotation.annotationValue);
+                                }else if(annotation.annotationType == 'ResourcePath'){
+                                    model.setResourcePath(annotation.annotationValue);
+                                }else if(annotation.annotationType == 'ResourceMethod'){
+                                    var resourceMethods = getResourceMethodAnnotations(annotation.annotationValue);
+                                    model.setResourceMethod(resourceMethods);
+                                }
 
                                 var newDeleteIcon = deleteIcon.clone();
 

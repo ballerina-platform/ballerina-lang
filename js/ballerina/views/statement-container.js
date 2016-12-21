@@ -53,7 +53,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         _.set(this._viewOptions, 'width',  _.get(this._viewOptions, 'width', 120));
         _.set(this._viewOptions, 'height',  _.get(this._viewOptions, 'height', 260));
 
-        _.set(this._viewOptions, 'offset',  _.get(this._viewOptions, 'offset', {top: 100, bottom: 100 }));
+        _.set(this._viewOptions, 'offset',  _.get(this._viewOptions, 'offset', {top: 100, bottom: 100}));
         _.set(this._viewOptions, 'gap',  _.get(this._viewOptions, 'gap', 10));
 
         this._topCenter =  _.get(this._viewOptions, 'topCenter').clone();
@@ -178,8 +178,17 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
             newDropZoneTopCenter = topCenter.clone().move(0, - this._gap);
             _.set(dropZoneOptions, 'topCenter', newDropZoneTopCenter);
             this._createNextInnerDropZone(dropZoneOptions);
+            if(this.getBoundingBox().getBottom() < statementView.getBoundingBox().getBottom()){
+                this.getBoundingBox().h(this.getBoundingBox().h() + statementView.getBoundingBox().getBottom() +
+                    _.get(this._viewOptions, 'offset.bottom')
+                );
+            }
         }
 
+
+        if(this.getBoundingBox().w() < statementView.getBoundingBox().w()){
+            this.getBoundingBox().w(statementView.getBoundingBox().w());
+        }
         this.diagramRenderingContext.setViewOfModel(statement, statementView);
 
         return statementView;

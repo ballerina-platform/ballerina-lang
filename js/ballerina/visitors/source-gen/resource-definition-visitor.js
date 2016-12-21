@@ -39,6 +39,23 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './st
          * If we need to add additional parameters which are dynamically added to the configuration start
          * that particular source generation has to be constructed here
          */
+        var constructedMethodAnnotation;
+        var resourceMethod = resourceDefinition.getResourceMethod();
+        //If a resource method is a comma separated array then append to the source
+        if(resourceMethod instanceof  Array){
+            for (var i in resourceDefinition.getResourceMethod()) {
+                constructedMethodAnnotation = '@' + resourceMethod[i].toUpperCase() + '\n';
+                this.appendSource(constructedMethodAnnotation);
+            }
+        }else{
+            constructedMethodAnnotation = '@' + resourceMethod.toUpperCase() + '\n';
+            this.appendSource(constructedMethodAnnotation);
+        }
+
+        var constructedPathAnnotation = '@Path("' + resourceDefinition.getResourcePath() + '")\n';
+        this.appendSource(constructedPathAnnotation);
+
+
         var constructedSourceSegment = 'resource ' + resourceDefinition.getResourceName() + '(';
 
         // Append the resource arguments
