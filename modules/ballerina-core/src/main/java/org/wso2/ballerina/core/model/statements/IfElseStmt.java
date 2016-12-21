@@ -80,12 +80,12 @@ public class IfElseStmt implements Statement {
     }
 
     @Override
-    public void setNextSibling(Statement statement) {
+    public void setNextStatement(Statement statement) {
           this.nextStatement = statement;
     }
 
     @Override
-    public Statement getNextSibling() {
+    public Statement getNextStatement() {
         return nextStatement;
     }
 

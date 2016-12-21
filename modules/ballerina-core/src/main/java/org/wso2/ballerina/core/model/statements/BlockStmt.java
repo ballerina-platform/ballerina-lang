@@ -32,6 +32,8 @@ public class BlockStmt implements Statement {
 
     private Statement[] statements;
 
+    private Statement nextStatement;
+
     public BlockStmt(Statement[] statements) {
         this.statements = statements;
     }
@@ -48,19 +50,26 @@ public class BlockStmt implements Statement {
         }
     }
 
+    public Statement getFirstChildStatement() {
+        if (statements != null && statements.length >= 1) {
+            return this.statements[0];
+        }
+        return null;
+    }
+
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 
     @Override
-    public void setNextSibling(Statement statement) {
-
+    public void setNextStatement(Statement statement) {
+        this.nextStatement = statement;
     }
 
     @Override
-    public Statement getNextSibling() {
-        return null;
+    public Statement getNextStatement() {
+        return nextStatement;
     }
 
     @Override

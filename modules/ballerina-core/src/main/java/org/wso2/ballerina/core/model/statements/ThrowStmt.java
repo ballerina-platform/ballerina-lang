@@ -43,12 +43,12 @@ public class ThrowStmt implements Statement {
     }
 
     @Override
-    public void setNextSibling(Statement statement) {
+    public void setNextStatement(Statement statement) {
 
     }
 
     @Override
-    public Statement getNextSibling() {
+    public Statement getNextStatement() {
         return null;
     }
 

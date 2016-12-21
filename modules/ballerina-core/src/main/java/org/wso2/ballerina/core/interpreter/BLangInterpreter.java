@@ -65,9 +65,13 @@ import org.wso2.ballerina.core.model.statements.WhileStmt;
 import org.wso2.ballerina.core.model.types.TypeC;
 import org.wso2.ballerina.core.model.values.BValueRef;
 import org.wso2.ballerina.core.model.values.ConnectorValue;
+import org.wso2.ballerina.core.model.values.MessageValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
+import org.wso2.ballerina.core.runtime.core.BalCallback;
+import org.wso2.ballerina.core.runtime.core.DefaultBalCallback;
+import org.wso2.carbon.messaging.CarbonMessage;
 
 import java.util.List;
 
@@ -155,21 +159,15 @@ public class BLangInterpreter implements NodeVisitor {
 
     @Override
     public void visit(BlockStmt blockStmt) {
-        //TODO Improve this to support non-blocking behaviour.
-        //TODO Possibly a linked set of statements would do.
         updateCallback(blockStmt);
-        Statement[] stmts = blockStmt.getStatements();
-        for (Statement stmt : stmts) {
-            stmt.accept(this);
-            break;
+        if (blockStmt.getFirstChildStatement() != null) {
+            blockStmt.getFirstChildStatement().accept(this);
         }
-
+        continueStatementChain(blockStmt);
     }
 
     @Override
     public void visit(AssignStmt assignStmt) {
-
-        //    updateCallback(assignStmt);
         Expression rExpr = assignStmt.getRExpr();
 
         rExpr.accept(this);
@@ -245,7 +243,7 @@ public class BLangInterpreter implements NodeVisitor {
 
     @Override
     public void visit(WhileStmt whileStmt) {
-         updateCallback(whileStmt);
+        updateCallback(whileStmt);
         Expression expr = whileStmt.getCondition();
         expr.accept(this);
         BValueRef result = getValue(expr);
@@ -263,24 +261,28 @@ public class BLangInterpreter implements NodeVisitor {
 
     @Override
     public void visit(FunctionInvocationStmt functionInvocationStmt) {
-        //     updateCallback(functionInvocationStmt);
         functionInvocationStmt.getFunctionInvocationExpr().accept(this);
         continueStatementChain(functionInvocationStmt);
     }
 
     @Override
     public void visit(ReplyStmt replyStmt) {
-        // updateCallback(replyStmt);
-        //        MessageValue messageValue = (MessageValue) controlStack.getCurrentFrame().
-        // values[replyStmt.getReplyExpr()
-        //                .getOffset()].getBValue();
-        replyStmt.interpret(bContext);
-        //  continueStatementChain(replyStmt);
+        BValueRef bValueRef = bContext.getControlStack().getReturnValue(0);
+        if (bValueRef == null) {
+            bValueRef = bContext.getControlStack().getValue(0);
+        }
+        if (bValueRef != null && bValueRef.getBValue() instanceof MessageValue) {
+            CarbonMessage messageValue = (CarbonMessage) bValueRef.getBValue().getValue();
+            BalCallback callback = bContext.getBalCallback();
+            while (!(callback instanceof DefaultBalCallback)) {
+                callback = (BalCallback) callback.getParentCallback();
+            }
+            callback.done(messageValue);
+        }
     }
 
     @Override
     public void visit(ReturnStmt returnStmt) {
-        // updateCallback(returnStmt);
         Expression[] exprs = returnStmt.getExprs();
 
         for (int i = 0; i < exprs.length; i++) {
@@ -288,7 +290,6 @@ public class BLangInterpreter implements NodeVisitor {
             expr.accept(this);
             controlStack.setReturnValue(i, getValue(expr));
         }
-        //  continueStatementChain(returnStmt);
     }
 
     // Expressions
@@ -435,13 +436,6 @@ public class BLangInterpreter implements NodeVisitor {
 
         }
 
-        //        controlStack.popFrame();
-        //
-        //        // Setting return values to function invocation expression
-        //        // TODO At the moment we only support single return value
-        //        if (rVals.length >= 1) {
-        //            controlStack.setValue(actionIExpr.getOffset(), rVals[0]);
-        //        }
     }
 
     @Override
@@ -543,9 +537,9 @@ public class BLangInterpreter implements NodeVisitor {
 
     private void continueStatementChain(Statement statement) {
 
-        if (statement.getNextSibling() != null) {
-            statement.getNextSibling().accept(this);
-        } else if (statement.getNextSibling() == null && bContext.getBalCallback() != null) {
+        if (statement.getNextStatement() != null) {
+            statement.getNextStatement().accept(this);
+        } else if (statement.getNextStatement() == null && bContext.getBalCallback() != null) {
             bContext.getBalCallback().done(bContext);
         }
     }
@@ -553,7 +547,7 @@ public class BLangInterpreter implements NodeVisitor {
     private void updateCallback(Statement statement) {
 
         BalStatementCallback balStatementCallback = new BalStatementCallback(bContext.getBalCallback(),
-                statement.getNextSibling(), this);
+                statement.getNextStatement(), this);
         bContext.setBalCallback(balStatementCallback);
     }
 }

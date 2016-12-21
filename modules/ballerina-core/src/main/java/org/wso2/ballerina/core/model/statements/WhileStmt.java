@@ -58,12 +58,12 @@ public class WhileStmt implements Statement {
     }
 
     @Override
-    public void setNextSibling(Statement statement) {
+    public void setNextStatement(Statement statement) {
       nextStatement = statement;
     }
 
     @Override
-    public Statement getNextSibling() {
+    public Statement getNextStatement() {
         return nextStatement;
     }
 

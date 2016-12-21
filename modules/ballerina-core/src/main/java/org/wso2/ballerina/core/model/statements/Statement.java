@@ -37,14 +37,14 @@ public interface Statement extends Interpreter, Node {
      *
      * @param statement
      */
-    void setNextSibling(Statement statement);
+    void setNextStatement(Statement statement);
 
     /**
      * get next sibling statement
      *
      * @return Statement
      */
-    Statement getNextSibling();
+    Statement getNextStatement();
 
     /**
      * indicate to halt the execution flow.

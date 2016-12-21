@@ -302,7 +302,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         //                stmt.accept(this);
         //            } else {
         //                stmt.accept(this);
-        //                previousStmt.setNextSibling(stmt);
+        //                previousStmt.setNextStatement(stmt);
         //                previousStmt = stmt;
         //            }
         //
@@ -313,7 +313,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             } else if (previousStmt == null && blockStmt.getStatements().length > 1) {
                 previousStmt = stmt;
             } else if (previousStmt != null) {
-                previousStmt.setNextSibling(stmt);
+                previousStmt.setNextStatement(stmt);
                 previousStmt.accept(this);
                 previousStmt = stmt;
             }
