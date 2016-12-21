@@ -23,9 +23,11 @@ import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.JSONValue;
+import org.wso2.ballerina.core.model.values.StringValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
+import org.wso2.ballerina.core.nativeimpl.lang.utils.ErrorHandler;
 
 /**
  * Native function ballerina.lang.string:valueOf.
@@ -48,7 +50,13 @@ public class JsonValueOf extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        JSONValue str = (JSONValue) getArgument(context, 0).getBValue();
-        return getBValues(str.getString());
+        JSONValue json = (JSONValue) getArgument(context, 0).getBValue();
+        StringValue jsonStr = null;
+        try {
+            jsonStr = json.getString();
+        } catch (Throwable e) {
+            ErrorHandler.handleJsonException("get json as string", e);
+        }
+        return getBValues(jsonStr);
     }
 }

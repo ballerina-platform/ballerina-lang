@@ -18,7 +18,10 @@
 
 package org.wso2.ballerina.core.nativeimpl.lang.json;
 
+import com.jayway.jsonpath.InvalidPathException;
 import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.JsonPathException;
+import com.jayway.jsonpath.PathNotFoundException;
 import com.jayway.jsonpath.WriteContext;
 
 import org.osgi.service.component.annotations.Component;
@@ -29,6 +32,7 @@ import org.wso2.ballerina.core.model.values.JSONValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
+import org.wso2.ballerina.core.nativeimpl.lang.utils.ErrorHandler;
 
 /**
  * Insert a named element to a JSON Object. This method will add a new string element with
@@ -50,18 +54,32 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
         service = AbstractNativeFunction.class
 )
 public class AddStringToObject extends AbstractJSONFunction {
+    
+    private static final String OPERATION = "add string to json object";
 
     @Override
     public BValue<?>[] execute(Context ctx) {
-        // Accessing Parameters.
-        JSONValue json = (JSONValue) getArgument(ctx, 0).getBValue();
-        String jsonPath = getArgument(ctx, 1).getString();
-        String key = getArgument(ctx, 2).getString();
-        String value = getArgument(ctx, 3).getString();
+        String jsonPath = null;
+        try {
+            // Accessing Parameters.
+            JSONValue json = (JSONValue) getArgument(ctx, 0).getBValue();
+            jsonPath = getArgument(ctx, 1).getString();
+            String key = getArgument(ctx, 2).getString();
+            String value = getArgument(ctx, 3).getString();
 
-        // Adding the value to JSON Object
-        WriteContext jsonCtx = JsonPath.parse(json.getValue());
-        jsonCtx.put(jsonPath, key, value);
+            // Adding the value to JSON Object
+            WriteContext jsonCtx = JsonPath.parse(json.getValue());
+            jsonCtx.put(jsonPath, key, value);
+        } catch (PathNotFoundException e) {
+            ErrorHandler.handleNonExistingJsonpPath(OPERATION, jsonPath, e);
+        } catch (InvalidPathException e) {
+            ErrorHandler.handleInvalidJsonPath(OPERATION, e);
+        } catch (JsonPathException e) {
+            ErrorHandler.handleJsonPathException(OPERATION, e);
+        } catch (Throwable e) {
+            ErrorHandler.handleJsonPathException(OPERATION, e);
+        }
+        
         return getBValues();
     }
 }

@@ -25,9 +25,11 @@ import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.JSONValue;
+import org.wso2.ballerina.core.model.values.StringValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
+import org.wso2.ballerina.core.nativeimpl.lang.utils.ErrorHandler;
 
 /**
  * Native function ballerina.lang.json:toString
@@ -46,15 +48,23 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 )
 public class ToString extends AbstractJSONFunction {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ToString.class);
+    private static final Logger log = LoggerFactory.getLogger(ToString.class);
 
     @Override
     public BValue<?>[] execute(Context ctx) {
-        // Accessing Parameters.
-        JSONValue json = (JSONValue) getArgument(ctx, 0).getBValue();
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Output JSON: " + json.getString().getValue());
+        StringValue jsonStr = null;
+        try {
+            // Accessing Parameters.
+            JSONValue json = (JSONValue) getArgument(ctx, 0).getBValue();
+            
+            jsonStr = json.getString();
+            if (log.isDebugEnabled()) {
+                log.debug("Output JSON: " + jsonStr.getValue());
+            }
+        } catch (Throwable e) {
+            ErrorHandler.handleJsonException("convert json to string", e);
         }
-        return getBValues(json.getString());
+        
+        return getBValues(jsonStr);
     }
 }
