@@ -194,7 +194,9 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
                 var sourcePointY = y + height / 2;
 
                 self.sourcePoint = new Point(sourcePointX, sourcePointY);
-                self.messageManager.startDrawMessage(self._model, self.sourcePoint, self.parentContainer);
+                //setting resource's container as the parent for the message.
+                var parent = self.getDiagramRenderingContext().currentResource.getContainer();
+                self.messageManager.startDrawMessage(self._model, self.sourcePoint, parent);
             });
 
             this.processorConnectPoint.on("mouseover", function () {

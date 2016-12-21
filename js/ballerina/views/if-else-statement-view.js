@@ -71,7 +71,7 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
             var statementViewFactory = new StatementViewFactory();
             var topCenter = this.getTopCenter().clone();
             var args = {model: statement, container: this.getStatementGroup(), viewOptions: {}, parent: this, topCenter: topCenter,
-                toolPalette: this.toolPalette};
+                toolPalette: this.toolPalette, messageManager: this.messageManager};
             var statementView = statementViewFactory.getStatementView(args);
             this._ifBlockView = statementView;
             this._diagramRenderingContext.getViewModelMap()[statement.id] = statementView;
@@ -124,7 +124,7 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
             // This is because the initial width of the component should be based on my bounding box values
             var viewOptions = {width: this.getBoundingBox().w()};
             var args = {model: statement, container: this.getStatementGroup(), viewOptions: viewOptions, parent: this, topCenter: topCenter,
-                toolPalette: this.toolPalette};
+                toolPalette: this.toolPalette, messageManager: this.messageManager};
             var statementView = statementViewFactory.getStatementView(args);
 
 
@@ -191,7 +191,8 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
 
             var topCenter = new Point(topCenterX, topCenterY);
             var args = {model: statement, container: this.getStatementGroup(), viewOptions: {}, parent: this, topCenter: topCenter,
-                toolPalette: this.toolPalette};
+                toolPalette: this.toolPalette, messageManager: this.messageManager};
+
             var statementView = statementViewFactory.getStatementView(args);
             this._elseBlockView = statementView;
             this._diagramRenderingContext.getViewModelMap()[statement.id] = statementView;
