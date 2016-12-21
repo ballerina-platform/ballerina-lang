@@ -102,6 +102,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         this.renderTitle();
         this.renderMiddleRectangle();
         this.renderContentArea();
+        this.listenTo(this._model, 'update-property-text', this.updateTitleText);
         return this;
     };
 
@@ -441,6 +442,13 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
             });
 
         }.bind(lifeLineGroup.node(), this));
+    };
+
+    LifeLineView.prototype.updateTitleText = function (updatedText, fieldKey) {
+        if (!_.isUndefined(updatedText) && updatedText !== '' && fieldKey === 'Name') {
+            this._topPolygonText.node().textContent = updatedText;
+            this._bottomPolygonText.node().textContent = updatedText;
+        }
     };
 
 

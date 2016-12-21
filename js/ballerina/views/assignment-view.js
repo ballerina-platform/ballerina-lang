@@ -97,7 +97,7 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/assignment', 'd
             assignmentStatementGroup.expression_rect = expressionRect;
             assignmentStatementGroup.expression_text = expressionText;
             this.setStatementGroup(assignmentStatementGroup);
-            this.listenTo(this._model, 'update-statement-text', this.updateStatementText);
+            this.listenTo(this._model, 'update-property-text', this.updateStatementText);
             this._model.accept(this);
 
             // Creating property pane
