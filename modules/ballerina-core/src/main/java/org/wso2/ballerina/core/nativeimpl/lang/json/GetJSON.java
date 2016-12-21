@@ -19,12 +19,13 @@
 package org.wso2.ballerina.core.nativeimpl.lang.json;
 
 import com.google.gson.JsonElement;
+import com.jayway.jsonpath.InvalidPathException;
 import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.JsonPathException;
+import com.jayway.jsonpath.PathNotFoundException;
 import com.jayway.jsonpath.ReadContext;
 
 import org.osgi.service.component.annotations.Component;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
@@ -33,6 +34,7 @@ import org.wso2.ballerina.core.model.values.JSONValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
+import org.wso2.ballerina.core.nativeimpl.lang.utils.ErrorHandler;
 
 /**
  * Evaluate jsonpath on a JSON object and returns the matching JSON.
@@ -51,28 +53,37 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
         service = AbstractNativeFunction.class
 )
 public class GetJSON extends AbstractJSONFunction {
-
-    private static final Logger log = LoggerFactory.getLogger(GetJSON.class);
+    
+    private static final String OPERATION = "get json from json";
 
     @Override
     public BValue<?>[] execute(Context ctx) {
-        // Accessing Parameters.
-        JSONValue json = (JSONValue) getArgument(ctx, 0).getBValue();
-        String jsonPath = getArgument(ctx, 1).getString();
-        
-        // Getting the value from JSON
-        ReadContext jsonCtx = JsonPath.parse(json.getValue());
-        JsonElement element = jsonCtx.read(jsonPath);
+        String jsonPath = null;
         BValue<?> result = null;
-        if (element == null) {
-            log.error("No matching element found for jsonpath: " + jsonPath);
-        } else if (element.isJsonPrimitive()) {
-            String errorMsg = "The element matching: " + jsonPath + " is a primitive, not a JSON.";
-            // log.error(errorMsg);
-            throw new BallerinaException(errorMsg);
-        } else {
-            // if the resulting value is a complex object, return is as a JSONType object
-            result = new JSONValue(element);
+        try {
+            // Accessing Parameters.
+            JSONValue json = (JSONValue) getArgument(ctx, 0).getBValue();
+            jsonPath = getArgument(ctx, 1).getString();
+
+            // Getting the value from JSON
+            ReadContext jsonCtx = JsonPath.parse(json.getValue());
+            JsonElement element = jsonCtx.read(jsonPath);
+            if (element == null) {
+                throw new BallerinaException("No matching element found for jsonpath: " + jsonPath);
+            } else if (element.isJsonPrimitive()) {
+                throw new BallerinaException("The element matching: " + jsonPath + " is a primitive, not a JSON.");
+            } else {
+                // if the resulting value is a complex object, return is as a JSONType object
+                result = new JSONValue(element);
+            }
+        } catch (PathNotFoundException e) {
+            ErrorHandler.handleNonExistingJsonpPath(OPERATION, jsonPath, e);
+        } catch (InvalidPathException e) {
+            ErrorHandler.handleInvalidJsonPath(OPERATION, e);
+        } catch (JsonPathException e) {
+            ErrorHandler.handleJsonPathException(OPERATION, e);
+        } catch (Throwable e) {
+            ErrorHandler.handleJsonPathException(OPERATION, e);
         }
         
         // Setting output value.

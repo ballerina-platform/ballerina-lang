@@ -29,8 +29,6 @@ import net.sf.saxon.s9api.XdmValue;
 import net.sf.saxon.tree.tiny.TinyTextImpl;
 
 import org.osgi.service.component.annotations.Component;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
@@ -40,6 +38,7 @@ import org.wso2.ballerina.core.model.values.XMLValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
+import org.wso2.ballerina.core.nativeimpl.lang.utils.ErrorHandler;
 
 /**
  * Evaluate xPath on a XML object and returns the matching string value.
@@ -59,20 +58,19 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
         service = AbstractNativeFunction.class
 )
 public class GetString extends AbstractNativeFunction {
-
-    private static final Logger log = LoggerFactory.getLogger(GetString.class);
+    
+    private static final String OPERATION = "get string from xml";
 
     @Override
     public BValue<?>[] execute(Context ctx) {
-        // Accessing Parameters.
-        XMLValue xml = (XMLValue) getArgument(ctx, 0).getBValue();
-        String xPath = getArgument(ctx, 1).getString();
-        //MapValue<String, String> nameSpaces = getArgument(ctx, 2).getMap();
-        
-        
-        // Getting the value from XML
         BValue<?> result = null;
         try {
+            // Accessing Parameters.
+            XMLValue xml = (XMLValue) getArgument(ctx, 0).getBValue();
+            String xPath = getArgument(ctx, 1).getString();
+            //MapValue<String, String> nameSpaces = getArgument(ctx, 2).getMap();
+
+            // Getting the value from XML
             Processor processor = new Processor(false);
             XPathCompiler xPathCompiler = processor.newXPathCompiler();
             DocumentBuilder builder = processor.newDocumentBuilder();
@@ -95,7 +93,9 @@ public class GetString extends AbstractNativeFunction {
                 throw new BallerinaException(errorMsg);
             }
         } catch (SaxonApiException e) {
-            throw new BallerinaException("Cannot evaluate XPath: " + xPath, e);
+            ErrorHandler.handleXPathException(OPERATION, e);
+        } catch (Throwable e) {
+            ErrorHandler.handleXPathException(OPERATION, e);
         }
         
         // Setting output value.

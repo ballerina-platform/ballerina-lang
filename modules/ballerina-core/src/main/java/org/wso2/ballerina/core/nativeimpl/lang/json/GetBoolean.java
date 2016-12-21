@@ -20,11 +20,13 @@ package org.wso2.ballerina.core.nativeimpl.lang.json;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
+import com.jayway.jsonpath.InvalidPathException;
 import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.JsonPathException;
+import com.jayway.jsonpath.PathNotFoundException;
 import com.jayway.jsonpath.ReadContext;
+
 import org.osgi.service.component.annotations.Component;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
@@ -34,7 +36,8 @@ import org.wso2.ballerina.core.model.values.JSONValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
-
+import org.wso2.ballerina.core.nativeimpl.lang.utils.ErrorHandler;
+    
 /**
  * Evaluate jsonpath on a JSON object and returns the boolean value.
  */
@@ -52,35 +55,42 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
         service = AbstractNativeFunction.class
 )
 public class GetBoolean extends AbstractJSONFunction {
-
-    private static final Logger log = LoggerFactory.getLogger(GetBoolean.class);
+    
+    private static final String OPERATION = "get boolean from json";
 
     @Override
     public BValue<?>[] execute(Context ctx) {
-        // Accessing Parameters.
-        JSONValue json = (JSONValue) getArgument(ctx, 0).getBValue();
-        String jsonPath = getArgument(ctx, 1).getString();
-        
-        // Getting the value from JSON
-        ReadContext jsonCtx = JsonPath.parse(json.getValue());
-        JsonElement element = jsonCtx.read(jsonPath);
+        String jsonPath = null;
         BValue<?> result = null;
-        if (element == null) {
-            log.error("No matching element found for jsonpath: " + jsonPath);
-        } else if (element.isJsonPrimitive()) {
-            // if the resulting value is a primitive, return the respective primitive value object
-            JsonPrimitive value = element.getAsJsonPrimitive();
-            if (value.isBoolean()) {
-                result = new BooleanValue(value.getAsBoolean());
+        try {
+            // Accessing Parameters.
+            JSONValue json = (JSONValue) getArgument(ctx, 0).getBValue();
+            jsonPath = getArgument(ctx, 1).getString();
+            
+            // Getting the value from JSON
+            ReadContext jsonCtx = JsonPath.parse(json.getValue());
+            JsonElement element = jsonCtx.read(jsonPath);
+            if (element == null) {
+                throw new BallerinaException("No matching element found for jsonpath: " + jsonPath);
+            } else if (element.isJsonPrimitive()) {
+                // if the resulting value is a primitive, return the respective primitive value object
+                JsonPrimitive value = element.getAsJsonPrimitive();
+                if (value.isBoolean()) {
+                    result = new BooleanValue(value.getAsBoolean());
+                } else {
+                    throw new BallerinaException("The element matching path: " + jsonPath + " is not a Boolean.");
+                }
             } else {
-                String errorMsg = "The element matching path: " + jsonPath + " is not a Boolean.";
-                log.error(errorMsg);
-                throw new BallerinaException(errorMsg);
+                throw new BallerinaException("The element matching path: " + jsonPath + " is a JSON, not a Boolean.");
             }
-        } else {
-            String errorMsg = "The element matching path: " + jsonPath + " is a JSON, not a Boolean.";
-            log.error(errorMsg);
-            throw new BallerinaException(errorMsg);
+        } catch (PathNotFoundException e) {
+            ErrorHandler.handleNonExistingJsonpPath(OPERATION, jsonPath, e);
+        } catch (InvalidPathException e) {
+            ErrorHandler.handleInvalidJsonPath(OPERATION, e);
+        } catch (JsonPathException e) {
+            ErrorHandler.handleJsonPathException(OPERATION, e);
+        } catch (Throwable e) {
+            ErrorHandler.handleJsonPathException(OPERATION, e);
         }
         
         // Setting output value.
