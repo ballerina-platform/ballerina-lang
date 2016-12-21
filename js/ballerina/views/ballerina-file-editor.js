@@ -353,7 +353,10 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                         });
 
                         //Adding import declaration to the model
-                        currentASTRoot.addChild(newImportDeclaration);
+                        var index = _.findLastIndex(currentASTRoot.getChildren(), function (child) {
+                            return child instanceof ImportDeclaration;
+                        });
+                        currentASTRoot.addChild(newImportDeclaration, index + 1);
                         //Adding import to be displayed in the imports wrapper
                         currentASTRoot.addImport(newImportDeclaration);
 
