@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace', 'ballerina/diagram-render/diagram-render-context', './../ballerina/ast/import-declaration'], function (require, log, jquery, _, Tab, Ballerina, Workspace, DiagramRenderContext, ImportDeclaration) {
+define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace', 'ballerina/diagram-render/diagram-render-context'], function (require, log, jquery, _, Tab, Ballerina, Workspace, DiagramRenderContext) {
     var FileTab;
 
     FileTab = Tab.extend({
