@@ -18,9 +18,20 @@
 package org.wso2.ballerina.core.model.types;
 
 /**
- *  {@code ArrayType} represents an array
+ * {@code ArrayType} represents an array in Ballerina
  *
- *  @since 1.0.0
+ * @since 1.0.0
  */
-public class ArrayType extends AbstractType {
+public class ArrayType extends TypeC {
+
+    private TypeC elementType;
+
+    /**
+     * Create a type from the given name
+     *
+     * @param typeName string name of the type
+     */
+    protected ArrayType(String typeName, TypeC elementType) {
+        super(typeName);
+    }
 }
