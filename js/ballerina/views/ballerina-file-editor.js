@@ -349,6 +349,10 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                         var newImportDeclaration = new ImportDeclaration({
                             packageName: importPackageTextBox.val()
                         });
+
+                        //Adding import declaration to the model
+                        currentASTRoot.addChild(newImportDeclaration);
+                        //Adding import to be displayed in the imports wrapper
                         currentASTRoot.addImport(newImportDeclaration);
 
                         // Updating current imports view.
@@ -368,8 +372,16 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 // Saving package name to AST root.
                 $(packageTick).click(function () {
                     log.debug("Saving package name : " + $(packageTextBox).val());
-                    var newPackageDefinition = new PackageDefinition({packageName: $(packageTextBox).val()});
-                    currentASTRoot.setPackageDefinition(newPackageDefinition);
+
+                    //TODO - this for loop needs to be replaced to get the package definition
+                    var childrenArray = currentASTRoot.getChildren();
+                    for(var child in childrenArray){
+                        if(BallerinaASTFactory.isPackageDefinition(childrenArray[child]))    {
+                            childrenArray[child].setPackageName($(packageTextBox).val());
+                            break;
+                        }
+
+                    }
                 });
 
                 var importsWrapper = propertyPane.find(".imports-wrapper");
