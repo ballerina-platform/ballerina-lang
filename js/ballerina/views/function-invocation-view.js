@@ -112,7 +112,7 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/function-invoca
             funInvokeGroup.expression_rect = funInvokeRect;
             funInvokeGroup.expression_text = funInvokeText;
             this.setStatementGroup(funInvokeGroup);
-            this.listenTo(this._model, 'update-statement-text', this.updateStatementText);
+            this.listenTo(this._model, 'update-property-text', this.updateStatementText);
 
             // Creating property pane
             var editableProperties = [
