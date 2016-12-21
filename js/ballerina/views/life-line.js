@@ -401,17 +401,18 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
                 PropertyPaneUtils.createPropertyForm(propertyPaneBody,
                     viewOptions.propertyForm.body.property.wrapper, editableProperties);
 
+                // FIXME: Removing the add button temporarily
                 // Adding "Add" button.
-                var buttonPane = $("<div/>").appendTo(propertyPaneBody);
-                var addButton = $("<button/>", {
-                    class : viewOptions.propertyForm.body.addStatement.class,
-                    text : viewOptions.propertyForm.body.addStatement.text
+                // var buttonPane = $("<div/>").appendTo(propertyPaneBody);
+                // var addButton = $("<button/>", {
+                //     class : viewOptions.propertyForm.body.addStatement.class,
+                //     text : viewOptions.propertyForm.body.addStatement.text
+                //
+                // }).appendTo(buttonPane);
 
-                }).appendTo(buttonPane);
-
-                $(addButton).click(function (event) {
-                    //TODO: Add for connector declaration
-                });
+                // $(addButton).click(function (event) {
+                //     //TODO: Add for connector declaration
+                // });
 
                 // Close the popups of property pane body.
                 function closeAllPopUps() {
