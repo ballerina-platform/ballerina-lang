@@ -126,15 +126,16 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
                 // insert at specific position
                 this._managedStatements.splice(this._selectedInnerDropZoneIndex, 0, statement);
 
-                // reset index of activatedInnerDropZone after handling inner drop
-                this._selectedInnerDropZoneIndex = -1;
-
 
                 // render a new innerDropZone on top of next statement block's top
                 newDropZoneTopCenter = new Point(nextStatementView.getBoundingBox().getTopCenterX(),
                     nextStatementView.getBoundingBox().y() - this._gap);
                 _.set(dropZoneOptions, 'topCenter', newDropZoneTopCenter);
-                this._createNextInnerDropZone(dropZoneOptions, _.findIndex(this._managedStatements, ['id', nextStatement.id]));
+                var innerDropZone = this._createNextInnerDropZone(dropZoneOptions, _.findIndex(this._managedStatements, ['id', nextStatement.id]));
+                innerDropZone.listenTo(statementView.getBoundingBox(), 'bottom-edge-moved', innerDropZone.onLastStatementBottomEdgeMoved);
+
+                // reset index of activatedInnerDropZone after handling inner drop
+                this._selectedInnerDropZoneIndex = -1;
 
 
             } else {

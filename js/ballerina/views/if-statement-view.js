@@ -29,6 +29,11 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
          */
         var IfStatementView = function (args) {
             BallerinaStatementView.call(this, args);
+            _.set(this._viewOptions, 'width', _.get(this._viewOptions, 'width', 120));
+            _.set(this._viewOptions, 'height', _.get(this._viewOptions, 'height', 60));
+            // Initialize the bounding box
+            this.getBoundingBox().fromTopCenter(this.getTopCenter(),
+                _.get(this._viewOptions, 'width'),  _.get(this._viewOptions, 'height'));
             this.init();
         };
 
@@ -36,7 +41,6 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
         IfStatementView.prototype.constructor = IfStatementView;
 
         IfStatementView.prototype.init = function () {
-            this.listenTo(this.getParent(), 'parent-bbox-modified', this.parentViewModifiedCallback);
         };
 
         IfStatementView.prototype.canVisitIfStatement = function(){
@@ -50,21 +54,23 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
             this._diagramRenderingContext = diagramRenderingContext;
             var ifGroup = D3Utils.group(this._container);
             ifGroup.attr("id","_" +this._model.id);
-            // Default width and height of the if statement.
-            // TODO: Read these from the constants
-            var width = 120;
-            var height = 60;
-            // Initialize the bounding box
-            this.getBoundingBox().fromTopCenter(this.getTopCenter(), width, height);
-            var outer_rect = D3Utils.rect(this.getBoundingBox().x(), this.getBoundingBox().y(), width, height, 0, 0, ifGroup).classed('statement-rect', true);
+
+            var outer_rect = D3Utils.rect(this.getBoundingBox().x(), this.getBoundingBox().y(), this.getBoundingBox().w(),
+                this.getBoundingBox().h(), 0, 0, ifGroup).classed('statement-rect', true);
             var title_rect = D3Utils.rect(this.getBoundingBox().x(), this.getBoundingBox().y(), 40, 20, 0, 0, ifGroup).classed('statement-rect', true);
             var title_text = D3Utils.textElement(this.getBoundingBox().x() + 20, this.getBoundingBox().y() + 10, 'If', ifGroup).classed('statement-text', true);
             ifGroup.outerRect = outer_rect;
             ifGroup.titleRect = title_rect;
             ifGroup.titleText = title_text;
             this.setStatementGroup(ifGroup);
+
+            this.getBoundingBox().on('top-edge-moved', function(dy){
+                outer_rect.attr("y", parseFloat(outer_rect.attr('y')) + dy);
+                title_rect.attr("y", parseFloat(title_rect.attr('y')) + dy);
+                title_text.attr("y", parseFloat(title_text.attr('y')) + dy);
+            });
+
             this._model.accept(this);
-            this.trigger('sub-component-rendered', this.getBoundingBox());
         };
 
         /**
@@ -107,16 +113,6 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
 
         IfStatementView.prototype.getViewOptions = function () {
             return this._viewOptions;
-        };
-
-        IfStatementView.prototype.parentViewModifiedCallback = function (parentBBox) {
-            if (this.getBoundingBox().w() < parentBBox.w()) {
-                var newWidth = parentBBox.w();
-                this.getStatementGroup().outerRect.attr('width', newWidth);
-                this.getStatementGroup().outerRect.attr('x', parentBBox.x());
-                this.getStatementGroup().titleRect.attr('x', parentBBox.x());
-                this.getStatementGroup().titleText.attr('x', parentBBox.x() + 20);
-            }
         };
 
         return IfStatementView;
