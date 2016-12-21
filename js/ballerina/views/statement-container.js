@@ -53,7 +53,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         _.set(this._viewOptions, 'width',  _.get(this._viewOptions, 'width', 120));
         _.set(this._viewOptions, 'height',  _.get(this._viewOptions, 'height', 260));
 
-        _.set(this._viewOptions, 'offset',  _.get(this._viewOptions, 'offset', {top: 100, bottom: 100 }));
+        _.set(this._viewOptions, 'offset',  _.get(this._viewOptions, 'offset', {top: 100, bottom: 100}));
         _.set(this._viewOptions, 'gap',  _.get(this._viewOptions, 'gap', 10));
 
         this._topCenter =  _.get(this._viewOptions, 'topCenter').clone();
@@ -114,6 +114,11 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
                     statementView.listenTo(prevStatementView.getBoundingBox(), "bottom-edge-moved", function(offsetY){
                         statementView.getBoundingBox().move(0, offsetY);
                     });
+                } else{
+                    statementView.listenTo(this.getBoundingBox(), 'top-edge-moved', function(dy){
+                        statementView.getBoundingBox().y(statementView.getBoundingBox().y() + dy);
+                    });
+                    nextStatementView.stopListening(this.getBoundingBox(), 'top-edge-moved');
                 }
 
                 // make next view listen to new view
@@ -177,7 +182,25 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
             // this is the fist statement - create dropzone on top
             newDropZoneTopCenter = topCenter.clone().move(0, - this._gap);
             _.set(dropZoneOptions, 'topCenter', newDropZoneTopCenter);
-            this._createNextInnerDropZone(dropZoneOptions);
+            var innerDropZone = this._createNextInnerDropZone(dropZoneOptions);
+            if(this.getBoundingBox().getBottom() < statementView.getBoundingBox().getBottom()){
+                this.getBoundingBox().h(this.getBoundingBox().h() + statementView.getBoundingBox().getBottom() +
+                    _.get(this._viewOptions, 'offset.bottom')
+                );
+            }
+            // first inner drop zone should not move for resource default worker
+            if(this._model.getFactory().isStatement(this._model)){
+                innerDropZone.listenTo(this._parent.getBoundingBox(),
+                    'top-edge-moved', innerDropZone.onLastStatementBottomEdgeMoved);
+            }
+            statementView.listenTo(this.getBoundingBox(), 'top-edge-moved', function(dy){
+                statementView.getBoundingBox().y(statementView.getBoundingBox().y() + dy);
+            });
+
+        }
+
+        if(this.getBoundingBox().w() < statementView.getBoundingBox().w()){
+            this.getBoundingBox().w(statementView.getBoundingBox().w());
         }
 
         this.diagramRenderingContext.setViewOfModel(statement, statementView);
@@ -210,6 +233,12 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         this.getBoundingBox().on('bottom-edge-moved', function(offset){
             self._mainDropZone.attr('height', parseFloat(self._mainDropZone.attr('height')) + offset);
         });
+
+        // adjust drop zone height on bottom edge moved
+        this.getBoundingBox().on('top-edge-moved', function(offset){
+            self._mainDropZone.attr('y', parseFloat(self._mainDropZone.attr('y')) + offset);
+            this._topCenter.move(0, offset);
+        }, this);
         var dropZoneOptions = {
             dropZone: this._mainDropZone,
             hoverClass: _.get(this._viewOptions, 'cssClass.mainDropZoneHover')
@@ -232,6 +261,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         // wrap dropzone using an event channel object to use eventing on top of it
         var innerDropZoneObj = new EventChannel();
         innerDropZoneObj.d3el = innerDZone;
+
         innerDropZoneObj.onLastStatementBottomEdgeMoved = function(dy){
             this.d3el.attr('y', parseFloat(this.d3el.attr('y')) + dy);
         };

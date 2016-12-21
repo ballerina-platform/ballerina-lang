@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require','lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor'],
-    function(require, _, log, EventChannel, AbstractStatementSourceGenVisitor) {
+define(['require','lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor', '../../ast/action-invocation-expression'],
+    function(require, _, log, EventChannel, AbstractStatementSourceGenVisitor, ActionInvocation) {
 
         var ActionInvocationExpressionVisitor = function(parent){
             AbstractStatementSourceGenVisitor.call(this,parent);
@@ -25,25 +25,20 @@ define(['require','lodash', 'log', 'event_channel', './abstract-statement-source
         ActionInvocationExpressionVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
         ActionInvocationExpressionVisitor.prototype.constructor = ActionInvocationExpressionVisitor;
 
-        ActionInvocationExpressionVisitor.prototype.canVisitActionInvocationExpression = function(action){
-            return true;
+        ActionInvocationExpressionVisitor.prototype.canVisitStatement = function(action){
+            return action instanceof ActionInvocation;
         };
 
-        ActionInvocationExpressionVisitor.prototype.beginVisitActionInvocationExpression = function(action){
+        ActionInvocationExpressionVisitor.prototype.beginVisitStatement = function(action){
             var self = action;
-            // TODO: till the model of the connector setting is done through the invocation arrow draw, connector type & connectorName is set to default
-            // this.appendSource(self._variableAccessor + "=" + self._connector._connectorType + "." +self._action +
-            //     "(" +self._connector._connectorName +",\"" +self._path +"\"," +self._message +")");
-            this.appendSource(self._variableAccessor + "=http:HttpConnector." +self._action +
-                "(" + 'nyseEP' +",\"" +self._path +"\"," +self._message +")");
+            var connectorType = true === _.isUndefined(self._connector) ? undefined : self._connector._connectorType;
+            var connectorName = true === _.isUndefined(self._connector) ? undefined : self._connector._connectorName;
+            this.appendSource(self._variableAccessor + "=" + connectorType + "." +self._action +
+                "(" + connectorName +",\"" +self._path +"\"," +self._message +")");
             log.debug('Begin Visit action invocation expression');
         };
 
-        ActionInvocationExpressionVisitor.prototype.visitActionInvocationExpression = function(action){
-            log.debug('Visit action Invocation Expression');
-        };
-
-        ActionInvocationExpressionVisitor.prototype.endVisitActionInvocationExpression = function(action){
+        ActionInvocationExpressionVisitor.prototype.endVisitStatement = function(action){
             this.appendSource(";\n");
             this.getParent().appendSource(this.getGeneratedSource());
             log.info('End Visit action Invocation Expression');

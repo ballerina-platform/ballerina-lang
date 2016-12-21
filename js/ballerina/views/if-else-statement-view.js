@@ -70,7 +70,8 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
             var StatementViewFactory = require('./statement-view-factory');
             var statementViewFactory = new StatementViewFactory();
             var topCenter = this.getTopCenter().clone();
-            var args = {model: statement, container: this.getStatementGroup(), viewOptions: {}, parent: this, topCenter: topCenter};
+            var args = {model: statement, container: this.getStatementGroup(), viewOptions: {}, parent: this, topCenter: topCenter,
+                toolPalette: this.toolPalette};
             var statementView = statementViewFactory.getStatementView(args);
             this._ifBlockView = statementView;
             this._diagramRenderingContext.getViewModelMap()[statement.id] = statementView;
@@ -79,6 +80,25 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
                 statementView.getBoundingBox().y(statementView.getBoundingBox().y() + dy);
             });
             this.getBoundingBox().h(this.getBoundingBox().h() + statementView.getBoundingBox().h());
+
+            statementView.getBoundingBox().on("width-changed", function(dw){
+                if(this.getBoundingBox().w() < statementView.getBoundingBox().w()){
+                    this.getBoundingBox().w(statementView.getBoundingBox().w());
+                }
+            }, this);
+
+            this.getBoundingBox().on('width-changed', function(dw){
+                if(statementView.getBoundingBox().w() < this.getBoundingBox().w()){
+                    statementView.getBoundingBox().w(this.getBoundingBox().w());
+                }
+            }, this);
+
+            // only a if block is present
+            if(_.isEmpty(this._elseIfViews) && _.isNil(this._elseIfViews)){
+                this.listenTo(statementView.getBoundingBox(), 'bottom-edge-moved', function(dy){
+                    this.getBoundingBox().h(this.getBoundingBox().h() + dy);
+                });
+            }
 
             statementView.render(this._diagramRenderingContext);
         };
@@ -103,7 +123,8 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
             // For the viewOptions currently pass width only.
             // This is because the initial width of the component should be based on my bounding box values
             var viewOptions = {width: this.getBoundingBox().w()};
-            var args = {model: statement, container: this.getStatementGroup(), viewOptions: viewOptions, parent: this, topCenter: topCenter};
+            var args = {model: statement, container: this.getStatementGroup(), viewOptions: viewOptions, parent: this, topCenter: topCenter,
+                toolPalette: this.toolPalette};
             var statementView = statementViewFactory.getStatementView(args);
 
 
@@ -130,6 +151,24 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
                 });
             }
             this.getBoundingBox().h(this.getBoundingBox().h() + statementView.getBoundingBox().h());
+
+            this.getBoundingBox().on('width-changed', function(dw){
+                if(statementView.getBoundingBox().w() < this.getBoundingBox().w()){
+                    statementView.getBoundingBox().w(this.getBoundingBox().w());
+                }
+            }, this);
+
+            if(_.isNil(this._elseBlockView)){
+                if(_.gt(this._elseIfViews.length, 1)){
+                    this.stopListening(_.last(this._elseIfViews).getBoundingBox(), 'bottom-edge-moved');
+                } else {
+                    this.stopListening(this._ifBlockView.getBoundingBox(), 'bottom-edge-moved');
+                }
+                this.listenTo(statementView.getBoundingBox(), 'bottom-edge-moved', function(dy){
+                    this.getBoundingBox().h(this.getBoundingBox().h() + dy);
+                });
+            }
+
             statementView.render(this._diagramRenderingContext);
         };
 
@@ -154,7 +193,8 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
             // For the viewOptions currently pass width only.
             // This is because the initial width of the component should be based on my bounding box values
             var viewOptions = {width: this.getBoundingBox().w()};
-            var args = {model: statement, container: this.getStatementGroup(), viewOptions: viewOptions, parent: this, topCenter: topCenter};
+            var args = {model: statement, container: this.getStatementGroup(), viewOptions: viewOptions, parent: this, topCenter: topCenter,
+                toolPalette: this.toolPalette};
             var statementView = statementViewFactory.getStatementView(args);
             this._elseBlockView = statementView;
             this._diagramRenderingContext.getViewModelMap()[statement.id] = statementView;
@@ -165,6 +205,21 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
             });
 
             this.getBoundingBox().h(this.getBoundingBox().h() + statementView.getBoundingBox().h());
+
+            this.getBoundingBox().on('width-changed', function(dw){
+                if(statementView.getBoundingBox().w() < this.getBoundingBox().w()){
+                    statementView.getBoundingBox().w(this.getBoundingBox().w());
+                }
+            }, this);
+
+            if(!_.isEmpty(this._elseIfViews)){
+                this.stopListening(_.last(this._elseIfViews).getBoundingBox(), 'bottom-edge-moved');
+            }else{
+                this.stopListening(this._ifBlockView.getBoundingBox(), 'bottom-edge-moved');
+            }
+            this.listenTo(statementView.getBoundingBox(), 'bottom-edge-moved', function(dy){
+                this.getBoundingBox().h(this.getBoundingBox().h() + dy);
+            });
 
             statementView.render(this._diagramRenderingContext);
         };

@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './../ast/if-statement', 'd3utils', 'd3', './point'],
-    function (require, _, $, log, BallerinaStatementView, IfStatement, D3Utils, d3, Point) {
+define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './../ast/if-statement', 'd3utils', 'd3'],
+    function (require, _, $, log, BallerinaStatementView, IfStatement, D3Utils, d3) {
 
         /**
          * The view to represent a If statement which is an AST visitor.
@@ -29,8 +29,9 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
          */
         var IfStatementView = function (args) {
             BallerinaStatementView.call(this, args);
-            _.set(this._viewOptions, 'width', _.get(this._viewOptions, 'width', 120));
-            _.set(this._viewOptions, 'height', _.get(this._viewOptions, 'height', 60));
+            _.set(this._viewOptions, 'width', _.get(this._viewOptions, 'width', 140));
+            _.set(this._viewOptions, 'height', _.get(this._viewOptions, 'height', 100));
+            _.set(this._viewOptions, 'contentOffset', _.get(this._viewOptions, 'contentOffset', {top: 10, bottom: 10}));
             // Initialize the bounding box
             this.getBoundingBox().fromTopCenter(this.getTopCenter(),
                 _.get(this._viewOptions, 'width'),  _.get(this._viewOptions, 'height'));
@@ -70,7 +71,66 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
                 title_text.attr("y", parseFloat(title_text.attr('y')) + dy);
             });
 
+            this.getBoundingBox().on('width-changed', function(dw){
+                outer_rect.attr("x", parseFloat(outer_rect.attr('x')) - dw/2);
+                outer_rect.attr("width", parseFloat(outer_rect.attr('width')) + dw);
+                title_rect.attr("x", parseFloat(title_rect.attr('x')) - dw/2);
+                title_text.attr("x", parseFloat(title_text.attr('x')) - dw/2);
+
+            });
+
+            this.getBoundingBox().on('bottom-edge-moved', function(dy){
+                outer_rect.attr("height", parseFloat(outer_rect.attr('height')) + dy);
+            });
+
+            this._rootGroup = ifGroup;
+            this._statementContainerGroup = D3Utils.group(ifGroup);
+            this.renderStatementContainer();
             this._model.accept(this);
+            this._model.on('child-added', function(child){
+                this.visit(child);
+            }, this);
+        };
+
+        /**
+         * @param {BallerinaStatementView} statement
+         */
+        IfStatementView.prototype.visit = function (statement) {
+            var args = {model: statement, container: this._rootGroup.node(), viewOptions: {},
+                toolPalette: this.toolPalette, messageManager: this.messageManager, parent: this};
+            this._statementContainer.renderStatement(statement, args);
+        };
+
+        /**
+         * Render statement container
+         */
+        IfStatementView.prototype.renderStatementContainer = function(){
+            var statementContainerOpts = {};
+            _.set(statementContainerOpts, 'model', this._model);
+            _.set(statementContainerOpts, 'topCenter', this.getTopCenter().clone().move(0, _.get(this._viewOptions, 'contentOffset.top')));
+            var height = _.get(this._viewOptions, 'height') -
+                _.get(this._viewOptions, 'contentOffset.top') - _.get(this._viewOptions, 'contentOffset.bottom');
+            _.set(statementContainerOpts, 'bottomCenter', this.getTopCenter().clone().move(0, height));
+            _.set(statementContainerOpts, 'width', 80);
+            _.set(statementContainerOpts, 'offset', {top: 40, bottom: 10});
+            _.set(statementContainerOpts, 'parent', this);
+            _.set(statementContainerOpts, 'container', this._statementContainerGroup.node());
+            _.set(statementContainerOpts, 'toolPalette', this.toolPalette);
+            var StatementContainer = require('./statement-container');
+            this._statementContainer = new StatementContainer(statementContainerOpts);
+            this.listenTo(this._statementContainer.getBoundingBox(), 'bottom-edge-moved', function(dy){
+                if(this.getBoundingBox().getBottom() < this._statementContainer.getBoundingBox().getBottom()){
+                    this.getBoundingBox().h(this.getBoundingBox().h() + dy);
+                }
+            });
+            this.getBoundingBox().on('top-edge-moved', function (dy) {
+                this._statementContainer.getBoundingBox().y(this._statementContainer.getBoundingBox().y() + dy);
+            }, this);
+
+            this.listenTo(this._statementContainer.getBoundingBox(), 'width-changed', function(dw){
+                this.getBoundingBox().w(this.getBoundingBox().w() + dw);
+            });
+            this._statementContainer.render(this._diagramRenderingContext);
         };
 
         /**
