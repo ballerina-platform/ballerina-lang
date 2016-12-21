@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package org.wso2.ballerina.core.nativeimpl;
+package org.wso2.ballerina.core.nativeimpl.connectors;
 
 import org.testng.annotations.BeforeTest;
 import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.nativeimpl.lang.system.PrintlnString;
-import org.wso2.ballerina.core.utils.TestUtils;
+import org.wso2.ballerina.core.utils.ParserUtils;
 
 public class NativeActionTest {
 
@@ -29,7 +29,7 @@ public class NativeActionTest {
 
     @BeforeTest
     public void setup() {
-        bFile = TestUtils.parseBalFile("samples/parser/PassthroughService.bal");
+        bFile = ParserUtils.parseBalFile("samples/parser/PassthroughService.bal");
 
         globalScope = new SymScope();
 

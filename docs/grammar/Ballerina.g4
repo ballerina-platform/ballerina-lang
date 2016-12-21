@@ -403,12 +403,13 @@ expression
     |   expression ('<=') expression                                        # binaryLEExpression
     |   expression ('==') expression                                        # binaryEqualExpression
     |   expression ('!=') expression                                        # binaryNotEqualExpression
+    |   '[' expressionList ']'                                              # arrayinitializerExpression
     |   '{' mapInitKeyValue (',' mapInitKeyValue)* '}'                      # mapInitializerExpression
     |   'new' (packageName ':' )? Identifier ('(' expressionList? ')')?     # typeInitializeExpression
     ;
 
 mapInitKeyValue
-    :   QuotedStringLiteral ':' literalValue
+    :   QuotedStringLiteral ':' expression
     ;
 
 // LEXER

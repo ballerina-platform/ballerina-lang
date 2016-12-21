@@ -15,21 +15,24 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerina.core.model.expressions;
+package org.wso2.ballerina.core.parser.statements;
 
-import org.wso2.ballerina.core.model.NodeVisitor;
+import org.testng.Assert;
+import org.testng.annotations.Test;
+import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.BallerinaFunction;
+import org.wso2.ballerina.core.utils.ParserUtils;
 
-/**
- * @since 1.0.0
- */
-public class InstanceCreationExpr extends UnaryExpression {
+public class IfElseParserTest {
 
-    public InstanceCreationExpr(Expression rExpr) {
-        super(null, rExpr);
+    @Test
+    public void testFuncInvocation() {
+        final String funcName = "test";
+        BallerinaFile bFile = ParserUtils.parseBalFile("samples/statements/ifcondition.bal");
+        BallerinaFunction function = (BallerinaFunction) bFile.getFunctions().get(funcName);
+        Assert.assertNotNull(function);
     }
 
-    @Override
-    public void accept(NodeVisitor visitor) {
-        visitor.visit(this);
-    }
+    // TODO: Add Negative test cases.
+
 }
