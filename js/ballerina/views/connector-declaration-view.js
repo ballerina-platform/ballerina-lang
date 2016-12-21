@@ -30,7 +30,8 @@ define(['lodash','d3', 'jquery', './ballerina-view', './../ast/connector-declara
         var ConnectorDeclarationView = function (args) {
             this._totalHeightGap = 50;
             this._parentView = _.get(args, "parentView");
-            _.set(args, 'title',  _.get(args, 'title', 'Connector'));
+            this.messageManager =  _.get(args, "messageManager");
+            _.set(args, 'title',  _.get(args, 'title', 'HTTP'));
             _.set(args, 'cssClass.group',  _.get(args, 'cssClass.group', 'connector-life-line'));
             _.set(args, 'line.height',  _.get(args, 'lineHeight', 290));
             LifeLine.call(this, args);
@@ -87,6 +88,89 @@ define(['lodash','d3', 'jquery', './ballerina-view', './../ast/connector-declara
 
         ConnectorDeclarationView.prototype.getContainer = function () {
             return this._container;
+        };
+
+        ConnectorDeclarationView.prototype.initDropZone = function (options) {
+            var dropZone = _.get(options, 'dropZone'),
+                hoverClass = _.get(options, 'hoverClass'),
+                self = this;
+
+            var getDroppedNodeIndex = function(node){
+                if(!_.gte(self._selectedInnerDropZoneIndex, 0)){
+                    return -1;
+                }
+                var neighbourStatement = _.nth(self._managedStatements, self._selectedInnerDropZoneIndex),
+                    newNodeIndex = self._model.getIndexOfChild(neighbourStatement) + 1;
+                log.debug("Index for the dropped node is " + newNodeIndex);
+                return newNodeIndex;
+            };
+            var mouseOverHandler = function() {
+                //if someone is dragging a tool from tool-palette
+                if(self.messageManager.isOnDrag()){
+                    self._selectedInnerDropZoneIndex = _.findIndex(self._managedInnerDropzones, d3.select(this));
+
+                    // register this as a drop target and validate possible types of nodes to drop - second arg is a call back to validate
+                    // tool view will use this to provide feedback on impossible drop zones
+                    self.messageManager.setActivatedDropTarget(self._model, function(nodeBeingDragged){
+                        var nodeFactory = self._model.getFactory();
+                        // IMPORTANT: override resource definition node's default validation logic
+                        // This drop zone is for statements only.
+                        // Statements should only be allowed here.
+                        //return nodeFactory.isStatement(nodeBeingDragged);
+                        return true;
+                    });
+
+                    self.setStylesWithOpacity(self._middleRectangle);
+
+                    // reset ui feed back on drop target change
+                    self.messageManager.once("drop-target-changed", function(){
+                        self.setStylesWithOpacity(self._middleRectangle);
+                    });
+                }
+            };
+
+            var mouseOutHandler = function() {
+                // reset ui feed back on hover out
+                if(self.messageManager.isOnDrag()){
+                    if(_.isEqual(self.messageManager.getActivatedDropTarget(), self._model)){
+                        self.setStylesWithOpacity(self._middleRectangle);
+                    }
+                }
+            };
+            dropZone.on("mouseover", mouseOverHandler);
+            dropZone.on("mouseout", mouseOutHandler);
+        };
+
+        ConnectorDeclarationView.prototype.renderMiddleRectangle = function () {
+            var self = this;
+            this._middleRectangle = D3utils.centeredRect(this.getMiddleLineCenter(),
+                this._viewOptions.rect.width, this.getMiddleLineHeight(), 0, 0, this._rootGroup);
+
+            this.setStyles(this._middleRectangle);
+
+            // adjust drop zone height on bottom edge moved
+            this.getBoundingBox().on('bottom-edge-moved', function(offset){
+                self._middleRectangle.attr('height', parseFloat(self._middleRectangle.attr('height')) + offset);
+            });
+            var dropZoneOptions = {
+                dropZone: this._middleRectangle,
+                //hoverClass: _.get(this._viewOptions, 'cssClass.mainDropZoneHover'),
+                hoverClass: 'main-drop-zone-hover'
+            };
+            this.initDropZone(dropZoneOptions);
+
+        };
+
+        ConnectorDeclarationView.prototype.setStyles = function (d3Element) {
+            d3Element.attr("fill-opacity", 0);
+            d3Element.attr("fill", '#008000');
+            d3Element.attr("stroke-width", 0);
+        };
+
+        ConnectorDeclarationView.prototype.setStylesWithOpacity = function (d3Element) {
+            d3Element.attr("fill-opacity", 0.2);
+            d3Element.attr("fill", '#008000');
+            d3Element.attr("stroke-width", 0);
         };
 
         return ConnectorDeclarationView;

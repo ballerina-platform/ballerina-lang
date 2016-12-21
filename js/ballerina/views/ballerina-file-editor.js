@@ -111,7 +111,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 parentView: this,
                 toolPalette: this.toolPalette
             });
-            this.diagramRenderingContext.getViewModelMap()[serviceDefinition] = serviceDefinitionView;
+            this.diagramRenderingContext.getViewModelMap()[serviceDefinition.id] = serviceDefinitionView;
             serviceDefinitionView.render(this.diagramRenderingContext);
 
         };
