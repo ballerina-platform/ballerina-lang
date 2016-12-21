@@ -58,16 +58,12 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
 
         Map<String, Service> servicesOnInterface = services.get(interfaceId);
         if (servicesOnInterface == null) {
-            log.error("No services found for interface : " + interfaceId);
-            //TODO: Throw an exception
-            return false;
+            throw new BallerinaException("No services found for interface : " + interfaceId);
         }
 
         String uri = (String) cMsg.getProperty(org.wso2.carbon.messaging.Constants.TO);
         if (uri == null) {
-            log.error("Uri not found in the message");
-            return false;
-            //TODO: Throw an exception
+            throw new BallerinaException("URI not found in the message");
         }
         if (!uri.startsWith("/")) {
             uri = "/".concat(uri);
@@ -107,9 +103,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
         }
 
         if (service == null) {
-            log.error("No Service found to handle request sent to : " + uri);
-            return false;
-            //TODO: Throw an exception
+            throw new BallerinaException("No Service found to handle request sent to : " + uri);
         }
 
         context.setProperty(Constants.BASE_PATH, basePath);
@@ -155,7 +149,6 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
             HTTPListenerManager.getInstance().bindInterface(listenerInterface);
         }
         if (servicesOnInterface.containsKey(basePath)) {
-            //TODO: Through deployment exception
             throw new BallerinaException(
                     "Service with base path :" + basePath + " already exists in listener : " + listenerInterface);
         }

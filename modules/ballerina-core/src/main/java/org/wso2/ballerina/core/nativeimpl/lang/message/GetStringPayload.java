@@ -21,6 +21,7 @@ package org.wso2.ballerina.core.nativeimpl.lang.message;
 import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.util.MessageUtils;
@@ -49,25 +50,27 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 )
 public class GetStringPayload extends AbstractNativeFunction {
 
-    private static final Logger LOG = LoggerFactory.getLogger(GetStringPayload.class);
+    private static final Logger log = LoggerFactory.getLogger(GetStringPayload.class);
 
     @Override
     public BValue[] execute(Context context) {
-        MessageValue msg = (MessageValue) getArgument(context, 0).getBValue();
-
         StringValue result;
-        if (msg.isAlreadyRead()) {
-            result = (StringValue ) msg.getBuiltPayload();
-        } else {
-            String payload = MessageUtils.getStringFromInputStream(msg.getValue().getInputStream());
-            result = new StringValue(payload);
-            msg.setBuiltPayload(result);
-            msg.setAlreadyRead(true);
+        try {
+            MessageValue msg = (MessageValue) getArgument(context, 0).getBValue();
+            if (msg.isAlreadyRead()) {
+                result = msg.getBuiltPayload().getString();
+            } else {
+                String payload = MessageUtils.getStringFromInputStream(msg.getValue().getInputStream());
+                result = new StringValue(payload);
+                msg.setBuiltPayload(result);
+                msg.setAlreadyRead(true);
+            }
+            if (log.isDebugEnabled()) {
+                log.debug("Payload in String:" + result.getValue());
+            }
+        } catch (Throwable e) {
+            throw new BallerinaException("Error while retrieving string payload from message: " + e.getMessage());
         }
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Payload in String:" + result.getValue());
-        }
-        
         return getBValues(result);
     }
 }

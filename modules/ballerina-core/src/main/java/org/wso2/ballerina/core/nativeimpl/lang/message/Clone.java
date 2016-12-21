@@ -21,6 +21,7 @@ package org.wso2.ballerina.core.nativeimpl.lang.message;
 import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.util.MessageUtils;
@@ -67,20 +68,25 @@ public class Clone  extends AbstractNativeFunction {
 
     private MessageValue getCopyOfMessage(MessageValue originalMessage) {
         MessageValue newMessageObj = new MessageValue(new DefaultCarbonMessage());
-        // Clone headers
-        List<Header> allHeaders = originalMessage.getHeaders();
-        newMessageObj.setHeaderList(allHeaders);
+        try {
+            // Clone headers
+            List<Header> allHeaders = originalMessage.getHeaders();
+            newMessageObj.setHeaderList(allHeaders);
 
-        // Clone payload
-        if (originalMessage.isAlreadyRead()) {
-            newMessageObj.setBuiltPayload(MessageUtils.getBValueCopy(originalMessage.getBuiltPayload()));
-        } else {
-            String payload = MessageUtils.getStringFromInputStream(originalMessage.getValue().getInputStream());
-            StringValue result = new StringValue(payload);
-            newMessageObj.setBuiltPayload(result);
-            originalMessage.setBuiltPayload(result);
+            // Clone payload
+            if (originalMessage.isAlreadyRead()) {
+                newMessageObj.setBuiltPayload(MessageUtils.getBValueCopy(originalMessage.getBuiltPayload()));
+            } else {
+                String payload = MessageUtils.getStringFromInputStream(originalMessage.getValue().getInputStream());
+                StringValue result = new StringValue(payload);
+                newMessageObj.setBuiltPayload(result);
+                originalMessage.setBuiltPayload(result);
+            }
+            newMessageObj.setAlreadyRead(true);
+        } catch (Throwable e) {
+            throw new BallerinaException("Error while cloning message: " + e.getMessage());
         }
-        newMessageObj.setAlreadyRead(true);
+        
         return newMessageObj;
     }
 }

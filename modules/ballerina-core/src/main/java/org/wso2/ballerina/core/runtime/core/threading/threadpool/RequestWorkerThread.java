@@ -20,6 +20,7 @@ package org.wso2.ballerina.core.runtime.core.threading.threadpool;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.runtime.Constants;
 import org.wso2.ballerina.core.runtime.core.BalCallback;
@@ -39,17 +40,17 @@ public class RequestWorkerThread extends WorkerThread {
     }
 
     public void run() {
+        try {
+            String protocol = (String) context.getProperty(Constants.PROTOCOL);
 
-        String protocol = (String) context.getProperty(Constants.PROTOCOL);
+            ServiceDispatcher dispatcher = DispatcherRegistry.getInstance().getServiceDispatcher(protocol);
+            if (dispatcher == null) {
+                throw new BallerinaException("No service dispatcher available to handle protocol : " + protocol);
+            }
 
-        ServiceDispatcher dispatcher = DispatcherRegistry.getInstance().getServiceDispatcher(protocol);
-        if (dispatcher == null) {
-            logger.error("No service dispatcher available to handle protocol : " + protocol);
-            //TODO: Handle error
-            return;
+            dispatcher.dispatch(context, callback);
+        } catch (Throwable throwable) {
+            handleError(throwable);
         }
-
-        dispatcher.dispatch(context, callback);
-
     }
 }

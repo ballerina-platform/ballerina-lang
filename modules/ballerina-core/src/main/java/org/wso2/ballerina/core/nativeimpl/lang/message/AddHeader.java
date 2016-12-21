@@ -48,7 +48,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 )
 public class AddHeader extends AbstractNativeFunction {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AddHeader.class);
+    private static final Logger log = LoggerFactory.getLogger(AddHeader.class);
 
     @Override
     public BValue[] execute(Context context) {
@@ -57,8 +57,8 @@ public class AddHeader extends AbstractNativeFunction {
         String headerValue = getArgument(context, 2).getString();
         // Add new header.
         msg.addHeader(headerName, headerValue);
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Add " + headerName + " to header with value: " + headerValue);
+        if (log.isDebugEnabled()) {
+            log.debug("Add " + headerName + " to header with value: " + headerValue);
         }
         return VOID_RETURN;
     }

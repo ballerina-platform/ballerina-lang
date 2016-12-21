@@ -18,6 +18,9 @@
 
 package org.wso2.ballerina.core.nativeimpl.lang.message;
 
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonSyntaxException;
+
 import org.osgi.service.component.annotations.Component;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
@@ -27,6 +30,7 @@ import org.wso2.ballerina.core.model.values.MessageValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
+import org.wso2.ballerina.core.nativeimpl.lang.utils.ErrorHandler;
 
 /**
  *  Get the payload of the Message as a JSON
@@ -45,18 +49,35 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 )
 public class GetJsonPayload extends AbstractNativeFunction {
 
+    private static final String OPERATION = "get json payload";
+    
     @Override
     public BValue[] execute(Context ctx) {
-        // Accessing First Parameter Value.
-        MessageValue msg = (MessageValue) getArgument(ctx, 0).getBValue();
-        
-        JSONValue result;
-        if (msg.isAlreadyRead()) {
-            result = (JSONValue) msg.getBuiltPayload();
-        } else {
-            result = new JSONValue(msg.getValue().getInputStream());
-            msg.setBuiltPayload(result);
-            msg.setAlreadyRead(true);
+        JSONValue result = null;
+        try {
+            // Accessing First Parameter Value.
+            MessageValue msg = (MessageValue) getArgument(ctx, 0).getBValue();
+            
+            if (msg.isAlreadyRead()) {
+                BValue<?> payload = msg.getBuiltPayload();
+                if (payload instanceof JSONValue) {
+                    // if the payload is already JSON, return it as it is.
+                    result = (JSONValue) msg.getBuiltPayload();
+                } else {
+                    // else, build the JSON from the string representation of the payload.
+                    result = new JSONValue(msg.getBuiltPayload().getString().getValue());
+                }
+            } else {
+                result = new JSONValue(msg.getValue().getInputStream());
+                msg.setBuiltPayload(result);
+                msg.setAlreadyRead(true);
+            }
+        } catch (JsonSyntaxException e) {
+            ErrorHandler.handleMalformedJson(OPERATION, e);
+        } catch (JsonParseException e) {
+            ErrorHandler.handleJsonException(OPERATION, e);
+        } catch (Throwable e) {
+            ErrorHandler.handleJsonException(OPERATION, e);
         }
         
         // Setting output value.

@@ -361,7 +361,8 @@ public class BLangInterpreter implements NodeVisitor {
                     Expression[] argExpressions = connectorValue.getArgExprs();
                     BValueRef[] bValueRefs = new BValueRef[argExpressions.length];
                     for (int j = 0; j < argExpressions.length; j++) {
-                        bValueRefs[j] = argExpressions[j].evaluate(bContext);
+                        argExpressions[j].accept(this);
+                        bValueRefs[j] = getValue(argExpressions[j]);
                     }
                     abstractNativeConnector.init(bValueRefs);
                 }

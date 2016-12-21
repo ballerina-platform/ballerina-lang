@@ -47,7 +47,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 )
 public class RemoveHeader extends AbstractNativeFunction {
 
-    private static final Logger LOG = LoggerFactory.getLogger(RemoveHeader.class);
+    private static final Logger log = LoggerFactory.getLogger(RemoveHeader.class);
 
     @Override
     public BValue[] execute(Context context) {
@@ -55,8 +55,8 @@ public class RemoveHeader extends AbstractNativeFunction {
         String headerName = getArgument(context, 1).getString();
         // Add new header.
         msg.removeHeader(headerName);
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Remove header:" + headerName);
+        if (log.isDebugEnabled()) {
+            log.debug("Remove header:" + headerName);
         }
         return VOID_RETURN;
     }
