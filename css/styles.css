@@ -490,6 +490,10 @@ input.variable-type-xml {
     padding: 7px 7px 2px 7px;
 }
 
+.property-pane-form-body-property-wrapper input{
+    width: 100%;
+}
+
 .property-pane-form-body-add-button {
     width: 100%;
 }
