@@ -178,18 +178,6 @@ public abstract class AbstractNativeFunction implements NativeConstruct, Functio
         return isPublicFunction;
     }
 
-
-    @Override
-    public void interpret(Context context) {
-//        BValueNew[] returnValues = execute(context);
-//        if (returnValues == null || returnValues.length == 0 || this.returnTypes.size() == 0) {
-//            context.getControlStack().getCurrentFrame().returnValue = null;
-//            return;
-//        }
-//        // TODO : Support for multiple return values.
-//        context.getControlStack().getCurrentFrame().returnValue.setBValue(returnValues[0]);
-    }
-
     /**
      * Where Native Function logic is implemented.
      *

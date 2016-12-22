@@ -128,8 +128,6 @@ public class BLangInterpreter implements NodeVisitor {
 
     @Override
     public void visit(BallerinaAction action) {
-        action.interpret(bContext);
-
     }
 
     @Override
