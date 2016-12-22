@@ -17,7 +17,7 @@
 */
 package org.wso2.ballerina.core.model;
 
-import org.wso2.ballerina.core.model.types.TypeC;
+import org.wso2.ballerina.core.model.types.BType;
 
 /**
  * {@code Symbol} represents a data structure that simply defines the type of variables,
@@ -27,41 +27,41 @@ import org.wso2.ballerina.core.model.types.TypeC;
  */
 public class Symbol {
 
-    private TypeC type;
+    private BType type;
     private int offset;
 
-    private TypeC[] paramTypes;
-    private TypeC[] returnTypes;
+    private BType[] paramTypes;
+    private BType[] returnTypes;
     private Function function;
 
     private Action action;
 
     private Connector connector;
 
-    public Symbol(TypeC type, int offset) {
+    public Symbol(BType type, int offset) {
         this.type = type;
         this.offset = offset;
     }
 
-    public Symbol(Function function, TypeC[] paramTypes, TypeC[] returnTypes) {
+    public Symbol(Function function, BType[] paramTypes, BType[] returnTypes) {
         this.function = function;
         this.paramTypes = paramTypes;
         this.returnTypes = returnTypes;
     }
 
-    public Symbol(Action action, TypeC[] paramTypes, TypeC[] returnTypes) {
+    public Symbol(Action action, BType[] paramTypes, BType[] returnTypes) {
         this.action = action;
         this.paramTypes = paramTypes;
         this.returnTypes = returnTypes;
     }
 
-    public Symbol(Connector connector, TypeC[] paramTypes) {
+    public Symbol(Connector connector, BType[] paramTypes) {
         this.connector = connector;
         this.paramTypes = paramTypes;
     }
 
 
-    public TypeC getType() {
+    public BType getType() {
         return type;
     }
 
@@ -69,11 +69,11 @@ public class Symbol {
         return offset;
     }
 
-    public TypeC[] getParamTypes() {
+    public BType[] getParamTypes() {
         return paramTypes;
     }
 
-    public TypeC[] getReturnTypes() {
+    public BType[] getReturnTypes() {
         return returnTypes;
     }
 

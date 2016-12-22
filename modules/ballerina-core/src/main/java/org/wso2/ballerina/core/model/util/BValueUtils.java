@@ -18,7 +18,7 @@
 package org.wso2.ballerina.core.model.util;
 
 import org.wso2.ballerina.core.exception.BallerinaException;
-import org.wso2.ballerina.core.model.types.TypeC;
+import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.values.BBoolean;
 import org.wso2.ballerina.core.model.values.BConnector;
 import org.wso2.ballerina.core.model.values.BDouble;
@@ -41,38 +41,38 @@ public class BValueUtils {
     // TODO How about storing these default values in hash map. This would avoid creating new objects for each
     // TODO every variable declaration.
     // TODO One option is to implement a pool of BValue objects
-    public static BValue getDefaultValue(TypeC type) {
-        if (type == TypeC.INT_TYPE) {
+    public static BValue getDefaultValue(BType type) {
+        if (type == BType.INT_TYPE) {
             return new BInteger(0);
 
-        } else if (type == TypeC.LONG_TYPE) {
+        } else if (type == BType.LONG_TYPE) {
             return new BLong(0);
 
-        } else if (type == TypeC.FLOAT_TYPE) {
+        } else if (type == BType.FLOAT_TYPE) {
             return new BFloat(0);
 
-        } else if (type == TypeC.DOUBLE_TYPE) {
+        } else if (type == BType.DOUBLE_TYPE) {
             return new BDouble(0);
 
-        } else if (type == TypeC.BOOLEAN_TYPE) {
+        } else if (type == BType.BOOLEAN_TYPE) {
             return new BBoolean(false);
 
-        } else if (type == TypeC.STRING_TYPE) {
+        } else if (type == BType.STRING_TYPE) {
             return new BString("");
 
-        } else if (type == TypeC.JSON_TYPE) {
+        } else if (type == BType.JSON_TYPE) {
             return new BJSON("{}");
 
-        } else if (type == TypeC.XML_TYPE) {
+        } else if (type == BType.XML_TYPE) {
             return new BXML();
 
-        } else if (type == TypeC.MESSAGE_TYPE) {
+        } else if (type == BType.MESSAGE_TYPE) {
             return new BMessage(null);
 
 //        } else if (type == TypeC.MAP_TYPE) {
 //            return MapValue());
 
-        } else if (type == TypeC.CONNECTOR_TYPE) {
+        } else if (type == BType.CONNECTOR_TYPE) {
             return new BConnector(null, null);
         } else {
             throw new BallerinaException("Unsupported type: " + type);
@@ -80,8 +80,8 @@ public class BValueUtils {
     }
 
     // TODO we need to improve this logic
-    public static BValue clone(TypeC type, BValue bValue) {
-        if (TypeC.isValueType(type)) {
+    public static BValue clone(BType type, BValue bValue) {
+        if (BType.isValueType(type)) {
             return bValue;
         }
 

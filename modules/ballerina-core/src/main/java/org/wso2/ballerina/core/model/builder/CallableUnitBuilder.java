@@ -27,7 +27,7 @@ import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.VariableDcl;
 import org.wso2.ballerina.core.model.Worker;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
-import org.wso2.ballerina.core.model.types.TypeC;
+import org.wso2.ballerina.core.model.types.BType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +45,7 @@ class CallableUnitBuilder {
     private List<Annotation> annotationList = new ArrayList<>();
     private boolean publicFunc;
     private List<Parameter> parameterList = new ArrayList<>();
-    private List<TypeC> rTypesList = new ArrayList<>();
+    private List<BType> rTypesList = new ArrayList<>();
     private List<ConnectorDcl> connectorDclList = new ArrayList<>();
     private List<VariableDcl> variableDclList = new ArrayList<>();
     private List<Worker> workerList = new ArrayList<>();
@@ -70,7 +70,7 @@ class CallableUnitBuilder {
         this.parameterList.add(param);
     }
 
-    void addReturnType(TypeC type) {
+    void addReturnType(BType type) {
         this.rTypesList.add(type);
     }
 
@@ -93,7 +93,7 @@ class CallableUnitBuilder {
     BallerinaFunction buildFunction() {
         return new BallerinaFunction(name, publicFunc, annotationList.toArray(new Annotation[annotationList.size()]),
                 parameterList.toArray(new Parameter[parameterList.size()]),
-                rTypesList.toArray(new TypeC[rTypesList.size()]),
+                rTypesList.toArray(new BType[rTypesList.size()]),
                 connectorDclList.toArray(new ConnectorDcl[connectorDclList.size()]),
                 variableDclList.toArray(new VariableDcl[variableDclList.size()]),
                 workerList.toArray(new Worker[workerList.size()]), body);
@@ -110,7 +110,7 @@ class CallableUnitBuilder {
     BallerinaAction buildAction() {
         return new BallerinaAction(name, annotationList.toArray(new Annotation[annotationList.size()]),
                 parameterList.toArray(new Parameter[parameterList.size()]),
-                rTypesList.toArray(new TypeC[rTypesList.size()]),
+                rTypesList.toArray(new BType[rTypesList.size()]),
                 connectorDclList.toArray(new ConnectorDcl[connectorDclList.size()]),
                 variableDclList.toArray(new VariableDcl[variableDclList.size()]),
                 workerList.toArray(new Worker[workerList.size()]), body);

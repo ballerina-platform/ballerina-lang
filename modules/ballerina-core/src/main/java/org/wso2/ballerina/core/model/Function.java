@@ -19,8 +19,7 @@
 package org.wso2.ballerina.core.model;
 
 import org.wso2.ballerina.core.interpreter.Interpreter;
-import org.wso2.ballerina.core.model.types.Type;
-import org.wso2.ballerina.core.model.types.TypeC;
+import org.wso2.ballerina.core.model.types.BType;
 
 /**
  * {@code {@link Function}} represents any Ballerina function.
@@ -69,9 +68,7 @@ public interface Function extends Interpreter {
      *
      * @return list of Return types.
      */
-    Type[] getReturnTypes();
-
-    TypeC[] getReturnTypesC();
+    BType[] getReturnTypes();
 
     /**
      * Check whether function is public, which means function is visible outside the package
