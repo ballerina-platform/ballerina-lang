@@ -20,12 +20,6 @@ package org.wso2.ballerina.core.model;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.ballerina.core.interpreter.Context;
-import org.wso2.ballerina.core.runtime.Constants;
-import org.wso2.ballerina.core.runtime.core.BalCallback;
-import org.wso2.ballerina.core.runtime.core.Executable;
-import org.wso2.ballerina.core.runtime.core.dispatching.ResourceDispatcher;
-import org.wso2.ballerina.core.runtime.registry.DispatcherRegistry;
 
 /**
  * A {@code Service} is an HTTP web service described by a Swagger.
@@ -44,7 +38,7 @@ import org.wso2.ballerina.core.runtime.registry.DispatcherRegistry;
  * @since 1.0.0
  */
 @SuppressWarnings("unused")
-public class Service implements Executable, Node {
+public class Service implements Node {
 
     private static final Logger logger = LoggerFactory.getLogger(Service.class);
 
@@ -122,20 +116,6 @@ public class Service implements Executable, Node {
      */
     public void setResources(Resource[] resources) {
         this.resources = resources;
-    }
-
-    @Override
-    public boolean execute(Context context, BalCallback callback) {
-
-        String protocol = (String) context.getProperty(Constants.PROTOCOL);
-
-        ResourceDispatcher resourceDispatcher = DispatcherRegistry.getInstance().getResourceDispatcher(protocol);
-        if (resourceDispatcher == null) {
-            logger.error("No resource dispatcher available to handle protocol : " + protocol);
-            return false;
-        }
-
-        return resourceDispatcher.dispatch(this, context, callback);
     }
 
     @Override
