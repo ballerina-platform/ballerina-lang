@@ -26,27 +26,18 @@ import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.exception.BallerinaException;
-import org.wso2.ballerina.core.interpreter.BLangInterpreter;
-import org.wso2.ballerina.core.interpreter.Context;
-import org.wso2.ballerina.core.interpreter.ControlStack;
-import org.wso2.ballerina.core.interpreter.StackFrame;
 import org.wso2.ballerina.core.linker.BLangLinker;
 import org.wso2.ballerina.core.model.Application;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.Package;
-import org.wso2.ballerina.core.model.Parameter;
-import org.wso2.ballerina.core.model.VariableDcl;
 import org.wso2.ballerina.core.model.builder.BLangModelBuilder;
-import org.wso2.ballerina.core.model.types.BType;
-import org.wso2.ballerina.core.model.util.BValueUtils;
-import org.wso2.ballerina.core.model.values.BInteger;
-import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.parser.BallerinaLexer;
 import org.wso2.ballerina.core.parser.BallerinaParser;
 import org.wso2.ballerina.core.parser.BallerinaParserErrorStrategy;
 import org.wso2.ballerina.core.parser.antlr4.BLangAntlr4Listener;
 import org.wso2.ballerina.core.runtime.Constants;
+import org.wso2.ballerina.core.runtime.core.BalProgramExecutor;
 import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 import org.wso2.ballerina.core.runtime.internal.ServiceContextHolder;
 import org.wso2.ballerina.core.runtime.registry.ApplicationRegistry;
@@ -63,7 +54,6 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import static org.wso2.ballerina.core.runtime.Constants.SYSTEM_PROP_BAL_ARGS;
 import static org.wso2.ballerina.core.runtime.Constants.SYSTEM_PROP_BAL_FILE;
 
 /**
@@ -167,7 +157,11 @@ public class BalDeployer implements Deployer {
                 bLangLinker.link(GlobalScopeHolder.getInstance().getScope());
 
                 // Run main function
-                executeMainFunction(balFile);
+                BallerinaFunction function =
+                        (BallerinaFunction) balFile.getFunctions().get(Constants.MAIN_FUNCTION_NAME);
+                if (function != null) {
+                    BalProgramExecutor.execute(function);
+                }
 
                 // Get the existing application associated with this ballerina config
                 Application app = ApplicationRegistry.getInstance().getApplication(file.getName());
@@ -219,55 +213,6 @@ public class BalDeployer implements Deployer {
         }
         ApplicationRegistry.getInstance().unregisterApplication(app);
         log.info("Undeployed ballerina file : " + fileName);
-    }
-    
-    private static void executeMainFunction(BallerinaFile bFile) {
-
-        BallerinaFunction function = (BallerinaFunction) bFile.getFunctions().get(Constants.MAIN_FUNCTION_NAME);
-        if (function == null) {
-            return;
-        }
-
-        // Check whether this is a standard main function with one integer argument
-        // This will be changed to string[] args once we have the array support
-        Parameter[] parameters = function.getParameters();
-        if (parameters.length != 1 || parameters[0].getType() != BType.INT_TYPE) {
-            log.warn("main function does not comply with standard main function in ballerina, hence skipping...");
-            return;
-        }
-
-        // Execute main function
-        // Create control stack and the stack frame
-        Context ctx = new Context();
-        ControlStack controlStack = ctx.getControlStack();
-        int sizeOfValueArray = function.getStackFrameSize();
-        BValue[] values = new BValue[sizeOfValueArray];
-        int i = 0;
-
-        // Main function only have one input parameter
-        // Read from command line arguments
-        String balArgs = System.getProperty(SYSTEM_PROP_BAL_ARGS);
-
-        // Only integers allowed at the moment
-        if (balArgs != null) {
-            int intValue = Integer.parseInt(balArgs);
-            values[i++] = new BInteger(intValue);
-        } else {
-            values[i++] = new BInteger(0);
-        }
-
-        // Create default values for all declared local variables
-        VariableDcl[] variableDcls = function.getVariableDcls();
-        for (VariableDcl variableDcl : variableDcls) {
-            values[i] = BValueUtils.getDefaultValue(variableDcl.getType());
-            i++;
-        }
-
-        BValue[] returnVals = new BValue[function.getReturnTypes().length];
-        StackFrame stackFrame = new StackFrame(values, returnVals);
-        controlStack.pushFrame(stackFrame);
-        BLangInterpreter interpreter = new BLangInterpreter(ctx);
-        function.accept(interpreter);
     }
 
 }
