@@ -26,7 +26,7 @@ import org.osgi.service.component.annotations.Component;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.model.values.XMLValue;
+import org.wso2.ballerina.core.model.values.BXML;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
@@ -56,11 +56,11 @@ public class Remove extends AbstractNativeFunction {
     private static final String OPERATION = "remove element from xml";
 
     @Override
-    public BValue<?>[] execute(Context ctx) {
+    public BValue[] execute(Context ctx) {
         try {
             // Accessing Parameters.
-            XMLValue xml = (XMLValue) getArgument(ctx, 0).getBValue();
-            String xPath = getArgument(ctx, 1).getString();
+            BXML xml = (BXML) getArgument(ctx, 0);
+            String xPath = getArgument(ctx, 1).stringValue();
             // MapValue<String, String> nameSpaces = getArgument(ctx, 2).getMap();
             
             // Setting the value to XML
@@ -71,7 +71,7 @@ public class Remove extends AbstractNativeFunction {
 
                 }
             }*/
-            Object ob = axiomxPath.evaluate(xml.getValue());
+            Object ob = axiomxPath.evaluate(xml.value());
             if (ob instanceof ArrayList) {
                 List<?> list = (List<?>) ob;
 

@@ -20,26 +20,26 @@ package org.wso2.ballerina.core.runtime.errors.handler;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.ballerina.core.interpreter.Context;
-import org.wso2.ballerina.core.runtime.core.BalCallback;
+import org.wso2.carbon.messaging.CarbonCallback;
+import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
- * {@code DefaultErrorHandler} is the default error handler implementation
+ * {@code DefaultServerConnectorErrorHandler} is the default error handler implementation
  */
-public class DefaultErrorHandler implements ErrorHandler {
+public class DefaultServerConnectorErrorHandler implements ServerConnectorErrorHandler {
 
-    private static final Logger log = LoggerFactory.getLogger(DefaultErrorHandler.class);
+    private static final Logger log = LoggerFactory.getLogger(DefaultServerConnectorErrorHandler.class);
 
-    private DefaultErrorHandler(){}
+    private DefaultServerConnectorErrorHandler(){}
 
-    private static DefaultErrorHandler instance = new DefaultErrorHandler();
+    private static DefaultServerConnectorErrorHandler instance = new DefaultServerConnectorErrorHandler();
 
-    public static DefaultErrorHandler getInstance() {
+    public static DefaultServerConnectorErrorHandler getInstance() {
         return instance;
     }
 
     @Override
-    public void handleError(Exception ex, Context bContext, BalCallback callback) {
+    public void handleError(Exception ex, CarbonMessage cMsg, CarbonCallback callback) {
         log.error(ex.getMessage());
     }
 

@@ -23,8 +23,6 @@ package org.wso2.ballerina.core.runtime;
  */
 public class Constants {
 
-    public static final String PROTOCOL = "PROTOCOL";
-
     // Name of the System property which contains the ballerina file path to be executed
     public static final String SYSTEM_PROP_BAL_FILE = "bal-file";
 

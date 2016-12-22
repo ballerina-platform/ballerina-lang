@@ -17,8 +17,8 @@
 package org.wso2.ballerina.core.nativeimpl.connectors;
 
 import org.wso2.ballerina.core.interpreter.Context;
-import org.wso2.ballerina.core.model.values.BValueRef;
-import org.wso2.ballerina.core.model.values.MessageValue;
+import org.wso2.ballerina.core.model.values.BMessage;
+import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.runtime.core.DefaultBalCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
@@ -31,7 +31,7 @@ public class BalConnectorCallback extends DefaultBalCallback {
 
     public boolean responseArrived = false;
 
-    public BValueRef valueRef;
+    public BValue valueRef;
 
     public BalConnectorCallback(Context context) {
         super(context.getBalCallback());
@@ -40,10 +40,10 @@ public class BalConnectorCallback extends DefaultBalCallback {
 
     @Override
     public void done(CarbonMessage carbonMessage) {
-        MessageValue messageValue = new MessageValue(carbonMessage);
-        valueRef = new BValueRef(messageValue);
+        BMessage bMessage = new BMessage(carbonMessage);
+        valueRef = bMessage;
         //context.getControlStack().setValue(4, valueRef);
-        context.getControlStack().setReturnValue(0, valueRef);
+        context.getControlStack().setReturnValueNew(0, valueRef);
         responseArrived = true;
         synchronized (context) {
             context.notifyAll();

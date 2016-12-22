@@ -20,7 +20,7 @@ package org.wso2.ballerina.core.runtime.internal;
 
 
 import org.wso2.ballerina.core.runtime.Constants;
-import org.wso2.ballerina.core.runtime.errors.handler.ErrorHandler;
+import org.wso2.ballerina.core.runtime.errors.handler.ServerConnectorErrorHandler;
 import org.wso2.carbon.messaging.TransportSender;
 
 import java.util.HashMap;
@@ -36,7 +36,7 @@ public class ServiceContextHolder {
     private Constants.RuntimeMode runtimeMode = Constants.RuntimeMode.SERVER;
 
     /* Protocol specific error handlers */
-    private Map<String, ErrorHandler> errorHandlers = new HashMap<>();
+    private Map<String, ServerConnectorErrorHandler> errorHandlers = new HashMap<>();
 
     private ServiceContextHolder() {
     }
@@ -74,7 +74,7 @@ public class ServiceContextHolder {
      *
      * @param errorHandler Error Handler
      */
-    public void registerErrorHandler(ErrorHandler errorHandler) {
+    public void registerErrorHandler(ServerConnectorErrorHandler errorHandler) {
         errorHandlers.put(errorHandler.getProtocol(), errorHandler);
     }
 
@@ -93,7 +93,7 @@ public class ServiceContextHolder {
      * @param protocol transport protocol
      * @return Error Handler for a given protocol
      */
-    public ErrorHandler getErrorHandler(String protocol) {
+    public ServerConnectorErrorHandler getErrorHandler(String protocol) {
         return errorHandlers.get(protocol);
     }
 }

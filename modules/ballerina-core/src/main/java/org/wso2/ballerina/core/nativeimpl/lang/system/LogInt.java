@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
+import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
@@ -60,7 +61,7 @@ public class LogInt extends AbstractNativeFunction {
     private static final Logger logger = LoggerFactory.getLogger(LogInt.class);
 
     public BValue[] execute(Context ctx) {
-        LogUtil.log(logger, getArgument(ctx, 0).getInt(), getArgument(ctx, 1).getBValue().getString().getValue());
+        LogUtil.log(logger, ((BInteger) getArgument(ctx, 0)).intValue(), getArgument(ctx, 1).stringValue());
         return VOID_RETURN;
     }
 }

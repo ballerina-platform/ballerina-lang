@@ -65,11 +65,11 @@ public class IfElseStmt implements Statement {
     }
 
     public void interpret(Context ctx) {
-        if (ifCondition.evaluate(ctx).getBoolean()) {
-            thenBody.interpret(ctx);
-        } else {
-            elseBody.interpret(ctx);
-        }
+//        if (ifCondition.evaluate(ctx).getBoolean()) {
+//            thenBody.interpret(ctx);
+//        } else {
+//            elseBody.interpret(ctx);
+//        }
     }
 
     @Override

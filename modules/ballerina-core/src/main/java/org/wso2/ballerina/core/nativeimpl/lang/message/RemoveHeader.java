@@ -23,8 +23,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
+import org.wso2.ballerina.core.model.values.BMessage;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.model.values.MessageValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
@@ -51,8 +51,8 @@ public class RemoveHeader extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        MessageValue msg = (MessageValue) getArgument(context, 0).getBValue();
-        String headerName = getArgument(context, 1).getString();
+        BMessage msg = (BMessage) getArgument(context, 0);
+        String headerName = getArgument(context, 1).stringValue();
         // Add new header.
         msg.removeHeader(headerName);
         if (log.isDebugEnabled()) {

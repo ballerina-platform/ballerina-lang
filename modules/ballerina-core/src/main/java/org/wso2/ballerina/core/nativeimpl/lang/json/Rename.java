@@ -27,8 +27,8 @@ import com.jayway.jsonpath.WriteContext;
 import org.osgi.service.component.annotations.Component;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
+import org.wso2.ballerina.core.model.values.BJSON;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.model.values.JSONValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
@@ -56,17 +56,17 @@ public class Rename extends AbstractJSONFunction {
     private static final String OPERATION = "rename element in json";
 
     @Override
-    public BValue<?>[] execute(Context ctx) {
+    public BValue[] execute(Context ctx) {
         String jsonPath = null;
         try {
             // Accessing Parameters.
-            JSONValue json = (JSONValue) getArgument(ctx, 0).getBValue();
-            jsonPath = getArgument(ctx, 1).getString();
-            String oldKey = getArgument(ctx, 2).getString();
-            String newKey = getArgument(ctx, 3).getString();
+            BJSON json = (BJSON) getArgument(ctx, 0);
+            jsonPath = getArgument(ctx, 1).stringValue();
+            String oldKey = getArgument(ctx, 2).stringValue();
+            String newKey = getArgument(ctx, 3).stringValue();
             
             // Rename the element key
-            WriteContext jsonCtx = JsonPath.parse(json.getValue());
+            WriteContext jsonCtx = JsonPath.parse(json.value());
             jsonCtx.renameKey(jsonPath, oldKey, newKey);
         } catch (PathNotFoundException e) {
             ErrorHandler.handleNonExistingJsonpPath(OPERATION, jsonPath, e);

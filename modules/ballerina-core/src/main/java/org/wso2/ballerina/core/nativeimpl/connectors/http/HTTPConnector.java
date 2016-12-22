@@ -20,7 +20,8 @@ import org.osgi.framework.ServiceFactory;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Component;
 import org.wso2.ballerina.core.model.types.TypeEnum;
-import org.wso2.ballerina.core.model.values.BValueRef;
+import org.wso2.ballerina.core.model.values.BInteger;
+import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaConnector;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
@@ -47,10 +48,10 @@ public class HTTPConnector extends AbstractNativeConnector implements ServiceFac
     private int timeout;
 
     @Override
-    public boolean init(BValueRef[] bValueRefs) {
+    public boolean init(BValue[] bValueRefs) {
         if (bValueRefs != null && bValueRefs.length == 2) {
-            serviceUri = bValueRefs[0].getString();
-            timeout = bValueRefs[1].getInt();
+            serviceUri = bValueRefs[0].stringValue();
+            timeout = ((BInteger) bValueRefs[1]).intValue();
         }
         return true;
     }
