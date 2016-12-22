@@ -18,7 +18,9 @@
 package org.wso2.ballerina.core.model.types;
 
 /**
- * adsfa
+ * This class contains all the supported type names as string
+ *
+ * @since 1.0.0
  */
 public class TypeConstants {
 
@@ -29,6 +31,7 @@ public class TypeConstants {
     static final String BOOLEAN_TNAME = "boolean";
     static final String STRING_TNAME = "string";
     static final String ARRAY_TNAME = "[]";
+
     // TODO Correct the name
     static final String MAP_TNAME = "{}";
     static final String XML_TNAME = "xml";

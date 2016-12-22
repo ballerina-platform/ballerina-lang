@@ -69,8 +69,8 @@ import org.wso2.ballerina.core.model.statements.ReplyStmt;
 import org.wso2.ballerina.core.model.statements.ReturnStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
-import org.wso2.ballerina.core.model.types.ArrayType;
-import org.wso2.ballerina.core.model.types.TypeC;
+import org.wso2.ballerina.core.model.types.BArrayType;
+import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.util.LangModelUtils;
 
 import java.util.HashMap;
@@ -236,7 +236,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             throw new SemanticException("Duplicate parameter name: " + symName.getName());
         }
 
-        TypeC type = parameter.getTypeC();
+        BType type = parameter.getType();
         symbol = new Symbol(type, stackFrameOffset);
 
         symbolTable.insert(symName, symbol);
@@ -252,7 +252,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             throw new SemanticException("Duplicate variable declaration with name: " + symName.getName());
         }
 
-        TypeC type = variableDcl.getTypeC();
+        BType type = variableDcl.getType();
         symbol = new Symbol(type, stackFrameOffset);
 
         symbolTable.insert(symName, symbol);
@@ -267,7 +267,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             throw new SemanticException("Duplicate connector declaration with name: " + symbolName.getName());
         }
 
-        symbol = new Symbol(TypeC.CONNECTOR_TYPE, stackFrameOffset);
+        symbol = new Symbol(BType.CONNECTOR_TYPE, stackFrameOffset);
         symbolTable.insert(symbolName, symbol);
 
         // Setting the connector name with the package name
@@ -308,7 +308,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         Expression expr = ifElseStmt.getCondition();
         expr.accept(this);
 
-        if (expr.getType() != TypeC.BOOLEAN_TYPE) {
+        if (expr.getType() != BType.BOOLEAN_TYPE) {
             throw new SemanticException("Incompatible types: expected a boolean expression");
         }
 
@@ -319,7 +319,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             Expression elseIfCondition = elseIfBlock.getElseIfCondition();
             elseIfCondition.accept(this);
 
-            if (elseIfCondition.getType() != TypeC.BOOLEAN_TYPE) {
+            if (elseIfCondition.getType() != BType.BOOLEAN_TYPE) {
                 throw new SemanticException("Incompatible types: expected a boolean expression");
             }
 
@@ -338,7 +338,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         Expression expr = whileStmt.getCondition();
         expr.accept(this);
 
-        if (expr.getType() != TypeC.BOOLEAN_TYPE) {
+        if (expr.getType() != BType.BOOLEAN_TYPE) {
             throw new SemanticException("Incompatible types: expected a boolean expression");
         }
 
@@ -395,7 +395,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         SymbolName symbolName = funcIExpr.getFunctionName();
         String pkgPath = getPackagePath(symbolName);
 
-        TypeC[] paramTypes = new TypeC[exprs.length];
+        BType[] paramTypes = new BType[exprs.length];
         for (int i = 0; i < exprs.length; i++) {
             paramTypes[i] = exprs[i].getType();
         }
@@ -433,7 +433,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         String pkgPath = getPackagePath(symName);
 
-        TypeC[] paramTypes = new TypeC[exprs.length];
+        BType[] paramTypes = new BType[exprs.length];
         for (int i = 0; i < exprs.length; i++) {
             paramTypes[i] = exprs[i].getType();
         }
@@ -456,13 +456,13 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(AddExpression addExpr) {
-        TypeC arithmeticExprType = verifyBinaryArithmeticExprType(addExpr);
+        BType arithmeticExprType = verifyBinaryArithmeticExprType(addExpr);
 
         // We need to find a better implementation than this.
-        if (arithmeticExprType == TypeC.INT_TYPE) {
+        if (arithmeticExprType == BType.INT_TYPE) {
             addExpr.setEvalFunc(AddExpression.ADD_INT_FUNC);
 
-        } else if (arithmeticExprType == TypeC.STRING_TYPE) {
+        } else if (arithmeticExprType == BType.STRING_TYPE) {
             addExpr.setEvalFunc(AddExpression.ADD_STRING_FUNC);
 
         } else {
@@ -472,8 +472,8 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(MultExpression multExpr) {
-        TypeC binaryExprType = verifyBinaryArithmeticExprType(multExpr);
-        if (binaryExprType == TypeC.INT_TYPE) {
+        BType binaryExprType = verifyBinaryArithmeticExprType(multExpr);
+        if (binaryExprType == BType.INT_TYPE) {
             multExpr.setEvalFunc(MultExpression.MULT_INT_FUNC);
         } else {
             throw new SemanticException("Mult operation is not supported for type: " + binaryExprType);
@@ -482,8 +482,8 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(SubtractExpression subtractExpr) {
-        TypeC binaryExprType = verifyBinaryArithmeticExprType(subtractExpr);
-        if (binaryExprType == TypeC.INT_TYPE) {
+        BType binaryExprType = verifyBinaryArithmeticExprType(subtractExpr);
+        if (binaryExprType == BType.INT_TYPE) {
             subtractExpr.setEvalFunc(SubtractExpression.SUB_INT_FUNC);
         } else {
             throw new SemanticException("Subtraction operation is not supported for type: " + binaryExprType);
@@ -504,12 +504,12 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(EqualExpression expr) {
-        TypeC compareExprType = verifyBinaryCompareExprType(expr);
+        BType compareExprType = verifyBinaryCompareExprType(expr);
 
-        if (compareExprType == TypeC.INT_TYPE) {
+        if (compareExprType == BType.INT_TYPE) {
             expr.setEvalFunc(EqualExpression.EQUAL_INT_FUNC);
-        } else if (compareExprType == TypeC.STRING_TYPE) {
-            expr.setType(TypeC.BOOLEAN_TYPE);
+        } else if (compareExprType == BType.STRING_TYPE) {
+            expr.setType(BType.BOOLEAN_TYPE);
             expr.setEvalFunc(EqualExpression.EQUAL_STRING_FUNC);
         } else {
             throw new SemanticException("Equals operation is not supported for type: "
@@ -519,11 +519,11 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(NotEqualExpression notEqualExpr) {
-        TypeC compareExprType = verifyBinaryCompareExprType(notEqualExpr);
+        BType compareExprType = verifyBinaryCompareExprType(notEqualExpr);
 
-        if (compareExprType == TypeC.INT_TYPE) {
+        if (compareExprType == BType.INT_TYPE) {
             notEqualExpr.setEvalFunc(NotEqualExpression.NOT_EQUAL_INT_FUNC);
-        } else if (compareExprType == TypeC.STRING_TYPE) {
+        } else if (compareExprType == BType.STRING_TYPE) {
             notEqualExpr.setEvalFunc(NotEqualExpression.NOT_EQUAL_STRING_FUNC);
         } else {
             throw new SemanticException("NotEqual operation is not supported for type: " + compareExprType);
@@ -532,9 +532,9 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(GreaterEqualExpression greaterEqualExpr) {
-        TypeC compareExprType = verifyBinaryCompareExprType(greaterEqualExpr);
+        BType compareExprType = verifyBinaryCompareExprType(greaterEqualExpr);
 
-        if (compareExprType == TypeC.INT_TYPE) {
+        if (compareExprType == BType.INT_TYPE) {
             greaterEqualExpr.setEvalFunc(GreaterEqualExpression.GREATER_EQUAL_INT_FUNC);
         } else {
             throw new SemanticException("Greater than equal operation is not supported for type: "
@@ -544,9 +544,9 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(GreaterThanExpression greaterThanExpr) {
-        TypeC compareExprType = verifyBinaryCompareExprType(greaterThanExpr);
+        BType compareExprType = verifyBinaryCompareExprType(greaterThanExpr);
 
-        if (compareExprType == TypeC.INT_TYPE) {
+        if (compareExprType == BType.INT_TYPE) {
             greaterThanExpr.setEvalFunc(GreaterThanExpression.GREATER_THAN_INT_FUNC);
         } else {
             throw new SemanticException("Greater than operation is not supported for type: "
@@ -556,8 +556,8 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(LessEqualExpression lessEqualExpr) {
-        TypeC compareExprType = verifyBinaryCompareExprType(lessEqualExpr);
-        if (compareExprType == TypeC.INT_TYPE) {
+        BType compareExprType = verifyBinaryCompareExprType(lessEqualExpr);
+        if (compareExprType == BType.INT_TYPE) {
             lessEqualExpr.setEvalFunc(LessEqualExpression.LESS_EQUAL_INT_FUNC);
         } else {
             throw new SemanticException("Less than equal operation is not supported for type: "
@@ -567,8 +567,8 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(LessThanExpression lessThanExpr) {
-        TypeC compareExprType = verifyBinaryCompareExprType(lessThanExpr);
-        if (compareExprType == TypeC.INT_TYPE) {
+        BType compareExprType = verifyBinaryCompareExprType(lessThanExpr);
+        if (compareExprType == BType.INT_TYPE) {
             lessThanExpr.setEvalFunc(LessThanExpression.LESS_THAN_INT_FUNC);
         } else {
             throw new SemanticException("Less than operation is not supported for type: " + compareExprType);
@@ -596,7 +596,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         Symbol symbol = getSymbol(arrayVarName);
 
         // Type returned by the symbol should always be the ArrayType
-        if (!(symbol.getType() instanceof ArrayType)) {
+        if (!(symbol.getType() instanceof BArrayType)) {
             throw new SemanticException("Attempt to index non-array variable: " + arrayVarName.getName());
         }
 
@@ -605,7 +605,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         Expression indexExpr = arrayAccessExpr.getRExpr();
         indexExpr.accept(this);
 
-        if (indexExpr.getType() != TypeC.INT_TYPE) {
+        if (indexExpr.getType() != BType.INT_TYPE) {
             throw new SemanticException("Array index should be of type int, not " + indexExpr.getType().toString() +
                     ". Array name: " + arrayVarName.getName());
         }
@@ -645,9 +645,9 @@ public class SemanticAnalyzer implements NodeVisitor {
         SymbolName symbolName = LangModelUtils.getSymNameWithParams(function.getName(), function.getParameters());
         function.setSymbolName(symbolName);
 
-        TypeC[] paramTypes = LangModelUtils.getTypesOfParams(function.getParameters());
+        BType[] paramTypes = LangModelUtils.getTypesOfParams(function.getParameters());
 
-        Symbol symbol = new Symbol(function, paramTypes, function.getReturnTypesC());
+        Symbol symbol = new Symbol(function, paramTypes, function.getReturnTypes());
 
         if (symbolTable.lookup(symbolName) != null) {
             throw new SemanticException("Duplicate function definition: " + symbolName.getName());
@@ -655,19 +655,19 @@ public class SemanticAnalyzer implements NodeVisitor {
         symbolTable.insert(symbolName, symbol);
     }
 
-    private TypeC verifyBinaryArithmeticExprType(BinaryArithmeticExpression binaryArithmeticExpr) {
-        TypeC typeC = verifyBinaryExprType(binaryArithmeticExpr);
-        binaryArithmeticExpr.setType(typeC);
-        return typeC;
+    private BType verifyBinaryArithmeticExprType(BinaryArithmeticExpression binaryArithmeticExpr) {
+        BType type = verifyBinaryExprType(binaryArithmeticExpr);
+        binaryArithmeticExpr.setType(type);
+        return type;
     }
 
-    private TypeC verifyBinaryCompareExprType(BinaryExpression binaryExpression) {
-        TypeC typeC = verifyBinaryExprType(binaryExpression);
-        binaryExpression.setType(TypeC.BOOLEAN_TYPE);
-        return typeC;
+    private BType verifyBinaryCompareExprType(BinaryExpression binaryExpression) {
+        BType type = verifyBinaryExprType(binaryExpression);
+        binaryExpression.setType(BType.BOOLEAN_TYPE);
+        return type;
     }
 
-    private TypeC verifyBinaryExprType(BinaryExpression binaryExpr) {
+    private BType verifyBinaryExprType(BinaryExpression binaryExpr) {
         visitBinaryExpr(binaryExpr);
 
         Expression rExpr = binaryExpr.getRExpr();
@@ -688,8 +688,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         Expression rExpr = expr.getRExpr();
         Expression lExpr = expr.getLExpr();
 
-        if (lExpr.getType() == TypeC.BOOLEAN_TYPE && rExpr.getType() == TypeC.BOOLEAN_TYPE) {
-            expr.setType(TypeC.BOOLEAN_TYPE);
+        if (lExpr.getType() == BType.BOOLEAN_TYPE && rExpr.getType() == BType.BOOLEAN_TYPE) {
+            expr.setType(BType.BOOLEAN_TYPE);
         } else {
             throw new BallerinaException("Incompatible types used for '&&' operator");
         }

@@ -56,7 +56,12 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
         cMsg.setProperty(Constants.HOST, host);
         cMsg.setProperty(Constants.PORT, port);
-        cMsg.setProperty(Constants.TO, url.getPath());
+        String toPath = url.getPath();
+        String query = url.getQuery();
+        if (query != null) {
+            toPath = toPath + "?" + query;
+        }
+        cMsg.setProperty(Constants.TO, toPath);
 
         if (cMsg.getProperty(Constants.PROTOCOL) == null) {
             cMsg.setProperty(Constants.PROTOCOL, org.wso2.ballerina.core.runtime.net.http.Constants.PROTOCOL_HTTP);

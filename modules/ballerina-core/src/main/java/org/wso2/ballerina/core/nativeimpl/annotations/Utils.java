@@ -19,7 +19,7 @@ package org.wso2.ballerina.core.nativeimpl.annotations;
 
 import org.wso2.ballerina.core.model.Const;
 import org.wso2.ballerina.core.model.SymbolName;
-import org.wso2.ballerina.core.model.types.TypeC;
+import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BBoolean;
 import org.wso2.ballerina.core.model.values.BDouble;
@@ -46,7 +46,7 @@ public class Utils {
     public static Const getConst(BallerinaConstant constant) throws MalformedEntryException {
         BValue value = getBValueFromTypeEnum(constant.type(), constant.value());
         SymbolName symbolName = new SymbolName(constant.identifier());
-        TypeC type = TypeC.getTypeC(constant.type().getName());
+        BType type = BType.getType(constant.type().getName());
         return new Const(type, symbolName, value);
     }
 

@@ -18,7 +18,7 @@
 package org.wso2.ballerina.core.model.expressions;
 
 import org.wso2.ballerina.core.model.Node;
-import org.wso2.ballerina.core.model.types.TypeC;
+import org.wso2.ballerina.core.model.types.BType;
 
 /**
  * {@code Expression} represents a generic expression in Ballerina
@@ -30,9 +30,9 @@ import org.wso2.ballerina.core.model.types.TypeC;
  */
 public interface Expression extends Node {
 
-    TypeC getType();
+    BType getType();
 
-    void setType(TypeC type);
+    void setType(BType type);
 
     int getOffset();
 

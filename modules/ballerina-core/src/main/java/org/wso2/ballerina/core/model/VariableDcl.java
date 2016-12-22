@@ -18,8 +18,7 @@
 
 package org.wso2.ballerina.core.model;
 
-import org.wso2.ballerina.core.model.types.Type;
-import org.wso2.ballerina.core.model.types.TypeC;
+import org.wso2.ballerina.core.model.types.BType;
 
 /**
  * {@code Variable} represent a Variable declaration
@@ -30,46 +29,18 @@ import org.wso2.ballerina.core.model.types.TypeC;
  *
  * @since 1.0.0
  */
-@SuppressWarnings("unused")
 public class VariableDcl implements Node {
 
-    private Type type;
-    private TypeC typeC;
+    private BType type;
     private SymbolName symbolName;
-    private String value;
 
-    /**
-     * @param type       Type of the variable
-     * @param symbolName Identifier of the variable
-     * @param value      bValueRef of the variable
-     */
-    public VariableDcl(Type type, SymbolName symbolName, String value) {
-        this.type = type;
-        this.symbolName = symbolName;
-        this.value = value;
-    }
-
-    public VariableDcl(Type type, SymbolName symbolName) {
+    public VariableDcl(BType type, SymbolName symbolName) {
         this.type = type;
         this.symbolName = symbolName;
     }
 
-    public VariableDcl(TypeC typeC, SymbolName symbolName) {
-        this.typeC = typeC;
-        this.symbolName = symbolName;
-    }
-
-    /**
-     * Get the type of the variable
-     *
-     * @return type of the variable
-     */
-    public Type getType() {
+    public BType getType() {
         return type;
-    }
-
-    public TypeC getTypeC() {
-        return typeC;
     }
 
     /**
@@ -79,15 +50,6 @@ public class VariableDcl implements Node {
      */
     public SymbolName getName() {
         return symbolName;
-    }
-
-    /**
-     * Get the bValueRef of the variable
-     *
-     * @return bValueRef of the variable
-     */
-    public String getValue() {
-        return value;
     }
 
     @Override
