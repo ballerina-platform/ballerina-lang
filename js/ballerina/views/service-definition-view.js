@@ -637,12 +637,8 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
 
                     annotation.annotationValue = annotationValue;
 
-                    //Adding annotation values to the model
-                    if(annotationType == 'ServiceName'){
-                        model.setServiceName(annotationValue);
-                    }else if(annotationType == 'BasePath'){
-                        model.setBasePath(annotationValue)
-                    }
+                    //Sets the annotation values in the model
+                    setAnnotationValues(annotationType,annotationValue);
 
                     //Clear the text box and drop down value
                     annotationValueInput.val("");
@@ -724,6 +720,19 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
                 }
 
                 /**
+                 * Sets the annotation values in the model
+                 * @param annonationType
+                 * @param annotationValue
+                 */
+                function setAnnotationValues(annotationType, annotationValue){
+                    if(annotationType == 'ServiceName'){
+                        model.setServiceName(annotationValue);
+                    }else if(annotationType == 'BasePath'){
+                        model.setBasePath(annotationValue)
+                    }
+                }
+
+                /**
                  * Creates the annotation detail wrapper and its events.
                  * @param annotationData - The annotation data.
                  * @param wrapper - The wrapper element which these details should be appended to.
@@ -793,12 +802,8 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
                                     annotation.annotationType = e.target.value;
                                 });
 
-                                //Adding annotation values to the model
-                                if(annotation.annotationType == 'ServiceName'){
-                                    model.setServiceName(annotation.annotationValue);
-                                }else if(annotation.annotationType == 'BasePath'){
-                                    model.setBasePath(annotation.annotationValue)
-                                }
+                                //Sets the annotation values in the model
+                                setAnnotationValues(annotation.annotationType, annotation.annotationValue);
 
                                 var newDeleteIcon = deleteIcon.clone();
 
@@ -807,6 +812,14 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
 
                                 // Adding in-line display block to override the hovering css.
                                 newDeleteIcon.css("display", "block");
+
+                                //Removes the annotation when clicking on the delete icon
+                                newDeleteIcon.on('click', function (e){
+                                    annotation.annotationValue = "";
+                                    setAnnotationValues(annotation.annotationType, annotation.annotationValue);
+                                    $(annotationWrapper).remove();
+                                    addAnnotationsToDropdown();
+                                });
 
                                 // Resetting of other annotations wrapper which has been used for editing.
                                 annotationWrapper.siblings().each(function () {

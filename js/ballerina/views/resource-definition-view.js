@@ -644,17 +644,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
                     annotation.annotationValue = annotationValue;
 
-                    //Adding annotation values to the model
-                    if(annotationType == 'ResourceName'){
-                        model.setResourceName(annotationValue);
-                    }else if(annotationType == 'ResourcePath'){
-                        model.setResourcePath(annotationValue);
-                    }else if(annotationType == 'ResourceMethod'){
-                        var resourceMethods = getResourceMethodAnnotations(annotationValue);
-                        model.setResourceMethod(resourceMethods);
-                    }else if(annotationType == 'ResourceArgs'){
-                        model.setResourceArguments(annotationValue);
-                    }
+                    //Sets the annotation values in the model
+                    setAnnotationValues(annotationType,annotationValue);
 
                     //Clear the text box and drop down value
                     annotationValueInput.val("");
@@ -752,6 +743,22 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 }
 
                 /**
+                 * Sets the annotation values in the model
+                 * @param annonationType
+                 * @param annotationValue
+                 */
+                function setAnnotationValues(annotationType, annotationValue){
+                    if(annotationType == 'ResourceName'){
+                        model.setResourceName(annotationValue);
+                    }else if(annotationType == 'ResourcePath'){
+                        model.setResourcePath(annotationValue);
+                    }else if(annotationType == 'ResourceMethod'){
+                        var resourceMethods = getResourceMethodAnnotations(annotationValue);
+                        model.setResourceMethod(resourceMethods);
+                    }
+                }
+
+                /**
                  * Creates the annotation detail wrapper and its events.
                  * @param annotationData - The annotation data.
                  * @param wrapper - The wrapper element which these details should be appended to.
@@ -792,13 +799,13 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                             // When an annotation detail is clicked.
                             annotationWrapper.click({
                                 clickedAnnotationValueWrapper: annotationValueWrapper,
-                                clickedAnnotationTypeWrapper:annotationTypeWrapper,
+                                clickedAnnotationTypeWrapper: annotationTypeWrapper,
                                 annotation: annotation
                             }, function (event) {
                                 var clickedAnnotationValueWrapper = event.data.clickedAnnotationValueWrapper;
                                 var clickedAnnotationTypeWrapper = event.data.clickedAnnotationTypeWrapper;
                                 var annotation = event.data.annotation;
-                                // Empty the content inside the annotation value wrapper.
+                                // Empty the content inside the annotation value and type wrapper.
                                 clickedAnnotationValueWrapper.empty();
                                 clickedAnnotationTypeWrapper.empty();
                                 // Changing the background
@@ -827,15 +834,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                                     annotation.annotationType = e.target.value;
                                 });
 
-                                //Adding annotation values to the model
-                                if(annotation.annotationType == 'ResourceName'){
-                                    model.setResourceName(annotation.annotationValue);
-                                }else if(annotation.annotationType == 'ResourcePath'){
-                                    model.setResourcePath(annotation.annotationValue);
-                                }else if(annotation.annotationType == 'ResourceMethod'){
-                                    var resourceMethods = getResourceMethodAnnotations(annotation.annotationValue);
-                                    model.setResourceMethod(resourceMethods);
-                                }
+                                //Sets the annotation values in the model
+                                setAnnotationValues(annotation.annotationType, annotation.annotationValue);
 
                                 var newDeleteIcon = deleteIcon.clone();
 
@@ -844,6 +844,14 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
                                 // Adding in-line display block to override the hovering css.
                                 newDeleteIcon.css("display", "block");
+
+                                //Removes the annotation when clicking on the delete icon
+                                newDeleteIcon.on('click', function (e){
+                                    annotation.annotationValue = "";
+                                    setAnnotationValues(annotation.annotationType, annotation.annotationValue);
+                                    $(annotationWrapper).remove();
+                                    addAnnotationsToDropdown();
+                                });
 
                                 // Resetting of other annotations wrapper which has been used for editing.
                                 annotationWrapper.siblings().each(function () {
