@@ -81,7 +81,6 @@ public class BalDeployer implements Deployer {
     private static final String BAL_FILES_DIRECTORY = "ballerina-files";
     private static final String FILE_EXTENSION = ".bal";
     private ArtifactType artifactType = new ArtifactType<>("bal");
-    ;
     private URL directoryLocation;
 
     @Activate
