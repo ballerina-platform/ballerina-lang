@@ -44,8 +44,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
     // Outer Map key=interface, Inner Map key=basePath
     private Map<String, Map<String, Service>> services = new HashMap<>();
 
-    @Override
-    public boolean dispatch(Context context, BalCallback callback) {
+    public Service findService(Context context, BalCallback callback) {
 
         CarbonMessage cMsg = context.getCarbonMessage();
         String interfaceId = (String) cMsg.getProperty(org.wso2.carbon.messaging.Constants.LISTENER_INTERFACE_ID);
@@ -74,7 +73,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
         if (path.length > 1) {
             basePath = "/".concat(path[1]);
         } else {
-            basePath = "/";
+            basePath = Constants.DEFAULT_BASE_PATH;
         }
         String subPath = "";
 
@@ -109,7 +108,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
         context.setProperty(Constants.BASE_PATH, basePath);
         context.setProperty(Constants.SUB_PATH, subPath);
 
-        return service.execute(context, callback);
+        return service;
     }
 
     @Override

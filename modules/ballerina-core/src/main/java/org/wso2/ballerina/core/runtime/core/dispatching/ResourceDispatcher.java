@@ -18,6 +18,7 @@
 package org.wso2.ballerina.core.runtime.core.dispatching;
 
 import org.wso2.ballerina.core.interpreter.Context;
+import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.runtime.core.BalCallback;
 
@@ -29,14 +30,14 @@ import org.wso2.ballerina.core.runtime.core.BalCallback;
 public interface ResourceDispatcher {
 
     /**
-     * Dispatch the message to a resource
+     * Find the resource which can handle a given context
      *
      * @param service Ballerina Service which resources are belongs to
      * @param context  Ballerina Context
      * @param callback Ballerina Callback
-     * @return whether dispatching is successful or not
+     * @return resource which can handle a given context
      */
-    boolean dispatch(Service service, Context context, BalCallback callback);
+    Resource findResource(Service service, Context context, BalCallback callback);
 
     String getProtocol();
 

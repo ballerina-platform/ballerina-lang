@@ -30,13 +30,13 @@ public interface ServiceDispatcher {
 
 
     /**
-     * Dispatch the message to a service
+     * Find the Service which can handle a given context
      *
-     * @param context  Ballerina Context
-     * @param callback Ballerina Callback
-     * @return whether dispatching is successful or not
+     * @param context context
+     * @param callback callback
+     * @return service which can handle a given context
      */
-    boolean dispatch(Context context, BalCallback callback);
+    Service findService(Context context, BalCallback callback);
 
     /**
      * Get the protocol of the dispatcher
