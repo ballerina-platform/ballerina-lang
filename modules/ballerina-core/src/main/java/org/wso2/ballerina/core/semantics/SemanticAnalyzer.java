@@ -252,7 +252,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             throw new SemanticException("Duplicate variable declaration with name: " + symName.getName());
         }
 
-        TypeC type = variableDcl.getTypeC();
+        TypeC type = variableDcl.getType();
         symbol = new Symbol(type, stackFrameOffset);
 
         symbolTable.insert(symName, symbol);

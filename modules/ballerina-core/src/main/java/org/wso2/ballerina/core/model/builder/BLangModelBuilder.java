@@ -149,7 +149,7 @@ public class BLangModelBuilder {
 
     public void createInstanceCreaterExpr(String typeName) {
         InstanceCreationExpr expression = new InstanceCreationExpr(null);
-        TypeC type = TypeC.getTypeC(typeName);
+        TypeC type = TypeC.getType(typeName);
         expression.setType(type);
         exprStack.push(expression);
 
@@ -220,7 +220,7 @@ public class BLangModelBuilder {
     }
 
     public void createType(String typeName) {
-        TypeC type = TypeC.getTypeC(typeName);
+        TypeC type = TypeC.getType(typeName);
         typeQueue.add(type);
     }
 

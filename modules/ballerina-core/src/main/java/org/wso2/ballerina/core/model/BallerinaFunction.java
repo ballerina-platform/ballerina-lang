@@ -20,7 +20,6 @@ package org.wso2.ballerina.core.model;
 
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
-import org.wso2.ballerina.core.model.types.Type;
 import org.wso2.ballerina.core.model.types.TypeC;
 
 /**
@@ -50,34 +49,12 @@ public class BallerinaFunction implements Function, Node {
     private VariableDcl[] variableDcls;
     private Worker[] workers;
 
-    private Type[] returnTypes;
     private TypeC[] returnTypesC;
     private BlockStmt functionBody;
 
     private boolean publicFunc;
 
     private int stackFrameSize;
-
-    public BallerinaFunction(SymbolName name,
-                             Boolean isPublic,
-                             Annotation[] annotations,
-                             Parameter[] parameters,
-                             Type[] returnTypes,
-                             ConnectorDcl[] connectorDcls,
-                             VariableDcl[] variableDcls,
-                             Worker[] workers,
-                             BlockStmt functionBody) {
-
-        this.functionName = name;
-        this.publicFunc = isPublic;
-        this.annotations = annotations;
-        this.parameters = parameters;
-        this.returnTypes = returnTypes;
-        this.connectorDcls = connectorDcls;
-        this.variableDcls = variableDcls;
-        this.workers = workers;
-        this.functionBody = functionBody;
-    }
 
     public BallerinaFunction(SymbolName name,
                              Boolean isPublic,
@@ -163,10 +140,6 @@ public class BallerinaFunction implements Function, Node {
      */
     public Worker[] getWorkers() {
         return workers;
-    }
-
-    public Type[] getReturnTypes() {
-        return returnTypes;
     }
 
     public TypeC[] getReturnTypesC() {

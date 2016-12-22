@@ -62,7 +62,7 @@ public abstract class AbstractNativeConnector implements Connector, NativeConstr
         Arrays.stream(connector.args()).
                 forEach(argument -> {
                     try {
-                        parameters.add(new Parameter(TypeC.getTypeC(argument.type().getName()),
+                        parameters.add(new Parameter(TypeC.getType(argument.type().getName()),
                                 new SymbolName(argument.name())));
                     } catch (BallerinaException e) {
                         // TODO: Fix this when TypeC.getType method is improved.
