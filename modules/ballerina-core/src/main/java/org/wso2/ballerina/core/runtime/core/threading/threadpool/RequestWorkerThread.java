@@ -20,7 +20,7 @@ package org.wso2.ballerina.core.runtime.core.threading.threadpool;
 
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.runtime.core.BalCallback;
-import org.wso2.ballerina.core.runtime.core.ProgramExecutor;
+import org.wso2.ballerina.core.runtime.core.ServerConnectorMessageHandler;
 
 /**
  * Worker Thread which is responsible for request processing
@@ -32,6 +32,6 @@ public class RequestWorkerThread extends WorkerThread {
     }
 
     public void run() {
-        ProgramExecutor.executeService(context, callback);
+        ServerConnectorMessageHandler.handleInbound(context, callback);
     }
 }

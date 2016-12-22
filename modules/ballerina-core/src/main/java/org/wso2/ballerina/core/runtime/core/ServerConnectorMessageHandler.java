@@ -35,13 +35,14 @@ import org.wso2.ballerina.core.runtime.internal.ServiceContextHolder;
 import org.wso2.ballerina.core.runtime.registry.DispatcherRegistry;
 
 /**
- * {@code ProgramExecutor} is responsible for executing a Ballerina Program
+ * {@code ServerConnectorMessageHandler} is responsible for bridging Ballerina Program and External Server Connector
  */
-public class ProgramExecutor {
+public class ServerConnectorMessageHandler {
 
-    private static final Logger log = LoggerFactory.getLogger(ProgramExecutor.class);
+    private static final Logger log = LoggerFactory.getLogger(ServerConnectorMessageHandler.class);
 
-    public static void executeService(Context context, BalCallback callback) {
+
+    public static void handleInbound(Context context, BalCallback callback) {
         try {
             String protocol = (String) context.getProperty(Constants.PROTOCOL);
 
@@ -82,16 +83,12 @@ public class ProgramExecutor {
         }
     }
 
-    public static void handleServiceResponse(Context context, BalCallback callback) {
+    public static void handleOutbound(Context context, BalCallback callback) {
         try {
             callback.done(context.getCarbonMessage());
         } catch (Throwable throwable) {
             handleError(context, callback, throwable);
         }
-    }
-
-    public static void executeMainFunction() {
-
     }
 
     private static void handleError(Context context, BalCallback callback, Throwable throwable) {
