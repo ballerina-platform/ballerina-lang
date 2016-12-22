@@ -17,8 +17,6 @@
 */
 package org.wso2.ballerina.core.model.types;
 
-import org.wso2.ballerina.core.exception.BallerinaException;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -110,40 +108,7 @@ public class TypeC {
         return typeName.length();
     }
 
-    public static TypeC getTypeC(String typeName) {
+    public static TypeC getType(String typeName) {
         return TYPE_MAP.get(typeName);
-    }
-
-    public static Type getType(String typeName) {
-        switch (typeName) {
-            case "int":
-                return new IntType();
-            case "long":
-                return new LongType();
-            case "float":
-                return new FloatType();
-            case "double":
-                return new DoubleType();
-            case "boolean":
-                return new BooleanType();
-            case "string":
-                return new StringType();
-            case "message":
-                return new MessageType();
-            case "xml":
-                return new XMLType();
-            case "json":
-                return new JSONType();
-            case "map":
-                return new MapType();
-//        case "array":
-//            return new ArrayType();
-            case "connector":
-                return new ConnectorType();
-            default:
-                //TODO use proper exceptions here
-                throw new BallerinaException("Unknown type");
-        }
-
     }
 }

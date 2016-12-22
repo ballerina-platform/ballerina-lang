@@ -25,7 +25,6 @@ import org.wso2.ballerina.core.model.Const;
 import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.VariableDcl;
-import org.wso2.ballerina.core.model.types.Type;
 import org.wso2.ballerina.core.model.types.TypeC;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.NativeConstruct;
@@ -78,7 +77,7 @@ public abstract class AbstractNativeAction implements Action, NativeConstruct {
         Arrays.stream(action.args()).
                 forEach(argument -> {
                     try {
-                        parameters.add(new Parameter(TypeC.getTypeC(argument.type().getName()),
+                        parameters.add(new Parameter(TypeC.getType(argument.type().getName()),
                                 new SymbolName(argument.name())));
                     } catch (BallerinaException e) {
                         // TODO: Fix this when TypeC.getType method is improved.
@@ -88,7 +87,7 @@ public abstract class AbstractNativeAction implements Action, NativeConstruct {
                 });
         Arrays.stream(action.returnType()).forEach(returnType -> {
             try {
-                returnTypes.add(TypeC.getTypeC(returnType.getName()));
+                returnTypes.add(TypeC.getType(returnType.getName()));
             } catch (BallerinaException e) {
                 // TODO: Fix this when TypeC.getType method is improved.
                 log.warn("Error while processing ReturnTypes for Native ballerina action {}:{}.", packageName,
@@ -131,12 +130,6 @@ public abstract class AbstractNativeAction implements Action, NativeConstruct {
 
     public VariableDcl[] getVariableDcls() {
         return new VariableDcl[0];
-    }
-
-    @Override
-    public Type[] getReturnTypes() {
-        return new Type[0];
-
     }
 
     @Override

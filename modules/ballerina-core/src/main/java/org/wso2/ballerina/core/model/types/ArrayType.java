@@ -33,6 +33,6 @@ public class ArrayType extends TypeC {
      */
     ArrayType(String typeName, String elementType) {
         super(typeName);
-        this.elementType = TypeC.getTypeC(elementType);
+        this.elementType = TypeC.getType(elementType);
     }
 }

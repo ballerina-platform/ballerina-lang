@@ -259,7 +259,7 @@ public class BalDeployer implements Deployer {
         // Create default values for all declared local variables
         VariableDcl[] variableDcls = function.getVariableDcls();
         for (VariableDcl variableDcl : variableDcls) {
-            values[i] = BValueUtils.getDefaultValue(variableDcl.getTypeC());
+            values[i] = BValueUtils.getDefaultValue(variableDcl.getType());
             i++;
         }
 

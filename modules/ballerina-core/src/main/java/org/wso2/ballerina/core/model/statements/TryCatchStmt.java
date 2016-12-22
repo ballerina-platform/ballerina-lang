@@ -19,9 +19,6 @@ package org.wso2.ballerina.core.model.statements;
 
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.NodeVisitor;
-import org.wso2.ballerina.core.model.types.ExceptionType;
-
-import java.util.List;
 
 /**
  * {@code TryCatchStmt} represents a try/catch statement
@@ -30,14 +27,14 @@ import java.util.List;
  */
 public class TryCatchStmt implements Statement {
     private Statement tryBlock;
-    private List<ExceptionType> catchExceptions;
+//    private List<ExceptionType> catchExceptions;
     private Statement catchBlock;
 
-    public TryCatchStmt(Statement tryBlock, List<ExceptionType> catchExceptions, Statement catchBlock) {
-        this.tryBlock = tryBlock;
-        this.catchExceptions = catchExceptions;
-        this.catchBlock = catchBlock;
-    }
+//    public TryCatchStmt(Statement tryBlock, List<ExceptionType> catchExceptions, Statement catchBlock) {
+//        this.tryBlock = tryBlock;
+//        this.catchExceptions = catchExceptions;
+//        this.catchBlock = catchBlock;
+//    }
 
     public void interpret(Context ctx) {
 

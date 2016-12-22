@@ -280,7 +280,7 @@ public class BLangInterpreter implements NodeVisitor {
         // Create default values for all declared local variables
         VariableDcl[] variableDcls = function.getVariableDcls();
         for (VariableDcl variableDcl : variableDcls) {
-            localVals[i] = BValueUtils.getDefaultValue(variableDcl.getTypeC());
+            localVals[i] = BValueUtils.getDefaultValue(variableDcl.getType());
             i++;
         }
 
@@ -325,7 +325,7 @@ public class BLangInterpreter implements NodeVisitor {
         // Create default values for all declared local variables
         VariableDcl[] variableDcls = action.getVariableDcls();
         for (VariableDcl variableDcl : variableDcls) {
-            localVals[i] = BValueUtils.getDefaultValue(variableDcl.getTypeC());
+            localVals[i] = BValueUtils.getDefaultValue(variableDcl.getType());
             i++;
         }
 
@@ -449,7 +449,7 @@ public class BLangInterpreter implements NodeVisitor {
         // Create default values for all declared local variables
         VariableDcl[] variableDcls = resource.getVariableDcls();
         for (VariableDcl variableDcl : variableDcls) {
-            valueParams[i] = BValueUtils.getDefaultValue(variableDcl.getTypeC());
+            valueParams[i] = BValueUtils.getDefaultValue(variableDcl.getType());
             i++;
         }
 

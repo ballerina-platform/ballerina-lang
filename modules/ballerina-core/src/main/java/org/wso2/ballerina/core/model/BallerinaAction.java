@@ -20,7 +20,6 @@ package org.wso2.ballerina.core.model;
 
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
-import org.wso2.ballerina.core.model.types.Type;
 import org.wso2.ballerina.core.model.types.TypeC;
 
 /**
@@ -47,28 +46,20 @@ public class BallerinaAction implements Action, Node {
     private ConnectorDcl[] connectorDcls;
     private VariableDcl[] variableDcls;
     private Worker[] workers;
-    private Type[] returnTypes;
     private TypeC[] returnTypesC;
     private BlockStmt functionBody;
     private BlockStmt actionBody;
 
     private int stackFrameSize;
 
-    public BallerinaAction(SymbolName name, Annotation[] annotations, Parameter[] parameters, Type[] returnTypes,
-            ConnectorDcl[] connectorDcls, VariableDcl[] variableDcls, Worker[] workers, BlockStmt actionBody) {
-
-        this.name = name;
-        this.annotations = annotations;
-        this.parameters = parameters;
-        this.returnTypes = returnTypes;
-        this.connectorDcls = connectorDcls;
-        this.variableDcls = variableDcls;
-        this.workers = workers;
-        this.actionBody = actionBody;
-    }
-
-    public BallerinaAction(SymbolName name, Annotation[] annotations, Parameter[] parameters, TypeC[] returnTypes,
-            ConnectorDcl[] connectorDcls, VariableDcl[] variableDcls, Worker[] workers, BlockStmt functionBody) {
+    public BallerinaAction(SymbolName name,
+                           Annotation[] annotations,
+                           Parameter[] parameters,
+                           TypeC[] returnTypes,
+                           ConnectorDcl[] connectorDcls,
+                           VariableDcl[] variableDcls,
+                           Worker[] workers,
+                           BlockStmt functionBody) {
 
         this.name = name;
         this.annotations = annotations;
@@ -93,10 +84,6 @@ public class BallerinaAction implements Action, Node {
     @Override
     public Parameter[] getParameters() {
         return parameters;
-    }
-
-    public Type[] getReturnTypes() {
-        return returnTypes;
     }
 
     @Override
