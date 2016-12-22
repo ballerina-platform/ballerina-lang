@@ -17,7 +17,7 @@
 package org.wso2.ballerina.core.model;
 
 import org.wso2.ballerina.core.interpreter.Interpreter;
-import org.wso2.ballerina.core.model.types.TypeC;
+import org.wso2.ballerina.core.model.types.BType;
 
 /**
  * {@code {@link Action}} represents any Ballerina Action.
@@ -52,7 +52,7 @@ public interface Action extends Interpreter {
      *
      * @return list of Return types.
      */
-    TypeC[] getReturnTypesC();
+    BType[] getReturnTypes();
 
     int getStackFrameSize();
 

@@ -20,7 +20,7 @@ package org.wso2.ballerina.core.model;
 
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
-import org.wso2.ballerina.core.model.types.TypeC;
+import org.wso2.ballerina.core.model.types.BType;
 
 /**
  * A {@code BallerinaFunction} is an operation that is executed by a {@code Worker}.
@@ -49,7 +49,7 @@ public class BallerinaFunction implements Function, Node {
     private VariableDcl[] variableDcls;
     private Worker[] workers;
 
-    private TypeC[] returnTypesC;
+    private BType[] returnTypes;
     private BlockStmt functionBody;
 
     private boolean publicFunc;
@@ -60,7 +60,7 @@ public class BallerinaFunction implements Function, Node {
                              Boolean isPublic,
                              Annotation[] annotations,
                              Parameter[] parameters,
-                             TypeC[] returnTypes,
+                             BType[] returnTypes,
                              ConnectorDcl[] connectorDcls,
                              VariableDcl[] variableDcls,
                              Worker[] workers,
@@ -70,7 +70,7 @@ public class BallerinaFunction implements Function, Node {
         this.publicFunc = isPublic;
         this.annotations = annotations;
         this.parameters = parameters;
-        this.returnTypesC = returnTypes;
+        this.returnTypes = returnTypes;
         this.connectorDcls = connectorDcls;
         this.variableDcls = variableDcls;
         this.workers = workers;
@@ -142,8 +142,8 @@ public class BallerinaFunction implements Function, Node {
         return workers;
     }
 
-    public TypeC[] getReturnTypesC() {
-        return returnTypesC;
+    public BType[] getReturnTypes() {
+        return returnTypes;
     }
 
     /**
