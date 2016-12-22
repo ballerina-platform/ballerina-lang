@@ -47,7 +47,7 @@ public class ApplicationRegistry {
     public void registerApplication(Application application) {
         applications.put(application.getAppName(), application);
 
-        // Notify server dispatchers
+        // Notify Server Connector dispatchers
         application.getPackages().forEach((name, aPackage) -> {
             aPackage.getServices().forEach(service -> {
                 DispatcherRegistry.getInstance().getServiceDispatchers().forEach((protocol, dispatcher) -> {
@@ -60,7 +60,7 @@ public class ApplicationRegistry {
     public void unregisterApplication(Application application) {
         applications.remove(application.getAppName());
 
-        // Notify server dispatchers
+        // Notify Server Connector dispatchers
         application.getPackages().forEach((name, aPackage) -> {
             aPackage.getServices().forEach(service -> {
                 DispatcherRegistry.getInstance().getServiceDispatchers().forEach((protocol, dispatcher) -> {

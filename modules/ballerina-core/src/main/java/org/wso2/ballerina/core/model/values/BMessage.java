@@ -81,7 +81,7 @@ public class BMessage implements BRefType<CarbonMessage> {
      * @param builtMsg Built payload of this message
      */
     public void setBuiltPayload(BValue builtMsg) {
-        // Set the message data server once the message is built
+        // Set the message data source once the message is built
         if (builtMsg instanceof BXML || builtMsg instanceof BJSON || builtMsg instanceof StringValue) {
             BallerinaMessageDataSource ballerinaMessageDataSource = (BallerinaMessageDataSource) builtMsg;
             ballerinaMessageDataSource.setOutputStream(this.value.getOutputStream());
