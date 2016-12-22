@@ -18,39 +18,20 @@
 
 package org.wso2.ballerina.core.runtime.core.threading.threadpool;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
-import org.wso2.ballerina.core.runtime.Constants;
 import org.wso2.ballerina.core.runtime.core.BalCallback;
-import org.wso2.ballerina.core.runtime.core.dispatching.ServiceDispatcher;
-import org.wso2.ballerina.core.runtime.registry.DispatcherRegistry;
+import org.wso2.ballerina.core.runtime.core.ProgramExecutor;
 
 /**
  * Worker Thread which is responsible for request processing
  */
 public class RequestWorkerThread extends WorkerThread {
 
-    private static final Logger logger = LoggerFactory.getLogger(RequestWorkerThread.class);
-
-
     public RequestWorkerThread(Context context, BalCallback callback) {
         super(context, callback);
     }
 
     public void run() {
-        try {
-            String protocol = (String) context.getProperty(Constants.PROTOCOL);
-
-            ServiceDispatcher dispatcher = DispatcherRegistry.getInstance().getServiceDispatcher(protocol);
-            if (dispatcher == null) {
-                throw new BallerinaException("No service dispatcher available to handle protocol : " + protocol);
-            }
-
-            dispatcher.dispatch(context, callback);
-        } catch (Throwable throwable) {
-            handleError(throwable);
-        }
+        ProgramExecutor.executeService(context, callback);
     }
 }

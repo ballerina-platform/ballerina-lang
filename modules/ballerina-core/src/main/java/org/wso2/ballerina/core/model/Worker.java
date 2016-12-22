@@ -18,11 +18,7 @@
 
 package org.wso2.ballerina.core.model;
 
-import org.wso2.ballerina.core.interpreter.BLangInterpreter;
-import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.statements.Statement;
-import org.wso2.ballerina.core.runtime.core.BalCallback;
-import org.wso2.ballerina.core.runtime.core.Executable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +39,7 @@ import java.util.List;
  *  @since 1.0.0
  */
 @SuppressWarnings("unused")
-public class Worker implements Executable, Node {
+public class Worker implements Node {
 
     private List<ConnectorDcl> connectorDcls;
     private List<VariableDcl> variables;
@@ -144,16 +140,6 @@ public class Worker implements Executable, Node {
             statements = new ArrayList<Statement>();
         }
         statements.add(statement);
-    }
-
-    public boolean execute(Context context, BalCallback callback) {
-
-        context.setBalCallback(callback);
-
-        BLangInterpreter interpreter = new BLangInterpreter(context);
-        this.accept(interpreter);
-
-        return true;
     }
 
     @Override

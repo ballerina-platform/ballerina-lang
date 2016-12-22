@@ -24,7 +24,6 @@ import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.Resource;
-import org.wso2.ballerina.core.model.ResourceInvoker;
 import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.runtime.core.BalCallback;
 import org.wso2.ballerina.core.runtime.core.dispatching.ResourceDispatcher;
@@ -39,7 +38,7 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
     private static final Logger log = LoggerFactory.getLogger(HTTPResourceDispatcher.class);
 
     @Override
-    public boolean dispatch(Service service, Context context, BalCallback callback) {
+    public Resource findResource(Service service, Context context, BalCallback callback) {
         CarbonMessage cMsg = context.getCarbonMessage();
 
         String method = (String) cMsg.getProperty(Constants.HTTP_METHOD);
@@ -63,10 +62,9 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
 
             if ((subPath.startsWith(subPathAnnotationVal) || Constants.DEFAULT_SUB_PATH.equals(subPathAnnotationVal))
                     && (resource.getAnnotation(method) != null)) {
-                return new ResourceInvoker(resource).execute(context, callback);
+                return resource;
             }
         }
-
         throw new BallerinaException("No matching Resource found to dispatch the request with Path : " + subPath +
                                      " , Method : " + method + " in Service : " + service.getSymbolName().getName());
     }
