@@ -22,7 +22,7 @@ import org.wso2.ballerina.core.model.expressions.Expression;
 /**
  * A value holder for connector
  */
-public class ConnectorValue implements BValue<Connector> {
+public class ConnectorValue implements BRefType<Connector> {
 
     private Connector connector;
     private Expression[] argExprs;
@@ -32,12 +32,17 @@ public class ConnectorValue implements BValue<Connector> {
         this.argExprs = argExprs;
     }
 
+    public Expression[] getArgExprs() {
+        return argExprs;
+    }
+
     @Override
-    public Connector getValue() {
+    public Connector value() {
         return connector;
     }
 
-    public Expression[] getArgExprs() {
-        return argExprs;
+    @Override
+    public String stringValue() {
+        return null;
     }
 }

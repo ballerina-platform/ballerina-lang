@@ -18,27 +18,43 @@
 package org.wso2.ballerina.core.model.values;
 
 /**
- * {@code BooleanValue} represents a boolean value in Ballerina
  *
- * @since 1.0.0
  */
-public class BooleanValue implements BValue<Boolean> {
+public class BBoolean extends BValueType {
+
     private boolean value;
 
-    public BooleanValue(boolean value) {
-        this.value = value;
-    }
-
-    public Boolean getValue() {
-        return value;
-    }
-
-    public void setValue(boolean value) {
+    public BBoolean(boolean value) {
         this.value = value;
     }
 
     @Override
-    public StringValue getString() {
-        return new StringValue(getValue().toString());
+    public int intValue() {
+        return 0;
+    }
+
+    @Override
+    public long longValue() {
+        return 0;
+    }
+
+    @Override
+    public float floatValue() {
+        return 0;
+    }
+
+    @Override
+    public double doubleValue() {
+        return 0;
+    }
+
+    @Override
+    public boolean booleanValue() {
+        return this.value;
+    }
+
+    @Override
+    public String stringValue() {
+        return Boolean.toString(value);
     }
 }
