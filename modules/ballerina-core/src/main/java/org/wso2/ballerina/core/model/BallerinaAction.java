@@ -20,8 +20,7 @@ package org.wso2.ballerina.core.model;
 
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
-import org.wso2.ballerina.core.model.types.Type;
-import org.wso2.ballerina.core.model.types.TypeC;
+import org.wso2.ballerina.core.model.types.BType;
 
 /**
  * An {@code Action} is a operation (function) that can be executed against a connector.
@@ -47,33 +46,25 @@ public class BallerinaAction implements Action, Node {
     private ConnectorDcl[] connectorDcls;
     private VariableDcl[] variableDcls;
     private Worker[] workers;
-    private Type[] returnTypes;
-    private TypeC[] returnTypesC;
+    private BType[] returnTypes;
     private BlockStmt functionBody;
     private BlockStmt actionBody;
 
     private int stackFrameSize;
 
-    public BallerinaAction(SymbolName name, Annotation[] annotations, Parameter[] parameters, Type[] returnTypes,
-            ConnectorDcl[] connectorDcls, VariableDcl[] variableDcls, Worker[] workers, BlockStmt actionBody) {
+    public BallerinaAction(SymbolName name,
+                           Annotation[] annotations,
+                           Parameter[] parameters,
+                           BType[] returnTypes,
+                           ConnectorDcl[] connectorDcls,
+                           VariableDcl[] variableDcls,
+                           Worker[] workers,
+                           BlockStmt functionBody) {
 
         this.name = name;
         this.annotations = annotations;
         this.parameters = parameters;
         this.returnTypes = returnTypes;
-        this.connectorDcls = connectorDcls;
-        this.variableDcls = variableDcls;
-        this.workers = workers;
-        this.actionBody = actionBody;
-    }
-
-    public BallerinaAction(SymbolName name, Annotation[] annotations, Parameter[] parameters, TypeC[] returnTypes,
-            ConnectorDcl[] connectorDcls, VariableDcl[] variableDcls, Worker[] workers, BlockStmt functionBody) {
-
-        this.name = name;
-        this.annotations = annotations;
-        this.parameters = parameters;
-        this.returnTypesC = returnTypes;
         this.connectorDcls = connectorDcls;
         this.variableDcls = variableDcls;
         this.workers = workers;
@@ -95,13 +86,9 @@ public class BallerinaAction implements Action, Node {
         return parameters;
     }
 
-    public Type[] getReturnTypes() {
-        return returnTypes;
-    }
-
     @Override
-    public TypeC[] getReturnTypesC() {
-        return new TypeC[0];
+    public BType[] getReturnTypes() {
+        return new BType[0];
     }
 
     @Override

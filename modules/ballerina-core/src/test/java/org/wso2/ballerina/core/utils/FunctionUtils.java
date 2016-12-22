@@ -53,7 +53,7 @@ public class FunctionUtils {
         SymbolName symbolName = LangModelUtils.getSymNameWithParams(function.getPackageName() + ":" +
                 function.getClass().getAnnotation(BallerinaFunction.class).functionName(), function.getParameters());
         Symbol symbol = new Symbol(function,
-                LangModelUtils.getTypesOfParams(function.getParameters()), function.getReturnTypesC());
+                LangModelUtils.getTypesOfParams(function.getParameters()), function.getReturnTypes());
         symScope.insert(symbolName, symbol);
     }
 

@@ -28,8 +28,7 @@ import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.VariableDcl;
-import org.wso2.ballerina.core.model.types.Type;
-import org.wso2.ballerina.core.model.types.TypeC;
+import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
@@ -53,8 +52,8 @@ public abstract class AbstractNativeFunction implements NativeConstruct, Functio
     private SymbolName symbolName;
     private List<Annotation> annotations;
     private List<Parameter> parameters;
-    private List<TypeC> returnTypes;
-    private TypeC[] returnTypesC;
+    private List<BType> returnTypes;
+    private BType[] returnTypesC;
     private boolean isPublicFunction;
     private List<Const> constants;
     private int stackFrameSize;
@@ -85,7 +84,7 @@ public abstract class AbstractNativeFunction implements NativeConstruct, Functio
         Arrays.stream(methodParams).
                 forEach(argument -> {
                     try {
-                        parameters.add(new Parameter(TypeC.getTypeC(argument.type().getName())
+                        parameters.add(new Parameter(BType.getType(argument.type().getName())
                                 , new SymbolName(argument.name())));
                     } catch (BallerinaException e) {
                         // TODO: Fix this when TypeC.getType method is improved.
@@ -96,7 +95,7 @@ public abstract class AbstractNativeFunction implements NativeConstruct, Functio
         Arrays.stream(function.returnType()).forEach(
                 returnType -> {
                     try {
-                        returnTypes.add(TypeC.getTypeC(returnType.getName()));
+                        returnTypes.add(BType.getType(returnType.getName()));
                     } catch (BallerinaException e) {
                         // TODO: Fix this when TypeC.getType method is improved.
                         log.warn("Error while processing ReturnTypes for Native ballerina function {}:{}.",
@@ -154,14 +153,10 @@ public abstract class AbstractNativeFunction implements NativeConstruct, Functio
         return new VariableDcl[0];
     }
 
-    @Override
-    public Type[] getReturnTypes() {
-        return new Type[0];
-    }
 
     @SuppressWarnings("unchecked")
-    public TypeC[] getReturnTypesC() {
-        return returnTypes.toArray(new TypeC[returnTypes.size()]);
+    public BType[] getReturnTypes() {
+        return returnTypes.toArray(new BType[returnTypes.size()]);
     }
 
     /**
