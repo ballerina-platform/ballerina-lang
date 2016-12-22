@@ -133,7 +133,7 @@ public class BalDeployer implements Deployer {
             if (file.getName().endsWith(FILE_EXTENSION)) {
                 ANTLRInputStream antlrInputStream = new ANTLRInputStream(inputStream);
                 
-                // Setting the name of the server file being parsed, to the ANTLR input stream.
+                // Setting the name of the source file being parsed, to the ANTLR input stream.
                 // This is required by the parser-error strategy.
                 antlrInputStream.name = file.getName();
                 
