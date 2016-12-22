@@ -15,28 +15,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.wso2.ballerina.core.runtime.errors.handler;
 
-package org.wso2.ballerina.core.runtime;
+import org.wso2.carbon.messaging.CarbonCallback;
+import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
- * Constants related to Ballerina runtime
+ * {@code ServerConnectorErrorHandler} is the interface for protocol specific error handlers in ballerina.
+ *
+ * @since 1.0.0
+ *
  */
-public class Constants {
+public interface ServerConnectorErrorHandler {
 
-    // Name of the System property which contains the ballerina file path to be executed
-    public static final String SYSTEM_PROP_BAL_FILE = "bal-file";
+    void handleError(Exception ex, CarbonMessage bContext, CarbonCallback callback);
 
-    // Name of the system property to hold the input arguments
-    public static final String SYSTEM_PROP_BAL_ARGS = "bal-args";
-
-    // Name of the main function
-    public static final String MAIN_FUNCTION_NAME = "main";
-
-    /**
-     * Runtime modes of Ballerina engine
-     */
-    public enum RuntimeMode {
-        RUN_FILE, SERVER
-    };
+    String getProtocol();
 
 }

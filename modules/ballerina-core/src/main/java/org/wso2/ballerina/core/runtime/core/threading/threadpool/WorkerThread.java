@@ -18,27 +18,27 @@
 
 package org.wso2.ballerina.core.runtime.core.threading.threadpool;
 
-import org.wso2.ballerina.core.interpreter.Context;
-import org.wso2.ballerina.core.runtime.core.BalCallback;
+import org.wso2.carbon.messaging.CarbonCallback;
+import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
  * Worker Thread which is executable through the worker pool
  */
 public abstract class WorkerThread implements Runnable {
 
-    protected Context context;
-    protected BalCallback callback;
+    protected CarbonMessage cMsg;
+    protected CarbonCallback callback;
 
-    public WorkerThread(Context context, BalCallback callback) {
-        this.context = context;
+    public WorkerThread(CarbonMessage cMsg, CarbonCallback callback) {
+        this.cMsg = cMsg;
         this.callback = callback;
     }
 
-    public Context getContext() {
-        return context;
+    public CarbonMessage getCarbonMessage() {
+        return cMsg;
     }
 
-    public BalCallback getCallback() {
+    public CarbonCallback getCallback() {
         return callback;
     }
 
