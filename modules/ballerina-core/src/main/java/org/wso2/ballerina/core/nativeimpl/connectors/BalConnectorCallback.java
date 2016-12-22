@@ -19,7 +19,7 @@ package org.wso2.ballerina.core.nativeimpl.connectors;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.values.BMessage;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.runtime.core.DefaultBalCallback;
+import org.wso2.ballerina.core.runtime.DefaultBalCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 /**

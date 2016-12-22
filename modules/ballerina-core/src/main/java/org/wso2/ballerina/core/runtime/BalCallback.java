@@ -16,31 +16,13 @@
  * under the License.
  */
 
-package org.wso2.ballerina.core.runtime.core.threading.threadpool;
+package org.wso2.ballerina.core.runtime;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import org.wso2.carbon.messaging.CarbonCallback;
 
 /**
- * {@code ThreadPoolFactory} holds the thread pools in Ballerina engine
- *
- * @since 1.0.0
+ * {@BalCallback} represent the Callback interface for Ballerina
  */
-public class ThreadPoolFactory {
-
-    private static ThreadPoolFactory instance = new ThreadPoolFactory();
-
-    //TODO: Make this configurable
-    private ExecutorService executorService =  Executors.newFixedThreadPool(100);
-
-    private ThreadPoolFactory(){};
-
-    public static ThreadPoolFactory getInstance() {
-        return instance;
-    }
-
-    public ExecutorService getExecutor() {
-        return executorService;
-    }
+public interface BalCallback extends CarbonCallback {
 
 }
