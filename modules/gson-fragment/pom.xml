@@ -27,7 +27,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>gson-fragment</artifactId>
     <packaging>bundle</packaging>
-    <name>GSON Fragment Bundle</name>
+    <name>WSO2 Ballerina - GSON Fragment Bundle</name>
     <url>http://wso2.org</url>
 
     <dependencies>
