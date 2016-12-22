@@ -19,7 +19,7 @@ package org.wso2.ballerina.core.model.util;
 
 import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.SymbolName;
-import org.wso2.ballerina.core.model.types.TypeC;
+import org.wso2.ballerina.core.model.types.BType;
 
 /**
  *
@@ -29,12 +29,12 @@ public class LangModelUtils {
     public static SymbolName getSymNameWithParams(String identifier, Parameter[] parameters) {
         StringBuilder stringBuilder = new StringBuilder(identifier);
         for (Parameter param : parameters) {
-            stringBuilder.append("_").append(param.getTypeC());
+            stringBuilder.append("_").append(param.getType());
         }
         return new SymbolName(stringBuilder.toString());
     }
 
-    public static SymbolName getSymNameWithParams(String identifier, String pkgPath, TypeC[] types) {
+    public static SymbolName getSymNameWithParams(String identifier, String pkgPath, BType[] types) {
         String prefix;
         if (pkgPath == null) {
             prefix = identifier;
@@ -43,7 +43,7 @@ public class LangModelUtils {
         }
 
         StringBuilder sBuilder = new StringBuilder(prefix);
-        for (TypeC type : types) {
+        for (BType type : types) {
             sBuilder.append("_").append(type);
         }
 
@@ -62,7 +62,7 @@ public class LangModelUtils {
     }
 
     public static SymbolName getActionSymName(String actionName, String connectorName,
-                                              String pkgPath, TypeC[] types) {
+                                              String pkgPath, BType[] types) {
         String prefix;
         if (pkgPath == null) {
             prefix = connectorName + "." + actionName;
@@ -71,17 +71,17 @@ public class LangModelUtils {
         }
 
         StringBuilder sBuilder = new StringBuilder(prefix);
-        for (TypeC type : types) {
+        for (BType type : types) {
             sBuilder.append("_").append(type);
         }
 
         return new SymbolName(sBuilder.toString());
     }
 
-    public static TypeC[] getTypesOfParams(Parameter[] parameters) {
-        TypeC[] types = new TypeC[parameters.length];
+    public static BType[] getTypesOfParams(Parameter[] parameters) {
+        BType[] types = new BType[parameters.length];
         for (int i = 0; i < parameters.length; i++) {
-            types[i] = parameters[i].getTypeC();
+            types[i] = parameters[i].getType();
         }
         return types;
     }

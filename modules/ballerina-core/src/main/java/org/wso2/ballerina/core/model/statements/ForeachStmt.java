@@ -20,7 +20,6 @@ package org.wso2.ballerina.core.model.statements;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.expressions.Expression;
-import org.wso2.ballerina.core.model.types.IteratorType;
 
 /**
  * {@code ForeachStmt} Represents a foreach statement.
@@ -29,14 +28,14 @@ import org.wso2.ballerina.core.model.types.IteratorType;
  */
 public class ForeachStmt implements Statement {
     private Expression condition;
-    private IteratorType itr;
+//    private IteratorType itr;
     private Statement forEachBlock;
 
-    public ForeachStmt(Expression condition, IteratorType itr, Statement forEachBlock) {
-        this.condition = condition;
-        this.itr = itr;
-        this.forEachBlock = forEachBlock;
-    }
+//    public ForeachStmt(Expression condition, IteratorType itr, Statement forEachBlock) {
+//        this.condition = condition;
+//        this.itr = itr;
+//        this.forEachBlock = forEachBlock;
+//    }
 
     public void interpret(Context ctx) {
 

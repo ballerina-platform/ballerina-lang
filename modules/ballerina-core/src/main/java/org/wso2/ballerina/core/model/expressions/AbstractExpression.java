@@ -17,7 +17,7 @@
 */
 package org.wso2.ballerina.core.model.expressions;
 
-import org.wso2.ballerina.core.model.types.TypeC;
+import org.wso2.ballerina.core.model.types.BType;
 
 /**
  * All the expressions should extend {@code AbstractExpression}
@@ -28,14 +28,14 @@ import org.wso2.ballerina.core.model.types.TypeC;
  */
 public abstract class AbstractExpression implements Expression {
 
-    protected TypeC type;
+    protected BType type;
     protected int offset;
 
-    public TypeC getType() {
+    public BType getType() {
         return type;
     }
 
-    public void setType(TypeC type) {
+    public void setType(BType type) {
         this.type = type;
     }
 

@@ -18,8 +18,6 @@
 
 package org.wso2.ballerina.core.model;
 
-import org.wso2.ballerina.core.model.types.StructType;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -40,8 +38,6 @@ public class Package {
     private Map<String, Function> publicFunctions = new HashMap<>();
     private Map<String, Function> privateFunctions = new HashMap<>();
     private Map<String, Action> actions = new HashMap<>();
-    private List<StructType> types = new ArrayList<>();
-    //TODO: add TypeConverters and Constants
 
     /**
      * @param fullyQualifiedName Full qualified name of the package
@@ -96,8 +92,6 @@ public class Package {
                 privateFunctions.put(funcName, function);
             }
         });
-
-        types.addAll(file.getTypes());
     }
 
     /**
@@ -146,15 +140,6 @@ public class Package {
      */
     public Function getPrivateFunction(String functionName) {
         return privateFunctions.get(functionName);
-    }
-
-    /**
-     * Get all {@code StructType} definitions in the package
-     *
-     * @return list of StructTypes
-     */
-    public List<StructType> getTypes() {
-        return types;
     }
 
     /**

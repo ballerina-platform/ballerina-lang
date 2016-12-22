@@ -21,7 +21,6 @@ package org.wso2.ballerina.core.model;
 import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
-import org.wso2.ballerina.core.model.types.StructType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -49,7 +48,6 @@ public class BallerinaFile implements Node {
     private List<Service> services = new ArrayList<>();
     private List<BallerinaConnector> connectorList = new ArrayList<>();
     private Map<String, Function> functions = new HashMap<>();
-    private List<StructType> types = new ArrayList<>();
     private List<FunctionInvocationExpr> funcIExprList = new ArrayList<>();
     private List<ActionInvocationExpr> actionIExprList = new ArrayList<>();
     //TODO: add TypeConverters
@@ -63,7 +61,6 @@ public class BallerinaFile implements Node {
             List<Service> serviceList,
             List<BallerinaConnector> connectorList,
             Map<String, Function> functionMap,
-            List<StructType> sTypeList,
             List<FunctionInvocationExpr> funcIExprList,
             List<ActionInvocationExpr> actionInvocationExpr) {
 
@@ -72,7 +69,6 @@ public class BallerinaFile implements Node {
         this.services = serviceList;
         this.connectorList = connectorList;
         this.functions = functionMap;
-        this.types = sTypeList;
         this.funcIExprList = funcIExprList;
         this.actionIExprList = actionInvocationExpr;
 
@@ -176,34 +172,6 @@ public class BallerinaFile implements Node {
         return actionIExprList.toArray(new ActionInvocationExpr[actionIExprList.size()]);
     }
 
-    /**
-     * Get {@code Type} list defined in the File
-     *
-     * @return list of Types
-     */
-    public List<StructType> getTypes() {
-        return types;
-    }
-
-    /**
-     * Set the list of Types
-     *
-     * @param types list of Types
-     */
-    public void setTypes(List<StructType> types) {
-        this.types = types;
-    }
-
-
-    /**
-     * Add a {@code Type}
-     *
-     * @param type Type to be added to the File
-     */
-    public void addType(StructType type) {
-        types.add(type);
-    }
-
     public SymScope getPackageScope() {
         return packageScope;
     }
@@ -227,7 +195,6 @@ public class BallerinaFile implements Node {
         private List<Service> serviceList = new ArrayList<>();
         private List<BallerinaConnector> connectorList = new ArrayList<>();
         private Map<String, Function> functionList = new HashMap<>();
-        private List<StructType> sTypeList = new ArrayList<>();
 
         private List<FunctionInvocationExpr> funcIExprList = new ArrayList<>();
         private List<ActionInvocationExpr> actionIExprList = new ArrayList<>();
@@ -255,10 +222,6 @@ public class BallerinaFile implements Node {
             this.importPkgList.add(importPkg);
         }
 
-        public void addStructType(StructType structType) {
-            this.sTypeList.add(structType);
-        }
-
         public void addFuncIExpr(FunctionInvocationExpr expr) {
             this.funcIExprList.add(expr);
         }
@@ -270,7 +233,6 @@ public class BallerinaFile implements Node {
                     serviceList,
                     connectorList,
                     functionList,
-                    sTypeList,
                     funcIExprList,
                     actionIExprList);
 

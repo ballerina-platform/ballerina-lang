@@ -60,7 +60,7 @@ import org.wso2.ballerina.core.model.statements.ReplyStmt;
 import org.wso2.ballerina.core.model.statements.ReturnStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
-import org.wso2.ballerina.core.model.types.TypeC;
+import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.values.BBoolean;
 import org.wso2.ballerina.core.model.values.BFloat;
 import org.wso2.ballerina.core.model.values.BInteger;
@@ -88,7 +88,7 @@ public class BLangModelBuilder {
     private Stack<BlockStmt.BlockStmtBuilder> blockStmtBuilderStack = new Stack<>();
     private Stack<IfElseStmt.IfElseStmtBuilder> ifElseStmtBuilderStack = new Stack<>();
 
-    private Queue<TypeC> typeQueue = new LinkedList<>();
+    private Queue<BType> typeQueue = new LinkedList<>();
     private BallerinaFile.BFileBuilder bFileBuilder = new BallerinaFile.BFileBuilder();
     private Stack<String> pkgNameStack = new Stack<>();
     private Stack<SymbolName> symbolNameStack = new Stack<>();
@@ -149,7 +149,7 @@ public class BLangModelBuilder {
 
     public void createInstanceCreaterExpr(String typeName) {
         InstanceCreationExpr expression = new InstanceCreationExpr(null);
-        TypeC type = TypeC.getTypeC(typeName);
+        BType type = BType.getType(typeName);
         expression.setType(type);
         exprStack.push(expression);
 
@@ -177,7 +177,7 @@ public class BLangModelBuilder {
             Expression expr = exprStack.pop();
 
             // Assuming the annotation value is a string literal
-            if (expr instanceof BasicLiteral && expr.getType() == TypeC.STRING_TYPE) {
+            if (expr instanceof BasicLiteral && expr.getType() == BType.STRING_TYPE) {
                 String value = ((BasicLiteral) expr).getbValueNew().stringValue();
                 annotationBuilder.setValue(value);
             } else {
@@ -204,7 +204,7 @@ public class BLangModelBuilder {
         //        paramIndex++;
 
         SymbolName paramNameId = new SymbolName(paramName);
-        TypeC paramType = typeQueue.remove();
+        BType paramType = typeQueue.remove();
         Parameter param = new Parameter(paramType, paramNameId);
 
         // Add the parameter to callableUnitBuilder.
@@ -220,12 +220,12 @@ public class BLangModelBuilder {
     }
 
     public void createType(String typeName) {
-        TypeC type = TypeC.getTypeC(typeName);
+        BType type = BType.getType(typeName);
         typeQueue.add(type);
     }
 
     public void createArrayType(String typeName) {
-        TypeC type = TypeC.getArrayType(typeName);
+        BType type = BType.getArrayType(typeName);
         typeQueue.add(type);
     }
 
@@ -242,7 +242,7 @@ public class BLangModelBuilder {
     public void createVariableDcl(String varName) {
         // Create a variable declaration
         SymbolName localVarId = new SymbolName(varName);
-        TypeC localVarType = typeQueue.remove();
+        BType localVarType = typeQueue.remove();
         VariableDcl variableDcl = new VariableDcl(localVarType, localVarId);
 
         // Add this variable declaration to the current callable unit
@@ -636,22 +636,22 @@ public class BLangModelBuilder {
 
     public void createIntegerLiteral(String value) {
         BValueType bValue = new BInteger(Integer.parseInt(value));
-        createLiteral(bValue, TypeC.INT_TYPE);
+        createLiteral(bValue, BType.INT_TYPE);
     }
 
     public void createFloatLiteral(String value) {
         BValueType bValue = new BFloat(Float.parseFloat(value));
-        createLiteral(bValue, TypeC.FLOAT_TYPE);
+        createLiteral(bValue, BType.FLOAT_TYPE);
     }
 
     public void createStringLiteral(String value) {
         BValueType bValue = new BString(value);
-        createLiteral(bValue, TypeC.STRING_TYPE);
+        createLiteral(bValue, BType.STRING_TYPE);
     }
 
     public void createBooleanLiteral(String value) {
         BValueType bValue = new BBoolean(Boolean.parseBoolean(value));
-        createLiteral(bValue, TypeC.BOOLEAN_TYPE);
+        createLiteral(bValue, BType.BOOLEAN_TYPE);
     }
 
     public void createNullLiteral(String value) {
@@ -665,7 +665,7 @@ public class BLangModelBuilder {
         blockStmtBuilder.addStmt(stmt);
     }
 
-    private void createLiteral(BValueType bValueType, TypeC type) {
+    private void createLiteral(BValueType bValueType, BType type) {
         BasicLiteral basicLiteral = new BasicLiteral(bValueType);
         basicLiteral.setType(type);
         exprStack.push(basicLiteral);
