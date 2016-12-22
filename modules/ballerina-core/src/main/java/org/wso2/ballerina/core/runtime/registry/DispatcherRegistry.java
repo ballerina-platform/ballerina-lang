@@ -20,8 +20,8 @@ package org.wso2.ballerina.core.runtime.registry;
 
 import org.wso2.ballerina.core.nativeimpl.connectors.http.server.HTTPResourceDispatcher;
 import org.wso2.ballerina.core.nativeimpl.connectors.http.server.HTTPServiceDispatcher;
-import org.wso2.ballerina.core.runtime.core.dispatching.ResourceDispatcher;
-import org.wso2.ballerina.core.runtime.core.dispatching.ServiceDispatcher;
+import org.wso2.ballerina.core.runtime.dispatching.ResourceDispatcher;
+import org.wso2.ballerina.core.runtime.dispatching.ServiceDispatcher;
 
 import java.util.HashMap;
 import java.util.Map;
