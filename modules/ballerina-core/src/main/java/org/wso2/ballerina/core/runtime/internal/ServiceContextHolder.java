@@ -19,10 +19,12 @@
 package org.wso2.ballerina.core.runtime.internal;
 
 
+import org.osgi.framework.BundleContext;
 import org.wso2.ballerina.core.runtime.Constants;
 import org.wso2.ballerina.core.runtime.errors.handler.ServerConnectorErrorHandler;
 import org.wso2.carbon.messaging.TransportSender;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,6 +39,10 @@ public class ServiceContextHolder {
 
     /* Protocol specific error handlers */
     private Map<String, ServerConnectorErrorHandler> errorHandlers = new HashMap<>();
+
+    private BundleContext bundleContext;
+
+    private File runningFile;
 
     private ServiceContextHolder() {
     }
@@ -96,4 +102,41 @@ public class ServiceContextHolder {
     public ServerConnectorErrorHandler getErrorHandler(String protocol) {
         return errorHandlers.get(protocol);
     }
+
+    /**
+     * Get Ballerina Bundle Context.
+     *
+     * @return
+     */
+    protected BundleContext getBundleContext() {
+        return this.bundleContext;
+    }
+
+    /**
+     * Set Ballerina Bundle Context instance.
+     *
+     * @param bundleContext of the Ballerina Bundle.
+     */
+    protected void setBundleContext(BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
+    }
+
+    /**
+     * Get Ballerina File in RUN_FILE mode.
+     *
+     * @return
+     */
+    protected File getRunningFile() {
+        return this.runningFile;
+    }
+
+    /**
+     * Set Ballerina File in RUN_FILE mode.
+     *
+     * @param file to be run.
+     */
+    protected void setRunningFile(File file) {
+        this.runningFile = file;
+    }
+
 }
