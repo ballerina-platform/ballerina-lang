@@ -1,13 +1,13 @@
 /**
  * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- *
+ * <p>
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -30,9 +30,9 @@ import org.osgi.service.component.annotations.Component;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
+import org.wso2.ballerina.core.model.values.BInteger;
+import org.wso2.ballerina.core.model.values.BJSON;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.model.values.IntValue;
-import org.wso2.ballerina.core.model.values.JSONValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
@@ -55,20 +55,20 @@ import org.wso2.ballerina.core.nativeimpl.lang.utils.ErrorHandler;
         service = AbstractNativeFunction.class
 )
 public class GetInt extends AbstractJSONFunction {
-    
+
     private static final String OPERATION = "get integer from json";
 
     @Override
-    public BValue<?>[] execute(Context ctx) {
+    public BValue[] execute(Context ctx) {
         String jsonPath = null;
-        BValue<?> result = null;
+        BValue result = null;
         try {
             // Accessing Parameters.
-            JSONValue json = (JSONValue) getArgument(ctx, 0).getBValue();
-            jsonPath = getArgument(ctx, 1).getString();
+            BJSON json = (BJSON) getArgument(ctx, 0);
+            jsonPath = getArgument(ctx, 1).stringValue();
 
             // Getting the value from JSON
-            ReadContext jsonCtx = JsonPath.parse(json.getValue());
+            ReadContext jsonCtx = JsonPath.parse(json.value());
             JsonElement element = jsonCtx.read(jsonPath);
             if (element == null) {
                 throw new BallerinaException("No matching element found for jsonpath: " + jsonPath);
@@ -78,7 +78,7 @@ public class GetInt extends AbstractJSONFunction {
                 if (value.isNumber()) {
                     Number number = value.getAsNumber();
                     if (number instanceof Integer) {
-                        result = new IntValue(number.intValue());
+                        result = new BInteger(number.intValue());
                     } else {
                         throw new BallerinaException("The element matching path: " + jsonPath + " is not an Integer.");
                     }
@@ -97,7 +97,7 @@ public class GetInt extends AbstractJSONFunction {
         } catch (Throwable e) {
             ErrorHandler.handleJsonPathException(OPERATION, e);
         }
-        
+
         // Setting output value.
         return getBValues(result);
     }

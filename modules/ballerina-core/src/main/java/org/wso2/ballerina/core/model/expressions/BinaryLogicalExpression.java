@@ -17,10 +17,8 @@
 */
 package org.wso2.ballerina.core.model.expressions;
 
-import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.Operator;
-import org.wso2.ballerina.core.model.values.BValueRef;
 
 /**
  * {@code BinaryLogicalExpression} represents a logical expression in Ballerina
@@ -33,11 +31,6 @@ public class BinaryLogicalExpression extends BinaryExpression {
 
     public BinaryLogicalExpression(Expression lExpr, Operator op, Expression rExpr) {
         super(lExpr, op, rExpr);
-    }
-
-    @Override
-    public BValueRef evaluate(Context ctx) {
-        return null;
     }
 
     @Override

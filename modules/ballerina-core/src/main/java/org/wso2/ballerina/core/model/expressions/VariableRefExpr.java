@@ -17,12 +17,8 @@
 */
 package org.wso2.ballerina.core.model.expressions;
 
-import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.SymbolName;
-import org.wso2.ballerina.core.model.values.BValueRef;
-
-import java.util.function.Function;
 
 /**
  * {@code VariableRefExpr} represents a variable reference in Ballerina
@@ -33,30 +29,12 @@ public class VariableRefExpr extends AbstractExpression {
 
     private SymbolName symbolName;
 
-    private Function<Context, BValueRef> evalFunction;
-
     public VariableRefExpr(SymbolName symbolName) {
         this.symbolName = symbolName;
     }
 
     public SymbolName getSymbolName() {
         return symbolName;
-    }
-
-    public void setEvalFunction(Function<Context, BValueRef> evalFunction) {
-        this.evalFunction = evalFunction;
-    }
-
-    public BValueRef evaluate(Context ctx) {
-        return evalFunction.apply(ctx);
-    }
-
-    public static Function<Context, BValueRef> createGetParamValueFunc(int index) {
-        return context -> context.getControlStack().getCurrentFrame().parameters[index];
-    }
-
-    public static Function<Context, BValueRef> createGetLocalValueFunc(int index) {
-        return context -> context.getControlStack().getCurrentFrame().localVariables[index];
     }
 
     @Override

@@ -15,22 +15,23 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerina.core.interpreter;
-
-import org.wso2.ballerina.core.model.values.BValue;
+package org.wso2.ballerina.core.model.values;
 
 /**
- * {@code StackFrame} represents frame in a control stack.
- * Holds references to parameters, local variables and return values
  *
- * @since 1.0.0
+ * @param <T>
  */
-public class StackFrame {
-    public BValue[] valuesNew;
-    public BValue[] returnValuesNew;
+public class BArray<T> implements BRefType<T> {
 
-    public StackFrame(BValue[] valuesNew, BValue[] returnValuesNew) {
-        this.valuesNew = valuesNew;
-        this.returnValuesNew = returnValuesNew;
+
+
+    @Override
+    public T value() {
+        return null;
+    }
+
+    @Override
+    public String stringValue() {
+        return null;
     }
 }

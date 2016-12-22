@@ -25,9 +25,9 @@ import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.util.MessageUtils;
+import org.wso2.ballerina.core.model.values.BMessage;
+import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.model.values.MessageValue;
-import org.wso2.ballerina.core.model.values.StringValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
@@ -54,19 +54,19 @@ public class GetStringPayload extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        StringValue result;
+        BString result;
         try {
-            MessageValue msg = (MessageValue) getArgument(context, 0).getBValue();
+            BMessage msg = (BMessage) getArgument(context, 0);
             if (msg.isAlreadyRead()) {
-                result = msg.getBuiltPayload().getString();
+                result = new BString(msg.getBuiltPayload().stringValue());
             } else {
-                String payload = MessageUtils.getStringFromInputStream(msg.getValue().getInputStream());
-                result = new StringValue(payload);
+                String payload = MessageUtils.getStringFromInputStream(msg.value().getInputStream());
+                result = new BString(payload);
                 msg.setBuiltPayload(result);
                 msg.setAlreadyRead(true);
             }
             if (log.isDebugEnabled()) {
-                log.debug("Payload in String:" + result.getValue());
+                log.debug("Payload in String:" + result.stringValue());
             }
         } catch (Throwable e) {
             throw new BallerinaException("Error while retrieving string payload from message: " + e.getMessage());

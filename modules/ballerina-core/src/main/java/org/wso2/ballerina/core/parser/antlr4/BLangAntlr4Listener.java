@@ -781,7 +781,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitBacktickString(BallerinaParser.BacktickStringContext ctx) {
-        modelBuilder.createBackTickString(ctx.BacktickStringLiteral().toString());
+//        modelBuilder.createBackTickString(ctx.BacktickStringLiteral().toString());
     }
 
     @Override

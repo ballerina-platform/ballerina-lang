@@ -17,10 +17,8 @@
 */
 package org.wso2.ballerina.core.model.expressions;
 
-import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.Operator;
-import org.wso2.ballerina.core.model.values.BValueRef;
 
 /**
  * {@code UnaryExpression} represents a unary expression
@@ -39,11 +37,6 @@ public class UnaryExpression extends AbstractExpression {
 
     public Expression getRExpr() {
         return rExpr;
-    }
-
-    @Override
-    public BValueRef evaluate(Context ctx) {
-        return null;
     }
 
     @Override
