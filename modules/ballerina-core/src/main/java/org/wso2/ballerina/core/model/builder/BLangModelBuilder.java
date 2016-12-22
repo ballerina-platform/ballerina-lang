@@ -37,6 +37,7 @@ import org.wso2.ballerina.core.model.expressions.AddExpression;
 import org.wso2.ballerina.core.model.expressions.AndExpression;
 import org.wso2.ballerina.core.model.expressions.ArrayAccessExpr;
 import org.wso2.ballerina.core.model.expressions.ArrayInitExpr;
+import org.wso2.ballerina.core.model.expressions.BackquoteExpr;
 import org.wso2.ballerina.core.model.expressions.BasicLiteral;
 import org.wso2.ballerina.core.model.expressions.BinaryExpression;
 import org.wso2.ballerina.core.model.expressions.EqualExpression;
@@ -72,6 +73,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Stack;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * {@code BLangModelBuilder} provides an high-level API to create Ballerina language object model.
@@ -369,20 +372,14 @@ public class BLangModelBuilder {
         exprStack.push(expr);
     }
 
-//    public void createBackTickString(String stringContent) {
-//        String content = MessageUtils.getValueWithinBacktick(stringContent);
-//        if (content.startsWith("{")) {
-//            BValueNew bValue = new JSONValue(content);
-//            createLiteral(bValue, TypeC.JSON_TYPE);
-//        } else if (content.startsWith("<")) {
-//            BValueNew bValue = new XMLValue(content);
-//            createLiteral(bValue, TypeC.XML_TYPE);
-//        } else {
-//            BValueNew bValue = new BString(content);
-//            createLiteral(bValue, TypeC.STRING_TYPE);
-//        }
-//
-//    }
+    public void createBackTickString(String stringContent) {
+        String templateStr = getValueWithinBacktick(stringContent);
+
+        BackquoteExpr.BackquoteExprBuilder builder = new BackquoteExpr.BackquoteExprBuilder();
+        builder.setTemplateStr(templateStr);
+
+        exprStack.push(builder.build());
+    }
 
     public void startExprList() {
         exprListStack.push(new ArrayList<>());
@@ -697,6 +694,20 @@ public class BLangModelBuilder {
         }
 
         return pkgNameStack.pop();
+    }
+
+    /**
+     * return value within double quotes
+     * @param inputString string with double quotes
+     * @return value
+     */
+    public static String getValueWithinBacktick(String inputString) {
+        Pattern p = Pattern.compile("`([^`]*)`");
+        Matcher m = p.matcher(inputString);
+        if (m.find()) {
+            return m.group(1);
+        }
+        return null;
     }
 
 }

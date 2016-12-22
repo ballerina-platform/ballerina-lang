@@ -41,6 +41,7 @@ import org.wso2.ballerina.core.model.expressions.AddExpression;
 import org.wso2.ballerina.core.model.expressions.AndExpression;
 import org.wso2.ballerina.core.model.expressions.ArrayAccessExpr;
 import org.wso2.ballerina.core.model.expressions.ArrayInitExpr;
+import org.wso2.ballerina.core.model.expressions.BackquoteExpr;
 import org.wso2.ballerina.core.model.expressions.BasicLiteral;
 import org.wso2.ballerina.core.model.expressions.BinaryExpression;
 import org.wso2.ballerina.core.model.expressions.EqualExpression;
@@ -69,9 +70,11 @@ import org.wso2.ballerina.core.model.statements.WhileStmt;
 import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.util.BValueUtils;
 import org.wso2.ballerina.core.model.values.BConnector;
+import org.wso2.ballerina.core.model.values.BJSON;
 import org.wso2.ballerina.core.model.values.BMessage;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BValueType;
+import org.wso2.ballerina.core.model.values.BXML;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
@@ -430,6 +433,19 @@ public class BLangInterpreter implements NodeVisitor {
     @Override
     public void visit(ArrayInitExpr arrayInitExpr) {
 
+    }
+
+    @Override
+    public void visit(BackquoteExpr backquoteExpr) {
+        BValue bValue;
+
+        if (backquoteExpr.getType() == BType.JSON_TYPE) {
+            bValue = new BJSON(backquoteExpr.getTemplateStr());
+        } else {
+            bValue = new BXML(backquoteExpr.getTemplateStr());
+        }
+
+        controlStack.setValueNew(backquoteExpr.getOffset(), bValue);
     }
 
     public void visit(ResourceInvoker resourceInvoker) {
