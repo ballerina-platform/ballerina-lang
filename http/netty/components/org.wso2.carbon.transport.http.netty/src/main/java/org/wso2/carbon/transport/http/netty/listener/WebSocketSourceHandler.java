@@ -39,6 +39,7 @@ import org.wso2.carbon.transport.http.netty.internal.WebSocketResponderImpl;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 
 import java.net.InetSocketAddress;
+import java.net.URI;
 import java.nio.ByteBuffer;
 
 /**
@@ -49,7 +50,7 @@ import java.nio.ByteBuffer;
 public class WebSocketSourceHandler extends SourceHandler {
 
     private static Logger log = LoggerFactory.getLogger(WebSocketSourceHandler.class);
-    private final String uri;
+    private final URI uri;
     private CarbonMessage cMsg;
     private WebSocketResponder webSocketResponder;
 
@@ -57,7 +58,7 @@ public class WebSocketSourceHandler extends SourceHandler {
                                   ListenerConfiguration listenerConfiguration,
                                   String uri) throws Exception {
         super(connectionManager, listenerConfiguration);
-        this.uri = uri;
+        this.uri = new URI(uri);
     }
 
 
