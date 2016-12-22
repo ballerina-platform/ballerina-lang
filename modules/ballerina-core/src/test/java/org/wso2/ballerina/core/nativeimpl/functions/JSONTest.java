@@ -31,10 +31,8 @@ import org.wso2.ballerina.core.model.values.BDouble;
 import org.wso2.ballerina.core.model.values.BFloat;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BJSON;
-import org.wso2.ballerina.core.model.values.BRefType;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.model.values.BValueType;
 import org.wso2.ballerina.core.nativeimpl.lang.json.AddBooleanToArray;
 import org.wso2.ballerina.core.nativeimpl.lang.json.AddBooleanToObject;
 import org.wso2.ballerina.core.nativeimpl.lang.json.AddDoubleToArray;
@@ -130,7 +128,7 @@ public class JSONTest {
         Context bContext = FunctionUtils.createInvocationContext(args, 1);
         BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
         funcIExpr.accept(bLangInterpreter);
-        Assert.assertEquals(getBValueType(bContext).stringValue(), "Jack");
+        Assert.assertEquals(FunctionUtils.getReturnBValue(bContext).stringValue(), "Jack");
     }
 
     @Test(description = "Get an integer in a valid jsonpath")
@@ -140,7 +138,7 @@ public class JSONTest {
         Context bContext = FunctionUtils.createInvocationContext(args, 1);
         BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
         funcIExpr.accept(bLangInterpreter);
-        Assert.assertEquals(getBValueType(bContext).intValue(), 20);
+        Assert.assertEquals(FunctionUtils.getReturnBValue(bContext).intValue(), 20);
     }
 
     @Test(description = "Get a json element in a valid jsonpath")
@@ -160,7 +158,7 @@ public class JSONTest {
         Context bContext = FunctionUtils.createInvocationContext(args, 1);
         BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
         funcIExpr.accept(bLangInterpreter);
-        Assert.assertEquals(getBValueType(bContext).floatValue(), (float) 3.54);
+        Assert.assertEquals(FunctionUtils.getReturnBValue(bContext).floatValue(), (float) 3.54);
     }
     
     @Test(description = "Get a double in a valid jsonpath")
@@ -170,7 +168,7 @@ public class JSONTest {
         Context bContext = FunctionUtils.createInvocationContext(args, 1);
         BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
         funcIExpr.accept(bLangInterpreter);
-        Assert.assertEquals(getBValueType(bContext).doubleValue(), 3.54);
+        Assert.assertEquals(FunctionUtils.getReturnBValue(bContext).doubleValue(), 3.54);
     }
     
     @Test(description = "Get a float in a valid jsonpath")
@@ -180,7 +178,7 @@ public class JSONTest {
         Context bContext = FunctionUtils.createInvocationContext(args, 1);
         BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
         funcIExpr.accept(bLangInterpreter);
-        Assert.assertEquals(getBValueType(bContext).booleanValue(), true);
+        Assert.assertEquals(FunctionUtils.getReturnBValue(bContext).booleanValue(), true);
     }
     
     // TODO: Add get() tests for jsonpath-functions such as length(), min(), max(), etc..
@@ -198,7 +196,7 @@ public class JSONTest {
         Context bContext = FunctionUtils.createInvocationContext(args, 1);
         BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
         funcIExpr.accept(bLangInterpreter);
-        Assert.assertEquals(getBValueType(bContext).stringValue(), val);
+        Assert.assertEquals(FunctionUtils.getReturnBValue(bContext).stringValue(), val);
     }
 
     @Test(description = "Set an int to a valid jsonpath")
@@ -209,7 +207,7 @@ public class JSONTest {
         Context bContext = FunctionUtils.createInvocationContext(args, 1);
         BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
         funcIExpr.accept(bLangInterpreter);
-        Assert.assertEquals(getBValueType(bContext).intValue(), val);
+        Assert.assertEquals(FunctionUtils.getReturnBValue(bContext).intValue(), val);
     }
     
     @Test(description = "Set a double to a valid jsonpath")
@@ -220,7 +218,7 @@ public class JSONTest {
         Context bContext = FunctionUtils.createInvocationContext(args, 1);
         BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
         funcIExpr.accept(bLangInterpreter);
-        Assert.assertEquals(getBValueType(bContext).doubleValue(), val);
+        Assert.assertEquals(FunctionUtils.getReturnBValue(bContext).doubleValue(), val);
     }
     
     @Test(description = "Set a float to a valid jsonpath")
@@ -231,7 +229,7 @@ public class JSONTest {
         Context bContext = FunctionUtils.createInvocationContext(args, 1);
         BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
         funcIExpr.accept(bLangInterpreter);
-        Assert.assertEquals(getBValueType(bContext).floatValue(), val);
+        Assert.assertEquals(FunctionUtils.getReturnBValue(bContext).floatValue(), val);
     }
     
     @Test(description = "Set a boolean to a valid jsonpath")
@@ -242,7 +240,7 @@ public class JSONTest {
         Context bContext = FunctionUtils.createInvocationContext(args, 1);
         BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
         funcIExpr.accept(bLangInterpreter);
-        Assert.assertEquals(getBValueType(bContext).booleanValue(), val);
+        Assert.assertEquals(FunctionUtils.getReturnBValue(bContext).booleanValue(), val);
     }
     
     @Test(description = "Set a json element to a valid jsonpath")
@@ -461,14 +459,7 @@ public class JSONTest {
     
     
     private String getJsonAsString(Context bContext) {
-        return getBRefType(bContext).toString().replace("\\r|\\n|\\t| ", "");
+        return FunctionUtils.getReturnBRef(bContext).toString().replace("\\r|\\n|\\t| ", "");
     }
     
-    private BValueType getBValueType(Context bContext) {
-        return (BValueType) FunctionUtils.getReturnValue(bContext);
-    }
-    
-    private BRefType<?> getBRefType(Context bContext) {
-        return (BRefType<?>) FunctionUtils.getReturnValue(bContext);
-    }
 }
