@@ -28,6 +28,7 @@ import org.wso2.ballerina.core.model.expressions.Expression;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.util.LangModelUtils;
+import org.wso2.ballerina.core.model.values.BRefType;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BValueType;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
@@ -116,13 +117,22 @@ public class FunctionUtils {
     }
 
     /**
-     * Get First Value from the Context.
+     * Get return Value from the Context.
      *
      * @param context Ballerina Context instance.
      * @return BValueNew.
      */
-    public static BValue getValue(Context context) {
+    public static BValue getReturnValue(Context context) {
         StackFrame currentFrame = context.getControlStack().getCurrentFrame();
-        return currentFrame.valuesNew[0];
+        return currentFrame.valuesNew[currentFrame.valuesNew.length - 1];
+    }
+    
+    
+    public static BValueType getReturnBValue(Context context) {
+        return (BValueType) getReturnValue(context);
+    }
+    
+    public static BRefType getReturnBRef(Context context) {
+        return (BRefType) getReturnValue(context);
     }
 }

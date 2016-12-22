@@ -24,6 +24,7 @@ import org.wso2.carbon.messaging.DefaultCarbonMessage;
 import org.wso2.carbon.messaging.Header;
 import org.wso2.carbon.messaging.Headers;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -34,7 +35,7 @@ import java.util.List;
 public class BMessage implements BRefType<CarbonMessage> {
     private CarbonMessage value;
     private BValue builtPayload;
-    private Headers headers = new Headers();
+    private Headers headers;
 
     /**
      * Create a message in ballerina using a Carbon Message.
@@ -43,6 +44,7 @@ public class BMessage implements BRefType<CarbonMessage> {
      */
     public BMessage(CarbonMessage value) {
         this.value = (value != null) ? value : new DefaultCarbonMessage();
+        this.headers = this.value.getHeaders();
     }
 
 
@@ -104,7 +106,10 @@ public class BMessage implements BRefType<CarbonMessage> {
      * @param headerValue Headers Value
      */
     public void addHeader(String headerName, String headerValue) {
-        headers.set(headerName, headerValue);
+        //todo make the org.wso2.carbon.messaging.Headers.add to public and use that stead of creating a list
+        List<Header> headerList = new ArrayList<>();
+        headerList.add(new Header(headerName, headerValue));
+        headers.set(headerList);
     }
 
     /**
