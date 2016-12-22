@@ -378,5 +378,21 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
         this.getStatementGroup().titleText.attr('x', this.getBoundingBox().x() + 20);
     };
 
+    BallerinaStatementView.prototype.childViewRemovedCallback = function (child) {
+        log.info("[Eventing] Child element view removed. ");
+        //TODO: remove canvas container for each delete click
+
+        var ballerinaFileEditor = this.getDiagramRenderingContext().ballerinaFileEditor;
+
+        $(ballerinaFileEditor._$canvasContainer)[0].remove();
+
+        var self = ballerinaFileEditor;
+        self.reDraw({
+            model: self._model,
+            container: self._container,
+            viewOptions: self._viewOptions
+        });
+    };
+
     return BallerinaStatementView;
 });

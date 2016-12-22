@@ -42,6 +42,7 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
         IfStatementView.prototype.constructor = IfStatementView;
 
         IfStatementView.prototype.init = function () {
+            this.listenTo(this._model, 'childRemovedEvent', this.childViewRemovedCallback);
         };
 
         IfStatementView.prototype.canVisitIfStatement = function(){
