@@ -25,9 +25,10 @@ import org.wso2.ballerina.core.interpreter.ControlStack;
 import org.wso2.ballerina.core.interpreter.StackFrame;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
-import org.wso2.ballerina.core.model.values.BValueRef;
-import org.wso2.ballerina.core.model.values.ConnectorValue;
-import org.wso2.ballerina.core.model.values.MessageValue;
+import org.wso2.ballerina.core.model.util.BValueUtils;
+import org.wso2.ballerina.core.model.values.BConnector;
+import org.wso2.ballerina.core.model.values.BMessage;
+import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
 import org.wso2.ballerina.core.runtime.core.BalCallback;
 import org.wso2.ballerina.core.runtime.core.Executable;
@@ -44,7 +45,7 @@ import java.util.function.Consumer;
  * A {@code Resource} is a single request handler within a {@code Service}.
  * The resource concept is designed to be access protocol independent.
  * But in the initial release of the language it is intended to work with HTTP.
- * <p>  
+ * <p>
  * The structure of a ResourceDefinition is as follows:
  * <p>
  * [ResourceAnnotations]
@@ -261,7 +262,8 @@ public class Resource implements Executable, Node {
 
 
     /**
-     *  Get resource body
+     * Get resource body
+     *
      * @return returns the block statement
      */
     public BlockStmt getResourceBody() {
@@ -271,6 +273,7 @@ public class Resource implements Executable, Node {
 
     /**
      * Get variable declarations
+     *
      * @return returns the variable declarations
      */
     public VariableDcl[] getVariableDcls() {
@@ -290,24 +293,24 @@ public class Resource implements Executable, Node {
     private void populateDefaultMessage(Context context) {
         // Adding MessageValue to the ControlStack
         ControlStack controlStack = context.getControlStack();
-        BValueRef[] valueParams = new BValueRef[this.stackFrameSize];
+        BValue[] valueParams = new BValue[this.stackFrameSize];
         // Populate MessageValue with CarbonMessages' headers.
-        MessageValue messageValue = new MessageValue(context.getCarbonMessage());
+        BMessage bMessage = new BMessage(context.getCarbonMessage());
         List<Header> headerList = context.getCarbonMessage().getHeaders().getAll();
-        messageValue.setHeaderList(headerList);
+        bMessage.setHeaderList(headerList);
         if (LOG.isDebugEnabled()) {
             LOG.debug("Populate headers from CarbonMessage.");
             Consumer<Header> headerPrint = (Header header) -> LOG
                     .debug("Header: " + header.getName() + " -> " + header.getValue());
             headerList.forEach(headerPrint);
         }
-        valueParams[0] = new BValueRef(messageValue);
-        
+        valueParams[0] = bMessage;
+
         int i = 1;
         // Create default values for all declared local variables
         VariableDcl[] variableDcls = this.getVariableDcls();
         for (VariableDcl variableDcl : variableDcls) {
-            valueParams[i] = BValueRef.getDefaultValue(variableDcl.getTypeC());
+            valueParams[i] = BValueUtils.getDefaultValue(variableDcl.getTypeC());
             i++;
         }
 
@@ -321,12 +324,12 @@ public class Resource implements Executable, Node {
                 //TODO Fix Issue#320
                 connector = ((AbstractNativeConnector) connector).getInstance();
             }
-            ConnectorValue connectorValue = new ConnectorValue(connector, connectorDcl.getArgExprs());
-            valueParams[i] = new BValueRef(connectorValue);
+            BConnector bConnector = new BConnector(connector, connectorDcl.getArgExprs());
+            valueParams[i] = bConnector;
             i++;
         }
-        
-        BValueRef[] ret = new BValueRef[1];
+
+        BValue[] ret = new BValue[1];
 
         StackFrame stackFrame = new StackFrame(valueParams, ret);
         // ToDo : StackFrame should be added at the upstream components.

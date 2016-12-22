@@ -21,9 +21,9 @@ package org.wso2.ballerina.core.nativeimpl.lang.message;
 import org.osgi.service.component.annotations.Component;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
+import org.wso2.ballerina.core.model.values.BJSON;
+import org.wso2.ballerina.core.model.values.BMessage;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.model.values.JSONValue;
-import org.wso2.ballerina.core.model.values.MessageValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
@@ -48,8 +48,8 @@ public class SetJsonPayload extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context ctx) {
         // Accessing First Parameter Value.
-        MessageValue msg = (MessageValue) getArgument(ctx, 0).getBValue();
-        JSONValue payload = (JSONValue) getArgument(ctx, 1).getBValue();
+        BMessage msg = (BMessage) getArgument(ctx, 0);
+        BJSON payload = (BJSON) getArgument(ctx, 1);
 
         // Setting the payload
         msg.setBuiltPayload(payload);

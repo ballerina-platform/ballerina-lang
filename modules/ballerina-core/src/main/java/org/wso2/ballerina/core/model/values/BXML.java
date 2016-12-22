@@ -33,17 +33,17 @@ import javax.xml.stream.XMLStreamException;
  *
  * @since 1.0.0
  */
-public class XMLValue extends BallerinaMessageDataSource implements BRefType<OMElement> {
+public class BXML extends BallerinaMessageDataSource implements BRefType<OMElement> {
 
     private OMElement value;
     private OutputStream outputStream;
 
     /**
-     * Initialize a {@link XMLValue} from a XML string.
+     * Initialize a {@link BXML} from a XML string.
      *
      * @param xmlValue A XML string
      */
-    public XMLValue(String xmlValue) {
+    public BXML(String xmlValue) {
         if (xmlValue != null) {
             try {
                 value = AXIOMUtil.stringToOM(xmlValue);
@@ -55,20 +55,20 @@ public class XMLValue extends BallerinaMessageDataSource implements BRefType<OME
     }
 
     /**
-     * Initialize a {@link XMLValue} from a {@link org.apache.axiom.om.OMElement} object.
+     * Initialize a {@link BXML} from a {@link org.apache.axiom.om.OMElement} object.
      *
      * @param value xml object
      */
-    public XMLValue(OMElement value) {
+    public BXML(OMElement value) {
         this.value = value;
     }
 
     /**
-     * Create a {@link XMLValue} from a {@link InputStream}.
+     * Create a {@link BXML} from a {@link InputStream}.
      *
      * @param inputStream Input Stream
      */
-    public XMLValue(InputStream inputStream) {
+    public BXML(InputStream inputStream) {
         if (inputStream != null) {
             try {
                 value = new StAXOMBuilder(inputStream).getDocumentElement();
@@ -81,7 +81,7 @@ public class XMLValue extends BallerinaMessageDataSource implements BRefType<OME
     /**
      * Create an empty XMLValue.
      */
-    public XMLValue() {
+    public BXML() {
         // do nothing
     }
 

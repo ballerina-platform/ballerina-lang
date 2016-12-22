@@ -19,9 +19,9 @@ package org.wso2.ballerina.core.nativeimpl.lang.message;
 import org.osgi.service.component.annotations.Component;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
+import org.wso2.ballerina.core.model.values.BMessage;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.model.values.MessageValue;
-import org.wso2.ballerina.core.model.values.XMLValue;
+import org.wso2.ballerina.core.model.values.BXML;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
@@ -48,22 +48,22 @@ public class GetXMLPayload extends AbstractNativeFunction {
     
     @Override
     public BValue[] execute(Context context) {
-        XMLValue result = null;
+        BXML result = null;
         try {
             // Accessing First Parameter Value.
-            MessageValue msg = (MessageValue) getArgument(context, 0).getBValue();
+            BMessage msg = (BMessage) getArgument(context, 0);
             
             if (msg.isAlreadyRead()) {
-                BValue<?> payload = msg.getBuiltPayload();
-                if (payload instanceof XMLValue) {
+                BValue payload = msg.getBuiltPayload();
+                if (payload instanceof BXML) {
                     // if the payload is already xml, return it as it is.
-                    result = (XMLValue) msg.getBuiltPayload();
+                    result = (BXML) msg.getBuiltPayload();
                 } else {
                     // else, build the xml from the string representation of the payload.
-                    result = new XMLValue(msg.getBuiltPayload().getString().getValue());
+                    result = new BXML(msg.getBuiltPayload().stringValue());
                 }
             } else {
-                result = new XMLValue(msg.getValue().getInputStream());
+                result = new BXML(msg.value().getInputStream());
                 msg.setBuiltPayload(result);
                 msg.setAlreadyRead(true);
             }

@@ -22,7 +22,7 @@ import org.wso2.ballerina.core.model.Connector;
 import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.types.TypeC;
-import org.wso2.ballerina.core.model.values.BValueRef;
+import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.NativeConstruct;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaConnector;
 
@@ -72,7 +72,7 @@ public abstract class AbstractNativeConnector implements Connector, NativeConstr
                 });
     }
 
-    public abstract boolean init(BValueRef[] bValueRefs);
+    public abstract boolean init(BValue[] bValueRefs);
 
     public SymbolName getSymbolName() {
         return symbolName;

@@ -21,15 +21,14 @@ package org.wso2.ballerina.core.nativeimpl.lang.string;
 import org.osgi.service.component.annotations.Component;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
+import org.wso2.ballerina.core.model.values.BBoolean;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.model.values.BooleanValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 
 /**
  * Native function ballerina.lang.string:hasPrefix.
- *
  *
  * @since 1.0.0
  */
@@ -50,10 +49,10 @@ public class HasPrefix extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        String param1 = getArgument(context, 0).getString();
-        String prefix = getArgument(context, 1).getString();
+        String param1 = getArgument(context, 0).stringValue();
+        String prefix = getArgument(context, 1).stringValue();
 
-        BooleanValue booleanValue = new BooleanValue(param1.startsWith(prefix));
+        BBoolean booleanValue = new BBoolean(param1.startsWith(prefix));
         return getBValues(booleanValue);
     }
 }

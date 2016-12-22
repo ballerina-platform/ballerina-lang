@@ -30,9 +30,9 @@ import org.osgi.service.component.annotations.Component;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
+import org.wso2.ballerina.core.model.values.BFloat;
+import org.wso2.ballerina.core.model.values.BJSON;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.model.values.FloatValue;
-import org.wso2.ballerina.core.model.values.JSONValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
@@ -59,17 +59,17 @@ public class GetFloat extends AbstractJSONFunction {
     private static final String OPERATION = "get float from json";
 
     @Override
-    public BValue<?>[] execute(Context ctx) {
+    public BValue[] execute(Context ctx) {
         String jsonPath = null;
-        BValue<?> result = null;
+        BValue result = null;
         
         try {
             // Accessing Parameters.
-            JSONValue json = (JSONValue) getArgument(ctx, 0).getBValue();
-            jsonPath = getArgument(ctx, 1).getString();
+            BJSON json = (BJSON) getArgument(ctx, 0);
+            jsonPath = getArgument(ctx, 1).stringValue();
 
             // Getting the value from JSON
-            ReadContext jsonCtx = JsonPath.parse(json.getValue());
+            ReadContext jsonCtx = JsonPath.parse(json.value());
             JsonElement element = jsonCtx.read(jsonPath);
             if (element == null) {
                 throw new BallerinaException("No matching element found for jsonpath: " + jsonPath);
@@ -79,7 +79,7 @@ public class GetFloat extends AbstractJSONFunction {
                 if (value.isNumber()) {
                     Number number = value.getAsNumber();
                     if (number instanceof Float) {
-                        result = new FloatValue(number.floatValue());
+                        result = new BFloat(number.floatValue());
                     } else {
                         throw new BallerinaException("The element matching path: " + jsonPath + " is not a Float.");
                     }

@@ -61,15 +61,11 @@ import org.wso2.ballerina.core.model.statements.ReturnStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
 import org.wso2.ballerina.core.model.types.TypeC;
-import org.wso2.ballerina.core.model.util.MessageUtils;
-import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.model.values.BValueRef;
-import org.wso2.ballerina.core.model.values.BooleanValue;
-import org.wso2.ballerina.core.model.values.FloatValue;
-import org.wso2.ballerina.core.model.values.IntValue;
-import org.wso2.ballerina.core.model.values.JSONValue;
-import org.wso2.ballerina.core.model.values.StringValue;
-import org.wso2.ballerina.core.model.values.XMLValue;
+import org.wso2.ballerina.core.model.values.BBoolean;
+import org.wso2.ballerina.core.model.values.BFloat;
+import org.wso2.ballerina.core.model.values.BInteger;
+import org.wso2.ballerina.core.model.values.BString;
+import org.wso2.ballerina.core.model.values.BValueType;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -179,7 +175,7 @@ public class BLangModelBuilder {
 
         if (valueAvailable) {
             // Assuming the annotation value is a string literal
-            annotationBuilder.setValue(exprStack.pop().getBValueRef().getString());
+            annotationBuilder.setValue(((BString) exprStack.pop()).stringValue());
         }
 
         List<Annotation> annotationList = annotationListStack.peek();
@@ -366,20 +362,20 @@ public class BLangModelBuilder {
         exprStack.push(expr);
     }
 
-    public void createBackTickString(String stringContent) {
-        String content = MessageUtils.getValueWithinBacktick(stringContent);
-        if (content.startsWith("{")) {
-            BValue bValue = new JSONValue(content);
-            createLiteral(new BValueRef(bValue), TypeC.JSON_TYPE);
-        } else if (content.startsWith("<")) {
-            BValue bValue = new XMLValue(content);
-            createLiteral(new BValueRef(bValue), TypeC.XML_TYPE);
-        } else {
-            BValue bValue = new StringValue(content);
-            createLiteral(new BValueRef(bValue), TypeC.STRING_TYPE);
-        }
-
-    }
+//    public void createBackTickString(String stringContent) {
+//        String content = MessageUtils.getValueWithinBacktick(stringContent);
+//        if (content.startsWith("{")) {
+//            BValueNew bValue = new JSONValue(content);
+//            createLiteral(bValue, TypeC.JSON_TYPE);
+//        } else if (content.startsWith("<")) {
+//            BValueNew bValue = new XMLValue(content);
+//            createLiteral(bValue, TypeC.XML_TYPE);
+//        } else {
+//            BValueNew bValue = new BString(content);
+//            createLiteral(bValue, TypeC.STRING_TYPE);
+//        }
+//
+//    }
 
     public void startExprList() {
         exprListStack.push(new ArrayList<>());
@@ -632,23 +628,23 @@ public class BLangModelBuilder {
     // Literal Values
 
     public void createIntegerLiteral(String value) {
-        BValue bValue = new IntValue(Integer.parseInt(value));
-        createLiteral(new BValueRef(bValue), TypeC.INT_TYPE);
+        BValueType bValue = new BInteger(Integer.parseInt(value));
+        createLiteral(bValue, TypeC.INT_TYPE);
     }
 
     public void createFloatLiteral(String value) {
-        BValue bValue = new FloatValue(Float.parseFloat(value));
-        createLiteral(new BValueRef(bValue), TypeC.FLOAT_TYPE);
+        BValueType bValue = new BFloat(Float.parseFloat(value));
+        createLiteral(bValue, TypeC.FLOAT_TYPE);
     }
 
     public void createStringLiteral(String value) {
-        BValue bValue = new StringValue(value);
-        createLiteral(new BValueRef(bValue), TypeC.STRING_TYPE);
+        BValueType bValue = new BString(value);
+        createLiteral(bValue, TypeC.STRING_TYPE);
     }
 
     public void createBooleanLiteral(String value) {
-        BValue bValue = new BooleanValue(Boolean.parseBoolean(value));
-        createLiteral(new BValueRef(bValue), TypeC.BOOLEAN_TYPE);
+        BValueType bValue = new BBoolean(Boolean.parseBoolean(value));
+        createLiteral(bValue, TypeC.BOOLEAN_TYPE);
     }
 
     public void createNullLiteral(String value) {
@@ -662,18 +658,8 @@ public class BLangModelBuilder {
         blockStmtBuilder.addStmt(stmt);
     }
 
-    private void addInReverseOrder(ReturnStmt.ReturnStmtBuilder builder) {
-        Expression expr = exprStack.pop();
-        if (exprStack.isEmpty()) {
-            builder.addExpression(expr);
-        } else {
-            addInReverseOrder(builder);
-            builder.addExpression(expr);
-        }
-    }
-
-    private void createLiteral(BValueRef bValueRef, TypeC type) {
-        BasicLiteral basicLiteral = new BasicLiteral(bValueRef);
+    private void createLiteral(BValueType bValueType, TypeC type) {
+        BasicLiteral basicLiteral = new BasicLiteral(bValueType);
         basicLiteral.setType(type);
         exprStack.push(basicLiteral);
     }

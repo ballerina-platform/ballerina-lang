@@ -21,9 +21,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
+import org.wso2.ballerina.core.model.values.BMessage;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.model.values.MessageValue;
-import org.wso2.ballerina.core.model.values.XMLValue;
+import org.wso2.ballerina.core.model.values.BXML;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
@@ -51,8 +51,8 @@ public class SetXMLPayload extends AbstractNativeFunction {
     public BValue[] execute(Context context) {
         log.info("Set XMLPayload Native Function Invoked.");
         // Accessing First Parameter Value.
-        MessageValue msg = (MessageValue) getArgument(context, 0).getBValue();
-        XMLValue payload = (XMLValue) getArgument(context, 1).getBValue();
+        BMessage msg = (BMessage) getArgument(context, 0);
+        BXML payload = (BXML) getArgument(context, 1);
 
         // Setting the payload
         msg.setBuiltPayload(payload);

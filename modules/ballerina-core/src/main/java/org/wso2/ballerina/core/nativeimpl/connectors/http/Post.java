@@ -22,9 +22,9 @@ import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Connector;
 import org.wso2.ballerina.core.model.types.TypeEnum;
-import org.wso2.ballerina.core.model.values.BValueRef;
-import org.wso2.ballerina.core.model.values.ConnectorValue;
-import org.wso2.ballerina.core.model.values.MessageValue;
+import org.wso2.ballerina.core.model.values.BConnector;
+import org.wso2.ballerina.core.model.values.BMessage;
+import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
@@ -54,23 +54,23 @@ public class Post extends AbstractHTTPAction {
     private static final Logger logger = LoggerFactory.getLogger(Post.class);
 
     @Override
-    public BValueRef execute(Context context) {
+    public BValue execute(Context context) {
 
         logger.debug("Executing Native Action : Post");
 
         // Extract Argument values
-        ConnectorValue connectorValue = (ConnectorValue) getArgument(context, 0).getBValue();
-        String path = getArgument(context, 1).getString();
-        MessageValue messageValue = (MessageValue) getArgument(context, 2).getBValue();
+        BConnector bConnector = (BConnector) getArgument(context, 0);
+        String path = getArgument(context, 1).stringValue();
+        BMessage bMessage = (BMessage) getArgument(context, 2);
 
-        Connector connector = connectorValue.getValue();
+        Connector connector = bConnector.value();
         if (!(connector instanceof HTTPConnector)) {
             logger.error("Need to use a HTTPConnector as the first argument");
             return null;
         }
 
         // Prepare the message
-        CarbonMessage cMsg = messageValue.getValue();
+        CarbonMessage cMsg = bMessage.value();
         prepareRequest(connector, path, cMsg);
         cMsg.setProperty(org.wso2.ballerina.core.runtime.net.http.Constants.HTTP_METHOD,
                          org.wso2.ballerina.core.runtime.net.http.Constants.HTTP_METHOD_POST);

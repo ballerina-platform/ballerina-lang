@@ -18,55 +18,69 @@
 package org.wso2.ballerina.core.model.util;
 
 import org.wso2.ballerina.core.exception.BallerinaException;
-import org.wso2.ballerina.core.model.types.BooleanType;
-import org.wso2.ballerina.core.model.types.DoubleType;
-import org.wso2.ballerina.core.model.types.FloatType;
-import org.wso2.ballerina.core.model.types.IntType;
-import org.wso2.ballerina.core.model.types.JSONType;
-import org.wso2.ballerina.core.model.types.LongType;
-import org.wso2.ballerina.core.model.types.MessageType;
-import org.wso2.ballerina.core.model.types.StringType;
-import org.wso2.ballerina.core.model.types.Type;
-import org.wso2.ballerina.core.model.types.XMLType;
-import org.wso2.ballerina.core.model.values.BValueRef;
-import org.wso2.ballerina.core.model.values.BooleanValue;
-import org.wso2.ballerina.core.model.values.DoubleValue;
-import org.wso2.ballerina.core.model.values.FloatValue;
-import org.wso2.ballerina.core.model.values.IntValue;
-import org.wso2.ballerina.core.model.values.JSONValue;
-import org.wso2.ballerina.core.model.values.LongValue;
-import org.wso2.ballerina.core.model.values.MessageValue;
-import org.wso2.ballerina.core.model.values.StringValue;
-import org.wso2.ballerina.core.model.values.XMLValue;
+import org.wso2.ballerina.core.model.types.TypeC;
+import org.wso2.ballerina.core.model.values.BBoolean;
+import org.wso2.ballerina.core.model.values.BDouble;
+import org.wso2.ballerina.core.model.values.BFloat;
+import org.wso2.ballerina.core.model.values.BInteger;
+import org.wso2.ballerina.core.model.values.BLong;
+import org.wso2.ballerina.core.model.values.BString;
+import org.wso2.ballerina.core.model.values.BValue;
 
 /**
- * Factory for creating value of a given type.
+ * BValue utility methods
  *
  * @since 1.0.0
  */
 public class BValueUtils {
 
-    public static BValueRef creteValue(Type type) {
-        if (type instanceof IntType) {
-            return new BValueRef(new IntValue(0));
-        } else if (type instanceof StringType) {
-            return new BValueRef(new StringValue(""));
-        } else if (type instanceof LongType) {
-            return new BValueRef(new LongValue(0));
-        } else if (type instanceof FloatType) {
-            return new BValueRef(new FloatValue(0));
-        } else if (type instanceof DoubleType) {
-            return new BValueRef(new DoubleValue(0));
-        } else if (type instanceof BooleanType) {
-            return new BValueRef(new BooleanValue(false));
-        } else if (type instanceof JSONType) {
-            return new BValueRef(new JSONValue("{}"));
-        } else if (type instanceof XMLType) {
-            return new BValueRef(new XMLValue("<root></root>"));
-        } else if (type instanceof MessageType) {
-            return new BValueRef(new MessageValue(null));
+    // TODO How about storing these default values in hash map. This would avoid creating new objects for each
+    // TODO every variable declaration.
+    // TODO One option is to implement a pool of BValue objects
+    public static BValue getDefaultValue(TypeC type) {
+        if (type == TypeC.INT_TYPE) {
+            return new BInteger(0);
+
+        } else if (type == TypeC.LONG_TYPE) {
+            return new BLong(0);
+
+        } else if (type == TypeC.FLOAT_TYPE) {
+            return new BFloat(0);
+
+        } else if (type == TypeC.DOUBLE_TYPE) {
+            return new BDouble(0);
+
+        } else if (type == TypeC.BOOLEAN_TYPE) {
+            return new BBoolean(false);
+
+        } else if (type == TypeC.STRING_TYPE) {
+            return new BString("");
+//
+//        } else if (type == TypeC.JSON_TYPE) {
+//            return new BValueRef(new JSONValue("{}"));
+//
+//        } else if (type == TypeC.XML_TYPE) {
+//            return new BValueRef(new XMLValue());
+//
+//        } else if (type == TypeC.MESSAGE_TYPE) {
+//            return new BValueRef(new MessageValue(null));
+//
+//        } else if (type == TypeC.MAP_TYPE) {
+//            return new BValueRef(new MapValue());
+//
+//        } else if (type == TypeC.CONNECTOR_TYPE) {
+//            return new BValueRef(new ConnectorValue(null, null));
         } else {
-            throw new BallerinaException("Unsupported type: " + type.getName());
+            throw new BallerinaException("Unsupported type: " + type);
         }
+    }
+
+    // TODO we need to improve this logic
+    public static BValue clone(TypeC type, BValue bValue) {
+        if (TypeC.isValueType(type)) {
+            return bValue;
+        }
+
+        throw new BallerinaException("Cloning reference types are not yet supported in Ballerina");
     }
 }

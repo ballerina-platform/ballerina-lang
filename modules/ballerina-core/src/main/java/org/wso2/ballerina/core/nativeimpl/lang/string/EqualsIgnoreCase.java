@@ -21,8 +21,8 @@ package org.wso2.ballerina.core.nativeimpl.lang.string;
 import org.osgi.service.component.annotations.Component;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
+import org.wso2.ballerina.core.model.values.BBoolean;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.model.values.BooleanValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
@@ -49,10 +49,10 @@ public class EqualsIgnoreCase extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        String string1 = getArgument(context, 0).getString();
-        String anotherString = getArgument(context, 1).getString();
+        String string1 = getArgument(context, 0).stringValue();
+        String anotherString = getArgument(context, 1).stringValue();
 
-        BooleanValue booleanValue = new BooleanValue(string1.equalsIgnoreCase(anotherString));
+        BBoolean booleanValue = new BBoolean(string1.equalsIgnoreCase(anotherString));
         return getBValues(booleanValue);
 
     }

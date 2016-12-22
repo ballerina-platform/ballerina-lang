@@ -32,7 +32,7 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>test-distribution</module>
-        <module>paxexam-tests</module>
+        <!--<module>test-distribution</module>-->
+        <!--<module>paxexam-tests</module>-->
     </modules>
 </project>

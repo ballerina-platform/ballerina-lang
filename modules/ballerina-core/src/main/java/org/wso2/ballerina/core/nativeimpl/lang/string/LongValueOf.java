@@ -21,8 +21,9 @@ package org.wso2.ballerina.core.nativeimpl.lang.string;
 import org.osgi.service.component.annotations.Component;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
+import org.wso2.ballerina.core.model.values.BLong;
+import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.model.values.LongValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
@@ -48,7 +49,7 @@ public class LongValueOf extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        LongValue str = (LongValue) getArgument(context, 0).getBValue();
-        return getBValues(str.getString());
+        BLong str = (BLong) getArgument(context, 0);
+        return getBValues(new BString(str.stringValue()));
     }
 }

@@ -1,13 +1,13 @@
 /**
  * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- *
+ * <p>
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -30,7 +30,7 @@ import org.osgi.service.component.annotations.Component;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.model.values.XMLValue;
+import org.wso2.ballerina.core.model.values.BXML;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
@@ -50,7 +50,6 @@ import java.util.List;
         functionName = "addElement",
         args = {@Argument(name = "xml", type = TypeEnum.XML),
                 @Argument(name = "xPath", type = TypeEnum.STRING),
-//                @Argument(name = "nameSpaces", type = TypeEnum.MAP),
                 @Argument(name = "value", type = TypeEnum.XML)},
         isPublic = true
 )
@@ -60,22 +59,21 @@ import java.util.List;
         service = AbstractNativeFunction.class
 )
 public class AddElement extends AbstractNativeFunction {
-    
+
     private static final String OPERATION = "add element to xml";
 
     @Override
-    public BValue<?>[] execute(Context ctx) {
+    public BValue[] execute(Context ctx) {
         try {
             // Accessing Parameters.
-            XMLValue xml = (XMLValue) getArgument(ctx, 0).getBValue();
-            String xPath = getArgument(ctx, 1).getString();
-            // MapValue<String, String> nameSpaces = getArgument(ctx, 2).getMap();
-            OMElement value = getArgument(ctx, 2).getXML();
-            
+            BXML xml = (BXML) getArgument(ctx, 0);
+            String xPath = getArgument(ctx, 1).stringValue();
+            OMElement value = ((BXML) getArgument(ctx, 2)).value();
+
             if (value == null) {
                 return VOID_RETURN;
             }
-            
+
             // Setting the value to XML
             AXIOMXPath axiomxPath = new AXIOMXPath(xPath);
             /*if (nameSpaces != null && !nameSpaces.isEmpty()) {
@@ -84,8 +82,8 @@ public class AddElement extends AbstractNativeFunction {
 
                 }
             }*/
-            
-            Object result = axiomxPath.evaluate(xml.getValue());
+
+            Object result = axiomxPath.evaluate(xml.value());
             if (result instanceof ArrayList) {
                 List<?> macthingElements = (List<?>) result;
                 if (macthingElements.isEmpty()) {
@@ -99,7 +97,7 @@ public class AddElement extends AbstractNativeFunction {
                             ErrorHandler.logWarn(OPERATION, "xPath: '" + xPath + "' refers to the Document element, " +
                                     "and already exists.");
                         } else if (element instanceof OMAttribute) {
-                            ErrorHandler.logWarn(OPERATION, "xPath '"  + xPath + "' refers to an attribute.");
+                            ErrorHandler.logWarn(OPERATION, "xPath '" + xPath + "' refers to an attribute.");
                         } else {
                             OMContainer omContainer = (OMContainer) element;
                             omContainer.addChild(value.cloneOMElement());
@@ -114,7 +112,7 @@ public class AddElement extends AbstractNativeFunction {
         } catch (Throwable e) {
             ErrorHandler.handleXPathException(OPERATION, e);
         }
-        
+
         return VOID_RETURN;
     }
 }
