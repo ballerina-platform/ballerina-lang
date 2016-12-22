@@ -16,27 +16,24 @@
  * under the License.
  */
 
-package org.wso2.ballerina.core.runtime;
+package org.wso2.ballerina.core.runtime.core;
+
+import org.wso2.ballerina.core.interpreter.BLangInterpreter;
+import org.wso2.ballerina.core.interpreter.Context;
+import org.wso2.ballerina.core.model.Resource;
+import org.wso2.ballerina.core.model.ResourceInvoker;
 
 /**
- * Constants related to Ballerina runtime
+ * {@code BalProgramExecutor} is responsible for executing a BallerinaProgram
+ *
+ * @since 1.0.0
  */
-public class Constants {
+public class BalProgramExecutor {
 
-    // Name of the System property which contains the ballerina file path to be executed
-    public static final String SYSTEM_PROP_BAL_FILE = "bal-file";
-
-    // Name of the system property to hold the input arguments
-    public static final String SYSTEM_PROP_BAL_ARGS = "bal-args";
-
-    // Name of the main function
-    public static final String MAIN_FUNCTION_NAME = "main";
-
-    /**
-     * Runtime modes of Ballerina engine
-     */
-    public enum RuntimeMode {
-        RUN_FILE, SERVER
-    };
+    public static void execute(Context context, Resource resource) {
+        // Create the interpreter and Execute
+        BLangInterpreter interpreter = new BLangInterpreter(context);
+        new ResourceInvoker(resource).accept(interpreter);
+    }
 
 }
