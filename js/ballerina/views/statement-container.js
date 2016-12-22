@@ -67,6 +67,8 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         this._statementViewFactory = new StatementViewFactory();
         this.getBoundingBox().fromTopCenter(this._topCenter, this._width,
             this._bottomCenter.absDistInYFrom(this._topCenter));
+        // a flag to indicate a whole container move - so that we can avoid resizing on container move
+        this.isOnWholeContainerMove = false;
     };
 
     StatementContainerView.prototype = Object.create(BallerinaView.prototype);
@@ -218,7 +220,10 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
                     _.get(this._viewOptions, 'offset.bottom'));
 
             this.listenTo(this._lastStatementView.getBoundingBox(), 'bottom-edge-moved', function(dy){
-                    this.getBoundingBox().h(this.getBoundingBox().h() + dy);
+                    if(!this.isOnWholeContainerMove){
+                        this.getBoundingBox().h(this.getBoundingBox().h() + dy);
+                    }
+                    this.isOnWholeContainerMove = false;
             })
     };
 
@@ -230,7 +235,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
                 .classed( _.get(this._viewOptions, 'cssClass.mainDropZone'), true);
 
         // adjust drop zone height on bottom edge moved
-        this.getBoundingBox().on('bottom-edge-moved', function(offset){
+        this.getBoundingBox().on('height-changed', function(offset){
             self._mainDropZone.attr('height', parseFloat(self._mainDropZone.attr('height')) + offset);
         });
 

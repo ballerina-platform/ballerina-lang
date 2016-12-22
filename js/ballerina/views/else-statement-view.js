@@ -128,6 +128,7 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
             });
 
             this.getBoundingBox().on('top-edge-moved', function (dy) {
+                this._statementContainer.isOnWholeContainerMove = true;
                 this._statementContainer.getBoundingBox().y(this._statementContainer.getBoundingBox().y() + dy);
             }, this);
 

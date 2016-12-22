@@ -93,13 +93,9 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
                 }
             }, this);
 
-            // only a if block is present
-            if(_.isEmpty(this._elseIfViews) && _.isNil(this._elseIfViews)){
-                this.listenTo(statementView.getBoundingBox(), 'bottom-edge-moved', function(dy){
-                    this.getBoundingBox().h(this.getBoundingBox().h() + dy);
-                });
-            }
-
+            this.listenTo(statementView.getBoundingBox(), 'height-changed', function(dh){
+                this.getBoundingBox().h(this.getBoundingBox().h() + dh);
+            });
             statementView.render(this._diagramRenderingContext);
         };
 
@@ -158,16 +154,9 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
                 }
             }, this);
 
-            if(_.isNil(this._elseBlockView)){
-                if(_.gt(this._elseIfViews.length, 1)){
-                    this.stopListening(_.last(this._elseIfViews).getBoundingBox(), 'bottom-edge-moved');
-                } else {
-                    this.stopListening(this._ifBlockView.getBoundingBox(), 'bottom-edge-moved');
-                }
-                this.listenTo(statementView.getBoundingBox(), 'bottom-edge-moved', function(dy){
-                    this.getBoundingBox().h(this.getBoundingBox().h() + dy);
-                });
-            }
+            this.listenTo(statementView.getBoundingBox(), 'height-changed', function(dh){
+                this.getBoundingBox().h(this.getBoundingBox().h() + dh);
+            });
 
             statementView.render(this._diagramRenderingContext);
         };
@@ -210,13 +199,8 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
                 }
             }, this);
 
-            if(!_.isEmpty(this._elseIfViews)){
-                this.stopListening(_.last(this._elseIfViews).getBoundingBox(), 'bottom-edge-moved');
-            }else{
-                this.stopListening(this._ifBlockView.getBoundingBox(), 'bottom-edge-moved');
-            }
-            this.listenTo(statementView.getBoundingBox(), 'bottom-edge-moved', function(dy){
-                this.getBoundingBox().h(this.getBoundingBox().h() + dy);
+            this.listenTo(statementView.getBoundingBox(), 'height-changed', function(dh){
+                this.getBoundingBox().h(this.getBoundingBox().h() + dh);
             });
 
             statementView.render(this._diagramRenderingContext);

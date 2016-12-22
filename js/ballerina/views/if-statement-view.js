@@ -121,12 +121,13 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
             _.set(statementContainerOpts, 'toolPalette', this.toolPalette);
             var StatementContainer = require('./statement-container');
             this._statementContainer = new StatementContainer(statementContainerOpts);
-            this.listenTo(this._statementContainer.getBoundingBox(), 'bottom-edge-moved', function(dy){
+            this.listenTo(this._statementContainer.getBoundingBox(), 'height-changed', function(dh){
                 if(this.getBoundingBox().getBottom() < this._statementContainer.getBoundingBox().getBottom()){
-                    this.getBoundingBox().h(this.getBoundingBox().h() + dy);
+                    this.getBoundingBox().h(this.getBoundingBox().h() + dh);
                 }
             });
             this.getBoundingBox().on('top-edge-moved', function (dy) {
+                this._statementContainer.isOnWholeContainerMove = true;
                 this._statementContainer.getBoundingBox().y(this._statementContainer.getBoundingBox().y() + dy);
             }, this);
 
