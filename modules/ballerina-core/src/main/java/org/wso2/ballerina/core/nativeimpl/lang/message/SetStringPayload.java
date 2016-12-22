@@ -23,9 +23,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
+import org.wso2.ballerina.core.model.values.BMessage;
+import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.model.values.MessageValue;
-import org.wso2.ballerina.core.model.values.StringValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
@@ -52,12 +52,12 @@ public class SetStringPayload extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        MessageValue msg = (MessageValue) getArgument(context, 0).getBValue();
-        StringValue payload = (StringValue) getArgument(context, 1).getBValue();
+        BMessage msg = (BMessage) getArgument(context, 0);
+        BString payload = (BString) getArgument(context, 1);
         msg.setBuiltPayload(payload);
         msg.setAlreadyRead(true);
         if (log.isDebugEnabled()) {
-            log.debug("Setting new payload: " + payload.getValue());
+            log.debug("Setting new payload: " + payload.stringValue());
         }
         return VOID_RETURN;
     }

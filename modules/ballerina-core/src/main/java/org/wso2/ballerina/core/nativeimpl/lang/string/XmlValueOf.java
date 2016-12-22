@@ -21,9 +21,9 @@ package org.wso2.ballerina.core.nativeimpl.lang.string;
 import org.osgi.service.component.annotations.Component;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
+import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.model.values.StringValue;
-import org.wso2.ballerina.core.model.values.XMLValue;
+import org.wso2.ballerina.core.model.values.BXML;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
@@ -50,10 +50,10 @@ public class XmlValueOf extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        XMLValue xml = (XMLValue) getArgument(context, 0).getBValue();
-        StringValue xmlStr = null;
+        BXML xml = (BXML) getArgument(context, 0);
+        BString xmlStr = null;
         try {
-            xmlStr = xml.getString();
+            xmlStr =  new BString(xml.stringValue());
         } catch (Throwable e) {
             ErrorHandler.handleJsonException("get xml as string", e);
         }

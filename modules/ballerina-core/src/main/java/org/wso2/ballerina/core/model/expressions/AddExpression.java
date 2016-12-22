@@ -19,13 +19,12 @@ package org.wso2.ballerina.core.model.expressions;
 
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.Operator;
-import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.model.values.BValueRef;
-import org.wso2.ballerina.core.model.values.DoubleValue;
-import org.wso2.ballerina.core.model.values.FloatValue;
-import org.wso2.ballerina.core.model.values.IntValue;
-import org.wso2.ballerina.core.model.values.LongValue;
-import org.wso2.ballerina.core.model.values.StringValue;
+import org.wso2.ballerina.core.model.values.BDouble;
+import org.wso2.ballerina.core.model.values.BFloat;
+import org.wso2.ballerina.core.model.values.BInteger;
+import org.wso2.ballerina.core.model.values.BLong;
+import org.wso2.ballerina.core.model.values.BString;
+import org.wso2.ballerina.core.model.values.BValueType;
 
 import java.util.function.BiFunction;
 
@@ -36,35 +35,20 @@ import java.util.function.BiFunction;
  */
 public class AddExpression extends BinaryArithmeticExpression {
 
-    public static final BiFunction<BValueRef, BValueRef, BValueRef> ADD_INT_FUNC =
-            (lVal, rVal) -> {
-                BValue resultVal = new IntValue(lVal.getInt() + rVal.getInt());
-                return new BValueRef(resultVal);
-            };
+    public static final BiFunction<BValueType, BValueType, BValueType> ADD_INT_FUNC =
+            (lVal, rVal) -> new BInteger(lVal.intValue() + rVal.intValue());
 
-    public static final BiFunction<BValueRef, BValueRef, BValueRef> ADD_LONG_FUNC =
-            (lVal, rVal) -> {
-                BValue resultVal = new LongValue(lVal.getLong() + rVal.getLong());
-                return new BValueRef(resultVal);
-            };
+    public static final BiFunction<BValueType, BValueType, BValueType> ADD_LONG_FUNC =
+            (lVal, rVal) -> new BLong(lVal.longValue() + rVal.longValue());
 
-    public static final BiFunction<BValueRef, BValueRef, BValueRef> ADD_FLOAT_FUNC =
-            (lVal, rVal) -> {
-                BValue resultVal = new FloatValue(lVal.getFloat() + rVal.getFloat());
-                return new BValueRef(resultVal);
-            };
+    public static final BiFunction<BValueType, BValueType, BValueType> ADD_FLOAT_FUNC =
+            (lVal, rVal) -> new BFloat(lVal.floatValue() + rVal.floatValue());
 
-    public static final BiFunction<BValueRef, BValueRef, BValueRef> ADD_DOUBLE_FUNC =
-            (lVal, rVal) -> {
-                BValue resultVal = new DoubleValue(lVal.getDouble() + rVal.getDouble());
-                return new BValueRef(resultVal);
-            };
+    public static final BiFunction<BValueType, BValueType, BValueType> ADD_DOUBLE_FUNC =
+            (lVal, rVal) -> new BDouble(lVal.doubleValue() + rVal.doubleValue());
 
-    public static final BiFunction<BValueRef, BValueRef, BValueRef> ADD_STRING_FUNC =
-            (lVal, rVal) -> {
-                BValue resultVal = new StringValue(lVal.getString() + rVal.getString());
-                return new BValueRef(resultVal);
-            };
+    public static final BiFunction<BValueType, BValueType, BValueType> ADD_STRING_FUNC =
+            (lVal, rVal) -> new BString(lVal.stringValue() + rVal.stringValue());
 
     public AddExpression(Expression lExpr, Expression rExpr) {
         super(lExpr, Operator.ADD, rExpr);

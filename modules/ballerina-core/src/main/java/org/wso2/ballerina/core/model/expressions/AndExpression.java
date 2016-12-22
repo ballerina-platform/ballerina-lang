@@ -17,11 +17,9 @@
 */
 package org.wso2.ballerina.core.model.expressions;
 
-import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.NodeVisitor;
-import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.model.values.BValueRef;
-import org.wso2.ballerina.core.model.values.BooleanValue;
+import org.wso2.ballerina.core.model.values.BBoolean;
+import org.wso2.ballerina.core.model.values.BValueType;
 
 import java.util.function.BiFunction;
 
@@ -34,20 +32,11 @@ import static org.wso2.ballerina.core.model.Operator.AND;
  */
 public class AndExpression extends BinaryLogicalExpression {
 
-    public static final BiFunction<BValueRef, BValueRef, BValueRef> AND_FUNC =
-            (lVal, rVal) -> {
-                BValue resultVal = new BooleanValue(lVal.getBoolean() && rVal.getBoolean());
-                return new BValueRef(resultVal);
-            };
+    public static final BiFunction<BValueType, BValueType, BValueType> AND_FUNC =
+            (lVal, rVal) -> new BBoolean(lVal.booleanValue() && rVal.booleanValue());
 
     public AndExpression(Expression lExpr, Expression rExpr) {
         super(lExpr, AND, rExpr);
-    }
-
-    public BValueRef evaluate(Context ctx) {
-        boolean result = lExpr.evaluate(ctx).getBoolean() && rExpr.evaluate(ctx).getBoolean();
-        BooleanValue booleanValue = new BooleanValue(result);
-        return new BValueRef(booleanValue);
     }
 
     @Override

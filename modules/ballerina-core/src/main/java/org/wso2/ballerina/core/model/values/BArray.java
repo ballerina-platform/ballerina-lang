@@ -21,7 +21,7 @@ package org.wso2.ballerina.core.model.values;
  *
  * @param <T>
  */
-public class ArrayValue<T> implements BRefType<T> {
+public class BArray<T> implements BRefType<T> {
 
 
 

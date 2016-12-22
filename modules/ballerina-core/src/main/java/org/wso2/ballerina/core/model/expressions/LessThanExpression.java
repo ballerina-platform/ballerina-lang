@@ -18,9 +18,8 @@
 package org.wso2.ballerina.core.model.expressions;
 
 import org.wso2.ballerina.core.model.NodeVisitor;
-import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.model.values.BValueRef;
-import org.wso2.ballerina.core.model.values.BooleanValue;
+import org.wso2.ballerina.core.model.values.BBoolean;
+import org.wso2.ballerina.core.model.values.BValueType;
 
 import java.util.function.BiFunction;
 
@@ -33,29 +32,17 @@ import static org.wso2.ballerina.core.model.Operator.LESS_THAN;
  */
 public class LessThanExpression extends BinaryCompareExpression {
 
-    public static final BiFunction<BValueRef, BValueRef, BValueRef> LESS_THAN_INT_FUNC =
-            (lVal, rVal) -> {
-                BValue resultVal = new BooleanValue(lVal.getInt() < rVal.getInt());
-                return new BValueRef(resultVal);
-            };
+    public static final BiFunction<BValueType, BValueType, BValueType> LESS_THAN_INT_FUNC =
+            (lVal, rVal) -> new BBoolean(lVal.intValue() < rVal.intValue());
 
-    public static final BiFunction<BValueRef, BValueRef, BValueRef> LESS_THAN_LONG_FUNC =
-            (lVal, rVal) -> {
-                BValue resultVal = new BooleanValue(lVal.getLong() < rVal.getLong());
-                return new BValueRef(resultVal);
-            };
+    public static final BiFunction<BValueType, BValueType, BValueType> LESS_THAN_LONG_FUNC =
+            (lVal, rVal) -> new BBoolean(lVal.longValue() < rVal.longValue());
 
-    public static final BiFunction<BValueRef, BValueRef, BValueRef> LESS_THAN_FLOAT_FUNC =
-            (lVal, rVal) -> {
-                BValue resultVal = new BooleanValue(lVal.getFloat() < rVal.getFloat());
-                return new BValueRef(resultVal);
-            };
+    public static final BiFunction<BValueType, BValueType, BValueType> LESS_THAN_FLOAT_FUNC =
+            (lVal, rVal) -> new BBoolean(lVal.floatValue() < rVal.floatValue());
 
-    public static final BiFunction<BValueRef, BValueRef, BValueRef> LESS_THAN_DOUBLE_FUNC =
-            (lVal, rVal) -> {
-                BValue resultVal = new BooleanValue(lVal.getDouble() < rVal.getDouble());
-                return new BValueRef(resultVal);
-            };
+    public static final BiFunction<BValueType, BValueType, BValueType> LESS_THAN_DOUBLE_FUNC =
+            (lVal, rVal) -> new BBoolean(lVal.doubleValue() < rVal.doubleValue());
 
     public LessThanExpression(Expression lExpr, Expression rExpr) {
         super(lExpr, LESS_THAN, rExpr);

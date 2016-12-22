@@ -28,7 +28,6 @@ import org.wso2.ballerina.core.model.VariableDcl;
 import org.wso2.ballerina.core.model.types.Type;
 import org.wso2.ballerina.core.model.types.TypeC;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.model.values.BValueRef;
 import org.wso2.ballerina.core.nativeimpl.NativeConstruct;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Utils;
@@ -165,14 +164,14 @@ public abstract class AbstractNativeAction implements Action, NativeConstruct {
      * @param index   index of the parameter.
      * @return BValue;
      */
-    public BValueRef getArgument(Context context, int index) {
+    public BValue getArgument(Context context, int index) {
         if (index > -1 && index < parameters.size()) {
-            return context.getControlStack().getCurrentFrame().values[index];
+            return context.getControlStack().getCurrentFrame().valuesNew[index];
         }
         throw new ArgumentOutOfRangeException(index);
     }
 
-    public abstract BValueRef execute(Context context);
+    public abstract BValue execute(Context context);
 
 //    @Override
 //    public void interpret(Context ctx) {

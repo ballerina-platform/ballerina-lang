@@ -21,8 +21,8 @@ package org.wso2.ballerina.core.nativeimpl.lang.string;
 import org.osgi.service.component.annotations.Component;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
+import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.model.values.StringValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
@@ -50,8 +50,8 @@ public class ToUpperCase extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        String param1 = getArgument(context, 0).getString();
-        StringValue upperCaseString = new StringValue(param1.toUpperCase(Locale.getDefault()));
+        String param1 = getArgument(context, 0).stringValue();
+        BString upperCaseString = new BString(param1.toUpperCase(Locale.getDefault()));
         return getBValues(upperCaseString);
     }
 }

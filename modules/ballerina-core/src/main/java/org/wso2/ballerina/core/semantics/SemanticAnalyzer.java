@@ -371,6 +371,8 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(InstanceCreationExpr instanceCreationExpr) {
         visitExpr(instanceCreationExpr);
 
+        // TODO here the type shouldn't be a value type
+
 //        Expression expr = instanceCreationExpr.getRExpr();
 //        expr.accept(this);
     }
@@ -454,8 +456,10 @@ public class SemanticAnalyzer implements NodeVisitor {
         // We need to find a better implementation than this.
         if (arithmeticExprType == TypeC.INT_TYPE) {
             addExpr.setEvalFunc(AddExpression.ADD_INT_FUNC);
+
         } else if (arithmeticExprType == TypeC.STRING_TYPE) {
             addExpr.setEvalFunc(AddExpression.ADD_STRING_FUNC);
+
         } else {
             throw new SemanticException("Add operation is not supported for type: " + arithmeticExprType);
         }

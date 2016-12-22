@@ -21,8 +21,9 @@ package org.wso2.ballerina.core.nativeimpl.lang.string;
 import org.osgi.service.component.annotations.Component;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
+import org.wso2.ballerina.core.model.values.BInteger;
+import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.model.values.IntValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
@@ -48,7 +49,7 @@ public class IntValueOf extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        IntValue str = (IntValue) getArgument(context, 0).getBValue();
-        return getBValues(str.getString());
+        BInteger str = (BInteger) getArgument(context, 0);
+        return getBValues(new BString(str.stringValue()));
     }
 }

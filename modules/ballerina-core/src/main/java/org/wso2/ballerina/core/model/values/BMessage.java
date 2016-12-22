@@ -31,9 +31,9 @@ import java.util.List;
  *
  * @since 1.0.0
  */
-public class MessageValue implements BRefType<CarbonMessage> {
+public class BMessage implements BRefType<CarbonMessage> {
     private CarbonMessage value;
-    private BValueNew builtPayload;
+    private BValue builtPayload;
     private Headers headers = new Headers();
 
     /**
@@ -41,7 +41,7 @@ public class MessageValue implements BRefType<CarbonMessage> {
      *
      * @param value Carbon Message
      */
-    public MessageValue(CarbonMessage value) {
+    public BMessage(CarbonMessage value) {
         this.value = (value != null) ? value : new DefaultCarbonMessage();
     }
 
@@ -78,9 +78,9 @@ public class MessageValue implements BRefType<CarbonMessage> {
      *
      * @param builtMsg Built payload of this message
      */
-    public void setBuiltPayload(BValueNew builtMsg) {
+    public void setBuiltPayload(BValue builtMsg) {
         // Set the message data source once the message is built
-        if (builtMsg instanceof XMLValue || builtMsg instanceof JSONValue || builtMsg instanceof StringValue) {
+        if (builtMsg instanceof BXML || builtMsg instanceof BJSON || builtMsg instanceof StringValue) {
             BallerinaMessageDataSource ballerinaMessageDataSource = (BallerinaMessageDataSource) builtMsg;
             ballerinaMessageDataSource.setOutputStream(this.value.getOutputStream());
             this.value.setMessageDataSource(ballerinaMessageDataSource);
@@ -93,7 +93,7 @@ public class MessageValue implements BRefType<CarbonMessage> {
      *
      * @return Built payload of this message
      */
-    public BValueNew getBuiltPayload() {
+    public BValue getBuiltPayload() {
         return this.builtPayload;
     }
 
