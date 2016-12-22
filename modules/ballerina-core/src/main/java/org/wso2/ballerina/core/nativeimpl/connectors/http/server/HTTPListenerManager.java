@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.ballerina.core.runtime.net.http.source;
+package org.wso2.ballerina.core.nativeimpl.connectors.http.server;
 
 import org.wso2.carbon.messaging.TransportListener;
 import org.wso2.carbon.messaging.TransportListenerManager;
