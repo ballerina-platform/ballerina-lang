@@ -76,7 +76,6 @@ import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
 import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
-import org.wso2.carbon.messaging.Header;
 
 import java.util.List;
 
@@ -442,10 +441,7 @@ public class BLangInterpreter implements NodeVisitor {
         ControlStack controlStack = bContext.getControlStack();
         BValue[] valueParams = new BValue[resource.getStackFrameSize()];
 
-        // Populate MessageValue with CarbonMessages' headers.
         BMessage messageValue = new BMessage(bContext.getCarbonMessage());
-        List<Header> headerList = bContext.getCarbonMessage().getHeaders().getAll();
-        messageValue.setHeaderList(headerList);
 
         valueParams[0] = messageValue;
 
