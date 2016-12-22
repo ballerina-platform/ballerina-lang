@@ -17,7 +17,6 @@
 */
 package org.wso2.ballerina.core.model.statements;
 
-import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.expressions.Expression;
 
@@ -36,10 +35,6 @@ public class ForeachStmt implements Statement {
 //        this.itr = itr;
 //        this.forEachBlock = forEachBlock;
 //    }
-
-    public void interpret(Context ctx) {
-
-    }
 
     @Override
     public void accept(NodeVisitor visitor) {
