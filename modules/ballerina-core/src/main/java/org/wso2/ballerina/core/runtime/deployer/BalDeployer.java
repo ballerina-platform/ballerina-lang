@@ -38,7 +38,7 @@ import org.wso2.ballerina.core.model.Package;
 import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.VariableDcl;
 import org.wso2.ballerina.core.model.builder.BLangModelBuilder;
-import org.wso2.ballerina.core.model.types.TypeC;
+import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.util.BValueUtils;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BValue;
@@ -231,7 +231,7 @@ public class BalDeployer implements Deployer {
         // Check whether this is a standard main function with one integer argument
         // This will be changed to string[] args once we have the array support
         Parameter[] parameters = function.getParameters();
-        if (parameters.length != 1 || parameters[0].getTypeC() != TypeC.INT_TYPE) {
+        if (parameters.length != 1 || parameters[0].getType() != BType.INT_TYPE) {
             log.warn("main function does not comply with standard main function in ballerina, hence skipping...");
             return;
         }
@@ -263,7 +263,7 @@ public class BalDeployer implements Deployer {
             i++;
         }
 
-        BValue[] returnVals = new BValue[function.getReturnTypesC().length];
+        BValue[] returnVals = new BValue[function.getReturnTypes().length];
         StackFrame stackFrame = new StackFrame(values, returnVals);
         controlStack.pushFrame(stackFrame);
         BLangInterpreter interpreter = new BLangInterpreter(ctx);

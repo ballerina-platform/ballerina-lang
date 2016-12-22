@@ -18,7 +18,7 @@
 
 package org.wso2.ballerina.core.model;
 
-import org.wso2.ballerina.core.model.types.TypeC;
+import org.wso2.ballerina.core.model.types.BType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,12 +34,12 @@ import java.util.List;
 @SuppressWarnings("unused")
 public class Parameter implements Node {
 
-    private TypeC typeC;
+    private BType type;
     private SymbolName name;
     private List<Annotation> annotations;
 
-    public Parameter(TypeC typeC, SymbolName name) {
-        this.typeC = typeC;
+    public Parameter(BType type, SymbolName name) {
+        this.type = type;
         this.name = name;
     }
 
@@ -57,8 +57,8 @@ public class Parameter implements Node {
      *
      * @return type of the Argument
      */
-    public TypeC getTypeC() {
-        return typeC;
+    public BType getType() {
+        return type;
     }
 
     /**

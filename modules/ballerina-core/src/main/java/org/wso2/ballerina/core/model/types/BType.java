@@ -34,58 +34,58 @@ import static org.wso2.ballerina.core.model.types.TypeConstants.STRING_TNAME;
 import static org.wso2.ballerina.core.model.types.TypeConstants.XML_TNAME;
 
 /**
- * {@code TypeC} represent a type in Ballerina
+ * {@code Type} represent a type in Ballerina
  *
  * @since 1.0.0
  */
-public class TypeC {
+public class BType {
 
     protected String typeName;
 
     //Using a HashMap here, because there won't be any concurrent access
     // TODO Improve this to support modularity of Ballerina
-    private static final Map<String, TypeC> TYPE_MAP = new HashMap<>(20);
+    private static final Map<String, BType> TYPE_MAP = new HashMap<>(20);
 
-    public static final TypeC INT_TYPE = new TypeC(INT_TNAME);
-    public static final TypeC LONG_TYPE = new TypeC(LONG_TNAME);
-    public static final TypeC FLOAT_TYPE = new TypeC(FLOAT_TNAME);
-    public static final TypeC DOUBLE_TYPE = new TypeC(DOUBLE_TNAME);
-    public static final TypeC BOOLEAN_TYPE = new TypeC(BOOLEAN_TNAME);
-    public static final TypeC STRING_TYPE = new TypeC(STRING_TNAME);
-    public static final TypeC XML_TYPE = new TypeC(XML_TNAME);
-    public static final TypeC JSON_TYPE = new TypeC(JSON_TNAME);
-    public static final TypeC MESSAGE_TYPE = new TypeC(MESSAGE_TNAME);
-    public static final TypeC CONNECTOR_TYPE = new TypeC(CONNECTOR_TNAME);
-    public static final TypeC MAP_TYPE = new TypeC(MAP_TNAME);
+    public static final BType INT_TYPE = new BType(INT_TNAME);
+    public static final BType LONG_TYPE = new BType(LONG_TNAME);
+    public static final BType FLOAT_TYPE = new BType(FLOAT_TNAME);
+    public static final BType DOUBLE_TYPE = new BType(DOUBLE_TNAME);
+    public static final BType BOOLEAN_TYPE = new BType(BOOLEAN_TNAME);
+    public static final BType STRING_TYPE = new BType(STRING_TNAME);
+    public static final BType XML_TYPE = new BType(XML_TNAME);
+    public static final BType JSON_TYPE = new BType(JSON_TNAME);
+    public static final BType MESSAGE_TYPE = new BType(MESSAGE_TNAME);
+    public static final BType CONNECTOR_TYPE = new BType(CONNECTOR_TNAME);
+    public static final BType MAP_TYPE = new BType(MAP_TNAME);
 
     /**
      * Create a type from the given name
      *
      * @param typeName string name of the type
      */
-    protected TypeC(String typeName) {
+    protected BType(String typeName) {
         this.typeName = typeName;
         TYPE_MAP.put(typeName, this);
     }
 
-    public static ArrayType getArrayType(String elementTypeName) {
+    public static BArrayType getArrayType(String elementTypeName) {
         String arrayTypeName = ARRAY_TNAME + elementTypeName;
 
-        ArrayType aType = (ArrayType) TYPE_MAP.get(arrayTypeName);
+        BArrayType aType = (BArrayType) TYPE_MAP.get(arrayTypeName);
         if (aType == null) {
-            aType = new ArrayType(arrayTypeName, elementTypeName);
+            aType = new BArrayType(arrayTypeName, elementTypeName);
         }
 
         return aType;
     }
 
-    public static boolean isValueType(TypeC type) {
-        if (type == TypeC.INT_TYPE ||
-                type == TypeC.STRING_TYPE ||
-                type == TypeC.LONG_TYPE ||
-                type == TypeC.FLOAT_TYPE ||
-                type == TypeC.DOUBLE_TYPE ||
-                type == TypeC.BOOLEAN_TYPE) {
+    public static boolean isValueType(BType type) {
+        if (type == BType.INT_TYPE ||
+                type == BType.STRING_TYPE ||
+                type == BType.LONG_TYPE ||
+                type == BType.FLOAT_TYPE ||
+                type == BType.DOUBLE_TYPE ||
+                type == BType.BOOLEAN_TYPE) {
             return true;
         }
 
@@ -97,8 +97,8 @@ public class TypeC {
     }
 
     public boolean equals(Object obj) {
-        if (obj instanceof TypeC) {
-            TypeC other = (TypeC) obj;
+        if (obj instanceof BType) {
+            BType other = (BType) obj;
             return this.typeName.equals(other.typeName);
         }
         return false;
@@ -108,7 +108,7 @@ public class TypeC {
         return typeName.length();
     }
 
-    public static TypeC getType(String typeName) {
+    public static BType getType(String typeName) {
         return TYPE_MAP.get(typeName);
     }
 }

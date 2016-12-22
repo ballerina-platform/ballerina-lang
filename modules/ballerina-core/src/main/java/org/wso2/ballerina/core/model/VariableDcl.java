@@ -18,7 +18,7 @@
 
 package org.wso2.ballerina.core.model;
 
-import org.wso2.ballerina.core.model.types.TypeC;
+import org.wso2.ballerina.core.model.types.BType;
 
 /**
  * {@code Variable} represent a Variable declaration
@@ -31,15 +31,15 @@ import org.wso2.ballerina.core.model.types.TypeC;
  */
 public class VariableDcl implements Node {
 
-    private TypeC type;
+    private BType type;
     private SymbolName symbolName;
 
-    public VariableDcl(TypeC type, SymbolName symbolName) {
+    public VariableDcl(BType type, SymbolName symbolName) {
         this.type = type;
         this.symbolName = symbolName;
     }
 
-    public TypeC getType() {
+    public BType getType() {
         return type;
     }
 
