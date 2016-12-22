@@ -18,13 +18,12 @@
 
 package org.wso2.ballerina.core.model;
 
-import org.wso2.ballerina.core.interpreter.Interpreter;
 import org.wso2.ballerina.core.model.types.BType;
 
 /**
  * {@code {@link Function}} represents any Ballerina function.
  */
-public interface Function extends Interpreter {
+public interface Function {
 
     /**
      * Get Name of the function.

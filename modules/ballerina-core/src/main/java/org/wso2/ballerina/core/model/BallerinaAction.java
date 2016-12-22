@@ -18,7 +18,6 @@
 
 package org.wso2.ballerina.core.model;
 
-import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.types.BType;
 
@@ -103,11 +102,6 @@ public class BallerinaAction implements Action, Node {
 
     public VariableDcl[] getVariableDcls() {
         return variableDcls;
-    }
-
-    @Override
-    public void interpret(Context ctx) {
-        actionBody.interpret(ctx);
     }
 
     @Override
