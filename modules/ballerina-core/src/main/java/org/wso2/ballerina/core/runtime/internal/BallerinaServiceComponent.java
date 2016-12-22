@@ -30,7 +30,7 @@ import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.nativeimpl.connectors.http.server.HTTPListenerManager;
 import org.wso2.ballerina.core.runtime.Constants;
-import org.wso2.ballerina.core.runtime.core.MessageProcessor;
+import org.wso2.ballerina.core.runtime.MessageProcessor;
 import org.wso2.ballerina.core.runtime.deployer.BalDeployer;
 import org.wso2.ballerina.core.runtime.errors.handler.ServerConnectorErrorHandler;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;

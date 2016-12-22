@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.ballerina.core.runtime.core.dispatching;
+package org.wso2.ballerina.core.runtime.dispatching;
 
 import org.wso2.ballerina.core.model.Service;
 import org.wso2.carbon.messaging.CarbonCallback;
