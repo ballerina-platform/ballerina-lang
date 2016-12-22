@@ -15,21 +15,38 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.wso2.ballerina.core.runtime.errors.handler;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
- * {@code ErrorHandler} is the interface for protocol specific error handlers in ballerina.
- *
- * @since 1.0.0
- *
+ * {@code DefaultServerConnectorErrorHandler} is the default error handler implementation
  */
-public interface ErrorHandler {
+public class DefaultServerConnectorErrorHandler implements ServerConnectorErrorHandler {
 
-    void handleError(Exception ex, CarbonMessage bContext, CarbonCallback callback);
+    private static final Logger log = LoggerFactory.getLogger(DefaultServerConnectorErrorHandler.class);
 
-    String getProtocol();
+    private DefaultServerConnectorErrorHandler(){}
+
+    private static DefaultServerConnectorErrorHandler instance = new DefaultServerConnectorErrorHandler();
+
+    public static DefaultServerConnectorErrorHandler getInstance() {
+        return instance;
+    }
+
+    @Override
+    public void handleError(Exception ex, CarbonMessage cMsg, CarbonCallback callback) {
+        log.error(ex.getMessage());
+    }
+
+    @Override
+    public String getProtocol() {
+        return null;
+    }
+
 
 }
