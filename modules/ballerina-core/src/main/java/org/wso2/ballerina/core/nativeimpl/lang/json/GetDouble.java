@@ -76,7 +76,7 @@ public class GetDouble extends AbstractJSONFunction {
                 JsonPrimitive value = element.getAsJsonPrimitive();
                 if (value.isNumber()) {
                     Number number = value.getAsNumber();
-                    if (number instanceof Double) {
+                    if (number instanceof Float || number instanceof Double) {
                         result = new BDouble(number.doubleValue());
                     } else {
                         throw new BallerinaException("The element matching path: " + jsonPath + " is not a Double.");

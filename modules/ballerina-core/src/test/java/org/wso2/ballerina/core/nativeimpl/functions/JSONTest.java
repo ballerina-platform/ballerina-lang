@@ -17,10 +17,22 @@
 */
 package org.wso2.ballerina.core.nativeimpl.functions;
 
+import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Test;
+import org.wso2.ballerina.core.interpreter.BLangInterpreter;
+import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.linker.BLangLinker;
 import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
+import org.wso2.ballerina.core.model.values.BBoolean;
+import org.wso2.ballerina.core.model.values.BDouble;
+import org.wso2.ballerina.core.model.values.BFloat;
+import org.wso2.ballerina.core.model.values.BInteger;
+import org.wso2.ballerina.core.model.values.BJSON;
+import org.wso2.ballerina.core.model.values.BString;
+import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.lang.json.AddBooleanToArray;
 import org.wso2.ballerina.core.nativeimpl.lang.json.AddBooleanToObject;
 import org.wso2.ballerina.core.nativeimpl.lang.json.AddDoubleToArray;
@@ -54,12 +66,19 @@ import org.wso2.ballerina.core.utils.ParserUtils;
 /**
  * Test Native functions in ballerina.lang.json.
  */
+@SuppressWarnings("javadoc")
 public class JSONTest {
 
     private BallerinaFile bFile;
-    private static final String json1 = "{'name':{'fname':'Jack','lname':'Taylor'} , 'state' : 'CA' ,  'age' = 20  }";
-    private static final String json2 = "{'users': ['Jack','Peter'] }";
-
+    private static final String json1 = "{'name':{'fname':'Jack','lname':'Taylor'}, 'state':'CA', 'age':20}";
+    private static final String json2 = "{'item':{'price':3.54, 'available':true}}";
+    private static final String jsonStringArray = "{'users':['Jack', 'Peter']}";
+    private static final String jsonIntArray = "{'ages':[25, 28]}";
+    private static final String jsonFloatArray = "{'prices':[3.12, 4.87]}";
+    private static final String jsonBooleanArray = "{'availability':[true, false]}";
+    private static final String jsonElementArray = "{'persons':[{'fname':'Jack','lname':'Taylor'}, {'fname':'Peter'," +
+            "'lname':'Roy'}]}";
+    
     @BeforeTest
     public void setup() {
         bFile = ParserUtils.parseBalFile("samples/nativeimpl/jsonTest.bal");
@@ -96,113 +115,351 @@ public class JSONTest {
         BLangLinker linker = new BLangLinker(bFile);
         linker.link(symScope);
     }
-//
-//    @Test
-//    public void testGetString() {
-//        BValueNew[] arguments = {new JSONValue(json1)};
-//        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "getString", arguments);
-//
-//        Context bContext = FunctionUtils.createInvocationContext(1);
-//        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
-//        funcIExpr.accept(bLangInterpreter);
-//
-//        final String expected = "Jack";
-//        Assert.assertEquals(FunctionUtils.getValue(bContext).stringValue(), expected);
-//    }
 
-//    @Test
-//    public void testGetInt() {
-//        BValueNew[] arguments = {new JSONValue(json1)};
-//        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "getInt", arguments);
-//
-//        Context bContext = FunctionUtils.createInvocationContext(1);
-//        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
-//        funcIExpr.accept(bLangInterpreter);
-//
-//        final int expected = 20;
-//        Assert.assertEquals(((BInteger)FunctionUtils.getValue(bContext)).intValue(), expected);
-//    }
-//
-//    @Test
-//    public void testGetJSON() {
-//        BValueNew[] arguments = {new JSONValue(json1)};
-//        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "getJson", arguments);
-//
-//        Context bContext = FunctionUtils.createInvocationContext(1);
-//        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
-//        funcIExpr.accept(bLangInterpreter);
-//
-//        final String expected = "{\"fname\":\"Jack\",\"lname\":\"Taylor\"}";
-//        Assert.assertEquals(FunctionUtils.getValue(bContext).getJSON().toString(), expected);
-//    }
-//
-//    @Test
-//    public void testSetString() {
-//        BValue[] arguments = {new JSONValue(json1), new StringValue("Paul")};
-//        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "setString", arguments);
-//
-//        Context bContext = FunctionUtils.createInvocationContext(1);
-//        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
-//        funcIExpr.accept(bLangInterpreter);
-//
-//        final String expected = "Paul";
-//        Assert.assertEquals(FunctionUtils.getValue(bContext).getString(), expected);
-//    }
-//
-//    @Test
-//    public void testAddStringToObject() {
-//        BValue[] arguments = {new JSONValue(json1), new StringValue("nickName"), new StringValue("Paul")};
-//        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "addStringToObject", arguments);
-//
-//        Context bContext = FunctionUtils.createInvocationContext(1);
-//        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
-//        funcIExpr.accept(bLangInterpreter);
-//
-//        final String expected = "{\"name\":{\"fname\":\"Jack\",\"lname\":\"Taylor\",\"nickName\":\"Paul\"}," +
-//                "\"state\":\"CA\",\"age\":20}";
-//        Assert.assertEquals(FunctionUtils.getValue(bContext).getJSON().toString().replace("\\r|\\n|\\t| ", ""),
-//                expected);
-//    }
-//
-//    @Test
-//    public void testAddStringToArray() {
-//        BValue[] arguments = {new JSONValue(json2), new StringValue("Jos")};
-//        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "addStringToArray", arguments);
-//
-//        Context bContext = FunctionUtils.createInvocationContext(1);
-//        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
-//        funcIExpr.accept(bLangInterpreter);
-//
-//        final String expected = "{\"users\":[\"Jack\",\"Peter\",\"Jos\"]}";
-//        Assert.assertEquals(FunctionUtils.getValue(bContext).getJSON().toString().replace("\\r|\\n|\\t| ", ""),
-//                expected);
-//    }
-//
-//    @Test
-//    public void testRemove() {
-//        BValue[] arguments = {new JSONValue(json1)};
-//        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "remove", arguments);
-//
-//        Context bContext = FunctionUtils.createInvocationContext(1);
-//        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
-//        funcIExpr.accept(bLangInterpreter);
-//
-//        final String expected = "{\"state\":\"CA\",\"age\":20}";
-//        Assert.assertEquals(FunctionUtils.getValue(bContext).getJSON().toString(), expected);
-//    }
-//
-//    @Test
-//    public void testRename() {
-//        BValue[] arguments = {new JSONValue(json1), new StringValue("fname"), new StringValue("firstName")};
-//        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "rename", arguments);
-//
-//        Context bContext = FunctionUtils.createInvocationContext(1);
-//        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
-//        funcIExpr.accept(bLangInterpreter);
-//
-//        final String expected = "Jack";
-//        Assert.assertEquals(FunctionUtils.getValue(bContext).getString(), expected);
-//    }
+    
+    /*
+     * Test Get-Functions 
+     */
+    
+    @Test(description = "Get a string in a valid jsonpath")
+    public void testGetString() {
+        BValue[] args = { new BJSON(json1), new BString("$.name.fname") };
+        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "getString", args.length);
+        Context bContext = FunctionUtils.createInvocationContext(args, 1);
+        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
+        funcIExpr.accept(bLangInterpreter);
+        Assert.assertEquals(FunctionUtils.getReturnBValue(bContext).stringValue(), "Jack");
+    }
 
+    @Test(description = "Get an integer in a valid jsonpath")
+    public void testGetInt() {
+        BValue[] args = { new BJSON(json1), new BString("$.age") };
+        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "getInt", args.length);
+        Context bContext = FunctionUtils.createInvocationContext(args, 1);
+        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
+        funcIExpr.accept(bLangInterpreter);
+        Assert.assertEquals(FunctionUtils.getReturnBValue(bContext).intValue(), 20);
+    }
+
+    @Test(description = "Get a json element in a valid jsonpath")
+    public void testGetJSON() {
+        BValue[] args = { new BJSON(json1), new BString("$.name") };
+        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "getJson", args.length);
+        Context bContext = FunctionUtils.createInvocationContext(args, 1);
+        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
+        funcIExpr.accept(bLangInterpreter);
+        Assert.assertEquals(getJsonAsString(bContext), "{\"fname\":\"Jack\",\"lname\":\"Taylor\"}");
+    }
+    
+    @Test(description = "Get a float in a valid jsonpath")
+    public void testGetFloat() {
+        BValue[] args = { new BJSON(json2), new BString("$.item.price") };
+        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "getFloat", args.length);
+        Context bContext = FunctionUtils.createInvocationContext(args, 1);
+        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
+        funcIExpr.accept(bLangInterpreter);
+        Assert.assertEquals(FunctionUtils.getReturnBValue(bContext).floatValue(), (float) 3.54);
+    }
+    
+    @Test(description = "Get a double in a valid jsonpath")
+    public void testGetDouble() {
+        BValue[] args = { new BJSON(json2), new BString("$.item.price") };
+        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "getDouble", args.length);
+        Context bContext = FunctionUtils.createInvocationContext(args, 1);
+        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
+        funcIExpr.accept(bLangInterpreter);
+        Assert.assertEquals(FunctionUtils.getReturnBValue(bContext).doubleValue(), 3.54);
+    }
+    
+    @Test(description = "Get a float in a valid jsonpath")
+    public void testGetBoolean() {
+        BValue[] args = { new BJSON(json2), new BString("$.item.available") };
+        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "getBoolean", args.length);
+        Context bContext = FunctionUtils.createInvocationContext(args, 1);
+        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
+        funcIExpr.accept(bLangInterpreter);
+        Assert.assertEquals(FunctionUtils.getReturnBValue(bContext).booleanValue(), true);
+    }
+    
+    // TODO: Add get() tests for jsonpath-functions such as length(), min(), max(), etc..
+
+    
+    /*
+     * Test Set-Functions 
+     */
+    
+    @Test(description = "Set a string to a valid jsonpath")
+    public void testSetString() {
+        final String val = "Paul";
+        BValue[] args = { new BJSON(json1), new BString("$.name.fname"), new BString(val) };
+        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "setString", args.length);
+        Context bContext = FunctionUtils.createInvocationContext(args, 1);
+        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
+        funcIExpr.accept(bLangInterpreter);
+        Assert.assertEquals(FunctionUtils.getReturnBValue(bContext).stringValue(), val);
+    }
+
+    @Test(description = "Set an int to a valid jsonpath")
+    public void testSetInteger() {
+        final int val = 25;
+        BValue[] args = { new BJSON(json1), new BString("$.age"), new BInteger(val) };
+        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "setInt", args.length);
+        Context bContext = FunctionUtils.createInvocationContext(args, 1);
+        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
+        funcIExpr.accept(bLangInterpreter);
+        Assert.assertEquals(FunctionUtils.getReturnBValue(bContext).intValue(), val);
+    }
+    
+    @Test(description = "Set a double to a valid jsonpath")
+    public void testSetDouble() {
+        final double val = 4.78;
+        BValue[] args = { new BJSON(json2), new BString("$.item.price"), new BDouble(val) };
+        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "setDouble", args.length);
+        Context bContext = FunctionUtils.createInvocationContext(args, 1);
+        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
+        funcIExpr.accept(bLangInterpreter);
+        Assert.assertEquals(FunctionUtils.getReturnBValue(bContext).doubleValue(), val);
+    }
+    
+    @Test(description = "Set a float to a valid jsonpath")
+    public void testSetFloat() {
+        final float val = (float) 4.78;
+        BValue[] args = { new BJSON(json2), new BString("$.item.price"), new BFloat(val) };
+        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "setFloat", args.length);
+        Context bContext = FunctionUtils.createInvocationContext(args, 1);
+        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
+        funcIExpr.accept(bLangInterpreter);
+        Assert.assertEquals(FunctionUtils.getReturnBValue(bContext).floatValue(), val);
+    }
+    
+    @Test(description = "Set a boolean to a valid jsonpath")
+    public void testSetBoolean() {
+        final boolean val = false;
+        BValue[] args = { new BJSON(json2), new BString("$.item.available"), new BBoolean(val) };
+        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "setBoolean", args.length);
+        Context bContext = FunctionUtils.createInvocationContext(args, 1);
+        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
+        funcIExpr.accept(bLangInterpreter);
+        Assert.assertEquals(FunctionUtils.getReturnBValue(bContext).booleanValue(), val);
+    }
+    
+    @Test(description = "Set a json element to a valid jsonpath")
+    public void testSetJSON() {
+        final String val = "{\"id\":\"item123\"}";
+        BValue[] args = { new BJSON(json2), new BString("$.item.available"), new BJSON(val) };
+        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "setJson", args.length);
+        Context bContext = FunctionUtils.createInvocationContext(args, 1);
+        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
+        funcIExpr.accept(bLangInterpreter);
+        
+        Assert.assertEquals(getJsonAsString(bContext), val);
+    }
+    
+    
+    
+    /*
+     * Test Add-to-object Functions
+     */
+    
+    @Test(description = "Add a string to a valid json object")
+    public void testAddStringToObject() {
+        BValue[] args = { new BJSON(json1), new BString("$.name"), new BString("nickName"), 
+                new BString("Paul") };
+        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "addStringToObject", args.length);
+        Context bContext = FunctionUtils.createInvocationContext(args, 1);
+        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
+        funcIExpr.accept(bLangInterpreter);
+        final String expected = "{\"name\":{\"fname\":\"Jack\",\"lname\":\"Taylor\",\"nickName\":\"Paul\"}," +
+                "\"state\":\"CA\",\"age\":20}";
+        Assert.assertEquals(getJsonAsString(bContext), expected);
+    }
+
+    @Test(description = "Add an integer to a valid json object")
+    public void testAddIntToObject() {
+        BValue[] args = { new BJSON(json1), new BString("$"), new BString("zipCode"), 
+                new BInteger(90001) };
+        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "addIntToObject", args.length);
+        Context bContext = FunctionUtils.createInvocationContext(args, 1);
+        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
+        funcIExpr.accept(bLangInterpreter);
+        final String expected = "{\"name\":{\"fname\":\"Jack\",\"lname\":\"Taylor\"},\"state\":\"CA\",\"age\":20," +
+                "\"zipCode\":90001}";
+        Assert.assertEquals(getJsonAsString(bContext), expected);
+    }
+    
+    @Test(description = "Add a double to a valid json object")
+    public void testAddDoubleToObject() {
+        BValue[] args = { new BJSON(json2), new BString("$.item"), new BString("discount"), 
+                new BDouble(0.15) };
+        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "addDoubleToObject", args.length);
+        Context bContext = FunctionUtils.createInvocationContext(args, 1);
+        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
+        funcIExpr.accept(bLangInterpreter);
+        final String expected = "{\"item\":{\"price\":3.54,\"available\":true,\"discount\":0.15}}";
+        Assert.assertEquals(getJsonAsString(bContext), expected);
+    }
+    
+    @Test(description = "Add a float to a valid json object")
+    public void testAddFloatToObject() {
+        BValue[] args = { new BJSON(json2), new BString("$.item"), new BString("discount"),
+                new BFloat((float) 0.15) };
+        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "addFloatToObject", args.length);
+        Context bContext = FunctionUtils.createInvocationContext(args, 1);
+        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
+        funcIExpr.accept(bLangInterpreter);
+        final String expected = "{\"item\":{\"price\":3.54,\"available\":true,\"discount\":0.15}}";
+        Assert.assertEquals(getJsonAsString(bContext), expected);
+    }
+    
+    @Test(description = "Add a boolean to a valid json object")
+    public void testAddBooleanToObject() {
+        BValue[] args = { new BJSON(json2), new BString("$.item"), new BString("vegi"),
+                new BBoolean(true) };
+        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "addBooleanToObject", 
+                args.length);
+        Context bContext = FunctionUtils.createInvocationContext(args, 1);
+        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
+        funcIExpr.accept(bLangInterpreter);
+        final String expected = "{\"item\":{\"price\":3.54,\"available\":true,\"vegi\":true}}";
+        Assert.assertEquals(getJsonAsString(bContext), expected);
+    }
+    
+    @Test(description = "Add an element to a valid json object")
+    public void testAddElementToObject() {
+        BValue[] args = { new BJSON(json2), new BString("$.item"), new BString("expires"),
+                new BJSON("{\"year\":2020,\"month\":12}") };
+        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "addElementToObject", 
+                args.length);
+        Context bContext = FunctionUtils.createInvocationContext(args, 1);
+        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
+        funcIExpr.accept(bLangInterpreter);
+        final String expected = "{\"item\":{\"price\":3.54,\"available\":true,\"expires\":{\"year\":2020,\"month\"" +
+                ":12}}}";
+        Assert.assertEquals(getJsonAsString(bContext), expected);
+    }
+    
+    
+    
+    /*
+     * Test Add-to-array Functions
+     */
+    
+    @Test(description = "Add a string to a valid json array")
+    public void testAddStringToArray() {
+        BValue[] args = { new BJSON(jsonStringArray), new BString("$.users"), new BString("Jos") };
+        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "addStringToArray", args.length);
+        Context bContext = FunctionUtils.createInvocationContext(args, 1);
+        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
+        funcIExpr.accept(bLangInterpreter);
+        final String expected = "{\"users\":[\"Jack\",\"Peter\",\"Jos\"]}";
+        Assert.assertEquals(getJsonAsString(bContext), expected);
+    }
+
+    @Test(description = "Add an integer to a valid json array")
+    public void testAddIntToArray() {
+        BValue[] args = { new BJSON(jsonIntArray), new BString("$.ages"), new BInteger(23) };
+        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "addIntToArray", args.length);
+        Context bContext = FunctionUtils.createInvocationContext(args, 1);
+        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
+        funcIExpr.accept(bLangInterpreter);
+        final String expected = "{\"ages\":[25,28,23]}";
+        Assert.assertEquals(getJsonAsString(bContext), expected);
+    }
+    
+    @Test(description = "Add a float to a valid json array")
+    public void testAddFloatToArray() {
+        BValue[] args = { new BJSON(jsonFloatArray), new BString("$.prices"), 
+                new BFloat((float) 5.96)};
+        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "addFloatToArray", args.length);
+        Context bContext = FunctionUtils.createInvocationContext(args, 1);
+        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
+        funcIExpr.accept(bLangInterpreter);
+        final String expected = "{\"prices\":[3.12,4.87,5.96]}";
+        Assert.assertEquals(getJsonAsString(bContext), expected);
+    }
+    
+    @Test(description = "Add a double to a valid json array")
+    public void testAddDoubleToArray() {
+        BValue[] args = { new BJSON(jsonFloatArray), new BString("$.prices"), new BDouble(5.96) };
+        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "addDoubleToArray", args.length);
+        Context bContext = FunctionUtils.createInvocationContext(args, 1);
+        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
+        funcIExpr.accept(bLangInterpreter);
+        final String expected = "{\"prices\":[3.12,4.87,5.96]}";
+        Assert.assertEquals(getJsonAsString(bContext), expected);
+    }
+    
+    @Test(description = "Add a boolean to a valid json array")
+    public void testAddBooleanToArray() {
+        BValue[] args = { new BJSON(jsonBooleanArray), new BString("$.availability"), 
+                new BBoolean(true) };
+        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "addBooleanToArray", args.length);
+        Context bContext = FunctionUtils.createInvocationContext(args, 1);
+        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
+        funcIExpr.accept(bLangInterpreter);
+        final String expected = "{\"availability\":[true,false,true]}";
+        Assert.assertEquals(getJsonAsString(bContext), expected);
+    }
+    
+    @Test(description = "Add an element to a valid json array")
+    public void testAddElementToArray() {
+        BValue[] args = {new BJSON(jsonElementArray), new BString("$.persons"),
+                new BJSON("{'fname':'Jos','lname':'Allen'}") };
+        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "addElementToArray", args.length);
+        Context bContext = FunctionUtils.createInvocationContext(args, 1);
+        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
+        funcIExpr.accept(bLangInterpreter);
+        final String expected = "{\"persons\":[{\"fname\":\"Jack\",\"lname\":\"Taylor\"},{\"fname\":\"Peter\"," +
+                "\"lname\":\"Roy\"},{\"fname\":\"Jos\",\"lname\":\"Allen\"}]}";
+        Assert.assertEquals(getJsonAsString(bContext), expected);
+    }
+    
+    
+    /*
+     * Test Remove-Function.
+     */
+    
+    @Test(description = "Remove an element in a valid jsonpath")
+    public void testRemove() {
+        BValue[] args = { new BJSON(json1), new BString("$.name") };
+        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "remove", args.length);
+        Context bContext = FunctionUtils.createInvocationContext(args, 1);
+        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
+        funcIExpr.accept(bLangInterpreter);
+        final String expected = "{\"state\":\"CA\",\"age\":20}";
+        Assert.assertEquals(getJsonAsString(bContext), expected);
+    }
+
+    
+    /*
+     * Test Rename-Function.
+     */
+    
+    @Test(description = "Remove an element in a valid jsonpath")
+    public void testRename() {
+        BValue[] args = { new BJSON(json1), new BString("$.name"), new BString("fname"), 
+                new BString("firstName") };
+        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "rename", args.length);
+        Context bContext = FunctionUtils.createInvocationContext(args, 1);
+        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
+        funcIExpr.accept(bLangInterpreter);
+        final String expected = "Jack";
+        Assert.assertEquals(FunctionUtils.getReturnValue(bContext).stringValue(), expected);
+    }
+    
+    /*
+     * Test toString-Function.
+     */
+    @Test(description = "get string representation of json")
+    public void testToString() {
+        // TODO
+    }
+    
     // TODO : Add remaining test cases.
+    
+    
+    private String getJsonAsString(Context bContext) {
+        return FunctionUtils.getReturnBRef(bContext).toString().replace("\\r|\\n|\\t| ", "");
+    }
+    
 }

@@ -77,7 +77,7 @@ public class GetInt extends AbstractJSONFunction {
                 JsonPrimitive value = element.getAsJsonPrimitive();
                 if (value.isNumber()) {
                     Number number = value.getAsNumber();
-                    if (number instanceof Integer) {
+                    if (number instanceof Integer | number instanceof Long | number instanceof Short) {
                         result = new BInteger(number.intValue());
                     } else {
                         throw new BallerinaException("The element matching path: " + jsonPath + " is not an Integer.");

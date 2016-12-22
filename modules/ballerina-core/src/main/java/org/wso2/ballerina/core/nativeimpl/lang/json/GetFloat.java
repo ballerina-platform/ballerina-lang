@@ -78,7 +78,7 @@ public class GetFloat extends AbstractJSONFunction {
                 JsonPrimitive value = element.getAsJsonPrimitive();
                 if (value.isNumber()) {
                     Number number = value.getAsNumber();
-                    if (number instanceof Float) {
+                    if (number instanceof Float || number instanceof Double) {
                         result = new BFloat(number.floatValue());
                     } else {
                         throw new BallerinaException("The element matching path: " + jsonPath + " is not a Float.");
