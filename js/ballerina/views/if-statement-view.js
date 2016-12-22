@@ -57,7 +57,7 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
             ifGroup.attr("id","_" +this._model.id);
 
             var outer_rect = D3Utils.rect(this.getBoundingBox().x(), this.getBoundingBox().y(), this.getBoundingBox().w(),
-                this.getBoundingBox().h(), 0, 0, ifGroup).classed('statement-rect', true);
+                this.getBoundingBox().h(), 0, 0, ifGroup).classed('background-empty-rect', true);
             var title_rect = D3Utils.rect(this.getBoundingBox().x(), this.getBoundingBox().y(), 40, 20, 0, 0, ifGroup).classed('statement-rect', true);
             var title_text = D3Utils.textElement(this.getBoundingBox().x() + 20, this.getBoundingBox().y() + 10, 'If', ifGroup).classed('statement-text', true);
             ifGroup.outerRect = outer_rect;
