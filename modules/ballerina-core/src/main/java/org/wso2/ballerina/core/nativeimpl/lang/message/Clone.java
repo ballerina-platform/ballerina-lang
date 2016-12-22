@@ -21,20 +21,13 @@ package org.wso2.ballerina.core.nativeimpl.lang.message;
 import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
-import org.wso2.ballerina.core.model.util.MessageUtils;
+import org.wso2.ballerina.core.model.values.BMessage;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.model.values.MessageValue;
-import org.wso2.ballerina.core.model.values.StringValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
-import org.wso2.carbon.messaging.DefaultCarbonMessage;
-import org.wso2.carbon.messaging.Header;
-
-import java.util.List;
 
 /**
  * Native function to clone the message.
@@ -62,31 +55,34 @@ public class Clone  extends AbstractNativeFunction {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Invoke message clone.");
         }
-        MessageValue msg = (MessageValue) getArgument(context, 0).getBValue();
+        BMessage msg = (BMessage) getArgument(context, 0);
         return getBValues(getCopyOfMessage(msg));
     }
 
-    private MessageValue getCopyOfMessage(MessageValue originalMessage) {
-        MessageValue newMessageObj = new MessageValue(new DefaultCarbonMessage());
-        try {
-            // Clone headers
-            List<Header> allHeaders = originalMessage.getHeaders();
-            newMessageObj.setHeaderList(allHeaders);
+    private BMessage getCopyOfMessage(BMessage originalMessage) {
 
-            // Clone payload
-            if (originalMessage.isAlreadyRead()) {
-                newMessageObj.setBuiltPayload(MessageUtils.getBValueCopy(originalMessage.getBuiltPayload()));
-            } else {
-                String payload = MessageUtils.getStringFromInputStream(originalMessage.getValue().getInputStream());
-                StringValue result = new StringValue(payload);
-                newMessageObj.setBuiltPayload(result);
-                originalMessage.setBuiltPayload(result);
-            }
-            newMessageObj.setAlreadyRead(true);
-        } catch (Throwable e) {
-            throw new BallerinaException("Error while cloning message: " + e.getMessage());
-        }
+        // Fix this
+        throw new RuntimeException("Not supported yet");
+//        MessageValue newMessageObj = new MessageValue(new DefaultCarbonMessage());
+//        try {
+//            // Clone headers
+//            List<Header> allHeaders = originalMessage.getHeaders();
+//            newMessageObj.setHeaderList(allHeaders);
+//
+//            // Clone payload
+//            if (originalMessage.isAlreadyRead()) {
+//                newMessageObj.setBuiltPayload(MessageUtils.getBValueCopy(originalMessage.getBuiltPayload()));
+//            } else {
+//                String payload = MessageUtils.getStringFromInputStream(originalMessage.value().getInputStream());
+//                BString result = new BString(payload);
+//                newMessageObj.setBuiltPayload(result);
+//                originalMessage.setBuiltPayload(result);
+//            }
+//            newMessageObj.setAlreadyRead(true);
+//        } catch (Throwable e) {
+//            throw new BallerinaException("Error while cloning message: " + e.getMessage());
+//        }
         
-        return newMessageObj;
+//        return newMessageObj;
     }
 }

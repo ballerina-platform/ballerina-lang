@@ -31,7 +31,7 @@ import java.util.Map;
  * A {@code Resource} is a single request handler within a {@code Service}.
  * The resource concept is designed to be access protocol independent.
  * But in the initial release of the language it is intended to work with HTTP.
- * <p>  
+ * <p>
  * The structure of a ResourceDefinition is as follows:
  * <p>
  * [ResourceAnnotations]
@@ -179,6 +179,7 @@ public class Resource implements Node {
 
     /**
      * Get variable declarations
+     *
      * @return returns the variable declarations
      */
     public VariableDcl[] getVariableDcls() {

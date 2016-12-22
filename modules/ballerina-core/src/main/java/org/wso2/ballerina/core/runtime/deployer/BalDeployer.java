@@ -39,8 +39,9 @@ import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.VariableDcl;
 import org.wso2.ballerina.core.model.builder.BLangModelBuilder;
 import org.wso2.ballerina.core.model.types.TypeC;
-import org.wso2.ballerina.core.model.values.BValueRef;
-import org.wso2.ballerina.core.model.values.IntValue;
+import org.wso2.ballerina.core.model.util.BValueUtils;
+import org.wso2.ballerina.core.model.values.BInteger;
+import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.parser.BallerinaLexer;
 import org.wso2.ballerina.core.parser.BallerinaParser;
 import org.wso2.ballerina.core.parser.BallerinaParserErrorStrategy;
@@ -192,9 +193,9 @@ public class BalDeployer implements Deployer {
                 log.info("Deployed ballerina file : " + file.getName());
             }
         } catch (IOException e) {
-            log.error("Error while creating Ballerina object model from file : " + file.getName(), e);
+            log.error("Error while creating Ballerina object model from file : " + file.getName(), e.getMessage());
         } catch (BallerinaException e) {
-            log.error("Failed to deploy " + file.getName() + ": " + e.getMessage(), e);
+            log.error("Failed to deploy " + file.getName() + ": " + e.getMessage(), e.getMessage());
         } finally {
             if (inputStream != null) {
                 try {
@@ -240,7 +241,7 @@ public class BalDeployer implements Deployer {
         Context ctx = new Context();
         ControlStack controlStack = ctx.getControlStack();
         int sizeOfValueArray = function.getStackFrameSize();
-        BValueRef[] values = new BValueRef[sizeOfValueArray];
+        BValue[] values = new BValue[sizeOfValueArray];
         int i = 0;
 
         // Main function only have one input parameter
@@ -250,19 +251,19 @@ public class BalDeployer implements Deployer {
         // Only integers allowed at the moment
         if (balArgs != null) {
             int intValue = Integer.parseInt(balArgs);
-            values[i++] = new BValueRef(new IntValue(intValue));
+            values[i++] = new BInteger(intValue);
         } else {
-            values[i++] = new BValueRef(new IntValue(0));
+            values[i++] = new BInteger(0);
         }
 
         // Create default values for all declared local variables
         VariableDcl[] variableDcls = function.getVariableDcls();
         for (VariableDcl variableDcl : variableDcls) {
-            values[i] = BValueRef.getDefaultValue(variableDcl.getTypeC());
+            values[i] = BValueUtils.getDefaultValue(variableDcl.getTypeC());
             i++;
         }
 
-        BValueRef[] returnVals = new BValueRef[function.getReturnTypesC().length];
+        BValue[] returnVals = new BValue[function.getReturnTypesC().length];
         StackFrame stackFrame = new StackFrame(values, returnVals);
         controlStack.pushFrame(stackFrame);
         BLangInterpreter interpreter = new BLangInterpreter(ctx);

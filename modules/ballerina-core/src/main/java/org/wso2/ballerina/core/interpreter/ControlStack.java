@@ -17,7 +17,7 @@
 */
 package org.wso2.ballerina.core.interpreter;
 
-import org.wso2.ballerina.core.model.values.BValueRef;
+import org.wso2.ballerina.core.model.values.BValue;
 
 import java.util.Stack;
 
@@ -50,19 +50,15 @@ public class ControlStack {
         return currentFrame;
     }
 
-    public BValueRef getValue(int offset) {
-        return currentFrame.values[offset];
+    public BValue getValueNew(int offset) {
+        return currentFrame.valuesNew[offset];
     }
 
-    public void setValue(int offset, BValueRef bValueRef) {
-        currentFrame.values[offset] = bValueRef;
+    public void setValueNew(int offset, BValue bValue) {
+        currentFrame.valuesNew[offset] = bValue;
     }
 
-    public BValueRef getReturnValue(int offset) {
-        return currentFrame.returnValues[offset];
-    }
-
-    public void setReturnValue(int offset, BValueRef bValueRef) {
-        currentFrame.returnValues[offset] = bValueRef;
+    public void setReturnValueNew(int offset, BValue bValue) {
+        currentFrame.returnValuesNew[offset] = bValue;
     }
 }

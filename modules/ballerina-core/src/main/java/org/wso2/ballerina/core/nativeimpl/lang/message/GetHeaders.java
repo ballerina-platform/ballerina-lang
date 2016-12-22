@@ -22,10 +22,7 @@ package org.wso2.ballerina.core.nativeimpl.lang.message;
 import org.osgi.service.component.annotations.Component;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
-import org.wso2.ballerina.core.model.values.ArrayValueOld;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.model.values.MessageValue;
-import org.wso2.ballerina.core.model.values.StringValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
@@ -50,14 +47,19 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 public class GetHeaders extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
-        MessageValue msg = (MessageValue) getArgument(ctx, 0).getBValue();
-        String headerName = ((StringValue) getArgument(ctx, 1).getBValue()).getValue();
-        String[] headerValue = msg.getHeaders(headerName);
-        ArrayValueOld<StringValue> headers = new ArrayValueOld<>(headerValue.length);
-        int i = 0;
-        for (String header : headerValue) {
-            headers.insert(i++, new StringValue(header));
-        }
-        return getBValues(headers);
+//        MessageValue msg = (MessageValue) getArgument(ctx, 0);
+//        String headerName = getArgument(ctx, 1).stringValue();
+//        String[] headerValue = msg.getHeaders(headerName);
+
+        // TODO Fix this with the proper array implementation
+//        ArrayValue<BString> headers = new ArrayValue<>(headerValue.length);
+//        int i = 0;
+//        for (String header : headerValue) {
+//            headers.insert(i++, new StringValue(header));
+//        }
+//        return getBValues(headers);
+//        return getBValues(null);
+
+        throw new RuntimeException("Not supported yet");
     }
 }

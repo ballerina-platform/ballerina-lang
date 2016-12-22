@@ -18,27 +18,43 @@
 package org.wso2.ballerina.core.model.values;
 
 /**
- * {@code FloatValue} represents a float value in Ballerina
  *
- * @since 1.0.0
  */
-public class FloatValue implements BValue<Float> {
+public class BFloat extends BValueType {
+
     private float value;
 
-    public FloatValue(float value) {
-        this.value = value;
-    }
-
-    public Float getValue() {
-        return value;
-    }
-
-    public void setValue(float value) {
+    public BFloat(float value) {
         this.value = value;
     }
 
     @Override
-    public StringValue getString() {
-        return new StringValue(this.getValue().toString());
+    public int intValue() {
+        return 0;
+    }
+
+    @Override
+    public long longValue() {
+        return 0;
+    }
+
+    @Override
+    public float floatValue() {
+        return this.value;
+    }
+
+    @Override
+    public double doubleValue() {
+        return 0;
+    }
+
+    @Override
+    public boolean booleanValue() {
+        return false;
+    }
+
+    @Override
+    public String stringValue() {
+        return Float.toString(value);
     }
 }

@@ -32,9 +32,9 @@ import org.osgi.service.component.annotations.Component;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
+import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.model.values.StringValue;
-import org.wso2.ballerina.core.model.values.XMLValue;
+import org.wso2.ballerina.core.model.values.BXML;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
@@ -62,19 +62,19 @@ public class GetString extends AbstractNativeFunction {
     private static final String OPERATION = "get string from xml";
 
     @Override
-    public BValue<?>[] execute(Context ctx) {
-        BValue<?> result = null;
+    public BValue[] execute(Context ctx) {
+        BValue result = null;
         try {
             // Accessing Parameters.
-            XMLValue xml = (XMLValue) getArgument(ctx, 0).getBValue();
-            String xPath = getArgument(ctx, 1).getString();
+            BXML xml = (BXML) getArgument(ctx, 0);
+            String xPath = getArgument(ctx, 1).stringValue();
             //MapValue<String, String> nameSpaces = getArgument(ctx, 2).getMap();
 
             // Getting the value from XML
             Processor processor = new Processor(false);
             XPathCompiler xPathCompiler = processor.newXPathCompiler();
             DocumentBuilder builder = processor.newDocumentBuilder();
-            XdmNode doc = builder.build(xml.getValue().getSAXSource(true));
+            XdmNode doc = builder.build(xml.value().getSAXSource(true));
             /*if (nameSpaces != null && !nameSpaces.isEmpty()) {
                 for (MapValue<String, String>.MapEntry<String, String> entry : nameSpaces.getValue()) {
                     xPathCompiler.declareNamespace(entry.getKey(), entry.getValue());
@@ -88,7 +88,7 @@ public class GetString extends AbstractNativeFunction {
             if (sequence instanceof EmptySequence) {
                 throw new BallerinaException("The xpath '" + xPath + "' does not match any element.");
             } else {
-                result = new StringValue(xdmValue.toString());
+                result = new BString(xdmValue.toString());
             }
         } catch (SaxonApiException e) {
             ErrorHandler.handleXPathException(OPERATION, e);

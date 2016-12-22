@@ -15,22 +15,46 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerina.core.interpreter;
-
-import org.wso2.ballerina.core.model.values.BValue;
+package org.wso2.ballerina.core.model.values;
 
 /**
- * {@code StackFrame} represents frame in a control stack.
- * Holds references to parameters, local variables and return values
  *
- * @since 1.0.0
  */
-public class StackFrame {
-    public BValue[] valuesNew;
-    public BValue[] returnValuesNew;
+public class BInteger extends BValueType {
 
-    public StackFrame(BValue[] valuesNew, BValue[] returnValuesNew) {
-        this.valuesNew = valuesNew;
-        this.returnValuesNew = returnValuesNew;
+    private int value;
+
+    public BInteger(int value) {
+        this.value = value;
+    }
+
+    @Override
+    public int intValue() {
+        return this.value;
+    }
+
+    @Override
+    public long longValue() {
+        return 0;
+    }
+
+    @Override
+    public float floatValue() {
+        return 0;
+    }
+
+    @Override
+    public double doubleValue() {
+        return 0;
+    }
+
+    @Override
+    public boolean booleanValue() {
+        return false;
+    }
+
+    @Override
+    public String stringValue() {
+        return Integer.toString(value);
     }
 }

@@ -67,9 +67,11 @@ import org.wso2.ballerina.core.model.statements.ReturnStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
 import org.wso2.ballerina.core.model.types.TypeC;
-import org.wso2.ballerina.core.model.values.BValueRef;
-import org.wso2.ballerina.core.model.values.ConnectorValue;
-import org.wso2.ballerina.core.model.values.MessageValue;
+import org.wso2.ballerina.core.model.util.BValueUtils;
+import org.wso2.ballerina.core.model.values.BConnector;
+import org.wso2.ballerina.core.model.values.BMessage;
+import org.wso2.ballerina.core.model.values.BValue;
+import org.wso2.ballerina.core.model.values.BValueType;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
@@ -178,13 +180,8 @@ public class BLangInterpreter implements NodeVisitor {
         Expression lExpr = assignStmt.getLExpr();
         lExpr.accept(this);
 
-        BValueRef rValue = getValue(rExpr);
-        BValueRef lValue = getValue(lExpr);
-
-        lValue.setBValue(rValue.getBValue());
-
-        // TODO this optional .. we need think about this BValueRef thing again
-        setValue(lExpr, lValue);
+        BValue rValue = getValueNew(rExpr);
+        setValueNew(lExpr, rValue);
     }
 
     @Override
@@ -196,9 +193,9 @@ public class BLangInterpreter implements NodeVisitor {
     public void visit(IfElseStmt ifElseStmt) {
         Expression expr = ifElseStmt.getCondition();
         expr.accept(this);
-        BValueRef result = getValue(expr);
+        BValueType result = getValueNewPrimary(expr);
 
-        if (result.getBoolean()) {
+        if (result.booleanValue()) {
             ifElseStmt.getThenBody().accept(this);
             return;
         }
@@ -206,9 +203,9 @@ public class BLangInterpreter implements NodeVisitor {
         for (IfElseStmt.ElseIfBlock elseIfBlock : ifElseStmt.getElseIfBlocks()) {
             Expression elseIfCondition = elseIfBlock.getElseIfCondition();
             elseIfCondition.accept(this);
-            result = getValue(elseIfCondition);
+            result = getValueNewPrimary(elseIfCondition);
 
-            if (result.getBoolean()) {
+            if (result.booleanValue()) {
                 elseIfBlock.getElseIfBody().accept(this);
                 return;
             }
@@ -224,15 +221,15 @@ public class BLangInterpreter implements NodeVisitor {
     public void visit(WhileStmt whileStmt) {
         Expression expr = whileStmt.getCondition();
         expr.accept(this);
-        BValueRef result = getValue(expr);
+        BValueType result = getValueNewPrimary(expr);
 
-        while (result.getBoolean()) {
+        while (result.booleanValue()) {
             // Interpret the statements in the while body.
             whileStmt.getBody().accept(this);
 
             // Now evaluate the condition again to decide whether to continue the loop or not.
             expr.accept(this);
-            result = getValue(expr);
+            result = getValueNewPrimary(expr);
         }
     }
 
@@ -243,9 +240,10 @@ public class BLangInterpreter implements NodeVisitor {
 
     @Override
     public void visit(ReplyStmt replyStmt) {
-        MessageValue messageValue =
-                (MessageValue) controlStack.getCurrentFrame().values[replyStmt.getReplyExpr().getOffset()].getBValue();
-        bContext.getBalCallback().done(messageValue.getValue());
+        // TODO revisit this logic
+        BMessage bMessage =
+                (BMessage) controlStack.getCurrentFrame().valuesNew[replyStmt.getReplyExpr().getOffset()];
+        bContext.getBalCallback().done(bMessage.value());
     }
 
     @Override
@@ -255,7 +253,7 @@ public class BLangInterpreter implements NodeVisitor {
         for (int i = 0; i < exprs.length; i++) {
             Expression expr = exprs[i];
             expr.accept(this);
-            controlStack.setReturnValue(i, getValue(expr));
+            controlStack.setReturnValueNew(i, getValueNew(expr));
         }
     }
 
@@ -263,8 +261,8 @@ public class BLangInterpreter implements NodeVisitor {
 
     @Override
     public void visit(InstanceCreationExpr instanceCreationExpr) {
-        BValueRef bValueRef = BValueRef.getDefaultValue(instanceCreationExpr.getType());
-        controlStack.setValue(instanceCreationExpr.getOffset(), bValueRef);
+        BValue bValue = BValueUtils.getDefaultValue(instanceCreationExpr.getType());
+        controlStack.setValueNew(instanceCreationExpr.getOffset(), bValue);
     }
 
     @Override
@@ -273,7 +271,7 @@ public class BLangInterpreter implements NodeVisitor {
         Function function = funcIExpr.getFunction();
 
         int sizeOfValueArray = function.getStackFrameSize();
-        BValueRef[] localVals = new BValueRef[sizeOfValueArray];
+        BValue[] localVals = new BValue[sizeOfValueArray];
 
         // Get values for all the function arguments
         int i = populateArgumentValues(funcIExpr.getExprs(), localVals);
@@ -283,12 +281,12 @@ public class BLangInterpreter implements NodeVisitor {
         // Create default values for all declared local variables
         VariableDcl[] variableDcls = function.getVariableDcls();
         for (VariableDcl variableDcl : variableDcls) {
-            localVals[i] = BValueRef.getDefaultValue(variableDcl.getTypeC());
+            localVals[i] = BValueUtils.getDefaultValue(variableDcl.getTypeC());
             i++;
         }
 
         // Create an array in the stack frame to hold return values;
-        BValueRef[] rVals = new BValueRef[function.getReturnTypesC().length];
+        BValue[] rVals = new BValue[function.getReturnTypesC().length];
 
         // Create a new stack frame with memory locations to hold parameters, local values, temp expression valuse and
         // return values;
@@ -309,7 +307,7 @@ public class BLangInterpreter implements NodeVisitor {
         // Setting return values to function invocation expression
         // TODO At the moment we only support single return value
         if (rVals.length >= 1) {
-            controlStack.setValue(funcIExpr.getOffset(), rVals[0]);
+            controlStack.setValueNew(funcIExpr.getOffset(), rVals[0]);
         }
     }
 
@@ -318,7 +316,7 @@ public class BLangInterpreter implements NodeVisitor {
         // Create the Stack frame
         Action action = actionIExpr.getAction();
 
-        BValueRef[] localVals = new BValueRef[action.getStackFrameSize()];
+        BValue[] localVals = new BValue[action.getStackFrameSize()];
 
         // Create default values for all declared local variables
         int i = populateArgumentValues(actionIExpr.getExprs(), localVals);
@@ -328,12 +326,12 @@ public class BLangInterpreter implements NodeVisitor {
         // Create default values for all declared local variables
         VariableDcl[] variableDcls = action.getVariableDcls();
         for (VariableDcl variableDcl : variableDcls) {
-            localVals[i] = BValueRef.getDefaultValue(variableDcl.getTypeC());
+            localVals[i] = BValueUtils.getDefaultValue(variableDcl.getTypeC());
             i++;
         }
 
         // Create an array in the stack frame to hold return values;
-        BValueRef[] rVals = new BValueRef[action.getReturnTypesC().length];
+        BValue[] rVals = new BValue[action.getReturnTypesC().length];
 
         // Create a new stack frame with memory locations to hold parameters, local values, temp expression values and
         // return values;
@@ -354,7 +352,7 @@ public class BLangInterpreter implements NodeVisitor {
         // Setting return values to function invocation expression
         // TODO At the moment we only support single return value
         if (rVals.length >= 1) {
-            controlStack.setValue(actionIExpr.getOffset(), rVals[0]);
+            controlStack.setValueNew(actionIExpr.getOffset(), rVals[0]);
         }
     }
 
@@ -442,20 +440,20 @@ public class BLangInterpreter implements NodeVisitor {
         Resource resource = resourceInvoker.getResource();
 
         ControlStack controlStack = bContext.getControlStack();
-        BValueRef[] valueParams = new BValueRef[resource.getStackFrameSize()];
+        BValue[] valueParams = new BValue[resource.getStackFrameSize()];
 
         // Populate MessageValue with CarbonMessages' headers.
-        MessageValue messageValue = new MessageValue(bContext.getCarbonMessage());
+        BMessage messageValue = new BMessage(bContext.getCarbonMessage());
         List<Header> headerList = bContext.getCarbonMessage().getHeaders().getAll();
         messageValue.setHeaderList(headerList);
 
-        valueParams[0] = new BValueRef(messageValue);
+        valueParams[0] = messageValue;
 
         int i = 1;
         // Create default values for all declared local variables
         VariableDcl[] variableDcls = resource.getVariableDcls();
         for (VariableDcl variableDcl : variableDcls) {
-            valueParams[i] = BValueRef.getDefaultValue(variableDcl.getTypeC());
+            valueParams[i] = BValueUtils.getDefaultValue(variableDcl.getTypeC());
             i++;
         }
 
@@ -466,10 +464,10 @@ public class BLangInterpreter implements NodeVisitor {
             }
             Connector connector = symbol.getConnector();
             Expression[] argExpressions = connectorDcl.getArgExprs();
-            BValueRef[] bValueRefs = new BValueRef[argExpressions.length];
+            BValue[] bValueRefs = new BValue[argExpressions.length];
             for (int j = 0; j < argExpressions.length; j++) {
                 argExpressions[j].accept(this);
-                bValueRefs[j] = getValue(argExpressions[j]);
+                bValueRefs[j] = getValueNew(argExpressions[j]);
             }
 
             if (connector instanceof AbstractNativeConnector) {
@@ -478,13 +476,13 @@ public class BLangInterpreter implements NodeVisitor {
                 nativeConnector.init(bValueRefs);
                 connector = nativeConnector;
             }
-            ConnectorValue connectorValue = new ConnectorValue(connector, connectorDcl.getArgExprs());
+            BConnector connectorValue = new BConnector(connector, connectorDcl.getArgExprs());
 
-            valueParams[i] = new BValueRef(connectorValue);
+            valueParams[i] = connectorValue;
             i++;
         }
 
-        BValueRef[] ret = new BValueRef[1];
+        BValue[] ret = new BValue[1];
 
         StackFrame stackFrame = new StackFrame(valueParams, ret);
         controlStack.pushFrame(stackFrame);
@@ -494,16 +492,24 @@ public class BLangInterpreter implements NodeVisitor {
 
     // Private methods
 
-    private BValueRef getValue(Expression expr) {
+    private BValue getValueNew(Expression expr) {
         if (expr instanceof BasicLiteral) {
-            return expr.getBValueRef();
+            return ((BasicLiteral) expr).getbValueNew();
         }
 
-        return controlStack.getValue(expr.getOffset());
+        return controlStack.getValueNew(expr.getOffset());
     }
 
-    private void setValue(Expression expr, BValueRef valueRef) {
-        controlStack.setValue(expr.getOffset(), valueRef);
+    private BValueType getValueNewPrimary(Expression expr) {
+        if (expr instanceof BasicLiteral) {
+            return ((BasicLiteral) expr).getbValueNew();
+        }
+
+        return (BValueType) controlStack.getValueNew(expr.getOffset());
+    }
+
+    private void setValueNew(Expression expr, BValue bValue) {
+        controlStack.setValueNew(expr.getOffset(), bValue);
     }
 
     private void visitBinaryExpr(BinaryExpression binaryExpr) {
@@ -513,26 +519,26 @@ public class BLangInterpreter implements NodeVisitor {
         Expression lExpr = binaryExpr.getLExpr();
         lExpr.accept(this);
 
-        BValueRef rValue = getValue(rExpr);
-        BValueRef lValue = getValue(lExpr);
+        BValueType rValue = getValueNewPrimary(rExpr);
+        BValueType lValue = getValueNewPrimary(lExpr);
 
-        BValueRef result = binaryExpr.getEvalFunc().apply(lValue, rValue);
-        controlStack.setValue(binaryExpr.getOffset(), result);
+        BValue result = binaryExpr.getEvalFunc().apply(lValue, rValue);
+        controlStack.setValueNew(binaryExpr.getOffset(), result);
     }
 
-    private int populateArgumentValues(Expression[] expressions, BValueRef[] localVals) {
+    private int populateArgumentValues(Expression[] expressions, BValue[] localVals) {
         int i = 0;
         for (Expression arg : expressions) {
             // Evaluate the argument expression
             arg.accept(this);
             TypeC argType = arg.getType();
-            BValueRef argValue = getValue(arg);
+            BValue argValue = getValueNew(arg);
 
             // Here we need to handle value types differently from reference types
             // Value types need to be cloned before passing ot the function : pass by value.
             // TODO Implement copy-on-write mechanism to improve performance
             if (TypeC.isValueType(argType)) {
-                argValue = BValueRef.clone(argType, argValue);
+                argValue = BValueUtils.clone(argType, argValue);
             }
 
             // Setting argument value in the stack frame
