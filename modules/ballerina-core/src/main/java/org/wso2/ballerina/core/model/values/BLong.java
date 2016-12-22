@@ -17,19 +17,44 @@
 */
 package org.wso2.ballerina.core.model.values;
 
-import org.wso2.ballerina.core.model.types.ArrayType;
-
 /**
  *
  */
-public class ArrayValue implements BValue<ArrayType> {
-    @Override
-    public ArrayType getValue() {
-        return null;
+public class BLong extends BValueType {
+
+    private long value;
+
+    public BLong(long value) {
+        this.value = value;
     }
 
     @Override
-    public StringValue getString() {
-        return null;
+    public int intValue() {
+        return 0;
+    }
+
+    @Override
+    public long longValue() {
+        return value;
+    }
+
+    @Override
+    public float floatValue() {
+        return 0;
+    }
+
+    @Override
+    public double doubleValue() {
+        return 0;
+    }
+
+    @Override
+    public boolean booleanValue() {
+        return false;
+    }
+
+    @Override
+    public String stringValue() {
+        return Long.toString(value);
     }
 }

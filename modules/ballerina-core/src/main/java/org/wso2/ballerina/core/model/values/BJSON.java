@@ -33,11 +33,11 @@ import java.nio.charset.StandardCharsets;
  *
  * @since 1.0.0
  */
-public class JSONValue extends BallerinaMessageDataSource implements BValue<JsonElement> {
-    
+public class JSONValue extends BallerinaMessageDataSource implements BRefType<JsonElement> {
+
     // GSON json object model associated with this JSONType object
     private JsonElement value;
-    
+
     // Schema of this JSONType object model
     private JsonElement schema;
 
@@ -46,28 +46,28 @@ public class JSONValue extends BallerinaMessageDataSource implements BValue<Json
 
     /**
      * Initialize a {@link JSONValue} from a {@link com.google.gson.JsonElement} object.
-     * 
-     * @param json  json object 
+     *
+     * @param json json object
      */
     public JSONValue(JsonElement json) {
         this.value = json;
     }
-    
+
     /**
      * Initialize a {@link JSONValue} from a JSON string.
-     * 
-     * @param jsonString    A JSON string
+     *
+     * @param jsonString A JSON string
      */
     public JSONValue(String jsonString) {
         this(jsonString, null);
     }
-    
+
     /**
      * Initialize a {@link JSONValue} from a string, with a specified schema.
      * JSON will not be validated against the given schema.
-     * 
-     * @param jsonString    JSON String
-     * @param schema        Schema of the provided JSON, as a string
+     *
+     * @param jsonString JSON String
+     * @param schema     Schema of the provided JSON, as a string
      */
     public JSONValue(String jsonString, String schema) {
         JsonParser parser = new JsonParser();
@@ -83,17 +83,17 @@ public class JSONValue extends BallerinaMessageDataSource implements BValue<Json
 
     /**
      * Create a {@link JSONValue} from a {@link InputStream}.
-     * 
-     * @param in    Input Stream
+     *
+     * @param in Input Stream
      */
     public JSONValue(InputStream in) {
         this(in, null);
     }
-    
+
     /**
      * Create a {@link JSONValue} from a {@link InputStream}.
-     * 
-     * @param in    InputStream
+     *
+     * @param in InputStream
      */
     public JSONValue(InputStream in, String schema) {
         JsonParser parser = new JsonParser();
@@ -102,45 +102,36 @@ public class JSONValue extends BallerinaMessageDataSource implements BValue<Json
             this.schema = parser.parse(schema);
         }
     }
-    
+
     /**
      * Return the string representation of this json object
      */
     public String toString() {
         return this.value.toString();
     }
-    
-    /**
-     * Get value associated with this {@link JSONValue} object.
-     * 
-     * @return  JSON object associated with this {@link JSONValue} object
-     */
-    public JsonElement getValue() {
-        return this.value;
-    }
-    
+
     /**
      * Set the value associated with this {@link JSONValue} object.
-     * 
-     * @param value     Value associated with this {@link JSONValue} object.
+     *
+     * @param value Value associated with this {@link JSONValue} object.
      */
     public void setValue(JsonElement value) {
         this.value = value;
     }
-    
+
     /**
      * Get the schema associated with this {@link JSONValue} object.
-     * 
-     * @return  Schema associated with this {@link JSONValue} object
+     *
+     * @return Schema associated with this {@link JSONValue} object
      */
     public JsonElement getSchema() {
         return this.schema;
     }
-    
+
     /**
      * Set the schema associated with this {@link JSONValue} object.
-     * 
-     * @param schema    Schema associated with this {@link JSONValue} object.
+     *
+     * @param schema Schema associated with this {@link JSONValue} object.
      */
     public void setSchema(JsonElement schema) {
         this.schema = schema;
@@ -160,8 +151,18 @@ public class JSONValue extends BallerinaMessageDataSource implements BValue<Json
         this.outputStream = outputStream;
     }
 
+    /**
+     * Get value associated with this {@link JSONValue} object.
+     *
+     * @return JSON object associated with this {@link JSONValue} object
+     */
     @Override
-    public StringValue getString() {
-        return new StringValue(this.getValue().toString());
+    public JsonElement value() {
+        return value;
+    }
+
+    @Override
+    public String stringValue() {
+        return this.value.toString();
     }
 }

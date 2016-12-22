@@ -19,9 +19,9 @@ package org.wso2.ballerina.core.model.values;
 
 /**
  *
+ * @param <T>
  */
-public interface BValue {
+public interface BRefType<T> extends BValue {
 
-    String stringValue();
-
+    T value();
 }

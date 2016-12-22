@@ -20,8 +20,41 @@ package org.wso2.ballerina.core.model.values;
 /**
  *
  */
-public interface BValue {
+public class BInteger extends BValueType {
 
-    String stringValue();
+    private int value;
 
+    public BInteger(int value) {
+        this.value = value;
+    }
+
+    @Override
+    public int intValue() {
+        return this.value;
+    }
+
+    @Override
+    public long longValue() {
+        return 0;
+    }
+
+    @Override
+    public float floatValue() {
+        return 0;
+    }
+
+    @Override
+    public double doubleValue() {
+        return 0;
+    }
+
+    @Override
+    public boolean booleanValue() {
+        return false;
+    }
+
+    @Override
+    public String stringValue() {
+        return Integer.toString(value);
+    }
 }

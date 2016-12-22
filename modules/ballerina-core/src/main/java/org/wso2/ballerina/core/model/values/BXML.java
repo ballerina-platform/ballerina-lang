@@ -33,9 +33,9 @@ import javax.xml.stream.XMLStreamException;
  *
  * @since 1.0.0
  */
-public class XMLValue extends BallerinaMessageDataSource implements BValue<OMElement> {
-    
-    private OMElement omElement;
+public class XMLValue extends BallerinaMessageDataSource implements BRefType<OMElement> {
+
+    private OMElement value;
     private OutputStream outputStream;
 
     /**
@@ -46,9 +46,9 @@ public class XMLValue extends BallerinaMessageDataSource implements BValue<OMEle
     public XMLValue(String xmlValue) {
         if (xmlValue != null) {
             try {
-                omElement = AXIOMUtil.stringToOM(xmlValue);
+                value = AXIOMUtil.stringToOM(xmlValue);
             } catch (XMLStreamException e) {
-                throw new BallerinaException("Cannot create OMElement from given String, maybe malformed String: " + 
+                throw new BallerinaException("Cannot create OMElement from given String, maybe malformed String: " +
                         e.getMessage());
             }
         }
@@ -57,10 +57,10 @@ public class XMLValue extends BallerinaMessageDataSource implements BValue<OMEle
     /**
      * Initialize a {@link XMLValue} from a {@link org.apache.axiom.om.OMElement} object.
      *
-     * @param omElement xml object
+     * @param value xml object
      */
-    public XMLValue(OMElement omElement) {
-        this.omElement = omElement;
+    public XMLValue(OMElement value) {
+        this.value = value;
     }
 
     /**
@@ -71,7 +71,7 @@ public class XMLValue extends BallerinaMessageDataSource implements BValue<OMEle
     public XMLValue(InputStream inputStream) {
         if (inputStream != null) {
             try {
-                omElement = new StAXOMBuilder(inputStream).getDocumentElement();
+                value = new StAXOMBuilder(inputStream).getDocumentElement();
             } catch (XMLStreamException e) {
                 throw new BallerinaException("Cannot create OMElement from given source: " + e.getMessage());
             }
@@ -91,25 +91,25 @@ public class XMLValue extends BallerinaMessageDataSource implements BValue<OMEle
     }
 
     @Override
-    public OMElement getValue() {
-        return omElement;
-    }
-
-    @Override
     public void serializeData() {
         try {
-            this.omElement.serialize(this.outputStream);
+            this.value.serialize(this.outputStream);
         } catch (XMLStreamException e) {
             throw new BallerinaException("Error occurred during writing the message to the output stream", e);
         }
     }
 
     @Override
-    public StringValue getString() {
-        if (this.getValue() != null) {
-            return new StringValue(this.getValue().toString());
-        } else {
-            return new StringValue("");
+    public OMElement value() {
+        return this.value;
+    }
+
+    @Override
+    public String stringValue() {
+        if (this.value != null) {
+            return this.value.toString();
         }
+
+        return "";
     }
 }

@@ -18,27 +18,20 @@
 package org.wso2.ballerina.core.model.values;
 
 /**
- * {@code FloatValue} represents a float value in Ballerina
  *
- * @since 1.0.0
+ * @param <T>
  */
-public class FloatValue implements BValue<Float> {
-    private float value;
+public class ArrayValue<T> implements BRefType<T> {
 
-    public FloatValue(float value) {
-        this.value = value;
-    }
 
-    public Float getValue() {
-        return value;
-    }
 
-    public void setValue(float value) {
-        this.value = value;
+    @Override
+    public T value() {
+        return null;
     }
 
     @Override
-    public StringValue getString() {
-        return new StringValue(this.getValue().toString());
+    public String stringValue() {
+        return null;
     }
 }

@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerina.core.model.values;
+package org.wso2.ballerina.core.model.util;
 
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.model.types.BooleanType;
@@ -28,13 +28,23 @@ import org.wso2.ballerina.core.model.types.MessageType;
 import org.wso2.ballerina.core.model.types.StringType;
 import org.wso2.ballerina.core.model.types.Type;
 import org.wso2.ballerina.core.model.types.XMLType;
+import org.wso2.ballerina.core.model.values.BValueRef;
+import org.wso2.ballerina.core.model.values.BooleanValue;
+import org.wso2.ballerina.core.model.values.DoubleValue;
+import org.wso2.ballerina.core.model.values.FloatValue;
+import org.wso2.ballerina.core.model.values.IntValue;
+import org.wso2.ballerina.core.model.values.JSONValue;
+import org.wso2.ballerina.core.model.values.LongValue;
+import org.wso2.ballerina.core.model.values.MessageValue;
+import org.wso2.ballerina.core.model.values.StringValue;
+import org.wso2.ballerina.core.model.values.XMLValue;
 
 /**
  * Factory for creating value of a given type.
  *
  * @since 1.0.0
  */
-public class ValueFactory {
+public class BValueUtils {
 
     public static BValueRef creteValue(Type type) {
         if (type instanceof IntType) {
