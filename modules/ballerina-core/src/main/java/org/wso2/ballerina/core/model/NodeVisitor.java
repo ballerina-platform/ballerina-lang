@@ -22,6 +22,7 @@ import org.wso2.ballerina.core.model.expressions.AddExpression;
 import org.wso2.ballerina.core.model.expressions.AndExpression;
 import org.wso2.ballerina.core.model.expressions.ArrayAccessExpr;
 import org.wso2.ballerina.core.model.expressions.ArrayInitExpr;
+import org.wso2.ballerina.core.model.expressions.BackquoteExpr;
 import org.wso2.ballerina.core.model.expressions.BasicLiteral;
 import org.wso2.ballerina.core.model.expressions.EqualExpression;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
@@ -131,6 +132,8 @@ public interface NodeVisitor {
     void visit(ArrayAccessExpr arrayAccessExpr);
 
     void visit(ArrayInitExpr arrayInitExpr);
+
+    void visit(BackquoteExpr backquoteExpr);
 
     void visit(ResourceInvoker resourceInvoker);
 }
