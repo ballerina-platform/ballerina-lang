@@ -18,12 +18,11 @@
 package org.wso2.ballerina.core.model.expressions;
 
 import org.wso2.ballerina.core.model.NodeVisitor;
-import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.model.values.BValueRef;
-import org.wso2.ballerina.core.model.values.DoubleValue;
-import org.wso2.ballerina.core.model.values.FloatValue;
-import org.wso2.ballerina.core.model.values.IntValue;
-import org.wso2.ballerina.core.model.values.LongValue;
+import org.wso2.ballerina.core.model.values.BDouble;
+import org.wso2.ballerina.core.model.values.BFloat;
+import org.wso2.ballerina.core.model.values.BInteger;
+import org.wso2.ballerina.core.model.values.BLong;
+import org.wso2.ballerina.core.model.values.BValueType;
 
 import java.util.function.BiFunction;
 
@@ -36,29 +35,17 @@ import static org.wso2.ballerina.core.model.Operator.SUB;
  */
 public class SubtractExpression extends BinaryArithmeticExpression {
 
-    public static final BiFunction<BValueRef, BValueRef, BValueRef> SUB_INT_FUNC =
-            (lVal, rVal) -> {
-                BValue resultVal = new IntValue(lVal.getInt() - rVal.getInt());
-                return new BValueRef(resultVal);
-            };
+    public static final BiFunction<BValueType, BValueType, BValueType> SUB_INT_FUNC =
+            (lVal, rVal) -> new BInteger(lVal.intValue() - rVal.intValue());
 
-    public static final BiFunction<BValueRef, BValueRef, BValueRef> SUB_LONG_FUNC =
-            (lVal, rVal) -> {
-                BValue bValue = new LongValue(lVal.getLong() - rVal.getLong());
-                return new BValueRef(bValue);
-            };
+    public static final BiFunction<BValueType, BValueType, BValueType> SUB_LONG_FUNC =
+            (lVal, rVal) -> new BLong(lVal.longValue() - rVal.longValue());
 
-    public static final BiFunction<BValueRef, BValueRef, BValueRef> SUB_FLOAT_FUNC =
-            (lVal, rVal) -> {
-                BValue bValue = new FloatValue(lVal.getFloat() - rVal.getFloat());
-                return new BValueRef(bValue);
-            };
+    public static final BiFunction<BValueType, BValueType, BValueType> SUB_FLOAT_FUNC =
+            (lVal, rVal) -> new BFloat(lVal.floatValue() - rVal.floatValue());
 
-    public static final BiFunction<BValueRef, BValueRef, BValueRef> SUB_DOUBLE_FUNC =
-            (lVal, rVal) -> {
-                BValue bValue = new DoubleValue(lVal.getDouble() - rVal.getDouble());
-                return new BValueRef(bValue);
-            };
+    public static final BiFunction<BValueType, BValueType, BValueType> SUB_DOUBLE_FUNC =
+            (lVal, rVal) -> new BDouble(lVal.doubleValue() - rVal.doubleValue());
 
     public SubtractExpression(Expression lExpr, Expression rExpr) {
         super(lExpr, SUB, rExpr);

@@ -1,13 +1,13 @@
 /**
  * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- *
+ * <p>
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -28,7 +28,7 @@ import org.osgi.service.component.annotations.Component;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.model.values.XMLValue;
+import org.wso2.ballerina.core.model.values.BXML;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
@@ -58,22 +58,22 @@ import java.util.List;
         service = AbstractNativeFunction.class
 )
 public class SetXML extends AbstractNativeFunction {
-    
+
     private static final String OPERATION = "set element in xml";
 
     @Override
-    public BValue<?>[] execute(Context ctx) {
+    public BValue[] execute(Context ctx) {
         try {
             // Accessing Parameters.
-            XMLValue xml = (XMLValue) getArgument(ctx, 0).getBValue();
-            String xPath = getArgument(ctx, 1).getString();
+            BXML xml = (BXML) getArgument(ctx, 0);
+            String xPath = getArgument(ctx, 1).stringValue();
             // MapValue<String, String> nameSpaces = getArgument(ctx, 2).getMap();
-            OMElement value = getArgument(ctx, 2).getXML();
-            
+            OMElement value = ((BXML) getArgument(ctx, 2)).value();
+
             if (value == null) {
                 return VOID_RETURN;
             }
-            
+
             // Setting the value to XML
             AXIOMXPath axiomxPath = new AXIOMXPath(xPath);
             /*if (nameSpaces != null && !nameSpaces.isEmpty()) {
@@ -82,8 +82,8 @@ public class SetXML extends AbstractNativeFunction {
 
                 }
             }*/
-            
-            Object ob = axiomxPath.evaluate(xml.getValue());
+
+            Object ob = axiomxPath.evaluate(xml.value());
             if (ob instanceof ArrayList) {
                 List<?> list = (List<?>) ob;
                 for (Object obj : list) {
@@ -104,7 +104,7 @@ public class SetXML extends AbstractNativeFunction {
         } catch (Throwable e) {
             ErrorHandler.handleXPathException(OPERATION, e);
         }
-        
+
         return VOID_RETURN;
     }
 }

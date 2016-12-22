@@ -20,7 +20,6 @@ package org.wso2.ballerina.core.model.statements;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.expressions.Expression;
-import org.wso2.ballerina.core.model.values.BValueRef;
 
 /**
  * An {@code AssignStmt} represents an assignment.
@@ -37,10 +36,10 @@ public class AssignStmt implements Statement {
     }
 
     public void interpret(Context ctx) {
-        BValueRef rValue = rhsExpr.evaluate(ctx);
-        BValueRef lValue = lhsExpr.evaluate(ctx);
-
-        lValue.setBValue(rValue.getBValue());
+//        BValueRef rValue = rhsExpr.evaluate(ctx);
+//        BValueRef lValue = lhsExpr.evaluate(ctx);
+//
+//        lValue.setBValue(rValue.getBValue());
     }
 
     public Expression getLExpr() {

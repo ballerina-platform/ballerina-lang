@@ -28,7 +28,7 @@ import java.io.OutputStream;
  *
  * @since 1.0.0
  */
-public class StringValue extends BallerinaMessageDataSource implements BValue<String> {
+public class StringValue extends BallerinaMessageDataSource {
     private String value;
     private OutputStream outputStream;
 
@@ -58,7 +58,6 @@ public class StringValue extends BallerinaMessageDataSource implements BValue<St
         this.outputStream = outputStream;
     }
 
-    @Override
     public StringValue getString() {
         return this;
     }

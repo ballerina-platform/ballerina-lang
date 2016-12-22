@@ -27,8 +27,8 @@ import com.jayway.jsonpath.WriteContext;
 import org.osgi.service.component.annotations.Component;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
+import org.wso2.ballerina.core.model.values.BJSON;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.model.values.JSONValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
@@ -58,17 +58,17 @@ public class AddStringToObject extends AbstractJSONFunction {
     private static final String OPERATION = "add string to json object";
 
     @Override
-    public BValue<?>[] execute(Context ctx) {
+    public BValue[] execute(Context ctx) {
         String jsonPath = null;
         try {
             // Accessing Parameters.
-            JSONValue json = (JSONValue) getArgument(ctx, 0).getBValue();
-            jsonPath = getArgument(ctx, 1).getString();
-            String key = getArgument(ctx, 2).getString();
-            String value = getArgument(ctx, 3).getString();
+            BJSON json = (BJSON) getArgument(ctx, 0);
+            jsonPath = getArgument(ctx, 1).stringValue();
+            String key = getArgument(ctx, 2).stringValue();
+            String value = getArgument(ctx, 3).stringValue();
 
             // Adding the value to JSON Object
-            WriteContext jsonCtx = JsonPath.parse(json.getValue());
+            WriteContext jsonCtx = JsonPath.parse(json.value());
             jsonCtx.put(jsonPath, key, value);
         } catch (PathNotFoundException e) {
             ErrorHandler.handleNonExistingJsonpPath(OPERATION, jsonPath, e);

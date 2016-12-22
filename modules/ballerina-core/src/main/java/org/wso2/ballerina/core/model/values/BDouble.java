@@ -18,27 +18,43 @@
 package org.wso2.ballerina.core.model.values;
 
 /**
- * {@code IntValue} represents an int value in Ballerina
  *
- * @since 1.0.0
  */
-public class IntValue implements BValue<Integer> {
-    private int value;
+public class BDouble extends BValueType {
 
-    public IntValue(int value) {
-        this.value = value;
-    }
+    private double value;
 
-    public Integer getValue() {
-        return value;
-    }
-
-    public void setValue(int value) {
+    public BDouble(double value) {
         this.value = value;
     }
 
     @Override
-    public StringValue getString() {
-        return new StringValue(this.getValue().toString());
+    public int intValue() {
+        return 0;
+    }
+
+    @Override
+    public long longValue() {
+        return 0;
+    }
+
+    @Override
+    public float floatValue() {
+        return 0;
+    }
+
+    @Override
+    public double doubleValue() {
+        return this.value;
+    }
+
+    @Override
+    public boolean booleanValue() {
+        return false;
+    }
+
+    @Override
+    public String stringValue() {
+        return Double.toString(value);
     }
 }

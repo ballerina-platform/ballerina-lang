@@ -31,7 +31,6 @@ import org.wso2.ballerina.core.model.VariableDcl;
 import org.wso2.ballerina.core.model.types.Type;
 import org.wso2.ballerina.core.model.types.TypeC;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.model.values.BValueRef;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Utils;
@@ -59,7 +58,6 @@ public abstract class AbstractNativeFunction implements NativeConstruct, Functio
     private boolean isPublicFunction;
     private List<Const> constants;
     private int stackFrameSize;
-
 
 
     public AbstractNativeFunction() {
@@ -173,9 +171,9 @@ public abstract class AbstractNativeFunction implements NativeConstruct, Functio
      * @param index   index of the parameter.
      * @return BValue;
      */
-    public BValueRef getArgument(Context context, int index) {
+    public BValue getArgument(Context context, int index) {
         if (index > -1 && index < parameters.size()) {
-            return context.getControlStack().getCurrentFrame().values[index];
+            return context.getControlStack().getCurrentFrame().valuesNew[index];
         }
         throw new ArgumentOutOfRangeException(index);
     }
@@ -188,13 +186,13 @@ public abstract class AbstractNativeFunction implements NativeConstruct, Functio
 
     @Override
     public void interpret(Context context) {
-        BValue[] returnValues = execute(context);
-        if (returnValues == null || returnValues.length == 0 || this.returnTypes.size() == 0) {
-            context.getControlStack().getCurrentFrame().returnValue = null;
-            return;
-        }
-        // TODO : Support for multiple return values.
-        context.getControlStack().getCurrentFrame().returnValue.setBValue(returnValues[0]);
+//        BValueNew[] returnValues = execute(context);
+//        if (returnValues == null || returnValues.length == 0 || this.returnTypes.size() == 0) {
+//            context.getControlStack().getCurrentFrame().returnValue = null;
+//            return;
+//        }
+//        // TODO : Support for multiple return values.
+//        context.getControlStack().getCurrentFrame().returnValue.setBValue(returnValues[0]);
     }
 
     /**
@@ -204,12 +202,12 @@ public abstract class AbstractNativeFunction implements NativeConstruct, Functio
      * @return Native function return BValue array
      */
     public abstract BValue[] execute(Context context);
-    
+
     public void executeNative(Context context) {
         BValue[] retVals = execute(context);
-        BValueRef[] returnRefs = context.getControlStack().getCurrentFrame().returnValues;
+        BValue[] returnRefs = context.getControlStack().getCurrentFrame().returnValuesNew;
         if (returnRefs.length != 0) {
-            returnRefs[0] = new BValueRef(retVals[0]);
+            returnRefs[0] = retVals[0];
         }
     }
 
