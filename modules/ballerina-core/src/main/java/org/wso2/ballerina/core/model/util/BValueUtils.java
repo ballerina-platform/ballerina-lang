@@ -20,12 +20,16 @@ package org.wso2.ballerina.core.model.util;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.model.types.TypeC;
 import org.wso2.ballerina.core.model.values.BBoolean;
+import org.wso2.ballerina.core.model.values.BConnector;
 import org.wso2.ballerina.core.model.values.BDouble;
 import org.wso2.ballerina.core.model.values.BFloat;
 import org.wso2.ballerina.core.model.values.BInteger;
+import org.wso2.ballerina.core.model.values.BJSON;
 import org.wso2.ballerina.core.model.values.BLong;
+import org.wso2.ballerina.core.model.values.BMessage;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
+import org.wso2.ballerina.core.model.values.BXML;
 
 /**
  * BValue utility methods
@@ -55,21 +59,21 @@ public class BValueUtils {
 
         } else if (type == TypeC.STRING_TYPE) {
             return new BString("");
-//
-//        } else if (type == TypeC.JSON_TYPE) {
-//            return new BValueRef(new JSONValue("{}"));
-//
-//        } else if (type == TypeC.XML_TYPE) {
-//            return new BValueRef(new XMLValue());
-//
-//        } else if (type == TypeC.MESSAGE_TYPE) {
-//            return new BValueRef(new MessageValue(null));
-//
+
+        } else if (type == TypeC.JSON_TYPE) {
+            return new BJSON("{}");
+
+        } else if (type == TypeC.XML_TYPE) {
+            return new BXML();
+
+        } else if (type == TypeC.MESSAGE_TYPE) {
+            return new BMessage(null);
+
 //        } else if (type == TypeC.MAP_TYPE) {
-//            return new BValueRef(new MapValue());
-//
-//        } else if (type == TypeC.CONNECTOR_TYPE) {
-//            return new BValueRef(new ConnectorValue(null, null));
+//            return MapValue());
+
+        } else if (type == TypeC.CONNECTOR_TYPE) {
+            return new BConnector(null, null);
         } else {
             throw new BallerinaException("Unsupported type: " + type);
         }
