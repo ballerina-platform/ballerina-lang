@@ -174,8 +174,15 @@ public class BLangModelBuilder {
         annotationBuilder.setName(new SymbolName(name));
 
         if (valueAvailable) {
+            Expression expr = exprStack.pop();
+
             // Assuming the annotation value is a string literal
-            annotationBuilder.setValue(((BString) exprStack.pop()).stringValue());
+            if (expr instanceof BasicLiteral && expr.getType() == TypeC.STRING_TYPE) {
+                String value = ((BasicLiteral) expr).getbValueNew().stringValue();
+                annotationBuilder.setValue(value);
+            } else {
+                throw new RuntimeException("Annotations with key/value pars are not support at the moment");
+            }
         }
 
         List<Annotation> annotationList = annotationListStack.peek();
