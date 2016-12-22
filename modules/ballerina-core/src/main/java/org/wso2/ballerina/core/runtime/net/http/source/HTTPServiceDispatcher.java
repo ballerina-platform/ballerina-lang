@@ -21,12 +21,11 @@ package org.wso2.ballerina.core.runtime.net.http.source;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.exception.BallerinaException;
-import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.Service;
-import org.wso2.ballerina.core.runtime.core.BalCallback;
 import org.wso2.ballerina.core.runtime.core.dispatching.ServiceDispatcher;
 import org.wso2.ballerina.core.runtime.net.http.Constants;
+import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 import java.util.HashMap;
@@ -44,9 +43,8 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
     // Outer Map key=interface, Inner Map key=basePath
     private Map<String, Map<String, Service>> services = new HashMap<>();
 
-    public Service findService(Context context, BalCallback callback) {
+    public Service findService(CarbonMessage cMsg, CarbonCallback callback) {
 
-        CarbonMessage cMsg = context.getCarbonMessage();
         String interfaceId = (String) cMsg.getProperty(org.wso2.carbon.messaging.Constants.LISTENER_INTERFACE_ID);
         if (interfaceId == null) {
             if (log.isDebugEnabled()) {
@@ -105,8 +103,8 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
             throw new BallerinaException("No Service found to handle request sent to : " + uri);
         }
 
-        context.setProperty(Constants.BASE_PATH, basePath);
-        context.setProperty(Constants.SUB_PATH, subPath);
+        cMsg.setProperty(Constants.BASE_PATH, basePath);
+        cMsg.setProperty(Constants.SUB_PATH, subPath);
 
         return service;
     }

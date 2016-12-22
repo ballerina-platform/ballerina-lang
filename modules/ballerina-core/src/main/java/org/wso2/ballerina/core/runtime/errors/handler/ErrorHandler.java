@@ -17,16 +17,18 @@
  */
 package org.wso2.ballerina.core.runtime.errors.handler;
 
-import org.wso2.ballerina.core.interpreter.Context;
-import org.wso2.ballerina.core.runtime.core.BalCallback;
+import org.wso2.carbon.messaging.CarbonCallback;
+import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
  * {@code ErrorHandler} is the interface for protocol specific error handlers in ballerina.
  *
+ * @since 1.0.0
+ *
  */
 public interface ErrorHandler {
 
-    void handleError(Exception ex, Context bContext, BalCallback callback);
+    void handleError(Exception ex, CarbonMessage bContext, CarbonCallback callback);
 
     String getProtocol();
 
