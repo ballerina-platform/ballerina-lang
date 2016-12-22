@@ -42,6 +42,7 @@ define(['log', 'lodash', 'backbone'], function (log, _, Backbone) {
             if (!_.isUndefined(validateDropTargetCallback)) {
                 this.set('validateDropTargetCallback', validateDropTargetCallback);
             }
+            this.trigger('drag-start', this.get('typeBeingDragged'));
         },
 
         /**
@@ -87,21 +88,22 @@ define(['log', 'lodash', 'backbone'], function (log, _, Backbone) {
          * @fires DragDropManager#drop-target-changed
          */
         setActivatedDropTarget: function (activatedDropTarget, validateDropSourceCallback, getDroppedNodeIndexCallBack) {
+            var lastActivatedDropTarget = this.get('activatedDropTarget');
             if (!_.isUndefined(activatedDropTarget)) {
-                if (!_.isEqual(activatedDropTarget, this.get('activatedDropTarget'))){
-                    /**
-                     * @event DragDropManager#drop-target-changed
-                     * @type ASTNode
-                     */
-                    this.trigger('drop-target-changed', activatedDropTarget);
-                }
                 this.set('activatedDropTarget', activatedDropTarget);
-             }
+            }
             if (!_.isUndefined(validateDropSourceCallback)) {
                 this.set('validateDropSourceCallback', validateDropSourceCallback);
             }
             if (!_.isUndefined(getDroppedNodeIndexCallBack)) {
                 this.set('getDroppedNodeIndexCallBack', getDroppedNodeIndexCallBack);
+            }
+            if (!_.isEqual(activatedDropTarget, lastActivatedDropTarget)){
+                /**
+                 * @event DragDropManager#drop-target-changed
+                 * @type ASTNode
+                 */
+                this.trigger('drop-target-changed', activatedDropTarget);
             }
         },
 
