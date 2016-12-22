@@ -17,9 +17,9 @@
  */
 package org.wso2.ballerina.core.runtime.core.dispatching;
 
-import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Service;
-import org.wso2.ballerina.core.runtime.core.BalCallback;
+import org.wso2.carbon.messaging.CarbonCallback;
+import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
  * {@code ServiceDispatcher} represents the service level dispatcher interface.
@@ -30,13 +30,13 @@ public interface ServiceDispatcher {
 
 
     /**
-     * Find the Service which can handle a given context
+     * Find the Service which can handle a given Carbon Message
      *
-     * @param context context
+     * @param cMsg Carbon Message
      * @param callback callback
-     * @return service which can handle a given context
+     * @return service which can handle a given cMsg
      */
-    Service findService(Context context, BalCallback callback);
+    Service findService(CarbonMessage cMsg, CarbonCallback callback);
 
     /**
      * Get the protocol of the dispatcher

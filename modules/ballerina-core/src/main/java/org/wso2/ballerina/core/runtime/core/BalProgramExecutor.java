@@ -15,19 +15,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.ballerina.core.runtime.errors.handler;
 
+package org.wso2.ballerina.core.runtime.core;
+
+import org.wso2.ballerina.core.interpreter.BLangInterpreter;
 import org.wso2.ballerina.core.interpreter.Context;
-import org.wso2.ballerina.core.runtime.core.BalCallback;
+import org.wso2.ballerina.core.model.Resource;
+import org.wso2.ballerina.core.model.ResourceInvoker;
 
 /**
- * {@code ErrorHandler} is the interface for protocol specific error handlers in ballerina.
+ * {@code BalProgramExecutor} is responsible for executing a BallerinaProgram
  *
+ * @since 1.0.0
  */
-public interface ErrorHandler {
+public class BalProgramExecutor {
 
-    void handleError(Exception ex, Context bContext, BalCallback callback);
-
-    String getProtocol();
+    public static void execute(Context context, Resource resource) {
+        // Create the interpreter and Execute
+        BLangInterpreter interpreter = new BLangInterpreter(context);
+        new ResourceInvoker(resource).accept(interpreter);
+    }
 
 }

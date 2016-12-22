@@ -21,29 +21,34 @@ package org.wso2.ballerina.core.runtime.core;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.exception.BallerinaException;
-import org.wso2.ballerina.core.interpreter.BLangInterpreter;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Resource;
-import org.wso2.ballerina.core.model.ResourceInvoker;
 import org.wso2.ballerina.core.model.Service;
-import org.wso2.ballerina.core.runtime.Constants;
 import org.wso2.ballerina.core.runtime.core.dispatching.ResourceDispatcher;
 import org.wso2.ballerina.core.runtime.core.dispatching.ServiceDispatcher;
-import org.wso2.ballerina.core.runtime.errors.handler.DefaultErrorHandler;
-import org.wso2.ballerina.core.runtime.errors.handler.ErrorHandler;
+import org.wso2.ballerina.core.runtime.errors.handler.DefaultServerConnectorErrorHandler;
+import org.wso2.ballerina.core.runtime.errors.handler.ServerConnectorErrorHandler;
 import org.wso2.ballerina.core.runtime.internal.ServiceContextHolder;
 import org.wso2.ballerina.core.runtime.registry.DispatcherRegistry;
+import org.wso2.carbon.messaging.CarbonCallback;
+import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
- * {@code ProgramExecutor} is responsible for executing a Ballerina Program
+ * {@code ServerConnectorMessageHandler} is responsible for bridging Ballerina Program and External Server Connector
+ *
+ * @since 1.0.0
  */
-public class ProgramExecutor {
+public class ServerConnectorMessageHandler {
 
-    private static final Logger log = LoggerFactory.getLogger(ProgramExecutor.class);
+    private static final Logger log = LoggerFactory.getLogger(ServerConnectorMessageHandler.class);
 
-    public static void executeService(Context context, BalCallback callback) {
+
+    public static void handleInbound(CarbonMessage cMsg, CarbonCallback callback) {
         try {
-            String protocol = (String) context.getProperty(Constants.PROTOCOL);
+            String protocol = (String) cMsg.getProperty(org.wso2.carbon.messaging.Constants.PROTOCOL);
+            if (protocol == null) {
+                throw new BallerinaException("Protocol not defined in the incoming request");
+            }
 
             // Find the Service Dispatcher
             ServiceDispatcher dispatcher = DispatcherRegistry.getInstance().getServiceDispatcher(protocol);
@@ -52,7 +57,7 @@ public class ProgramExecutor {
             }
 
             // Find the Service
-            Service service = dispatcher.findService(context, callback);
+            Service service = dispatcher.findService(cMsg, callback);
             if (service == null) {
                 throw new BallerinaException("No Service found to handle the service request");
                 // Finer details of the errors are thrown from the dispatcher itself, Ideally we shouldn't get here.
@@ -65,46 +70,44 @@ public class ProgramExecutor {
             }
 
             // Find the Resource
-            Resource resource = resourceDispatcher.findResource(service, context, callback);
+            Resource resource = resourceDispatcher.findResource(service, cMsg, callback);
             if (resource == null) {
                 throw new BallerinaException("No Resource found to handle the request to Service : " +
                                              service.getSymbolName().getName());
                 // Finer details of the errors are thrown from the dispatcher itself, Ideally we shouldn't get here.
             }
 
-            // Create the interpreter and Execute
-            BLangInterpreter interpreter = new BLangInterpreter(context);
-            context.setBalCallback(callback);
-            new ResourceInvoker(resource).accept(interpreter);
+            // Create the Ballerina Context
+            Context balContext = new Context(cMsg);
+            balContext.setBalCallback(new DefaultBalCallback(callback));
+
+            // Delegate the execution to the BalProgram Executor
+            BalProgramExecutor.execute(balContext, resource);
 
         } catch (Throwable throwable) {
-            handleError(context, callback, throwable);
+            handleError(cMsg, callback, throwable);
         }
     }
 
-    public static void handleServiceResponse(Context context, BalCallback callback) {
+    public static void handleOutbound(CarbonMessage cMsg, CarbonCallback callback) {
         try {
-            callback.done(context.getCarbonMessage());
+            callback.done(cMsg);
         } catch (Throwable throwable) {
-            handleError(context, callback, throwable);
+            handleError(cMsg, callback, throwable);
         }
     }
 
-    public static void executeMainFunction() {
-
-    }
-
-    private static void handleError(Context context, BalCallback callback, Throwable throwable) {
+    private static void handleError(CarbonMessage cMsg, CarbonCallback callback, Throwable throwable) {
         log.error("Error while executing ballerina program. " + throwable.getMessage());
 
-        ErrorHandler errorHandler;
-        Object protocol = context.getProperty(Constants.PROTOCOL);
+        ServerConnectorErrorHandler errorHandler;
+        Object protocol = cMsg.getProperty(org.wso2.carbon.messaging.Constants.PROTOCOL);
         if (protocol != null) {
             errorHandler = ServiceContextHolder.getInstance().getErrorHandler((String) protocol);
         } else {
-            errorHandler = DefaultErrorHandler.getInstance();
+            errorHandler = DefaultServerConnectorErrorHandler.getInstance();
         }
-        errorHandler.handleError(new Exception(throwable.getMessage(), throwable.getCause()), context, callback);
+        errorHandler.handleError(new Exception(throwable.getMessage(), throwable.getCause()), cMsg, callback);
     }
 
 }

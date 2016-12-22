@@ -20,8 +20,6 @@ package org.wso2.ballerina.core.runtime.core;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.ballerina.core.interpreter.Context;
-import org.wso2.ballerina.core.runtime.Constants;
 import org.wso2.ballerina.core.runtime.core.threading.threadpool.RequestWorkerThread;
 import org.wso2.ballerina.core.runtime.core.threading.threadpool.ResponseWorkerThread;
 import org.wso2.ballerina.core.runtime.core.threading.threadpool.ThreadPoolFactory;
@@ -40,37 +38,26 @@ public class MessageProcessor implements CarbonMessageProcessor {
 
     public boolean receive(CarbonMessage cMsg, CarbonCallback carbonCallback) throws Exception {
 
-        Context balContext = new Context(cMsg);
         WorkerThread workerThread;
 
         if (!org.wso2.carbon.messaging.Constants.DIRECTION_RESPONSE.
                 equals(cMsg.getProperty(org.wso2.carbon.messaging.Constants.DIRECTION))) {
             // For Request
-
             if (log.isDebugEnabled()) {
                 log.debug("ballerina received a request message");
             }
-
-            String protocol = (String) cMsg.getProperty(org.wso2.carbon.messaging.Constants.PROTOCOL);
-            if (protocol == null) {  //Ideally we shouldn't get here
-                log.error("Protocol not defined in the incoming request");
-                return false;
-            }
-            balContext.setProperty(Constants.PROTOCOL, protocol);
-
-            workerThread = new RequestWorkerThread(balContext, new DefaultBalCallback(carbonCallback));
+            workerThread = new RequestWorkerThread(cMsg, carbonCallback);
 
         } else {
             // For Response
-            workerThread = new ResponseWorkerThread(balContext, new DefaultBalCallback(carbonCallback));
+            workerThread = new ResponseWorkerThread(cMsg, carbonCallback);
         }
         ThreadPoolFactory.getInstance().getExecutor().execute(workerThread);
 
-        return false;
+        return true;
     }
 
     public void setTransportSender(TransportSender transportSender) {
-
     }
 
     public String getId() {

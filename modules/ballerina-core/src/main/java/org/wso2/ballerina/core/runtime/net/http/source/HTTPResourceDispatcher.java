@@ -21,13 +21,12 @@ package org.wso2.ballerina.core.runtime.net.http.source;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.exception.BallerinaException;
-import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
-import org.wso2.ballerina.core.runtime.core.BalCallback;
 import org.wso2.ballerina.core.runtime.core.dispatching.ResourceDispatcher;
 import org.wso2.ballerina.core.runtime.net.http.Constants;
+import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
@@ -38,11 +37,10 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
     private static final Logger log = LoggerFactory.getLogger(HTTPResourceDispatcher.class);
 
     @Override
-    public Resource findResource(Service service, Context context, BalCallback callback) {
-        CarbonMessage cMsg = context.getCarbonMessage();
+    public Resource findResource(Service service, CarbonMessage cMsg, CarbonCallback callback) {
 
         String method = (String) cMsg.getProperty(Constants.HTTP_METHOD);
-        String subPath = (String) context.getProperty(Constants.SUB_PATH);
+        String subPath = (String) cMsg.getProperty(Constants.SUB_PATH);
 
         for (Resource resource : service.getResources()) {
             Annotation subPathAnnotation = resource.getAnnotation(Constants.ANNOTATION_NAME_PATH);
