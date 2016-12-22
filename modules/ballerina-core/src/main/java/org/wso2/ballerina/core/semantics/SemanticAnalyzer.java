@@ -31,6 +31,7 @@ import org.wso2.ballerina.core.model.ImportPackage;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.Resource;
+import org.wso2.ballerina.core.model.ResourceInvoker;
 import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.model.Symbol;
 import org.wso2.ballerina.core.model.SymbolName;
@@ -609,6 +610,8 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(ArrayInitExpr arrayInitExpr) {
     }
+
+    public void visit(ResourceInvoker resourceInvoker) {}
 
 
     // Private methods.

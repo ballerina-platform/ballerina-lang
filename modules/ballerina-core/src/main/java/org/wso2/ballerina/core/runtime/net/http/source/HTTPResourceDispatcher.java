@@ -38,7 +38,7 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
     private static final Logger log = LoggerFactory.getLogger(HTTPResourceDispatcher.class);
 
     @Override
-    public boolean dispatch(Service service, Context context, BalCallback callback) {
+    public Resource findResource(Service service, Context context, BalCallback callback) {
         CarbonMessage cMsg = context.getCarbonMessage();
 
         String method = (String) cMsg.getProperty(Constants.HTTP_METHOD);
@@ -51,23 +51,22 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
                 subPathAnnotationVal = subPathAnnotation.getValue();
             } else {
                 if (log.isDebugEnabled()) {
-                    log.debug("Path not specified in the Resource, using Resource name as the Path");
+                    log.debug("Path not specified in the Resource, using default sub path");
                 }
-                subPathAnnotationVal = "/".concat(resource.getName());
+                subPathAnnotationVal = Constants.DEFAULT_SUB_PATH;
             }
             if (subPathAnnotationVal.startsWith("\"")) {
+                // TODO: What is this logic ?
                 subPathAnnotationVal = subPathAnnotationVal.substring(1, subPathAnnotationVal.length() - 1);
             }
 
             if ((subPath.startsWith(subPathAnnotationVal) || Constants.DEFAULT_SUB_PATH.equals(subPathAnnotationVal))
                     && (resource.getAnnotation(method) != null)) {
-                return resource.execute(context, callback);
+                return resource;
             }
         }
-
         throw new BallerinaException("No matching Resource found to dispatch the request with Path : " + subPath +
                                      " , Method : " + method + " in Service : " + service.getSymbolName().getName());
-
     }
 
     @Override

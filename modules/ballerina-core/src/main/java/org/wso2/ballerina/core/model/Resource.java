@@ -20,26 +20,12 @@ package org.wso2.ballerina.core.model;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.ballerina.core.interpreter.Context;
-import org.wso2.ballerina.core.interpreter.ControlStack;
-import org.wso2.ballerina.core.interpreter.StackFrame;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
-import org.wso2.ballerina.core.model.statements.Statement;
-import org.wso2.ballerina.core.model.util.BValueUtils;
-import org.wso2.ballerina.core.model.values.BConnector;
-import org.wso2.ballerina.core.model.values.BMessage;
-import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
-import org.wso2.ballerina.core.runtime.core.BalCallback;
-import org.wso2.ballerina.core.runtime.core.Executable;
-import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
-import org.wso2.carbon.messaging.Header;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 
 /**
  * A {@code Resource} is a single request handler within a {@code Service}.
@@ -59,14 +45,13 @@ import java.util.function.Consumer;
  * @since 1.0.0
  */
 @SuppressWarnings("unused")
-public class Resource implements Executable, Node {
+public class Resource implements Node {
 
     private static final Logger LOG = LoggerFactory.getLogger(Resource.class);
 
     // TODO Refactor
     private Map<String, Annotation> annotationMap = new HashMap<>();
     private List<Worker> workerList = new ArrayList<>();
-    private Worker defaultWorker;
     private String name;
     private int stackFrameSize;
 
@@ -79,11 +64,9 @@ public class Resource implements Executable, Node {
     private SymbolName resourceName;
 
     public Resource() {
-        defaultWorker = new Worker();
     }
 
     public Resource(String name) {
-        defaultWorker = new Worker();
         this.name = name;
     }
 
@@ -103,8 +86,6 @@ public class Resource implements Executable, Node {
 
         /* To Do : Do we pass multiple workers from the model? */
         this.workers = workers;
-        defaultWorker = new Worker();
-        defaultWorker.addStatement(functionBody);
         this.resourceBody = functionBody;
     }
 
@@ -162,51 +143,6 @@ public class Resource implements Executable, Node {
     }
 
     /**
-     * Assign connections to the default Worker of the Resource
-     *
-     * @param connectorDcls list of connections to be assigned to the default Worker of the Resource
-     */
-    public void setConnectorDcls(List<ConnectorDcl> connectorDcls) {
-        defaultWorker.setConnectorDcls(connectorDcls);
-    }
-
-    /**
-     * Add a {@code Connection} to the default Worker of the Resource
-     *
-     * @param connectorDcl Connection to be added to the default Worker of the Resource
-     */
-    public void addConnection(ConnectorDcl connectorDcl) {
-        defaultWorker.addConnection(connectorDcl);
-    }
-
-    /**
-     * Get all the variables declared in the default Worker scope of the Resource
-     *
-     * @return list of all default Worker scoped variables
-     */
-    public List<VariableDcl> getVariables() {
-        return defaultWorker.getVariables();
-    }
-
-    /**
-     * Assign variables to the default Worker of the Resource
-     *
-     * @param variables list of variables
-     */
-    public void setVariables(List<VariableDcl> variables) {
-        defaultWorker.setVariables(variables);
-    }
-
-    /**
-     * Add a {@code Variable} to the default Worker of the Resource
-     *
-     * @param variable variable to be added default Worker
-     */
-    public void addVariable(VariableDcl variable) {
-        defaultWorker.addVariable(variable);
-    }
-
-    /**
      * Get all the Workers associated with a Resource
      *
      * @return list of Workers
@@ -234,42 +170,12 @@ public class Resource implements Executable, Node {
     }
 
     /**
-     * Get all the Statements associated with the default Worker
-     *
-     * @return list of Statements associated with the default Worker
-     */
-    public List<Statement> getStatements() {
-        return defaultWorker.getStatements();
-    }
-
-    /**
-     * Set Statements to be associated with the default Worker
-     *
-     * @param statements list of Statements
-     */
-    public void setStatements(List<Statement> statements) {
-        defaultWorker.setStatements(statements);
-    }
-
-    /**
-     * Add a {@code Statement} to the default Worker in the Resource
-     *
-     * @param statement a Statement to be added to the default Worker
-     */
-    public void addStatement(Statement statement) {
-        defaultWorker.addStatement(statement);
-    }
-
-
-    /**
-     * Get resource body
-     *
+     *  Get resource body
      * @return returns the block statement
      */
     public BlockStmt getResourceBody() {
         return resourceBody;
     }
-
 
     /**
      * Get variable declarations
@@ -282,58 +188,6 @@ public class Resource implements Executable, Node {
 
     public String getName() {
         return name;
-    }
-
-    @Override
-    public boolean execute(Context context, BalCallback callback) {
-        populateDefaultMessage(context);
-        return defaultWorker.execute(context, callback);
-    }
-
-    private void populateDefaultMessage(Context context) {
-        // Adding MessageValue to the ControlStack
-        ControlStack controlStack = context.getControlStack();
-        BValue[] valueParams = new BValue[this.stackFrameSize];
-        // Populate MessageValue with CarbonMessages' headers.
-        BMessage bMessage = new BMessage(context.getCarbonMessage());
-        List<Header> headerList = context.getCarbonMessage().getHeaders().getAll();
-        bMessage.setHeaderList(headerList);
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Populate headers from CarbonMessage.");
-            Consumer<Header> headerPrint = (Header header) -> LOG
-                    .debug("Header: " + header.getName() + " -> " + header.getValue());
-            headerList.forEach(headerPrint);
-        }
-        valueParams[0] = bMessage;
-
-        int i = 1;
-        // Create default values for all declared local variables
-        VariableDcl[] variableDcls = this.getVariableDcls();
-        for (VariableDcl variableDcl : variableDcls) {
-            valueParams[i] = BValueUtils.getDefaultValue(variableDcl.getTypeC());
-            i++;
-        }
-
-        for (ConnectorDcl connectorDcl : connectorDcls) {
-            Symbol symbol = GlobalScopeHolder.getInstance().getScope().lookup(connectorDcl.getConnectorName());
-            if (symbol == null) {
-                LOG.error("Connector : " + connectorDcl.getConnectorName() + " not found");
-            }
-            Connector connector = symbol.getConnector();
-            if (connector instanceof AbstractNativeConnector) {
-                //TODO Fix Issue#320
-                connector = ((AbstractNativeConnector) connector).getInstance();
-            }
-            BConnector bConnector = new BConnector(connector, connectorDcl.getArgExprs());
-            valueParams[i] = bConnector;
-            i++;
-        }
-
-        BValue[] ret = new BValue[1];
-
-        StackFrame stackFrame = new StackFrame(valueParams, ret);
-        // ToDo : StackFrame should be added at the upstream components.
-        controlStack.pushFrame(stackFrame);
     }
 
     public int getStackFrameSize() {
