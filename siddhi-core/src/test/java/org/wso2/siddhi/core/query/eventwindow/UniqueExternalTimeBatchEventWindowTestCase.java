@@ -23,13 +23,12 @@ import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
-import org.wso2.siddhi.core.query.window.TimeWindowTestCase;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
 
 public class UniqueExternalTimeBatchEventWindowTestCase {
 
-    private static final Logger log = Logger.getLogger(TimeWindowTestCase.class);
+    private static final Logger log = Logger.getLogger(UniqueExternalTimeBatchEventWindowTestCase.class);
     private int inEventCount;
     private int removeEventCount;
     private boolean eventArrived;
