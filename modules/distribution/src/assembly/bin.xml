@@ -31,8 +31,9 @@
                 <exclude>README.txt</exclude>
                 <exclude>LICENSE.txt</exclude>
                 <exclude>release-notes.html</exclude>
+                <exclude>conf/log4j2.xml</exclude>
                 <exclude>conf/osgi/launch.properties</exclude>
-		        <exclude>conf/transports/netty-transports.yml</exclude>
+                <exclude>conf/transports/netty-transports.yml</exclude>
                 <exclude>**/*.ipr</exclude>
                 <exclude>**/*.iwr</exclude>
                 <exclude>**/*.eclipse</exclude>
@@ -111,6 +112,12 @@
             <outputDirectory>bin/</outputDirectory>
             <filtered>true</filtered>
             <fileMode>444</fileMode>
+        </file>
+        <file>
+            <source>carbon-home/conf/log4j2.xml</source>
+            <outputDirectory>conf/</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
         </file>
     </files>
 </assembly>

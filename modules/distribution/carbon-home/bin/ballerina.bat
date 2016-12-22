@@ -164,7 +164,7 @@ set CMD_LINE_ARGS=-Xbootclasspath/a:%CARBON_XBOOTCLASSPATH% -Xms256m -Xmx1024m -
 
 :runJava
 echo JAVA_HOME environment variable is set to %JAVA_HOME%
-echo CARBON_HOME environment variable is set to %CARBON_HOME%
+REM echo CARBON_HOME environment variable is set to %CARBON_HOME%
 "%JAVA_HOME%\bin\java" %CMD_LINE_ARGS% org.wso2.carbon.launcher.Main %CMD%
 if "%ERRORLEVEL%"=="121" goto runJava
 :end

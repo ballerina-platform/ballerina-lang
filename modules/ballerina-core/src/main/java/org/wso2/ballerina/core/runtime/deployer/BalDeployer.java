@@ -39,6 +39,7 @@ import org.wso2.ballerina.core.parser.antlr4.BLangAntlr4Listener;
 import org.wso2.ballerina.core.runtime.BalProgramExecutor;
 import org.wso2.ballerina.core.runtime.Constants;
 import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
+import org.wso2.ballerina.core.runtime.internal.RuntimeUtils;
 import org.wso2.ballerina.core.runtime.internal.ServiceContextHolder;
 import org.wso2.ballerina.core.runtime.registry.ApplicationRegistry;
 import org.wso2.ballerina.core.semantics.SemanticAnalyzer;
@@ -127,6 +128,7 @@ public class BalDeployer implements Deployer {
 
     public static void deployBalFile(File file) {
         InputStream inputStream = null;
+        boolean successful = true;
         try {
             inputStream = new FileInputStream(file);
 
@@ -156,11 +158,36 @@ public class BalDeployer implements Deployer {
                 BLangLinker bLangLinker = new BLangLinker(balFile);
                 bLangLinker.link(GlobalScopeHolder.getInstance().getScope());
 
-                // Run main function
-                BallerinaFunction function =
-                        (BallerinaFunction) balFile.getFunctions().get(Constants.MAIN_FUNCTION_NAME);
-                if (function != null) {
-                    BalProgramExecutor.execute(function);
+                if (Constants.RuntimeMode.RUN_FILE == ServiceContextHolder.getInstance().getRuntimeMode()) {
+                    BallerinaFunction function =
+                            (BallerinaFunction) balFile.getFunctions().get(Constants.MAIN_FUNCTION_NAME);
+                    if (function != null) {
+                        if (balFile.getServices().size() == 0) {
+                            if (log.isDebugEnabled()) {
+                                log.debug("No Service is found in Bal file. Only Main function will be executed," +
+                                        " then exit.");
+                            }
+                            // Run main function
+                            try {
+                                BalProgramExecutor.execute(function);
+                            } finally {
+                                RuntimeUtils.shutdownRuntime();
+                            }
+                            return;
+                        } else {
+                            if (log.isDebugEnabled()) {
+                                log.debug("Bal File contains Services and Main Functions.");
+                            }
+                            // Run main function
+                            BalProgramExecutor.execute(function);
+                        }
+                    } else {
+                        if (balFile.getServices().size() == 0) {
+                            log.warn("Unable to find Main function or Any Ballerina Service. System Exits. Bye.");
+                            RuntimeUtils.shutdownRuntime();
+                            return;
+                        }
+                    }
                 }
 
                 // Get the existing application associated with this ballerina config
@@ -188,14 +215,20 @@ public class BalDeployer implements Deployer {
             }
         } catch (IOException e) {
             log.error("Error while creating Ballerina object model from file : " + file.getName(), e.getMessage());
+            successful = false;
         } catch (BallerinaException e) {
             log.error("Failed to deploy " + file.getName() + ": " + e.getMessage(), e.getMessage());
+            successful = false;
         } finally {
             if (inputStream != null) {
                 try {
                     inputStream.close();
                 } catch (IOException ignore) {
                 }
+            }
+            if (!successful && Constants.RuntimeMode.RUN_FILE == ServiceContextHolder.getInstance().getRuntimeMode()) {
+                log.error("Execution is not successful. System exits. Bye.");
+                RuntimeUtils.shutdownRuntime();
             }
         }
     }
