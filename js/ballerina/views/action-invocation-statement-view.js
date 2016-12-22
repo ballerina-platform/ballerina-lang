@@ -113,11 +113,7 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
         ActionInvocationStatementView.prototype.render = function (renderingContext) {
             // TODO : Please revisit this method. Needs a refactor
             this.setDiagramRenderingContext(renderingContext);
-
-            this._scope = this.getDiagramRenderingContext().currentResource;
-            var connectorList = this._scope._connectorList;
-
-            var connectorModel = _.find(connectorList, ['id', _.get(this._model.getConnector(), 'id')]);
+            var connectorModel =  this._model.getConnector();
 
             if(!_.isUndefined(connectorModel)) {
                 this.connector = this.getDiagramRenderingContext().getViewOfModel(connectorModel);
@@ -242,9 +238,7 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
             var processorConnector2 = undefined;
 
             this.setDiagramRenderingContext(context);
-            var connectorList = this._scope._connectorList;
-
-            var connectorModel = _.find(connectorList, ['id', _.get(this._model.getConnector(), 'id')]);
+            var connectorModel = this._model.getConnector();
 
             if(!_.isUndefined(connectorModel)) {
                 this.connector = this.getDiagramRenderingContext().getViewOfModel(connectorModel);

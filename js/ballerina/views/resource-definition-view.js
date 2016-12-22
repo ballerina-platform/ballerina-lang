@@ -35,7 +35,6 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             BallerinaView.call(this, args);
 
             this._connectorViewList =  [];
-            this._connectorList =  [];
             this._defaultWorker = undefined;
             this._statementExpressionViewList = [];
             this._parentView = _.get(args, "parentView");
@@ -229,7 +228,6 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
          */
         ResourceDefinitionView.prototype.render = function (diagramRenderingContext) {
             this.diagramRenderingContext = diagramRenderingContext;
-            this.diagramRenderingContext.currentResource = this;
             // Render resource view
             var svgContainer = $(this._container)[0];
 
@@ -1181,7 +1179,6 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             connectorDeclarationView = new ConnectorDeclarationView(connectorOpts);
             this.diagramRenderingContext.getViewModelMap()[connectorDeclaration.id] = connectorDeclarationView;
             this._connectorViewList.push(connectorDeclarationView);
-            this._connectorList.push(connectorDeclarationView.getModel());
 
             connectorDeclarationView._rootGroup.attr('id', '_' +connectorDeclarationView._model.id);
 
