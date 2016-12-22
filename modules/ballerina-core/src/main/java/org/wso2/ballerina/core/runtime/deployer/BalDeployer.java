@@ -193,9 +193,9 @@ public class BalDeployer implements Deployer {
                 log.info("Deployed ballerina file : " + file.getName());
             }
         } catch (IOException e) {
-            log.error("Error while creating Ballerina object model from file : " + file.getName(), e);
+            log.error("Error while creating Ballerina object model from file : " + file.getName(), e.getMessage());
         } catch (BallerinaException e) {
-            log.error("Failed to deploy " + file.getName() + ": " + e.getMessage(), e);
+            log.error("Failed to deploy " + file.getName() + ": " + e.getMessage(), e.getMessage());
         } finally {
             if (inputStream != null) {
                 try {
