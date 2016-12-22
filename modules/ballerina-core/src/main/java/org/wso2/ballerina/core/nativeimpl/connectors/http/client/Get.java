@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.wso2.ballerina.core.nativeimpl.connectors.http;
+package org.wso2.ballerina.core.nativeimpl.connectors.http.client;
 
 import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
@@ -28,15 +28,15 @@ import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
+import org.wso2.ballerina.core.nativeimpl.connectors.http.Constants;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
- * {@code Post} is the POST action implementation of the HTTP Connector
- *
+ * {@code Get} is the GET action implementation of the HTTP Connector
  */
 @BallerinaAction(
         packageName = "ballerina.net.http",
-        actionName = "post",
+        actionName = "get",
         connectorName = HTTPConnector.CONNECTOR_NAME,
         args = {
                 @Argument(name = "connector",
@@ -46,17 +46,17 @@ import org.wso2.carbon.messaging.CarbonMessage;
         },
         returnType = {TypeEnum.MESSAGE})
 @Component(
-        name = "action.net.http.post",
+        name = "action.net.http.get",
         immediate = true,
         service = AbstractNativeAction.class)
-public class Post extends AbstractHTTPAction {
+public class Get extends AbstractHTTPAction {
 
-    private static final Logger logger = LoggerFactory.getLogger(Post.class);
+    private static final Logger logger = LoggerFactory.getLogger(Get.class);
 
     @Override
     public BValue execute(Context context) {
 
-        logger.debug("Executing Native Action : Post");
+        logger.debug("Executing Native Action : Get");
 
         // Extract Argument values
         BConnector bConnector = (BConnector) getArgument(context, 0);
@@ -68,12 +68,11 @@ public class Post extends AbstractHTTPAction {
             logger.error("Need to use a HTTPConnector as the first argument");
             return null;
         }
-
         // Prepare the message
         CarbonMessage cMsg = bMessage.value();
         prepareRequest(connector, path, cMsg);
-        cMsg.setProperty(org.wso2.ballerina.core.runtime.net.http.Constants.HTTP_METHOD,
-                         org.wso2.ballerina.core.runtime.net.http.Constants.HTTP_METHOD_POST);
+        cMsg.setProperty(Constants.HTTP_METHOD,
+                         Constants.HTTP_METHOD_GET);
 
         // Execute the operation
         return executeAction(context, cMsg);

@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.ballerina.core.runtime.net.http;
+package org.wso2.ballerina.core.nativeimpl.connectors.http;
 
 /**
  * Constants for HTTP

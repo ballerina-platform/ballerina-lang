@@ -58,10 +58,10 @@ public class ParserUtils {
         ballerinaParser.setErrorHandler(new BallerinaParserErrorStrategy());
         ballerinaParser.compilationUnit();
 
-        // Get the model for source file
+        // Get the model for server file
         BallerinaFile bFile = modelBuilder.build();
 
-        // Analyze semantic properties of the source code
+        // Analyze semantic properties of the server code
         SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(bFile);
         bFile.accept(semanticAnalyzer);
 

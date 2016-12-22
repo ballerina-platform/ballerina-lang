@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * {@code BallerinaFile} represent a content of a Ballerina source file
+ * {@code BallerinaFile} represent a content of a Ballerina server file
  * <p>
  * A Ballerina file is structured as follows:
  * <p>
@@ -186,7 +186,7 @@ public class BallerinaFile implements Node {
     }
 
     /**
-     * Builds a BFile which represents physical ballerina source file
+     * Builds a BFile which represents physical ballerina server file
      */
     public static class BFileBuilder {
 

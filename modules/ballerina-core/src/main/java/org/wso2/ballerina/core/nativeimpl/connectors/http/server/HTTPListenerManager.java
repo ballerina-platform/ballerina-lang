@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.ballerina.core.runtime.net.http.source;
+package org.wso2.ballerina.core.nativeimpl.connectors.http.server;
 
 import org.wso2.carbon.messaging.TransportListener;
 import org.wso2.carbon.messaging.TransportListenerManager;
@@ -29,7 +29,7 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * {@code HTTPListenerManager} is responsible for managing http transport listener.
  * <p>
- * This is the bridge between transport listener and source of the {@code Service} for deployment tasks.
+ * This is the bridge between transport listener and server of the {@code Service} for deployment tasks.
  */
 public class HTTPListenerManager implements TransportListenerManager {
 

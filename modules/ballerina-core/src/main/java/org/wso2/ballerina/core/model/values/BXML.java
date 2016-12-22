@@ -73,7 +73,7 @@ public class BXML extends BallerinaMessageDataSource implements BRefType<OMEleme
             try {
                 value = new StAXOMBuilder(inputStream).getDocumentElement();
             } catch (XMLStreamException e) {
-                throw new BallerinaException("Cannot create OMElement from given source: " + e.getMessage());
+                throw new BallerinaException("Cannot create OMElement from given server: " + e.getMessage());
             }
         }
     }
