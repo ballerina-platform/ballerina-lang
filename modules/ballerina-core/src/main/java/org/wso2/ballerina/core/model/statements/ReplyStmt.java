@@ -40,7 +40,7 @@ public class ReplyStmt implements Statement {
     }
 
     public void interpret(Context ctx) {
-         ctx.getBalCallback().done(ctx.getCarbonMessage());
+         ctx.getResponseSendingCallback().done(ctx.getCarbonMessage());
     }
 
     @Override

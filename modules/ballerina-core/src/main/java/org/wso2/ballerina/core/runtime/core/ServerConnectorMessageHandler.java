@@ -79,7 +79,7 @@ public class ServerConnectorMessageHandler {
 
             // Create the Ballerina Context
             Context balContext = new Context(cMsg);
-            balContext.setBalCallback(new DefaultBalCallback(callback));
+            balContext.setResponseSendingCallback(new DefaultBalCallback(callback));
 
             // Delegate the execution to the BalProgram Executor
             BalProgramExecutor.execute(balContext, resource);

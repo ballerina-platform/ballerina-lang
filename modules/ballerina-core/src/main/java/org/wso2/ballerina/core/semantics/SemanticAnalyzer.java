@@ -281,6 +281,10 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(AssignStmt assignStmt) {
         Expression rExpr = assignStmt.getRExpr();
+        if (rExpr instanceof ActionInvocationExpr) {
+            assignStmt.setHaltExecution(true);
+
+        }
         rExpr.accept(this);
 
         Expression lExpr = assignStmt.getLExpr();

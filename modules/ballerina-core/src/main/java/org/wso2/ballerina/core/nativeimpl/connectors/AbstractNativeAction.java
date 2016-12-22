@@ -171,7 +171,7 @@ public abstract class AbstractNativeAction implements Action, NativeConstruct {
         throw new ArgumentOutOfRangeException(index);
     }
 
-    public abstract BValue execute(Context context);
+    public abstract void execute(Context context);
 
 //    @Override
 //    public void interpret(Context ctx) {
