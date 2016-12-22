@@ -66,7 +66,7 @@ import org.wso2.ballerina.core.model.statements.ReplyStmt;
 import org.wso2.ballerina.core.model.statements.ReturnStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
-import org.wso2.ballerina.core.model.types.TypeC;
+import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.util.BValueUtils;
 import org.wso2.ballerina.core.model.values.BConnector;
 import org.wso2.ballerina.core.model.values.BMessage;
@@ -280,12 +280,12 @@ public class BLangInterpreter implements NodeVisitor {
         // Create default values for all declared local variables
         VariableDcl[] variableDcls = function.getVariableDcls();
         for (VariableDcl variableDcl : variableDcls) {
-            localVals[i] = BValueUtils.getDefaultValue(variableDcl.getTypeC());
+            localVals[i] = BValueUtils.getDefaultValue(variableDcl.getType());
             i++;
         }
 
         // Create an array in the stack frame to hold return values;
-        BValue[] rVals = new BValue[function.getReturnTypesC().length];
+        BValue[] rVals = new BValue[function.getReturnTypes().length];
 
         // Create a new stack frame with memory locations to hold parameters, local values, temp expression valuse and
         // return values;
@@ -325,12 +325,12 @@ public class BLangInterpreter implements NodeVisitor {
         // Create default values for all declared local variables
         VariableDcl[] variableDcls = action.getVariableDcls();
         for (VariableDcl variableDcl : variableDcls) {
-            localVals[i] = BValueUtils.getDefaultValue(variableDcl.getTypeC());
+            localVals[i] = BValueUtils.getDefaultValue(variableDcl.getType());
             i++;
         }
 
         // Create an array in the stack frame to hold return values;
-        BValue[] rVals = new BValue[action.getReturnTypesC().length];
+        BValue[] rVals = new BValue[action.getReturnTypes().length];
 
         // Create a new stack frame with memory locations to hold parameters, local values, temp expression values and
         // return values;
@@ -449,7 +449,7 @@ public class BLangInterpreter implements NodeVisitor {
         // Create default values for all declared local variables
         VariableDcl[] variableDcls = resource.getVariableDcls();
         for (VariableDcl variableDcl : variableDcls) {
-            valueParams[i] = BValueUtils.getDefaultValue(variableDcl.getTypeC());
+            valueParams[i] = BValueUtils.getDefaultValue(variableDcl.getType());
             i++;
         }
 
@@ -527,13 +527,13 @@ public class BLangInterpreter implements NodeVisitor {
         for (Expression arg : expressions) {
             // Evaluate the argument expression
             arg.accept(this);
-            TypeC argType = arg.getType();
+            BType argType = arg.getType();
             BValue argValue = getValueNew(arg);
 
             // Here we need to handle value types differently from reference types
             // Value types need to be cloned before passing ot the function : pass by value.
             // TODO Implement copy-on-write mechanism to improve performance
-            if (TypeC.isValueType(argType)) {
+            if (BType.isValueType(argType)) {
                 argValue = BValueUtils.clone(argType, argValue);
             }
 

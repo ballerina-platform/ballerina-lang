@@ -22,17 +22,17 @@ package org.wso2.ballerina.core.model.types;
  *
  * @since 1.0.0
  */
-public class ArrayType extends TypeC {
+public class BArrayType extends BType {
 
-    private TypeC elementType;
+    private BType elementType;
 
     /**
      * Create a type from the given name
      *
      * @param typeName string name of the type
      */
-    ArrayType(String typeName, String elementType) {
+    BArrayType(String typeName, String elementType) {
         super(typeName);
-        this.elementType = TypeC.getTypeC(elementType);
+        this.elementType = BType.getType(elementType);
     }
 }
