@@ -45,9 +45,9 @@ public class WhileStmt implements Statement {
     }
 
     public void interpret(Context ctx) {
-        while (whileCondition.evaluate(ctx).getBoolean()) {
-            whileBody.interpret(ctx);
-        }
+//        while (whileCondition.evaluate(ctx).getBoolean()) {
+//            whileBody.interpret(ctx);
+//        }
     }
 
     @Override

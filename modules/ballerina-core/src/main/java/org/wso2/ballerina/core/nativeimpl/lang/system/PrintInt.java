@@ -43,7 +43,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 public class PrintInt extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
-        System.out.print(getArgument(ctx, 0).getBValue().getString().getValue());
+        System.out.print(getArgument(ctx, 0).stringValue());
         return VOID_RETURN;
     }
 }

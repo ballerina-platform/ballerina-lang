@@ -17,15 +17,14 @@
 */
 package org.wso2.ballerina.core.model.expressions;
 
-import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.NodeVisitor;
-import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.model.values.BValueRef;
-import org.wso2.ballerina.core.model.values.DoubleValue;
-import org.wso2.ballerina.core.model.values.FloatValue;
-import org.wso2.ballerina.core.model.values.IntValue;
-import org.wso2.ballerina.core.model.values.LongValue;
-import org.wso2.ballerina.core.utils.TriFunction;
+import org.wso2.ballerina.core.model.values.BDouble;
+import org.wso2.ballerina.core.model.values.BFloat;
+import org.wso2.ballerina.core.model.values.BInteger;
+import org.wso2.ballerina.core.model.values.BLong;
+import org.wso2.ballerina.core.model.values.BValueType;
+
+import java.util.function.BiFunction;
 
 import static org.wso2.ballerina.core.model.Operator.MUL;
 
@@ -36,37 +35,17 @@ import static org.wso2.ballerina.core.model.Operator.MUL;
  */
 public class MultExpression extends BinaryArithmeticExpression {
 
-    public static final TriFunction<Context, Expression, Expression, BValueRef> MULT_INT_FUNC =
-            (ctx, lExpr, rExpr) -> {
-                IntValue lValue = (IntValue) lExpr.evaluate(ctx).getBValue();
-                IntValue rValue = (IntValue) rExpr.evaluate(ctx).getBValue();
-                BValue bValue = new IntValue(lValue.getValue() * rValue.getValue());
-                return new BValueRef(bValue);
-            };
+    public static final BiFunction<BValueType, BValueType, BValueType> MULT_INT_FUNC =
+            (lVal, rVal) -> new BInteger(lVal.intValue() * rVal.intValue());
 
-    public static final TriFunction<Context, Expression, Expression, BValueRef> MULT_LONG_FUNC =
-            (ctx, lExpr, rExpr) -> {
-                LongValue lValue = (LongValue) lExpr.evaluate(ctx).getBValue();
-                LongValue rValue = (LongValue) rExpr.evaluate(ctx).getBValue();
-                BValue bValue = new LongValue(lValue.getValue() * rValue.getValue());
-                return new BValueRef(bValue);
-            };
+    public static final BiFunction<BValueType, BValueType, BValueType> MULT_LONG_FUNC =
+            (lVal, rVal) -> new BLong(lVal.longValue() * rVal.longValue());
 
-    public static final TriFunction<Context, Expression, Expression, BValueRef> MULT_FLOAT_FUNC =
-            (ctx, lExpr, rExpr) -> {
-                FloatValue lValue = (FloatValue) lExpr.evaluate(ctx).getBValue();
-                FloatValue rValue = (FloatValue) rExpr.evaluate(ctx).getBValue();
-                BValue bValue = new FloatValue(lValue.getValue() * rValue.getValue());
-                return new BValueRef(bValue);
-            };
+    public static final BiFunction<BValueType, BValueType, BValueType> MULT_FLOAT_FUNC =
+            (lVal, rVal) -> new BFloat(lVal.floatValue() * rVal.floatValue());
 
-    public static final TriFunction<Context, Expression, Expression, BValueRef> MULT_DOUBLE_FUNC =
-            (ctx, lExpr, rExpr) -> {
-                DoubleValue lValue = (DoubleValue) lExpr.evaluate(ctx).getBValue();
-                DoubleValue rValue = (DoubleValue) rExpr.evaluate(ctx).getBValue();
-                BValue bValue = new DoubleValue(lValue.getValue() * rValue.getValue());
-                return new BValueRef(bValue);
-            };
+    public static final BiFunction<BValueType, BValueType, BValueType> MULT_DOUBLE_FUNC =
+            (lVal, rVal) -> new BDouble(lVal.doubleValue() * rVal.doubleValue());
 
     public MultExpression(Expression lExpr, Expression rExpr) {
         super(lExpr, MUL, rExpr);

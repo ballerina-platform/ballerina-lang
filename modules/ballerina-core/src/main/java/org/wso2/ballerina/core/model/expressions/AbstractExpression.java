@@ -17,9 +17,7 @@
 */
 package org.wso2.ballerina.core.model.expressions;
 
-import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeC;
-import org.wso2.ballerina.core.model.values.BValueRef;
 
 /**
  * All the expressions should extend {@code AbstractExpression}
@@ -33,11 +31,6 @@ public abstract class AbstractExpression implements Expression {
     protected TypeC type;
     protected int offset;
 
-    // TODO Remove this reference to the BValueRef
-    protected BValueRef bValueRef;
-
-    public abstract BValueRef evaluate(Context ctx);
-
     public TypeC getType() {
         return type;
     }
@@ -46,19 +39,11 @@ public abstract class AbstractExpression implements Expression {
         this.type = type;
     }
 
-    public BValueRef getBValueRef() {
-        return bValueRef;
-    }
-
     public int getOffset() {
         return this.offset;
     }
 
     public void setOffset(int offset) {
         this.offset = offset;
-    }
-
-    public void setBValueRef(BValueRef bValueRef) {
-        this.bValueRef = bValueRef;
     }
 }

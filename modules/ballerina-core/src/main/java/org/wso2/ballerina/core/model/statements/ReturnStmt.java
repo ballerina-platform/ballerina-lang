@@ -47,9 +47,9 @@ public class ReturnStmt implements Statement {
     }
 
     public void interpret(Context ctx) {
-        for (Expression expr : exprs) {
-            expr.evaluate(ctx);
-        }
+//        for (Expression expr : exprs) {
+//            expr.evaluate(ctx);
+//        }
 
 //        ctx.getControlStack().getCurrentFrame().returnValue.setBValue(expr.evaluate(ctx).getBValue());
     }

@@ -15,23 +15,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.wso2.ballerina.core.runtime.core;
 
+import org.wso2.ballerina.core.interpreter.BLangInterpreter;
 import org.wso2.ballerina.core.interpreter.Context;
+import org.wso2.ballerina.core.model.Resource;
+import org.wso2.ballerina.core.model.ResourceInvoker;
 
 /**
- * {@code Executable} is an executable entity of Ballerina
+ * {@code BalProgramExecutor} is responsible for executing a BallerinaProgram
  *
- * Implementations of this can be executed as statements.
+ * @since 1.0.0
  */
-public interface Executable {
+public class BalProgramExecutor {
 
-    /**
-     *
-     * @param context Ballerina context
-     * @param callback  Ballerina callback
-     * @return  whether execution is successful
-     */
-    boolean execute(Context context, BalCallback callback);
+    public static void execute(Context context, Resource resource) {
+        // Create the interpreter and Execute
+        BLangInterpreter interpreter = new BLangInterpreter(context);
+        new ResourceInvoker(resource).accept(interpreter);
+    }
 
 }

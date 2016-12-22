@@ -18,17 +18,12 @@
 
 package org.wso2.ballerina.core.model;
 
-import org.wso2.ballerina.core.interpreter.BLangInterpreter;
-import org.wso2.ballerina.core.interpreter.Context;
-import org.wso2.ballerina.core.runtime.core.BalCallback;
-import org.wso2.ballerina.core.runtime.core.Executable;
-
 /**
  * {@code ResourceInvoker} is the entity which invokes a particular resource
  *
  * @since 1.0.0
  */
-public class ResourceInvoker implements Node, Executable {
+public class ResourceInvoker implements Node {
 
     Resource resource;
 
@@ -43,13 +38,5 @@ public class ResourceInvoker implements Node, Executable {
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
-    }
-
-    @Override
-    public boolean execute(Context context, BalCallback callback) {
-        BLangInterpreter interpreter = new BLangInterpreter(context);
-        context.setBalCallback(callback);
-        this.accept(interpreter);
-        return true;
     }
 }

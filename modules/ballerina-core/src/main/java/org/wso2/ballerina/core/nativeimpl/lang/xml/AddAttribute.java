@@ -29,7 +29,7 @@ import org.osgi.service.component.annotations.Component;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.model.values.XMLValue;
+import org.wso2.ballerina.core.model.values.BXML;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
@@ -64,14 +64,14 @@ public class AddAttribute extends AbstractNativeFunction {
     private static final String OPERATION = "add attribute to xml";
 
     @Override
-    public BValue<?>[] execute(Context ctx) {
+    public BValue[] execute(Context ctx) {
         try {
             // Accessing Parameters.
-            XMLValue xml = (XMLValue) getArgument(ctx, 0).getBValue();
-            String xPath = getArgument(ctx, 1).getString();
+            BXML xml = (BXML) getArgument(ctx, 0);
+            String xPath = getArgument(ctx, 1).stringValue();
             // MapValue<String, String> nameSpaces = getArgument(ctx, 2).getMap();
-            String name = getArgument(ctx, 2).getString();
-            String value = getArgument(ctx, 3).getString();
+            String name = getArgument(ctx, 2).stringValue();
+            String value = getArgument(ctx, 3).stringValue();
             
             if (value == null) {
                 return VOID_RETURN;
@@ -86,7 +86,7 @@ public class AddAttribute extends AbstractNativeFunction {
                 }
             }*/
             
-            Object result = axiomxPath.evaluate(xml.getValue());
+            Object result = axiomxPath.evaluate(xml.value());
             if (result instanceof ArrayList) {
                 List<?> macthingElements = (List<?>) result;
                 if (macthingElements.isEmpty()) {

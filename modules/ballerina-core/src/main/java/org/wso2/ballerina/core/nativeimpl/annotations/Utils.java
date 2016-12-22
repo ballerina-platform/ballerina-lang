@@ -21,16 +21,14 @@ import org.wso2.ballerina.core.model.Const;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.types.TypeC;
 import org.wso2.ballerina.core.model.types.TypeEnum;
-import org.wso2.ballerina.core.model.values.ArrayValueOld;
+import org.wso2.ballerina.core.model.values.BBoolean;
+import org.wso2.ballerina.core.model.values.BDouble;
+import org.wso2.ballerina.core.model.values.BFloat;
+import org.wso2.ballerina.core.model.values.BInteger;
+import org.wso2.ballerina.core.model.values.BJSON;
+import org.wso2.ballerina.core.model.values.BLong;
+import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.model.values.BooleanValue;
-import org.wso2.ballerina.core.model.values.DoubleValue;
-import org.wso2.ballerina.core.model.values.FloatValue;
-import org.wso2.ballerina.core.model.values.IntValue;
-import org.wso2.ballerina.core.model.values.JSONValue;
-import org.wso2.ballerina.core.model.values.LongValue;
-import org.wso2.ballerina.core.model.values.MapValue;
-import org.wso2.ballerina.core.model.values.StringValue;
 import org.wso2.ballerina.core.nativeimpl.exceptions.MalformedEntryException;
 
 /**
@@ -65,38 +63,38 @@ public class Utils {
         try {
             switch (typeEnum) {
                 case BOOLEAN:
-                    bValue = new BooleanValue(Boolean.parseBoolean(value));
+                    bValue = new BBoolean(Boolean.parseBoolean(value));
                     break;
                 case INT:
-                    bValue = new IntValue(Integer.parseInt(value));
+                    bValue = new BInteger(Integer.parseInt(value));
                     break;
                 case LONG:
-                    bValue = new LongValue(Long.parseLong(value));
+                    bValue = new BLong(Long.parseLong(value));
                     break;
                 case DOUBLE:
-                    bValue = new DoubleValue(Double.parseDouble(value));
+                    bValue = new BDouble(Double.parseDouble(value));
                     break;
                 case FLOAT:
-                    bValue = new FloatValue(Float.parseFloat(value));
+                    bValue = new BFloat(Float.parseFloat(value));
                     break;
                 case STRING:
-                    bValue = new StringValue(value);
+                    bValue = new BString(value);
                     break;
                 case JSON:
-                    bValue = new JSONValue(value);
+                    bValue = new BJSON(value);
                     break;
                 case XML:
                     // TODO: Fix this.
                     throw new MalformedEntryException("XML not supported yet.");
-                case MAP:
-                    // TODO: Fix this.
-                    bValue = new MapValue();
-                    break;
-                case ARRAY:
-                    // TODO: improve logic. Current Native Annotation support only Predefined String[] only.
-                    String[] values = value.substring(1, value.length() - 1).split(",");
-                    bValue = new ArrayValueOld<>(values);
-                    break;
+//                case MAP:
+//                    // TODO: Fix this.
+//                    bValue = new MapValue();
+//                    break;
+//                case ARRAY:
+//                    // TODO: improve logic. Current Native Annotation support only Predefined String[] only.
+//                    String[] values = value.substring(1, value.length() - 1).split(",");
+//                    bValue = new ArrayValueOld<>(values);
+//                    break;
                 default:
                     throw new MalformedEntryException("Not supported entry " + typeEnum);
             }

@@ -18,23 +18,20 @@
 
 package org.wso2.ballerina.core.runtime.core.threading.threadpool;
 
-import org.wso2.ballerina.core.interpreter.Context;
-import org.wso2.ballerina.core.runtime.core.BalCallback;
+import org.wso2.ballerina.core.runtime.core.ServerConnectorMessageHandler;
+import org.wso2.carbon.messaging.CarbonCallback;
+import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
  * Worker Thread which is responsible for response processing
  */
 public class ResponseWorkerThread extends WorkerThread {
 
-    public ResponseWorkerThread(Context context, BalCallback callback) {
-        super(context, callback);
+    public ResponseWorkerThread(CarbonMessage cMsg, CarbonCallback callback) {
+        super(cMsg, callback);
     }
 
     public void run() {
-        try {
-            callback.done(context.getCarbonMessage());
-        } catch (Throwable throwable) {
-            handleError(throwable);
-        }
+        ServerConnectorMessageHandler.handleOutbound(cMsg, callback);
     }
 }

@@ -20,10 +20,9 @@ package org.wso2.ballerina.core.runtime.net.http.source;
 import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.ballerina.core.interpreter.Context;
-import org.wso2.ballerina.core.runtime.core.BalCallback;
-import org.wso2.ballerina.core.runtime.errors.handler.ErrorHandler;
+import org.wso2.ballerina.core.runtime.errors.handler.ServerConnectorErrorHandler;
 import org.wso2.ballerina.core.runtime.net.http.Constants;
+import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
 
@@ -37,13 +36,13 @@ import java.util.Map;
 @Component(
         name = "ballerina.net.http.error.handler",
         immediate = true,
-        service = ErrorHandler.class)
-public class HTTPErrorHandler implements ErrorHandler {
+        service = ServerConnectorErrorHandler.class)
+public class HTTPErrorHandler implements ServerConnectorErrorHandler {
 
     private static final Logger log = LoggerFactory.getLogger(HTTPErrorHandler.class);
 
     @Override
-    public void handleError(Exception ex, Context bContext, BalCallback callback) {
+    public void handleError(Exception ex, CarbonMessage cMsg, CarbonCallback callback) {
         callback.done(createErrorMessage(ex.getMessage(), 500));
     }
 

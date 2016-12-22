@@ -23,6 +23,7 @@ import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.builder.BLangModelBuilder;
 import org.wso2.ballerina.core.parser.BallerinaLexer;
 import org.wso2.ballerina.core.parser.BallerinaParser;
+import org.wso2.ballerina.core.parser.BallerinaParserErrorStrategy;
 import org.wso2.ballerina.core.parser.antlr4.BLangAntlr4Listener;
 import org.wso2.ballerina.core.semantics.SemanticAnalyzer;
 
@@ -54,8 +55,8 @@ public class ParserUtils {
         BLangAntlr4Listener langModelBuilder = new BLangAntlr4Listener(modelBuilder);
 
         ballerinaParser.addParseListener(langModelBuilder);
+        ballerinaParser.setErrorHandler(new BallerinaParserErrorStrategy());
         ballerinaParser.compilationUnit();
-        //        ballerinaParser.setErrorHandler();
 
         // Get the model for source file
         BallerinaFile bFile = modelBuilder.build();

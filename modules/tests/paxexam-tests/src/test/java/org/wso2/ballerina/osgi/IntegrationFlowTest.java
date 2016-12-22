@@ -36,7 +36,7 @@ import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import javax.inject.Inject;
 
 import static org.ops4j.pax.exam.CoreOptions.maven;
-import static org.wso2.carbon.container.options.CarbonDistributionOption.copyDropinsBundle;
+import static org.wso2.carbon.container.options.CarbonDistributionOption.copyFile;
 
 @Listeners(PaxExam.class)
 @ExamFactory(CarbonContainerFactory.class)
