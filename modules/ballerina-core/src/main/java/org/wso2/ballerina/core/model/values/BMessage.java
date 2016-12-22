@@ -31,28 +31,25 @@ import java.util.List;
  *
  * @since 1.0.0
  */
-public class MessageValue implements BValue<CarbonMessage> {
+public class BMessage implements BRefType<CarbonMessage> {
     private CarbonMessage value;
-    private BValue<?> builtPayload;
+    private BValue builtPayload;
     private Headers headers = new Headers();
 
     /**
      * Create a message in ballerina using a Carbon Message.
-     * 
-     * @param value     Carbon Message
+     *
+     * @param value Carbon Message
      */
-    public MessageValue(CarbonMessage value) {
+    public BMessage(CarbonMessage value) {
         this.value = (value != null) ? value : new DefaultCarbonMessage();
     }
 
-    public CarbonMessage getValue() {
-        return value;
-    }
 
     /**
      * Set carbon message associated with this ballerina Message instance.
-     * 
-     * @param value     Carbon Message
+     *
+     * @param value Carbon Message
      */
     public void setValue(CarbonMessage value) {
         this.value = value;
@@ -60,8 +57,8 @@ public class MessageValue implements BValue<CarbonMessage> {
 
     /**
      * Check whether the payload of this message is already read and built.
-     * 
-     * @return  Flag indicating whether the payload of this message is already read and built.
+     *
+     * @return Flag indicating whether the payload of this message is already read and built.
      */
     public boolean isAlreadyRead() {
         return this.value.isAlreadyRead();
@@ -69,8 +66,8 @@ public class MessageValue implements BValue<CarbonMessage> {
 
     /**
      * Set the flag indicating the payload of this message is already read and built.
-     * 
-     * @param isRead    Flag indicating whether the payload of this message is already read and built.
+     *
+     * @param isRead Flag indicating whether the payload of this message is already read and built.
      */
     public void setAlreadyRead(Boolean isRead) {
         this.value.setAlreadyRead(isRead);
@@ -78,12 +75,12 @@ public class MessageValue implements BValue<CarbonMessage> {
 
     /**
      * Set the built payload of this message.
-     * 
-     * @param builtMsg  Built payload of this message
+     *
+     * @param builtMsg Built payload of this message
      */
-    public void setBuiltPayload(BValue<?> builtMsg) {
+    public void setBuiltPayload(BValue builtMsg) {
         // Set the message data source once the message is built
-        if (builtMsg instanceof XMLValue || builtMsg instanceof JSONValue || builtMsg instanceof StringValue) {
+        if (builtMsg instanceof BXML || builtMsg instanceof BJSON || builtMsg instanceof StringValue) {
             BallerinaMessageDataSource ballerinaMessageDataSource = (BallerinaMessageDataSource) builtMsg;
             ballerinaMessageDataSource.setOutputStream(this.value.getOutputStream());
             this.value.setMessageDataSource(ballerinaMessageDataSource);
@@ -93,17 +90,18 @@ public class MessageValue implements BValue<CarbonMessage> {
 
     /**
      * Get the built payload of this message.
-     * 
-     * @return  Built payload of this message
+     *
+     * @return Built payload of this message
      */
-    public BValue<?> getBuiltPayload() {
+    public BValue getBuiltPayload() {
         return this.builtPayload;
     }
 
     /**
      * Add  message header.
-     *  @param headerName  Headers Name
-     *  @param headerValue  Headers Value
+     *
+     * @param headerName  Headers Name
+     * @param headerValue Headers Value
      */
     public void addHeader(String headerName, String headerValue) {
         headers.set(headerName, headerValue);
@@ -112,7 +110,7 @@ public class MessageValue implements BValue<CarbonMessage> {
     /**
      * Get the header value.
      *
-     * @return  header name
+     * @return header name
      */
     public String getHeader(String headerName) {
         return headers.get(headerName);
@@ -167,14 +165,16 @@ public class MessageValue implements BValue<CarbonMessage> {
     }
 
     @Override
-    public StringValue getString() {
-        StringValue value;
-        if (this.isAlreadyRead()) {
-            value = new StringValue(getBuiltPayload().getString().getValue());
-        } else {
-            String payload = MessageUtils.getStringFromInputStream(this.getValue().getInputStream());
-            value = new StringValue(payload);
-        }
+    public CarbonMessage value() {
         return value;
+    }
+
+    @Override
+    public String stringValue() {
+        if (this.isAlreadyRead()) {
+            return this.builtPayload.stringValue();
+        }
+
+        return MessageUtils.getStringFromInputStream(this.value.getInputStream());
     }
 }

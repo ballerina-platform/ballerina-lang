@@ -24,12 +24,12 @@ import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.Symbol;
 import org.wso2.ballerina.core.model.SymbolName;
-import org.wso2.ballerina.core.model.expressions.BasicLiteral;
 import org.wso2.ballerina.core.model.expressions.Expression;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
+import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.util.LangModelUtils;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.model.values.BValueRef;
+import org.wso2.ballerina.core.model.values.BValueType;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 
@@ -61,24 +61,23 @@ public class FunctionUtils {
      *
      * @param bFile        BallerinaFile instance where callee function is defined.
      * @param functionName Callee function name.
-     * @param arguments    Input arguments for callee function.
+     * @param noOfArgs     Number of input arguments for callee function.
      * @return FunctionInvocationExpr instance.
      */
     public static FunctionInvocationExpr createInvocationExpr(BallerinaFile bFile, String functionName,
-                                                              BValue[] arguments) {
+                                                              int noOfArgs) {
         Assert.assertNotNull(functionName, "FunctionName can't be null.");
-        Assert.assertNotNull(arguments, "Arguments can't be null. But it can be empty.");
 
-        Expression[] exprs = new Expression[arguments.length];
+        Expression[] exprs = new Expression[noOfArgs];
 
-        for (int i = 0; i < arguments.length; i++) {
-            BValueRef valueRefA = new BValueRef(arguments[i]);
-            BasicLiteral basicLiteralA = new BasicLiteral(valueRefA);
-            exprs[i] = basicLiteralA;
+        for (int i = 0; i < noOfArgs; i++) {
+            VariableRefExpr variableRefExpr = new VariableRefExpr(new SymbolName("Ignored"));
+            variableRefExpr.setOffset(i);
+            exprs[i] = variableRefExpr;
         }
 
         FunctionInvocationExpr funcIExpr = new FunctionInvocationExpr(new SymbolName(functionName), exprs);
-        funcIExpr.setOffset(0);
+        funcIExpr.setOffset(noOfArgs - 1);
         funcIExpr.setFunction(bFile.getFunctions().get(functionName));
 
         return funcIExpr;
@@ -91,13 +90,16 @@ public class FunctionUtils {
      * @param sizeOfReturnValues size of the return values.
      * @return Context instance for interpret function.
      */
-    public static Context createInvocationContext(int sizeOfReturnValues) {
+    public static Context createInvocationContext(BValue[] params, int sizeOfReturnValues) {
         Assert.assertTrue(sizeOfReturnValues >= 0);
-        BValueRef[] results = new BValueRef[sizeOfReturnValues];
-        StackFrame stackFrame = new StackFrame(results, null);
-
         Context bContext = new Context();
-        bContext.getControlStack().pushFrame(stackFrame);
+
+        // Increase the
+
+        BValue[] results = new BValueType[sizeOfReturnValues];
+        StackFrame currentStackFrame = new StackFrame(params, results);
+
+        bContext.getControlStack().pushFrame(currentStackFrame);
         return bContext;
     }
 
@@ -106,21 +108,21 @@ public class FunctionUtils {
      *
      * @param context  Ballerina Context instance.
      * @param position position of the value.
-     * @return BValueRef.
+     * @return BValueNew.
      */
-    public static BValueRef getValue(Context context, int position) {
+    public static BValue getValue(Context context, int position) {
         StackFrame currentFrame = context.getControlStack().getCurrentFrame();
-        return currentFrame.values[position];
+        return currentFrame.valuesNew[position];
     }
 
     /**
      * Get First Value from the Context.
      *
-     * @param context  Ballerina Context instance.
-     * @return BValueRef.
+     * @param context Ballerina Context instance.
+     * @return BValueNew.
      */
-    public static BValueRef getValue(Context context) {
+    public static BValue getValue(Context context) {
         StackFrame currentFrame = context.getControlStack().getCurrentFrame();
-        return currentFrame.values[0];
+        return currentFrame.valuesNew[0];
     }
 }

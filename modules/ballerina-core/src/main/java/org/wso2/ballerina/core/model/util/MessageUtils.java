@@ -18,19 +18,7 @@
 
 package org.wso2.ballerina.core.model.util;
 
-import com.google.gson.JsonElement;
 import org.wso2.ballerina.core.exception.BallerinaException;
-import org.wso2.ballerina.core.model.types.LongType;
-import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.model.values.BooleanValue;
-import org.wso2.ballerina.core.model.values.DoubleValue;
-import org.wso2.ballerina.core.model.values.FloatValue;
-import org.wso2.ballerina.core.model.values.IntValue;
-import org.wso2.ballerina.core.model.values.JSONValue;
-import org.wso2.ballerina.core.model.values.LongValue;
-import org.wso2.ballerina.core.model.values.MessageValue;
-import org.wso2.ballerina.core.model.values.StringValue;
-import org.wso2.carbon.messaging.CarbonMessage;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -88,37 +76,37 @@ public class MessageUtils {
      * @param orgBValue The original BValue instance
      * @return Duplicate BValue instance
      */
-    public static BValue getBValueCopy(BValue orgBValue) {
-        BValue bValue;
-        if (orgBValue instanceof StringValue) {
-            String value = (String) orgBValue.getValue();
-            bValue = new StringValue(value);
-        } else if (orgBValue instanceof IntValue) {
-            Integer value = (Integer) orgBValue.getValue();
-            bValue = new IntValue(value);
-        } else if (orgBValue instanceof LongType) {
-            Long value = (Long) orgBValue.getValue();
-            bValue = new LongValue(value);
-        } else if (orgBValue instanceof FloatValue) {
-            Float value = (Float) orgBValue.getValue();
-            bValue = new FloatValue(value);
-        } else if (orgBValue instanceof DoubleValue) {
-            Double value = (Double) orgBValue.getValue();
-            bValue = new DoubleValue(value);
-        } else if (orgBValue instanceof BooleanValue) {
-            Boolean value = (Boolean) orgBValue.getValue();
-            bValue = new BooleanValue(value);
-        } else if (orgBValue instanceof JSONValue) {
-            JsonElement value = (JsonElement) orgBValue.getValue();
-            bValue = new JSONValue(value);
-        } else if (orgBValue instanceof MessageValue) {
-            CarbonMessage value = (CarbonMessage) orgBValue.getValue();
-            bValue = new MessageValue(value);
-        } else {
-            throw new BallerinaException("Unsupported orgBValue: " + orgBValue.getValue());
-        }
-        return bValue;
-    }
+//    public static BValue getBValueCopy(BValue orgBValue) {
+//        BValue bValue;
+//        if (orgBValue instanceof StringValue) {
+//            String value = (String) orgBValue.getValue();
+//            bValue = new StringValue(value);
+//        } else if (orgBValue instanceof IntValue) {
+//            Integer value = (Integer) orgBValue.getValue();
+//            bValue = new IntValue(value);
+//        } else if (orgBValue instanceof LongType) {
+//            Long value = (Long) orgBValue.getValue();
+//            bValue = new LongValue(value);
+//        } else if (orgBValue instanceof FloatValue) {
+//            Float value = (Float) orgBValue.getValue();
+//            bValue = new FloatValue(value);
+//        } else if (orgBValue instanceof DoubleValue) {
+//            Double value = (Double) orgBValue.getValue();
+//            bValue = new DoubleValue(value);
+//        } else if (orgBValue instanceof BooleanValue) {
+//            Boolean value = (Boolean) orgBValue.getValue();
+//            bValue = new BooleanValue(value);
+//        } else if (orgBValue instanceof JSONValue) {
+//            JsonElement value = (JsonElement) orgBValue.getValue();
+//            bValue = new JSONValue(value);
+//        } else if (orgBValue instanceof MessageValue) {
+//            CarbonMessage value = (CarbonMessage) orgBValue.getValue();
+//            bValue = new MessageValue(value);
+//        } else {
+//            throw new BallerinaException("Unsupported orgBValue: " + orgBValue.getValue());
+//        }
+//        return bValue;
+//    }
 
     /**
      * return value within double quotes

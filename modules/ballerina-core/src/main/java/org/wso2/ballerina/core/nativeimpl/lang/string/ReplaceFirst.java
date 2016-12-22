@@ -21,8 +21,8 @@ package org.wso2.ballerina.core.nativeimpl.lang.string;
 import org.osgi.service.component.annotations.Component;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
+import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.model.values.StringValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
@@ -50,11 +50,11 @@ public class ReplaceFirst extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        String mainString = getArgument(context, 0).getString();
-        String replacePattern = getArgument(context, 1).getString();
-        String replaceWith = getArgument(context, 2).getString();
+        String mainString = getArgument(context, 0).stringValue();
+        String replacePattern = getArgument(context, 1).stringValue();
+        String replaceWith = getArgument(context, 2).stringValue();
 
         String replacedString = mainString.replaceFirst(replacePattern, replaceWith);
-        return getBValues(new StringValue(replacedString));
+        return getBValues(new BString(replacedString));
     }
 }

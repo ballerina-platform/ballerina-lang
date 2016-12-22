@@ -18,27 +18,10 @@
 package org.wso2.ballerina.core.model.values;
 
 /**
- * {@code LongValue} represents a long value in Ballerina
  *
- * @since 1.0.0
+ * @param <T>
  */
-public class LongValue implements BValue<Long> {
-    private long value;
+public interface BRefType<T> extends BValue {
 
-    public LongValue(long value) {
-        this.value = value;
-    }
-
-    public Long getValue() {
-        return value;
-    }
-
-    public void setValue(long value) {
-        this.value = value;
-    }
-
-    @Override
-    public StringValue getString() {
-        return new StringValue(this.getValue().toString());
-    }
+    T value();
 }

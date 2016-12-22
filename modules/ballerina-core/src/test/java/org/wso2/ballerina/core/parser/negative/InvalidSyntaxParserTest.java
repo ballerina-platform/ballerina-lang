@@ -18,34 +18,34 @@
 
 package org.wso2.ballerina.core.parser.negative;
 
-import org.testng.annotations.BeforeTest;
-import org.testng.annotations.Test;
-import org.wso2.ballerina.core.exception.ParserException;
-import org.wso2.ballerina.core.model.builder.BLangModelBuilder;
-import org.wso2.ballerina.core.parser.BallerinaParser;
-import org.wso2.ballerina.core.parser.BallerinaParserErrorStrategy;
-import org.wso2.ballerina.core.parser.antlr4.BLangAntlr4Listener;
-import org.wso2.ballerina.core.utils.ParserUtils;
+//import org.testng.annotations.BeforeTest;
+//import org.testng.annotations.Test;
+//import org.wso2.ballerina.core.exception.ParserException;
+//import org.wso2.ballerina.core.model.builder.BLangModelBuilder;
+//import org.wso2.ballerina.core.parser.BallerinaParser;
+//import org.wso2.ballerina.core.parser.BallerinaParserErrorStrategy;
+//import org.wso2.ballerina.core.parser.antlr4.BLangAntlr4Listener;
+//import org.wso2.ballerina.core.utils.ParserUtils;
 
 public class InvalidSyntaxParserTest {
 
-    private BallerinaParser ballerinaParser;
+//    private BallerinaParser ballerinaParser;
 
-    @BeforeTest
-    public void setup() {
-        ballerinaParser = ParserUtils.getBallerinaParser("samples/parser/InvalidSyntaxSample.bal");
-
-        BLangModelBuilder modelBuilder = new BLangModelBuilder();
-        BLangAntlr4Listener langModelBuilder = new BLangAntlr4Listener(modelBuilder);
-        ballerinaParser.addParseListener(langModelBuilder);
-
-//        ballerinaBaseListener = new BallerinaBaseListenerImpl();
-//        ballerinaParser.addParseListener(ballerinaBaseListener);
-        ballerinaParser.setErrorHandler(new BallerinaParserErrorStrategy());
-    }
-
-    @Test(expectedExceptions = ParserException.class)
-    public void testParsingInvalidFile() {
-        ballerinaParser.compilationUnit();
-    }
+//    @BeforeTest
+//    public void setup() {
+//        ballerinaParser = ParserUtils.getBallerinaParser("samples/parser/InvalidSyntaxSample.bal");
+//
+//        BLangModelBuilder modelBuilder = new BLangModelBuilder();
+//        BLangAntlr4Listener langModelBuilder = new BLangAntlr4Listener(modelBuilder);
+//        ballerinaParser.addParseListener(langModelBuilder);
+//
+////        ballerinaBaseListener = new BallerinaBaseListenerImpl();
+////        ballerinaParser.addParseListener(ballerinaBaseListener);
+//        ballerinaParser.setErrorHandler(new BallerinaParserErrorStrategy());
+//    }
+//
+//    @Test(expectedExceptions = ParserException.class)
+//    public void testParsingInvalidFile() {
+//        ballerinaParser.compilationUnit();
+//    }
 }

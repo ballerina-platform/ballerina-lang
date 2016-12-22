@@ -18,31 +18,10 @@
 package org.wso2.ballerina.core.model.values;
 
 /**
- * {@code BValue} represents any value in Ballerina
- * @see StringValue
- * @see DoubleValue
- * @see IntValue
- * @since 1.0.0
- * 
- * @param <T>   Java type associated with this Ballerina value 
+ *
  */
-public interface BValue<T> {
-    
-    /**
-     * Get the java value associated with this ballerina value.
-     * 
-     * @return  Java value associated with this ballerina value
-     */
-    public T getValue();
+public interface BValue {
 
-    /**
-     * Return StringValue representation of the BValue. This will be a simple toString() type behaviour for primitive
-     * types like StringValue, IntValue etc. Complex object types like MessageValue, XMLValue, JSONValue it will be
-     * String XML, JSON representation.
-     *
-     * @return A StringValue that contains the value.
-     */
-    public default StringValue getString() {
-        return new StringValue("Default Method Executed");
-    }
+    String stringValue();
+
 }

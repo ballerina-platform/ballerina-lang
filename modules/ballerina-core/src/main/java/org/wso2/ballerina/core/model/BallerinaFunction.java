@@ -208,7 +208,7 @@ public class BallerinaFunction implements Function, Node {
      * @param ctx
      */
     public void interpret(Context ctx) {
-        functionBody.interpret(ctx);
+//        functionBody.interpret(ctx);
     }
 
     @Override

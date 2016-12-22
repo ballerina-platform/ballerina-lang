@@ -36,7 +36,7 @@ import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.model.values.XMLValue;
+import org.wso2.ballerina.core.model.values.BXML;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
@@ -64,19 +64,19 @@ public class GetXML extends AbstractNativeFunction {
     private static final String OPERATION = "get element from xml";
 
     @Override
-    public BValue<?>[] execute(Context ctx) {
-        BValue<?> result = null;
+    public BValue[] execute(Context ctx) {
+        BValue result = null;
         try {
             // Accessing Parameters.
-            XMLValue xml = (XMLValue) getArgument(ctx, 0).getBValue();
-            String xPath = getArgument(ctx, 1).getString();
+            BXML xml = (BXML) getArgument(ctx, 0);
+            String xPath = getArgument(ctx, 1).stringValue();
             //MapValue<String, String> nameSpaces = getArgument(ctx, 2).getMap();
             
             // Getting the value from XML
             Processor processor = new Processor(false);
             XPathCompiler xPathCompiler = processor.newXPathCompiler();
             DocumentBuilder builder = processor.newDocumentBuilder();
-            XdmNode doc = builder.build(xml.getValue().getSAXSource(true));
+            XdmNode doc = builder.build(xml.value().getSAXSource(true));
             // TODO : Add it back once Map support is added.
 //            if (nameSpaces != null && !nameSpaces.isEmpty()) {
 //                for (MapValue<String, String>.MapEntry<String, String> entry : nameSpaces.getValue()) {
@@ -91,7 +91,7 @@ public class GetXML extends AbstractNativeFunction {
             if (sequence instanceof EmptySequence) {
                 throw new BallerinaException("The xpath '" + xPath + "' does not match any XML element.");
             } else if (sequence instanceof TinyElementImpl || sequence.head() instanceof TinyElementImpl) {
-                result = new XMLValue(xdmValue.toString());
+                result = new BXML(xdmValue.toString());
             } else if (sequence instanceof TinyAttributeImpl || sequence.head() instanceof TinyAttributeImpl) {
                 throw new BallerinaException("The element matching path '" + xPath + "' is an attribute, but not a " +
                         "XML element.");

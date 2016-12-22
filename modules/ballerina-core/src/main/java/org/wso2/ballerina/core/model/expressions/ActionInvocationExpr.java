@@ -17,11 +17,9 @@
 */
 package org.wso2.ballerina.core.model.expressions;
 
-import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Action;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.SymbolName;
-import org.wso2.ballerina.core.model.values.BValueRef;
 
 /**
  * {@code ActionInvocationExpr} represents action invocation expression
@@ -62,10 +60,5 @@ public class ActionInvocationExpr extends AbstractExpression {
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
-    }
-
-    @Override
-    public BValueRef evaluate(Context ctx) {
-        return null;
     }
 }
