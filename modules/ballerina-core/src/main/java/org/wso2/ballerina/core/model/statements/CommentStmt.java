@@ -17,7 +17,6 @@
 */
 package org.wso2.ballerina.core.model.statements;
 
-import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.NodeVisitor;
 
 /**
@@ -28,10 +27,6 @@ public class CommentStmt implements Statement {
 
     public CommentStmt(String comment) {
         this.comment = comment;
-    }
-
-    public void interpret(Context ctx) {
-
     }
 
     @Override
