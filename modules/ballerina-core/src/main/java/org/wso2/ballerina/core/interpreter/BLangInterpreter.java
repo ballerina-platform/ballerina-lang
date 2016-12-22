@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerina.core.interpreter;
 
+import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.model.Action;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.BallerinaAction;
@@ -30,7 +31,9 @@ import org.wso2.ballerina.core.model.ImportPackage;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.Resource;
+import org.wso2.ballerina.core.model.ResourceInvoker;
 import org.wso2.ballerina.core.model.Service;
+import org.wso2.ballerina.core.model.Symbol;
 import org.wso2.ballerina.core.model.VariableDcl;
 import org.wso2.ballerina.core.model.Worker;
 import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
@@ -72,6 +75,8 @@ import org.wso2.ballerina.core.model.values.BValueType;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
+import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
+import org.wso2.carbon.messaging.Header;
 
 import java.util.List;
 
@@ -269,26 +274,7 @@ public class BLangInterpreter implements NodeVisitor {
         BValue[] localVals = new BValue[sizeOfValueArray];
 
         // Get values for all the function arguments
-        int i = 0;
-        for (Expression arg : funcIExpr.getExprs()) {
-
-            // Evaluate the argument expression
-            arg.accept(this);
-            TypeC argType = arg.getType();
-            BValue argValue = getValueNew(arg);
-
-            // Here we need to handle value types differently from reference types
-            // Value types need to be cloned before passing ot the function : pass by value.
-            // TODO Implement copy-on-write mechanism to improve performance
-            if (TypeC.isValueType(argType)) {
-                argValue = BValueUtils.clone(argType, argValue);
-            }
-
-            // Setting argument value in the stack frame
-            localVals[i] = argValue;
-
-            i++;
-        }
+        int i = populateArgumentValues(funcIExpr.getExprs(), localVals);
 
         // TODO  Handle Connection declarations
 
@@ -300,7 +286,6 @@ public class BLangInterpreter implements NodeVisitor {
         }
 
         // Create an array in the stack frame to hold return values;
-//        BValueRef[] rVals = new BValueRef[function.getReturnTypesC().length];
         BValue[] rVals = new BValue[function.getReturnTypesC().length];
 
         // Create a new stack frame with memory locations to hold parameters, local values, temp expression valuse and
@@ -326,52 +311,17 @@ public class BLangInterpreter implements NodeVisitor {
         }
     }
 
-    // TODO Duplicate code. fix me
     @Override
     public void visit(ActionInvocationExpr actionIExpr) {
         // Create the Stack frame
         Action action = actionIExpr.getAction();
 
-        int sizeOfValueArray = action.getStackFrameSize();
-        BValue[] localVals = new BValue[sizeOfValueArray];
+        BValue[] localVals = new BValue[action.getStackFrameSize()];
 
         // Create default values for all declared local variables
-        int i = 0;
-        for (Expression arg : actionIExpr.getExprs()) {
+        int i = populateArgumentValues(actionIExpr.getExprs(), localVals);
 
-            // Evaluate the argument expression
-            arg.accept(this);
-            TypeC argType = arg.getType();
-            BValue argValue = getValueNew(arg);
-
-            // Here we need to handle value types differently from reference types
-            // Value types need to be cloned before passing ot the function : pass by value.
-            // TODO Implement copy-on-write mechanism to improve performance
-            if (TypeC.isValueType(argType)) {
-                argValue = BValueUtils.clone(argType, argValue);
-            }
-
-            if (argType == TypeC.CONNECTOR_TYPE) {
-                BConnector bConnector = (BConnector) argValue;
-                Connector connector = bConnector.value();
-                if (connector instanceof AbstractNativeConnector) {
-                    AbstractNativeConnector abstractNativeConnector = (AbstractNativeConnector) connector;
-
-                    Expression[] argExpressions = bConnector.getArgExprs();
-                    BValue[] bValueRefs = new BValue[argExpressions.length];
-                    for (int j = 0; j < argExpressions.length; j++) {
-                        argExpressions[j].accept(this);
-                        bValueRefs[j] = getValueNew(argExpressions[j]);
-                    }
-                    abstractNativeConnector.init(bValueRefs);
-                }
-            }
-
-            // Setting argument value in the stack frame
-            localVals[i] = argValue;
-
-            i++;
-        }
+        // TODO  Handle Connection declarations
 
         // Create default values for all declared local variables
         VariableDcl[] variableDcls = action.getVariableDcls();
@@ -485,6 +435,61 @@ public class BLangInterpreter implements NodeVisitor {
 
     }
 
+    public void visit(ResourceInvoker resourceInvoker) {
+
+        Resource resource = resourceInvoker.getResource();
+
+        ControlStack controlStack = bContext.getControlStack();
+        BValue[] valueParams = new BValue[resource.getStackFrameSize()];
+
+        // Populate MessageValue with CarbonMessages' headers.
+        BMessage messageValue = new BMessage(bContext.getCarbonMessage());
+        List<Header> headerList = bContext.getCarbonMessage().getHeaders().getAll();
+        messageValue.setHeaderList(headerList);
+
+        valueParams[0] = messageValue;
+
+        int i = 1;
+        // Create default values for all declared local variables
+        VariableDcl[] variableDcls = resource.getVariableDcls();
+        for (VariableDcl variableDcl : variableDcls) {
+            valueParams[i] = BValueUtils.getDefaultValue(variableDcl.getTypeC());
+            i++;
+        }
+
+        for (ConnectorDcl connectorDcl : resource.getConnectorDcls()) {
+            Symbol symbol = GlobalScopeHolder.getInstance().getScope().lookup(connectorDcl.getConnectorName());
+            if (symbol == null) {
+                throw new BallerinaException("Connector : " + connectorDcl.getConnectorName() + " not found");
+            }
+            Connector connector = symbol.getConnector();
+            Expression[] argExpressions = connectorDcl.getArgExprs();
+            BValue[] bValueRefs = new BValue[argExpressions.length];
+            for (int j = 0; j < argExpressions.length; j++) {
+                argExpressions[j].accept(this);
+                bValueRefs[j] = getValueNew(argExpressions[j]);
+            }
+
+            if (connector instanceof AbstractNativeConnector) {
+                //TODO Fix Issue#320
+                AbstractNativeConnector nativeConnector = ((AbstractNativeConnector) connector).getInstance();
+                nativeConnector.init(bValueRefs);
+                connector = nativeConnector;
+            }
+            BConnector connectorValue = new BConnector(connector, connectorDcl.getArgExprs());
+
+            valueParams[i] = connectorValue;
+            i++;
+        }
+
+        BValue[] ret = new BValue[1];
+
+        StackFrame stackFrame = new StackFrame(valueParams, ret);
+        controlStack.pushFrame(stackFrame);
+
+        resource.accept(this);
+    }
+
     // Private methods
 
     private BValue getValueNew(Expression expr) {
@@ -519,5 +524,28 @@ public class BLangInterpreter implements NodeVisitor {
 
         BValue result = binaryExpr.getEvalFunc().apply(lValue, rValue);
         controlStack.setValueNew(binaryExpr.getOffset(), result);
+    }
+
+    private int populateArgumentValues(Expression[] expressions, BValue[] localVals) {
+        int i = 0;
+        for (Expression arg : expressions) {
+            // Evaluate the argument expression
+            arg.accept(this);
+            TypeC argType = arg.getType();
+            BValue argValue = getValueNew(arg);
+
+            // Here we need to handle value types differently from reference types
+            // Value types need to be cloned before passing ot the function : pass by value.
+            // TODO Implement copy-on-write mechanism to improve performance
+            if (TypeC.isValueType(argType)) {
+                argValue = BValueUtils.clone(argType, argValue);
+            }
+
+            // Setting argument value in the stack frame
+            localVals[i] = argValue;
+
+            i++;
+        }
+        return i;
     }
 }

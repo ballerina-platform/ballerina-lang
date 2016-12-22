@@ -15,23 +15,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.ballerina.core.runtime.core;
 
-import org.wso2.ballerina.core.interpreter.Context;
+package org.wso2.ballerina.core.model;
 
 /**
- * {@code Executable} is an executable entity of Ballerina
+ * {@code ResourceInvoker} is the entity which invokes a particular resource
  *
- * Implementations of this can be executed as statements.
+ * @since 1.0.0
  */
-public interface Executable {
+public class ResourceInvoker implements Node {
 
-    /**
-     *
-     * @param context Ballerina context
-     * @param callback  Ballerina callback
-     * @return  whether execution is successful
-     */
-    boolean execute(Context context, BalCallback callback);
+    Resource resource;
 
+    public ResourceInvoker(Resource resource) {
+        this.resource = resource;
+    }
+
+    public Resource getResource() {
+        return resource;
+    }
+
+    @Override
+    public void accept(NodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }
