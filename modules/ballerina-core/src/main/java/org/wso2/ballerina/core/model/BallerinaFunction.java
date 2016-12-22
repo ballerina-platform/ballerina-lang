@@ -18,7 +18,6 @@
 
 package org.wso2.ballerina.core.model;
 
-import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.types.BType;
 
@@ -173,15 +172,6 @@ public class BallerinaFunction implements Function, Node {
 
     public void setStackFrameSize(int stackFrameSize) {
         this.stackFrameSize = stackFrameSize;
-    }
-
-    /**
-     * TODO This is the basic implementation of the function interpreter
-     *
-     * @param ctx
-     */
-    public void interpret(Context ctx) {
-//        functionBody.interpret(ctx);
     }
 
     @Override
