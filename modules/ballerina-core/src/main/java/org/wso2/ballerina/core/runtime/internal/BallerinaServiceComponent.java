@@ -31,7 +31,7 @@ import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.runtime.Constants;
 import org.wso2.ballerina.core.runtime.core.MessageProcessor;
 import org.wso2.ballerina.core.runtime.deployer.BalDeployer;
-import org.wso2.ballerina.core.runtime.errors.handler.ErrorHandler;
+import org.wso2.ballerina.core.runtime.errors.handler.ServerConnectorErrorHandler;
 import org.wso2.ballerina.core.runtime.net.http.source.HTTPListenerManager;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.messaging.TransportListenerManager;
@@ -129,17 +129,17 @@ public class BallerinaServiceComponent {
     }
 
     @Reference(
-            name = "error-hander",
-            service = ErrorHandler.class,
+            name = "error-handler",
+            service = ServerConnectorErrorHandler.class,
             cardinality = ReferenceCardinality.OPTIONAL,
             policy = ReferencePolicy.DYNAMIC,
             unbind = "removeErrorHandler"
     )
-    protected void addErrorHandler(ErrorHandler errorHandler) {
+    protected void addErrorHandler(ServerConnectorErrorHandler errorHandler) {
         ServiceContextHolder.getInstance().registerErrorHandler(errorHandler);
     }
 
-    protected void removeErrorHandler(ErrorHandler errorHandler) {
+    protected void removeErrorHandler(ServerConnectorErrorHandler errorHandler) {
         ServiceContextHolder.getInstance().unregisterErrorHandler(errorHandler.getProtocol());
     }
 

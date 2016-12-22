@@ -26,8 +26,8 @@ import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.runtime.core.dispatching.ResourceDispatcher;
 import org.wso2.ballerina.core.runtime.core.dispatching.ServiceDispatcher;
-import org.wso2.ballerina.core.runtime.errors.handler.DefaultErrorHandler;
-import org.wso2.ballerina.core.runtime.errors.handler.ErrorHandler;
+import org.wso2.ballerina.core.runtime.errors.handler.DefaultServerConnectorErrorHandler;
+import org.wso2.ballerina.core.runtime.errors.handler.ServerConnectorErrorHandler;
 import org.wso2.ballerina.core.runtime.internal.ServiceContextHolder;
 import org.wso2.ballerina.core.runtime.registry.DispatcherRegistry;
 import org.wso2.carbon.messaging.CarbonCallback;
@@ -100,12 +100,12 @@ public class ServerConnectorMessageHandler {
     private static void handleError(CarbonMessage cMsg, CarbonCallback callback, Throwable throwable) {
         log.error("Error while executing ballerina program. " + throwable.getMessage());
 
-        ErrorHandler errorHandler;
+        ServerConnectorErrorHandler errorHandler;
         Object protocol = cMsg.getProperty(org.wso2.carbon.messaging.Constants.PROTOCOL);
         if (protocol != null) {
             errorHandler = ServiceContextHolder.getInstance().getErrorHandler((String) protocol);
         } else {
-            errorHandler = DefaultErrorHandler.getInstance();
+            errorHandler = DefaultServerConnectorErrorHandler.getInstance();
         }
         errorHandler.handleError(new Exception(throwable.getMessage(), throwable.getCause()), cMsg, callback);
     }
