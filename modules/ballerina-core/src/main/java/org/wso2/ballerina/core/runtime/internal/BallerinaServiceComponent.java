@@ -26,13 +26,13 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.nativeimpl.connectors.http.server.HTTPListenerManager;
 import org.wso2.ballerina.core.runtime.Constants;
 import org.wso2.ballerina.core.runtime.MessageProcessor;
 import org.wso2.ballerina.core.runtime.deployer.BalDeployer;
 import org.wso2.ballerina.core.runtime.errors.handler.ServerConnectorErrorHandler;
+import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.messaging.TransportListenerManager;
 import org.wso2.carbon.messaging.TransportSender;
@@ -55,47 +55,33 @@ public class BallerinaServiceComponent {
 
     @Activate
     protected void start(BundleContext bundleContext) {
-        try {
-            log.info("Starting Ballerina...!");
+        //Creating the processor and registering the service
+        bundleContext.registerService(CarbonMessageProcessor.class, new MessageProcessor(), null);
 
-            //Creating the processor and registering the service
-            bundleContext.registerService(CarbonMessageProcessor.class, new MessageProcessor(), null);
+        // Registering HTTP Listener Manager with transport framework
+        bundleContext.registerService(TransportListenerManager.class, HTTPListenerManager.getInstance(), null);
 
-            // Registering HTTP Listener Manager with transport framework
-            bundleContext.registerService(TransportListenerManager.class, HTTPListenerManager.getInstance(), null);
+        ServiceContextHolder.getInstance().setBundleContext(bundleContext);
 
-            //Determine the runtime mode
-            String runThisBalFile = System.getProperty(SYSTEM_PROP_BAL_FILE);
-            if (runThisBalFile != null) {
-                ServiceContextHolder.getInstance().setRuntimeMode(Constants.RuntimeMode.RUN_FILE);
-                if (log.isDebugEnabled()) {
-                    log.debug("Runtime mode is set to : " + Constants.RuntimeMode.RUN_FILE);
-                }
-                // Check for file existence before calling the deployer
-                File f = new File(runThisBalFile);
-                if (f.exists()) {
-                    BalDeployer.deployBalFile(f);
-                } else {
-                    // Check whether this is path relative to the bin directory (ballerina.sh)
-                    String relativePath = System.getProperty("user.dir") + "/bin/" + runThisBalFile;
-                    File fRelative = new File(relativePath);
-                    if (fRelative.exists()) {
-                        BalDeployer.deployBalFile(fRelative);
-                    } else {
-                        throw new BallerinaException("File " + runThisBalFile + " not found in the given location");
-                    }
+        //Determine the runtime mode
+        String runThisBalFile = System.getProperty(SYSTEM_PROP_BAL_FILE);
+        if (runThisBalFile != null) {
+            ServiceContextHolder.getInstance().setRuntimeMode(Constants.RuntimeMode.RUN_FILE);
+            if (log.isDebugEnabled()) {
+                log.debug("Runtime mode is set to : " + Constants.RuntimeMode.RUN_FILE);
+            }
+            File file = new File(runThisBalFile);
+            if (!file.exists()) {
+                // Check whether this is path relative to the bin directory (ballerina.sh)
+                String relativePath = System.getProperty("user.dir") + "/bin/" + runThisBalFile;
+                File fRelative = new File(relativePath);
+                if (!fRelative.exists()) {
+                    file = null;
                 }
             }
-
-        } catch (BallerinaException ex) {
-            String msg = "Error while loading Ballerina runtime";
-            log.error(msg, ex);
-            //throw new ParserException(msg, ex);
-        } catch (Exception ex) {
-            String msg = "Error while loading Ballerina";
-            log.error(msg, ex);
-            //throw new ParserException(msg, ex);
+            ServiceContextHolder.getInstance().setRunningFile(file);
         }
+        log.info("Ballerina runtime started...!");
     }
 
     @Reference(
@@ -141,6 +127,33 @@ public class BallerinaServiceComponent {
 
     protected void removeErrorHandler(ServerConnectorErrorHandler errorHandler) {
         ServiceContextHolder.getInstance().unregisterErrorHandler(errorHandler.getProtocol());
+    }
+
+    @Reference(
+            name = "carbon-service-info",
+            service = CarbonServerInfo.class,
+            cardinality = ReferenceCardinality.OPTIONAL,
+            policy = ReferencePolicy.DYNAMIC,
+            unbind = "removeErrorHandler"
+    )
+    protected void addCarbonServinceInfo(CarbonServerInfo info) {
+        // We have to wait until Carbon Capability Provider completes its job to shutdown the OSGi runtime properly.
+        if (ServiceContextHolder.getInstance().getRuntimeMode() == Constants.RuntimeMode.RUN_FILE) {
+            // Check for file existence before calling the deployer
+            File f = ServiceContextHolder.getInstance().getRunningFile();
+            if (f != null) {
+                BalDeployer.deployBalFile(f);
+            } else {
+                String runThisBalFile = System.getProperty(SYSTEM_PROP_BAL_FILE);
+                log.error("File " + runThisBalFile + " not found in the given location. System exits. Bye.");
+                // Shutdown OSGi environment.
+                RuntimeUtils.shutdownRuntime();
+            }
+        }
+    }
+
+    protected void removeErrorHandler(CarbonServerInfo info) {
+        // Do Nothing.
     }
 
 

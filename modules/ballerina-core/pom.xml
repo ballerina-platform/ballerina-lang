@@ -119,6 +119,7 @@
         <import.package>
             org.osgi.framework.*;version="${osgi.framework.import.version.range}",
             org.osgi.util.tracker;version="${osgi.service.tracker.import.version.range}",
+            org.wso2.carbon.kernel.utils.*;version="${carbon.kernel.package.import.version.range}",
             org.wso2.carbon.kernel.transports.*;version="${carbon.kernel.package.import.version.range}",
             org.wso2.carbon.kernel.deployment.*;version="${carbon.kernel.package.import.version.range}",
             org.wso2.carbon.kernel.startupresolver.*;version="${carbon.kernel.package.import.version.range}",
