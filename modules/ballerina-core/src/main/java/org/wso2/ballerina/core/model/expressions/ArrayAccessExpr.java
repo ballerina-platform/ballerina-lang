@@ -22,23 +22,30 @@ import org.wso2.ballerina.core.model.SymbolName;
 
 /**
  * {@code ArrayAccessExpr} represents an array access operation.
- *
+ * <p>
  * e.g. x[0] = 5;
- *      y = x[0]
+ * y = x[0]
  *
  * @since 1.0.0
  */
 public class ArrayAccessExpr extends UnaryExpression {
 
     private SymbolName symbolName;
+    private Expression indexExpr;
 
-    public ArrayAccessExpr(Expression rExpr, SymbolName symbolName) {
-        super(null, rExpr);
+
+    private ArrayAccessExpr(SymbolName symbolName, Expression indexExpr) {
+        super(null, null);
         this.symbolName = symbolName;
+        this.indexExpr = indexExpr;
     }
 
     public SymbolName getSymbolName() {
         return symbolName;
+    }
+
+    public Expression getIndexExpr() {
+        return indexExpr;
     }
 
     @Override
@@ -53,7 +60,7 @@ public class ArrayAccessExpr extends UnaryExpression {
      */
     public static class ArrayAccessExprBuilder {
         private SymbolName varName;
-        private Expression rExpr;
+        private Expression indexExpr;
 
         public ArrayAccessExprBuilder() {
         }
@@ -63,11 +70,11 @@ public class ArrayAccessExpr extends UnaryExpression {
         }
 
         public void setIndexExpr(Expression rExpr) {
-            this.rExpr = rExpr;
+            this.indexExpr = rExpr;
         }
 
         public ArrayAccessExpr build() {
-            return new ArrayAccessExpr(rExpr, varName);
+            return new ArrayAccessExpr(varName, indexExpr);
         }
     }
 }

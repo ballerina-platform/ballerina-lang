@@ -28,8 +28,7 @@ import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.ResourceInvoker;
 import org.wso2.ballerina.core.model.VariableDcl;
-import org.wso2.ballerina.core.model.types.BType;
-import org.wso2.ballerina.core.model.util.BValueUtils;
+import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.carbon.messaging.CarbonCallback;
@@ -60,7 +59,7 @@ public class BalProgramExecutor {
         // Check whether this is a standard main function with one integer argument
         // This will be changed to string[] args once we have the array support
         Parameter[] parameters = function.getParameters();
-        if (parameters.length != 1 || parameters[0].getType() != BType.INT_TYPE) {
+        if (parameters.length != 1 || parameters[0].getType() != BTypes.INT_TYPE) {
             throw new BallerinaException("main function does not comply with standard main function in ballerina");
         }
 
@@ -87,7 +86,7 @@ public class BalProgramExecutor {
         // Create default values for all declared local variables
         VariableDcl[] variableDcls = function.getVariableDcls();
         for (VariableDcl variableDcl : variableDcls) {
-            values[i] = BValueUtils.getDefaultValue(variableDcl.getType());
+            values[i] = variableDcl.getType().getDefaultValue();
             i++;
         }
 

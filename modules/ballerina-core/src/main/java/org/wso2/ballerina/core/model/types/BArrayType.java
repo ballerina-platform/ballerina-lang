@@ -17,22 +17,60 @@
 */
 package org.wso2.ballerina.core.model.types;
 
+import org.wso2.ballerina.core.model.values.BArray;
+import org.wso2.ballerina.core.model.values.BValue;
+
 /**
- * {@code ArrayType} represents an array in Ballerina
+ * {@code BArrayType} represents a type of an array in Ballerina
+ * <p>
+ * Arrays are defined using the array constructor [] as follows:
+ * TypeName[]
+ * <p>
+ * All arrays are unbounded in length and support 0 based indexing.
  *
+ * @param <T> Type of the values in the array
  * @since 1.0.0
  */
-public class BArrayType extends BType {
+public class BArrayType<T extends BType> extends BType {
 
-    private BType elementType;
+    private T elementType;
+
+    private BValue[] valueArray;
 
     /**
      * Create a type from the given name
      *
      * @param typeName string name of the type
      */
+    @SuppressWarnings("unchecked")
     BArrayType(String typeName, String elementType) {
         super(typeName);
-        this.elementType = BType.getType(elementType);
+        this.elementType = BTypes.getType(elementType);
     }
+
+    public BType getElementType() {
+        return elementType;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <U extends BValue> U[] createArray() {
+        // TODO
+        return null;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <V extends BValue> V getDefaultValue() {
+        valueArray = elementType.createArray();
+        return (V) new BArray(valueArray);
+    }
+
+    public boolean equals(Object obj) {
+        if (obj instanceof BArrayType) {
+            BArrayType other = (BArrayType) obj;
+            return this.elementType.equals(other.elementType);
+        }
+
+        return false;
+    }
+
 }

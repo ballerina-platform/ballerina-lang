@@ -22,6 +22,18 @@ package org.wso2.ballerina.core.model.values;
  */
 public class BBoolean extends BValueType {
 
+    /**
+     * The {@code BBoolean} object corresponding to the primitive
+     * value {@code true}.
+     */
+    public static final BBoolean TRUE = new BBoolean(true);
+
+    /**
+     * The {@code BBoolean} object corresponding to the primitive
+     * value {@code true}.
+     */
+    public static final BBoolean FALSE = new BBoolean(false);
+
     private boolean value;
 
     public BBoolean(boolean value) {
