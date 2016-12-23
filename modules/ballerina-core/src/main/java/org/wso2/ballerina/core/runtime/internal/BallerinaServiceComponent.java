@@ -39,8 +39,6 @@ import org.wso2.carbon.messaging.TransportSender;
 
 import java.io.File;
 
-import static org.wso2.ballerina.core.runtime.Constants.SYSTEM_PROP_RUN_FILE;
-
 
 /**
  * Service component for Ballerina.
@@ -64,15 +62,24 @@ public class BallerinaServiceComponent {
         ServiceContextHolder.getInstance().setBundleContext(bundleContext);
 
         //Determine the runtime mode
-        String runThisBalFile = System.getProperty(SYSTEM_PROP_RUN_FILE);
-        if (runThisBalFile != null) {
+        String runtimeMode = System.getProperty(Constants.SYSTEM_PROP_RUN_MODE);
+        String runThisBalFile = System.getProperty(Constants.SYSTEM_PROP_RUN_FILE);
+
+        if (runtimeMode == null) {
+            ServiceContextHolder.getInstance().setRuntimeMode(Constants.RuntimeMode.DEFAULT);
+        } else if (runtimeMode.equalsIgnoreCase(Constants.SYSTEM_PROP_RUN_MODE_RUN)) {
             ServiceContextHolder.getInstance().setRuntimeMode(Constants.RuntimeMode.RUN_FILE);
-            if (log.isDebugEnabled()) {
-                log.debug("Runtime mode is set to : " + ServiceContextHolder.getInstance().getRuntimeMode());
-            }
+        } else if (runtimeMode.equalsIgnoreCase(Constants.SYSTEM_PROP_RUN_MODE_SERVER)) {
+            ServiceContextHolder.getInstance().setRuntimeMode(Constants.RuntimeMode.SERVER);
+        } else {
+            ServiceContextHolder.getInstance().setRuntimeMode(Constants.RuntimeMode.ERROR);
+        }
+        if (log.isDebugEnabled()) {
+            log.debug("Runtime mode is set to : " + ServiceContextHolder.getInstance().getRuntimeMode());
+        }
+        if (runThisBalFile != null) {
             ServiceContextHolder.getInstance().setRunningFile(new File(runThisBalFile));
         }
-        // Else is normal Ballerina Server mode.
         //log.info("Ballerina runtime started...!");
     }
 
@@ -130,16 +137,32 @@ public class BallerinaServiceComponent {
     )
     protected void addCarbonServiceInfo(CarbonServerInfo info) {
         // We have to wait until Carbon Capability Provider completes its job to shutdown the OSGi runtime properly.
+        if (Constants.RuntimeMode.DEFAULT == ServiceContextHolder.getInstance().getRuntimeMode()) {
+            return;
+        }
         if (Constants.RuntimeMode.ERROR == ServiceContextHolder.getInstance().getRuntimeMode()) {
             // We shouldn't get here, if we get here, that means a bug in startup scripts.
             log.error("Unable to identify Ballerina Runtime mode.");
             RuntimeUtils.shutdownRuntime();
             return;
         }
+        File runningFile = ServiceContextHolder.getInstance().getRunningFile();
         if (Constants.RuntimeMode.SERVER == ServiceContextHolder.getInstance().getRuntimeMode()) {
+            if (runningFile == null) {
+                String baseDir = System.getProperty(Constants.SYSTEM_PROP_BASE_DIR);
+                if (baseDir == null) {
+                    // Can't Continue. We shouldn't be here. that means there is a bug in the startup script.
+                    log.error("Can't get current working directory.");
+                    RuntimeUtils.shutdownRuntime();
+                    return;
+                }
+                // Switching to current directory (./)
+                runningFile = new File(baseDir);
+            }
+            BalDeployer.deployBalFiles(runningFile);
             return;
         }
-        File runningFile = ServiceContextHolder.getInstance().getRunningFile();
+        // RuntimeMode is Run File.
         if (runningFile == null) {
             // We shouldn't get here, if we get here, that means a bug in startup order
             log.error("Running File not found in the Service Context. " +

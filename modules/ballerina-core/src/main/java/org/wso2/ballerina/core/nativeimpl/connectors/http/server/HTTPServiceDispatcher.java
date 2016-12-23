@@ -118,7 +118,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
     public void serviceRegistered(Service service) {
 
         String listenerInterface = Constants.DEFAULT_INTERFACE;
-        String basePath = ""; // = service.getSymbolName().getName();
+        String basePath = service.getSymbolName().getName();
         for (Annotation annotation : service.getAnnotations()) {
             if (annotation.getName().equals(Constants.ANNOTATION_NAME_SOURCE)) {
                 String sourceInterfaceVal = annotation
@@ -137,8 +137,6 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
         if (!basePath.startsWith("/")) {
             basePath = "/".concat(basePath);
         }
-        // Append Service Name as context.
-        basePath = "/".concat(service.getSymbolName().getName()).concat(basePath);
 
         Map<String, Service> servicesOnInterface = services.get(listenerInterface);
         if (servicesOnInterface == null) {

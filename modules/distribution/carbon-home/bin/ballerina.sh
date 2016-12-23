@@ -141,14 +141,8 @@ do
           CMD="--debug"
     elif [ "$CMD" = "--debug" ] && [ -z "$PORT" ]; then
           PORT=$c
-    elif [ "$c" = "--stop" ] || [ "$c" = "-stop" ] || [ "$c" = "stop" ]; then
-          CMD="stop"
-    elif [ "$c" = "--start" ] || [ "$c" = "-start" ] || [ "$c" = "start" ]; then
-          CMD="start"
     elif [ "$c" = "--version" ] || [ "$c" = "-version" ] || [ "$c" = "version" ]; then
           CMD="version"
-    elif [ "$c" = "--restart" ] || [ "$c" = "-restart" ] || [ "$c" = "restart" ]; then
-          CMD="restart"
     elif [ "$c" = "--test" ] || [ "$c" = "-test" ] || [ "$c" = "test" ]; then
           CMD="test"
     elif [ "$c" = "--bargs" ] || [ "$c" = "-bargs" ] || [ "$c" = "bargs" ]; then
@@ -171,40 +165,10 @@ if [ "$CMD" = "--debug" ]; then
   CMD="RUN"
   JAVA_OPTS="-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=$PORT"
   echo "Please start the remote debugging client to continue..."
-elif [ "$CMD" = "start" ]; then
-  if [ -e "$CARBON_HOME/carbon.pid" ]; then
-    if  ps -p $PID > /dev/null ; then
-      echo "Process is already running"
-      exit 0
-    fi
-  fi
-  export CARBON_HOME=$CARBON_HOME
-# using nohup bash to avoid erros in solaris OS.TODO
-  nohup bash $CARBON_HOME/bin/ballerina.sh $args > /dev/null 2>&1 &
-  exit 0
-elif [ "$CMD" = "stop" ]; then
-  export CARBON_HOME=$CARBON_HOME
-  kill -term `cat $CARBON_HOME/carbon.pid`
-  exit 0
-elif [ "$CMD" = "restart" ]; then
-  export CARBON_HOME=$CARBON_HOME
-  kill -term `cat $CARBON_HOME/carbon.pid`
-  process_status=0
-  pid=`cat $CARBON_HOME/carbon.pid`
-  while [ "$process_status" -eq "0" ]
-  do
-        sleep 1;
-        ps -p$pid 2>&1 > /dev/null
-        process_status=$?
-  done
-
-# using nohup bash to avoid erros in solaris OS.TODO
-  nohup bash $CARBON_HOME/bin/ballerina.sh $args > /dev/null 2>&1 &
-  exit 0
 elif [ "$CMD" = "test" ]; then
     JAVACMD="exec "$JAVACMD""
 elif [ "$CMD" = "version" ]; then
-  cat $CARBON_HOME/bin/kernel-version.txt
+  cat $CARBON_HOME/bin/version.txt
   exit 0
 fi
 
@@ -261,9 +225,9 @@ status=$START_EXIT_STATUS
 
 #To monitor a Carbon server in remote JMX mode on linux host machines, set the below system property.
 #   -Djava.rmi.server.hostname="your.IP.goes.here"
-
+JAVA_OPTS="$JAVA_OPTS -Dbase-dir=$BASE_DIR -Drun-mode=run"
 if [ "$BAL_FILE_NAME" = "" ]; then
-    echo " Please specify Ballerina Main function or Service to run. Eg: ballerina.sh foo.bal"
+    echo " Please specify Ballerina Main function or Service to run. (Eg: ballerina.sh foo.bal)"
     exit 1
 else
     if [[ "$BAL_FILE_NAME" != /* ]]; then

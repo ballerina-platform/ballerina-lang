@@ -153,10 +153,6 @@ do
           continue
     elif [ "$BAL_EXECUTION_CMD" = "run-this" ] && [ -z "$BAL_FILE_NAME" ]; then
           BAL_FILE_NAME=$c
-    elif [ "$c" = "--bargs" ] || [ "$c" = "-bargs" ] || [ "$c" = "bargs" ]; then
-          BAL_EXECUTION_SUB_CMD="bargs" 
-    elif [ "$BAL_EXECUTION_SUB_CMD" = "bargs" ] && [ -z "$BARGS" ]; then
-          BARGS=$c
     else
         args="$args $c"
     fi
@@ -206,7 +202,7 @@ elif [ "$CMD" = "restart" ]; then
 elif [ "$CMD" = "test" ]; then
     JAVACMD="exec "$JAVACMD""
 elif [ "$CMD" = "version" ]; then
-  cat $CARBON_HOME/bin/kernel-version.txt
+  cat $CARBON_HOME/bin/version.txt
   exit 0
 fi
 
@@ -263,25 +259,21 @@ status=$START_EXIT_STATUS
 
 #To monitor a Carbon server in remote JMX mode on linux host machines, set the below system property.
 #   -Djava.rmi.server.hostname="your.IP.goes.here"
-
+JAVA_OPTS="$JAVA_OPTS -Dbase-dir=$BASE_DIR -Drun-mode=server"
 if [ "$BAL_EXECUTION_CMD" = "run-this" ]; then
-   if [ "$BAL_FILE_NAME" = "" ]; then
-        echo " Please specify Ballerina Service to run after --run option. Eg: ballerinaserver.sh --run service.bal"
-        exit 1
-   fi
    if [[ "$BAL_FILE_NAME" != /* ]]; then
         BAL_FILE_NAME="$BASE_DIR/$BAL_FILE_NAME"
    fi
-  JAVA_OPTS="$JAVA_OPTS -Drun-file=$BAL_FILE_NAME -Drun-mode=service"
+  JAVA_OPTS="$JAVA_OPTS -Drun-file=$BAL_FILE_NAME"
   #echo "Running the Ballerina file $BAL_FILE_NAME"
 fi
 
-if [ "$BAL_EXECUTION_SUB_CMD" = "bargs" ]; then
-  if [[ "$BARGS" != " " ]]; then
-  JAVA_OPTS="$JAVA_OPTS -Dbal-args=$BARGS"
-  echo "Arguments : $BARGS"
-  fi
-fi
+#if [ "$BAL_EXECUTION_SUB_CMD" = "bargs" ]; then
+#  if [[ "$BARGS" != " " ]]; then
+#  JAVA_OPTS="$JAVA_OPTS -Dbal-args=$BARGS"
+#  echo "Arguments : $BARGS"
+#  fi
+#fi
 
 while [ "$status" = "$START_EXIT_STATUS" ]
 do
