@@ -35,7 +35,7 @@ public class ServiceContextHolder {
 
     private Map<String, TransportSender> transportSenders = new HashMap<>();
 
-    private Constants.RuntimeMode runtimeMode = Constants.RuntimeMode.SERVER;
+    private Constants.RuntimeMode runtimeMode = Constants.RuntimeMode.DEFAULT;
 
     /* Protocol specific error handlers */
     private Map<String, ServerConnectorErrorHandler> errorHandlers = new HashMap<>();
