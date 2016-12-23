@@ -124,7 +124,7 @@ define(['lodash','d3', 'jquery', './ballerina-view', './../ast/connector-declara
 
                     // reset ui feed back on drop target change
                     self.messageManager.once("drop-target-changed", function(){
-                        self.setStylesWithOpacity(self._middleRectangle);
+                        self.setStyles(self._middleRectangle);
                     });
                 }
             };
@@ -133,9 +133,10 @@ define(['lodash','d3', 'jquery', './ballerina-view', './../ast/connector-declara
                 // reset ui feed back on hover out
                 if(self.messageManager.isOnDrag()){
                     if(_.isEqual(self.messageManager.getActivatedDropTarget(), self._model)){
-                        self.setStylesWithOpacity(self._middleRectangle);
+                        self.setStyles(self._middleRectangle);
                     }
                 }
+                d3.event.stopPropagation();
             };
             dropZone.on("mouseover", mouseOverHandler);
             dropZone.on("mouseout", mouseOutHandler);

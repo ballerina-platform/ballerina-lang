@@ -28,6 +28,7 @@ import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.ConnectorDcl;
 import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.model.ImportPackage;
+import org.wso2.ballerina.core.model.MainInvoker;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.Resource;
@@ -664,6 +665,9 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     public void visit(ResourceInvoker resourceInvoker) {
+    }
+
+    public void visit(MainInvoker mainInvoker) {
     }
 
 
