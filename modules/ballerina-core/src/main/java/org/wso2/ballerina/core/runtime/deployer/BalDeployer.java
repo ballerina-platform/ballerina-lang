@@ -29,7 +29,6 @@ import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.linker.BLangLinker;
 import org.wso2.ballerina.core.model.Application;
 import org.wso2.ballerina.core.model.BallerinaFile;
-import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.Package;
 import org.wso2.ballerina.core.model.builder.BLangModelBuilder;
 import org.wso2.ballerina.core.parser.BallerinaLexer;
@@ -159,34 +158,8 @@ public class BalDeployer implements Deployer {
                 bLangLinker.link(GlobalScopeHolder.getInstance().getScope());
 
                 if (Constants.RuntimeMode.RUN_FILE == ServiceContextHolder.getInstance().getRuntimeMode()) {
-                    BallerinaFunction function =
-                            (BallerinaFunction) balFile.getFunctions().get(Constants.MAIN_FUNCTION_NAME);
-                    if (function != null) {
-                        if (balFile.getServices().size() == 0) {
-                            if (log.isDebugEnabled()) {
-                                log.debug("No Service is found in Bal file. Only Main function will be executed," +
-                                        " then exit.");
-                            }
-                            // Run main function
-                            try {
-                                BalProgramExecutor.execute(function);
-                            } finally {
-                                RuntimeUtils.shutdownRuntime();
-                            }
-                            return;
-                        } else {
-                            if (log.isDebugEnabled()) {
-                                log.debug("Bal File contains Services and Main Functions.");
-                            }
-                            // Run main function
-                            BalProgramExecutor.execute(function);
-                        }
-                    } else {
-                        if (balFile.getServices().size() == 0) {
-                            log.warn("Unable to find Main function or Any Ballerina Service. System Exits. Bye.");
-                            RuntimeUtils.shutdownRuntime();
-                            return;
-                        }
+                    if (!BalProgramExecutor.execute(balFile)) {
+                        return;
                     }
                 }
 
