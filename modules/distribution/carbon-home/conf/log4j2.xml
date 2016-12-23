@@ -18,7 +18,7 @@
 <Configuration>
     <Appenders>
         <Console name="CARBON_CONSOLE" target="SYSTEM_OUT">
-            <PatternLayout pattern="[%d] %5p {%c} - %m%ex%n"/>
+            <PatternLayout pattern="%m%ex%n"/>
         </Console>
         <RollingFile name="CARBON_LOGFILE" fileName="${sys:carbon.home}/logs/carbon.log"
                      filePattern="${sys:carbon.home}/logs/carbon-%d{MM-dd-yyyy}.log">
