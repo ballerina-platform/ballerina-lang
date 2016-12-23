@@ -372,7 +372,7 @@ public class BLangModelBuilder {
         exprStack.push(expr);
     }
 
-    public void createBackTickString(String stringContent) {
+    public void createBackquoteExpr(String stringContent) {
         String templateStr = getValueWithinBacktick(stringContent);
 
         BackquoteExpr.BackquoteExprBuilder builder = new BackquoteExpr.BackquoteExprBuilder();
