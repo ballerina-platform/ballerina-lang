@@ -108,4 +108,8 @@ public class BallerinaAction implements Action, Node {
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
+
+    public ConnectorDcl[] getConnectorDcls() {
+        return connectorDcls;
+    }
 }
