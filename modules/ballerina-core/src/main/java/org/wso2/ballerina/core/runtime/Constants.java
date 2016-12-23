@@ -26,12 +26,11 @@ public class Constants {
     // Name of the System property which contains the ballerina file path to be executed
     public static final String SYSTEM_PROP_RUN_FILE = "run-file";
 
-    public static final String SYSTEM_PROP_RUN_FILE_MODE = "run-mode";
-    public static final String SYSTEM_PROP_RUN_FILE_MODE_MAIN = "main";
-    public static final String SYSTEM_PROP_RUN_FILE_MODE_SERVICE = "service";
-
     // Name of the system property to hold the input arguments
     public static final String SYSTEM_PROP_BAL_ARGS = "bal-args";
+
+    // Name of the directory where Bal files are stored.
+    public static final String SYSTEM_PROP_DIR = "bal-dir";
 
     // Name of the main function
     public static final String MAIN_FUNCTION_NAME = "main";
@@ -43,14 +42,12 @@ public class Constants {
      * Runtime modes of Ballerina engine
      */
     public enum RuntimeMode {
-        // Run Main function Mode. i.e. ballerina.sh -run main.bal .
-        RUN_MAIN,
-        // Run Ballerina as Server Mode with input service bal. i.e ballerinaserver.sh -run service.bal
-        RUN_SERVER,
+        // Run File Mode.
+        RUN_FILE,
         // Run Ballerina Server Mode.
         SERVER,
         // Represents ERROR Condition.
         ERROR
-    };
+    }
 
 }

@@ -132,6 +132,9 @@ fi
 # ----- Process the input command ----------------------------------------------
 
 args=""
+
+BAL_FILE_NAME=$1
+
 for c in $@
 do
     if [ "$c" = "--debug" ] || [ "$c" = "-debug" ] || [ "$c" = "debug" ]; then
@@ -148,11 +151,6 @@ do
           CMD="restart"
     elif [ "$c" = "--test" ] || [ "$c" = "-test" ] || [ "$c" = "test" ]; then
           CMD="test"
-    elif [ "$c" = "--run" ] || [ "$c" = "-run" ] || [ "$c" = "run" ]; then
-          BAL_EXECUTION_CMD="run-this"
-          continue
-    elif [ "$BAL_EXECUTION_CMD" = "run-this" ] && [ -z "$BAL_FILE_NAME" ]; then
-          BAL_FILE_NAME=$c
     elif [ "$c" = "--bargs" ] || [ "$c" = "-bargs" ] || [ "$c" = "bargs" ]; then
           BAL_EXECUTION_SUB_CMD="bargs" 
     elif [ "$BAL_EXECUTION_SUB_CMD" = "bargs" ] && [ -z "$BARGS" ]; then
@@ -264,20 +262,15 @@ status=$START_EXIT_STATUS
 #To monitor a Carbon server in remote JMX mode on linux host machines, set the below system property.
 #   -Djava.rmi.server.hostname="your.IP.goes.here"
 
-if [ "$BAL_EXECUTION_CMD" = "run-this" ]; then
-   if [ "$BAL_FILE_NAME" = "" ]; then
-        echo " Please specify Ballerina Main function to run after --run option. Eg: ballerina.sh --run main.bal"
-        exit 1
-   fi
-   if [[ "$BAL_FILE_NAME" != /* ]]; then
-        BAL_FILE_NAME="$BASE_DIR/$BAL_FILE_NAME"
-   fi
-  JAVA_OPTS="$JAVA_OPTS -Drun-file=$BAL_FILE_NAME -Drun-mode=main"
-  #echo "Running the Ballerina file $BAL_FILE_NAME"
-else
-#   TODO : Remove all unnecessary stuffs from here.
-    echo " Please specify Ballerina Main function to run after --run option. Eg: ballerina.sh --run main.bal"
+if [ "$BAL_FILE_NAME" = "" ]; then
+    echo " Please specify Ballerina Main function or Service to run. Eg: ballerina.sh foo.bal"
     exit 1
+else
+    if [[ "$BAL_FILE_NAME" != /* ]]; then
+        BAL_FILE_NAME="$BASE_DIR/$BAL_FILE_NAME"
+    fi
+    JAVA_OPTS="$JAVA_OPTS -Drun-file=$BAL_FILE_NAME"
+    #echo "Running the Ballerina file $BAL_FILE_NAME"
 fi
 
 if [ "$BAL_EXECUTION_SUB_CMD" = "bargs" ]; then

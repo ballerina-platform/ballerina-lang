@@ -155,9 +155,10 @@ public class BalDeployer implements Deployer {
                 BLangLinker bLangLinker = new BLangLinker(balFile);
                 bLangLinker.link(GlobalScopeHolder.getInstance().getScope());
 
-                if (Constants.RuntimeMode.RUN_MAIN == ServiceContextHolder.getInstance().getRuntimeMode()) {
-                    BalProgramExecutor.execute(balFile);
-                    return;
+                if (Constants.RuntimeMode.RUN_FILE == ServiceContextHolder.getInstance().getRuntimeMode()) {
+                    if (!BalProgramExecutor.execute(balFile)) {
+                        return;
+                    }
                 }
 
                 // Get the existing application associated with this ballerina config
@@ -183,18 +184,18 @@ public class BalDeployer implements Deployer {
 
                 log.info("Deployed ballerina file : " + file.getName());
             } else {
-                if (Constants.RuntimeMode.RUN_MAIN == ServiceContextHolder.getInstance().getRuntimeMode()) {
-                    log.error("File extension not supported. Support only {}. Bye.", FILE_EXTENSION);
+                if (Constants.RuntimeMode.RUN_FILE == ServiceContextHolder.getInstance().getRuntimeMode()) {
+                    log.error("File extension not supported. Supported extensions {}.", FILE_EXTENSION);
                     RuntimeUtils.shutdownRuntime();
                     return;
                 }
                 log.error("File extension not supported. Support only {}.", FILE_EXTENSION);
             }
         } catch (IOException e) {
-            log.error("Error while creating Ballerina object model from file : " + file.getName(), e.getMessage());
+            log.error("Error while creating Ballerina object model from file : {}" , file.getName(), e.getMessage());
             successful = false;
         } catch (BallerinaException e) {
-            log.error("Failed to deploy " + file.getName() + ": " + e.getMessage(), e.getMessage());
+            log.error("Failed to deploy {} : {}" , file.getName(), e.getMessage());
             successful = false;
         } finally {
             if (inputStream != null) {
@@ -203,8 +204,7 @@ public class BalDeployer implements Deployer {
                 } catch (IOException ignore) {
                 }
             }
-            if (!successful && Constants.RuntimeMode.RUN_MAIN == ServiceContextHolder.getInstance().getRuntimeMode()) {
-                log.error("System exits. Bye.");
+            if (!successful && Constants.RuntimeMode.RUN_FILE == ServiceContextHolder.getInstance().getRuntimeMode()) {
                 RuntimeUtils.shutdownRuntime();
             }
         }
