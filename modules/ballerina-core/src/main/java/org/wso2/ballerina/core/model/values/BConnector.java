@@ -27,6 +27,10 @@ public class BConnector implements BRefType<Connector> {
     private Connector connector;
     private Expression[] argExprs;
 
+    public BConnector() {
+        this(null, new Expression[0]);
+    }
+
     public BConnector(Connector connector, Expression[] argExprs) {
         this.connector = connector;
         this.argExprs = argExprs;

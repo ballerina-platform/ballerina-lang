@@ -1,0 +1,143 @@
+.closeTab{
+    margin-left: 5px;
+    margin-bottom: 5px;
+}
+
+.bottom-right-controls-container {
+    position: absolute;
+    bottom: 150px;
+    right: 25px;
+}
+
+.top-right-controls-container {
+    position: absolute;
+    top: 15px;
+    right: 25px;
+}
+
+
+.toggle-to-design {
+    width: 30px;
+    height: 30px;
+}
+
+.tab-pane{
+}
+
+
+.grid-background{
+    background:
+    linear-gradient(-90deg, rgba(0, 0, 0, .03) 1px, transparent 1px),
+    linear-gradient(rgba(0, 0, 0, .03) 1px, transparent 1px),
+    linear-gradient(-90deg, rgba(0, 0, 0, .03) 1px, transparent 1px),
+    linear-gradient(rgba(0, 0, 0, .03) 1px, transparent 1px),
+    linear-gradient(transparent 3px, transparent 3px, transparent 78px, transparent 78px),
+    linear-gradient(-90deg, transparent 1px, transparent 1px),
+    linear-gradient(-90deg, transparent 3px, transparent 3px, transparent 78px, transparent 78px),
+    linear-gradient(transparent 1px, transparent 1px), transparent;
+    background-size:
+    10px 10px,
+    10px 10px,
+    10px 10px,
+    10px 10px,
+    10px 10px,
+    10px 10px,
+    10px 10px,
+    10px 10px;
+}
+
+
+
+.toggle-to-source {
+    width: 30px;
+    height: 30px;
+}
+.preview-container{
+    display: none;
+}
+.source-view-enabled {
+    display: block;
+    width: 100%;
+    height:100%;
+}
+
+.source-view-disabled {
+    display: none;
+}
+
+.show-div {
+    display: block;
+}
+
+.hide-div {
+    display: none;
+}
+
+.tab-headers {
+    background-color: #e4e4e4;
+}
+
+.navbar-default .navbar-nav > li a:hover {
+    background: #8d8d8d;
+}
+
+.navbar-default .navbar-nav > li a:active {
+    background: #8d8d8d;
+}
+
+.navbar-default .navbar-nav > li a:focus {
+    background: #8d8d8d;
+}
+
+.nav-tabs-bar > li > a {
+     border-radius: 0;
+     border: none;
+     margin: 0;
+ }
+
+.nav-tabs > li > a {
+    border-radius: 0;
+    border: none;
+    margin: 0;
+}
+
+.nav-tabs>li.active>a, .nav-tabs>li.active>a:focus, .nav-tabs>li.active>a:hover{
+    border: none;
+}
+
+
+.nav-tabs-bar > li {
+    background-color: #c4c4c4;
+    width: 120px;
+}
+
+.nav-tabs {
+    border: 0;
+}
+
+.canvas-container{
+    background: none;
+}
+
+.nav-tabs-bar > li > a {
+    border-radius: 0;
+    border: none;
+    margin: 0;
+    padding: 0 5px 0 6px;
+}
+
+.nav-tabs-bar>li.active>a{
+    border-top: 1px solid #ccc;
+    border-left: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+}
+
+
+/*
+.tab-content.tab-content-default {
+    border: 2px solid #c7c7c7;
+ }*/
+
+
+/** Resource level tabs related styles | -> End **/
+/*//////////////////////////////////////////////////*/

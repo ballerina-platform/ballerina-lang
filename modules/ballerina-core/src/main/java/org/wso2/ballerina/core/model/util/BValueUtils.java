@@ -19,17 +19,8 @@ package org.wso2.ballerina.core.model.util;
 
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.model.types.BType;
-import org.wso2.ballerina.core.model.values.BBoolean;
-import org.wso2.ballerina.core.model.values.BConnector;
-import org.wso2.ballerina.core.model.values.BDouble;
-import org.wso2.ballerina.core.model.values.BFloat;
-import org.wso2.ballerina.core.model.values.BInteger;
-import org.wso2.ballerina.core.model.values.BJSON;
-import org.wso2.ballerina.core.model.values.BLong;
-import org.wso2.ballerina.core.model.values.BMessage;
-import org.wso2.ballerina.core.model.values.BString;
+import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.model.values.BXML;
 
 /**
  * BValue utility methods
@@ -38,50 +29,54 @@ import org.wso2.ballerina.core.model.values.BXML;
  */
 public class BValueUtils {
 
-    // TODO How about storing these default values in hash map. This would avoid creating new objects for each
-    // TODO every variable declaration.
-    // TODO One option is to implement a pool of BValue objects
-    public static BValue getDefaultValue(BType type) {
-        if (type == BType.INT_TYPE) {
-            return new BInteger(0);
-
-        } else if (type == BType.LONG_TYPE) {
-            return new BLong(0);
-
-        } else if (type == BType.FLOAT_TYPE) {
-            return new BFloat(0);
-
-        } else if (type == BType.DOUBLE_TYPE) {
-            return new BDouble(0);
-
-        } else if (type == BType.BOOLEAN_TYPE) {
-            return new BBoolean(false);
-
-        } else if (type == BType.STRING_TYPE) {
-            return new BString("");
-
-        } else if (type == BType.JSON_TYPE) {
-            return new BJSON("{}");
-
-        } else if (type == BType.XML_TYPE) {
-            return new BXML();
-
-        } else if (type == BType.MESSAGE_TYPE) {
-            return new BMessage(null);
-
-//        } else if (type == TypeC.MAP_TYPE) {
-//            return MapValue());
-
-        } else if (type == BType.CONNECTOR_TYPE) {
-            return new BConnector(null, null);
-        } else {
-            throw new BallerinaException("Unsupported type: " + type);
-        }
-    }
+//    // TODO How about storing these default values in hash map. This would avoid creating new objects for each
+//    // TODO every variable declaration.
+//    // TODO One option is to implement a pool of BValue objects
+//    public static BValue getDefaultValue(BType type) {
+//        if (type == BType.INT_TYPE) {
+//            return new BInteger(0);
+//
+//        } else if (type == BType.LONG_TYPE) {
+//            return new BLong(0);
+//
+//        } else if (type == BType.FLOAT_TYPE) {
+//            return new BFloat(0);
+//
+//        } else if (type == BType.DOUBLE_TYPE) {
+//            return new BDouble(0);
+//
+//        } else if (type == BType.BOOLEAN_TYPE) {
+//            return new BBoolean(false);
+//
+//        } else if (type == BType.STRING_TYPE) {
+//            return new BString("");
+//
+//        } else if (type == BType.JSON_TYPE) {
+//            return new BJSON("{}");
+//
+//        } else if (type == BType.XML_TYPE) {
+//            return new BXML();
+//
+//        } else if (type == BType.MESSAGE_TYPE) {
+//            return new BMessage(null);
+//
+//        } else if (type == BType.CONNECTOR_TYPE) {
+//            return new BConnector(null, null);
+//
+//        } else if (type instanceof BArrayType) {
+//            BArrayType arrayType = (BArrayType) type;
+//
+//            BValue[] stringBArray = BArray.createArray(BInteger[].class);
+////
+//        }
+//
+//
+//        throw new BallerinaException("Unsupported type: " + type);
+//    }
 
     // TODO we need to improve this logic
     public static BValue clone(BType type, BValue bValue) {
-        if (BType.isValueType(type)) {
+        if (BTypes.isValueType(type)) {
             return bValue;
         }
 

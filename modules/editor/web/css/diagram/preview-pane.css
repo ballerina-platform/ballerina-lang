@@ -1,0 +1,79 @@
+.preview-container{
+    padding: 10px;
+    background: white;
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAHUlEQVQYV2NkYGAwBuKzQIwXMBJSAJMfVUidcAQAnUQBC6jEGBUAAAAASUVORK5CYII=');
+    border: 5px solid #232323;
+    border-top: none;
+    border-bottom: none;
+}
+.diagram-preview
+{
+    height: 160px;
+}
+
+.pan-zoom-marker{
+    stroke: red;
+    stroke-width: 5px;
+    fill-opacity: 0.1;
+}
+
+.pan-zoom-marker{
+    cursor: pointer;
+}
+
+.fit-to-area-btn {
+    color: #232323;
+    width: 12%;
+    margin: 1%;
+    margin-right: 3%;
+    float: left;
+    display: inline-block;
+}
+
+.fit-to-area-btn:hover {
+    color: #8d8d8d;
+    cursor: pointer;
+}
+
+
+.reset-zoom-btn {
+    color: #232323;
+    width: 12%;
+    margin: 1%;
+    float: left;
+    display: inline-block;
+}
+
+.reset-zoom-btn:hover {
+    color: #8d8d8d;
+    cursor: pointer;
+
+}
+
+.fit-to-area-btn:active {
+    color: #232323;
+}
+
+
+.reset-zoom-btn:active {
+    color: #232323;
+}
+
+.pan-zoom-marker.hidden{
+    stroke-width: 0;
+    fill-opacity: 1;
+}
+
+.controls-container{
+    height: 25px;
+    margin-top: 5px;
+    color: #232323;
+    text-align: center;
+}
+
+.zoom-slider{
+    display: inline-block;
+    width: 70%;
+    float: left;
+    margin-top: 3px;
+}

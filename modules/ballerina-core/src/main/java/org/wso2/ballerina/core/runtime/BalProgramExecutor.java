@@ -31,8 +31,7 @@ import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.ResourceInvoker;
 import org.wso2.ballerina.core.model.VariableDcl;
-import org.wso2.ballerina.core.model.types.BType;
-import org.wso2.ballerina.core.model.util.BValueUtils;
+import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.runtime.internal.RuntimeUtils;
@@ -65,30 +64,16 @@ public class BalProgramExecutor {
      * Execute a program in a Ballerina File
      *
      * @param balFile Ballerina File
-     * @return whether the runtime should keep-alive after executing the program in the file
      */
-    public static boolean execute(BallerinaFile balFile) {
+    public static void execute(BallerinaFile balFile) {
         BallerinaFunction function =
                 (BallerinaFunction) balFile.getFunctions().get(Constants.MAIN_FUNCTION_NAME);
-
         if (function != null) {
-            try {
-                BalProgramExecutor.execute(function);
-            } finally {
-                if (balFile.getServices().size() == 0) {
-                    if (log.isDebugEnabled()) {
-                        log.debug("Services not found. Hence shutting down after Main function execution.. ");
-                    }
-                    RuntimeUtils.shutdownRuntime();
-                    return false;
-                }
-            }
-        } else if (balFile.getServices().size() == 0) {
-            log.warn("Unable to find Main function or any Ballerina Services. Bye..!");
-            RuntimeUtils.shutdownRuntime();
-            return false;
+            BalProgramExecutor.execute(function);
+        } else {
+            log.warn("Unable to find Main function. Bye..!");
         }
-        return true;
+        RuntimeUtils.shutdownRuntime();
     }
 
     private static void execute(BallerinaFunction function) {
@@ -96,7 +81,8 @@ public class BalProgramExecutor {
         // Check whether this is a standard main function with one integer argument
         // This will be changed to string[] args once we have the array support
         Parameter[] parameters = function.getParameters();
-        if (parameters.length != 1 || parameters[0].getType() != BType.INT_TYPE) {
+
+        if (parameters.length != 1 || parameters[0].getType() != BTypes.INT_TYPE) {
             throw new BallerinaException("Main function does not comply with standard main function in ballerina");
         }
 
@@ -123,7 +109,7 @@ public class BalProgramExecutor {
         // Create default values for all declared local variables
         VariableDcl[] variableDcls = function.getVariableDcls();
         for (VariableDcl variableDcl : variableDcls) {
-            values[i] = BValueUtils.getDefaultValue(variableDcl.getType());
+            values[i] = variableDcl.getType().getDefaultValue();
             i++;
         }
 

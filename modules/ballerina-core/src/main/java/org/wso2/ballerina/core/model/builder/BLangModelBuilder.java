@@ -62,6 +62,7 @@ import org.wso2.ballerina.core.model.statements.ReturnStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
 import org.wso2.ballerina.core.model.types.BType;
+import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.model.values.BBoolean;
 import org.wso2.ballerina.core.model.values.BFloat;
 import org.wso2.ballerina.core.model.values.BInteger;
@@ -152,7 +153,7 @@ public class BLangModelBuilder {
 
     public void createInstanceCreaterExpr(String typeName) {
         InstanceCreationExpr expression = new InstanceCreationExpr(null);
-        BType type = BType.getType(typeName);
+        BType type = BTypes.getType(typeName);
         expression.setType(type);
         exprStack.push(expression);
 
@@ -180,7 +181,7 @@ public class BLangModelBuilder {
             Expression expr = exprStack.pop();
 
             // Assuming the annotation value is a string literal
-            if (expr instanceof BasicLiteral && expr.getType() == BType.STRING_TYPE) {
+            if (expr instanceof BasicLiteral && expr.getType() == BTypes.STRING_TYPE) {
                 String value = ((BasicLiteral) expr).getbValueNew().stringValue();
                 annotationBuilder.setValue(value);
             } else {
@@ -223,12 +224,12 @@ public class BLangModelBuilder {
     }
 
     public void createType(String typeName) {
-        BType type = BType.getType(typeName);
+        BType type = BTypes.getType(typeName);
         typeQueue.add(type);
     }
 
     public void createArrayType(String typeName) {
-        BType type = BType.getArrayType(typeName);
+        BType type = BTypes.getArrayType(typeName);
         typeQueue.add(type);
     }
 
@@ -635,22 +636,22 @@ public class BLangModelBuilder {
 
     public void createIntegerLiteral(String value) {
         BValueType bValue = new BInteger(Integer.parseInt(value));
-        createLiteral(bValue, BType.INT_TYPE);
+        createLiteral(bValue, BTypes.INT_TYPE);
     }
 
     public void createFloatLiteral(String value) {
         BValueType bValue = new BFloat(Float.parseFloat(value));
-        createLiteral(bValue, BType.FLOAT_TYPE);
+        createLiteral(bValue, BTypes.FLOAT_TYPE);
     }
 
     public void createStringLiteral(String value) {
         BValueType bValue = new BString(value);
-        createLiteral(bValue, BType.STRING_TYPE);
+        createLiteral(bValue, BTypes.STRING_TYPE);
     }
 
     public void createBooleanLiteral(String value) {
         BValueType bValue = new BBoolean(Boolean.parseBoolean(value));
-        createLiteral(bValue, BType.BOOLEAN_TYPE);
+        createLiteral(bValue, BTypes.BOOLEAN_TYPE);
     }
 
     public void createNullLiteral(String value) {
