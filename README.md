@@ -54,13 +54,16 @@ function main(int z) {
 
 ```
 package samples.echo;
+import ballerina.net.http;
+import ballerina.lang.message;
 
 service EchoService{
 
   @POST
   @Path ("/*")
   resource echoResource (message m) {
-      reply m;
+    http:convertToResponse(m);
+    reply m;
   }
 
 }
@@ -79,6 +82,61 @@ curl -v -d "<Hello>World</Hello>" http://localhost:9090/EchoService
 Above command will echo back the same message and you can see the result like below
 ```
 <Hello>World</Hello>
+```
+
+### Message Passthrough service
+
+- create a sample ballerina file (passthrough.bal) with the following content
+
+```
+package samples.message.passthrough;
+
+import ballerina.lang.message;
+import ballerina.net.http as http;
+
+
+@BasePath ("/passthrough")
+service PassthroughService {
+
+    @POST
+    @Path ("/stocks")
+    resource passthrough (message m) {
+        http:HTTPConnector nyseEP = new http:HTTPConnector("http://localhost:9090", 100);
+        message response;
+        response = http:HTTPConnector.post(nyseEP, "/NYSEStocks", m);
+        reply response;
+    }
+}
+
+@BasePath("/NYSEStocks")
+service NYSEStockQuote {
+  @POST
+  @Path("/*")
+  resource stocks (message m) {
+    message response;
+    json payload;
+    response = new message;
+    payload = `{"exchange":"nyse", "name":"IBM", "value":"127.50"}`;
+    message:setJsonPayload(response, payload);
+    reply response;
+  }
+}
+
+```
+- save this file in a directory (let's say under bin directory in the ballerina distribution)
+
+- Go inside the ballerina/bin directory and run the following command
+```
+./ballerina.sh run passthrough.bal
+```
+
+- This will start the ballerina server with the port 9090 and you can invoke the service with the following curl command.
+```
+curl -v -d "{"name":"NYSE"}" http://localhost:9090/passthrough/stocks
+```
+Above command will return the stock details from the NYSE sample service written above
+```
+{"exchange":"nyse","name":"IBM","value":"127.50"}
 ```
 
 ### Content Based Routing service
