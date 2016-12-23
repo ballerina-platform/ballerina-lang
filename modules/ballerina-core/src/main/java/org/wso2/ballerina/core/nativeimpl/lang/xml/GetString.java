@@ -29,7 +29,6 @@ import net.sf.saxon.s9api.XdmValue;
 import net.sf.saxon.value.EmptySequence;
 
 import org.osgi.service.component.annotations.Component;
-import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BString;
@@ -86,7 +85,7 @@ public class GetString extends AbstractNativeFunction {
             Sequence sequence = xdmValue.getUnderlyingValue();
             
             if (sequence instanceof EmptySequence) {
-                throw new BallerinaException("The xpath '" + xPath + "' does not match any element.");
+                ErrorHandler.logWarn(OPERATION, "The xpath '" + xPath + "' does not match any element.");
             } else {
                 result = new BString(xdmValue.toString());
             }
