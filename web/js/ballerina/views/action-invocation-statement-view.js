@@ -176,6 +176,8 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
             });
 
             this.parentContainer = d3.select(parentGroup);
+            //Drawing the message.
+            this.DrawArrow(this.getDiagramRenderingContext());
             var self = this;
             this.processorConnectPoint.on("mousedown", function () {
                 d3.event.preventDefault();
