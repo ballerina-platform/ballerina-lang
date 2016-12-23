@@ -55,6 +55,8 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         _.set(this._viewOptions, 'content.offset', _.get(this._viewOptions, 'content.offset', {top:50, bottom: 50}));
         _.set(this._viewOptions, 'cssClass.title', _.get(this._viewOptions, 'cssClass.title', 'life-line-title'));
         _.set(this._viewOptions, 'cssClass.group', _.get(this._viewOptions, 'cssClass.group', 'life-line'));
+        _.set(this._viewOptions, 'cssClass.topPolygon', _.get(this._viewOptions, 'cssClass.topPolygon', 'connector-life-line-top-polygon'));
+        _.set(this._viewOptions, 'cssClass.bottomPolygon', _.get(this._viewOptions, 'cssClass.bottomPolygon', 'connector-life-line-bottom-polygon'));
 
         this._bottomCenter = this._topCenter.clone().move(0, _.get(this._viewOptions, 'line.height' ));
 
@@ -131,7 +133,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
     LifeLineView.prototype.renderTopPolygon = function () {
         var self = this;
         this._topPolygon = D3Utils.centeredRect(this._topCenter,
-            this._viewOptions.rect.width, this._viewOptions.rect.height, 0, 0, this._rootGroup);
+            this._viewOptions.rect.width, this._viewOptions.rect.height, 0, 0, this._rootGroup).classed(_.get(this._viewOptions, 'cssClass.topPolygon'), true);
 
         this._topCenter.on('moved', function (offset) {
             var x = parseFloat(self._topPolygon.attr('x'));
@@ -145,7 +147,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
     LifeLineView.prototype.renderBottomPolygon = function () {
         var self = this;
         this._bottomPolygon = D3Utils.centeredRect(this._bottomCenter,
-            this._viewOptions.rect.width, this._viewOptions.rect.height, 0, 0, this._rootGroup);
+            this._viewOptions.rect.width, this._viewOptions.rect.height, 0, 0, this._rootGroup).classed(_.get(this._viewOptions, 'cssClass.bottomPolygon'), true);
 
         this._bottomCenter.on('moved', function (offset) {
             var x = parseFloat(self._bottomPolygon.attr('x'));
