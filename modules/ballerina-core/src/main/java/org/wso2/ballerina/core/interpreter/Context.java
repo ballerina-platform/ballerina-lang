@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerina.core.interpreter;
 
+import org.wso2.ballerina.core.nativeimpl.connectors.BalConnectorCallback;
 import org.wso2.ballerina.core.runtime.BalCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
@@ -34,7 +35,10 @@ public class Context {
 
     private ControlStack controlStack;
     private CarbonMessage cMsg;
-    private BalCallback balCallback;
+    private BalCallback responseSendingCallback;
+
+    private BalConnectorCallback connectorCallback;
+
 
     protected Map<String, Object> properties = new HashMap();
 
@@ -67,11 +71,19 @@ public class Context {
         properties.put(key, value);
     }
 
-    public BalCallback getBalCallback() {
-        return balCallback;
+    public BalCallback getResponseSendingCallback() {
+        return responseSendingCallback;
     }
 
-    public void setBalCallback(BalCallback balCallback) {
-        this.balCallback = balCallback;
+    public void setResponseSendingCallback(BalCallback responseSendingCallback) {
+        this.responseSendingCallback = responseSendingCallback;
+    }
+
+    public BalConnectorCallback getConnectorCallback() {
+        return connectorCallback;
+    }
+
+    public void setConnectorCallback(BalConnectorCallback connectorCallback) {
+        this.connectorCallback = connectorCallback;
     }
 }

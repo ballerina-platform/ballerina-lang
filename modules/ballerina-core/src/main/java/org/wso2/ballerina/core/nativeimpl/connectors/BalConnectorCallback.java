@@ -16,7 +16,12 @@
 
 package org.wso2.ballerina.core.nativeimpl.connectors;
 
-import org.wso2.ballerina.core.interpreter.Context;
+import org.wso2.ballerina.core.interpreter.BLangInterpreter;
+import org.wso2.ballerina.core.interpreter.ControlStack;
+import org.wso2.ballerina.core.model.expressions.BasicLiteral;
+import org.wso2.ballerina.core.model.expressions.Expression;
+import org.wso2.ballerina.core.model.statements.AssignStmt;
+import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.values.BMessage;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.runtime.DefaultBalCallback;
@@ -27,15 +32,23 @@ import org.wso2.carbon.messaging.CarbonMessage;
  */
 public class BalConnectorCallback extends DefaultBalCallback {
 
-    private Context context;
-
-    public boolean responseArrived = false;
-
     public BValue valueRef;
 
-    public BalConnectorCallback(Context context) {
-        super(context.getBalCallback());
-        this.context = context;
+    private AssignStmt callerStatement;
+
+    private BlockStmt calleeStatement;
+
+    private BLangInterpreter bLangInterpreter;
+
+    private ControlStack controlStack;
+
+    public BalConnectorCallback(ControlStack controlStack, AssignStmt callerStatement, BlockStmt calleeStatement,
+            BLangInterpreter bLangInterpreter) {
+        super(null);
+        this.controlStack = controlStack;
+        this.callerStatement = callerStatement;
+        this.calleeStatement = calleeStatement;
+        this.bLangInterpreter = bLangInterpreter;
     }
 
     @Override
@@ -43,11 +56,27 @@ public class BalConnectorCallback extends DefaultBalCallback {
         BMessage bMessage = new BMessage(carbonMessage);
         valueRef = bMessage;
         //context.getControlStack().setValue(4, valueRef);
-        context.getControlStack().setReturnValueNew(0, valueRef);
-        responseArrived = true;
-        synchronized (context) {
-            context.notifyAll();
+        controlStack.setReturnValueNew(0, valueRef);
+        controlStack.popFrame();
+        controlStack.setValueNew(callerStatement.getRExpr().getOffset(), valueRef);
+        Expression lExpr = callerStatement.getLExpr();
+        lExpr.accept(bLangInterpreter);
+
+        BValue rValue = getValueNew(callerStatement.getRExpr());
+        setValueNew(lExpr, rValue);
+        calleeStatement.accept(bLangInterpreter);
+
+    }
+
+    private BValue getValueNew(Expression expr) {
+        if (expr instanceof BasicLiteral) {
+            return ((BasicLiteral) expr).getbValueNew();
         }
+        return controlStack.getValueNew(expr.getOffset());
+    }
+
+    private void setValueNew(Expression expr, BValue bValue) {
+        controlStack.setValueNew(expr.getOffset(), bValue);
     }
 
 }

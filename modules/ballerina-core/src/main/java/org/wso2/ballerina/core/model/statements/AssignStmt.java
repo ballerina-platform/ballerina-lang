@@ -29,6 +29,8 @@ public class AssignStmt implements Statement {
     private Expression lhsExpr;
     private Expression rhsExpr;
 
+    private boolean isHaltExecution;
+
     public AssignStmt(Expression lhsExpr, Expression rhsExpr) {
         this.lhsExpr = lhsExpr;
         this.rhsExpr = rhsExpr;
@@ -45,5 +47,13 @@ public class AssignStmt implements Statement {
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    public boolean isHaltExecution() {
+        return isHaltExecution;
+    }
+
+    public void setHaltExecution(boolean isHault) {
+        this.isHaltExecution = isHault;
     }
 }

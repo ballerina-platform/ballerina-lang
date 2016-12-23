@@ -22,7 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Connector;
-import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.BalConnectorCallback;
 import org.wso2.ballerina.core.nativeimpl.connectors.http.Constants;
@@ -75,10 +74,10 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         }
     }
 
-    protected BValue executeAction(Context context, CarbonMessage message) {
+    protected void  executeAction(Context context, CarbonMessage message) {
 
         try {
-            BalConnectorCallback balConnectorCallback = new BalConnectorCallback(context);
+            BalConnectorCallback balConnectorCallback = context.getConnectorCallback();
             // Handle the message built scenario
             if (message.isAlreadyRead()) {
                 MessageDataSource messageDataSource = message.getMessageDataSource();
@@ -95,20 +94,10 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
             }
             ServiceContextHolder.getInstance().getSender().send(message, balConnectorCallback);
 
-            while (!balConnectorCallback.responseArrived) {
-                synchronized (context) {
-                    if (!balConnectorCallback.responseArrived) {
-                        logger.debug("Waiting for a response");
-                        context.wait();
-                    }
-                }
-            }
-            return balConnectorCallback.valueRef;
         } catch (MessageProcessorException e) {
             logger.error("Failed to send the message to an endpoint ", e);
-        } catch (InterruptedException ignore) {
         }
-        return null;
+        return;
     }
 
 }

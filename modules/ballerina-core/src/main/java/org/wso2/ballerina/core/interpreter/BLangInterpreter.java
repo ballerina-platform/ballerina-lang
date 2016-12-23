@@ -79,9 +79,12 @@ import org.wso2.ballerina.core.model.values.BXML;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
+import org.wso2.ballerina.core.nativeimpl.connectors.BalConnectorCallback;
+import org.wso2.ballerina.core.runtime.core.BlockStmtStateHolder;
 import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 
 import java.util.List;
+import java.util.Stack;
 
 /**
  * {@code BLangInterpreter} executes a Ballerina program
@@ -93,9 +96,14 @@ public class BLangInterpreter implements NodeVisitor {
     private Context bContext;
     private ControlStack controlStack;
 
+    private boolean halt;
+
+    private Stack<BlockStmtStateHolder> blockStmtStateHolderStack;
+
     public BLangInterpreter(Context bContext) {
         this.bContext = bContext;
         this.controlStack = bContext.getControlStack();
+        this.blockStmtStateHolderStack = new Stack<>();
     }
 
     @Override
@@ -164,13 +172,59 @@ public class BLangInterpreter implements NodeVisitor {
 
     @Override
     public void visit(BlockStmt blockStmt) {
-        //TODO Improve this to support non-blocking behaviour.
-        //TODO Possibly a linked set of statements would do.
-
-        Statement[] stmts = blockStmt.getStatements();
-        for (Statement stmt : stmts) {
-            stmt.accept(this);
+        boolean rootNode = false;
+        if (blockStmtStateHolderStack.isEmpty()) {
+            rootNode = true;
+            blockStmtStateHolderStack.push(new BlockStmtStateHolder(blockStmt));
         }
+
+        BlockStmtStateHolder blockStmtStateHolder = blockStmtStateHolderStack.pop();
+
+        int startingIndex = 0;
+
+        Statement[] statements = blockStmt.getStatements();
+
+        if (!rootNode && blockStmtStateHolder.getMyStatement().equals(blockStmt)) {
+            startingIndex = blockStmtStateHolder.getNextStatementExecutionIndex();
+            if ((startingIndex < statements.length)) {
+                blockStmtStateHolderStack.push(blockStmtStateHolder);
+
+            } else {
+                do {
+                    blockStmtStateHolder = blockStmtStateHolderStack.pop();
+                    startingIndex = blockStmtStateHolder.getNextStatementExecutionIndex();
+                    statements = blockStmtStateHolder.getMyStatement().getStatements();
+                } while (!(startingIndex < statements.length));
+
+            }
+
+        } else if (!rootNode && !blockStmtStateHolder.getMyStatement().equals(blockStmt)) {
+            blockStmtStateHolderStack.push(blockStmtStateHolder);
+            blockStmtStateHolder = new BlockStmtStateHolder(blockStmt);
+            blockStmtStateHolderStack.push(blockStmtStateHolder);
+        } else {
+            blockStmtStateHolderStack.push(blockStmtStateHolder);
+        }
+
+        for (int i = startingIndex; i < statements.length; i++) {
+            blockStmtStateHolder.setCurrentStatementIndex(i);
+            halt = false;
+            if (statements[i] instanceof AssignStmt) {
+                AssignStmt assignStmt = (AssignStmt) statements[i];
+                if (assignStmt.isHaltExecution()) {
+                    BalConnectorCallback balConnectorCallback = new BalConnectorCallback(controlStack, assignStmt,
+                            blockStmt, this);
+                    bContext.setConnectorCallback(balConnectorCallback);
+                    halt = true;
+                }
+            }
+            statements[i].accept(this);
+            if (halt) {
+                break;
+            }
+
+        }
+
     }
 
     @Override
@@ -178,11 +232,13 @@ public class BLangInterpreter implements NodeVisitor {
         Expression rExpr = assignStmt.getRExpr();
         rExpr.accept(this);
 
-        Expression lExpr = assignStmt.getLExpr();
-        lExpr.accept(this);
+        if (!assignStmt.isHaltExecution()) {
+            Expression lExpr = assignStmt.getLExpr();
+            lExpr.accept(this);
 
-        BValue rValue = getValueNew(rExpr);
-        setValueNew(lExpr, rValue);
+            BValue rValue = getValueNew(rExpr);
+            setValueNew(lExpr, rValue);
+        }
     }
 
     @Override
@@ -242,9 +298,8 @@ public class BLangInterpreter implements NodeVisitor {
     @Override
     public void visit(ReplyStmt replyStmt) {
         // TODO revisit this logic
-        BMessage bMessage =
-                (BMessage) controlStack.getCurrentFrame().valuesNew[replyStmt.getReplyExpr().getOffset()];
-        bContext.getBalCallback().done(bMessage.value());
+        BMessage bMessage = (BMessage) controlStack.getCurrentFrame().valuesNew[replyStmt.getReplyExpr().getOffset()];
+        bContext.getResponseSendingCallback().done(bMessage.value());
     }
 
     @Override
@@ -356,13 +411,13 @@ public class BLangInterpreter implements NodeVisitor {
             nativeAction.execute(bContext);
         }
 
-        controlStack.popFrame();
-
-        // Setting return values to function invocation expression
-        // TODO At the moment we only support single return value
-        if (rVals.length >= 1) {
-            controlStack.setValueNew(actionIExpr.getOffset(), rVals[0]);
-        }
+        //        controlStack.popFrame();
+        //
+        //        // Setting return values to function invocation expression
+        //        // TODO At the moment we only support single return value
+        //        if (rVals.length >= 1) {
+        //            controlStack.setValueNew(actionIExpr.getOffset(), rVals[0]);
+        //        }
     }
 
     @Override

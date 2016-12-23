@@ -53,7 +53,7 @@ public class BalProgramExecutor {
 
         // Create the Ballerina Context
         Context balContext = new Context(cMsg);
-        balContext.setBalCallback(new DefaultBalCallback(callback));
+        balContext.setResponseSendingCallback(new DefaultBalCallback(callback));
 
         // Create the interpreter and Execute
         BLangInterpreter interpreter = new BLangInterpreter(balContext);
