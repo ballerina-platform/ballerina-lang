@@ -24,7 +24,11 @@ package org.wso2.ballerina.core.runtime;
 public class Constants {
 
     // Name of the System property which contains the ballerina file path to be executed
-    public static final String SYSTEM_PROP_BAL_FILE = "bal-file";
+    public static final String SYSTEM_PROP_RUN_FILE = "run-file";
+
+    public static final String SYSTEM_PROP_RUN_FILE_MODE = "run-mode";
+    public static final String SYSTEM_PROP_RUN_FILE_MODE_MAIN = "main";
+    public static final String SYSTEM_PROP_RUN_FILE_MODE_SERVICE = "service";
 
     // Name of the system property to hold the input arguments
     public static final String SYSTEM_PROP_BAL_ARGS = "bal-args";
@@ -32,11 +36,21 @@ public class Constants {
     // Name of the main function
     public static final String MAIN_FUNCTION_NAME = "main";
 
+    // Intermediate headers added to the ballerina message
+    public static final String INTERMEDIATE_HEADERS = "INTERMEDIATE_HEADERS";
+
     /**
      * Runtime modes of Ballerina engine
      */
     public enum RuntimeMode {
-        RUN_FILE, SERVER
+        // Run Main function Mode. i.e. ballerina.sh -run main.bal .
+        RUN_MAIN,
+        // Run Ballerina as Server Mode with input service bal. i.e ballerinaserver.sh -run service.bal
+        RUN_SERVER,
+        // Run Ballerina Server Mode.
+        SERVER,
+        // Represents ERROR Condition.
+        ERROR
     };
 
 }

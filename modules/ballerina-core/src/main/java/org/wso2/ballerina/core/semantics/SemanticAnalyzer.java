@@ -197,6 +197,12 @@ public class SemanticAnalyzer implements NodeVisitor {
             visit(variableDcl);
         }
 
+        ConnectorDcl[] connectorDcls = bFunction.getConnectorDcls();
+        for (ConnectorDcl connectorDcl : connectorDcls) {
+            stackFrameOffset++;
+            visit(connectorDcl);
+        }
+
         BlockStmt blockStmt = bFunction.getFunctionBody();
         blockStmt.accept(this);
 

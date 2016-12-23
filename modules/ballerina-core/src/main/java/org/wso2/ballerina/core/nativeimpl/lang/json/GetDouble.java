@@ -68,24 +68,32 @@ public class GetDouble extends AbstractJSONFunction {
 
             // Getting the value from JSON
             ReadContext jsonCtx = JsonPath.parse(json.value());
-            JsonElement element = jsonCtx.read(jsonPath);
-            if (element == null) {
+            Object elementObj = jsonCtx.read(jsonPath);
+            if (elementObj == null) {
                 throw new BallerinaException("No matching element found for jsonpath: " + jsonPath);
-            } else if (element.isJsonPrimitive()) {
-                // if the resulting value is a primitive, return the respective primitive value object
-                JsonPrimitive value = element.getAsJsonPrimitive();
-                if (value.isNumber()) {
-                    Number number = value.getAsNumber();
+            } else if (elementObj instanceof JsonElement) {
+                JsonElement element = (JsonElement) elementObj;
+                if (element.isJsonPrimitive()) {
+                    // if the resulting value is a primitive, return the respective primitive value object
+                    JsonPrimitive value = element.getAsJsonPrimitive();
+                    if (value.isNumber()) {
+                        Number number = value.getAsNumber();
                     if (number instanceof Float || number instanceof Double) {
-                        result = new BDouble(number.doubleValue());
+                            result = new BDouble(number.doubleValue());
+                        } else {
+                            throw new BallerinaException(
+                                    "The element matching path: " + jsonPath + " is not a Double.");
+                        }
                     } else {
                         throw new BallerinaException("The element matching path: " + jsonPath + " is not a Double.");
                     }
                 } else {
-                    throw new BallerinaException("The element matching path: " + jsonPath + " is not a Double.");
+                    throw new BallerinaException(
+                            "The element matching path: " + jsonPath + " is a JSON, not a Double.");
                 }
-            } else {
-                throw new BallerinaException("The element matching path: " + jsonPath + " is a JSON, not a Double.");
+            } else if (elementObj instanceof Double) {
+                // this handles the JsonPath's min(), max(), avg(), stddev() function
+                result = new BDouble((Double) elementObj);
             }
         } catch (PathNotFoundException e) {
             ErrorHandler.handleNonExistingJsonpPath(OPERATION, jsonPath, e);

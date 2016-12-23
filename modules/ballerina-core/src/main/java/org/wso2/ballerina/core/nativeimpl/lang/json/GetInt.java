@@ -69,24 +69,34 @@ public class GetInt extends AbstractJSONFunction {
 
             // Getting the value from JSON
             ReadContext jsonCtx = JsonPath.parse(json.value());
-            JsonElement element = jsonCtx.read(jsonPath);
-            if (element == null) {
+            Object elementObj = jsonCtx.read(jsonPath);
+            if (elementObj == null) {
                 throw new BallerinaException("No matching element found for jsonpath: " + jsonPath);
-            } else if (element.isJsonPrimitive()) {
-                // if the resulting value is a primitive, return the respective primitive value object
-                JsonPrimitive value = element.getAsJsonPrimitive();
-                if (value.isNumber()) {
-                    Number number = value.getAsNumber();
+            } else if (elementObj instanceof JsonElement) {
+
+                JsonElement element = (JsonElement) elementObj;
+
+                if (element.isJsonPrimitive()) {
+                    // if the resulting value is a primitive, return the respective primitive value object
+                    JsonPrimitive value = element.getAsJsonPrimitive();
+                    if (value.isNumber()) {
+                        Number number = value.getAsNumber();
                     if (number instanceof Integer | number instanceof Long | number instanceof Short) {
-                        result = new BInteger(number.intValue());
+                            result = new BInteger(number.intValue());
+                        } else {
+                            throw new BallerinaException(
+                                    "The element matching path: " + jsonPath + " is not an Integer.");
+                        }
                     } else {
                         throw new BallerinaException("The element matching path: " + jsonPath + " is not an Integer.");
                     }
                 } else {
-                    throw new BallerinaException("The element matching path: " + jsonPath + " is not an Integer.");
+                    throw new BallerinaException(
+                            "The element matching path: " + jsonPath + " is a JSON, not an Integer.");
                 }
-            } else {
-                throw new BallerinaException("The element matching path: " + jsonPath + " is a JSON, not an Integer.");
+            } else if (elementObj instanceof Integer) {
+                // this handles the JsonPath's length() function
+                result = new BInteger((Integer) elementObj);
             }
         } catch (PathNotFoundException e) {
             ErrorHandler.handleNonExistingJsonpPath(OPERATION, jsonPath, e);
