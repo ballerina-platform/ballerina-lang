@@ -253,7 +253,7 @@ fi
 
 # ----- Execute The Requested Command -----------------------------------------
 
-echo JAVA_HOME environment variable is set to $JAVA_HOME
+#echo JAVA_HOME environment variable is set to $JAVA_HOME
 #echo CARBON_HOME environment variable is set to $CARBON_HOME
 
 cd "$CARBON_HOME"
