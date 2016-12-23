@@ -180,8 +180,61 @@ public class JSONTest {
         funcIExpr.accept(bLangInterpreter);
         Assert.assertEquals(FunctionUtils.getReturnBValue(bContext).booleanValue(), true);
     }
-    
-    // TODO: Add get() tests for jsonpath-functions such as length(), min(), max(), etc..
+
+    @Test(description = "Get json array length")
+    public void testGetArrayLength() {
+        BValue[] args = { new BJSON(jsonStringArray), new BString("$.users.length()")};
+        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "getInt", args.length);
+        Context bContext = FunctionUtils.createInvocationContext(args, 1);
+        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
+        funcIExpr.accept(bLangInterpreter);
+        final int expected = 2;
+        Assert.assertEquals(FunctionUtils.getReturnBValue(bContext).intValue(), expected);
+    }
+
+    @Test(description = "Get json array min value")
+    public void testGetArrayMin() {
+        BValue[] args = { new BJSON(jsonIntArray), new BString("$.ages.min()")};
+        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "getDouble", args.length);
+        Context bContext = FunctionUtils.createInvocationContext(args, 1);
+        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
+        funcIExpr.accept(bLangInterpreter);
+        final double expected = 25;
+        Assert.assertEquals(FunctionUtils.getReturnBValue(bContext).doubleValue(), expected);
+    }
+
+    @Test(description = "Get json array max value")
+    public void testGetArrayMax() {
+        BValue[] args = { new BJSON(jsonIntArray), new BString("$.ages.max()")};
+        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "getDouble", args.length);
+        Context bContext = FunctionUtils.createInvocationContext(args, 1);
+        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
+        funcIExpr.accept(bLangInterpreter);
+        final double expected = 28;
+        Assert.assertEquals(FunctionUtils.getReturnBValue(bContext).doubleValue(), expected);
+    }
+
+    @Test(description = "Get json array average value")
+    public void testGetArrayAvg() {
+        BValue[] args = { new BJSON(jsonIntArray), new BString("$.ages.avg()")};
+        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "getDouble", args.length);
+        Context bContext = FunctionUtils.createInvocationContext(args, 1);
+        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
+        funcIExpr.accept(bLangInterpreter);
+        final double expected = 26.5;
+        Assert.assertEquals(FunctionUtils.getReturnBValue(bContext).doubleValue(), expected);
+    }
+
+    @Test(description = "Get json array standard deviation of population")
+    public void testGetArrayStdDevP() {
+        BValue[] args = { new BJSON(jsonIntArray), new BString("$.ages.stddev()")};
+        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "getDouble", args.length);
+        Context bContext = FunctionUtils.createInvocationContext(args, 1);
+        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
+        funcIExpr.accept(bLangInterpreter);
+        final double expected = 1.5;
+        Assert.assertEquals(FunctionUtils.getReturnBValue(bContext).doubleValue(), expected);
+    }
 
     
     /*

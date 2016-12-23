@@ -19,6 +19,7 @@ package org.wso2.ballerina.core.model.values;
 
 import org.wso2.ballerina.core.message.BallerinaMessageDataSource;
 import org.wso2.ballerina.core.model.util.MessageUtils;
+import org.wso2.ballerina.core.runtime.Constants;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
 import org.wso2.carbon.messaging.Header;
@@ -51,7 +52,8 @@ public class BMessage implements BRefType<CarbonMessage> {
      */
     public BMessage(CarbonMessage value) {
         this.value = (value != null) ? value : new DefaultCarbonMessage();
-        this.headers = this.value.getHeaders();
+        this.headers = new Headers();
+        this.value.setProperty(Constants.INTERMEDIATE_HEADERS, this.headers);
     }
 
 
@@ -116,7 +118,10 @@ public class BMessage implements BRefType<CarbonMessage> {
         //todo make the org.wso2.carbon.messaging.Headers.add to public and use that stead of creating a list
         List<Header> headerList = new ArrayList<>();
         headerList.add(new Header(headerName, headerValue));
+        // Add to intermediate headers
         headers.set(headerList);
+        // Add to carbon message headers
+        value.getHeaders().set(headerList);
     }
 
     /**
@@ -135,7 +140,7 @@ public class BMessage implements BRefType<CarbonMessage> {
      * @return String array that contains all header values
      */
     public String[] getHeaders(String headerName) {
-        List<String> allHeaderValues = headers.getAllBy(headerName);
+        List<String> allHeaderValues = value.getHeaders().getAllBy(headerName);
         return allHeaderValues.stream().toArray(String[]::new);
     }
 
@@ -145,6 +150,9 @@ public class BMessage implements BRefType<CarbonMessage> {
      * @param headerName Header name
      */
     public void removeHeader(String headerName) {
+        // Remove from carbon message
+        value.getHeaders().remove(headerName);
+        // Remove from intermediate headers
         headers.remove(headerName);
     }
 
@@ -155,7 +163,10 @@ public class BMessage implements BRefType<CarbonMessage> {
      * @param headerValue header value
      */
     public void setHeader(String headerName, String headerValue) {
+        // Set value in intermediate headers list
         headers.set(headerName, headerValue);
+        // Set value in carbon message headers
+        value.getHeaders().set(headerName, headerValue);
     }
 
     /**
@@ -164,7 +175,7 @@ public class BMessage implements BRefType<CarbonMessage> {
      * @return List that contains the headers
      */
     public List<Header> getHeaders() {
-        return headers.getAll();
+        return value.getHeaders().getAll();
     }
 
     /**
@@ -173,7 +184,10 @@ public class BMessage implements BRefType<CarbonMessage> {
      * @param list List of Headers
      */
     public void setHeaderList(List<Header> list) {
+        // Set intermediate headers list
         headers.set(list);
+        // Set carbon message headers
+        value.getHeaders().set(list);
     }
 
     @Override

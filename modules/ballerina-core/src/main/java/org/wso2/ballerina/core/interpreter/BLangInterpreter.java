@@ -275,15 +275,19 @@ public class BLangInterpreter implements NodeVisitor {
         BValue[] localVals = new BValue[sizeOfValueArray];
 
         // Get values for all the function arguments
-        int i = populateArgumentValues(funcIExpr.getExprs(), localVals);
-
-        // TODO  Handle Connection declarations
+        int valuesCounter = populateArgumentValues(funcIExpr.getExprs(), localVals);
 
         // Create default values for all declared local variables
         VariableDcl[] variableDcls = function.getVariableDcls();
         for (VariableDcl variableDcl : variableDcls) {
-            localVals[i] = variableDcl.getType().getDefaultValue();
-            i++;
+            localVals[valuesCounter] = variableDcl.getType().getDefaultValue();
+            valuesCounter++;
+        }
+
+        // Populate values for Connector declarations
+        if (function instanceof BallerinaFunction) {
+            BallerinaFunction ballerinaFunction = (BallerinaFunction) function;
+            populateConnectorDclValues(ballerinaFunction.getConnectorDcls(), localVals, valuesCounter);
         }
 
         // Create an array in the stack frame to hold return values;
@@ -320,15 +324,19 @@ public class BLangInterpreter implements NodeVisitor {
         BValue[] localVals = new BValue[action.getStackFrameSize()];
 
         // Create default values for all declared local variables
-        int i = populateArgumentValues(actionIExpr.getExprs(), localVals);
-
-        // TODO  Handle Connection declarations
+        int valueCounter = populateArgumentValues(actionIExpr.getExprs(), localVals);
 
         // Create default values for all declared local variables
         VariableDcl[] variableDcls = action.getVariableDcls();
         for (VariableDcl variableDcl : variableDcls) {
-            localVals[i] = variableDcl.getType().getDefaultValue();
-            i++;
+            localVals[valueCounter] = variableDcl.getType().getDefaultValue();
+            valueCounter++;
+        }
+
+        // Populate values for Connector declarations
+        if (action instanceof BallerinaAction) {
+            BallerinaAction ballerinaAction = (BallerinaAction) action;
+            populateConnectorDclValues(ballerinaAction.getConnectorDcls(), localVals, valueCounter);
         }
 
         // Create an array in the stack frame to hold return values;
@@ -460,15 +468,30 @@ public class BLangInterpreter implements NodeVisitor {
 
         valueParams[0] = messageValue;
 
-        int i = 1;
+        int valuesCounter = 1;
         // Create default values for all declared local variables
         VariableDcl[] variableDcls = resource.getVariableDcls();
         for (VariableDcl variableDcl : variableDcls) {
-            valueParams[i] = variableDcl.getType().getDefaultValue();
-            i++;
+            valueParams[valuesCounter] = variableDcl.getType().getDefaultValue();
+            valuesCounter++;
         }
 
-        for (ConnectorDcl connectorDcl : resource.getConnectorDcls()) {
+        // Populate values for Connector declarations
+        populateConnectorDclValues(resource.getConnectorDcls(), valueParams, valuesCounter);
+
+        BValue[] ret = new BValue[1];
+
+        StackFrame stackFrame = new StackFrame(valueParams, ret);
+        controlStack.pushFrame(stackFrame);
+
+        resource.accept(this);
+    }
+
+    // Private methods
+
+    private void populateConnectorDclValues(ConnectorDcl[] connectorDcls, BValue[] valueParams, int valuesCounter) {
+
+        for (ConnectorDcl connectorDcl : connectorDcls) {
             Symbol symbol = GlobalScopeHolder.getInstance().getScope().lookup(connectorDcl.getConnectorName());
             if (symbol == null) {
                 throw new BallerinaException("Connector : " + connectorDcl.getConnectorName() + " not found");
@@ -489,19 +512,10 @@ public class BLangInterpreter implements NodeVisitor {
             }
             BConnector connectorValue = new BConnector(connector, connectorDcl.getArgExprs());
 
-            valueParams[i] = connectorValue;
-            i++;
+            valueParams[valuesCounter] = connectorValue;
+            valuesCounter++;
         }
-
-        BValue[] ret = new BValue[1];
-
-        StackFrame stackFrame = new StackFrame(valueParams, ret);
-        controlStack.pushFrame(stackFrame);
-
-        resource.accept(this);
     }
-
-    // Private methods
 
     private BValue getValueNew(Expression expr) {
         if (expr instanceof BasicLiteral) {
