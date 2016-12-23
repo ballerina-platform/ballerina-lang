@@ -39,6 +39,13 @@ public class BMessage implements BRefType<CarbonMessage> {
     private Headers headers;
 
     /**
+     * Create a message value in ballerina.
+     */
+    public BMessage() {
+        this(new DefaultCarbonMessage());
+    }
+
+    /**
      * Create a message in ballerina using a Carbon Message.
      *
      * @param value Carbon Message

@@ -15,37 +15,34 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerina.core.model.values;
+package org.wso2.ballerina.core.model.types;
 
-import java.lang.reflect.Array;
+import org.wso2.ballerina.core.model.values.BValue;
+import org.wso2.ballerina.core.model.values.BXML;
 
 /**
- * {@code BArray} represents an array value in Ballerina
+ * {@code BXMLType} represents an XML Element
  *
- * @param <T> Ballerina value stored in this array value
  * @since 1.0.0
  */
-public class BArray<T extends BValue> implements BRefType {
+class BXMLType extends BType {
 
-    private T[] tArray;
-
-    public BArray(T[] tArray) {
-        this.tArray = tArray;
-    }
-
-    @Override
-    public String stringValue() {
-        return null;
-    }
-
-    @Override
-    public T value() {
-        return null;
+    /**
+     * Create a {@code BXMLType} which represents the boolean type
+     *
+     * @param typeName string name of the type
+     */
+    BXMLType(String typeName) {
+        super(typeName);
     }
 
     @SuppressWarnings("unchecked")
-    public static <T extends BValue> T[] createArray(Class<T[]> tClass) {
+    public <V extends BValue> V[] createArray() {
+        return (V[]) BTypes.createArray(BXML[].class);
+    }
 
-        return (T[]) Array.newInstance(tClass.getComponentType(), 100);
+    @SuppressWarnings("unchecked")
+    public <V extends BValue> V getDefaultValue() {
+        return (V) new BXML();
     }
 }
