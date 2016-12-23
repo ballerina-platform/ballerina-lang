@@ -69,6 +69,12 @@
             <artifactId>org.wso2.carbon.messaging.feature</artifactId>
             <type>zip</type>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.ballerina</groupId>
+            <artifactId>ballerina-test-feature</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+        </dependency>
     </dependencies>
 
     <build>
@@ -127,6 +133,10 @@
                                 </feature>
                                 <feature>
                                     <id>ballerina-core-feature</id>
+                                    <version>${ballerina.version}</version>
+                                </feature>
+                                <feature>
+                                    <id>ballerina-test-feature</id>
                                     <version>${ballerina.version}</version>
                                 </feature>
                                 <feature>
@@ -199,6 +209,10 @@
                                 </feature>
                                 <feature>
                                     <id>ballerina-core-feature</id>
+                                    <version>${ballerina.version}</version>
+                                </feature>
+                                <feature>
+                                    <id>ballerina-test-feature</id>
                                     <version>${ballerina.version}</version>
                                 </feature>
                                 <feature>
@@ -278,7 +292,7 @@
                             <descriptors>
                                 <descriptor>${basedir}/../../distribution/src/assembly/bin.xml</descriptor>
                             </descriptors>
-                            <finalName>ballerina-${project.version}</finalName>
+                            <finalName>ballerina-test-${project.version}</finalName>
                             <appendAssemblyId>false</appendAssemblyId>
                         </configuration>
                     </execution>
