@@ -53,6 +53,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Arrays;
 
 /**
  * {@code BalDeployer} is responsible for all ballerina file deployment tasks
@@ -91,8 +92,8 @@ public class BalDeployer implements Deployer {
 
     @Override
     public Object deploy(Artifact artifact) throws CarbonDeploymentException {
-        // Deploy only when server mode
-        if (ServiceContextHolder.getInstance().getRuntimeMode() == Constants.RuntimeMode.SERVER) {
+        // Deploy only when default mode
+        if (ServiceContextHolder.getInstance().getRuntimeMode() == Constants.RuntimeMode.DEFAULT) {
             deployBalFile(artifact.getFile());
         }
         return artifact.getFile().getName();
@@ -100,16 +101,18 @@ public class BalDeployer implements Deployer {
 
     @Override
     public void undeploy(Object key) throws CarbonDeploymentException {
-        if (ServiceContextHolder.getInstance().getRuntimeMode() == Constants.RuntimeMode.SERVER) {
+        if (ServiceContextHolder.getInstance().getRuntimeMode() == Constants.RuntimeMode.DEFAULT) {
             undeployBalFile((String) key);
         }
     }
 
     @Override
     public Object update(Artifact artifact) throws CarbonDeploymentException {
-        log.info("Updating " + artifact.getName() + "...");
-        undeployBalFile(artifact.getName());
-        deployBalFile(artifact.getFile());
+        if (ServiceContextHolder.getInstance().getRuntimeMode() == Constants.RuntimeMode.DEFAULT) {
+            log.info("Updating " + artifact.getName() + "...");
+            undeployBalFile(artifact.getName());
+            deployBalFile(artifact.getFile());
+        }
         return artifact.getName();
     }
 
@@ -155,9 +158,10 @@ public class BalDeployer implements Deployer {
                 BLangLinker bLangLinker = new BLangLinker(balFile);
                 bLangLinker.link(GlobalScopeHolder.getInstance().getScope());
 
-                if (Constants.RuntimeMode.RUN_MAIN == ServiceContextHolder.getInstance().getRuntimeMode()) {
-                    BalProgramExecutor.execute(balFile);
-                    return;
+                if (Constants.RuntimeMode.RUN_FILE == ServiceContextHolder.getInstance().getRuntimeMode()) {
+                    if (!BalProgramExecutor.execute(balFile)) {
+                        return;
+                    }
                 }
 
                 // Get the existing application associated with this ballerina config
@@ -183,18 +187,18 @@ public class BalDeployer implements Deployer {
 
                 log.info("Deployed ballerina file : " + file.getName());
             } else {
-                if (Constants.RuntimeMode.RUN_MAIN == ServiceContextHolder.getInstance().getRuntimeMode()) {
-                    log.error("File extension not supported. Support only {}. Bye.", FILE_EXTENSION);
+                if (Constants.RuntimeMode.RUN_FILE == ServiceContextHolder.getInstance().getRuntimeMode()) {
+                    log.error("File extension not supported. Supported extensions {}.", FILE_EXTENSION);
                     RuntimeUtils.shutdownRuntime();
                     return;
                 }
                 log.error("File extension not supported. Support only {}.", FILE_EXTENSION);
             }
         } catch (IOException e) {
-            log.error("Error while creating Ballerina object model from file : " + file.getName(), e.getMessage());
+            log.error("Error while creating Ballerina object model from file : {}" , file.getName(), e.getMessage());
             successful = false;
         } catch (BallerinaException e) {
-            log.error("Failed to deploy " + file.getName() + ": " + e.getMessage(), e.getMessage());
+            log.error("Failed to deploy {} : {}" , file.getName(), e.getMessage());
             successful = false;
         } finally {
             if (inputStream != null) {
@@ -203,10 +207,30 @@ public class BalDeployer implements Deployer {
                 } catch (IOException ignore) {
                 }
             }
-            if (!successful && Constants.RuntimeMode.RUN_MAIN == ServiceContextHolder.getInstance().getRuntimeMode()) {
-                log.error("System exits. Bye.");
+            if (!successful && Constants.RuntimeMode.RUN_FILE == ServiceContextHolder.getInstance().getRuntimeMode()) {
                 RuntimeUtils.shutdownRuntime();
             }
+        }
+    }
+
+    /**
+     * Deploy all Ballerina files in a give directory.
+     *
+     * @param file Directory.
+     */
+    public static void deployBalFiles(File file) {
+        if (file == null || !file.exists() || !file.isDirectory()) {
+            // Can't continue as there is no directory to work with. if we get here, that means a bug in startup
+            // script.
+            log.error("Given working path {} is not a valid location. ", file == null ? null : file.getName());
+            RuntimeUtils.shutdownRuntime();
+            return;
+        }
+        // TODO: Improve logic and scanning.
+        File[] files = file.listFiles();
+        if (files != null) {
+            Arrays.stream(files).filter(file1 -> file1.getName().endsWith(FILE_EXTENSION)).forEach
+                    (BalDeployer::deployBalFile);
         }
     }
 
