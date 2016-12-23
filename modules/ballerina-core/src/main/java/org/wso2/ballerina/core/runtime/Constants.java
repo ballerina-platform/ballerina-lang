@@ -26,6 +26,13 @@ public class Constants {
     // Name of the System property which contains the ballerina file path to be executed
     public static final String SYSTEM_PROP_RUN_FILE = "run-file";
 
+    public static final String SYSTEM_PROP_RUN_MODE = "run-mode";
+
+    public static final String SYSTEM_PROP_BASE_DIR = "base-dir";
+
+    public static final String SYSTEM_PROP_RUN_MODE_SERVER = "server";
+    public static final String SYSTEM_PROP_RUN_MODE_RUN = "run";
+
     // Name of the system property to hold the input arguments
     public static final String SYSTEM_PROP_BAL_ARGS = "bal-args";
 
@@ -47,7 +54,9 @@ public class Constants {
         // Run Ballerina Server Mode.
         SERVER,
         // Represents ERROR Condition.
-        ERROR
+        ERROR,
+        // Carbonized Server mode.
+        DEFAULT
     }
 
 }
