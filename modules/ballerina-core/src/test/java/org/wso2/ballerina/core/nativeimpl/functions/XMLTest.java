@@ -21,14 +21,18 @@ import org.apache.axiom.om.OMElement;
 import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
+import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.BLangInterpreter;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.linker.BLangLinker;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
+import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BXML;
+import org.wso2.ballerina.core.nativeimpl.lang.xml.AddAttribute;
+import org.wso2.ballerina.core.nativeimpl.lang.xml.AddElement;
 import org.wso2.ballerina.core.nativeimpl.lang.xml.GetString;
 import org.wso2.ballerina.core.nativeimpl.lang.xml.GetXML;
 import org.wso2.ballerina.core.nativeimpl.lang.xml.Remove;
@@ -45,6 +49,7 @@ public class XMLTest {
 
     private BallerinaFile bFile;
     private static final String s1 = "<persons><person><name>Jack</name><address>wso2</address></person></persons>";
+    private static final String s2 = "<person><name>Jack</name></person>";
 
     @BeforeTest
     public void setup() {
@@ -57,55 +62,239 @@ public class XMLTest {
         FunctionUtils.addNativeFunction(symScope, new SetString());
         FunctionUtils.addNativeFunction(symScope, new SetXML());
         FunctionUtils.addNativeFunction(symScope, new ToString());
+        FunctionUtils.addNativeFunction(symScope, new AddAttribute());
+        FunctionUtils.addNativeFunction(symScope, new AddElement());
         BLangLinker linker = new BLangLinker(bFile);
         linker.link(symScope);
     }
 
     @Test
     public void testGetString() {
-        BValue[] arguments = {new BXML(s1)};
+        BValue[] arguments = {new BXML(s1), new BString("/persons/person/name/text()")};
         FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "getString", arguments.length);
-
         Context bContext = FunctionUtils.createInvocationContext(arguments, 1);
         BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
         funcIExpr.accept(bLangInterpreter);
-
+        Assert.assertTrue(FunctionUtils.getReturnValue(bContext) instanceof BString);
         final String expected = "Jack";
         Assert.assertEquals(FunctionUtils.getReturnValue(bContext).stringValue(), expected);
     }
 
     @Test
     public void testGetXML() {
-        BValue[] arguments = {new BXML(s1)};
+        BValue[] arguments = {new BXML(s1), new BString("/persons/person")};
         FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "getXML", arguments.length);
-
         Context bContext = FunctionUtils.createInvocationContext(arguments, 1);
         BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
         funcIExpr.accept(bLangInterpreter);
-
         Assert.assertTrue(FunctionUtils.getReturnValue(bContext) instanceof BXML);
-
         OMElement returnElement = ((BXML) FunctionUtils.getReturnValue(bContext)).value();
         Assert.assertEquals(returnElement.toString().replaceAll("\\r|\\n|\\t| ", ""), "<person><name>Jack</name>" +
                 "<address>wso2</address></person>");
     }
 
     @Test
-    public void testRemove() {
-        BValue[] arguments = {new BXML(s1)};
-        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "remove", arguments.length);
-
+    public void testSetString() {
+        BValue[] arguments = { new BXML(s1), new BString("/persons/person/name/text()"), new BString("Peter") };
+        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "setString", arguments.length);
         Context bContext = FunctionUtils.createInvocationContext(arguments, 1);
         BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
         funcIExpr.accept(bLangInterpreter);
+        Assert.assertEquals(FunctionUtils.getReturnValue(bContext).stringValue(), "<persons><person><name>Peter" +
+                "</name><address>wso2</address></person></persons>");
+    }
 
+    @Test
+    public void testSetXML() {
+        BValue[] arguments = { new BXML(s2), new BString("/person/name"),
+            new BXML("<name><fname>Jack</fname><lname>Peter</lname></name>") };
+        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "setXML", arguments.length);
+        Context bContext = FunctionUtils.createInvocationContext(arguments, 1);
+        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
+        funcIExpr.accept(bLangInterpreter);
         Assert.assertTrue(FunctionUtils.getReturnValue(bContext) instanceof BXML);
+        OMElement returnElement = ((BXML) FunctionUtils.getReturnValue(bContext)).value();
+        Assert.assertEquals(returnElement.toString().replaceAll("\\r|\\n|\\t| ", ""), "<person><name><fname>Jack" +
+            "</fname><lname>Peter</lname></name></person>");
+    }
+    
+    @Test
+    public void testAddElement() {
+        BValue[] arguments = { new BXML(s2), new BString("/person"), new BXML("<address>wso2</address>") };
+        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "addElement", arguments.length);
+        Context bContext = FunctionUtils.createInvocationContext(arguments, 1);
+        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
+        funcIExpr.accept(bLangInterpreter);
+        Assert.assertEquals(FunctionUtils.getReturnValue(bContext).stringValue(), "<person><name>Jack</name>" +
+                "<address>wso2</address></person>");
+    }
 
+    @Test
+    public void testAddAttribute() {
+        BValue[] arguments = {new BXML(s2), new BString("/person/name"), new BString("id"), new BString("person123")};
+        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "addAttribute", arguments.length);
+        Context bContext = FunctionUtils.createInvocationContext(arguments, 1);
+        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
+        funcIExpr.accept(bLangInterpreter);
+        Assert.assertTrue(FunctionUtils.getReturnValue(bContext) instanceof BXML);
+        OMElement returnElement = ((BXML) FunctionUtils.getReturnValue(bContext)).value();
+        Assert.assertEquals(returnElement.toString(), "<person><name id=\"person123\">Jack</name></person>");
+    }
+    
+    @Test
+    public void testRemove() {
+        BValue[] arguments = { new BXML(s1), new BString("/persons/person/address") };
+        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "remove", arguments.length);
+        Context bContext = FunctionUtils.createInvocationContext(arguments, 1);
+        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
+        funcIExpr.accept(bLangInterpreter);
+        Assert.assertTrue(FunctionUtils.getReturnValue(bContext) instanceof BXML);
         OMElement returnElement = ((BXML) FunctionUtils.getReturnValue(bContext)).value();
         Assert.assertEquals(returnElement.toString().replaceAll("\\r|\\n|\\t| ", ""), "<persons><person><name>Jack" +
                 "</name></person></persons>");
     }
+    
+    
+    
+    
+    @Test
+    public void testGetNonExistingString() {
+        BValue[] arguments = {new BXML(s1), new BString("/xxx/text()")};
+        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "getString", arguments.length);
+        Context bContext = FunctionUtils.createInvocationContext(arguments, 1);
+        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
+        funcIExpr.accept(bLangInterpreter);
+        Assert.assertEquals(FunctionUtils.getReturnValue(bContext), null);
+    }
 
-    // TODO : Add test cases for Other Native functions.
+    @Test
+    public void testGetNonExistingXML() {
+        BValue[] arguments = {new BXML(s1), new BString("/xxx")};
+        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "getXML", arguments.length);
+        Context bContext = FunctionUtils.createInvocationContext(arguments, 1);
+        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
+        funcIExpr.accept(bLangInterpreter);
+        Assert.assertEquals(FunctionUtils.getReturnValue(bContext), null);
+    }
 
+    @Test
+    public void testSetStringToNonExistingElement() {
+        BValue[] arguments = { new BXML(s1), new BString("/xxx/text()"), new BString("Peter") };
+        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "setString", arguments.length);
+        Context bContext = FunctionUtils.createInvocationContext(arguments, 1);
+        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
+        funcIExpr.accept(bLangInterpreter);
+        Assert.assertEquals(FunctionUtils.getReturnValue(bContext).stringValue(), s1);
+    }
+
+    @Test
+    public void testSetXMLToNonExistingElement() {
+        BValue[] arguments = { new BXML(s2), new BString("/xxx"),
+            new BXML("<name><fname>Jack</fname><lname>Peter</lname></name>") };
+        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "setXML", arguments.length);
+        Context bContext = FunctionUtils.createInvocationContext(arguments, 1);
+        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
+        funcIExpr.accept(bLangInterpreter);
+        Assert.assertTrue(FunctionUtils.getReturnValue(bContext) instanceof BXML);
+        OMElement returnElement = ((BXML) FunctionUtils.getReturnValue(bContext)).value();
+        Assert.assertEquals(returnElement.toString().replaceAll("\\r|\\n|\\t| ", ""), s2);
+    }
+    
+    @Test
+    public void testAddElementToNonExistingElement() {
+        BValue[] arguments = { new BXML(s2), new BString("/xxx"), new BXML("<address>wso2</address>") };
+        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "addElement", arguments.length);
+        Context bContext = FunctionUtils.createInvocationContext(arguments, 1);
+        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
+        funcIExpr.accept(bLangInterpreter);
+        Assert.assertEquals(FunctionUtils.getReturnValue(bContext).stringValue(), s2);
+    }
+
+    @Test
+    public void testAddAttributeToNonExistingElement() {
+        BValue[] arguments = {new BXML(s2), new BString("/xxx"), new BString("id"), new BString("person123")};
+        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "addAttribute", arguments.length);
+        Context bContext = FunctionUtils.createInvocationContext(arguments, 1);
+        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
+        funcIExpr.accept(bLangInterpreter);
+        Assert.assertTrue(FunctionUtils.getReturnValue(bContext) instanceof BXML);
+        OMElement returnElement = ((BXML) FunctionUtils.getReturnValue(bContext)).value();
+        Assert.assertEquals(returnElement.toString(), s2);
+    }
+    
+    @Test
+    public void testRemoveNonExistingElement() {
+        BValue[] arguments = { new BXML(s1), new BString("/xxx") };
+        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "remove", arguments.length);
+        Context bContext = FunctionUtils.createInvocationContext(arguments, 1);
+        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
+        funcIExpr.accept(bLangInterpreter);
+    }
+
+    
+    
+    
+    @Test(expectedExceptions = { BallerinaException.class })
+    public void testGetStringFromMalformedXpath() {
+        BValue[] arguments = {new BXML(s1), new BString("$worng#path")};
+        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "getString", arguments.length);
+        Context bContext = FunctionUtils.createInvocationContext(arguments, 1);
+        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
+        funcIExpr.accept(bLangInterpreter);
+    }
+
+    @Test(expectedExceptions = { BallerinaException.class })
+    public void testGetXMLFromMalformedXpath() {
+        BValue[] arguments = {new BXML(s1), new BString("$worng#path")};
+        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "getXML", arguments.length);
+        Context bContext = FunctionUtils.createInvocationContext(arguments, 1);
+        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
+        funcIExpr.accept(bLangInterpreter);
+    }
+
+    @Test(expectedExceptions = { BallerinaException.class })
+    public void testSetStringToMalformedXpath() {
+        BValue[] arguments = { new BXML(s1), new BString("$worng#path"), new BString("Peter") };
+        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "setString", arguments.length);
+        Context bContext = FunctionUtils.createInvocationContext(arguments, 1);
+        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
+        funcIExpr.accept(bLangInterpreter);
+    }
+
+    @Test(expectedExceptions = { BallerinaException.class })
+    public void testSetXMLToMalformedXpath() {
+        BValue[] arguments = { new BXML(s2), new BString("$worng#path"),
+            new BXML("<name><fname>Jack</fname><lname>Peter</lname></name>") };
+        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "setXML", arguments.length);
+        Context bContext = FunctionUtils.createInvocationContext(arguments, 1);
+        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
+        funcIExpr.accept(bLangInterpreter);
+    }
+    
+    @Test(expectedExceptions = { BallerinaException.class })
+    public void testAddElementToMalformedXpath() {
+        BValue[] arguments = { new BXML(s2), new BString("$worng#path"), new BXML("<address>wso2</address>") };
+        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "addElement", arguments.length);
+        Context bContext = FunctionUtils.createInvocationContext(arguments, 1);
+        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
+        funcIExpr.accept(bLangInterpreter);
+    }
+
+    @Test(expectedExceptions = { BallerinaException.class })
+    public void testAddAttributeToMalformedXpath() {
+        BValue[] arguments = {new BXML(s2), new BString("$worng#path"), new BString("id"), new BString("person123")};
+        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "addAttribute", arguments.length);
+        Context bContext = FunctionUtils.createInvocationContext(arguments, 1);
+        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
+        funcIExpr.accept(bLangInterpreter);
+    }
+    
+    @Test(expectedExceptions = { BallerinaException.class })
+    public void testRemoveFromMalformedXpath() {
+        BValue[] arguments = { new BXML(s1), new BString("$worng#path") };
+        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "remove", arguments.length);
+        Context bContext = FunctionUtils.createInvocationContext(arguments, 1);
+        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
+        funcIExpr.accept(bLangInterpreter);
+    }
 }

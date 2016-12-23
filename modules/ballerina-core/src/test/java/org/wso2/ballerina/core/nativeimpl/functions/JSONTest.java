@@ -20,6 +20,7 @@ package org.wso2.ballerina.core.nativeimpl.functions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
+import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.BLangInterpreter;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.interpreter.SymScope;
@@ -236,6 +237,34 @@ public class JSONTest {
         Assert.assertEquals(FunctionUtils.getReturnBValue(bContext).doubleValue(), expected);
     }
 
+    @Test(description = "Get a value of incorrect type", expectedExceptions = { BallerinaException.class })
+    public void testGetValueOfIncorrectType() {
+        BValue[] args = { new BJSON(json1), new BString("$.name") };
+        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "getInt", args.length);
+        Context bContext = FunctionUtils.createInvocationContext(args, 1);
+        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
+        funcIExpr.accept(bLangInterpreter);
+    }
+    
+    @Test(description = "Get a value in a non-existing jsonpath")
+    public void testGetNonExistingValue() {
+        BValue[] args = { new BJSON(json1), new BString("$.name.surname") };
+        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "getString", args.length);
+        Context bContext = FunctionUtils.createInvocationContext(args, 1);
+        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
+        funcIExpr.accept(bLangInterpreter);
+        Assert.assertEquals(FunctionUtils.getReturnBValue(bContext), null);
+    }
+    
+    @Test(description = "Get a value using a malformed jsonpath", expectedExceptions = { BallerinaException.class })
+    public void testGetValueFromInvalidJsonpath() {
+        BValue[] args = { new BJSON(json1), new BString("$/wrong/path.") };
+        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "getString", args.length);
+        Context bContext = FunctionUtils.createInvocationContext(args, 1);
+        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
+        funcIExpr.accept(bLangInterpreter);
+    }
+    
     
     /*
      * Test Set-Functions 
@@ -304,11 +333,28 @@ public class JSONTest {
         Context bContext = FunctionUtils.createInvocationContext(args, 1);
         BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
         funcIExpr.accept(bLangInterpreter);
-        
         Assert.assertEquals(getJsonAsString(bContext), val);
     }
     
+    @Test(description = "Set a value to a non-existing jsonpath")
+    public void testSetNonExistingValue() {
+        BValue[] args = { new BJSON(json1), new BString("$.name.surname"), new BString("Paul") };
+        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "setString", args.length);
+        Context bContext = FunctionUtils.createInvocationContext(args, 1);
+        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
+        funcIExpr.accept(bLangInterpreter);
+        final String expected = "{\"name\":{\"fname\":\"Jack\",\"lname\":\"Taylor\"},\"state\":\"CA\",\"age\":20}";
+        Assert.assertEquals(args[0].stringValue(), expected);
+    }
     
+    @Test(description = "Set a value using a malformed jsonpath", expectedExceptions = { BallerinaException.class })
+    public void testSetValueToInvalidJsonpath() {
+        BValue[] args = { new BJSON(json1), new BString("$/wrong/path.") };
+        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "getString", args.length);
+        Context bContext = FunctionUtils.createInvocationContext(args, 1);
+        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
+        funcIExpr.accept(bLangInterpreter);
+    }
     
     /*
      * Test Add-to-object Functions
@@ -391,7 +437,28 @@ public class JSONTest {
         Assert.assertEquals(getJsonAsString(bContext), expected);
     }
     
+    @Test(description = "Add a value to a non-existing object")
+    public void testAddToNonExistingObject() {
+        BValue[] args = { new BJSON(json1), new BString("$.name.surname"), new BString("nickName"), 
+            new BString("Paul") };
+        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "addStringToObject", args.length);
+        Context bContext = FunctionUtils.createInvocationContext(args, 1);
+        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
+        funcIExpr.accept(bLangInterpreter);
+        final String expected = "{\"name\":{\"fname\":\"Jack\",\"lname\":\"Taylor\"},\"state\":\"CA\",\"age\":20}";
+        Assert.assertEquals(getJsonAsString(bContext), expected);
+    }
     
+    @Test(description = "Add a value to object, using a malformed jsonpath", 
+          expectedExceptions = { BallerinaException.class })
+    public void testAddToInvalidJsonpathObject() {
+        BValue[] args = { new BJSON(json1), new BString("$/wrong/path."), new BString("nickName"), 
+            new BString("Paul") };
+        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "addStringToObject", args.length);
+        Context bContext = FunctionUtils.createInvocationContext(args, 1);
+        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
+        funcIExpr.accept(bLangInterpreter);
+    }
     
     /*
      * Test Add-to-array Functions
@@ -467,6 +534,27 @@ public class JSONTest {
         Assert.assertEquals(getJsonAsString(bContext), expected);
     }
     
+    @Test(description = "Add a value to a non-existing array")
+    public void testAddToNonExistingArray() {
+        BValue[] args = { new BJSON(jsonStringArray), new BString("$.persons"), new BString("Jos") };
+        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "addStringToArray", args.length);
+        Context bContext = FunctionUtils.createInvocationContext(args, 1);
+        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
+        funcIExpr.accept(bLangInterpreter);
+        final String expected = "{\"users\":[\"Jack\",\"Peter\"]}";
+        Assert.assertEquals(getJsonAsString(bContext), expected);
+    }
+
+    @Test(description = "Add a value to array, using a malformed jsonpath",
+          expectedExceptions = { BallerinaException.class })
+    public void testAddToInvalidJsonpathArray() {
+        BValue[] args = { new BJSON(jsonIntArray), new BString("$/wrong/path."), new BInteger(23) };
+        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "addIntToArray", args.length);
+        Context bContext = FunctionUtils.createInvocationContext(args, 1);
+        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
+        funcIExpr.accept(bLangInterpreter);
+    }
+    
     
     /*
      * Test Remove-Function.
@@ -483,15 +571,35 @@ public class JSONTest {
         Assert.assertEquals(getJsonAsString(bContext), expected);
     }
 
+    @Test(description = "Remove an element in a non-existing jsonpath")
+    public void testRemoveNonExistingElement() {
+        BValue[] args = { new BJSON(json1), new BString("$.user") };
+        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "remove", args.length);
+        Context bContext = FunctionUtils.createInvocationContext(args, 1);
+        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
+        funcIExpr.accept(bLangInterpreter);
+        final String expected = "{\"name\":{\"fname\":\"Jack\",\"lname\":\"Taylor\"},\"state\":\"CA\",\"age\":20}";
+        Assert.assertEquals(getJsonAsString(bContext), expected);
+    }
+    
+    @Test(description = "Remove an element in a malformed jsonpath",
+          expectedExceptions = { BallerinaException.class })
+    public void testRemoveElementFromInvalidJsonpath() {
+        BValue[] args = { new BJSON(json1), new BString("$/wrong/path.") };
+        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "remove", args.length);
+        Context bContext = FunctionUtils.createInvocationContext(args, 1);
+        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
+        funcIExpr.accept(bLangInterpreter);
+    }
+    
     
     /*
      * Test Rename-Function.
      */
     
-    @Test(description = "Remove an element in a valid jsonpath")
+    @Test(description = "Rename an element in a valid jsonpath")
     public void testRename() {
-        BValue[] args = { new BJSON(json1), new BString("$.name"), new BString("fname"), 
-                new BString("firstName") };
+        BValue[] args = { new BJSON(json1), new BString("$.name"), new BString("fname"), new BString("firstName") };
         FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "rename", args.length);
         Context bContext = FunctionUtils.createInvocationContext(args, 1);
         BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
@@ -500,17 +608,43 @@ public class JSONTest {
         Assert.assertEquals(FunctionUtils.getReturnValue(bContext).stringValue(), expected);
     }
     
+    @Test(description = "Rename an element in a non-existing jsonpath")
+    public void testRenameNonExistingElement() {
+        BValue[] args = { new BJSON(json1), new BString("$.user"), new BString("fname"), new BString("firstName") };
+        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "rename", args.length);
+        Context bContext = FunctionUtils.createInvocationContext(args, 1);
+        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
+        funcIExpr.accept(bLangInterpreter);
+        final String expected = "{\"name\":{\"fname\":\"Jack\",\"lname\":\"Taylor\"},\"state\":\"CA\",\"age\":20}";
+        Assert.assertEquals(args[0].stringValue(), expected);
+    }
+    
+    @Test(description = "Rename an element in a malformed jsonpath",
+          expectedExceptions = { BallerinaException.class })
+    public void testRenameElementFromInvalidJsonpath() {
+        BValue[] args = { new BJSON(json1), new BString("$/wrong/path.") };
+        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "remove", args.length);
+        Context bContext = FunctionUtils.createInvocationContext(args, 1);
+        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
+        funcIExpr.accept(bLangInterpreter);
+    }
+    
+    
     /*
      * Test toString-Function.
      */
-    @Test(description = "get string representation of json")
+    @Test(description = "Get string representation of json")
     public void testToString() {
-        // TODO
+        BValue[] args = { new BJSON(json1) };
+        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "toString", args.length);
+        Context bContext = FunctionUtils.createInvocationContext(args, 1);
+        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
+        funcIExpr.accept(bLangInterpreter);
+        final String expected = "{\"name\":{\"fname\":\"Jack\",\"lname\":\"Taylor\"},\"state\":\"CA\",\"age\":20}";
+        Assert.assertEquals(FunctionUtils.getReturnValue(bContext).stringValue(), expected);
     }
     
-    // TODO : Add remaining test cases.
-    
-    
+
     private String getJsonAsString(Context bContext) {
         return FunctionUtils.getReturnBRef(bContext).toString().replace("\\r|\\n|\\t| ", "");
     }
