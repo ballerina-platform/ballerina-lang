@@ -19,6 +19,7 @@ define(['log', 'lodash','d3','./point', 'backbone','event_channel'], function (l
 
     var MessageManager = function() {
     log.info("Initialising Message Manager");
+        this.typeBeingDragged = undefined;
     };
 
     MessageManager.prototype = Object.create(EventChannel.prototype);
@@ -78,8 +79,31 @@ define(['log', 'lodash','d3','./point', 'backbone','event_channel'], function (l
         }
     };
 
-    MessageManager.prototype.isOnDrag = function(){
-        return !_.isNil(this.getMessageSource());
+    /**
+     * Set the type being dragged at a given moment.
+     * @param type being dragged
+     * @param validateDropTargetCallback {DragDropManager~validateDropTargetCallback} - call back to do additional validations on drop target
+     *
+     */
+    MessageManager.prototype.setTypeBeingDragged = function (type, validateDropTargetCallback) {
+        if (!_.isUndefined(type)) {
+            this.typeBeingDragged = type;
+        }
+        if (!_.isUndefined(validateDropTargetCallback)) {
+            this.validateDropTargetCallback = validateDropTargetCallback;
+        }
+    };
+
+    /**
+     * Gets the type which is being dragged at a given moment - if any.
+     * @return type
+     */
+    MessageManager.prototype.getTypeBeingDragged = function () {
+        return this.typeBeingDragged;
+    };
+
+    MessageManager.prototype.isOnDrag = function () {
+        return !_.isNil(this.typeBeingDragged);
     };
 
     MessageManager.prototype.isAtValidDropTarget = function(){
@@ -96,6 +120,7 @@ define(['log', 'lodash','d3','./point', 'backbone','event_channel'], function (l
         this.setMessageSource(undefined);
         this.setValidateCallBack( undefined);
         this.setActivatedDropTarget(undefined);
+        this.typeBeingDragged = undefined;
 
     },
 
@@ -117,9 +142,10 @@ define(['log', 'lodash','d3','./point', 'backbone','event_channel'], function (l
         parent.on("mousemove", function () {
             log.info("in mousemove of start-draw-message");
             var m = d3.mouse(this);
-            tempLine.attr("x2", m[0]);
-            tempLine.attr("y2", m[1]);
-            var newPoints = "" +  m[0] + "," + (m[1] - 5) + " " + ( m[0] + 5) + "," + ( m[1]) + " " +  m[0] + "," + ( m[1] + 5);
+            //setting an offset of 5 to avoid the mouse pointer overlapping with the arrow
+            tempLine.attr("x2", m[0] - 5);
+            tempLine.attr("y2", m[1] - 5);
+            var newPoints = "" +  (m[0] - 5) + "," + (m[1] - 10) + " " + ( m[0]) + "," + (m[1] - 5) + " " +  (m[0]- 5) + "," + ( m[1]);
             arrowPoint.attr("points",newPoints);
         });
 
@@ -139,6 +165,7 @@ define(['log', 'lodash','d3','./point', 'backbone','event_channel'], function (l
             tempLine.remove();
             arrowPoint.remove();
             self.getMessageSource().trigger("drawConnectionForAction",startPoint,parent);
+            self.trigger('drop-target-changed', undefined);
             self.reset();
 
             // line.remove();
