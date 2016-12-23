@@ -34,12 +34,7 @@ class BDoubleType extends BType {
      * @param typeName string name of the type
      */
     BDoubleType(String typeName) {
-        super(typeName);
-    }
-
-    @SuppressWarnings("unchecked")
-    public <V extends BValue> V[] createArray() {
-        return (V[]) BTypes.createArray(BDouble[].class);
+        super(typeName, BDouble.class);
     }
 
     @SuppressWarnings("unchecked")

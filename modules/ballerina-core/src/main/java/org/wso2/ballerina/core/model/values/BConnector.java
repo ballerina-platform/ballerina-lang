@@ -49,4 +49,9 @@ public class BConnector implements BRefType<Connector> {
     public String stringValue() {
         return null;
     }
+
+    @Override
+    public <V extends BValue> V[] createArray(int capacity) {
+        return (V[]) new BConnector[capacity];
+    }
 }

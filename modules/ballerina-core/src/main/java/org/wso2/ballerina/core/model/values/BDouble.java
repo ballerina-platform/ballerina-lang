@@ -57,4 +57,9 @@ public class BDouble extends BValueType {
     public String stringValue() {
         return Double.toString(value);
     }
+
+    @Override
+    public <V extends BValue> V[] createArray(int capacity) {
+        return (V[]) new BDouble[capacity];
+    }
 }

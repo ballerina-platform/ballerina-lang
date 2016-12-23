@@ -33,12 +33,7 @@ class BIntegerType extends BType {
      * @param typeName string name of the type
      */
     BIntegerType(String typeName) {
-        super(typeName);
-    }
-
-    @SuppressWarnings("unchecked")
-    public <V extends BValue> V[] createArray() {
-        return (V[]) BTypes.createArray(BInteger[].class);
+        super(typeName, BInteger.class);
     }
 
     @SuppressWarnings("unchecked")

@@ -57,4 +57,9 @@ public class BLong extends BValueType {
     public String stringValue() {
         return Long.toString(value);
     }
+
+    @Override
+    public <V extends BValue> V[] createArray(int capacity) {
+        return (V[]) new BLong[capacity];
+    }
 }

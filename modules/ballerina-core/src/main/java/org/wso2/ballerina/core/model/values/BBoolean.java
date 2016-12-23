@@ -69,4 +69,9 @@ public class BBoolean extends BValueType {
     public String stringValue() {
         return Boolean.toString(value);
     }
+
+    @Override
+    public <V extends BValue> V[] createArray(int capacity) {
+        return (V[]) new BBoolean[capacity];
+    }
 }
