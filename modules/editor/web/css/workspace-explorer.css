@@ -1,0 +1,19 @@
+.workspace-explorer-activate-btn{
+    color: white;
+    margin-left: 5px;
+}
+.workspace-explorer-container{
+    width: 120px;
+    margin-left: 20px;
+    color: white;
+}
+
+.tree-highlight{
+    background-color: #373737;
+    position: absolute;
+    width: 100%;
+}
+
+.workspace-explorer-separator{
+
+}
