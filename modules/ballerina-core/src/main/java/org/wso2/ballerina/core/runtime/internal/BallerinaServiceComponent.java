@@ -70,16 +70,7 @@ public class BallerinaServiceComponent {
             if (log.isDebugEnabled()) {
                 log.debug("Runtime mode is set to : " + Constants.RuntimeMode.RUN_FILE);
             }
-            File file = new File(runThisBalFile);
-            if (!file.exists()) {
-                // Check whether this is path relative to the bin directory (ballerina.sh)
-                String relativePath = System.getProperty("user.dir") + "/bin/" + runThisBalFile;
-                File fRelative = new File(relativePath);
-                if (!fRelative.exists()) {
-                    file = null;
-                }
-            }
-            ServiceContextHolder.getInstance().setRunningFile(file);
+            ServiceContextHolder.getInstance().setRunningFile(new File(runThisBalFile));
         }
         log.info("Ballerina runtime started...!");
     }
@@ -134,27 +125,32 @@ public class BallerinaServiceComponent {
             service = CarbonServerInfo.class,
             cardinality = ReferenceCardinality.OPTIONAL,
             policy = ReferencePolicy.DYNAMIC,
-            unbind = "removeErrorHandler"
+            unbind = "removeCarbonServiceInfo"
     )
-    protected void addCarbonServinceInfo(CarbonServerInfo info) {
+    protected void addCarbonServiceInfo(CarbonServerInfo info) {
         // We have to wait until Carbon Capability Provider completes its job to shutdown the OSGi runtime properly.
         if (ServiceContextHolder.getInstance().getRuntimeMode() == Constants.RuntimeMode.RUN_FILE) {
-            // Check for file existence before calling the deployer
-            File f = ServiceContextHolder.getInstance().getRunningFile();
-            if (f != null) {
-                BalDeployer.deployBalFile(f);
+            File runningFile = ServiceContextHolder.getInstance().getRunningFile();
+            if (runningFile == null) {
+                // We shouldn't get here, if we get here, that means a bug in startup order
+                log.error("Running File not found in the Service Context. " +
+                          "Possible issue with the internal component startup order");
+                RuntimeUtils.shutdownRuntime();
+                return;
+            }
+
+            if (runningFile.exists()) {
+                BalDeployer.deployBalFile(runningFile);
             } else {
-                String runThisBalFile = System.getProperty(SYSTEM_PROP_BAL_FILE);
-                log.error("File " + runThisBalFile + " not found in the given location. System exits. Bye.");
+                log.error("File " + runningFile.getName() + " not found in the given location. Bye..!");
                 // Shutdown OSGi environment.
                 RuntimeUtils.shutdownRuntime();
             }
         }
     }
 
-    protected void removeErrorHandler(CarbonServerInfo info) {
+    protected void removeCarbonServiceInfo(CarbonServerInfo info) {
         // Do Nothing.
     }
-
 
 }
