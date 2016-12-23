@@ -72,7 +72,7 @@ public class BallerinaServiceComponent {
             }
             ServiceContextHolder.getInstance().setRunningFile(new File(runThisBalFile));
         }
-        log.info("Ballerina runtime started...!");
+        //log.info("Ballerina runtime started...!");
     }
 
     @Reference(
