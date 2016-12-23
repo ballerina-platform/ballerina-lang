@@ -40,7 +40,6 @@ import org.wso2.carbon.messaging.TransportSender;
 import java.io.File;
 
 import static org.wso2.ballerina.core.runtime.Constants.SYSTEM_PROP_RUN_FILE;
-import static org.wso2.ballerina.core.runtime.Constants.SYSTEM_PROP_RUN_FILE_MODE;
 
 
 /**
@@ -66,22 +65,12 @@ public class BallerinaServiceComponent {
 
         //Determine the runtime mode
         String runThisBalFile = System.getProperty(SYSTEM_PROP_RUN_FILE);
-        String runtimeMode = System.getProperty(SYSTEM_PROP_RUN_FILE_MODE);
-        if (runThisBalFile != null && runtimeMode != null) {
-            if (Constants.SYSTEM_PROP_RUN_FILE_MODE_MAIN.equalsIgnoreCase(runtimeMode)) {
-                ServiceContextHolder.getInstance().setRuntimeMode(Constants.RuntimeMode.RUN_MAIN);
-            } else if (Constants.SYSTEM_PROP_RUN_FILE_MODE_SERVICE.equalsIgnoreCase(runtimeMode)) {
-                ServiceContextHolder.getInstance().setRuntimeMode(Constants.RuntimeMode.RUN_SERVER);
-            } else {
-                ServiceContextHolder.getInstance().setRuntimeMode(Constants.RuntimeMode.ERROR);
-            }
+        if (runThisBalFile != null) {
+            ServiceContextHolder.getInstance().setRuntimeMode(Constants.RuntimeMode.RUN_FILE);
             if (log.isDebugEnabled()) {
                 log.debug("Runtime mode is set to : " + ServiceContextHolder.getInstance().getRuntimeMode());
             }
             ServiceContextHolder.getInstance().setRunningFile(new File(runThisBalFile));
-        } else if (runThisBalFile != null || runtimeMode != null) {
-            // one is not null and other is null. then Can't runtime mode.
-            ServiceContextHolder.getInstance().setRuntimeMode(Constants.RuntimeMode.ERROR);
         }
         // Else is normal Ballerina Server mode.
         //log.info("Ballerina runtime started...!");
@@ -159,13 +148,12 @@ public class BallerinaServiceComponent {
             return;
         }
         if (!runningFile.exists()) {
-            log.error("File " + runningFile.getName() + " not found in the given location. Bye..!");
+            log.error("File " + runningFile.getName() + " not found in the given location.");
             // Shutdown OSGi environment.
             RuntimeUtils.shutdownRuntime();
             return;
         }
-        if (Constants.RuntimeMode.RUN_MAIN == ServiceContextHolder.getInstance().getRuntimeMode() ||
-                Constants.RuntimeMode.RUN_SERVER == ServiceContextHolder.getInstance().getRuntimeMode()) {
+        if (Constants.RuntimeMode.RUN_FILE == ServiceContextHolder.getInstance().getRuntimeMode()) {
             BalDeployer.deployBalFile(runningFile);
         }
     }
