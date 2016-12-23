@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+ ~   Copyright (c) WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ ~
+ ~   Licensed under the Apache License, Version 2.0 (the "License");
+ ~   you may not use this file except in compliance with the License.
+ ~   You may obtain a copy of the License at
+ ~
+ ~        http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~   Unless required by applicable law or agreed to in writing, software
+ ~   distributed under the License is distributed on an "AS IS" BASIS,
+ ~   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~   See the License for the specific language governing permissions and
+ ~   limitations under the License.
+-->
+
+<svg version="1.1" id="dmg-resource" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px"
+	 y="0px" viewBox="0 0 14 14" style="enable-background:new 0 0 14 14;" xml:space="preserve">
+<path d="M4.3600311,13.2400942C4.2799926,13.7200184,3.9199722,14,3.4800675,14
+	c-0.4800785,0-0.8000793-0.3998852-0.8000793-0.8798094c0-0.2799816,1.1199257-6.8400769,1.1199257-8.1602535
+	c0-1.7599277-0.3598657-2.439949-0.8799639-2.9598925C2.7200074,1.8399664,2.6799881,1.6000044,2.6799881,1.3600423
+	c0-0.4800785,0.4000397-0.8801183,0.8399444-0.8801183c0.7600601,0,1.8801405,1.3600423,1.8001015,3.3600867
+	C6.1999979,1.1999646,8.3599653,0,10.3600092,0c0.5199432,0,0.9600029,0.3600203,0.9600029,0.8799638
+	c0,0.4800785-0.3600206,0.76006-0.8399448,0.7999249C6.320056,1.9200053,5.5199766,6.7999029,4.5999932,11.9199171
+	L4.3600311,13.2400942z"/>
+</svg>
