@@ -27,19 +27,34 @@ public class BlockStmtStateHolder {
 
     private BlockStmt myStatement;
 
-
+    /**
+     * create statement state holder which is used to navigate back
+     * @param myStatement
+     */
     public BlockStmtStateHolder(BlockStmt myStatement) {
         this.myStatement = myStatement;
     }
 
+    /**
+     * Get my statement
+     * @return
+     */
     public BlockStmt getMyStatement() {
         return myStatement;
     }
 
+    /**
+     * Get next execution index of child statements
+     * @return
+     */
     public int getNextStatementExecutionIndex() {
         return ++currentStatementIndex;
     }
 
+    /**
+     * set current execution statement
+     * @param currentStatementIndex
+     */
     public void setCurrentStatementIndex(int currentStatementIndex) {
         this.currentStatementIndex = currentStatementIndex;
     }
