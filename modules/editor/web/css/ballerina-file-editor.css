@@ -1,0 +1,126 @@
+.service-container {
+    width: 100%;
+    background: none;
+}
+
+.panel-default > .panel-heading {
+    margin-bottom: 0px;
+}
+
+.design-view-container{
+    padding-left: 200px;
+    padding-top: 0px;
+    overflow-y: scroll;
+    height: 100%;
+}
+
+.canvas-container{
+    padding-left: 20px;
+    padding-top: 60px;
+    padding-bottom: 100px;
+    float: left;
+    height: auto;
+    min-height: 1000px;
+}
+
+.container-outer-div {
+    border-radius: 0;
+}
+
+.outer-box{
+    padding: 15px;
+    border: 1px solid;
+    border-top: none;
+}
+
+.panel-title{
+    background:white;
+    border-style:solid;
+    border-width:1px;
+    vertical-align: middle;
+}
+
+.panel-title > a{
+   margin-left: 10px;
+}
+
+.panel-icon, .service-icon, .connector-icon, .function-icon{
+    padding:10px;
+    background-color:black;
+}
+
+.title-link {
+    padding-left: 10px;
+}
+
+.right-icon-clickable{
+    float: right;
+    padding-right: 10px;
+    padding-top: 8px;;
+    cursor: pointer;
+}
+
+.panel-collapse .collapse{
+    border-style:solid;
+    border-width:1px;
+}
+
+.tab-pane .panel{
+    background: none;
+    width: 96%
+}
+
+
+.btn-icon{
+    opacity: 0.5;
+}
+.btn-icon:hover{
+    opacity: 1;
+    cursor: pointer;
+}
+
+.source-container{
+    display: none;
+    height: 1000px;
+}
+
+.text-editor{
+    height: 90%;
+}
+
+.view-source-btn{
+    z-index: 1000;
+}
+
+.view-design-btn{
+    position: relative;
+    z-index: 1000;
+}
+
+/** when on a specific canvas hover **/
+.tab-pane .panel.design-view-hover{
+    background-color:rgba(0, 128, 0, 0.1);
+}
+
+/** when on main canvas hover **/
+.tab-pane .design-view-hover .panel{
+    background-color:rgba(255, 255, 255, 0.8);
+}
+
+.tab-pane .panel.design-view-hover .panel-title{
+    background-color:rgba(0, 128, 0, 0.1);
+}
+
+.tab-pane .panel.design-view-hover rect.resource-content{
+    fill: #fff;
+    fill-opacity: 0.8;
+}
+
+.design-view-hover{
+    background-color:rgba(0, 128, 0, 0.1);
+}
+
+.design-view-hover-svg{
+    fill: #008000;
+    fill-opacity: 0.2;
+}
