@@ -195,6 +195,7 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
                 //setting resource's container as the parent for the message.
                 var parent = self.getDiagramRenderingContext().currentResource.getContainer();
                 self.messageManager.startDrawMessage(self._model, self.sourcePoint, parent);
+                self.messageManager.setTypeBeingDragged(true);
             });
 
             this.processorConnectPoint.on("mouseover", function () {

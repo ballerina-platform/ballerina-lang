@@ -340,9 +340,14 @@ text-anchor: start;
     cursor: pointer;
 }
 
-.connector-life-line rect{
-    stroke: #000000;
-    fill: #FFFFFF;
+.connector-life-line-top-polygon {
+    fill: white;
+    stroke: black;
+}
+
+.connector-life-line-bottom-polygon {
+    fill: white;
+    stroke: black;
 }
 
 
