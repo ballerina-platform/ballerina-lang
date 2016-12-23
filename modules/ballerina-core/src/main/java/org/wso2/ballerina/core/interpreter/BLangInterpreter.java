@@ -28,6 +28,7 @@ import org.wso2.ballerina.core.model.Connector;
 import org.wso2.ballerina.core.model.ConnectorDcl;
 import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.model.ImportPackage;
+import org.wso2.ballerina.core.model.MainInvoker;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.Resource;
@@ -84,6 +85,8 @@ import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
 import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 
 import java.util.List;
+
+import static org.wso2.ballerina.core.runtime.Constants.SYSTEM_PROP_BAL_ARGS;
 
 /**
  * {@code BLangInterpreter} executes a Ballerina program
@@ -514,6 +517,49 @@ public class BLangInterpreter implements NodeVisitor {
 
         resource.accept(this);
     }
+
+    public void visit(MainInvoker mainInvoker) {
+
+        BallerinaFunction function = mainInvoker.getMainFunction();
+        Parameter[] parameters = function.getParameters();
+
+        if (parameters.length != 1 || parameters[0].getType() != BTypes.INT_TYPE) {
+            throw new BallerinaException("Main function does not comply with standard main function in ballerina");
+        }
+
+        int sizeOfValueArray = function.getStackFrameSize();
+        BValue[] values = new BValue[sizeOfValueArray];
+        int valuesCounter = 0;
+
+        // Main function only have one input parameter
+        // Read from command line arguments
+        String balArgs = System.getProperty(SYSTEM_PROP_BAL_ARGS);
+
+        // Only integers allowed at the moment
+        if (balArgs != null) {
+            int intValue = Integer.parseInt(balArgs);
+            values[valuesCounter++] = new BInteger(intValue);
+        } else {
+            values[valuesCounter++] = new BInteger(0);
+        }
+
+        // Create default values for all declared local variables
+        VariableDcl[] variableDcls = function.getVariableDcls();
+        for (VariableDcl variableDcl : variableDcls) {
+            values[valuesCounter] = variableDcl.getType().getDefaultValue();
+            valuesCounter++;
+        }
+
+        populateConnectorDclValues(function.getConnectorDcls(), values, valuesCounter);
+
+        BValue[] returnVals = new BValue[function.getReturnTypes().length];
+        StackFrame stackFrame = new StackFrame(values, returnVals);
+
+        controlStack.pushFrame(stackFrame);
+        function.accept(this);
+        controlStack.popFrame();
+    }
+
 
     // Private methods
 

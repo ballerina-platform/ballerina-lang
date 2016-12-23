@@ -20,25 +20,16 @@ package org.wso2.ballerina.core.runtime;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.BLangInterpreter;
 import org.wso2.ballerina.core.interpreter.Context;
-import org.wso2.ballerina.core.interpreter.ControlStack;
-import org.wso2.ballerina.core.interpreter.StackFrame;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
-import org.wso2.ballerina.core.model.Parameter;
+import org.wso2.ballerina.core.model.MainInvoker;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.ResourceInvoker;
-import org.wso2.ballerina.core.model.VariableDcl;
-import org.wso2.ballerina.core.model.types.BTypes;
-import org.wso2.ballerina.core.model.values.BInteger;
-import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.runtime.internal.RuntimeUtils;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
-
-import static org.wso2.ballerina.core.runtime.Constants.SYSTEM_PROP_BAL_ARGS;
 
 /**
  * {@code BalProgramExecutor} is responsible for executing a BallerinaProgram
@@ -69,55 +60,14 @@ public class BalProgramExecutor {
         BallerinaFunction function =
                 (BallerinaFunction) balFile.getFunctions().get(Constants.MAIN_FUNCTION_NAME);
         if (function != null) {
-            BalProgramExecutor.execute(function);
+            Context ctx = new Context();
+            BLangInterpreter interpreter = new BLangInterpreter(ctx);
+            new MainInvoker(function).accept(interpreter);
+
         } else {
             log.warn("Unable to find Main function. Bye..!");
         }
         RuntimeUtils.shutdownRuntime();
-    }
-
-    private static void execute(BallerinaFunction function) {
-
-        // Check whether this is a standard main function with one integer argument
-        // This will be changed to string[] args once we have the array support
-        Parameter[] parameters = function.getParameters();
-
-        if (parameters.length != 1 || parameters[0].getType() != BTypes.INT_TYPE) {
-            throw new BallerinaException("Main function does not comply with standard main function in ballerina");
-        }
-
-        // Execute main function
-        // Create control stack and the stack frame
-        Context ctx = new Context();
-        ControlStack controlStack = ctx.getControlStack();
-        int sizeOfValueArray = function.getStackFrameSize();
-        BValue[] values = new BValue[sizeOfValueArray];
-        int i = 0;
-
-        // Main function only have one input parameter
-        // Read from command line arguments
-        String balArgs = System.getProperty(SYSTEM_PROP_BAL_ARGS);
-
-        // Only integers allowed at the moment
-        if (balArgs != null) {
-            int intValue = Integer.parseInt(balArgs);
-            values[i++] = new BInteger(intValue);
-        } else {
-            values[i++] = new BInteger(0);
-        }
-
-        // Create default values for all declared local variables
-        VariableDcl[] variableDcls = function.getVariableDcls();
-        for (VariableDcl variableDcl : variableDcls) {
-            values[i] = variableDcl.getType().getDefaultValue();
-            i++;
-        }
-
-        BValue[] returnVals = new BValue[function.getReturnTypes().length];
-        StackFrame stackFrame = new StackFrame(values, returnVals);
-        controlStack.pushFrame(stackFrame);
-        BLangInterpreter interpreter = new BLangInterpreter(ctx);
-        function.accept(interpreter);
     }
 
 }

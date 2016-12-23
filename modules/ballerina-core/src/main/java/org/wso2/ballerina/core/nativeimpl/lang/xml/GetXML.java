@@ -89,7 +89,7 @@ public class GetXML extends AbstractNativeFunction {
             Sequence sequence = xdmValue.getUnderlyingValue();
 
             if (sequence instanceof EmptySequence) {
-                throw new BallerinaException("The xpath '" + xPath + "' does not match any XML element.");
+                ErrorHandler.logWarn(OPERATION, "The xpath '" + xPath + "' does not match any XML element.");
             } else if (sequence instanceof TinyElementImpl || sequence.head() instanceof TinyElementImpl) {
                 result = new BXML(xdmValue.toString());
             } else if (sequence instanceof TinyAttributeImpl || sequence.head() instanceof TinyAttributeImpl) {
