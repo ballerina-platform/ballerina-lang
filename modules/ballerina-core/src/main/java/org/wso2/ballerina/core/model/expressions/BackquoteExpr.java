@@ -15,32 +15,47 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerina.core.model.statements;
+package org.wso2.ballerina.core.model.expressions;
 
 import org.wso2.ballerina.core.model.NodeVisitor;
-import org.wso2.ballerina.core.model.Worker;
-import org.wso2.ballerina.core.model.expressions.Expression;
-
-import java.util.List;
 
 /**
- * {@code ForkJoinStmt} represents a fork/join statement
+ * {@code BackquoteExpr} represents an xml or a json string wrapped in between backticks/backquotes
  *
  * @since 1.0.0
  */
-public class ForkJoinStmt implements Statement {
-    private List<Worker> workers;
-    private Expression joinCondition;
-    private Statement joinBlock;
+public class BackquoteExpr extends AbstractExpression {
 
-    public ForkJoinStmt(List<Worker> workers, Expression joinCondition, Statement joinBlock) {
-        this.workers = workers;
-        this.joinCondition = joinCondition;
-        this.joinBlock = joinBlock;
+    private String templateStr;
+
+    private BackquoteExpr(String templateStr) {
+        this.templateStr = templateStr;
+    }
+
+    public String getTemplateStr() {
+        return templateStr;
     }
 
     @Override
     public void accept(NodeVisitor visitor) {
-//        visitor.accept(this);
+        visitor.visit(this);
+    }
+
+    /**
+     *
+     */
+    public static class BackquoteExprBuilder {
+        private String templateStr;
+
+        public BackquoteExprBuilder() {
+        }
+
+        public void setTemplateStr(String templateStr) {
+            this.templateStr = templateStr;
+        }
+
+        public BackquoteExpr build() {
+            return new BackquoteExpr(this.templateStr);
+        }
     }
 }

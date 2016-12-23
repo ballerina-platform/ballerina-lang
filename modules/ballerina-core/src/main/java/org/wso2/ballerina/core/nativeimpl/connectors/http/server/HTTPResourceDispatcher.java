@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.ballerina.core.runtime.net.http.source;
+package org.wso2.ballerina.core.nativeimpl.connectors.http.server;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,8 +24,8 @@ import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
-import org.wso2.ballerina.core.runtime.core.dispatching.ResourceDispatcher;
-import org.wso2.ballerina.core.runtime.net.http.Constants;
+import org.wso2.ballerina.core.nativeimpl.connectors.http.Constants;
+import org.wso2.ballerina.core.runtime.dispatching.ResourceDispatcher;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 

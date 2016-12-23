@@ -16,16 +16,15 @@
  * under the License.
  */
 
-package org.wso2.ballerina.core.runtime.core;
+package org.wso2.ballerina.core.runtime;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.exception.BallerinaException;
-import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
-import org.wso2.ballerina.core.runtime.core.dispatching.ResourceDispatcher;
-import org.wso2.ballerina.core.runtime.core.dispatching.ServiceDispatcher;
+import org.wso2.ballerina.core.runtime.dispatching.ResourceDispatcher;
+import org.wso2.ballerina.core.runtime.dispatching.ServiceDispatcher;
 import org.wso2.ballerina.core.runtime.errors.handler.DefaultServerConnectorErrorHandler;
 import org.wso2.ballerina.core.runtime.errors.handler.ServerConnectorErrorHandler;
 import org.wso2.ballerina.core.runtime.internal.ServiceContextHolder;
@@ -77,12 +76,10 @@ public class ServerConnectorMessageHandler {
                 // Finer details of the errors are thrown from the dispatcher itself, Ideally we shouldn't get here.
             }
 
-            // Create the Ballerina Context
-            Context balContext = new Context(cMsg);
-            balContext.setResponseSendingCallback(new DefaultBalCallback(callback));
+
 
             // Delegate the execution to the BalProgram Executor
-            BalProgramExecutor.execute(balContext, resource);
+            BalProgramExecutor.execute(cMsg, callback, resource);
 
         } catch (Throwable throwable) {
             handleError(cMsg, callback, throwable);

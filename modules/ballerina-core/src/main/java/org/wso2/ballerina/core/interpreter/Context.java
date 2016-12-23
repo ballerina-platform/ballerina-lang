@@ -18,7 +18,7 @@
 package org.wso2.ballerina.core.interpreter;
 
 import org.wso2.ballerina.core.nativeimpl.connectors.BalConnectorCallback;
-import org.wso2.ballerina.core.runtime.core.BalCallback;
+import org.wso2.ballerina.core.runtime.BalCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 import java.util.HashMap;

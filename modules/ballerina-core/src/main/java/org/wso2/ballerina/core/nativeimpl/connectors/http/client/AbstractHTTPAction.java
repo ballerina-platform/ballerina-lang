@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.ballerina.core.nativeimpl.connectors.http;
+package org.wso2.ballerina.core.nativeimpl.connectors.http.client;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,8 +24,8 @@ import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Connector;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.BalConnectorCallback;
+import org.wso2.ballerina.core.nativeimpl.connectors.http.Constants;
 import org.wso2.ballerina.core.runtime.internal.ServiceContextHolder;
-import org.wso2.ballerina.core.runtime.net.http.Constants;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.MessageDataSource;
 import org.wso2.carbon.messaging.MessageProcessorException;
@@ -64,7 +64,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         cMsg.setProperty(Constants.TO, toPath);
 
         if (cMsg.getProperty(Constants.PROTOCOL) == null) {
-            cMsg.setProperty(Constants.PROTOCOL, org.wso2.ballerina.core.runtime.net.http.Constants.PROTOCOL_HTTP);
+            cMsg.setProperty(Constants.PROTOCOL, Constants.PROTOCOL_HTTP);
         }
 
         if (port != 80) {

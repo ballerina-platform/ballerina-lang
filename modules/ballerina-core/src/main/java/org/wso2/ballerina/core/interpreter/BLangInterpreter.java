@@ -41,6 +41,7 @@ import org.wso2.ballerina.core.model.expressions.AddExpression;
 import org.wso2.ballerina.core.model.expressions.AndExpression;
 import org.wso2.ballerina.core.model.expressions.ArrayAccessExpr;
 import org.wso2.ballerina.core.model.expressions.ArrayInitExpr;
+import org.wso2.ballerina.core.model.expressions.BackquoteExpr;
 import org.wso2.ballerina.core.model.expressions.BasicLiteral;
 import org.wso2.ballerina.core.model.expressions.BinaryExpression;
 import org.wso2.ballerina.core.model.expressions.EqualExpression;
@@ -69,12 +70,15 @@ import org.wso2.ballerina.core.model.statements.WhileStmt;
 import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.util.BValueUtils;
 import org.wso2.ballerina.core.model.values.BConnector;
+import org.wso2.ballerina.core.model.values.BJSON;
 import org.wso2.ballerina.core.model.values.BMessage;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BValueType;
+import org.wso2.ballerina.core.model.values.BXML;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
+import org.wso2.ballerina.core.nativeimpl.connectors.BalConnectorCallback;
 import org.wso2.ballerina.core.runtime.core.BlockStmtStateHolder;
 import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 
@@ -90,6 +94,8 @@ public class BLangInterpreter implements NodeVisitor {
 
     private Context bContext;
     private ControlStack controlStack;
+
+    private boolean halt;
 
     private Stack<BlockStmtStateHolder> blockStmtStateHolderStack;
 
@@ -133,8 +139,6 @@ public class BLangInterpreter implements NodeVisitor {
 
     @Override
     public void visit(BallerinaAction action) {
-        action.interpret(bContext);
-
     }
 
     @Override
@@ -181,14 +185,43 @@ public class BLangInterpreter implements NodeVisitor {
 
         if (!rootNode && blockStmtStateHolder.getMyStatement().equals(blockStmt)) {
             startingIndex = blockStmtStateHolder.getNextStatementExecutionIndex();
-            if (!(startingIndex < statements.length)) {
+            if ((startingIndex < statements.length)) {
                 blockStmtStateHolderStack.push(blockStmtStateHolder);
+
+            } else {
+                do {
+                    blockStmtStateHolder = blockStmtStateHolderStack.pop();
+                    startingIndex = blockStmtStateHolder.getNextStatementExecutionIndex();
+                    statements = blockStmtStateHolder.getMyStatement().getStatements();
+                } while (!(startingIndex < statements.length));
+
             }
+
+        } else if (!rootNode && !blockStmtStateHolder.getMyStatement().equals(blockStmt)) {
+            blockStmtStateHolderStack.push(blockStmtStateHolder);
+            blockStmtStateHolder = new BlockStmtStateHolder(blockStmt);
+            blockStmtStateHolderStack.push(blockStmtStateHolder);
+        } else {
+            blockStmtStateHolderStack.push(blockStmtStateHolder);
         }
 
         for (int i = startingIndex; i < statements.length; i++) {
-            statements[i].accept(this);
             blockStmtStateHolder.setCurrentStatementIndex(i);
+            halt = false;
+            if (statements[i] instanceof AssignStmt) {
+                AssignStmt assignStmt = (AssignStmt) statements[i];
+                if (assignStmt.isHaltExecution()) {
+                    BalConnectorCallback balConnectorCallback = new BalConnectorCallback(controlStack, assignStmt,
+                            blockStmt, this);
+                    bContext.setConnectorCallback(balConnectorCallback);
+                    halt = true;
+                }
+            }
+            statements[i].accept(this);
+            if (halt) {
+                break;
+            }
+
         }
 
     }
@@ -264,8 +297,7 @@ public class BLangInterpreter implements NodeVisitor {
     @Override
     public void visit(ReplyStmt replyStmt) {
         // TODO revisit this logic
-        BMessage bMessage =
-                (BMessage) controlStack.getCurrentFrame().valuesNew[replyStmt.getReplyExpr().getOffset()];
+        BMessage bMessage = (BMessage) controlStack.getCurrentFrame().valuesNew[replyStmt.getReplyExpr().getOffset()];
         bContext.getResponseSendingCallback().done(bMessage.value());
     }
 
@@ -370,13 +402,13 @@ public class BLangInterpreter implements NodeVisitor {
             nativeAction.execute(bContext);
         }
 
-        controlStack.popFrame();
-
-        // Setting return values to function invocation expression
-        // TODO At the moment we only support single return value
-        if (rVals.length >= 1) {
-            controlStack.setValueNew(actionIExpr.getOffset(), rVals[0]);
-        }
+        //        controlStack.popFrame();
+        //
+        //        // Setting return values to function invocation expression
+        //        // TODO At the moment we only support single return value
+        //        if (rVals.length >= 1) {
+        //            controlStack.setValueNew(actionIExpr.getOffset(), rVals[0]);
+        //        }
     }
 
     @Override
@@ -456,6 +488,19 @@ public class BLangInterpreter implements NodeVisitor {
     @Override
     public void visit(ArrayInitExpr arrayInitExpr) {
 
+    }
+
+    @Override
+    public void visit(BackquoteExpr backquoteExpr) {
+        BValue bValue;
+
+        if (backquoteExpr.getType() == BType.JSON_TYPE) {
+            bValue = new BJSON(backquoteExpr.getTemplateStr());
+        } else {
+            bValue = new BXML(backquoteExpr.getTemplateStr());
+        }
+
+        controlStack.setValueNew(backquoteExpr.getOffset(), bValue);
     }
 
     public void visit(ResourceInvoker resourceInvoker) {

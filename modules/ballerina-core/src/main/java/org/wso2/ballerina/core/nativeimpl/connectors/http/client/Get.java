@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.wso2.ballerina.core.nativeimpl.connectors.http;
+package org.wso2.ballerina.core.nativeimpl.connectors.http.client;
 
 import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
@@ -27,60 +27,52 @@ import org.wso2.ballerina.core.model.values.BMessage;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
+import org.wso2.ballerina.core.nativeimpl.connectors.http.Constants;
 import org.wso2.carbon.messaging.CarbonMessage;
 
-import java.util.Locale;
-
 /**
- * {@code Execute} action can be used to invoke execute a http call with any httpVerb
- *
+ * {@code Get} is the GET action implementation of the HTTP Connector
  */
 @BallerinaAction(
         packageName = "ballerina.net.http",
-        actionName = "execute",
+        actionName = "get",
         connectorName = HTTPConnector.CONNECTOR_NAME,
         args = {
                 @Argument(name = "connector",
                         type = TypeEnum.CONNECTOR),
-                @Argument(name = "httpVerb", type = TypeEnum.STRING),
                 @Argument(name = "path", type = TypeEnum.STRING),
                 @Argument(name = "message", type = TypeEnum.MESSAGE)
         },
         returnType = {TypeEnum.MESSAGE})
 @Component(
-        name = "action.net.http.execute",
+        name = "action.net.http.get",
         immediate = true,
         service = AbstractNativeAction.class)
-public class Execute extends AbstractHTTPAction {
+public class Get extends AbstractHTTPAction {
 
-    private static final Logger logger = LoggerFactory.getLogger(Execute.class);
+    private static final Logger logger = LoggerFactory.getLogger(Get.class);
 
     @Override
     public void execute(Context context) {
 
-        logger.debug("Executing Native Action : Execute");
+        logger.debug("Executing Native Action : Get");
 
         // Extract Argument values
         BConnector bConnector = (BConnector) getArgument(context, 0);
-        String httpVerb = getArgument(context, 1).stringValue();
-        String path = getArgument(context, 2).stringValue();
-        BMessage bMessage = (BMessage) getArgument(context, 3);
+        String path = getArgument(context, 1).stringValue();
+        BMessage bMessage = (BMessage) getArgument(context, 2);
 
         Connector connector = bConnector.value();
         if (!(connector instanceof HTTPConnector)) {
             logger.error("Need to use a HTTPConnector as the first argument");
             return;
         }
-
         // Prepare the message
         CarbonMessage cMsg = bMessage.value();
         prepareRequest(connector, path, cMsg);
 
-        if (httpVerb == null || "".equals(httpVerb)) { // If the verb is not specified, use the verb in incoming message
-            httpVerb = (String) cMsg.getProperty(org.wso2.ballerina.core.runtime.net.http.Constants.HTTP_METHOD);
-        }
-        cMsg.setProperty(org.wso2.ballerina.core.runtime.net.http.Constants.HTTP_METHOD,
-                httpVerb.trim().toUpperCase(Locale.getDefault()));
+        cMsg.setProperty(Constants.HTTP_METHOD,
+                         Constants.HTTP_METHOD_GET);
 
         // Execute the operation
         executeAction(context, cMsg);

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.wso2.ballerina.core.nativeimpl.connectors.http;
+package org.wso2.ballerina.core.nativeimpl.connectors.http.client;
 
 import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
@@ -27,6 +27,7 @@ import org.wso2.ballerina.core.model.values.BMessage;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
+import org.wso2.ballerina.core.nativeimpl.connectors.http.Constants;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
@@ -71,8 +72,9 @@ public class Put extends AbstractHTTPAction {
         // Prepare the message
         CarbonMessage cMsg = bMessage.value();
         prepareRequest(connector, path, cMsg);
-        cMsg.setProperty(org.wso2.ballerina.core.runtime.net.http.Constants.HTTP_METHOD,
-                org.wso2.ballerina.core.runtime.net.http.Constants.HTTP_METHOD_PUT);
+
+        cMsg.setProperty(Constants.HTTP_METHOD,
+                         Constants.HTTP_METHOD_PUT);
 
         // Execute the operation
         executeAction(context, cMsg);

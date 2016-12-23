@@ -145,11 +145,6 @@ public abstract class AbstractNativeAction implements Action, NativeConstruct {
         this.stackFrameSize = stackFrameSize;
     }
 
-    @Override
-    public void interpret(Context ctx) {
-//        connector.init();
-    }
-
     /**
      * Get Argument by index.
      *

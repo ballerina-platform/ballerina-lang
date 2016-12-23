@@ -27,6 +27,7 @@ public class BlockStmtStateHolder {
 
     private BlockStmt myStatement;
 
+
     public BlockStmtStateHolder(BlockStmt myStatement) {
         this.myStatement = myStatement;
     }
@@ -42,4 +43,6 @@ public class BlockStmtStateHolder {
     public void setCurrentStatementIndex(int currentStatementIndex) {
         this.currentStatementIndex = currentStatementIndex;
     }
+
+
 }

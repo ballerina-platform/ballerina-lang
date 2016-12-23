@@ -16,30 +16,25 @@
  * under the License.
  */
 
-package org.wso2.ballerina.core.runtime.core.threading.threadpool;
+package org.wso2.ballerina.core.runtime;
 
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
- * Worker Thread which is executable through the worker pool
+ * Default implementation of {@code BalCallback}
  */
-public abstract class WorkerThread implements Runnable {
+public class DefaultBalCallback implements BalCallback {
 
-    protected CarbonMessage cMsg;
-    protected CarbonCallback callback;
+    protected CarbonCallback parentCallback;
 
-    public WorkerThread(CarbonMessage cMsg, CarbonCallback callback) {
-        this.cMsg = cMsg;
-        this.callback = callback;
+
+    public DefaultBalCallback(CarbonCallback parentCallback) {
+        this.parentCallback = parentCallback;
     }
 
-    public CarbonMessage getCarbonMessage() {
-        return cMsg;
+    @Override
+    public void done(CarbonMessage carbonMessage) {
+        parentCallback.done(carbonMessage);
     }
-
-    public CarbonCallback getCallback() {
-        return callback;
-    }
-
 }

@@ -16,22 +16,30 @@
  * under the License.
  */
 
-package org.wso2.ballerina.core.runtime.core.threading.threadpool;
+package org.wso2.ballerina.core.runtime.threadpool;
 
-import org.wso2.ballerina.core.runtime.core.ServerConnectorMessageHandler;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
- * Worker Thread which is responsible for response processing
+ * Worker Thread which is executable through the worker pool
  */
-public class ResponseWorkerThread extends WorkerThread {
+public abstract class WorkerThread implements Runnable {
 
-    public ResponseWorkerThread(CarbonMessage cMsg, CarbonCallback callback) {
-        super(cMsg, callback);
+    protected CarbonMessage cMsg;
+    protected CarbonCallback callback;
+
+    public WorkerThread(CarbonMessage cMsg, CarbonCallback callback) {
+        this.cMsg = cMsg;
+        this.callback = callback;
     }
 
-    public void run() {
-        ServerConnectorMessageHandler.handleOutbound(cMsg, callback);
+    public CarbonMessage getCarbonMessage() {
+        return cMsg;
     }
+
+    public CarbonCallback getCallback() {
+        return callback;
+    }
+
 }

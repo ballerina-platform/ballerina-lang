@@ -253,8 +253,8 @@ fi
 
 # ----- Execute The Requested Command -----------------------------------------
 
-echo JAVA_HOME environment variable is set to $JAVA_HOME
-echo CARBON_HOME environment variable is set to $CARBON_HOME
+#echo JAVA_HOME environment variable is set to $JAVA_HOME
+#echo CARBON_HOME environment variable is set to $CARBON_HOME
 
 cd "$CARBON_HOME"
 
@@ -269,7 +269,7 @@ if [ "$BAL_EXECUTION_CMD" = "run-this" ]; then
         BAL_FILE_NAME="$BASE_DIR/$BAL_FILE_NAME"
    fi
   JAVA_OPTS="$JAVA_OPTS -Dbal-file=$BAL_FILE_NAME"
-  echo "Running the Ballerina file $BAL_FILE_NAME"
+  #echo "Running the Ballerina file $BAL_FILE_NAME"
 fi
 
 if [ "$BAL_EXECUTION_SUB_CMD" = "bargs" ]; then

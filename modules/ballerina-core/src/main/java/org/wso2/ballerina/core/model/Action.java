@@ -16,13 +16,12 @@
 
 package org.wso2.ballerina.core.model;
 
-import org.wso2.ballerina.core.interpreter.Interpreter;
 import org.wso2.ballerina.core.model.types.BType;
 
 /**
  * {@code {@link Action}} represents any Ballerina Action.
  */
-public interface Action extends Interpreter {
+public interface Action {
 
     /**
      * Get Name of the Action.

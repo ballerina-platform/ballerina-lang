@@ -17,7 +17,6 @@
 */
 package org.wso2.ballerina.core.model.statements;
 
-import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.NodeVisitor;
 
 /**
@@ -35,10 +34,6 @@ public class TryCatchStmt implements Statement {
 //        this.catchExceptions = catchExceptions;
 //        this.catchBlock = catchBlock;
 //    }
-
-    public void interpret(Context ctx) {
-
-    }
 
     @Override
     public void accept(NodeVisitor visitor) {

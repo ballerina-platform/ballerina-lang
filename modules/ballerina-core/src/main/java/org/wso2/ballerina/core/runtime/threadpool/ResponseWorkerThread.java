@@ -16,13 +16,22 @@
  * under the License.
  */
 
-package org.wso2.ballerina.core.runtime.core;
+package org.wso2.ballerina.core.runtime.threadpool;
 
+import org.wso2.ballerina.core.runtime.ServerConnectorMessageHandler;
 import org.wso2.carbon.messaging.CarbonCallback;
+import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
- * {@BalCallback} represent the Callback interface for Ballerina
+ * Worker Thread which is responsible for response processing
  */
-public interface BalCallback extends CarbonCallback {
+public class ResponseWorkerThread extends WorkerThread {
 
+    public ResponseWorkerThread(CarbonMessage cMsg, CarbonCallback callback) {
+        super(cMsg, callback);
+    }
+
+    public void run() {
+        ServerConnectorMessageHandler.handleOutbound(cMsg, callback);
+    }
 }

@@ -42,6 +42,7 @@ import org.wso2.ballerina.core.model.expressions.AddExpression;
 import org.wso2.ballerina.core.model.expressions.AndExpression;
 import org.wso2.ballerina.core.model.expressions.ArrayAccessExpr;
 import org.wso2.ballerina.core.model.expressions.ArrayInitExpr;
+import org.wso2.ballerina.core.model.expressions.BackquoteExpr;
 import org.wso2.ballerina.core.model.expressions.BasicLiteral;
 import org.wso2.ballerina.core.model.expressions.BinaryArithmeticExpression;
 import org.wso2.ballerina.core.model.expressions.BinaryExpression;
@@ -289,6 +290,32 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         Expression lExpr = assignStmt.getLExpr();
         lExpr.accept(this);
+
+        // Return types of the function or action invoked are only available during the linking phase
+        // There type compatibility check is impossible during the semantic analysis phase.
+        if (rExpr instanceof FunctionInvocationExpr || rExpr instanceof ActionInvocationExpr) {
+            return;
+        }
+
+        // If the rExpr typ is not set, then check whether it is a BackquoteExpr
+        if (rExpr.getType() == null && rExpr instanceof BackquoteExpr) {
+
+            // In this case, type of the lExpr should be either xml or json
+            if (lExpr.getType() != BType.JSON_TYPE && lExpr.getType() != BType.XML_TYPE) {
+                throw new SemanticException("Error:() ballerina: incompatible types: string template " +
+                        "cannot be converted to " + lExpr.getType() + ": required xml or json");
+            }
+
+            rExpr.setType(lExpr.getType());
+            // TODO Visit the rExpr again after the setting the type.
+            //rExpr.accept(this);
+
+        }
+
+        if (lExpr.getType() != rExpr.getType()) {
+            throw new SemanticException("Error:() ballerina: incompatible types: " + rExpr.getType() +
+                    " cannot be converted to " + lExpr.getType());
+        }
     }
 
     @Override
@@ -615,7 +642,14 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(ArrayInitExpr arrayInitExpr) {
     }
 
-    public void visit(ResourceInvoker resourceInvoker) {}
+    @Override
+    public void visit(BackquoteExpr backquoteExpr) {
+        // TODO If the type is not set then just return
+        visitExpr(backquoteExpr);
+    }
+
+    public void visit(ResourceInvoker resourceInvoker) {
+    }
 
 
     // Private methods.

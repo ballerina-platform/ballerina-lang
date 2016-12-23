@@ -24,7 +24,7 @@ import org.wso2.ballerina.core.model.statements.AssignStmt;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.values.BMessage;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.runtime.core.DefaultBalCallback;
+import org.wso2.ballerina.core.runtime.DefaultBalCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
@@ -57,6 +57,8 @@ public class BalConnectorCallback extends DefaultBalCallback {
         valueRef = bMessage;
         //context.getControlStack().setValue(4, valueRef);
         controlStack.setReturnValueNew(0, valueRef);
+        controlStack.popFrame();
+        controlStack.setValueNew(callerStatement.getRExpr().getOffset(), valueRef);
         Expression lExpr = callerStatement.getLExpr();
         lExpr.accept(bLangInterpreter);
 

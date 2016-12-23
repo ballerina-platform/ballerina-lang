@@ -15,26 +15,30 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.wso2.ballerina.core.runtime.dispatching;
 
-package org.wso2.ballerina.core.runtime.core;
-
+import org.wso2.ballerina.core.model.Resource;
+import org.wso2.ballerina.core.model.Service;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
- * Default implementation of {@code BalCallback}
+ * {@code ServiceResourceDispatcherDispatcher} represents the resource level dispatcher interface.
+ * <p>
+ * Need to have a protocol specific dispatcher
  */
-public class DefaultBalCallback implements BalCallback {
+public interface ResourceDispatcher {
 
-    protected CarbonCallback parentCallback;
+    /**
+     * Find the resource which can handle a given cMsg
+     *
+     * @param service  Ballerina Service which resources are belongs to
+     * @param cMsg     Carbon Message
+     * @param callback Carbon Messaging Callback
+     * @return resource which can handle a given cMsg
+     */
+    Resource findResource(Service service, CarbonMessage cMsg, CarbonCallback callback);
 
+    String getProtocol();
 
-    public DefaultBalCallback(CarbonCallback parentCallback) {
-        this.parentCallback = parentCallback;
-    }
-
-    @Override
-    public void done(CarbonMessage carbonMessage) {
-        parentCallback.done(carbonMessage);
-    }
 }
