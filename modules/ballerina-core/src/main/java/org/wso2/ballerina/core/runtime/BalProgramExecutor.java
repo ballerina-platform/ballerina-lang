@@ -20,6 +20,7 @@ package org.wso2.ballerina.core.runtime;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.BLangInterpreter;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.BallerinaFile;
@@ -55,19 +56,27 @@ public class BalProgramExecutor {
      * Execute a program in a Ballerina File
      *
      * @param balFile Ballerina File
+     * @return whether the runtime should keep-alive after executing the program in the file
      */
-    public static void execute(BallerinaFile balFile) {
-        BallerinaFunction function =
-                (BallerinaFunction) balFile.getFunctions().get(Constants.MAIN_FUNCTION_NAME);
+    public static boolean execute(BallerinaFile balFile) {
+        BallerinaFunction function = (BallerinaFunction) balFile.getFunctions().get(Constants.MAIN_FUNCTION_NAME);
         if (function != null) {
-            Context ctx = new Context();
-            BLangInterpreter interpreter = new BLangInterpreter(ctx);
-            new MainInvoker(function).accept(interpreter);
-
-        } else {
-            log.warn("Unable to find Main function. Bye..!");
+            try {
+                Context ctx = new Context();
+                BLangInterpreter interpreter = new BLangInterpreter(ctx);
+                new MainInvoker(function).accept(interpreter);
+            } catch (BallerinaException ex) {
+                log.error(ex.getMessage());
+            } finally {
+                RuntimeUtils.shutdownRuntime();
+            }
+            return false;
+        } else if (balFile.getServices().size() == 0) {
+            log.error("Unable to find Main function or any Ballerina Services.");
+            RuntimeUtils.shutdownRuntime();
+            return false;
         }
-        RuntimeUtils.shutdownRuntime();
+        return true;
     }
 
 }
