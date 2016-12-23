@@ -28,23 +28,19 @@ import org.wso2.ballerina.core.model.values.BValue;
  * <p>
  * All arrays are unbounded in length and support 0 based indexing.
  *
- * @param <T> Type of the values in the array
  * @since 1.0.0
  */
-public class BArrayType<T extends BType> extends BType {
+public class BArrayType extends BType {
 
-    private T elementType;
-
-    private BValue[] valueArray;
+    private BType elementType;
 
     /**
      * Create a type from the given name
      *
      * @param typeName string name of the type
      */
-    @SuppressWarnings("unchecked")
     BArrayType(String typeName, String elementType) {
-        super(typeName);
+        super(typeName, BArray.class);
         this.elementType = BTypes.getType(elementType);
     }
 
@@ -53,15 +49,8 @@ public class BArrayType<T extends BType> extends BType {
     }
 
     @SuppressWarnings("unchecked")
-    public <U extends BValue> U[] createArray() {
-        // TODO
-        return null;
-    }
-
-    @SuppressWarnings("unchecked")
     public <V extends BValue> V getDefaultValue() {
-        valueArray = elementType.createArray();
-        return (V) new BArray(valueArray);
+        return (V) new BArray<V>(elementType.getValueClass());
     }
 
     public boolean equals(Object obj) {
@@ -72,5 +61,4 @@ public class BArrayType<T extends BType> extends BType {
 
         return false;
     }
-
 }

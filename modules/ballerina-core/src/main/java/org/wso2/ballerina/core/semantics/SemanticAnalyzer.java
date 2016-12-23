@@ -294,6 +294,10 @@ public class SemanticAnalyzer implements NodeVisitor {
         Expression lExpr = assignStmt.getLExpr();
         lExpr.accept(this);
 
+        if (lExpr instanceof ArrayAccessExpr) {
+            ((ArrayAccessExpr) lExpr).setLHSExpr(true);
+        }
+
         // Return types of the function or action invoked are only available during the linking phase
         // There type compatibility check is impossible during the semantic analysis phase.
         if (rExpr instanceof FunctionInvocationExpr || rExpr instanceof ActionInvocationExpr) {
@@ -618,27 +622,35 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(ArrayAccessExpr arrayAccessExpr) {
-        visitExpr(arrayAccessExpr);
-
-        SymbolName arrayVarName = arrayAccessExpr.getSymbolName();
-
-        // Check whether this symName is declared
-        Symbol symbol = getSymbol(arrayVarName);
-
-        // Type returned by the symbol should always be the ArrayType
-        if (!(symbol.getType() instanceof BArrayType)) {
-            throw new SemanticException("Attempt to index non-array variable: " + arrayVarName.getName());
+        // Check whether this access expression is in left hand side of an assignment expression
+        // If yes, skip assigning a stack frame offset
+        if (!arrayAccessExpr.isLHSExpr()) {
+            visitExpr(arrayAccessExpr);
         }
 
-        arrayAccessExpr.setType(symbol.getType());
+        // Here we assume that rExpr of array access expression is always a variable reference expression.
+        // This according to the grammar
+        VariableRefExpr arrayVarRefExpr = (VariableRefExpr) arrayAccessExpr.getRExpr();
+        arrayVarRefExpr.accept(this);
 
-        Expression indexExpr = arrayAccessExpr.getRExpr();
+        // Type returned by the symbol should always be the ArrayType
+        if (!(arrayVarRefExpr.getType() instanceof BArrayType)) {
+            throw new SemanticException("Attempt to index non-array variable: " +
+                    arrayVarRefExpr.getSymbolName().getName());
+        }
+
+        // Check the type of the index expression
+        Expression indexExpr = arrayAccessExpr.getIndexExpr();
         indexExpr.accept(this);
 
         if (indexExpr.getType() != BTypes.INT_TYPE) {
             throw new SemanticException("Array index should be of type int, not " + indexExpr.getType().toString() +
-                    ". Array name: " + arrayVarName.getName());
+                    ". Array name: " + arrayVarRefExpr.getSymbolName().getName());
         }
+
+        // Set type of the array access expression
+        BType arrayType = ((BArrayType) arrayVarRefExpr.getType()).getElementType();
+        arrayAccessExpr.setType(arrayType);
     }
 
     @Override

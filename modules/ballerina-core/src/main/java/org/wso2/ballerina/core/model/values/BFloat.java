@@ -57,4 +57,9 @@ public class BFloat extends BValueType {
     public String stringValue() {
         return Float.toString(value);
     }
+
+    @Override
+    public <V extends BValue> V[] createArray(int capacity) {
+        return (V[]) new BFloat[capacity];
+    }
 }

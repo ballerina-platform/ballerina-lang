@@ -203,4 +203,9 @@ public class BMessage implements BRefType<CarbonMessage> {
 
         return MessageUtils.getStringFromInputStream(this.value.getInputStream());
     }
+
+    @Override
+    public <V extends BValue> V[] createArray(int capacity) {
+        return (V[]) new BMessage[capacity];
+    }
 }

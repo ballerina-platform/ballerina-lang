@@ -112,4 +112,9 @@ public class BXML extends BallerinaMessageDataSource implements BRefType<OMEleme
 
         return "";
     }
+
+    @Override
+    public <V extends BValue> V[] createArray(int capacity) {
+        return (V[]) new BXML[capacity];
+    }
 }

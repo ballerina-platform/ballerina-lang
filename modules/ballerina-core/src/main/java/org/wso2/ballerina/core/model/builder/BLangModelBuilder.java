@@ -301,10 +301,12 @@ public class BLangModelBuilder {
     public void createMapArrayVarRefExpr(String varName) {
         SymbolName symName = new SymbolName(varName);
         Expression indexExpr = exprStack.pop();
+        VariableRefExpr arrayVarRefExpr = new VariableRefExpr(symName);
 
         ArrayAccessExpr.ArrayAccessExprBuilder builder = new ArrayAccessExpr.ArrayAccessExprBuilder();
         builder.setVarName(symName);
         builder.setIndexExpr(indexExpr);
+        builder.setArrayVarRefExpr(arrayVarRefExpr);
 
         ArrayAccessExpr accessExpr = builder.build();
         exprStack.push(accessExpr);

@@ -35,6 +35,7 @@ import java.util.Map;
 public abstract class BType {
 
     protected String typeName;
+    protected Class<? extends BValue> valueClass;
 
     //Using a HashMap here, because there won't be any concurrent access
     // TODO Improve this to support modularity of Ballerina
@@ -45,12 +46,16 @@ public abstract class BType {
      *
      * @param typeName string name of the type
      */
-    protected BType(String typeName) {
+    protected BType(String typeName, Class<? extends BValue> valueClass) {
         this.typeName = typeName;
+        this.valueClass = valueClass;
         TYPE_MAP.put(typeName, this);
     }
 
-    public abstract <V extends BValue> V[] createArray();
+    @SuppressWarnings("unchecked")
+    <V extends BValue> Class<V> getValueClass() {
+        return (Class<V>) valueClass;
+    }
 
     public abstract <V extends BValue> V getDefaultValue();
 

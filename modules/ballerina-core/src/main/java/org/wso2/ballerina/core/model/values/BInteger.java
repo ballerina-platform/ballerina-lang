@@ -57,4 +57,9 @@ public class BInteger extends BValueType {
     public String stringValue() {
         return Integer.toString(value);
     }
+
+    @Override
+    public <V extends BValue> V[] createArray(int capacity) {
+        return (V[]) new BInteger[capacity];
+    }
 }
