@@ -39,7 +39,8 @@ import org.wso2.carbon.messaging.TransportSender;
 
 import java.io.File;
 
-import static org.wso2.ballerina.core.runtime.Constants.SYSTEM_PROP_BAL_FILE;
+import static org.wso2.ballerina.core.runtime.Constants.SYSTEM_PROP_RUN_FILE;
+import static org.wso2.ballerina.core.runtime.Constants.SYSTEM_PROP_RUN_FILE_MODE;
 
 
 /**
@@ -64,14 +65,25 @@ public class BallerinaServiceComponent {
         ServiceContextHolder.getInstance().setBundleContext(bundleContext);
 
         //Determine the runtime mode
-        String runThisBalFile = System.getProperty(SYSTEM_PROP_BAL_FILE);
-        if (runThisBalFile != null) {
-            ServiceContextHolder.getInstance().setRuntimeMode(Constants.RuntimeMode.RUN_FILE);
+        String runThisBalFile = System.getProperty(SYSTEM_PROP_RUN_FILE);
+        String runtimeMode = System.getProperty(SYSTEM_PROP_RUN_FILE_MODE);
+        if (runThisBalFile != null && runtimeMode != null) {
+            if (Constants.SYSTEM_PROP_RUN_FILE_MODE_MAIN.equalsIgnoreCase(runtimeMode)) {
+                ServiceContextHolder.getInstance().setRuntimeMode(Constants.RuntimeMode.RUN_MAIN);
+            } else if (Constants.SYSTEM_PROP_RUN_FILE_MODE_SERVICE.equalsIgnoreCase(runtimeMode)) {
+                ServiceContextHolder.getInstance().setRuntimeMode(Constants.RuntimeMode.RUN_SERVER);
+            } else {
+                ServiceContextHolder.getInstance().setRuntimeMode(Constants.RuntimeMode.ERROR);
+            }
             if (log.isDebugEnabled()) {
-                log.debug("Runtime mode is set to : " + Constants.RuntimeMode.RUN_FILE);
+                log.debug("Runtime mode is set to : " + ServiceContextHolder.getInstance().getRuntimeMode());
             }
             ServiceContextHolder.getInstance().setRunningFile(new File(runThisBalFile));
+        } else if (runThisBalFile != null || runtimeMode != null) {
+            // one is not null and other is null. then Can't runtime mode.
+            ServiceContextHolder.getInstance().setRuntimeMode(Constants.RuntimeMode.ERROR);
         }
+        // Else is normal Ballerina Server mode.
         //log.info("Ballerina runtime started...!");
     }
 
@@ -129,23 +141,32 @@ public class BallerinaServiceComponent {
     )
     protected void addCarbonServiceInfo(CarbonServerInfo info) {
         // We have to wait until Carbon Capability Provider completes its job to shutdown the OSGi runtime properly.
-        if (ServiceContextHolder.getInstance().getRuntimeMode() == Constants.RuntimeMode.RUN_FILE) {
-            File runningFile = ServiceContextHolder.getInstance().getRunningFile();
-            if (runningFile == null) {
-                // We shouldn't get here, if we get here, that means a bug in startup order
-                log.error("Running File not found in the Service Context. " +
-                          "Possible issue with the internal component startup order");
-                RuntimeUtils.shutdownRuntime();
-                return;
-            }
-
-            if (runningFile.exists()) {
-                BalDeployer.deployBalFile(runningFile);
-            } else {
-                log.error("File " + runningFile.getName() + " not found in the given location. Bye..!");
-                // Shutdown OSGi environment.
-                RuntimeUtils.shutdownRuntime();
-            }
+        if (Constants.RuntimeMode.ERROR == ServiceContextHolder.getInstance().getRuntimeMode()) {
+            // We shouldn't get here, if we get here, that means a bug in startup scripts.
+            log.error("Unable to identify Ballerina Runtime mode.");
+            RuntimeUtils.shutdownRuntime();
+            return;
+        }
+        if (Constants.RuntimeMode.SERVER == ServiceContextHolder.getInstance().getRuntimeMode()) {
+            return;
+        }
+        File runningFile = ServiceContextHolder.getInstance().getRunningFile();
+        if (runningFile == null) {
+            // We shouldn't get here, if we get here, that means a bug in startup order
+            log.error("Running File not found in the Service Context. " +
+                    "Possible issue with the internal component startup order");
+            RuntimeUtils.shutdownRuntime();
+            return;
+        }
+        if (!runningFile.exists()) {
+            log.error("File " + runningFile.getName() + " not found in the given location. Bye..!");
+            // Shutdown OSGi environment.
+            RuntimeUtils.shutdownRuntime();
+            return;
+        }
+        if (Constants.RuntimeMode.RUN_MAIN == ServiceContextHolder.getInstance().getRuntimeMode() ||
+                Constants.RuntimeMode.RUN_SERVER == ServiceContextHolder.getInstance().getRuntimeMode()) {
+            BalDeployer.deployBalFile(runningFile);
         }
     }
 

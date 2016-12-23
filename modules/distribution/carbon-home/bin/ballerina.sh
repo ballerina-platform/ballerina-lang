@@ -265,11 +265,19 @@ status=$START_EXIT_STATUS
 #   -Djava.rmi.server.hostname="your.IP.goes.here"
 
 if [ "$BAL_EXECUTION_CMD" = "run-this" ]; then
+   if [ "$BAL_FILE_NAME" = "" ]; then
+        echo " Please specify Ballerina Main function to run after --run option. Eg: ballerina.sh --run main.bal"
+        exit 1
+   fi
    if [[ "$BAL_FILE_NAME" != /* ]]; then
         BAL_FILE_NAME="$BASE_DIR/$BAL_FILE_NAME"
    fi
-  JAVA_OPTS="$JAVA_OPTS -Dbal-file=$BAL_FILE_NAME"
+  JAVA_OPTS="$JAVA_OPTS -Drun-file=$BAL_FILE_NAME -Drun-mode=main"
   #echo "Running the Ballerina file $BAL_FILE_NAME"
+else
+#   TODO : Remove all unnecessary stuffs from here.
+    echo " Please specify Ballerina Main function to run after --run option. Eg: ballerina.sh --run main.bal"
+    exit 1
 fi
 
 if [ "$BAL_EXECUTION_SUB_CMD" = "bargs" ]; then

@@ -32,7 +32,9 @@
     <packaging>pom</packaging>
 
     <modules>
-        <!--<module>test-distribution</module>-->
-        <!--<module>paxexam-tests</module>-->
+        <module>test-artifacts/ballerina-test-connector</module>
+        <module>test-artifacts/ballerina-test-connector-feature</module>
+        <module>test-distribution</module>
+        <module>paxexam-tests</module>
     </modules>
 </project>
