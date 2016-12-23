@@ -68,6 +68,7 @@ import org.wso2.ballerina.core.model.statements.ReturnStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
 import org.wso2.ballerina.core.model.types.BType;
+import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.model.util.BValueUtils;
 import org.wso2.ballerina.core.model.values.BConnector;
 import org.wso2.ballerina.core.model.values.BJSON;
@@ -261,7 +262,7 @@ public class BLangInterpreter implements NodeVisitor {
 
     @Override
     public void visit(InstanceCreationExpr instanceCreationExpr) {
-        BValue bValue = BValueUtils.getDefaultValue(instanceCreationExpr.getType());
+        BValue bValue = instanceCreationExpr.getType().getDefaultValue();
         controlStack.setValueNew(instanceCreationExpr.getOffset(), bValue);
     }
 
@@ -281,7 +282,7 @@ public class BLangInterpreter implements NodeVisitor {
         // Create default values for all declared local variables
         VariableDcl[] variableDcls = function.getVariableDcls();
         for (VariableDcl variableDcl : variableDcls) {
-            localVals[i] = BValueUtils.getDefaultValue(variableDcl.getType());
+            localVals[i] = variableDcl.getType().getDefaultValue();
             i++;
         }
 
@@ -326,7 +327,7 @@ public class BLangInterpreter implements NodeVisitor {
         // Create default values for all declared local variables
         VariableDcl[] variableDcls = action.getVariableDcls();
         for (VariableDcl variableDcl : variableDcls) {
-            localVals[i] = BValueUtils.getDefaultValue(variableDcl.getType());
+            localVals[i] = variableDcl.getType().getDefaultValue();
             i++;
         }
 
@@ -439,7 +440,7 @@ public class BLangInterpreter implements NodeVisitor {
     public void visit(BackquoteExpr backquoteExpr) {
         BValue bValue;
 
-        if (backquoteExpr.getType() == BType.JSON_TYPE) {
+        if (backquoteExpr.getType() == BTypes.JSON_TYPE) {
             bValue = new BJSON(backquoteExpr.getTemplateStr());
         } else {
             bValue = new BXML(backquoteExpr.getTemplateStr());
@@ -463,7 +464,7 @@ public class BLangInterpreter implements NodeVisitor {
         // Create default values for all declared local variables
         VariableDcl[] variableDcls = resource.getVariableDcls();
         for (VariableDcl variableDcl : variableDcls) {
-            valueParams[i] = BValueUtils.getDefaultValue(variableDcl.getType());
+            valueParams[i] = variableDcl.getType().getDefaultValue();
             i++;
         }
 
@@ -547,7 +548,7 @@ public class BLangInterpreter implements NodeVisitor {
             // Here we need to handle value types differently from reference types
             // Value types need to be cloned before passing ot the function : pass by value.
             // TODO Implement copy-on-write mechanism to improve performance
-            if (BType.isValueType(argType)) {
+            if (BTypes.isValueType(argType)) {
                 argValue = BValueUtils.clone(argType, argValue);
             }
 

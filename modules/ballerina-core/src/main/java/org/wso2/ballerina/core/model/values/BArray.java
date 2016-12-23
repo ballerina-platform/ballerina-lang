@@ -17,21 +17,35 @@
 */
 package org.wso2.ballerina.core.model.values;
 
+import java.lang.reflect.Array;
+
 /**
+ * {@code BArray} represents an array value in Ballerina
  *
- * @param <T>
+ * @param <T> Ballerina value stored in this array value
+ * @since 1.0.0
  */
-public class BArray<T> implements BRefType<T> {
+public class BArray<T extends BValue> implements BRefType {
 
+    private T[] tArray;
 
+    public BArray(T[] tArray) {
+        this.tArray = tArray;
+    }
+
+    @Override
+    public String stringValue() {
+        return null;
+    }
 
     @Override
     public T value() {
         return null;
     }
 
-    @Override
-    public String stringValue() {
-        return null;
+    @SuppressWarnings("unchecked")
+    public static <T extends BValue> T[] createArray(Class<T[]> tClass) {
+
+        return (T[]) Array.newInstance(tClass.getComponentType(), 100);
     }
 }
