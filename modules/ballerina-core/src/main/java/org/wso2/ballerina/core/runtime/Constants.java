@@ -32,6 +32,9 @@ public class Constants {
     // Name of the main function
     public static final String MAIN_FUNCTION_NAME = "main";
 
+    // Intermediate headers added to the ballerina message
+    public static final String INTERMEDIATE_HEADERS = "INTERMEDIATE_HEADERS";
+
     /**
      * Runtime modes of Ballerina engine
      */
