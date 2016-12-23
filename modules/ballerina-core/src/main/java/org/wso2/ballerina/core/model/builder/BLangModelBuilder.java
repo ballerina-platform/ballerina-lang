@@ -616,7 +616,9 @@ public class BLangModelBuilder {
 
     public void createFunctionInvocationStmt() {
         CallableUnitInvocationExprBuilder cIExprBuilder = new CallableUnitInvocationExprBuilder();
-        cIExprBuilder.setExpressionList(exprListStack.pop());
+        if (!exprListStack.isEmpty()) {
+            cIExprBuilder.setExpressionList(exprListStack.pop());
+        }
         cIExprBuilder.setName(symbolNameStack.pop());
 
         FunctionInvocationExpr invocationExpr = cIExprBuilder.buildFuncInvocExpr();
