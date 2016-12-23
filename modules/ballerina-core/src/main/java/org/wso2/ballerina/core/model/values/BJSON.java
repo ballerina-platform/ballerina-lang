@@ -165,4 +165,9 @@ public class BJSON extends BallerinaMessageDataSource implements BRefType<JsonEl
     public String stringValue() {
         return this.value.toString();
     }
+
+    @Override
+    public <V extends BValue> V[] createArray(int capacity) {
+        return (V[]) new BJSON[capacity];
+    }
 }

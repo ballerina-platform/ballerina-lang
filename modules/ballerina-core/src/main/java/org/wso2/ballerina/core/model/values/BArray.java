@@ -17,20 +17,70 @@
 */
 package org.wso2.ballerina.core.model.values;
 
+import org.wso2.ballerina.core.exception.BallerinaException;
+
 import java.lang.reflect.Array;
+import java.util.Arrays;
 
 /**
  * {@code BArray} represents an array value in Ballerina
  *
- * @param <T> Ballerina value stored in this array value
+ * @param <V> Ballerina value stored in this array value
  * @since 1.0.0
  */
-public class BArray<T extends BValue> implements BRefType {
+public class BArray<V extends BValue> implements BRefType {
 
-    private T[] tArray;
+    /**
+     * The maximum size of array to allocate.
+     * <p>
+     * This is same as Java
+     */
+    private static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 8;
 
-    public BArray(T[] tArray) {
-        this.tArray = tArray;
+    private static final int DEFAULT_ARRAY_SIZE = 100;
+    private static final int DEFAULT_ARRAY_BUCKET_SIZE = 10;
+
+    private BValue[][] arrayBucket = new BValue[DEFAULT_ARRAY_BUCKET_SIZE][];
+    private Class<V> c;
+
+    private int lastBucketIndex;
+    private int size = DEFAULT_ARRAY_SIZE;
+
+    public BArray(Class<V> c) {
+        this.c = c;
+        arrayBucket[0] = createArray();
+        lastBucketIndex = 0;
+    }
+
+    public <V extends BValue> void add(int index, V value) {
+        ensureCapacity(index);
+
+        int bucketIndex = index / DEFAULT_ARRAY_SIZE;
+        int slot = index % DEFAULT_ARRAY_SIZE;
+        arrayBucket[bucketIndex][slot] = value;
+
+        if (index >= size) {
+            size = index + 1;
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private <V extends BValue> V[] createArray() {
+        return (V[]) Array.newInstance(this.c, DEFAULT_ARRAY_SIZE);
+    }
+
+    @SuppressWarnings("unchecked")
+    public V get(int index) {
+        rangeCheck(index);
+
+        int bucketIndex = index / DEFAULT_ARRAY_SIZE;
+        int slot = index % DEFAULT_ARRAY_SIZE;
+
+        return (V) arrayBucket[bucketIndex][slot];
+    }
+
+    public int size() {
+        return 0;
     }
 
     @Override
@@ -39,13 +89,57 @@ public class BArray<T extends BValue> implements BRefType {
     }
 
     @Override
-    public T value() {
+    public <V extends BValue> V[] createArray(int capacity) {
+        throw new RuntimeException("2-D arrays are not supported in Ballerina");
+    }
+
+    @Override
+    public V value() {
         return null;
     }
 
-    @SuppressWarnings("unchecked")
-    public static <T extends BValue> T[] createArray(Class<T[]> tClass) {
 
-        return (T[]) Array.newInstance(tClass.getComponentType(), 100);
+    // Private methods
+
+    /**
+     * Checks if the given index is in range.  If not, throws an appropriate
+     * runtime exception.
+     */
+    private void rangeCheck(int index) {
+        if (index >= size) {
+            throw new BallerinaException("Array index out of range: " + outOfBoundsMsg(index));
+        }
+    }
+
+    private String outOfBoundsMsg(int index) {
+        return "Index: " + index + ", Size: " + size;
+    }
+
+    private void ensureCapacity(int capacityRequired) {
+        int bucketIndex = capacityRequired / DEFAULT_ARRAY_SIZE;
+
+        if (bucketIndex - lastBucketIndex > 0) {
+            grow(capacityRequired, bucketIndex);
+        }
+    }
+
+    private void grow(int capacityRequired, int bucketIndex) {
+        if (capacityRequired > MAX_ARRAY_SIZE) {
+            throw new BallerinaException("Requested array size " + capacityRequired +
+                    " exceeds limit: " + MAX_ARRAY_SIZE);
+        }
+
+        if (bucketIndex >= arrayBucket.length) {
+            // We have to create new arrayBucket
+            arrayBucket = Arrays.copyOf(arrayBucket, arrayBucket.length + DEFAULT_ARRAY_BUCKET_SIZE);
+
+        }
+
+        if (bucketIndex > lastBucketIndex) {
+            for (int i = lastBucketIndex + 1; bucketIndex > lastBucketIndex; i++) {
+                arrayBucket[i] = createArray();
+                lastBucketIndex++;
+            }
+        }
     }
 }

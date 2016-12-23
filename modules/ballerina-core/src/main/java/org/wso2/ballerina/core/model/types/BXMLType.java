@@ -33,12 +33,7 @@ class BXMLType extends BType {
      * @param typeName string name of the type
      */
     BXMLType(String typeName) {
-        super(typeName);
-    }
-
-    @SuppressWarnings("unchecked")
-    public <V extends BValue> V[] createArray() {
-        return (V[]) BTypes.createArray(BXML[].class);
+        super(typeName, BXML.class);
     }
 
     @SuppressWarnings("unchecked")

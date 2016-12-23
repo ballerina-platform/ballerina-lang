@@ -32,10 +32,11 @@ public class ArrayAccessExpr extends UnaryExpression {
 
     private SymbolName symbolName;
     private Expression indexExpr;
+    private boolean isLHSExpr;
 
 
-    private ArrayAccessExpr(SymbolName symbolName, Expression indexExpr) {
-        super(null, null);
+    private ArrayAccessExpr(SymbolName symbolName, Expression arrayVarRefExpr, Expression indexExpr) {
+        super(null, arrayVarRefExpr);
         this.symbolName = symbolName;
         this.indexExpr = indexExpr;
     }
@@ -46,6 +47,14 @@ public class ArrayAccessExpr extends UnaryExpression {
 
     public Expression getIndexExpr() {
         return indexExpr;
+    }
+
+    public boolean isLHSExpr() {
+        return isLHSExpr;
+    }
+
+    public void setLHSExpr(boolean lhsExpr) {
+        isLHSExpr = lhsExpr;
     }
 
     @Override
@@ -60,6 +69,7 @@ public class ArrayAccessExpr extends UnaryExpression {
      */
     public static class ArrayAccessExprBuilder {
         private SymbolName varName;
+        private Expression arrayVarRefExpr;
         private Expression indexExpr;
 
         public ArrayAccessExprBuilder() {
@@ -69,12 +79,16 @@ public class ArrayAccessExpr extends UnaryExpression {
             this.varName = varName;
         }
 
+        public void setArrayVarRefExpr(Expression arrayVarRefExpr) {
+            this.arrayVarRefExpr = arrayVarRefExpr;
+        }
+
         public void setIndexExpr(Expression rExpr) {
             this.indexExpr = rExpr;
         }
 
         public ArrayAccessExpr build() {
-            return new ArrayAccessExpr(varName, indexExpr);
+            return new ArrayAccessExpr(varName, arrayVarRefExpr, indexExpr);
         }
     }
 }
