@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+	<head>
+		<title>log4javascript quick start example 1</title>
+		<meta http-equiv="content-type" content="text/html; charset=iso-8859-1" />
+		<meta name="author" content="Tim Down - tim@log4javascript.org" />
+		<meta name="description" content="log4javascript, a logging framework for JavaScript based on log4j" />
+		<meta name="robots" content="all" />
+		<script type="text/javascript" src="../js/log4javascript.js"></script>
+		<script type="text/javascript">
+			//<![CDATA[
+			// Create the logger
+			var log = log4javascript.getLogger(); 
+		
+			// Create a PopUpAppender with default options
+			var popUpAppender = new log4javascript.PopUpAppender();
+			
+			// Change the desired configuration options
+			popUpAppender.setFocusPopUp(true);
+			popUpAppender.setNewestMessageAtTop(true);
+			
+			// Add the appender to the logger
+			log.addAppender(popUpAppender);
+			
+			// Test the logger
+			log.debug("Hello world!");
+			//]]>
+		</script>
+	</head>
+	<body>
+		<h1>log4javascript quick start example 1</h1>
+	
+	
+	</body>
+</html>
