@@ -54,8 +54,6 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import static org.wso2.ballerina.core.runtime.Constants.SYSTEM_PROP_BAL_FILE;
-
 /**
  * {@code BalDeployer} is responsible for all ballerina file deployment tasks
  *
@@ -76,10 +74,10 @@ public class BalDeployer implements Deployer {
 
     @Activate
     protected void activate(BundleContext bundleContext) {
-        String balFile = System.getProperty(SYSTEM_PROP_BAL_FILE);
-        if (balFile != null) {
-            ServiceContextHolder.getInstance().setRuntimeMode(Constants.RuntimeMode.RUN_FILE);
-        }
+//        String balFile = System.getProperty(SYSTEM_PROP_RUN_FILE);
+//        if (balFile != null) {
+//            ServiceContextHolder.getInstance().setRuntimeMode(Constants.RuntimeMode.RUN_MAIN);
+//        }
     }
 
     @Override
@@ -157,10 +155,9 @@ public class BalDeployer implements Deployer {
                 BLangLinker bLangLinker = new BLangLinker(balFile);
                 bLangLinker.link(GlobalScopeHolder.getInstance().getScope());
 
-                if (Constants.RuntimeMode.RUN_FILE == ServiceContextHolder.getInstance().getRuntimeMode()) {
-                    if (!BalProgramExecutor.execute(balFile)) {
-                        return;
-                    }
+                if (Constants.RuntimeMode.RUN_MAIN == ServiceContextHolder.getInstance().getRuntimeMode()) {
+                    BalProgramExecutor.execute(balFile);
+                    return;
                 }
 
                 // Get the existing application associated with this ballerina config
@@ -185,6 +182,13 @@ public class BalDeployer implements Deployer {
                 ApplicationRegistry.getInstance().updatePackage(aPackage);
 
                 log.info("Deployed ballerina file : " + file.getName());
+            } else {
+                if (Constants.RuntimeMode.RUN_MAIN == ServiceContextHolder.getInstance().getRuntimeMode()) {
+                    log.error("File extension not supported. Support only {}. Bye.", FILE_EXTENSION);
+                    RuntimeUtils.shutdownRuntime();
+                    return;
+                }
+                log.error("File extension not supported. Support only {}.", FILE_EXTENSION);
             }
         } catch (IOException e) {
             log.error("Error while creating Ballerina object model from file : " + file.getName(), e.getMessage());
@@ -199,8 +203,8 @@ public class BalDeployer implements Deployer {
                 } catch (IOException ignore) {
                 }
             }
-            if (!successful && Constants.RuntimeMode.RUN_FILE == ServiceContextHolder.getInstance().getRuntimeMode()) {
-                log.error("Execution is not successful. System exits. Bye.");
+            if (!successful && Constants.RuntimeMode.RUN_MAIN == ServiceContextHolder.getInstance().getRuntimeMode()) {
+                log.error("System exits. Bye.");
                 RuntimeUtils.shutdownRuntime();
             }
         }

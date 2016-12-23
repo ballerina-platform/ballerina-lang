@@ -65,30 +65,16 @@ public class BalProgramExecutor {
      * Execute a program in a Ballerina File
      *
      * @param balFile Ballerina File
-     * @return whether the runtime should keep-alive after executing the program in the file
      */
-    public static boolean execute(BallerinaFile balFile) {
+    public static void execute(BallerinaFile balFile) {
         BallerinaFunction function =
                 (BallerinaFunction) balFile.getFunctions().get(Constants.MAIN_FUNCTION_NAME);
-
         if (function != null) {
-            try {
-                BalProgramExecutor.execute(function);
-            } finally {
-                if (balFile.getServices().size() == 0) {
-                    if (log.isDebugEnabled()) {
-                        log.debug("Services not found. Hence shutting down after Main function execution.. ");
-                    }
-                    RuntimeUtils.shutdownRuntime();
-                    return false;
-                }
-            }
-        } else if (balFile.getServices().size() == 0) {
-            log.warn("Unable to find Main function or any Ballerina Services. Bye..!");
-            RuntimeUtils.shutdownRuntime();
-            return false;
+            BalProgramExecutor.execute(function);
+        } else {
+            log.warn("Unable to find Main function. Bye..!");
         }
-        return true;
+        RuntimeUtils.shutdownRuntime();
     }
 
     private static void execute(BallerinaFunction function) {
