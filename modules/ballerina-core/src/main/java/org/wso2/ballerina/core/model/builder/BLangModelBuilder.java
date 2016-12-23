@@ -373,7 +373,7 @@ public class BLangModelBuilder {
     }
 
     public void createBackquoteExpr(String stringContent) {
-        String templateStr = getValueWithinBacktick(stringContent);
+        String templateStr = getValueWithinBackquote(stringContent);
 
         BackquoteExpr.BackquoteExprBuilder builder = new BackquoteExpr.BackquoteExprBuilder();
         builder.setTemplateStr(templateStr);
@@ -701,7 +701,7 @@ public class BLangModelBuilder {
      * @param inputString string with double quotes
      * @return value
      */
-    public static String getValueWithinBacktick(String inputString) {
+    public static String getValueWithinBackquote(String inputString) {
         Pattern p = Pattern.compile("`([^`]*)`");
         Matcher m = p.matcher(inputString);
         if (m.find()) {
