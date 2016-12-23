@@ -136,4 +136,6 @@ public interface NodeVisitor {
     void visit(BackquoteExpr backquoteExpr);
 
     void visit(ResourceInvoker resourceInvoker);
+
+    void visit(MainInvoker mainInvoker);
 }
