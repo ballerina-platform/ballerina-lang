@@ -10,9 +10,23 @@ service PassthroughService {
     @POST
     @Path ("/stocks")
     resource passthrough (message m) {
-        http:HTTPConnector nyseEP = new http:HTTPConnector("http://localhost:8280/services", 100);
+        http:HTTPConnector nyseEP = new http:HTTPConnector("http://localhost:9090", 100);
         message response;
-        response = http:HTTPConnector.post(nyseEP, "/NYSEProxy", m);
+        response = http:HTTPConnector.post(nyseEP, "/NYSEStocks", m);
         reply response;
     }
+}
+
+@BasePath("/NYSEStocks")
+service NYSEStockQuote {
+  @POST
+  @Path("/*")
+  resource stocks (message m) {
+    message response;
+    json payload;
+    response = new message;
+    payload = `{"exchange":"nyse", "name":"IBM", "value":"127.50"}`;
+    message:setJsonPayload(response, payload);
+    reply response;
+  }
 }
