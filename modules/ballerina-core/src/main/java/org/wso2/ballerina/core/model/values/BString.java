@@ -57,4 +57,9 @@ public class BString extends BValueType {
     public String stringValue() {
         return this.value;
     }
+
+    @Override
+    public <V extends BValue> V[] createArray(int capacity) {
+        return (V[]) new BString[capacity];
+    }
 }

@@ -33,12 +33,7 @@ class BBooleanType extends BType {
      * @param typeName string name of the type
      */
     BBooleanType(String typeName) {
-        super(typeName);
-    }
-
-    @SuppressWarnings("unchecked")
-    public <V extends BValue> V[] createArray() {
-        return (V[]) BTypes.createArray(BBoolean[].class);
+        super(typeName, BBoolean.class);
     }
 
     @SuppressWarnings("unchecked")

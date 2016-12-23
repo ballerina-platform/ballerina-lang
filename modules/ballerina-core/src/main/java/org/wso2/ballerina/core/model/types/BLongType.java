@@ -33,12 +33,7 @@ class BLongType extends BType {
      * @param typeName string name of the type
      */
     BLongType(String typeName) {
-        super(typeName);
-    }
-
-    @SuppressWarnings("unchecked")
-    public <V extends BValue> V[] createArray() {
-        return (V[]) BTypes.createArray(BLong[].class);
+        super(typeName, BLong.class);
     }
 
     @SuppressWarnings("unchecked")

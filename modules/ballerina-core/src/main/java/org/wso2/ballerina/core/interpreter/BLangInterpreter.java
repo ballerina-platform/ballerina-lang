@@ -71,6 +71,7 @@ import org.wso2.ballerina.core.model.statements.WhileStmt;
 import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.model.util.BValueUtils;
+import org.wso2.ballerina.core.model.values.BArray;
 import org.wso2.ballerina.core.model.values.BConnector;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BJSON;
@@ -181,12 +182,23 @@ public class BLangInterpreter implements NodeVisitor {
     public void visit(AssignStmt assignStmt) {
         Expression rExpr = assignStmt.getRExpr();
         rExpr.accept(this);
+        BValue rValue = getValueNew(rExpr);
 
         Expression lExpr = assignStmt.getLExpr();
         lExpr.accept(this);
 
-        BValue rValue = getValueNew(rExpr);
-        setValueNew(lExpr, rValue);
+
+        if (lExpr instanceof ArrayAccessExpr) {
+            ArrayAccessExpr accessExpr = (ArrayAccessExpr) lExpr;
+            BArray arrayVal = (BArray) getValueNew(accessExpr.getRExpr());
+            BInteger indexVal = (BInteger) getValueNewPrimary(accessExpr.getIndexExpr());
+
+            arrayVal.add(indexVal.intValue(), rValue);
+
+        } else {
+            setValueNew(lExpr, rValue);
+
+        }
     }
 
     @Override
@@ -440,7 +452,22 @@ public class BLangInterpreter implements NodeVisitor {
 
     @Override
     public void visit(ArrayAccessExpr arrayAccessExpr) {
+        Expression arrayVarRefExpr = arrayAccessExpr.getRExpr();
+        arrayVarRefExpr.accept(this);
 
+        Expression indexExpr = arrayAccessExpr.getIndexExpr();
+        indexExpr.accept(this);
+
+        BArray arrayVal = (BArray) getValueNew(arrayVarRefExpr);
+        BInteger indexVal = (BInteger) getValueNewPrimary(indexExpr);
+
+        // Check whether this array access expression is in the left hand of an assignment expresion
+        // If yes skip setting the value;
+        if (!arrayAccessExpr.isLHSExpr()) {
+            // Get the value stored in the index
+            BValue val = arrayVal.get(indexVal.intValue());
+            setValueNew(arrayAccessExpr, val);
+        }
     }
 
     @Override

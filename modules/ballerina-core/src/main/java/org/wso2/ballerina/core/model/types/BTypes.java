@@ -55,8 +55,8 @@ public class BTypes {
     }
 
     @SuppressWarnings("unchecked")
-    public static <U extends BValue> U[] createArray(Class<U[]> tClass) {
-        return (U[]) Array.newInstance(tClass.getComponentType(), 100);
+    public static <U extends BValue> U[] createArray(Class<U[]> tClass, int capacity) {
+        return (U[]) Array.newInstance(tClass.getComponentType(), capacity);
     }
 
     public static BArrayType getArrayType(String elementTypeName) {
