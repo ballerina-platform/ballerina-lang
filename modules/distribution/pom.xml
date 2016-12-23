@@ -277,5 +277,14 @@
             </plugin>
 
         </plugins>
+        <resources>
+            <resource>
+                <directory>carbon-home/bin/</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>**/version.txt</include>
+                </includes>
+            </resource>
+        </resources>
     </build>
 </project>
