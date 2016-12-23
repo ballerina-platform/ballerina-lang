@@ -133,3 +133,8 @@ function rename(json msg, string jsonPath, string oldKey, string newKey) (string
     jsonPath = "$.name.firstName";
     return ballerina.lang.json:getString(msg, jsonPath);
 }
+
+// Rename Function
+function toString(json msg) (string){
+    return ballerina.lang.json:toString(msg);
+}
