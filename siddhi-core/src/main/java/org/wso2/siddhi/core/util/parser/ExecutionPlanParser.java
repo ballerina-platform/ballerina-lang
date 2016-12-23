@@ -196,7 +196,7 @@ public class ExecutionPlanParser {
                         .getFactory()
                         .createLatencyTracker(metricName, executionPlanContext.getStatisticsManager());
             }
-            eventWindow.init(executionPlanRuntimeBuilder.getEventTableMap(), executionPlanRuntimeBuilder.getEventWindowMap(), latencyTracker);
+            eventWindow.init(executionPlanRuntimeBuilder.getEventTableMap(), executionPlanRuntimeBuilder.getEventWindowMap(), latencyTracker, eventWindow.getWindowDefinition().getId());
         }
         try {
             for (ExecutionElement executionElement : executionPlan.getExecutionElementList()) {

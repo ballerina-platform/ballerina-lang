@@ -22,10 +22,9 @@ import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
+import java.util.AbstractMap;
 import java.util.Arrays;
-import java.util.Deque;
-import java.util.Iterator;
-import java.util.LinkedList;
+import java.util.Map;
 
 public class MaxForeverAttributeAggregator extends AttributeAggregator {
 
@@ -147,12 +146,13 @@ public class MaxForeverAttributeAggregator extends AttributeAggregator {
 
         @Override
         public Object[] currentState() {
-            return new Object[]{maxValue};
+            return new Object[]{new AbstractMap.SimpleEntry<String, Object>("MaxValue", maxValue)};
         }
 
         @Override
         public void restoreState(Object[] state) {
-            maxValue = (Double) state[1];
+            Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
+            maxValue = (Double) stateEntry.getValue();
         }
 
     }
@@ -191,12 +191,13 @@ public class MaxForeverAttributeAggregator extends AttributeAggregator {
 
         @Override
         public Object[] currentState() {
-            return new Object[]{maxValue};
+            return new Object[]{new AbstractMap.SimpleEntry<String, Object>("MaxValue", maxValue)};
         }
 
         @Override
         public void restoreState(Object[] state) {
-            maxValue = (Float) state[1];
+            Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
+            maxValue = (Float) stateEntry.getValue();
         }
 
     }
@@ -235,12 +236,13 @@ public class MaxForeverAttributeAggregator extends AttributeAggregator {
 
         @Override
         public Object[] currentState() {
-            return new Object[]{ maxValue};
+            return new Object[]{new AbstractMap.SimpleEntry<String, Object>("MaxValue", maxValue)};
         }
 
         @Override
         public void restoreState(Object[] state) {
-            maxValue = (Integer) state[1];
+            Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
+            maxValue = (Integer) stateEntry.getValue();
         }
 
     }
@@ -279,12 +281,13 @@ public class MaxForeverAttributeAggregator extends AttributeAggregator {
 
         @Override
         public Object[] currentState() {
-            return new Object[]{maxValue};
+            return new Object[]{new AbstractMap.SimpleEntry<String, Object>("MaxValue", maxValue)};
         }
 
         @Override
         public void restoreState(Object[] state) {
-            maxValue = (Long) state[1];
+            Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
+            maxValue = (Long) stateEntry.getValue();
         }
 
     }

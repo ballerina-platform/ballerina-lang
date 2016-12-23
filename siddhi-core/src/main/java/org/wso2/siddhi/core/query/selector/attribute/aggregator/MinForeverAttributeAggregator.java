@@ -22,7 +22,9 @@ import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
+import java.util.AbstractMap;
 import java.util.Arrays;
+import java.util.Map;
 
 public class MinForeverAttributeAggregator extends AttributeAggregator {
 
@@ -144,12 +146,13 @@ public class MinForeverAttributeAggregator extends AttributeAggregator {
 
         @Override
         public Object[] currentState() {
-            return new Object[]{minValue};
+            return new Object[]{new AbstractMap.SimpleEntry<String, Object>("MinValue", minValue)};
         }
 
         @Override
         public void restoreState(Object[] state) {
-            minValue = (Double) state[1];
+            Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
+            minValue = (Double) stateEntry.getValue();
         }
 
     }
@@ -188,12 +191,13 @@ public class MinForeverAttributeAggregator extends AttributeAggregator {
 
         @Override
         public Object[] currentState() {
-            return new Object[]{ minValue};
+            return new Object[]{new AbstractMap.SimpleEntry<String, Object>("MinValue", minValue)};
         }
 
         @Override
         public void restoreState(Object[] state) {
-            minValue = (Float) state[1];
+            Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
+            minValue = (Float) stateEntry.getValue();
         }
 
     }
@@ -232,12 +236,13 @@ public class MinForeverAttributeAggregator extends AttributeAggregator {
 
         @Override
         public Object[] currentState() {
-            return new Object[]{minValue};
+            return new Object[]{new AbstractMap.SimpleEntry<String, Object>("MinValue", minValue)};
         }
 
         @Override
         public void restoreState(Object[] state) {
-            minValue = (Integer) state[1];
+            Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
+            minValue = (Integer) stateEntry.getValue();
         }
 
     }
@@ -276,12 +281,13 @@ public class MinForeverAttributeAggregator extends AttributeAggregator {
 
         @Override
         public Object[] currentState() {
-            return new Object[]{minValue};
+            return new Object[]{new AbstractMap.SimpleEntry<String, Object>("MinValue", minValue)};
         }
 
         @Override
         public void restoreState(Object[] state) {
-            minValue = (Long) state[1];
+            Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
+            minValue = (Long) stateEntry.getValue();
         }
 
     }

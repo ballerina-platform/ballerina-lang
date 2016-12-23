@@ -38,12 +38,12 @@ public class GroupByKeyGenerator {
                                MetaComplexEvent metaComplexEvent,
                                Map<String, EventTable> eventTableMap,
                                List<VariableExpressionExecutor> executors,
-                               ExecutionPlanContext siddhiContext) {
+                               ExecutionPlanContext siddhiContext, String queryName) {
         if (!groupByList.isEmpty()) {
             groupByExecutors = new VariableExpressionExecutor[groupByList.size()];
             for (int i = 0, expressionsSize = groupByList.size(); i < expressionsSize; i++) {
                 groupByExecutors[i] = (VariableExpressionExecutor) ExpressionParser.parseExpression(groupByList.get(i),
-                        metaComplexEvent, SiddhiConstants.UNKNOWN_STATE, eventTableMap, executors, siddhiContext, false, 0);
+                        metaComplexEvent, SiddhiConstants.UNKNOWN_STATE, eventTableMap, executors, siddhiContext, false, 0, queryName);
             }
         }
     }

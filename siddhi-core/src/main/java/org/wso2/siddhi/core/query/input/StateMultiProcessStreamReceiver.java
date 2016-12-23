@@ -29,8 +29,8 @@ public class StateMultiProcessStreamReceiver extends MultiProcessStreamReceiver 
 
     private QuerySelector querySelector;
 
-    public StateMultiProcessStreamReceiver(String streamId, int processCount, LatencyTracker latencyTracker) {
-        super(streamId, processCount, latencyTracker);
+    public StateMultiProcessStreamReceiver(String streamId, int processCount, LatencyTracker latencyTracker, String queryName) {
+        super(streamId, processCount, latencyTracker, queryName);
     }
 
     public void setNext(Processor next) {
@@ -39,7 +39,7 @@ public class StateMultiProcessStreamReceiver extends MultiProcessStreamReceiver 
     }
 
     public StateMultiProcessStreamReceiver clone(String key) {
-        return new StateMultiProcessStreamReceiver(streamId + key, processCount, latencyTracker);
+        return new StateMultiProcessStreamReceiver(streamId + key, processCount, latencyTracker, queryName);
     }
 
     protected void processAndClear(int processIndex, StreamEvent streamEvent) {

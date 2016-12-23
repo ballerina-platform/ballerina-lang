@@ -27,7 +27,9 @@ import org.wso2.siddhi.core.util.Schedulable;
 import org.wso2.siddhi.core.util.Scheduler;
 import org.wso2.siddhi.core.util.parser.SchedulerParser;
 
+import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 
 public class LastPerTimeOutputRateLimiter extends OutputRateLimiter implements Schedulable {
@@ -37,11 +39,13 @@ public class LastPerTimeOutputRateLimiter extends OutputRateLimiter implements S
     private ScheduledExecutorService scheduledExecutorService;
     private Scheduler scheduler;
     private long scheduledTime;
+    private String queryName;
 
     static final Logger log = Logger.getLogger(LastPerTimeOutputRateLimiter.class);
 
 
-    public LastPerTimeOutputRateLimiter(String id, Long value, ScheduledExecutorService scheduledExecutorService) {
+    public LastPerTimeOutputRateLimiter(String id, Long value, ScheduledExecutorService scheduledExecutorService, String queryName) {
+        this.queryName = queryName;
         this.id = id;
         this.value = value;
         this.scheduledExecutorService = scheduledExecutorService;
@@ -49,7 +53,7 @@ public class LastPerTimeOutputRateLimiter extends OutputRateLimiter implements S
 
     @Override
     public OutputRateLimiter clone(String key) {
-        LastPerTimeOutputRateLimiter instance = new LastPerTimeOutputRateLimiter(id + key, value, scheduledExecutorService);
+        LastPerTimeOutputRateLimiter instance = new LastPerTimeOutputRateLimiter(id + key, value, scheduledExecutorService, queryName);
         instance.setLatencyTracker(latencyTracker);
         return instance;
     }
@@ -88,7 +92,7 @@ public class LastPerTimeOutputRateLimiter extends OutputRateLimiter implements S
     public void start() {
         scheduler = SchedulerParser.parse(scheduledExecutorService, this, executionPlanContext);
         scheduler.setStreamEventPool(new StreamEventPool(0, 0, 0, 5));
-        scheduler.init(lockWrapper);
+        scheduler.init(lockWrapper, queryName);
         long currentTime = System.currentTimeMillis();
         scheduledTime = currentTime + value;
         scheduler.notifyAt(scheduledTime);
@@ -101,12 +105,13 @@ public class LastPerTimeOutputRateLimiter extends OutputRateLimiter implements S
 
     @Override
     public Object[] currentState() {
-        return new Object[]{lastEvent};
+        return new Object[]{new AbstractMap.SimpleEntry<String, Object>("LastEvent", lastEvent)};
     }
 
     @Override
     public void restoreState(Object[] state) {
-        lastEvent = (ComplexEvent) state[0];
+        Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
+        lastEvent = (ComplexEvent) stateEntry.getValue();
     }
 
 }

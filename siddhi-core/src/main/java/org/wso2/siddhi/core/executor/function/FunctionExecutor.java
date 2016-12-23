@@ -33,17 +33,19 @@ public abstract class FunctionExecutor implements ExpressionExecutor, EternalRef
     protected ExecutionPlanContext executionPlanContext;
     protected String elementId;
     private int attributeSize;
+    protected String queryName;
 
-    public void initExecutor(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
+    public void initExecutor(ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext, String queryName) {
         try {
             this.executionPlanContext = executionPlanContext;
             this.attributeExpressionExecutors = attributeExpressionExecutors;
             attributeSize = attributeExpressionExecutors.length;
+            this.queryName = queryName;
             executionPlanContext.addEternalReferencedHolder(this);
             if (elementId == null) {
-                elementId = executionPlanContext.getElementIdGenerator().createNewId();
+                elementId = "FunctionExecutor-" + executionPlanContext.getElementIdGenerator().createNewId();
             }
-            executionPlanContext.getSnapshotService().addSnapshotable(this);
+            executionPlanContext.getSnapshotService().addSnapshotable(queryName, this);
             init(attributeExpressionExecutors, executionPlanContext);
         } catch (Throwable t) {
             throw new ExecutionPlanCreationException(t);
@@ -59,7 +61,7 @@ public abstract class FunctionExecutor implements ExpressionExecutor, EternalRef
                 innerExpressionExecutors[i] = attributeExpressionExecutors[i].cloneExecutor(key);
             }
             functionExecutor.elementId = elementId + "-" + key;
-            functionExecutor.initExecutor(innerExpressionExecutors, executionPlanContext);
+            functionExecutor.initExecutor(innerExpressionExecutors, executionPlanContext, queryName);
             functionExecutor.start();
             return functionExecutor;
         } catch (Exception e) {

@@ -28,9 +28,9 @@ import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.table.EventTable;
-import org.wso2.siddhi.core.util.parser.OperatorParser;
 import org.wso2.siddhi.core.util.collection.operator.Finder;
 import org.wso2.siddhi.core.util.collection.operator.MatchingMetaStateHolder;
+import org.wso2.siddhi.core.util.parser.OperatorParser;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.expression.Expression;
 
@@ -151,12 +151,13 @@ public class SortWindowProcessor extends WindowProcessor implements FindableProc
 
     @Override
     public Object[] currentState() {
-        return new Object[]{sortedWindow};
+        return new Object[]{new AbstractMap.SimpleEntry<String, Object>("SortedWindow", sortedWindow)};
     }
 
     @Override
     public void restoreState(Object[] state) {
-        sortedWindow = (ArrayList<StreamEvent>) state[0];
+        Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
+        sortedWindow = (ArrayList<StreamEvent>) stateEntry.getValue();
     }
 
     @Override
@@ -167,6 +168,6 @@ public class SortWindowProcessor extends WindowProcessor implements FindableProc
     @Override
     public Finder constructFinder(Expression expression, MatchingMetaStateHolder matchingMetaStateHolder, ExecutionPlanContext executionPlanContext,
                                   List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap) {
-        return OperatorParser.constructOperator(sortedWindow, expression, matchingMetaStateHolder, executionPlanContext, variableExpressionExecutors, eventTableMap);
+        return OperatorParser.constructOperator(sortedWindow, expression, matchingMetaStateHolder, executionPlanContext, variableExpressionExecutors, eventTableMap, queryName);
     }
 }

@@ -28,7 +28,7 @@ public class OperatorParser {
                                              MatchingMetaStateHolder matchingMetaStateHolder,
                                              ExecutionPlanContext executionPlanContext,
                                              List<VariableExpressionExecutor> variableExpressionExecutors,
-                                             Map<String, EventTable> eventTableMap) {
+                                             Map<String, EventTable> eventTableMap, String queryName) {
         if (candidateEvents instanceof PrimaryKeyEventHolder) {
             if (expression instanceof Compare && ((Compare) expression).getOperator() == Compare.Operator.EQUAL) {
                 Compare compare = (Compare) expression;
@@ -48,12 +48,12 @@ public class OperatorParser {
 
                     if (leftSideIndexed && !rightSideIndexed) {
                         ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(compare.getRightExpression(),
-                                matchingMetaStateHolder.getMetaStateEvent(), matchingMetaStateHolder.getDefaultStreamEventIndex(), eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0);
+                                matchingMetaStateHolder.getMetaStateEvent(), matchingMetaStateHolder.getDefaultStreamEventIndex(), eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0, queryName);
                         return new PrimaryKeyOperator(expressionExecutor, matchingMetaStateHolder.getCandidateEventIndex(), ((PrimaryKeyEventHolder) candidateEvents).getIndexPosition());
 
                     } else if (!leftSideIndexed && rightSideIndexed) {
                         ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(compare.getLeftExpression(),
-                                matchingMetaStateHolder.getMetaStateEvent(), matchingMetaStateHolder.getDefaultStreamEventIndex(), eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0);
+                                matchingMetaStateHolder.getMetaStateEvent(), matchingMetaStateHolder.getDefaultStreamEventIndex(), eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0, queryName);
                         return new PrimaryKeyOperator(expressionExecutor, matchingMetaStateHolder.getCandidateEventIndex(), ((PrimaryKeyEventHolder) candidateEvents).getIndexPosition());
 
                     }
@@ -61,19 +61,19 @@ public class OperatorParser {
             }
             //fallback to not using primary key
             ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(expression,
-                    matchingMetaStateHolder.getMetaStateEvent(), matchingMetaStateHolder.getDefaultStreamEventIndex(), eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0);
+                    matchingMetaStateHolder.getMetaStateEvent(), matchingMetaStateHolder.getDefaultStreamEventIndex(), eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0, queryName);
             return new MapOperator(expressionExecutor, matchingMetaStateHolder.getCandidateEventIndex());
         } else if (candidateEvents instanceof ComplexEventChunk) {
             ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(expression,
-                    matchingMetaStateHolder.getMetaStateEvent(), matchingMetaStateHolder.getDefaultStreamEventIndex(), eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0);
+                    matchingMetaStateHolder.getMetaStateEvent(), matchingMetaStateHolder.getDefaultStreamEventIndex(), eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0, queryName);
             return new EventChunkOperator(expressionExecutor, matchingMetaStateHolder.getCandidateEventIndex());
         } else if (candidateEvents instanceof Map) {
             ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(expression,
-                    matchingMetaStateHolder.getMetaStateEvent(), matchingMetaStateHolder.getDefaultStreamEventIndex(), eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0);
+                    matchingMetaStateHolder.getMetaStateEvent(), matchingMetaStateHolder.getDefaultStreamEventIndex(), eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0, queryName);
             return new MapOperator(expressionExecutor, matchingMetaStateHolder.getCandidateEventIndex());
         } else if (candidateEvents instanceof Collection) {
             ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(expression,
-                    matchingMetaStateHolder.getMetaStateEvent(), matchingMetaStateHolder.getDefaultStreamEventIndex(), eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0);
+                    matchingMetaStateHolder.getMetaStateEvent(), matchingMetaStateHolder.getDefaultStreamEventIndex(), eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0, queryName);
             return new CollectionOperator(expressionExecutor, matchingMetaStateHolder.getCandidateEventIndex());
         } else {
             throw new OperationNotSupportedException(candidateEvents.getClass() + " is not supported by OperatorParser!");

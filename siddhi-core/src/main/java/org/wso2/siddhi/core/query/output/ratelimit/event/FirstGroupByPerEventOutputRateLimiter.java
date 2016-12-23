@@ -23,8 +23,10 @@ import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.GroupedComplexEvent;
 import org.wso2.siddhi.core.query.output.ratelimit.OutputRateLimiter;
 
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 
 public class FirstGroupByPerEventOutputRateLimiter extends OutputRateLimiter {
@@ -95,14 +97,17 @@ public class FirstGroupByPerEventOutputRateLimiter extends OutputRateLimiter {
 
     @Override
     public Object[] currentState() {
-        return new Object[]{allComplexEventChunk, groupByKeys, counter};
+        return new Object[]{new AbstractMap.SimpleEntry<String, Object>("AllComplexEventChunk", allComplexEventChunk), new AbstractMap.SimpleEntry<String, Object>("GroupByKeys", groupByKeys), new AbstractMap.SimpleEntry<String, Object>("Counter", counter)};
     }
 
     @Override
     public void restoreState(Object[] state) {
-        allComplexEventChunk = (ComplexEventChunk<ComplexEvent>) state[0];
-        groupByKeys = (List<String>) state[1];
-        counter = (Integer) state[2];
+        Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
+        allComplexEventChunk = (ComplexEventChunk<ComplexEvent>) stateEntry.getValue();
+        Map.Entry<String, Object> stateEntry2 = (Map.Entry<String, Object>) state[1];
+        groupByKeys = (List<String>) stateEntry2.getValue();
+        Map.Entry<String, Object> stateEntry3 = (Map.Entry<String, Object>) state[2];
+        counter = (Integer) stateEntry3.getValue();
     }
 
 }

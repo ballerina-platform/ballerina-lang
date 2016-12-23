@@ -126,7 +126,7 @@ public class EventWindow implements FindableProcessor, Snapshotable {
      * @param eventWindowMap map of EventWindows
      * @param latencyTracker to rack the latency if statistic of underlying {@link WindowProcessor} is required
      */
-    public void init(Map<String, EventTable> eventTableMap, Map<String, EventWindow> eventWindowMap, LatencyTracker latencyTracker) {
+    public void init(Map<String, EventTable> eventTableMap, Map<String, EventWindow> eventWindowMap, LatencyTracker latencyTracker, String queryName) {
         if (this.windowProcessor != null) {
             return;
         }
@@ -145,7 +145,7 @@ public class EventWindow implements FindableProcessor, Snapshotable {
         OutputStream.OutputEventType outputEventType = windowDefinition.getOutputEventType();
         boolean outputExpectsExpiredEvents = outputEventType != OutputStream.OutputEventType.CURRENT_EVENTS;
 
-        WindowProcessor internalWindowProcessor = (WindowProcessor) SingleInputStreamParser.generateProcessor(windowDefinition.getWindow(), metaStreamEvent, new ArrayList<VariableExpressionExecutor>(), this.executionPlanContext, eventTableMap, false, outputExpectsExpiredEvents);
+        WindowProcessor internalWindowProcessor = (WindowProcessor) SingleInputStreamParser.generateProcessor(windowDefinition.getWindow(), metaStreamEvent, new ArrayList<VariableExpressionExecutor>(), this.executionPlanContext, eventTableMap, false, outputExpectsExpiredEvents, queryName);
         internalWindowProcessor.setStreamEventCloner(streamEventCloner);
         internalWindowProcessor.constructStreamEventPopulater(metaStreamEvent, 0);
 
@@ -153,7 +153,7 @@ public class EventWindow implements FindableProcessor, Snapshotable {
         if (internalWindowProcessor instanceof SchedulingProcessor) {
             entryValveProcessor = new EntryValveProcessor(this.executionPlanContext);
             Scheduler scheduler = SchedulerParser.parse(this.executionPlanContext.getScheduledExecutorService(), entryValveProcessor, this.executionPlanContext);
-            scheduler.init(this.lockWrapper);
+            scheduler.init(this.lockWrapper, queryName);
             scheduler.setStreamEventPool(streamEventPool);
             ((SchedulingProcessor) internalWindowProcessor).setScheduler(scheduler);
         }

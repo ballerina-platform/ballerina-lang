@@ -22,10 +22,7 @@ import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
-import java.util.Arrays;
-import java.util.Deque;
-import java.util.Iterator;
-import java.util.LinkedList;
+import java.util.*;
 
 public class MaxAttributeAggregator extends AttributeAggregator {
 
@@ -156,13 +153,15 @@ public class MaxAttributeAggregator extends AttributeAggregator {
 
         @Override
         public Object[] currentState() {
-            return new Object[]{maxDeque, maxValue};
+            return new Object[]{new AbstractMap.SimpleEntry<String, Object>("MaxDeque", maxDeque), new AbstractMap.SimpleEntry<String, Object>("MaxValue", maxValue)};
         }
 
         @Override
         public void restoreState(Object[] state) {
-            maxDeque = (Deque<Double>) state[0];
-            maxValue = (Double) state[1];
+            Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
+            maxDeque = (Deque<Double>) stateEntry.getValue();
+            Map.Entry<String, Object> stateEntry2 = (Map.Entry<String, Object>) state[1];
+            maxValue = (Double) stateEntry2.getValue();
         }
 
     }
@@ -210,13 +209,15 @@ public class MaxAttributeAggregator extends AttributeAggregator {
 
         @Override
         public Object[] currentState() {
-            return new Object[]{maxDeque, maxValue};
+            return new Object[]{new AbstractMap.SimpleEntry<String, Object>("MaxDeque", maxDeque), new AbstractMap.SimpleEntry<String, Object>("MaxValue", maxValue)};
         }
 
         @Override
         public void restoreState(Object[] state) {
-            maxDeque = (Deque<Float>) state[0];
-            maxValue = (Float) state[1];
+            Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
+            maxDeque = (Deque<Float>) stateEntry.getValue();
+            Map.Entry<String, Object> stateEntry2 = (Map.Entry<String, Object>) state[1];
+            maxValue = (Float) stateEntry2.getValue();
         }
 
     }
@@ -264,13 +265,15 @@ public class MaxAttributeAggregator extends AttributeAggregator {
 
         @Override
         public Object[] currentState() {
-            return new Object[]{maxDeque, maxValue};
+            return new Object[]{new AbstractMap.SimpleEntry<String, Object>("MaxDeque", maxDeque), new AbstractMap.SimpleEntry<String, Object>("MaxValue", maxValue)};
         }
 
         @Override
         public void restoreState(Object[] state) {
-            maxDeque = (Deque<Integer>) state[0];
-            maxValue = (Integer) state[1];
+            Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
+            maxDeque = (Deque<Integer>) stateEntry.getValue();
+            Map.Entry<String, Object> stateEntry2 = (Map.Entry<String, Object>) state[1];
+            maxValue = (Integer) stateEntry2.getValue();
         }
 
     }
@@ -318,13 +321,15 @@ public class MaxAttributeAggregator extends AttributeAggregator {
 
         @Override
         public Object[] currentState() {
-            return new Object[]{maxDeque, maxValue};
+            return new Object[]{new AbstractMap.SimpleEntry<String, Object>("MaxDeque", maxDeque), new AbstractMap.SimpleEntry<String, Object>("MaxValue", maxValue)};
         }
 
         @Override
         public void restoreState(Object[] state) {
-            maxDeque = (Deque<Long>) state[0];
-            maxValue = (Long) state[1];
+            Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
+            maxDeque = (Deque<Long>) stateEntry.getValue();
+            Map.Entry<String, Object> stateEntry2 = (Map.Entry<String, Object>) state[1];
+            maxValue = (Long) stateEntry2.getValue();
         }
 
     }

@@ -40,10 +40,12 @@ public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
     protected int processCount;
     private List<Event> eventBuffer = new ArrayList<Event>(0);
     protected int[] eventSequence;
+    protected String queryName;
 
-    public MultiProcessStreamReceiver(String streamId, int processCount, LatencyTracker latencyTracker) {
-        super(streamId, latencyTracker);
+    public MultiProcessStreamReceiver(String streamId, int processCount, LatencyTracker latencyTracker, String queryName) {
+        super(streamId, latencyTracker, queryName);
         this.processCount = processCount;
+        this.queryName = queryName;
         nextProcessors = new Processor[processCount];
         metaStreamEvents = new MetaStreamEvent[processCount];
         streamEventPools = new StreamEventPool[processCount];
@@ -56,7 +58,7 @@ public class MultiProcessStreamReceiver extends ProcessStreamReceiver {
     }
 
     public MultiProcessStreamReceiver clone(String key) {
-        return new MultiProcessStreamReceiver(streamId + key, processCount, latencyTracker);
+        return new MultiProcessStreamReceiver(streamId + key, processCount, latencyTracker, queryName);
     }
 
     private void process(int eventSequence, StreamEvent borrowedEvent) {

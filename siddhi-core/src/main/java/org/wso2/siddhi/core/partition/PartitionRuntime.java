@@ -78,7 +78,7 @@ public class PartitionRuntime implements Snapshotable {
         if (partitionId == null) {
             this.partitionId = UUID.randomUUID().toString();
         }
-        elementId = executionPlanContext.getElementIdGenerator().createNewId();
+        elementId = "PartitionRuntime-" + executionPlanContext.getElementIdGenerator().createNewId();
         this.partition = partition;
         this.streamDefinitionMap = streamDefinitionMap;
         this.streamJunctionMap = streamJunctionMap;
@@ -128,7 +128,7 @@ public class PartitionRuntime implements Snapshotable {
     public void addPartitionReceiver(QueryRuntime queryRuntime, List<VariableExpressionExecutor> executors, MetaStateEvent metaEvent) {
         Query query = queryRuntime.getQuery();
         List<List<PartitionExecutor>> partitionExecutors = new StreamPartitioner(query.getInputStream(), partition, metaEvent,
-                executors, executionPlanContext).getPartitionExecutorLists();
+                executors, executionPlanContext, null).getPartitionExecutorLists();
         if (queryRuntime.getStreamRuntime() instanceof SingleStreamRuntime) {
             SingleInputStream singleInputStream = (SingleInputStream) query.getInputStream();
             addPartitionReceiver(singleInputStream.getStreamId(), singleInputStream.isInnerStream(), metaEvent.getMetaStreamEvent(0), partitionExecutors.get(0));
@@ -162,7 +162,7 @@ public class PartitionRuntime implements Snapshotable {
     }
 
     private void addPartitionReceiver(String streamId, boolean isInnerStream, MetaStreamEvent metaStreamEvent, List<PartitionExecutor> partitionExecutors) {
-        if (!partitionStreamReceivers.containsKey(streamId) && !isInnerStream && !metaStreamEvent.isTableEvent() &&!metaStreamEvent.isWindowEvent()) {
+        if (!partitionStreamReceivers.containsKey(streamId) && !isInnerStream && !metaStreamEvent.isTableEvent() && !metaStreamEvent.isWindowEvent()) {
             PartitionStreamReceiver partitionStreamReceiver = new PartitionStreamReceiver(executionPlanContext, metaStreamEvent,
                     (StreamDefinition) streamDefinitionMap.get(streamId), partitionExecutors, this);
             partitionStreamReceivers.put(partitionStreamReceiver.getStreamId(), partitionStreamReceiver);

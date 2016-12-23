@@ -40,7 +40,7 @@ public abstract class AttributeAggregator implements EternalReferencedHolder, Sn
             this.attributeSize = attributeExpressionExecutors.length;
             executionPlanContext.addEternalReferencedHolder(this);
             if (elementId == null) {
-                elementId = executionPlanContext.getElementIdGenerator().createNewId();
+                elementId = "AttributeAggregator-" + executionPlanContext.getElementIdGenerator().createNewId();
             }
             //Not added to Snapshotable as the AggregationAttributeExecutors are added
 //            executionPlanContext.getSnapshotService().addSnapshotable(this);

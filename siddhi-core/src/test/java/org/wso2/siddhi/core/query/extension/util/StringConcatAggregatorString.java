@@ -23,6 +23,9 @@ import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.AttributeAggregator;
 import org.wso2.siddhi.query.api.definition.Attribute.Type;
 
+import java.util.AbstractMap;
+import java.util.Map;
+
 
 public class StringConcatAggregatorString extends AttributeAggregator {
     private static final long serialVersionUID = 1358667438272544590L;
@@ -93,11 +96,12 @@ public class StringConcatAggregatorString extends AttributeAggregator {
 
     @Override
     public Object[] currentState() {
-        return new Object[]{aggregatedStringValue};
+        return new Object[]{new AbstractMap.SimpleEntry<String, Object>("AggregatedStringValue", aggregatedStringValue)};
     }
 
     @Override
     public void restoreState(Object[] state) {
-        aggregatedStringValue = (String) state[0];
+        Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
+        aggregatedStringValue = (String) stateEntry.getValue();
     }
 }

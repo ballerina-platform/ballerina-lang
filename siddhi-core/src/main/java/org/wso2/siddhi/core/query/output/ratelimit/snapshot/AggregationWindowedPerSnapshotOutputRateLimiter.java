@@ -38,14 +38,16 @@ public class AggregationWindowedPerSnapshotOutputRateLimiter extends SnapshotOut
     private Map<Integer, Object> aggregateAttributeValueMap;
     protected Scheduler scheduler;
     protected long scheduledTime;
+    protected String queryName;
 
-    protected AggregationWindowedPerSnapshotOutputRateLimiter(String id, Long value, ScheduledExecutorService scheduledExecutorService, final List<Integer> aggregateAttributePositionList, WrappedSnapshotOutputRateLimiter wrappedSnapshotOutputRateLimiter, ExecutionPlanContext executionPlanContext) {
+    protected AggregationWindowedPerSnapshotOutputRateLimiter(String id, Long value, ScheduledExecutorService scheduledExecutorService, final List<Integer> aggregateAttributePositionList, WrappedSnapshotOutputRateLimiter wrappedSnapshotOutputRateLimiter, ExecutionPlanContext executionPlanContext, String queryName) {
         super(wrappedSnapshotOutputRateLimiter, executionPlanContext);
         this.id = id;
         this.value = value;
         this.scheduledExecutorService = scheduledExecutorService;
         this.eventList = new LinkedList<ComplexEvent>();
         this.aggregateAttributePositionList = aggregateAttributePositionList;
+        this.queryName = queryName;
         Collections.sort(aggregateAttributePositionList);
         aggregateAttributeValueMap = new HashMap<Integer, Object>(aggregateAttributePositionList.size());
         this.comparator = new Comparator<ComplexEvent>() {
@@ -137,7 +139,7 @@ public class AggregationWindowedPerSnapshotOutputRateLimiter extends SnapshotOut
     public void start() {
         scheduler = SchedulerParser.parse(scheduledExecutorService, this, executionPlanContext);
         scheduler.setStreamEventPool(new StreamEventPool(0, 0, 0, 5));
-        scheduler.init(lockWrapper);
+        scheduler.init(lockWrapper, queryName);
         long currentTime = System.currentTimeMillis();
         scheduledTime = currentTime + value;
         scheduler.notifyAt(scheduledTime);
@@ -161,7 +163,7 @@ public class AggregationWindowedPerSnapshotOutputRateLimiter extends SnapshotOut
 
     @Override
     public SnapshotOutputRateLimiter clone(String key, WrappedSnapshotOutputRateLimiter wrappedSnapshotOutputRateLimiter) {
-        return new AggregationWindowedPerSnapshotOutputRateLimiter(id + key, value, scheduledExecutorService, aggregateAttributePositionList, wrappedSnapshotOutputRateLimiter, executionPlanContext);
+        return new AggregationWindowedPerSnapshotOutputRateLimiter(id + key, value, scheduledExecutorService, aggregateAttributePositionList, wrappedSnapshotOutputRateLimiter, executionPlanContext, queryName);
     }
 
 

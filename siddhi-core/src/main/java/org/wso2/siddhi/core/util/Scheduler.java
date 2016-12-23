@@ -45,6 +45,7 @@ public abstract class Scheduler implements Snapshotable {
     protected String elementId;
     private LatencyTracker latencyTracker;
     private LockWrapper lockWrapper;
+    protected String queryName;
 
 
     public Scheduler(Schedulable singleThreadEntryValve, ExecutionPlanContext executionPlanContext) {
@@ -72,12 +73,13 @@ public abstract class Scheduler implements Snapshotable {
         streamEventChunk = new ConversionStreamEventChunk((StreamEventConverter) null, streamEventPool);
     }
 
-    public void init(LockWrapper lockWrapper) {
+    public void init(LockWrapper lockWrapper, String queryName) {
         this.lockWrapper = lockWrapper;
+        this.queryName = queryName;
         if (elementId == null) {
-            elementId = executionPlanContext.getElementIdGenerator().createNewId();
+            elementId = "Scheduler-" + executionPlanContext.getElementIdGenerator().createNewId();
         }
-        executionPlanContext.getSnapshotService().addSnapshotable(this);
+        executionPlanContext.getSnapshotService().addSnapshotable(queryName, this);
     }
 
     @Override

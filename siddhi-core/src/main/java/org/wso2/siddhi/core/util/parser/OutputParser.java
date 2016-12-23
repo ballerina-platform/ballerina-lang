@@ -34,10 +34,10 @@ import org.wso2.siddhi.core.query.output.ratelimit.snapshot.WrappedSnapshotOutpu
 import org.wso2.siddhi.core.query.output.ratelimit.time.*;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.core.table.EventTable;
-import org.wso2.siddhi.core.window.EventWindow;
 import org.wso2.siddhi.core.util.collection.operator.MatchingMetaStateHolder;
 import org.wso2.siddhi.core.util.collection.operator.Operator;
 import org.wso2.siddhi.core.util.parser.helper.DefinitionParserHelper;
+import org.wso2.siddhi.core.window.EventWindow;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
@@ -56,7 +56,7 @@ public class OutputParser {
 
 
     public static OutputCallback constructOutputCallback(OutputStream outStream, StreamDefinition outputStreamDefinition,
-                                                         Map<String, EventTable> eventTableMap, Map<String, EventWindow> eventWindowMap, ExecutionPlanContext executionPlanContext, boolean convertToStreamEvent) {
+                                                         Map<String, EventTable> eventTableMap, Map<String, EventWindow> eventWindowMap, ExecutionPlanContext executionPlanContext, boolean convertToStreamEvent, String queryName) {
         String id = outStream.getId();
         EventTable eventTable = eventTableMap.get(id);
         EventWindow eventWindow = eventWindowMap.get(id);
@@ -81,13 +81,13 @@ public class OutputParser {
 
         //Construct CallBack
         if (outStream instanceof InsertIntoStream) {
-            if(eventWindow != null) {
+            if (eventWindow != null) {
                 return new InsertIntoWindowCallback(eventWindow, outputStreamDefinition);
             } else if (eventTable != null) {
                 DefinitionParserHelper.validateOutputStream(outputStreamDefinition, eventTable.getTableDefinition());
                 return new InsertIntoTableCallback(eventTable, outputStreamDefinition, convertToStreamEvent, streamEventPool, streamEventConvertor);
             } else {
-                return new InsertIntoStreamCallback(outputStreamDefinition);
+                return new InsertIntoStreamCallback(outputStreamDefinition, queryName);
             }
         } else if (outStream instanceof DeleteStream || outStream instanceof UpdateStream || outStream instanceof InsertOverwriteStream) {
             if (eventTable != null) {
@@ -154,7 +154,7 @@ public class OutputParser {
     public static OutputCallback constructOutputCallback(OutputStream outStream, String key,
                                                          ConcurrentMap<String, StreamJunction> streamJunctionMap,
                                                          StreamDefinition outputStreamDefinition,
-                                                         ExecutionPlanContext executionPlanContext) {
+                                                         ExecutionPlanContext executionPlanContext, String queryName) {
         String id = outStream.getId();
         //Construct CallBack
         if (outStream instanceof InsertIntoStream) {
@@ -165,7 +165,7 @@ public class OutputParser {
                         executionPlanContext.getBufferSize(), executionPlanContext);
                 streamJunctionMap.putIfAbsent(id + key, outputStreamJunction);
             }
-            InsertIntoStreamCallback insertIntoStreamCallback = new InsertIntoStreamCallback(outputStreamDefinition);
+            InsertIntoStreamCallback insertIntoStreamCallback = new InsertIntoStreamCallback(outputStreamDefinition, queryName);
             insertIntoStreamCallback.init(streamJunctionMap.get(id + key));
             return insertIntoStreamCallback;
 
@@ -174,7 +174,7 @@ public class OutputParser {
         }
     }
 
-    public static OutputRateLimiter constructOutputRateLimiter(String id, OutputRate outputRate, boolean isGroupBy, boolean isWindow, ScheduledExecutorService scheduledExecutorService, ExecutionPlanContext executionPlanContext) {
+    public static OutputRateLimiter constructOutputRateLimiter(String id, OutputRate outputRate, boolean isGroupBy, boolean isWindow, ScheduledExecutorService scheduledExecutorService, ExecutionPlanContext executionPlanContext, String queryName) {
         if (outputRate == null) {
             return new PassThroughOutputRateLimiter(id);
         } else if (outputRate instanceof EventOutputRate) {
@@ -199,24 +199,24 @@ public class OutputParser {
         } else if (outputRate instanceof TimeOutputRate) {
             switch (((TimeOutputRate) outputRate).getType()) {
                 case ALL:
-                    return new AllPerTimeOutputRateLimiter(id, ((TimeOutputRate) outputRate).getValue(), scheduledExecutorService);
+                    return new AllPerTimeOutputRateLimiter(id, ((TimeOutputRate) outputRate).getValue(), scheduledExecutorService, queryName);
                 case FIRST:
                     if (isGroupBy) {
-                        return new FirstGroupByPerTimeOutputRateLimiter(id, ((TimeOutputRate) outputRate).getValue(), scheduledExecutorService);
+                        return new FirstGroupByPerTimeOutputRateLimiter(id, ((TimeOutputRate) outputRate).getValue(), scheduledExecutorService, queryName);
                     } else {
-                        return new FirstPerTimeOutputRateLimiter(id, ((TimeOutputRate) outputRate).getValue(), scheduledExecutorService);
+                        return new FirstPerTimeOutputRateLimiter(id, ((TimeOutputRate) outputRate).getValue(), scheduledExecutorService, queryName);
                     }
                 case LAST:
                     if (isGroupBy) {
-                        return new LastGroupByPerTimeOutputRateLimiter(id, ((TimeOutputRate) outputRate).getValue(), scheduledExecutorService);
+                        return new LastGroupByPerTimeOutputRateLimiter(id, ((TimeOutputRate) outputRate).getValue(), scheduledExecutorService, queryName);
                     } else {
-                        return new LastPerTimeOutputRateLimiter(id, ((TimeOutputRate) outputRate).getValue(), scheduledExecutorService);
+                        return new LastPerTimeOutputRateLimiter(id, ((TimeOutputRate) outputRate).getValue(), scheduledExecutorService, queryName);
                     }
             }
             //never happens
             throw new OperationNotSupportedException(((TimeOutputRate) outputRate).getType() + " not supported in output rate limiting");
         } else {
-            return new WrappedSnapshotOutputRateLimiter(id, ((SnapshotOutputRate) outputRate).getValue(), scheduledExecutorService, isGroupBy, isWindow, executionPlanContext);
+            return new WrappedSnapshotOutputRateLimiter(id, ((SnapshotOutputRate) outputRate).getValue(), scheduledExecutorService, isGroupBy, isWindow, executionPlanContext, queryName);
         }
 
     }

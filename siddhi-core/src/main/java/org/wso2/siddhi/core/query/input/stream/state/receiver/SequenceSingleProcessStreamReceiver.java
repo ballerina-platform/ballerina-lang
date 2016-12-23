@@ -28,8 +28,8 @@ public class SequenceSingleProcessStreamReceiver extends SingleProcessStreamRece
 
     private StateStreamRuntime stateStreamRuntime;
 
-    public SequenceSingleProcessStreamReceiver(String streamId, StateStreamRuntime stateStreamRuntime, String lockKey, LatencyTracker latencyTracker) {
-        super(streamId, lockKey, latencyTracker);
+    public SequenceSingleProcessStreamReceiver(String streamId, StateStreamRuntime stateStreamRuntime, String lockKey, LatencyTracker latencyTracker, String queryName) {
+        super(streamId, lockKey, latencyTracker, queryName);
         this.stateStreamRuntime = stateStreamRuntime;
     }
 
@@ -38,7 +38,7 @@ public class SequenceSingleProcessStreamReceiver extends SingleProcessStreamRece
     }
 
     public SequenceSingleProcessStreamReceiver clone(String key) {
-        return new SequenceSingleProcessStreamReceiver(streamId + key, null, key, latencyTracker);
+        return new SequenceSingleProcessStreamReceiver(streamId + key, null, key, latencyTracker, queryName);
     }
 
     protected void stabilizeStates() {

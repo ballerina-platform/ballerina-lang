@@ -24,7 +24,8 @@ import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.table.EventTable;
-import org.wso2.siddhi.core.util.collection.operator.*;
+import org.wso2.siddhi.core.util.collection.operator.MatchingMetaStateHolder;
+import org.wso2.siddhi.core.util.collection.operator.Operator;
 import org.wso2.siddhi.core.util.parser.ExpressionParser;
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.expression.Variable;
@@ -49,7 +50,7 @@ public class HazelcastOperatorParser {
                                              MatchingMetaStateHolder matchingMetaStateHolder,
                                              ExecutionPlanContext executionPlanContext,
                                              List<VariableExpressionExecutor> variableExpressionExecutors,
-                                             Map<String, EventTable> eventTableMap) {
+                                             Map<String, EventTable> eventTableMap, String queryName) {
         if (candidateEvents instanceof HazelcastPrimaryKeyEventHolder) {
             if (expression instanceof Compare && ((Compare) expression).getOperator() == Compare.Operator.EQUAL) {
                 Compare compare = (Compare) expression;
@@ -69,12 +70,12 @@ public class HazelcastOperatorParser {
 
                     if (leftSideIndexed && !rightSideIndexed) {
                         ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(compare.getRightExpression(),
-                                matchingMetaStateHolder.getMetaStateEvent(), matchingMetaStateHolder.getDefaultStreamEventIndex(), eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0);
+                                matchingMetaStateHolder.getMetaStateEvent(), matchingMetaStateHolder.getDefaultStreamEventIndex(), eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0, queryName);
                         return new HazelcastPrimaryKeyOperator(expressionExecutor, matchingMetaStateHolder.getCandidateEventIndex(), ((HazelcastPrimaryKeyEventHolder) candidateEvents).getIndexPosition());
 
                     } else if (!leftSideIndexed && rightSideIndexed) {
                         ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(compare.getLeftExpression(),
-                                matchingMetaStateHolder.getMetaStateEvent(), matchingMetaStateHolder.getDefaultStreamEventIndex(), eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0);
+                                matchingMetaStateHolder.getMetaStateEvent(), matchingMetaStateHolder.getDefaultStreamEventIndex(), eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0, queryName);
                         return new HazelcastPrimaryKeyOperator(expressionExecutor, matchingMetaStateHolder.getCandidateEventIndex(), ((HazelcastPrimaryKeyEventHolder) candidateEvents).getIndexPosition());
 
                     }
@@ -82,11 +83,11 @@ public class HazelcastOperatorParser {
             }
             //fallback to not using primary key
             ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(expression,
-                    matchingMetaStateHolder.getMetaStateEvent(), matchingMetaStateHolder.getDefaultStreamEventIndex(), eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0);
+                    matchingMetaStateHolder.getMetaStateEvent(), matchingMetaStateHolder.getDefaultStreamEventIndex(), eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0, queryName);
             return new HazelcastMapOperator(expressionExecutor, matchingMetaStateHolder.getCandidateEventIndex());
         } else if (candidateEvents instanceof Collection) {
             ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(expression,
-                    matchingMetaStateHolder.getMetaStateEvent(), matchingMetaStateHolder.getDefaultStreamEventIndex(), eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0);
+                    matchingMetaStateHolder.getMetaStateEvent(), matchingMetaStateHolder.getDefaultStreamEventIndex(), eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0, queryName);
             return new HazelcastCollectionOperator(expressionExecutor, matchingMetaStateHolder.getCandidateEventIndex());
         } else {
             throw new OperationNotSupportedException(candidateEvents.getClass() + " is not supported by OperatorParser!");

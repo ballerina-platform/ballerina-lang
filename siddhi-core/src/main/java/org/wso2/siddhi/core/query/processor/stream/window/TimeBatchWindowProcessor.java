@@ -30,13 +30,14 @@ import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.query.processor.SchedulingProcessor;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.util.Scheduler;
-import org.wso2.siddhi.core.util.parser.OperatorParser;
 import org.wso2.siddhi.core.util.collection.operator.Finder;
 import org.wso2.siddhi.core.util.collection.operator.MatchingMetaStateHolder;
+import org.wso2.siddhi.core.util.parser.OperatorParser;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import org.wso2.siddhi.query.api.expression.Expression;
 
+import java.util.AbstractMap;
 import java.util.List;
 import java.util.Map;
 
@@ -209,9 +210,14 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
     @Override
     public Object[] currentState() {
         if (expiredEventChunk != null) {
-            return new Object[]{currentEventChunk.getFirst(), expiredEventChunk.getFirst(), resetEvent};
+            return new Object[]{
+                    new AbstractMap.SimpleEntry<String, Object>("CurrentEventChunk", currentEventChunk.getFirst()),
+                    new AbstractMap.SimpleEntry<String, Object>("ExpiredEventChunk", expiredEventChunk.getFirst()),
+                    new AbstractMap.SimpleEntry<String, Object>("ResetEvent", resetEvent)};
         } else {
-            return new Object[]{currentEventChunk.getFirst(), resetEvent};
+            return new Object[]{
+                    new AbstractMap.SimpleEntry<String, Object>("CurrentEventChunk", currentEventChunk.getFirst()),
+                    new AbstractMap.SimpleEntry<String, Object>("ResetEvent", resetEvent)};
         }
     }
 
@@ -219,14 +225,19 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
     public void restoreState(Object[] state) {
         if (state.length > 2) {
             currentEventChunk.clear();
-            currentEventChunk.add((StreamEvent) state[0]);
+            Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
+            currentEventChunk.add((StreamEvent) stateEntry.getValue());
             expiredEventChunk.clear();
-            expiredEventChunk.add((StreamEvent) state[1]);
-            resetEvent = (StreamEvent) state[2];
+            Map.Entry<String, Object> stateEntry2 = (Map.Entry<String, Object>) state[1];
+            expiredEventChunk.add((StreamEvent) stateEntry2.getValue());
+            Map.Entry<String, Object> stateEntry3 = (Map.Entry<String, Object>) state[2];
+            resetEvent = (StreamEvent) stateEntry3.getValue();
         } else {
             currentEventChunk.clear();
-            currentEventChunk.add((StreamEvent) state[0]);
-            resetEvent = (StreamEvent) state[1];
+            Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
+            currentEventChunk.add((StreamEvent) stateEntry.getValue());
+            Map.Entry<String, Object> stateEntry2 = (Map.Entry<String, Object>) state[1];
+            resetEvent = (StreamEvent) stateEntry2.getValue();
         }
     }
 
@@ -241,6 +252,6 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
         if (expiredEventChunk == null) {
             expiredEventChunk = new ComplexEventChunk<StreamEvent>(false);
         }
-        return OperatorParser.constructOperator(expiredEventChunk, expression, matchingMetaStateHolder, executionPlanContext, variableExpressionExecutors, eventTableMap);
+        return OperatorParser.constructOperator(expiredEventChunk, expression, matchingMetaStateHolder, executionPlanContext, variableExpressionExecutors, eventTableMap, queryName);
     }
 }

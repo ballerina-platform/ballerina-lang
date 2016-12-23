@@ -26,6 +26,8 @@ import org.wso2.siddhi.core.executor.function.FunctionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
+import java.util.AbstractMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -191,14 +193,18 @@ public class SubstrFunctionExtension extends FunctionExecutor {
 
     @Override
     public Object[] currentState() {
-        return new Object[]{isRegexConstant, regexConstant, patternConstant, substrType};
+        return new Object[]{new AbstractMap.SimpleEntry<String, Object>("IsRegexConstant", isRegexConstant), new AbstractMap.SimpleEntry<String, Object>("RegexConstant", regexConstant), new AbstractMap.SimpleEntry<String, Object>("PatternConstant", patternConstant), new AbstractMap.SimpleEntry<String, Object>("SubStringType", substrType)};
     }
 
     @Override
     public void restoreState(Object[] state) {
+        Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
         isRegexConstant = (Boolean) state[0];
-        regexConstant = (String) state[1];
-        patternConstant = (Pattern) state[2];
-        substrType = (SubstrType) state[3];
+        Map.Entry<String, Object> stateEntry2 = (Map.Entry<String, Object>) state[1];
+        regexConstant = (String) stateEntry2.getValue();
+        Map.Entry<String, Object> stateEntry3 = (Map.Entry<String, Object>) state[2];
+        patternConstant = (Pattern) stateEntry3.getValue();
+        Map.Entry<String, Object> stateEntry4 = (Map.Entry<String, Object>) state[3];
+        substrType = (SubstrType) stateEntry4.getValue();
     }
 }

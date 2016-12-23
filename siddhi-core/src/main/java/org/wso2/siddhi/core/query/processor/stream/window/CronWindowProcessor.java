@@ -27,6 +27,9 @@ import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.Processor;
 
+import java.util.AbstractMap;
+import java.util.Map;
+
 public class CronWindowProcessor extends WindowProcessor implements Job {
 
     private ComplexEventChunk<StreamEvent> currentEventChunk = new ComplexEventChunk<StreamEvent>(false);
@@ -76,15 +79,17 @@ public class CronWindowProcessor extends WindowProcessor implements Job {
 
     @Override
     public Object[] currentState() {
-        return new Object[]{currentEventChunk.getFirst(), expiredEventChunk.getFirst()};
+        return new Object[]{new AbstractMap.SimpleEntry<String, Object>("CurrentEventChunk", currentEventChunk.getFirst()), new AbstractMap.SimpleEntry<String, Object>("ExpiredEventChunk", expiredEventChunk.getFirst())};
     }
 
     @Override
     public void restoreState(Object[] state) {
         currentEventChunk.clear();
-        currentEventChunk.add((StreamEvent) state[0]);
+        Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
+        currentEventChunk.add((StreamEvent) stateEntry.getValue());
         expiredEventChunk.clear();
-        expiredEventChunk.add((StreamEvent) state[1]);
+        Map.Entry<String, Object> stateEntry2 = (Map.Entry<String, Object>) state[1];
+        expiredEventChunk.add((StreamEvent) stateEntry2.getValue());
     }
 
     private void scheduleCronJob(String cronString, String elementId) {

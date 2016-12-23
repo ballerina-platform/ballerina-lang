@@ -31,7 +31,6 @@ import org.wso2.siddhi.core.util.snapshot.Snapshotable;
 import org.wso2.siddhi.query.api.execution.query.input.stream.StateInputStream;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Created on 12/17/14.
@@ -59,18 +58,20 @@ public class StreamPreStateProcessor implements PreStateProcessor, Snapshotable 
     protected StreamEventCloner streamEventCloner;
     protected StateEventCloner stateEventCloner;
     protected StreamEventPool streamEventPool;
+    protected String queryName;
 
     public StreamPreStateProcessor(StateInputStream.Type stateType, List<Map.Entry<Long, Set<Integer>>> withinStates) {
         this.stateType = stateType;
         this.withinStates = withinStates;
     }
 
-    public void init(ExecutionPlanContext executionPlanContext) {
+    public void init(ExecutionPlanContext executionPlanContext, String queryName) {
         this.executionPlanContext = executionPlanContext;
+        this.queryName = queryName;
         if (elementId == null) {
-            this.elementId = executionPlanContext.getElementIdGenerator().createNewId();
+            this.elementId = "StreamPreStateProcessor-" + executionPlanContext.getElementIdGenerator().createNewId();
         }
-        executionPlanContext.getSnapshotService().addSnapshotable(this);
+        executionPlanContext.getSnapshotService().addSnapshotable(queryName, this);
     }
 
     public void setThisStatePostProcessor(StreamPostStateProcessor thisStatePostProcessor) {
@@ -177,7 +178,7 @@ public class StreamPreStateProcessor implements PreStateProcessor, Snapshotable 
     public PreStateProcessor cloneProcessor(String key) {
         StreamPreStateProcessor streamPreStateProcessor = new StreamPreStateProcessor(stateType, withinStates);
         cloneProperties(streamPreStateProcessor, key);
-        streamPreStateProcessor.init(executionPlanContext);
+        streamPreStateProcessor.init(executionPlanContext, queryName);
         return streamPreStateProcessor;
     }
 
