@@ -289,11 +289,11 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(AssignStmt assignStmt) {
-        Expression rExpr = assignStmt.getRExpr();
-        rExpr.accept(this);
-
         Expression lExpr = assignStmt.getLExpr();
         lExpr.accept(this);
+
+        Expression rExpr = assignStmt.getRExpr();
+        rExpr.accept(this);
 
         if (lExpr instanceof ArrayAccessExpr) {
             ((ArrayAccessExpr) lExpr).setLHSExpr(true);
@@ -650,12 +650,31 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         // Set type of the array access expression
-        BType arrayType = ((BArrayType) arrayVarRefExpr.getType()).getElementType();
-        arrayAccessExpr.setType(arrayType);
+        BType typeOfArray = ((BArrayType) arrayVarRefExpr.getType()).getElementType();
+        arrayAccessExpr.setType(typeOfArray);
     }
 
     @Override
     public void visit(ArrayInitExpr arrayInitExpr) {
+        Expression[] argExprs = arrayInitExpr.getArgExprs();
+
+        if (argExprs.length == 0) {
+            throw new SemanticException("Array initializer should have at least one argument");
+        }
+
+        argExprs[0].accept(this);
+        BType typeOfArray = argExprs[0].getType();
+
+        for (int i = 1; i < argExprs.length; i++) {
+            argExprs[i].accept(this);
+
+            if (argExprs[i].getType() != typeOfArray) {
+                throw new SemanticException("Incompatible types used in array initializer: " +
+                        "All arguments must have the same type.");
+            }
+        }
+
+        arrayInitExpr.setType(BTypes.getArrayType(typeOfArray.toString()));
     }
 
     @Override
