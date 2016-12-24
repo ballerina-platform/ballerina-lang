@@ -18,9 +18,11 @@
 package org.wso2.ballerina.core.model.values;
 
 /**
+ * The {@code BLong} represents a long value in Ballerina
  *
+ * @since 1.0.0
  */
-public class BLong extends BValueType {
+public final class BLong extends BValueType {
 
     private long value;
 
@@ -56,10 +58,5 @@ public class BLong extends BValueType {
     @Override
     public String stringValue() {
         return Long.toString(value);
-    }
-
-    @Override
-    public <V extends BValue> V[] createArray(int capacity) {
-        return (V[]) new BLong[capacity];
     }
 }

@@ -29,11 +29,11 @@ import javax.xml.stream.XMLStreamException;
 
 
 /**
- * {@code XMLValue} represents a XML value in Ballerina.
+ * {@code BXML} represents a XML value in Ballerina.
  *
  * @since 1.0.0
  */
-public class BXML extends BallerinaMessageDataSource implements BRefType<OMElement> {
+public final class BXML extends BallerinaMessageDataSource implements BRefType<OMElement> {
 
     private OMElement value;
     private OutputStream outputStream;
@@ -111,10 +111,5 @@ public class BXML extends BallerinaMessageDataSource implements BRefType<OMEleme
         }
 
         return "";
-    }
-
-    @Override
-    public <V extends BValue> V[] createArray(int capacity) {
-        return (V[]) new BXML[capacity];
     }
 }

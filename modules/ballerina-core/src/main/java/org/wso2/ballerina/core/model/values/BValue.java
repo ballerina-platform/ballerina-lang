@@ -17,19 +17,13 @@
 */
 package org.wso2.ballerina.core.model.values;
 
-import java.lang.reflect.Array;
-
 /**
+ * {@code BValue} represents a value in Ballerina
  *
+ * @since 1.0.0
  */
 public interface BValue {
 
     String stringValue();
-
-    <V extends BValue> V[] createArray(int capacity);
-
-    static <V extends BValue> V[] createArray(Class<V> tClass, int capacity) {
-        return (V[]) Array.newInstance(tClass, capacity);
-    }
 
 }

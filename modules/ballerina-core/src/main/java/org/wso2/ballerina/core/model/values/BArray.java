@@ -23,12 +23,12 @@ import java.lang.reflect.Array;
 import java.util.Arrays;
 
 /**
- * {@code BArray} represents an array value in Ballerina
+ * {@code BArray} represents an array in Ballerina
  *
  * @param <V> Ballerina value stored in this array value
  * @since 1.0.0
  */
-public class BArray<V extends BValue> implements BRefType {
+public final class BArray<V extends BValue> implements BRefType {
 
     /**
      * The maximum size of array to allocate.
@@ -79,11 +79,6 @@ public class BArray<V extends BValue> implements BRefType {
     @Override
     public String stringValue() {
         return null;
-    }
-
-    @Override
-    public <V extends BValue> V[] createArray(int capacity) {
-        throw new RuntimeException("2-D arrays are not supported in Ballerina");
     }
 
     @Override
