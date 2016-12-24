@@ -18,9 +18,11 @@
 package org.wso2.ballerina.core.model.values;
 
 /**
+ * The {@code BDouble} represents a double value in Ballerina
  *
+ * @since 1.0.0
  */
-public class BDouble extends BValueType {
+public final class BDouble extends BValueType {
 
     private double value;
 
@@ -56,10 +58,5 @@ public class BDouble extends BValueType {
     @Override
     public String stringValue() {
         return Double.toString(value);
-    }
-
-    @Override
-    public <V extends BValue> V[] createArray(int capacity) {
-        return (V[]) new BDouble[capacity];
     }
 }
