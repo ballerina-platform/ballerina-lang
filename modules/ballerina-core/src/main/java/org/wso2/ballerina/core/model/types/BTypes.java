@@ -17,10 +17,6 @@
 */
 package org.wso2.ballerina.core.model.types;
 
-import org.wso2.ballerina.core.model.values.BValue;
-
-import java.lang.reflect.Array;
-
 import static org.wso2.ballerina.core.model.types.TypeConstants.ARRAY_TNAME;
 import static org.wso2.ballerina.core.model.types.TypeConstants.BOOLEAN_TNAME;
 import static org.wso2.ballerina.core.model.types.TypeConstants.CONNECTOR_TNAME;
@@ -54,13 +50,8 @@ public class BTypes {
     private BTypes() {
     }
 
-    @SuppressWarnings("unchecked")
-    public static <U extends BValue> U[] createArray(Class<U[]> tClass, int capacity) {
-        return (U[]) Array.newInstance(tClass.getComponentType(), capacity);
-    }
-
     public static BArrayType getArrayType(String elementTypeName) {
-        String arrayTypeName = ARRAY_TNAME + elementTypeName;
+        String arrayTypeName = elementTypeName + ARRAY_TNAME;
 
         BArrayType type = BType.getType(arrayTypeName);
         if (type == null) {
@@ -82,7 +73,6 @@ public class BTypes {
 
         return false;
     }
-
 
     public static <T extends BType> T getType(String typeName) {
         return BType.getType(typeName);
