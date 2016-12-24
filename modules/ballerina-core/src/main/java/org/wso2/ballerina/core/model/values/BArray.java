@@ -41,15 +41,13 @@ public class BArray<V extends BValue> implements BRefType {
     private static final int DEFAULT_ARRAY_BUCKET_SIZE = 10;
 
     private BValue[][] arrayBucket = new BValue[DEFAULT_ARRAY_BUCKET_SIZE][];
-    private Class<V> c;
+    private Class<V> valueClass;
 
-    private int lastBucketIndex;
-    private int size = DEFAULT_ARRAY_SIZE;
+    private int lastBucketIndex = -1;
+    private int size = 0;
 
-    public BArray(Class<V> c) {
-        this.c = c;
-        arrayBucket[0] = createArray();
-        lastBucketIndex = 0;
+    public BArray(Class<V> valueClass) {
+        this.valueClass = valueClass;
     }
 
     public <V extends BValue> void add(int index, V value) {
@@ -65,11 +63,6 @@ public class BArray<V extends BValue> implements BRefType {
     }
 
     @SuppressWarnings("unchecked")
-    private <V extends BValue> V[] createArray() {
-        return (V[]) Array.newInstance(this.c, DEFAULT_ARRAY_SIZE);
-    }
-
-    @SuppressWarnings("unchecked")
     public V get(int index) {
         rangeCheck(index);
 
@@ -80,7 +73,7 @@ public class BArray<V extends BValue> implements BRefType {
     }
 
     public int size() {
-        return 0;
+        return size;
     }
 
     @Override
@@ -105,6 +98,12 @@ public class BArray<V extends BValue> implements BRefType {
      * Checks if the given index is in range.  If not, throws an appropriate
      * runtime exception.
      */
+
+    @SuppressWarnings("unchecked")
+    private <V extends BValue> V[] createArray() {
+        return (V[]) Array.newInstance(this.valueClass, DEFAULT_ARRAY_SIZE);
+    }
+
     private void rangeCheck(int index) {
         if (index >= size) {
             throw new BallerinaException("Array index out of range: " + outOfBoundsMsg(index));
