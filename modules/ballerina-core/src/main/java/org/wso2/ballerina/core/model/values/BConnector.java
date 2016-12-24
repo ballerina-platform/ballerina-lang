@@ -20,9 +20,11 @@ import org.wso2.ballerina.core.model.Connector;
 import org.wso2.ballerina.core.model.expressions.Expression;
 
 /**
- * A value holder for connector
+ * The {@code BConnector} represents a Connector in Ballerina
+ *
+ * @since 1.0.0
  */
-public class BConnector implements BRefType<Connector> {
+public final class BConnector implements BRefType<Connector> {
 
     private Connector connector;
     private Expression[] argExprs;
@@ -48,10 +50,5 @@ public class BConnector implements BRefType<Connector> {
     @Override
     public String stringValue() {
         return null;
-    }
-
-    @Override
-    public <V extends BValue> V[] createArray(int capacity) {
-        return (V[]) new BConnector[capacity];
     }
 }

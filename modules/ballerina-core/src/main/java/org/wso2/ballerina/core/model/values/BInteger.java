@@ -18,9 +18,11 @@
 package org.wso2.ballerina.core.model.values;
 
 /**
+ * The {@code BInteger} represents a int value in Ballerina
  *
+ * @since 1.0.0
  */
-public class BInteger extends BValueType {
+public final class BInteger extends BValueType {
 
     private int value;
 
@@ -56,10 +58,5 @@ public class BInteger extends BValueType {
     @Override
     public String stringValue() {
         return Integer.toString(value);
-    }
-
-    @Override
-    public <V extends BValue> V[] createArray(int capacity) {
-        return (V[]) new BInteger[capacity];
     }
 }
