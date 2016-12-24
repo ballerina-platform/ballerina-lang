@@ -72,6 +72,7 @@ import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.model.util.BValueUtils;
 import org.wso2.ballerina.core.model.values.BArray;
+import org.wso2.ballerina.core.model.values.BBoolean;
 import org.wso2.ballerina.core.model.values.BConnector;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BJSON;
@@ -182,7 +183,7 @@ public class BLangInterpreter implements NodeVisitor {
     public void visit(AssignStmt assignStmt) {
         Expression rExpr = assignStmt.getRExpr();
         rExpr.accept(this);
-        BValue rValue = getValueNew(rExpr);
+        BValue rValue = getValue(rExpr);
 
         Expression lExpr = assignStmt.getLExpr();
         lExpr.accept(this);
@@ -190,13 +191,13 @@ public class BLangInterpreter implements NodeVisitor {
 
         if (lExpr instanceof ArrayAccessExpr) {
             ArrayAccessExpr accessExpr = (ArrayAccessExpr) lExpr;
-            BArray arrayVal = (BArray) getValueNew(accessExpr.getRExpr());
-            BInteger indexVal = (BInteger) getValueNewPrimary(accessExpr.getIndexExpr());
+            BArray arrayVal = (BArray) getValue(accessExpr.getRExpr());
+            BInteger indexVal = (BInteger) getValue(accessExpr.getIndexExpr());
 
             arrayVal.add(indexVal.intValue(), rValue);
 
         } else {
-            setValueNew(lExpr, rValue);
+            setValue(lExpr, rValue);
 
         }
     }
@@ -210,9 +211,9 @@ public class BLangInterpreter implements NodeVisitor {
     public void visit(IfElseStmt ifElseStmt) {
         Expression expr = ifElseStmt.getCondition();
         expr.accept(this);
-        BValueType result = getValueNewPrimary(expr);
+        BBoolean condition = (BBoolean) getValue(expr);
 
-        if (result.booleanValue()) {
+        if (condition.booleanValue()) {
             ifElseStmt.getThenBody().accept(this);
             return;
         }
@@ -220,9 +221,9 @@ public class BLangInterpreter implements NodeVisitor {
         for (IfElseStmt.ElseIfBlock elseIfBlock : ifElseStmt.getElseIfBlocks()) {
             Expression elseIfCondition = elseIfBlock.getElseIfCondition();
             elseIfCondition.accept(this);
-            result = getValueNewPrimary(elseIfCondition);
+            condition = (BBoolean) getValue(elseIfCondition);
 
-            if (result.booleanValue()) {
+            if (condition.booleanValue()) {
                 elseIfBlock.getElseIfBody().accept(this);
                 return;
             }
@@ -238,15 +239,15 @@ public class BLangInterpreter implements NodeVisitor {
     public void visit(WhileStmt whileStmt) {
         Expression expr = whileStmt.getCondition();
         expr.accept(this);
-        BValueType result = getValueNewPrimary(expr);
+        BBoolean condition = (BBoolean) getValue(expr);
 
-        while (result.booleanValue()) {
+        while (condition.booleanValue()) {
             // Interpret the statements in the while body.
             whileStmt.getBody().accept(this);
 
             // Now evaluate the condition again to decide whether to continue the loop or not.
             expr.accept(this);
-            result = getValueNewPrimary(expr);
+            condition = (BBoolean) getValue(expr);
         }
     }
 
@@ -270,7 +271,7 @@ public class BLangInterpreter implements NodeVisitor {
         for (int i = 0; i < exprs.length; i++) {
             Expression expr = exprs[i];
             expr.accept(this);
-            controlStack.setReturnValueNew(i, getValueNew(expr));
+            controlStack.setReturnValueNew(i, getValue(expr));
         }
     }
 
@@ -458,15 +459,15 @@ public class BLangInterpreter implements NodeVisitor {
         Expression indexExpr = arrayAccessExpr.getIndexExpr();
         indexExpr.accept(this);
 
-        BArray arrayVal = (BArray) getValueNew(arrayVarRefExpr);
-        BInteger indexVal = (BInteger) getValueNewPrimary(indexExpr);
+        BArray arrayVal = (BArray) getValue(arrayVarRefExpr);
+        BInteger indexVal = (BInteger) getValue(indexExpr);
 
         // Check whether this array access expression is in the left hand of an assignment expresion
         // If yes skip setting the value;
         if (!arrayAccessExpr.isLHSExpr()) {
             // Get the value stored in the index
             BValue val = arrayVal.get(indexVal.intValue());
-            setValueNew(arrayAccessExpr, val);
+            setValue(arrayAccessExpr, val);
         }
     }
 
@@ -480,10 +481,10 @@ public class BLangInterpreter implements NodeVisitor {
         for (int i = 0; i < argExprs.length; i++) {
             Expression expr = argExprs[i];
             expr.accept(this);
-            bArray.add(i, getValueNew(expr));
+            bArray.add(i, getValue(expr));
         }
 
-        setValueNew(arrayInitExpr, bArray);
+        setValue(arrayInitExpr, bArray);
     }
 
     @Override
@@ -586,7 +587,7 @@ public class BLangInterpreter implements NodeVisitor {
             BValue[] bValueRefs = new BValue[argExpressions.length];
             for (int j = 0; j < argExpressions.length; j++) {
                 argExpressions[j].accept(this);
-                bValueRefs[j] = getValueNew(argExpressions[j]);
+                bValueRefs[j] = getValue(argExpressions[j]);
             }
 
             if (connector instanceof AbstractNativeConnector) {
@@ -602,7 +603,7 @@ public class BLangInterpreter implements NodeVisitor {
         }
     }
 
-    private BValue getValueNew(Expression expr) {
+    private BValue getValue(Expression expr) {
         if (expr instanceof BasicLiteral) {
             return ((BasicLiteral) expr).getbValueNew();
         }
@@ -610,15 +611,7 @@ public class BLangInterpreter implements NodeVisitor {
         return controlStack.getValueNew(expr.getOffset());
     }
 
-    private BValueType getValueNewPrimary(Expression expr) {
-        if (expr instanceof BasicLiteral) {
-            return ((BasicLiteral) expr).getbValueNew();
-        }
-
-        return (BValueType) controlStack.getValueNew(expr.getOffset());
-    }
-
-    private void setValueNew(Expression expr, BValue bValue) {
+    private void setValue(Expression expr, BValue bValue) {
         controlStack.setValueNew(expr.getOffset(), bValue);
     }
 
@@ -629,8 +622,8 @@ public class BLangInterpreter implements NodeVisitor {
         Expression lExpr = binaryExpr.getLExpr();
         lExpr.accept(this);
 
-        BValueType rValue = getValueNewPrimary(rExpr);
-        BValueType lValue = getValueNewPrimary(lExpr);
+        BValueType rValue = (BValueType) getValue(rExpr);
+        BValueType lValue = (BValueType) getValue(lExpr);
 
         BValue result = binaryExpr.getEvalFunc().apply(lValue, rValue);
         controlStack.setValueNew(binaryExpr.getOffset(), result);
@@ -642,7 +635,7 @@ public class BLangInterpreter implements NodeVisitor {
             // Evaluate the argument expression
             arg.accept(this);
             BType argType = arg.getType();
-            BValue argValue = getValueNew(arg);
+            BValue argValue = getValue(arg);
 
             // Here we need to handle value types differently from reference types
             // Value types need to be cloned before passing ot the function : pass by value.
