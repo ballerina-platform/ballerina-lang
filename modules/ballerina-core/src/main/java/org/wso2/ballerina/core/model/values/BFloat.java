@@ -18,9 +18,11 @@
 package org.wso2.ballerina.core.model.values;
 
 /**
+ * The {@code BFloat} represents a float value in Ballerina
  *
+ * @since 1.0.0
  */
-public class BFloat extends BValueType {
+public final class BFloat extends BValueType {
 
     private float value;
 
@@ -56,10 +58,5 @@ public class BFloat extends BValueType {
     @Override
     public String stringValue() {
         return Float.toString(value);
-    }
-
-    @Override
-    public <V extends BValue> V[] createArray(int capacity) {
-        return (V[]) new BFloat[capacity];
     }
 }

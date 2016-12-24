@@ -29,11 +29,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * {@code MessageValue} represents a Carbon Message in Ballerina.
+ * {@code BMessage} represents a Carbon Message in Ballerina.
  *
  * @since 1.0.0
  */
-public class BMessage implements BRefType<CarbonMessage> {
+public final class BMessage implements BRefType<CarbonMessage> {
     private CarbonMessage value;
     private BValue builtPayload;
     private Headers headers;
@@ -202,10 +202,5 @@ public class BMessage implements BRefType<CarbonMessage> {
         }
 
         return MessageUtils.getStringFromInputStream(this.value.getInputStream());
-    }
-
-    @Override
-    public <V extends BValue> V[] createArray(int capacity) {
-        return (V[]) new BMessage[capacity];
     }
 }

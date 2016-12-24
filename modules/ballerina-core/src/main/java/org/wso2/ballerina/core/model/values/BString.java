@@ -18,9 +18,11 @@
 package org.wso2.ballerina.core.model.values;
 
 /**
+ * The {@code BString} represents a string in Ballerina
  *
+ * @since 1.0.0
  */
-public class BString extends BValueType {
+public final class BString extends BValueType {
 
     private String value;
 
@@ -56,10 +58,5 @@ public class BString extends BValueType {
     @Override
     public String stringValue() {
         return this.value;
-    }
-
-    @Override
-    public <V extends BValue> V[] createArray(int capacity) {
-        return (V[]) new BString[capacity];
     }
 }

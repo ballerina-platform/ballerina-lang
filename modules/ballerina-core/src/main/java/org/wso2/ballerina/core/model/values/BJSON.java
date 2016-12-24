@@ -29,11 +29,11 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 
 /**
- * {@code JSONValue} represents a JSON value in Ballerina.
+ * {@code BJSON} represents a JSON value in Ballerina.
  *
  * @since 1.0.0
  */
-public class BJSON extends BallerinaMessageDataSource implements BRefType<JsonElement> {
+public final class BJSON extends BallerinaMessageDataSource implements BRefType<JsonElement> {
 
     // GSON json object model associated with this JSONType object
     private JsonElement value;
@@ -164,10 +164,5 @@ public class BJSON extends BallerinaMessageDataSource implements BRefType<JsonEl
     @Override
     public String stringValue() {
         return this.value.toString();
-    }
-
-    @Override
-    public <V extends BValue> V[] createArray(int capacity) {
-        return (V[]) new BJSON[capacity];
     }
 }

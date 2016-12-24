@@ -18,9 +18,11 @@
 package org.wso2.ballerina.core.model.values;
 
 /**
+ * The {@code BBoolean} represents a boolean value in Ballerina
  *
+ * @since 1.0.0
  */
-public class BBoolean extends BValueType {
+public final class BBoolean extends BValueType {
 
     /**
      * The {@code BBoolean} object corresponding to the primitive
@@ -68,10 +70,5 @@ public class BBoolean extends BValueType {
     @Override
     public String stringValue() {
         return Boolean.toString(value);
-    }
-
-    @Override
-    public <V extends BValue> V[] createArray(int capacity) {
-        return (V[]) new BBoolean[capacity];
     }
 }
