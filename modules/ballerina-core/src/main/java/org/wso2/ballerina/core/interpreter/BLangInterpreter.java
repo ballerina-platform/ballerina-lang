@@ -472,7 +472,18 @@ public class BLangInterpreter implements NodeVisitor {
 
     @Override
     public void visit(ArrayInitExpr arrayInitExpr) {
+        Expression[] argExprs = arrayInitExpr.getArgExprs();
 
+        // Creating a new array
+        BArray bArray = arrayInitExpr.getType().getDefaultValue();
+
+        for (int i = 0; i < argExprs.length; i++) {
+            Expression expr = argExprs[i];
+            expr.accept(this);
+            bArray.add(i, getValueNew(expr));
+        }
+
+        setValueNew(arrayInitExpr, bArray);
     }
 
     @Override
