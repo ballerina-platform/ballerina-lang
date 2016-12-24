@@ -412,10 +412,12 @@ public class BLangModelBuilder {
     }
 
     public void createArrayInitExpr() {
-        List<Expression> argList = exprListStack.pop();
-
         ArrayInitExpr.ArrayInitExprBuilder builder = new ArrayInitExpr.ArrayInitExprBuilder();
-        builder.setArgList(argList);
+
+        if (!exprListStack.isEmpty()) {
+            List<Expression> argList = exprListStack.pop();
+            builder.setArgList(argList);
+        }
 
         ArrayInitExpr arrayInitExpr = builder.build();
         exprStack.push(arrayInitExpr);
@@ -703,6 +705,7 @@ public class BLangModelBuilder {
 
     /**
      * return value within double quotes
+     *
      * @param inputString string with double quotes
      * @return value
      */
