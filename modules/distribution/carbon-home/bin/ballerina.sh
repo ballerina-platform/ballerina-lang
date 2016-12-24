@@ -133,42 +133,131 @@ fi
 
 args=""
 
-BAL_FILE_NAME=$1
-
 for c in $@
 do
-    if [ "$c" = "--debug" ] || [ "$c" = "-debug" ] || [ "$c" = "debug" ]; then
+    if [ "$c" = "-bargs" ] ; then
+          BAL_EXECUTION_SUB_CMD="-bargs"
+          args="$args $c"
+    elif [ "$BAL_EXECUTION_SUB_CMD" = "-bargs" ] ; then
+        if [[ -z "$BARGS" ]]; then
+          BARGS="$c"
+        else
+          BARGS="$BARGS;$c"
+        fi
+        args="$args $c"
+    elif [ "$c" = "-bpath" ] ; then
+          BAL_PATH_CMD="bpath"
+          args="$args $c"
+    elif [ "$BAL_PATH_CMD" = "bpath" ] && [ -z "$BAL_Path" ]; then
+          BAL_Path="$c"
+          args="$args $c"
+    elif [[ "$c" = *.bal ]] && [ -z "$BAL_FILE_NAME" ]; then
+          BAL_FILE_NAME="$c"
+          args="$args $c"
+    # Parsing Commands.
+    elif [ "$c" = "--debug" ] || [ "$c" = "-debug" ] || [ "$c" = "debug" ]; then
           CMD="--debug"
     elif [ "$CMD" = "--debug" ] && [ -z "$PORT" ]; then
           PORT=$c
-    elif [ "$c" = "--version" ] || [ "$c" = "-version" ] || [ "$c" = "version" ]; then
+    elif [ "$c" = "stop" ]; then
+          CMD="stop"
+    elif [ "$c" = "start" ]; then
+          CMD="start"
+    elif [ "$c" = "restart" ]; then
+          CMD="restart"
+    elif [ "$c" = "version" ]; then
           CMD="version"
+    elif [ "$c" = "help" ]; then
+          CMD="help"
     elif [ "$c" = "--test" ] || [ "$c" = "-test" ] || [ "$c" = "test" ]; then
           CMD="test"
-    elif [ "$c" = "--bargs" ] || [ "$c" = "-bargs" ] || [ "$c" = "bargs" ]; then
-          BAL_EXECUTION_SUB_CMD="bargs" 
-    elif [ "$BAL_EXECUTION_SUB_CMD" = "bargs" ] && [ -z "$BARGS" ]; then
-          BARGS=$c
+# Parsing Options.
     else
-        args="$args $c"
+        echo "Not supported option or command : $c"
+        cat $CARBON_HOME/bin/ballerina-bash-help.txt
+        exit 1
     fi
 done
 
+JAVA_OPTS="$JAVA_OPTS -Dbase-dir=$BASE_DIR -Drun-mode=run"
+
+if [ "$BAL_FILE_NAME" = "" ]; then
+    echo "Please specify Ballerina file to run. (Eg: ballerina.sh foo.bal)"
+    cat $CARBON_HOME/bin/ballerina-bash-help.txt
+    exit 1
+else
+    if [[ "$BAL_FILE_NAME" != *.bal ]]; then
+        echo "Not supported File format $BAL_FILE_NAME. support only Ballerina files (.bal)."
+        cat $CARBON_HOME/bin/ballerina-bash-help.txt
+        exit 1
+    fi
+    if [[ "$BAL_FILE_NAME" != /* ]]; then
+        BAL_FILE_NAME="$BASE_DIR/$BAL_FILE_NAME"
+    fi
+    JAVA_OPTS="$JAVA_OPTS -Drun-file=$BAL_FILE_NAME"
+    #echo "Running the Ballerina file $BAL_FILE_NAME"
+fi
+
+if [ "$BAL_EXECUTION_SUB_CMD" = "-bargs" ]; then
+  if [[ "$BARGS" != " " ]]; then
+  JAVA_OPTS="$JAVA_OPTS -Dbargs=$BARGS"
+#  echo "Arguments : $BARGS"
+  fi
+fi
+
 if [ "$CMD" = "--debug" ]; then
   if [ "$PORT" = "" ]; then
-    echo " Please specify the debug port after the --debug option"
+    echo "Please specify the debug port after the --debug option"
     exit 1
   fi
   if [ -n "$JAVA_OPTS" ]; then
     echo "Warning !!!. User specified JAVA_OPTS will be ignored, once you give the --debug option."
   fi
-  CMD="RUN"
   JAVA_OPTS="-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=$PORT"
+  JAVA_OPTS="$JAVA_OPTS -Dbase-dir=$BASE_DIR -Drun-mode=run -Drun-file=$BAL_FILE_NAME"
   echo "Please start the remote debugging client to continue..."
+elif [ "$CMD" = "start" ]; then
+  if [ -e "$CARBON_HOME/carbon.pid" ]; then
+    if  ps -p $PID > /dev/null ; then
+      echo "Process is already running"
+      exit 0
+    fi
+  fi
+  export CARBON_HOME=$CARBON_HOME
+# using nohup bash to avoid erros in solaris OS.TODO
+  nohup bash $CARBON_HOME/bin/ballerina.sh $args > /dev/null 2>&1 &
+  exit 0
+elif [ "$CMD" = "stop" ]; then
+  export CARBON_HOME=$CARBON_HOME
+  if [ -f "$CARBON_HOME/carbon.pid" ]; then
+      kill -term `cat $CARBON_HOME/carbon.pid`
+      exit 0
+  fi
+elif [ "$CMD" = "restart" ]; then
+  export CARBON_HOME=$CARBON_HOME
+  if [ -f "$CARBON_HOME/carbon.pid" ]; then
+      kill -term `cat $CARBON_HOME/carbon.pid`
+      process_status=0
+      pid=`cat $CARBON_HOME/carbon.pid`
+      while [ "$process_status" -eq "0" ]
+      do
+            sleep 1;
+            ps -p$pid 2>&1 > /dev/null
+            process_status=$?
+      done
+  fi
+
+# using nohup bash to avoid erros in solaris OS.TODO
+  nohup bash $CARBON_HOME/bin/ballerina.sh $args > /dev/null 2>&1 &
+  exit 0
+
 elif [ "$CMD" = "test" ]; then
     JAVACMD="exec "$JAVACMD""
 elif [ "$CMD" = "version" ]; then
   cat $CARBON_HOME/bin/version.txt
+  exit 0
+elif [ "$CMD" = "help" ]; then
+  cat $CARBON_HOME/bin/ballerina-bash-help.txt
   exit 0
 fi
 
@@ -225,24 +314,6 @@ status=$START_EXIT_STATUS
 
 #To monitor a Carbon server in remote JMX mode on linux host machines, set the below system property.
 #   -Djava.rmi.server.hostname="your.IP.goes.here"
-JAVA_OPTS="$JAVA_OPTS -Dbase-dir=$BASE_DIR -Drun-mode=run"
-if [ "$BAL_FILE_NAME" = "" ]; then
-    echo " Please specify Ballerina Main function or Service to run. (Eg: ballerina.sh foo.bal)"
-    exit 1
-else
-    if [[ "$BAL_FILE_NAME" != /* ]]; then
-        BAL_FILE_NAME="$BASE_DIR/$BAL_FILE_NAME"
-    fi
-    JAVA_OPTS="$JAVA_OPTS -Drun-file=$BAL_FILE_NAME"
-    #echo "Running the Ballerina file $BAL_FILE_NAME"
-fi
-
-if [ "$BAL_EXECUTION_SUB_CMD" = "bargs" ]; then
-  if [[ "$BARGS" != " " ]]; then
-  JAVA_OPTS="$JAVA_OPTS -Dbal-args=$BARGS"
-  echo "Arguments : $BARGS"
-  fi
-fi
 
 while [ "$status" = "$START_EXIT_STATUS" ]
 do

@@ -74,6 +74,14 @@
             <fileMode>755</fileMode>
         </fileSet>
         <fileSet>
+            <directory>carbon-home/bin</directory>
+            <outputDirectory>bin</outputDirectory>
+            <includes>
+                <include>**/*.txt</include>
+            </includes>
+            <fileMode>444</fileMode>
+        </fileSet>
+        <fileSet>
             <directory>../../samples</directory>
             <outputDirectory>samples</outputDirectory>
             <excludes>
