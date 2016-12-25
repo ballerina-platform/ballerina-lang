@@ -1,4 +1,4 @@
-function test(int a, int b, int c) (int, int) {
+function testIfStmt(int a, int b, int c) (int, int) {
 
     int x;
     x = 10;

@@ -17,21 +17,16 @@
 */
 package org.wso2.ballerina.core.parser.statements;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
-import org.wso2.ballerina.core.model.BallerinaFile;
-import org.wso2.ballerina.core.model.BallerinaFunction;
-import org.wso2.ballerina.core.utils.ParserUtils;
 
 public class IfElseParserTest {
 
-    @Test
-    public void testFuncInvocation() {
-        final String funcName = "test";
-        BallerinaFile bFile = ParserUtils.parseBalFile("samples/statements/ifcondition.bal");
-        BallerinaFunction function = (BallerinaFunction) bFile.getFunctions().get(funcName);
-        Assert.assertNotNull(function);
-    }
+//    @Test
+//    public void testFuncInvocation() {
+//        final String funcName = "test";
+//        BallerinaFile bFile = ParserUtils.parseBalFile("lang/statements/if-stmt.bal");
+//        BallerinaFunction function = (BallerinaFunction) bFile.getFunctions().get(funcName);
+//        Assert.assertNotNull(function);
+//    }
 
     // TODO: Add Negative test cases.
 
