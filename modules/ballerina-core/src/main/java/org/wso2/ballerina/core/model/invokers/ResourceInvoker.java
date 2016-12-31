@@ -16,7 +16,11 @@
  * under the License.
  */
 
-package org.wso2.ballerina.core.model;
+package org.wso2.ballerina.core.model.invokers;
+
+import org.wso2.ballerina.core.model.Node;
+import org.wso2.ballerina.core.model.NodeVisitor;
+import org.wso2.ballerina.core.model.Resource;
 
 /**
  * {@code ResourceInvoker} is the entity which invokes a particular resource
