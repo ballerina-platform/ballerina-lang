@@ -61,6 +61,15 @@ public class BallerinaConnector implements Connector , Node {
     }
 
     /**
+     * Get {@code SymbolName} for Ballerina connector
+     *
+     * @return Symbol name of Ballerina connector
+     */
+    public SymbolName getConnectorName() {
+        return name;
+    }
+
+    /**
      * Get all the Annotations associated with a Connector
      *
      * @return list of Annotations

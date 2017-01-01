@@ -1,0 +1,788 @@
+/*
+*  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*
+*  WSO2 Inc. licenses this file to you under the Apache License,
+*  Version 2.0 (the "License"); you may not use this file except
+*  in compliance with the License.
+*  You may obtain a copy of the License at
+*
+*    http://www.apache.org/licenses/LICENSE-2.0
+*
+*  Unless required by applicable law or agreed to in writing,
+*  software distributed under the License is distributed on an
+*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+*  KIND, either express or implied.  See the License for the
+*  specific language governing permissions and limitations
+*  under the License.
+*/
+
+package org.wso2.ballerina.core.service;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import org.wso2.ballerina.core.model.Annotation;
+import org.wso2.ballerina.core.model.BallerinaAction;
+import org.wso2.ballerina.core.model.BallerinaConnector;
+import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.BallerinaFunction;
+import org.wso2.ballerina.core.model.ConnectorDcl;
+import org.wso2.ballerina.core.model.Function;
+import org.wso2.ballerina.core.model.ImportPackage;
+import org.wso2.ballerina.core.model.NodeVisitor;
+import org.wso2.ballerina.core.model.Parameter;
+import org.wso2.ballerina.core.model.Resource;
+import org.wso2.ballerina.core.model.Service;
+import org.wso2.ballerina.core.model.VariableDcl;
+import org.wso2.ballerina.core.model.Worker;
+import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
+import org.wso2.ballerina.core.model.expressions.AddExpression;
+import org.wso2.ballerina.core.model.expressions.AndExpression;
+import org.wso2.ballerina.core.model.expressions.ArrayAccessExpr;
+import org.wso2.ballerina.core.model.expressions.ArrayInitExpr;
+import org.wso2.ballerina.core.model.expressions.BackquoteExpr;
+import org.wso2.ballerina.core.model.expressions.BasicLiteral;
+import org.wso2.ballerina.core.model.expressions.EqualExpression;
+import org.wso2.ballerina.core.model.expressions.Expression;
+import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
+import org.wso2.ballerina.core.model.expressions.GreaterEqualExpression;
+import org.wso2.ballerina.core.model.expressions.GreaterThanExpression;
+import org.wso2.ballerina.core.model.expressions.InstanceCreationExpr;
+import org.wso2.ballerina.core.model.expressions.LessEqualExpression;
+import org.wso2.ballerina.core.model.expressions.LessThanExpression;
+import org.wso2.ballerina.core.model.expressions.MultExpression;
+import org.wso2.ballerina.core.model.expressions.NotEqualExpression;
+import org.wso2.ballerina.core.model.expressions.OrExpression;
+import org.wso2.ballerina.core.model.expressions.SubtractExpression;
+import org.wso2.ballerina.core.model.expressions.UnaryExpression;
+import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
+import org.wso2.ballerina.core.model.invokers.MainInvoker;
+import org.wso2.ballerina.core.model.invokers.ResourceInvoker;
+import org.wso2.ballerina.core.model.statements.AssignStmt;
+import org.wso2.ballerina.core.model.statements.BlockStmt;
+import org.wso2.ballerina.core.model.statements.CommentStmt;
+import org.wso2.ballerina.core.model.statements.FunctionInvocationStmt;
+import org.wso2.ballerina.core.model.statements.IfElseStmt;
+import org.wso2.ballerina.core.model.statements.ReplyStmt;
+import org.wso2.ballerina.core.model.statements.ReturnStmt;
+import org.wso2.ballerina.core.model.statements.Statement;
+import org.wso2.ballerina.core.model.statements.WhileStmt;
+import org.wso2.ballerina.core.model.types.BType;
+
+import java.util.Stack;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+
+
+/**
+ * Serializes ballerina language object model to JSON based model.
+ */
+public class BLangJSONModelBuilder implements NodeVisitor {
+
+    private JsonObject jsonObj;
+    private Stack<JsonArray> tempJsonArrayRef = new Stack<>();
+    private Stack<JsonObject> tempJsonObjectRef = new Stack<>();
+
+    public BLangJSONModelBuilder(JsonObject jsonObj) {
+        this.jsonObj = jsonObj;
+    }
+
+    @Override
+    public void visit(BallerinaFile bFile) {
+        //package definitions
+        JsonObject pkgDefine = new JsonObject();
+        pkgDefine.addProperty(BLangJSONModelConstants.PACKAGE_NAME, bFile.getPackageName());
+        this.jsonObj.add(BLangJSONModelConstants.PACKAGE_DEFINITION, pkgDefine);
+
+        //import declarations
+        tempJsonArrayRef.push(new JsonArray());
+        for (ImportPackage anImport : bFile.getImportPackages()) {
+            anImport.accept(this);
+        }
+        this.jsonObj.add(BLangJSONModelConstants.IMPORT_DECLARATIONS, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+
+        //service definitions
+        tempJsonArrayRef.push(new JsonArray());
+        bFile.getServices().forEach(new Consumer<Service>() {
+            @Override
+            public void accept(Service service) {
+                service.accept(BLangJSONModelBuilder.this);
+            }
+        });
+        this.jsonObj.add(BLangJSONModelConstants.SERVICE_DEFINITIONS, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+
+        //function definitions
+        tempJsonArrayRef.push(new JsonArray());
+        for (Function function : bFile.getFunctions().values()) {
+
+            BallerinaFunction bFunction = (BallerinaFunction) function;
+            bFunction.accept(this);
+        }
+        this.jsonObj.add(BLangJSONModelConstants.FUNCTION_DEFINITIONS, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+
+        //connector definitions
+        tempJsonArrayRef.push(new JsonArray());
+        for (BallerinaConnector connector : bFile.getConnectors()) {
+            connector.accept(this);
+        }
+        this.jsonObj.add(BLangJSONModelConstants.CONNECTOR_DEFINITIONS, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+
+    }
+
+    @Override
+    public void visit(ImportPackage importPackage) {
+        JsonObject importObj = new JsonObject();
+        importObj.addProperty(BLangJSONModelConstants.IMPORT_PACKAGE_NAME, importPackage.getName());
+        importObj.addProperty(BLangJSONModelConstants.IMPORT_PACKAGE_PATH, importPackage.getPath());
+        tempJsonArrayRef.peek().add(importObj);
+    }
+
+    @Override
+    public void visit(Service service) {
+        JsonObject serviceObj = new JsonObject();
+        serviceObj.addProperty(BLangJSONModelConstants.SERVICE_NAME, service.getSymbolName().getName());
+        tempJsonArrayRef.push(new JsonArray());
+        for (Resource resource : service.getResources()) {
+            resource.accept(this);
+        }
+        serviceObj.add(BLangJSONModelConstants.RESOURCE_DEFINITIONS, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.push(new JsonArray());
+        for (Annotation annotation : service.getAnnotations()) {
+            annotation.accept(this);
+        }
+        serviceObj.add(BLangJSONModelConstants.ANNOTATION_DECLARATIONS, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.push(new JsonArray());
+        for (ConnectorDcl connectDcl : service.getConnectorDcls()) {
+            connectDcl.accept(this);
+        }
+        serviceObj.add(BLangJSONModelConstants.CONNECTOR_DECLARATIONS, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.push(new JsonArray());
+        for (VariableDcl variableDcl : service.getVariableDcls()) {
+            variableDcl.accept(this);
+        }
+        serviceObj.add(BLangJSONModelConstants.VARIABLE_DECLARATIONS, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(serviceObj);
+    }
+
+    @Override
+    public void visit(BallerinaConnector connector) {
+        JsonObject jsonConnectObj = new JsonObject();
+        jsonConnectObj.addProperty(BLangJSONModelConstants.CONNECTOR_NAME, connector.getConnectorName().getName());
+        tempJsonArrayRef.push(new JsonArray());
+        for (Annotation annotation : connector.getAnnotations()) {
+            annotation.accept(this);
+        }
+        jsonConnectObj.add(BLangJSONModelConstants.ANNOTATION_DECLARATIONS, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.push(new JsonArray());
+        for (Parameter parameter : connector.getArguments()) {
+            parameter.accept(this);
+        }
+        jsonConnectObj.add(BLangJSONModelConstants.ARGUMENT_DECLARATIONS, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+
+        tempJsonArrayRef.push(new JsonArray());
+        for (ConnectorDcl connectDcl : connector.getConnectorDcls()) {
+            connectDcl.accept(this);
+        }
+        jsonConnectObj.add(BLangJSONModelConstants.CONNECTOR_DECLARATIONS, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+
+        tempJsonArrayRef.push(new JsonArray());
+        for (VariableDcl variableDcl : connector.getVariables()) {
+            variableDcl.accept(this);
+        }
+        jsonConnectObj.add(BLangJSONModelConstants.VARIABLE_DECLARATIONS, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+
+        tempJsonArrayRef.push(new JsonArray());
+        for (BallerinaAction action : connector.getActions()) {
+            action.accept(this);
+        }
+        jsonConnectObj.add(BLangJSONModelConstants.ACTION_DECLARATIONS, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(jsonConnectObj);
+    }
+
+    @Override
+    public void visit(Resource resource) {
+        JsonObject resourceObj = new JsonObject();
+        resourceObj.addProperty(BLangJSONModelConstants.RESOURCE_NAME, resource.getName());
+        tempJsonArrayRef.push(new JsonArray());
+        resource.getAnnotations().forEach(new BiConsumer<String, Annotation>() {
+            @Override
+            public void accept(String s, Annotation annotation) {
+                annotation.accept(BLangJSONModelBuilder.this);
+            }
+        });
+        resourceObj.add(BLangJSONModelConstants.ANNOTATION_DECLARATIONS, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.push(new JsonArray());
+        for (Parameter parameter : resource.getParameters()) {
+            parameter.accept(BLangJSONModelBuilder.this);
+        }
+        resourceObj.add(BLangJSONModelConstants.ARGUMENT_DECLARATIONS, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.push(new JsonArray());
+        resource.getWorkers().forEach(new Consumer<Worker>() {
+            @Override
+            public void accept(Worker worker) {
+                worker.accept(BLangJSONModelBuilder.this);
+            }
+        });
+        resourceObj.add(BLangJSONModelConstants.WORKER_DECLARATIONS, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.push(new JsonArray());
+        for (VariableDcl variableDcl : resource.getVariableDcls()) {
+            variableDcl.accept(BLangJSONModelBuilder.this);
+        }
+        resourceObj.add(BLangJSONModelConstants.VARIABLE_DECLARATIONS, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonObjectRef.push(resourceObj);
+        resource.getResourceBody().accept(this);
+        tempJsonObjectRef.pop();
+        tempJsonArrayRef.peek().add(resourceObj);
+    }
+
+    @Override
+    public void visit(BallerinaFunction function) {
+        JsonObject jsonFunc = new JsonObject();
+        jsonFunc.addProperty(BLangJSONModelConstants.FUNCTIONS_NAME, function.getName());
+        jsonFunc.addProperty(BLangJSONModelConstants.IS_PUBLIC_FUNCTION, function.isPublic());
+        this.tempJsonArrayRef.push(new JsonArray());
+        for (Annotation annotation : function.getAnnotations()) {
+            annotation.accept(this);
+        }
+        jsonFunc.add(BLangJSONModelConstants.ANNOTATION_DECLARATIONS, this.tempJsonArrayRef.peek());
+        this.tempJsonArrayRef.pop();
+        tempJsonArrayRef.push(new JsonArray());
+        for (VariableDcl variableDcl : function.getVariableDcls()) {
+            variableDcl.accept(BLangJSONModelBuilder.this);
+        }
+        jsonFunc.add(BLangJSONModelConstants.VARIABLE_DECLARATIONS, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.push(new JsonArray());
+        for (Parameter parameter : function.getParameters()) {
+            parameter.accept(this);
+        }
+        jsonFunc.add(BLangJSONModelConstants.ARGUMENT_DECLARATIONS, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.push(new JsonArray());
+        for (ConnectorDcl connectDcl : function.getConnectorDcls()) {
+            connectDcl.accept(this);
+        }
+        jsonFunc.add(BLangJSONModelConstants.CONNECTOR_DECLARATIONS, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        JsonArray returnTypeArray = new JsonArray();
+        for (BType type : function.getReturnTypes()) {
+            returnTypeArray.add(type.toString());
+        }
+        jsonFunc.add(BLangJSONModelConstants.FUNCTION_RETURN_TYPES, returnTypeArray);
+        tempJsonObjectRef.push(jsonFunc);
+        function.getFunctionBody().accept(this);
+        tempJsonObjectRef.pop();
+        this.tempJsonArrayRef.peek().add(jsonFunc);
+    }
+
+    @Override
+    public void visit(BallerinaAction action) {
+        JsonObject jsonAction = new JsonObject();
+        jsonAction.addProperty(BLangJSONModelConstants.ACTION_NAME, action.getName());
+        tempJsonArrayRef.push(new JsonArray());
+        for (Annotation annotation : action.getAnnotations()) {
+            annotation.accept(this);
+        }
+        jsonAction.add(BLangJSONModelConstants.ANNOTATION_DECLARATIONS, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.push(new JsonArray());
+        for (Parameter parameter : action.getParameters()) {
+            parameter.accept(this);
+        }
+        jsonAction.add(BLangJSONModelConstants.ARGUMENT_DECLARATIONS, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+
+        tempJsonArrayRef.push(new JsonArray());
+        for (VariableDcl variableDcl : action.getVariableDcls()) {
+            variableDcl.accept(this);
+        }
+        jsonAction.add(BLangJSONModelConstants.VARIABLE_DECLARATIONS, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(jsonAction);
+    }
+
+    @Override
+    public void visit(Worker worker) {
+        JsonObject jsonWorker = new JsonObject();
+        tempJsonArrayRef.push(new JsonArray());
+        for (ConnectorDcl connectDcl : worker.getConnectorDcls()) {
+            connectDcl.accept(this);
+        }
+        jsonWorker.add(BLangJSONModelConstants.CONNECTOR_DECLARATIONS, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+
+        tempJsonArrayRef.push(new JsonArray());
+        for (VariableDcl variableDcl : worker.getVariables()) {
+            variableDcl.accept(this);
+        }
+        jsonWorker.add(BLangJSONModelConstants.VARIABLE_DECLARATIONS, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+
+        tempJsonArrayRef.push(new JsonArray());
+        for (Statement statement : worker.getStatements()) {
+            statement.accept(this);
+        }
+        jsonWorker.add(BLangJSONModelConstants.STATEMENT_DECLARATIONS, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+
+        tempJsonArrayRef.peek().add(jsonWorker);
+    }
+
+    @Override
+    public void visit(Annotation annotation) {
+        JsonObject jsonAnnotation = new JsonObject();
+        jsonAnnotation.addProperty(BLangJSONModelConstants.ANNOTATION_NAME, annotation.getName());
+        jsonAnnotation.addProperty(BLangJSONModelConstants.ANNOTATION_VALUE, annotation.getValue());
+        this.tempJsonArrayRef.push(new JsonArray());
+        annotation.getKeyValuePairs().forEach(new BiConsumer<String, String>() {
+            @Override
+            public void accept(String k, String v) {
+                JsonObject pair = new JsonObject();
+                pair.addProperty(k, v);
+                tempJsonArrayRef.peek().add(pair);
+            }
+        });
+        jsonAnnotation.add(BLangJSONModelConstants.ANNOTATION_PAIRS, tempJsonArrayRef.peek());
+        this.tempJsonArrayRef.pop();
+        this.tempJsonArrayRef.peek().add(jsonAnnotation);
+    }
+
+    @Override
+    public void visit(Parameter parameter) {
+        JsonObject paramObj = new JsonObject();
+        paramObj.addProperty(BLangJSONModelConstants.PARAMETER_NAME, parameter.getName().getName());
+        paramObj.addProperty(BLangJSONModelConstants.PARAMETER_TYPE, parameter.getType().toString());
+        this.tempJsonArrayRef.push(new JsonArray());
+        if (parameter.getAnnotations() != null) {
+            for (Annotation annotation : parameter.getAnnotations()) {
+                annotation.accept(this);
+            }
+        }
+        paramObj.add(BLangJSONModelConstants.ANNOTATION_DECLARATIONS, this.tempJsonArrayRef.peek());
+        this.tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(paramObj);
+    }
+
+    @Override
+    public void visit(ConnectorDcl connectorDcl) {
+        JsonObject connectObj = new JsonObject();
+        connectObj.addProperty(BLangJSONModelConstants.CONNECTOR_DCL_NAME, connectorDcl.getConnectorName().getName());
+        connectObj.addProperty(BLangJSONModelConstants.CONNECTOR_DCL_VARIABLE, connectorDcl.getVarName().getName());
+        this.tempJsonArrayRef.push(new JsonArray());
+        for (Expression expression : connectorDcl.getArgExprs()) {
+            expression.accept(this);
+        }
+        connectObj.add(BLangJSONModelConstants.EXPRESSION_DECLARATIONS, this.tempJsonArrayRef.peek());
+        this.tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(connectObj);
+    }
+
+    @Override
+    public void visit(VariableDcl variableDcl) {
+        JsonObject variableDclObj = new JsonObject();
+        variableDclObj.addProperty(BLangJSONModelConstants.VARIABLE_NAME, variableDcl.getName().getName());
+        variableDclObj.addProperty(BLangJSONModelConstants.VARIABLE_TYPE, variableDcl.getType().toString());
+        tempJsonArrayRef.peek().add(variableDclObj);
+    }
+
+    @Override
+    public void visit(BlockStmt blockStmt) {
+        JsonObject blockStmtObj = new JsonObject();
+        tempJsonArrayRef.push(new JsonArray());
+        for (Statement statement : blockStmt.getStatements()) {
+            statement.accept(this);
+        }
+        blockStmtObj.add(BLangJSONModelConstants.STATEMENT_DECLARATIONS, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonObjectRef.peek().add(BLangJSONModelConstants.BLOCK_STATEMENT, blockStmtObj);
+    }
+
+    @Override
+    public void visit(AssignStmt assignStmt) {
+        JsonObject assignmentStmtObj = new JsonObject();
+        assignmentStmtObj.addProperty(BLangJSONModelConstants.STATEMENT_TYPE,
+                BLangJSONModelConstants.ASSIGNMENT_STATEMENT);
+        tempJsonArrayRef.push(new JsonArray());
+        assignStmt.getLExpr().accept(this);
+        assignStmt.getRExpr().accept(this);
+        assignmentStmtObj.add(BLangJSONModelConstants.EXPRESSION_DECLARATIONS, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(assignmentStmtObj);
+    }
+
+    @Override
+    public void visit(CommentStmt commentStmt) {
+        JsonObject commentStmtObj = new JsonObject();
+        commentStmtObj.addProperty(BLangJSONModelConstants.STATEMENT_TYPE,
+                BLangJSONModelConstants.COMMENT_STATEMENT);
+        commentStmtObj.addProperty(BLangJSONModelConstants.COMMENT_STRING, commentStmt.getComment());
+        tempJsonArrayRef.peek().add(commentStmtObj);
+    }
+
+    @Override
+    public void visit(IfElseStmt ifElseStmt) {
+        JsonObject ifElseStmtObj = new JsonObject();
+        ifElseStmtObj.addProperty(BLangJSONModelConstants.STATEMENT_TYPE,
+                BLangJSONModelConstants.IF_ELSE_STATEMENT);
+        tempJsonArrayRef.push(new JsonArray());
+        ifElseStmt.getCondition().accept(this);
+        ifElseStmtObj.add(BLangJSONModelConstants.EXPRESSION_DECLARATIONS, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        JsonObject thenBody = new JsonObject();
+        tempJsonObjectRef.push(thenBody);
+        ifElseStmt.getThenBody().accept(this);
+        tempJsonObjectRef.pop();
+        ifElseStmtObj.add(BLangJSONModelConstants.THEN_STATEMENT_BODY, thenBody);
+        JsonObject elseBody = new JsonObject();
+        tempJsonObjectRef.push(elseBody);
+        ifElseStmt.getThenBody().accept(this);
+        tempJsonObjectRef.pop();
+        ifElseStmtObj.add(BLangJSONModelConstants.ELSE_STATEMENT_BODY, thenBody);
+        tempJsonArrayRef.peek().add(ifElseStmtObj);
+    }
+
+    @Override
+    public void visit(WhileStmt whileStmt) {
+        JsonObject whileStmtObj = new JsonObject();
+        whileStmtObj.addProperty(BLangJSONModelConstants.STATEMENT_TYPE,
+                BLangJSONModelConstants.WHILE_STATEMENT);
+        tempJsonArrayRef.push(new JsonArray());
+        whileStmt.getCondition().accept(this);
+        whileStmtObj.add(BLangJSONModelConstants.EXPRESSION_DECLARATIONS, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonObjectRef.push(whileStmtObj);
+        whileStmt.getBody().accept(this);
+        tempJsonObjectRef.pop();
+        tempJsonArrayRef.peek().add(whileStmtObj);
+    }
+
+    @Override
+    public void visit(FunctionInvocationStmt functionInvocationStmt) {
+        JsonObject functionInvcStmtObj = new JsonObject();
+        functionInvcStmtObj.addProperty(BLangJSONModelConstants.STATEMENT_TYPE,
+                BLangJSONModelConstants.FUNCTION_INVOCATION_STATEMENT);
+        tempJsonArrayRef.push(new JsonArray());
+        functionInvocationStmt.getFunctionInvocationExpr().accept(this);
+        functionInvcStmtObj.add(BLangJSONModelConstants.EXPRESSION_DECLARATIONS, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(functionInvcStmtObj);
+    }
+
+    @Override
+    public void visit(ReplyStmt replyStmt) {
+        JsonObject replyStmtObj = new JsonObject();
+        replyStmtObj.addProperty(BLangJSONModelConstants.STATEMENT_TYPE,
+                BLangJSONModelConstants.REPLY_STATEMENT);
+        tempJsonArrayRef.push(new JsonArray());
+        replyStmt.getReplyExpr().accept(this);
+        replyStmtObj.add(BLangJSONModelConstants.EXPRESSION_DECLARATIONS, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(replyStmtObj);
+    }
+
+    @Override
+    public void visit(ReturnStmt returnStmt) {
+        JsonObject returnStmtObj = new JsonObject();
+        returnStmtObj.addProperty(BLangJSONModelConstants.STATEMENT_TYPE,
+                BLangJSONModelConstants.RETURN_STATEMENT);
+        tempJsonArrayRef.push(new JsonArray());
+        for (Expression expression : returnStmt.getExprs()) {
+            expression.accept(this);
+        }
+        returnStmtObj.add(BLangJSONModelConstants.EXPRESSION_DECLARATIONS, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(returnStmtObj);
+    }
+
+
+    @Override
+    public void visit(FunctionInvocationExpr funcIExpr) {
+        JsonObject funcInvcObj = new JsonObject();
+        funcInvcObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
+                BLangJSONModelConstants.FUNCTION_INVOCATION_EXPRESSION);
+        funcInvcObj.addProperty(BLangJSONModelConstants.FUNCTIONS_NAME,
+                funcIExpr.getFunctionName().getName());
+        tempJsonArrayRef.push(new JsonArray());
+        for (Expression expression : funcIExpr.getExprs()) {
+            expression.accept(this);
+        }
+        funcInvcObj.add(BLangJSONModelConstants.EXPRESSION_DECLARATIONS, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(funcInvcObj);
+    }
+
+    @Override
+    public void visit(ActionInvocationExpr actionIExpr) {
+        JsonObject actionInvcObj = new JsonObject();
+        actionInvcObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
+                BLangJSONModelConstants.ACTION_INVOCATION_EXPRESSION);
+        actionInvcObj.addProperty(BLangJSONModelConstants.ACTION_NAME,
+                actionIExpr.getActionName().getName());
+        tempJsonArrayRef.push(new JsonArray());
+        for (Expression expression : actionIExpr.getExprs()) {
+            expression.accept(this);
+        }
+        actionInvcObj.add(BLangJSONModelConstants.EXPRESSION_DECLARATIONS, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(actionInvcObj);
+    }
+
+    @Override
+    public void visit(BasicLiteral basicLiteral) {
+        JsonObject basicLiteralObj = new JsonObject();
+        basicLiteralObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
+                org.wso2.ballerina.core.service.BLangJSONModelConstants.BASIC_LITERAL_EXPRESSION);
+        basicLiteralObj.addProperty(BLangJSONModelConstants.BASIC_LITERAL_TYPE,
+                basicLiteral.getType().toString());
+        basicLiteralObj.addProperty(BLangJSONModelConstants.BASIC_LITERAL_VALUE,
+                basicLiteral.getbValueNew().stringValue());
+        tempJsonArrayRef.peek().add(basicLiteralObj);
+    }
+
+    @Override
+    public void visit(UnaryExpression unaryExpression) {
+        JsonObject unaryExpr = new JsonObject();
+        unaryExpr.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
+                BLangJSONModelConstants.UNARY_EXPRESSION);
+        tempJsonArrayRef.push(new JsonArray());
+        unaryExpression.getRExpr().accept(this);
+        unaryExpr.add(BLangJSONModelConstants.EXPRESSION_DECLARATIONS, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(unaryExpr);
+
+    }
+
+    @Override
+    public void visit(AddExpression addExpr) {
+        JsonObject addExprObj = new JsonObject();
+        addExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
+                BLangJSONModelConstants.ADD_EXPRESSION);
+        tempJsonArrayRef.push(new JsonArray());
+        addExpr.getLExpr().accept(this);
+        addExpr.getRExpr().accept(this);
+        addExprObj.add(BLangJSONModelConstants.EXPRESSION_DECLARATIONS, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(addExprObj);
+    }
+
+    @Override
+    public void visit(SubtractExpression subExpr) {
+        JsonObject minusExprObj = new JsonObject();
+        minusExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
+                BLangJSONModelConstants.SUBTRACT_EXPRESSION);
+        tempJsonArrayRef.push(new JsonArray());
+        subExpr.getLExpr().accept(this);
+        subExpr.getRExpr().accept(this);
+        minusExprObj.add(BLangJSONModelConstants.EXPRESSION_DECLARATIONS, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(minusExprObj);
+    }
+
+    @Override
+    public void visit(MultExpression multExpr) {
+        JsonObject multiExprObj = new JsonObject();
+        multiExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
+                BLangJSONModelConstants.MULTIPLY_EXPRESSION);
+        tempJsonArrayRef.push(new JsonArray());
+        multExpr.getLExpr().accept(this);
+        multExpr.getRExpr().accept(this);
+        multiExprObj.add(BLangJSONModelConstants.EXPRESSION_DECLARATIONS, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(multiExprObj);
+    }
+
+    @Override
+    public void visit(AndExpression andExpr) {
+        JsonObject andExprObj = new JsonObject();
+        andExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
+                BLangJSONModelConstants.AND_EXPRESSION);
+        tempJsonArrayRef.push(new JsonArray());
+        andExpr.getLExpr().accept(this);
+        andExpr.getRExpr().accept(this);
+        andExprObj.add(BLangJSONModelConstants.EXPRESSION_DECLARATIONS, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(andExprObj);
+    }
+
+    @Override
+    public void visit(OrExpression orExpr) {
+        JsonObject orExprObj = new JsonObject();
+        orExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
+                BLangJSONModelConstants.OR_EXPRESSION);
+        tempJsonArrayRef.push(new JsonArray());
+        orExpr.getLExpr().accept(this);
+        orExpr.getRExpr().accept(this);
+        orExprObj.add(BLangJSONModelConstants.EXPRESSION_DECLARATIONS, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(orExprObj);
+    }
+
+    @Override
+    public void visit(EqualExpression equalExpr) {
+        JsonObject equalExprObj = new JsonObject();
+        equalExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
+                BLangJSONModelConstants.EQUAL_EXPRESSION);
+        tempJsonArrayRef.push(new JsonArray());
+        equalExpr.getLExpr().accept(this);
+        equalExpr.getRExpr().accept(this);
+        equalExprObj.add(BLangJSONModelConstants.EXPRESSION_DECLARATIONS, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(equalExprObj);
+    }
+
+    @Override
+    public void visit(NotEqualExpression notEqualExpression) {
+        JsonObject notequalExprObj = new JsonObject();
+        notequalExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
+                BLangJSONModelConstants.NOT_EQUAL_EXPRESSION);
+        tempJsonArrayRef.push(new JsonArray());
+        notEqualExpression.getLExpr().accept(this);
+        notEqualExpression.getRExpr().accept(this);
+        notequalExprObj.add(BLangJSONModelConstants.EXPRESSION_DECLARATIONS, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(notequalExprObj);
+    }
+
+    @Override
+    public void visit(GreaterEqualExpression greaterEqualExpression) {
+        JsonObject greaterEqualExprObj = new JsonObject();
+        greaterEqualExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
+                BLangJSONModelConstants.GREATER_EQUAL_EXPRESSION);
+        tempJsonArrayRef.push(new JsonArray());
+        greaterEqualExpression.getLExpr().accept(this);
+        greaterEqualExpression.getRExpr().accept(this);
+        greaterEqualExprObj.add(BLangJSONModelConstants.EXPRESSION_DECLARATIONS, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(greaterEqualExprObj);
+    }
+
+    @Override
+    public void visit(GreaterThanExpression greaterThanExpression) {
+        JsonObject greaterExprObj = new JsonObject();
+        greaterExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
+                BLangJSONModelConstants.GREATER_THAN_EXPRESSION);
+        tempJsonArrayRef.push(new JsonArray());
+        greaterThanExpression.getLExpr().accept(this);
+        greaterThanExpression.getRExpr().accept(this);
+        greaterExprObj.add(BLangJSONModelConstants.EXPRESSION_DECLARATIONS, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(greaterExprObj);
+    }
+
+    @Override
+    public void visit(LessEqualExpression lessEqualExpression) {
+        JsonObject lessEqualExprObj = new JsonObject();
+        lessEqualExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
+                BLangJSONModelConstants.LESS_EQUAL_EXPRESSION);
+        tempJsonArrayRef.push(new JsonArray());
+        lessEqualExpression.getLExpr().accept(this);
+        lessEqualExpression.getRExpr().accept(this);
+        lessEqualExprObj.add(BLangJSONModelConstants.EXPRESSION_DECLARATIONS, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(lessEqualExprObj);
+    }
+
+    @Override
+    public void visit(LessThanExpression lessThanExpression) {
+        JsonObject lessExprObj = new JsonObject();
+        lessExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
+                BLangJSONModelConstants.LESS_THAN_EXPRESSION);
+        tempJsonArrayRef.push(new JsonArray());
+        lessThanExpression.getLExpr().accept(this);
+        lessThanExpression.getRExpr().accept(this);
+        lessExprObj.add(BLangJSONModelConstants.EXPRESSION_DECLARATIONS, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(lessExprObj);
+    }
+
+    @Override
+    public void visit(VariableRefExpr variableRefExpr) {
+        JsonObject variableRefObj = new JsonObject();
+        variableRefObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
+                org.wso2.ballerina.core.service.BLangJSONModelConstants.VARIABLE_REFERENCE_EXPRESSION);
+        variableRefObj.addProperty(BLangJSONModelConstants.VARIABLE_REFERENCE_NAME,
+                variableRefExpr.getSymbolName().getName());
+        tempJsonArrayRef.peek().add(variableRefObj);
+
+    }
+
+    @Override
+    public void visit(ArrayInitExpr arrayInitExpr) {
+        JsonObject arrayInitExprObj = new JsonObject();
+        arrayInitExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
+                BLangJSONModelConstants.ARRAY_INIT_EXPRESSION);
+        tempJsonArrayRef.push(new JsonArray());
+        for (Expression expression : arrayInitExpr.getArgExprs()) {
+            expression.accept(this);
+        }
+        arrayInitExprObj.add(BLangJSONModelConstants.EXPRESSION_DECLARATIONS, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(arrayInitExprObj);
+
+    }
+
+    @Override
+    public void visit(BackquoteExpr backquoteExpr) {
+        JsonObject backquoteExprObj = new JsonObject();
+        backquoteExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
+                BLangJSONModelConstants.BACK_QUOTE_EXPRESSION);
+        backquoteExprObj.addProperty(BLangJSONModelConstants.BACK_QUOTE_ENCLOSED_STRING,
+                backquoteExpr.getTemplateStr());
+        tempJsonArrayRef.peek().add(backquoteExprObj);
+
+    }
+
+    @Override
+    public void visit(InstanceCreationExpr instanceCreationExpr) {
+        JsonObject instanceCreationExprObj = new JsonObject();
+        instanceCreationExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
+                BLangJSONModelConstants.INSTANCE_CREATION_EXPRESSION);
+        tempJsonArrayRef.push(new JsonArray());
+        instanceCreationExpr.getRExpr().accept(this);
+        instanceCreationExprObj.add(BLangJSONModelConstants.EXPRESSION_DECLARATIONS, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(instanceCreationExprObj);
+
+    }
+
+    @Override
+    public void visit(MainInvoker mainInvoker) {
+    }
+
+    @Override
+    public void visit(ResourceInvoker resourceInvoker) {
+    }
+
+    @Override
+    public void visit(ArrayAccessExpr arrayAccessExpr) {
+        JsonObject arrayAccessExprObj = new JsonObject();
+        arrayAccessExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
+                BLangJSONModelConstants.ARRAY_ACCESS_EXPRESSION);
+        arrayAccessExprObj.addProperty(BLangJSONModelConstants.ARRAY_ACCESS_SYMBOL_NAME,
+                arrayAccessExpr.getSymbolName().getName());
+        arrayAccessExprObj.addProperty(BLangJSONModelConstants.ARRAY_ACCESS_IS_LHS_EXPRESSION,
+                arrayAccessExpr.isLHSExpr());
+        tempJsonArrayRef.push(new JsonArray());
+        arrayAccessExpr.getIndexExpr().accept(this);
+        arrayAccessExprObj.add(BLangJSONModelConstants.EXPRESSION_DECLARATIONS, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(arrayAccessExprObj);
+    }
+
+}

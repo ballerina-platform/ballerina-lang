@@ -29,6 +29,10 @@ public class CommentStmt implements Statement {
         this.comment = comment;
     }
 
+    public String getComment() {
+        return comment;
+    }
+
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);

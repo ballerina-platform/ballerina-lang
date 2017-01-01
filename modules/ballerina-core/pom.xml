@@ -108,6 +108,14 @@
             <groupId>org.apache.james</groupId>
             <artifactId>apache-mime4j-core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.msf4j</groupId>
+            <artifactId>msf4j-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.transport</groupId>
+            <artifactId>org.wso2.carbon.transport.http.netty</artifactId>
+        </dependency>
     </dependencies>
 
     <properties>
