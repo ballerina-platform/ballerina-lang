@@ -16,12 +16,13 @@
  * under the License.
  */
 define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../ast/resource-definition',
-        './default-worker', './point', './connector-declaration-view',
-        './statement-view-factory', 'ballerina/ast/ballerina-ast-factory', './expression-view-factory','./message',
-        './statement-container', './../ast/variable-declaration', './client-life-line'],
+        './default-worker', './point', './connector-declaration-view', './statement-view-factory',
+        'ballerina/ast/ballerina-ast-factory', './expression-view-factory','./message', './statement-container',
+        './../ast/variable-declaration', './variables-view', './client-life-line'],
     function (_, log, d3, $, D3utils, BallerinaView, ResourceDefinition,
-              DefaultWorkerView, Point, ConnectorDeclarationView, StatementViewFactory, BallerinaASTFactory, ExpressionViewFactory,
-                MessageView, StatementContainer, VariableDeclaration, ClientLifeLine) {
+              DefaultWorkerView, Point, ConnectorDeclarationView, StatementViewFactory,
+              BallerinaASTFactory, ExpressionViewFactory, MessageView, StatementContainer,
+              VariableDeclaration, VariablesView, ClientLifeLine) {
 
         /**
          * The view to represent a resource definition which is an AST visitor.
@@ -399,36 +400,25 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 self.visit(child);
             });
 
+            var variableButton = VariablesView.createVariableButton(this.getChildContainer().node(),
+                parseInt(this.getChildContainer().attr("x")) + 4, parseInt(this.getChildContainer().attr("y")) + 7);
             var annotationButton = this._createAnnotationButton(this.getChildContainer().node());
-            var variableButton = this._createVariableButton(this.getChildContainer().node());
 
             var variableProperties = {
                 model: this._model,
-                editableProperties: [{
-                    propertyType: "text",
-                    key: "Resource Name",
-                    model: this._model,
-                    getterMethod: this._model.getResourceName,
-                    setterMethod: this._model.setResourceName
-                },
-                    {
-                        propertyType: "text",
-                        key: "Resource Path",
-                        model: this._model,
-                        getterMethod: this._model.getResourcePath,
-                        setterMethod: this._model.setResourcePath
-                    }],
-                activatorElement: variableButton.node(),
-                variableIconButton: variableButton,
-                paneAppendElement: $(this._defaultWorker)[0]._container.closest('.panel-body').childNodes[0],
+                activatorElement: variableButton,
+                paneAppendElement: this.getChildContainer().node().ownerSVGElement.parentElement,
                 viewOptions: {
                     position: {
-                        x: parseFloat(variableButton.attr("cx")),
-                        y: parseFloat(variableButton.attr("cy")) + parseFloat(variableButton.attr("r"))
-                    }
+                        x: parseInt(this.getChildContainer().attr("x")) + 17,
+                        y: parseInt(this.getChildContainer().attr("y")) + 6
+                    },
+                    width: parseInt(this.getChildContainer().node().getBBox().width) - 36
                 }
             };
-            this.createVariablePane(variableProperties);
+
+            VariablesView.createVariablePane(variableProperties);
+
             this._createAnnotationButtonPane(annotationButton);
 
             this.getBoundingBox().on("moved", function(offset){
@@ -456,95 +446,6 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                     this.getBoundingBox().h(this.getBoundingBox().h() + dy);
             });
             this._statementContainer.render(this.diagramRenderingContext);
-        };
-
-        ResourceDefinitionView.prototype.renderVariables = function (variableDeclarationsList, variablePaneWrapper, resourceModel) {
-
-            if (variableDeclarationsList.length > 0) {
-                var variableSetWrapper = $('<div/>').appendTo($(variablePaneWrapper));
-                var variableTable = $('<table/>').appendTo(variableSetWrapper);
-
-                for (var variableCount = 0; variableCount < variableDeclarationsList.length; variableCount++) {
-                    var currentRaw;
-                    if (variableCount % 2 == 0) {
-                        currentRaw = $('<tr/>').appendTo(variableTable);
-                    }
-                    var labelClass = "";
-                    if (variableDeclarationsList[variableCount].getType() === "message") {
-                        labelClass = "variable-type-message";
-                    } else if (variableDeclarationsList[variableCount].getType() === "boolean") {
-                        labelClass = "variable-type-boolean";
-                    } else if (variableDeclarationsList[variableCount].getType() === "string") {
-                        labelClass = "variable-type-string";
-                    } else if (variableDeclarationsList[variableCount].getType() === "int") {
-                        labelClass = "variable-type-int";
-                    } else if (variableDeclarationsList[variableCount].getType() === "float") {
-                        labelClass = "variable-type-float";
-                    } else if (variableDeclarationsList[variableCount].getType() === "double") {
-                        labelClass = "variable-type-double";
-                    } else if (variableDeclarationsList[variableCount].getType() === "long") {
-                        labelClass = "variable-type-long";
-                    } else if (variableDeclarationsList[variableCount].getType() === "json") {
-                        labelClass = "variable-type-json";
-                    } else if (variableDeclarationsList[variableCount].getType() === "xml") {
-                        labelClass = "variable-type-xml";
-                    } else {
-                        labelClass = "variable-type-exception";
-                    }
-                    var currentCell = $('<td/>').appendTo(currentRaw);
-                    var variable = $("<label for=" + variableDeclarationsList[variableCount].getIdentifier() + " class=" + labelClass + ">" +
-                        variableDeclarationsList[variableCount].getType() + "</label>" + "<input readonly maxlength='7' size='7' value=" +
-                        variableDeclarationsList[variableCount].getIdentifier() + " class=" + labelClass + ">").appendTo(currentCell);
-                    var removeBtn = $('<button class="variable-list">x</button>').appendTo(currentCell);
-
-                    // variable delete onclick
-                    var self = this;
-                    $(removeBtn).click(resourceModel, function () {
-                        var varList = null;
-                        if(resourceModel.data === undefined) {
-                            varList = resourceModel.getVariables();
-                        } else {
-                            varList = resourceModel.data.getVariables();
-                        }
-                        var varType = $($(this.parentNode.getElementsByTagName('label'))[0]).text();
-                        var varIdentifier = $($(this.parentNode.getElementsByTagName('input'))[0]).val();
-                        var index = self.checkExistingVariables(varList, varType, varIdentifier);
-
-                        if (index != -1) {
-                            if(resourceModel.data === undefined) {
-                                resourceModel.getVariables().splice(index, 1);
-                            } else {
-                                resourceModel.data.getVariables().splice(index, 1);
-                            }
-                        }
-
-                        log.info($(variable).val());
-
-                        if (variablePaneWrapper.children().length > 1) {
-                            variablePaneWrapper.children()[variablePaneWrapper.children().length - 1].remove()
-                        }
-                        self.renderVariables(variableDeclarationsList, variablePaneWrapper, resourceModel);
-                    });
-
-                    // variable edit onclick
-                    $(variable).click(resourceModel, function (resourceModel) {
-                        log.info('Variable edit');
-                        // ToDo : Render variables here
-                    });
-                }
-            }
-        };
-
-        ResourceDefinitionView.prototype.checkExistingVariables = function (variableList, variableType, variableIdentifier) {
-            var index = -1;
-            for (var varIndex = 0; varIndex < variableList.length; varIndex++) {
-                if (variableList[varIndex].getType() == variableType &&
-                    variableList[varIndex].getIdentifier() == variableIdentifier) {
-                    index = varIndex;
-                    break;
-                }
-            }
-            return index;
         };
 
         ResourceDefinitionView.prototype._createAnnotationButtonPane = function (annotationButton) {
@@ -919,94 +820,6 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                         }
 
                     });
-                }
-            });
-        };
-
-        ResourceDefinitionView.prototype.createVariablePane = function (args) {
-            var activatorElement = _.get(args, "activatorElement");
-            var resourceModel = _.get(args, "model");
-            var paneElement = _.get(args, "paneAppendElement");
-            var variableList = resourceModel.getVariables();
-            var variableButton = _.get(args, "variableIconButton");
-
-            if (_.isNil(activatorElement)) {
-                log.error("Unable to render property pane as the html element is undefined." + activatorElement);
-                throw "Unable to render property pane as the html element is undefined." + activatorElement;
-            }
-
-            var variablePaneWrapper = $('<div id="' + resourceModel.id + '" class="resource-variable-pane"/>').appendTo($(paneElement));
-            var variableForm = $('<form></form>').appendTo(variablePaneWrapper);
-            var variableSelect = $("<select/>").appendTo(variableForm);
-            var variableText = $("<input placeholder='&nbsp;Variable Name'/>").appendTo(variableForm);
-            for(var typeCount = 0;typeCount < variableTypes.length; typeCount ++){
-                var selectOption = $("<option value="+ variableTypes[typeCount]+">"+variableTypes[typeCount] +
-                    "</option>").appendTo($(variableSelect));
-            }
-            var addVariable = $("<button type='button'>+</button>").appendTo(variableForm);
-
-            this.renderVariables(variableList,variablePaneWrapper,resourceModel);
-            var self = this;
-
-            $(addVariable).click(resourceModel, function (resourceModel) {
-
-                // ToDo add variable name validation
-                var variableList = null;
-                if(resourceModel.data === undefined) {
-                    variableList = resourceModel.getVariables();
-                } else {
-                    variableList = resourceModel.data.getVariables();
-                }
-
-                //filtering empty variable identifier and existing variables
-                if ($(variableText).val() != "" &&
-                    self.checkExistingVariables(variableList, $(variableSelect).val(), $(variableText).val()) == -1) {
-
-                    var variable = BallerinaASTFactory.createVariableDeclaration();
-
-                    //pushing new variable declaration
-                    variable.setType($(variableSelect).val());
-                    variable.setIdentifier($(variableText).val());
-                    if (resourceModel.data === undefined) {
-                        resourceModel.getVariables().push(variable);
-                        var index = _.findLastIndex(resourceModel.getChildren(), function (child) {
-                            return child instanceof VariableDeclaration;
-                        });
-                        resourceModel.addChild(variable, index + 1);
-                    } else {
-                        resourceModel.data.getVariables().push(variable);
-                        var index = _.findLastIndex(resourceModel.data.getChildren(), function (child) {
-                            return child instanceof VariableDeclaration;
-                        });
-                        resourceModel.data.addChild(variable, index + 1);
-                    }
-
-                    //remove current variable list
-                    if (variablePaneWrapper.children().length > 1) {
-                        variablePaneWrapper.children()[variablePaneWrapper.children().length - 1].remove()
-                    }
-                    self.renderVariables(variableList, variablePaneWrapper, resourceModel);
-                }
-            });
-
-            var paneWidth = 350;
-            var paneStartingX = variableButton.attr("cx") - paneWidth + 5;
-            var paneStartingY = variableButton.attr("cy") - variableButton.attr("r") + 15;
-
-            $(activatorElement).click(resourceModel, function (resourceModel) {
-                for(var iterator = 0;iterator < paneElement.childNodes.length; iterator++) {
-                    if(paneElement.childNodes[iterator].className == "resource-variable-pane") {
-                        if(paneElement.childNodes[iterator].id == resourceModel.data.id) {
-                            $(paneElement.childNodes[iterator]).css('top', paneStartingY);
-                            $(paneElement.childNodes[iterator]).css('left', paneStartingX);
-                            if(paneElement.childNodes[iterator].style.display== "none" || paneElement.childNodes[iterator].style.display == "") {
-                                paneElement.childNodes[iterator].style.display = "inline";
-                            } else {
-                                paneElement.childNodes[iterator].style.display = "none";
-                            }
-                            break;
-                        }
-                    }
                 }
             });
         };
