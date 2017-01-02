@@ -99,6 +99,11 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
                 //stop listening to current last resource view - if any
                 if(!_.isEmpty(this._resourceViewList)){
                     this.stopListening(_.last(this._resourceViewList).getBoundingBox(), 'bottom-edge-moved');
+
+                    // make new view adjust y on last view's bottom edge move
+                    _.last(this._resourceViewList).getBoundingBox().on('bottom-edge-moved', function(dy){
+                        view.getBoundingBox().move(0, dy);
+                    })
                 }
                 this._resourceViewList.push(view);
 
@@ -369,7 +374,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
             var resourceContainer = this.getChildContainer();
             // If more than 1 resource
             if (this.getResourceViewList().length > 0) {
-                var prevView = this.getResourceViewList().pop(this.getResourceViewList().length - 1);
+                var prevView = _.last(this._resourceViewList);
                 var prevResourceHeight = prevView.getBoundingBox().h();
                 var prevResourceY = prevView.getBoundingBox().y();
                 var newY = prevResourceHeight + prevResourceY + prevView.getGapBetweenResources();

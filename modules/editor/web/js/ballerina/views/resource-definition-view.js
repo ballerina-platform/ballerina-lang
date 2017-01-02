@@ -421,6 +421,12 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             };
             this.createVariablePane(variableProperties);
             this._createAnnotationButtonPane(annotationButton);
+
+            this.getBoundingBox().on("moved", function(offset){
+                var currentTransform = this._resourceGroup.attr("transform");
+               this._resourceGroup.attr("transform", (!_.isNil(currentTransform) ? currentTransform : "") +
+                   " translate(" + offset.dx + ", " + offset.dy + ")");
+            }, this);
         };
 
         /**
@@ -1247,9 +1253,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             connectorDeclarationView.setParent(this);
 
             this.getBoundingBox().on("bottom-edge-moved", function (dy) {
-                this.getBottomCenter().move(0, dy);
                 this.getBoundingBox().h(this.getBoundingBox().h() + dy);
-
             }, connectorDeclarationView);
 
             this.trigger("childConnectorViewAddedEvent", connectorDeclarationView);
@@ -1289,7 +1293,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
          * @returns {number}
          */
         ResourceDefinitionView.prototype.getGapBetweenResources = function () {
-            return 10;
+            return 25;
         };
 
         /**
