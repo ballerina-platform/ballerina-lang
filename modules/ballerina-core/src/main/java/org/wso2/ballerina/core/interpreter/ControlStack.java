@@ -51,14 +51,14 @@ public class ControlStack {
     }
 
     public BValue getValueNew(int offset) {
-        return currentFrame.valuesNew[offset];
+        return currentFrame.values[offset];
     }
 
-    public void setValueNew(int offset, BValue bValue) {
-        currentFrame.valuesNew[offset] = bValue;
+    public void setValue(int offset, BValue bValue) {
+        currentFrame.values[offset] = bValue;
     }
 
-    public void setReturnValueNew(int offset, BValue bValue) {
-        currentFrame.returnValuesNew[offset] = bValue;
+    public void setReturnValue(int offset, BValue bValue) {
+        currentFrame.returnValues[offset] = bValue;
     }
 }
