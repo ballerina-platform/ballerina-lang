@@ -391,6 +391,10 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             log.debug("Rendering Resource View");
             this.getModel().accept(this);
             var self = this;
+            //Removing all the registered 'child-added' event listeners for this model.
+            //This is needed because we are not unregistering registered event while the diagram element deletion.
+            //Due to that, sometimes we are having two or more view elements listening to the 'child-added' event of same model.
+            this._model.off('child-added');
             this._model.on('child-added', function(child){
                 self.visit(child);
             });
