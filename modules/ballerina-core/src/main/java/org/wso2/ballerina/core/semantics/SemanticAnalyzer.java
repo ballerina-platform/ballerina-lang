@@ -130,12 +130,10 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(Service service) {
+
+        //TODO: Handle connector and variable declarations
+
         // Visit the set of resources in a service
-        ConnectorDcl[] connectorDcls = service.getConnectorDcls();
-        for (ConnectorDcl connectorDcl : connectorDcls) {
-            stackFrameOffset++;
-            visit(connectorDcl);
-        }
         for (Resource resource : service.getResources()) {
             resource.accept(this);
         }
