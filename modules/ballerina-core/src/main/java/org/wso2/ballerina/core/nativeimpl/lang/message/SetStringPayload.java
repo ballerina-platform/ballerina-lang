@@ -29,6 +29,7 @@ import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
+import org.wso2.ballerina.core.nativeimpl.lang.utils.Constants;
 
 /**
  * Native function to get payload as String..
@@ -55,7 +56,7 @@ public class SetStringPayload extends AbstractNativeFunction {
         BMessage msg = (BMessage) getArgument(context, 0);
         BString payload = (BString) getArgument(context, 1);
         msg.setBuiltPayload(payload);
-        msg.setAlreadyRead(true);
+        msg.setHeader(Constants.CONTENT_TYPE, Constants.TEXT_PLAIN);
         if (log.isDebugEnabled()) {
             log.debug("Setting new payload: " + payload.stringValue());
         }
