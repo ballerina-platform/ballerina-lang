@@ -77,6 +77,10 @@
     width: 96%
 }
 
+.headingRect:hover{
+    cursor: pointer;
+}
+
 
 .btn-icon{
     opacity: 0.5;
