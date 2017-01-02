@@ -334,16 +334,19 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
             // On click of collapse icon hide/show resource body
             headingCollapseIcon.on("click", function () {
-                //TODO: trigger event when collapsed/opened
+                var resourceBBox = self.getBoundingBox();
                 var visibility = contentGroup.node().getAttribute("display");
                 if (visibility == "none") {
                     contentGroup.attr("display", "inline");
+                    // resource content is expanded. Hence expand resource BBox
+                    resourceBBox.h(resourceBBox.h() + self._minizedHeight);
                 }
                 else {
                     contentGroup.attr("display", "none");
-                    log.debug("Resource collapsed");
+                    // resource content is folded. Hence decrease resource BBox height and keep the minimized size
+                    self._minizedHeight =  parseFloat(contentRect.attr('height'));
+                    resourceBBox.h(resourceBBox.h() - self._minizedHeight);
                 }
-
             });
 
             // On click of delete icon
@@ -354,8 +357,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 parent.removeChild(child);
             });
 
-            this.getBoundingBox().on("bottom-edge-moved", function(dy){
-                this._contentRect.attr('height', parseFloat(this._contentRect.attr('height')) + dy);
+            this.getBoundingBox().on("height-changed", function(dh){
+                this._contentRect.attr('height', parseFloat(this._contentRect.attr('height')) + dh);
             }, this);
 
             // render client life line
