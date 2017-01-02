@@ -86,14 +86,19 @@ public class BLangModelBuilder {
 
     private String pkgName;
 
-    private Stack<CallableUnitGroupBuilder> cUnitGroupBuilderStack = new Stack<>();
-    private Stack<CallableUnitBuilder> cUnitBuilderStack = new Stack<>();
+    private BallerinaFile.BFileBuilder bFileBuilder = new BallerinaFile.BFileBuilder();
+
+    // Builds connectors and services.
+    private CallableUnitGroupBuilder currentCUGroupBuilder;
+
+    // Builds functions, actions and resources.
+    private CallableUnitBuilder currentCUBuilder;
+
     private Stack<Annotation.AnnotationBuilder> annotationBuilderStack = new Stack<>();
     private Stack<BlockStmt.BlockStmtBuilder> blockStmtBuilderStack = new Stack<>();
-    private Stack<IfElseStmt.IfElseStmtBuilder> ifElseStmtBuilderStack = new Stack<>();
 
+    private Stack<IfElseStmt.IfElseStmtBuilder> ifElseStmtBuilderStack = new Stack<>();
     private Queue<BType> typeQueue = new LinkedList<>();
-    private BallerinaFile.BFileBuilder bFileBuilder = new BallerinaFile.BFileBuilder();
     private Stack<String> pkgNameStack = new Stack<>();
     private Stack<SymbolName> symbolNameStack = new Stack<>();
     private Stack<Expression> exprStack = new Stack<>();
@@ -212,15 +217,7 @@ public class BLangModelBuilder {
         Parameter param = new Parameter(paramType, paramNameId);
 
         // Add the parameter to callableUnitBuilder.
-        CallableUnitBuilder callableUnitBuilder = cUnitBuilderStack.peek();
-        callableUnitBuilder.addParameter(param);
-
-        // Create variable reference expression and set the proper index to access the value
-        //        VariableRefExpr variableRefExpr = new VariableRefExpr(paramNameId);
-        //        variableRefExpr.setEvalFunction(VariableRefExpr.createGetParamValueFunc(paramIndex));
-
-        // Store the variable reference in the symbol table
-        //        symbolTable.putVarRefExpr(paramNameId, variableRefExpr);
+        currentCUBuilder.addParameter(param);
     }
 
     public void createType(String typeName) {
@@ -234,9 +231,8 @@ public class BLangModelBuilder {
     }
 
     public void createReturnTypes() {
-        CallableUnitBuilder callableUnitBuilder = cUnitBuilderStack.peek();
         while (!typeQueue.isEmpty()) {
-            callableUnitBuilder.addReturnType(typeQueue.remove());
+            currentCUBuilder.addReturnType(typeQueue.remove());
         }
     }
 
@@ -250,8 +246,7 @@ public class BLangModelBuilder {
         VariableDcl variableDcl = new VariableDcl(localVarType, localVarId);
 
         // Add this variable declaration to the current callable unit
-        CallableUnitBuilder callableUnitBuilder = cUnitBuilderStack.peek();
-        callableUnitBuilder.addVariableDcl(variableDcl);
+        currentCUBuilder.addVariableDcl(variableDcl);
     }
 
     public void createConnectorDcl(String varName) {
@@ -275,11 +270,11 @@ public class BLangModelBuilder {
         builder.setExprList(exprList);
 
         ConnectorDcl connectorDcl = builder.build();
-        if (!cUnitBuilderStack.isEmpty()) {
+        if (currentCUBuilder != null) {
             // This connector declaration should added to the relevant function/action or resource
-            cUnitBuilderStack.peek().addConnectorDcl(connectorDcl);
+            currentCUBuilder.addConnectorDcl(connectorDcl);
         } else {
-            cUnitGroupBuilderStack.peek().addConnectorDcl(connectorDcl);
+            currentCUGroupBuilder.addConnectorDcl(connectorDcl);
         }
     }
 
@@ -433,104 +428,85 @@ public class BLangModelBuilder {
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
         BlockStmt blockStmt = blockStmtBuilder.build();
 
-        CallableUnitBuilder callableUnitBuilder = cUnitBuilderStack.peek();
-        callableUnitBuilder.setBody(blockStmt);
+        currentCUBuilder.setBody(blockStmt);
     }
 
     public void startCallableUnit() {
-        // Create a new symbol table for the callableUnit scope
-        //        addScopeToSymbolTable();
-
-        cUnitBuilderStack.push(new CallableUnitBuilder());
+        currentCUBuilder = new CallableUnitBuilder();
         annotationListStack.push(new ArrayList<>());
     }
 
     public void createFunction(String name, boolean isPublic) {
-        CallableUnitBuilder callableUnitBuilder = cUnitBuilderStack.pop();
-        callableUnitBuilder.setName(new SymbolName(name, pkgName));
-        callableUnitBuilder.setPublic(isPublic);
+        currentCUBuilder.setName(new SymbolName(name, pkgName));
+        currentCUBuilder.setPublic(isPublic);
 
         List<Annotation> annotationList = annotationListStack.pop();
         // TODO Improve this implementation
-        annotationList.forEach(callableUnitBuilder::addAnnotation);
+        annotationList.forEach(currentCUBuilder::addAnnotation);
 
-        BallerinaFunction function = callableUnitBuilder.buildFunction();
+        BallerinaFunction function = currentCUBuilder.buildFunction();
         bFileBuilder.addFunction(function);
 
-        // Remove the callable unit scope from the symbol table;
-        //        removeScopeFromSymbolTable();
+        currentCUBuilder = null;
     }
 
     public void createResource(String name) {
-        CallableUnitBuilder callableUnitBuilder = cUnitBuilderStack.pop();
-        callableUnitBuilder.setName(new SymbolName(name, pkgName));
+        currentCUBuilder.setName(new SymbolName(name, pkgName));
 
         List<Annotation> annotationList = annotationListStack.pop();
         // TODO Improve this implementation
-        annotationList.forEach(callableUnitBuilder::addAnnotation);
+        annotationList.forEach(currentCUBuilder::addAnnotation);
 
-        Resource resource = callableUnitBuilder.buildResource();
-        CallableUnitGroupBuilder callableUnitGroupBuilder = cUnitGroupBuilderStack.peek();
-        callableUnitGroupBuilder.addResource(resource);
+        Resource resource = currentCUBuilder.buildResource();
+        currentCUGroupBuilder.addResource(resource);
 
-        // Remove the callable unit scope from the symbol table;
-        //        removeScopeFromSymbolTable();
+        currentCUBuilder = null;
     }
 
     public void createAction(String name) {
-        CallableUnitBuilder callableUnitBuilder = cUnitBuilderStack.pop();
-        callableUnitBuilder.setName(new SymbolName(name, pkgName));
+        currentCUBuilder.setName(new SymbolName(name, pkgName));
 
         List<Annotation> annotationList = annotationListStack.pop();
         // TODO Improve this implementation
-        annotationList.forEach(callableUnitBuilder::addAnnotation);
+        annotationList.forEach(currentCUBuilder::addAnnotation);
 
-        BallerinaAction action = callableUnitBuilder.buildAction();
-        CallableUnitGroupBuilder callableUnitGroupBuilder = cUnitGroupBuilderStack.peek();
-        callableUnitGroupBuilder.addAction(action);
+        BallerinaAction action = currentCUBuilder.buildAction();
+        currentCUGroupBuilder.addAction(action);
 
-        // Remove the callable unit scope from the symbol table;
-        //        removeScopeFromSymbolTable();
+        currentCUBuilder = null;
     }
 
     // Services and Connectors
 
     public void startCallableUnitGroup() {
-        // Create a new symbol table for the callableUnitGroup scope
-        //        addScopeToSymbolTable();
-
-        cUnitGroupBuilderStack.push(new CallableUnitGroupBuilder());
+        currentCUGroupBuilder = new CallableUnitGroupBuilder();
         annotationListStack.push(new ArrayList<>());
     }
 
     public void createService(String name) {
-        CallableUnitGroupBuilder callableUnitGroupBuilder = cUnitGroupBuilderStack.pop();
-        callableUnitGroupBuilder.setName(new SymbolName(name, pkgName));
+        currentCUGroupBuilder.setName(new SymbolName(name, pkgName));
 
         List<Annotation> annotationList = annotationListStack.pop();
         // TODO Improve this implementation
-        annotationList.forEach(callableUnitGroupBuilder::addAnnotation);
+        annotationList.forEach(currentCUGroupBuilder::addAnnotation);
 
-        Service service = callableUnitGroupBuilder.buildService();
+        Service service = currentCUGroupBuilder.buildService();
         bFileBuilder.addService(service);
 
-        // Remove the callable unit group scope from the symbol table;
-        //        removeScopeFromSymbolTable();
+        currentCUGroupBuilder = null;
     }
 
     public void createConnector(String name) {
-        CallableUnitGroupBuilder callableUnitGroupBuilder = cUnitGroupBuilderStack.pop();
-        callableUnitGroupBuilder.setName(new SymbolName(name, pkgName));
+        currentCUGroupBuilder.setName(new SymbolName(name, pkgName));
 
         List<Annotation> annotationList = annotationListStack.pop();
         // TODO Improve this implementation
-        annotationList.forEach(callableUnitGroupBuilder::addAnnotation);
+        annotationList.forEach(currentCUGroupBuilder::addAnnotation);
 
-        BallerinaConnector connector = callableUnitGroupBuilder.buildConnector();
+        BallerinaConnector connector = currentCUGroupBuilder.buildConnector();
         bFileBuilder.addConnector(connector);
 
-        // Remove the callable unit group scope from the symbol table;
-        //        removeScopeFromSymbolTable();
+        currentCUGroupBuilder = null;
     }
 
     // Statements
@@ -709,7 +685,7 @@ public class BLangModelBuilder {
      * @param inputString string with double quotes
      * @return value
      */
-    public static String getValueWithinBackquote(String inputString) {
+    private static String getValueWithinBackquote(String inputString) {
         Pattern p = Pattern.compile("`([^`]*)`");
         Matcher m = p.matcher(inputString);
         if (m.find()) {
