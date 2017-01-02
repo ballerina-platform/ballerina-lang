@@ -53,11 +53,18 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
                     "<form class='form-horizontal'>" +
                     "<div class='form-group'>" +
                     "<label for='location' class='control-label col-sm-2'>Location</label>" +
-                    "<div class='col-sm-8'>" +
+                    "<div class='col-sm-10'>" +
                     "<input type='text' class='form-control' id='location' placeholder='eg: /home/user/wso2-integration-server/ballerina-configs'>" +
                     "</div>" +
-                    "<div class='col-sm-2' style='float: right'>" +
-                    "<button id='button1' type='button' class='btn btn-primary'>Select Folder</button>" +
+                    "</div>" +
+                    "<div class='form-group'>" +
+                    "<div class='container-fluid .file-browser-container' style='margin-left: 25px'>" +
+                    "<div class='ScrollableBlock'  style='padding: 20px 20px; overflow: auto; height:200px'>" +
+                    "<div id='fileTree'>" +
+                    "</div>" +
+                    "</div>" +
+                    "<div id='file-browser-error' class='alert alert-danger' style='display: none;'>" +
+                    "</div>" +
                     "</div>" +
                     "</div>" +
                     "<div class='form-group'>" +
@@ -84,32 +91,6 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
                     "</div>"
                 );
 
-                var fileBrowserModel = $(
-                    "<div class='modal fade' id='fileBrowserModel' tabindex='1000' role='dialog' aria-hidden='true'>" +
-                    "<div class='modal-dialog' role='document'>" +
-                    "<div class='modal-content'>" +
-                    "<div class='modal-header'>" +
-                    "<button type='button' class='close' onclick='onFileBrowserClose();' aria-label='Close'>" +
-                    "<span aria-hidden='true'>&times;</span>" +
-                    "</button>" +
-                    "<h4 class='modal-title'>Select root folder</h4>" +
-                    "</div>" +
-                    "<div class='modal-body'>" +
-                    "<div class='container-fluid .file-browser-container'>" +
-                    "<div id='fileTree'></div>" +
-                    "<div id='file-browser-error' class='alert alert-danger' style='display: none;'>" +
-                    "</div>" +
-                    "</div>" +
-                    "</div>" +
-                    "<div class='modal-footer'>" +
-                    "<button type='button' class='btn btn-default'  id='cancelBtn'>Cancel</button>" +
-                    "<button type='button' class='btn btn-primary'  id='selectBtn'>Select</button>" +
-                    "</div>" +
-                    "</div>" +
-                    "</div>" +
-                    "</div>"
-                );
-
                 var successNotification = $(
                     "<div style='z-index: 9999;' style='line-height: 20%;' class='alert alert-success' id='success-alert'>"+
                     "<span class='notification'>"+
@@ -130,27 +111,15 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
                 var location = fileSave.find("input").filter("#location");
                 var configName = fileSave.find("input").filter("#configName");
 
-                fileSave.find("button").filter("#button1").click(function() {
-                    fileBrowserModel.modal('show');
-                    saveConfigModal.modal('hide');
+                var treeContainer  = fileSave.find("div").filter("#fileTree")
+                fileBrowser = new FileBrowser({container: treeContainer, application:app});
 
-                    var treeContainer  = fileBrowserModel.find("div").filter("#fileTree")
-                    fileBrowser = new FileBrowser({container: treeContainer, application:app});
-                    fileBrowser.render();
-                });
+                fileBrowser.render();
 
-                fileBrowserModel.find("button").filter("#selectBtn").click(function() {
-                    var selected = fileBrowser.selected;
-                    if(selected){
-                        fileBrowserModel.modal('hide');
-                        saveConfigModal.modal('show');
-                        location.val(selected);
+                this.listenTo(fileBrowser, 'selected', function (selectedLocation) {
+                    if(selectedLocation){
+                        location.val(selectedLocation);
                     }
-                });
-
-                fileBrowserModel.find("button").filter("#cancelBtn").click(function() {
-                    fileBrowserModel.modal('hide');
-                    saveConfigModal.modal('show');
                 });
 
                 fileSave.find("button").filter("#saveButton").click(function() {

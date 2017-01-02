@@ -77,9 +77,11 @@ define(['jquery', 'backbone', 'lodash', 'tree_view', /** void module - jquery pl
                 .on('changed.jstree', function (e, data) {
                     if(data && data.selected && data.selected.length) {
                         self.selected = data.selected[0];
+                        self.trigger("selected", data.selected[0]);
                     }
                     else {
                         self.selected = false;
+                        self.trigger("selected", null);
                     }
                 });
             return this;
