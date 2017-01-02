@@ -46,6 +46,11 @@ public class SymScope {
         this.parent = parent;
     }
 
+
+    public SymScope getParent() {
+        return parent;
+    }
+
     public SymScope openScope() {
         return new SymScope(this);
     }
