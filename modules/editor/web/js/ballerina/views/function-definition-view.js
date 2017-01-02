@@ -16,8 +16,9 @@
  * under the License.
  */
 define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-definition', './default-worker', 'd3utils', 'd3',
-        './worker-declaration-view', './statement-view-factory', './point'],
-    function (_, log, EventChannel, Canvas, FunctionDefinition, DefaultWorkerView, D3Utils, d3, WorkerDeclarationView, StatementViewFactory, Point) {
+        './worker-declaration-view', './statement-view-factory', './point', './axis', './connector-declaration-view', './statement-container'],
+    function (_, log, EventChannel, Canvas, FunctionDefinition, DefaultWorkerView, D3Utils, d3, WorkerDeclarationView,
+              StatementViewFactory, Point, Axis, ConnectorDeclarationView, StatementContainer) {
 
         /**
          * The view to represent a function definition which is an AST visitor.
@@ -28,8 +29,13 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
          * @constructor
          */
         var FunctionDefinitionView = function (args) {
-            this._statementExpressionViewList = [];
             Canvas.call(this, args);
+            //set initial connector margin for the service
+            this._lifelineMargin = new Axis(210, false);
+            this._statementExpressionViewList = [];
+            //set initial height for the service container svg
+            this._totalHeight = 170;
+            this._statementContainer = undefined;
 
             this._defaultWorkerLifeLine = undefined;
             // TODO: Check whether the possibility of adding this to the generic level
@@ -127,7 +133,7 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
             var divId = this._model.id;
             var currentContainer = $('#'+ divId);
             this._container = currentContainer;
-
+            var self = this;
 
             // Creating default worker
             var defaultWorkerOpts = {};
@@ -140,51 +146,113 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
                 this._defaultWorkerLifeLine = new DefaultWorkerView(defaultWorkerOpts);
             }
             this._defaultWorkerLifeLine.render();
+            this._totalHeight = this._defaultWorkerLifeLine.getBoundingBox().getBottom() + 20;
+            this.setServiceContainerHeight(this._totalHeight);
+            this.renderStatementContainer();
             this.getModel().accept(this);
+            this._model.on('child-added', function (child) {
+                self.visit(child);
+                self._model.trigger("childVisitedEvent", child);
+            });
+        };
+
+        /**
+         * Render statement container
+         */
+        FunctionDefinitionView.prototype.renderStatementContainer = function(){
+            var statementContainerOpts = {};
+            _.set(statementContainerOpts, 'model', this._model);
+            _.set(statementContainerOpts, 'topCenter', this._defaultWorkerLifeLine.getTopCenter());
+            _.set(statementContainerOpts, 'bottomCenter', this._defaultWorkerLifeLine.getBottomCenter());
+            _.set(statementContainerOpts, 'width', this._defaultWorkerLifeLine.width());
+            _.set(statementContainerOpts, 'container', this._defaultWorkerLifeLine.getContentArea().node());
+            _.set(statementContainerOpts, 'toolPalette', this.toolPalette);
+            this._statementContainer = new StatementContainer(statementContainerOpts);
+            this.listenTo(this._statementContainer.getBoundingBox(), 'bottom-edge-moved', function(dy){
+                this._defaultWorkerLifeLine.getBottomCenter().y(this._statementContainer.getBoundingBox().getBottom());
+                this.getBoundingBox().h(this.getBoundingBox().h() + dy);
+            });
+            this._statementContainer.render(this.diagramRenderingContext);
         };
 
         /**
          * @param {BallerinaStatementView} statement
          */
         FunctionDefinitionView.prototype.visitStatement = function (statement) {
-            var statementViewFactory = new StatementViewFactory();
-            var containerGroup = d3.select(_.first($(this._container).children().children())).node();
-            var args = {model: statement, container: containerGroup, viewOptions: undefined, parent:this};
-            var statementView = statementViewFactory.getStatementView(args);
-            this.diagramRenderingContext.getViewModelMap()[statement.id] = statementView;
-            var x = 0;
-            var y = 0;
-            statementView.setParent(this);
-            if(statement.getFactory().isActionInvocationStatement(statement)){
-                _.each(this.diagramRenderingContext.getViewModelMap(),function(view){
-                    var matchFound =  _.isEqual(statement.getConnector(),view.getModel());
-                    if(matchFound) {
-                        statementView.setConnectorView(view);
-                    }
-                });
-                //_.each(this.getConnectorViewList(), function (view) {
-                //  var matchFound =  _.isEqual(statement.getConnector(),view.getModel());
-                //    if(matchFound) {
-                //        statementView.setConnectorView(view);
-                //    }
-                //});
-            }
+            var args = {model: statement, container: this._rootGroup.node(), viewOptions: {},
+                toolPalette: this.toolPalette, messageManager: this.messageManager, parent: this};
+            this._statementContainer.renderStatement(statement, args);
+        };
 
-            // TODO: we need to keep this value as a configurable value and read from constants
-            var statementsGap = 40;
-            var statementsWidth = 120;
-            if (this._statementExpressionViewList.length > 0) {
-                var lastStatement = this._statementExpressionViewList[this._statementExpressionViewList.length - 1];
-                x = lastStatement.getXPosition();
-                y = lastStatement.getYPosition() + lastStatement.getHeight() + statementsGap;
+        FunctionDefinitionView.prototype.canVisitConnectorDeclaration = function (connectorDeclaration) {
+            return true;
+        };
+
+        /**
+         * Calls the render method for a connector declaration.
+         * @param connectorDeclaration
+         */
+        FunctionDefinitionView.prototype.visitConnectorDeclaration = function (connectorDeclaration) {
+            // TODO: Get these values from the constants
+            var offsetBetweenLifeLines = 50;
+            var topBottomTotalGap = 100;
+            var connectorContainer = this.getChildContainer().node(),
+                connectorOpts = {
+                    model: connectorDeclaration,
+                    container: connectorContainer,
+                    parentView: this,
+                    lineHeight: this.getBoundingBox().h() - topBottomTotalGap,
+                    messageManager: this.messageManager
+                },
+                connectorDeclarationView,
+                center;
+
+            var startX = 0;
+            if (!_.isEmpty(this._workerAndConnectorViews)) {
+                startX = _.last(this._workerAndConnectorViews).getBoundingBox().getRight() + _.last(this._workerAndConnectorViews).getBoundingBox().w()/2 + offsetBetweenLifeLines;
             } else {
-                var x = parseInt(this._defaultWorkerLifeLine.getMidPoint()) - parseInt(statementsWidth/2);
-
+                startX = (this._defaultWorkerLifeLine).getBoundingBox().getRight() + (this._defaultWorkerLifeLine).getBoundingBox().w()/2 + offsetBetweenLifeLines;
             }
-            this.diagramRenderingContext.getViewModelMap()[statement.id] = statementView;
-            statementView.setBoundingBox(0, 0, x, y);
-            this._statementExpressionViewList.push(statementView);
-            statementView.render(this.diagramRenderingContext);
+
+            center = new Point(startX, this._defaultWorkerLifeLine.getTopCenter().y());
+            _.set(connectorOpts, 'centerPoint', center);
+            connectorDeclarationView = new ConnectorDeclarationView(connectorOpts);
+            this.diagramRenderingContext.getViewModelMap()[connectorDeclaration.id] = connectorDeclarationView;
+            this._workerAndConnectorViews.push(connectorDeclarationView);
+
+            connectorDeclarationView.render();
+
+            // Creating property pane
+            var editableProperties = [
+                {
+                    propertyType: "text",
+                    key: "Name",
+                    model: connectorDeclarationView._model,
+                    getterMethod: connectorDeclarationView._model.getConnectorName,
+                    setterMethod: connectorDeclarationView._model.setConnectorName
+                },
+                {
+                    propertyType: "text",
+                    key: "Uri",
+                    model: connectorDeclarationView._model,
+                    getterMethod: connectorDeclarationView._model.getUri,
+                    setterMethod: connectorDeclarationView._model.setUri
+                },
+                {
+                    propertyType: "text",
+                    key: "Timeout",
+                    model: connectorDeclarationView._model,
+                    getterMethod: connectorDeclarationView._model.getTimeout,
+                    setterMethod: connectorDeclarationView._model.setTimeout
+                }
+            ];
+            connectorDeclarationView.createPropertyPane({
+                model: connectorDeclarationView._model,
+                lifeLineGroup:connectorDeclarationView._rootGroup,
+                editableProperties: editableProperties
+            });
+            connectorDeclarationView.setParent(this);
+            connectorDeclarationView.listenTo(this.getLifeLineMargin(), 'moved', this.updateConnectorPositionCallback);
         };
 
         /**
@@ -201,6 +269,14 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
          */
         FunctionDefinitionView.prototype.getWorkerAndConnectorViews = function () {
             return this._workerAndConnectorViews;
+        };
+
+        FunctionDefinitionView.prototype.getChildContainer = function () {
+            return this._rootGroup;
+        };
+
+        FunctionDefinitionView.prototype.getLifeLineMargin = function () {
+            return this._lifelineMargin;
         };
 
         return FunctionDefinitionView;
