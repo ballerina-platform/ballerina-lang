@@ -55,7 +55,7 @@ public class LocalFSWorkspace implements Workspace {
                     rootObj.add("children", children);
                 }
             } catch (IOException e) {
-                logger.error("Error while traversing children of " + e.toString(), e);
+                logger.debug("Error while traversing children of " + e.toString(), e);
                 rootObj.addProperty("error", e.toString());
             }
             if(Files.isDirectory(root)){
@@ -115,7 +115,7 @@ public class LocalFSWorkspace implements Workspace {
                     rootObj.addProperty("children", Boolean.FALSE);
                 }
             } catch (IOException e) {
-                logger.error("Error while fetching children of " + root.toString(), e);
+                logger.debug("Error while fetching children of " + root.toString(), e);
                 rootObj.addProperty("error", e.toString());
             }
         }
