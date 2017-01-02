@@ -148,7 +148,7 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
                 this._defaultWorkerLifeLine = new DefaultWorkerView(defaultWorkerOpts);
             }
             this._defaultWorkerLifeLine.render();
-            this._totalHeight = this._defaultWorkerLifeLine.getBoundingBox().getBottom() + 20;
+            this._totalHeight = this._defaultWorkerLifeLine.getBoundingBox().h() + 20;
             this.setServiceContainerHeight(this._totalHeight);
             this.renderStatementContainer();
             this.init();
@@ -176,11 +176,15 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
             _.set(statementContainerOpts, 'container', this._defaultWorkerLifeLine.getContentArea().node());
             _.set(statementContainerOpts, 'toolPalette', this.toolPalette);
             this._statementContainer = new StatementContainer(statementContainerOpts);
-            this.listenTo(this._statementContainer.getBoundingBox(), 'bottom-edge-moved', function(dy){
-                this._defaultWorkerLifeLine.getBottomCenter().y(this._statementContainer.getBoundingBox().getBottom());
-                this.getBoundingBox().h(this.getBoundingBox().h() + dy);
-            });
+            this.listenTo(this._statementContainer.getBoundingBox(), 'bottom-edge-moved', this.defaultWorkerHeightChanged);
             this._statementContainer.render(this.diagramRenderingContext);
+        };
+
+        FunctionDefinitionView.prototype.defaultWorkerHeightChanged = function (dy) {
+            this._defaultWorkerLifeLine.getBottomCenter().y(this._statementContainer.getBoundingBox().getBottom());
+            this.getBoundingBox().h(this.getBoundingBox().h() + dy);
+            this._totalHeight = this._totalHeight + dy;
+            this.setServiceContainerHeight(this._totalHeight);
         };
 
         /**
@@ -203,7 +207,7 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
         FunctionDefinitionView.prototype.visitConnectorDeclaration = function (connectorDeclaration) {
             // TODO: Get these values from the constants
             var offsetBetweenLifeLines = 50;
-            var topBottomTotalGap = 100;
+            var topBottomTotalGap = 50;
             var connectorContainer = this.getChildContainer().node(),
                 connectorOpts = {
                     model: connectorDeclaration,
@@ -260,6 +264,13 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
                 editableProperties: editableProperties
             });
             connectorDeclarationView.setParent(this);
+
+            this.getBoundingBox().on("bottom-edge-moved", function (dy) {
+                this.getBottomCenter().move(0, dy);
+                this.getBoundingBox().h(this.getBoundingBox().h() + dy);
+
+            }, connectorDeclarationView);
+
             connectorDeclarationView.listenTo(this.getLifeLineMargin(), 'moved', this.updateConnectorPositionCallback);
         };
 
