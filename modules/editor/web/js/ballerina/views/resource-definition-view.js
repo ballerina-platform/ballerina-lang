@@ -17,10 +17,11 @@
  */
 define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../ast/resource-definition',
         './default-worker', './point', './connector-declaration-view',
-        './statement-view-factory', 'ballerina/ast/ballerina-ast-factory', './expression-view-factory','./message', './statement-container', './../ast/variable-declaration'],
+        './statement-view-factory', 'ballerina/ast/ballerina-ast-factory', './expression-view-factory','./message',
+        './statement-container', './../ast/variable-declaration', './client-life-line'],
     function (_, log, d3, $, D3utils, BallerinaView, ResourceDefinition,
               DefaultWorkerView, Point, ConnectorDeclarationView, StatementViewFactory, BallerinaASTFactory, ExpressionViewFactory,
-                MessageView, StatementContainer, VariableDeclaration) {
+                MessageView, StatementContainer, VariableDeclaration, ClientLifeLine) {
 
         /**
          * The view to represent a resource definition which is an AST visitor.
@@ -54,11 +55,16 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             this._viewOptions.topLeft = _.get(args, "viewOptions.topLeft", new Point(50, 100));
             this._viewOptions.startActionOffSet = _.get(args, "viewOptions.startActionOffSet", 60);
 
+            // center point for the client lifeline
+            this._viewOptions.client = _.get(args, "viewOptions.client", {});
+            this._viewOptions.client.center = _.get(args, "viewOptions.client.centerPoint",
+                this._viewOptions.topLeft.clone().move(100, 80));
+
             // Center point of the default worker
             this._viewOptions.defaultWorker = _.get(args, "viewOptions.defaultWorker", {});
             this._viewOptions.defaultWorker.offsetTop = _.get(args, "viewOptions.defaultWorker.offsetTop", 50);
             this._viewOptions.defaultWorker.center = _.get(args, "viewOptions.defaultWorker.centerPoint",
-                            this._viewOptions.topLeft.clone().move(160, 60));
+                            this._viewOptions.topLeft.clone().move(260, 80));
 
             // View options for height and width of the heading box.
             this._viewOptions.heading = _.get(args, "viewOptions.heading", {});
@@ -72,7 +78,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
             this._viewOptions.contentCollapsed = _.get(args, "viewOptions.contentCollapsed", false);
             this._viewOptions.contentWidth = _.get(args, "viewOptions.contentWidth", 1000);
-            this._viewOptions.contentHeight = _.get(args, "viewOptions.contentHeight", 360);
+            this._viewOptions.contentHeight = _.get(args, "viewOptions.contentHeight", 400);
             this._viewOptions.collapseIconWidth = _.get(args, "viewOptions.collaspeIconWidth", 1025);
             this._viewOptions.deleteIconWidth = _.get(args, "viewOptions.deleteIconWidth", 1005);
 
@@ -171,7 +177,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
             var rect = D3utils.centeredRect(center, prefs.width, prefs.height, 0, 0, group);
             var text = D3utils.centeredText(center, prefs.title, group);
-            var messageStart = this._parentView.getClientTopCenter().clone();
+            var messageStart = this._clientLifeLine.getTopCenter().clone();
             messageStart.y(center.y());
             var messageEnd = messageStart.clone();
             messageEnd.x(center.x() - prefs.width/2);
@@ -344,6 +350,16 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 this._contentRect.attr('height', parseFloat(this._contentRect.attr('height')) + dy);
             }, this);
 
+            // render client life line
+            // Creating client lifeline.
+            var clientCenter = _.get(this._viewOptions, 'client.center');
+            var lifeLineArgs = {};
+            _.set(lifeLineArgs, 'container', this._contentGroup.node());
+            _.set(lifeLineArgs, 'centerPoint', clientCenter);
+
+            this._clientLifeLine = new ClientLifeLine(lifeLineArgs);
+            this._clientLifeLine.render();
+
             if (_.isUndefined(this._defaultWorker)) {
                 var defaultWorkerOpts = {};
                 _.set(defaultWorkerOpts, 'container', contentGroup.node());
@@ -410,6 +426,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             this._statementContainer = new StatementContainer(statementContainerOpts);
             this.listenTo(this._statementContainer.getBoundingBox(), 'bottom-edge-moved', function(dy){
                     this._defaultWorker.getBottomCenter().y(this._statementContainer.getBoundingBox().getBottom());
+                    this._clientLifeLine.getBottomCenter().y(this._statementContainer.getBoundingBox().getBottom());
                     this.getBoundingBox().h(this.getBoundingBox().h() + dy);
             });
             this._statementContainer.render(this.diagramRenderingContext);
@@ -1168,8 +1185,9 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
          */
         ResourceDefinitionView.prototype.visitConnectorDeclaration = function (connectorDeclaration) {
             var connectorContainer = this._contentGroup.node(),
-                // TODO : Please add a proper logic for line height calculation in following line.
-                connectorOpts = {model: connectorDeclaration, container: connectorContainer, parentView: this, messageManager: this.messageManager, lineHeight:this.getBoundingBox().h() - 95},
+                height = this._clientLifeLine.getTopCenter().absDistInYFrom(this._clientLifeLine.getBottomCenter()),
+                connectorOpts = {model: connectorDeclaration, container: connectorContainer,
+                    parentView: this, messageManager: this.messageManager, lineHeight: height},
                 connectorDeclarationView,
                 center;
 
