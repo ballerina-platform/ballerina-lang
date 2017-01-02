@@ -80,7 +80,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             this._viewOptions.contentWidth = _.get(args, "viewOptions.contentWidth", 1000);
             this._viewOptions.contentHeight = _.get(args, "viewOptions.contentHeight", 400);
             this._viewOptions.collapseIconWidth = _.get(args, "viewOptions.collaspeIconWidth", 1025);
-            this._viewOptions.deleteIconWidth = _.get(args, "viewOptions.deleteIconWidth", 1005);
+            this._viewOptions.deleteIconWidth = _.get(args, "viewOptions.deleteIconWidth", 995);
 
             this._viewOptions.startAction = _.get(args, "viewOptions.startAction", {
                 width: 120,
@@ -332,8 +332,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             this._contentRect = contentRect;
             contentRect.attr("fill", "#fff");
 
-            // On click of collapse icon hide/show resource body
-            headingCollapseIcon.on("click", function () {
+            var onExpandCollapse = function () {
                 var resourceBBox = self.getBoundingBox();
                 var visibility = contentGroup.node().getAttribute("display");
                 if (visibility == "none") {
@@ -347,7 +346,13 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                     self._minizedHeight =  parseFloat(contentRect.attr('height'));
                     resourceBBox.h(resourceBBox.h() - self._minizedHeight);
                 }
-            });
+            }
+
+            // On click of collapse icon hide/show resource body
+            headingCollapseIcon.on("click", onExpandCollapse);
+            headingRect.on("click", onExpandCollapse);
+
+
 
             // On click of delete icon
             headingDeleteIcon.on("click", function () {
