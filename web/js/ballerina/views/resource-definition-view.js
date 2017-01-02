@@ -80,7 +80,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             this._viewOptions.contentWidth = _.get(args, "viewOptions.contentWidth", 1000);
             this._viewOptions.contentHeight = _.get(args, "viewOptions.contentHeight", 400);
             this._viewOptions.collapseIconWidth = _.get(args, "viewOptions.collaspeIconWidth", 1025);
-            this._viewOptions.deleteIconWidth = _.get(args, "viewOptions.deleteIconWidth", 1005);
+            this._viewOptions.deleteIconWidth = _.get(args, "viewOptions.deleteIconWidth", 995);
 
             this._viewOptions.startAction = _.get(args, "viewOptions.startAction", {
                 width: 120,
@@ -205,6 +205,14 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
         ResourceDefinitionView.prototype.visitStatement = function (statement) {
             var args = {model: statement, container: this._contentGroup.node(), viewOptions: {},
                 toolPalette: this.toolPalette, messageManager: this.messageManager, parent: this};
+
+            // pass some additional params for reply statement view
+            if(this._model.getFactory().isReplyStatement(statement)){
+                var distFromClientToDefaultWorker = this._clientLifeLine.getTopCenter()
+                    .absDistInXFrom(this._defaultWorker.getTopCenter());
+                _.set(args, 'viewOptions.distanceToClient', distFromClientToDefaultWorker);
+            }
+
             this._statementContainer.renderStatement(statement, args);
         };
 
@@ -324,19 +332,27 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             this._contentRect = contentRect;
             contentRect.attr("fill", "#fff");
 
-            // On click of collapse icon hide/show resource body
-            headingCollapseIcon.on("click", function () {
-                //TODO: trigger event when collapsed/opened
+            var onExpandCollapse = function () {
+                var resourceBBox = self.getBoundingBox();
                 var visibility = contentGroup.node().getAttribute("display");
                 if (visibility == "none") {
                     contentGroup.attr("display", "inline");
+                    // resource content is expanded. Hence expand resource BBox
+                    resourceBBox.h(resourceBBox.h() + self._minizedHeight);
                 }
                 else {
                     contentGroup.attr("display", "none");
-                    log.debug("Resource collapsed");
+                    // resource content is folded. Hence decrease resource BBox height and keep the minimized size
+                    self._minizedHeight =  parseFloat(contentRect.attr('height'));
+                    resourceBBox.h(resourceBBox.h() - self._minizedHeight);
                 }
+            }
 
-            });
+            // On click of collapse icon hide/show resource body
+            headingCollapseIcon.on("click", onExpandCollapse);
+            headingRect.on("click", onExpandCollapse);
+
+
 
             // On click of delete icon
             headingDeleteIcon.on("click", function () {
@@ -346,8 +362,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 parent.removeChild(child);
             });
 
-            this.getBoundingBox().on("bottom-edge-moved", function(dy){
-                this._contentRect.attr('height', parseFloat(this._contentRect.attr('height')) + dy);
+            this.getBoundingBox().on("height-changed", function(dh){
+                this._contentRect.attr('height', parseFloat(this._contentRect.attr('height')) + dh);
             }, this);
 
             // render client life line
@@ -375,6 +391,10 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             log.debug("Rendering Resource View");
             this.getModel().accept(this);
             var self = this;
+            //Removing all the registered 'child-added' event listeners for this model.
+            //This is needed because we are not unregistering registered event while the diagram element deletion.
+            //Due to that, sometimes we are having two or more view elements listening to the 'child-added' event of same model.
+            this._model.off('child-added');
             this._model.on('child-added', function(child){
                 self.visit(child);
             });
@@ -410,6 +430,12 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             };
             this.createVariablePane(variableProperties);
             this._createAnnotationButtonPane(annotationButton);
+
+            this.getBoundingBox().on("moved", function(offset){
+                var currentTransform = this._resourceGroup.attr("transform");
+               this._resourceGroup.attr("transform", (!_.isNil(currentTransform) ? currentTransform : "") +
+                   " translate(" + offset.dx + ", " + offset.dy + ")");
+            }, this);
         };
 
         /**
@@ -1235,10 +1261,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
             connectorDeclarationView.setParent(this);
 
-            this.getBoundingBox().on("bottom-edge-moved", function (dy) {
-                this.getBottomCenter().move(0, dy);
-                this.getBoundingBox().h(this.getBoundingBox().h() + dy);
-
+            this.getBoundingBox().on("height-changed", function (dh) {
+                this.getBottomCenter().move(0, dh);
             }, connectorDeclarationView);
 
             this.trigger("childConnectorViewAddedEvent", connectorDeclarationView);
@@ -1278,7 +1302,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
          * @returns {number}
          */
         ResourceDefinitionView.prototype.getGapBetweenResources = function () {
-            return 10;
+            return 25;
         };
 
         /**

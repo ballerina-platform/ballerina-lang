@@ -93,8 +93,8 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/reply-statement
 
             var startActionGroup = D3Utils.group(d3.select(this._container));
             var line_start = new Point(this.getBoundingBox().x(), this.getBoundingBox().y() + height/2);
-            // FixMe: here 50 is the length of the arrow line. This value has to determine dynamically considering the client lifeline
-            var distanceToClient = 50;
+
+            var distanceToClient = this._viewOptions.distanceToClient - this.getBoundingBox().w()/2;
             var line_end = new Point(this.getBoundingBox().x() - distanceToClient, this.getBoundingBox().y() + height/2);
             var reply_rect = D3Utils.rect(this.getBoundingBox().x(), this.getBoundingBox().y(), width, height, 0, 0, startActionGroup).classed('statement-rect', true);
             var reply_text = D3Utils.textElement(this.getBoundingBox().x() + width/2, this.getBoundingBox().y() + height/2, 'Reply', startActionGroup).classed('statement-text', true);
