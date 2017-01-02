@@ -16,7 +16,11 @@
  * under the License.
  */
 
-package org.wso2.ballerina.core.model;
+package org.wso2.ballerina.core.model.invokers;
+
+import org.wso2.ballerina.core.model.BallerinaFunction;
+import org.wso2.ballerina.core.model.Node;
+import org.wso2.ballerina.core.model.NodeVisitor;
 
 /**
  * {@code MainInvoker} is responsible for invoking the Main function
