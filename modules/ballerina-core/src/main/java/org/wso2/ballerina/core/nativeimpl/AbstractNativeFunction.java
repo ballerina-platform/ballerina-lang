@@ -169,7 +169,7 @@ public abstract class AbstractNativeFunction implements NativeConstruct, Functio
      */
     public BValue getArgument(Context context, int index) {
         if (index > -1 && index < parameters.size()) {
-            return context.getControlStack().getCurrentFrame().valuesNew[index];
+            return context.getControlStack().getCurrentFrame().values[index];
         }
         throw new ArgumentOutOfRangeException(index);
     }
@@ -189,7 +189,7 @@ public abstract class AbstractNativeFunction implements NativeConstruct, Functio
 
     public void executeNative(Context context) {
         BValue[] retVals = execute(context);
-        BValue[] returnRefs = context.getControlStack().getCurrentFrame().returnValuesNew;
+        BValue[] returnRefs = context.getControlStack().getCurrentFrame().returnValues;
         if (returnRefs.length != 0) {
             returnRefs[0] = retVals[0];
         }
