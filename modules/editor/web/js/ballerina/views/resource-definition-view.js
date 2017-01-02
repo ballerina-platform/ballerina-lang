@@ -205,6 +205,14 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
         ResourceDefinitionView.prototype.visitStatement = function (statement) {
             var args = {model: statement, container: this._contentGroup.node(), viewOptions: {},
                 toolPalette: this.toolPalette, messageManager: this.messageManager, parent: this};
+
+            // pass some additional params for reply statement view
+            if(this._model.getFactory().isReplyStatement(statement)){
+                var distFromClientToDefaultWorker = this._clientLifeLine.getTopCenter()
+                    .absDistInXFrom(this._defaultWorker.getTopCenter());
+                _.set(args, 'viewOptions.distanceToClient', distFromClientToDefaultWorker);
+            }
+
             this._statementContainer.renderStatement(statement, args);
         };
 
