@@ -22,7 +22,6 @@ import org.testng.annotations.Test;
 import org.wso2.ballerina.core.interpreter.BLangInterpreter;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.interpreter.SymScope;
-import org.wso2.ballerina.core.linker.BLangLinker;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.values.BString;
@@ -38,13 +37,12 @@ public class CustomNativeFunctionInvocationTest {
     @Test
     public void testCustomNativeFunctionInvocation() {
         final String funcName = "invokeNativeFunction";
-        BallerinaFile bFile = ParserUtils.parseBalFile("samples/nativeimpl/customNative.bal");
 
-        // Linking Native functions.
-        SymScope symScope = new SymScope(null);
+        // Add Native functions.
+        SymScope symScope = new SymScope();
         FunctionUtils.addNativeFunction(symScope, new EchoStringNativeFunction());
-        BLangLinker linker = new BLangLinker(bFile);
-        linker.link(symScope);
+
+        BallerinaFile bFile = ParserUtils.parseBalFile("samples/nativeimpl/customNative.bal", symScope);
 
         final String s1 = "Hello World...!!!";
         BValueType[] arguments = {new BString(s1)};
