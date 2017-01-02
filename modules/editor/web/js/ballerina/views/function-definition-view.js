@@ -207,13 +207,13 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
         FunctionDefinitionView.prototype.visitConnectorDeclaration = function (connectorDeclaration) {
             // TODO: Get these values from the constants
             var offsetBetweenLifeLines = 50;
-            var topBottomTotalGap = 100;
+            var topBottomTotalGap = 50;
             var connectorContainer = this.getChildContainer().node(),
                 connectorOpts = {
                     model: connectorDeclaration,
                     container: connectorContainer,
                     parentView: this,
-                    lineHeight: this.getBoundingBox().h() - 50,
+                    lineHeight: this.getBoundingBox().h() - topBottomTotalGap,
                     messageManager: this.messageManager
                 },
                 connectorDeclarationView,
