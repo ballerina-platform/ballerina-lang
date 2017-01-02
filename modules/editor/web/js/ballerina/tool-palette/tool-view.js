@@ -63,7 +63,9 @@ define(['log', 'jquery', 'd3', 'backbone', 'lodash', 'd3utils'], function (log, 
         createHandleDragStartEvent : function(){
             var toolView = this;
             return function(event,ui){
-                toolView.toolPalette.dragDropManager.setTypeBeingDragged(toolView.model.nodeFactoryMethod({}, true));
+                // Get the meta information/ arguments to create the particular tool
+                var meta = toolView.model.get('meta') || {};
+                toolView.toolPalette.dragDropManager.setTypeBeingDragged(toolView.model.nodeFactoryMethod(meta, true));
             }
         },
 
