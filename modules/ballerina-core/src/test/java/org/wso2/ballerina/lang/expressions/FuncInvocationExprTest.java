@@ -67,4 +67,23 @@ public class FuncInvocationExprTest {
         Assert.assertEquals(actual, expected);
 
     }
+
+    @Test(description = "Test local function invocation expression advanced")
+    public void testFuncInvocationExprAdvanced() {
+        BValue[] args = {new BInteger(100), new BInteger(5), new BInteger(1)};
+        BValue[] returns = Functions.invoke(bFile, "funcInvocationWithinFuncInvocation", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+
+        int actual = ((BInteger) returns[0]).intValue();
+        int expected = 322;
+        Assert.assertEquals(actual, expected);
+    }
+
+    public static void main(String[] args) {
+        FuncInvocationExprTest test = new FuncInvocationExprTest();
+        test.setup();
+        test.testFuncInvocationExprAdvanced();
+    }
 }

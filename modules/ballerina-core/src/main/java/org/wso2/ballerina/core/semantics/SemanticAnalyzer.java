@@ -22,6 +22,7 @@ import org.wso2.ballerina.core.exception.LinkerException;
 import org.wso2.ballerina.core.exception.SemanticException;
 import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.interpreter.SymTable;
+import org.wso2.ballerina.core.model.Action;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.BallerinaConnector;
@@ -839,7 +840,11 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         // Link
-        funcIExpr.setFunction(symbol.getFunction());
+        Function function = symbol.getFunction();
+        funcIExpr.setFunction(function);
+
+        // TODO improve this once multiple return types are supported
+        funcIExpr.setType((function.getReturnTypes().length != 0) ? function.getReturnTypes()[0] : null);
     }
 
     private void linkAction(ActionInvocationExpr actionIExpr) {
@@ -867,6 +872,10 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         // Link
-        actionIExpr.setAction(symbol.getAction());
+        Action action = symbol.getAction();
+        actionIExpr.setAction(action);
+
+        // TODO improve this once multiple return types are supported
+        actionIExpr.setType((action.getReturnTypes().length != 0) ? action.getReturnTypes()[0] : null);
     }
 }
