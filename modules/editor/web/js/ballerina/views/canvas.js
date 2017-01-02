@@ -80,6 +80,10 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
         panelDeleteIcon.addClass(_.get(options, 'cssClass.panel_delete_icon'));
         panelTitle.append(panelDeleteIcon);
 
+        var panelAnnotationIcon = $('<i></i>');
+        panelAnnotationIcon.addClass(_.get(options, 'cssClass.panel_annotation_icon'));
+        panelTitle.append(panelAnnotationIcon);
+
         panelHeading.append(panelTitle);
 
         panelHeading.click(function() {
@@ -142,6 +146,10 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
             var child = self._model;
             var parent = child.parent;
             parent.removeChild(child);
+        });
+
+        panelAnnotationIcon.click(function (event) {
+            event.stopPropagation();
         });
     };
 
