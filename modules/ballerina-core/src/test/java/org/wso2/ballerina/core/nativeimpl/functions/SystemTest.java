@@ -24,7 +24,6 @@ import org.testng.annotations.Test;
 import org.wso2.ballerina.core.interpreter.BLangInterpreter;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.interpreter.SymScope;
-import org.wso2.ballerina.core.linker.BLangLinker;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.values.BString;
@@ -53,14 +52,12 @@ public class SystemTest {
     public void setup() {
         original = System.out;
         System.setOut(new PrintStream(outContent));
-        bFile = ParserUtils.parseBalFile("samples/nativeimpl/systemTest.bal");
 
-        // Linking Native functions.
+        // Add  Native functions.
         SymScope symScope = new SymScope(null);
         FunctionUtils.addNativeFunction(symScope, new PrintlnString());
         FunctionUtils.addNativeFunction(symScope, new PrintString());
-        BLangLinker linker = new BLangLinker(bFile);
-        linker.link(symScope);
+        bFile = ParserUtils.parseBalFile("samples/nativeimpl/systemTest.bal", symScope);
     }
 
     @AfterClass

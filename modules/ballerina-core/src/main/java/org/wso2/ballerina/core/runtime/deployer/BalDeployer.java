@@ -26,7 +26,7 @@ import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.exception.BallerinaException;
-import org.wso2.ballerina.core.linker.BLangLinker;
+import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.model.Application;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.Package;
@@ -134,11 +134,11 @@ public class BalDeployer implements Deployer {
 
             if (file.getName().endsWith(FILE_EXTENSION)) {
                 ANTLRInputStream antlrInputStream = new ANTLRInputStream(inputStream);
-                
+
                 // Setting the name of the source file being parsed, to the ANTLR input stream.
                 // This is required by the parser-error strategy.
                 antlrInputStream.name = file.getName();
-                
+
                 BallerinaLexer ballerinaLexer = new BallerinaLexer(antlrInputStream);
                 CommonTokenStream ballerinaToken = new CommonTokenStream(ballerinaLexer);
 
@@ -151,12 +151,9 @@ public class BalDeployer implements Deployer {
                 ballerinaParser.compilationUnit();
                 BallerinaFile balFile = bLangModelBuilder.build();
 
-                SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(balFile);
+                SymScope globalScope = GlobalScopeHolder.getInstance().getScope();
+                SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(balFile, globalScope);
                 balFile.accept(semanticAnalyzer);
-
-                // Link
-                BLangLinker bLangLinker = new BLangLinker(balFile);
-                bLangLinker.link(GlobalScopeHolder.getInstance().getScope());
 
                 if (Constants.RuntimeMode.RUN_FILE == ServiceContextHolder.getInstance().getRuntimeMode()) {
                     if (!BalProgramExecutor.execute(balFile)) {
@@ -171,7 +168,7 @@ public class BalDeployer implements Deployer {
                     app = new Application(file.getName());
                     ApplicationRegistry.getInstance().registerApplication(app);
                 }
-                
+
                 Package aPackage = app.getPackage(file.getName());
                 if (aPackage == null) {
                     // check if package name is null
@@ -195,10 +192,10 @@ public class BalDeployer implements Deployer {
                 log.error("File extension not supported. Support only {}.", FILE_EXTENSION);
             }
         } catch (IOException e) {
-            log.error("Error while creating Ballerina object model from file : {}" , file.getName(), e.getMessage());
+            log.error("Error while creating Ballerina object model from file : {}", file.getName(), e.getMessage());
             successful = false;
         } catch (BallerinaException e) {
-            log.error("Failed to deploy {} : {}" , file.getName(), e.getMessage());
+            log.error("Failed to deploy {} : {}", file.getName(), e.getMessage());
             successful = false;
         } finally {
             if (inputStream != null) {
@@ -236,8 +233,8 @@ public class BalDeployer implements Deployer {
 
     /**
      * Undeploy a service registered through a ballerina file.
-     * 
-     * @param fileName  Name of the ballerina file
+     *
+     * @param fileName Name of the ballerina file
      */
     private void undeployBalFile(String fileName) {
         Application app = ApplicationRegistry.getInstance().getApplication(fileName);
