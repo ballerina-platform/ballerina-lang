@@ -56,10 +56,6 @@ public class SymTable {
     }
 
     public Symbol lookup(SymbolName symName) {
-        Symbol symbol = current.lookup(symName);
-        if (symbol == null && current.getParent() != null) {
-            current.getParent().lookup(symName);
-        }
-        return symbol;
+        return current.lookup(symName);
     }
 }
