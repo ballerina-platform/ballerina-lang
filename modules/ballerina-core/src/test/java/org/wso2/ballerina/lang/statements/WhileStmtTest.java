@@ -37,7 +37,7 @@ public class WhileStmtTest {
 
     @BeforeTest
     public void setup() {
-        bFile = ParserUtils.getLinkedBLangModel("lang/statements/while-stmt.bal");
+        bFile = ParserUtils.parseBalFile("lang/statements/while-stmt.bal");
     }
 
     @Test(description = "Test while loop with a condition which evaluates to true")

@@ -38,7 +38,7 @@ public class ArrayAccessExprTest {
 
     @BeforeTest
     public void setup() {
-        bFile = ParserUtils.getLinkedBLangModel("lang/expressions/array-access-expr.bal");
+        bFile = ParserUtils.parseBalFile("lang/expressions/array-access-expr.bal");
     }
 
     @Test(description = "Test array access expression")

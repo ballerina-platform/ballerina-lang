@@ -25,7 +25,6 @@ import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.BLangInterpreter;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.interpreter.SymScope;
-import org.wso2.ballerina.core.linker.BLangLinker;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.values.BString;
@@ -53,8 +52,7 @@ public class XMLTest {
 
     @BeforeTest
     public void setup() {
-        bFile = ParserUtils.parseBalFile("samples/nativeimpl/xmlTest.bal");
-        // Linking Native functions.
+        // Add Native functions.
         SymScope symScope = new SymScope(null);
         FunctionUtils.addNativeFunction(symScope, new GetString());
         FunctionUtils.addNativeFunction(symScope, new GetXML());
@@ -64,8 +62,8 @@ public class XMLTest {
         FunctionUtils.addNativeFunction(symScope, new ToString());
         FunctionUtils.addNativeFunction(symScope, new AddAttribute());
         FunctionUtils.addNativeFunction(symScope, new AddElement());
-        BLangLinker linker = new BLangLinker(bFile);
-        linker.link(symScope);
+
+        bFile = ParserUtils.parseBalFile("samples/nativeimpl/xmlTest.bal", symScope);
     }
 
     @Test

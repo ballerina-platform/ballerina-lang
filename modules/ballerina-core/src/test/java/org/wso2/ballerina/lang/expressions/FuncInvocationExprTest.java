@@ -38,7 +38,7 @@ public class FuncInvocationExprTest {
 
     @BeforeTest
     public void setup() {
-        bFile = ParserUtils.getLinkedBLangModel("lang/expressions/funcInvocation-expr.bal");
+        bFile = ParserUtils.parseBalFile("lang/expressions/funcInvocation-expr.bal");
     }
 
     @Test(description = "Test local function invocation expression")
