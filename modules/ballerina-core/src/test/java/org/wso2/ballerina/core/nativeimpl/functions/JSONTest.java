@@ -24,7 +24,6 @@ import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.BLangInterpreter;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.interpreter.SymScope;
-import org.wso2.ballerina.core.linker.BLangLinker;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.values.BBoolean;
@@ -82,8 +81,7 @@ public class JSONTest {
     
     @BeforeTest
     public void setup() {
-        bFile = ParserUtils.parseBalFile("samples/nativeimpl/jsonTest.bal");
-        // Linking Native functions.
+        // Add Native functions.
         SymScope symScope = new SymScope(null);
         FunctionUtils.addNativeFunction(symScope, new AddBooleanToArray());
         FunctionUtils.addNativeFunction(symScope, new AddBooleanToObject());
@@ -113,8 +111,8 @@ public class JSONTest {
         FunctionUtils.addNativeFunction(symScope, new SetJSON());
         FunctionUtils.addNativeFunction(symScope, new SetString());
         FunctionUtils.addNativeFunction(symScope, new ToString());
-        BLangLinker linker = new BLangLinker(bFile);
-        linker.link(symScope);
+
+        bFile = ParserUtils.parseBalFile("samples/nativeimpl/jsonTest.bal", symScope);
     }
 
     

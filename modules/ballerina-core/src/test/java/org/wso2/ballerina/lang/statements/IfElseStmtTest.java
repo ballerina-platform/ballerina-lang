@@ -38,7 +38,7 @@ public class IfElseStmtTest {
 
     @BeforeTest
     public void setup() {
-        bFile = ParserUtils.getLinkedBLangModel("lang/statements/if-stmt.bal");
+        bFile = ParserUtils.parseBalFile("lang/statements/if-stmt.bal");
     }
 
     @Test(description = "Check a == b")

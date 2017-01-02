@@ -18,7 +18,9 @@
 package org.wso2.ballerina.core.semantics;
 
 import org.wso2.ballerina.core.exception.BallerinaException;
+import org.wso2.ballerina.core.exception.LinkerException;
 import org.wso2.ballerina.core.exception.SemanticException;
+import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.interpreter.SymTable;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.BallerinaAction;
@@ -85,22 +87,25 @@ import java.util.Map;
  * @since 1.0.0
  */
 public class SemanticAnalyzer implements NodeVisitor {
-
     private int stackFrameOffset = -1;
 
-    // TODO Check the possibility of passing this symbol table as constructor parameter to this class.
-    // TODO Need to pass the global scope
     private SymTable symbolTable;
-
-    private BallerinaFile bFile;
 
     // We need to keep a map of import packages.
     // This is useful when analyzing import functions, actions and types.
     private Map<String, ImportPackage> importPkgMap = new HashMap<>();
 
     public SemanticAnalyzer(BallerinaFile bFile) {
-        this.bFile = bFile;
-        symbolTable = new SymTable(bFile.getPackageScope());
+        this(bFile, new SymScope());
+    }
+
+    public SemanticAnalyzer(BallerinaFile bFile, SymScope globalScope) {
+        SymScope pkgScope = bFile.getPackageScope();
+        pkgScope.setParent(globalScope);
+        symbolTable = new SymTable(pkgScope);
+
+        // TODO We can move this logic to the parser.
+        bFile.getFunctions().values().forEach(this::addFuncSymbol);
     }
 
     @Override
@@ -181,7 +186,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(BallerinaFunction bFunction) {
         // Create a Symbol for this function( with parameter and return types)
-        addFuncSymbol(bFunction);
+//        addFuncSymbol(bFunction);
 
         // Open a new symbol scope
         openScope();
@@ -426,26 +431,28 @@ public class SemanticAnalyzer implements NodeVisitor {
             expr.accept(this);
         }
 
+        linkFunction(funcIExpr);
+
         // Can we do this bit in the linker
-        SymbolName symbolName = funcIExpr.getFunctionName();
-        String pkgPath = getPackagePath(symbolName);
+//        SymbolName symbolName = funcIExpr.getFunctionName();
+//        String pkgPath = getPackagePath(symbolName);
+//
+//        BType[] paramTypes = new BType[exprs.length];
+//        for (int i = 0; i < exprs.length; i++) {
+//            paramTypes[i] = exprs[i].getType();
+//        }
+//
+//        symbolName = LangModelUtils.getSymNameWithParams(symbolName.getName(), pkgPath, paramTypes);
 
-        BType[] paramTypes = new BType[exprs.length];
-        for (int i = 0; i < exprs.length; i++) {
-            paramTypes[i] = exprs[i].getType();
-        }
 
-        symbolName = LangModelUtils.getSymNameWithParams(symbolName.getName(), pkgPath, paramTypes);
-        funcIExpr.setFunctionName(symbolName);
+//        funcIExpr.setFunctionName(symbolName);
 
-        bFile.addFuncInvocationExpr(funcIExpr);
+//        bFile.addFuncInvocationExpr(funcIExpr);
 
         // TODO store the types of each func argument expression
         // Implement semantic analysis for function invocations
 
         // Identify the package of the function to be invoked.
-
-
     }
 
     // TODO Duplicate code. fix me
@@ -458,26 +465,28 @@ public class SemanticAnalyzer implements NodeVisitor {
             expr.accept(this);
         }
 
+        linkAction(actionIExpr);
+
         // TODO Check whether first argument is of type Connector (with connector name). e.g. HttpConnector
 
-        // Can we do this bit in the linker
-        SymbolName symName = actionIExpr.getActionName();
-        if (symName.getConnectorName() == null) {
-            throw new SemanticException("Connector type is not associated with the action invocation");
-        }
-
-        String pkgPath = getPackagePath(symName);
-
-        BType[] paramTypes = new BType[exprs.length];
-        for (int i = 0; i < exprs.length; i++) {
-            paramTypes[i] = exprs[i].getType();
-        }
-
-        symName = LangModelUtils.getActionSymName(symName.getName(), symName.getConnectorName(),
-                pkgPath, paramTypes);
-        actionIExpr.setActionName(symName);
-
-        bFile.addActionIExpr(actionIExpr);
+//        // Can we do this bit in the linker
+//        SymbolName symName = actionIExpr.getActionName();
+//        if (symName.getConnectorName() == null) {
+//            throw new SemanticException("Connector type is not associated with the action invocation");
+//        }
+//
+//        String pkgPath = getPackagePath(symName);
+//
+//        BType[] paramTypes = new BType[exprs.length];
+//        for (int i = 0; i < exprs.length; i++) {
+//            paramTypes[i] = exprs[i].getType();
+//        }
+//
+//        symName = LangModelUtils.getActionSymName(symName.getName(), symName.getConnectorName(),
+//                pkgPath, paramTypes);
+//        actionIExpr.setActionName(symName);
+//
+//        bFile.addActionIExpr(actionIExpr);
     }
 
     @Override
@@ -807,5 +816,54 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         return symbol;
+    }
+
+    private void linkFunction(FunctionInvocationExpr funcIExpr) {
+
+        SymbolName funcName = funcIExpr.getFunctionName();
+        String pkgPath = getPackagePath(funcName);
+
+        Expression[] exprs = funcIExpr.getExprs();
+        BType[] paramTypes = new BType[exprs.length];
+        for (int i = 0; i < exprs.length; i++) {
+            paramTypes[i] = exprs[i].getType();
+        }
+
+        SymbolName symbolName = LangModelUtils.getSymNameWithParams(funcName.getName(), pkgPath, paramTypes);
+        Symbol symbol = symbolTable.lookup(symbolName);
+        if (symbol == null) {
+            throw new LinkerException("Undefined function: " + funcIExpr.getFunctionName().getName());
+        }
+
+        // Link
+        funcIExpr.setFunction(symbol.getFunction());
+    }
+
+    private void linkAction(ActionInvocationExpr actionIExpr) {
+        // Can we do this bit in the linker
+        SymbolName actionName = actionIExpr.getActionName();
+        if (actionName.getConnectorName() == null) {
+            throw new SemanticException("Connector type is not associated with the action invocation");
+        }
+
+        String pkgPath = getPackagePath(actionName);
+
+        Expression[] exprs = actionIExpr.getExprs();
+        BType[] paramTypes = new BType[exprs.length];
+        for (int i = 0; i < exprs.length; i++) {
+            paramTypes[i] = exprs[i].getType();
+        }
+
+        SymbolName symName = LangModelUtils.getActionSymName(actionName.getName(), actionName.getConnectorName(),
+                pkgPath, paramTypes);
+
+        Symbol symbol = symbolTable.lookup(symName);
+        if (symbol == null) {
+            throw new LinkerException("Undefined action: " +
+                    actionIExpr.getActionName().getName());
+        }
+
+        // Link
+        actionIExpr.setAction(symbol.getAction());
     }
 }
