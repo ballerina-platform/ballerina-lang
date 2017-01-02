@@ -15,25 +15,42 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerina.core.model.values;
+package org.wso2.ballerina.core.message;
 
 import org.wso2.ballerina.core.exception.BallerinaException;
-import org.wso2.ballerina.core.message.BallerinaMessageDataSource;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 
 /**
  * {@code StringValue} represents a string value in Ballerina
  *
  * @since 1.0.0
  */
-public class StringValue extends BallerinaMessageDataSource {
+public class StringDataSource extends BallerinaMessageDataSource {
     private String value;
     private OutputStream outputStream;
 
-    public StringValue(String value) {
+    /**
+     * Create a String datasource with a string.
+     * 
+     * @param value String value
+     */
+    public StringDataSource(String value) {
         this.value = value;
+        this.outputStream = null;
+    }
+
+    /**
+     * Create a String datasource with a string and a target output stream.
+     * 
+     * @param value         String value
+     * @param outputStream  Target outputstream
+     */
+    public StringDataSource(String value, OutputStream outputStream) {
+        this.value = value;
+        this.outputStream = outputStream;
     }
 
     public String getValue() {
@@ -47,9 +64,9 @@ public class StringValue extends BallerinaMessageDataSource {
     @Override
     public void serializeData() {
         try {
-            this.outputStream.write(this.value.getBytes());
+            this.outputStream.write(this.value.getBytes(Charset.defaultCharset()));
         } catch (IOException e) {
-            throw new BallerinaException("Error occurred during writing the message to the output stream", e);
+            throw new BallerinaException("Error occurred during writing the string message to the output stream", e);
         }
     }
 
@@ -58,7 +75,7 @@ public class StringValue extends BallerinaMessageDataSource {
         this.outputStream = outputStream;
     }
 
-    public StringValue getString() {
+    public StringDataSource getString() {
         return this;
     }
 }

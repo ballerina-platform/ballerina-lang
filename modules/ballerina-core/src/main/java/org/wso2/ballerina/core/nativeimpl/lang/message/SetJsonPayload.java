@@ -27,6 +27,7 @@ import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
+import org.wso2.ballerina.core.nativeimpl.lang.utils.Constants;
 
 /**
  * Set the payload of the Message as a JSON
@@ -53,7 +54,7 @@ public class SetJsonPayload extends AbstractNativeFunction {
 
         // Setting the payload
         msg.setBuiltPayload(payload);
-        msg.setAlreadyRead(true);
+        msg.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
         return VOID_RETURN;
     }
 }
