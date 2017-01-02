@@ -58,7 +58,7 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
                     "</div>" +
                     "</div>" +
                     "<div class='form-group'>" +
-                    "<div class='container-fluid .file-browser-container' style='margin-left: 25px'>" +
+                    "<div class='container-fluid .file-browser-container' style='margin-left: 24px'>" +
                     "<div class='ScrollableBlock'  style='padding: 20px 20px; overflow: auto; height:200px'>" +
                     "<div id='fileTree'>" +
                     "</div>" +
