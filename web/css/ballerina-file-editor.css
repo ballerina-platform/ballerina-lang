@@ -55,9 +55,16 @@
 
 .right-icon-clickable{
     float: right;
-    padding-right: 10px;
-    padding-top: 8px;;
+    margin-right: 10px;
+    margin-top: 8px;;
     cursor: pointer;
+}
+
+.right-icon-clickable:hover{
+    color: green;
+}
+.delete-icon:hover{
+    color: red;
 }
 
 .panel-collapse .collapse{
