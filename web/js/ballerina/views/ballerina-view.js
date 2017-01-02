@@ -28,6 +28,7 @@ define(['lodash', 'log', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
          * @constructor
          */
         var BallerinaView = function (args) {
+            ASTVisitor.call(this, args);
             this._parent = _.get(args, "parent");
             this._model = _.get(args, "model");
             this._container = _.get(args, "container");
@@ -35,7 +36,6 @@ define(['lodash', 'log', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
             this._boundingBox = new BBox();
             this.toolPalette = _.get(args, "toolPalette");
             this.messageManager =  _.get(args, "messageManager");
-            ASTVisitor.call(this, args);
         };
 
         BallerinaView.prototype = Object.create(ASTVisitor.prototype);
