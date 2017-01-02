@@ -56,6 +56,7 @@ define(['lodash', 'log', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
             var ballerinaFileEditor;
             log.info("[Eventing] Child element view removed. ");
             //TODO: remove canvas container for each delete click
+            // TODO: Instead of using the parentView use the parent. Fix this from BallerinaView.js and bellow
             if(!_.isUndefined(this._parentView._$canvasContainer)) {
                 ballerinaFileEditor = this._parentView;
             }

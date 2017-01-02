@@ -33,6 +33,8 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
             //set initial connector margin for the service
             this._lifelineMargin = new Axis(210, false);
             this._statementExpressionViewList = [];
+            // TODO: Instead of using the parentView use the parent. Fix this from BallerinaView.js and bellow
+            this._parentView = _.get(args, "parentView");
             //set initial height for the service container svg
             this._totalHeight = 170;
             this._statementContainer = undefined;
@@ -149,11 +151,17 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
             this._totalHeight = this._defaultWorkerLifeLine.getBoundingBox().getBottom() + 20;
             this.setServiceContainerHeight(this._totalHeight);
             this.renderStatementContainer();
+            this.init();
             this.getModel().accept(this);
             this._model.on('child-added', function (child) {
                 self.visit(child);
                 self._model.trigger("childVisitedEvent", child);
             });
+        };
+
+        FunctionDefinitionView.prototype.init = function(){
+            //Registering event listeners
+            this.listenTo(this._model, 'childRemovedEvent', this.childViewRemovedCallback);
         };
 
         /**

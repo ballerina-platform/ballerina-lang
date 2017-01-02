@@ -37,6 +37,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             this._connectorViewList =  [];
             this._defaultWorker = undefined;
             this._statementExpressionViewList = [];
+            // TODO: Instead of using the parentView use the parent. Fix this from BallerinaView.js and bellow
             this._parentView = _.get(args, "parentView");
 
             if (_.isNil(this._model) || !(this._model instanceof ResourceDefinition)) {
