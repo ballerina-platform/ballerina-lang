@@ -436,7 +436,7 @@ public class BLangModelBuilder {
         annotationListStack.push(new ArrayList<>());
     }
 
-    public void createFunction(String name, boolean isPublic) {
+    public void createFunction(String name, boolean isPublic, int position) {
         currentCUBuilder.setName(new SymbolName(name, pkgName));
         currentCUBuilder.setPublic(isPublic);
 
@@ -445,6 +445,7 @@ public class BLangModelBuilder {
         annotationList.forEach(currentCUBuilder::addAnnotation);
 
         BallerinaFunction function = currentCUBuilder.buildFunction();
+        function.setRelativePosition(position);
         bFileBuilder.addFunction(function);
 
         currentCUBuilder = null;
@@ -483,7 +484,7 @@ public class BLangModelBuilder {
         annotationListStack.push(new ArrayList<>());
     }
 
-    public void createService(String name) {
+    public void createService(String name, int position) {
         currentCUGroupBuilder.setName(new SymbolName(name, pkgName));
 
         List<Annotation> annotationList = annotationListStack.pop();
@@ -491,12 +492,13 @@ public class BLangModelBuilder {
         annotationList.forEach(currentCUGroupBuilder::addAnnotation);
 
         Service service = currentCUGroupBuilder.buildService();
+        service.setRelativePosition(position);
         bFileBuilder.addService(service);
 
         currentCUGroupBuilder = null;
     }
 
-    public void createConnector(String name) {
+    public void createConnector(String name, int position) {
         currentCUGroupBuilder.setName(new SymbolName(name, pkgName));
 
         List<Annotation> annotationList = annotationListStack.pop();
@@ -504,6 +506,7 @@ public class BLangModelBuilder {
         annotationList.forEach(currentCUGroupBuilder::addAnnotation);
 
         BallerinaConnector connector = currentCUGroupBuilder.buildConnector();
+        connector.setRelativePosition(position);
         bFileBuilder.addConnector(connector);
 
         currentCUGroupBuilder = null;

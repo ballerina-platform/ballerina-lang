@@ -37,7 +37,7 @@ import org.wso2.ballerina.core.model.types.BType;
  *
  * @since 1.0.0
  */
-public class BallerinaFunction implements Function, Node {
+public class BallerinaFunction extends PositionAwareNode implements Function, Node {
 
     // TODO: Rename this to BFunction after M1.
     private SymbolName functionName;

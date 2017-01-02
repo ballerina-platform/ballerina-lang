@@ -18,6 +18,7 @@
 
 package org.wso2.ballerina.core.model;
 
+import javafx.geometry.Pos;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +39,7 @@ import org.slf4j.LoggerFactory;
  * @since 1.0.0
  */
 @SuppressWarnings("unused")
-public class Service implements Node {
+public class Service extends PositionAwareNode implements Node {
 
     private static final Logger logger = LoggerFactory.getLogger(Service.class);
 

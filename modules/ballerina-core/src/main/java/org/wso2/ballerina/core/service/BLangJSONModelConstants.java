@@ -20,9 +20,13 @@ package org.wso2.ballerina.core.service;
 
 public class BLangJSONModelConstants {
 
-    public static final String CONNECTOR_DEFINITIONS = "connectors";
+    public static final String ROOT = "root";
 
-    public static final String FUNCTION_DEFINITIONS = "functions";
+    public static final String DEFINITION_TYPE = "type";
+
+    public static final String CONNECTOR_DEFINITION = "connector";
+
+    public static final String FUNCTION_DEFINITION = "function";
 
     public static final String FUNCTIONS_NAME = "function_name";
 
@@ -36,17 +40,17 @@ public class BLangJSONModelConstants {
 
     public static final String ANNOTATION_PAIRS = "annotation_pairs";
 
-    public static final String PACKAGE_DEFINITION = "package_definition";
+    public static final String PACKAGE_DEFINITION = "package";
 
     public static final String PACKAGE_NAME = "package_name";
 
-    public static final String IMPORT_DECLARATIONS = "import_declarations";
+    public static final String IMPORT_DEFINITION = "import";
 
     public static final String IMPORT_PACKAGE_NAME = "import_package_name";
 
     public static final String IMPORT_PACKAGE_PATH = "import_package_path";
 
-    public static final String SERVICE_DEFINITIONS = "service_definitions";
+    public static final String SERVICE_DEFINITION = "service_definition";
 
     public static final String SERVICE_NAME = "service_name";
 
@@ -142,7 +146,7 @@ public class BLangJSONModelConstants {
 
     public static final String VARIABLE_REFERENCE_EXPRESSION = "variable_reference_expression";
 
-    public static final String VARIABLE_REFERENCE_NAME= "variable_reference_name";
+    public static final String VARIABLE_REFERENCE_NAME = "variable_reference_name";
 
     public static final String ARRAY_INIT_EXPRESSION = "array_init_expression";
 
@@ -152,7 +156,7 @@ public class BLangJSONModelConstants {
 
     public static final String INSTANCE_CREATION_EXPRESSION = "instance_creation_expression";
 
-    public static final String IF_ELSE_STATEMENT  = "if_else_statement";
+    public static final String IF_ELSE_STATEMENT = "if_else_statement";
 
     public static final String THEN_STATEMENT_BODY = "then_body";
 

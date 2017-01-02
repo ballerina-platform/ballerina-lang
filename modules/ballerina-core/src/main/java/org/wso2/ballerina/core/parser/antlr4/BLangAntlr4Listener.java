@@ -33,9 +33,11 @@ import org.wso2.ballerina.core.parser.BallerinaParser;
 public class BLangAntlr4Listener implements BallerinaListener {
 
     private BLangModelBuilder modelBuilder;
+    private int childPosition;
 
     public BLangAntlr4Listener(BLangModelBuilder modelBuilder) {
         this.modelBuilder = modelBuilder;
+        this.childPosition = 0;
     }
 
     @Override
@@ -72,7 +74,8 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitServiceDefinition(BallerinaParser.ServiceDefinitionContext ctx) {
-        modelBuilder.createService(ctx.getChild(1).getText());
+        modelBuilder.createService(ctx.getChild(1).getText(), childPosition);
+        childPosition++;
     }
 
     @Override
@@ -117,7 +120,8 @@ public class BLangAntlr4Listener implements BallerinaListener {
         }
 
         String name = ctx.getChild(nameTokenIndex).getText();
-        modelBuilder.createFunction(name, isPublic);
+        modelBuilder.createFunction(name, isPublic, childPosition);
+        childPosition++;
     }
 
     @Override
@@ -137,7 +141,8 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitConnectorDefinition(BallerinaParser.ConnectorDefinitionContext ctx) {
-        modelBuilder.createConnector(ctx.getChild(1).getText());
+        modelBuilder.createConnector(ctx.getChild(1).getText(), childPosition);
+        childPosition++;
     }
 
     @Override
