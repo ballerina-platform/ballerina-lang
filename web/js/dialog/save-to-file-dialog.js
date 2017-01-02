@@ -46,38 +46,37 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
                     "<button type='button' class='close' data-dismiss='modal' aria-label='Close'>" +
                     "<span aria-hidden='true'>&times;</span>" +
                     "</button>" +
-                    "<h4 class='modal-title' id='newConfigModalLabel' style='margin-bottom: 15px'>Ballerina Service Save Wizard</h4>" +
+                    "<h4 class='modal-title' id='newConfigModalLabel' style='margin-bottom: 15px; margin-left: 20px'>Ballerina Service Save Wizard</h4>" +
+                    "<hr class='style1'>"+
                     "</div>" +
                     "<div class='modal-body'>" +
                     "<div class='container-fluid'>" +
                     "<form class='form-horizontal'>" +
                     "<div class='form-group'>" +
-                    "<label for='location' class='control-label col-sm-2'>Location</label>" +
-                    "<div class='col-sm-10'>" +
-                    "<input type='text' class='form-control' id='location' placeholder='eg: /home/user/wso2-integration-server/ballerina-configs'>" +
+                    "<label for='location' class='col-sm-2' style='margin-left: 20px'>Location :</label>" +
+                    "<div class='col-sm-9'>" +
+                    "<input type='text' class='save-form-control' id='location' placeholder='eg: /home/user/wso2-integration-server/ballerina-configs'>" +
                     "</div>" +
                     "</div>" +
                     "<div class='form-group'>" +
-                    "<div class='container-fluid .file-browser-container' style='margin-left: 24px'>" +
-                    "<div class='ScrollableBlock'  style='padding: 20px 20px; overflow: auto; height:200px'>" +
+                    "<div class='save-form-scrollable-block'>" +
                     "<div id='fileTree'>" +
-                    "</div>" +
                     "</div>" +
                     "<div id='file-browser-error' class='alert alert-danger' style='display: none;'>" +
                     "</div>" +
                     "</div>" +
                     "</div>" +
                     "<div class='form-group'>" +
-                    "<label for='configName' class='control-label col-sm-2'>File Name</label>" +
-                    "<div class='col-sm-10'>" +
-                    "<input class='form-control' id='configName' placeholder='eg: hotel-check-in.xyz'>" +
+                    "<label for='configName' class='col-sm-2' style='margin-left: 20px'>File Name :</label>" +
+                    "<div class='col-sm-9'>" +
+                    "<input class='save-form-control' id='configName' placeholder='eg: hotel-check-in.xyz'>" +
                     "</div>" +
                     "</div>" +
                     "<div class='form-group'>" +
-                    "<div class='col-sm-offset-2     col-sm-10'>" +
-                    "<button type='button' class='btn btn-primary' data-dismiss='modal'>cancel</button>" +
-                    "<button id='saveButton' type='button' class='btn btn-primary' onclick='newConfiguration();'>save" +
+                    "<div class='save-form-btn'>" +
+                    "<button id='saveButton' type='button' class='btn btn-primary' style='margin-right: 8px'>save" +
                     "</button>" +
+                    "<button type='button' class='btn btn-primary' data-dismiss='modal'>cancel</button>" +
                     "</div>" +
                     "</div>" +
                     "</form>" +
