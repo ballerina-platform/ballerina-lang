@@ -15,9 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './../ast/service-definition',
-        './client-life-line', './resource-definition-view', 'ballerina/ast/ballerina-ast-factory', './axis', './connector-declaration-view', './../ast/variable-declaration'],
-    function (_, log, d3, D3utils, $, Canvas, Point, ServiceDefinition, ClientLifeLine, ResourceDefinitionView, BallerinaASTFactory, Axis, ConnectorDeclarationView, VariableDeclaration) {
+define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './../ast/service-definition', './resource-definition-view', 'ballerina/ast/ballerina-ast-factory', './axis', './connector-declaration-view', './../ast/variable-declaration'],
+    function (_, log, d3, D3utils, $, Canvas, Point, ServiceDefinition, ResourceDefinitionView, BallerinaASTFactory, Axis, ConnectorDeclarationView, VariableDeclaration) {
 
         /**
          * The view to represent a service definition which is an AST visitor.
@@ -38,7 +37,6 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
             this._viewOptions.topBottomTotalGap = _.get(args, "viewOptionsTopBottomTotalGap", 100);
             //set initial height for the service container svg
             this._totalHeight = 170;
-            _.set(this._viewOptions, 'client.center', new Point(100, 50));
             //set initial connector margin for the service
             this._lifelineMargin = new Axis(210, false);
 
@@ -101,12 +99,13 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
                 //stop listening to current last resource view - if any
                 if(!_.isEmpty(this._resourceViewList)){
                     this.stopListening(_.last(this._resourceViewList).getBoundingBox(), 'bottom-edge-moved');
+
+                    // make new view adjust y on last view's bottom edge move
+                    _.last(this._resourceViewList).getBoundingBox().on('bottom-edge-moved', function(dy){
+                        view.getBoundingBox().move(0, dy);
+                    })
                 }
                 this._resourceViewList.push(view);
-
-                // set lifeline bottom point
-                this._clientLifeLine.getBottomCenter().y(view.getBoundingBox().getBottom()
-                    + this._clientLifeLine.getContentOffset().bottom);
 
                 // listen to new last resource view
                 this.listenTo(_.last(this._resourceViewList).getBoundingBox(), 'bottom-edge-moved',
@@ -117,7 +116,6 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
         ServiceDefinitionView.prototype.onLastResourceBottomEdgeMoved = function (dy) {
             this._totalHeight = this._totalHeight + dy;
             this.setServiceContainerHeight(this._totalHeight);
-            this._clientLifeLine.getBottomCenter().move(0, dy);
         };
 
          ServiceDefinitionView.prototype.setChildContainer = function (svg) {
@@ -150,10 +148,6 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
             return this._viewOptions;
         };
 
-        ServiceDefinitionView.prototype.getClientTopCenter = function () {
-            return this._clientLifeLine.getTopCenter();
-        };
-
         /**
          * Rendering the view of the service definition.
          * @returns {Object} - The svg group which the service definition view resides in.
@@ -165,15 +159,6 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
             var currentContainer = $('#' + divId);
             this._container = currentContainer;
 
-            // Creating client lifeline.
-
-            var clientCenter = _.get(this._viewOptions, 'client.center');
-            var lifeLineArgs = {};
-            _.set(lifeLineArgs, 'container', this._rootGroup.node());
-            _.set(lifeLineArgs, 'centerPoint', clientCenter);
-
-            this._clientLifeLine = new ClientLifeLine(lifeLineArgs);
-            this._clientLifeLine.render();
             this.getModel().accept(this);
             var self = this;
             this._model.on('child-added', function (child) {
@@ -389,7 +374,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
             var resourceContainer = this.getChildContainer();
             // If more than 1 resource
             if (this.getResourceViewList().length > 0) {
-                var prevView = this.getResourceViewList().pop(this.getResourceViewList().length - 1);
+                var prevView = _.last(this._resourceViewList);
                 var prevResourceHeight = prevView.getBoundingBox().h();
                 var prevResourceY = prevView.getBoundingBox().y();
                 var newY = prevResourceHeight + prevResourceY + prevView.getGapBetweenResources();
@@ -487,15 +472,6 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
             // "this" will be a connector instance
             this.position(dx, 0);
             this.getBoundingBox().move(dx, 0);
-        };
-
-
-        /**
-         * Sets height of the client lifeline
-         * @param height
-         */
-        ServiceDefinitionView.prototype.setClientLifelineHeight = function (height) {
-            this._clientLifeLine.setHeight(height);
         };
 
         /**

@@ -130,6 +130,9 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(Service service) {
+
+        //TODO: Handle connector and variable declarations
+
         // Visit the set of resources in a service
         for (Resource resource : service.getResources()) {
             resource.accept(this);
