@@ -133,7 +133,7 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
             processorConnectorPoint.attr("fill-opacity", 0.01);
 
             this.processorConnectPoint = processorConnectorPoint;
-            var assignmentText = "HTTP:get";
+            var assignmentText = "HTTP:" + this.getModel().getAction();
             // TODO : Please revisit these calculations.
             var expressionText = D3Utils.textElement(x + width / 2, y + height / 2, assignmentText, assignmentStatementGroup).classed('statement-text', true);
             this._model.accept(this);
@@ -146,13 +146,6 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
                     model: this._model,
                     getterMethod: this._model.getVariableAccessor,
                     setterMethod: this._model.setVariableAccessor
-                },
-                {
-                    propertyType: "text",
-                    key: "Action",
-                    model: this._model,
-                    getterMethod: this._model.getAction,
-                    setterMethod: this._model.setAction
                 },
                 {
                     propertyType: "text",
