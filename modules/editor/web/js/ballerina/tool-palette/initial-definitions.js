@@ -142,7 +142,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
             id: "post",
             name: "Post",
             icon: "images/tool-icons/rest-service.svg",
-            title: "Post",
+            title: "post",
             meta: {
                 action: "Post"
             },
@@ -155,7 +155,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
             icon: "images/tool-icons/rest-service.svg",
             title: "Put",
             meta: {
-                action: "Put"
+                action: "put"
             },
             nodeFactoryMethod: BallerinaASTFactory.createActionInvocationExpression
         };
@@ -166,7 +166,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
             icon: "images/tool-icons/rest-service.svg",
             title: "Delete",
             meta: {
-                action: "Delete"
+                action: "delete"
             },
             nodeFactoryMethod: BallerinaASTFactory.createActionInvocationExpression
         };
@@ -177,7 +177,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
             icon: "images/tool-icons/rest-service.svg",
             title: "Patch",
             meta: {
-                action: "Patch"
+                action: "patch"
             },
             nodeFactoryMethod: BallerinaASTFactory.createActionInvocationExpression
         };
