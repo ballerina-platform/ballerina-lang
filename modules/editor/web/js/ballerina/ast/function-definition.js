@@ -17,11 +17,11 @@
  */
 define(['lodash', './callable-definition', './connector-declaration'], function (_, CallableDefinition, ConnectorDeclaration) {
 
-    var FunctionDefinition = function (connectionDeclarations, variableDeclarations, workerDeclarations, statements,args) {
+    var FunctionDefinition = function (args) {
         this.id = autoGenerateId();
-        CallableDefinition.call(this, connectionDeclarations, variableDeclarations, workerDeclarations,
-            statements, 'Function');
-        this.args = args || [];
+        CallableDefinition.call(this, 'Function');
+        this._functionName = _.get(args, 'functionName') || '';
+        this._functionArguments = _.get(args, 'functionArgs') || '';
     };
 
     FunctionDefinition.prototype = Object.create(CallableDefinition.prototype);
@@ -38,14 +38,24 @@ define(['lodash', './callable-definition', './connector-declaration'], function 
             s4() + '-' + s4() + s4() + s4();
     }
 
-    FunctionDefinition.prototype.setArgs = function(args){
-        if(!_.isNil(args)){
-            this.args = args;
+    FunctionDefinition.prototype.setFunctionName = function(name){
+        if(!_.isNil(name)){
+            this._functionName = name;
         }
     };
 
-    FunctionDefinition.prototype.getArgs = function () {
-        return this.args;
+    FunctionDefinition.prototype.getFunctionName = function () {
+        return this._functionName;
+    };
+
+    FunctionDefinition.prototype.setFunctionArguments = function(args){
+        if(!_.isNil(name)){
+            this._functionArguments = args;
+        }
+    };
+
+    FunctionDefinition.prototype.getFunctionArguments = function () {
+        return this._functionArguments;
     };
 
     /**
