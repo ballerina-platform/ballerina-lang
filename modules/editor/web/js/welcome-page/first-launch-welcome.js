@@ -18,15 +18,18 @@
 define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
     function (require, log, $, Backbone, CommandManager, Service) {
 
-        var InitialWelcomePage = Backbone.View.extend({
+        var FirstLaunchWelcomePage = Backbone.View.extend({
             initialize: function (options) {
                 var errMsg;
-                if (!_.has(options, 'container')) {
-                    errMsg = 'unable to find configuration for container';
+                if (!_.has(options, 'tab')) {
+                    errMsg = 'unable to find a reference for editor tab';
                     log.error(errMsg);
                     throw errMsg;
                 }
-                var container = $(_.get(options, 'container'));
+                this._tab = _.get(options, 'tab');
+                var container = $(this._tab.getContentContainer());
+                // make sure default tab content are cleared
+                container.empty();
                 // check whether container element exists in dom
                 if (!container.length > 0) {
                     errMsg = 'unable to find container for welcome screen with selector: ' + _.get(options, 'container');
@@ -47,10 +50,6 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
                 //Hiding menu bar
                 this._options.application.menuBar.hide();
                 this.$el.show();
-            },
-
-            passedFirstLaunch: function(){
-                return this._options.application.browserStorage.get("pref:passedFirstLaunch") || false;
             },
 
             render: function () {
@@ -196,7 +195,7 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
 
         });
 
-        return InitialWelcomePage;
+        return FirstLaunchWelcomePage;
 
     });
 
