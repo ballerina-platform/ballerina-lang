@@ -132,21 +132,26 @@ fi
 # ----- Process the input command ----------------------------------------------
 
 args=""
-for c in $@
+BARGS=
+BPATH=
+
+for c in "$@"
 do
     # Parsing Options.
     if [ "$c" = "-servicespath" ] || [ "$c" = "-s" ]; then
           BAL_EXECUTION_CMD="run-this"
           args="$args $c"
-          continue
+    elif [ "$c" = "-bpath" ] ; then
+          BAL_EXECUTION_SUB_CMD="-bpath"
+          args="$args $c"
     elif [ "$BAL_EXECUTION_CMD" = "run-this" ] && [ -z "$BAL_FILE_NAME" ]; then
           BAL_FILE_NAME=$c
+          if [[ "$BAL_FILE_NAME" != /* ]]; then
+              BAL_FILE_NAME="$BASE_DIR/$BAL_FILE_NAME"
+          fi
           args="$args $c"
-    elif [ "$c" = "-bpath" ] ; then
-          BAL_PATH_CMD="bpath"
-          args="$args $c"
-    elif [ "$BAL_PATH_CMD" = "bpath" ] && [ -z "$BAL_Path" ]; then
-          BAL_Path="$c"
+    elif [ "$BAL_EXECUTION_SUB_CMD" = "-bpath" ] && [ -z "$BPATH" ] ; then
+          BPATH="$c"
           args="$args $c"
     # Parsing Commands.
     elif [ "$c" = "--debug" ] || [ "$c" = "-debug" ] || [ "$c" = "debug" ]; then
@@ -163,8 +168,6 @@ do
           CMD="version"
     elif [ "$c" = "help" ]; then
           CMD="help"
-    elif [ "$c" = "--test" ] || [ "$c" = "-test" ] || [ "$c" = "test" ]; then
-          CMD="test"
     else
         echo "Not supported option or command : $c"
         cat $CARBON_HOME/bin/ballerina-bash-help.txt
@@ -172,21 +175,10 @@ do
     fi
 done
 
-BAL_OPTS="-Dbase-dir=$BASE_DIR -Drun-mode=server"
-if [ "$BAL_EXECUTION_CMD" = "run-this" ]; then
-   if [[ "$BAL_FILE_NAME" != /* ]]; then
-        BAL_FILE_NAME="$BASE_DIR/$BAL_FILE_NAME"
-   fi
-  #echo "Running the Ballerina file $BAL_FILE_NAME"
-else
+if [ -z "$BAL_FILE_NAME" ]; then
   # Switching to current directory (.)
   BAL_FILE_NAME="$BASE_DIR"
 fi
-
-BAL_OPTS="$BAL_OPTS -Drun-file=$BAL_FILE_NAME"
-
-# Add Ballerina Options to JAVA_OPTS
-JAVA_OPTS="$JAVA_OPTS $BAL_OPTS"
 
 if [ "$CMD" = "--debug" ]; then
   if [ "$PORT" = "" ]; then
@@ -197,8 +189,13 @@ if [ "$CMD" = "--debug" ]; then
     echo "Warning !!!. User specified JAVA_OPTS will be ignored, once you give the --debug option."
   fi
   JAVA_OPTS="-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=$PORT"
-  JAVA_OPTS="$JAVA_OPTS $BAL_OPTS"
   echo "Please start the remote debugging client to continue..."
+elif [ "$CMD" = "version" ]; then
+  cat $CARBON_HOME/bin/version.txt
+  exit 0
+elif [ "$CMD" = "help" ]; then
+  cat $CARBON_HOME/bin/ballerina-bash-help.txt
+  exit 0
 elif [ "$CMD" = "start" ]; then
   if [ -e "$CARBON_HOME/carbon.pid" ]; then
     if  ps -p $PID > /dev/null ; then
@@ -232,14 +229,6 @@ elif [ "$CMD" = "restart" ]; then
 
 # using nohup bash to avoid erros in solaris OS.TODO
   nohup bash $CARBON_HOME/bin/ballerinaserver.sh $args > /dev/null 2>&1 &
-  exit 0
-elif [ "$CMD" = "test" ]; then
-    JAVACMD="exec "$JAVACMD""
-elif [ "$CMD" = "version" ]; then
-  cat $CARBON_HOME/bin/version.txt
-  exit 0
-elif [ "$CMD" = "help" ]; then
-  cat $CARBON_HOME/bin/ballerina-bash-help.txt
   exit 0
 fi
 
@@ -314,6 +303,11 @@ do
     -Djava.util.logging.config.file="$CARBON_HOME/bin/bootstrap/logging.properties" \
     -Djava.security.egd=file:/dev/./urandom \
     -Dfile.encoding=UTF8 \
+    -Dbase-dir="$BASE_DIR" \
+    -Drun-mode=server \
+    -Drun-file="$BAL_FILE_NAME" \
+    -Dbargs="$BARGS" \
+    -Dbpath="$BPATH" \
     org.wso2.carbon.launcher.Main $*
     status=$?
 done
