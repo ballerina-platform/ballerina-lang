@@ -83,19 +83,21 @@ define(['jquery', 'backbone', 'lodash', 'tree_view', /** void module - jquery pl
                             'responsive': false,
                             'variant': 'small',
                             'stripes': true
+                        }
+                    },
+                    'types': {
+                        'default': {
+                            'icon': 'glyphicon glyphicon-folder-close'
                         },
-                        'types': {
-                            'folder': {
-                                'icon': 'glyphicon glyphicon-folder-open'
-                            },
-                            'file': {
-                                'icon': 'glyphicon glyphicon-file'
-                            }
+                        'folder': {
+                            'icon': 'glyphicon glyphicon-folder-close'
                         },
-                        'plugins': ['types']
-                    }
-                })
-                .on('changed.jstree', function (e, data) {
+                        'file': {
+                            'icon': 'glyphicon glyphicon-file'
+                        }
+                    },
+                    'plugins': ['types']
+                }).on('changed.jstree', function (e, data) {
                     if (data && data.selected && data.selected.length) {
                         self.selected = data.selected[0];
                         self.trigger("selected", data.selected[0]);
@@ -104,6 +106,10 @@ define(['jquery', 'backbone', 'lodash', 'tree_view', /** void module - jquery pl
                         self.selected = false;
                         self.trigger("selected", null);
                     }
+                }).on('open_node.jstree', function (e, data) {
+                    data.instance.set_icon(data.node, "glyphicon glyphicon-folder-open");
+                }).on('close_node.jstree', function (e, data) {
+                    data.instance.set_icon(data.node, "glyphicon glyphicon-folder-close");
                 });
             return this;
         }
