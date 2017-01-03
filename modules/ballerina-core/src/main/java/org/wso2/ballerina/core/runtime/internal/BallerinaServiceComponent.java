@@ -35,11 +35,14 @@ import org.wso2.ballerina.core.runtime.MessageProcessor;
 import org.wso2.ballerina.core.runtime.deployer.BalDeployer;
 import org.wso2.ballerina.core.runtime.errors.handler.ServerConnectorErrorHandler;
 import org.wso2.carbon.kernel.utils.CarbonServerInfo;
+import org.wso2.carbon.kernel.utils.Utils;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.messaging.TransportListenerManager;
 import org.wso2.carbon.messaging.TransportSender;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 
 /**
@@ -55,7 +58,7 @@ public class BallerinaServiceComponent {
 
     @Activate
     protected void start(BundleContext bundleContext) {
-//        bundleContext.registerService(BallerinaOSGiService.class, new BallerinaOSGiService(), null);
+
         //Creating the processor and registering the service
         bundleContext.registerService(CarbonMessageProcessor.class, new MessageProcessor(), null);
 
@@ -67,13 +70,17 @@ public class BallerinaServiceComponent {
         //Determine the runtime mode
 
         String runtimeMode = System.getProperty(Constants.SYSTEM_PROP_RUN_MODE);
-        if (runtimeMode == null) {
-            // TODO : Remove Default mode and move its logic to server mode, once we fix the carbon deployment.
-            ServiceContextHolder.getInstance().setRuntimeMode(Constants.RuntimeMode.DEFAULT);
-            return;
-        }
-
         String runningFileName = System.getProperty(Constants.SYSTEM_PROP_RUN_FILE);
+        if (runtimeMode == null) {
+            // TODO : Remove Default mode, once we fix the carbon deployment.
+            runtimeMode = Constants.SYSTEM_PROP_RUN_MODE_SERVER;
+            Path deploymentDir = Paths.get(Utils.getCarbonHome().toString(), "deployment", BalDeployer
+                    .BAL_FILES_DIRECTORY);
+            runningFileName = deploymentDir.toString();
+            if (log.isDebugEnabled()) {
+                log.debug("Ballerina is running is carbon server mode. You SHOULDN'T run in this mode...!");
+            }
+        }
         File runningFile;
         if (runningFileName != null) {
             runningFile = new File(runningFileName);

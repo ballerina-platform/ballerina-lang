@@ -168,7 +168,7 @@
         <carbon.component>
             startup.listener;componentName="ballerina-native-provider";
             requiredService="org.wso2.ballerina.core.model.AbstractNativeFunction",
-            osgi.service; objectClass="org.wso2.carbon.deployment.engine.Deployer",
+            <!--osgi.service; objectClass="org.wso2.carbon.deployment.engine.Deployer",-->
             osgi.service; objectClass="org.wso2.carbon.messaging.CarbonMessageProcessor";
             requiredByComponentName="netty-transports-mgt"
         </carbon.component>
