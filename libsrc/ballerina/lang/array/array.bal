@@ -16,6 +16,22 @@ native function length (xml[] array) (int);
 
 native function length (message[] array) (int);
 
+native function copyOf (int[] array) (int[]);
+
+native function copyOf (long[] array) (long[]);
+
+native function copyOf (float[] array) (float[]);
+
+native function copyOf (double[] array) (double[]);
+
+native function copyOf (string[] array) (string[]);
+
+native function copyOf (json[] array) (json[]);
+
+native function copyOf (xml[] array) (xml[]);
+
+native function copyOf (message[] array) (message[]);
+
 native function copyOfRange (int[] array, int from, int to) (int[]);
 
 native function copyOfRange (long[] array, int from, int to) (long[]);
