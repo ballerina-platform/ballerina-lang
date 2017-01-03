@@ -52,16 +52,6 @@
     padding-left: 10px;
 }
 
-.right-icon-clickable{
-    float: right;
-    margin-right: 10px;
-    margin-top: 8px;;
-    cursor: pointer;
-}
-
-.right-icon-clickable:hover{
-    color: green;
-}
 .delete-icon:hover{
     color: red;
 }

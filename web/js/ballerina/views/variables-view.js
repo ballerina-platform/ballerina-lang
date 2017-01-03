@@ -295,10 +295,10 @@ define(['require', 'lodash', 'jquery', 'log', 'd3utils', 'd3', './point', 'balle
             }
         }
 
-        var annotationView = {};
+        var variableView = {};
 
-        annotationView.createVariableButton = createVariableButton;
-        annotationView.createVariablePane = createVariablePane;
+        variableView.createVariableButton = createVariableButton;
+        variableView.createVariablePane = createVariablePane;
 
-        return annotationView;
+        return variableView;
     });
