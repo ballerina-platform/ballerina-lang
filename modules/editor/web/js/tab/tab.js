@@ -57,8 +57,9 @@ define(['log', 'backbone'], function (log, Backbone) {
             tab.attr('id', this.cid);
             this.$el = tab;
         },
-        render: function(){
-
+        remove: function(){
+            this.trigger("removed");
+            Backbone.View.prototype.remove.call(this);
         },
         setActive: function(isActive){
             if(_.isBoolean(isActive)){
