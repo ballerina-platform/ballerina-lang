@@ -59,11 +59,13 @@ define(['log', 'jquery', 'lodash', './tab-list', './file-tab',  'workspace'],
         },
         removeTab: function (tab) {
             TabList.prototype.removeTab.call(this, tab);
-            _.remove(this._workingFileSet, tab.getFile());
-            if(tab.getFile().get('isTemp')){
-                this.getBrowserStorage().destroy(tab.getFile());
+            if(tab instanceof ServiceTab){
+                _.remove(this._workingFileSet, tab.getFile());
+                if(tab.getFile().get('isTemp')){
+                    this.getBrowserStorage().destroy(tab.getFile());
+                }
+                this.getBrowserStorage().put('workingFileSet', this._workingFileSet);
             }
-            this.getBrowserStorage().put('workingFileSet', this._workingFileSet);
         },
         newTab: function(opts) {
             var options = opts || {};
