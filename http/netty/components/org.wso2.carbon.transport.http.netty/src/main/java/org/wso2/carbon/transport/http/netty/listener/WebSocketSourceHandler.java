@@ -28,12 +28,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
-import org.wso2.carbon.messaging.websocket.BinaryWebSocketCarbonMessage;
-import org.wso2.carbon.messaging.websocket.CloseWebSocketCarbonMessage;
-import org.wso2.carbon.messaging.websocket.TextWebSocketCarbonMessage;
+import org.wso2.carbon.messaging.websocket.BinaryWebSocketMessage;
+import org.wso2.carbon.messaging.websocket.CloseWebSocketMessage;
+import org.wso2.carbon.messaging.websocket.TextWebSocketMessage;
 import org.wso2.carbon.messaging.websocket.WebSocketResponder;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
+import org.wso2.carbon.transport.http.netty.exception.UnknownWebSocketFrameTypeException;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.carbon.transport.http.netty.internal.WebSocketResponderImpl;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
@@ -43,9 +44,9 @@ import java.net.URI;
 import java.nio.ByteBuffer;
 
 /**
- * {@link SourceHandler} only handles the HTTP requests
+ * {@link SourceHandler} only handles the HTTP requests.
  * This class handles all kinds of WebSocketFrames
- * after connection is upgraded from HTTP to WebSocket
+ * after connection is upgraded from HTTP to WebSocket.
  */
 public class WebSocketSourceHandler extends SourceHandler {
 
@@ -70,13 +71,13 @@ public class WebSocketSourceHandler extends SourceHandler {
     }
 
     /**
-     * Read the channel for incoming {@link io.netty.handler.codec.http.websocketx.WebSocketFrame}
-     * @param ctx {@link ChannelHandlerContext} for the given channel
-     * @param msg Incoming message object
-     * @throws Exception
+     * Read the channel for incoming {@link io.netty.handler.codec.http.websocketx.WebSocketFrame}.
+     * @param ctx {@link ChannelHandlerContext} for the given channel.
+     * @param msg Incoming message object.
+     * @throws UnknownWebSocketFrameTypeException when incoming WebSocket frame cannot be identified.
      */
     @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws UnknownWebSocketFrameTypeException {
         cMsg = null;
 
         if (msg instanceof WebSocketFrame) {
@@ -84,26 +85,27 @@ public class WebSocketSourceHandler extends SourceHandler {
             if (msg instanceof TextWebSocketFrame) {
                 TextWebSocketFrame textWebSocketFrame = (TextWebSocketFrame) msg;
                 String text = textWebSocketFrame.text();
-                cMsg = new TextWebSocketCarbonMessage(text, webSocketResponder);
+                cMsg = new TextWebSocketMessage(text, webSocketResponder);
 
             } else if (msg instanceof BinaryWebSocketFrame) {
                 BinaryWebSocketFrame binaryWebSocketFrame = (BinaryWebSocketFrame) msg;
                 boolean finalFragment = binaryWebSocketFrame.isFinalFragment();
                 ByteBuf byteBuf = binaryWebSocketFrame.content();
                 ByteBuffer byteBuffer = byteBuf.nioBuffer();
-                cMsg = new BinaryWebSocketCarbonMessage(byteBuffer, finalFragment, webSocketResponder);
+                cMsg = new BinaryWebSocketMessage(byteBuffer, finalFragment, webSocketResponder);
 
             } else if (msg instanceof CloseWebSocketFrame) {
                 CloseWebSocketFrame closeWebSocketFrame = (CloseWebSocketFrame) msg;
                 String reasonText = closeWebSocketFrame.reasonText();
                 int statusCode = closeWebSocketFrame.statusCode();
-                cMsg = new CloseWebSocketCarbonMessage(statusCode, reasonText, webSocketResponder);
+                cMsg = new CloseWebSocketMessage(statusCode, reasonText, webSocketResponder);
             }
 
             setupBasicCarbonMessageProperties(ctx);
             publishToMessageProcessor(cMsg);
         } else {
             log.error("Expecting WebSocketFrame. Unknown type.");
+            throw new UnknownWebSocketFrameTypeException("Expecting WebSocketFrame. Unknown type.");
         }
     }
 
@@ -123,10 +125,10 @@ public class WebSocketSourceHandler extends SourceHandler {
             try {
                 carbonMessageProcessor.receive(cMsg, new ResponseCallback(this.ctx));
             } catch (Exception e) {
-                log.error("Error while submitting CarbonMessage to CarbonMessageProcessor", e);
+                log.error("Error while submitting CarbonMessage to CarbonMessageProcessor.", e);
             }
         } else {
-            log.error("Cannot find registered MessageProcessor for forward the message");
+            log.error("Cannot find registered MessageProcessor to forward the message.");
         }
 
     }

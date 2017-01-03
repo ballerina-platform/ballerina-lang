@@ -21,7 +21,6 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.FullHttpMessage;
 import io.netty.handler.codec.http.HttpContent;
@@ -36,11 +35,15 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
+import org.wso2.carbon.messaging.websocket.WebSocketHandshaker;
+import org.wso2.carbon.messaging.websocket.WebSocketResponder;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
+import org.wso2.carbon.transport.http.netty.internal.WebSocketHandshakerImpl;
+import org.wso2.carbon.transport.http.netty.internal.WebSocketResponderImpl;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
@@ -105,29 +108,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             }
 
         } else if (msg instanceof HttpRequest) {
-            HttpRequest request = (HttpRequest) msg;
-            HttpHeaders headers = request.headers();
-            /*
-            Checks whether the incoming HttpRequest is a WebSocket Upgrade Request
-            or a normal HttpRequest
-             */
-            if (headers.get("Connection").equalsIgnoreCase("Upgrade")) {
-                if (headers.get("Upgrade").equalsIgnoreCase("websocket")) {
-                    log.info("Upgrading the connection from Http to WebSocket for " +
-                                     "channel : " + ctx.channel());
-                    handleWebSocketHandshake(ctx, request);
-                    //Replace HTTP handlers  with  new Handlers for WebSocket in the pipeline
-                    ChannelPipeline pipeline = ctx.pipeline();
-                    pipeline.replace("handler",
-                                     "ws_handler",
-                                     new  WebSocketSourceHandler(this.connectionManager,
-                                                                 this.listenerConfiguration,
-                                                                 request.getUri()));
-                    log.info("WebSocket upgrade is successful");
-                }
-            } else {
                 publishToMessageProcessor(msg);
-            }
 
         } else {
             if (cMsg != null) {
@@ -169,7 +150,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
 
     //Carbon Message is published to registered message processor and Message Processor should return transport thread
     //immediately
-    private void publishToMessageProcessor(Object msg) {
+    private void publishToMessageProcessor(Object msg) throws URISyntaxException {
         cMsg = (HTTPCarbonMessage) setupCarbonMessage(msg);
         if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
             HTTPTransportContextHolder.getInstance().getHandlerExecutor().executeAtSourceRequestReceiving(cMsg);
@@ -242,7 +223,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         }
     }
 
-    protected CarbonMessage setupCarbonMessage(Object msg) {
+    protected CarbonMessage setupCarbonMessage(Object msg) throws URISyntaxException {
         cMsg = new HTTPCarbonMessage();
         if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
             HTTPTransportContextHolder.getInstance().getHandlerExecutor().executeAtSourceRequestReceiving(cMsg);
@@ -274,9 +255,32 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         cMsg.setProperty(Constants.REQUEST_URL, httpRequest.getUri());
         ChannelHandler handler = ctx.handler();
 
-        cMsg.setProperty(Constants.CHANNEL_ID, ((SourceHandler) handler).getListenerConfiguration().getId());
 
         cMsg.setHeaders(Util.getHeaders(httpRequest).getAll());
+
+        /*
+        Checks whether the given connection is a WebSocketUpgrade and add necessary components to it.
+         */
+        HttpHeaders headers = httpRequest.headers();
+        if (headers.get("Connection").equalsIgnoreCase("Upgrade")) {
+            if (headers.get("Upgrade").equalsIgnoreCase("websocket")) {
+                handleWebSocketHandshake(ctx, httpRequest);
+                WebSocketHandshaker webSocketHandshaker = new WebSocketHandshakerImpl(
+                    handshaker, ctx, httpRequest, connectionManager, listenerConfiguration
+                );
+                WebSocketResponder webSocketResponder = new WebSocketResponderImpl(ctx);
+
+                cMsg.setProperty(Constants.CONNECTION, headers.get("Connection"));
+                cMsg.setProperty(Constants.UPGRADE, headers.get("upgrade"));
+                cMsg.setProperty(Constants.CHANNEL_ID, ctx.channel().toString());
+                cMsg.setProperty(Constants.WEBSOCKET_HANDSHAKER, webSocketHandshaker);
+                cMsg.setProperty(Constants.WEBSOCKET_RESPONDER, webSocketResponder);
+            }
+        } else {
+            cMsg.setProperty(Constants.CONNECTION, null);
+            cMsg.setProperty(Constants.CHANNEL_ID, ((SourceHandler) handler).getListenerConfiguration().getId());
+        }
+
         return cMsg;
     }
 }

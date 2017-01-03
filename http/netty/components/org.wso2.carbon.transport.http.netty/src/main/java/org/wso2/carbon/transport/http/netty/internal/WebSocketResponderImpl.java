@@ -24,14 +24,14 @@ import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
-import org.wso2.carbon.messaging.websocket.BinaryWebSocketCarbonMessage;
-import org.wso2.carbon.messaging.websocket.CloseWebSocketCarbonMessage;
-import org.wso2.carbon.messaging.websocket.TextWebSocketCarbonMessage;
-import org.wso2.carbon.messaging.websocket.WebSocketCarbonMessage;
+import org.wso2.carbon.messaging.websocket.BinaryWebSocketMessage;
+import org.wso2.carbon.messaging.websocket.CloseWebSocketMessage;
+import org.wso2.carbon.messaging.websocket.TextWebSocketMessage;
+import org.wso2.carbon.messaging.websocket.WebSocketMessage;
 import org.wso2.carbon.messaging.websocket.WebSocketResponder;
 
 /**
- * This class is responsible for sending server-side responses to a given client
+ * This class is responsible for sending server-side responses to a given client.
  */
 public class WebSocketResponderImpl implements WebSocketResponder {
 
@@ -43,28 +43,28 @@ public class WebSocketResponderImpl implements WebSocketResponder {
     }
 
     @Override
-    public void pushToClient(WebSocketCarbonMessage webSocketCarbonMessage) {
+    public void pushToClient(WebSocketMessage webSocketMessage) {
 
         WebSocketFrame webSocketFrame = null;
 
-        if (webSocketCarbonMessage instanceof TextWebSocketCarbonMessage) {
-            TextWebSocketCarbonMessage textWebSocketCarbonMessage =
-                    (TextWebSocketCarbonMessage) webSocketCarbonMessage;
-            webSocketFrame = new TextWebSocketFrame(textWebSocketCarbonMessage.getText());
+        if (webSocketMessage instanceof TextWebSocketMessage) {
+            TextWebSocketMessage textWebSocketMessage =
+                    (TextWebSocketMessage) webSocketMessage;
+            webSocketFrame = new TextWebSocketFrame(textWebSocketMessage.getText());
 
-        } else if (webSocketCarbonMessage instanceof BinaryWebSocketCarbonMessage) {
-            BinaryWebSocketCarbonMessage binaryWebSocketCarbonMessage =
-                    (BinaryWebSocketCarbonMessage) webSocketCarbonMessage;
+        } else if (webSocketMessage instanceof BinaryWebSocketMessage) {
+            BinaryWebSocketMessage binaryWebSocketMessage =
+                    (BinaryWebSocketMessage) webSocketMessage;
 
-            byte[] bytes = binaryWebSocketCarbonMessage.readBytes().array();
+            byte[] bytes = binaryWebSocketMessage.readBytes().array();
             webSocketFrame = new BinaryWebSocketFrame(Unpooled.wrappedBuffer(bytes));
 
-        } else if (webSocketCarbonMessage instanceof CloseWebSocketCarbonMessage) {
-            CloseWebSocketCarbonMessage closeWebSocketCarbonMessage =
-                    (CloseWebSocketCarbonMessage) webSocketCarbonMessage;
+        } else if (webSocketMessage instanceof CloseWebSocketMessage) {
+            CloseWebSocketMessage closeWebSocketMessage =
+                    (CloseWebSocketMessage) webSocketMessage;
 
-            String reasonText = closeWebSocketCarbonMessage.getReasonText();
-            int statusCode = closeWebSocketCarbonMessage.getStatusCode();
+            String reasonText = closeWebSocketMessage.getReasonText();
+            int statusCode = closeWebSocketMessage.getStatusCode();
 
             if (statusCode >= statusCodeLowerLimit && reasonText != null) {
                 webSocketFrame = new CloseWebSocketFrame(statusCode, reasonText);

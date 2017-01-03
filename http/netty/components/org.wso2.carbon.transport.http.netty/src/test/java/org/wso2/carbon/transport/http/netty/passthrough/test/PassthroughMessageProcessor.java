@@ -26,7 +26,7 @@ import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.messaging.MessageProcessorException;
 import org.wso2.carbon.messaging.TransportSender;
-import org.wso2.carbon.messaging.websocket.WebSocketCarbonMessage;
+import org.wso2.carbon.messaging.websocket.WebSocketMessage;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.util.TestUtil;
 
@@ -55,7 +55,7 @@ public class PassthroughMessageProcessor implements CarbonMessageProcessor {
                         logger.info("CarbonCallBack " + carbonCallback);
 
                         carbonCallback.done(carbonMessage);
-                    } else if (carbonMessage instanceof WebSocketCarbonMessage) {
+                    } else if (carbonMessage instanceof WebSocketMessage) {
                         logger.info("WebSocket Frame received for URI : " +
                             carbonMessage.getProperty(Constants.TO));
                         Assert.assertTrue(true);

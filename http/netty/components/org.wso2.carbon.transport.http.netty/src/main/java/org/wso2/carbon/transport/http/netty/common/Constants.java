@@ -175,7 +175,11 @@ public final class Constants {
     public static final String DEFAULT_ADDRESS = "0.0.0.0";
 
     public static final String LOCALHOST = "localhost";
-    public static final String CHANNEL_TO_STRING = "CHANNEL_TO_STRING";
+
+    public static final String CONNECTION = "CONNECTION";
+    public static final String UPGRADE = "UPGRADE";
+    public static final String WEBSOCKET_HANDSHAKER = "WEBSOCKET_HANDSHAKER";
+    public static final String WEBSOCKET_RESPONDER = "WEBSOCKET_RESPONDER";
 
     private Constants() {
     }
