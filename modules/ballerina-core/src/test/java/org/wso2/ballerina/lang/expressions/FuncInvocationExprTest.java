@@ -19,7 +19,7 @@ package org.wso2.ballerina.lang.expressions;
 
 
 import org.testng.Assert;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.values.BInteger;
@@ -36,7 +36,7 @@ public class FuncInvocationExprTest {
 
     private BallerinaFile bFile;
 
-    @BeforeTest
+    @BeforeClass
     public void setup() {
         bFile = ParserUtils.parseBalFile("lang/expressions/funcInvocation-expr.bal");
     }
