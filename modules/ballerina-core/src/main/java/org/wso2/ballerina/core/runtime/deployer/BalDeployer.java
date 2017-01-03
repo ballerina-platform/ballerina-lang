@@ -22,7 +22,6 @@ import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.exception.BallerinaException;
@@ -59,15 +58,15 @@ import java.util.Arrays;
  *
  * @since 1.0.0
  */
-@Component(
-        name = "org.wso2.ballerina.core.runtime.deployer.BalDeployer",
-        immediate = true,
-        service = Deployer.class)
+//@Component(
+//        name = "org.wso2.ballerina.core.runtime.deployer.BalDeployer",
+//        immediate = true,
+//        service = Deployer.class)
 public class BalDeployer implements Deployer {
 
     private static final Logger log = LoggerFactory.getLogger(BalDeployer.class);
 
-    private static final String BAL_FILES_DIRECTORY = "ballerina-files";
+    public static final String BAL_FILES_DIRECTORY = "ballerina-files";
     private static final String FILE_EXTENSION = ".bal";
     private ArtifactType artifactType = new ArtifactType<>("bal");
     private URL directoryLocation;
@@ -89,7 +88,7 @@ public class BalDeployer implements Deployer {
     @Override
     public Object deploy(Artifact artifact) throws CarbonDeploymentException {
         // Deploy only when default mode
-        if (ServiceContextHolder.getInstance().getRuntimeMode() == Constants.RuntimeMode.DEFAULT) {
+        if (ServiceContextHolder.getInstance().getRuntimeMode() == Constants.RuntimeMode.SERVER) {
             deployBalFile(artifact.getFile());
         }
         return artifact.getFile().getName();
@@ -97,14 +96,14 @@ public class BalDeployer implements Deployer {
 
     @Override
     public void undeploy(Object key) throws CarbonDeploymentException {
-        if (ServiceContextHolder.getInstance().getRuntimeMode() == Constants.RuntimeMode.DEFAULT) {
+        if (ServiceContextHolder.getInstance().getRuntimeMode() == Constants.RuntimeMode.SERVER) {
             undeployBalFile((String) key);
         }
     }
 
     @Override
     public Object update(Artifact artifact) throws CarbonDeploymentException {
-        if (ServiceContextHolder.getInstance().getRuntimeMode() == Constants.RuntimeMode.DEFAULT) {
+        if (ServiceContextHolder.getInstance().getRuntimeMode() == Constants.RuntimeMode.SERVER) {
             log.info("Updating " + artifact.getName() + "...");
             undeployBalFile(artifact.getName());
             deployBalFile(artifact.getFile());
@@ -157,6 +156,7 @@ public class BalDeployer implements Deployer {
                     if (function != null) {
                         ServiceContextHolder.getInstance().setMainFunctionToExecute(function);
                         successful = true;
+                        return;
                     } else if (balFile.getServices().size() == 0) {
                         log.error("Unable to find Main function or any Ballerina Services.");
                         ServiceContextHolder.getInstance().setRuntimeMode(Constants.RuntimeMode.ERROR);
