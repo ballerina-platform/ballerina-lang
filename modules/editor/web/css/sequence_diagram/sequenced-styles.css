@@ -306,12 +306,12 @@ text-anchor: start;
 }
 
 .client-life-line polygon{
-    stroke: #000000;
+    stroke: #333;
     fill: #FFFFFF;
 }
 
 .client-life-line line{
-    stroke: #000000;
+    stroke: #333;
 }
 
 .default-worker-life-line{
