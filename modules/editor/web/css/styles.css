@@ -162,8 +162,7 @@ header .brand {
 }
 
 header .brand h1 {
-    text-transform: uppercase;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 200;
     color: #d6d6d6;
 }

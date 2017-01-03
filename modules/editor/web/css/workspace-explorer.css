@@ -1,6 +1,8 @@
 .workspace-explorer-activate-btn{
     color: white;
-    margin-left: 5px;
+    margin-left: 6px;
+    padding-top: 6px;
+    opacity: 0.4;
 }
 .workspace-explorer-container{
     width: 120px;
