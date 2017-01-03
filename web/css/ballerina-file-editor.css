@@ -134,3 +134,44 @@
     fill: #008000;
     fill-opacity: 0.2;
 }
+
+/**  syntax highlight **/
+.ace_ballerina-keyword-control{
+    color: #6897BB;
+}
+
+.ace_ballerina-keyword-other{
+    color: #FFC66D;
+}
+
+.ace_ballerina-keyword-primitive-type{
+    color: #9876AA;
+}
+
+.ace_ballerina-keyword-non-primitive-type{
+    color: #CC7832;
+}
+
+.ace_ballerina-keyword-definition{
+    color: #CC7832;
+}
+
+.ace_ballerina-annotation{
+    color: #BBB529;
+}
+
+.ace_ballerina-strings{
+    color: #629755;
+}
+
+.ace_ballerina-comments{
+    color: #808080;
+}
+
+.ace_ballerina-keyword-language{
+    color: #9876AA;
+}
+
+.ace_ballerina-keyword-identifier{
+    color: #fff;
+}

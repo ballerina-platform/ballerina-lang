@@ -202,7 +202,10 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             var aceEditorContainer = $('<div></div>');
             aceEditorContainer.addClass(_.get(this._viewOptions, 'cssClass.text_editor_class'));
             sourceViewContainer.append(aceEditorContainer);
-            this._sourceView = new SourceView({container: aceEditorContainer.get(0), content: "test content"});
+            var sourceViewOpts = _.clone(_.get(this._viewOptions, 'source_view'));
+            _.set(sourceViewOpts, 'container', aceEditorContainer.get(0));
+            _.set(sourceViewOpts, 'content', "");
+            this._sourceView = new SourceView(sourceViewOpts);
             this._sourceView.render();
 
             var sourceViewBtn = $(this._container).find(_.get(this._viewOptions, 'controls.view_source_btn'));
