@@ -18,7 +18,7 @@
 package org.wso2.ballerina.core.nativeimpl.functions;
 
 import org.testng.Assert;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.BLangInterpreter;
@@ -79,7 +79,7 @@ public class JSONTest {
     private static final String jsonElementArray = "{'persons':[{'fname':'Jack','lname':'Taylor'}, {'fname':'Peter'," +
             "'lname':'Roy'}]}";
     
-    @BeforeTest
+    @BeforeClass
     public void setup() {
         // Add Native functions.
         SymScope symScope = new SymScope(null);

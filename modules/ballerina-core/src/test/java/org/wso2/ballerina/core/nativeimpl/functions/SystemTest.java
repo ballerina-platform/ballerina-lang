@@ -19,7 +19,7 @@ package org.wso2.ballerina.core.nativeimpl.functions;
 
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.interpreter.BLangInterpreter;
 import org.wso2.ballerina.core.interpreter.Context;
@@ -48,7 +48,7 @@ public class SystemTest {
 
     private PrintStream original;
 
-    @BeforeTest
+    @BeforeClass
     public void setup() {
         original = System.out;
         System.setOut(new PrintStream(outContent));
