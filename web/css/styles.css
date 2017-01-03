@@ -225,7 +225,7 @@ ol#breadcrumbList {
     top: 6px;
     left: 17px;
     margin: auto;
-    min-height: 36px;
+    min-height: 30px;
     padding: 3px 3px 0 16px;
 }
 
@@ -272,7 +272,7 @@ button.variable-list {
 }
 
 .variable-wrapper i {
-    padding: 8px;
+    padding: 6px;
     font-size: 8px;
     background-color: #fff;
     color: #8a8a8a;
@@ -287,14 +287,14 @@ button.variable-list {
     float: left;
     color: white;
     padding: 0 4px 4px 4px;
-    height: 26px;
+    height: 22px;
     line-height: 26px;
 }
 
 .variable-identifier {
     float: left;
     padding-left:5px;
-    height: 26px;
+    height: 22px;
 }
 
 /*Start Message*/
@@ -657,7 +657,7 @@ button.variable-list {
 .package-name-wrapper input[type=text] {
     padding-left: 7px;
     margin-left: 2px;
-    width: 290px;
+    width: 310px;
     border: 1px solid #ccc;
 }
 
@@ -801,8 +801,8 @@ button.variable-list {
 
 .variable-add-icon-wrapper {
     margin-left: 2px;
-    height: 26px;
-    margin-top: 2px;
+    height: 22px;
+    margin-top: 0;
     position: static;
     top: auto;
     right: auto;
@@ -819,7 +819,7 @@ button.variable-list {
 .variable-add-action-wrapper input {
     width: 163px;
     margin-left: 4px;
-    height: 26px;
+    height: 22px;
     padding-left: 5px;
 }
 
@@ -828,15 +828,13 @@ button.variable-list {
 }
 
 .variable-add-complete-action-wrapper {
-    height: 26px;
-    margin-top: 3px;
+    height: 22px;
     position: static;
     float: right;
 }
 
 .variable-add-cancel-action-wrapper {
-    height: 26px;
-    margin-top: 3px;
+    height: 22px;
     position: static;
     float: right;
 }
@@ -865,7 +863,7 @@ button.variable-list {
     font-size: 19px;
     position: absolute;
     vertical-align: top;
-    top: 8px;
+    top: 6px;
     right: 6px;
 }
 
