@@ -205,6 +205,8 @@ define(['require', 'lodash', 'jquery', 'log', 'd3utils', 'd3', './point', 'balle
             variablePaneWrapper.click(function (event) {
                 event.stopPropagation();
             });
+
+            return variablePaneWrapper;
         };
 
         /**
