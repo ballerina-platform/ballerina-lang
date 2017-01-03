@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './node', './worker-declaration'], function (_, log, ASTNode, WorkerDeclaration) {
+define(['lodash', 'log', './node', './worker-declaration', './connector-declaration'], function (_, log, ASTNode, WorkerDeclaration, ConnectorDeclaration) {
 
     var ResourceDefinition = function (args) {
         this._path = _.get(args, 'path', '/');
@@ -125,6 +125,19 @@ define(['lodash', 'log', './node', './worker-declaration'], function (_, log, AS
             this.parent = parent;
         } else {
             return this.parent;
+        }
+    };
+
+    /**
+     * Override the super call to addChild
+     * @param child
+     * @param index
+     */
+    ResourceDefinition.prototype.addChild = function (child, index) {
+        if (child instanceof ConnectorDeclaration) {
+            Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, 0);
+        } else {
+            Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, index);
         }
     };
 
