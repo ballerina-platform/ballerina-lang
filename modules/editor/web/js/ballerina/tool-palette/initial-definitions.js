@@ -23,7 +23,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
         var createResourceDefTool = {
             id: "resource",
             name: "Resource",
-            icon: "images/tool-icons/dgm-resource.svg",
+            icon: "images/tool-icons/resource.svg",
             title: "Resource",
             nodeFactoryMethod: BallerinaASTFactory.createResourceDefinition
         };
@@ -50,7 +50,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
             meta: {
                 functionName: "main"
             },
-            icon: "images/tool-icons/function.svg",
+            icon: "images/tool-icons/main-function.svg",
             title: "Function",
             nodeFactoryMethod:  BallerinaASTFactory.createFunctionDefinition
         };
