@@ -56,7 +56,7 @@ define(['lodash', 'log', './node', './worker-declaration', './connector-declarat
             this._connectionDeclarations = connections;
         }
     };
-    ResourceDefinition.prototype.setVariables = function (variables) {
+    ResourceDefinition.prototype.setVariableDeclarations = function (variables) {
         if (!_.isNil(variables)) {
             this._variableDeclarations = variables;
         }
@@ -96,7 +96,7 @@ define(['lodash', 'log', './node', './worker-declaration', './connector-declarat
         return this._workerDeclarations;
     };
 
-    ResourceDefinition.prototype.getVariables = function () {
+    ResourceDefinition.prototype.getVariableDeclarations = function () {
         return this._variableDeclarations;
     };
 
