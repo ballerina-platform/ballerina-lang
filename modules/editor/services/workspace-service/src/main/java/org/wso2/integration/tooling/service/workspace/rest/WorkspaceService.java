@@ -18,6 +18,7 @@ package org.wso2.integration.tooling.service.workspace.rest;
 
 import com.google.gson.JsonObject;
 import com.google.inject.Inject;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.integration.tooling.service.workspace.Workspace;
@@ -25,6 +26,11 @@ import org.wso2.integration.tooling.service.workspace.Workspace;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Base64;
@@ -75,6 +81,20 @@ public class WorkspaceService {
             return getErrorResponse(e);
         }
     }
+    
+	@GET
+	@Path("/listFiles")
+	@Produces("application/json")
+	public Response filesInPath(@QueryParam("path") String path) {
+		try {
+			return Response.status(Response.Status.OK)
+					.entity(workspace.listFilesInPath(new String(Base64.getDecoder().decode(path))))
+					.header("Access-Control-Allow-Origin", '*').type(MediaType.APPLICATION_JSON).build();
+		} catch (Exception e) {
+			logger.error("/list service error", e);
+			return getErrorResponse(e);
+		}
+	}
 
     @POST
     @Path("/write")
@@ -103,6 +123,32 @@ public class WorkspaceService {
             return getErrorResponse(e);
         }
     }
+    
+	@POST
+	@Path("/read")
+	@Produces("application/json")
+	public Response read(String path) {
+		StringBuilder fileContentBuilder = new StringBuilder();
+		try {
+			InputStream fileContent = new FileInputStream(path);
+			BufferedReader br = new BufferedReader(new InputStreamReader(fileContent));
+			String line = null;
+			while ((line = br.readLine()) != null) {
+				fileContentBuilder.append(line);
+			}
+			JsonObject content = new JsonObject();
+			content.addProperty("content", fileContentBuilder.toString());
+			br.close();
+			return Response.status(Response.Status.OK).entity(content).header("Access-Control-Allow-Origin", '*')
+					.type(MediaType.APPLICATION_JSON).build();
+
+		} catch (Exception e) {
+			logger.error("/read service error", e);
+			return getErrorResponse(e);
+		}
+
+	}
+
 
     @POST
     @Path("/log")
