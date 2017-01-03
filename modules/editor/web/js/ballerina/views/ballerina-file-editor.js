@@ -380,21 +380,17 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 // Setting package name to text box.
                 packageTextBox.val(currentASTRoot.getPackageDefinition().getPackageName());
 
-                // Get check mark for package
-                var packageTick = propertyPane.find(".package-name-wrapper i");
-
-                // Saving package name to AST root.
-                $(packageTick).click(function () {
+                // Updating model along with text change on package text box.
+                packageTextBox.on("change keyup input", function () {
                     log.debug("Saving package name : " + $(packageTextBox).val());
 
                     //TODO - this for loop needs to be replaced to get the package definition
                     var childrenArray = currentASTRoot.getChildren();
-                    for(var child in childrenArray){
-                        if(BallerinaASTFactory.isPackageDefinition(childrenArray[child]))    {
-                            childrenArray[child].setPackageName($(packageTextBox).val());
+                    for (var child in childrenArray) {
+                        if (BallerinaASTFactory.isPackageDefinition(childrenArray[child])) {
+                            childrenArray[child].setPackageName($(this).val());
                             break;
                         }
-
                     }
                 });
 
@@ -410,7 +406,9 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
 
                     // Unbinding all events.
                     $(this).unbind("click");
-                    $(packageTick).unbind("click");
+                    $(packageTextBox).unbind("change");
+                    $(packageTextBox).unbind("keyup");
+                    $(packageTextBox).unbind("input");
                     $(addImportButton).unbind("click");
                     $(propertyPane).unbind("click");
 
