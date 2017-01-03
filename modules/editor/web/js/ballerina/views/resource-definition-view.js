@@ -95,6 +95,9 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             this._viewOptions.defua = 180;
             this._viewOptions.hoverClass = _.get(args, "viewOptions.cssClass.hover_svg", 'design-view-hover-svg');
 
+            this._variableButton = undefined;
+            this._variablePane = undefined;
+
             //setting initial height for resource container
             this._totalHeight = 230;
             // initialize bounding box
@@ -339,12 +342,20 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                     contentGroup.attr("display", "inline");
                     // resource content is expanded. Hence expand resource BBox
                     resourceBBox.h(resourceBBox.h() + self._minizedHeight);
+
+                    // show the variable button and variable pane
+                    self._variableButton.show();
+                    self._variablePane.show();
                 }
                 else {
                     contentGroup.attr("display", "none");
                     // resource content is folded. Hence decrease resource BBox height and keep the minimized size
                     self._minizedHeight =  parseFloat(contentRect.attr('height'));
                     resourceBBox.h(resourceBBox.h() - self._minizedHeight);
+
+                    // hide the variable button and variable pane
+                    self._variableButton.hide();
+                    self._variablePane.hide();
                 }
             };
 
@@ -398,13 +409,13 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 self.visit(child);
             });
 
-            var variableButton = VariablesView.createVariableButton(this.getChildContainer().node(),
+            this._variableButton = VariablesView.createVariableButton(this.getChildContainer().node(),
                 parseInt(this.getChildContainer().attr("x")) + 4, parseInt(this.getChildContainer().attr("y")) + 7);
             var annotationButton = this._createAnnotationButton(this.getChildContainer().node());
 
             var variableProperties = {
                 model: this._model,
-                activatorElement: variableButton,
+                activatorElement: this._variableButton,
                 paneAppendElement: this.getChildContainer().node().ownerSVGElement.parentElement,
                 viewOptions: {
                     position: {
@@ -415,7 +426,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 }
             };
 
-            VariablesView.createVariablePane(variableProperties);
+            this._variablePane = VariablesView.createVariablePane(variableProperties);
 
             this._createAnnotationButtonPane(annotationButton);
 
@@ -427,6 +438,14 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 // Reposition the resource name container
                 var newDivPositionVertical = parseInt(nameDiv.css("top")) + offset.dy;
                 nameDiv.css("top", newDivPositionVertical + "px");
+
+                // Reposition Variable button
+                var newVButtonPositionVertical = parseInt($(self._variableButton).css("top")) + offset.dy;
+                $(self._variableButton).css("top", newVButtonPositionVertical + "px");
+
+                // Reposition variable pane
+                var newVPanePositionVertical = parseInt($(self._variablePane).css("top")) + offset.dy;
+                $(self._variablePane).css("top", newVPanePositionVertical + "px");
             }, this);
         };
 
