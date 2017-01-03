@@ -116,6 +116,7 @@ header .brand img.logo {
 
 header .brand {
     padding: 5px;
+    margin-right: 25px;
 }
 
 header .brand h1 {
