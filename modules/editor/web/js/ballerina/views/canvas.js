@@ -65,6 +65,11 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
         }
         panelTitle.append(panelIcon);
         var titleLink = $('<a>' + canvas[0].getAttribute('name') + '</a>');
+        titleLink.attr('id', 'title-' + id);
+        titleLink[0].setAttribute("contenteditable", "true");
+        titleLink[0].setAttribute("spellcheck", "false");
+        titleLink.focus();
+        titleLink.blur();
         if (title !== undefined) {
             titleLink.append("&nbsp;" + title);
         }
