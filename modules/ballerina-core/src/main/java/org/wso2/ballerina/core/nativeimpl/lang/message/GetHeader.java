@@ -10,6 +10,7 @@ import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
+import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 
 /**
  * Get the Headers of the Message
@@ -19,7 +20,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
         functionName = "getHeader",
         args = {@Argument(name = "message", type = TypeEnum.MESSAGE),
                 @Argument(name = "headerName", type = TypeEnum.STRING)},
-        returnType = {TypeEnum.STRING},
+        returnType = {@ReturnType(type = TypeEnum.STRING)},
         isPublic = true
 )
 

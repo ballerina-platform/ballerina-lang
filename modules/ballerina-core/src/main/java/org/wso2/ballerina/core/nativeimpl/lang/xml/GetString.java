@@ -37,6 +37,7 @@ import org.wso2.ballerina.core.model.values.BXML;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
+import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 import org.wso2.ballerina.core.nativeimpl.lang.utils.ErrorHandler;
 
 /**
@@ -48,7 +49,7 @@ import org.wso2.ballerina.core.nativeimpl.lang.utils.ErrorHandler;
         args = {@Argument(name = "xml", type = TypeEnum.XML),
                 @Argument(name = "xPath", type = TypeEnum.STRING)},
 //                @Argument(name = "nameSpaces", type = TypeEnum.MAP)},
-        returnType = {TypeEnum.STRING},
+        returnType = {@ReturnType(type = TypeEnum.STRING)},
         isPublic = true
 )
 @Component(
