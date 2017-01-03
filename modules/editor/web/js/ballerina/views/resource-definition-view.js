@@ -246,6 +246,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             this.diagramRenderingContext = diagramRenderingContext;
             // Render resource view
             var svgContainer = $(this._container)[0];
+            var self = this;
 
             var headingStart = new Point(this._viewOptions.topLeft.x(), this._viewOptions.topLeft.y());
             var contentStart = new Point(this._viewOptions.topLeft.x(),
@@ -297,32 +298,30 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 this._viewOptions.heading.icon.width,
                 this._viewOptions.heading.icon.height, 0, 0, headerGroup).classed("headingDeleteIcon", true);
 
-
-            // Create rect for the http method text
-            var httpMethodRect = D3utils.rect(headingStart.x() + this._viewOptions.heading.icon.width, headingStart.y()
-                + 0.5, this._viewOptions.heading.icon.width + 25,
-                this._viewOptions.heading.icon.height - 1, 0, 0, headerGroup).classed("httpMethodRect", true);
-
-            // Set HTTP Method
-            var httpMethodText = D3utils.textElement(headingStart.x()
-                + this._viewOptions.heading.icon.width + 5, headingStart.y() + 4, this._model.getResourceMethod(),
-                headerGroup).classed("httpMethodText", true);
-            httpMethodText.attr('dominant-baseline', "text-before-edge");
-
-            // Setting resource path prefix
-            var resourcePathPrefix = D3utils.textElement(headingStart.x() +
-                this._viewOptions.heading.icon.width + 55, headingStart.y() + 4, "Path: ",
-                headerGroup).classed("resourcePathPrefix", true);
-            resourcePathPrefix.attr('dominant-baseline', "text-before-edge");
-
-            var resourcePath = D3utils.textElement(headingStart.x() +
-                this._viewOptions.heading.icon.width + 90, headingStart.y() + 4,
-                this._model.getResourcePath(), headerGroup);
-            resourcePath.attr('dominant-baseline', "text-before-edge");
-
+            // Add the resource name editable html area
+            var svgWrappingHtml = this.getChildContainer().node().ownerSVGElement.parentElement;
+            var nameDiv = $("<div></div>");
+            nameDiv.css('left', (parseInt(headingStart.x()) + 30) + "px");
+            nameDiv.css('top', parseInt(headingStart.y()) + "px");
+            nameDiv.css('width',"100px");
+            nameDiv.css('height',"25px");
+            nameDiv.addClass("name-container-div");
+            var nameSpan = $("<span></span>");
+            nameSpan.text(self._model.getResourceName());
+            nameSpan.addClass("name-span");
+            nameSpan.attr("contenteditable", "true");
+            nameSpan.attr("spellcheck", "false");
+            nameSpan.focus();
+            nameSpan.blur();
+            nameDiv.append(nameSpan);
+            $(svgWrappingHtml).append(nameDiv);
             // Container for resource body
             var contentGroup = D3utils.group(resourceGroup);
             contentGroup.attr('id', "contentGroup");
+
+            nameSpan.on("change paste keyup", function () {
+                self._model.setResourceName($(this).text());
+            });
 
             this._contentGroup = contentGroup;
 
@@ -347,7 +346,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                     self._minizedHeight =  parseFloat(contentRect.attr('height'));
                     resourceBBox.h(resourceBBox.h() - self._minizedHeight);
                 }
-            }
+            };
 
             // On click of collapse icon hide/show resource body
             headingCollapseIcon.on("click", onExpandCollapse);
@@ -391,7 +390,6 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             this.renderStatementContainer();
             log.debug("Rendering Resource View");
             this.getModel().accept(this);
-            var self = this;
             //Removing all the registered 'child-added' event listeners for this model.
             //This is needed because we are not unregistering registered event while the diagram element deletion.
             //Due to that, sometimes we are having two or more view elements listening to the 'child-added' event of same model.
@@ -425,6 +423,10 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 var currentTransform = this._resourceGroup.attr("transform");
                this._resourceGroup.attr("transform", (!_.isNil(currentTransform) ? currentTransform : "") +
                    " translate(" + offset.dx + ", " + offset.dy + ")");
+
+                // Reposition the resource name container
+                var newDivPositionVertical = parseInt(nameDiv.css("top")) + offset.dy;
+                nameDiv.css("top", newDivPositionVertical + "px");
             }, this);
         };
 
