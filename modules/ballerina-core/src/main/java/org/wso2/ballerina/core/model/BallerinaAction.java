@@ -48,10 +48,12 @@ public class BallerinaAction implements Action, Node {
     private BType[] returnTypes;
     private BlockStmt functionBody;
     private BlockStmt actionBody;
+    private Position actionLocation;
 
     private int stackFrameSize;
 
     public BallerinaAction(SymbolName name,
+                           Position position,
                            Annotation[] annotations,
                            Parameter[] parameters,
                            BType[] returnTypes,
@@ -61,6 +63,7 @@ public class BallerinaAction implements Action, Node {
                            BlockStmt functionBody) {
 
         this.name = name;
+        this.actionLocation = position;
         this.annotations = annotations;
         this.parameters = parameters;
         this.returnTypes = returnTypes;
@@ -111,5 +114,21 @@ public class BallerinaAction implements Action, Node {
 
     public ConnectorDcl[] getConnectorDcls() {
         return connectorDcls;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Position getActionLocation() {
+        return actionLocation;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setActionLocation(Position location) {
+        this.actionLocation = location;
     }
 }

@@ -28,6 +28,7 @@ import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.ConnectorDcl;
 import org.wso2.ballerina.core.model.ImportPackage;
 import org.wso2.ballerina.core.model.Parameter;
+import org.wso2.ballerina.core.model.Position;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.model.SymbolName;
@@ -436,9 +437,10 @@ public class BLangModelBuilder {
         annotationListStack.push(new ArrayList<>());
     }
 
-    public void createFunction(String name, boolean isPublic) {
+    public void createFunction(String name, boolean isPublic, Position location) {
         currentCUBuilder.setName(new SymbolName(name, pkgName));
         currentCUBuilder.setPublic(isPublic);
+        currentCUBuilder.setPosition(location);
 
         List<Annotation> annotationList = annotationListStack.pop();
         // TODO Improve this implementation
@@ -450,9 +452,10 @@ public class BLangModelBuilder {
         currentCUBuilder = null;
     }
 
-    public void createResource(String name) {
+    public void createResource(String name, Position location) {
         currentCUBuilder.setName(new SymbolName(name, pkgName));
-
+        currentCUBuilder.setPosition(location);
+        
         List<Annotation> annotationList = annotationListStack.pop();
         // TODO Improve this implementation
         annotationList.forEach(currentCUBuilder::addAnnotation);
@@ -463,9 +466,10 @@ public class BLangModelBuilder {
         currentCUBuilder = null;
     }
 
-    public void createAction(String name) {
+    public void createAction(String name, Position location) {
         currentCUBuilder.setName(new SymbolName(name, pkgName));
-
+        currentCUBuilder.setPosition(location);
+        
         List<Annotation> annotationList = annotationListStack.pop();
         // TODO Improve this implementation
         annotationList.forEach(currentCUBuilder::addAnnotation);
@@ -483,9 +487,10 @@ public class BLangModelBuilder {
         annotationListStack.push(new ArrayList<>());
     }
 
-    public void createService(String name) {
+    public void createService(String name, Position location) {
         currentCUGroupBuilder.setName(new SymbolName(name, pkgName));
-
+        currentCUGroupBuilder.setPosition(location);
+        
         List<Annotation> annotationList = annotationListStack.pop();
         // TODO Improve this implementation
         annotationList.forEach(currentCUGroupBuilder::addAnnotation);
@@ -496,9 +501,10 @@ public class BLangModelBuilder {
         currentCUGroupBuilder = null;
     }
 
-    public void createConnector(String name) {
+    public void createConnector(String name, Position location) {
         currentCUGroupBuilder.setName(new SymbolName(name, pkgName));
-
+        currentCUGroupBuilder.setPosition(location);
+        
         List<Annotation> annotationList = annotationListStack.pop();
         // TODO Improve this implementation
         annotationList.forEach(currentCUGroupBuilder::addAnnotation);
