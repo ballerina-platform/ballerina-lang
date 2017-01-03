@@ -73,13 +73,13 @@ div[class*="col-sm-"] {
     height: 100%;
     padding: 0;
     /*Adjust when implementing file explorer*/
-    width:20px;
+    width: 32px;
     position: fixed;
 }
 
 #right-container{
     height: 100%;
-    margin-left: 20px;
+    margin-left: 32px;
 }
 
 /*//////////////////////////////////////////////////*/
