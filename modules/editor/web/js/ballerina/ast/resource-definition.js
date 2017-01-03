@@ -25,7 +25,7 @@ define(['lodash', 'log', './node', './worker-declaration', './connector-declarat
         this._workerDeclarations = _.get(args, 'workerDeclarations', []);
         this._statements = _.get(args, 'statements', []);
         this._resourceArguments = _.get(args, 'resourceArguments', '');
-        this._resourceName = _.get(args, 'resourceName');
+        this._resourceName = _.get(args, 'resourceName', 'Resource');
 
         // TODO: All the types should be referred from the global constants
         ASTNode.call(this, 'Resource', 'resource {', '}');
@@ -81,7 +81,7 @@ define(['lodash', 'log', './node', './worker-declaration', './connector-declarat
 
     ResourceDefinition.prototype.setResourceName = function (resourceName) {
         if (!_.isNil(resourceName)) {
-            this.resourceName = resourceName;
+            this._resourceName = resourceName;
         } else {
             log.error('Invalid Resource name [' + resourceName + '] Provided');
             throw 'Invalid Resource name [' + resourceName + '] Provided';
@@ -117,7 +117,7 @@ define(['lodash', 'log', './node', './worker-declaration', './connector-declarat
     };
 
     ResourceDefinition.prototype.getResourceName = function () {
-        return this.resourceName;
+        return this._resourceName;
     };
 
     ResourceDefinition.prototype.resourceParent = function (parent) {
