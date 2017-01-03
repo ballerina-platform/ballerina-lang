@@ -17,9 +17,9 @@
  */
 define(['require', 'log', 'jquery', 'lodash', 'backbone', 'app/menu-bar/menu-bar', 'breadcrumbs', 'file_browser', 'tab/file-tab-list',
 
-    'welcome','command','workspace',/* void modules */ 'jquery_ui', 'bootstrap'],
+    'command','workspace',/* void modules */ 'jquery_ui', 'bootstrap'],
 
-    function (require, log, $, _, Backbone, MenuBar, BreadcrumbController, FileBrowser, TabController, WelcomeScreen, CommandManager, Workspace) {
+    function (require, log, $, _, Backbone, MenuBar, BreadcrumbController, FileBrowser, TabController, CommandManager, Workspace) {
 
     var Application = Backbone.View.extend(
     /** @lends Application.prototype */
@@ -65,19 +65,6 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'app/menu-bar/menu-bar
 
             // tab controller will take care of rendering tool palette
             this.tabController = new TabController(tabControlOpts);
-
-            //TODO : get from module
-            var welcomeOpts = _.get(this.config, "welcome");
-            _.set(welcomeOpts, 'application', this);
-            this.initialWelcomePage = new WelcomeScreen.Views.PrimaryView(welcomeOpts);
-
-            //init the regular welcome screen
-            var regWelcomeScreenOpts = {
-                container: '#page-content-wrapper',
-                commandManager: this.commandManager
-            };
-            _.set(regWelcomeScreenOpts, 'application', this);
-            this.regularWelcomeScreen = new WelcomeScreen.Views.RegularView(regWelcomeScreenOpts);
         },
 
         validateConfig: function(config){
@@ -98,14 +85,6 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'app/menu-bar/menu-bar
         },
 
         render: function () {
-            log.debug("start: rendering regular welcome page");
-            this.regularWelcomeScreen.render();
-            log.debug("end: rendering regular welcome page");
-
-            log.debug("start: rendering initial welcome page");
-            this.initialWelcomePage.render();
-            log.debug("end: rendering initial welcome page");
-
             log.debug("start: rendering menu_bar control");
             this.menuBar.render();
             log.debug("end: rendering menu_bar control");
@@ -124,7 +103,7 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'app/menu-bar/menu-bar
         },
 
         displayInitialView: function () {
-            this.workspaceManager.displayInitialView();
+            this.workspaceManager.displayInitialTab();
         },
 
         hideWorkspaceArea: function(){

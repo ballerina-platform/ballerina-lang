@@ -18,7 +18,7 @@
 package org.wso2.ballerina.lang.expressions;
 
 import org.testng.Assert;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.values.BArray;
@@ -36,7 +36,7 @@ public class ArrayAccessExprTest {
 
     private BallerinaFile bFile;
 
-    @BeforeTest
+    @BeforeClass
     public void setup() {
         bFile = ParserUtils.parseBalFile("lang/expressions/array-access-expr.bal");
     }
