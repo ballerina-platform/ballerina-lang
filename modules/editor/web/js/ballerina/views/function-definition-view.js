@@ -148,14 +148,14 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
             var defaultWorkerOpts = {};
             _.set(defaultWorkerOpts, 'container', this._rootGroup.node());
             _.set(defaultWorkerOpts, 'title', 'FunctionWorker');
-            _.set(defaultWorkerOpts, 'centerPoint', new Point(130, 25));
+            _.set(defaultWorkerOpts, 'centerPoint', new Point(130, 80));
 
             // Check whether there is already created default worker and otherwise we create a new one
             if (_.isUndefined(this._defaultWorkerLifeLine)) {
                 this._defaultWorkerLifeLine = new DefaultWorkerView(defaultWorkerOpts);
             }
             this._defaultWorkerLifeLine.render();
-            this._totalHeight = this._defaultWorkerLifeLine.getBoundingBox().h() + 20;
+            this._totalHeight = this._defaultWorkerLifeLine.getBoundingBox().h() + 85;
             this.setServiceContainerHeight(this._totalHeight);
             this.renderStatementContainer();
             this.init();
@@ -199,6 +199,7 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
             _.set(statementContainerOpts, 'width', this._defaultWorkerLifeLine.width());
             _.set(statementContainerOpts, 'container', this._defaultWorkerLifeLine.getContentArea().node());
             _.set(statementContainerOpts, 'toolPalette', this.toolPalette);
+            _.set(statementContainerOpts, 'offset', {top: 40, bottom: 40});
             this._statementContainer = new StatementContainer(statementContainerOpts);
             this.listenTo(this._statementContainer.getBoundingBox(), 'bottom-edge-moved', this.defaultWorkerHeightChanged);
             this._statementContainer.render(this.diagramRenderingContext);
@@ -231,13 +232,13 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
         FunctionDefinitionView.prototype.visitConnectorDeclaration = function (connectorDeclaration) {
             // TODO: Get these values from the constants
             var offsetBetweenLifeLines = 50;
-            var topBottomTotalGap = 50;
             var connectorContainer = this.getChildContainer().node(),
                 connectorOpts = {
                     model: connectorDeclaration,
                     container: connectorContainer,
                     parentView: this,
-                    lineHeight: this.getBoundingBox().h() - topBottomTotalGap,
+                    lineHeight: this._defaultWorkerLifeLine.getTopCenter()
+                                .absDistInYFrom(this._defaultWorkerLifeLine.getBottomCenter()),
                     messageManager: this.messageManager
                 },
                 connectorDeclarationView,
