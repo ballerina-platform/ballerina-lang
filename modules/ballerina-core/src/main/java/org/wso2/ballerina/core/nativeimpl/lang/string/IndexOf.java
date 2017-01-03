@@ -26,6 +26,7 @@ import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
+import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 
 /**
  * Native function ballerina.lang.string:indexOf.
@@ -37,7 +38,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
         functionName = "indexOf",
         args = {@Argument(name = "string", type = TypeEnum.STRING),
                 @Argument(name = "string", type = TypeEnum.STRING)},
-        returnType = {TypeEnum.INT},
+        returnType = {@ReturnType(type = TypeEnum.INT)},
         isPublic = true
 )
 @Component(
