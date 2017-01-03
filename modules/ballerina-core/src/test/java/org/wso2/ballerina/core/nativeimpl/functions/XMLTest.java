@@ -19,7 +19,7 @@ package org.wso2.ballerina.core.nativeimpl.functions;
 
 import org.apache.axiom.om.OMElement;
 import org.testng.Assert;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.BLangInterpreter;
@@ -50,7 +50,7 @@ public class XMLTest {
     private static final String s1 = "<persons><person><name>Jack</name><address>wso2</address></person></persons>";
     private static final String s2 = "<person><name>Jack</name></person>";
 
-    @BeforeTest
+    @BeforeClass
     public void setup() {
         // Add Native functions.
         SymScope symScope = new SymScope(null);
