@@ -864,6 +864,16 @@ button.variable-list {
     opacity: 1;
 }
 
+.name-container-div {
+    position: absolute;
+    display: table;
+}
+
+.name-span {
+    display: table-cell;
+    vertical-align: middle;
+}
+
 /** Service container related styles | -> End **/
 /*//////////////////////////////////////////////////*/
 
