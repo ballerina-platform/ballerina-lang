@@ -6,7 +6,7 @@ Usage:  ballerina.sh service.bal [command] [-options]
         ballerinaserver.sh [command] [-options]
             (To start Ballerina Server in current terminal.)
 
-The command are :
+The command is one of the followings :
     start       Start Ballerina Server in background.
     stop        Stop Ballerina Server running in background.
     restart     Restart Ballerina Server in background.
