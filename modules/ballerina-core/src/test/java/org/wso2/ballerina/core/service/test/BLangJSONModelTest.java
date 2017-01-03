@@ -42,32 +42,31 @@ public class BLangJSONModelTest {
 
     private MicroservicesRunner microservicesRunner;
     private String exptdStrFunc = "{\"root\":[{\"type\":\"package\",\"package_name\":\"samples.\"}," +
-            "{\"type\":\"import\",\"import_package_name\":\"twitter\",\"import_package_path\":" +
-            "\"ballerina.connectors.twitter\"},{\"type\":\"import\",\"import_package_name\":\"salesforce\"," +
-            "\"import_package_path\":\"ballerina.connectors.salesforce\"},{\"type\":\"service_definition\"," +
-            "\"service_name\":\"HelloService\",\"resource_definitions\":[{\"resource_name\":null,\"annotations\":[]," +
-            "\"argument_declarations\":[{\"parameter_name\":\"m\"," +
-            "\"parameter_type\":\"message\",\"annotations\":[]}]," +
-            "\"worker_declarations\":[],\"variable_declarations\":" +
-            "[{\"variable_name\":\"a\",\"variable_type\":\"int\"}],\"block_statement\":" +
-            "{\"statement_declarations\":[{\"type\":\"assignment_statement\",\"expressions\":" +
-            "[{\"type\":\"variable_reference_expression\",\"variable_reference_name\":\"a\"}," +
-            "{\"type\":\"basic_literal_expression\",\"basic_literal_type\":\"int\"," +
-            "\"basic_literal_value\":\"10\"}]}]}}],\"annotations\":[],\"connector_declarations\":[]," +
-            "\"variable_declarations\":[]},{\"type\":\"function\",\"function_name\":\"test_int\"," +
-            "\"is_public_function\":false,\"annotations\":[],\"variable_declarations\":[],\"argument_declarations\":" +
+            "{\"type\":\"import\",\"import_package_name\":\"twitter\"," +
+            "\"import_package_path\":\"ballerina.connectors.twitter\"}," +
+            "{\"type\":\"import\",\"import_package_name\":\"salesforce\"," +
+            "\"import_package_path\":\"ballerina.connectors.salesforce\"}," +
+            "{\"type\":\"service_definition\",\"service_name\":\"HelloService\"," +
+            "\"resource_definitions\":[{\"resource_name\":null,\"annotations\":" +
+            "[{\"annotation_name\":\"GET\",\"annotation_value\":null,\"annotation_pairs\":[]}," +
+            "{\"annotation_name\":\"Path\",\"annotation_value\":\"/tweet\",\"annotation_pairs\":[]}]," +
+            "\"argument_declarations\":" +
+            "[{\"parameter_name\":\"m\",\"parameter_type\":\"message\",\"annotations\":[]}]," +
+            "\"worker_declarations\":[],\"variable_declarations\":[],\"block_statement\":" +
+            "{\"statement_declarations\":[{\"type\":\"reply_statement\",\"expressions\":" +
+            "[{\"type\":\"variable_reference_expression\",\"variable_reference_name\":\"m\"}]}]}}]," +
+            "\"annotations\":[],\"connector_declarations\":[],\"variable_declarations\":[]}," +
+            "{\"type\":\"function\",\"function_name\":\"test_int\",\"is_public_function\":false,\"annotations\":[]," +
+            "\"variable_declarations\":[],\"argument_declarations\":" +
             "[{\"parameter_name\":\"a\",\"parameter_type\":\"int\",\"annotations\":[]}]," +
-            "\"connector_declarations\":[]," +
-            "\"function_return_types\":[\"int\"],\"block_statement\":{\"statement_declarations\":" +
-            "[{\"type\":\"assignment_statement\",\"expressions\":[{\"type\":\"variable_reference_expression\"," +
-            "\"variable_reference_name\":\"a\"},{\"type\":\"add_expression\",\"expressions\":" +
+            "\"connector_declarations\":[],\"function_return_types\":[\"int\"]," +
+            "\"block_statement\":{\"statement_declarations\":[{\"type\":\"return_statement\"," +
+            "\"expressions\":[{\"type\":\"add_expression\",\"expressions\":" +
             "[{\"type\":\"variable_reference_expression\",\"variable_reference_name\":\"a\"}," +
             "{\"type\":\"basic_literal_expression\"," +
-            "\"basic_literal_type\":\"int\",\"basic_literal_value\":\"2\"}]}]}," +
-            "{\"type\":\"return_statement\",\"expressions\":[{\"type\":\"variable_reference_expression\"," +
-            "\"variable_reference_name\":\"a\"}]}]}}]}";
+            "\"basic_literal_type\":\"int\",\"basic_literal_value\":\"2\"}]}]}]}}]}";
 
-    /* public static void main(String[] args) {
+    public static void main(String[] args) {
         try {
             BLangJSONModelTest test = new BLangJSONModelTest();
             test.setup();
@@ -75,8 +74,7 @@ public class BLangJSONModelTest {
         } catch (Exception ex) {
             //Ignore
         }
-    } */
-
+    }
 
     @BeforeClass
     public void setup() throws Exception {
@@ -84,10 +82,9 @@ public class BLangJSONModelTest {
         microservicesRunner.deploy(new BLangFileRestService()).start();
     }
 
-
     @Test
     public void testBLangJSONModelService() throws IOException, URISyntaxException {
-        File file = new File(getClass().getClassLoader().getResource("samples/service/function.bal")
+        File file = new File(getClass().getClassLoader().getResource("samples/service/ServiceSample.bal")
                 .getFile());
         HttpURLConnection urlConn = request("/ballerina/model?location=" + file.getPath(), HttpMethod.GET);
         InputStream inputStream = urlConn.getInputStream();
@@ -96,7 +93,6 @@ public class BLangJSONModelTest {
         IOUtils.closeQuietly(inputStream);
         urlConn.disconnect();
     }
-
 
     @AfterClass
     public void teardown() throws Exception {

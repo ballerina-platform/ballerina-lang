@@ -29,7 +29,7 @@ public abstract class PositionAwareNode implements Node {
         return childPosition;
     }
 
-    public void setRelativePosition(int relativePosition) {
+    public void setRelativePosition(int childPosition) {
         this.childPosition = childPosition;
     }
 }

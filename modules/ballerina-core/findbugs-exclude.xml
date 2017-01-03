@@ -40,4 +40,7 @@
     <Match>
         <Package name="org.wso2.ballerina.core.parser"/>
     </Match>
+    <Match>
+        <Package name="org.wso2.ballerina.core.service"/>
+    </Match>
 </FindBugsFilter>

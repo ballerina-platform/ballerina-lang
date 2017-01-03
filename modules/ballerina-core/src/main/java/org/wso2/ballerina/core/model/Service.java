@@ -18,7 +18,6 @@
 
 package org.wso2.ballerina.core.model;
 
-import javafx.geometry.Pos;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

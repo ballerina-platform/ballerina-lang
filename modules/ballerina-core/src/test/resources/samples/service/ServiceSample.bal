@@ -5,15 +5,15 @@ import ballerina.connectors.salesforce as sf;
 
 service HelloService {
 
-  @POST
+  @GET
   @Path ("/tweet")
   resource tweet (message m) {
-      int a;
-      a = 10;
+      reply m;
   }
+
 }
 
 function test(int a) (int) {
-    a = a+2;
-    return a;
+   return a+2;
 }
+

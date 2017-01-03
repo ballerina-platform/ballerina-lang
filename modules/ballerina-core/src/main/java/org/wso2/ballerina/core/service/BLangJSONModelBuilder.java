@@ -111,12 +111,11 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         ArrayList<PositionAwareNode> rootElements = new ArrayList<>();
 
         if (bFile.getServices() != null) {
-            bFile.getServices().forEach(new Consumer<Service>() {
-                @Override
-                public void accept(Service service) {
-                    rootElements.add(service);
-                }
-            });
+            Service[] services = new Service[bFile.getServices().size()];
+            bFile.getServices().toArray(services);
+            for (Service service : services) {
+                rootElements.add(service);
+            }
         }
 
         if (bFile.getFunctions() != null) {
@@ -255,13 +254,10 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         JsonObject resourceObj = new JsonObject();
         resourceObj.addProperty(BLangJSONModelConstants.RESOURCE_NAME, resource.getName());
         tempJsonArrayRef.push(new JsonArray());
-        if (resource.getAnnotations() != null) {
-            resource.getAnnotations().forEach(new BiConsumer<String, Annotation>() {
-                @Override
-                public void accept(String s, Annotation annotation) {
-                    annotation.accept(BLangJSONModelBuilder.this);
-                }
-            });
+        if (resource.getResourceAnnotations() != null) {
+            for (Annotation annotation : resource.getResourceAnnotations()) {
+                annotation.accept(this);
+            }
         }
         resourceObj.add(BLangJSONModelConstants.ANNOTATION_DECLARATIONS, tempJsonArrayRef.peek());
         tempJsonArrayRef.pop();
