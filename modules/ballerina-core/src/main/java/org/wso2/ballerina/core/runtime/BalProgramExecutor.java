@@ -23,12 +23,10 @@ import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.BLangInterpreter;
 import org.wso2.ballerina.core.interpreter.Context;
-import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.invokers.MainInvoker;
 import org.wso2.ballerina.core.model.invokers.ResourceInvoker;
-import org.wso2.ballerina.core.runtime.internal.RuntimeUtils;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
@@ -53,30 +51,19 @@ public class BalProgramExecutor {
     }
 
     /**
-     * Execute a program in a Ballerina File
+     * Execute a BallerinaFunction main function.
      *
-     * @param balFile Ballerina File
-     * @return whether the runtime should keep-alive after executing the program in the file
+     * @param mainFunction Ballerina main function to be executed.
      */
-    public static boolean execute(BallerinaFile balFile) {
-        BallerinaFunction function = (BallerinaFunction) balFile.getFunctions().get(Constants.MAIN_FUNCTION_NAME);
-        if (function != null) {
-            try {
-                Context ctx = new Context();
-                BLangInterpreter interpreter = new BLangInterpreter(ctx);
-                new MainInvoker(function).accept(interpreter);
-            } catch (BallerinaException ex) {
-                log.error(ex.getMessage());
-            } finally {
-                RuntimeUtils.shutdownRuntime();
-            }
-            return false;
-        } else if (balFile.getServices().size() == 0) {
-            log.error("Unable to find Main function or any Ballerina Services.");
-            RuntimeUtils.shutdownRuntime();
-            return false;
+    public static void execute(BallerinaFunction mainFunction) {
+        try {
+            Context ctx = new Context();
+            BLangInterpreter interpreter = new BLangInterpreter(ctx);
+            new MainInvoker(mainFunction).accept(interpreter);
+        } catch (BallerinaException ex) {
+            log.error(ex.getMessage());
         }
-        return true;
+
     }
 
 }
