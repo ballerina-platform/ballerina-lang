@@ -354,7 +354,7 @@
             js_tree: "lib/js-tree-v3.3.2/jstree",
             nano_scroller: "lib/nanoscroller_0.8.7/jquery.nanoscroller.min",
             theme_wso2: "lib/theme-wso2_1.0/js/theme-wso2",
-            ace: "lib/ace_v1.2.5",
+            ace: "lib/ace_v1.2.6",
             beautify: "lib/beautify/beautify",
             ///////////////////////
             // custom modules ////
@@ -523,7 +523,11 @@
                             },
                             source_view: {
                                 // relative selector within container for a tab
-                                container: '.source-view-container'
+                                container: '.source-view-container',
+                                theme: 'ace/theme/tomorrow_night',
+                                font_size: '12pt',
+                                scroll_margin: '20',
+                                mode: 'ace/mode/ballerina'
                             },
                             controls: {
                                 view_source_btn: '.view-source-btn',
