@@ -22,9 +22,9 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
      * @param message expression of a reply statement.
      * @constructor
      */
-    var ReplyStatement = function (message) {
+    var ReplyStatement = function (args) {
         Statement.call(this);
-        this._message = message;
+        this._message = _.get(args, 'message') || '';
     };
 
     ReplyStatement.prototype = Object.create(Statement.prototype);

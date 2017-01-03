@@ -52,7 +52,7 @@ define(['log', 'jquery', 'lodash', './tab-list', './file-tab',  'workspace'],
         addTab: function(tab) {
             TabList.prototype.addTab.call(this, tab);
             // avoid re-addition of init time files
-            if(!_.includes(this._workingFileSet, tab.getFile())){
+            if(tab instanceof ServiceTab && !_.includes(this._workingFileSet, tab.getFile())){
                 this._workingFileSet.push(tab.getFile());
                 this.getBrowserStorage().put('workingFileSet', this._workingFileSet);
             }
@@ -67,7 +67,7 @@ define(['log', 'jquery', 'lodash', './tab-list', './file-tab',  'workspace'],
         },
         newTab: function(opts) {
             var options = opts || {};
-            TabList.prototype.newTab.call(this, options);
+            return TabList.prototype.newTab.call(this, options);
         },
         getBrowserStorage: function(){
             return _.get(this, 'options.application.browserStorage');
