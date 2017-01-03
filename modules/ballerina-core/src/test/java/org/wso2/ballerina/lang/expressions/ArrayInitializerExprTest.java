@@ -39,7 +39,7 @@ public class ArrayInitializerExprTest {
 
     @BeforeTest
     public void setup() {
-        bFile = ParserUtils.getLinkedBLangModel("lang/expressions/array-initializer-expr.bal");
+        bFile = ParserUtils.parseBalFile("lang/expressions/array-initializer-expr.bal");
     }
 
     @Test(description = "Test array initializer expression")

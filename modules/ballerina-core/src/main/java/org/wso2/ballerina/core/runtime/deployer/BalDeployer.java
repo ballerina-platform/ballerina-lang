@@ -26,19 +26,18 @@ import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.exception.BallerinaException;
-import org.wso2.ballerina.core.linker.BLangLinker;
+import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.model.Application;
 import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.Package;
 import org.wso2.ballerina.core.model.builder.BLangModelBuilder;
 import org.wso2.ballerina.core.parser.BallerinaLexer;
 import org.wso2.ballerina.core.parser.BallerinaParser;
 import org.wso2.ballerina.core.parser.BallerinaParserErrorStrategy;
 import org.wso2.ballerina.core.parser.antlr4.BLangAntlr4Listener;
-import org.wso2.ballerina.core.runtime.BalProgramExecutor;
 import org.wso2.ballerina.core.runtime.Constants;
 import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
-import org.wso2.ballerina.core.runtime.internal.RuntimeUtils;
 import org.wso2.ballerina.core.runtime.internal.ServiceContextHolder;
 import org.wso2.ballerina.core.runtime.registry.ApplicationRegistry;
 import org.wso2.ballerina.core.semantics.SemanticAnalyzer;
@@ -75,10 +74,7 @@ public class BalDeployer implements Deployer {
 
     @Activate
     protected void activate(BundleContext bundleContext) {
-//        String balFile = System.getProperty(SYSTEM_PROP_RUN_FILE);
-//        if (balFile != null) {
-//            ServiceContextHolder.getInstance().setRuntimeMode(Constants.RuntimeMode.RUN_MAIN);
-//        }
+        // Nothing to do.
     }
 
     @Override
@@ -86,7 +82,7 @@ public class BalDeployer implements Deployer {
         try {
             directoryLocation = new URL("file:" + BAL_FILES_DIRECTORY);
         } catch (MalformedURLException e) {
-            log.error("Error while initializing directoryLocation" + directoryLocation.getPath(), e);
+            log.error("Error while initializing directoryLocation" + BAL_FILES_DIRECTORY, e);
         }
     }
 
@@ -128,17 +124,17 @@ public class BalDeployer implements Deployer {
 
     public static void deployBalFile(File file) {
         InputStream inputStream = null;
-        boolean successful = true;
+        boolean successful = false;
         try {
             inputStream = new FileInputStream(file);
 
             if (file.getName().endsWith(FILE_EXTENSION)) {
                 ANTLRInputStream antlrInputStream = new ANTLRInputStream(inputStream);
-                
+
                 // Setting the name of the source file being parsed, to the ANTLR input stream.
                 // This is required by the parser-error strategy.
                 antlrInputStream.name = file.getName();
-                
+
                 BallerinaLexer ballerinaLexer = new BallerinaLexer(antlrInputStream);
                 CommonTokenStream ballerinaToken = new CommonTokenStream(ballerinaLexer);
 
@@ -151,17 +147,22 @@ public class BalDeployer implements Deployer {
                 ballerinaParser.compilationUnit();
                 BallerinaFile balFile = bLangModelBuilder.build();
 
-                SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(balFile);
+                SymScope globalScope = GlobalScopeHolder.getInstance().getScope();
+                SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(balFile, globalScope);
                 balFile.accept(semanticAnalyzer);
 
-                // Link
-                BLangLinker bLangLinker = new BLangLinker(balFile);
-                bLangLinker.link(GlobalScopeHolder.getInstance().getScope());
-
                 if (Constants.RuntimeMode.RUN_FILE == ServiceContextHolder.getInstance().getRuntimeMode()) {
-                    if (!BalProgramExecutor.execute(balFile)) {
+                    BallerinaFunction function =
+                            (BallerinaFunction) balFile.getFunctions().get(Constants.MAIN_FUNCTION_NAME);
+                    if (function != null) {
+                        ServiceContextHolder.getInstance().setMainFunctionToExecute(function);
+                        successful = true;
+                    } else if (balFile.getServices().size() == 0) {
+                        log.error("Unable to find Main function or any Ballerina Services.");
+                        ServiceContextHolder.getInstance().setRuntimeMode(Constants.RuntimeMode.ERROR);
                         return;
                     }
+                    // else:  Continue and deploy the service.
                 }
 
                 // Get the existing application associated with this ballerina config
@@ -171,7 +172,7 @@ public class BalDeployer implements Deployer {
                     app = new Application(file.getName());
                     ApplicationRegistry.getInstance().registerApplication(app);
                 }
-                
+
                 Package aPackage = app.getPackage(file.getName());
                 if (aPackage == null) {
                     // check if package name is null
@@ -184,21 +185,21 @@ public class BalDeployer implements Deployer {
                 }
                 aPackage.addFiles(balFile);
                 ApplicationRegistry.getInstance().updatePackage(aPackage);
-
+                successful = true;
                 log.info("Deployed ballerina file : " + file.getName());
             } else {
                 if (Constants.RuntimeMode.RUN_FILE == ServiceContextHolder.getInstance().getRuntimeMode()) {
                     log.error("File extension not supported. Supported extensions {}.", FILE_EXTENSION);
-                    RuntimeUtils.shutdownRuntime();
+                    ServiceContextHolder.getInstance().setRuntimeMode(Constants.RuntimeMode.ERROR);
                     return;
                 }
                 log.error("File extension not supported. Support only {}.", FILE_EXTENSION);
             }
         } catch (IOException e) {
-            log.error("Error while creating Ballerina object model from file : {}" , file.getName(), e.getMessage());
+            log.error("Error while creating Ballerina object model from file : {}", file.getName(), e.getMessage());
             successful = false;
         } catch (BallerinaException e) {
-            log.error("Failed to deploy {} : {}" , file.getName(), e.getMessage());
+            log.error("Failed to deploy {} : {}", file.getName(), e.getMessage());
             successful = false;
         } finally {
             if (inputStream != null) {
@@ -208,7 +209,7 @@ public class BalDeployer implements Deployer {
                 }
             }
             if (!successful && Constants.RuntimeMode.RUN_FILE == ServiceContextHolder.getInstance().getRuntimeMode()) {
-                RuntimeUtils.shutdownRuntime();
+                ServiceContextHolder.getInstance().setRuntimeMode(Constants.RuntimeMode.ERROR);
             }
         }
     }
@@ -223,7 +224,7 @@ public class BalDeployer implements Deployer {
             // Can't continue as there is no directory to work with. if we get here, that means a bug in startup
             // script.
             log.error("Given working path {} is not a valid location. ", file == null ? null : file.getName());
-            RuntimeUtils.shutdownRuntime();
+            ServiceContextHolder.getInstance().setRuntimeMode(Constants.RuntimeMode.ERROR);
             return;
         }
         // TODO: Improve logic and scanning.
@@ -236,8 +237,8 @@ public class BalDeployer implements Deployer {
 
     /**
      * Undeploy a service registered through a ballerina file.
-     * 
-     * @param fileName  Name of the ballerina file
+     *
+     * @param fileName Name of the ballerina file
      */
     private void undeployBalFile(String fileName) {
         Application app = ApplicationRegistry.getInstance().getApplication(fileName);

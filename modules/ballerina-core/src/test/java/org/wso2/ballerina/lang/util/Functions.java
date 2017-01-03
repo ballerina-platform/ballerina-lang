@@ -52,7 +52,7 @@ public class Functions {
     public static BValue[] invoke(String sourceFilePath, String functionName, BValue[] args) {
 
         // 1) Get the Ballerina language model from the source file.
-        BallerinaFile bFile = ParserUtils.getLinkedBLangModel(sourceFilePath);
+        BallerinaFile bFile = ParserUtils.parseBalFile(sourceFilePath);
         return invoke(bFile, functionName, args);
     }
 
