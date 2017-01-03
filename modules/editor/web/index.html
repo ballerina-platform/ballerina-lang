@@ -30,7 +30,7 @@
     <link rel="stylesheet" type="text/css" href="css/tool-palette.css"/>
     <link rel="stylesheet" type="text/css" href="css/workspace-explorer.css"/>
     <link rel="stylesheet" type="text/css" href="css/diagram/preview-pane.css"/>
-    <title>Ballerina Tooling</title>
+    <title>Ballerina Editor</title>
 </head>
 
 <body>
@@ -42,7 +42,7 @@
         <div class="pull-left brand float-remove-xs text-center-xs">
             <a href="#">
                 <img src="lib/theme-wso2_1.0/images/logo-inverse.svg" alt="WSO2" title="WSO2" class="logo">
-                <h1>WSO2 Ballerina Tooling</h1>
+                <h1>Ballerina Editor</h1>
             </a>
         </div>
         <div id="menu-bar-container" class="menu-bar">
@@ -108,7 +108,7 @@
 <!-- Start: footer -->
 <footer class="footer">
     <div id="footer-container" class="container-fluid">
-        <p>WSO2 Ballerina Tooling v0.0.1 | ©
+        <p>WSO2 Ballerina Editor v0.0.1 | ©
             <script>document.write(new Date().getFullYear());</script>
             <a href="http://wso2.com/" target="_blank"><i class="icon fw fw-wso2"></i> Inc</a>.
         </p>
@@ -170,7 +170,9 @@
         <div class="source-view-container" id="source-container-id">
             <!-- Start: BottomRight Controls Container -->
             <div class="bottom-right-controls-container">
-                <div class="view-design-btn btn-icon"><i class="fw fw-lg fw-design-view fw-inverse fw-helper fw-helper-circle"></i></div>
+                <div class="view-design-btn btn-icon">
+                    <i class="fw fw-lg fw-design-view fw-helper fw-helper-circle-outline"></i>
+                </div>
             </div>
             <!-- End: BottomRight Controls Container  -->
         </div>
@@ -563,7 +565,7 @@
             workspace_explorer: {
                 container: "#workspace-explorer",
                 cssClass: {
-                    activateBtn: 'fw fw-file-browse workspace-explorer-activate-btn',
+                    activateBtn: 'fw fw-file-browse fw-lg workspace-explorer-activate-btn',
                     container: 'workspace-explorer-container',
                     separator: 'workspace-explorer-separator'
                 }

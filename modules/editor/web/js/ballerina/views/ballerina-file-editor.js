@@ -220,6 +220,8 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 self._$designViewContainer.hide();
                 designViewBtn.show();
                 sourceViewBtn.hide();
+                self.trigger('source-view-activated');
+                self.trigger('design-view-deactivated');
             });
 
             var designViewBtn = $(this._container).find(_.get(this._viewOptions, 'controls.view_design_btn'));
@@ -229,6 +231,8 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 self._$designViewContainer.show();
                 sourceViewBtn.show();
                 designViewBtn.hide();
+                self.trigger('design-view-activated');
+                self.trigger('source-view-deactivated');
             });
             // activate design view by default
             designViewBtn.hide();

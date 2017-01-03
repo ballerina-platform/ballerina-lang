@@ -74,7 +74,7 @@
 }
 
 .tab-headers {
-    background-color: #e4e4e4;
+    background-color: #333;
 }
 
 .navbar-default .navbar-nav > li a:hover {
@@ -107,7 +107,7 @@
 
 
 .nav-tabs-bar > li {
-    background-color: #c4c4c4;
+    background-color: #717171;
     width: 120px;
 }
 
@@ -126,10 +126,17 @@
     padding: 0 5px 0 6px;
 }
 
-.nav-tabs-bar>li.active>a{
-    border-top: 1px solid #ccc;
-    border-left: 1px solid #ccc;
-    border-right: 1px solid #ccc;
+.nav-tabs-bar > li.active.inverse > a > button {
+    color: #959595;
+}
+
+.nav-tabs-bar > li.active.inverse > a {
+    color: #959595;
+    background: #1D1F21;
+}
+
+.nav-tabs-bar > li.active.inverse {
+    border: none;
 }
 
 
