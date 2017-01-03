@@ -48,6 +48,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
 
         var mainToolGroup = new ToolGroup({
             toolGroupName: "Elements",
+            toolOrder: "horizontal",
             toolGroupID: "main-tool-group",
             toolDefinitions: mainToolDefArray
         });
@@ -102,6 +103,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
         var statementsToolGroup = new ToolGroup({
             toolGroupName: "Statements",
             toolGroupID: "statements-tool-group",
+            toolOrder: "horizontal",
             toolDefinitions: statementToolDefArray
         });
 
@@ -110,6 +112,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
         // Create functions tool group
         var functionsToolGroup = new ToolGroup({
             toolGroupName: "Functions",
+            toolOrder: "horizontal",
             toolGroupID: "functions-tool-group",
             toolDefinitions: []
         });
@@ -118,6 +121,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
         // Create connectors tool group
         var connectorsToolGroup = new ToolGroup({
             toolGroupName: "Connectors",
+            toolOrder: "horizontal",
             toolGroupID: "connectors-tool-group",
             toolDefinitions: []
         });
@@ -183,6 +187,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
         // Create http-connectors tool group
         var httpConnectorsToolGroup = new ToolGroup({
             toolGroupName: "HTTP-Connector Actions",
+            toolOrder: "vertical",
             toolGroupID: "http-connector-tool-group",
             toolDefinitions: httpConnectorToolArray
         });
