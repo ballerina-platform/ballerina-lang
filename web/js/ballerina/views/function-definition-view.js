@@ -139,6 +139,11 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
             this._container = currentContainer;
             var self = this;
 
+            // Listen to the function name changing event and dynamically update the function name
+            $("#title-" + this._model.id).on("change paste keyup", function () {
+                self._model.setFunctionName($(this).text());
+            });
+
             // Creating default worker
             var defaultWorkerOpts = {};
             _.set(defaultWorkerOpts, 'container', this._rootGroup.node());
