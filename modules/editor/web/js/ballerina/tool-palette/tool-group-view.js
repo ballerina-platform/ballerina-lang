@@ -25,7 +25,7 @@ define(['require','log', 'jquery', 'd3', 'backbone', './tool-view'], function (r
             _.extend(this, _.pick(options, ["toolPalette"]));
         },
 
-        render: function (parent) {
+        render: function (parent, toolOrderVertical) {
             var self = this;
             var groupDiv = $('<div></div>');
             parent.append(groupDiv);
@@ -55,7 +55,7 @@ define(['require','log', 'jquery', 'd3', 'backbone', './tool-view'], function (r
                 _.set(toolOptions, 'toolPalette', self.toolPalette);
                 _.set(toolOptions, 'model', tool);
                 var toolView = new ToolView(toolOptions);
-                toolView.render(groupBodyDiv);
+                toolView.render(groupBodyDiv, toolOrderVertical);
             });
 
             this.el =  groupDiv[0].outerHTML;
