@@ -75,12 +75,21 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab/t
             dialog.render();
         };
 
+        this.openFileOpenDialog = function openFileOpenDialog() {
+            var dialog = new Dialogs.open_file_dialog(app);
+            dialog.render();
+        }
+
         app.commandManager.registerCommand("create-new-tab", {key: ""});
         app.commandManager.registerHandler('create-new-tab', this.createNewTab);
 
         // Open file save dialog
         app.commandManager.registerCommand("open-file-save-dialog", {key: ""});
         app.commandManager.registerHandler('open-file-save-dialog', this.openFileSaveDialog);
+
+        // Open file open dialog
+        app.commandManager.registerCommand("open-file-open-dialog", {key: ""});
+        app.commandManager.registerHandler('open-file-open-dialog', this.openFileOpenDialog);
 
     }
 

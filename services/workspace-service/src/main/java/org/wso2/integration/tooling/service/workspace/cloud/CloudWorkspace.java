@@ -16,6 +16,7 @@
 package org.wso2.integration.tooling.service.workspace.cloud;
 
 import com.google.gson.JsonArray;
+
 import org.wso2.integration.tooling.service.workspace.Workspace;
 
 import java.io.IOException;
@@ -43,5 +44,13 @@ public class CloudWorkspace  implements Workspace {
     public void log(String logger, String timestamp, String level, String URL, String message, String layout) throws IOException {
 
     }
+    
+    @Override
+	public JsonArray listFilesInPath(String path) throws IOException {
+		return null;
+	}
+    
     // TODO: This is just for future use.
+
+	
 }
