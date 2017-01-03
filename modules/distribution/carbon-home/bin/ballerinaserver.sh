@@ -172,14 +172,21 @@ do
     fi
 done
 
-JAVA_OPTS="$JAVA_OPTS -Dbase-dir=$BASE_DIR -Drun-mode=server"
+BAL_OPTS="-Dbase-dir=$BASE_DIR -Drun-mode=server"
 if [ "$BAL_EXECUTION_CMD" = "run-this" ]; then
    if [[ "$BAL_FILE_NAME" != /* ]]; then
         BAL_FILE_NAME="$BASE_DIR/$BAL_FILE_NAME"
    fi
-  JAVA_OPTS="$JAVA_OPTS -Drun-file=$BAL_FILE_NAME"
   #echo "Running the Ballerina file $BAL_FILE_NAME"
+else
+  # Switching to current directory (.)
+  BAL_FILE_NAME="$BASE_DIR"
 fi
+
+BAL_OPTS="$BAL_OPTS -Drun-file=$BAL_FILE_NAME"
+
+# Add Ballerina Options to JAVA_OPTS
+JAVA_OPTS="$JAVA_OPTS $BAL_OPTS"
 
 if [ "$CMD" = "--debug" ]; then
   if [ "$PORT" = "" ]; then
@@ -190,7 +197,7 @@ if [ "$CMD" = "--debug" ]; then
     echo "Warning !!!. User specified JAVA_OPTS will be ignored, once you give the --debug option."
   fi
   JAVA_OPTS="-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=$PORT"
-  JAVA_OPTS="$JAVA_OPTS -Dbase-dir=$BASE_DIR -Drun-mode=server -Drun-file=$BAL_FILE_NAME"
+  JAVA_OPTS="$JAVA_OPTS $BAL_OPTS"
   echo "Please start the remote debugging client to continue..."
 elif [ "$CMD" = "start" ]; then
   if [ -e "$CARBON_HOME/carbon.pid" ]; then
