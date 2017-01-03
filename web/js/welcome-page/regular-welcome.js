@@ -17,21 +17,27 @@
  */
 define(['require', 'backbone', 'lodash','ballerina'], function ( require, Backbone, _, Service) {
 
-    var RegularWelcomeScreenView = Backbone.View.extend(
-        /** @lends RegularWelcomeScreenView.prototype */
+    var RegularWelcomePage = Backbone.View.extend(
+        /** @lends RegularWelcomePage.prototype */
         {
             /**
              * @augments
              * @constructs
-             * @class RegularWelcomeScreenView Represents the view for Regular welcome screen.
+             * @class RegularWelcomePage Represents the view for Regular welcome screen.
              * @param {Object} options Rendering options for the view
              */
             initialize: function (options) {
-                if (!_.has(options, 'container')) {
-                    throw "Container not provided"
+                var errMsg;
+                if (!_.has(options, 'tab')) {
+                    errMsg = 'unable to find a reference for editor tab';
+                    log.error(errMsg);
+                    throw errMsg;
                 }
+                this._tab = _.get(options, 'tab');
                 this.commandManager = options.commandManager;
-                this._$container = $(_.get(options, 'container'));
+                this._$container = $(this._tab.getContentContainer());
+                // make sure default tab content are cleared
+                this._$container.empty();
                 this._options = options;
             },
 
@@ -170,6 +176,6 @@ define(['require', 'backbone', 'lodash','ballerina'], function ( require, Backbo
             }
         });
 
-    return RegularWelcomeScreenView;
+    return RegularWelcomePage;
 });
 

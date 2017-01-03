@@ -64,7 +64,7 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
                 _.set(toolGroupOptions, 'toolPalette', self);
                 _.set(toolGroupOptions, 'model', group);
                 var groupView = new ToolGroupView(toolGroupOptions);
-                groupView.render(self.$el);
+                groupView.render(self.$el, _.isEqual('vertical', group.get('toolOrder')));
                 self.$el.addClass('non-user-selectable');
             });
             return this;
