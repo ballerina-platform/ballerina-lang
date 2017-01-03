@@ -33,6 +33,7 @@ import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.model.Symbol;
+import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.VariableDcl;
 import org.wso2.ballerina.core.model.Worker;
 import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
@@ -301,10 +302,19 @@ public class BLangInterpreter implements NodeVisitor {
             valuesCounter++;
         }
 
+        SymbolName functionSymbolName = function.getSymbolName();
+        NodeInfo functionInfo;
+        
         // Populate values for Connector declarations
         if (function instanceof BallerinaFunction) {
             BallerinaFunction ballerinaFunction = (BallerinaFunction) function;
             populateConnectorDclValues(ballerinaFunction.getConnectorDcls(), localVals, valuesCounter);
+            
+            functionInfo = new NodeInfo(functionSymbolName.getName(), StackFrameType.BALLERINA_FUNCTION, 
+                    functionSymbolName.getPkgName(), function.getFunctionLocation());
+        } else {
+            functionInfo = new NodeInfo(functionSymbolName.getName(), StackFrameType.NATIVE_FUNCTION, 
+                    functionSymbolName.getPkgName(), function.getFunctionLocation());
         }
 
         // Create an array in the stack frame to hold return values;
@@ -312,7 +322,7 @@ public class BLangInterpreter implements NodeVisitor {
 
         // Create a new stack frame with memory locations to hold parameters, local values, temp expression valuse and
         // return values;
-        StackFrame stackFrame = new StackFrame(localVals, rVals);
+        StackFrame stackFrame = new StackFrame(localVals, rVals, functionInfo);
         controlStack.pushFrame(stackFrame);
 
         // Check whether we are invoking a native function or not.
@@ -351,17 +361,24 @@ public class BLangInterpreter implements NodeVisitor {
         }
 
         // Populate values for Connector declarations
+        NodeInfo actionInfo;
         if (action instanceof BallerinaAction) {
             BallerinaAction ballerinaAction = (BallerinaAction) action;
             populateConnectorDclValues(ballerinaAction.getConnectorDcls(), localVals, valueCounter);
+            
+            actionInfo = new NodeInfo(action.getName(), StackFrameType.BALLERINA_ACTION, null, 
+                    action.getActionLocation());
+        } else {
+            actionInfo = new NodeInfo(action.getName(), StackFrameType.NATIVE_ACTION, null, action.getActionLocation());
         }
 
         // Create an array in the stack frame to hold return values;
         BValue[] rVals = new BValue[action.getReturnTypes().length];
 
+        
         // Create a new stack frame with memory locations to hold parameters, local values, temp expression values and
         // return values;
-        StackFrame stackFrame = new StackFrame(localVals, rVals);
+        StackFrame stackFrame = new StackFrame(localVals, rVals, actionInfo);
         controlStack.pushFrame(stackFrame);
 
         // Check whether we are invoking a native action or not.
@@ -524,7 +541,11 @@ public class BLangInterpreter implements NodeVisitor {
 
         BValue[] ret = new BValue[1];
 
-        StackFrame stackFrame = new StackFrame(valueParams, ret);
+        SymbolName resourceSymbolName = resource.getSymbolName();
+        NodeInfo resourceInfo = new NodeInfo(resourceSymbolName.getName(), StackFrameType.RESOURCE, 
+                resourceSymbolName.getPkgName(), resource.getResourceLocation());
+        
+        StackFrame stackFrame = new StackFrame(valueParams, ret, resourceInfo);
         controlStack.pushFrame(stackFrame);
 
         resource.accept(this);
@@ -563,10 +584,12 @@ public class BLangInterpreter implements NodeVisitor {
         }
 
         populateConnectorDclValues(function.getConnectorDcls(), values, valuesCounter);
-
+        
         BValue[] returnVals = new BValue[function.getReturnTypes().length];
-        StackFrame stackFrame = new StackFrame(values, returnVals);
-
+        SymbolName functionSymbolName = function.getSymbolName();
+        NodeInfo functionInfo = new NodeInfo(functionSymbolName.getName(), StackFrameType.MAIN_FUNCTION,
+                functionSymbolName.getPkgName(), function.getFunctionLocation());
+        StackFrame stackFrame = new StackFrame(values, returnVals, functionInfo);
         controlStack.pushFrame(stackFrame);
         function.accept(this);
         controlStack.popFrame();

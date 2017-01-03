@@ -19,6 +19,7 @@ package org.wso2.ballerina.core.model.expressions;
 
 import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.model.NodeVisitor;
+import org.wso2.ballerina.core.model.Position;
 import org.wso2.ballerina.core.model.SymbolName;
 
 import java.util.List;
@@ -34,6 +35,7 @@ public class FunctionInvocationExpr extends AbstractExpression {
     private List<Expression> expressionList;
     private Expression[] exprs;
     private Function calleeFunction;
+    private Position functionInvokedLocation;
 
     public FunctionInvocationExpr(SymbolName functionName, List<Expression> expressionList) {
         this.functionName = functionName;
@@ -68,5 +70,13 @@ public class FunctionInvocationExpr extends AbstractExpression {
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    public Position getInvokedLocation() {
+        return functionInvokedLocation;
+    }
+
+    public void setInvokedLocation(Position position) {
+        this.functionInvokedLocation = position;
     }
 }

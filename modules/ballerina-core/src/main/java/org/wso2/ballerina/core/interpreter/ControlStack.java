@@ -19,6 +19,7 @@ package org.wso2.ballerina.core.interpreter;
 
 import org.wso2.ballerina.core.model.values.BValue;
 
+import java.util.Iterator;
 import java.util.Stack;
 
 /**
@@ -60,5 +61,9 @@ public class ControlStack {
 
     public void setReturnValueNew(int offset, BValue bValue) {
         currentFrame.returnValuesNew[offset] = bValue;
+    }
+    
+    public Iterator<StackFrame> iterator() {
+        return this.stack.iterator();
     }
 }

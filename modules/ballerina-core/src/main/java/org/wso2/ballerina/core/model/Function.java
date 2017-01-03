@@ -87,5 +87,19 @@ public interface Function {
      */
     void setStackFrameSize(int frameSize);
 
+    /**
+     * Get the location of this function in the ballerina source file.
+     * Returns the ballerina file and line number of the function.
+     * 
+     * @return  location of this function in the ballerina source file
+     */
+    Position getFunctionLocation();
+    
+    /**
+     * Set the location of this function in the ballerina source file.
+     * 
+     * @param  location of this function in the ballerina source file
+     */
+    void setFunctionLocation(Position location);
 
 }

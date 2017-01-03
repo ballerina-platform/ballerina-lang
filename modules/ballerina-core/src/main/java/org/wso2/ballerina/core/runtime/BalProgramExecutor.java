@@ -23,11 +23,16 @@ import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.BLangInterpreter;
 import org.wso2.ballerina.core.interpreter.Context;
+import org.wso2.ballerina.core.interpreter.NodeInfo;
+import org.wso2.ballerina.core.interpreter.StackFrameType;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.Resource;
+import org.wso2.ballerina.core.model.Service;
+import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.invokers.MainInvoker;
 import org.wso2.ballerina.core.model.invokers.ResourceInvoker;
+import org.wso2.ballerina.core.runtime.errors.handler.ErrorHandlerUtils;
 import org.wso2.ballerina.core.runtime.internal.RuntimeUtils;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
@@ -41,15 +46,20 @@ public class BalProgramExecutor {
 
     private static final Logger log = LoggerFactory.getLogger(BalProgramExecutor.class);
 
-    public static void execute(CarbonMessage cMsg, CarbonCallback callback, Resource resource) {
+    public static void execute(CarbonMessage cMsg, CarbonCallback callback, Resource resource, Service service,
+            Context balContext) {
+        try {
+            SymbolName symbolName = service.getSymbolName();
+            balContext.setServiceInfo(new NodeInfo(symbolName.getName(), StackFrameType.SERVICE, 
+                    symbolName.getPkgName(), service.getServiceLocation()));
+            balContext.setBalCallback(new DefaultBalCallback(callback));
 
-        // Create the Ballerina Context
-        Context balContext = new Context(cMsg);
-        balContext.setBalCallback(new DefaultBalCallback(callback));
-
-        // Create the interpreter and Execute
-        BLangInterpreter interpreter = new BLangInterpreter(balContext);
-        new ResourceInvoker(resource).accept(interpreter);
+            // Create the interpreter and Execute
+            BLangInterpreter interpreter = new BLangInterpreter(balContext);
+            new ResourceInvoker(resource).accept(interpreter);
+        } catch (Throwable e) {
+            throw new BallerinaException(e.getMessage(), balContext);
+        }
     }
 
     /**
@@ -61,12 +71,13 @@ public class BalProgramExecutor {
     public static boolean execute(BallerinaFile balFile) {
         BallerinaFunction function = (BallerinaFunction) balFile.getFunctions().get(Constants.MAIN_FUNCTION_NAME);
         if (function != null) {
+            Context ctx = new Context();
             try {
-                Context ctx = new Context();
                 BLangInterpreter interpreter = new BLangInterpreter(ctx);
                 new MainInvoker(function).accept(interpreter);
-            } catch (BallerinaException ex) {
-                log.error(ex.getMessage());
+            } catch (BallerinaException e) {
+                String stackTrace = ErrorHandlerUtils.getMainFunctionStackTrace(ctx, balFile.getPackageName());
+                log.error("Error while executing ballerina program. " + e.getMessage() + "\n" + stackTrace);
             } finally {
                 RuntimeUtils.shutdownRuntime();
             }

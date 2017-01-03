@@ -19,7 +19,9 @@ package org.wso2.ballerina.lang.util;
 
 import org.wso2.ballerina.core.interpreter.BLangInterpreter;
 import org.wso2.ballerina.core.interpreter.Context;
+import org.wso2.ballerina.core.interpreter.NodeInfo;
 import org.wso2.ballerina.core.interpreter.StackFrame;
+import org.wso2.ballerina.core.interpreter.StackFrameType;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.model.SymbolName;
@@ -94,7 +96,11 @@ public class Functions {
             functionArgs = Arrays.copyOf(args, args.length + function.getReturnTypes().length);
         }
 
-        StackFrame currentStackFrame = new StackFrame(functionArgs, new BValue[0]);
+        SymbolName functionSymbolName = function.getSymbolName();
+        NodeInfo functionInfo = new NodeInfo(functionSymbolName.getName(), StackFrameType.BALLERINA_FUNCTION, 
+            functionSymbolName.getPkgName(), function.getFunctionLocation());
+        
+        StackFrame currentStackFrame = new StackFrame(functionArgs, new BValue[0], functionInfo);
         bContext.getControlStack().pushFrame(currentStackFrame);
 
         // 5) Invokes the function
