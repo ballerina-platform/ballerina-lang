@@ -26,11 +26,11 @@ import org.wso2.ballerina.core.model.values.BValue;
  * @since 1.0.0
  */
 public class StackFrame {
-    public BValue[] valuesNew;
-    public BValue[] returnValuesNew;
+    public BValue[] values;
+    public BValue[] returnValues;
 
-    public StackFrame(BValue[] valuesNew, BValue[] returnValuesNew) {
-        this.valuesNew = valuesNew;
-        this.returnValuesNew = returnValuesNew;
+    public StackFrame(BValue[] values, BValue[] returnValues) {
+        this.values = values;
+        this.returnValues = returnValues;
     }
 }

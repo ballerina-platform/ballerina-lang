@@ -37,7 +37,7 @@ public class BArrayValueTest {
 
     @BeforeTest
     public void setup() {
-        bFile = ParserUtils.getLinkedBLangModel("lang/values/array-value.bal");
+        bFile = ParserUtils.parseBalFile("lang/values/array-value.bal");
     }
 
     @Test(description = "Test lazy array creation", expectedExceptions = {BallerinaException.class},
