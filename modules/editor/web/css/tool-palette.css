@@ -21,7 +21,6 @@
 }
 
 .tool-group-header-title{
-    font-style: italic;
     padding:5px;
     width: 100%;
 }
@@ -110,7 +109,6 @@
 .search-input{
     background-color: #f0f0f0;
     font-size: 12px;
-    font-style: italic;
     padding:5px;
     border: 1px solid #d9d9d9;
     width: 100%;
