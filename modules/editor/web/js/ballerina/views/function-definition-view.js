@@ -15,10 +15,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-definition', './default-worker', 'd3utils', 'd3',
-        './worker-declaration-view', './statement-view-factory', './point', './axis', './connector-declaration-view', './statement-container'],
-    function (_, log, EventChannel, Canvas, FunctionDefinition, DefaultWorkerView, D3Utils, d3, WorkerDeclarationView,
-              StatementViewFactory, Point, Axis, ConnectorDeclarationView, StatementContainer) {
+define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-definition', './default-worker', 'd3utils', '' +
+        'd3', './worker-declaration-view', './statement-view-factory', './point', './axis',
+        './connector-declaration-view', './statement-container', './variables-view'],
+    function (_, log, EventChannel, Canvas, FunctionDefinition, DefaultWorkerView, D3Utils,
+              d3, WorkerDeclarationView, StatementViewFactory, Point, Axis,
+              ConnectorDeclarationView, StatementContainer, VariablesView) {
 
         /**
          * The view to represent a function definition which is an AST visitor.
@@ -157,6 +159,23 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
                 self.visit(child);
                 self._model.trigger("childVisitedEvent", child);
             });
+
+            var variableButton = VariablesView.createVariableButton(this.getChildContainer().node(), 4, 7);
+
+            var variableProperties = {
+                model: this._model,
+                activatorElement: variableButton,
+                paneAppendElement: this.getChildContainer().node().ownerSVGElement.parentElement,
+                viewOptions: {
+                    position: {
+                        x: parseInt(this.getChildContainer().attr("x")) + 17,
+                        y: parseInt(this.getChildContainer().attr("y")) + 6
+                    },
+                    width: parseInt(this.getChildContainer().node().parentElement.getBoundingClientRect().width) - 36
+                }
+            };
+
+            VariablesView.createVariablePane(variableProperties);
         };
 
         FunctionDefinitionView.prototype.init = function(){

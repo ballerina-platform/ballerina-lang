@@ -15,8 +15,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './../ast/service-definition', './resource-definition-view', 'ballerina/ast/ballerina-ast-factory', './axis', './connector-declaration-view', './../ast/variable-declaration'],
-    function (_, log, d3, D3utils, $, Canvas, Point, ServiceDefinition, ResourceDefinitionView, BallerinaASTFactory, Axis, ConnectorDeclarationView, VariableDeclaration) {
+define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './../ast/service-definition',
+        './client-life-line', './resource-definition-view', 'ballerina/ast/ballerina-ast-factory', './axis',
+        './connector-declaration-view', './../ast/variable-declaration', './variables-view'],
+    function (_, log, d3, D3utils, $, Canvas, Point, ServiceDefinition,
+              ClientLifeLine, ResourceDefinitionView, BallerinaASTFactory, Axis,
+              ConnectorDeclarationView, VariableDeclaration, VariablesView) {
 
         /**
          * The view to represent a service definition which is an AST visitor.
@@ -54,8 +58,6 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
 
         ServiceDefinitionView.prototype = Object.create(Canvas.prototype);
         ServiceDefinitionView.prototype.constructor = ServiceDefinitionView;
-        // TODO move variable types into constant class
-        var variableTypes = ['message','connection','string','int','exception'];
 
         ServiceDefinitionView.prototype.init = function(){
             //Registering event listeners
@@ -166,191 +168,24 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
                 self._model.trigger("childVisitedEvent", child);
             });
 
+            var variableButton = VariablesView.createVariableButton(this.getChildContainer().node(), 4, 7);
             var annotationButton = this._createAnnotationButton(this.getChildContainer().node());
-             var variableButton = this._createVariableButton(this.getChildContainer().node());
 
             var variableProperties = {
                 model: this._model,
-                editableProperties: [{
-                    propertyType: "text",
-                    key: "Service Name",
-                    model: this._model,
-                    getterMethod: this._model.getServiceName,
-                    setterMethod: this._model.setServiceName
-                },
-                    {
-                        propertyType: "text",
-                        key: "Base Path",
-                        model: this._model,
-                        getterMethod: this._model.getBasePath,
-                        setterMethod: this._model.setBasePath
-                    }],
-                activatorElement: variableButton.node(),
-                paneAppendElement: _.first($(this._container).children()),
+                activatorElement: variableButton,
+                paneAppendElement: this.getChildContainer().node().ownerSVGElement.parentElement,
                 viewOptions: {
                     position: {
-                        x: parseFloat(variableButton.attr("cx")),
-                        y: parseFloat(variableButton.attr("cy")) + parseFloat(variableButton.attr("r"))
-                    }
+                        x: parseInt(this.getChildContainer().attr("x")) + 17,
+                        y: parseInt(this.getChildContainer().attr("y")) + 6
+                    },
+                    width: parseInt(this.getChildContainer().node().parentElement.getBoundingClientRect().width) - 36
                 }
             };
 
-            this.createVariablePane(variableProperties);
+            VariablesView.createVariablePane(variableProperties);
             this._createAnnotationButtonPane(annotationButton);
-        };
-
-        ServiceDefinitionView.prototype.renderVariables = function (variableDeclarationsList, variablePaneWrapper, serviceModel) {
-
-            if (variableDeclarationsList.length > 0) {
-                var variableSetWrapper = $('<div/>').appendTo($(variablePaneWrapper));
-                var variableTable = $('<table/>').appendTo(variableSetWrapper);
-
-                for (var variableCount = 0; variableCount < variableDeclarationsList.length; variableCount++) {
-                    var currentRaw;
-                    if (variableCount % 3 == 0) {
-                        currentRaw = $('<tr/>').appendTo(variableTable);
-                    }
-                    var labelClass = "";
-                    if (variableDeclarationsList[variableCount].getType() === "message") {
-                        labelClass = "variable-type-message";
-                    } else if (variableDeclarationsList[variableCount].getType() === "connection") {
-                        labelClass = "variable-type-connection";
-                    } else if (variableDeclarationsList[variableCount].getType() === "string") {
-                        labelClass = "variable-type-string";
-                    } else if (variableDeclarationsList[variableCount].getType() === "int") {
-                        labelClass = "variable-type-int";
-                    } else {
-                        labelClass = "variable-type-exception";
-                    }
-                    var currentCell = $('<td/>').appendTo(currentRaw);
-                    var variable = $("<label for=" + variableDeclarationsList[variableCount].getIdentifier() + " class=" + labelClass + ">" +
-                        variableDeclarationsList[variableCount].getType() + "</label>" + "<input readonly maxlength='7' size='7' value=" +
-                        variableDeclarationsList[variableCount].getIdentifier() + " class=" + labelClass + ">").appendTo(currentCell);
-                    var removeBtn = $('<button class="variable-list">x</button>').appendTo(currentCell);
-
-                    // variable delete onclick
-                    var self = this;
-                    $(removeBtn).click(serviceModel, function () {
-                        var varList = null;
-                        if(serviceModel.data === undefined) {
-                            varList = serviceModel.getVariableDeclarations();
-                        } else {
-                            varList = serviceModel.data.getVariableDeclarations();
-                        }
-                        var varType = $($(this.parentNode.getElementsByTagName('label'))[0]).text();
-                        var varIdentifier = $($(this.parentNode.getElementsByTagName('input'))[0]).val();
-                        var index = self.checkExistingVariables(varList, varType, varIdentifier);
-
-                        if (index != -1) {
-                            if(serviceModel.data === undefined) {
-                                serviceModel.getVariableDeclarations().splice(index, 1);
-                            } else {
-                                serviceModel.data.getVariableDeclarations().splice(index, 1);
-                            }
-                        }
-
-                        log.info($(variable).val());
-
-                        if (variablePaneWrapper.children().length > 1) {
-                            variablePaneWrapper.children()[variablePaneWrapper.children().length - 1].remove()
-                        }
-                        self.renderVariables(variableDeclarationsList, variablePaneWrapper, serviceModel);
-                    });
-
-                    // variable edit onclick
-                    $(variable).click(serviceModel, function (serviceModel) {
-                        log.info('Variable edit');
-                        // ToDo : Render variables here
-                    });
-                }
-            }
-        };
-
-        ServiceDefinitionView.prototype.checkExistingVariables = function (variableList, variableType, variableIdentifier) {
-            var index = -1;
-            for (var varIndex = 0; varIndex < variableList.length; varIndex++) {
-                if (variableList[varIndex].getType() == variableType &&
-                    variableList[varIndex].getIdentifier() == variableIdentifier) {
-                    index = varIndex;
-                    break;
-                }
-            }
-            return index;
-        };
-
-        ServiceDefinitionView.prototype.createVariablePane = function (args) {
-            var activatorElement = _.get(args, "activatorElement");
-            var serviceModel = _.get(args, "model");
-            var paneElement = _.get(args, "paneAppendElement");
-            var variableList = serviceModel.getVariableDeclarations();
-
-            if (_.isNil(activatorElement)) {
-                log.error("Unable to render property pane as the html element is undefined." + activatorElement);
-                throw "Unable to render property pane as the html element is undefined." + activatorElement;
-            }
-
-            var variablePaneWrapper = $('<div id="variableSection" class="service-variable-pane"/>').appendTo($(paneElement));
-            var variableForm = $('<form></form>').appendTo(variablePaneWrapper);
-            var variableSelect = $("<select/>").appendTo(variableForm);
-            var variableText = $("<input id='inputbox' placeholder='&nbsp;Variable Name'/>").appendTo(variableForm);
-            for(var typeCount = 0;typeCount < variableTypes.length; typeCount ++){
-                var selectOption = $("<option value="+ variableTypes[typeCount]+">"+variableTypes[typeCount] +
-                    "</option>").appendTo($(variableSelect));
-            }
-            var addVariable = $("<button type='button'>+</button>").appendTo(variableForm);
-
-            this.renderVariables(variableList,variablePaneWrapper,serviceModel);
-            var self = this;
-
-            $(addVariable).click(serviceModel, function (serviceModel) {
-
-                // ToDo add variable name validation
-                var variableList = null;
-                if(serviceModel.data === undefined) {
-                    variableList = serviceModel.getVariableDeclarations();
-                } else {
-                    variableList = serviceModel.data.getVariableDeclarations();
-                }
-
-                //filtering empty variable identifier and existing variables
-                if ($(variableText).val() != "" &&
-                    self.checkExistingVariables(variableList, $(variableSelect).val(), $(variableText).val()) == -1) {
-
-                    var variable = BallerinaASTFactory.createVariableDeclaration();
-
-                    //pushing new variable declaration
-                    variable.setType($(variableSelect).val());
-                    variable.setIdentifier($(variableText).val());
-
-                    if (serviceModel.data === undefined) {
-                        serviceModel.getVariableDeclarations().push(variable);
-                        var index = _.findLastIndex(serviceModel.getChildren(), function (child) {
-                            return child instanceof VariableDeclaration;
-                        });
-                        serviceModel.addChild(variable, index + 1);
-                    } else {
-                        serviceModel.data.getVariableDeclarations().push(variable);
-                        var index = _.findLastIndex(serviceModel.data.getChildren(), function (child) {
-                            return child instanceof VariableDeclaration;
-                        });
-                        serviceModel.data.addChild(variable, index + 1);
-                    }
-
-                    //remove current variable list
-                    if (variablePaneWrapper.children().length > 1) {
-                        variablePaneWrapper.children()[variablePaneWrapper.children().length - 1].remove()
-                    }
-                    self.renderVariables(variableList, variablePaneWrapper, serviceModel);
-                }
-            });
-
-            $(activatorElement).click(serviceModel, function (serviceModel) {
-                if(paneElement.children[2].style.display== "none" || paneElement.children[2].style.display == "") {
-                    paneElement.children[2].style.display = "inline";
-                } else {
-                    paneElement.children[2].style.display = "none";
-                }
-            });
         };
 
         ServiceDefinitionView.prototype.canVisitServiceDefinition = function (serviceDefinition) {
@@ -886,66 +721,6 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
             });
 
             return annotationIconBackgroundCircle;
-        };
-
-        ServiceDefinitionView.prototype._createVariableButton = function (serviceContentSvg) {
-            var svgDefinitions = d3.select(serviceContentSvg).append("defs");
-
-            var variableButtonPattern = svgDefinitions.append("pattern")
-                .attr("id", "variableIcon")
-                .attr("width", "100%")
-                .attr("height", "100%");
-
-            variableButtonPattern.append("image")
-                .attr("xlink:href", "images/variable.svg")
-                .attr("x", 0)
-                .attr("y", 0)
-                .attr("width", 18.67)
-                .attr("height", 18.67);
-
-            var outerBoxPadding = parseInt($(serviceContentSvg.parentElement).css("padding"), 10);
-            // xPosition = Width of the outer div - padding of outer box - radius of the annotation button - 20(additional value).
-            var xPosition = $(serviceContentSvg.parentElement.parentElement.parentElement).prev().width() - outerBoxPadding - 18.675 - 40;
-
-            var variableIconGroup = D3utils.group(d3.select(serviceContentSvg));
-
-            var variableIconBackgroundCircle = D3utils.circle(xPosition, 30, 18.675, variableIconGroup)
-                .classed("variable-icon-background-circle", true);
-
-            var variableIconRect = D3utils.centeredRect(new Point(xPosition, 30), 18.67, 18.67, 0, 0, variableIconGroup)
-                .classed("variable-icon-rect", true);
-
-            // Positioning the icon when window is zoomed out or in.
-            $(window).resize(function () {
-                var outerBoxPadding = parseInt($(serviceContentSvg.parentElement).css("padding"), 10);
-                // xPosition = Width of the outer div - padding of outer box - radius of the annotation button - 20(additional value).
-                var xPosition = $(serviceContentSvg.parentElement.parentElement.parentElement).prev().width() - outerBoxPadding - 18.675 - 40;
-
-                $(variableIconBackgroundCircle.node()).remove();
-                $(variableIconRect.node()).remove();
-
-                variableIconBackgroundCircle = D3utils.circle(xPosition, 30, 18.675, variableIconGroup)
-                    .classed("variable-icon-background-circle", true);
-
-                variableIconRect = D3utils.centeredRect(new Point(xPosition, 30), 18.67, 18.67, 0, 0, variableIconGroup)
-                    .classed("variable-icon-rect", true);
-            });
-
-            // Get the hover effect of the circle on the icon hover.
-            $(variableIconRect.node()).hover(
-                function () {
-                    variableIconBackgroundCircle.style("opacity", 1);
-                },
-                function () {
-                    $(variableIconBackgroundCircle.node()).removeAttr("style");
-                }
-            );
-
-            $(variableIconRect.node()).click(function () {
-                $(variableIconBackgroundCircle.node()).trigger("click");
-            });
-
-            return variableIconBackgroundCircle;
         };
 
         /**
