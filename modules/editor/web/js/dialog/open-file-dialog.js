@@ -16,8 +16,8 @@
  * under the License.
  */
 
-define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (require, $, log, Backbone, FileBrowser) {
-    var SaveToFileDialog = Backbone.View.extend(
+define(['require', 'jquery', 'log', 'backbone', 'file_browser', 'ballerina', 'ballerina/diagram-render/diagram-render-context', 'ballerina/views/source-view'], function (require, $, log, Backbone, FileBrowser, Ballerina, DiagramRenderContext, SourceView) {
+    var OpenFileDialog = Backbone.View.extend(
         /** @lends SaveToFileDialog.prototype */
         {
             /**
@@ -30,32 +30,45 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
                 this.app = options;
                 this.dialog_container = _.get(options.config.dialog, 'container');
                 this.notification_container = _.get(options.config.tab_controller.tabs.tab.ballerina_editor.notifications, 'container');
+                this.source_view_container = _.get(options.config.tab_controller.tabs.tab.ballerina_editor, 'source_view.container');
+                this.ballerina_editor = _.get(options.config.tab_controller.tabs.tab, 'ballerina_editor');
             },
 
             render: function () {
                 //TODO : this render method should be rewritten with improved UI
                 var fileBrowser;
+                var fileContent;
                 var app = this.app;
                 var notification_container = this.notification_container;
+                var ballerinaEditorOptions = this.ballerina_editor;
+                // var sourceViewContainer =  this.source_view_container;
+                var diagramRenderingContext = new DiagramRenderContext();
+                var BallerinaASTFactory = Ballerina.ast.BallerinaASTFactory;
+                var ballerinaAstRoot1 = BallerinaASTFactory.createBallerinaAstRoot();
 
-                var fileSave = $(
-                    "<div class='modal fade' id='saveConfigModal' tabindex='-1' role='dialog' aria-tydden='true'>" +
+                var packageDefinition = BallerinaASTFactory.createPackageDefinition();
+                packageDefinition.setPackageName("samples.passthrough");
+                ballerinaAstRoot1.addChild(packageDefinition);
+                ballerinaAstRoot1.setPackageDefinition(packageDefinition);
+
+                var fileOpen = $(
+                    "<div class='modal fade' id='openConfigModal' tabindex='-1' role='dialog' aria-tydden='true'>" +
                     "<div class='modal-dialog' role='document'>" +
                     "<div class='modal-content'>" +
                     "<div class='modal-header'>" +
                     "<button type='button' class='close' data-dismiss='modal' aria-label='Close'>" +
                     "<span aria-hidden='true'>&times;</span>" +
                     "</button>" +
-                    "<h4 class='modal-title' id='newConfigModalLabel' style='margin-bottom: 15px; margin-left: 20px'>Ballerina Service Save Wizard</h4>" +
+                    "<h4 class='modal-title' id='openConfigModalLabel' style='margin-bottom: 15px; margin-left: 20px'>Ballerina Service Open Wizard</h4>" +
                     "<hr class='style1'>"+
                     "</div>" +
                     "<div class='modal-body'>" +
                     "<div class='container-fluid'>" +
                     "<form class='form-horizontal'>" +
                     "<div class='form-group'>" +
-                    "<label for='location' class='col-sm-2' style='margin-left: 20px'>Location :</label>" +
+                    "<label for='location' class='col-sm-2' style='margin-left: 20px'>File Name :</label>" +
                     "<div class='col-sm-9'>" +
-                    "<input type='text' class='save-form-control' id='location' placeholder='eg: /home/user/wso2-integration-server/ballerina-configs'>" +
+                    "<input type='text' class='save-form-control' id='location' placeholder='eg: /home/user/wso2-integration-server/ballerina-configs/sample.bal'>" +
                     "</div>" +
                     "</div>" +
                     "<div class='form-group'>" +
@@ -67,20 +80,14 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
                     "</div>" +
                     "</div>" +
                     "<div class='form-group'>" +
-                    "<label for='configName' class='col-sm-2' style='margin-left: 20px'>File Name :</label>" +
-                    "<div class='col-sm-9'>" +
-                    "<input class='save-form-control' id='configName' placeholder='eg: sample.bal'>" +
-                    "</div>" +
-                    "</div>" +
-                    "<div class='form-group'>" +
                     "<div class='save-form-btn'>" +
-                    "<button id='saveButton' type='button' class='btn btn-primary' style='margin-right: 8px'>save" +
+                    "<button id='openButton' type='button' class='btn btn-primary' style='margin-right: 8px'>open" +
                     "</button>" +
-                    "<button type='cancelButton' class='btn btn-primary' data-dismiss='modal'>cancel</button>" +
+                    "<button type='button' class='btn btn-primary' data-dismiss='modal'>cancel</button>" +
                     "</div>" +
                     "</div>" +
                     "</form>" +
-                    "<div id='newWizardError' class='alert alert-danger'>" +
+                    "<div id='openFileWizardError' class='alert alert-danger'>" +
                     "<strong>Error!</strong> Something went wrong." +
                     "</div>" +
                     "</div>" +
@@ -91,27 +98,26 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
                 );
 
                 var successNotification = $(
-                    "<div style='z-index: 9999;' style='line-height: 20%;' class='alert alert-success' id='success-alert'>"+
-                    "<span class='notification'>"+
-                    "Configuration saved successfully !"+
-                    "</span>"+
+                    "<div style='z-index: 9999;' style='line-height: 20%;' class='alert alert-success' id='success-alert'>" +
+                    "<span class='notification'>" +
+                    "Configuration opened successfully !" +
+                    "</span>" +
                     "</div>");
 
                 var errorNotification = $(
-                    "<div style='z-index: 9999;' style='line-height: 20%;' class='alert alert-danger' id='error-alert'>"+
-                    "<span class='notification'>"+
-                    "Error while saving configuration !"+
-                    "</span>"+
+                    "<div style='z-index: 9999;' style='line-height: 20%;' class='alert alert-danger' id='error-alert'>" +
+                    "<span class='notification'>" +
+                    "Error while opening configuration !" +
+                    "</span>" +
                     "</div>");
 
 
-                var saveConfigModal = fileSave.filter("#saveConfigModal");
-                var newWizardError = fileSave.find("#newWizardError");
-                var location = fileSave.find("input").filter("#location");
-                var configName = fileSave.find("input").filter("#configName");
+                var openConfigModal = fileOpen.filter("#openConfigModal");
+                var openFileWizardError = fileOpen.find("#openFileWizardError");
+                var location = fileOpen.find("input").filter("#location");
 
-                var treeContainer  = fileSave.find("div").filter("#fileTree")
-                fileBrowser = new FileBrowser({container: treeContainer, application:app, action:'saveFile'});
+                var treeContainer  = fileOpen.find("div").filter("#fileTree")
+                fileBrowser = new FileBrowser({container: treeContainer, application:app, action:'openFile'});
 
                 fileBrowser.render();
 
@@ -122,65 +128,64 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
                     }
                 });
 
-                fileSave.find("button").filter("#saveButton").click(function() {
+
+                fileOpen.find("button").filter("#openButton").click(function () {
 
                     var _location = location.val();
-                    var _configName = configName.val();
                     if (_.isEmpty(_location)) {
-                        newWizardError.text("Invalid Value for Location.");
-                        newWizardError.show();
+                        openFileWizardError.text("Invalid Value for Location.");
+                        openFileWizardError.show();
                         return;
                     }
-                    if (_.isEmpty(_configName)) {
-                        newWizardError.text("Invalid Value for File Name.");
-                        newWizardError.show();
-                        return;
-                    }
-                    saveConfigModal.modal('hide');
-                    saveConfiguration({location: location, configName:configName});
+
+                    openConfigModal.modal('hide');
+                    openConfiguration({location: location});
                 });
 
 
-                $(this.dialog_container).append(fileSave);
-                newWizardError.hide();
-                fileSave.modal('show');
+                $(this.dialog_container).append(fileOpen);
+                openFileWizardError.hide();
+                fileOpen.modal('show');
 
-                function alertSuccess(){
+                function alertSuccess() {
                     $(notification_container).append(successNotification);
-                    successNotification.fadeTo(2000, 200).slideUp(1000, function(){
+                    successNotification.fadeTo(2000, 200).slideUp(1000, function () {
                         successNotification.slideUp(1000);
                     });
                 };
 
-                function alertError(){
+                function alertError() {
                     $(notification_container).append(errorNotification);
-                    errorNotification.fadeTo(2000, 200).slideUp(1000, function(){
+                    errorNotification.fadeTo(2000, 200).slideUp(1000, function () {
                         errorNotification.slideUp(1000);
                     });
                 };
 
-                function saveConfiguration() {
-                    var workspaceServiceURL = "http://localhost:8289/service/workspace";
-                    var saveServiceURL = workspaceServiceURL + "/write";
+                function openConfiguration() {
+                    var defaultView = {configLocation: location.val()};
 
-                    var ballerinaFileEditor= app.tabController.activeTab.getBallerinaFileEditor();
-                    var config = ballerinaFileEditor.generateSource();
-                    var payload = "location=" + (btoa(location.val() + "/" + configName.val())) + "&config=" + (btoa(config));
+                    var workspaceServiceURL = "http://localhost:8289/service/workspace";
+                    var saveServiceURL = workspaceServiceURL + "/read";
+
+                    var path = defaultView.configLocation;
 
                     $.ajax({
                         url: saveServiceURL,
                         type: "POST",
-                        data: payload,
+                        data: path,
                         contentType: "text/plain; charset=utf-8",
                         async: false,
                         success: function (data, textStatus, xhr) {
+                            var obj = JSON.stringify(data);
+                            fileContent = $.parseJSON(obj);
                             if (xhr.status == 200) {
+                                alert("fileContent " + fileContent['content']);
                                 alertSuccess();
                             } else {
                                 alertError();
                             }
                         },
-                        error: function(res, errorCode, error){
+                        error: function (res, errorCode, error) {
                             alertError();
                         }
                     });
@@ -188,5 +193,5 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
             },
         });
 
-    return SaveToFileDialog;
+    return OpenFileDialog;
 });
