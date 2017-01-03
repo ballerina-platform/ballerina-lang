@@ -18,7 +18,7 @@
 
 package org.wso2.ballerina.core.parser.negative;
 
-//import org.testng.annotations.BeforeTest;
+//import org.testng.annotations.BeforeClass;
 //import org.testng.annotations.Test;
 //import org.wso2.ballerina.core.exception.ParserException;
 //import org.wso2.ballerina.core.model.builder.BLangModelBuilder;
@@ -31,7 +31,7 @@ public class InvalidSyntaxParserTest {
 
 //    private BallerinaParser ballerinaParser;
 
-//    @BeforeTest
+//    @BeforeClass
 //    public void setup() {
 //        ballerinaParser = ParserUtils.getBallerinaParser("samples/parser/InvalidSyntaxSample.bal");
 //
