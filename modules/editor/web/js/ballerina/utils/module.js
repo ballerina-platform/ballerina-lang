@@ -15,14 +15,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['./ast/module', './env/module', './views/module', './visitors/module', './utils/module'],
-    function (astModule, envModule, viewsModule, visitorsModule, utilsModule) {
+define(['./ace-mode'],
+    function (AceMode) {
         return  {
-            ast: astModule,
-            env: envModule,
-            views: viewsModule,
-            visitors: visitorsModule,
-            utils: utilsModule
+            AceMode: AceMode
         }
     });
 
