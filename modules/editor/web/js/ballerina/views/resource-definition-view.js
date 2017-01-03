@@ -797,6 +797,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                     }else if(annotationType == 'ResourceMethod'){
                         var resourceMethods = getResourceMethodAnnotations(annotationValue);
                         model.setResourceMethod(resourceMethods);
+                    }else if(annotationType == 'ResourceArgs'){
+                        model.setResourceArguments(annotationValue);
                     }
                 }
 
