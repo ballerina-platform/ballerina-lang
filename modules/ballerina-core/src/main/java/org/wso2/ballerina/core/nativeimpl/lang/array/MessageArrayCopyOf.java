@@ -19,11 +19,9 @@
 package org.wso2.ballerina.core.nativeimpl.lang.array;
 
 import org.osgi.service.component.annotations.Component;
-import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BArray;
-import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BMessage;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
@@ -32,40 +30,27 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 
 /**
- * Native function ballerina.lang.array:copyOfRange(message[], int, int).
+ * Native function ballerina.lang.array:copyOf(message[]).
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.array",
-        functionName = "copyOfRange",
-        args = {@Argument(name = "arr", type = TypeEnum.ARRAY, elementType = TypeEnum.MESSAGE),
-                @Argument(name = "from", type = TypeEnum.INT),
-                @Argument(name = "to", type = TypeEnum.INT)},
+        functionName = "copyOf",
+        args = {@Argument(name = "arr", type = TypeEnum.ARRAY, elementType = TypeEnum.MESSAGE)},
         returnType = {@ReturnType(type = TypeEnum.ARRAY, elementType = TypeEnum.MESSAGE)},
         isPublic = true
 )
 @Component(
-        name = "func.lang.array_messageArrayRangeCopy",
+        name = "func.lang.array_messageArrayCopyOf",
         immediate = true,
         service = AbstractNativeFunction.class
 )
-public class MessageArrayRangeCopy extends AbstractNativeFunction {
+public class MessageArrayCopyOf extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
         BArray array = (BArray) getArgument(context, 0);
-        BInteger argFrom = (BInteger) getArgument(context, 1);
-        BInteger argTo = (BInteger) getArgument(context, 2);
-
-        int from = argFrom.intValue();
-        int to = argTo.intValue();
-
-        if (from < 0 || to > array.size()) {
-            throw new BallerinaException(
-                    "Array index out of range. Actual:" + array.size() + " requested: " + from + " to " + to);
-        }
         BArray<BMessage> newArray = new BArray<>(BMessage.class);
-        int index = 0;
-        for (int i = from; i < to; i++) {
-            newArray.add(index++, array.get(i));
+        for (int i = 0; i < array.size(); i++) {
+            newArray.add(i, array.get(i));
         }
         return getBValues(newArray);
     }
