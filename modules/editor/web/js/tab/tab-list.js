@@ -253,7 +253,14 @@ define(['log', 'jquery', 'lodash', 'backbone', './tab', 'bootstrap'], function (
                 _.assign(tabOptions, _.get(this.options, 'tabs.tab'));
                 _.set(tabOptions, 'tabs_container',_.get(this.options, 'tabs.container'));
                 _.set(tabOptions, 'parent', this);
-                var newTab = new this.TabModel(tabOptions);
+                var newTab;
+                // user provided a custom tab type
+                if (_.has(opts, 'tabModel')) {
+                    var TabModel = _.get(opts, 'tabModel');
+                    newTab = new TabModel(tabOptions);
+                } else {
+                    newTab = new this.TabModel(tabOptions);
+                }
                 this.addTab(newTab);
                 // check whether switch to new tab set to false
                 if (_.has(opts, 'switchToNewTab')) {
