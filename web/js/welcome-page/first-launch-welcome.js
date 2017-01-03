@@ -191,6 +191,11 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
                     command.dispatch("create-new-tab");
                     browserStorage.put("pref:passedFirstLaunch", true);
                 });
+
+                // upon welcome tab remove, set flag to indicate first launch pass
+                this._tab.on('removed', function(){
+                    browserStorage.put("pref:passedFirstLaunch", true);
+                });
             }
 
         });
