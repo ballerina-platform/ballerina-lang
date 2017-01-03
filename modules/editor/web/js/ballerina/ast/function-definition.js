@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './callable-definition'], function (_, CallableDefinition) {
+define(['lodash', './callable-definition', './connector-declaration'], function (_, CallableDefinition, ConnectorDeclaration) {
 
     var FunctionDefinition = function (connectionDeclarations, variableDeclarations, workerDeclarations, statements,args) {
         this.id = autoGenerateId();
@@ -47,7 +47,19 @@ define(['lodash', './callable-definition'], function (_, CallableDefinition) {
     FunctionDefinition.prototype.getArgs = function () {
         return this.args;
     };
-    
+
+    /**
+     * Override the super call to addChild
+     * @param child
+     * @param index
+     */
+    FunctionDefinition.prototype.addChild = function (child, index) {
+        if (child instanceof ConnectorDeclaration) {
+            Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, 0);
+        } else {
+            Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, index);
+        }
+    };
     /**
      * Validates possible immediate child types.
      * @override
