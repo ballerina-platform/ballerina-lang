@@ -47,7 +47,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
 //            connectorDefinitions.push(connectorDefinition1);
 //
 //            var serviceDefinition1 = BallerinaASTFactory.createServiceDefinition();
-//            serviceDefinition1.setBasePath("/basePath1");
+//            serviceDefinition1.addAnnotation("BasePath", "/basePath1");
 //
 //            // Create Sample Resource Definitions
 //            var resourceDefinition1 = BallerinaASTFactory.createResourceDefinition();
