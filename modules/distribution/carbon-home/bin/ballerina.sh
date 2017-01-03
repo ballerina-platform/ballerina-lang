@@ -132,12 +132,21 @@ fi
 # ----- Process the input command ----------------------------------------------
 
 args=""
+BARGS=
+BPATH=
 
-for c in $@
+for c in "$@"
 do
     if [ "$c" = "-bargs" ] ; then
           BAL_EXECUTION_SUB_CMD="-bargs"
           args="$args $c"
+    elif [ "$c" = "-bpath" ] ; then
+          BAL_EXECUTION_SUB_CMD="-bpath"
+          args="$args $c"
+    elif [[ "$c" = *.bal ]] && [ -z "$BAL_FILE_NAME" ]; then
+          BAL_FILE_NAME="$c"
+          args="$args $c"
+    # Parsing Options Values.
     elif [ "$BAL_EXECUTION_SUB_CMD" = "-bargs" ] ; then
         if [[ -z "$BARGS" ]]; then
           BARGS="$c"
@@ -145,14 +154,8 @@ do
           BARGS="$BARGS;$c"
         fi
         args="$args $c"
-    elif [ "$c" = "-bpath" ] ; then
-          BAL_PATH_CMD="bpath"
-          args="$args $c"
-    elif [ "$BAL_PATH_CMD" = "bpath" ] && [ -z "$BAL_Path" ]; then
-          BAL_Path="$c"
-          args="$args $c"
-    elif [[ "$c" = *.bal ]] && [ -z "$BAL_FILE_NAME" ]; then
-          BAL_FILE_NAME="$c"
+    elif [ "$BAL_EXECUTION_SUB_CMD" = "-bpath" ] && [ -z "$BPATH" ] ; then
+          BPATH="$c"
           args="$args $c"
     # Parsing Commands.
     elif [ "$c" = "--debug" ] || [ "$c" = "-debug" ] || [ "$c" = "debug" ]; then
@@ -169,9 +172,6 @@ do
           CMD="version"
     elif [ "$c" = "help" ]; then
           CMD="help"
-    elif [ "$c" = "--test" ] || [ "$c" = "-test" ] || [ "$c" = "test" ]; then
-          CMD="test"
-# Parsing Options.
     else
         echo "Not supported option or command : $c"
         cat $CARBON_HOME/bin/ballerina-bash-help.txt
@@ -179,34 +179,23 @@ do
     fi
 done
 
-BAL_OPTS="-Dbase-dir=$BASE_DIR -Drun-mode=run"
+if [ "$CMD" = "stop" ]; then
+  export CARBON_HOME=$CARBON_HOME
+  if [ -f "$CARBON_HOME/carbon.pid" ]; then
+      kill -term `cat $CARBON_HOME/carbon.pid`
+      exit 0
+  fi
+fi
 
 if [ "$BAL_FILE_NAME" = "" ]; then
     echo "Please specify Ballerina file to run. (Eg: ballerina.sh foo.bal)"
     cat $CARBON_HOME/bin/ballerina-bash-help.txt
     exit 1
 else
-    if [[ "$BAL_FILE_NAME" != *.bal ]]; then
-        echo "Not supported File format $BAL_FILE_NAME. support only Ballerina files (.bal)."
-        cat $CARBON_HOME/bin/ballerina-bash-help.txt
-        exit 1
-    fi
     if [[ "$BAL_FILE_NAME" != /* ]]; then
         BAL_FILE_NAME="$BASE_DIR/$BAL_FILE_NAME"
     fi
-    BAL_OPTS="$BAL_OPTS -Drun-file=$BAL_FILE_NAME"
-    #echo "Running the Ballerina file $BAL_FILE_NAME"
 fi
-
-if [ "$BAL_EXECUTION_SUB_CMD" = "-bargs" ]; then
-  if [[ "$BARGS" != " " ]]; then
-  BAL_OPTS="$BAL_OPTS -Dbargs=$BARGS"
-#  echo "Arguments : $BARGS"
-  fi
-fi
-
-# Add Ballerina Options to JAVA_OPTS
-JAVA_OPTS="$JAVA_OPTS $BAL_OPTS"
 
 if [ "$CMD" = "--debug" ]; then
   if [ "$PORT" = "" ]; then
@@ -217,8 +206,13 @@ if [ "$CMD" = "--debug" ]; then
     echo "Warning !!!. User specified JAVA_OPTS will be ignored, once you give the --debug option."
   fi
   JAVA_OPTS="-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=$PORT"
-  JAVA_OPTS="$JAVA_OPTS $BAL_OPTS"
   echo "Please start the remote debugging client to continue..."
+elif [ "$CMD" = "version" ]; then
+  cat $CARBON_HOME/bin/version.txt
+  exit 0
+elif [ "$CMD" = "help" ]; then
+  cat $CARBON_HOME/bin/ballerina-bash-help.txt
+  exit 0
 elif [ "$CMD" = "start" ]; then
   if [ -e "$CARBON_HOME/carbon.pid" ]; then
     if  ps -p $PID > /dev/null ; then
@@ -230,12 +224,6 @@ elif [ "$CMD" = "start" ]; then
 # using nohup bash to avoid erros in solaris OS.TODO
   nohup bash $CARBON_HOME/bin/ballerina.sh $args > /dev/null 2>&1 &
   exit 0
-elif [ "$CMD" = "stop" ]; then
-  export CARBON_HOME=$CARBON_HOME
-  if [ -f "$CARBON_HOME/carbon.pid" ]; then
-      kill -term `cat $CARBON_HOME/carbon.pid`
-      exit 0
-  fi
 elif [ "$CMD" = "restart" ]; then
   export CARBON_HOME=$CARBON_HOME
   if [ -f "$CARBON_HOME/carbon.pid" ]; then
@@ -254,14 +242,6 @@ elif [ "$CMD" = "restart" ]; then
   nohup bash $CARBON_HOME/bin/ballerina.sh $args > /dev/null 2>&1 &
   exit 0
 
-elif [ "$CMD" = "test" ]; then
-    JAVACMD="exec "$JAVACMD""
-elif [ "$CMD" = "version" ]; then
-  cat $CARBON_HOME/bin/version.txt
-  exit 0
-elif [ "$CMD" = "help" ]; then
-  cat $CARBON_HOME/bin/ballerina-bash-help.txt
-  exit 0
 fi
 
 # ---------- Handle the SSL Issue with proper JDK version --------------------
@@ -335,6 +315,11 @@ do
     -Djava.util.logging.config.file="$CARBON_HOME/bin/bootstrap/logging.properties" \
     -Djava.security.egd=file:/dev/./urandom \
     -Dfile.encoding=UTF8 \
+    -Dbase-dir="$BASE_DIR" \
+    -Drun-mode=run \
+    -Drun-file="$BAL_FILE_NAME" \
+    -Dbargs="$BARGS" \
+    -Dbpath="$BPATH" \
     org.wso2.carbon.launcher.Main $*
     status=$?
 done
