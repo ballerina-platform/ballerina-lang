@@ -79,8 +79,20 @@ public class BallerinaFunction implements Function, Node {
         this.functionBody = functionBody;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public String getName() {
         return functionName.getName();
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getPackageName() {
+        return functionName.getPkgName();
     }
 
     /**
@@ -197,4 +209,5 @@ public class BallerinaFunction implements Function, Node {
     public void setFunctionLocation(Position location) {
         this.functionLocation = location;
     }
+
 }

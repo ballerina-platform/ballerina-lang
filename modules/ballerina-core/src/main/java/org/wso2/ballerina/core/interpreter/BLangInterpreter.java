@@ -306,18 +306,18 @@ public class BLangInterpreter implements NodeVisitor {
         }
 
         SymbolName functionSymbolName = function.getSymbolName();
-        NodeInfo functionInfo;
+        CallableUnitInfo functionInfo;
         
         // Populate values for Connector declarations
         if (function instanceof BallerinaFunction) {
             BallerinaFunction ballerinaFunction = (BallerinaFunction) function;
             populateConnectorDclValues(ballerinaFunction.getConnectorDcls(), localVals, valuesCounter);
             
-            functionInfo = new NodeInfo(functionSymbolName.getName(), StackFrameType.BALLERINA_FUNCTION, 
-                    functionSymbolName.getPkgName(), function.getFunctionLocation());
+            functionInfo = new CallableUnitInfo(functionSymbolName.getName(), functionSymbolName.getPkgName(), 
+                    function.getFunctionLocation());
         } else {
-            functionInfo = new NodeInfo(functionSymbolName.getName(), StackFrameType.NATIVE_FUNCTION, 
-                    functionSymbolName.getPkgName(), function.getFunctionLocation());
+            functionInfo = new CallableUnitInfo(functionSymbolName.getName(), functionSymbolName.getPkgName(), 
+                    function.getFunctionLocation());
         }
 
         // Create an array in the stack frame to hold return values;
@@ -364,15 +364,14 @@ public class BLangInterpreter implements NodeVisitor {
         }
 
         // Populate values for Connector declarations
-        NodeInfo actionInfo;
+        CallableUnitInfo actionInfo;
         if (action instanceof BallerinaAction) {
             BallerinaAction ballerinaAction = (BallerinaAction) action;
             populateConnectorDclValues(ballerinaAction.getConnectorDcls(), localVals, valueCounter);
             
-            actionInfo = new NodeInfo(action.getName(), StackFrameType.BALLERINA_ACTION, null, 
-                    action.getActionLocation());
+            actionInfo = new CallableUnitInfo(action.getName(), null, null);
         } else {
-            actionInfo = new NodeInfo(action.getName(), StackFrameType.NATIVE_ACTION, null, action.getActionLocation());
+            actionInfo = new CallableUnitInfo(action.getName(), null, null);
         }
 
         // Create an array in the stack frame to hold return values;
@@ -566,7 +565,7 @@ public class BLangInterpreter implements NodeVisitor {
         BValue[] ret = new BValue[1];
 
         SymbolName resourceSymbolName = resource.getSymbolName();
-        NodeInfo resourceInfo = new NodeInfo(resourceSymbolName.getName(), StackFrameType.RESOURCE, 
+        CallableUnitInfo resourceInfo = new CallableUnitInfo(resourceSymbolName.getName(), 
                 resourceSymbolName.getPkgName(), resource.getResourceLocation());
         
         StackFrame stackFrame = new StackFrame(valueParams, ret, resourceInfo);
@@ -611,7 +610,7 @@ public class BLangInterpreter implements NodeVisitor {
         
         BValue[] returnVals = new BValue[function.getReturnTypes().length];
         SymbolName functionSymbolName = function.getSymbolName();
-        NodeInfo functionInfo = new NodeInfo(functionSymbolName.getName(), StackFrameType.MAIN_FUNCTION,
+        CallableUnitInfo functionInfo = new CallableUnitInfo(functionSymbolName.getName(), 
                 functionSymbolName.getPkgName(), function.getFunctionLocation());
         StackFrame stackFrame = new StackFrame(values, returnVals, functionInfo);
         controlStack.pushFrame(stackFrame);

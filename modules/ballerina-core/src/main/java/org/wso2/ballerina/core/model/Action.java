@@ -57,18 +57,4 @@ public interface Action {
 
     void setStackFrameSize(int stackFrameSize);
     
-    /**
-     * Get the location of this action in the ballerina source file.
-     * Returns the ballerina file and line number of the action.
-     * 
-     * @return  location of this action in the ballerina source file
-     */
-    Position getActionLocation();
-    
-    /**
-     * Set the location of this action in the ballerina source file.
-     * 
-     * @param location  Location of this action in the ballerina source file
-     */
-    void setActionLocation(Position location);
 }

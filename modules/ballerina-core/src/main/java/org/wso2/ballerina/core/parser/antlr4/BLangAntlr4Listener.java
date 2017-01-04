@@ -18,6 +18,7 @@
 package org.wso2.ballerina.core.parser.antlr4;
 
 import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.wso2.ballerina.core.model.Position;
@@ -701,7 +702,12 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitActionInvocationStatement(BallerinaParser.ActionInvocationStatementContext ctx) {
-        modelBuilder.createActionInvocationExpr();
+        Token startToken = ctx.getStart();
+        String fileName = startToken.getInputStream().getSourceName();
+        int lineNo = startToken.getLine();
+        Position actionInvokedLocation =  new Position(fileName, lineNo);
+        
+        modelBuilder.createActionInvocationExpr(actionInvokedLocation);
     }
 
     @Override
@@ -779,7 +785,12 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitFunctionInvocationStatement(BallerinaParser.FunctionInvocationStatementContext ctx) {
-        modelBuilder.createFunctionInvocationStmt();
+        Token startToken = ctx.getStart();
+        String fileName = startToken.getInputStream().getSourceName();
+        int lineNo = startToken.getLine();
+        Position functionInvokedLocation =  new Position(fileName, lineNo);
+        
+        modelBuilder.createFunctionInvocationStmt(functionInvokedLocation);
     }
 
     @Override
@@ -864,7 +875,12 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitFunctionInvocationExpression(BallerinaParser.FunctionInvocationExpressionContext ctx) {
-        modelBuilder.createFunctionInvocationExpr();
+        Token startToken = ctx.getStart();
+        String fileName = startToken.getInputStream().getSourceName();
+        int lineNo = startToken.getLine();
+        Position functionInvokedLocation =  new Position(fileName, lineNo);
+        
+        modelBuilder.createFunctionInvocationExpr(functionInvokedLocation);
     }
 
     @Override
@@ -908,7 +924,12 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitActionInvocationExpression(BallerinaParser.ActionInvocationExpressionContext ctx) {
-        modelBuilder.createActionInvocationExpr();
+        Token startToken = ctx.getStart();
+        String fileName = startToken.getInputStream().getSourceName();
+        int lineNo = startToken.getLine();
+        Position actionInvokedLocation =  new Position(fileName, lineNo);
+        
+        modelBuilder.createActionInvocationExpr(actionInvokedLocation);
     }
 
     @Override

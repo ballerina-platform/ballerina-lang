@@ -17,14 +17,13 @@
 package org.wso2.ballerina.core.runtime.errors.handler;
 
 import org.wso2.ballerina.core.exception.BallerinaException;
+import org.wso2.ballerina.core.interpreter.CallableUnitInfo;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.interpreter.ControlStack;
-import org.wso2.ballerina.core.interpreter.NodeInfo;
 import org.wso2.ballerina.core.interpreter.StackFrame;
-import org.wso2.ballerina.core.interpreter.StackFrameType;
 import org.wso2.ballerina.core.model.Position;
 
-import java.util.Iterator;
+import java.util.Stack;
 
 /**
  * Class contains utility methods for ballerina server error handling.
@@ -57,61 +56,42 @@ public class ErrorHandlerUtils {
     public static String getBallerinaStackTrace(Context context) {
         ControlStack controlStack = context.getControlStack();
         StringBuilder sb = new StringBuilder();
-        NodeInfo serviceInfo = context.getServiceInfo();
+        Stack<StackFrame> stack = controlStack.getStack();
+        for (int i = stack.size() - 1; i >= 0; i--) {
+            CallableUnitInfo frameInfo = stack.get(i).getNodeInfo();
+            sb.append(
+                "\t at " + frameInfo.getPackage() + ":" + frameInfo.getName() + getNodeLocation(frameInfo) + "\n");
+        }
+        
+        CallableUnitInfo serviceInfo = context.getServiceInfo();
         if (serviceInfo != null) {
-            sb.append("\t at " + serviceInfo.getNodePackage() + ":" + serviceInfo.getNodeName() + 
+            sb.append("\t at " + serviceInfo.getPackage() + ":" + serviceInfo.getName() + 
                     getNodeLocation(serviceInfo) + "\n");
         }
-
-        Iterator<StackFrame> itr = controlStack.iterator();
-        while (true) {
-            while (itr.hasNext()) {
-                NodeInfo frameInfo = itr.next().getNodeInfo();
-                
-                if (frameInfo.getNodePackage() != null && frameInfo.getNodeType() != StackFrameType.NATIVE_FUNCTION) {
-                    sb.append("\t at " + frameInfo.getNodePackage() + ":" + frameInfo.getNodeName() + 
-                            getNodeLocation(frameInfo) + "\n");
-                } else if (frameInfo.getNodeType() == StackFrameType.BALLERINA_FUNCTION && serviceInfo != null) {
-                    sb.append("\t at " + serviceInfo.getNodePackage() + ":" + frameInfo.getNodeName() + 
-                            getNodeLocation(frameInfo) + "\n");
-                } else {
-                    sb.append("\t at " + frameInfo.getNodeName() + "\n");
-                }
-            }
-
-            return sb.toString();
-        }
+        return sb.toString();
     }
     
     /**
      * Get the ballerina stack trace for a main function.
      * 
      * @param context       Ballerina context associated with the main function
-     * @param packageName   Package name of the main function
      * @return              Ballerina stack trace
      */
-    public static String getMainFunctionStackTrace(Context context, String packageName) {
+    public static String getMainFunctionStackTrace(Context context) {
         ControlStack controlStack = context.getControlStack();
         StringBuilder sb = new StringBuilder();
-        Iterator<StackFrame> itr = controlStack.iterator();
+        Stack<StackFrame> stack = controlStack.getStack();
 
-        while (itr.hasNext()) {
-            NodeInfo frameInfo = itr.next().getNodeInfo();
-            if (frameInfo.getNodePackage() != null && frameInfo.getNodeType() != StackFrameType.NATIVE_FUNCTION) {
-                sb.append("\t at " + frameInfo.getNodePackage() + ":" + frameInfo.getNodeName() + 
-                        getNodeLocation(frameInfo) + "\n");
-            } else if (frameInfo.getNodeType() == StackFrameType.BALLERINA_FUNCTION || 
-                       frameInfo.getNodeType() == StackFrameType.MAIN_FUNCTION) {
-                sb.append("\t at " + packageName + ":" + frameInfo.getNodeName() + getNodeLocation(frameInfo) + "\n");
-            } else {
-                sb.append("\t at " + frameInfo.getNodeName() + "\n");
-            }
+        for (int i = stack.size() - 1; i >= 0; i--) {
+            CallableUnitInfo frameInfo = stack.get(i).getNodeInfo();
+            sb.append("\t at " + frameInfo.getPackage() + ":" + frameInfo.getName() + getNodeLocation(frameInfo) 
+                    + "\n");
         }
 
         return sb.toString();
     }
     
-    private static String getNodeLocation(NodeInfo nodeInfo) {
+    private static String getNodeLocation(CallableUnitInfo nodeInfo) {
         Position nodePosition = nodeInfo.getLocation();
         if (nodePosition != null) {
             String fileName = nodePosition.getFileName();

@@ -66,4 +66,8 @@ public class ControlStack {
     public Iterator<StackFrame> iterator() {
         return this.stack.iterator();
     }
+    
+    public Stack<StackFrame> getStack() {
+        return this.stack;
+    }
 }

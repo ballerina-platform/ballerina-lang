@@ -22,58 +22,55 @@ import org.wso2.ballerina.core.model.Position;
  * Bean class to hold meta information of a node in the control stack (i.e: a function/action/resource/service),
  * including name, type, package and the location in the ballerina source (see {@link Position}).
  */
-public class NodeInfo {
-    private String nodeName;
-    private StackFrameType nodeType;
-    private String nodePackage;
+public class CallableUnitInfo {
+    private String unitName;
+    private String unitPackage;
     private Position location;
 
     /**
-     * Creates a {@link NodeInfo}.
+     * Creates a {@link CallableUnitInfo}.
      * 
-     * @param nodeName      Identifier of the node
-     * @param type          Type of the node
-     * @param nodePackage   Package of the node
+     * @param unitName      Identifier of the CallableUnit
+     * @param unitPackage   Package of the CallableUnit
      * @param location      Location in the ballerina source
      */
-    public NodeInfo(String nodeName, StackFrameType type, String nodePackage, Position location) {
-        this.nodeName = nodeName;
-        this.nodeType = type;
-        this.nodePackage = nodePackage;
+    public CallableUnitInfo(String unitName, String unitPackage, Position location) {
+        this.unitName = unitName;
+        this.unitPackage = unitPackage;
         this.location = location;
     }
     
     /**
-     * Get the name of this node.
+     * Get the name of this CallableUnit.
      * 
-     * @return  Name of this node
+     * @return  Name of this CallableUnit
      */
-    public String getNodeName() {
-        return this.nodeName;
+    public String getName() {
+        return this.unitName;
     }
 
     /**
-     * Get the type of this node.
+     * Get the package of this CallableUnit.
      * 
-     * @return  Type of this node
+     * @return  Package of this CallableUnit
      */
-    public StackFrameType getNodeType() {
-        return this.nodeType;
+    public String getPackage() {
+        return this.unitPackage;
     }
 
     /**
-     * Get the package of this node.
+     * Set the package of this CallableUnit.
      * 
-     * @return  Package of this node
+     * @param packageName  Package of this CallableUnit
      */
-    public String getNodePackage() {
-        return this.nodePackage;
+    public void setPackage(String packageName) {
+        this.unitPackage = packageName;
     }
 
     /**
-     * Get the location of this node in the ballerina source file.
+     * Get the location of this CallableUnit in the ballerina source file.
      * 
-     * @return  Location of this node in the ballerina source
+     * @return  Location of this CallableUnit in the ballerina source
      */
     public Position getLocation() {
         return location;

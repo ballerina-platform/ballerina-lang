@@ -91,11 +91,11 @@ class CallableUnitGroupBuilder {
                 actionList.toArray(new BallerinaAction[actionList.size()]));
     }
 
-    public Position getPosition() {
+    public Position getLocation() {
         return position;
     }
 
-    public void setPosition(Position position) {
+    public void setLocation(Position position) {
         this.position = position;
     }
 }
