@@ -86,8 +86,7 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
                 bodyDiv.addClass(_.get(this._options, 'cssClass.body'));
                 bodyTitleSpan.addClass(_.get(this._options, 'cssClass.bodyTitle'));
                 samplesDiv.addClass(_.get(this._options, 'cssClass.samples'));
-                samplesDiv.attr('id', 'theCarousel');
-                samplesDiv.addClass('carousel slide multi-item-carousel');
+                samplesDiv.attr('id', 'samplePanel');
 
                 newButton.text("New");
                 openButton.text("Open");
@@ -117,27 +116,9 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
                 this._$parent_el.append(backgroundDiv);
                 this.$el = backgroundDiv;
 
-                // Adding carousel view related elements
-                var carouselDiv = $('<div></div>');
-                carouselDiv.attr('id', "innerSamples");
-                samplesDiv.append(carouselDiv);
-                var nextControl = $('<a></a>');
-                nextControl.addClass('right carousel-control');
-                nextControl.attr('href', '#theCarousel').attr('data-slide', 'next');
-                var nextIcon = $('<i></i>');
-                nextIcon.addClass('fw fw-right right-carousel');
-                nextControl.append(nextIcon);
-
-                var prevControl = $('<a></a>');
-                prevControl.addClass('left carousel-control');
-                prevControl.attr('href', '#theCarousel').attr('data-slide', 'prev');
-                var prevIcon = $('<i></i>');
-                prevIcon.addClass('fw fw-left left-carousel');
-                prevControl.append(prevIcon);
-
-                samplesDiv.append(nextControl);
-                samplesDiv.append(prevControl);
-
+                var innerDiv = $('<div></div>');
+                innerDiv.attr('id', "innerSamples");
+                samplesDiv.append(innerDiv);
 
                 var command = this._options.application.commandManager;
                 var browserStorage = this._options.application.browserStorage;
@@ -199,30 +180,6 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
                 };
                 servicePreview = new Ballerina.views.ServicePreviewView(config);
                 servicePreview.render();
-
-                // class added after rendering to fix issue in firefox
-                carouselDiv.addClass("carousel-inner");
-                // initialise carousel
-                $('.multi-item-carousel').carousel({
-                    interval: false
-                });
-                // Carousel only shows the 'active' item in it. To show multiple items in the same slide, each next item is cloned.
-                $('.carousel .item').each(function () {
-                    var next = $(this).next();
-                    if (!next.length) {
-                        next = $(this).siblings(':first');
-                    }
-                    next.children(':first-child').clone().appendTo($(this));
-
-                    for (var i = 1; i < 3; i++) {
-                        next = next.next();
-                        if (!next.length) {
-                            next = $(this).siblings(':first');
-                        }
-
-                        next.children(':first-child').clone().appendTo($(this));
-                    }
-                });
 
                 var command = this._options.application.commandManager;
                 var browserStorage = this._options.application.browserStorage;
