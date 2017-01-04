@@ -54,7 +54,6 @@ public class BalDeployer {
 
     private static final Logger log = LoggerFactory.getLogger(BalDeployer.class);
 
-    public static final String BAL_FILES_DIRECTORY = "ballerina-files";
     private static final String FILE_EXTENSION = ".bal";
 
     public static void deployBalFile(File file) {

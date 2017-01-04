@@ -41,8 +41,6 @@ import org.wso2.carbon.messaging.TransportListenerManager;
 import org.wso2.carbon.messaging.TransportSender;
 
 import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 
 /**
@@ -72,14 +70,10 @@ public class BallerinaServiceComponent {
         String runtimeMode = System.getProperty(Constants.SYSTEM_PROP_RUN_MODE);
         String runningFileName = System.getProperty(Constants.SYSTEM_PROP_RUN_FILE);
         if (runtimeMode == null) {
-            // TODO : Remove Default mode, once we fix the carbon deployment.
+            // TODO : This is temporary fix, to run in pax exam mode. Fix this properly.
             runtimeMode = Constants.SYSTEM_PROP_RUN_MODE_SERVER;
-            Path deploymentDir = Paths.get(Utils.getCarbonHome().toString(), "deployment", BalDeployer
-                    .BAL_FILES_DIRECTORY);
-            runningFileName = deploymentDir.toString();
-            if (log.isDebugEnabled()) {
-                log.debug("Ballerina is running is carbon server mode. You SHOULDN'T run in this mode...!");
-            }
+            runningFileName = Utils.getCarbonHome().toString();
+            log.warn("Ballerina is running in carbon server mode. You SHOULDN'T run in this mode...!");
         }
         File runningFile;
         if (runningFileName != null) {
