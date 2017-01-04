@@ -59,18 +59,18 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             // center point for the client lifeline
             this._viewOptions.client = _.get(args, "viewOptions.client", {});
             this._viewOptions.client.center = _.get(args, "viewOptions.client.centerPoint",
-                this._viewOptions.topLeft.clone().move(100, 80));
+                this._viewOptions.topLeft.clone().move(100, 150));
 
             // Center point of the default worker
             this._viewOptions.defaultWorker = _.get(args, "viewOptions.defaultWorker", {});
             this._viewOptions.defaultWorker.offsetTop = _.get(args, "viewOptions.defaultWorker.offsetTop", 50);
             this._viewOptions.defaultWorker.center = _.get(args, "viewOptions.defaultWorker.centerPoint",
-                            this._viewOptions.topLeft.clone().move(260, 80));
+                            this._viewOptions.topLeft.clone().move(260, 150));
 
             // View options for height and width of the heading box.
             this._viewOptions.heading = _.get(args, "viewOptions.heading", {});
             this._viewOptions.heading.height = _.get(args, "viewOptions.heading.height", 25);
-            this._viewOptions.heading.width = _.get(args, "viewOptions.heading.width", 1000);
+            this._viewOptions.heading.width = _.get(args, "viewOptions.heading.width", this._container.node().ownerSVGElement.parentElement.offsetWidth - 100);
 
             // View options for height and width of the resource icon in the heading box.
             this._viewOptions.heading.icon = _.get(args, "viewOptions.heading.icon", {});
@@ -78,10 +78,10 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             this._viewOptions.heading.icon.width = _.get(args, "viewOptions.heading.icon.width", 25);
 
             this._viewOptions.contentCollapsed = _.get(args, "viewOptions.contentCollapsed", false);
-            this._viewOptions.contentWidth = _.get(args, "viewOptions.contentWidth", 1000);
-            this._viewOptions.contentHeight = _.get(args, "viewOptions.contentHeight", 400);
-            this._viewOptions.collapseIconWidth = _.get(args, "viewOptions.collaspeIconWidth", 1025);
-            this._viewOptions.deleteIconWidth = _.get(args, "viewOptions.deleteIconWidth", 995);
+            this._viewOptions.contentWidth = _.get(args, "viewOptions.contentWidth", this._container.node().ownerSVGElement.parentElement.offsetWidth - 100);
+            this._viewOptions.contentHeight = _.get(args, "viewOptions.contentHeight", 470);
+            this._viewOptions.collapseIconWidth = _.get(args, "viewOptions.collaspeIconWidth", this._container.node().ownerSVGElement.parentElement.offsetWidth - 95);
+            this._viewOptions.deleteIconWidth = _.get(args, "viewOptions.deleteIconWidth", this._container.node().ownerSVGElement.parentElement.offsetWidth - 125);
 
             this._viewOptions.startAction = _.get(args, "viewOptions.startAction", {
                 width: 120,
