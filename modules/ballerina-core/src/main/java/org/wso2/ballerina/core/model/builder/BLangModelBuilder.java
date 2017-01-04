@@ -234,6 +234,10 @@ public class BLangModelBuilder {
         typeQueue.add(type);
     }
 
+    public void registerConnectorType(String typeName) {
+        BTypes.addConnectorType(typeName);
+    }
+
     public void createReturnTypes() {
         while (!typeQueue.isEmpty()) {
             currentCUBuilder.addReturnType(typeQueue.remove());

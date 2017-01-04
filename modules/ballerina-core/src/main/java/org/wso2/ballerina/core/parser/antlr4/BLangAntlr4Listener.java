@@ -142,6 +142,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void enterConnectorBody(BallerinaParser.ConnectorBodyContext ctx) {
+        modelBuilder.registerConnectorType(ctx.getParent().getChild(1).getText());
     }
 
     @Override

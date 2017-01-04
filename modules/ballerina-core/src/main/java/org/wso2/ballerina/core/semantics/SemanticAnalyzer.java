@@ -285,7 +285,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             throw new SemanticException("Duplicate connector declaration with name: " + symbolName.getName());
         }
 
-        symbol = new Symbol(BTypes.CONNECTOR_TYPE, stackFrameOffset);
+        symbol = new Symbol(BTypes.getType(connectorDcl.getConnectorName().getName()), stackFrameOffset);
         symbolTable.insert(symbolName, symbol);
 
         // Setting the connector name with the package name
