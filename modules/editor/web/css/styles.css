@@ -801,7 +801,7 @@ button.variable-list {
 }
 
 .variable-add-icon-wrapper {
-    margin-left: 2px;
+    margin-right: 3px;
     height: 22px;
     margin-top: 0;
     position: static;
@@ -818,14 +818,10 @@ button.variable-list {
 }
 
 .variable-add-action-wrapper input {
-    width: 163px;
+    width: 165px;
     margin-left: 4px;
     height: 22px;
     padding-left: 5px;
-}
-
-.variable-add-action-wrapper select {
-    margin-left: 5px;
 }
 
 .variable-add-complete-action-wrapper {
@@ -837,12 +833,13 @@ button.variable-list {
 .variable-add-cancel-action-wrapper {
     height: 22px;
     position: static;
+    margin-right:3px;
     float: right;
 }
 
 .variable-wrapper {
     float: left;
-    margin-left: 6px;
+    margin-right: 6px;
     margin-bottom: 3px;
 }
 
