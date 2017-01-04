@@ -216,8 +216,12 @@ public class BLangModelBuilder {
         BType paramType = typeQueue.remove();
         Parameter param = new Parameter(paramType, paramNameId);
 
-        // Add the parameter to callableUnitBuilder.
-        currentCUBuilder.addParameter(param);
+        if (currentCUBuilder != null) {
+            // Add the parameter to callableUnitBuilder.
+            currentCUBuilder.addParameter(param);
+        } else {
+            currentCUGroupBuilder.addParameter(param);
+        }
     }
 
     public void createType(String typeName) {
@@ -228,6 +232,10 @@ public class BLangModelBuilder {
     public void createArrayType(String typeName) {
         BType type = BTypes.getArrayType(typeName);
         typeQueue.add(type);
+    }
+
+    public void registerConnectorType(String typeName) {
+        BTypes.addConnectorType(typeName);
     }
 
     public void createReturnTypes() {

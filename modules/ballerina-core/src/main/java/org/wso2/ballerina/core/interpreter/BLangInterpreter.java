@@ -136,6 +136,7 @@ public class BLangInterpreter implements NodeVisitor {
 
     @Override
     public void visit(BallerinaAction action) {
+        action.getActionBody().accept(this);
     }
 
     @Override
