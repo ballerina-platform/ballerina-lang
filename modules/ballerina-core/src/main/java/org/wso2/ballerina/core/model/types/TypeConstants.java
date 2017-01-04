@@ -33,7 +33,7 @@ public class TypeConstants {
     static final String ARRAY_TNAME = "[]";
 
     // TODO Correct the name
-    static final String MAP_TNAME = "{}";
+    static final String MAP_TNAME = "map";
     static final String XML_TNAME = "xml";
     static final String JSON_TNAME = "json";
     static final String MESSAGE_TNAME = "message";
