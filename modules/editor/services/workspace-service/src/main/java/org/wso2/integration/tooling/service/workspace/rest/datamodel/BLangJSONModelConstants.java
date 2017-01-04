@@ -22,11 +22,15 @@ public class BLangJSONModelConstants {
 
     public static final String ROOT = "root";
 
+    public static final String CHILDREN = "children";
+
     public static final String DEFINITION_TYPE = "type";
 
     public static final String CONNECTOR_DEFINITION = "connector";
 
     public static final String FUNCTION_DEFINITION = "function";
+
+    public static final String ACTION_DEFINITION = "action";
 
     public static final String FUNCTIONS_NAME = "function_name";
 
@@ -50,11 +54,21 @@ public class BLangJSONModelConstants {
 
     public static final String IMPORT_PACKAGE_PATH = "import_package_path";
 
-    public static final String SERVICE_DEFINITION = "service_definition";
+    public static final String SERVICE_DEFINITION = "service";
 
     public static final String SERVICE_NAME = "service_name";
 
     public static final String RESOURCE_DEFINITIONS = "resource_definitions";
+
+    public static final String RESOURCE_DEFINITION = "resource";
+
+    public static final String ANNOTATION_DEFINITION = "annotation";
+
+    public static final String PARAMETER_DEFINITION = "parameter";
+
+    public static final String CONNECTOR_DECLARATION = "connector_declaration";
+
+    public static final String VARIABLE_DECLARATION = "variable_declaration";
 
     public static final String CONNECTOR_DECLARATIONS = "connector_declarations";
 
@@ -65,6 +79,8 @@ public class BLangJSONModelConstants {
     public static final String ARGUMENT_DECLARATIONS = "argument_declarations";
 
     public static final String WORKER_DECLARATIONS = "worker_declarations";
+
+    public static final String WORKER_DEFINITION = "worker";
 
     public static final String PARAMETER_NAME = "parameter_name";
 
@@ -105,6 +121,8 @@ public class BLangJSONModelConstants {
     public static final String FUNCTION_INVOCATION_STATEMENT = "function_invocation_statement";
 
     public static final String FUNCTION_RETURN_TYPES = "function_return_types";
+
+    public static final String RETURN_TYPE = "return_type";
 
     public static final String REPLY_STATEMENT = "reply_statement";
 

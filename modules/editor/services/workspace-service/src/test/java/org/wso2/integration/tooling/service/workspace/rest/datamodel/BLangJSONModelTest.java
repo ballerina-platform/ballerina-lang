@@ -46,27 +46,23 @@ public class BLangJSONModelTest {
     private String exptdStrFunc = "{\"root\":[{\"type\":\"package\",\"package_name\":\"samples.\"}," +
             "{\"type\":\"import\",\"import_package_name\":\"twitter\"," +
             "\"import_package_path\":\"ballerina.connectors.twitter\"}," +
-            "{\"type\":\"import\",\"import_package_name\":\"salesforce\"," +
-            "\"import_package_path\":\"ballerina.connectors.salesforce\"}," +
-            "{\"type\":\"service_definition\",\"service_name\":\"HelloService\"," +
-            "\"resource_definitions\":[{\"resource_name\":null,\"annotations\":" +
-            "[{\"annotation_name\":\"GET\",\"annotation_value\":null,\"annotation_pairs\":[]}," +
-            "{\"annotation_name\":\"Path\",\"annotation_value\":\"/tweet\",\"annotation_pairs\":[]}]," +
-            "\"argument_declarations\":" +
-            "[{\"parameter_name\":\"m\",\"parameter_type\":\"message\",\"annotations\":[]}]," +
-            "\"worker_declarations\":[],\"variable_declarations\":[],\"block_statement\":" +
-            "{\"statement_declarations\":[{\"type\":\"reply_statement\",\"expressions\":" +
-            "[{\"type\":\"variable_reference_expression\",\"variable_reference_name\":\"m\"}]}]}}]," +
-            "\"annotations\":[],\"connector_declarations\":[],\"variable_declarations\":[]}," +
-            "{\"type\":\"function\",\"function_name\":\"test_int\",\"is_public_function\":false,\"annotations\":[]," +
-            "\"variable_declarations\":[],\"argument_declarations\":" +
-            "[{\"parameter_name\":\"a\",\"parameter_type\":\"int\",\"annotations\":[]}]," +
-            "\"connector_declarations\":[],\"function_return_types\":[\"int\"]," +
-            "\"block_statement\":{\"statement_declarations\":[{\"type\":\"return_statement\"," +
-            "\"expressions\":[{\"type\":\"add_expression\",\"expressions\":" +
-            "[{\"type\":\"variable_reference_expression\",\"variable_reference_name\":\"a\"}," +
-            "{\"type\":\"basic_literal_expression\"," +
-            "\"basic_literal_type\":\"int\",\"basic_literal_value\":\"2\"}]}]}]}}]}";
+            "{\"type\":\"import\",\"import_package_name\":\"salesforce\",\"import_package_path\":" +
+            "\"ballerina.connectors.salesforce\"},{\"type\":\"service\",\"service_name\":" +
+            "\"HelloService\",\"children\":[{\"type\":\"resource\",\"resource_name\":null," +
+            "\"children\":[{\"type\":\"annotation\",\"annotation_name\":\"GET\"," +
+            "\"annotation_value\":null,\"children\":[]},{\"type\":\"annotation\"," +
+            "\"annotation_name\":\"Path\",\"annotation_value\":\"/tweet\",\"children\":" +
+            "[]},{\"type\":\"parameter\",\"parameter_name\":\"m\",\"parameter_type\":\"message\",\"children\":[]}," +
+            "{\"type\":\"block_statement\",\"children\":[{\"type\":\"reply_statement\"," +
+            "\"children\":[{\"type\":\"variable_reference_expression\"," +
+            "\"variable_reference_name\":\"m\"}]}]}]}]},{\"type\":\"function\"," +
+            "\"function_name\":\"test_int\",\"is_public_function\":false,\"children\":" +
+            "[{\"type\":\"parameter\",\"parameter_name\":\"a\",\"parameter_type\":\"int\"," +
+            "\"children\":[]},{\"type\":\"return_type\",\"children\":[\"int\"]},{\"type\":" +
+            "\"block_statement\",\"children\":[{\"type\":\"return_statement\",\"children\":" +
+            "[{\"type\":\"add_expression\",\"children\":[{\"type\":\"variable_reference_expression\"," +
+            "\"variable_reference_name\":\"a\"},{\"type\":\"basic_literal_expression\",\"basic_literal_type\":" +
+            "\"int\",\"basic_literal_value\":\"2\"}]}]}]}]}]}";
 
     public static void main(String[] args) {
         try {
