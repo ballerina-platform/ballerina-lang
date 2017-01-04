@@ -411,7 +411,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
             this._variableButton = VariablesView.createVariableButton(this.getChildContainer().node(),
                 parseInt(this.getChildContainer().attr("x")) + 4, parseInt(this.getChildContainer().attr("y")) + 7);
-            var annotationButton = this._createAnnotationButton(this.getChildContainer().node());
+            // var annotationButton = this._createAnnotationButton(this.getChildContainer().node());
 
             var variableProperties = {
                 model: this._model,
@@ -428,7 +428,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
             this._variablePane = VariablesView.createVariablePane(variableProperties);
 
-            this._createAnnotationButtonPane(annotationButton);
+            // this._createAnnotationButtonPane(annotationButton);
 
             this.getBoundingBox().on("moved", function(offset){
                 var currentTransform = this._resourceGroup.attr("transform");
