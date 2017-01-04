@@ -45,5 +45,14 @@ define(['lodash', './node'], function (_, ASTNode) {
         return this.identifier;
     };
 
+    /**
+     * initialize from json
+     * @param jsonNode
+     */
+    Argument.prototype.initFromJson = function (jsonNode) {
+        this.type = jsonNode.parameter_type;
+        this.identifier = jsonNode.parameter_name;
+    };
+
     return Argument;
 });

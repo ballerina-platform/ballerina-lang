@@ -32,7 +32,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             return this._file;
         },
 
-        render: function () {
+        render: function (ballerinaRoot) {
             Tab.prototype.render.call(this);
             var ballerinaEditorOptions = _.get(this.options, 'ballerina_editor');
 
@@ -95,13 +95,15 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             ballerinaAstRoot1.addChild(importDeclaration_langMessage);
             ballerinaAstRoot1.addChild(importDeclaration_netHttp);
 
+            var root = ballerinaRoot || ballerinaAstRoot1;
+
             //Create environment and add add package list
             var ballerinaEnvironment = new Ballerina.env.Environment();
 
             var diagramRenderingContext = new DiagramRenderContext();
 
             var fileEditor = new Ballerina.views.BallerinaFileEditor({
-                model: ballerinaAstRoot1,
+                model: root,
                 container: this.$el.get(0),
                 viewOptions: ballerinaEditorOptions
             });

@@ -39,27 +39,24 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './st
          * If we need to add additional parameters which are dynamically added to the configuration start
          * that particular source generation has to be constructed here
          */
-
-        if(resourceDefinition.getResourceMethod()){
-            var constructedMethodAnnotation;
-            var resourceMethod = resourceDefinition.getResourceMethod();
-            //If a resource method is a comma separated array then append to the source
-            if(resourceMethod instanceof  Array){
-                for (var i in resourceDefinition.getResourceMethod()) {
-                    constructedMethodAnnotation = '@' + resourceMethod[i].toUpperCase() + '\n';
-                    this.appendSource(constructedMethodAnnotation);
+        var self = this;
+        _.forEach(resourceDefinition.getAnnotations(), function(annotation) {
+            if (!_.isEmpty(annotation.value)) {
+                var constructedPathAnnotation;
+                if (annotation.key.indexOf(":") === -1) {
+                    constructedPathAnnotation = '@' + annotation.key + '("' + annotation.value + '")\n';
+                } else {
+                    constructedPathAnnotation = '@' + annotation.key.split(":")[0] + '(' +
+                        annotation.key.split(":")[1] + ' = "' + annotation.value + '")\n';
                 }
-            }else{
-                constructedMethodAnnotation = '@' + resourceMethod.toUpperCase() + '\n';
-                this.appendSource(constructedMethodAnnotation);
+
+                if (annotation.key == "Method") {
+                    constructedPathAnnotation = "@" + annotation.value + "\n";
+                }
+
+                self.appendSource(constructedPathAnnotation);
             }
-        }
-
-        if(resourceDefinition.getResourcePath()){
-            var constructedPathAnnotation = '@Path("' + resourceDefinition.getResourcePath() + '")\n';
-            this.appendSource(constructedPathAnnotation);
-        }
-
+        });
 
         var constructedSourceSegment = 'resource ' + resourceDefinition.getResourceName() + '(';
 
