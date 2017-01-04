@@ -84,7 +84,8 @@ typeConvertorBody
     ;
 
 constantDefinition
-    :   'const' typeName Identifier '=' literalValue;
+    :   'const' typeName Identifier '=' literalValue ';'
+    ;
 
 variableDeclaration
     :   typeName Identifier ';'
