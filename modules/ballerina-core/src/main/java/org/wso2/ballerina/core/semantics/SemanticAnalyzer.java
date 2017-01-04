@@ -115,6 +115,10 @@ public class SemanticAnalyzer implements NodeVisitor {
             importPkg.accept(this);
         }
 
+        for (BallerinaConnector connector : bFile.getConnectorList()) {
+            connector.accept(this);
+        }
+
         for (Service service : bFile.getServices()) {
             service.accept(this);
         }
@@ -147,6 +151,13 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(BallerinaConnector connector) {
+        Symbol symbol = new Symbol(connector, LangModelUtils.getTypesOfParams(connector.getParameters()));
+        symbolTable.insert(new SymbolName(connector.getPackageQualifiedName()), symbol);
+
+        for (BallerinaAction action : connector.getActions()) {
+            addActionSymbol(action);
+            action.accept(this);
+        }
 
     }
 
@@ -232,6 +243,43 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(BallerinaAction action) {
+
+        // Open a new symbol scope
+        openScope();
+
+        Parameter[] parameters = action.getParameters();
+        for (Parameter parameter : parameters) {
+            stackFrameOffset++;
+            visit(parameter);
+        }
+
+        VariableDcl[] variableDcls = action.getVariableDcls();
+        for (VariableDcl variableDcl : variableDcls) {
+            stackFrameOffset++;
+            visit(variableDcl);
+        }
+
+        ConnectorDcl[] connectorDcls = action.getConnectorDcls();
+        for (ConnectorDcl connectorDcl : connectorDcls) {
+            stackFrameOffset++;
+            visit(connectorDcl);
+        }
+
+        BlockStmt blockStmt = action.getActionBody();
+        blockStmt.accept(this);
+
+        // Here we need to calculate size of the BValue array which will be created in the stack frame
+        // Values in the stack frame are stored in the following order.
+        // -- Parameter values --
+        // -- Local var values --
+        // -- Temp values      --
+        // -- Return values    --
+        // These temp values are results of intermediate expression evaluations.
+        int sizeOfStackFrame = stackFrameOffset + 1;
+        action.setStackFrameSize(sizeOfStackFrame);
+
+        // Close the symbol scope
+        closeScope();
 
     }
 
@@ -742,6 +790,24 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         if (symbolTable.lookup(symbolName) != null) {
             throw new SemanticException("Duplicate function definition: " + symbolName.getName());
+        }
+        symbolTable.insert(symbolName, symbol);
+    }
+
+    private void addActionSymbol(BallerinaAction action) {
+
+        SymbolName oriSymbolName = action.getSymbolName();
+
+        BType[] paramTypes = LangModelUtils.getTypesOfParams(action.getParameters());
+
+        SymbolName symbolName =
+                LangModelUtils.getActionSymName(oriSymbolName.getName(),
+                                                oriSymbolName.getConnectorName(),
+                                                oriSymbolName.getPkgName(), paramTypes);
+        Symbol symbol = new Symbol(action, paramTypes, action.getReturnTypes());
+
+        if (symbolTable.lookup(symbolName) != null) {
+            throw new SemanticException("Duplicate action definition: " + symbolName.getName());
         }
         symbolTable.insert(symbolName, symbol);
     }
