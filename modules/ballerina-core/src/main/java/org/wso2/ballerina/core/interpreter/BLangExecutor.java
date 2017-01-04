@@ -25,6 +25,7 @@ import org.wso2.ballerina.core.model.ConnectorDcl;
 import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.Resource;
+import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.VariableDcl;
 import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.ArrayInitExpr;
@@ -224,9 +225,13 @@ public class BLangExecutor implements NodeExecutor {
         // Create an array in the stack frame to hold return values;
         BValue[] returnVals = new BValue[function.getReturnTypes().length];
 
-        // Create a new stack frame with memory locations to hold parameters, local values, temp expression value and
-        // return values;
-        StackFrame stackFrame = new StackFrame(localVals, returnVals);
+        // Create a new stack frame with memory locations to hold parameters, local values, temp expression value,
+        // return values and function invocation location;
+        SymbolName functionSymbolName = funcIExpr.getFunctionName();
+        CallableUnitInfo functionInfo = new CallableUnitInfo(functionSymbolName.getName(), 
+                functionSymbolName.getPkgName(), funcIExpr.getInvokedLocation());
+        
+        StackFrame stackFrame = new StackFrame(localVals, returnVals, functionInfo);
         controlStack.pushFrame(stackFrame);
 
         // Check whether we are invoking a native function or not.
@@ -272,7 +277,10 @@ public class BLangExecutor implements NodeExecutor {
 
         // Create a new stack frame with memory locations to hold parameters, local values, temp expression values and
         // return values;
-        StackFrame stackFrame = new StackFrame(localVals, returnVals);
+        SymbolName actionSymbolName = actionIExpr.getActionName();
+        CallableUnitInfo actionInfo = new CallableUnitInfo(actionSymbolName.getName(), actionSymbolName.getPkgName(), 
+                actionIExpr.getInvokedLocation());
+        StackFrame stackFrame = new StackFrame(localVals, returnVals, actionInfo);
         controlStack.pushFrame(stackFrame);
 
         // Check whether we are invoking a native action or not.
@@ -316,7 +324,11 @@ public class BLangExecutor implements NodeExecutor {
 
         BValue[] ret = new BValue[1];
 
-        StackFrame stackFrame = new StackFrame(valueParams, ret);
+        SymbolName resourceSymbolName = resource.getSymbolName();
+        CallableUnitInfo resourceInfo = new CallableUnitInfo(resourceSymbolName.getName(), 
+                resourceSymbolName.getPkgName(), resource.getResourceLocation());
+        
+        StackFrame stackFrame = new StackFrame(valueParams, ret, resourceInfo);
         controlStack.pushFrame(stackFrame);
 
         resource.getResourceBody().execute(this);

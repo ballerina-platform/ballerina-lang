@@ -101,6 +101,10 @@ public class SemanticAnalyzer implements NodeVisitor {
     private int staticMemAddrOffset = -1;
 
     private SymTable symbolTable;
+    
+    private String currentPkg;
+    
+    
 
     // We need to keep a map of import packages.
     // This is useful when analyzing import functions, actions and types.
@@ -110,6 +114,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         SymScope pkgScope = bFile.getPackageScope();
         pkgScope.setParent(globalScope);
         symbolTable = new SymTable(pkgScope);
+        
+        currentPkg = bFile.getPackageName();
 
         // TODO We can move this logic to the parser.
         bFile.getFunctions().values().forEach(this::addFuncSymbol);
@@ -588,7 +594,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         for (Expression expr : exprs) {
             expr.accept(this);
         }
-
+        
         linkFunction(funcIExpr);
 
         // Can we do this bit in the linker
@@ -1052,6 +1058,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                 pkgPath = pkgName;
             }
         }
+        
         return pkgPath;
     }
 
@@ -1070,7 +1077,9 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         SymbolName funcName = funcIExpr.getFunctionName();
         String pkgPath = getPackagePath(funcName);
+        funcName.setPkgName(pkgPath);
 
+        
         Expression[] exprs = funcIExpr.getExprs();
         BType[] paramTypes = new BType[exprs.length];
         for (int i = 0; i < exprs.length; i++) {
@@ -1083,6 +1092,14 @@ public class SemanticAnalyzer implements NodeVisitor {
             throw new LinkerException("Undefined function: " + funcIExpr.getFunctionName().getName());
         }
 
+        // Package name null means the function is defined in the same bal file. 
+        // Hence set the package name of the bal file as the function's package name.
+        // TODO: Do this in a better way
+        if (funcName.getPkgName() == null) {
+            String fullPackageName = getPackagePath(new SymbolName(funcName.getName(), currentPkg));
+            funcName.setPkgName(fullPackageName);
+        }
+        
         // Link
         Function function = symbol.getFunction();
         funcIExpr.setFunction(function);
@@ -1099,6 +1116,9 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         String pkgPath = getPackagePath(actionName);
+        
+        // Set the fully qualified package name
+        actionName.setPkgName(pkgPath);
 
         Expression[] exprs = actionIExpr.getExprs();
         BType[] paramTypes = new BType[exprs.length];
@@ -1115,6 +1135,14 @@ public class SemanticAnalyzer implements NodeVisitor {
                     actionIExpr.getActionName().getName());
         }
 
+        // Package name null means the action is defined in the same bal file. 
+        // Hence set the package name of the bal file as the action's package name.
+        // TODO: Do this in a better way
+        if (actionName.getPkgName() == null) {
+            String fullPackageName = getPackagePath(new SymbolName(actionName.getName(), currentPkg));
+            actionName.setPkgName(fullPackageName);
+        }
+        
         // Link
         Action action = symbol.getAction();
         actionIExpr.setAction(action);

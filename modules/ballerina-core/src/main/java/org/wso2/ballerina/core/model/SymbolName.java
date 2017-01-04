@@ -38,7 +38,7 @@ public class SymbolName {
     }
 
     /**
-     * Get the name of the Identifier
+     * Get the name of the Identifier.
      *
      * @return name of the Identifier
      */
@@ -47,12 +47,21 @@ public class SymbolName {
     }
 
     /**
-     * Returns the package name of this symbol name
+     * Returns the package name of this symbol name.
      *
      * @return package name of this symbol name
      */
     public String getPkgName() {
         return pkgName;
+    }
+
+    /**
+     * Set the package name of this symbol name.
+     *
+     * @param pkgName   package name of this symbol name
+     */
+    public void setPkgName(String pkgName) {
+        this.pkgName = pkgName;
     }
 
     public String getConnectorName() {

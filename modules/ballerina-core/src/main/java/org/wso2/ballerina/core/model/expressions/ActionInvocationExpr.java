@@ -21,6 +21,7 @@ import org.wso2.ballerina.core.model.Action;
 import org.wso2.ballerina.core.model.ExecutableMultiReturnExpr;
 import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.NodeVisitor;
+import org.wso2.ballerina.core.model.Position;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.values.BValue;
 
@@ -34,6 +35,7 @@ public class ActionInvocationExpr extends AbstractExpression implements Executab
     private SymbolName actionName;
     private Expression[] exprs;
     private Action action;
+    private Position actionInvokedLocation;
 
     public ActionInvocationExpr(SymbolName actionName, Expression[] exprs) {
         this.actionName = actionName;
@@ -73,5 +75,13 @@ public class ActionInvocationExpr extends AbstractExpression implements Executab
     @Override
     public BValue execute(NodeExecutor executor) {
         return executor.visit(this)[0];
+    }
+
+    public Position getInvokedLocation() {
+        return actionInvokedLocation;
+    }
+
+    public void setInvokedLocation(Position actionInvokedLocation) {
+        this.actionInvokedLocation = actionInvokedLocation;
     }
 }

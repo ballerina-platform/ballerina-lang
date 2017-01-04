@@ -20,6 +20,7 @@ package org.wso2.ballerina.core.nativeimpl.connectors.http.client;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Connector;
 import org.wso2.ballerina.core.model.values.BValue;
@@ -42,40 +43,40 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
     private static final Logger logger = LoggerFactory.getLogger(AbstractHTTPAction.class);
 
     protected void prepareRequest(Connector connector, String path, CarbonMessage cMsg) {
-
-        String uri = ((HTTPConnector) connector).getServiceUri() + path;
-
-        URL url;
+        String uri = null;
         try {
-            url = new URL(uri);
+            uri = ((HTTPConnector) connector).getServiceUri() + path;
+
+            URL  url = new URL(uri);
+            String host = url.getHost();
+            int port = 80;
+            if (url.getPort() != -1) {
+                port = url.getPort();
+            } else if (url.getProtocol().equalsIgnoreCase(Constants.PROTOCOL_HTTPS)) {
+                port = 443;
+            }
+
+            cMsg.setProperty(Constants.HOST, host);
+            cMsg.setProperty(Constants.PORT, port);
+            String toPath = url.getPath();
+            String query = url.getQuery();
+            if (query != null) {
+                toPath = toPath + "?" + query;
+            }
+            cMsg.setProperty(Constants.TO, toPath);
+
+            cMsg.setProperty(Constants.PROTOCOL, url.getProtocol());
+            if (port != 80) {
+                cMsg.getHeaders().set(Constants.HOST, host + ":" + port);
+            } else {
+                cMsg.getHeaders().set(Constants.HOST, host);
+            }
         } catch (MalformedURLException e) {
-            logger.error("Malformed url specified :  " + uri, e);
-            return;
+            throw new BallerinaException("Malformed url specified. " + e.getMessage());
+        } catch (Throwable t) {
+            throw new BallerinaException("Failed to prepare request. " + t.getMessage());
         }
-        String host = url.getHost();
-        int port = 80;
-        if (url.getPort() != -1) {
-            port = url.getPort();
-        } else if (url.getProtocol().equalsIgnoreCase(Constants.PROTOCOL_HTTPS)) {
-            port = 443;
-        }
-
-        cMsg.setProperty(Constants.HOST, host);
-        cMsg.setProperty(Constants.PORT, port);
-        String toPath = url.getPath();
-        String query = url.getQuery();
-        if (query != null) {
-            toPath = toPath + "?" + query;
-        }
-        cMsg.setProperty(Constants.TO, toPath);
-
-        cMsg.setProperty(Constants.PROTOCOL, url.getProtocol());
-
-        if (port != 80) {
-            cMsg.getHeaders().set(Constants.HOST, host + ":" + port);
-        } else {
-            cMsg.getHeaders().set(Constants.HOST, host);
-        }
+        
     }
 
     protected BValue executeAction(Context context, CarbonMessage message) {
@@ -110,6 +111,8 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         } catch (MessageProcessorException e) {
             logger.error("Failed to send the message to an endpoint ", e);
         } catch (InterruptedException ignore) {
+        } catch (Throwable e) {
+            throw new BallerinaException(e.getMessage(), context);
         }
         return null;
     }

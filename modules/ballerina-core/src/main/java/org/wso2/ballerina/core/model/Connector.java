@@ -27,4 +27,19 @@ public interface Connector {
      * @return list of Arguments
      */
     Parameter[] getParameters();
+    
+    /**
+     * Get the location of this connector in the ballerina source file.
+     * Returns the ballerina file and line number of the connector.
+     * 
+     * @return  location of this connector in the ballerina source file
+     */
+    Position getConnectorLocation();
+
+    /**
+     * Set the location of this action in the ballerina source file.
+     * 
+     * @param location  Location of this action in the ballerina source file
+     */
+    void setConnectorLocation(Position location);
 }
