@@ -363,8 +363,6 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             headingCollapseIcon.on("click", onExpandCollapse);
             headingRect.on("click", onExpandCollapse);
 
-
-
             // On click of delete icon
             headingDeleteIcon.on("click", function () {
                 log.info("Clicked delete button");
