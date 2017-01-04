@@ -16,12 +16,13 @@
  * under the License.
  */
 define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../ast/resource-definition',
-        './default-worker', './point', './connector-declaration-view',
-        './statement-view-factory', 'ballerina/ast/ballerina-ast-factory', './expression-view-factory','./message',
-        './statement-container', './../ast/variable-declaration', './client-life-line'],
+        './default-worker', './point', './connector-declaration-view', './statement-view-factory',
+        'ballerina/ast/ballerina-ast-factory', './expression-view-factory','./message', './statement-container',
+        './../ast/variable-declaration', './variables-view', './client-life-line'],
     function (_, log, d3, $, D3utils, BallerinaView, ResourceDefinition,
-              DefaultWorkerView, Point, ConnectorDeclarationView, StatementViewFactory, BallerinaASTFactory, ExpressionViewFactory,
-                MessageView, StatementContainer, VariableDeclaration, ClientLifeLine) {
+              DefaultWorkerView, Point, ConnectorDeclarationView, StatementViewFactory,
+              BallerinaASTFactory, ExpressionViewFactory, MessageView, StatementContainer,
+              VariableDeclaration, VariablesView, ClientLifeLine) {
 
         /**
          * The view to represent a resource definition which is an AST visitor.
@@ -93,6 +94,9 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             this._viewOptions.LifeLineCenterGap = 180;
             this._viewOptions.defua = 180;
             this._viewOptions.hoverClass = _.get(args, "viewOptions.cssClass.hover_svg", 'design-view-hover-svg');
+
+            this._variableButton = undefined;
+            this._variablePane = undefined;
 
             //setting initial height for resource container
             this._totalHeight = 230;
@@ -245,6 +249,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             this.diagramRenderingContext = diagramRenderingContext;
             // Render resource view
             var svgContainer = $(this._container)[0];
+            var self = this;
 
             var headingStart = new Point(this._viewOptions.topLeft.x(), this._viewOptions.topLeft.y());
             var contentStart = new Point(this._viewOptions.topLeft.x(),
@@ -296,32 +301,30 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 this._viewOptions.heading.icon.width,
                 this._viewOptions.heading.icon.height, 0, 0, headerGroup).classed("headingDeleteIcon", true);
 
-
-            // Create rect for the http method text
-            var httpMethodRect = D3utils.rect(headingStart.x() + this._viewOptions.heading.icon.width, headingStart.y()
-                + 0.5, this._viewOptions.heading.icon.width + 25,
-                this._viewOptions.heading.icon.height - 1, 0, 0, headerGroup).classed("httpMethodRect", true);
-
-            // Set HTTP Method
-            var httpMethodText = D3utils.textElement(headingStart.x()
-                + this._viewOptions.heading.icon.width + 5, headingStart.y() + 4, this._model.getResourceMethod(),
-                headerGroup).classed("httpMethodText", true);
-            httpMethodText.attr('dominant-baseline', "text-before-edge");
-
-            // Setting resource path prefix
-            var resourcePathPrefix = D3utils.textElement(headingStart.x() +
-                this._viewOptions.heading.icon.width + 55, headingStart.y() + 4, "Path: ",
-                headerGroup).classed("resourcePathPrefix", true);
-            resourcePathPrefix.attr('dominant-baseline', "text-before-edge");
-
-            var resourcePath = D3utils.textElement(headingStart.x() +
-                this._viewOptions.heading.icon.width + 90, headingStart.y() + 4,
-                this._model.getResourcePath(), headerGroup);
-            resourcePath.attr('dominant-baseline', "text-before-edge");
-
+            // Add the resource name editable html area
+            var svgWrappingHtml = this.getChildContainer().node().ownerSVGElement.parentElement;
+            var nameDiv = $("<div></div>");
+            nameDiv.css('left', (parseInt(headingStart.x()) + 30) + "px");
+            nameDiv.css('top', parseInt(headingStart.y()) + "px");
+            nameDiv.css('width',"100px");
+            nameDiv.css('height',"25px");
+            nameDiv.addClass("name-container-div");
+            var nameSpan = $("<span></span>");
+            nameSpan.text(self._model.getResourceName());
+            nameSpan.addClass("name-span");
+            nameSpan.attr("contenteditable", "true");
+            nameSpan.attr("spellcheck", "false");
+            nameSpan.focus();
+            nameSpan.blur();
+            nameDiv.append(nameSpan);
+            $(svgWrappingHtml).append(nameDiv);
             // Container for resource body
             var contentGroup = D3utils.group(resourceGroup);
             contentGroup.attr('id', "contentGroup");
+
+            nameSpan.on("change paste keyup", function () {
+                self._model.setResourceName($(this).text());
+            });
 
             this._contentGroup = contentGroup;
 
@@ -339,14 +342,22 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                     contentGroup.attr("display", "inline");
                     // resource content is expanded. Hence expand resource BBox
                     resourceBBox.h(resourceBBox.h() + self._minizedHeight);
+
+                    // show the variable button and variable pane
+                    self._variableButton.show();
+                    self._variablePane.show();
                 }
                 else {
                     contentGroup.attr("display", "none");
                     // resource content is folded. Hence decrease resource BBox height and keep the minimized size
                     self._minizedHeight =  parseFloat(contentRect.attr('height'));
                     resourceBBox.h(resourceBBox.h() - self._minizedHeight);
+
+                    // hide the variable button and variable pane
+                    self._variableButton.hide();
+                    self._variablePane.hide();
                 }
-            }
+            };
 
             // On click of collapse icon hide/show resource body
             headingCollapseIcon.on("click", onExpandCollapse);
@@ -390,7 +401,6 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             this.renderStatementContainer();
             log.debug("Rendering Resource View");
             this.getModel().accept(this);
-            var self = this;
             //Removing all the registered 'child-added' event listeners for this model.
             //This is needed because we are not unregistering registered event while the diagram element deletion.
             //Due to that, sometimes we are having two or more view elements listening to the 'child-added' event of same model.
@@ -399,42 +409,43 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 self.visit(child);
             });
 
+            this._variableButton = VariablesView.createVariableButton(this.getChildContainer().node(),
+                parseInt(this.getChildContainer().attr("x")) + 4, parseInt(this.getChildContainer().attr("y")) + 7);
             var annotationButton = this._createAnnotationButton(this.getChildContainer().node());
-            var variableButton = this._createVariableButton(this.getChildContainer().node());
 
             var variableProperties = {
                 model: this._model,
-                editableProperties: [{
-                    propertyType: "text",
-                    key: "Resource Name",
-                    model: this._model,
-                    getterMethod: this._model.getResourceName,
-                    setterMethod: this._model.setResourceName
-                },
-                    {
-                        propertyType: "text",
-                        key: "Resource Path",
-                        model: this._model,
-                        getterMethod: this._model.getResourcePath,
-                        setterMethod: this._model.setResourcePath
-                    }],
-                activatorElement: variableButton.node(),
-                variableIconButton: variableButton,
-                paneAppendElement: $(this._defaultWorker)[0]._container.closest('.panel-body').childNodes[0],
+                activatorElement: this._variableButton,
+                paneAppendElement: this.getChildContainer().node().ownerSVGElement.parentElement,
                 viewOptions: {
                     position: {
-                        x: parseFloat(variableButton.attr("cx")),
-                        y: parseFloat(variableButton.attr("cy")) + parseFloat(variableButton.attr("r"))
-                    }
+                        x: parseInt(this.getChildContainer().attr("x")) + 17,
+                        y: parseInt(this.getChildContainer().attr("y")) + 6
+                    },
+                    width: parseInt(this.getChildContainer().node().getBBox().width) - 36
                 }
             };
-            this.createVariablePane(variableProperties);
+
+            this._variablePane = VariablesView.createVariablePane(variableProperties);
+
             this._createAnnotationButtonPane(annotationButton);
 
             this.getBoundingBox().on("moved", function(offset){
                 var currentTransform = this._resourceGroup.attr("transform");
                this._resourceGroup.attr("transform", (!_.isNil(currentTransform) ? currentTransform : "") +
                    " translate(" + offset.dx + ", " + offset.dy + ")");
+
+                // Reposition the resource name container
+                var newDivPositionVertical = parseInt(nameDiv.css("top")) + offset.dy;
+                nameDiv.css("top", newDivPositionVertical + "px");
+
+                // Reposition Variable button
+                var newVButtonPositionVertical = parseInt($(self._variableButton).css("top")) + offset.dy;
+                $(self._variableButton).css("top", newVButtonPositionVertical + "px");
+
+                // Reposition variable pane
+                var newVPanePositionVertical = parseInt($(self._variablePane).css("top")) + offset.dy;
+                $(self._variablePane).css("top", newVPanePositionVertical + "px");
             }, this);
         };
 
@@ -456,95 +467,6 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                     this.getBoundingBox().h(this.getBoundingBox().h() + dy);
             });
             this._statementContainer.render(this.diagramRenderingContext);
-        };
-
-        ResourceDefinitionView.prototype.renderVariables = function (variableDeclarationsList, variablePaneWrapper, resourceModel) {
-
-            if (variableDeclarationsList.length > 0) {
-                var variableSetWrapper = $('<div/>').appendTo($(variablePaneWrapper));
-                var variableTable = $('<table/>').appendTo(variableSetWrapper);
-
-                for (var variableCount = 0; variableCount < variableDeclarationsList.length; variableCount++) {
-                    var currentRaw;
-                    if (variableCount % 2 == 0) {
-                        currentRaw = $('<tr/>').appendTo(variableTable);
-                    }
-                    var labelClass = "";
-                    if (variableDeclarationsList[variableCount].getType() === "message") {
-                        labelClass = "variable-type-message";
-                    } else if (variableDeclarationsList[variableCount].getType() === "boolean") {
-                        labelClass = "variable-type-boolean";
-                    } else if (variableDeclarationsList[variableCount].getType() === "string") {
-                        labelClass = "variable-type-string";
-                    } else if (variableDeclarationsList[variableCount].getType() === "int") {
-                        labelClass = "variable-type-int";
-                    } else if (variableDeclarationsList[variableCount].getType() === "float") {
-                        labelClass = "variable-type-float";
-                    } else if (variableDeclarationsList[variableCount].getType() === "double") {
-                        labelClass = "variable-type-double";
-                    } else if (variableDeclarationsList[variableCount].getType() === "long") {
-                        labelClass = "variable-type-long";
-                    } else if (variableDeclarationsList[variableCount].getType() === "json") {
-                        labelClass = "variable-type-json";
-                    } else if (variableDeclarationsList[variableCount].getType() === "xml") {
-                        labelClass = "variable-type-xml";
-                    } else {
-                        labelClass = "variable-type-exception";
-                    }
-                    var currentCell = $('<td/>').appendTo(currentRaw);
-                    var variable = $("<label for=" + variableDeclarationsList[variableCount].getIdentifier() + " class=" + labelClass + ">" +
-                        variableDeclarationsList[variableCount].getType() + "</label>" + "<input readonly maxlength='7' size='7' value=" +
-                        variableDeclarationsList[variableCount].getIdentifier() + " class=" + labelClass + ">").appendTo(currentCell);
-                    var removeBtn = $('<button class="variable-list">x</button>').appendTo(currentCell);
-
-                    // variable delete onclick
-                    var self = this;
-                    $(removeBtn).click(resourceModel, function () {
-                        var varList = null;
-                        if(resourceModel.data === undefined) {
-                            varList = resourceModel.getVariables();
-                        } else {
-                            varList = resourceModel.data.getVariables();
-                        }
-                        var varType = $($(this.parentNode.getElementsByTagName('label'))[0]).text();
-                        var varIdentifier = $($(this.parentNode.getElementsByTagName('input'))[0]).val();
-                        var index = self.checkExistingVariables(varList, varType, varIdentifier);
-
-                        if (index != -1) {
-                            if(resourceModel.data === undefined) {
-                                resourceModel.getVariables().splice(index, 1);
-                            } else {
-                                resourceModel.data.getVariables().splice(index, 1);
-                            }
-                        }
-
-                        log.info($(variable).val());
-
-                        if (variablePaneWrapper.children().length > 1) {
-                            variablePaneWrapper.children()[variablePaneWrapper.children().length - 1].remove()
-                        }
-                        self.renderVariables(variableDeclarationsList, variablePaneWrapper, resourceModel);
-                    });
-
-                    // variable edit onclick
-                    $(variable).click(resourceModel, function (resourceModel) {
-                        log.info('Variable edit');
-                        // ToDo : Render variables here
-                    });
-                }
-            }
-        };
-
-        ResourceDefinitionView.prototype.checkExistingVariables = function (variableList, variableType, variableIdentifier) {
-            var index = -1;
-            for (var varIndex = 0; varIndex < variableList.length; varIndex++) {
-                if (variableList[varIndex].getType() == variableType &&
-                    variableList[varIndex].getIdentifier() == variableIdentifier) {
-                    index = varIndex;
-                    break;
-                }
-            }
-            return index;
         };
 
         ResourceDefinitionView.prototype._createAnnotationButtonPane = function (annotationButton) {
@@ -797,6 +719,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                     }else if(annotationType == 'ResourceMethod'){
                         var resourceMethods = getResourceMethodAnnotations(annotationValue);
                         model.setResourceMethod(resourceMethods);
+                    }else if(annotationType == 'ResourceArgs'){
+                        model.setResourceArguments(annotationValue);
                     }
                 }
 
@@ -917,94 +841,6 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                         }
 
                     });
-                }
-            });
-        };
-
-        ResourceDefinitionView.prototype.createVariablePane = function (args) {
-            var activatorElement = _.get(args, "activatorElement");
-            var resourceModel = _.get(args, "model");
-            var paneElement = _.get(args, "paneAppendElement");
-            var variableList = resourceModel.getVariables();
-            var variableButton = _.get(args, "variableIconButton");
-
-            if (_.isNil(activatorElement)) {
-                log.error("Unable to render property pane as the html element is undefined." + activatorElement);
-                throw "Unable to render property pane as the html element is undefined." + activatorElement;
-            }
-
-            var variablePaneWrapper = $('<div id="' + resourceModel.id + '" class="resource-variable-pane"/>').appendTo($(paneElement));
-            var variableForm = $('<form></form>').appendTo(variablePaneWrapper);
-            var variableSelect = $("<select/>").appendTo(variableForm);
-            var variableText = $("<input placeholder='&nbsp;Variable Name'/>").appendTo(variableForm);
-            for(var typeCount = 0;typeCount < variableTypes.length; typeCount ++){
-                var selectOption = $("<option value="+ variableTypes[typeCount]+">"+variableTypes[typeCount] +
-                    "</option>").appendTo($(variableSelect));
-            }
-            var addVariable = $("<button type='button'>+</button>").appendTo(variableForm);
-
-            this.renderVariables(variableList,variablePaneWrapper,resourceModel);
-            var self = this;
-
-            $(addVariable).click(resourceModel, function (resourceModel) {
-
-                // ToDo add variable name validation
-                var variableList = null;
-                if(resourceModel.data === undefined) {
-                    variableList = resourceModel.getVariables();
-                } else {
-                    variableList = resourceModel.data.getVariables();
-                }
-
-                //filtering empty variable identifier and existing variables
-                if ($(variableText).val() != "" &&
-                    self.checkExistingVariables(variableList, $(variableSelect).val(), $(variableText).val()) == -1) {
-
-                    var variable = BallerinaASTFactory.createVariableDeclaration();
-
-                    //pushing new variable declaration
-                    variable.setType($(variableSelect).val());
-                    variable.setIdentifier($(variableText).val());
-                    if (resourceModel.data === undefined) {
-                        resourceModel.getVariables().push(variable);
-                        var index = _.findLastIndex(resourceModel.getChildren(), function (child) {
-                            return child instanceof VariableDeclaration;
-                        });
-                        resourceModel.addChild(variable, index + 1);
-                    } else {
-                        resourceModel.data.getVariables().push(variable);
-                        var index = _.findLastIndex(resourceModel.data.getChildren(), function (child) {
-                            return child instanceof VariableDeclaration;
-                        });
-                        resourceModel.data.addChild(variable, index + 1);
-                    }
-
-                    //remove current variable list
-                    if (variablePaneWrapper.children().length > 1) {
-                        variablePaneWrapper.children()[variablePaneWrapper.children().length - 1].remove()
-                    }
-                    self.renderVariables(variableList, variablePaneWrapper, resourceModel);
-                }
-            });
-
-            var paneWidth = 350;
-            var paneStartingX = variableButton.attr("cx") - paneWidth + 5;
-            var paneStartingY = variableButton.attr("cy") - variableButton.attr("r") + 15;
-
-            $(activatorElement).click(resourceModel, function (resourceModel) {
-                for(var iterator = 0;iterator < paneElement.childNodes.length; iterator++) {
-                    if(paneElement.childNodes[iterator].className == "resource-variable-pane") {
-                        if(paneElement.childNodes[iterator].id == resourceModel.data.id) {
-                            $(paneElement.childNodes[iterator]).css('top', paneStartingY);
-                            $(paneElement.childNodes[iterator]).css('left', paneStartingX);
-                            if(paneElement.childNodes[iterator].style.display== "none" || paneElement.childNodes[iterator].style.display == "") {
-                                paneElement.childNodes[iterator].style.display = "inline";
-                            } else {
-                                paneElement.childNodes[iterator].style.display = "none";
-                            }
-                            break;
-                        }
-                    }
                 }
             });
         };

@@ -15,10 +15,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-definition', './default-worker', 'd3utils', 'd3',
-        './worker-declaration-view', './statement-view-factory', './point', './axis', './connector-declaration-view', './statement-container'],
-    function (_, log, EventChannel, Canvas, FunctionDefinition, DefaultWorkerView, D3Utils, d3, WorkerDeclarationView,
-              StatementViewFactory, Point, Axis, ConnectorDeclarationView, StatementContainer) {
+define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-definition', './default-worker', 'd3utils', '' +
+        'd3', './worker-declaration-view', './statement-view-factory', './point', './axis',
+        './connector-declaration-view', './statement-container', './variables-view'],
+    function (_, log, EventChannel, Canvas, FunctionDefinition, DefaultWorkerView, D3Utils,
+              d3, WorkerDeclarationView, StatementViewFactory, Point, Axis,
+              ConnectorDeclarationView, StatementContainer, VariablesView) {
 
         /**
          * The view to represent a function definition which is an AST visitor.
@@ -137,18 +139,23 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
             this._container = currentContainer;
             var self = this;
 
+            // Listen to the function name changing event and dynamically update the function name
+            $("#title-" + this._model.id).on("change paste keyup", function () {
+                self._model.setFunctionName($(this).text());
+            });
+
             // Creating default worker
             var defaultWorkerOpts = {};
             _.set(defaultWorkerOpts, 'container', this._rootGroup.node());
             _.set(defaultWorkerOpts, 'title', 'FunctionWorker');
-            _.set(defaultWorkerOpts, 'centerPoint', new Point(130, 25));
+            _.set(defaultWorkerOpts, 'centerPoint', new Point(130, 80));
 
             // Check whether there is already created default worker and otherwise we create a new one
             if (_.isUndefined(this._defaultWorkerLifeLine)) {
                 this._defaultWorkerLifeLine = new DefaultWorkerView(defaultWorkerOpts);
             }
             this._defaultWorkerLifeLine.render();
-            this._totalHeight = this._defaultWorkerLifeLine.getBoundingBox().h() + 20;
+            this._totalHeight = this._defaultWorkerLifeLine.getBoundingBox().h() + 85;
             this.setServiceContainerHeight(this._totalHeight);
             this.renderStatementContainer();
             this.init();
@@ -157,6 +164,23 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
                 self.visit(child);
                 self._model.trigger("childVisitedEvent", child);
             });
+
+            var variableButton = VariablesView.createVariableButton(this.getChildContainer().node(), 4, 7);
+
+            var variableProperties = {
+                model: this._model,
+                activatorElement: variableButton,
+                paneAppendElement: this.getChildContainer().node().ownerSVGElement.parentElement,
+                viewOptions: {
+                    position: {
+                        x: parseInt(this.getChildContainer().attr("x")) + 17,
+                        y: parseInt(this.getChildContainer().attr("y")) + 6
+                    },
+                    width: parseInt(this.getChildContainer().node().parentElement.getBoundingClientRect().width) - 36
+                }
+            };
+
+            VariablesView.createVariablePane(variableProperties);
         };
 
         FunctionDefinitionView.prototype.init = function(){
@@ -175,6 +199,7 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
             _.set(statementContainerOpts, 'width', this._defaultWorkerLifeLine.width());
             _.set(statementContainerOpts, 'container', this._defaultWorkerLifeLine.getContentArea().node());
             _.set(statementContainerOpts, 'toolPalette', this.toolPalette);
+            _.set(statementContainerOpts, 'offset', {top: 40, bottom: 40});
             this._statementContainer = new StatementContainer(statementContainerOpts);
             this.listenTo(this._statementContainer.getBoundingBox(), 'bottom-edge-moved', this.defaultWorkerHeightChanged);
             this._statementContainer.render(this.diagramRenderingContext);
@@ -207,13 +232,13 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
         FunctionDefinitionView.prototype.visitConnectorDeclaration = function (connectorDeclaration) {
             // TODO: Get these values from the constants
             var offsetBetweenLifeLines = 50;
-            var topBottomTotalGap = 50;
             var connectorContainer = this.getChildContainer().node(),
                 connectorOpts = {
                     model: connectorDeclaration,
                     container: connectorContainer,
                     parentView: this,
-                    lineHeight: this.getBoundingBox().h() - topBottomTotalGap,
+                    lineHeight: this._defaultWorkerLifeLine.getTopCenter()
+                                .absDistInYFrom(this._defaultWorkerLifeLine.getBottomCenter()),
                     messageManager: this.messageManager
                 },
                 connectorDeclarationView,

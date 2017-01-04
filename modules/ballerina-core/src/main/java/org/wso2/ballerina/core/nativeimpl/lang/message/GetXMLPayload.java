@@ -25,6 +25,7 @@ import org.wso2.ballerina.core.model.values.BXML;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
+import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 import org.wso2.ballerina.core.nativeimpl.lang.utils.ErrorHandler;
 
 /**
@@ -34,7 +35,7 @@ import org.wso2.ballerina.core.nativeimpl.lang.utils.ErrorHandler;
         packageName = "ballerina.lang.message",
         functionName = "getXmlPayload",
         args = {@Argument(name = "message", type = TypeEnum.MESSAGE)},
-        returnType = {TypeEnum.XML},
+        returnType = {@ReturnType(type = TypeEnum.XML)},
         isPublic = true
 )
 @Component(

@@ -54,9 +54,7 @@ public class Constants {
         // Run Ballerina Server Mode.
         SERVER,
         // Represents ERROR Condition.
-        ERROR,
-        // Carbonized Server mode.
-        DEFAULT
+        ERROR
     }
 
 }

@@ -46,31 +46,37 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
                     "<button type='button' class='close' data-dismiss='modal' aria-label='Close'>" +
                     "<span aria-hidden='true'>&times;</span>" +
                     "</button>" +
-                    "<h4 class='modal-title' id='newConfigModalLabel' style='margin-bottom: 15px'>Ballerina Service Save Wizard</h4>" +
+                    "<h4 class='modal-title' id='newConfigModalLabel' style='margin-bottom: 15px; margin-left: 20px'>Ballerina Service Save Wizard</h4>" +
+                    "<hr class='style1'>"+
                     "</div>" +
                     "<div class='modal-body'>" +
                     "<div class='container-fluid'>" +
                     "<form class='form-horizontal'>" +
                     "<div class='form-group'>" +
-                    "<label for='location' class='control-label col-sm-2'>Location</label>" +
-                    "<div class='col-sm-8'>" +
-                    "<input type='text' class='form-control' id='location' placeholder='eg: /home/user/wso2-integration-server/ballerina-configs'>" +
-                    "</div>" +
-                    "<div class='col-sm-2' style='float: right'>" +
-                    "<button id='button1' type='button' class='btn btn-primary'>Select Folder</button>" +
+                    "<label for='location' class='col-sm-2' style='margin-left: 20px'>Location :</label>" +
+                    "<div class='col-sm-9'>" +
+                    "<input type='text' class='save-form-control' id='location' placeholder='eg: /home/user/wso2-integration-server/ballerina-configs'>" +
                     "</div>" +
                     "</div>" +
                     "<div class='form-group'>" +
-                    "<label for='configName' class='control-label col-sm-2'>File Name</label>" +
-                    "<div class='col-sm-10'>" +
-                    "<input class='form-control' id='configName' placeholder='eg: hotel-check-in.xyz'>" +
+                    "<div class='save-form-scrollable-block'>" +
+                    "<div id='fileTree'>" +
+                    "</div>" +
+                    "<div id='file-browser-error' class='alert alert-danger' style='display: none;'>" +
+                    "</div>" +
                     "</div>" +
                     "</div>" +
                     "<div class='form-group'>" +
-                    "<div class='col-sm-offset-2     col-sm-10'>" +
-                    "<button type='button' class='btn btn-primary' data-dismiss='modal'>cancel</button>" +
-                    "<button id='saveButton' type='button' class='btn btn-primary' onclick='newConfiguration();'>save" +
+                    "<label for='configName' class='col-sm-2' style='margin-left: 20px'>File Name :</label>" +
+                    "<div class='col-sm-9'>" +
+                    "<input class='save-form-control' id='configName' placeholder='eg: sample.bal'>" +
+                    "</div>" +
+                    "</div>" +
+                    "<div class='form-group'>" +
+                    "<div class='save-form-btn'>" +
+                    "<button id='saveButton' type='button' class='btn btn-primary' style='margin-right: 8px'>save" +
                     "</button>" +
+                    "<button type='cancelButton' class='btn btn-primary' data-dismiss='modal'>cancel</button>" +
                     "</div>" +
                     "</div>" +
                     "</form>" +
@@ -78,32 +84,6 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
                     "<strong>Error!</strong> Something went wrong." +
                     "</div>" +
                     "</div>" +
-                    "</div>" +
-                    "</div>" +
-                    "</div>" +
-                    "</div>"
-                );
-
-                var fileBrowserModel = $(
-                    "<div class='modal fade' id='fileBrowserModel' tabindex='1000' role='dialog' aria-hidden='true'>" +
-                    "<div class='modal-dialog' role='document'>" +
-                    "<div class='modal-content'>" +
-                    "<div class='modal-header'>" +
-                    "<button type='button' class='close' onclick='onFileBrowserClose();' aria-label='Close'>" +
-                    "<span aria-hidden='true'>&times;</span>" +
-                    "</button>" +
-                    "<h4 class='modal-title'>Select root folder</h4>" +
-                    "</div>" +
-                    "<div class='modal-body'>" +
-                    "<div class='container-fluid .file-browser-container'>" +
-                    "<div id='fileTree'></div>" +
-                    "<div id='file-browser-error' class='alert alert-danger' style='display: none;'>" +
-                    "</div>" +
-                    "</div>" +
-                    "</div>" +
-                    "<div class='modal-footer'>" +
-                    "<button type='button' class='btn btn-default'  id='cancelBtn'>Cancel</button>" +
-                    "<button type='button' class='btn btn-primary'  id='selectBtn'>Select</button>" +
                     "</div>" +
                     "</div>" +
                     "</div>" +
@@ -130,27 +110,16 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
                 var location = fileSave.find("input").filter("#location");
                 var configName = fileSave.find("input").filter("#configName");
 
-                fileSave.find("button").filter("#button1").click(function() {
-                    fileBrowserModel.modal('show');
-                    saveConfigModal.modal('hide');
+                var treeContainer  = fileSave.find("div").filter("#fileTree")
+                fileBrowser = new FileBrowser({container: treeContainer, application:app, action:'saveFile'});
 
-                    var treeContainer  = fileBrowserModel.find("div").filter("#fileTree")
-                    fileBrowser = new FileBrowser({container: treeContainer, application:app});
-                    fileBrowser.render();
-                });
+                fileBrowser.render();
 
-                fileBrowserModel.find("button").filter("#selectBtn").click(function() {
-                    var selected = fileBrowser.selected;
-                    if(selected){
-                        fileBrowserModel.modal('hide');
-                        saveConfigModal.modal('show');
-                        location.val(selected);
+                //Gets the selected location from tree and sets the value as location
+                this.listenTo(fileBrowser, 'selected', function (selectedLocation) {
+                    if(selectedLocation){
+                        location.val(selectedLocation);
                     }
-                });
-
-                fileBrowserModel.find("button").filter("#cancelBtn").click(function() {
-                    fileBrowserModel.modal('hide');
-                    saveConfigModal.modal('show');
                 });
 
                 fileSave.find("button").filter("#saveButton").click(function() {
