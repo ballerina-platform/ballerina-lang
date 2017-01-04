@@ -59,4 +59,9 @@ public final class BLong extends BValueType {
     public String stringValue() {
         return Long.toString(value);
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        return ((BLong) obj).longValue() == value;
+    }
 }

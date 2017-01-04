@@ -1035,10 +1035,12 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void enterMapInitializerExpression(BallerinaParser.MapInitializerExpressionContext ctx) {
+        modelBuilder.startMapInitKeyValue();
     }
 
     @Override
     public void exitMapInitializerExpression(BallerinaParser.MapInitializerExpressionContext ctx) {
+        modelBuilder.createMapInitExpr();
     }
 
     @Override
@@ -1059,14 +1061,24 @@ public class BLangAntlr4Listener implements BallerinaListener {
         createBinaryExpr(ctx);
     }
 
+    /**
+     * Enter a parse tree produced by {@link BallerinaParser#mapInitKeyValueList}.
+     *
+     * @param ctx the parse tree
+     */
     @Override
     public void enterMapInitKeyValueList(BallerinaParser.MapInitKeyValueListContext ctx) {
-
+        modelBuilder.startMapInitKeyValue();
     }
 
+    /**
+     * Exit a parse tree produced by {@link BallerinaParser#mapInitKeyValueList}.
+     *
+     * @param ctx the parse tree
+     */
     @Override
     public void exitMapInitKeyValueList(BallerinaParser.MapInitKeyValueListContext ctx) {
-
+        modelBuilder.endMapInitKeyValue(ctx.mapInitKeyValue().size());
     }
 
     @Override
@@ -1075,6 +1087,8 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitMapInitKeyValue(BallerinaParser.MapInitKeyValueContext ctx) {
+        modelBuilder.createMapInitKeyValue(ctx.QuotedStringLiteral().toString());
+
     }
 
     @Override
