@@ -89,7 +89,7 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
                 samplesDiv.attr('id', 'theCarousel');
                 samplesDiv.addClass('carousel slide multi-item-carousel');
 
-                newButton.text("Get Started");
+                newButton.text("New");
                 openButton.text("Open");
 
                 headingTitleSpan.text("Welcome to");
