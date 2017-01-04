@@ -53,7 +53,7 @@
 }
 
 .delete-icon:hover{
-    color: red;
+    color: #333;
 }
 
 .panel-collapse .collapse{
@@ -94,8 +94,12 @@
 
 .view-design-btn{
     position: relative;
-    color: #fff;
+    color: #000;
     z-index: 1000;
+    background-color: #fff;
+    -moz-border-radius: 50px;
+    -webkit-border-radius: 50px;
+    border-radius: 50px;
 }
 
 /** when on a specific canvas hover **/
