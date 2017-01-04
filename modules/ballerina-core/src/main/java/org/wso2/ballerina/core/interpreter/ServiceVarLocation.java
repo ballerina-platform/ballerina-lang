@@ -25,10 +25,24 @@ import org.wso2.ballerina.core.model.values.BValue;
 /**
  * {@code ServiceVarLocation} represents a location where a variable declared in a
  * {@link org.wso2.ballerina.core.model.Service }  is stored at runtime
+ * <p>
+ * Since there exists only one instance of a service, we can compute the required
+ * memory block size during the compilation time.  Therefore we use the StackMemory
+ * block to store all the service level variables and connectors
  *
  * @since 1.0.0
  */
 public class ServiceVarLocation extends MemoryLocation implements Node {
+    private int staticMemAddrOffset;
+
+    public ServiceVarLocation(int staticMemAddrOffset) {
+        this.staticMemAddrOffset = staticMemAddrOffset;
+    }
+
+    public int getStaticMemAddrOffset() {
+        return staticMemAddrOffset;
+    }
+
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
