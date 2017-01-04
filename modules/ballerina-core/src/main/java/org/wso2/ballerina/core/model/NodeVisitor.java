@@ -24,8 +24,8 @@ import org.wso2.ballerina.core.interpreter.ServiceVarLocation;
 import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.AddExpression;
 import org.wso2.ballerina.core.model.expressions.AndExpression;
-import org.wso2.ballerina.core.model.expressions.ArrayAccessExpr;
 import org.wso2.ballerina.core.model.expressions.ArrayInitExpr;
+import org.wso2.ballerina.core.model.expressions.ArrayMapAccessExpr;
 import org.wso2.ballerina.core.model.expressions.BackquoteExpr;
 import org.wso2.ballerina.core.model.expressions.BasicLiteral;
 import org.wso2.ballerina.core.model.expressions.EqualExpression;
@@ -33,8 +33,10 @@ import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.GreaterEqualExpression;
 import org.wso2.ballerina.core.model.expressions.GreaterThanExpression;
 import org.wso2.ballerina.core.model.expressions.InstanceCreationExpr;
+import org.wso2.ballerina.core.model.expressions.KeyValueExpression;
 import org.wso2.ballerina.core.model.expressions.LessEqualExpression;
 import org.wso2.ballerina.core.model.expressions.LessThanExpression;
+import org.wso2.ballerina.core.model.expressions.MapInitExpr;
 import org.wso2.ballerina.core.model.expressions.MultExpression;
 import org.wso2.ballerina.core.model.expressions.NotEqualExpression;
 import org.wso2.ballerina.core.model.expressions.OrExpression;
@@ -137,9 +139,13 @@ public interface NodeVisitor {
 
     void visit(UnaryExpression unaryExpression);
 
-    void visit(ArrayAccessExpr arrayAccessExpr);
+    void visit(ArrayMapAccessExpr arrayMapAccessExpr);
 
     void visit(ArrayInitExpr arrayInitExpr);
+
+    void visit(MapInitExpr mapInitExpr);
+
+    void visit(KeyValueExpression keyValueExpr);
 
     void visit(BackquoteExpr backquoteExpr);
 
