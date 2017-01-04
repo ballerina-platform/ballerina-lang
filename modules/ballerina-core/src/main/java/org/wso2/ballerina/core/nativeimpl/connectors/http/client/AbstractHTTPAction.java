@@ -109,6 +109,8 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         } catch (MessageProcessorException e) {
             logger.error("Failed to send the message to an endpoint ", e);
         } catch (InterruptedException ignore) {
+        } catch (Throwable e) {
+            throw new BallerinaException(e.getMessage(), context);
         }
         return null;
     }
