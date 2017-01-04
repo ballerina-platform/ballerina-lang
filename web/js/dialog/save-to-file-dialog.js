@@ -165,7 +165,7 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
 
                     var ballerinaFileEditor= app.tabController.activeTab.getBallerinaFileEditor();
                     var config = ballerinaFileEditor.generateSource();
-                    var payload = "location=" + (btoa(location.val() + "/" + configName.val())) + "&config=" + (btoa(config));
+                    var payload = "location=" + btoa(location.val()) + "&configName=" + btoa(configName.val()) + "&config=" + (btoa(config));
 
                     $.ajax({
                         url: saveServiceURL,
