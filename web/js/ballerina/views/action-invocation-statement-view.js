@@ -54,7 +54,7 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
         };
 
         // TODO : Please revisit this method. Needs a refactor
-        ActionInvocationStatementView.prototype.drawActionConnections = function(startPoint,parent){
+        ActionInvocationStatementView.prototype.drawActionConnections = function(startPoint){
             log.info("Drawing connections for http connector actions");
             // TODO : Please alter this logic
             if(!_.isNil(this.getModel().getConnector())) {
@@ -179,9 +179,7 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
                 var m = d3.mouse(this);
                 var sourcePoint = self.toGlobalCoordinates(new Point(m[0], m[1]));
 
-                //setting resource's container as the parent for the message.
-                var parent = self.getDiagramRenderingContext().currentResource.getContainer();
-                self.messageManager.startDrawMessage(self._model, sourcePoint, parent);
+                self.messageManager.startDrawMessage(self._model, sourcePoint);
                 self.messageManager.setTypeBeingDragged(true);
             });
 
