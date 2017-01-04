@@ -57,6 +57,11 @@ public class BallerinaConnector implements Connector , Node {
         this.connectorDcls = connectorDcls;
         this.variableDcls = variableDcls;
         this.actions = actions;
+
+        // Set the connector name for all the actions
+        for (Action action : actions) {
+            action.getSymbolName().setConnectorName(name.getName());
+        }
     }
 
     /**
