@@ -95,6 +95,8 @@
                 <exclude>**/*.iwr</exclude>
                 <exclude>**/*.eclipse</exclude>
                 <exclude>**/*.iml</exclude>
+                <exclude>bin/carbon.sh</exclude>
+                <exclude>bin/carbon.bat</exclude>
             </excludes>
             <fileMode>644</fileMode>
         </fileSet>

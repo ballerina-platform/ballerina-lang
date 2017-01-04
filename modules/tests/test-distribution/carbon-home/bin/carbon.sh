@@ -1,6 +1,6 @@
-#!/bin/bash
+#!/bin/sh
 # ---------------------------------------------------------------------------
-#  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+#  Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@
 
 # OS specific support.  $var _must_ be set to either true or false.
 #ulimit -n 100000
-BASE_DIR=$PWD
+
 cygwin=false;
 darwin=false;
 os400=false;
@@ -130,14 +130,16 @@ if [ -e "$CARBON_HOME/carbon.pid" ]; then
 fi
 
 # ----- Process the input command ----------------------------------------------
-
 args=""
-for c in $@
+for c in $*
 do
     if [ "$c" = "--debug" ] || [ "$c" = "-debug" ] || [ "$c" = "debug" ]; then
           CMD="--debug"
-    elif [ "$CMD" = "--debug" ] && [ -z "$PORT" ]; then
-          PORT=$c
+          continue
+    elif [ "$CMD" = "--debug" ]; then
+          if [ -z "$PORT" ]; then
+                PORT=$c
+          fi
     elif [ "$c" = "--stop" ] || [ "$c" = "-stop" ] || [ "$c" = "stop" ]; then
           CMD="stop"
     elif [ "$c" = "--start" ] || [ "$c" = "-start" ] || [ "$c" = "start" ]; then
@@ -148,15 +150,6 @@ do
           CMD="restart"
     elif [ "$c" = "--test" ] || [ "$c" = "-test" ] || [ "$c" = "test" ]; then
           CMD="test"
-    elif [ "$c" = "--run" ] || [ "$c" = "-run" ] || [ "$c" = "run" ]; then
-          BAL_EXECUTION_CMD="run-this"
-          continue
-    elif [ "$BAL_EXECUTION_CMD" = "run-this" ] && [ -z "$BAL_FILE_NAME" ]; then
-          BAL_FILE_NAME=$c
-    elif [ "$c" = "--bargs" ] || [ "$c" = "-bargs" ] || [ "$c" = "bargs" ]; then
-          BAL_EXECUTION_SUB_CMD="bargs" 
-    elif [ "$BAL_EXECUTION_SUB_CMD" = "bargs" ] && [ -z "$BARGS" ]; then
-          BARGS=$c
     else
         args="$args $c"
     fi
@@ -182,7 +175,7 @@ elif [ "$CMD" = "start" ]; then
   fi
   export CARBON_HOME=$CARBON_HOME
 # using nohup bash to avoid erros in solaris OS.TODO
-  nohup bash $CARBON_HOME/bin/ballerina.sh $args > /dev/null 2>&1 &
+  nohup bash $CARBON_HOME/bin/carbon.sh $args > /dev/null 2>&1 &
   exit 0
 elif [ "$CMD" = "stop" ]; then
   export CARBON_HOME=$CARBON_HOME
@@ -201,7 +194,7 @@ elif [ "$CMD" = "restart" ]; then
   done
 
 # using nohup bash to avoid erros in solaris OS.TODO
-  nohup bash $CARBON_HOME/bin/ballerina.sh $args > /dev/null 2>&1 &
+  nohup bash $CARBON_HOME/bin/carbon.sh $args > /dev/null 2>&1 &
   exit 0
 elif [ "$CMD" = "test" ]; then
     JAVACMD="exec "$JAVACMD""
@@ -253,8 +246,8 @@ fi
 
 # ----- Execute The Requested Command -----------------------------------------
 
-#echo JAVA_HOME environment variable is set to $JAVA_HOME
-#echo CARBON_HOME environment variable is set to $CARBON_HOME
+echo JAVA_HOME environment variable is set to $JAVA_HOME
+echo CARBON_HOME environment variable is set to $CARBON_HOME
 
 cd "$CARBON_HOME"
 
@@ -263,21 +256,6 @@ status=$START_EXIT_STATUS
 
 #To monitor a Carbon server in remote JMX mode on linux host machines, set the below system property.
 #   -Djava.rmi.server.hostname="your.IP.goes.here"
-
-if [ "$BAL_EXECUTION_CMD" = "run-this" ]; then
-   if [[ "$BAL_FILE_NAME" != /* ]]; then
-        BAL_FILE_NAME="$BASE_DIR/$BAL_FILE_NAME"
-   fi
-  JAVA_OPTS="$JAVA_OPTS -Dbal-file=$BAL_FILE_NAME"
-  #echo "Running the Ballerina file $BAL_FILE_NAME"
-fi
-
-if [ "$BAL_EXECUTION_SUB_CMD" = "bargs" ]; then
-  if [[ "$BARGS" != " " ]]; then
-  JAVA_OPTS="$JAVA_OPTS -Dbal-args=$BARGS"
-  echo "Arguments : $BARGS"
-  fi
-fi
 
 while [ "$status" = "$START_EXIT_STATUS" ]
 do
