@@ -56,6 +56,7 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
             this._diagramRenderingContext = diagramRenderingContext;
             var ifGroup = D3Utils.group(this._container);
             ifGroup.attr("id","_" +this._model.id);
+            var self = this;
 
             var title_rect = D3Utils.rect(this.getBoundingBox().x(), this.getBoundingBox().y(), this.getBoundingBox().w(), 25, 0, 0, ifGroup).classed('if-else-title-rect', true);
             var outer_rect = D3Utils.rect(this.getBoundingBox().x(), this.getBoundingBox().y(), this.getBoundingBox().w(),
@@ -78,6 +79,10 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
                 title_rect.attr("x", parseFloat(title_rect.attr('x')) + offset.dx);
                 title_text.attr("y", parseFloat(title_text.attr('y')) + offset.dy);
                 title_text.attr("x", parseFloat(title_text.attr('x')) + offset.dx);
+                var newPolylinePoints = "" + self.getBoundingBox().x() + "," + (parseInt(self.getBoundingBox().y()) + 25) + " " +
+                    (parseInt(self.getBoundingBox().x()) + 35) + "," + (parseInt(self.getBoundingBox().y()) + 25) + " " +
+                    (parseInt(self.getBoundingBox().x()) + 45) + "," + self.getBoundingBox().y();
+                title_wrapper_polyline.attr("points", newPolylinePoints);
             });
 
             this.getBoundingBox().on('width-changed', function(dw){
@@ -85,7 +90,10 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
                 outer_rect.attr("width", parseFloat(outer_rect.attr('width')) + dw);
                 title_rect.attr("x", parseFloat(title_rect.attr('x')) - dw/2);
                 title_text.attr("x", parseFloat(title_text.attr('x')) - dw/2);
-
+                var newPolylinePoints = "" + self.getBoundingBox().x() + "," + (parseInt(self.getBoundingBox().y()) + 25) + " " +
+                    (parseInt(self.getBoundingBox().x()) + 35) + "," + (parseInt(self.getBoundingBox().y()) + 25) + " " +
+                    (parseInt(self.getBoundingBox().x()) + 45) + "," + self.getBoundingBox().y();
+                title_wrapper_polyline.attr("points", newPolylinePoints);
             });
 
             this.getBoundingBox().on('height-changed', function(dh){
