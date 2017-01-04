@@ -21,7 +21,7 @@ define(['lodash', './callable-definition', './connector-declaration'], function 
         this.id = autoGenerateId();
         CallableDefinition.call(this, 'Function');
         this._functionName = _.get(args, 'functionName') || 'newFunction';
-        this._functionArguments = _.get(args, 'functionArgs') || '';
+        this._functionArguments = _.get(args, "functionArgs", []);
     };
 
     FunctionDefinition.prototype = Object.create(CallableDefinition.prototype);
@@ -44,18 +44,45 @@ define(['lodash', './callable-definition', './connector-declaration'], function 
         }
     };
 
-    FunctionDefinition.prototype.getFunctionName = function () {
-        return this._functionName;
-    };
-
-    FunctionDefinition.prototype.setFunctionArguments = function(args){
-        if(!_.isNil(name)){
+    FunctionDefinition.prototype.setFunctionArguments = function (args) {
+        if (!_.isNil(name)) {
             this._functionArguments = args;
         }
     };
 
+    FunctionDefinition.prototype.getFunctionName = function () {
+        return this._functionName;
+    };
+
     FunctionDefinition.prototype.getFunctionArguments = function () {
         return this._functionArguments;
+    };
+
+    FunctionDefinition.prototype.getFunctionArgumentsAsString = function () {
+        var functionArgsAsString = "";
+        var functionArgs = this._functionArguments;
+        _.forEach(this._functionArguments, function(argument, index){
+            functionArgsAsString += argument.type + " ";
+            functionArgsAsString += argument.identifier;
+            if (functionArgs.length - 1 != index) {
+                functionArgsAsString += ", ";
+            }
+        });
+
+        return functionArgsAsString;
+    };
+
+    FunctionDefinition.prototype.addFunctionArgument = function(type, identifier) {
+        this._functionArguments.push({
+            type: type,
+            identifier: identifier
+        })
+    };
+
+    FunctionDefinition.prototype.removeFunctionArgument = function(identifier) {
+        _.remove(this._functionArguments, function(functionArg) {
+            return functionArg.identifier === identifier;
+        });
     };
 
     /**
