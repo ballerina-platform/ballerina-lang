@@ -57,13 +57,18 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
             var elseGroup = D3Utils.group(this._container);
             elseGroup.attr("id","_" +this._model.id);
 
+            var title_rect = D3Utils.rect(this.getBoundingBox().x(), this.getBoundingBox().y(), this.getBoundingBox().w(), 25, 0, 0, elseGroup).classed('if-else-title-rect', true);
             var outer_rect = D3Utils.rect(this.getBoundingBox().x(), this.getBoundingBox().y(), this.getBoundingBox().w(),
                 this.getBoundingBox().h(), 0, 0, elseGroup).classed('background-empty-rect', true);
-            var title_rect = D3Utils.rect(this.getBoundingBox().x(), this.getBoundingBox().y(), 40, 20, 0, 0, elseGroup).classed('statement-rect', true);
-            var title_text = D3Utils.textElement(this.getBoundingBox().x() + 20, this.getBoundingBox().y() + 10, 'Else', elseGroup).classed('statement-text', true);
+            var title_text = D3Utils.textElement(this.getBoundingBox().x() + 20, this.getBoundingBox().y() + 12, 'Else', elseGroup).classed('statement-text', true);
+            var points = "" + this.getBoundingBox().x() + "," + (parseInt(this.getBoundingBox().y()) + 25) + " " +
+                (parseInt(this.getBoundingBox().x()) + 35) + "," + (parseInt(this.getBoundingBox().y()) + 25) + " " +
+                (parseInt(this.getBoundingBox().x()) + 45) + "," + this.getBoundingBox().y();
+            var title_wrapper_polyline = D3Utils.polyline(points, elseGroup).classed('if-else-title-polyline', true);
             elseGroup.outerRect = outer_rect;
             elseGroup.titleRect = title_rect;
             elseGroup.titleText = title_text;
+            elseGroup.title_wrapper_polyline = title_wrapper_polyline;
             this.setStatementGroup(elseGroup);
 
             this.getBoundingBox().on('moved', function(offset){
