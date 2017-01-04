@@ -336,7 +336,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             location = new ConnectorVarLocation();
 
         } else if (isInScope(SymScope.Name.SERVICE)) {
-            location = new ServiceVarLocation();
+            location = new ServiceVarLocation(staticMemAddrOffset);
 
         } else if (isInScope(SymScope.Name.FUNCTION) ||
                 isInScope(SymScope.Name.RESOURCE) ||
@@ -368,7 +368,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             location = new ConnectorVarLocation();
 
         } else if (isInScope(SymScope.Name.SERVICE)) {
-            location = new ServiceVarLocation();
+            location = new ServiceVarLocation(staticMemAddrOffset);
 
         } else if (isInScope(SymScope.Name.FUNCTION) ||
                 isInScope(SymScope.Name.RESOURCE) ||
