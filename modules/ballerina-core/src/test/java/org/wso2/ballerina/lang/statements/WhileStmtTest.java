@@ -18,7 +18,7 @@
 package org.wso2.ballerina.lang.statements;
 
 import org.testng.Assert;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.values.BInteger;
@@ -35,9 +35,9 @@ public class WhileStmtTest {
 
     private BallerinaFile bFile;
 
-    @BeforeTest
+    @BeforeClass
     public void setup() {
-        bFile = ParserUtils.getLinkedBLangModel("lang/statements/while-stmt.bal");
+        bFile = ParserUtils.parseBalFile("lang/statements/while-stmt.bal");
     }
 
     @Test(description = "Test while loop with a condition which evaluates to true")

@@ -43,7 +43,7 @@ define(['lodash', 'log', 'event_channel', './abstract-statement-source-gen-visit
     };
 
     ReplyStatementVisitor.prototype.endVisitReplyStatement = function(replyStatement){
-        this.appendSource("response;\n");
+        this.appendSource(replyStatement.getReplyMessage() + ";\n");
         this.getParent().appendSource(this.getGeneratedSource());
         log.info('End Visit Reply Statement Definition');
     };

@@ -266,12 +266,6 @@ text-anchor: start;
 
 .variable-icon-background-circle {
     opacity: 0.4;
-    cursor: pointer;
-}
-
-.variable-icon-background-circle:hover {
-    opacity: 1;
-    cursor: pointer;
 }
 
 .annotation-icon-background-circle:hover {
@@ -285,7 +279,6 @@ text-anchor: start;
 }
 
 .variable-icon-rect {
-    cursor: pointer;
     fill: url(#variableIcon);
 }
 
@@ -306,12 +299,12 @@ text-anchor: start;
 }
 
 .client-life-line polygon{
-    stroke: #000000;
+    stroke: #333;
     fill: #FFFFFF;
 }
 
 .client-life-line line{
-    stroke: #000000;
+    stroke: #333;
 }
 
 .default-worker-life-line{

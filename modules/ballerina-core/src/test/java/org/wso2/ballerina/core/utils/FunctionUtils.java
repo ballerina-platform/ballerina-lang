@@ -113,7 +113,7 @@ public class FunctionUtils {
      */
     public static BValue getValue(Context context, int position) {
         StackFrame currentFrame = context.getControlStack().getCurrentFrame();
-        return currentFrame.valuesNew[position];
+        return currentFrame.values[position];
     }
 
     /**
@@ -124,7 +124,7 @@ public class FunctionUtils {
      */
     public static BValue getReturnValue(Context context) {
         StackFrame currentFrame = context.getControlStack().getCurrentFrame();
-        return currentFrame.valuesNew[currentFrame.valuesNew.length - 1];
+        return currentFrame.values[currentFrame.values.length - 1];
     }
     
     

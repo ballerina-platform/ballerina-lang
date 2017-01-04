@@ -37,7 +37,7 @@
     </Appenders>
     <Loggers>
         <Root level="info">
-            <!--<AppenderRef ref="CARBON_CONSOLE"/>-->
+            <AppenderRef ref="CARBON_CONSOLE"/>
             <AppenderRef ref="CARBON_LOGFILE"/>
         </Root>
         <Logger name="AUDIT_LOG" level="info" additivity="false">

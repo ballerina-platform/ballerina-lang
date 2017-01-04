@@ -29,6 +29,7 @@ define(['log', 'backbone'], function (log, Backbone) {
             var errMsg, template;
             // FIXME
             _.set(this, 'id', this.cid);
+            _.set(this, '_title', _.get(options, 'title'));
             if (!_.has(options, 'template')){
                 errMsg = 'unable to find config template ' + _.toString(options);
                 log.error(errMsg);
@@ -56,8 +57,9 @@ define(['log', 'backbone'], function (log, Backbone) {
             tab.attr('id', this.cid);
             this.$el = tab;
         },
-        render: function(){
-
+        remove: function(){
+            this.trigger("removed");
+            Backbone.View.prototype.remove.call(this);
         },
         setActive: function(isActive){
             if(_.isBoolean(isActive)){
@@ -78,6 +80,9 @@ define(['log', 'backbone'], function (log, Backbone) {
         getHeader: function(){
             return this._tabHeader;
         },
+        getContentContainer: function(){
+            return this.$el.get(0);
+        },
         getParent: function(){
             return this._parentTabList;
         },
@@ -85,7 +90,7 @@ define(['log', 'backbone'], function (log, Backbone) {
             this._parentTabList = parentTabList;
         },
         getTitle: function(){
-            return "untitled";
+           return _.isNil(this._title) ? "untitled" : this._title;
         }
     });
 

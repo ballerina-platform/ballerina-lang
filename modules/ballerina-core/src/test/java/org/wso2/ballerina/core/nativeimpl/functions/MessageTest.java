@@ -18,12 +18,11 @@
 package org.wso2.ballerina.core.nativeimpl.functions;
 
 import org.testng.Assert;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.interpreter.BLangInterpreter;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.interpreter.SymScope;
-import org.wso2.ballerina.core.linker.BLangLinker;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.values.BJSON;
@@ -58,10 +57,9 @@ public class MessageTest {
     private BallerinaFile bFile;
 //    private static final String s1 = "<persons><person><name>Jack</name><address>wso2</address></person></persons>";
 
-    @BeforeTest
+    @BeforeClass
     public void setup() {
-        bFile = ParserUtils.parseBalFile("samples/nativeimpl/messageTest.bal");
-        // Linking Native functions.
+        // Add Native functions.
         SymScope symScope = new SymScope(null);
         FunctionUtils.addNativeFunction(symScope, new AddHeader());
         FunctionUtils.addNativeFunction(symScope, new Clone());
@@ -76,8 +74,8 @@ public class MessageTest {
         FunctionUtils.addNativeFunction(symScope, new SetStringPayload());
         FunctionUtils.addNativeFunction(symScope, new SetXMLPayload());
         FunctionUtils.addNativeFunction(symScope, new LogString());
-        BLangLinker linker = new BLangLinker(bFile);
-        linker.link(symScope);
+
+        bFile = ParserUtils.parseBalFile("samples/nativeimpl/messageTest.bal", symScope);
     }
 
     @Test
