@@ -18,7 +18,7 @@
 define(['lodash', './node'], function (_, ASTNode) {
 
     var ServiceDefinition = function (args) {
-        this._serviceName = _.get(args, 'serviceName');
+        this._serviceName = _.get(args, 'serviceName', 'newService');
         this._annotations = _.get(args, 'annotations', []);
         this._resourceDefinitions = _.get(args, 'resourceDefinitions', []);
         this._variableDeclarations = _.get(args, 'variableDeclarations', []);
