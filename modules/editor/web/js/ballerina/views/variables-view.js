@@ -21,7 +21,7 @@ define(['require', 'lodash', 'jquery', 'log', 'd3utils', 'd3', './point', 'balle
               VariableDeclaration, ConnectorDeclaration) {
 
         // TODO move variable types into constant class
-        var variableTypes = ['message', 'connection', 'string', 'int', 'exception'];
+        var variableTypes = ['message', 'connection', 'string', 'int', 'exception', 'json'];
 
         /**
          * Creating the variable variable button.
