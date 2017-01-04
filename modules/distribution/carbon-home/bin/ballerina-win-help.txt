@@ -1,0 +1,22 @@
+
+Usage:  ballerina.bat service.bal [command] [-options]
+            (To execute either the Ballerina main function or start Ballerina
+             services defined in the 'service.bal' Ballerina file)
+    or
+        ballerinaserver.bat [command] [-options]
+            (To start Ballerina Server in current terminal.)
+
+The command is one of the followings :
+    version     Print Ballerina version.
+    help        Print this help message.
+
+Where -options include :
+    -bargs values...
+                Defines input arguments for Ballerina main function.
+                Values are separated by space. [Applies to ballerina.sh]
+
+    -servicespath path | -s path
+                Overrides default servicespath '.' with 'path'.
+                [Applies to ballerinaserver.sh]
+
+    -bpath      Define Ballerina Path.
