@@ -17,7 +17,6 @@
 */
 package org.wso2.ballerina.core.interpreter;
 
-import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.model.Action;
 import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.BallerinaFunction;
@@ -64,7 +63,6 @@ import org.wso2.ballerina.core.model.values.BXML;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
-import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 
 /**
  * {@code BLangExecutor} executes a Ballerina application
@@ -459,11 +457,9 @@ public class BLangExecutor implements NodeExecutor {
     private void populateConnectorDclValues(ConnectorDcl[] connectorDcls, BValue[] valueParams, int valuesCounter) {
 
         for (ConnectorDcl connectorDcl : connectorDcls) {
-            Symbol symbol = GlobalScopeHolder.getInstance().getScope().lookup(connectorDcl.getConnectorName());
-            if (symbol == null) {
-                throw new BallerinaException("Connector : " + connectorDcl.getConnectorName() + " not found");
-            }
-            Connector connector = symbol.getConnector();
+
+            Connector connector = connectorDcl.getConnector();
+
             Expression[] argExpressions = connectorDcl.getArgExprs();
             BValue[] bValueRefs = new BValue[argExpressions.length];
             for (int j = 0; j < argExpressions.length; j++) {

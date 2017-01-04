@@ -150,10 +150,14 @@ public class BLangModelBuilder {
         bFileBuilder.setPkgName(pkgName);
     }
 
-    public void addImportPackage() {
-        // TODO implement import as name
-        String pkgName = getPkgName();
-        bFileBuilder.addImportPackage(new ImportPackage(pkgName));
+    public void addImportPackage(String pkgName) {
+        String pkgPath = getPkgName();
+
+        if (pkgName != null) {
+            bFileBuilder.addImportPackage(new ImportPackage(pkgPath, pkgName));
+        } else {
+            bFileBuilder.addImportPackage(new ImportPackage(pkgPath));
+        }
     }
 
     // Annotations
