@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.wso2.integration.tooling.service.workspace.app;
+package org.wso2.ballerina.tooling.service.workspace.app;
 
 import com.google.inject.AbstractModule;
-import org.wso2.integration.tooling.service.workspace.Workspace;
-import org.wso2.integration.tooling.service.workspace.cloud.CloudWorkspace;
-import org.wso2.integration.tooling.service.workspace.local.LocalFSWorkspace;
+import org.wso2.ballerina.tooling.service.workspace.Workspace;
+import org.wso2.ballerina.tooling.service.workspace.cloud.CloudWorkspace;
+import org.wso2.ballerina.tooling.service.workspace.local.LocalFSWorkspace;
 
 /**
  * DI Module.

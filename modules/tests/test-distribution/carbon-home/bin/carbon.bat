@@ -1,7 +1,7 @@
 @echo off
 
 REM ---------------------------------------------------------------------------
-REM   Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+REM   Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 REM
 REM   Licensed under the Apache License, Version 2.0 (the "License");
 REM   you may not use this file except in compliance with the License.
@@ -120,10 +120,6 @@ goto end
 
 rem ----- commandLifecycle -----------------------------------------------------
 :commandLifecycle
-shift
-set BAL_FILE_NAME=%1
-set JAVA_OPTS=-Dbal-file=%BAL_FILE_NAME%
-echo Running the Ballerina file %BAL_FILE_NAME%
 goto findJdk
 
 :doneStart
@@ -164,7 +160,7 @@ set CMD_LINE_ARGS=-Xbootclasspath/a:%CARBON_XBOOTCLASSPATH% -Xms256m -Xmx1024m -
 
 :runJava
 echo JAVA_HOME environment variable is set to %JAVA_HOME%
-REM echo CARBON_HOME environment variable is set to %CARBON_HOME%
+echo CARBON_HOME environment variable is set to %CARBON_HOME%
 "%JAVA_HOME%\bin\java" %CMD_LINE_ARGS% org.wso2.carbon.launcher.Main %CMD%
 if "%ERRORLEVEL%"=="121" goto runJava
 :end

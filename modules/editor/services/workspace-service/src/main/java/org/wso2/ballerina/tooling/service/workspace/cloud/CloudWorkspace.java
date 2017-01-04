@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.wso2.integration.tooling.service.workspace.cloud;
+package org.wso2.ballerina.tooling.service.workspace.cloud;
 
 import com.google.gson.JsonArray;
 
-import org.wso2.integration.tooling.service.workspace.Workspace;
+import org.wso2.ballerina.tooling.service.workspace.Workspace;
 
 import java.io.IOException;
 

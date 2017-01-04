@@ -20,8 +20,6 @@ package org.wso2.ballerina.core.runtime.deployer;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.component.annotations.Activate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.exception.BallerinaException;
@@ -40,17 +38,11 @@ import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 import org.wso2.ballerina.core.runtime.internal.ServiceContextHolder;
 import org.wso2.ballerina.core.runtime.registry.ApplicationRegistry;
 import org.wso2.ballerina.core.semantics.SemanticAnalyzer;
-import org.wso2.carbon.deployment.engine.Artifact;
-import org.wso2.carbon.deployment.engine.ArtifactType;
-import org.wso2.carbon.deployment.engine.Deployer;
-import org.wso2.carbon.deployment.engine.exception.CarbonDeploymentException;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Arrays;
 
 /**
@@ -58,68 +50,11 @@ import java.util.Arrays;
  *
  * @since 1.0.0
  */
-//@Component(
-//        name = "org.wso2.ballerina.core.runtime.deployer.BalDeployer",
-//        immediate = true,
-//        service = Deployer.class)
-public class BalDeployer implements Deployer {
+public class BalDeployer {
 
     private static final Logger log = LoggerFactory.getLogger(BalDeployer.class);
 
-    public static final String BAL_FILES_DIRECTORY = "ballerina-files";
     private static final String FILE_EXTENSION = ".bal";
-    private ArtifactType artifactType = new ArtifactType<>("bal");
-    private URL directoryLocation;
-
-    @Activate
-    protected void activate(BundleContext bundleContext) {
-        // Nothing to do.
-    }
-
-    @Override
-    public void init() {
-        try {
-            directoryLocation = new URL("file:" + BAL_FILES_DIRECTORY);
-        } catch (MalformedURLException e) {
-            log.error("Error while initializing directoryLocation" + BAL_FILES_DIRECTORY, e);
-        }
-    }
-
-    @Override
-    public Object deploy(Artifact artifact) throws CarbonDeploymentException {
-        // Deploy only when default mode
-        if (ServiceContextHolder.getInstance().getRuntimeMode() == Constants.RuntimeMode.SERVER) {
-            deployBalFile(artifact.getFile());
-        }
-        return artifact.getFile().getName();
-    }
-
-    @Override
-    public void undeploy(Object key) throws CarbonDeploymentException {
-        if (ServiceContextHolder.getInstance().getRuntimeMode() == Constants.RuntimeMode.SERVER) {
-            undeployBalFile((String) key);
-        }
-    }
-
-    @Override
-    public Object update(Artifact artifact) throws CarbonDeploymentException {
-        if (ServiceContextHolder.getInstance().getRuntimeMode() == Constants.RuntimeMode.SERVER) {
-            log.info("Updating " + artifact.getName() + "...");
-            undeployBalFile(artifact.getName());
-            deployBalFile(artifact.getFile());
-        }
-        return artifact.getName();
-    }
-
-    @Override
-    public URL getLocation() {
-        return directoryLocation;
-    }
-
-    @Override
-    public ArtifactType getArtifactType() {
-        return artifactType;
-    }
 
     public static void deployBalFile(File file) {
         InputStream inputStream = null;
@@ -154,15 +89,15 @@ public class BalDeployer implements Deployer {
                     BallerinaFunction function =
                             (BallerinaFunction) balFile.getFunctions().get(Constants.MAIN_FUNCTION_NAME);
                     if (function != null) {
-                        ServiceContextHolder.getInstance().setMainFunctionToExecute(function);
+                        ServiceContextHolder.getInstance().setBallerinaFileToExecute(balFile);
                         successful = true;
                         return;
-                    } else if (balFile.getServices().size() == 0) {
-                        log.error("Unable to find Main function or any Ballerina Services.");
+                    } else {
+                        log.error("Unable to locate Main function.");
                         ServiceContextHolder.getInstance().setRuntimeMode(Constants.RuntimeMode.ERROR);
+                        successful = false;
                         return;
                     }
-                    // else:  Continue and deploy the service.
                 }
 
                 // Get the existing application associated with this ballerina config
@@ -217,18 +152,9 @@ public class BalDeployer implements Deployer {
     /**
      * Deploy all Ballerina files in a give directory.
      *
-     * @param file Directory.
+     * @param files to deploy.
      */
-    public static void deployBalFiles(File file) {
-        if (file == null || !file.exists() || !file.isDirectory()) {
-            // Can't continue as there is no directory to work with. if we get here, that means a bug in startup
-            // script.
-            log.error("Given working path {} is not a valid location. ", file == null ? null : file.getName());
-            ServiceContextHolder.getInstance().setRuntimeMode(Constants.RuntimeMode.ERROR);
-            return;
-        }
-        // TODO: Improve logic and scanning.
-        File[] files = file.listFiles();
+    public static void deployBalFiles(File[] files) {
         if (files != null) {
             Arrays.stream(files).filter(file1 -> file1.getName().endsWith(FILE_EXTENSION)).forEach
                     (BalDeployer::deployBalFile);
@@ -240,7 +166,7 @@ public class BalDeployer implements Deployer {
      *
      * @param fileName Name of the ballerina file
      */
-    private void undeployBalFile(String fileName) {
+    public void undeployBalFile(String fileName) {
         Application app = ApplicationRegistry.getInstance().getApplication(fileName);
         if (app == null) {
             log.warn("Could not find service to undeploy: " + fileName + ".");
