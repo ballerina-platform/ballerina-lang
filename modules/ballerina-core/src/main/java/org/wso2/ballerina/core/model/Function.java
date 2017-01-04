@@ -31,6 +31,13 @@ public interface Function {
      * @return name of the function.
      */
     String getName();
+    
+    /**
+     * Get package name of the function.
+     *
+     * @return package name of the function.
+     */
+    String getPackageName();
 
     /**
      * Get the function Identifier

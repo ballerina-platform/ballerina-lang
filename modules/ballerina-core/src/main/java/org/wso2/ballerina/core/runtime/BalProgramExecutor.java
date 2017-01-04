@@ -22,11 +22,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.BLangExecutor;
+import org.wso2.ballerina.core.interpreter.CallableUnitInfo;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.interpreter.LocalVarLocation;
-import org.wso2.ballerina.core.interpreter.NodeInfo;
 import org.wso2.ballerina.core.interpreter.StackFrame;
-import org.wso2.ballerina.core.interpreter.StackFrameType;
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.Resource;
@@ -58,8 +57,8 @@ public class BalProgramExecutor {
             Context balContext) {
         try {
             SymbolName symbolName = service.getSymbolName();
-            balContext.setServiceInfo(new NodeInfo(symbolName.getName(), StackFrameType.SERVICE, 
-                    symbolName.getPkgName(), service.getServiceLocation()));
+            balContext.setServiceInfo(new CallableUnitInfo(symbolName.getName(), symbolName.getPkgName(), 
+                    service.getServiceLocation()));
             
             balContext.setBalCallback(new DefaultBalCallback(callback));
 
@@ -112,13 +111,17 @@ public class BalProgramExecutor {
             funcIExpr.setOffset(1);
             funcIExpr.setFunction(mainFunction);
 
-            StackFrame currentStackFrame = new StackFrame(args, new BValue[0]);
+            SymbolName functionSymbolName = mainFunction.getSymbolName();
+            CallableUnitInfo functionInfo = new CallableUnitInfo(functionSymbolName.getName(), 
+                    functionSymbolName.getPkgName(), mainFunction.getFunctionLocation());
+            
+            StackFrame currentStackFrame = new StackFrame(args, new BValue[0], functionInfo);
             bContext.getControlStack().pushFrame(currentStackFrame);
 
             BLangExecutor executor = new BLangExecutor(bContext);
             mainFunction.getFunctionBody().execute(executor);
         } catch (BallerinaException ex) {
-            String stackTrace = ErrorHandlerUtils.getMainFunctionStackTrace(bContext, mainFunction.getName());
+            String stackTrace = ErrorHandlerUtils.getMainFunctionStackTrace(bContext);
             log.error("Error while executing main function: " + mainFunction.getName() + ". " + ex.getMessage() + "\n" 
                     + stackTrace);
         }

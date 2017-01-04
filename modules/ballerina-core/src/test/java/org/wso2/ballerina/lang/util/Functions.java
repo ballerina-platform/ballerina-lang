@@ -18,12 +18,11 @@
 package org.wso2.ballerina.lang.util;
 
 import org.wso2.ballerina.core.interpreter.BLangExecutor;
+import org.wso2.ballerina.core.interpreter.CallableUnitInfo;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.interpreter.LocalVarLocation;
-import org.wso2.ballerina.core.interpreter.NodeInfo;
 import org.wso2.ballerina.core.interpreter.RuntimeEnvironment;
 import org.wso2.ballerina.core.interpreter.StackFrame;
-import org.wso2.ballerina.core.interpreter.StackFrameType;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.model.SymbolName;
@@ -106,8 +105,8 @@ public class Functions {
 
         // 6) Create the control stack and the stack frame to invoke the functions
         SymbolName functionSymbolName = function.getSymbolName();
-        NodeInfo functionInfo = new NodeInfo(functionSymbolName.getName(), StackFrameType.BALLERINA_FUNCTION, 
-            functionSymbolName.getPkgName(), function.getFunctionLocation());
+        CallableUnitInfo functionInfo = new CallableUnitInfo(functionSymbolName.getName(), 
+                functionSymbolName.getPkgName(), function.getFunctionLocation());
         
         StackFrame currentStackFrame = new StackFrame(functionArgs, new BValue[0], functionInfo);
 

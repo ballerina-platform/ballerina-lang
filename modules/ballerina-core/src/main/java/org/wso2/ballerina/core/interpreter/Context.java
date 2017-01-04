@@ -35,7 +35,7 @@ public class Context {
     private CarbonMessage cMsg;
     private BalCallback balCallback;
     protected Map<String, Object> properties = new HashMap();
-    private NodeInfo serviceInfo;
+    private CallableUnitInfo serviceInfo;
 
     public Context() {
         this.controlStack = new ControlStack();
@@ -74,11 +74,11 @@ public class Context {
         this.balCallback = balCallback;
     }
     
-    public NodeInfo getServiceInfo() {
+    public CallableUnitInfo getServiceInfo() {
         return this.serviceInfo;
     }
 
-    public void setServiceInfo(NodeInfo serviceInfo) {
+    public void setServiceInfo(CallableUnitInfo serviceInfo) {
         this.serviceInfo = serviceInfo;
     }
 }

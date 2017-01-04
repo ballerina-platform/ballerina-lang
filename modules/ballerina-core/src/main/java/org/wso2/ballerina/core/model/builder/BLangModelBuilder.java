@@ -403,21 +403,23 @@ public class BLangModelBuilder {
         addExprToList(exprList, exprCount);
     }
 
-    public void createFunctionInvocationExpr() {
+    public void createFunctionInvocationExpr(Position invokedLocation) {
         CallableUnitInvocationExprBuilder cIExprBuilder = new CallableUnitInvocationExprBuilder();
         cIExprBuilder.setExpressionList(exprListStack.pop());
         cIExprBuilder.setName(symbolNameStack.pop());
 
         FunctionInvocationExpr invocationExpr = cIExprBuilder.buildFuncInvocExpr();
+        invocationExpr.setInvokedLocation(invokedLocation);
         exprStack.push(invocationExpr);
     }
 
-    public void createActionInvocationExpr() {
+    public void createActionInvocationExpr(Position invokedLocation) {
         CallableUnitInvocationExprBuilder cIExprBuilder = new CallableUnitInvocationExprBuilder();
         cIExprBuilder.setExpressionList(exprListStack.pop());
         cIExprBuilder.setName(symbolNameStack.pop());
 
         ActionInvocationExpr invocationExpr = cIExprBuilder.buildActionInvocExpr();
+        invocationExpr.setInvokedLocation(invokedLocation);
         exprStack.push(invocationExpr);
     }
 
@@ -454,7 +456,6 @@ public class BLangModelBuilder {
     public void createFunction(String name, boolean isPublic, Position location) {
         currentCUBuilder.setName(new SymbolName(name, pkgName));
         currentCUBuilder.setPublic(isPublic);
-        currentCUBuilder.setPosition(location);
 
         List<Annotation> annotationList = annotationListStack.pop();
         // TODO Improve this implementation
@@ -482,7 +483,7 @@ public class BLangModelBuilder {
 
     public void createAction(String name, Position location) {
         currentCUBuilder.setName(new SymbolName(name, pkgName));
-        currentCUBuilder.setPosition(location);
+//        currentCUBuilder.setPosition(location);
         
         List<Annotation> annotationList = annotationListStack.pop();
         // TODO Improve this implementation
@@ -503,7 +504,7 @@ public class BLangModelBuilder {
 
     public void createService(String name, Position location) {
         currentCUGroupBuilder.setName(new SymbolName(name, pkgName));
-        currentCUGroupBuilder.setPosition(location);
+        currentCUGroupBuilder.setLocation(location);
         
         List<Annotation> annotationList = annotationListStack.pop();
         // TODO Improve this implementation
@@ -517,7 +518,7 @@ public class BLangModelBuilder {
 
     public void createConnector(String name, Position location) {
         currentCUGroupBuilder.setName(new SymbolName(name, pkgName));
-        currentCUGroupBuilder.setPosition(location);
+        currentCUGroupBuilder.setLocation(location);
         
         List<Annotation> annotationList = annotationListStack.pop();
         // TODO Improve this implementation
@@ -615,7 +616,7 @@ public class BLangModelBuilder {
         addToBlockStmt(ifElseStmt);
     }
 
-    public void createFunctionInvocationStmt() {
+    public void createFunctionInvocationStmt(Position invokedLocation) {
         CallableUnitInvocationExprBuilder cIExprBuilder = new CallableUnitInvocationExprBuilder();
         if (!exprListStack.isEmpty()) {
             cIExprBuilder.setExpressionList(exprListStack.pop());
@@ -623,6 +624,7 @@ public class BLangModelBuilder {
         cIExprBuilder.setName(symbolNameStack.pop());
 
         FunctionInvocationExpr invocationExpr = cIExprBuilder.buildFuncInvocExpr();
+        invocationExpr.setInvokedLocation(invokedLocation);
 
         FunctionInvocationStmt.FunctionInvokeStmtBuilder stmtBuilder =
                 new FunctionInvocationStmt.FunctionInvokeStmtBuilder();
