@@ -36,8 +36,8 @@ import org.wso2.ballerina.core.model.VariableDcl;
 import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.AddExpression;
 import org.wso2.ballerina.core.model.expressions.AndExpression;
-import org.wso2.ballerina.core.model.expressions.ArrayAccessExpr;
 import org.wso2.ballerina.core.model.expressions.ArrayInitExpr;
+import org.wso2.ballerina.core.model.expressions.ArrayMapAccessExpr;
 import org.wso2.ballerina.core.model.expressions.BackquoteExpr;
 import org.wso2.ballerina.core.model.expressions.BasicLiteral;
 import org.wso2.ballerina.core.model.expressions.BinaryExpression;
@@ -47,8 +47,10 @@ import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.GreaterEqualExpression;
 import org.wso2.ballerina.core.model.expressions.GreaterThanExpression;
 import org.wso2.ballerina.core.model.expressions.InstanceCreationExpr;
+import org.wso2.ballerina.core.model.expressions.KeyValueExpression;
 import org.wso2.ballerina.core.model.expressions.LessEqualExpression;
 import org.wso2.ballerina.core.model.expressions.LessThanExpression;
+import org.wso2.ballerina.core.model.expressions.MapInitExpr;
 import org.wso2.ballerina.core.model.expressions.MultExpression;
 import org.wso2.ballerina.core.model.expressions.NotEqualExpression;
 import org.wso2.ballerina.core.model.expressions.OrExpression;
@@ -104,6 +106,8 @@ public class BLangModelBuilder {
     private Stack<SymbolName> symbolNameStack = new Stack<>();
     private Stack<Expression> exprStack = new Stack<>();
 
+    private Stack<KeyValueExpression> keyValueStack = new Stack<>();
+
     private static final Logger log = LoggerFactory.getLogger(BLangModelBuilder.class);
 
 
@@ -111,6 +115,8 @@ public class BLangModelBuilder {
     private Stack<List<Expression>> exprListStack = new Stack<>();
 
     private Stack<List<Annotation>> annotationListStack = new Stack<>();
+
+    private Stack<List<KeyValueExpression>> mapInitKeyValueListStack = new Stack<>();
 
     public BallerinaFile build() {
         return bFileBuilder.build();
@@ -327,12 +333,12 @@ public class BLangModelBuilder {
         Expression indexExpr = exprStack.pop();
         VariableRefExpr arrayVarRefExpr = new VariableRefExpr(symName);
 
-        ArrayAccessExpr.ArrayAccessExprBuilder builder = new ArrayAccessExpr.ArrayAccessExprBuilder();
+        ArrayMapAccessExpr.ArrayMapAccessExprBuilder builder = new ArrayMapAccessExpr.ArrayMapAccessExprBuilder();
         builder.setVarName(symName);
         builder.setIndexExpr(indexExpr);
-        builder.setArrayVarRefExpr(arrayVarRefExpr);
+        builder.setArrayMapVarRefExpr(arrayVarRefExpr);
 
-        ArrayAccessExpr accessExpr = builder.build();
+        ArrayMapAccessExpr accessExpr = builder.build();
         exprStack.push(accessExpr);
     }
 
@@ -445,6 +451,38 @@ public class BLangModelBuilder {
 
         ArrayInitExpr arrayInitExpr = builder.build();
         exprStack.push(arrayInitExpr);
+    }
+
+    public void createMapInitExpr() {
+        MapInitExpr.MapInitExprBuilder builder = new MapInitExpr.MapInitExprBuilder();
+
+        if (!mapInitKeyValueListStack.isEmpty()) {
+            List<KeyValueExpression> argList = mapInitKeyValueListStack.pop();
+            builder.setArgList(argList);
+        }
+
+        MapInitExpr mapInitExpr = builder.build();
+        exprStack.push(mapInitExpr);
+    }
+
+    public void startMapInitKeyValue() {
+        mapInitKeyValueListStack.push(new ArrayList<>());
+    }
+
+    public void endMapInitKeyValue(int exprCount) {
+        List<KeyValueExpression> keyValueList = mapInitKeyValueListStack.peek();
+        addKeyValueToList(keyValueList, exprCount);
+    }
+
+    public void createMapInitKeyValue(String key) {
+        if (!exprStack.isEmpty()) {
+            Expression currentExpression = exprStack.pop();
+            keyValueStack.push(new KeyValueExpression(key, currentExpression));
+        } else {
+            keyValueStack.push(new KeyValueExpression(key, null));
+        }
+
+
     }
 
     // Functions, Actions and Resources
@@ -695,6 +733,26 @@ public class BLangModelBuilder {
             Expression expr = exprStack.pop();
             addExprToList(exprList, n - 1);
             exprList.add(expr);
+        }
+    }
+
+    /**
+     * @param keyValueDataHolderList List<KeyValueDataHolder>
+     * @param n        number of expression to be added the given list
+     */
+    private void addKeyValueToList(List<KeyValueExpression> keyValueDataHolderList, int n) {
+
+        if (keyValueStack.isEmpty()) {
+            throw new IllegalStateException("KeyValue stack cannot be empty in processing a KeyValueList");
+        }
+
+        if (n == 1) {
+            KeyValueExpression keyValue = keyValueStack.pop();
+            keyValueDataHolderList.add(keyValue);
+        } else {
+            KeyValueExpression keyValue = keyValueStack.pop();
+            addKeyValueToList(keyValueDataHolderList, n - 1);
+            keyValueDataHolderList.add(keyValue);
         }
     }
 

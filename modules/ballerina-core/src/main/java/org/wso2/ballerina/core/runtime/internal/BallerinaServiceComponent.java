@@ -180,8 +180,13 @@ public class BallerinaServiceComponent {
         } else if (Constants.RuntimeMode.RUN_FILE == ServiceContextHolder.getInstance().getRuntimeMode()) {
             BallerinaFunction mainFunction = ServiceContextHolder.getInstance().getMainFunctionToExecute();
             if (mainFunction != null) {
-                BalProgramExecutor.execute(mainFunction);
-                RuntimeUtils.shutdownRuntime();
+                try {
+                    BalProgramExecutor.execute(mainFunction);
+                } catch (Throwable throwable) {
+                    log.error(throwable.getMessage());
+                } finally {
+                    RuntimeUtils.shutdownRuntime();
+                }
             }
         }
     }

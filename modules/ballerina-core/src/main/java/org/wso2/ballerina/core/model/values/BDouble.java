@@ -59,4 +59,9 @@ public final class BDouble extends BValueType {
     public String stringValue() {
         return Double.toString(value);
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        return ((BDouble) obj).doubleValue() == value;
+    }
 }

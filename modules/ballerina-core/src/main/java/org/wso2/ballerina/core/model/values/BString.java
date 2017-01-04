@@ -59,4 +59,9 @@ public final class BString extends BValueType {
     public String stringValue() {
         return this.value;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        return ((BString) obj).stringValue().equals(value);
+    }
 }
