@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.wso2.integration.tooling.service.workspace.local;
+package org.wso2.ballerina.tooling.service.workspace.local;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.integration.tooling.service.workspace.Workspace;
+import org.wso2.ballerina.tooling.service.workspace.Workspace;
 
 import java.io.IOException;
 import java.nio.file.FileSystems;

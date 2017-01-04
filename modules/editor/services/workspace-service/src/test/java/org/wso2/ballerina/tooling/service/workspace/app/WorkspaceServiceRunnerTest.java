@@ -1,8 +1,6 @@
-package org.wso2.integration.tooling.service.workspace.app;
+package org.wso2.ballerina.tooling.service.workspace.app;
 
 import org.junit.Test;
-
-import static org.junit.Assert.*;
 
 /**
  * Tests for Workspace Mirco-Service Runner.

@@ -13,17 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.wso2.integration.tooling.service.workspace;
+package org.wso2.ballerina.tooling.service.workspace;
+
+import com.google.gson.JsonArray;
+
+import java.io.IOException;
 
 /**
- * Constants for the workspace service.
- *
+ * Interface for the workspace.
  */
-public class Constants {
-    /**
-     * Arguments for Service Runner
-     */
-    public static final String CLOUD_MODE_INDICATOR_ARG = "cloudMode";
-    public static final String CLOUD_MODE_INDICATOR_ARG_DESC = "Enable Cloud Mode.";
+public interface Workspace {
 
+      JsonArray listRoots() throws IOException;
+
+      JsonArray listDirectoriesInPath(String path) throws IOException;
+
+      JsonArray listFilesInPath(String path) throws IOException;
+
+      void write(String path, String content) throws IOException;
+
+      void log(String logger, String timestamp, String level, String URL, String message, String layout) throws IOException;
 }
