@@ -58,19 +58,6 @@ define(['lodash', 'log', './node', './worker-declaration', './connector-declarat
     ResourceDefinition.prototype = Object.create(ASTNode.prototype);
     ResourceDefinition.prototype.constructor = ResourceDefinition;
 
-
-    ResourceDefinition.prototype.setResourcePath = function (path) {
-        if (!_.isNil(path)) {
-            this._path = path;
-        }
-    };
-
-    ResourceDefinition.prototype.setResourceMethod = function (method) {
-        if (!_.isNil(method)) {
-            this._method = method;
-        }
-    };
-
     ResourceDefinition.prototype.setConnections = function (connections) {
         if (!_.isNil(connections)) {
             this._connectionDeclarations = connections;
@@ -122,14 +109,6 @@ define(['lodash', 'log', './node', './worker-declaration', './connector-declarat
 
     ResourceDefinition.prototype.getConnections = function () {
         return this._connectionDeclarations;
-    };
-
-    ResourceDefinition.prototype.getResourceMethod = function () {
-        return this._method;
-    };
-
-    ResourceDefinition.prototype.getResourcePath = function () {
-        return this._path;
     };
 
     ResourceDefinition.prototype.getResourceArguments = function () {
