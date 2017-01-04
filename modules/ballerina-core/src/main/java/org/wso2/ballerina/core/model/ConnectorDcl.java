@@ -38,6 +38,9 @@ public class ConnectorDcl implements Node {
 
     Expression[] argExprs;
 
+    /* Reference to the connector instance which is referred by the declaration */
+    Connector connector;
+
     public ConnectorDcl(SymbolName connectorName, SymbolName varName, Expression[] argExprs) {
         this.connectorName = connectorName;
         this.varName = varName;
@@ -73,6 +76,24 @@ public class ConnectorDcl implements Node {
      */
     public Expression[] getArgExprs() {
         return argExprs;
+    }
+
+    /**
+     * Set the reference to the connector instance which is referred by the declaration
+     *
+     * @param connector reference to the connector instance
+     */
+    public void setConnector(Connector connector) {
+        this.connector = connector;
+    }
+
+    /**
+     * Get the reference to the connector instance which is referred by the declaration
+     *
+     * @return reference to the connector instance
+     */
+    public Connector getConnector() {
+        return connector;
     }
 
     @Override
