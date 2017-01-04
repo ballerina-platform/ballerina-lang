@@ -925,6 +925,16 @@ button.variable-list {
     background-color: #2b2b2b;
 }
 
+.if-else-title-rect {
+    fill: #FFFFFF;
+    stroke: #818181;
+}
+
+.if-else-title-polyline {
+    fill: none;
+    stroke: #000000;
+}
+
 /** Service container related styles | -> End **/
 /*//////////////////////////////////////////////////*/
 
