@@ -121,7 +121,7 @@ fi
 
 # if JAVA_HOME is not set we're not happy
 if [ -z "$JAVA_HOME" ]; then
-  echo "You must set the JAVA_HOME variable before running CARBON."
+  echo "You must set the JAVA_HOME variable before running Ballerina."
   exit 1
 fi
 
@@ -247,8 +247,8 @@ fi
 # ---------- Handle the SSL Issue with proper JDK version --------------------
 jdk_18=`$JAVA_HOME/bin/java -version 2>&1 | grep "1.[8]"`
 if [ "$jdk_18" = "" ]; then
-   echo " Starting WSO2 Carbon (in unsupported JDK)"
-   echo " [ERROR] CARBON is supported only on JDK 1.8"
+   echo " Starting WSO2 Ballerina (in unsupported JDK)"
+   echo " [ERROR] WSO2 Ballerina is supported only on JDK 1.8"
 fi
 
 CARBON_XBOOTCLASSPATH=""
@@ -315,7 +315,6 @@ do
     -Djava.util.logging.config.file="$CARBON_HOME/bin/bootstrap/logging.properties" \
     -Djava.security.egd=file:/dev/./urandom \
     -Dfile.encoding=UTF8 \
-    -Dbase-dir="$BASE_DIR" \
     -Drun-mode=run \
     -Drun-file="$BAL_FILE_NAME" \
     -Dbargs="$BARGS" \
