@@ -280,7 +280,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             // Creating resource icon for SVG definitions.
             var resourceIconSVGPattern = def.append("pattern").attr("id", "resourceIcon").attr("width", "100%")
                 .attr("height", "100%");
-            resourceIconSVGPattern.append("image").attr("xlink:href", "images/dmg-resource.svg").attr("x", 5)
+            resourceIconSVGPattern.append("image").attr("xlink:href", "images/resource.svg").attr("x", 5)
                 .attr("y", 5).attr("width", iconSizeSideLength).attr("height", iconSizeSideLength);
 
             // Creating delete icon for SVG definitions.
