@@ -235,6 +235,7 @@ public class BLangModelBuilder {
     }
 
     public void registerConnectorType(String typeName) {
+        //TODO: We might have to do this through a symbol table in the future
         BTypes.addConnectorType(typeName);
     }
 
