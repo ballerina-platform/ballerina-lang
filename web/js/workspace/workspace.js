@@ -30,10 +30,10 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab/t
             throw error;
         }
 
-        this.createNewTab = function createNewTab() {
+        this.createNewTab = function createNewTab(ballerinaRoot) {
             //Showing menu bar
             app.menuBar.show();
-            app.tabController.newTab();
+            app.tabController.newTab({ballerinaRoot: ballerinaRoot});
         };
 
         this.displayInitialTab = function () {
