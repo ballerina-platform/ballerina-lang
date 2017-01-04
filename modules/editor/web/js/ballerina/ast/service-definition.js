@@ -133,8 +133,7 @@ define(['lodash', './node'], function (_, ASTNode) {
     ServiceDefinition.prototype.canBeParentOf = function (node) {
         var BallerinaASTFactory = this.getFactory();
         return BallerinaASTFactory.isResourceDefinition(node)
-            || BallerinaASTFactory.isVariableDeclaration(node)
-            || BallerinaASTFactory.isConnectorDeclaration(node);
+            || BallerinaASTFactory.isVariableDeclaration(node);
     };
 
     return ServiceDefinition;
