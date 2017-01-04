@@ -216,8 +216,12 @@ public class BLangModelBuilder {
         BType paramType = typeQueue.remove();
         Parameter param = new Parameter(paramType, paramNameId);
 
-        // Add the parameter to callableUnitBuilder.
-        currentCUBuilder.addParameter(param);
+        if (currentCUBuilder != null) {
+            // Add the parameter to callableUnitBuilder.
+            currentCUBuilder.addParameter(param);
+        } else {
+            currentCUGroupBuilder.addParameter(param);
+        }
     }
 
     public void createType(String typeName) {
