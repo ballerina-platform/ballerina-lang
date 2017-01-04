@@ -20,7 +20,7 @@ define(['lodash', './callable-definition', './connector-declaration'], function 
     var FunctionDefinition = function (args) {
         this.id = autoGenerateId();
         CallableDefinition.call(this, 'Function');
-        this._functionName = _.get(args, 'functionName') || '';
+        this._functionName = _.get(args, 'functionName') || 'newFunction';
         this._functionArguments = _.get(args, 'functionArgs') || '';
     };
 
