@@ -17,7 +17,9 @@
 */
 package org.wso2.ballerina.core.model.expressions;
 
+import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.NodeVisitor;
+import org.wso2.ballerina.core.model.values.BValue;
 
 /**
  * @since 1.0.0
@@ -31,5 +33,9 @@ public class InstanceCreationExpr extends UnaryExpression {
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    public BValue execute(NodeExecutor executor) {
+        return executor.visit(this);
     }
 }
