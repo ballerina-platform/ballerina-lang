@@ -21,6 +21,7 @@ package org.wso2.ballerina.core.nativeimpl.connectors.http.server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.exception.BallerinaException;
+import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
@@ -37,34 +38,42 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
     private static final Logger log = LoggerFactory.getLogger(HTTPResourceDispatcher.class);
 
     @Override
-    public Resource findResource(Service service, CarbonMessage cMsg, CarbonCallback callback) {
+    public Resource findResource(Service service, CarbonMessage cMsg, CarbonCallback callback, Context balContext) {
 
         String method = (String) cMsg.getProperty(Constants.HTTP_METHOD);
         String subPath = (String) cMsg.getProperty(Constants.SUB_PATH);
 
-        for (Resource resource : service.getResources()) {
-            Annotation subPathAnnotation = resource.getAnnotation(Constants.ANNOTATION_NAME_PATH);
-            String subPathAnnotationVal;
-            if (subPathAnnotation != null) {
-                subPathAnnotationVal = subPathAnnotation.getValue();
-            } else {
-                if (log.isDebugEnabled()) {
-                    log.debug("Path not specified in the Resource, using default sub path");
+        try {
+            for (Resource resource : service.getResources()) {
+                Annotation subPathAnnotation = resource.getAnnotation(Constants.ANNOTATION_NAME_PATH);
+                String subPathAnnotationVal;
+                if (subPathAnnotation != null) {
+                    subPathAnnotationVal = subPathAnnotation.getValue();
+                } else {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Path not specified in the Resource, using default sub path");
+                    }
+                    subPathAnnotationVal = Constants.DEFAULT_SUB_PATH;
                 }
-                subPathAnnotationVal = Constants.DEFAULT_SUB_PATH;
-            }
-            if (subPathAnnotationVal.startsWith("\"")) {
-                // TODO: What is this logic ?
-                subPathAnnotationVal = subPathAnnotationVal.substring(1, subPathAnnotationVal.length() - 1);
-            }
+                if (subPathAnnotationVal.startsWith("\"")) {
+                    // TODO: What is this logic ?
+                    subPathAnnotationVal = subPathAnnotationVal.substring(1, subPathAnnotationVal.length() - 1);
+                }
 
-            if ((subPath.startsWith(subPathAnnotationVal) || Constants.DEFAULT_SUB_PATH.equals(subPathAnnotationVal))
-                    && (resource.getAnnotation(method) != null)) {
-                return resource;
+                if ((subPath.startsWith(subPathAnnotationVal) || 
+                        Constants.DEFAULT_SUB_PATH.equals(subPathAnnotationVal)) && 
+                        (resource.getAnnotation(method) != null)) {
+                    return resource;
+                }
             }
+        } catch (Throwable e) {
+            throw new BallerinaException(e.getMessage(), balContext);
         }
+        
+        // Throw an exception if the resource is not found.
         throw new BallerinaException("No matching Resource found to dispatch the request with Path : " + subPath +
-                                     " , Method : " + method + " in Service : " + service.getSymbolName().getName());
+            " , Method : " + method + " in Service : " + service.getSymbolName().getName(), balContext);
+        
     }
 
     @Override

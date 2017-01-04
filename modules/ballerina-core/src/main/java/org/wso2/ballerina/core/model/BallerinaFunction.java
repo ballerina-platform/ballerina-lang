@@ -41,6 +41,7 @@ public class BallerinaFunction implements Function, Node {
 
     // TODO: Rename this to BFunction after M1.
     private SymbolName functionName;
+    private Position functionLocation;
 
     private Annotation[] annotations;
     private Parameter[] parameters;
@@ -56,6 +57,7 @@ public class BallerinaFunction implements Function, Node {
     private int stackFrameSize;
 
     public BallerinaFunction(SymbolName name,
+                             Position position,
                              Boolean isPublic,
                              Annotation[] annotations,
                              Parameter[] parameters,
@@ -66,6 +68,7 @@ public class BallerinaFunction implements Function, Node {
                              BlockStmt functionBody) {
 
         this.functionName = name;
+        this.functionLocation = position;
         this.publicFunc = isPublic;
         this.annotations = annotations;
         this.parameters = parameters;
@@ -76,8 +79,20 @@ public class BallerinaFunction implements Function, Node {
         this.functionBody = functionBody;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public String getName() {
         return functionName.getName();
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getPackageName() {
+        return functionName.getPkgName();
     }
 
     /**
@@ -178,4 +193,21 @@ public class BallerinaFunction implements Function, Node {
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Position getFunctionLocation() {
+        return functionLocation;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setFunctionLocation(Position location) {
+        this.functionLocation = location;
+    }
+
 }

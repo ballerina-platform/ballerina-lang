@@ -22,6 +22,7 @@ import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.ConnectorDcl;
 import org.wso2.ballerina.core.model.Parameter;
+import org.wso2.ballerina.core.model.Position;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.VariableDcl;
@@ -42,6 +43,7 @@ import java.util.List;
 class CallableUnitBuilder {
 
     private SymbolName name;
+    private Position position;
     private List<Annotation> annotationList = new ArrayList<>();
     private boolean publicFunc;
     private List<Parameter> parameterList = new ArrayList<>();
@@ -90,8 +92,13 @@ class CallableUnitBuilder {
         this.body = body;
     }
 
+    public void setPosition(Position position) {
+        this.position = position;
+    }
+    
     BallerinaFunction buildFunction() {
-        return new BallerinaFunction(name, publicFunc, annotationList.toArray(new Annotation[annotationList.size()]),
+        return new BallerinaFunction(name, position, publicFunc, 
+                annotationList.toArray(new Annotation[annotationList.size()]),
                 parameterList.toArray(new Parameter[parameterList.size()]),
                 rTypesList.toArray(new BType[rTypesList.size()]),
                 connectorDclList.toArray(new ConnectorDcl[connectorDclList.size()]),
@@ -100,7 +107,7 @@ class CallableUnitBuilder {
     }
 
     Resource buildResource() {
-        return new Resource(name, annotationList.toArray(new Annotation[annotationList.size()]),
+        return new Resource(name, position, annotationList.toArray(new Annotation[annotationList.size()]),
                 parameterList.toArray(new Parameter[parameterList.size()]),
                 connectorDclList.toArray(new ConnectorDcl[connectorDclList.size()]),
                 variableDclList.toArray(new VariableDcl[variableDclList.size()]),

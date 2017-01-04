@@ -121,7 +121,7 @@ public class BallerinaAction implements Action, Node {
     public ConnectorDcl[] getConnectorDcls() {
         return connectorDcls;
     }
-
+    
     public BlockStmt getActionBody() {
         return actionBody;
     }
