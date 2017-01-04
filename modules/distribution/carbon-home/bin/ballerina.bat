@@ -1,7 +1,7 @@
 @echo off
 
 REM ---------------------------------------------------------------------------
-REM   Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+REM   Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 REM
 REM   Licensed under the Apache License, Version 2.0 (the "License");
 REM   you may not use this file except in compliance with the License.
@@ -16,9 +16,9 @@ REM   See the License for the specific language governing permissions and
 REM   limitations under the License.
 
 rem ---------------------------------------------------------------------------
-rem Main Script for WSO2 Carbon
+rem Main Script for WSO2 Ballerina
 rem
-rem Environment Variable Prequisites
+rem Environment Variable Prerequisites
 rem
 rem   CARBON_HOME   Home of CARBON installation. If not set I will  try
 rem                   to figure it out.
