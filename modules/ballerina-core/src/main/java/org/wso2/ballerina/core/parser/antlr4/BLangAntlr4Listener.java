@@ -63,8 +63,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitImportDeclaration(BallerinaParser.ImportDeclarationContext ctx) {
-        // TODO Support import ffy.http as fhttp
-        modelBuilder.addImportPackage();
+        modelBuilder.addImportPackage((ctx.Identifier() != null) ? ctx.Identifier().getText() : null);
     }
 
     @Override

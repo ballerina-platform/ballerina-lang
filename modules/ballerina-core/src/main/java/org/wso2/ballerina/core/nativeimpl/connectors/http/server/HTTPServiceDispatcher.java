@@ -64,6 +64,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
             if (uri == null) {
                 throw new BallerinaException("URI not found in the message");
             }
+            uri = uri.split("\\?")[0]; //remove if any query parameters, before matching a service
             if (!uri.startsWith("/")) {
                 uri = "/".concat(uri);
             }
