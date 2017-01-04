@@ -271,8 +271,8 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
                 // Adding Resources
                 var resource_passthrough2 = BallerinaASTFactory.createResourceDefinition();
                 resource_passthrough2.setResourceName('echoResource');
-                resource_passthrough2.setResourceMethod('POST');
-                resource_passthrough2.setResourcePath('/*');
+                resource_passthrough2.addAnnotation("Method", "POST");
+                resource_passthrough2.addAnnotation("Path", "/*");
 
                 //Adding resource argument
                 var resourceArgument_m = BallerinaASTFactory.createResourceArgument();
@@ -372,9 +372,8 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
                 // Adding Resources
                 var resource_passthrough2 = BallerinaASTFactory.createResourceDefinition();
                 resource_passthrough2.setResourceName('passthrough');
-                resource_passthrough2.setResourceMethod('POST');
-                resource_passthrough2.setResourcePath('/stocks');
-
+                resource_passthrough2.addAnnotation("Method", "POST");
+                resource_passthrough2.addAnnotation("Path", "/stocks");
 
                 //Adding resource argument
                 var resourceArgument_m = BallerinaASTFactory.createResourceArgument();
@@ -421,8 +420,8 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
                 // Adding Resources
                 var resource_stocks = BallerinaASTFactory.createResourceDefinition();
                 resource_stocks.setResourceName('stocks');
-                resource_stocks.setResourceMethod('POST');
-                resource_stocks.setResourcePath('/*');
+                resource_stocks.addAnnotation("Method", "POST");
+                resource_stocks.addAnnotation("Path", "/*");
 
                 //Adding resource argument
                 var resourceArgument_m = BallerinaASTFactory.createResourceArgument();

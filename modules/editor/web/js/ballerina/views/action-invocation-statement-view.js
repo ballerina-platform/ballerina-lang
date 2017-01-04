@@ -54,7 +54,7 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
         };
 
         // TODO : Please revisit this method. Needs a refactor
-        ActionInvocationStatementView.prototype.drawActionConnections = function(startPoint,parent){
+        ActionInvocationStatementView.prototype.drawActionConnections = function(startPoint){
             log.info("Drawing connections for http connector actions");
             // TODO : Please alter this logic
             if(!_.isNil(this.getModel().getConnector())) {
@@ -135,7 +135,8 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
             this.processorConnectPoint = processorConnectorPoint;
             var assignmentText = "HTTP:" + this.getModel().getAction();
             // TODO : Please revisit these calculations.
-            var expressionText = D3Utils.textElement(x + width / 2, y + height / 2, assignmentText, assignmentStatementGroup).classed('statement-text', true);
+            var expressionText = D3Utils.textElement(x + width / 2, y + height / 2, assignmentText, assignmentStatementGroup)
+                .classed('statement-text', true);
             this._model.accept(this);
 
             // Creating property pane
@@ -176,20 +177,9 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
                 d3.event.preventDefault();
                 d3.event.stopPropagation();
                 var m = d3.mouse(this);
+                var sourcePoint = self.toGlobalCoordinates(new Point(m[0], m[1]));
 
-                var width = self.getBoundingBox().w();
-                var height = self.getBoundingBox().h();
-                var x = self.getBoundingBox().getLeft();
-                var y = self.getBoundingBox().getTop();
-
-                // TODO : Remove magic numbers
-                var sourcePointX = x + width;
-                var sourcePointY = y + height / 2;
-
-                self.sourcePoint = new Point(sourcePointX, sourcePointY);
-                //setting resource's container as the parent for the message.
-                var parent = self.getDiagramRenderingContext().currentResource.getContainer();
-                self.messageManager.startDrawMessage(self._model, self.sourcePoint, parent);
+                self.messageManager.startDrawMessage(self._model, sourcePoint);
                 self.messageManager.setTypeBeingDragged(true);
             });
 
@@ -266,6 +256,18 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
                 this.backArrowHead = D3Utils.outputTriangle(Math.round(startPoint.x()), Math.round(startPoint.y()) + 8, parent).classed("action-arrow", true);
 
             }
+        };
+
+        /**
+         * Covert a point in user space Coordinates to client viewport Coordinates.
+         * @param {Point} point a point in current user coordinate system
+         */
+        ActionInvocationStatementView.prototype.toGlobalCoordinates = function (point) {
+            var pt = this.processorConnectPoint.node().ownerSVGElement.createSVGPoint();
+            pt.x = point.x();
+            pt.y = point.y();
+            pt = pt.matrixTransform(this.processorConnectPoint.node().getCTM());
+            return new Point(pt.x, pt.y);
         };
 
         return ActionInvocationStatementView;

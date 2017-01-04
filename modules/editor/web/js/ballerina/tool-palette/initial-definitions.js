@@ -48,7 +48,8 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
             id: "function",
             name: "Function",
             meta: {
-                functionName: "main"
+                functionName: "main",
+                functionArgs: "message m"
             },
             icon: "images/tool-icons/main-function.svg",
             title: "Function",

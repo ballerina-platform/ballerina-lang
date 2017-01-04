@@ -26,25 +26,25 @@ define(['require', 'lodash', 'jquery'],
          * @param {Object} args.paneAppendElement - The element to which the pane should be appended to.
          * @param {Object} [args.viewOptions={}] - Configuration values for the view.
          */
-        var createAnnotationPane = function (args) {
+        var createArgumentsPane = function (args) {
             var activatorElement = _.get(args, "activatorElement");
             var model = _.get(args, "model");
             var paneElement = _.get(args, "paneAppendElement");
             var viewOptions = _.get(args, "viewOptions");
 
-            var annotationEditorWrapper = $("<div/>", {
+            var argumentsEditorWrapper = $("<div/>", {
                 class: "main-action-wrapper service-annotation-main-action-wrapper"
             }).appendTo(paneElement);
 
             // Positioning the main wrapper
-            annotationEditorWrapper.css("left",
-                viewOptions.position.left - parseInt(annotationEditorWrapper.css("width"), 10));
-            annotationEditorWrapper.css("top", viewOptions.position.top);
+            argumentsEditorWrapper.css("left",
+                viewOptions.position.left - parseInt(argumentsEditorWrapper.css("width"), 10));
+            argumentsEditorWrapper.css("top", viewOptions.position.top);
 
             // Creating header content.
             var headerWrapper = $("<div/>", {
                 class: "action-content-wrapper-heading service-annotation-wrapper-heading"
-            }).appendTo(annotationEditorWrapper);
+            }).appendTo(argumentsEditorWrapper);
 
             // Creating annotations dropdown.
             var annotationTypeDropDown = $("<select/>").appendTo(headerWrapper);
@@ -87,13 +87,13 @@ define(['require', 'lodash', 'jquery'],
             // Creating the content editing div.
             var annotationsContentWrapper = $("<div/>", {
                 class: "action-content-wrapper-body service-annotation-details-wrapper"
-            }).appendTo(annotationEditorWrapper);
+            }).appendTo(argumentsEditorWrapper);
 
             // Creating the annotation details view.
             _createCurrentAnnotationView(model, annotationsContentWrapper, annotationTypeDropDown, headerWrapper);
 
             // Showing and hiding the annotation pane upton annotation button/activator is clicked.
-            $(activatorElement).click({annotationEditorWrapper: annotationEditorWrapper}, function (event) {
+            $(activatorElement).click({annotationEditorWrapper: argumentsEditorWrapper}, function (event) {
                 if ($(event.currentTarget).data("showing-pane") === "true") {
                     $(event.currentTarget).removeClass("operations-annotation-icon");
                     event.data.annotationEditorWrapper.hide();
@@ -249,9 +249,9 @@ define(['require', 'lodash', 'jquery'],
             });
         }
 
-        var annotationView = {};
+        var argumentsView = {};
 
-        annotationView.createAnnotationPane = createAnnotationPane;
+        argumentsView.createArgumentsPane = createArgumentsPane;
 
-        return annotationView;
+        return argumentsView;
     });
