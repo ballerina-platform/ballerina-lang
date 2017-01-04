@@ -49,6 +49,11 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './st
                     constructedPathAnnotation = '@' + annotation.key.split(":")[0] + '(' +
                         annotation.key.split(":")[1] + ' = "' + annotation.value + '")\n';
                 }
+
+                if (annotation.key == "Method") {
+                    constructedPathAnnotation = "@" + annotation.value + "\n";
+                }
+
                 self.appendSource(constructedPathAnnotation);
             }
         });
