@@ -1098,7 +1098,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             connectorDeclarationView.setParent(this);
 
             this.getBoundingBox().on("height-changed", function (dh) {
-                this.getBottomCenter().move(0, dh);
+                this.getBoundingBox().h( this.getBoundingBox().h() + dh);
             }, connectorDeclarationView);
 
             this.trigger("childConnectorViewAddedEvent", connectorDeclarationView);
