@@ -46,7 +46,6 @@ public class BallerinaAction implements Action, Node {
     private VariableDcl[] variableDcls;
     private Worker[] workers;
     private BType[] returnTypes;
-    private BlockStmt functionBody;
     private BlockStmt actionBody;
 
     private int stackFrameSize;
@@ -58,7 +57,7 @@ public class BallerinaAction implements Action, Node {
                            ConnectorDcl[] connectorDcls,
                            VariableDcl[] variableDcls,
                            Worker[] workers,
-                           BlockStmt functionBody) {
+                           BlockStmt actionBody) {
 
         this.name = name;
         this.annotations = annotations;
@@ -67,7 +66,7 @@ public class BallerinaAction implements Action, Node {
         this.connectorDcls = connectorDcls;
         this.variableDcls = variableDcls;
         this.workers = workers;
-        this.functionBody = functionBody;
+        this.actionBody = actionBody;
     }
 
     @Override
@@ -111,5 +110,13 @@ public class BallerinaAction implements Action, Node {
 
     public ConnectorDcl[] getConnectorDcls() {
         return connectorDcls;
+    }
+
+    public BlockStmt getActionBody() {
+        return actionBody;
+    }
+
+    public void setActionBody(BlockStmt actionBody) {
+        this.actionBody = actionBody;
     }
 }
