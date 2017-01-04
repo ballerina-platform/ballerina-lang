@@ -53,26 +53,26 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser', 'ballerina', 'ba
 
                 var fileOpen = $(
                     "<div class='modal fade' id='openConfigModal' tabindex='-1' role='dialog' aria-tydden='true'>" +
-                    "<div class='modal-dialog' role='document'>" +
+                    "<div class='modal-dialog file-dialog' role='document'>" +
                     "<div class='modal-content'>" +
                     "<div class='modal-header'>" +
                     "<button type='button' class='close' data-dismiss='modal' aria-label='Close'>" +
                     "<span aria-hidden='true'>&times;</span>" +
                     "</button>" +
-                    "<h4 class='modal-title' id='openConfigModalLabel' style='margin-bottom: 15px; margin-left: 20px'>Ballerina Service Open Wizard</h4>" +
+                    "<h4 class='modal-title file-dialog-title'>Ballerina Service Open Wizard</h4>" +
                     "<hr class='style1'>"+
                     "</div>" +
                     "<div class='modal-body'>" +
                     "<div class='container-fluid'>" +
                     "<form class='form-horizontal'>" +
                     "<div class='form-group'>" +
-                    "<label for='location' class='col-sm-2' style='margin-left: 20px'>File Name :</label>" +
+                    "<label for='location' class='col-sm-2 file-dialog-label'>File Name :</label>" +
                     "<div class='col-sm-9'>" +
-                    "<input type='text' class='save-form-control' id='location' placeholder='eg: /home/user/wso2-integration-server/ballerina-configs/sample.bal'>" +
+                    "<input type='text' class='file-dialog-form-control' id='location' placeholder='eg: /home/user/wso2-integration-server/ballerina-configs/sample.bal'>" +
                     "</div>" +
                     "</div>" +
                     "<div class='form-group'>" +
-                    "<div class='save-form-scrollable-block'>" +
+                    "<div class='file-dialog-form-scrollable-block'>" +
                     "<div id='fileTree'>" +
                     "</div>" +
                     "<div id='file-browser-error' class='alert alert-danger' style='display: none;'>" +
@@ -80,10 +80,11 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser', 'ballerina', 'ba
                     "</div>" +
                     "</div>" +
                     "<div class='form-group'>" +
-                    "<div class='save-form-btn'>" +
-                    "<button id='openButton' type='button' class='btn btn-primary' style='margin-right: 8px'>open" +
+                    "<div class='file-dialog-form-btn'>" +
+                    "<button id='openButton' type='button' class='btn btn-file-dialog'>open" +
                     "</button>" +
-                    "<button type='button' class='btn btn-primary' data-dismiss='modal'>cancel</button>" +
+                    "<div class='divider'/>" +
+                    "<button type='button' class='btn btn-file-dialog' data-dismiss='modal'>cancel</button>" +
                     "</div>" +
                     "</div>" +
                     "</form>" +
