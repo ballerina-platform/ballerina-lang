@@ -719,7 +719,6 @@ button.variable-list {
 
 .service-annotation-main-action-wrapper {
     width: 435px;
-    right: 0px;
     overflow: auto;
     display: none;
     background: #fff;
@@ -870,6 +869,7 @@ button.variable-list {
 
 .hoverable {
     opacity: 0.4;
+    cursor: pointer;
 }
 
 .hoverable:hover {
@@ -888,7 +888,7 @@ button.variable-list {
 
 .canvas-operations-wrapper {
     float: right;
-    margin-right: 10px;
+    margin-right: 1px;
 }
 
 .annotation-icon {

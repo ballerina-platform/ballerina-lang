@@ -194,20 +194,19 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
                 }
             };
 
+            VariablesView.createVariablePane(variableProperties);
+
             var annotationProperties = {
                 model: this._model,
                 activatorElement: this.getAnnotationIcon(),
                 paneAppendElement: this.getChildContainer().node().ownerSVGElement.parentElement,
                 viewOptions: {
                     position: {
-                        x: parseInt(this.getChildContainer().attr("x")) + 17,
-                        y: parseInt(this.getChildContainer().attr("y")) + 6
-                    },
-                    width: parseInt(this.getChildContainer().node().parentElement.getBoundingClientRect().width) - 36
+                        left: parseInt(this.getChildContainer().node().parentElement.getBoundingClientRect().width),
+                        top: 0
+                    }
                 }
             };
-
-            VariablesView.createVariablePane(variableProperties);
 
             AnnotationView.createAnnotationPane(annotationProperties);
         };

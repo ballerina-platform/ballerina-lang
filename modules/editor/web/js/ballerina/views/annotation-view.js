@@ -36,6 +36,11 @@ define(['require', 'lodash', 'jquery'],
                 class: "main-action-wrapper service-annotation-main-action-wrapper"
             }).appendTo(paneElement);
 
+            // Positioning the main wrapper
+            annotationEditorWrapper.css("left",
+                viewOptions.position.left - parseInt(annotationEditorWrapper.css("width"), 10));
+            annotationEditorWrapper.css("top", viewOptions.position.top);
+
             // Creating header content.
             var headerWrapper = $("<div/>", {
                 class: "action-content-wrapper-heading service-annotation-wrapper-heading"
@@ -87,15 +92,16 @@ define(['require', 'lodash', 'jquery'],
             // Creating the annotation details view.
             _createCurrentAnnotationView(model, annotationsContentWrapper, annotationTypeDropDown, headerWrapper);
 
-            $(activatorElement).click(function () {
-                if ($(this).data("showing") === "true") {
-                    $(this).removeClass("operations-annotation-icon");
-                    annotationEditorWrapper.hide();
-                    $(this).data("showing", "false");
+            // Showing and hiding the annotation pane upton annotation button/activator is clicked.
+            $(activatorElement).click({annotationEditorWrapper: annotationEditorWrapper}, function (event) {
+                if ($(event.currentTarget).data("showing-pane") === "true") {
+                    $(event.currentTarget).removeClass("operations-annotation-icon");
+                    event.data.annotationEditorWrapper.hide();
+                    $(event.currentTarget).data("showing-pane", "false");
                 } else {
-                    $(this).addClass("operations-annotation-icon");
-                    annotationEditorWrapper.show();
-                    $(this).data("showing", "true");
+                    $(event.currentTarget).addClass("operations-annotation-icon");
+                    event.data.annotationEditorWrapper.show();
+                    $(event.currentTarget).data("showing-pane", "true");
                 }
             });
         };
