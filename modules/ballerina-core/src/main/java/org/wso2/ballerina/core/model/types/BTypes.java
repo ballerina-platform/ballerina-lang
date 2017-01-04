@@ -19,7 +19,6 @@ package org.wso2.ballerina.core.model.types;
 
 import static org.wso2.ballerina.core.model.types.TypeConstants.ARRAY_TNAME;
 import static org.wso2.ballerina.core.model.types.TypeConstants.BOOLEAN_TNAME;
-import static org.wso2.ballerina.core.model.types.TypeConstants.CONNECTOR_TNAME;
 import static org.wso2.ballerina.core.model.types.TypeConstants.DOUBLE_TNAME;
 import static org.wso2.ballerina.core.model.types.TypeConstants.FLOAT_TNAME;
 import static org.wso2.ballerina.core.model.types.TypeConstants.INT_TNAME;
@@ -45,7 +44,6 @@ public class BTypes {
     public static final BType XML_TYPE = new BXMLType(XML_TNAME);
     public static final BType JSON_TYPE = new BJSONType(JSON_TNAME);
     public static final BType MESSAGE_TYPE = new BMessageType(MESSAGE_TNAME);
-    public static final BType CONNECTOR_TYPE = new BConnectorType(CONNECTOR_TNAME);
 
     private BTypes() {
     }
@@ -59,6 +57,10 @@ public class BTypes {
         }
 
         return type;
+    }
+
+    public static void addConnectorType(String connectorName) {
+        new BConnectorType(connectorName);
     }
 
     public static boolean isValueType(BType type) {
