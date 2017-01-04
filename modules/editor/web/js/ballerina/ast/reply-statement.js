@@ -42,5 +42,14 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
         return this._message;
     };
 
+    /**
+     * initialize from json
+     * @param jsonNode
+     */
+    ReplyStatement.prototype.initFromJson = function (jsonNode) {
+        // this.message = jsonNode.annotate;
+        // Object.getPrototypeOf(this.constructor.prototype).initFromJson.call(this, jsonNode, 0);
+    };
+
     return ReplyStatement;
 });
