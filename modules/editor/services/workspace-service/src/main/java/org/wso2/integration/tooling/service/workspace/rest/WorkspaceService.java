@@ -29,6 +29,7 @@ import javax.ws.rs.core.Response;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
@@ -46,6 +47,10 @@ import java.util.regex.Pattern;
 public class WorkspaceService {
 
     private static final Logger logger = LoggerFactory.getLogger(WorkspaceService.class);
+    private static final String FILE_SEPARATOR = "file.separator";
+    private static final String STATUS = "status";
+    private static final String SUCCESS = "success";
+    private static final String CONTENT = "content";
 
     @Inject
     private Workspace workspace;
@@ -96,48 +101,55 @@ public class WorkspaceService {
 		}
 	}
 
-    @POST
-    @Path("/write")
-    @Produces("application/json")
-    public Response write(String payload) {
-        try {
-            String location="" ;
-            String config;
-            Matcher locationMatcher = Pattern.compile("location=(.*?)&").matcher(payload);
-            while (locationMatcher.find()) {
-                location = locationMatcher.group(1);
-            }
-            config = payload.split("config=")[1];
-            byte[] base64Config = Base64.getDecoder().decode(config);
-            byte[] base64Location = Base64.getDecoder().decode(location);
-            Files.write(Paths.get((new String(base64Location))), base64Config);
-            JsonObject entity = new JsonObject();
-            entity.addProperty("status", "success");
-            return Response.status(Response.Status.OK)
-                    .entity(entity)
-                    .header("Access-Control-Allow-Origin", '*')
-                    .type(MediaType.APPLICATION_JSON)
-                    .build();
-        } catch (Exception e) {
-            logger.error("/write service error", e);
-            return getErrorResponse(e);
-        }
-    }
-    
+	@POST
+	@Path("/write")
+	@Produces("application/json")
+	public Response write(String payload) {
+		try {
+			String location = "";
+			String configName = "";
+			String config;
+			Matcher locationMatcher = Pattern.compile("location=(.*?)&configName").matcher(payload);
+			while (locationMatcher.find()) {
+				location = locationMatcher.group(1);
+			}
+			Matcher configNameMatcher = Pattern.compile("configName=(.*?)&").matcher(payload);
+			while (configNameMatcher.find()) {
+				configName = configNameMatcher.group(1);
+			}
+			config = payload.split("config=")[1];
+			byte[] base64Config = Base64.getDecoder().decode(config);
+			byte[] base64ConfigName = Base64.getDecoder().decode(configName);
+			byte[] base64Location = Base64.getDecoder().decode(location);
+			Files.write(
+					Paths.get(new String(base64Location) + System.getProperty(FILE_SEPARATOR)
+							+ new String(base64ConfigName)), base64Config);
+			JsonObject entity = new JsonObject();
+			entity.addProperty(STATUS, SUCCESS);
+			return Response.status(Response.Status.OK).entity(entity).header("Access-Control-Allow-Origin", '*')
+					.type(MediaType.APPLICATION_JSON).build();
+		} catch (Exception e) {
+			logger.error("/write service error", e);
+			return getErrorResponse(e);
+		}
+	}
+
 	@POST
 	@Path("/read")
 	@Produces("application/json")
 	public Response read(String path) {
 		StringBuilder fileContentBuilder = new StringBuilder();
+		InputStream fileContent = null;
+		BufferedReader br = null;
 		try {
-			InputStream fileContent = new FileInputStream(path);
-			BufferedReader br = new BufferedReader(new InputStreamReader(fileContent));
+			fileContent = new FileInputStream(path);
+			br = new BufferedReader(new InputStreamReader(fileContent));
 			String line = null;
 			while ((line = br.readLine()) != null) {
 				fileContentBuilder.append(line);
 			}
 			JsonObject content = new JsonObject();
-			content.addProperty("content", fileContentBuilder.toString());
+			content.addProperty(CONTENT, fileContentBuilder.toString());
 			br.close();
 			return Response.status(Response.Status.OK).entity(content).header("Access-Control-Allow-Origin", '*')
 					.type(MediaType.APPLICATION_JSON).build();
@@ -145,6 +157,13 @@ public class WorkspaceService {
 		} catch (Exception e) {
 			logger.error("/read service error", e);
 			return getErrorResponse(e);
+		} finally {
+			try {
+				fileContent.close();
+				br.close();
+			} catch (IOException e) {
+				logger.error("/read service error", e);
+			}
 		}
 
 	}
