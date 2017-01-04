@@ -40,26 +40,26 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
 
                 var fileSave = $(
                     "<div class='modal fade' id='saveConfigModal' tabindex='-1' role='dialog' aria-tydden='true'>" +
-                    "<div class='modal-dialog' role='document'>" +
+                    "<div class='modal-dialog file-dialog' role='document'>" +
                     "<div class='modal-content'>" +
                     "<div class='modal-header'>" +
                     "<button type='button' class='close' data-dismiss='modal' aria-label='Close'>" +
                     "<span aria-hidden='true'>&times;</span>" +
                     "</button>" +
-                    "<h4 class='modal-title' id='newConfigModalLabel' style='margin-bottom: 15px; margin-left: 20px'>Ballerina Service Save Wizard</h4>" +
+                    "<h4 class='modal-title file-dialog-title' id='newConfigModalLabel'>Ballerina Service Save Wizard</h4>" +
                     "<hr class='style1'>"+
                     "</div>" +
                     "<div class='modal-body'>" +
                     "<div class='container-fluid'>" +
                     "<form class='form-horizontal'>" +
                     "<div class='form-group'>" +
-                    "<label for='location' class='col-sm-2' style='margin-left: 20px'>Location :</label>" +
+                    "<label for='location' class='col-sm-2 file-dialog-label'>Location :</label>" +
                     "<div class='col-sm-9'>" +
-                    "<input type='text' class='save-form-control' id='location' placeholder='eg: /home/user/wso2-integration-server/ballerina-configs'>" +
+                    "<input type='text' class='file-dialog-form-control' id='location' placeholder='eg: /home/user/wso2-integration-server/ballerina-configs'>" +
                     "</div>" +
                     "</div>" +
                     "<div class='form-group'>" +
-                    "<div class='save-form-scrollable-block'>" +
+                    "<div class='file-dialog-form-scrollable-block'>" +
                     "<div id='fileTree'>" +
                     "</div>" +
                     "<div id='file-browser-error' class='alert alert-danger' style='display: none;'>" +
@@ -67,16 +67,17 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
                     "</div>" +
                     "</div>" +
                     "<div class='form-group'>" +
-                    "<label for='configName' class='col-sm-2' style='margin-left: 20px'>File Name :</label>" +
+                    "<label for='configName' class='col-sm-2 file-dialog-label'>File Name :</label>" +
                     "<div class='col-sm-9'>" +
-                    "<input class='save-form-control' id='configName' placeholder='eg: sample.bal'>" +
+                    "<input class='file-dialog-form-control' id='configName' placeholder='eg: sample.bal'>" +
                     "</div>" +
                     "</div>" +
                     "<div class='form-group'>" +
-                    "<div class='save-form-btn'>" +
-                    "<button id='saveButton' type='button' class='btn btn-primary' style='margin-right: 8px'>save" +
+                    "<div class='file-dialog-form-btn'>" +
+                    "<button id='saveButton' type='button' class='btn btn-file-dialog'>save" +
                     "</button>" +
-                    "<button type='cancelButton' class='btn btn-primary' data-dismiss='modal'>cancel</button>" +
+                    "<div class='divider'/>" +
+                    "<button type='cancelButton' class='btn btn-file-dialog' data-dismiss='modal'>cancel</button>" +
                     "</div>" +
                     "</div>" +
                     "</form>" +
