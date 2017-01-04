@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'backbone', 'lodash','ballerina'], function ( require, Backbone, _, Service) {
+define(['require', 'backbone', 'lodash','ballerina'], function ( require, Backbone, _, Ballerina) {
 
     var RegularWelcomePage = Backbone.View.extend(
         /** @lends RegularWelcomePage.prototype */
@@ -136,7 +136,7 @@ define(['require', 'backbone', 'lodash','ballerina'], function ( require, Backbo
                 templatePreviewSection.append(nextControl);
 
 ///TODO: Need to iterate file list when implementation is complete
-                for (var i = 0; i < 4; i++) {
+                for (var i = 0; i < 2; i++) {
                     if (i == 0) {
                         var config =
                         {
@@ -153,6 +153,8 @@ define(['require', 'backbone', 'lodash','ballerina'], function ( require, Backbo
                         }
                     }
                     //FIXME: fix previews
+                    var servicePreview = Ballerina.viewsModule.ServicePreviewView(config);
+
                     //var servicePreview = new Service.Views.ServicePreview(config);
                     //servicePreview.render();
 
