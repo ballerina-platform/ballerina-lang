@@ -98,14 +98,6 @@
             </excludes>
             <fileMode>644</fileMode>
         </fileSet>
-        <fileSet>
-            <directory>carbon-home/deployment/ballerina-files</directory>
-            <outputDirectory>deployment/ballerina-files</outputDirectory>
-            <fileMode>644</fileMode>
-            <excludes>
-                <exclude>empty.txt</exclude>
-            </excludes>
-        </fileSet>
     </fileSets>
 
     <files>
