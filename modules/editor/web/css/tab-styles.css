@@ -3,6 +3,16 @@
     margin-bottom: 5px;
 }
 
+button.close {
+    -webkit-appearance: none;
+    padding: 0;
+    cursor: pointer;
+    background: 0 0;
+    border: 0;
+    text-shadow: 0 0 0;
+    font-weight: 100;
+}
+
 .bottom-right-controls-container {
     position: absolute;
     bottom: 150px;
@@ -107,8 +117,10 @@
 
 
 .nav-tabs-bar > li {
-    background-color: #717171;
+    background-color: #333333;
     width: 120px;
+    color: white;
+    font-weight: 100;
 }
 
 .nav-tabs {
@@ -139,7 +151,10 @@
     border: none;
 }
 
-
+.nav-tabs-bar >li>a:focus, .nav-tabs-bar >li>a:hover {
+    text-decoration: none;
+    background-color: #505050;
+}
 /*
 .tab-content.tab-content-default {
     border: 2px solid #c7c7c7;
