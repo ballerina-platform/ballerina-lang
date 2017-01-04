@@ -127,8 +127,8 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
             _.set(statementContainerOpts, 'topCenter', this.getTopCenter().clone().move(0, _.get(this._viewOptions, 'contentOffset.top')));
             var height = _.get(this._viewOptions, 'height') -
                 _.get(this._viewOptions, 'contentOffset.top') - _.get(this._viewOptions, 'contentOffset.bottom');
-            _.set(statementContainerOpts, 'bottomCenter', this.getTopCenter().clone().move(0, height));
-            _.set(statementContainerOpts, 'width', 120);
+            _.set(statementContainerOpts, 'bottomCenter', this.getTopCenter().clone().move(0,  _.get(this._viewOptions, 'height')));
+            _.set(statementContainerOpts, 'width', _.get(this._viewOptions, 'width'));
             _.set(statementContainerOpts, 'offset', {top: 40, bottom: 40});
             _.set(statementContainerOpts, 'parent', this);
             _.set(statementContainerOpts, 'container', this._statementContainerGroup.node());
