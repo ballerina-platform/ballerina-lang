@@ -1,30 +1,26 @@
 package org.wso2.ballerina.sample;
 
-import ballerina.lang.json;
 import ballerina.lang.message;
 import ballerina.lang.string;
 import ballerina.lang.system;
+import ballerina.lang.xml;
 import ballerina.net.http;
 import ballerina.net.uri;
 import ballerina.util;
 
-@BasePath ("/tweet")
-service TweetOpenPR {
+@BasePath ("/medium")
+service TweetMediumFeed {
 
     @GET
-    @Path("/pr")
-    resource getOpenPR  (message m) {
+    @Path("/feed")
+    resource getMediumFeed  (message m) {
 
-        http:HTTPConnector gitHubEP = new http:HTTPConnector("https://api.github.com", 100);
+        http:HTTPConnector mediumEP = new http:HTTPConnector("https://medium.com", 100);
         http:HTTPConnector tweeterEP = new http:HTTPConnector("https://api.twitter.com", 100);
 
-        string repo;
-        string repoPRpath;
-        message gitHubResponse;
-        json gitHubJsonResponse;
-        int noOfPRs;
-        string noOfPRstr;
-        string textMsg;
+        message mediumResponse;
+        xml feedXML;
+        string title;
 
         string consumerKey;
         string consumerSecret;
@@ -39,38 +35,24 @@ service TweetOpenPR {
         accessToken = message:getHeader(m, "accessToken");
         accessTokenSecret = message:getHeader(m, "accessTokenSecret");
 
+        mediumResponse = http:HTTPConnector.get(mediumEP, "/feed/@wso2", m);
+        feedXML = message:getXmlPayload(mediumResponse);
+        title = xml:getString(feedXML, "/rss/channel/item[1]/title/text()");
 
-        repo = uri:getQueryParam(m, "repo");
-        if (repo == "") {
-            repo = "wso2-synapse";
-        }
+        system:println(title);
 
-        repoPRpath = "/repos/wso2/"+ repo +"/pulls";
-
-        gitHubResponse = http:HTTPConnector.get(gitHubEP, repoPRpath, m);
-
-        gitHubJsonResponse = message:getJsonPayload(gitHubResponse);
-        noOfPRs = json:getInt(gitHubJsonResponse, "$.length()");
-
-        noOfPRstr = string:valueOf(noOfPRs);
-
-        textMsg = "Number of pending pull requests in " + repo + " is "+ noOfPRstr;
-
-        system:println(textMsg);
-
-        oauthHeader = constructOAuthHeader(consumerKey, consumerSecret, accessToken, accessTokenSecret, textMsg);
+        oauthHeader = constructOAuthHeader(consumerKey, consumerSecret, accessToken, accessTokenSecret, title);
 
         system:println(oauthHeader);
 
         message:setHeader(m, "Authorization", oauthHeader);
 
-        tweetPath = "/1.1/statuses/update.json?status="+uri:encode(textMsg);
+        tweetPath = "/1.1/statuses/update.json?status="+uri:encode(title);
 
         response = http:HTTPConnector.post(tweeterEP, tweetPath, m);
 
         reply response;
     }
-
 }
 
 function constructOAuthHeader(string consumerKey, string consumerSecret,
