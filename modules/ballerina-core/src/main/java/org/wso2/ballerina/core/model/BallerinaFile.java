@@ -236,7 +236,9 @@ public class BallerinaFile implements Node {
         }
 
         public BallerinaFile build() {
-            importPkgList.add(new ImportPackage(packageName)); // Import self
+            if (packageName != null) {
+                importPkgList.add(new ImportPackage(packageName)); // Import self
+            }
 
             return new BallerinaFile(
                     packageName,
