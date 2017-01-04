@@ -149,9 +149,10 @@ define(['lodash','d3', 'jquery', './ballerina-view', './../ast/connector-declara
 
             this.setStyles(this._middleRectangle);
 
-            // adjust drop zone height on bottom edge moved
-            this.getBoundingBox().on('bottom-edge-moved', function(offset){
+            // adjust drop zone height change
+            this.getBoundingBox().on('height-changed', function(offset){
                 self._middleRectangle.attr('height', parseFloat(self._middleRectangle.attr('height')) + offset);
+                self.getBottomCenter().move(0, offset);
             });
             var dropZoneOptions = {
                 dropZone: this._middleRectangle,
