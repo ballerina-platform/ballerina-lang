@@ -179,7 +179,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
                 self._model.trigger("childVisitedEvent", child);
             });
 
-            var variableButton = VariablesView.createVariableButton(this.getChildContainer().node(), 4, 7);
+            var variableButton = VariablesView.createVariableButton(this.getChildContainer().node(), 14, 10);
 
             var variableProperties = {
                 model: this._model,
