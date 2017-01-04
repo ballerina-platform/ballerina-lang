@@ -355,11 +355,9 @@ text-anchor: start;
     stroke: black;
 }
 
-
 .connector-life-line line{
     stroke: #000000;
 }
-
 
 .start-action{
     stroke: #000000;
@@ -410,6 +408,10 @@ text-anchor: start;
     cursor: pointer;
     opacity: 0.4;
     fill: url(#annotationBlackIcon);
+}
+
+.headingAnnotationBlackIcon:hover {
+    opacity: 1;
 }
 
 .headingAnnotationIcon:hover {
