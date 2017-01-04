@@ -59,4 +59,9 @@ public final class BFloat extends BValueType {
     public String stringValue() {
         return Float.toString(value);
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        return ((BFloat) obj).floatValue() == value;
+    }
 }
