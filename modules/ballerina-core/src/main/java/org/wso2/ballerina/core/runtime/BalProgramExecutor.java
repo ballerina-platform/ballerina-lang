@@ -106,7 +106,9 @@ public class BalProgramExecutor {
             bContext.getControlStack().pushFrame(currentStackFrame);
 
             BLangExecutor executor = new BLangExecutor(bContext);
-            mainFunction.getFunctionBody().execute(executor);
+            funcIExpr.execute(executor);
+
+            bContext.getControlStack().popFrame();
         } catch (BallerinaException ex) {
             log.error(ex.getMessage());
         }
