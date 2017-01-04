@@ -266,7 +266,7 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
                 //service definition
                 var serviceDefinition_passthroughService2 = BallerinaASTFactory.createServiceDefinition();
                 serviceDefinition_passthroughService2.setServiceName("EchoService");
-                serviceDefinition_passthroughService2.setBasePath("/");
+                serviceDefinition_passthroughService2.addAnnotation("BasePath", "/");
                 ballerinaAstRoot1.addChild(serviceDefinition_passthroughService2);
                 // Adding Resources
                 var resource_passthrough2 = BallerinaASTFactory.createResourceDefinition();
@@ -367,7 +367,7 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
                 //service definition
                 var serviceDefinition_passthroughService2 = BallerinaASTFactory.createServiceDefinition();
                 serviceDefinition_passthroughService2.setServiceName("PassthroughService");
-                serviceDefinition_passthroughService2.setBasePath("/passthrough");
+                serviceDefinition_passthroughService2.addAnnotation("BasePath", "/passthrough");
                 ballerinaAstRoot1.addChild(serviceDefinition_passthroughService2);
                 // Adding Resources
                 var resource_passthrough2 = BallerinaASTFactory.createResourceDefinition();
@@ -416,7 +416,7 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
                 //service definition
                 var serviceDefinition_NYSEStockQuote = BallerinaASTFactory.createServiceDefinition();
                 serviceDefinition_NYSEStockQuote.setServiceName("NYSEStockQuote");
-                serviceDefinition_NYSEStockQuote.setBasePath("/NYSEStocks");
+                serviceDefinition_NYSEStockQuote.addAnnotation("BasePath", "/NYSEStocks");
                 ballerinaAstRoot1.addChild(serviceDefinition_NYSEStockQuote);
                 // Adding Resources
                 var resource_stocks = BallerinaASTFactory.createResourceDefinition();
