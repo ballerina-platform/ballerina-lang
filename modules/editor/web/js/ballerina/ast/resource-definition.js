@@ -26,6 +26,26 @@ define(['lodash', 'log', './node', './worker-declaration', './connector-declarat
         this._statements = _.get(args, 'statements', []);
         this._resourceArguments = _.get(args, 'resourceArguments', '');
         this._resourceName = _.get(args, 'resourceName', 'Resource');
+        this._annotations = _.get(args, 'annotations', []);
+
+        // Adding available annotations and their default values.
+        if (_.isNil(_.find(this._annotations, function (annotation) {
+                return annotation.key == "Method";
+            }))) {
+            this._annotations.push({
+                key: "Method",
+                value: "GET"
+            });
+        }
+
+        if (_.isNil(_.find(this._annotations, function (annotation) {
+                return annotation.key == "Path";
+            }))) {
+            this._annotations.push({
+                key: "Path",
+                value: ""
+            });
+        }
 
         // TODO: All the types should be referred from the global constants
         ASTNode.call(this, 'Resource', 'resource {', '}');
@@ -120,6 +140,10 @@ define(['lodash', 'log', './node', './worker-declaration', './connector-declarat
         return this._resourceName;
     };
 
+    ResourceDefinition.prototype.getAnnotations = function () {
+        return this._annotations;
+    };
+
     ResourceDefinition.prototype.resourceParent = function (parent) {
         if (!_.isUndefined(parent)) {
             this.parent = parent;
@@ -138,6 +162,26 @@ define(['lodash', 'log', './node', './worker-declaration', './connector-declarat
             Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, 0);
         } else {
             Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, index);
+        }
+    };
+    /**
+     * Adding/Updating an annotation.
+     * @param key - Annotation key
+     * @param value - Value for the annotation.
+     */
+    ResourceDefinition.prototype.addAnnotation = function (key, value) {
+        var existingAnnotation = _.find(this._annotations, function (annotation) {
+            return annotation.key == key;
+        });
+        if (_.isNil(existingAnnotation)) {
+            // If such annotation does not exists, then add a new one.
+            this._annotations.push({
+                key: key,
+                value: value
+            });
+        } else {
+            // Updating existing annotation.
+            existingAnnotation.value = value;
         }
     };
 
