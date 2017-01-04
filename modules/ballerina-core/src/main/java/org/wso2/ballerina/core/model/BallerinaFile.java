@@ -77,7 +77,7 @@ public class BallerinaFile implements Node {
         this.actionIExprList = actionInvocationExpr;
         this.consts = consts;
 
-        packageScope = new SymScope();
+        packageScope = new SymScope(SymScope.Name.PACKAGE);
     }
 
     /**
