@@ -16,7 +16,7 @@
  * under the License.
  */
 define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
-    function (require, log, $, Backbone, CommandManager, Service) {
+    function (require, log, $, Backbone, CommandManager, Ballerina) {
 
         var FirstLaunchWelcomePage = Backbone.View.extend({
             initialize: function (options) {
@@ -138,28 +138,68 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
                 samplesDiv.append(nextControl);
                 samplesDiv.append(prevControl);
 
-                //TODO: Need to iterate file list when implementation is complete
-                for (var i = 0; i < 4; i++) {
-                    if (i == 0) {
-                        var config =
-                        {
-                            "sampleName": "SampleConfiguration.bal",
-                            "parentContainer": "#innerSamples",
-                            "firstItem": true
-                        }
-                    }
-                    else {
-                        var config =
-                        {
-                            "sampleName": "SampleConfiguration.bal",
-                            "parentContainer": "#innerSamples"
-                        }
-                    }
-                    // FIXME: fix previews
-                    //var servicePreview = new Service.Views.ServicePreview(config);
-                    //servicePreview.render();
 
-                }
+                var command = this._options.application.commandManager;
+                var browserStorage = this._options.application.browserStorage;
+                var echoSampleAST = this.generateEchoSampleAST();
+                var helloFunctionSampleAST = this.generateHelloFunctionSampleAST();
+                var passthroughSampleAST = this.generatePassthroughSampleAST();
+                var config;
+                var servicePreview;
+
+                // Rendering echo sample preview
+                config =
+                {
+                    "sampleName": "echo.bal",
+                    "parentContainer": "#innerSamples",
+                    "firstItem": true,
+                    "clickEventCallback": function () {
+                        command.dispatch("create-new-tab", echoSampleAST);
+                        browserStorage.put("pref:passedFirstLaunch", true);
+                    }
+                };
+                servicePreview = new Ballerina.views.ServicePreviewView(config);
+                servicePreview.render();
+
+                // Rendering hello function sample preview
+                config =
+                {
+                    "sampleName": "helloFunction.bal",
+                    "parentContainer": "#innerSamples",
+                    "clickEventCallback": function () {
+                        command.dispatch("create-new-tab", helloFunctionSampleAST);
+                        browserStorage.put("pref:passedFirstLaunch", true);
+                    }
+                };
+                servicePreview = new Ballerina.views.ServicePreviewView(config);
+                servicePreview.render();
+
+                // Rendering passthrough sample preview
+                config =
+                {
+                    "sampleName": "passthrough.bal",
+                    "parentContainer": "#innerSamples",
+                    "clickEventCallback": function () {
+                        command.dispatch("create-new-tab", passthroughSampleAST);
+                        browserStorage.put("pref:passedFirstLaunch", true);
+                    }
+                };
+                servicePreview = new Ballerina.views.ServicePreviewView(config);
+                servicePreview.render();
+
+                // Rendering CBR sample preview
+                config =
+                {
+                    "sampleName": "contentBasedRouter.bal",
+                    "parentContainer": "#innerSamples",
+                    "clickEventCallback": function () {
+                        command.dispatch("create-new-tab", passthroughSampleAST);
+                        browserStorage.put("pref:passedFirstLaunch", true);
+                    }
+                };
+                servicePreview = new Ballerina.views.ServicePreviewView(config);
+                servicePreview.render();
+
                 // class added after rendering to fix issue in firefox
                 carouselDiv.addClass("carousel-inner");
                 // initialise carousel
@@ -196,7 +236,228 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
                 this._tab.on('removed', function(){
                     browserStorage.put("pref:passedFirstLaunch", true);
                 });
-            }
+            },
+
+            
+            generateEchoSampleAST : function () {
+                var BallerinaASTFactory = Ballerina.ast.BallerinaASTFactory;
+                var ballerinaAstRoot1 = BallerinaASTFactory.createBallerinaAstRoot();
+
+                //package definition
+                var packageDefinition = BallerinaASTFactory.createPackageDefinition();
+                packageDefinition.setPackageName("samples.echo");
+                ballerinaAstRoot1.addChild(packageDefinition);
+                ballerinaAstRoot1.setPackageDefinition(packageDefinition);
+
+                //import declarations
+                var importDeclaration_langMessage = BallerinaASTFactory.createImportDeclaration();
+                importDeclaration_langMessage.setPackageName("ballerina.lang.message");
+                importDeclaration_langMessage.setParent(ballerinaAstRoot1);
+                var importDeclaration_netHttp = BallerinaASTFactory.createImportDeclaration();
+                importDeclaration_netHttp.setPackageName("ballerina.net.http");
+                importDeclaration_netHttp.setParent(ballerinaAstRoot1);
+                var importDeclarations = [];
+                //importDeclarations.push(importDeclaration_langMessage);
+                importDeclarations.push(importDeclaration_netHttp);
+                ballerinaAstRoot1.setImportDeclarations(importDeclarations);
+                //ballerinaAstRoot1.addChild(importDeclaration_langMessage);
+                ballerinaAstRoot1.addChild(importDeclaration_netHttp);
+
+                //service definition
+                var serviceDefinition_passthroughService2 = BallerinaASTFactory.createServiceDefinition();
+                serviceDefinition_passthroughService2.setServiceName("EchoService");
+                serviceDefinition_passthroughService2.setBasePath("/");
+                ballerinaAstRoot1.addChild(serviceDefinition_passthroughService2);
+                // Adding Resources
+                var resource_passthrough2 = BallerinaASTFactory.createResourceDefinition();
+                resource_passthrough2.setResourceName('echoResource');
+                resource_passthrough2.setResourceMethod('POST');
+                resource_passthrough2.setResourcePath('/*');
+
+                //Adding resource argument
+                var resourceArgument_m = BallerinaASTFactory.createResourceArgument();
+                resourceArgument_m.setType("message");
+                resourceArgument_m.setIdentifier("m");
+
+                var resourceArguments = [];
+                resourceArguments.push(resourceArgument_m);
+                resource_passthrough2.setResourceArguments("message m");
+
+                var functionInvocation = BallerinaASTFactory.createFunctionInvocationStatement();
+                functionInvocation.setPackageName("http");
+                functionInvocation.setFunctionName("convertToResponse");
+                functionInvocation.setParams("m");
+                resource_passthrough2.addChild(functionInvocation);
+
+                //Adding reply statement
+                var statement_reply = BallerinaASTFactory.createReplyStatement();
+                statement_reply.setReplyMessage("m");
+                resource_passthrough2.addChild(statement_reply);
+
+                serviceDefinition_passthroughService2.addChild(resource_passthrough2);
+
+                return ballerinaAstRoot1;
+            },
+
+            generateHelloFunctionSampleAST : function () {
+                var BallerinaASTFactory = Ballerina.ast.BallerinaASTFactory;
+                var ballerinaAstRoot1 = BallerinaASTFactory.createBallerinaAstRoot();
+
+                //package definition
+                var packageDefinition = BallerinaASTFactory.createPackageDefinition();
+                packageDefinition.setPackageName("samples.echo");
+                ballerinaAstRoot1.addChild(packageDefinition);
+                ballerinaAstRoot1.setPackageDefinition(packageDefinition);
+
+                //import declarations
+                var importDeclaration_langSystem = BallerinaASTFactory.createImportDeclaration();
+                importDeclaration_langSystem.setPackageName("ballerina.lang.system");
+                importDeclaration_langSystem.setParent(ballerinaAstRoot1);
+                var importDeclaration_netHttp = BallerinaASTFactory.createImportDeclaration();
+                importDeclaration_netHttp.setPackageName("ballerina.net.http");
+                importDeclaration_netHttp.setParent(ballerinaAstRoot1);
+                var importDeclarations = [];
+                importDeclarations.push(importDeclaration_langSystem);
+                //importDeclarations.push(importDeclaration_netHttp);
+                ballerinaAstRoot1.setImportDeclarations(importDeclarations);
+                ballerinaAstRoot1.addChild(importDeclaration_langSystem);
+                //ballerinaAstRoot1.addChild(importDeclaration_netHttp);
+
+                //function definition
+
+                var functionDefinition1 = BallerinaASTFactory.createFunctionDefinition();
+                functionDefinition1.setFunctionName("main");
+                ballerinaAstRoot1.addChild(functionDefinition1);
+
+                var functionInvocation = BallerinaASTFactory.createFunctionInvocationStatement();
+                functionInvocation.setPackageName("system");
+                functionInvocation.setFunctionName("println");
+                functionInvocation.setParams('"Hello world"');
+                functionDefinition1.addChild(functionInvocation);
+
+                return ballerinaAstRoot1;
+            },
+
+            generatePassthroughSampleAST : function () {
+                var BallerinaASTFactory = Ballerina.ast.BallerinaASTFactory;
+                var ballerinaAstRoot1 = BallerinaASTFactory.createBallerinaAstRoot();
+
+                //package definition
+                var packageDefinition = BallerinaASTFactory.createPackageDefinition();
+                packageDefinition.setPackageName("samples.message.passthrough");
+                ballerinaAstRoot1.addChild(packageDefinition);
+                ballerinaAstRoot1.setPackageDefinition(packageDefinition);
+
+                //import declarations
+                var importDeclaration_langMessage = BallerinaASTFactory.createImportDeclaration();
+                importDeclaration_langMessage.setPackageName("ballerina.lang.message");
+                importDeclaration_langMessage.setParent(ballerinaAstRoot1);
+                var importDeclaration_netHttp = BallerinaASTFactory.createImportDeclaration();
+                importDeclaration_netHttp.setPackageName("ballerina.net.http as http");
+                importDeclaration_netHttp.setParent(ballerinaAstRoot1);
+                var importDeclarations = [];
+                importDeclarations.push(importDeclaration_langMessage);
+                importDeclarations.push(importDeclaration_netHttp);
+                ballerinaAstRoot1.setImportDeclarations(importDeclarations);
+                ballerinaAstRoot1.addChild(importDeclaration_langMessage);
+                ballerinaAstRoot1.addChild(importDeclaration_netHttp);
+
+                //service definition
+
+                //service definition
+                var serviceDefinition_passthroughService2 = BallerinaASTFactory.createServiceDefinition();
+                serviceDefinition_passthroughService2.setServiceName("PassthroughService");
+                serviceDefinition_passthroughService2.setBasePath("/passthrough");
+                ballerinaAstRoot1.addChild(serviceDefinition_passthroughService2);
+                // Adding Resources
+                var resource_passthrough2 = BallerinaASTFactory.createResourceDefinition();
+                resource_passthrough2.setResourceName('passthrough');
+                resource_passthrough2.setResourceMethod('POST');
+                resource_passthrough2.setResourcePath('/stocks');
+
+
+                //Adding resource argument
+                var resourceArgument_m = BallerinaASTFactory.createResourceArgument();
+                resourceArgument_m.setType("message");
+                resourceArgument_m.setIdentifier("m");
+
+                var resourceArguments = [];
+                resourceArguments.push(resourceArgument_m);
+                resource_passthrough2.setResourceArguments("message m");
+
+                var connector_declaration = BallerinaASTFactory.createConnectorDeclaration();
+                connector_declaration.setConnectorName("nyseEP");
+                connector_declaration.setConnectorType("http:HTTPConnector");
+                connector_declaration.setUri("http://localhost:9090");
+                connector_declaration.setTimeout("100");
+                resource_passthrough2.addChild(connector_declaration);
+
+                var variable1 = BallerinaASTFactory.createVariableDeclaration();
+                variable1.setType('message');
+                variable1.setIdentifier('response');
+                resource_passthrough2.addChild(variable1);
+
+                var actionOpts = {connector:connector_declaration, isUserDropped:false};
+                var getActionStatement1 = BallerinaASTFactory.createActionInvocationExpression(actionOpts);
+                getActionStatement1.setConnector(connector_declaration);
+                getActionStatement1.setAction("post");
+                getActionStatement1.setVariableAccessor("response");
+                getActionStatement1.setMessage("m");
+                getActionStatement1.setPath("/NYSEStocks");
+                resource_passthrough2.addChild(getActionStatement1);
+
+                //Adding reply statement
+                var statement_reply = BallerinaASTFactory.createReplyStatement();
+                statement_reply.setReplyMessage("response");
+                resource_passthrough2.addChild(statement_reply);
+
+                serviceDefinition_passthroughService2.addChild(resource_passthrough2);
+
+                //service definition
+                var serviceDefinition_NYSEStockQuote = BallerinaASTFactory.createServiceDefinition();
+                serviceDefinition_NYSEStockQuote.setServiceName("NYSEStockQuote");
+                serviceDefinition_NYSEStockQuote.setBasePath("/NYSEStocks");
+                ballerinaAstRoot1.addChild(serviceDefinition_NYSEStockQuote);
+                // Adding Resources
+                var resource_stocks = BallerinaASTFactory.createResourceDefinition();
+                resource_stocks.setResourceName('stocks');
+                resource_stocks.setResourceMethod('POST');
+                resource_stocks.setResourcePath('/*');
+
+                //Adding resource argument
+                var resourceArgument_m = BallerinaASTFactory.createResourceArgument();
+                resourceArgument_m.setType("message");
+                resourceArgument_m.setIdentifier("m");
+
+                var resourceArguments = [];
+                resourceArguments.push(resourceArgument_m);
+                resource_stocks.setResourceArguments("message m");
+
+                var variableResponse = BallerinaASTFactory.createVariableDeclaration();
+                variableResponse.setType('message');
+                variableResponse.setIdentifier('response');
+                resource_stocks.addChild(variableResponse);
+
+                var variablePayload = BallerinaASTFactory.createVariableDeclaration();
+                variablePayload.setType('json');
+                variablePayload.setIdentifier('payload');
+                resource_stocks.addChild(variablePayload);
+
+                var functionInvocation = BallerinaASTFactory.createFunctionInvocationStatement();
+                functionInvocation.setPackageName("message");
+                functionInvocation.setFunctionName("setJsonPayload");
+                functionInvocation.setParams('response, payload');
+                resource_stocks.addChild(functionInvocation);
+
+                //Adding reply statement
+                var statement_reply = BallerinaASTFactory.createReplyStatement();
+                statement_reply.setReplyMessage("response");
+                resource_stocks.addChild(statement_reply);
+
+                serviceDefinition_NYSEStockQuote.addChild(resource_stocks);
+
+                return ballerinaAstRoot1;
+            },
 
         });
 
