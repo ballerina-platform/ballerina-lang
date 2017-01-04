@@ -26,6 +26,7 @@ import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
+import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 
 import java.nio.charset.Charset;
 import java.util.Base64;
@@ -39,7 +40,7 @@ import java.util.Base64;
         packageName = "ballerina.util",
         functionName = "base64decode",
         args = {@Argument(name = "string", type = TypeEnum.STRING)},
-        returnType = {TypeEnum.STRING},
+        returnType = {@ReturnType(type = TypeEnum.STRING)},
         isPublic = true
 )
 @Component(
