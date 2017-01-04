@@ -25,6 +25,7 @@ import org.wso2.ballerina.core.model.values.BLong;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
+import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 
 /**
  * Native function ballerina.lang.system:nanoTime.
@@ -34,7 +35,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 @BallerinaFunction(
         packageName = "ballerina.lang.system",
         functionName = "nanoTime",
-        returnType = {TypeEnum.LONG},
+        returnType = {@ReturnType(type = TypeEnum.LONG)},
         isPublic = true
 )
 @Component(
