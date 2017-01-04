@@ -291,7 +291,6 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
             connectorDeclarationView.setParent(this);
 
             this.getBoundingBox().on("bottom-edge-moved", function (dy) {
-                this.getBottomCenter().move(0, dy);
                 this.getBoundingBox().h(this.getBoundingBox().h() + dy);
 
             }, connectorDeclarationView);
