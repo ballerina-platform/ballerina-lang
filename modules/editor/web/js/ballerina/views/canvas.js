@@ -34,6 +34,10 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
         return this._mainSVGGroup;
     };
 
+    Canvas.prototype.getAnnotationIcon = function () {
+        return this._panelAnnotationIcon;
+    };
+
     Canvas.prototype.drawAccordionCanvas = function (parent, options, id, name, title) {
         var svgContainer = $('<div style="position:relative; top:0; right:0;"></div>');
         svgContainer.attr('id', id);
@@ -65,6 +69,11 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
         }
         panelTitle.append(panelIcon);
         var titleLink = $('<a>' + canvas[0].getAttribute('name') + '</a>');
+        titleLink.attr('id', 'title-' + id);
+        titleLink[0].setAttribute("contenteditable", "true");
+        titleLink[0].setAttribute("spellcheck", "false");
+        titleLink.focus();
+        titleLink.blur();
         if (title !== undefined) {
             titleLink.append("&nbsp;" + title);
         }
@@ -72,13 +81,30 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
         //TODO: update href,aria-controls
         panelTitle.append(titleLink);
 
-        var panelRightIcon = $('<i></i>');
-        panelRightIcon.addClass(_.get(options, 'cssClass.panel_right_icon'));
-        panelTitle.append(panelRightIcon);
+        var canvasOperationsWrapper = $("<div class='canvas-operations-wrapper'/>");
 
-        var panelDeleteIcon = $('<i></i>');
-        panelDeleteIcon.addClass(_.get(options, 'cssClass.panel_delete_icon'));
-        panelTitle.append(panelDeleteIcon);
+        panelTitle.append(canvasOperationsWrapper);
+
+        // Creating collapsable icon.
+        var panelRightIcon = $("<i/>", {
+            class: _.get(options, 'cssClass.panel_right_icon')
+        }).appendTo(canvasOperationsWrapper);
+
+        $("<span class='pull-right canvas-operations-separator'>|</span>").appendTo(canvasOperationsWrapper);
+
+        // Creating delete icon.
+        var panelDeleteIcon = $("<i/>", {
+            class: _.get(options, 'cssClass.panel_delete_icon')
+        }).appendTo(canvasOperationsWrapper);
+
+        $("<span class='pull-right canvas-operations-separator'>|</span>").appendTo(canvasOperationsWrapper);
+
+        // Creating annotation icon.
+        this._panelAnnotationIcon = $("<i/>", {
+            class: _.get(options, 'cssClass.panel_annotation_icon')
+        }).appendTo(canvasOperationsWrapper);
+
+        $("<span class='pull-right canvas-operations-separator'>|</span>").appendTo(canvasOperationsWrapper);
 
         panelHeading.append(panelTitle);
 
@@ -142,6 +168,10 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
             var child = self._model;
             var parent = child.parent;
             parent.removeChild(child);
+        });
+
+        this._panelAnnotationIcon.click(function (event) {
+            event.stopPropagation();
         });
     };
 

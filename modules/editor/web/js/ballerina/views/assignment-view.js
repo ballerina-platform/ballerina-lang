@@ -93,6 +93,7 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/assignment', 'd
 
             var expressionRect = D3Utils.rect(x, y, width, height, 0, 0, assignmentStatementGroup).classed('statement-rect', true);
             var assignmentText = this._model.getExpression();
+            assignmentText = ((assignmentText.length) > 11 ? (assignmentText.substring(0,11) + '...') : assignmentText);
             var expressionText = D3Utils.textElement(x + width/2, y + height/2, assignmentText, assignmentStatementGroup).classed('statement-text', true);
             assignmentStatementGroup.expression_rect = expressionRect;
             assignmentStatementGroup.expression_text = expressionText;

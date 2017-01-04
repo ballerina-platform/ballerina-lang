@@ -20,7 +20,6 @@ package org.wso2.ballerina.core.nativeimpl.lang.message;
 
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSyntaxException;
-
 import org.osgi.service.component.annotations.Component;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
@@ -30,6 +29,7 @@ import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
+import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 import org.wso2.ballerina.core.nativeimpl.lang.utils.ErrorHandler;
 
 /**
@@ -39,7 +39,7 @@ import org.wso2.ballerina.core.nativeimpl.lang.utils.ErrorHandler;
         packageName = "ballerina.lang.message",
         functionName = "getJsonPayload",
         args = {@Argument(name = "message", type = TypeEnum.MESSAGE)},
-        returnType = {TypeEnum.JSON},
+        returnType = {@ReturnType(type = TypeEnum.JSON)},
         isPublic = true
 )
 @Component(

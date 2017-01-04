@@ -23,7 +23,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
         var createResourceDefTool = {
             id: "resource",
             name: "Resource",
-            icon: "images/tool-icons/dgm-resource.svg",
+            icon: "images/tool-icons/resource.svg",
             title: "Resource",
             nodeFactoryMethod: BallerinaASTFactory.createResourceDefinition
         };
@@ -44,7 +44,18 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
             nodeFactoryMethod:  BallerinaASTFactory.createFunctionDefinition
         };
 
-        var mainToolDefArray = [createServiceDefTool, createResourceDefTool, createFunctionDefTool];
+        var createMainFunctionDefTool = {
+            id: "function",
+            name: "Function",
+            meta: {
+                functionName: "main"
+            },
+            icon: "images/tool-icons/main-function.svg",
+            title: "Function",
+            nodeFactoryMethod:  BallerinaASTFactory.createFunctionDefinition
+        };
+
+        var mainToolDefArray = [createServiceDefTool, createResourceDefTool, createFunctionDefTool, createMainFunctionDefTool];
 
         var mainToolGroup = new ToolGroup({
             toolGroupName: "Elements",
@@ -130,7 +141,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
         var createGetActionTool = {
             id: "get",
             name: "Get",
-            icon: "images/tool-icons/dgm-resource.svg",
+            icon: "images/tool-icons/http.svg",
             title: "Get",
             meta: {
                 action: "Get"
@@ -141,8 +152,8 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
         var createPostActionTool = {
             id: "post",
             name: "Post",
-            icon: "images/tool-icons/rest-service.svg",
-            title: "Post",
+            icon: "images/tool-icons/http.svg",
+            title: "post",
             meta: {
                 action: "Post"
             },
@@ -152,10 +163,10 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
         var createPutActionTool = {
             id: "put",
             name: "Put",
-            icon: "images/tool-icons/rest-service.svg",
+            icon: "images/tool-icons/http.svg",
             title: "Put",
             meta: {
-                action: "Put"
+                action: "put"
             },
             nodeFactoryMethod: BallerinaASTFactory.createActionInvocationExpression
         };
@@ -163,10 +174,10 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
         var createDeleteActionTool = {
             id: "delete",
             name: "Delete",
-            icon: "images/tool-icons/rest-service.svg",
+            icon: "images/tool-icons/http.svg",
             title: "Delete",
             meta: {
-                action: "Delete"
+                action: "delete"
             },
             nodeFactoryMethod: BallerinaASTFactory.createActionInvocationExpression
         };
@@ -174,10 +185,10 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
         var createPatchActionTool = {
             id: "patch",
             name: "Patch",
-            icon: "images/tool-icons/rest-service.svg",
+            icon: "images/tool-icons/http.svg",
             title: "Patch",
             meta: {
-                action: "Patch"
+                action: "patch"
             },
             nodeFactoryMethod: BallerinaASTFactory.createActionInvocationExpression
         };
