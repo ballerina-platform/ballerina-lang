@@ -16,7 +16,7 @@ REM   See the License for the specific language governing permissions and
 REM   limitations under the License.
 
 rem ---------------------------------------------------------------------------
-rem Main Script for WSO2 Ballerina Server
+rem Main Script for WSO2 Ballerina
 rem
 rem Environment Variable Prerequisites
 rem
@@ -76,58 +76,23 @@ rem ----- Process the input command -------------------------------------------
 
 rem Slurp the command line arguments. This loop allows for an unlimited number
 rem of arguments (up to the command line limit, anyway).
-set BAL_FILE=
 
 :setupArgs
-set tempValue=%~f1
 if ""%1""=="""" goto doneStart
-
-if %tempValue:~-4% == .bal goto assignBalFile
 
 if ""%1""==""debug""    goto commandDebug
 if ""%1""==""-debug""   goto commandDebug
 if ""%1""==""--debug""  goto commandDebug
 
-if ""%1""==""version""   goto commandVersion
-
-if ""%1""==""help""   goto commandHelp
-
 goto commandUnknownArg
-
-rem ----- Assign Bal file to run------------------------------------------------
-:assignBalFile
-rem Get Bal file path from base path.
-pushd .
-cd %BASE_DIR%
-set BAL_FILE=%BAL_FILE%;%~f1
-popd
-shift
-goto setupArgs
 
 
 rem ----- commandUnknownArg ----------------------------------------------------
 :commandUnknownArg
-echo Not supported option, command or value : %1
-type "%CARBON_HOME%\bin\ballerinaserver-win-help.txt"
+echo Not supported option or command or value : %1
+type "%CARBON_HOME%\bin\ballerina-win-help.txt"
 goto end
 
-rem ----- commandNoBalFile -------------------------------------------------------
-:commandNoBalFile
-echo Please specify Ballerina file(s) to run. (Eg: ballerinaserver.bat echo.bal)
-type "%CARBON_HOME%\bin\ballerinaserver-win-help.txt"
-goto end
-
-rem ----- commandVersion -------------------------------------------------------
-:commandVersion
-shift
-type "%CARBON_HOME%\bin\version.txt"
-goto end
-
-rem ----- commandHelp -------------------------------------------------------
-:commandHelp
-shift
-type "%CARBON_HOME%\bin\ballerinaserver-win-help.txt"
-goto end
 
 rem ----- commandDebug ---------------------------------------------------------
 :commandDebug
@@ -144,7 +109,6 @@ echo Please specify the debug port after the --debug option
 goto end
 
 :doneStart
-if "%BAL_FILE%"==""  goto commandNoBalFile
 if "%OS%"=="Windows_NT" @setlocal
 if "%OS%"=="WINNT" @setlocal
 goto findJdk
@@ -173,17 +137,18 @@ rem ----------------- Execute The Requested Command ----------------------------
 :runServer
 cd %CARBON_HOME%
 
+FOR %%C in ("%CARBON_HOME%\bin\*.jar") DO set CARBON_CLASSPATH=!CARBON_CLASSPATH!;".\bin\%%~nC%%~xC"
+
 rem ---------- Add jars to classpath ----------------
 
 set CARBON_CLASSPATH=.\bin\bootstrap;%CARBON_CLASSPATH%
 
 set JAVA_ENDORSED=".\bin\bootstrap\endorsed";"%JAVA_HOME%\jre\lib\endorsed";"%JAVA_HOME%\lib\endorsed"
 
-set CMD_LINE_ARGS=-Xbootclasspath/a:%CARBON_XBOOTCLASSPATH% -Xms256m -Xmx1024m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath="%CARBON_HOME%\logs\heap-dump.hprof"  -Dcom.sun.management.jmxremote -classpath %CARBON_CLASSPATH% %JAVA_OPTS% -Djava.endorsed.dirs=%JAVA_ENDORSED%  -Dcarbon.home="%CARBON_HOME%"  -Djava.command="%JAVA_HOME%\bin\java" -Djava.opts="%JAVA_OPTS%" -Djava.io.tmpdir="%CARBON_HOME%\tmp" -Dcarbon.classpath=%CARBON_CLASSPATH% -Dfile.encoding=UTF8 -Drun-mode=server -Drun-file=%BAL_FILE% -Dbpath=%BPATH%
+set CMD_LINE_ARGS=-Xbootclasspath/a:%CARBON_XBOOTCLASSPATH% -Xms256m -Xmx1024m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath="%CARBON_HOME%\logs\heap-dump.hprof"  -Dcom.sun.management.jmxremote -classpath %CARBON_CLASSPATH% %JAVA_OPTS% -Djava.endorsed.dirs=%JAVA_ENDORSED%  -Dballerina.home="%CARBON_HOME%"  -Djava.command="%JAVA_HOME%\bin\java" -Djava.opts="%JAVA_OPTS%" -Djava.io.tmpdir="%CARBON_HOME%\tmp" -Dcarbon.classpath=%CARBON_CLASSPATH% -Dfile.encoding=UTF8 -Deditor.port=9091 -DenableCloud=false -Dworkspace.port=8289
 
 :runJava
-REM echo CARBON_HOME environment variable is set to %CARBON_HOME%
-"%JAVA_HOME%\bin\java" %CMD_LINE_ARGS% org.wso2.carbon.launcher.Main %CMD%
+"%JAVA_HOME%\bin\java" %CMD_LINE_ARGS% org.wso2.ballerina.tooling.service.workspace.app.WorkspaceServiceRunner %CMD%
 if "%ERRORLEVEL%"=="121" goto runJava
 :end
 goto endlocal

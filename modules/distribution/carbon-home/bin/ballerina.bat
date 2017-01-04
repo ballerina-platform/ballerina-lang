@@ -85,10 +85,6 @@ set BAL_EXECUTION_SUB_CMD=
 set tempValue=%~f1
 if ""%1""=="""" goto doneStart
 
-if ""%1""==""-bargs"" goto setExecutionSubCommandBArgs
-
-if ""%1""==""-bpath"" goto assignBPath
-
 if %tempValue:~-4% == .bal if ""%BAL_FILE%""=="""" goto assignBalFile
 
 if "%BAL_EXECUTION_SUB_CMD%"=="bargs" goto assignBArgs
@@ -105,7 +101,7 @@ goto commandUnknownArg
 
 rem ----- mark current sub command is bargs-------------------------------------
 :setExecutionSubCommandBArgs
-set BAL_EXECUTION_SUB_CMD=bargs
+
 shift
 goto setupArgs
 
@@ -113,6 +109,7 @@ goto setupArgs
 rem ----- Assign Bal file to run------------------------------------------------
 :assignBalFile
 rem Get Bal file path from base path.
+set BAL_EXECUTION_SUB_CMD=bargs
 pushd .
 cd %BASE_DIR%
 set BAL_FILE=%~f1
@@ -127,17 +124,6 @@ set BARGS=%BARGS%;%1
 shift
 goto setupArgs
 
-rem ----- Assign Ballerina Path ------------------------------------------------
-:assignBPath
-set BAL_EXECUTION_SUB_CMD=
-shift
-pushd .
-cd %BASE_DIR%
-set BPath=%~f1
-popd
-shift
-goto setupArgs
-
 rem ----- commandUnknownArg ----------------------------------------------------
 :commandUnknownArg
 echo Not supported option or command or value : %1
@@ -146,7 +132,7 @@ goto end
 
 rem ----- commandNoBalFile -------------------------------------------------------
 :commandNoBalFile
-echo Please specify Ballerina file to run. (Eg: ballerina.sh main.bal)
+echo Please specify Ballerina file to run. (Eg: ballerina.bat main.bal)
 type "%CARBON_HOME%\bin\ballerina-win-help.txt"
 goto end
 

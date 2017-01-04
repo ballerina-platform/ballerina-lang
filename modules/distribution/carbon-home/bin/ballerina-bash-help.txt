@@ -3,11 +3,11 @@ Usage:
 
     ballerina.sh [ballerina-file] args...
         - executes the Ballerina main function in given Ballerina file
-        (eg: main.bal).
+        (Eg: main.bal).
 
         - Use args to defines input arguments for Ballerina main function.
-        Arguments are separated by space. If argument contains a space, define
-        argument within double quote.
+        Arguments are separated by spaces. If argument contains a space, define
+        the argument within double quote. (Eg: "Hello World")
 
 Additionally ballerina.sh support following commands.
 
