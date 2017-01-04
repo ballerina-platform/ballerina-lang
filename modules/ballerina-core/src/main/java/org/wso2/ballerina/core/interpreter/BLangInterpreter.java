@@ -26,6 +26,7 @@ import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.Connector;
 import org.wso2.ballerina.core.model.ConnectorDcl;
+import org.wso2.ballerina.core.model.Const;
 import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.model.ImportPackage;
 import org.wso2.ballerina.core.model.NodeVisitor;
@@ -57,7 +58,7 @@ import org.wso2.ballerina.core.model.expressions.SubtractExpression;
 import org.wso2.ballerina.core.model.expressions.UnaryExpression;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.invokers.MainInvoker;
-import org.wso2.ballerina.core.model.invokers.ResourceInvoker;
+import org.wso2.ballerina.core.model.invokers.ResourceInvocationExpr;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.statements.CommentStmt;
@@ -110,6 +111,10 @@ public class BLangInterpreter implements NodeVisitor {
     @Override
     public void visit(ImportPackage importPkg) {
 
+    }
+
+    @Override
+    public void visit(Const constant) {
     }
 
     @Override
@@ -447,10 +452,6 @@ public class BLangInterpreter implements NodeVisitor {
     }
 
     @Override
-    public void visit(VariableRefExpr variableRefExpr) {
-    }
-
-    @Override
     public void visit(ArrayAccessExpr arrayAccessExpr) {
         Expression arrayVarRefExpr = arrayAccessExpr.getRExpr();
         arrayVarRefExpr.accept(this);
@@ -499,9 +500,34 @@ public class BLangInterpreter implements NodeVisitor {
         controlStack.setValue(backquoteExpr.getOffset(), bValue);
     }
 
-    public void visit(ResourceInvoker resourceInvoker) {
+    @Override
+    public void visit(VariableRefExpr variableRefExpr) {
+        variableRefExpr.getLocation().accept(this);
+    }
 
-        Resource resource = resourceInvoker.getResource();
+    @Override
+    public void visit(LocalVarLocation localVarLocation) {
+//        int offset = localVarLocation.getStackFrameOffset();
+    }
+
+    @Override
+    public void visit(ServiceVarLocation serviceVarLocation) {
+
+    }
+
+    @Override
+    public void visit(ConnectorVarLocation connectorVarLocation) {
+
+    }
+
+    @Override
+    public void visit(ConstantLocation constantLocation) {
+
+    }
+
+    public void visit(ResourceInvocationExpr resourceIExpr) {
+
+        Resource resource = resourceIExpr.getResource();
 
         ControlStack controlStack = bContext.getControlStack();
         BValue[] valueParams = new BValue[resource.getStackFrameSize()];
@@ -602,10 +628,10 @@ public class BLangInterpreter implements NodeVisitor {
 
     private BValue getValue(Expression expr) {
         if (expr instanceof BasicLiteral) {
-            return ((BasicLiteral) expr).getbValueNew();
+            return ((BasicLiteral) expr).getBValue();
         }
 
-        return controlStack.getValueNew(expr.getOffset());
+        return controlStack.getValue(expr.getOffset());
     }
 
     private void setValue(Expression expr, BValue bValue) {

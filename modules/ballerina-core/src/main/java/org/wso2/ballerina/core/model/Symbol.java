@@ -17,6 +17,8 @@
 */
 package org.wso2.ballerina.core.model;
 
+import org.wso2.ballerina.core.interpreter.MemoryLocation;
+import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.model.types.BType;
 
 /**
@@ -29,18 +31,20 @@ public class Symbol {
 
     private BType type;
     private int offset;
+    private SymScope.Name scopeName;
+    private MemoryLocation location;
 
     private BType[] paramTypes;
     private BType[] returnTypes;
     private Function function;
 
     private Action action;
-
     private Connector connector;
 
-    public Symbol(BType type, int offset) {
+    public Symbol(BType type, SymScope.Name scopeName, MemoryLocation location) {
         this.type = type;
-        this.offset = offset;
+        this.scopeName = scopeName;
+        this.location = location;
     }
 
     public Symbol(Function function, BType[] paramTypes, BType[] returnTypes) {
@@ -65,8 +69,16 @@ public class Symbol {
         return type;
     }
 
+    public SymScope.Name getScopeName() {
+        return scopeName;
+    }
+
     public int getOffset() {
         return offset;
+    }
+
+    public MemoryLocation getLocation() {
+        return location;
     }
 
     public BType[] getParamTypes() {

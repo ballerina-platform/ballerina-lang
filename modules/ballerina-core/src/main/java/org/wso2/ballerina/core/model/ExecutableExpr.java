@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -15,27 +15,22 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerina.core.model.statements;
+package org.wso2.ballerina.core.model;
 
-import org.wso2.ballerina.core.model.NodeExecutor;
-import org.wso2.ballerina.core.model.NodeVisitor;
+import org.wso2.ballerina.core.model.values.BValue;
 
 /**
- * Represents a single line comment. //-style
+ * {@code ExecutableExpr} interface makes an {@link org.wso2.ballerina.core.model.expressions.Expression} executable
+ *
+ * @since 1.0.0
  */
-public class CommentStmt implements Statement {
-    private String comment;
+public interface ExecutableExpr {
 
-    public CommentStmt(String comment) {
-        this.comment = comment;
-    }
-
-    @Override
-    public void accept(NodeVisitor visitor) {
-        visitor.visit(this);
-    }
-
-    @Override
-    public void execute(NodeExecutor executor) {
-    }
+    /**
+     * Executes and Returns the result of this expression
+     *
+     * @param executor instance of a {@code NodeExecutor}
+     * @return result of the expression
+     */
+    BValue execute(NodeExecutor executor);
 }
