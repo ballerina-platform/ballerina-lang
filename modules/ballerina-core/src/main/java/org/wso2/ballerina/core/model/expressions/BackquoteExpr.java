@@ -17,7 +17,9 @@
 */
 package org.wso2.ballerina.core.model.expressions;
 
+import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.NodeVisitor;
+import org.wso2.ballerina.core.model.values.BValue;
 
 /**
  * {@code BackquoteExpr} represents an xml or a json string wrapped in between backticks/backquotes
@@ -39,6 +41,10 @@ public class BackquoteExpr extends AbstractExpression {
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    public BValue execute(NodeExecutor executor) {
+        return executor.visit(this);
     }
 
     /**

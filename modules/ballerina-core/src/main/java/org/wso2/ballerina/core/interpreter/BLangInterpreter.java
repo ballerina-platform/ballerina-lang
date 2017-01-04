@@ -26,13 +26,13 @@ import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.Connector;
 import org.wso2.ballerina.core.model.ConnectorDcl;
+import org.wso2.ballerina.core.model.Const;
 import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.model.ImportPackage;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
-import org.wso2.ballerina.core.model.Symbol;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.VariableDcl;
 import org.wso2.ballerina.core.model.Worker;
@@ -59,7 +59,7 @@ import org.wso2.ballerina.core.model.expressions.SubtractExpression;
 import org.wso2.ballerina.core.model.expressions.UnaryExpression;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.invokers.MainInvoker;
-import org.wso2.ballerina.core.model.invokers.ResourceInvoker;
+import org.wso2.ballerina.core.model.invokers.ResourceInvocationExpr;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.statements.CommentStmt;
@@ -84,7 +84,6 @@ import org.wso2.ballerina.core.model.values.BXML;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
-import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 
 import java.util.List;
 
@@ -113,6 +112,10 @@ public class BLangInterpreter implements NodeVisitor {
     @Override
     public void visit(ImportPackage importPkg) {
 
+    }
+
+    @Override
+    public void visit(Const constant) {
     }
 
     @Override
@@ -465,10 +468,6 @@ public class BLangInterpreter implements NodeVisitor {
     }
 
     @Override
-    public void visit(VariableRefExpr variableRefExpr) {
-    }
-
-    @Override
     public void visit(ArrayAccessExpr arrayAccessExpr) {
         Expression arrayVarRefExpr = arrayAccessExpr.getRExpr();
         arrayVarRefExpr.accept(this);
@@ -517,9 +516,34 @@ public class BLangInterpreter implements NodeVisitor {
         controlStack.setValue(backquoteExpr.getOffset(), bValue);
     }
 
-    public void visit(ResourceInvoker resourceInvoker) {
+    @Override
+    public void visit(VariableRefExpr variableRefExpr) {
+        variableRefExpr.getLocation().accept(this);
+    }
 
-        Resource resource = resourceInvoker.getResource();
+    @Override
+    public void visit(LocalVarLocation localVarLocation) {
+//        int offset = localVarLocation.getStackFrameOffset();
+    }
+
+    @Override
+    public void visit(ServiceVarLocation serviceVarLocation) {
+
+    }
+
+    @Override
+    public void visit(ConnectorVarLocation connectorVarLocation) {
+
+    }
+
+    @Override
+    public void visit(ConstantLocation constantLocation) {
+
+    }
+
+    public void visit(ResourceInvocationExpr resourceIExpr) {
+
+        Resource resource = resourceIExpr.getResource();
 
         ControlStack controlStack = bContext.getControlStack();
         BValue[] valueParams = new BValue[resource.getStackFrameSize()];
@@ -601,11 +625,9 @@ public class BLangInterpreter implements NodeVisitor {
     private void populateConnectorDclValues(ConnectorDcl[] connectorDcls, BValue[] valueParams, int valuesCounter) {
 
         for (ConnectorDcl connectorDcl : connectorDcls) {
-            Symbol symbol = GlobalScopeHolder.getInstance().getScope().lookup(connectorDcl.getConnectorName());
-            if (symbol == null) {
-                throw new BallerinaException("Connector : " + connectorDcl.getConnectorName() + " not found");
-            }
-            Connector connector = symbol.getConnector();
+
+            Connector connector = connectorDcl.getConnector();
+
             Expression[] argExpressions = connectorDcl.getArgExprs();
             BValue[] bValueRefs = new BValue[argExpressions.length];
             for (int j = 0; j < argExpressions.length; j++) {
@@ -628,10 +650,10 @@ public class BLangInterpreter implements NodeVisitor {
 
     private BValue getValue(Expression expr) {
         if (expr instanceof BasicLiteral) {
-            return ((BasicLiteral) expr).getbValueNew();
+            return ((BasicLiteral) expr).getBValue();
         }
 
-        return controlStack.getValueNew(expr.getOffset());
+        return controlStack.getValue(expr.getOffset());
     }
 
     private void setValue(Expression expr, BValue bValue) {

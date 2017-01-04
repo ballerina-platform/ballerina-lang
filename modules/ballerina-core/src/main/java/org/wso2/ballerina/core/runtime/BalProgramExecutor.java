@@ -21,19 +21,29 @@ package org.wso2.ballerina.core.runtime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.exception.BallerinaException;
-import org.wso2.ballerina.core.interpreter.BLangInterpreter;
+import org.wso2.ballerina.core.interpreter.BLangExecutor;
 import org.wso2.ballerina.core.interpreter.Context;
+import org.wso2.ballerina.core.interpreter.LocalVarLocation;
 import org.wso2.ballerina.core.interpreter.NodeInfo;
+import org.wso2.ballerina.core.interpreter.StackFrame;
 import org.wso2.ballerina.core.interpreter.StackFrameType;
 import org.wso2.ballerina.core.model.BallerinaFunction;
+import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.model.SymbolName;
-import org.wso2.ballerina.core.model.invokers.MainInvoker;
-import org.wso2.ballerina.core.model.invokers.ResourceInvoker;
+import org.wso2.ballerina.core.model.expressions.Expression;
+import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
+import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
+import org.wso2.ballerina.core.model.invokers.ResourceInvocationExpr;
+import org.wso2.ballerina.core.model.types.BTypes;
+import org.wso2.ballerina.core.model.values.BInteger;
+import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.runtime.errors.handler.ErrorHandlerUtils;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
+
+import static org.wso2.ballerina.core.runtime.Constants.SYSTEM_PROP_BAL_ARGS;
 
 /**
  * {@code BalProgramExecutor} is responsible for executing a BallerinaProgram
@@ -50,11 +60,12 @@ public class BalProgramExecutor {
             SymbolName symbolName = service.getSymbolName();
             balContext.setServiceInfo(new NodeInfo(symbolName.getName(), StackFrameType.SERVICE, 
                     symbolName.getPkgName(), service.getServiceLocation()));
+            
             balContext.setBalCallback(new DefaultBalCallback(callback));
 
             // Create the interpreter and Execute
-            BLangInterpreter interpreter = new BLangInterpreter(balContext);
-            new ResourceInvoker(resource).accept(interpreter);
+            BLangExecutor executor = new BLangExecutor(balContext);
+            new ResourceInvocationExpr(resource).executeMultiReturn(executor);
         } catch (Throwable e) {
             throw new BallerinaException(e.getMessage(), balContext);
         }
@@ -66,16 +77,51 @@ public class BalProgramExecutor {
      * @param mainFunction Ballerina main function to be executed.
      */
     public static void execute(BallerinaFunction mainFunction) {
-        Context ctx = new Context();
+        Context bContext = new Context();
         try {
-            
-            BLangInterpreter interpreter = new BLangInterpreter(ctx);
-            new MainInvoker(mainFunction).accept(interpreter);
+            // TODO Refactor this logic ASAP
+            Parameter[] parameters = mainFunction.getParameters();
+            if (parameters.length != 1 || parameters[0].getType() != BTypes.INT_TYPE) {
+                throw new BallerinaException("Main function does not comply with standard main function in ballerina");
+            }
+
+            // Main function only have one input parameter
+            // Read from command line arguments
+            String balArgs = System.getProperty(SYSTEM_PROP_BAL_ARGS);
+
+            // Only integers allowed at the moment
+            BInteger bInteger;
+            if (balArgs != null) {
+                bInteger = new BInteger(Integer.parseInt(balArgs));
+            } else {
+                bInteger = new BInteger(0);
+            }
+
+            BValue[] args = {bInteger};
+
+            VariableRefExpr variableRefExpr = new VariableRefExpr(new SymbolName("arg"));
+            LocalVarLocation location = new LocalVarLocation(0);
+            variableRefExpr.setLocation(location);
+            variableRefExpr.setType(BTypes.INT_TYPE);
+
+            Expression[] exprs = new Expression[args.length];
+            exprs[0] = variableRefExpr;
+
+            // 3) Create a function invocation expression
+            FunctionInvocationExpr funcIExpr = new FunctionInvocationExpr(new SymbolName("main"), exprs);
+            funcIExpr.setOffset(1);
+            funcIExpr.setFunction(mainFunction);
+
+            StackFrame currentStackFrame = new StackFrame(args, new BValue[0]);
+            bContext.getControlStack().pushFrame(currentStackFrame);
+
+            BLangExecutor executor = new BLangExecutor(bContext);
+            mainFunction.getFunctionBody().execute(executor);
         } catch (BallerinaException ex) {
-            String stackTrace = ErrorHandlerUtils.getMainFunctionStackTrace(ctx, mainFunction.getName());
-            log.error("Error while executing ballerina program. " + ex.getMessage() + "\n" + stackTrace);
+            String stackTrace = ErrorHandlerUtils.getMainFunctionStackTrace(bContext, mainFunction.getName());
+            log.error("Error while executing main function: " + mainFunction.getName() + ". " + ex.getMessage() + "\n" 
+                    + stackTrace);
         }
 
     }
-
 }

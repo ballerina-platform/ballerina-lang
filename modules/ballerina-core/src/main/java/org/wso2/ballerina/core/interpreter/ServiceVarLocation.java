@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -15,35 +15,27 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerina.core.model.statements;
+package org.wso2.ballerina.core.interpreter;
 
+import org.wso2.ballerina.core.model.Node;
 import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.NodeVisitor;
-import org.wso2.ballerina.core.model.expressions.Expression;
+import org.wso2.ballerina.core.model.values.BValue;
 
 /**
- * {@code ForeachStmt} Represents a foreach statement.
+ * {@code ServiceVarLocation} represents a location where a variable declared in a
+ * {@link org.wso2.ballerina.core.model.Service }  is stored at runtime
  *
  * @since 1.0.0
  */
-public class ForeachStmt implements Statement {
-    private Expression condition;
-//    private IteratorType itr;
-    private Statement forEachBlock;
-
-//    public ForeachStmt(Expression condition, IteratorType itr, Statement forEachBlock) {
-//        this.condition = condition;
-//        this.itr = itr;
-//        this.forEachBlock = forEachBlock;
-//    }
-
+public class ServiceVarLocation extends MemoryLocation implements Node {
     @Override
     public void accept(NodeVisitor visitor) {
-//        visitor.accept(this);
+        visitor.visit(this);
     }
 
     @Override
-    public void execute(NodeExecutor executor) {
-
+    public BValue execute(NodeExecutor executor) {
+        return executor.visit(this);
     }
 }
