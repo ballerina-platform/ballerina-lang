@@ -192,12 +192,6 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
             functionArgsIcons.removeClass("fw-annotation");
             functionArgsIcons.addClass("fw-import");
 
-            // TODO : Implement the function args
-            // Hiding icon.
-            functionArgsIcons.hide();
-            // Hiding separator.
-            functionArgsIcons.next().hide();
-
             var argumentsProperties = {
                 model: this._model,
                 activatorElement: this.getAnnotationIcon(),
@@ -210,7 +204,7 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
                 }
             };
 
-            //ArgumentsView.createArgumentsPane(argumentsProperties);
+            ArgumentsView.createArgumentsPane(argumentsProperties);
         };
 
         FunctionDefinitionView.prototype.init = function(){
