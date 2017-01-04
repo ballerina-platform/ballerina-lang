@@ -294,6 +294,12 @@ public class SemanticAnalyzer implements NodeVisitor {
         connectorName = LangModelUtils.getConnectorSymName(connectorName.getName(), pkgPath);
         connectorDcl.setConnectorName(connectorName);
 
+        Symbol connectorSym = symbolTable.lookup(connectorName);
+        if (connectorSym == null) {
+            throw new SemanticException("Connector : " + connectorName + " not found");
+        }
+        connectorDcl.setConnector(connectorSym.getConnector());
+
     }
 
     @Override
