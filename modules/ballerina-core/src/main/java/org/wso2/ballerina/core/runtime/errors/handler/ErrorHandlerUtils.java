@@ -59,8 +59,8 @@ public class ErrorHandlerUtils {
         Stack<StackFrame> stack = controlStack.getStack();
         for (int i = stack.size() - 1; i >= 0; i--) {
             CallableUnitInfo frameInfo = stack.get(i).getNodeInfo();
-            sb.append(
-                "\t at " + frameInfo.getPackage() + ":" + frameInfo.getName() + getNodeLocation(frameInfo) + "\n");
+            sb.append("\t at " + frameInfo.getPackage() + ":" + frameInfo.getName() + getNodeLocation(frameInfo) 
+                    + "\n");
         }
         
         CallableUnitInfo serviceInfo = context.getServiceInfo();
