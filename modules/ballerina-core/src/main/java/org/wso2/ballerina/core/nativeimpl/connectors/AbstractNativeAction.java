@@ -118,6 +118,11 @@ public abstract class AbstractNativeAction implements Action, NativeConstruct {
     }
 
     @Override
+    public void setSymbolName(SymbolName symbolName) {
+        this.symbolName = symbolName;
+    }
+
+    @Override
     public Annotation[] getAnnotations() {
         return annotations.toArray(new Annotation[annotations.size()]);
     }

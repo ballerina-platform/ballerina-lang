@@ -90,6 +90,12 @@ public class FunctionInvocationExpr extends AbstractExpression implements Execut
 
     @Override
     public BValue execute(NodeExecutor executor) {
-        return executor.visit(this)[0];
+        BValue[] values = executor.visit(this);
+
+        if (calleeFunction.getReturnTypes().length == 0) {
+            return null;
+        }
+
+        return values[0];
     }
 }

@@ -218,8 +218,12 @@ public class BLangModelBuilder {
         BType paramType = typeQueue.remove();
         Parameter param = new Parameter(paramType, paramNameId);
 
-        // Add the parameter to callableUnitBuilder.
-        currentCUBuilder.addParameter(param);
+        if (currentCUBuilder != null) {
+            // Add the parameter to callableUnitBuilder.
+            currentCUBuilder.addParameter(param);
+        } else {
+            currentCUGroupBuilder.addParameter(param);
+        }
     }
 
     public void createType(String typeName) {
@@ -230,6 +234,11 @@ public class BLangModelBuilder {
     public void createArrayType(String typeName) {
         BType type = BTypes.getArrayType(typeName);
         typeQueue.add(type);
+    }
+
+    public void registerConnectorType(String typeName) {
+        //TODO: We might have to do this through a symbol table in the future
+        BTypes.addConnectorType(typeName);
     }
 
     public void createReturnTypes() {
@@ -260,8 +269,14 @@ public class BLangModelBuilder {
         BType localVarType = typeQueue.remove();
         VariableDcl variableDcl = new VariableDcl(localVarType, localVarId);
 
-        // Add this variable declaration to the current callable unit
-        currentCUBuilder.addVariableDcl(variableDcl);
+        // Add this variable declaration to the current callable unit or callable unit group
+        if (currentCUBuilder != null) {
+            // This connector declaration should added to the relevant function/action or resource
+            currentCUBuilder.addVariableDcl(variableDcl);
+        } else {
+            currentCUGroupBuilder.addVariableDcl(variableDcl);
+        }
+
     }
 
     public void createConnectorDcl(String varName) {
@@ -618,9 +633,7 @@ public class BLangModelBuilder {
 
     public void createFunctionInvocationStmt(Position invokedLocation) {
         CallableUnitInvocationExprBuilder cIExprBuilder = new CallableUnitInvocationExprBuilder();
-        if (!exprListStack.isEmpty()) {
-            cIExprBuilder.setExpressionList(exprListStack.pop());
-        }
+        cIExprBuilder.setExpressionList(exprListStack.pop());
         cIExprBuilder.setName(symbolNameStack.pop());
 
         FunctionInvocationExpr invocationExpr = cIExprBuilder.buildFuncInvocExpr();

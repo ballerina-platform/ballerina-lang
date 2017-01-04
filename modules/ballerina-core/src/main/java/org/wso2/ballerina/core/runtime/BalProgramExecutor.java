@@ -119,7 +119,9 @@ public class BalProgramExecutor {
             bContext.getControlStack().pushFrame(currentStackFrame);
 
             BLangExecutor executor = new BLangExecutor(bContext);
-            mainFunction.getFunctionBody().execute(executor);
+            funcIExpr.execute(executor);
+
+            bContext.getControlStack().popFrame();
         } catch (BallerinaException ex) {
             String stackTrace = ErrorHandlerUtils.getMainFunctionStackTrace(bContext);
             log.error("Error while executing main function: " + mainFunction.getName() + ". " + ex.getMessage() + "\n" 

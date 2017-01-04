@@ -23,6 +23,7 @@ import org.wso2.ballerina.core.exception.SemanticException;
 import org.wso2.ballerina.core.interpreter.ConnectorVarLocation;
 import org.wso2.ballerina.core.interpreter.ConstantLocation;
 import org.wso2.ballerina.core.interpreter.LocalVarLocation;
+import org.wso2.ballerina.core.interpreter.MemoryLocation;
 import org.wso2.ballerina.core.interpreter.ServiceVarLocation;
 import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.interpreter.SymTable;
@@ -106,10 +107,6 @@ public class SemanticAnalyzer implements NodeVisitor {
     // This is useful when analyzing import functions, actions and types.
     private Map<String, ImportPackage> importPkgMap = new HashMap<>();
 
-    public SemanticAnalyzer(BallerinaFile bFile) {
-        this(bFile, new SymScope());
-    }
-
     public SemanticAnalyzer(BallerinaFile bFile, SymScope globalScope) {
         SymScope pkgScope = bFile.getPackageScope();
         pkgScope.setParent(globalScope);
@@ -132,9 +129,10 @@ public class SemanticAnalyzer implements NodeVisitor {
             staticMemAddrOffset++;
             constant.accept(this);
         }
-        int setSizeOfStaticMem = staticMemAddrOffset + 1;
-        bFile.setSizeOfStaticMem(setSizeOfStaticMem);
-        staticMemAddrOffset = -1;
+
+        for (BallerinaConnector connector : bFile.getConnectorList()) {
+            connector.accept(this);
+        }
 
         for (Service service : bFile.getServices()) {
             service.accept(this);
@@ -144,6 +142,10 @@ public class SemanticAnalyzer implements NodeVisitor {
             BallerinaFunction bFunction = (BallerinaFunction) function;
             bFunction.accept(this);
         }
+
+        int setSizeOfStaticMem = staticMemAddrOffset + 1;
+        bFile.setSizeOfStaticMem(setSizeOfStaticMem);
+        staticMemAddrOffset = -1;
     }
 
     @Override
@@ -160,7 +162,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         SymbolName symName = constant.getName();
 
         Symbol symbol = symbolTable.lookup(symName);
-        if (symbol != null) {
+        if (symbol != null && isSymbolInCurrentScope(symbol)) {
             throw new SemanticException("Duplicate constant name: " + symName.getName());
         }
 
@@ -175,24 +177,43 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         ConstantLocation location = new ConstantLocation(staticMemAddrOffset);
         BType type = constant.getType();
-        symbol = new Symbol(type, location);
+        symbol = new Symbol(type, SymScope.Name.PACKAGE, location);
 
         symbolTable.insert(symName, symbol);
     }
 
     @Override
     public void visit(Service service) {
+        // Visit the contents within a service
+        // Open a new symbol scope
+        openScope(SymScope.Name.SERVICE);
 
-        //TODO: Handle connector and variable declarations
+        //TODO: Handle connector declarations
+
+        VariableDcl[] variableDcls = service.getVariableDcls();
+        for (VariableDcl variableDcl : variableDcls) {
+            staticMemAddrOffset++;
+            visit(variableDcl);
+        }
 
         // Visit the set of resources in a service
         for (Resource resource : service.getResources()) {
             resource.accept(this);
         }
+
+        // Close the symbol scope
+        closeScope();
     }
 
     @Override
     public void visit(BallerinaConnector connector) {
+        Symbol symbol = new Symbol(connector, LangModelUtils.getTypesOfParams(connector.getParameters()));
+        symbolTable.insert(new SymbolName(connector.getPackageQualifiedName()), symbol);
+
+        for (BallerinaAction action : connector.getActions()) {
+            addActionSymbol(action);
+            action.accept(this);
+        }
 
     }
 
@@ -200,7 +221,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(Resource resource) {
         // Visit the contents within a resource
         // Open a new symbol scope
-        openScope();
+        openScope(SymScope.Name.RESOURCE);
 
         // TODO create a Symbol for this function( with parameter and return types)
 
@@ -229,17 +250,14 @@ public class SemanticAnalyzer implements NodeVisitor {
         resource.setStackFrameSize(sizeOfStackFrame);
 
         // Close the symbol scope
+        stackFrameOffset = -1;
         closeScope();
-
     }
 
     @Override
     public void visit(BallerinaFunction bFunction) {
-        // Create a Symbol for this function( with parameter and return types)
-//        addFuncSymbol(bFunction);
-
         // Open a new symbol scope
-        openScope();
+        openScope(SymScope.Name.FUNCTION);
 
         Parameter[] parameters = bFunction.getParameters();
         for (Parameter parameter : parameters) {
@@ -273,11 +291,49 @@ public class SemanticAnalyzer implements NodeVisitor {
         bFunction.setStackFrameSize(sizeOfStackFrame);
 
         // Close the symbol scope
+        stackFrameOffset = -1;
         closeScope();
     }
 
     @Override
     public void visit(BallerinaAction action) {
+
+        // Open a new symbol scope
+        openScope(SymScope.Name.ACTION);
+
+        Parameter[] parameters = action.getParameters();
+        for (Parameter parameter : parameters) {
+            stackFrameOffset++;
+            visit(parameter);
+        }
+
+        VariableDcl[] variableDcls = action.getVariableDcls();
+        for (VariableDcl variableDcl : variableDcls) {
+            stackFrameOffset++;
+            visit(variableDcl);
+        }
+
+        ConnectorDcl[] connectorDcls = action.getConnectorDcls();
+        for (ConnectorDcl connectorDcl : connectorDcls) {
+            stackFrameOffset++;
+            visit(connectorDcl);
+        }
+
+        BlockStmt blockStmt = action.getActionBody();
+        blockStmt.accept(this);
+
+        // Here we need to calculate size of the BValue array which will be created in the stack frame
+        // Values in the stack frame are stored in the following order.
+        // -- Parameter values --
+        // -- Local var values --
+        // -- Temp values      --
+        // -- Return values    --
+        // These temp values are results of intermediate expression evaluations.
+        int sizeOfStackFrame = stackFrameOffset + 1;
+        action.setStackFrameSize(sizeOfStackFrame);
+
+        // Close the symbol scope
+        closeScope();
 
     }
 
@@ -296,16 +352,27 @@ public class SemanticAnalyzer implements NodeVisitor {
         SymbolName symName = parameter.getName();
 
         Symbol symbol = symbolTable.lookup(symName);
-        if (symbol != null) {
+        if (symbol != null && isSymbolInCurrentScope(symbol)) {
             throw new SemanticException("Duplicate parameter name: " + symName.getName());
         }
 
+        MemoryLocation location;
+        if (isInScope(SymScope.Name.CONNECTOR)) {
+            location = new ConnectorVarLocation();
+
+        } else if (isInScope(SymScope.Name.FUNCTION) ||
+                isInScope(SymScope.Name.RESOURCE) ||
+                isInScope(SymScope.Name.ACTION)) {
+
+            location = new LocalVarLocation(stackFrameOffset);
+        } else {
+
+            // This error should not be thrown
+            throw new IllegalStateException("Parameter declaration is invalid");
+        }
+
         BType type = parameter.getType();
-//        symbol = new Symbol(type, stackFrameOffset);
-
-        LocalVarLocation location = new LocalVarLocation(stackFrameOffset);
-        symbol = new Symbol(type, location);
-
+        symbol = new Symbol(type, currentScopeName(), location);
         symbolTable.insert(symName, symbol);
 
     }
@@ -313,18 +380,31 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(VariableDcl variableDcl) {
         SymbolName symName = variableDcl.getName();
-
         Symbol symbol = symbolTable.lookup(symName);
-        if (symbol != null) {
+        if (symbol != null && isSymbolInCurrentScope(symbol)) {
             throw new SemanticException("Duplicate variable declaration with name: " + symName.getName());
         }
 
+        MemoryLocation location;
+        if (isInScope(SymScope.Name.CONNECTOR)) {
+            location = new ConnectorVarLocation();
+
+        } else if (isInScope(SymScope.Name.SERVICE)) {
+            location = new ServiceVarLocation(staticMemAddrOffset);
+
+        } else if (isInScope(SymScope.Name.FUNCTION) ||
+                isInScope(SymScope.Name.RESOURCE) ||
+                isInScope(SymScope.Name.ACTION)) {
+
+            location = new LocalVarLocation(stackFrameOffset);
+        } else {
+
+            // This error should not be thrown
+            throw new IllegalStateException("Variable declaration is invalid");
+        }
+
         BType type = variableDcl.getType();
-//        symbol = new Symbol(type, stackFrameOffset);
-
-        LocalVarLocation location = new LocalVarLocation(stackFrameOffset);
-        symbol = new Symbol(type, location);
-
+        symbol = new Symbol(type, currentScopeName(), location);
         symbolTable.insert(symName, symbol);
     }
 
@@ -333,15 +413,29 @@ public class SemanticAnalyzer implements NodeVisitor {
         SymbolName symbolName = connectorDcl.getVarName();
 
         Symbol symbol = symbolTable.lookup(symbolName);
-        if (symbol != null) {
+        if (symbol != null && isSymbolInCurrentScope(symbol)) {
             throw new SemanticException("Duplicate connector declaration with name: " + symbolName.getName());
         }
 
-//        symbol = new Symbol(BTypes.CONNECTOR_TYPE, stackFrameOffset);
+        MemoryLocation location;
+        if (isInScope(SymScope.Name.CONNECTOR)) {
+            location = new ConnectorVarLocation();
 
-        LocalVarLocation location = new LocalVarLocation(stackFrameOffset);
-        symbol = new Symbol(BTypes.CONNECTOR_TYPE, location);
+        } else if (isInScope(SymScope.Name.SERVICE)) {
+            location = new ServiceVarLocation(staticMemAddrOffset);
 
+        } else if (isInScope(SymScope.Name.FUNCTION) ||
+                isInScope(SymScope.Name.RESOURCE) ||
+                isInScope(SymScope.Name.ACTION)) {
+
+            location = new LocalVarLocation(stackFrameOffset);
+        } else {
+
+            // This error should not be thrown
+            throw new IllegalStateException("Connector declaration is invalid");
+        }
+
+        symbol = new Symbol(BTypes.getType(connectorDcl.getConnectorName().getName()), currentScopeName(), location);
         symbolTable.insert(symbolName, symbol);
 
         // Setting the connector name with the package name
@@ -789,13 +883,24 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     // Private methods.
 
-    private void openScope() {
-        symbolTable.openScope();
+    private void openScope(SymScope.Name scopeName) {
+        symbolTable.openScope(scopeName);
     }
 
     private void closeScope() {
-        stackFrameOffset = -1;
         symbolTable.closeScope();
+    }
+
+    private boolean isInScope(SymScope.Name scopeName) {
+        return symbolTable.getCurrentScope().getScopeName() == scopeName;
+    }
+
+    private SymScope.Name currentScopeName() {
+        return symbolTable.getCurrentScope().getScopeName();
+    }
+
+    private boolean isSymbolInCurrentScope(Symbol symbol) {
+        return symbol.getScopeName() == currentScopeName();
     }
 
     private void visitBinaryExpr(BinaryExpression expr) {
@@ -820,6 +925,24 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         if (symbolTable.lookup(symbolName) != null) {
             throw new SemanticException("Duplicate function definition: " + symbolName.getName());
+        }
+        symbolTable.insert(symbolName, symbol);
+    }
+
+    private void addActionSymbol(BallerinaAction action) {
+
+        SymbolName actionSymbolName = action.getSymbolName();
+
+        BType[] paramTypes = LangModelUtils.getTypesOfParams(action.getParameters());
+
+        SymbolName symbolName =
+                LangModelUtils.getActionSymName(actionSymbolName.getName(),
+                        actionSymbolName.getConnectorName(),
+                        actionSymbolName.getPkgName(), paramTypes);
+        Symbol symbol = new Symbol(action, paramTypes, action.getReturnTypes());
+
+        if (symbolTable.lookup(symbolName) != null) {
+            throw new SemanticException("Duplicate action definition: " + symbolName.getName());
         }
         symbolTable.insert(symbolName, symbol);
     }

@@ -101,6 +101,8 @@ public class BLangExecutor implements NodeExecutor {
 
     @Override
     public void visit(AssignStmt assignStmt) {
+        // TODO Implementation of this method is inefficient
+        // TODO We are in the process of refactoring this method, please bear with us.
         Expression rExpr = assignStmt.getRExpr();
         BValue rValue = rExpr.execute(this);
 
@@ -419,7 +421,9 @@ public class BLangExecutor implements NodeExecutor {
 
     @Override
     public BValue visit(ServiceVarLocation serviceVarLocation) {
-        return null;
+        int offset = serviceVarLocation.getStaticMemAddrOffset();
+        RuntimeEnvironment.StaticMemory staticMemory = runtimeEnv.getStaticMemory();
+        return staticMemory.getValue(offset);
     }
 
     @Override

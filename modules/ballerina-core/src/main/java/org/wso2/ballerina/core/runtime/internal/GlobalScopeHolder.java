@@ -31,7 +31,7 @@ import org.wso2.ballerina.core.model.SymbolName;
 public class GlobalScopeHolder {
 
     private static GlobalScopeHolder instance = new GlobalScopeHolder();
-    private SymScope globalScope = new SymScope();
+    private SymScope globalScope = new SymScope(SymScope.Name.GLOBAL);
 
     private GlobalScopeHolder() {
     }

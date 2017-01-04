@@ -43,7 +43,6 @@ public class BallerinaConnector implements Connector , Node {
     private List<Parameter> arguments;
     private List<ConnectorDcl> connectorDclList;
     private List<VariableDcl> variableDclList;
-    private List<BallerinaAction> actionList;
 
     private SymbolName name;
     private Annotation[] annotations;
@@ -64,6 +63,29 @@ public class BallerinaConnector implements Connector , Node {
         this.connectorDcls = connectorDcls;
         this.variableDcls = variableDcls;
         this.actions = actions;
+
+        // Set the connector name for all the actions
+        for (Action action : actions) {
+            action.getSymbolName().setConnectorName(name.getName());
+        }
+    }
+
+    /**
+     * Get the name of the connector
+     *
+     * @return name of the connector
+     */
+    public String getName() {
+        return name.getName();
+    }
+
+    /**
+     * Get the package qualified name
+     *
+     * @return package qualified name
+     */
+    public String getPackageQualifiedName() {
+        return name.getPkgName() + ":" + name.getName();
     }
 
     /**
@@ -189,31 +211,10 @@ public class BallerinaConnector implements Connector , Node {
     /**
      * Get all the Actions can be performed in the Connector
      *
-     * @return list of all Actions
+     * @return array of all Actions
      */
-    public List<BallerinaAction> getActions() {
-        return actionList;
-    }
-
-    /**
-     * Set list of Actions to the Connector
-     *
-     * @param actions list of Actions
-     */
-    public void setActions(List<BallerinaAction> actions) {
-        this.actionList = actions;
-    }
-
-    /**
-     * Add an {@code Action} to the Connector
-     *
-     * @param action Action to be added to the Connector
-     */
-    public void addAction(BallerinaAction action) {
-        if (actionList == null) {
-            actionList = new ArrayList<BallerinaAction>();
-        }
-        actionList.add(action);
+    public BallerinaAction[] getActions() {
+        return actions;
     }
 
     @Override

@@ -85,6 +85,16 @@ public class BallerinaAction implements Action, Node {
     }
 
     @Override
+    public SymbolName getSymbolName() {
+        return name;
+    }
+
+    @Override
+    public void setSymbolName(SymbolName symbolName) {
+        name = symbolName;
+    }
+
+    @Override
     public BType[] getReturnTypes() {
         return new BType[0];
     }

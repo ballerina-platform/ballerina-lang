@@ -17,10 +17,10 @@
  */
 define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-definition', './default-worker', 'd3utils', '' +
         'd3', './worker-declaration-view', './statement-view-factory', './point', './axis',
-        './connector-declaration-view', './statement-container', './variables-view'],
+        './connector-declaration-view', './statement-container', './variables-view', './arguments-view'],
     function (_, log, EventChannel, Canvas, FunctionDefinition, DefaultWorkerView, D3Utils,
               d3, WorkerDeclarationView, StatementViewFactory, Point, Axis,
-              ConnectorDeclarationView, StatementContainer, VariablesView) {
+              ConnectorDeclarationView, StatementContainer, VariablesView, ArgumentsView) {
 
         /**
          * The view to represent a function definition which is an AST visitor.
@@ -139,10 +139,15 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
             this._container = currentContainer;
             var self = this;
 
+            $("#title-" + this._model.id).text(this._model.getFunctionName());
             // Listen to the function name changing event and dynamically update the function name
-            $("#title-" + this._model.id).on("change paste keyup", function () {
-                self._model.setFunctionName($(this).text());
-            });
+            $("#title-" + this._model.id)
+                .on("change paste keyup", function () {
+                    self._model.setFunctionName($(this).text());
+                })
+                .on("click", function (event) {
+                    event.stopPropagation();
+                });
 
             // Creating default worker
             var defaultWorkerOpts = {};
@@ -165,7 +170,7 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
                 self._model.trigger("childVisitedEvent", child);
             });
 
-            var variableButton = VariablesView.createVariableButton(this.getChildContainer().node(), 4, 7);
+            var variableButton = VariablesView.createVariableButton(this.getChildContainer().node(), 14, 10);
 
             var variableProperties = {
                 model: this._model,
@@ -181,6 +186,25 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
             };
 
             VariablesView.createVariablePane(variableProperties);
+
+            // Replacing annotation icon with function args.
+            var functionArgsIcons = this._panelAnnotationIcon;
+            functionArgsIcons.removeClass("fw-annotation");
+            functionArgsIcons.addClass("fw-import");
+
+            var argumentsProperties = {
+                model: this._model,
+                activatorElement: this.getAnnotationIcon(),
+                paneAppendElement: this.getChildContainer().node().ownerSVGElement.parentElement,
+                viewOptions: {
+                    position: {
+                        left: parseInt(this.getChildContainer().node().parentElement.getBoundingClientRect().width),
+                        top: 0
+                    }
+                }
+            };
+
+            ArgumentsView.createArgumentsPane(argumentsProperties);
         };
 
         FunctionDefinitionView.prototype.init = function(){

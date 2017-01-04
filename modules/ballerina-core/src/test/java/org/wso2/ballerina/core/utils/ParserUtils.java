@@ -49,7 +49,7 @@ public class ParserUtils {
      * @return BallerinaFile instance.
      */
     public static BallerinaFile parseBalFile(String sourceFilePath) {
-        return parseBalFile(sourceFilePath, new SymScope());
+        return parseBalFile(sourceFilePath, new SymScope(SymScope.Name.GLOBAL));
     }
 
     /**
