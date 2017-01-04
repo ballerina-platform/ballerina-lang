@@ -47,8 +47,7 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
      * @param jsonNode
      */
     ReplyStatement.prototype.initFromJson = function (jsonNode) {
-        // this.message = jsonNode.annotate;
-        // Object.getPrototypeOf(this.constructor.prototype).initFromJson.call(this, jsonNode, 0);
+        //TODO : load properties from expression
     };
 
     return ReplyStatement;
