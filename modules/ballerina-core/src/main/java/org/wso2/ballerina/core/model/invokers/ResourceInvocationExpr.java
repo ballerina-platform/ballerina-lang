@@ -18,20 +18,23 @@
 
 package org.wso2.ballerina.core.model.invokers;
 
+import org.wso2.ballerina.core.model.ExecutableMultiReturnExpr;
 import org.wso2.ballerina.core.model.Node;
+import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.Resource;
+import org.wso2.ballerina.core.model.values.BValue;
 
 /**
  * {@code ResourceInvoker} is the entity which invokes a particular resource
  *
  * @since 1.0.0
  */
-public class ResourceInvoker implements Node {
+public class ResourceInvocationExpr implements Node, ExecutableMultiReturnExpr {
 
     Resource resource;
 
-    public ResourceInvoker(Resource resource) {
+    public ResourceInvocationExpr(Resource resource) {
         this.resource = resource;
     }
 
@@ -42,5 +45,10 @@ public class ResourceInvoker implements Node {
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public BValue[] executeMultiReturn(NodeExecutor executor) {
+        return executor.visit(this);
     }
 }

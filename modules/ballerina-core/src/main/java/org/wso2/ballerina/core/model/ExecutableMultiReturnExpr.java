@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -15,27 +15,23 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerina.core.model.expressions;
+package org.wso2.ballerina.core.model;
 
-import org.wso2.ballerina.core.model.ExecutableExpr;
-import org.wso2.ballerina.core.model.Node;
-import org.wso2.ballerina.core.model.types.BType;
+import org.wso2.ballerina.core.model.values.BValue;
 
 /**
- * {@code Expression} represents a generic expression in Ballerina
+ * {@code ExecutableMultiReturnExpr} interface makes an {@link org.wso2.ballerina.core.model.expressions.Expression}
+ * which returns multiple values executable
  *
- * @see AddExpression
- * @see VariableRefExpr
- * @see FunctionInvocationExpr
  * @since 1.0.0
  */
-public interface Expression extends Node, ExecutableExpr {
+public interface ExecutableMultiReturnExpr {
 
-    BType getType();
-
-    void setType(BType type);
-
-    int getOffset();
-
-    void setOffset(int offset);
+    /**
+     * Executes and Returns all the results of this expression
+     *
+     * @param executor instance of a {@code NodeExecutor}
+     * @return results of this expression
+     */
+    BValue[] executeMultiReturn(NodeExecutor executor);
 }

@@ -17,8 +17,10 @@
 */
 package org.wso2.ballerina.core.model.expressions;
 
+import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.SymbolName;
+import org.wso2.ballerina.core.model.values.BValue;
 
 /**
  * {@code ArrayAccessExpr} represents an array access operation.
@@ -61,6 +63,11 @@ public class ArrayAccessExpr extends UnaryExpression {
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
+
+    public BValue execute(NodeExecutor executor) {
+        return executor.visit(this);
+    }
+
 
     /**
      * {@code ArrayAccessExprBuilder} represents an array access expression builder

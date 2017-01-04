@@ -17,7 +17,9 @@
 */
 package org.wso2.ballerina.core.model.expressions;
 
+import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.NodeVisitor;
+import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BValueType;
 
 /**
@@ -35,7 +37,7 @@ public class BasicLiteral extends AbstractExpression {
         this.bValueType = bValueType;
     }
 
-    public BValueType getbValueNew() {
+    public BValueType getBValue() {
         return bValueType;
     }
 
@@ -43,4 +45,9 @@ public class BasicLiteral extends AbstractExpression {
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
+
+    public BValue execute(NodeExecutor executor) {
+        return executor.visit(this);
+    }
+
 }

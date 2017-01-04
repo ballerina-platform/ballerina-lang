@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerina.core.model;
 
+import org.wso2.ballerina.core.model.expressions.Expression;
 import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.values.BValue;
 
@@ -25,10 +26,11 @@ import org.wso2.ballerina.core.model.values.BValue;
  *
  * @since 1.0.0
  */
-public class Const {
+public class Const implements Node {
 
     private BType type;
     private SymbolName symbolName;
+    private Expression valueExpr;
     private BValue value;
 
     /**
@@ -42,6 +44,12 @@ public class Const {
         this.type = type;
         this.symbolName = symbolName;
         this.value = value;
+    }
+
+    public Const(BType type, SymbolName symbolName, Expression valueExpr) {
+        this.type = type;
+        this.symbolName = symbolName;
+        this.valueExpr = valueExpr;
     }
 
     /**
@@ -58,8 +66,12 @@ public class Const {
      *
      * @return identifier of the constant declaration
      */
-    public SymbolName getSymbolName() {
+    public SymbolName getName() {
         return symbolName;
+    }
+
+    public Expression getValueExpr() {
+        return valueExpr;
     }
 
     /**
@@ -69,5 +81,42 @@ public class Const {
      */
     public BValue getValue() {
         return value;
+    }
+
+    public void setValue(BValue value) {
+        this.value = value;
+    }
+
+    @Override
+    public void accept(NodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    /**
+     *
+     */
+    public static class ConstBuilder {
+        private BType type;
+        private SymbolName symbolName;
+        private Expression valueExpr;
+
+        public ConstBuilder() {
+        }
+
+        public void setType(BType type) {
+            this.type = type;
+        }
+
+        public void setSymbolName(SymbolName symbolName) {
+            this.symbolName = symbolName;
+        }
+
+        public void setValueExpr(Expression valueExpr) {
+            this.valueExpr = valueExpr;
+        }
+
+        public Const build() {
+            return new Const(type, symbolName, valueExpr);
+        }
     }
 }

@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -15,27 +15,32 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerina.core.model.expressions;
+package org.wso2.ballerina.core.interpreter;
 
+import org.wso2.ballerina.core.model.Node;
 import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.values.BValue;
 
 /**
- * {@code BackquoteExpr} represents an xml or a json string wrapped in between backticks/backquotes
+ * {@code ServiceVarLocation} represents a location where a variable declared in a
+ * {@link org.wso2.ballerina.core.model.Service }  is stored at runtime
+ * <p>
+ * Since there exists only one instance of a service, we can compute the required
+ * memory block size during the compilation time.  Therefore we use the StackMemory
+ * block to store all the service level variables and connectors
  *
  * @since 1.0.0
  */
-public class BackquoteExpr extends AbstractExpression {
+public class ServiceVarLocation extends MemoryLocation implements Node {
+    private int staticMemAddrOffset;
 
-    private String templateStr;
-
-    private BackquoteExpr(String templateStr) {
-        this.templateStr = templateStr;
+    public ServiceVarLocation(int staticMemAddrOffset) {
+        this.staticMemAddrOffset = staticMemAddrOffset;
     }
 
-    public String getTemplateStr() {
-        return templateStr;
+    public int getStaticMemAddrOffset() {
+        return staticMemAddrOffset;
     }
 
     @Override
@@ -43,25 +48,8 @@ public class BackquoteExpr extends AbstractExpression {
         visitor.visit(this);
     }
 
+    @Override
     public BValue execute(NodeExecutor executor) {
         return executor.visit(this);
-    }
-
-    /**
-     *
-     */
-    public static class BackquoteExprBuilder {
-        private String templateStr;
-
-        public BackquoteExprBuilder() {
-        }
-
-        public void setTemplateStr(String templateStr) {
-            this.templateStr = templateStr;
-        }
-
-        public BackquoteExpr build() {
-            return new BackquoteExpr(this.templateStr);
-        }
     }
 }
