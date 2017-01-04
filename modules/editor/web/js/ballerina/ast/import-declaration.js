@@ -88,5 +88,14 @@ define(['lodash', './node'], function (_, ASTNode) {
         return this._identifier;
     };
 
+    /**
+     * initialize from json
+     * @param jsonNode
+     */
+    ImportDeclaration.prototype.initFromJson = function (jsonNode) {
+        this._packageName = jsonNode.import_package_path;
+        this._identifier = jsonNode.import_package_name;
+    };
+
     return ImportDeclaration;
 });

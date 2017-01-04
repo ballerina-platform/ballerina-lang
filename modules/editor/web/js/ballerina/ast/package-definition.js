@@ -49,6 +49,14 @@ define(['lodash', './node'], function (_, ASTNode) {
       return this._packageName;
     };
 
+    /**
+     * initialize from json
+     * @param jsonNode
+     */
+    PackageDefinition.prototype.initFromJson = function (jsonNode) {
+        this._packageName = jsonNode.package_name;
+    };
+
     return PackageDefinition;
 
 });

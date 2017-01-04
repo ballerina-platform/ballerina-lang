@@ -164,6 +164,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void enterConnectorBody(BallerinaParser.ConnectorBodyContext ctx) {
+        modelBuilder.registerConnectorType(ctx.getParent().getChild(1).getText());
     }
 
     @Override
@@ -744,6 +745,9 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitArgumentList(BallerinaParser.ArgumentListContext ctx) {
+        if (ctx.expressionList() == null) { //handles empty argument functions
+            modelBuilder.startExprList();
+        }
     }
 
     @Override

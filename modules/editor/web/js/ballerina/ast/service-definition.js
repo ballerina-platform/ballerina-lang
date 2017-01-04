@@ -18,7 +18,7 @@
 define(['lodash', './node'], function (_, ASTNode) {
 
     var ServiceDefinition = function (args) {
-        this._serviceName = _.get(args, 'serviceName');
+        this._serviceName = _.get(args, 'serviceName', 'newService');
         this._annotations = _.get(args, 'annotations', []);
         this._resourceDefinitions = _.get(args, 'resourceDefinitions', []);
         this._variableDeclarations = _.get(args, 'variableDeclarations', []);
@@ -133,8 +133,24 @@ define(['lodash', './node'], function (_, ASTNode) {
     ServiceDefinition.prototype.canBeParentOf = function (node) {
         var BallerinaASTFactory = this.getFactory();
         return BallerinaASTFactory.isResourceDefinition(node)
-            || BallerinaASTFactory.isVariableDeclaration(node)
-            || BallerinaASTFactory.isConnectorDeclaration(node);
+            || BallerinaASTFactory.isVariableDeclaration(node);
+    };
+
+    /**
+     * initialize from json
+     * @param jsonNode
+     */
+    ServiceDefinition.prototype.initFromJson = function (jsonNode) {
+        this._serviceName = jsonNode.service_name;
+        this._annotations = jsonNode.annotations;
+
+        var self = this;
+        var BallerinaASTFactory = this.getFactory();
+
+        _.each(jsonNode.children, function (childNode) {
+            var child = BallerinaASTFactory.createFromJson(childNode);
+            self.addChild(child);
+        });
     };
 
     return ServiceDefinition;

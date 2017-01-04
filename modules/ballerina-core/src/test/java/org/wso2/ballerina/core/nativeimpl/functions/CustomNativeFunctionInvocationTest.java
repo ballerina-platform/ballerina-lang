@@ -38,7 +38,7 @@ public class CustomNativeFunctionInvocationTest {
         final String funcName = "invokeNativeFunction";
 
         // Add Native functions.
-        SymScope symScope = new SymScope();
+        SymScope symScope = new SymScope(SymScope.Name.GLOBAL);
         FunctionUtils.addNativeFunction(symScope, new EchoStringNativeFunction());
 
         BallerinaFile bFile = ParserUtils.parseBalFile("samples/nativeimpl/customNative.bal", symScope);
