@@ -382,16 +382,6 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             var headingAnnotationIcon = D3utils.rect(xForAnnotationIcon, yForAnnotationIcon,
                 iconSizeSideLength, iconSizeSideLength, 0, 0, headerGroup).classed("headingAnnotationBlackIcon", true);
 
-
-            // The hovering effect for delete icon.
-            $(headingDeleteIcon.node()).hover(function () {
-                headingDeleteIcon.classed("deleteRedIcon", true);
-                headingDeleteIcon.classed("deleteIcon", false);
-            }, function () {
-                headingDeleteIcon.classed("deleteRedIcon", false);
-                headingDeleteIcon.classed("deleteIcon", true);
-            });
-
             // UI changes when the annotation button is clicked.
             $(headingAnnotationIcon.node()).click(function () {
                 if ($(this).data("showing") === "true") {
