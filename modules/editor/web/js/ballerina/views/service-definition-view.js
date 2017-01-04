@@ -164,10 +164,15 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
             this.getModel().accept(this);
             var self = this;
 
+            $("#title-" + this._model.id).text(this._model.getServiceName());
             // Listen to the service name changing event and dynamically update the service name
-            $("#title-" + this._model.id).on("change paste keyup", function () {
-                self._model.setServiceName($(this).text());
-            });
+            $("#title-" + this._model.id)
+                .on("change paste keyup", function () {
+                    self._model.setServiceName($(this).text());
+                })
+                .on("click", function (event) {
+                    event.stopPropagation();
+                });
 
             this._model.on('child-added', function (child) {
                 self.visit(child);
