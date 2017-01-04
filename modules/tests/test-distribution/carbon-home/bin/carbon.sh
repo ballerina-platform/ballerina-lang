@@ -1,6 +1,6 @@
-#!/bin/bash
+#!/bin/sh
 # ---------------------------------------------------------------------------
-#  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+#  Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -15,9 +15,9 @@
 #  limitations under the License.
 
 # ----------------------------------------------------------------------------
-# Main Script for the WSO2 Ballerina Server
+# Main Script for the WSO2 Carbon Server
 #
-# Environment Variable Prerequisites
+# Environment Variable Prequisites
 #
 #   CARBON_HOME   Home of WSO2 Carbon installation. If not set I will  try
 #                   to figure it out.
@@ -32,7 +32,7 @@
 
 # OS specific support.  $var _must_ be set to either true or false.
 #ulimit -n 100000
-BASE_DIR=$PWD
+
 cygwin=false;
 darwin=false;
 os400=false;
@@ -121,7 +121,7 @@ fi
 
 # if JAVA_HOME is not set we're not happy
 if [ -z "$JAVA_HOME" ]; then
-  echo "You must set the JAVA_HOME variable before running Ballerina."
+  echo "You must set the JAVA_HOME variable before running CARBON."
   exit 1
 fi
 
@@ -130,58 +130,30 @@ if [ -e "$CARBON_HOME/carbon.pid" ]; then
 fi
 
 # ----- Process the input command ----------------------------------------------
-
 args=""
-
-for c in "$@"
+for c in $*
 do
     if [ "$c" = "--debug" ] || [ "$c" = "-debug" ] || [ "$c" = "debug" ]; then
           CMD="--debug"
-    elif [ "$CMD" = "--debug" ] && [ -z "$PORT" ]; then
-          PORT=$c
-    elif [ "$c" = "stop" ]; then
+          continue
+    elif [ "$CMD" = "--debug" ]; then
+          if [ -z "$PORT" ]; then
+                PORT=$c
+          fi
+    elif [ "$c" = "--stop" ] || [ "$c" = "-stop" ] || [ "$c" = "stop" ]; then
           CMD="stop"
-    elif [ "$c" = "start" ]; then
+    elif [ "$c" = "--start" ] || [ "$c" = "-start" ] || [ "$c" = "start" ]; then
           CMD="start"
-    elif [ "$c" = "restart" ]; then
-          CMD="restart"
-    elif [ "$c" = "version" ]; then
+    elif [ "$c" = "--version" ] || [ "$c" = "-version" ] || [ "$c" = "version" ]; then
           CMD="version"
-    elif [ "$c" = "help" ]; then
-          CMD="help"
-    # Parsing Options.
-    elif [[ "$c" = *.bal ]]; then
-          FILE_NAME=$c
-          if [[ "$FILE_NAME" != /* ]]; then
-              FILE_NAME="$BASE_DIR/$FILE_NAME"
-          fi
-          if [[ -z "$BAL_FILE_NAME" ]]; then
-              BAL_FILE_NAME="$FILE_NAME"
-          else
-              BAL_FILE_NAME="$BAL_FILE_NAME;$FILE_NAME"
-          fi
-          args="$args $c"
-    # Parsing Commands.
+    elif [ "$c" = "--restart" ] || [ "$c" = "-restart" ] || [ "$c" = "restart" ]; then
+          CMD="restart"
+    elif [ "$c" = "--test" ] || [ "$c" = "-test" ] || [ "$c" = "test" ]; then
+          CMD="test"
     else
-        echo "Not supported input argument : $c"
-        cat $CARBON_HOME/bin/ballerinaserver-bash-help.txt
-        exit 1
+        args="$args $c"
     fi
 done
-
-if [ "$CMD" = "stop" ]; then
-  export CARBON_HOME=$CARBON_HOME
-  if [ -f "$CARBON_HOME/carbon.pid" ]; then
-      kill -term `cat $CARBON_HOME/carbon.pid`
-      exit 0
-  fi
-fi
-
-if [ -z "$BAL_FILE_NAME" ]; then
-    echo "Please specify Ballerina file(s) to run. (Eg: ballerina.sh foo.bal)"
-    cat $CARBON_HOME/bin/ballerinaserver-bash-help.txt
-    exit 1
-fi
 
 if [ "$CMD" = "--debug" ]; then
   if [ "$PORT" = "" ]; then
@@ -191,14 +163,9 @@ if [ "$CMD" = "--debug" ]; then
   if [ -n "$JAVA_OPTS" ]; then
     echo "Warning !!!. User specified JAVA_OPTS will be ignored, once you give the --debug option."
   fi
+  CMD="RUN"
   JAVA_OPTS="-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=$PORT"
   echo "Please start the remote debugging client to continue..."
-elif [ "$CMD" = "version" ]; then
-  cat $CARBON_HOME/bin/version.txt
-  exit 0
-elif [ "$CMD" = "help" ]; then
-  cat $CARBON_HOME/bin/ballerinaserver-bash-help.txt
-  exit 0
 elif [ "$CMD" = "start" ]; then
   if [ -e "$CARBON_HOME/carbon.pid" ]; then
     if  ps -p $PID > /dev/null ; then
@@ -208,32 +175,39 @@ elif [ "$CMD" = "start" ]; then
   fi
   export CARBON_HOME=$CARBON_HOME
 # using nohup bash to avoid erros in solaris OS.TODO
-  nohup bash $CARBON_HOME/bin/ballerinaserver.sh $args > /dev/null 2>&1 &
+  nohup bash $CARBON_HOME/bin/carbon.sh $args > /dev/null 2>&1 &
+  exit 0
+elif [ "$CMD" = "stop" ]; then
+  export CARBON_HOME=$CARBON_HOME
+  kill -term `cat $CARBON_HOME/carbon.pid`
   exit 0
 elif [ "$CMD" = "restart" ]; then
   export CARBON_HOME=$CARBON_HOME
-  if [ -f "$CARBON_HOME/carbon.pid" ]; then
-      kill -term `cat $CARBON_HOME/carbon.pid`
-      process_status=0
-      pid=`cat $CARBON_HOME/carbon.pid`
-      while [ "$process_status" -eq "0" ]
-      do
-            sleep 1;
-            ps -p$pid 2>&1 > /dev/null
-            process_status=$?
-      done
-  fi
+  kill -term `cat $CARBON_HOME/carbon.pid`
+  process_status=0
+  pid=`cat $CARBON_HOME/carbon.pid`
+  while [ "$process_status" -eq "0" ]
+  do
+        sleep 1;
+        ps -p$pid 2>&1 > /dev/null
+        process_status=$?
+  done
 
 # using nohup bash to avoid erros in solaris OS.TODO
-  nohup bash $CARBON_HOME/bin/ballerinaserver.sh $args > /dev/null 2>&1 &
+  nohup bash $CARBON_HOME/bin/carbon.sh $args > /dev/null 2>&1 &
+  exit 0
+elif [ "$CMD" = "test" ]; then
+    JAVACMD="exec "$JAVACMD""
+elif [ "$CMD" = "version" ]; then
+  cat $CARBON_HOME/bin/kernel-version.txt
   exit 0
 fi
 
 # ---------- Handle the SSL Issue with proper JDK version --------------------
 jdk_18=`$JAVA_HOME/bin/java -version 2>&1 | grep "1.[8]"`
 if [ "$jdk_18" = "" ]; then
-   echo " Starting WSO2 Ballerina (in unsupported JDK)"
-   echo " [ERROR] WSO2 Ballerina is supported only on JDK 1.8"
+   echo " Starting WSO2 Carbon (in unsupported JDK)"
+   echo " [ERROR] CARBON is supported only on JDK 1.8"
 fi
 
 CARBON_XBOOTCLASSPATH=""
@@ -272,8 +246,8 @@ fi
 
 # ----- Execute The Requested Command -----------------------------------------
 
-#echo JAVA_HOME environment variable is set to $JAVA_HOME
-#echo CARBON_HOME environment variable is set to $CARBON_HOME
+echo JAVA_HOME environment variable is set to $JAVA_HOME
+echo CARBON_HOME environment variable is set to $CARBON_HOME
 
 cd "$CARBON_HOME"
 
@@ -300,8 +274,6 @@ do
     -Djava.util.logging.config.file="$CARBON_HOME/bin/bootstrap/logging.properties" \
     -Djava.security.egd=file:/dev/./urandom \
     -Dfile.encoding=UTF8 \
-    -Drun-mode=server \
-    -Drun-file="$BAL_FILE_NAME" \
     org.wso2.carbon.launcher.Main $*
     status=$?
 done

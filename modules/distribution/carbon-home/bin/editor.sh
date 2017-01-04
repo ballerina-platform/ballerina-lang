@@ -15,11 +15,11 @@
 #  limitations under the License.
 
 # ----------------------------------------------------------------------------
-# Main Script for the WSO2 Ballerina Server
+# Main Script for the WSO2 Ballerina Tooling.
 #
 # Environment Variable Prerequisites
 #
-#   CARBON_HOME   Home of WSO2 Carbon installation. If not set I will  try
+#   BAL_HOME   Home of WSO2 Carbon installation. If not set I will  try
 #                   to figure it out.
 #
 #   JAVA_HOME       Must point at your Java Development Kit installation.
@@ -69,13 +69,13 @@ done
 # Get standard environment variables
 PRGDIR=`dirname "$PRG"`
 
-# Only set CARBON_HOME if not already set
-[ -z "$CARBON_HOME" ] && CARBON_HOME=`cd "$PRGDIR/.." ; pwd`
+# Only set BAL_HOME if not already set
+[ -z "$BAL_HOME" ] && BAL_HOME=`cd "$PRGDIR/.." ; pwd`
 
 # For Cygwin, ensure paths are in UNIX format before anything is touched
 if $cygwin; then
   [ -n "$JAVA_HOME" ] && JAVA_HOME=`cygpath --unix "$JAVA_HOME"`
-  [ -n "$CARBON_HOME" ] && CARBON_HOME=`cygpath --unix "$CARBON_HOME"`
+  [ -n "$BAL_HOME" ] && BAL_HOME=`cygpath --unix "$BAL_HOME"`
 fi
 
 # For OS400
@@ -93,8 +93,8 @@ fi
 
 # For Migwn, ensure paths are in UNIX format before anything is touched
 if $mingw ; then
-  [ -n "$CARBON_HOME" ] &&
-    CARBON_HOME="`(cd "$CARBON_HOME"; pwd)`"
+  [ -n "$BAL_HOME" ] &&
+    BAL_HOME="`(cd "$BAL_HOME"; pwd)`"
   [ -n "$JAVA_HOME" ] &&
     JAVA_HOME="`(cd "$JAVA_HOME"; pwd)`"
   # TODO classpath?
@@ -125,13 +125,8 @@ if [ -z "$JAVA_HOME" ]; then
   exit 1
 fi
 
-if [ -e "$CARBON_HOME/carbon.pid" ]; then
-  PID=`cat "$CARBON_HOME"/carbon.pid`
-fi
 
 # ----- Process the input command ----------------------------------------------
-
-args=""
 
 for c in "$@"
 do
@@ -139,53 +134,15 @@ do
           CMD="--debug"
     elif [ "$CMD" = "--debug" ] && [ -z "$PORT" ]; then
           PORT=$c
-    elif [ "$c" = "stop" ]; then
-          CMD="stop"
-    elif [ "$c" = "start" ]; then
-          CMD="start"
-    elif [ "$c" = "restart" ]; then
-          CMD="restart"
-    elif [ "$c" = "version" ]; then
-          CMD="version"
-    elif [ "$c" = "help" ]; then
-          CMD="help"
-    # Parsing Options.
-    elif [[ "$c" = *.bal ]]; then
-          FILE_NAME=$c
-          if [[ "$FILE_NAME" != /* ]]; then
-              FILE_NAME="$BASE_DIR/$FILE_NAME"
-          fi
-          if [[ -z "$BAL_FILE_NAME" ]]; then
-              BAL_FILE_NAME="$FILE_NAME"
-          else
-              BAL_FILE_NAME="$BAL_FILE_NAME;$FILE_NAME"
-          fi
-          args="$args $c"
-    # Parsing Commands.
     else
-        echo "Not supported input argument : $c"
-        cat $CARBON_HOME/bin/ballerinaserver-bash-help.txt
+        echo "Not supported command : $c"
         exit 1
     fi
 done
 
-if [ "$CMD" = "stop" ]; then
-  export CARBON_HOME=$CARBON_HOME
-  if [ -f "$CARBON_HOME/carbon.pid" ]; then
-      kill -term `cat $CARBON_HOME/carbon.pid`
-      exit 0
-  fi
-fi
-
-if [ -z "$BAL_FILE_NAME" ]; then
-    echo "Please specify Ballerina file(s) to run. (Eg: ballerina.sh foo.bal)"
-    cat $CARBON_HOME/bin/ballerinaserver-bash-help.txt
-    exit 1
-fi
-
 if [ "$CMD" = "--debug" ]; then
   if [ "$PORT" = "" ]; then
-    echo " Please specify the debug port after the --debug option"
+    echo "Please specify the debug port after the --debug option"
     exit 1
   fi
   if [ -n "$JAVA_OPTS" ]; then
@@ -193,77 +150,19 @@ if [ "$CMD" = "--debug" ]; then
   fi
   JAVA_OPTS="-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=$PORT"
   echo "Please start the remote debugging client to continue..."
-elif [ "$CMD" = "version" ]; then
-  cat $CARBON_HOME/bin/version.txt
-  exit 0
-elif [ "$CMD" = "help" ]; then
-  cat $CARBON_HOME/bin/ballerinaserver-bash-help.txt
-  exit 0
-elif [ "$CMD" = "start" ]; then
-  if [ -e "$CARBON_HOME/carbon.pid" ]; then
-    if  ps -p $PID > /dev/null ; then
-      echo "Process is already running"
-      exit 0
-    fi
-  fi
-  export CARBON_HOME=$CARBON_HOME
-# using nohup bash to avoid erros in solaris OS.TODO
-  nohup bash $CARBON_HOME/bin/ballerinaserver.sh $args > /dev/null 2>&1 &
-  exit 0
-elif [ "$CMD" = "restart" ]; then
-  export CARBON_HOME=$CARBON_HOME
-  if [ -f "$CARBON_HOME/carbon.pid" ]; then
-      kill -term `cat $CARBON_HOME/carbon.pid`
-      process_status=0
-      pid=`cat $CARBON_HOME/carbon.pid`
-      while [ "$process_status" -eq "0" ]
-      do
-            sleep 1;
-            ps -p$pid 2>&1 > /dev/null
-            process_status=$?
-      done
-  fi
-
-# using nohup bash to avoid erros in solaris OS.TODO
-  nohup bash $CARBON_HOME/bin/ballerinaserver.sh $args > /dev/null 2>&1 &
-  exit 0
 fi
 
 # ---------- Handle the SSL Issue with proper JDK version --------------------
 jdk_18=`$JAVA_HOME/bin/java -version 2>&1 | grep "1.[8]"`
 if [ "$jdk_18" = "" ]; then
-   echo " Starting WSO2 Ballerina (in unsupported JDK)"
-   echo " [ERROR] WSO2 Ballerina is supported only on JDK 1.8"
+   echo " Starting WSO2 Ballerina Tooling (in unsupported JDK)"
+   echo " [ERROR] WSO2 Ballerina Tooling is supported only on JDK 1.8"
 fi
 
-CARBON_XBOOTCLASSPATH=""
-for f in "$CARBON_HOME"/bin/bootstrap/xboot/*.jar
-do
-    if [ "$f" != "$CARBON_HOME/bin/bootstrap/xboot/*.jar" ];then
-        CARBON_XBOOTCLASSPATH="$CARBON_XBOOTCLASSPATH":$f
-    fi
-done
-
-JAVA_ENDORSED_DIRS="$CARBON_HOME/bin/bootstrap/endorsed":"$JAVA_HOME/jre/lib/endorsed":"$JAVA_HOME/lib/endorsed"
-
-CARBON_CLASSPATH=""
-if [ -e "$JAVA_HOME/bin/bootstrap/tools.jar" ]; then
-    CARBON_CLASSPATH="$JAVA_HOME/lib/tools.jar"
-fi
-for f in "$CARBON_HOME"/bin/bootstrap/*.jar
-do
-    if [ "$f" != "$CARBON_HOME/bin/bootstrap/*.jar" ];then
-        CARBON_CLASSPATH="$CARBON_CLASSPATH":$f
-    fi
-done
-for t in "$CARBON_HOME"/bin/bootstrap/commons-lang*.jar
-do
-    CARBON_CLASSPATH="$CARBON_CLASSPATH":$t
-done
 # For Cygwin, switch paths to Windows format before running java
 if $cygwin; then
   JAVA_HOME=`cygpath --absolute --windows "$JAVA_HOME"`
-  CARBON_HOME=`cygpath --absolute --windows "$CARBON_HOME"`
+  BAL_HOME=`cygpath --absolute --windows "$BAL_HOME"`
   CLASSPATH=`cygpath --path --windows "$CLASSPATH"`
   JAVA_ENDORSED_DIRS=`cygpath --path --windows "$JAVA_ENDORSED_DIRS"`
   CARBON_CLASSPATH=`cygpath --path --windows "$CARBON_CLASSPATH"`
@@ -272,10 +171,7 @@ fi
 
 # ----- Execute The Requested Command -----------------------------------------
 
-#echo JAVA_HOME environment variable is set to $JAVA_HOME
-#echo CARBON_HOME environment variable is set to $CARBON_HOME
-
-cd "$CARBON_HOME"
+cd "$BAL_HOME"
 
 START_EXIT_STATUS=121
 status=$START_EXIT_STATUS
@@ -283,25 +179,20 @@ status=$START_EXIT_STATUS
 #To monitor a Carbon server in remote JMX mode on linux host machines, set the below system property.
 #   -Djava.rmi.server.hostname="your.IP.goes.here"
 
-while [ "$status" = "$START_EXIT_STATUS" ]
-do
+
     $JAVACMD \
-    -Xbootclasspath/a:"$CARBON_XBOOTCLASSPATH" \
     -Xms256m -Xmx1024m \
     -XX:+HeapDumpOnOutOfMemoryError \
-    -XX:HeapDumpPath="$CARBON_HOME/logs/heap-dump.hprof" \
+    -XX:HeapDumpPath="$BAL_HOME/logs/heap-dump-tool.hprof" \
     $JAVA_OPTS \
-    -classpath "$CARBON_CLASSPATH" \
-    -Djava.endorsed.dirs="$JAVA_ENDORSED_DIRS" \
-    -Djava.io.tmpdir="$CARBON_HOME/tmp" \
-    -Dcarbon.registry.root=/ \
+    -classpath ./bin/workspace-service-*.jar \
+    -Djava.io.tmpdir="$BAL_HOME/tmp" \
     -Djava.command="$JAVACMD" \
-    -Dcarbon.home="$CARBON_HOME" \
-    -Djava.util.logging.config.file="$CARBON_HOME/bin/bootstrap/logging.properties" \
+    -Dballerina.home="$BAL_HOME" \
     -Djava.security.egd=file:/dev/./urandom \
     -Dfile.encoding=UTF8 \
-    -Drun-mode=server \
-    -Drun-file="$BAL_FILE_NAME" \
-    org.wso2.carbon.launcher.Main $*
-    status=$?
-done
+    -Deditor.port=9091 \
+    -DenableCloud=false \
+    -Dworkspace.port=8289 \
+    org.wso2.ballerina.tooling.service.workspace.app.WorkspaceServiceRunner
+
