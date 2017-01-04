@@ -53,7 +53,12 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
             return;
         }
         String host = url.getHost();
-        int port = (url.getPort() == -1) ? 80 : url.getPort();
+        int port = 80;
+        if (url.getPort() != -1) {
+            port = url.getPort();
+        } else if (url.getProtocol().equalsIgnoreCase(Constants.PROTOCOL_HTTPS)) {
+            port = 443;
+        }
 
         cMsg.setProperty(Constants.HOST, host);
         cMsg.setProperty(Constants.PORT, port);
@@ -64,9 +69,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         }
         cMsg.setProperty(Constants.TO, toPath);
 
-        if (cMsg.getProperty(Constants.PROTOCOL) == null) {
-            cMsg.setProperty(Constants.PROTOCOL, Constants.PROTOCOL_HTTP);
-        }
+        cMsg.setProperty(Constants.PROTOCOL, url.getProtocol());
 
         if (port != 80) {
             cMsg.getHeaders().set(Constants.HOST, host + ":" + port);
