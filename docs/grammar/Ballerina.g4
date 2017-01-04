@@ -405,8 +405,12 @@ expression
     |   expression ('==') expression                                        # binaryEqualExpression
     |   expression ('!=') expression                                        # binaryNotEqualExpression
     |   '[' expressionList ']'                                              # arrayInitializerExpression
-    |   '{' mapInitKeyValue (',' mapInitKeyValue)* '}'                      # mapInitializerExpression
+    |   '{' mapInitKeyValueList '}'                                         # mapInitializerExpression
     |   'new' (packageName ':' )? Identifier ('(' expressionList? ')')?     # typeInitializeExpression
+    ;
+
+mapInitKeyValueList
+    :   mapInitKeyValue (',' mapInitKeyValue)*
     ;
 
 mapInitKeyValue
