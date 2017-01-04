@@ -50,7 +50,7 @@ public class ControlStack {
         return currentFrame;
     }
 
-    public BValue getValueNew(int offset) {
+    public BValue getValue(int offset) {
         return currentFrame.values[offset];
     }
 
