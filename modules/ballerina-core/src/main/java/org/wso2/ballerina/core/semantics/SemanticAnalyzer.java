@@ -20,6 +20,10 @@ package org.wso2.ballerina.core.semantics;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.exception.LinkerException;
 import org.wso2.ballerina.core.exception.SemanticException;
+import org.wso2.ballerina.core.interpreter.ConnectorVarLocation;
+import org.wso2.ballerina.core.interpreter.ConstantLocation;
+import org.wso2.ballerina.core.interpreter.LocalVarLocation;
+import org.wso2.ballerina.core.interpreter.ServiceVarLocation;
 import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.interpreter.SymTable;
 import org.wso2.ballerina.core.model.Action;
@@ -29,6 +33,7 @@ import org.wso2.ballerina.core.model.BallerinaConnector;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.ConnectorDcl;
+import org.wso2.ballerina.core.model.Const;
 import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.model.ImportPackage;
 import org.wso2.ballerina.core.model.NodeVisitor;
@@ -64,7 +69,7 @@ import org.wso2.ballerina.core.model.expressions.SubtractExpression;
 import org.wso2.ballerina.core.model.expressions.UnaryExpression;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.invokers.MainInvoker;
-import org.wso2.ballerina.core.model.invokers.ResourceInvoker;
+import org.wso2.ballerina.core.model.invokers.ResourceInvocationExpr;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.statements.CommentStmt;
@@ -89,6 +94,7 @@ import java.util.Map;
  */
 public class SemanticAnalyzer implements NodeVisitor {
     private int stackFrameOffset = -1;
+    private int staticMemAddrOffset = -1;
 
     private SymTable symbolTable;
 
@@ -115,6 +121,15 @@ public class SemanticAnalyzer implements NodeVisitor {
             importPkg.accept(this);
         }
 
+        // Analyze and allocate static memory locations for constants
+        for (Const constant : bFile.getConstants()) {
+            staticMemAddrOffset++;
+            constant.accept(this);
+        }
+        int setSizeOfStaticMem = staticMemAddrOffset + 1;
+        bFile.setSizeOfStaticMem(setSizeOfStaticMem);
+        staticMemAddrOffset = -1;
+
         for (Service service : bFile.getServices()) {
             service.accept(this);
         }
@@ -132,6 +147,31 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         importPkgMap.put(importPkg.getName(), importPkg);
+    }
+
+    @Override
+    public void visit(Const constant) {
+        SymbolName symName = constant.getName();
+
+        Symbol symbol = symbolTable.lookup(symName);
+        if (symbol != null) {
+            throw new SemanticException("Duplicate constant name: " + symName.getName());
+        }
+
+        // Constants values must be basic literals
+        if (!(constant.getValueExpr() instanceof BasicLiteral)) {
+            throw new SemanticException("Invalid value in constant definition: constant name: " +
+                    constant.getName().getName());
+        }
+
+        BasicLiteral basicLiteral = (BasicLiteral) constant.getValueExpr();
+        constant.setValue(basicLiteral.getBValue());
+
+        ConstantLocation location = new ConstantLocation(staticMemAddrOffset);
+        BType type = constant.getType();
+        symbol = new Symbol(type, location);
+
+        symbolTable.insert(symName, symbol);
     }
 
     @Override
@@ -255,7 +295,10 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         BType type = parameter.getType();
-        symbol = new Symbol(type, stackFrameOffset);
+//        symbol = new Symbol(type, stackFrameOffset);
+
+        LocalVarLocation location = new LocalVarLocation(stackFrameOffset);
+        symbol = new Symbol(type, location);
 
         symbolTable.insert(symName, symbol);
 
@@ -271,7 +314,10 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         BType type = variableDcl.getType();
-        symbol = new Symbol(type, stackFrameOffset);
+//        symbol = new Symbol(type, stackFrameOffset);
+
+        LocalVarLocation location = new LocalVarLocation(stackFrameOffset);
+        symbol = new Symbol(type, location);
 
         symbolTable.insert(symName, symbol);
     }
@@ -285,7 +331,11 @@ public class SemanticAnalyzer implements NodeVisitor {
             throw new SemanticException("Duplicate connector declaration with name: " + symbolName.getName());
         }
 
-        symbol = new Symbol(BTypes.CONNECTOR_TYPE, stackFrameOffset);
+//        symbol = new Symbol(BTypes.CONNECTOR_TYPE, stackFrameOffset);
+
+        LocalVarLocation location = new LocalVarLocation(stackFrameOffset);
+        symbol = new Symbol(BTypes.CONNECTOR_TYPE, location);
+
         symbolTable.insert(symbolName, symbol);
 
         // Setting the connector name with the package name
@@ -293,6 +343,12 @@ public class SemanticAnalyzer implements NodeVisitor {
         String pkgPath = getPackagePath(connectorName);
         connectorName = LangModelUtils.getConnectorSymName(connectorName.getName(), pkgPath);
         connectorDcl.setConnectorName(connectorName);
+
+        Symbol connectorSym = symbolTable.lookup(connectorName);
+        if (connectorSym == null) {
+            throw new SemanticException("Connector : " + connectorName + " not found");
+        }
+        connectorDcl.setConnector(connectorSym.getConnector());
 
     }
 
@@ -624,17 +680,6 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     @Override
-    public void visit(VariableRefExpr variableRefExpr) {
-        SymbolName varName = variableRefExpr.getSymbolName();
-
-        // Check whether this symName is declared
-        Symbol symbol = getSymbol(varName);
-
-        variableRefExpr.setType(symbol.getType());
-        variableRefExpr.setOffset(symbol.getOffset());
-    }
-
-    @Override
     public void visit(ArrayAccessExpr arrayAccessExpr) {
         // Check whether this access expression is in left hand side of an assignment expression
         // If yes, skip assigning a stack frame offset
@@ -696,7 +741,40 @@ public class SemanticAnalyzer implements NodeVisitor {
         visitExpr(backquoteExpr);
     }
 
-    public void visit(ResourceInvoker resourceInvoker) {
+    @Override
+    public void visit(VariableRefExpr variableRefExpr) {
+        SymbolName varName = variableRefExpr.getSymbolName();
+
+        // Check whether this symName is declared
+        Symbol symbol = getSymbol(varName);
+
+        variableRefExpr.setType(symbol.getType());
+//        variableRefExpr.setOffset(symbol.getOffset());
+
+        variableRefExpr.setLocation(symbol.getLocation());
+    }
+
+    @Override
+    public void visit(LocalVarLocation localVarLocation) {
+
+    }
+
+    @Override
+    public void visit(ServiceVarLocation serviceVarLocation) {
+
+    }
+
+    @Override
+    public void visit(ConnectorVarLocation connectorVarLocation) {
+
+    }
+
+    @Override
+    public void visit(ConstantLocation constantLocation) {
+
+    }
+
+    public void visit(ResourceInvocationExpr resourceIExpr) {
     }
 
     public void visit(MainInvoker mainInvoker) {

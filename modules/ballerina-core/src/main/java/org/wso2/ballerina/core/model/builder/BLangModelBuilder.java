@@ -26,6 +26,7 @@ import org.wso2.ballerina.core.model.BallerinaConnector;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.ConnectorDcl;
+import org.wso2.ballerina.core.model.Const;
 import org.wso2.ballerina.core.model.ImportPackage;
 import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.Position;
@@ -188,7 +189,7 @@ public class BLangModelBuilder {
 
             // Assuming the annotation value is a string literal
             if (expr instanceof BasicLiteral && expr.getType() == BTypes.STRING_TYPE) {
-                String value = ((BasicLiteral) expr).getbValueNew().stringValue();
+                String value = ((BasicLiteral) expr).getBValue().stringValue();
                 annotationBuilder.setValue(value);
             } else {
                 throw new RuntimeException("Annotations with key/value pars are not support at the moment");
@@ -239,6 +240,19 @@ public class BLangModelBuilder {
 
 
     // Variable declarations, reference expressions
+
+    public void createConstant(String constName) {
+        SymbolName symbolName = new SymbolName(constName);
+        BType type = typeQueue.remove();
+
+        Const.ConstBuilder builder = new Const.ConstBuilder();
+        builder.setType(type);
+        builder.setSymbolName(symbolName);
+        builder.setValueExpr(exprStack.pop());
+
+        Const constant = builder.build();
+        bFileBuilder.addConst(constant);
+    }
 
     public void createVariableDcl(String varName) {
         // Create a variable declaration

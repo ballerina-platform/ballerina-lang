@@ -232,6 +232,8 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitConstantDefinition(BallerinaParser.ConstantDefinitionContext ctx) {
+        createBasicLiteral(ctx.literalValue());
+        modelBuilder.createConstant(ctx.Identifier().getText());
     }
 
     @Override

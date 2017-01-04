@@ -19,6 +19,7 @@ package org.wso2.ballerina.core.utils;
 
 import org.testng.Assert;
 import org.wso2.ballerina.core.interpreter.Context;
+import org.wso2.ballerina.core.interpreter.LocalVarLocation;
 import org.wso2.ballerina.core.interpreter.StackFrame;
 import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.model.BallerinaFile;
@@ -73,7 +74,10 @@ public class FunctionUtils {
 
         for (int i = 0; i < noOfArgs; i++) {
             VariableRefExpr variableRefExpr = new VariableRefExpr(new SymbolName("Ignored"));
-            variableRefExpr.setOffset(i);
+
+            LocalVarLocation location = new LocalVarLocation(i);
+            variableRefExpr.setLocation(location);
+//            variableRefExpr.setOffset(i);
             exprs[i] = variableRefExpr;
         }
 
@@ -126,12 +130,12 @@ public class FunctionUtils {
         StackFrame currentFrame = context.getControlStack().getCurrentFrame();
         return currentFrame.values[currentFrame.values.length - 1];
     }
-    
-    
+
+
     public static BValueType getReturnBValue(Context context) {
         return (BValueType) getReturnValue(context);
     }
-    
+
     public static BRefType getReturnBRef(Context context) {
         return (BRefType) getReturnValue(context);
     }
