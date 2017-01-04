@@ -259,8 +259,14 @@ public class BLangModelBuilder {
         BType localVarType = typeQueue.remove();
         VariableDcl variableDcl = new VariableDcl(localVarType, localVarId);
 
-        // Add this variable declaration to the current callable unit
-        currentCUBuilder.addVariableDcl(variableDcl);
+        // Add this variable declaration to the current callable unit or callable unit group
+        if (currentCUBuilder != null) {
+            // This connector declaration should added to the relevant function/action or resource
+            currentCUBuilder.addVariableDcl(variableDcl);
+        } else {
+            currentCUGroupBuilder.addVariableDcl(variableDcl);
+        }
+
     }
 
     public void createConnectorDcl(String varName) {
