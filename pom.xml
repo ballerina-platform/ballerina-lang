@@ -203,12 +203,6 @@
                 <artifactId>gson-fragment</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
-
-            <dependency>
-                <groupId>org.wso2.msf4j</groupId>
-                <artifactId>msf4j-core</artifactId>
-                <version>${msf4j.version}</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -273,7 +267,7 @@
                                 <failsOnError>true</failsOnError>
                                 <includeTestSourceDirectory>true</includeTestSourceDirectory>
                                 <!--Exclude generated sources-->
-                                <excludes>**/parser/*,**/service/*</excludes>
+                                <excludes>**/parser/*</excludes>
                             </configuration>
                             <goals>
                                 <goal>check</goal>
@@ -374,8 +368,6 @@
         <jacoco.version>0.7.5.201505241946</jacoco.version>
         <maven.paxexam.plugin.version>1.2.4</maven.paxexam.plugin.version>
         <mockito.version>1.9.0</mockito.version>
-
-        <msf4j.version>2.1.0</msf4j.version>
 
     </properties>
 

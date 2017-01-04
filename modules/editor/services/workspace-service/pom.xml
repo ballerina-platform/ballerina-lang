@@ -71,6 +71,28 @@
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.ballerina</groupId>
+            <artifactId>ballerina-core</artifactId>
+            <version>${ballerina.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.wso2.carbon.transport</groupId>
+                    <artifactId>org.wso2.carbon.transport.http.netty</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.orbit.org.antlr</groupId>
+            <artifactId>antlr4-runtime</artifactId>
+            <version>${antlr4.runtime.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <version>${testng.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <properties>
@@ -81,5 +103,8 @@
         <junit.version>4.12</junit.version>
         <slf4j-log4j.version>1.7.5</slf4j-log4j.version>
         <gson.version>2.7</gson.version>
+        <ballerina.version>1.0.0-SNAPSHOT</ballerina.version>
+        <antlr4.runtime.version>4.5.1.wso2v1</antlr4.runtime.version>
+        <testng.version>6.9.4</testng.version>
     </properties>
 </project>

@@ -16,7 +16,7 @@
 *  under the License.
 */
 
-package org.wso2.ballerina.core.service;
+package org.wso2.integration.tooling.service.workspace.rest.datamodel;
 
 import com.google.gson.JsonObject;
 import org.antlr.v4.runtime.ANTLRInputStream;
@@ -28,14 +28,19 @@ import org.wso2.ballerina.core.parser.BallerinaParser;
 import org.wso2.ballerina.core.parser.antlr4.BLangAntlr4Listener;
 import org.wso2.ballerina.core.semantics.SemanticAnalyzer;
 
+import javax.ws.rs.Consumes;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.GET;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Basic classes which exposes ballerina language object model over REST service.
@@ -46,9 +51,25 @@ public class BLangFileRestService {
     @GET
     @Path("/model")
     @Produces("application/json")
-    public Response getStudent(@QueryParam("location") String location) throws Exception {
+    public Response getBallerinaJsonDataModelGivenLocation(@QueryParam("location") String location) throws Exception {
+        InputStream stream = new FileInputStream(new File(location));
+        String response = parseJsonDataModel(stream);
+        return Response.ok(response, MediaType.APPLICATION_JSON).build();
+    }
 
-        ANTLRInputStream antlrInputStream = new ANTLRInputStream(new FileInputStream(new File(location)));
+    @POST
+    @Path("/model/content")
+    @Consumes("application/json")
+    @Produces("application/json")
+    public Response getBallerinaJsonDataModelGivenContent(BFileContent content) throws Exception {
+        InputStream stream = new ByteArrayInputStream(content.getContent().getBytes(StandardCharsets.UTF_8));
+        String response = parseJsonDataModel(stream);
+        return Response.ok(response, MediaType.APPLICATION_JSON).build();
+    }
+
+    private String parseJsonDataModel(InputStream stream) throws Exception {
+
+        ANTLRInputStream antlrInputStream = new ANTLRInputStream(stream);
         BallerinaLexer ballerinaLexer = new BallerinaLexer(antlrInputStream);
         CommonTokenStream ballerinaToken = new CommonTokenStream(ballerinaLexer);
 
@@ -69,7 +90,7 @@ public class BLangFileRestService {
         BLangJSONModelBuilder jsonModelBuilder = new BLangJSONModelBuilder(response);
         bFile.accept(jsonModelBuilder);
 
-        return Response.ok(response.toString(), MediaType.APPLICATION_JSON).build();
+        return response.toString();
     }
 
 }

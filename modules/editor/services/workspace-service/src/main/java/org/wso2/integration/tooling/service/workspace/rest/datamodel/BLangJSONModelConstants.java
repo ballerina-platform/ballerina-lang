@@ -16,7 +16,7 @@
 *  under the License.
 */
 
-package org.wso2.ballerina.core.service;
+package org.wso2.integration.tooling.service.workspace.rest.datamodel;
 
 public class BLangJSONModelConstants {
 

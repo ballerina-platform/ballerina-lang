@@ -16,14 +16,14 @@
 *  under the License.
 */
 
-package org.wso2.ballerina.core.service.test;
+package org.wso2.integration.tooling.service.workspace.rest.datamodel;
 
+import com.google.gson.JsonObject;
 import org.apache.commons.io.IOUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.ballerina.core.service.BLangFileRestService;
 import org.wso2.msf4j.MicroservicesRunner;
 import org.wso2.msf4j.formparam.util.StreamUtil;
 
@@ -31,10 +31,12 @@ import org.wso2.msf4j.formparam.util.StreamUtil;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Scanner;
 
 import javax.ws.rs.HttpMethod;
 
@@ -93,6 +95,26 @@ public class BLangJSONModelTest {
         IOUtils.closeQuietly(inputStream);
         urlConn.disconnect();
     }
+
+    @Test
+    public void testBLangJSONModelServiceUsingPost() throws IOException, URISyntaxException {
+        File file = new File(getClass().getClassLoader().getResource("samples/service/ServiceSample.bal")
+                .getFile());
+        HttpURLConnection urlConn = request("/ballerina/model/content", HttpMethod.POST);
+        urlConn.setRequestProperty("Content-Type","application/json");
+        OutputStream outputStream = urlConn.getOutputStream();
+        String content = new Scanner(file).useDelimiter("\\Z").next();;
+        JsonObject json = new JsonObject();
+        json.addProperty("content", content);
+        outputStream.write(json.toString().getBytes());
+        outputStream.flush();
+        InputStream inputStream = urlConn.getInputStream();
+        String response = StreamUtil.asString(inputStream);
+        Assert.assertEquals(response, exptdStrFunc);
+        IOUtils.closeQuietly(inputStream);
+        urlConn.disconnect();
+    }
+
 
     @AfterClass
     public void teardown() throws Exception {

@@ -16,7 +16,7 @@
 *  under the License.
 */
 
-package org.wso2.ballerina.core.service;
+package org.wso2.integration.tooling.service.workspace.rest.datamodel;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -138,7 +138,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
             }
         });
 
-        //service definitions //connector definitions // function definition
+        //service definitions //connector definitions //function definition
         for (PositionAwareNode node : rootElements) {
             node.accept(this);
         }
@@ -631,7 +631,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     public void visit(BasicLiteral basicLiteral) {
         JsonObject basicLiteralObj = new JsonObject();
         basicLiteralObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
-                org.wso2.ballerina.core.service.BLangJSONModelConstants.BASIC_LITERAL_EXPRESSION);
+                                    BLangJSONModelConstants.BASIC_LITERAL_EXPRESSION);
         basicLiteralObj.addProperty(BLangJSONModelConstants.BASIC_LITERAL_TYPE,
                 basicLiteral.getType().toString());
         basicLiteralObj.addProperty(BLangJSONModelConstants.BASIC_LITERAL_VALUE,
@@ -799,7 +799,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     public void visit(VariableRefExpr variableRefExpr) {
         JsonObject variableRefObj = new JsonObject();
         variableRefObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
-                org.wso2.ballerina.core.service.BLangJSONModelConstants.VARIABLE_REFERENCE_EXPRESSION);
+                       BLangJSONModelConstants.VARIABLE_REFERENCE_EXPRESSION);
         variableRefObj.addProperty(BLangJSONModelConstants.VARIABLE_REFERENCE_NAME,
                 variableRefExpr.getSymbolName().getName());
         tempJsonArrayRef.peek().add(variableRefObj);
