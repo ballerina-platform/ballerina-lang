@@ -30,6 +30,7 @@ import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.VariableDcl;
 import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.types.BTypes;
+import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
@@ -85,18 +86,30 @@ public abstract class AbstractNativeFunction implements NativeConstruct, Functio
         Arrays.stream(methodParams).
                 forEach(argument -> {
                     try {
-                        parameters.add(new Parameter(BTypes.getType(argument.type().getName())
-                                , new SymbolName(argument.name())));
+                        BType bType;
+                        // For non-array types.
+                        if (!argument.type().equals(TypeEnum.ARRAY)) {
+                            bType = BTypes.getType(argument.type().getName());
+                        } else {
+                            bType = BTypes.getArrayType(argument.elementType().getName());
+                        }
+                        parameters.add(new Parameter(bType, new SymbolName(argument.name())));
                     } catch (BallerinaException e) {
                         // TODO: Fix this when TypeC.getType method is improved.
-                        log.warn("Error while processing Parameters for Native ballerina function {}:{}.",
-                                packageName, functionName, e);
+                        log.warn("Error while processing Parameters for Native ballerina function {}:{}.", packageName,
+                                functionName, e);
                     }
                 });
         Arrays.stream(function.returnType()).forEach(
                 returnType -> {
                     try {
-                        returnTypes.add(BTypes.getType(returnType.getName()));
+                        BType type;
+                        if (!returnType.type().equals(TypeEnum.ARRAY)) {
+                            type = BTypes.getType(returnType.type().getName());
+                        } else {
+                            type = BTypes.getArrayType(returnType.elementType().getName());
+                        }
+                        returnTypes.add(type);
                     } catch (BallerinaException e) {
                         // TODO: Fix this when TypeC.getType method is improved.
                         log.warn("Error while processing ReturnTypes for Native ballerina function {}:{}.",
