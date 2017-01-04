@@ -17,10 +17,10 @@
  */
 define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-definition', './default-worker', 'd3utils', '' +
         'd3', './worker-declaration-view', './statement-view-factory', './point', './axis',
-        './connector-declaration-view', './statement-container', './variables-view'],
+        './connector-declaration-view', './statement-container', './variables-view', './arguments-view'],
     function (_, log, EventChannel, Canvas, FunctionDefinition, DefaultWorkerView, D3Utils,
               d3, WorkerDeclarationView, StatementViewFactory, Point, Axis,
-              ConnectorDeclarationView, StatementContainer, VariablesView) {
+              ConnectorDeclarationView, StatementContainer, VariablesView, ArgumentsView) {
 
         /**
          * The view to represent a function definition which is an AST visitor.
@@ -186,6 +186,31 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
             };
 
             VariablesView.createVariablePane(variableProperties);
+
+            // Replacing annotation icon with function args.
+            var functionArgsIcons = this._panelAnnotationIcon;
+            functionArgsIcons.removeClass("fw-annotation");
+            functionArgsIcons.addClass("fw-import");
+
+            // TODO : Implement the function args
+            // Hiding icon.
+            functionArgsIcons.hide();
+            // Hiding separator.
+            functionArgsIcons.next().hide();
+
+            var argumentsProperties = {
+                model: this._model,
+                activatorElement: this.getAnnotationIcon(),
+                paneAppendElement: this.getChildContainer().node().ownerSVGElement.parentElement,
+                viewOptions: {
+                    position: {
+                        left: parseInt(this.getChildContainer().node().parentElement.getBoundingClientRect().width),
+                        top: 0
+                    }
+                }
+            };
+
+            //ArgumentsView.createArgumentsPane(argumentsProperties);
         };
 
         FunctionDefinitionView.prototype.init = function(){
