@@ -657,7 +657,7 @@ button.variable-list {
 .package-name-wrapper input[type=text] {
     padding-left: 7px;
     margin-left: 2px;
-    width: 310px;
+    width: 295px;
     border: 1px solid #ccc;
 }
 
@@ -722,6 +722,7 @@ button.variable-list {
     right: 0px;
     overflow: auto;
     display: none;
+    background: #fff;
 }
 
 .action-content-dropdown-wrapper ul {
@@ -732,11 +733,11 @@ button.variable-list {
 
 .service-annotation-details-wrapper {
     padding: 0px;
-    overflow: hidden;
+    overflow-y: scroll;
     width: 100%;
-    border-left: 1px solid #f0f0f0;
-    border-bottom: 1px solid #f0f0f0;
-    max-height: 250px;
+    border-left: 1px solid #555;
+    border-bottom: 1px solid #555;
+    max-height: 450px;
 }
 
 .service-annotation-details-wrapper hr {
@@ -923,6 +924,7 @@ button.variable-list {
     color: #FFF;
     opacity: 1;
     background-color: #2b2b2b;
+    width: 30px;
 }
 
 .if-else-title-rect {
