@@ -32,7 +32,6 @@ import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
-import org.wso2.ballerina.core.model.Symbol;
 import org.wso2.ballerina.core.model.VariableDcl;
 import org.wso2.ballerina.core.model.Worker;
 import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
@@ -83,7 +82,6 @@ import org.wso2.ballerina.core.model.values.BXML;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
-import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 
 import java.util.List;
 
@@ -578,11 +576,9 @@ public class BLangInterpreter implements NodeVisitor {
     private void populateConnectorDclValues(ConnectorDcl[] connectorDcls, BValue[] valueParams, int valuesCounter) {
 
         for (ConnectorDcl connectorDcl : connectorDcls) {
-            Symbol symbol = GlobalScopeHolder.getInstance().getScope().lookup(connectorDcl.getConnectorName());
-            if (symbol == null) {
-                throw new BallerinaException("Connector : " + connectorDcl.getConnectorName() + " not found");
-            }
-            Connector connector = symbol.getConnector();
+
+            Connector connector = connectorDcl.getConnector();
+
             Expression[] argExpressions = connectorDcl.getArgExprs();
             BValue[] bValueRefs = new BValue[argExpressions.length];
             for (int j = 0; j < argExpressions.length; j++) {
