@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './statement-visitor-factory', './connector-declaration-visitor'],
-    function(_, log, EventChannel, AbstractSourceGenVisitor, StatementVisitorFactory, ConnectorDeclarationVisitor) {
+define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './statement-visitor-factory', './connector-declaration-visitor', './variable-declaration-visitor'],
+    function(_, log, EventChannel, AbstractSourceGenVisitor, StatementVisitorFactory, ConnectorDeclarationVisitor, VariableDeclarationVisitor) {
 
         /**
          * @param parent
@@ -63,6 +63,11 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './st
         FunctionDefinitionVisitor.prototype.visitConnectorDeclaration = function(connectorDeclaration){
             var connectorDeclarationVisitor = new ConnectorDeclarationVisitor(this);
             connectorDeclaration.accept(connectorDeclarationVisitor);
+        };
+
+        FunctionDefinitionVisitor.prototype.visitVariableDeclaration = function(variableDeclaration){
+            var variableDeclarationVisitor = new VariableDeclarationVisitor(this);
+            variableDeclaration.accept(variableDeclarationVisitor);
         };
 
         return FunctionDefinitionVisitor;
