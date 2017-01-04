@@ -96,7 +96,7 @@ public class BallerinaAction implements Action, Node {
 
     @Override
     public BType[] getReturnTypes() {
-        return new BType[0];
+        return returnTypes;
     }
 
     @Override
