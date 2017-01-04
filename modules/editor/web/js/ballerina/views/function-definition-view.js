@@ -139,10 +139,15 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
             this._container = currentContainer;
             var self = this;
 
+            $("#title-" + this._model.id).text(this._model.getFunctionName());
             // Listen to the function name changing event and dynamically update the function name
-            $("#title-" + this._model.id).on("change paste keyup", function () {
-                self._model.setFunctionName($(this).text());
-            });
+            $("#title-" + this._model.id)
+                .on("change paste keyup", function () {
+                    self._model.setFunctionName($(this).text());
+                })
+                .on("click", function (event) {
+                    event.stopPropagation();
+                });
 
             // Creating default worker
             var defaultWorkerOpts = {};
