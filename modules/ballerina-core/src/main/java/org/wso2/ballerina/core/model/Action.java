@@ -56,4 +56,18 @@ public interface Action {
     int getStackFrameSize();
 
     void setStackFrameSize(int stackFrameSize);
+
+    /**
+     * Get the action Identifier
+     *
+     * @return action identifier
+     */
+    SymbolName getSymbolName();
+
+    /**
+     * Set the action identifier
+     *
+     * @param symbolName identifier
+     */
+    void setSymbolName(SymbolName symbolName);
 }

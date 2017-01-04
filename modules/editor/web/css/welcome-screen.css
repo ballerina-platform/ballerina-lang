@@ -61,6 +61,12 @@
 .preview-div {
     height: 80%;
     background-color: #FFFFFF;
+    cursor: pointer;
+}
+
+.preview-img {
+    width : 180px;
+    height : 145px;
 }
 
 .preview-name-div {
