@@ -1,6 +1,6 @@
 #!/bin/bash
 # ---------------------------------------------------------------------------
-#  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+#  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -15,9 +15,9 @@
 #  limitations under the License.
 
 # ----------------------------------------------------------------------------
-# Main Script for the WSO2 Carbon Server
+# Main Script for the WSO2 Ballerina
 #
-# Environment Variable Prequisites
+# Environment Variable Prerequisites
 #
 #   CARBON_HOME   Home of WSO2 Carbon installation. If not set I will  try
 #                   to figure it out.
@@ -131,61 +131,36 @@ fi
 
 # ----- Process the input command ----------------------------------------------
 
-args=""
 BARGS=
-BPATH=
 
 for c in "$@"
 do
-    if [ "$c" = "-bargs" ] ; then
-          BAL_EXECUTION_SUB_CMD="-bargs"
-          args="$args $c"
-    elif [ "$c" = "-bpath" ] ; then
-          BAL_EXECUTION_SUB_CMD="-bpath"
-          args="$args $c"
+    if [ "$c" = "--debug" ] || [ "$c" = "-debug" ] || [ "$c" = "debug" ]; then
+          CMD="--debug"
+    elif [ "$CMD" = "--debug" ] && [ -z "$PORT" ]; then
+          PORT=$c
+    elif [ "$c" = "version" ]; then
+          cat $CARBON_HOME/bin/version.txt
+          exit 0
+    elif [ "$c" = "help" ]; then
+          cat $CARBON_HOME/bin/ballerina-bash-help.txt
+          exit 0
     elif [[ "$c" = *.bal ]] && [ -z "$BAL_FILE_NAME" ]; then
           BAL_FILE_NAME="$c"
-          args="$args $c"
-    # Parsing Options Values.
+          BAL_EXECUTION_SUB_CMD="-bargs"
+    # Parsing Argument Values.
     elif [ "$BAL_EXECUTION_SUB_CMD" = "-bargs" ] ; then
         if [[ -z "$BARGS" ]]; then
           BARGS="$c"
         else
           BARGS="$BARGS;$c"
         fi
-        args="$args $c"
-    elif [ "$BAL_EXECUTION_SUB_CMD" = "-bpath" ] && [ -z "$BPATH" ] ; then
-          BPATH="$c"
-          args="$args $c"
-    # Parsing Commands.
-    elif [ "$c" = "--debug" ] || [ "$c" = "-debug" ] || [ "$c" = "debug" ]; then
-          CMD="--debug"
-    elif [ "$CMD" = "--debug" ] && [ -z "$PORT" ]; then
-          PORT=$c
-    elif [ "$c" = "stop" ]; then
-          CMD="stop"
-    elif [ "$c" = "start" ]; then
-          CMD="start"
-    elif [ "$c" = "restart" ]; then
-          CMD="restart"
-    elif [ "$c" = "version" ]; then
-          CMD="version"
-    elif [ "$c" = "help" ]; then
-          CMD="help"
     else
         echo "Not supported option or command : $c"
         cat $CARBON_HOME/bin/ballerina-bash-help.txt
         exit 1
     fi
 done
-
-if [ "$CMD" = "stop" ]; then
-  export CARBON_HOME=$CARBON_HOME
-  if [ -f "$CARBON_HOME/carbon.pid" ]; then
-      kill -term `cat $CARBON_HOME/carbon.pid`
-      exit 0
-  fi
-fi
 
 if [ "$BAL_FILE_NAME" = "" ]; then
     echo "Please specify Ballerina file to run. (Eg: ballerina.sh foo.bal)"
@@ -207,41 +182,6 @@ if [ "$CMD" = "--debug" ]; then
   fi
   JAVA_OPTS="-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=$PORT"
   echo "Please start the remote debugging client to continue..."
-elif [ "$CMD" = "version" ]; then
-  cat $CARBON_HOME/bin/version.txt
-  exit 0
-elif [ "$CMD" = "help" ]; then
-  cat $CARBON_HOME/bin/ballerina-bash-help.txt
-  exit 0
-elif [ "$CMD" = "start" ]; then
-  if [ -e "$CARBON_HOME/carbon.pid" ]; then
-    if  ps -p $PID > /dev/null ; then
-      echo "Process is already running"
-      exit 0
-    fi
-  fi
-  export CARBON_HOME=$CARBON_HOME
-# using nohup bash to avoid erros in solaris OS.TODO
-  nohup bash $CARBON_HOME/bin/ballerina.sh $args > /dev/null 2>&1 &
-  exit 0
-elif [ "$CMD" = "restart" ]; then
-  export CARBON_HOME=$CARBON_HOME
-  if [ -f "$CARBON_HOME/carbon.pid" ]; then
-      kill -term `cat $CARBON_HOME/carbon.pid`
-      process_status=0
-      pid=`cat $CARBON_HOME/carbon.pid`
-      while [ "$process_status" -eq "0" ]
-      do
-            sleep 1;
-            ps -p$pid 2>&1 > /dev/null
-            process_status=$?
-      done
-  fi
-
-# using nohup bash to avoid erros in solaris OS.TODO
-  nohup bash $CARBON_HOME/bin/ballerina.sh $args > /dev/null 2>&1 &
-  exit 0
-
 fi
 
 # ---------- Handle the SSL Issue with proper JDK version --------------------
@@ -318,7 +258,6 @@ do
     -Drun-mode=run \
     -Drun-file="$BAL_FILE_NAME" \
     -Dbargs="$BARGS" \
-    -Dbpath="$BPATH" \
     org.wso2.carbon.launcher.Main $*
     status=$?
 done

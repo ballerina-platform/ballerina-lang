@@ -89,15 +89,15 @@ public class BalDeployer {
                     BallerinaFunction function =
                             (BallerinaFunction) balFile.getFunctions().get(Constants.MAIN_FUNCTION_NAME);
                     if (function != null) {
-                        ServiceContextHolder.getInstance().setMainFunctionToExecute(function);
+                        ServiceContextHolder.getInstance().setBallerinaFileToExecute(balFile);
                         successful = true;
                         return;
-                    } else if (balFile.getServices().size() == 0) {
-                        log.error("Unable to find Main function or any Ballerina Services.");
+                    } else {
+                        log.error("Unable to locate Main function.");
                         ServiceContextHolder.getInstance().setRuntimeMode(Constants.RuntimeMode.ERROR);
+                        successful = false;
                         return;
                     }
-                    // else:  Continue and deploy the service.
                 }
 
                 // Get the existing application associated with this ballerina config
@@ -152,18 +152,9 @@ public class BalDeployer {
     /**
      * Deploy all Ballerina files in a give directory.
      *
-     * @param file Directory.
+     * @param files to deploy.
      */
-    public static void deployBalFiles(File file) {
-        if (file == null || !file.exists() || !file.isDirectory()) {
-            // Can't continue as there is no directory to work with. if we get here, that means a bug in startup
-            // script.
-            log.error("Given working path {} is not a valid location. ", file == null ? null : file.getName());
-            ServiceContextHolder.getInstance().setRuntimeMode(Constants.RuntimeMode.ERROR);
-            return;
-        }
-        // TODO: Improve logic and scanning.
-        File[] files = file.listFiles();
+    public static void deployBalFiles(File[] files) {
         if (files != null) {
             Arrays.stream(files).filter(file1 -> file1.getName().endsWith(FILE_EXTENSION)).forEach
                     (BalDeployer::deployBalFile);
