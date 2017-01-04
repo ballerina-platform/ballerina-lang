@@ -1799,13 +1799,13 @@ a.btn:hover, .btn:hover {
 
 .btn-primary, .btn-primary:focus {
   color: #ffffff;
-  background-color: #2C2C2C;
-  border-color: #2C2C2C;
+  background-color: #2a80b9;
+  border-color: #2a80b9;
 }
 
 .btn-primary:hover {
-  background-color: #F57E30;
-  border-color: #F57E30;
+  background-color: #429ad4;
+  border-color: #429ad4;
 }
 
 .btn-bordered, .btn-bordered:focus, .btn-bordered:hover {
@@ -2748,7 +2748,7 @@ ul.tiles .icon {
 
 @media only screen and (min-width: 1280px) {
   .modal-dialog {
-    width: 750px;
+    width: 1000px;
   }
 }
 
