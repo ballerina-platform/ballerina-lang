@@ -120,8 +120,9 @@ public final class Constants {
 
     public static final String TO = "TO";
 
+    public static final String PROTOCOL = "PROTOCOL";
 
-    public static final String PROTOCOL_NAME = "HTTP";
+    public static final String PROTOCOL_NAME = "http";
 
     public static final String HTTP_VERSION = "HTTP_VERSION";
 
