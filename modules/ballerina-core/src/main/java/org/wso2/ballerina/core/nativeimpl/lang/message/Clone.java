@@ -28,6 +28,7 @@ import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
+import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 
 /**
  * Native function to clone the message.
@@ -37,7 +38,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
         packageName = "ballerina.lang.message",
         functionName = "clone",
         args = {@Argument(name = "message", type = TypeEnum.MESSAGE)},
-        returnType = {TypeEnum.MESSAGE},
+        returnType = {@ReturnType(type = TypeEnum.MESSAGE)},
         isPublic = true
 )
 

@@ -26,6 +26,7 @@ import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
+import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 
 import java.util.Locale;
 
@@ -38,7 +39,7 @@ import java.util.Locale;
         packageName = "ballerina.lang.string",
         functionName = "toUpperCase",
         args = {@Argument(name = "string", type = TypeEnum.STRING)},
-        returnType = {TypeEnum.STRING},
+        returnType = {@ReturnType(type = TypeEnum.STRING)},
         isPublic = true
 )
 @Component(

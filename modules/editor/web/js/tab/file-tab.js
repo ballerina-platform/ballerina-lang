@@ -47,7 +47,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
 //            connectorDefinitions.push(connectorDefinition1);
 //
 //            var serviceDefinition1 = BallerinaASTFactory.createServiceDefinition();
-//            serviceDefinition1.setBasePath("/basePath1");
+//            serviceDefinition1.addAnnotation("BasePath", "/basePath1");
 //
 //            // Create Sample Resource Definitions
 //            var resourceDefinition1 = BallerinaASTFactory.createResourceDefinition();
@@ -105,6 +105,15 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
                 container: this.$el.get(0),
                 viewOptions: ballerinaEditorOptions
             });
+
+            // change tab header class to match look and feel of source view
+            fileEditor.on('source-view-activated', function(){
+                this.getHeader().toggleClass('inverse');
+            }, this);
+            fileEditor.on('design-view-activated', function(){
+                this.getHeader().toggleClass('inverse');
+            }, this);
+
             this._fileEditor = fileEditor;
             fileEditor.render(diagramRenderingContext);
         },

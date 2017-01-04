@@ -17,6 +17,7 @@ package org.wso2.integration.tooling.service.workspace.local;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.integration.tooling.service.workspace.Workspace;
@@ -34,6 +35,7 @@ import java.util.Iterator;
 public class LocalFSWorkspace implements Workspace {
 
     private static final Logger logger = LoggerFactory.getLogger(LocalFSWorkspace.class);
+    private static final String FILE_EXTENSION = ".bal";
 
     @Override
     public JsonArray listRoots() throws IOException  {
@@ -103,22 +105,48 @@ public class LocalFSWorkspace implements Workspace {
 
     }
 
-    private JsonObject getJsonObjForFile(Path root, boolean checkChildren) {
-        JsonObject rootObj = new JsonObject();
-        rootObj.addProperty("text", root.getFileName() != null ? root.getFileName().toString() : root.toString());
-        rootObj.addProperty("id", root.toAbsolutePath().toString());
-        if(Files.isDirectory(root) && checkChildren){
-            try {
-                if(Files.list(root).count() > 0){
-                    rootObj.addProperty("children", Boolean.TRUE);
-                }else{
-                    rootObj.addProperty("children", Boolean.FALSE);
-                }
-            } catch (IOException e) {
-                logger.debug("Error while fetching children of " + root.toString(), e);
-                rootObj.addProperty("error", e.toString());
-            }
-        }
-        return rootObj;
-    }
+	private JsonObject getJsonObjForFile(Path root, boolean checkChildren) {
+		JsonObject rootObj = new JsonObject();
+		rootObj.addProperty("text", root.getFileName() != null ? root.getFileName().toString() : root.toString());
+		rootObj.addProperty("id", root.toAbsolutePath().toString());
+		if (Files.isDirectory(root) && checkChildren) {
+			rootObj.addProperty("type", "folder");
+			try {
+				if (Files.list(root).count() > 0) {
+					rootObj.addProperty("children", Boolean.TRUE);
+				} else {
+					rootObj.addProperty("children", Boolean.FALSE);
+				}
+			} catch (IOException e) {
+				logger.debug("Error while fetching children of " + root.toString(), e);
+				rootObj.addProperty("error", e.toString());
+			}
+		} else if (Files.isRegularFile(root) && checkChildren) {
+			rootObj.addProperty("type", "file");
+			rootObj.addProperty("children", Boolean.FALSE);
+		}
+		return rootObj;
+	}
+
+	@Override
+	public JsonArray listFilesInPath(String path) throws IOException {
+		Path ioPath = Paths.get(path);
+		JsonArray dirs = new JsonArray();
+		Iterator<Path> iterator = Files.list(ioPath).iterator();
+		while (iterator.hasNext()) {
+			Path next = iterator.next();
+			if (Files.isDirectory(next) || Files.isRegularFile(next)) {
+				JsonObject jsnObj = getJsonObjForFile(next, true);
+				if (Files.isRegularFile(next)) {
+					if (next.getFileName().toString().endsWith(FILE_EXTENSION)) {
+						dirs.add(jsnObj);
+					}
+				} else {
+					dirs.add(jsnObj);
+				}
+
+			}
+		}
+		return dirs;
+	}
 }

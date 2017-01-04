@@ -40,7 +40,7 @@ define(['ast/ballerina-ast-factory'], function (BallerinaASTFactory) {
         var serviceDefinitions = [];
         var serviceDefinition_passthroughService = ballerinaASTFactory.createServiceDefinition();
         serviceDefinition_passthroughService.setServiceName("PassthroughService");
-        serviceDefinition_passthroughService.setBasePath("/account");
+        serviceDefinition_passthroughService.addAnnotation("BasePath", "/account");
 
         // Adding Resources
         var resource_passthrough = ballerinaASTFactory.createResourceDefinition();

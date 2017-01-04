@@ -29,6 +29,7 @@ import org.wso2.ballerina.core.model.values.BXML;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
+import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 import org.wso2.ballerina.core.nativeimpl.lang.utils.ErrorHandler;
 
 /**
@@ -38,7 +39,7 @@ import org.wso2.ballerina.core.nativeimpl.lang.utils.ErrorHandler;
         packageName = "ballerina.lang.xml",
         functionName = "toString",
         args = {@Argument(name = "xml", type = TypeEnum.XML)},
-        returnType = {TypeEnum.STRING},
+        returnType = {@ReturnType(type = TypeEnum.STRING)},
         isPublic = true
 )
 @Component(
