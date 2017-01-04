@@ -43,7 +43,7 @@ define(['require','log', 'jquery', 'd3', 'backbone', './tool-view'], function (r
 
             var groupCollapseIcon = $("<span></span>");
             groupHeaderDiv.append(groupCollapseIcon);
-            groupCollapseIcon.attr('class', "collapse-icon glyphicon glyphicon-chevron-down");
+            groupCollapseIcon.attr('class', "collapse-icon fw fw-down");
 
             var groupBodyDiv = $("<div></div>");
             groupDiv.append(groupBodyDiv);
