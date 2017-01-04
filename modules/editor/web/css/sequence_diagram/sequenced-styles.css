@@ -355,15 +355,18 @@ text-anchor: start;
     stroke: black;
 }
 
-
 .connector-life-line line{
     stroke: #000000;
 }
 
-
 .start-action{
     stroke: #000000;
     fill: #FFFFFF;
+}
+
+.start-action text{
+    fill: black;
+    stroke-opacity: 0;
 }
 
 .statement-container .main-drop-zone{
@@ -405,6 +408,10 @@ text-anchor: start;
     cursor: pointer;
     opacity: 0.4;
     fill: url(#annotationBlackIcon);
+}
+
+.headingAnnotationBlackIcon:hover {
+    opacity: 1;
 }
 
 .headingAnnotationIcon:hover {

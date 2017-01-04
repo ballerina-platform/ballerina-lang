@@ -796,14 +796,14 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     private void addActionSymbol(BallerinaAction action) {
 
-        SymbolName oriSymbolName = action.getSymbolName();
+        SymbolName actionSymbolName = action.getSymbolName();
 
         BType[] paramTypes = LangModelUtils.getTypesOfParams(action.getParameters());
 
         SymbolName symbolName =
-                LangModelUtils.getActionSymName(oriSymbolName.getName(),
-                                                oriSymbolName.getConnectorName(),
-                                                oriSymbolName.getPkgName(), paramTypes);
+                LangModelUtils.getActionSymName(actionSymbolName.getName(),
+                                                actionSymbolName.getConnectorName(),
+                                                actionSymbolName.getPkgName(), paramTypes);
         Symbol symbol = new Symbol(action, paramTypes, action.getReturnTypes());
 
         if (symbolTable.lookup(symbolName) != null) {
