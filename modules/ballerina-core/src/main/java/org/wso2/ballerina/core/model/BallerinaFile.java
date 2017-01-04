@@ -103,6 +103,15 @@ public class BallerinaFile implements Node {
     }
 
     /**
+     * Get list of Connectors
+     *
+     * @return connectors list
+     */
+    public List<BallerinaConnector> getConnectorList() {
+        return connectorList;
+    }
+
+    /**
      * Get {@code Service} list defined in the file
      *
      * @return list of Services
