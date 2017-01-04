@@ -18,11 +18,11 @@
 define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../ast/resource-definition',
         './default-worker', './point', './connector-declaration-view', './statement-view-factory',
         'ballerina/ast/ballerina-ast-factory', './expression-view-factory','./message', './statement-container',
-        './../ast/variable-declaration', './variables-view', './client-life-line'],
+        './../ast/variable-declaration', './variables-view', './client-life-line', './annotation-view'],
     function (_, log, d3, $, D3utils, BallerinaView, ResourceDefinition,
               DefaultWorkerView, Point, ConnectorDeclarationView, StatementViewFactory,
               BallerinaASTFactory, ExpressionViewFactory, MessageView, StatementContainer,
-              VariableDeclaration, VariablesView, ClientLifeLine) {
+              VariableDeclaration, VariablesView, ClientLifeLine, AnnotationView) {
 
         /**
          * The view to represent a resource definition which is an AST visitor.
@@ -59,18 +59,18 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             // center point for the client lifeline
             this._viewOptions.client = _.get(args, "viewOptions.client", {});
             this._viewOptions.client.center = _.get(args, "viewOptions.client.centerPoint",
-                this._viewOptions.topLeft.clone().move(100, 80));
+                this._viewOptions.topLeft.clone().move(100, 150));
 
             // Center point of the default worker
             this._viewOptions.defaultWorker = _.get(args, "viewOptions.defaultWorker", {});
             this._viewOptions.defaultWorker.offsetTop = _.get(args, "viewOptions.defaultWorker.offsetTop", 50);
             this._viewOptions.defaultWorker.center = _.get(args, "viewOptions.defaultWorker.centerPoint",
-                            this._viewOptions.topLeft.clone().move(260, 80));
+                            this._viewOptions.topLeft.clone().move(260, 150));
 
             // View options for height and width of the heading box.
             this._viewOptions.heading = _.get(args, "viewOptions.heading", {});
             this._viewOptions.heading.height = _.get(args, "viewOptions.heading.height", 25);
-            this._viewOptions.heading.width = _.get(args, "viewOptions.heading.width", 1000);
+            this._viewOptions.heading.width = _.get(args, "viewOptions.heading.width", this._container.node().ownerSVGElement.parentElement.offsetWidth - 100);
 
             // View options for height and width of the resource icon in the heading box.
             this._viewOptions.heading.icon = _.get(args, "viewOptions.heading.icon", {});
@@ -78,10 +78,10 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             this._viewOptions.heading.icon.width = _.get(args, "viewOptions.heading.icon.width", 25);
 
             this._viewOptions.contentCollapsed = _.get(args, "viewOptions.contentCollapsed", false);
-            this._viewOptions.contentWidth = _.get(args, "viewOptions.contentWidth", 1000);
-            this._viewOptions.contentHeight = _.get(args, "viewOptions.contentHeight", 400);
-            this._viewOptions.collapseIconWidth = _.get(args, "viewOptions.collaspeIconWidth", 1025);
-            this._viewOptions.deleteIconWidth = _.get(args, "viewOptions.deleteIconWidth", 995);
+            this._viewOptions.contentWidth = _.get(args, "viewOptions.contentWidth", this._container.node().ownerSVGElement.parentElement.offsetWidth - 100);
+            this._viewOptions.contentHeight = _.get(args, "viewOptions.contentHeight", 470);
+            this._viewOptions.collapseIconWidth = _.get(args, "viewOptions.collaspeIconWidth", this._container.node().ownerSVGElement.parentElement.offsetWidth - 95);
+            this._viewOptions.deleteIconWidth = _.get(args, "viewOptions.deleteIconWidth", this._container.node().ownerSVGElement.parentElement.offsetWidth - 125);
 
             this._viewOptions.startAction = _.get(args, "viewOptions.startAction", {
                 width: 120,
@@ -262,17 +262,48 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 .attr("height", this._viewOptions.heading.height + this._viewOptions.contentHeight);
             resourceGroup.attr("x", headingStart.x()).attr("y", contentStart.y());
 
-            // Resource related definitions: resourceIcon,collapseIcon
+            // Creating SVG definitions group for icons.
             var def = resourceGroup.append("defs");
-            var pattern = def.append("pattern").attr("id", "toggleIcon").attr("width", "100%").attr("height", "100");
-            var image = pattern.append("image").attr("xlink:href", "images/down.svg").attr("x", "0")
-                .attr("y", "5").attr("width", "14").attr("height", "14");
-            var pattern2 = def.append("pattern").attr("id", "resourceIcon").attr("width", "100%").attr("height", "100");
-            var image2 = pattern2.append("image").attr("xlink:href", "images/dmg-resource.svg")
-                .attr("x", "5").attr("y", "5").attr("width", "14").attr("height", "14");
-            var pattern3 = def.append("pattern").attr("id", "deleteIcon").attr("width", "100%").attr("height", "100");
-            var image3 = pattern3.append("image").attr("xlink:href", "images/delete.svg")
-                .attr("x", "0").attr("y", "5").attr("width", "14").attr("height", "14");
+            var iconSizeSideLength = 14;
+
+            // Creating collapsed icon for SVG definitions.
+            var collapsedIconSVGPattern = def.append("pattern").attr("id", "collapsedIcon").attr("width", "100%")
+                .attr("height", "100%");
+            collapsedIconSVGPattern.append("image").attr("xlink:href", "images/down.svg").attr("x", 0)
+                .attr("y", 0).attr("width", iconSizeSideLength).attr("height", iconSizeSideLength);
+
+            var expandIconSVGPattern = def.append("pattern").attr("id", "expandIcon").attr("width", "100%")
+                .attr("height", "100%");
+            expandIconSVGPattern.append("image").attr("xlink:href", "images/up.svg").attr("x", 0)
+                .attr("y", 0).attr("width", iconSizeSideLength).attr("height", iconSizeSideLength);
+
+            // Creating resource icon for SVG definitions.
+            var resourceIconSVGPattern = def.append("pattern").attr("id", "resourceIcon").attr("width", "100%")
+                .attr("height", "100%");
+            resourceIconSVGPattern.append("image").attr("xlink:href", "images/dmg-resource.svg").attr("x", 5)
+                .attr("y", 5).attr("width", iconSizeSideLength).attr("height", iconSizeSideLength);
+
+            // Creating delete icon for SVG definitions.
+            var deleteIconSVGPattern = def.append("pattern").attr("id", "deleteIcon").attr("width", "100%")
+                .attr("height", "100%");
+            deleteIconSVGPattern.append("image").attr("xlink:href", "images/delete.svg").attr("x", 0).attr("y", 0)
+                .attr("width", iconSizeSideLength).attr("height", iconSizeSideLength);
+
+            var deleteRedIconSVGPattern = def.append("pattern").attr("id", "deleteRedIcon").attr("width", "100%")
+                .attr("height", "100%");
+            deleteRedIconSVGPattern.append("image").attr("xlink:href", "images/delete-red.svg").attr("x", 0).attr("y", 0)
+                .attr("width", iconSizeSideLength).attr("height", iconSizeSideLength);
+
+            // Creating annotations icon for SVG definitions.
+            var annotationIconSVGPattern = def.append("pattern").attr("id", "annotationIcon").attr("width", "100%")
+                .attr("height", "100%");
+            annotationIconSVGPattern.append("image").attr("xlink:href", "images/annotation.svg").attr("x", 0)
+                .attr("y", 0).attr("width", iconSizeSideLength).attr("height", iconSizeSideLength);
+
+            var annotationBlackIconSVGPattern = def.append("pattern").attr("id", "annotationBlackIcon").attr("width", "100%")
+                .attr("height", "100%");
+            annotationBlackIconSVGPattern.append("image").attr("xlink:href", "images/annotation-black.svg").attr("x", 0)
+                .attr("y", 0).attr("width", iconSizeSideLength).attr("height", iconSizeSideLength);
 
             // Resource header container
             var headerGroup = D3utils.group(resourceGroup);
@@ -291,15 +322,92 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             var headingRectIcon = D3utils.rect(headingStart.x(), headingStart.y(), this._viewOptions.heading.icon.width,
                 this._viewOptions.heading.icon.height, 0, 0, headerGroup).classed("headingRectIcon", true);
 
-            //Resource  heading collapse icon
-            var headingCollapseIcon = D3utils.rect(this._viewOptions.collapseIconWidth, headingStart.y(),
-                this._viewOptions.heading.icon.width,
-                this._viewOptions.heading.icon.height, 0, 0, headerGroup).classed("headingCollapseIcon", true);
+            var xEndOfHeadingRect = parseFloat(headingRect.attr("x")) + parseFloat(headingRect.attr("width")) ;
+            var yForIcons = parseFloat(headingRect.attr("y")) + (((this._viewOptions.heading.icon.height) / 2) - (14 / 2));
 
-            //Resource  heading delete icon
-            var headingDeleteIcon = D3utils.rect(this._viewOptions.deleteIconWidth, headingStart.y(),
-                this._viewOptions.heading.icon.width,
-                this._viewOptions.heading.icon.height, 0, 0, headerGroup).classed("headingDeleteIcon", true);
+            // Creating wrapper for collpase icon.
+            var headingCollapseIconWrapper = D3utils.rect(
+                xEndOfHeadingRect - this._viewOptions.heading.icon.width, headingStart.y() + 1,
+                this._viewOptions.heading.icon.width - 1, this._viewOptions.heading.icon.height - 1, 0, 0, headerGroup)
+                .classed("heading-icon-wrapper hoverable heading-icon-collpase-wrapper", true);
+
+            var xForCollpaseIcon = xEndOfHeadingRect - this._viewOptions.heading.icon.width + (((this._viewOptions.heading.icon.width) / 2) - (14 / 2));
+
+            // Creating resource heading collapse icon.
+            var headingCollapseIcon = D3utils.rect(xForCollpaseIcon, yForIcons,
+                iconSizeSideLength, iconSizeSideLength, 0, 0, headerGroup)
+                .classed("headingCollapsedIcon", true);
+
+            // Creating separator for collapse icon.
+            D3utils.line(xEndOfHeadingRect - this._viewOptions.heading.icon.width, parseFloat(headingRect.attr("y")) + 5,
+                xEndOfHeadingRect - this._viewOptions.heading.icon.width,
+                parseFloat(headingRect.attr("y")) + parseFloat(headingRect.attr("height")) - 5, headerGroup)
+                .classed("operations-separator", true);
+
+            // Creating separator for delete icon.
+            D3utils.line(xEndOfHeadingRect - (2 * this._viewOptions.heading.icon.width),
+                parseFloat(headingRect.attr("y")) + 5, xEndOfHeadingRect - (2 * this._viewOptions.heading.icon.width),
+                parseFloat(headingRect.attr("y")) + parseFloat(headingRect.attr("height")) - 5, headerGroup)
+                .classed("operations-separator", true);
+
+            // Creating separator for annotation icon.
+            D3utils.line(xEndOfHeadingRect - (3 * this._viewOptions.heading.icon.width),
+                parseFloat(headingRect.attr("y")) + 5, xEndOfHeadingRect - (3 * this._viewOptions.heading.icon.width),
+                parseFloat(headingRect.attr("y")) + parseFloat(headingRect.attr("height")) - 5, headerGroup)
+                .classed("operations-separator", true);
+
+            // Creating wrapper for delete icon.
+            var headingDeleteIconWrapper = D3utils.rect(
+                xEndOfHeadingRect - (2 * this._viewOptions.heading.icon.width), headingStart.y() + 1,
+                this._viewOptions.heading.icon.width - 1, this._viewOptions.heading.icon.height - 2, 0, 0, headerGroup)
+                .classed("heading-icon-wrapper heading-icon-delete-wrapper", true);
+
+            var xForDeleteIcon = xEndOfHeadingRect - (2 * this._viewOptions.heading.icon.width) + (((this._viewOptions.heading.icon.width) / 2) - (14 / 2));
+
+            // Resource heading delete icon
+            var headingDeleteIcon = D3utils.rect(xForDeleteIcon, yForIcons,
+                iconSizeSideLength, iconSizeSideLength, 0, 0, headerGroup).classed("headingDeleteIcon", true);
+
+
+            // Creating wrapper for annotation icon.
+            var headingAnnotationIconWrapper = D3utils.rect(
+                xEndOfHeadingRect - (3 * this._viewOptions.heading.icon.width), headingStart.y() + 1,
+                this._viewOptions.heading.icon.width - 1, this._viewOptions.heading.icon.height - 2, 0, 0, headerGroup)
+                .classed("heading-icon-wrapper heading-icon-annotation-wrapper", true);
+
+            var xForAnnotationIcon = xEndOfHeadingRect - (3 * this._viewOptions.heading.icon.width) + (((this._viewOptions.heading.icon.width) / 2) - (14 / 2));
+            var yForAnnotationIcon = parseFloat(headingRect.attr("y")) + (((this._viewOptions.heading.icon.height) / 2) - (14 / 2));
+
+            // Resource heading annotation icon
+            var headingAnnotationIcon = D3utils.rect(xForAnnotationIcon, yForAnnotationIcon,
+                iconSizeSideLength, iconSizeSideLength, 0, 0, headerGroup).classed("headingAnnotationBlackIcon", true);
+
+
+            // The hovering effect for delete icon.
+            $(headingDeleteIcon.node()).hover(function () {
+                headingDeleteIcon.classed("deleteRedIcon", true);
+                headingDeleteIcon.classed("deleteIcon", false);
+            }, function () {
+                headingDeleteIcon.classed("deleteRedIcon", false);
+                headingDeleteIcon.classed("deleteIcon", true);
+            });
+
+            // UI changes when the annotation button is clicked.
+            $(headingAnnotationIcon.node()).click(function () {
+                if ($(this).data("showing") === "true") {
+                    $(this).data("showing", "false");
+                    headingAnnotationIcon.classed("headingAnnotationBlackIcon", true);
+                    headingAnnotationIcon.classed("headingAnnotationIcon", false);
+
+                    headingAnnotationIconWrapper.classed("heading-icon-annotation-wrapper-clicked", false);
+                } else {
+                    $(this).data("showing", "true");
+                    headingAnnotationIcon.classed("headingAnnotationBlackIcon", false);
+                    headingAnnotationIcon.classed("headingAnnotationIcon", true);
+
+                    headingAnnotationIconWrapper.classed("heading-icon-annotation-wrapper-clicked", true);
+                }
+            });
 
             // Add the resource name editable html area
             var svgWrappingHtml = this.getChildContainer().node().ownerSVGElement.parentElement;
@@ -346,6 +454,10 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                     // show the variable button and variable pane
                     self._variableButton.show();
                     self._variablePane.show();
+
+                    // Changing icon if the collapse.
+                    headingCollapseIcon.classed("headingExpandIcon", false);
+                    headingCollapseIcon.classed("headingCollapsedIcon", true);
                 }
                 else {
                     contentGroup.attr("display", "none");
@@ -356,6 +468,10 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                     // hide the variable button and variable pane
                     self._variableButton.hide();
                     self._variablePane.hide();
+
+                    // Changing icon if the collapse.
+                    headingCollapseIcon.classed("headingExpandIcon", true);
+                    headingCollapseIcon.classed("headingCollapsedIcon", false);
                 }
             };
 
@@ -409,7 +525,6 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
             this._variableButton = VariablesView.createVariableButton(this.getChildContainer().node(),
                 parseInt(this.getChildContainer().attr("x")) + 4, parseInt(this.getChildContainer().attr("y")) + 7);
-            var annotationButton = this._createAnnotationButton(this.getChildContainer().node());
 
             var variableProperties = {
                 model: this._model,
@@ -426,7 +541,20 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
             this._variablePane = VariablesView.createVariablePane(variableProperties);
 
-            this._createAnnotationButtonPane(annotationButton);
+            var annotationProperties = {
+                model: this._model,
+                activatorElement: headingAnnotationIcon.node(),
+                paneAppendElement: this.getChildContainer().node().ownerSVGElement.parentElement,
+                viewOptions: {
+                    position: {
+                        // "-1" to remove the svg stroke line
+                        left: parseFloat(this.getChildContainer().attr("x")) + parseFloat(this.getChildContainer().attr("width")) - 1,
+                        top: this.getChildContainer().attr("y")
+                    }
+                }
+            };
+
+            AnnotationView.createAnnotationPane(annotationProperties);
 
             this.getBoundingBox().on("moved", function(offset){
                 var currentTransform = this._resourceGroup.attr("transform");
@@ -466,500 +594,6 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             });
             this._statementContainer.render(this.diagramRenderingContext);
         };
-
-        ResourceDefinitionView.prototype._createAnnotationButtonPane = function (annotationButton) {
-            var paneWidth = 400;
-            var paneHeadingHeight = annotationButton.attr("r") * 2;
-            var mainActionWrapper = "main-action-wrapper service-annotation-main-action-wrapper";
-            var actionContentWrapper = "svg-action-content-wrapper";
-            var actionContentWrapperHeading = "action-content-wrapper-heading service-annotation-wrapper-heading";
-            var actionContentDropdownWrapper = "action-content-dropdown-wrapper input-group-btn";
-            var actionIconWrapper = "action-icon-wrapper";
-            var actionContentWrapperBody = "svg-action-content-wrapper-body service-annotation-details-wrapper";
-            var annotationDetailWrapper = "service-annotation-detail-wrapper";
-            var annotationDetailCellWrapper = "service-annotation-detail-cell-wrapper";
-
-            // Annotation data of the service.
-            var data = [
-                {
-                    annotationType: "ResourcePath",
-                    annotationValue: this._model.getResourcePath(),
-                    setterMethod: this._model.setResourcePath
-                },
-                {
-                    annotationType: "ResourceName",
-                    annotationValue: this._model.getResourceName(),
-                    setterMethod: this._model.setResourceName
-                },
-                {
-                    annotationType: "ResourceMethod",
-                    annotationValue: this._model.getResourceMethod,
-                    setterMethod: this._model.setResourceMethod
-                },
-                {
-                    annotationType: "ResourceArgs",
-                    annotationValue: this._model.getResourceArguments,
-                    setterMethod: this._model.setResourceArguments
-                }
-            ];
-
-            // Showing annotation pane when annotation button is clicked.
-            $(annotationButton.node()).click({model: this._model}, function (event) {
-
-                // Show the annotation pane only if annotation pane is closed.
-                if (_.isNil($(annotationButton.node()).data("showing"))
-                    || $(annotationButton.node()).data("showing") == "false") {
-                    $(annotationButton.node()).data("showing", true);
-                } else {
-                    return;
-                }
-
-                var model = event.data.model;
-
-                // Stopping event propagation to element behind.
-                event.stopPropagation();
-
-                // Adding darkness to the annotation button.
-                var annotationButtonClass = $(annotationButton.node()).attr("class");
-                $(annotationButton.node()).removeAttr("class");
-
-                var divSvgWrapper = annotationButton.node().ownerSVGElement.parentElement;
-
-                // Getting the start location for drawing the background.
-                var paneStartingX = annotationButton.attr("cx") - paneWidth;
-                var paneStartingY = annotationButton.attr("cy") - annotationButton.attr("r");
-
-                // Heading background.
-                var headingBackground = d3.select(annotationButton.node().parentElement).insert("rect", ":first-child")
-                    .attr("x", paneStartingX)
-                    .attr("y", paneStartingY)
-                    .attr("width", paneWidth)
-                    .attr("height", paneHeadingHeight)
-                    .classed("svg-action-content-wrapper-heading", true);
-
-                // Padding value needs to be taken into considering as that starting point of the SVG and its wrapper is
-                // not the same. Difference is the padding.
-                var paddingOfDivSvgWrapper = parseInt($(divSvgWrapper).css("padding"), 10);
-
-                var annotationEditorWrapper = $("<div/>", {
-                    class: mainActionWrapper
-                }).width(paneWidth)
-                    .offset({top: paneStartingY + paddingOfDivSvgWrapper, left: paneStartingX + paddingOfDivSvgWrapper})
-                    .appendTo(divSvgWrapper);
-
-                var annotationActionContentWrapper = $("<div/>", {
-                    class: actionContentWrapper
-                }).appendTo(annotationEditorWrapper);
-
-                // Creating header content.
-                var headerWrapper = $("<div/>", {
-                    class: actionContentWrapperHeading
-                }).appendTo(annotationActionContentWrapper);
-
-                // Creating a wrapper for the annotation type dropwdown.
-                var annotationTypeDropDownWrapper = $("<div/>", {
-                    class: actionContentDropdownWrapper
-                }).appendTo(headerWrapper);
-
-                // Creating dropdown button element.
-                var dropdownClickable = $("<button/>", {
-                    class: "btn btn-default dropdown-toggle",
-                    text : "Annotation Type"
-                }).appendTo(annotationTypeDropDownWrapper);
-
-                // Adding bootstrap attributes to the above button element.
-                dropdownClickable.attr("data-toggle", "dropdown")
-                    .attr("aria-haspopup", true)
-                    .attr("aria-expanded", false);
-
-                var dropdownClickableIcon = $("<i class='icon-caret fw fw-down icon-caret'></i>");
-
-                dropdownClickableIcon.appendTo(dropdownClickable);
-
-                // Creating <ul> tag to add dropdown elements.
-                var dropdownElementsWrapper = $("<ul/>", {
-                    class: "dropdown-menu"
-                }).appendTo(annotationTypeDropDownWrapper);
-
-                // Text input for editing the value of an annotation.
-                var annotationValueInput = $("<input/>", {
-                    type: "text"
-                }).appendTo(headerWrapper);
-
-                // Wrapper for the add and check icon.
-                var addIconWrapper = $("<div/>", {
-                    class: actionIconWrapper
-                }).appendTo(headerWrapper);
-
-                var addButton = $("<span class='fw-stack fw-lg'>" +
-                    "<i class='fw fw-square fw-stack-2x'></i>" +
-                    "<i class='fw fw-add fw-stack-1x fw-inverse'></i>" +
-                    "</span>").appendTo(addIconWrapper);
-
-                // Adding a value to a new annotation.
-                $(addButton).click(function() {
-                    var annotationValue = annotationValueInput.val();
-                    var annotationType = dropdownClickable.text();
-                    var annotation = _.first(_.filter(data, function(annotation){
-                        return annotation.annotationType == annotationType;
-                    }));
-
-                    annotation.annotationValue = annotationValue;
-
-                    //Sets the annotation values in the model
-                    setAnnotationValues(annotationType,annotationValue);
-
-                    //Clear the text box and drop down value
-                    annotationValueInput.val("");
-
-                    // Recreating the annotation details view.
-                    createCurrentAnnotationView(data, annotationsContentWrapper);
-
-                    // Re-add elements to dropdown.
-                    addAnnotationsToDropdown();
-                });
-
-                // Add elements to dropdown.
-                addAnnotationsToDropdown();
-
-                // Creating the content editing div.
-                var annotationsContentWrapper = $("<div/>", {
-                    class: actionContentWrapperBody
-                }).appendTo(annotationActionContentWrapper);
-
-                // Creating the annotation details view.
-                createCurrentAnnotationView(data, annotationsContentWrapper);
-
-                // If an item in the dropdown(the button and the li elements) is clicked, we nee to allow propagation as
-                // the dropdown effect is handle through bootstrap.
-                annotationEditorWrapper.click({
-                    dropDown: dropdownClickable,
-                    dropDownList: dropdownElementsWrapper
-                }, function (event) {
-                    if (!(event.target == event.data.dropDown.get(0) ||
-                        (!_.isNil(event.target.parentElement) &&
-                        event.data.dropDownList.get(0) == event.target.parentElement.parentElement))) {
-                        event.stopPropagation();
-                    }
-                });
-
-                // Closing the pop-up. But we should not close the pop-up when clicked on an dropdown element(the button
-                // and the li elements) as it is handled through bootstrap.
-                $(window).click({dropDownList: dropdownElementsWrapper}, function (event) {
-                    if (!(!_.isNil(event.target.parentElement) &&
-                        event.data.dropDownList.get(0) == event.target.parentElement.parentElement)) {
-                        $(headingBackground.node().remove());
-                        annotationEditorWrapper.remove();
-                        $(annotationButton.node()).data("showing", "false");
-                        $(annotationButton.node()).attr("class", annotationButtonClass);
-
-                        $(event.currentTarget).unbind("click");
-                    }
-                });
-
-                /**
-                 * Gets the processed resource method annotations
-                 * @param annotationValue - The annotation value
-                 */
-                function getResourceMethodAnnotations(annotationValue){
-                    //FIXME cannot trim non comma separated strings using map function hence used trim()
-                    var processedAnnotationValue = annotationValue.toLowerCase().trim();
-                    //Check if the annotation value is a comma separated string
-                    if (annotationValue.indexOf(',') > -1) {
-                        processedAnnotationValue = processedAnnotationValue.split(',');
-                        //Trim all elements in the array
-                        processedAnnotationValue = processedAnnotationValue.map(Function.prototype.call, String.prototype.trim);
-                    }
-                    return processedAnnotationValue;
-                }
-
-                /**
-                 * Adds annotation with values to the dropdown.
-                 */
-                function addAnnotationsToDropdown() {
-                    dropdownElementsWrapper.empty();
-
-                    // Adding dropdown elements.
-                    _.forEach(data, function (annotation) {
-                        if (_.isEmpty(annotation.annotationValue)) {
-                            var dropDownItem = $("<li><a href='#'>" + annotation.annotationType + "</a></li>")
-                                .appendTo(dropdownElementsWrapper);
-
-                            // Creating click event when an dropdown value is select.
-                            $(dropDownItem).click(function () {
-                                var selectedAnnotationType = $(this).text();
-
-                                // Setting the select text value to the dropdown clickable.
-                                dropdownClickable.text(selectedAnnotationType);
-                                // Appending the dropdown arrow to the button.
-                                dropdownClickableIcon.appendTo(dropdownClickable);
-
-                                // Showing the annotation value.
-                                var selectedAnnotation = _.filter(data, function (annotation) {
-                                    return annotation.annotationType == selectedAnnotationType;
-                                });
-                                annotationValueInput.val(_.first(selectedAnnotation).annotationValue);
-                            });
-                        }
-                    });
-                }
-
-                /**
-                 * Sets the annotation values in the model
-                 * @param annonationType
-                 * @param annotationValue
-                 */
-                function setAnnotationValues(annotationType, annotationValue){
-                    if(annotationType == 'ResourceName'){
-                        model.setResourceName(annotationValue);
-                    }else if(annotationType == 'ResourcePath'){
-                        model.setResourcePath(annotationValue);
-                    }else if(annotationType == 'ResourceMethod'){
-                        var resourceMethods = getResourceMethodAnnotations(annotationValue);
-                        model.setResourceMethod(resourceMethods);
-                    }else if(annotationType == 'ResourceArgs'){
-                        model.setResourceArguments(annotationValue);
-                    }
-                }
-
-                /**
-                 * Creates the annotation detail wrapper and its events.
-                 * @param annotationData - The annotation data.
-                 * @param wrapper - The wrapper element which these details should be appended to.
-                 */
-                function createCurrentAnnotationView(annotationData, wrapper) {
-                    wrapper.empty();
-
-                    // Creating annotation info
-                    _.forEach(annotationData, function (annotation) {
-                        if (!_.isEmpty(annotation.annotationValue)) {
-
-                            //Gets resource method as a comma separated string and assigns to the annotation value
-                            if(annotation.annotationType == 'ResourceMethod'){
-                                var resourceMethods = getResourceMethodAnnotations(annotation.annotationValue);
-                                annotation.annotationValue = resourceMethods.toString().toUpperCase();
-                            }
-
-                            var annotationWrapper = $("<div/>", {
-                                class: annotationDetailWrapper
-                            }).appendTo(wrapper);
-
-                            // Creating a wrapper for the annotation type.
-                            var annotationTypeWrapper = $("<div/>", {
-                                text: annotation.annotationType,
-                                class: annotationDetailCellWrapper
-                            }).appendTo(annotationWrapper);
-
-                            // Creating a wrapper for the annotation value.
-                            var annotationValueWrapper = $("<div/>", {
-                                text: ": " + annotation.annotationValue,
-                                class: annotationDetailCellWrapper
-                            }).appendTo(annotationWrapper);
-
-                            var deleteIcon = $("<i class='fw fw-cancel service-annotation-detail-cell-delete-icon'></i>");
-
-                            deleteIcon.appendTo(annotationValueWrapper);
-
-                            // When an annotation detail is clicked.
-                            annotationWrapper.click({
-                                clickedAnnotationValueWrapper: annotationValueWrapper,
-                                clickedAnnotationTypeWrapper: annotationTypeWrapper,
-                                annotation: annotation
-                            }, function (event) {
-                                var clickedAnnotationValueWrapper = event.data.clickedAnnotationValueWrapper;
-                                var clickedAnnotationTypeWrapper = event.data.clickedAnnotationTypeWrapper;
-                                var annotation = event.data.annotation;
-                                // Empty the content inside the annotation value and type wrapper.
-                                clickedAnnotationValueWrapper.empty();
-                                clickedAnnotationTypeWrapper.empty();
-                                // Changing the background
-                                annotationWrapper.css("background-color", "#f5f5f5");
-
-                                // Creating the text area for the value of the annotation.
-                                var annotationValueTextArea = $("<textarea/>", {
-                                    text: annotation.annotationValue,
-                                    class: "form-control"
-                                }).appendTo(clickedAnnotationValueWrapper);
-
-
-                                // Creating the area for the type of the annotation.
-                                var annotationTypeTextArea = $("<div/>", {
-                                    text: annotation.annotationType,
-                                    class: annotationDetailCellWrapper
-                                }).appendTo(clickedAnnotationTypeWrapper);
-
-                                //Gets the user input and set it as the annotation value
-                                annotationValueTextArea.on('input', function (e){
-                                    annotation.annotationValue = e.target.value;
-                                });
-
-                                //Gets the annotation type of the edited annotation value
-                                annotationTypeTextArea.on('input', function (e){
-                                    annotation.annotationType = e.target.value;
-                                });
-
-                                //Sets the annotation values in the model
-                                setAnnotationValues(annotation.annotationType, annotation.annotationValue);
-
-                                var newDeleteIcon = deleteIcon.clone();
-
-                                // Fixing the delete icon.
-                                newDeleteIcon.appendTo(clickedAnnotationValueWrapper);
-
-                                // Adding in-line display block to override the hovering css.
-                                newDeleteIcon.css("display", "block");
-
-                                //Removes the annotation when clicking on the delete icon
-                                newDeleteIcon.on('click', function (e){
-                                    annotation.annotationValue = "";
-                                    setAnnotationValues(annotation.annotationType, annotation.annotationValue);
-                                    $(annotationWrapper).remove();
-                                    addAnnotationsToDropdown();
-                                });
-
-                                // Resetting of other annotations wrapper which has been used for editing.
-                                annotationWrapper.siblings().each(function () {
-
-                                    // Removing the textareas of other annotations and use simple text.
-                                    var annotationValueDiv = $(this).children().eq(1);
-                                    if (annotationValueDiv.find("textarea").length > 0) {
-                                        // Reverting the background color of other annotation editors.
-                                        $(this).removeAttr("style");
-
-                                        var annotationVal = ": " + annotationValueDiv.find("textarea").val();
-                                        annotationValueDiv.empty().text(annotationVal);
-
-                                        var delIcon = deleteIcon.clone();
-
-                                        delIcon.appendTo(annotationValueDiv);
-                                        delIcon.removeAttr("style");
-                                    }
-                                });
-                            });
-                        }
-
-                    });
-                }
-            });
-        };
-
-        ResourceDefinitionView.prototype._createAnnotationButton = function (resourceContentSvg) {
-            var svgDefinitions = d3.select(resourceContentSvg).select("#contentGroup").append("defs");
-
-            var annotationButtonPattern = svgDefinitions.append("pattern")
-                .attr("id", "annotationIcon")
-                .attr("width", "100%")
-                .attr("height", "100%");
-
-            annotationButtonPattern.append("image")
-                .attr("xlink:href", "images/annotation.svg")
-                .attr("x", 0)
-                .attr("y", 0)
-                .attr("width", 18.67)
-                .attr("height", 18.67);
-
-            // xPosition = Width of the outer div - padding of outer box - radius of the annotation button - 20(additional value).
-            //var xPosition = $(resourceContentSvg.parentElement.parentElement).prev().width() - outerBoxPadding - 18.675 - 40;
-            var xPosition = d3.selectAll(resourceContentSvg.childNodes).select('.headingCollapseIcon').attr("x") - 25;
-            // yPosition = (2 X radius of annotation button) + additional distance.
-            //var yPosition = 75;
-            var yPosition = parseInt(d3.selectAll(resourceContentSvg.childNodes).select('.resource-content').attr("y")) + 85;
-
-            var annotationIconGroup = D3utils.group(d3.select(resourceContentSvg).select("#contentGroup"));
-
-            var annotationIconBackgroundCircle = D3utils.circle(xPosition, yPosition, 18.675, annotationIconGroup)
-                .classed("annotation-icon-background-circle", true);
-
-            var annotationIconRect = D3utils.centeredRect(new Point(xPosition, yPosition), 18.67, 18.67, 0, 0, annotationIconGroup)
-                .classed("annotation-icon-rect", true);
-
-            // Positioning the icon when window is zoomed out or in.
-            $(window).resize(function () {
-                $(annotationIconBackgroundCircle.node()).remove();
-                $(annotationIconRect.node()).remove();
-
-                annotationIconBackgroundCircle = D3utils.circle(xPosition, yPosition, 18.675, annotationIconGroup)
-                    .classed("annotation-icon-background-circle", true);
-
-                annotationIconRect = D3utils.centeredRect(new Point(xPosition, yPosition), 18.67, 18.67, 0, 0, annotationIconGroup)
-                    .classed("annotation-icon-rect", true);
-            });
-
-            // Get the hover effect of the circle on the icon hover.
-            $(annotationIconRect.node()).hover(
-                function () {
-                    annotationIconBackgroundCircle.style("opacity", 1);
-                },
-                function () {
-                    $(annotationIconBackgroundCircle.node()).removeAttr("style");
-                }
-            );
-
-            $(annotationIconRect.node()).click(function (event) {
-                $(annotationIconBackgroundCircle.node()).trigger("click");
-                event.stopPropagation();
-            });
-
-            return annotationIconBackgroundCircle;
-        };
-
-        ResourceDefinitionView.prototype._createVariableButton = function (resourceContentSvg) {
-            var svgDefinitions = d3.select(resourceContentSvg).select("#contentGroup").append("defs");
-
-            var variableButtonPattern = svgDefinitions.append("pattern")
-                .attr("id", "variableIcon")
-                .attr("width", "100%")
-                .attr("height", "100%");
-
-            variableButtonPattern.append("image")
-                .attr("xlink:href", "images/variable.svg")
-                .attr("x", 0)
-                .attr("y", 0)
-                .attr("width", 18.67)
-                .attr("height", 18.67);
-
-            // xPosition = Width of the outer div - padding of outer box - radius of the annotation button - 20(additional value).
-            //var xPosition = $(resourceContentSvg).width() - outerBoxPadding - 18.675 - 40;
-            var xPosition = d3.selectAll(resourceContentSvg.childNodes).select('.headingCollapseIcon').attr("x") - 25;
-            var yPosition = parseInt(d3.selectAll(resourceContentSvg.childNodes).select('.resource-content').attr("y")) + 40;
-
-            var variableIconGroup = D3utils.group(d3.select(resourceContentSvg).select("#contentGroup"));
-
-            var variableIconBackgroundCircle = D3utils.circle(xPosition, yPosition, 18.675, variableIconGroup)
-                .classed("variable-icon-background-circle", true);
-
-            var variableIconRect = D3utils.centeredRect(new Point(xPosition, yPosition), 18.67, 18.67, 0, 0, variableIconGroup)
-                .classed("variable-icon-rect", true);
-
-            // Positioning the icon when window is zoomed out or in.
-            $(window).resize(function () {
-                $(variableIconBackgroundCircle.node()).remove();
-                $(variableIconRect.node()).remove();
-
-                variableIconBackgroundCircle = D3utils.circle(xPosition, yPosition, 18.675, variableIconGroup)
-                    .classed("variable-icon-background-circle", true);
-
-                variableIconRect = D3utils.centeredRect(new Point(xPosition, yPosition), 18.67, 18.67, 0, 0, variableIconGroup)
-                    .classed("variable-icon-rect", true);
-            });
-
-            // Get the hover effect of the circle on the icon hover.
-            $(variableIconRect.node()).hover(
-                function () {
-                    variableIconBackgroundCircle.style("opacity", 1);
-                },
-                function () {
-                    $(variableIconBackgroundCircle.node()).removeAttr("style");
-                }
-            );
-
-            $(variableIconRect.node()).click(function () {
-                $(variableIconBackgroundCircle.node()).trigger("click");
-            });
-
-            return variableIconBackgroundCircle;
-        };
-
 
         ResourceDefinitionView.prototype.initResourceLevelDropTarget = function(){
             var self = this,

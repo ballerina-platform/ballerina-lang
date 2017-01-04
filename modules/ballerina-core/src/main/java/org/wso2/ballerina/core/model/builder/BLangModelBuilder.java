@@ -235,6 +235,7 @@ public class BLangModelBuilder {
     }
 
     public void registerConnectorType(String typeName) {
+        //TODO: We might have to do this through a symbol table in the future
         BTypes.addConnectorType(typeName);
     }
 
@@ -605,9 +606,7 @@ public class BLangModelBuilder {
 
     public void createFunctionInvocationStmt() {
         CallableUnitInvocationExprBuilder cIExprBuilder = new CallableUnitInvocationExprBuilder();
-        if (!exprListStack.isEmpty()) {
-            cIExprBuilder.setExpressionList(exprListStack.pop());
-        }
+        cIExprBuilder.setExpressionList(exprListStack.pop());
         cIExprBuilder.setName(symbolNameStack.pop());
 
         FunctionInvocationExpr invocationExpr = cIExprBuilder.buildFuncInvocExpr();
