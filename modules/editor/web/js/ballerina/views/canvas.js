@@ -19,7 +19,8 @@
 define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor', './ballerina-view', './message-manager'], function(log, _, $, d3, D3Utils, AstVisitor, BallerinaView, MessageManager){
 
     var Canvas = function(args) {
-        args.messageManager = new MessageManager();
+        var mMArgs = {'canvas': this};
+        args.messageManager = new MessageManager(mMArgs);
         BallerinaView.call(this, args);
     };
 
