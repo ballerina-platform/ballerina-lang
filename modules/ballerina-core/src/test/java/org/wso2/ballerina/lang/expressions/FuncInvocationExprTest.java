@@ -80,10 +80,4 @@ public class FuncInvocationExprTest {
         int expected = 322;
         Assert.assertEquals(actual, expected);
     }
-
-    public static void main(String[] args) {
-        FuncInvocationExprTest test = new FuncInvocationExprTest();
-        test.setup();
-        test.testFuncInvocationExprAdvanced();
-    }
 }
