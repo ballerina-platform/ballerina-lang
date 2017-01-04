@@ -17,7 +17,7 @@
  **/
 
 
-package org.wso2.integration.tooling.service.workspace.rest;
+package org.wso2.ballerina.tooling.service.workspace.rest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

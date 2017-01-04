@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package org.wso2.integration.tooling.service.workspace.rest;
+package org.wso2.ballerina.tooling.service.workspace.rest;
 
 import com.google.gson.JsonObject;
 import com.google.inject.Inject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.integration.tooling.service.workspace.Workspace;
+import org.wso2.ballerina.tooling.service.workspace.Workspace;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
