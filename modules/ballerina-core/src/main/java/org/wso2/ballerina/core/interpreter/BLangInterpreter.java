@@ -261,7 +261,7 @@ public class BLangInterpreter implements NodeVisitor {
     public void visit(ReplyStmt replyStmt) {
         // TODO revisit this logic
         BMessage bMessage =
-                (BMessage) controlStack.getCurrentFrame().valuesNew[replyStmt.getReplyExpr().getOffset()];
+                (BMessage) controlStack.getCurrentFrame().values[replyStmt.getReplyExpr().getOffset()];
         bContext.getBalCallback().done(bMessage.value());
     }
 
@@ -272,7 +272,7 @@ public class BLangInterpreter implements NodeVisitor {
         for (int i = 0; i < exprs.length; i++) {
             Expression expr = exprs[i];
             expr.accept(this);
-            controlStack.setReturnValueNew(i, getValue(expr));
+            controlStack.setReturnValue(i, getValue(expr));
         }
     }
 
@@ -281,7 +281,7 @@ public class BLangInterpreter implements NodeVisitor {
     @Override
     public void visit(InstanceCreationExpr instanceCreationExpr) {
         BValue bValue = instanceCreationExpr.getType().getDefaultValue();
-        controlStack.setValueNew(instanceCreationExpr.getOffset(), bValue);
+        controlStack.setValue(instanceCreationExpr.getOffset(), bValue);
     }
 
     @Override
@@ -339,7 +339,7 @@ public class BLangInterpreter implements NodeVisitor {
         // Setting return values to function invocation expression
         // TODO At the moment we only support single return value
         if (rVals.length >= 1) {
-            controlStack.setValueNew(funcIExpr.getOffset(), rVals[0]);
+            controlStack.setValue(funcIExpr.getOffset(), rVals[0]);
         }
     }
 
@@ -395,7 +395,7 @@ public class BLangInterpreter implements NodeVisitor {
         // Setting return values to function invocation expression
         // TODO At the moment we only support single return value
         if (rVals.length >= 1) {
-            controlStack.setValueNew(actionIExpr.getOffset(), rVals[0]);
+            controlStack.setValue(actionIExpr.getOffset(), rVals[0]);
         }
     }
 
@@ -514,7 +514,7 @@ public class BLangInterpreter implements NodeVisitor {
             bValue = new BXML(backquoteExpr.getTemplateStr());
         }
 
-        controlStack.setValueNew(backquoteExpr.getOffset(), bValue);
+        controlStack.setValue(backquoteExpr.getOffset(), bValue);
     }
 
     public void visit(ResourceInvoker resourceInvoker) {
@@ -635,7 +635,7 @@ public class BLangInterpreter implements NodeVisitor {
     }
 
     private void setValue(Expression expr, BValue bValue) {
-        controlStack.setValueNew(expr.getOffset(), bValue);
+        controlStack.setValue(expr.getOffset(), bValue);
     }
 
     private void visitBinaryExpr(BinaryExpression binaryExpr) {
@@ -649,7 +649,7 @@ public class BLangInterpreter implements NodeVisitor {
         BValueType lValue = (BValueType) getValue(lExpr);
 
         BValue result = binaryExpr.getEvalFunc().apply(lValue, rValue);
-        controlStack.setValueNew(binaryExpr.getOffset(), result);
+        controlStack.setValue(binaryExpr.getOffset(), result);
     }
 
     private int populateArgumentValues(Expression[] expressions, BValue[] localVals) {

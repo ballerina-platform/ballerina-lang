@@ -93,8 +93,8 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/reply-statement
 
             var startActionGroup = D3Utils.group(d3.select(this._container));
             var line_start = new Point(this.getBoundingBox().x(), this.getBoundingBox().y() + height/2);
-            // FixMe: here 50 is the length of the arrow line. This value has to determine dynamically considering the client lifeline
-            var distanceToClient = 50;
+
+            var distanceToClient = this._viewOptions.distanceToClient - this.getBoundingBox().w()/2;
             var line_end = new Point(this.getBoundingBox().x() - distanceToClient, this.getBoundingBox().y() + height/2);
             var reply_rect = D3Utils.rect(this.getBoundingBox().x(), this.getBoundingBox().y(), width, height, 0, 0, startActionGroup).classed('statement-rect', true);
             var reply_text = D3Utils.textElement(this.getBoundingBox().x() + width/2, this.getBoundingBox().y() + height/2, 'Reply', startActionGroup).classed('statement-text', true);
@@ -105,9 +105,21 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/reply-statement
 
             log.info("Rendering the Reply Statement.");
 
+            // Creating property pane
+            var editableProperties = [
+                {
+                    propertyType: "text",
+                    key: "Response Message",
+                    model: this._model,
+                    getterMethod: this._model.getReplyMessage,
+                    setterMethod: this._model.setReplyMessage
+                }
+            ];
+
             this._createPropertyPane({
                 model: this._model,
-                statementGroup:startActionGroup
+                statementGroup:startActionGroup,
+                editableProperties: editableProperties
             });
 
             var self = this;
@@ -125,111 +137,5 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/reply-statement
             return startActionGroup;
         };
 
-        ReplyStatementView.prototype._createPropertyPane = function (args) {
-            var model = _.get(args, "model", {});
-            var viewOptions = _.get(args, "viewOptions", {});
-            var statementGroup = _.get(args, "statementGroup", null);
-
-            viewOptions.actionButton = _.get(args, "viewOptions.actionButton", {});
-            viewOptions.actionButton.class = _.get(args, "actionButton.class", "property-pane-action-button");
-            viewOptions.actionButton.wrapper = _.get(args, "actionButton.wrapper", {});
-            viewOptions.actionButton.wrapper.class = _.get(args, "actionButton.wrapper.class", "property-pane-action-button-wrapper");
-            viewOptions.actionButton.deleteClass = _.get(args, "viewOptions.actionButton.deleteClass", "property-pane-action-button-delete");
-
-            viewOptions.actionButton.width = _.get(args, "viewOptions.action.button.width", 22);
-            viewOptions.actionButton.height = _.get(args, "viewOptions.action.button.height", 22);
-
-            $(statementGroup.node()).click(function (statementView, event) {
-                //var diagramRenderingContext = self.getDiagramRenderingContext();
-                log.debug("Clicked reply statement group");
-
-                event.stopPropagation();
-                $(window).trigger('click');
-                // Not allowing to click the statement group multiple times.
-                if ($("." + viewOptions.actionButton.wrapper.class).length > 0) {
-                    log.debug("reply statement group is already clicked");
-                    return;
-                }
-
-                // Get the bounding box of the if else view.
-                var statementBoundingBox = statementView.getBoundingBox();
-
-                // Calculating width for edit and delete button.
-                var propertyButtonPaneRectWidth = viewOptions.actionButton.width;
-
-                // Creating an SVG group for the edit and delete buttons.
-                var propertyButtonPaneGroup = D3Utils.group(statementGroup);
-
-                // Adding svg definitions needed for styling edit and delete buttons.
-                var svgDefinitions = propertyButtonPaneGroup.append("defs");
-
-                var deleteButtonPattern = svgDefinitions.append("pattern")
-                    .attr("id", "deleteIcon")
-                    .attr("width", "100%")
-                    .attr("height", "100%");
-
-                deleteButtonPattern.append("image")
-                    .attr("xlink:href", "images/delete.svg")
-                    .attr("x", (viewOptions.actionButton.width / 2) - (14 / 2))
-                    .attr("y", (viewOptions.actionButton.height / 2) - (14 / 2))
-                    .attr("width", "14")
-                    .attr("height", "14");
-
-                // Bottom center point.
-
-                var centerPointX = statementBoundingBox.x()+ (statementBoundingBox.w() / 2);
-                var centerPointY = statementBoundingBox.y()+ statementBoundingBox.h();
-
-                var smallArrowPoints =
-                    // Bottom point of the polygon.
-                    " " + centerPointX + "," + centerPointY +
-                        // Left point of the polygon
-                    " " + (centerPointX - 3) + "," + (centerPointY + 3) +
-                        // Right point of the polygon.
-                    " " + (centerPointX + 3) + "," + (centerPointY + 3);
-
-                var smallArrow = D3Utils.polygon(smallArrowPoints, statementGroup);
-
-                // Creating the action button pane border.
-                var propertyButtonPaneRect = D3Utils.rect(centerPointX - (propertyButtonPaneRectWidth / 2), centerPointY + 3,
-                    propertyButtonPaneRectWidth, viewOptions.actionButton.height, 0, 0, propertyButtonPaneGroup)
-                    .classed(viewOptions.actionButton.wrapper.class, true);
-
-                // Not allowing to click background elements.
-                $(propertyButtonPaneRect.node()).click(function(event){
-                    event.stopPropagation();
-                });
-
-                // Creating the delete action button.
-                var deleteButtonRect = D3Utils.rect(centerPointX - (propertyButtonPaneRectWidth / 2), centerPointY + 3,
-                    viewOptions.actionButton.width, viewOptions.actionButton.height, 0, 0, propertyButtonPaneGroup)
-                    .classed(viewOptions.actionButton.class, true).classed(viewOptions.actionButton.deleteClass, true);
-
-                // When the outside of the propertyButtonPaneRect is clicked.
-                $(window).click(function (event) {
-                    log.debug("window click");
-                    $(propertyButtonPaneGroup.node()).remove();
-                    $(smallArrow.node()).remove();
-
-                    // Remove this handler.
-                    $(this).unbind("click");
-                });
-
-                $(deleteButtonRect.node()).click(function(event){
-                    log.info("Clicked delete button");
-
-                    event.stopPropagation();
-
-                    // Hiding property button pane.
-                    $(propertyButtonPaneGroup.node()).remove();
-                    $(smallArrow.node()).remove();
-
-                    var child = model;
-                    var parent = child.parent;
-                    parent.removeChild(child);
-                });
-
-            }.bind(statementGroup.node(), this));
-        };
         return ReplyStatementView;
     });

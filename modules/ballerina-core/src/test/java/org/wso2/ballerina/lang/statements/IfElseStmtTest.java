@@ -18,7 +18,7 @@
 package org.wso2.ballerina.lang.statements;
 
 import org.testng.Assert;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.values.BInteger;
@@ -36,9 +36,9 @@ public class IfElseStmtTest {
     private BallerinaFile bFile;
     private final String funcName = "testIfStmt";
 
-    @BeforeTest
+    @BeforeClass
     public void setup() {
-        bFile = ParserUtils.getLinkedBLangModel("lang/statements/if-stmt.bal");
+        bFile = ParserUtils.parseBalFile("lang/statements/if-stmt.bal");
     }
 
     @Test(description = "Check a == b")

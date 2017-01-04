@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './node', './worker-declaration'], function (_, log, ASTNode, WorkerDeclaration) {
+define(['lodash', 'log', './node', './worker-declaration', './connector-declaration'], function (_, log, ASTNode, WorkerDeclaration, ConnectorDeclaration) {
 
     var ResourceDefinition = function (args) {
         this._path = _.get(args, 'path', '/');
@@ -25,7 +25,7 @@ define(['lodash', 'log', './node', './worker-declaration'], function (_, log, AS
         this._workerDeclarations = _.get(args, 'workerDeclarations', []);
         this._statements = _.get(args, 'statements', []);
         this._resourceArguments = _.get(args, 'resourceArguments', '');
-        this._resourceName = _.get(args, 'resourceName');
+        this._resourceName = _.get(args, 'resourceName', 'Resource');
 
         // TODO: All the types should be referred from the global constants
         ASTNode.call(this, 'Resource', 'resource {', '}');
@@ -56,7 +56,7 @@ define(['lodash', 'log', './node', './worker-declaration'], function (_, log, AS
             this._connectionDeclarations = connections;
         }
     };
-    ResourceDefinition.prototype.setVariables = function (variables) {
+    ResourceDefinition.prototype.setVariableDeclarations = function (variables) {
         if (!_.isNil(variables)) {
             this._variableDeclarations = variables;
         }
@@ -81,7 +81,7 @@ define(['lodash', 'log', './node', './worker-declaration'], function (_, log, AS
 
     ResourceDefinition.prototype.setResourceName = function (resourceName) {
         if (!_.isNil(resourceName)) {
-            this.resourceName = resourceName;
+            this._resourceName = resourceName;
         } else {
             log.error('Invalid Resource name [' + resourceName + '] Provided');
             throw 'Invalid Resource name [' + resourceName + '] Provided';
@@ -96,7 +96,7 @@ define(['lodash', 'log', './node', './worker-declaration'], function (_, log, AS
         return this._workerDeclarations;
     };
 
-    ResourceDefinition.prototype.getVariables = function () {
+    ResourceDefinition.prototype.getVariableDeclarations = function () {
         return this._variableDeclarations;
     };
 
@@ -117,7 +117,7 @@ define(['lodash', 'log', './node', './worker-declaration'], function (_, log, AS
     };
 
     ResourceDefinition.prototype.getResourceName = function () {
-        return this.resourceName;
+        return this._resourceName;
     };
 
     ResourceDefinition.prototype.resourceParent = function (parent) {
@@ -125,6 +125,19 @@ define(['lodash', 'log', './node', './worker-declaration'], function (_, log, AS
             this.parent = parent;
         } else {
             return this.parent;
+        }
+    };
+
+    /**
+     * Override the super call to addChild
+     * @param child
+     * @param index
+     */
+    ResourceDefinition.prototype.addChild = function (child, index) {
+        if (child instanceof ConnectorDeclaration) {
+            Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, 0);
+        } else {
+            Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, index);
         }
     };
 

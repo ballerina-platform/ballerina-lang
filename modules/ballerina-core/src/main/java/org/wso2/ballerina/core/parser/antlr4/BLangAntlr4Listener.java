@@ -1034,6 +1034,16 @@ public class BLangAntlr4Listener implements BallerinaListener {
     }
 
     @Override
+    public void enterMapInitKeyValueList(BallerinaParser.MapInitKeyValueListContext ctx) {
+
+    }
+
+    @Override
+    public void exitMapInitKeyValueList(BallerinaParser.MapInitKeyValueListContext ctx) {
+
+    }
+
+    @Override
     public void enterMapInitKeyValue(BallerinaParser.MapInitKeyValueContext ctx) {
     }
 

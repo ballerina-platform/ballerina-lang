@@ -26,25 +26,25 @@ import org.wso2.ballerina.core.model.values.BValue;
  * @since 1.0.0
  */
 public class StackFrame {
-    public BValue[] valuesNew;
-    public BValue[] returnValuesNew;
+    public BValue[] values;
+    public BValue[] returnValues;
     private NodeInfo frameInfo;
 
-    public StackFrame(BValue[] valuesNew, BValue[] returnValuesNew) {
-        this.valuesNew = valuesNew;
-        this.returnValuesNew = returnValuesNew;
+    public StackFrame(BValue[] values, BValue[] returnValues) {
+        this.values = values;
+        this.returnValues = returnValues;
     }
     
     /**
      * Create a Stack frame.
      * 
-     * @param valuesNew         Parameter and local variable values
-     * @param returnValuesNew   Return values
+     * @param values         Parameter and local variable values
+     * @param returnValues   Return values
      * @param frameInfo         Meta info of the node.   
      */
-    public StackFrame(BValue[] valuesNew, BValue[] returnValuesNew, NodeInfo frameInfo) {
-        this.valuesNew = valuesNew;
-        this.returnValuesNew = returnValuesNew;
+    public StackFrame(BValue[] values, BValue[] returnValues, NodeInfo frameInfo) {
+        this.values = values;
+        this.returnValues = returnValues;
         this.frameInfo = frameInfo;
     }
 

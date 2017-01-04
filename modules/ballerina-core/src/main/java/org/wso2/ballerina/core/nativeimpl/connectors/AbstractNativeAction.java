@@ -155,7 +155,7 @@ public abstract class AbstractNativeAction implements Action, NativeConstruct {
      */
     public BValue getArgument(Context context, int index) {
         if (index > -1 && index < parameters.size()) {
-            return context.getControlStack().getCurrentFrame().valuesNew[index];
+            return context.getControlStack().getCurrentFrame().values[index];
         }
         throw new ArgumentOutOfRangeException(index);
     }

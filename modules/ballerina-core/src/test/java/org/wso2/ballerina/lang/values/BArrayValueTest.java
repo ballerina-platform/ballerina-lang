@@ -18,7 +18,7 @@
 package org.wso2.ballerina.lang.values;
 
 import org.testng.Assert;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.model.BallerinaFile;
@@ -35,9 +35,9 @@ public class BArrayValueTest {
 
     private BallerinaFile bFile;
 
-    @BeforeTest
+    @BeforeClass
     public void setup() {
-        bFile = ParserUtils.getLinkedBLangModel("lang/values/array-value.bal");
+        bFile = ParserUtils.parseBalFile("lang/values/array-value.bal");
     }
 
     @Test(description = "Test lazy array creation", expectedExceptions = {BallerinaException.class},
