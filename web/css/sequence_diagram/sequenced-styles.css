@@ -366,6 +366,11 @@ text-anchor: start;
     fill: #FFFFFF;
 }
 
+.start-action text{
+    fill: black;
+    stroke-opacity: 0;
+}
+
 .statement-container .main-drop-zone{
     fill-opacity: 0;
     fill: #008000;
