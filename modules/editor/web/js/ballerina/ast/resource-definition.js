@@ -178,5 +178,22 @@ define(['lodash', 'log', './node', './worker-declaration', './connector-declarat
             || BallerinaASTFactory.isStatement(node);
     };
 
+    /**
+     * initialize from json
+     * @param jsonNode
+     */
+    ResourceDefinition.prototype.initFromJson = function (jsonNode) {
+        //TODO : add annotations
+        this._resourceName = jsonNode.resource_name;
+
+        var self = this;
+        var BallerinaASTFactory = this.getFactory();
+
+        _.each(jsonNode.children, function (childNode) {
+            var child = BallerinaASTFactory.createFromJson(childNode);
+            self.addChild(child);
+        });
+    };
+
     return ResourceDefinition;
 });
