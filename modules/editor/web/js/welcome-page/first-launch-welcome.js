@@ -399,6 +399,14 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
                 variablePayload.setIdentifier('payload');
                 resource_stocks.addChild(variablePayload);
 
+                var responseAssignmentStatement = BallerinaASTFactory.createAssignmentStatement();
+                responseAssignmentStatement.setExpression("response = new message");
+                resource_stocks.addChild(responseAssignmentStatement);
+
+                var payloadAssignmentStatement = BallerinaASTFactory.createAssignmentStatement();
+                payloadAssignmentStatement.setExpression('payload = `{"exchange":"nyse", "name":"IBM", "value":"127.50"}`');
+                resource_stocks.addChild(payloadAssignmentStatement);
+
                 var functionInvocation = BallerinaASTFactory.createFunctionInvocationStatement();
                 functionInvocation.setPackageName("message");
                 functionInvocation.setFunctionName("setJsonPayload");
