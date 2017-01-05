@@ -30,6 +30,7 @@ import org.wso2.ballerina.core.interpreter.StackFrame;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.Parameter;
+import org.wso2.ballerina.core.model.Position;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.model.SymbolName;
@@ -115,15 +116,17 @@ public class BalProgramExecutor {
                 exprs[0] = variableRefExpr;
 
                 // 3) Create a function invocation expression
+                Position mainFuncLocation = mainFunction.getFunctionLocation();
                 FunctionInvocationExpr funcIExpr = new FunctionInvocationExpr(
                         new SymbolName("main", balFile.getPackageName()), exprs);
                 funcIExpr.setOffset(1);
                 funcIExpr.setFunction(mainFunction);
+                funcIExpr.setInvokedLocation(mainFuncLocation);
 
                 SymbolName functionSymbolName = funcIExpr.getFunctionName();
                 CallableUnitInfo functionInfo = new CallableUnitInfo(functionSymbolName.getName(),
-                        functionSymbolName.getPkgName(), mainFunction.getFunctionLocation());
-
+                        functionSymbolName.getPkgName(), mainFuncLocation);
+                
                 StackFrame currentStackFrame = new StackFrame(args, new BValue[0], functionInfo);
                 bContext.getControlStack().pushFrame(currentStackFrame);
 
