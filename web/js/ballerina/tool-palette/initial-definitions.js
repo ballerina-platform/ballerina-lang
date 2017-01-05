@@ -31,7 +31,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
         var createServiceDefTool = {
             id: "service",
             name: "Service",
-            icon: "images/tool-icons/settings.svg",
+            icon: "images/tool-icons/service.svg",
             title: "Service",
             nodeFactoryMethod: BallerinaASTFactory.createServiceDefinition
         };
