@@ -35,13 +35,13 @@ define(['lodash', 'log', 'event_channel', './abstract-statement-source-gen-visit
          * that particular source generation has to be constructed here
          */
         this.appendSource('return ');
-        log.info('Begin Visit Return Statement Definition');
+        log.debug('Begin Visit Return Statement Definition');
     };
 
     ReturnStatementVisitor.prototype.endVisitStatement = function(returnStatement){
         this.appendSource(returnStatement.getReturnExpression() + ";\n");
         this.getParent().appendSource(this.getGeneratedSource());
-        log.info('End Visit Return Statement Definition');
+        log.debug('End Visit Return Statement Definition');
     };
 
     return ReturnStatementVisitor;

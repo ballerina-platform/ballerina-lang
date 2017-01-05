@@ -18,7 +18,7 @@
 define(['log', 'lodash','d3','./point', 'backbone','event_channel'], function (log, _, d3,Point, Backbone, EventChannel) {
 
     var MessageManager = function(args) {
-        log.info("Initialising Message Manager");
+        log.debug("Initialising Message Manager");
         this.typeBeingDragged = undefined;
         this._canvas = _.get(args, 'canvas');
     };

@@ -168,7 +168,7 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
         });
 
         panelDeleteIcon.click(function(event){
-            log.info("Clicked delete button");
+            log.debug("Clicked delete button");
 
             event.stopPropagation();
 

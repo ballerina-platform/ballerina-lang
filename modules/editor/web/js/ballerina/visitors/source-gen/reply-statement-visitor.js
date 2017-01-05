@@ -35,17 +35,17 @@ define(['lodash', 'log', 'event_channel', './abstract-statement-source-gen-visit
          * that particular source generation has to be constructed here
          */
         this.appendSource('reply ');
-        log.info('Begin Visit Reply Statement Definition');
+        log.debug('Begin Visit Reply Statement Definition');
     };
 
     ReplyStatementVisitor.prototype.visitReplyStatement = function(replyStatement){
-        log.info('Visit Reply Statement Definition');
+        log.debug('Visit Reply Statement Definition');
     };
 
     ReplyStatementVisitor.prototype.endVisitReplyStatement = function(replyStatement){
         this.appendSource(replyStatement.getReplyMessage() + ";\n");
         this.getParent().appendSource(this.getGeneratedSource());
-        log.info('End Visit Reply Statement Definition');
+        log.debug('End Visit Reply Statement Definition');
     };
 
     return ReplyStatementVisitor;

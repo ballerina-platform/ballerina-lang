@@ -81,7 +81,7 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/arithmetic-expr
             var expressionRect = D3Utils.rect(this.getBoundingBox().x(), this.getBoundingBox().y(), width, 30, height, 0, group).classed('statement-rect', true);
             var text = this._model.getExpression();
             var expressionText = D3Utils.textElement(this.getBoundingBox().x() + width/2, this.getBoundingBox().y() + height/2, text, group).classed('statement-text', true);
-            log.info("Rendering arithmetic expression view.");
+            log.debug("Rendering arithmetic expression view.");
             group.expression_rect = expressionRect;
             group.expression_text = expressionText;
             this.setStatementGroup(group);
