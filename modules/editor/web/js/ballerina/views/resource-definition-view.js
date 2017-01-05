@@ -506,7 +506,10 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             var contentGroup = D3utils.group(resourceGroup);
             contentGroup.attr('id', "contentGroup");
 
-            nameSpan.on("change paste keyup", function () {
+            nameSpan.on("change paste keydown", function (e) {
+                if (e.which == 13) {
+                    return false;
+                }
                 self._model.setResourceName($(this).text());
             });
 
