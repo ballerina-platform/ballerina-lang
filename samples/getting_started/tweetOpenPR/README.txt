@@ -20,4 +20,4 @@ How to run this sample
 ======================
 bin$ ./ballerina.sh ../samples/tweetOpenPR/tweetOpenPR.bal <consumerKey> <consumerSecret> <accessToken> <accessTokenSecret> [<repo-name>]
 
-Here the repo-name is optional, if it is not specified, wso2-synapse will be the default repo name.
+Here the repo-name is optional, if it is not specified, wso2-synapse will be the default repo-name.

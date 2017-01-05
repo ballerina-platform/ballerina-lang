@@ -12,4 +12,4 @@ Here the 'nyseStockQuoteService' will act as a backend.
 
 Invoking the service
 ====================
-curl -v http://locahost:9090/passthrough
+curl -v http://localhost:9090/passthrough
