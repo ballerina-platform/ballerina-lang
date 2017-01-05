@@ -45,6 +45,16 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', /* void modules */ 'jq
                 this._$parent_el.append(list);
                 this.$el = list;
                 list.addClass(_.get(this._options, 'cssClass.list'));
+
+                var tabController = _.get(this._options, 'application.tabController');
+                this.listenTo(tabController, "active-tab-changed", function(evt){
+                    var activeTab = evt.newActiveTab;
+                    if(_.isFunction(activeTab.getFile)){
+                        this.setPath(activeTab.getFile().getPath(), activeTab.getFile().getName());
+                    } else {
+                        this.setPath("", "");
+                    }
+                });
             },
             setPath: function(path, file){
                 path = _.replace(path, /\\/gi, "/");
