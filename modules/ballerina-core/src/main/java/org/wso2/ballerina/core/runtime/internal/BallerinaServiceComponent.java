@@ -56,6 +56,9 @@ public class BallerinaServiceComponent {
     @Activate
     protected void start(BundleContext bundleContext) {
 
+        // Load built-in native constructs
+        BuiltInNativeConstructLoader.loadConstructs();
+
         //Creating the processor and registering the service
         bundleContext.registerService(CarbonMessageProcessor.class, new MessageProcessor(), null);
 

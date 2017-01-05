@@ -18,7 +18,6 @@
 
 package org.wso2.ballerina.core.nativeimpl.net.uri;
 
-import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.Context;
@@ -49,11 +48,6 @@ import java.util.Map;
                 @Argument(name = "key", type = TypeEnum.STRING)},
         returnType = {@ReturnType(type = TypeEnum.STRING)},
         isPublic = true
-)
-@Component(
-        name = "func.net.uri_getQueryParam",
-        immediate = true,
-        service = AbstractNativeFunction.class
 )
 public class GetQueryParam extends AbstractNativeFunction {
 
