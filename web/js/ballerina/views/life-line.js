@@ -160,8 +160,9 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
 
     LifeLineView.prototype.renderTitle = function(){
         var self = this;
+        var titleText = ((this._viewOptions.title.length) > 14 ? (this._viewOptions.title.substring(0,14) + '..') : this._viewOptions.title);
         this._topPolygonText = D3Utils.centeredText(this._topCenter,
-            this._viewOptions.title, this._rootGroup)
+            titleText, this._rootGroup)
             .classed(this._viewOptions.cssClass.title, true).classed("genericT", true);
 
         this._topCenter.on('moved', function (offset) {
@@ -173,7 +174,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         });
 
         this._bottomPolygonText = D3Utils.centeredText(this._bottomCenter,
-            this._viewOptions.title, this._rootGroup)
+            titleText, this._rootGroup)
             .classed(this._viewOptions.cssClass.title, true).classed("genericT", true);
 
         this._bottomCenter.on('moved', function (offset) {

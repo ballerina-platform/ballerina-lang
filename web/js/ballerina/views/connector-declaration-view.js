@@ -31,7 +31,8 @@ define(['lodash','d3', 'jquery', './ballerina-view', './../ast/connector-declara
             this._totalHeightGap = 50;
             this._parentView = _.get(args, "parentView");
             this.messageManager =  _.get(args, "messageManager");
-            _.set(args, 'title',  _.get(args, 'title', 'HTTP'));
+            // At the moment we consider by default the connector is HTTP
+            _.set(args, 'title',  _.get(args, 'model').getConnectorName() || "HTTP");
             _.set(args, 'cssClass.group',  _.get(args, 'cssClass.group', 'connector-life-line'));
             _.set(args, 'line.height',  _.get(args, 'lineHeight', 290));
             LifeLine.call(this, args);
