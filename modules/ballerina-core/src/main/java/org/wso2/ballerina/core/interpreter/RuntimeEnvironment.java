@@ -18,8 +18,17 @@
 package org.wso2.ballerina.core.interpreter;
 
 import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.Connector;
+import org.wso2.ballerina.core.model.ConnectorDcl;
 import org.wso2.ballerina.core.model.Const;
+import org.wso2.ballerina.core.model.Service;
+import org.wso2.ballerina.core.model.VariableDcl;
+import org.wso2.ballerina.core.model.expressions.BasicLiteral;
+import org.wso2.ballerina.core.model.expressions.Expression;
+import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
+import org.wso2.ballerina.core.model.values.BConnector;
 import org.wso2.ballerina.core.model.values.BValue;
+import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
 
 /**
  * {@code RuntimeEnvironment} represents the runtime environment of a Ballerina application
@@ -40,10 +49,54 @@ public class RuntimeEnvironment {
     public static RuntimeEnvironment get(BallerinaFile bFile) {
         StaticMemory staticMemory = new StaticMemory(bFile.getSizeOfStaticMem());
 
-        Const[] constants = bFile.getConstants();
-        for (int i = 0; i < constants.length; i++) {
-            Const constant = constants[i];
-            staticMemory.setValue(i, constant.getValue());
+        int index = -1;
+        for (Const constant : bFile.getConstants()) {
+            index++;
+            staticMemory.setValue(index, constant.getValue());
+        }
+
+        for (Service service : bFile.getServices()) {
+            for (ConnectorDcl connectorDcl : service.getConnectorDcls()) {
+                index++;
+
+                Connector connector = connectorDcl.getConnector();
+                Expression[] argExpressions = connectorDcl.getArgExprs();
+                BValue[] bValueRefs = new BValue[argExpressions.length];
+                for (int j = 0; j < argExpressions.length; j++) {
+
+                    Expression argExpr = argExpressions[j];
+                    if (argExpr instanceof BasicLiteral) {
+                        bValueRefs[j] = ((BasicLiteral) argExpr).getBValue();
+                        continue;
+
+                    } else if (argExpr instanceof VariableRefExpr) {
+                        VariableRefExpr variableRefExpr = (VariableRefExpr) argExpr;
+                        if (variableRefExpr.getLocation() instanceof ConstantLocation) {
+                            ConstantLocation location = (ConstantLocation) variableRefExpr.getLocation();
+                            bValueRefs[j] = staticMemory.getValue(location.getStaticMemAddrOffset());
+                            continue;
+                        }
+                    }
+
+                    // This branch shouldn't be hit
+                    throw new IllegalStateException("Invalid argument in connector declaration");
+                }
+
+                if (connector instanceof AbstractNativeConnector) {
+                    //TODO Fix Issue#320
+                    AbstractNativeConnector nativeConnector = ((AbstractNativeConnector) connector).getInstance();
+                    nativeConnector.init(bValueRefs);
+                    connector = nativeConnector;
+                }
+
+                BConnector connectorValue = new BConnector(connector, connectorDcl.getArgExprs());
+                staticMemory.setValue(index, connectorValue);
+            }
+
+            for (VariableDcl variableDcl : service.getVariableDcls()) {
+                index++;
+                staticMemory.setValue(index, variableDcl.getType().getDefaultValue());
+            }
         }
 
         return new RuntimeEnvironment(staticMemory);

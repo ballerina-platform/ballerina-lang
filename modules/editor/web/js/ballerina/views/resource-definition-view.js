@@ -18,11 +18,13 @@
 define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../ast/resource-definition',
         './default-worker', './point', './connector-declaration-view', './statement-view-factory',
         'ballerina/ast/ballerina-ast-factory', './expression-view-factory','./message', './statement-container',
-        './../ast/variable-declaration', './variables-view', './client-life-line', './annotation-view'],
+        './../ast/variable-declaration', './variables-view', './client-life-line', './annotation-view',
+        './arguments-view'],
     function (_, log, d3, $, D3utils, BallerinaView, ResourceDefinition,
               DefaultWorkerView, Point, ConnectorDeclarationView, StatementViewFactory,
               BallerinaASTFactory, ExpressionViewFactory, MessageView, StatementContainer,
-              VariableDeclaration, VariablesView, ClientLifeLine, AnnotationView) {
+              VariableDeclaration, VariablesView, ClientLifeLine, AnnotationView,
+              ArgumentsView) {
 
         /**
          * The view to represent a resource definition which is an AST visitor.
@@ -305,6 +307,28 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             annotationBlackIconSVGPattern.append("image").attr("xlink:href", "images/annotation-black.svg").attr("x", 0)
                 .attr("y", 0).attr("width", iconSizeSideLength).attr("height", iconSizeSideLength);
 
+            // Creating arguments icon for SVG definitions.
+            var argumentsIconSVGPattern = def.append("pattern").attr("id", "argumentsIcon").attr("width", "100%")
+                .attr("height", "100%");
+            argumentsIconSVGPattern.append("image").attr("xlink:href", "images/import.svg").attr("x", 0)
+                .attr("y", 0).attr("width", iconSizeSideLength).attr("height", iconSizeSideLength);
+
+            var argumentsBlackIconSVGPattern = def.append("pattern").attr("id", "argumentsBlackIcon").attr("width", "100%")
+                .attr("height", "100%");
+            argumentsBlackIconSVGPattern.append("image").attr("xlink:href", "images/import-black.svg").attr("x", 0)
+                .attr("y", 0).attr("width", iconSizeSideLength).attr("height", iconSizeSideLength);
+
+            // Creating return type icon for SVG definitions.
+            var returnTypeIconSVGPattern = def.append("pattern").attr("id", "returnTypeIcon").attr("width", "100%")
+                .attr("height", "100%");
+            returnTypeIconSVGPattern.append("image").attr("xlink:href", "images/export.svg").attr("x", 0)
+                .attr("y", 0).attr("width", iconSizeSideLength).attr("height", iconSizeSideLength);
+
+            var returnTypeBlackIconSVGPattern = def.append("pattern").attr("id", "returnTypeBlackIcon").attr("width", "100%")
+                .attr("height", "100%");
+            returnTypeBlackIconSVGPattern.append("image").attr("xlink:href", "images/export-black.svg").attr("x", 0)
+                .attr("y", 0).attr("width", iconSizeSideLength).attr("height", iconSizeSideLength);
+
             // Resource header container
             var headerGroup = D3utils.group(resourceGroup);
             headerGroup.attr("id", "headerGroup");
@@ -356,6 +380,18 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 parseFloat(headingRect.attr("y")) + parseFloat(headingRect.attr("height")) - 5, headerGroup)
                 .classed("operations-separator", true);
 
+            // Creating separator for annotation icon.
+            D3utils.line(xEndOfHeadingRect - (4 * this._viewOptions.heading.icon.width),
+                parseFloat(headingRect.attr("y")) + 5, xEndOfHeadingRect - (4 * this._viewOptions.heading.icon.width),
+                parseFloat(headingRect.attr("y")) + parseFloat(headingRect.attr("height")) - 5, headerGroup)
+                .classed("operations-separator", true);
+
+            // Creating separator for annotation icon.
+            // D3utils.line(xEndOfHeadingRect - (5 * this._viewOptions.heading.icon.width),
+            //     parseFloat(headingRect.attr("y")) + 5, xEndOfHeadingRect - (5 * this._viewOptions.heading.icon.width),
+            //     parseFloat(headingRect.attr("y")) + parseFloat(headingRect.attr("height")) - 5, headerGroup)
+            //     .classed("operations-separator", true);
+
             // Creating wrapper for delete icon.
             var headingDeleteIconWrapper = D3utils.rect(
                 xEndOfHeadingRect - (2 * this._viewOptions.heading.icon.width), headingStart.y() + 1,
@@ -368,7 +404,6 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             var headingDeleteIcon = D3utils.rect(xForDeleteIcon, yForIcons,
                 iconSizeSideLength, iconSizeSideLength, 0, 0, headerGroup).classed("headingDeleteIcon", true);
 
-
             // Creating wrapper for annotation icon.
             var headingAnnotationIconWrapper = D3utils.rect(
                 xEndOfHeadingRect - (3 * this._viewOptions.heading.icon.width), headingStart.y() + 1,
@@ -376,11 +411,34 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 .classed("heading-icon-wrapper heading-icon-annotation-wrapper", true);
 
             var xForAnnotationIcon = xEndOfHeadingRect - (3 * this._viewOptions.heading.icon.width) + (((this._viewOptions.heading.icon.width) / 2) - (14 / 2));
-            var yForAnnotationIcon = parseFloat(headingRect.attr("y")) + (((this._viewOptions.heading.icon.height) / 2) - (14 / 2));
 
             // Resource heading annotation icon
-            var headingAnnotationIcon = D3utils.rect(xForAnnotationIcon, yForAnnotationIcon,
+            var headingAnnotationIcon = D3utils.rect(xForAnnotationIcon, yForIcons,
                 iconSizeSideLength, iconSizeSideLength, 0, 0, headerGroup).classed("headingAnnotationBlackIcon", true);
+
+            // Creating wrapper for arguments icon.
+            var headingArgumentsIconWrapper = D3utils.rect(
+                xEndOfHeadingRect - (4 * this._viewOptions.heading.icon.width), headingStart.y() + 1,
+                this._viewOptions.heading.icon.width - 1, this._viewOptions.heading.icon.height - 2, 0, 0, headerGroup)
+                .classed("heading-icon-wrapper heading-icon-arguments-wrapper", true);
+
+            var xForArgumentsIcon = xEndOfHeadingRect - (4 * this._viewOptions.heading.icon.width) + (((this._viewOptions.heading.icon.width) / 2) - (14 / 2));
+
+            // Resource heading arguments icon.
+            var headingArgumentsIcon = D3utils.rect(xForArgumentsIcon, yForIcons,
+                iconSizeSideLength, iconSizeSideLength, 0, 0, headerGroup).classed("headingArgumentsBlackIcon", true);
+
+            // Creating wrapper for return type icon.
+            // var headingReturnTypeIconWrapper = D3utils.rect(
+            //     xEndOfHeadingRect - (5 * this._viewOptions.heading.icon.width), headingStart.y() + 1,
+            //     this._viewOptions.heading.icon.width - 1, this._viewOptions.heading.icon.height - 2, 0, 0, headerGroup)
+            //     .classed("heading-icon-wrapper heading-icon-return-type-wrapper", true);
+            //
+            // var xForReturnTypeIcon = xEndOfHeadingRect - (5 * this._viewOptions.heading.icon.width) + (((this._viewOptions.heading.icon.width) / 2) - (14 / 2));
+            //
+            // // Resource heading return type icon.
+            // var headingReturnTypeIcon = D3utils.rect(xForReturnTypeIcon, yForIcons,
+            //     iconSizeSideLength, iconSizeSideLength, 0, 0, headerGroup).classed("headingReturnTypeBlackIcon", true);
 
             // UI changes when the annotation button is clicked.
             $(headingAnnotationIcon.node()).click(function () {
@@ -388,16 +446,44 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                     $(this).data("showing", "false");
                     headingAnnotationIcon.classed("headingAnnotationBlackIcon", true);
                     headingAnnotationIcon.classed("headingAnnotationIcon", false);
-
                     headingAnnotationIconWrapper.classed("heading-icon-annotation-wrapper-clicked", false);
                 } else {
                     $(this).data("showing", "true");
                     headingAnnotationIcon.classed("headingAnnotationBlackIcon", false);
                     headingAnnotationIcon.classed("headingAnnotationIcon", true);
-
                     headingAnnotationIconWrapper.classed("heading-icon-annotation-wrapper-clicked", true);
                 }
             });
+
+            // UI changes when the arguments button is clicked.
+            $(headingArgumentsIcon.node()).click(function () {
+                if ($(this).data("showing") === "true") {
+                    $(this).data("showing", "false");
+                    headingArgumentsIcon.classed("headingArgumentsBlackIcon", true);
+                    headingArgumentsIcon.classed("headingArgumentsIcon", false);
+                    headingArgumentsIconWrapper.classed("heading-icon-arguments-wrapper-clicked", false);
+                } else {
+                    $(this).data("showing", "true");
+                    headingArgumentsIcon.classed("headingArgumentsBlackIcon", false);
+                    headingArgumentsIcon.classed("headingArgumentsIcon", true);
+                    headingArgumentsIconWrapper.classed("heading-icon-arguments-wrapper-clicked", true);
+                }
+            });
+
+            // UI changes when the return type button is clicked.
+            // $(headingReturnTypeIcon.node()).click(function () {
+            //     if ($(this).data("showing") === "true") {
+            //         $(this).data("showing", "false");
+            //         headingReturnTypeIcon.classed("headingReturnTypeBlackIcon", true);
+            //         headingReturnTypeIcon.classed("headingReturnTypeIcon", false);
+            //         headingReturnTypeIconWrapper.classed("heading-icon-return-type-wrapper-clicked", false);
+            //     } else {
+            //         $(this).data("showing", "true");
+            //         headingReturnTypeIcon.classed("headingReturnTypeBlackIcon", false);
+            //         headingReturnTypeIcon.classed("headingReturnTypeIcon", true);
+            //         headingReturnTypeIconWrapper.classed("heading-icon-return-type-wrapper-clicked", true);
+            //     }
+            // });
 
             // Add the resource name editable html area
             var svgWrappingHtml = this.getChildContainer().node().ownerSVGElement.parentElement;
@@ -545,6 +631,21 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             };
 
             AnnotationView.createAnnotationPane(annotationProperties);
+
+            var argumentsProperties = {
+                model: this._model,
+                activatorElement: headingArgumentsIcon.node(),
+                paneAppendElement: this.getChildContainer().node().ownerSVGElement.parentElement,
+                viewOptions: {
+                    position: {
+                        // "-1" to remove the svg stroke line
+                        left: parseFloat(this.getChildContainer().attr("x")) + parseFloat(this.getChildContainer().attr("width")) - 1,
+                        top: this.getChildContainer().attr("y")
+                    }
+                }
+            };
+
+            ArgumentsView.createArgumentsPane(argumentsProperties);
 
             this.getBoundingBox().on("moved", function(offset){
                 var currentTransform = this._resourceGroup.attr("transform");

@@ -35,9 +35,11 @@ import org.wso2.ballerina.core.parser.BallerinaParser;
 public class BLangAntlr4Listener implements BallerinaListener {
 
     private BLangModelBuilder modelBuilder;
+    private int childPosition;
 
     public BLangAntlr4Listener(BLangModelBuilder modelBuilder) {
         this.modelBuilder = modelBuilder;
+        this.childPosition = 0;
     }
 
     @Override
@@ -78,8 +80,9 @@ public class BLangAntlr4Listener implements BallerinaListener {
         String fileName = identifier.getSymbol().getInputStream().getSourceName();
         int lineNo = identifier.getSymbol().getLine();
         Position serviceLocation =  new Position(fileName, lineNo);
-        
-        modelBuilder.createService(identifier.getText(), serviceLocation);
+
+        modelBuilder.createService(identifier.getText(), serviceLocation, childPosition);
+        childPosition++;
     }
 
     @Override
@@ -110,7 +113,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
         String fileName = identifier.getSymbol().getInputStream().getSourceName();
         int lineNo = identifier.getSymbol().getLine();
         Position resourceLocation =  new Position(fileName, lineNo);
-        
+
         modelBuilder.createResource(identifier.getText(), resourceLocation);
     }
 
@@ -132,8 +135,9 @@ public class BLangAntlr4Listener implements BallerinaListener {
         String fileName = identifier.getSymbol().getInputStream().getSourceName();
         int lineNo = identifier.getSymbol().getLine();
         Position functionLocation =  new Position(fileName, lineNo);
-        
-        modelBuilder.createFunction(identifier.getText(), isPublic, functionLocation);
+
+        modelBuilder.createFunction(identifier.getText(), isPublic, functionLocation, childPosition);
+        childPosition++;
     }
 
     @Override
@@ -157,8 +161,9 @@ public class BLangAntlr4Listener implements BallerinaListener {
         String fileName = identifier.getSymbol().getInputStream().getSourceName();
         int lineNo = identifier.getSymbol().getLine();
         Position connectorLocation =  new Position(fileName, lineNo);
-        
-        modelBuilder.createConnector(identifier.getText(), connectorLocation);
+
+        modelBuilder.createConnector(identifier.getText(), connectorLocation, childPosition);
+        childPosition++;
     }
 
     @Override
@@ -182,7 +187,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
         String fileName = identifier.getSymbol().getInputStream().getSourceName();
         int lineNo = identifier.getSymbol().getLine();
         Position actionLocation =  new Position(fileName, lineNo);
-        
+
         modelBuilder.createAction(identifier.getText(), actionLocation);
     }
 
@@ -706,7 +711,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
         String fileName = startToken.getInputStream().getSourceName();
         int lineNo = startToken.getLine();
         Position actionInvokedLocation =  new Position(fileName, lineNo);
-        
+
         modelBuilder.createActionInvocationExpr(actionInvokedLocation);
     }
 
@@ -792,7 +797,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
         String fileName = startToken.getInputStream().getSourceName();
         int lineNo = startToken.getLine();
         Position functionInvokedLocation =  new Position(fileName, lineNo);
-        
+
         modelBuilder.createFunctionInvocationStmt(functionInvokedLocation);
     }
 
@@ -882,7 +887,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
         String fileName = startToken.getInputStream().getSourceName();
         int lineNo = startToken.getLine();
         Position functionInvokedLocation =  new Position(fileName, lineNo);
-        
+
         modelBuilder.createFunctionInvocationExpr(functionInvokedLocation);
     }
 
@@ -931,7 +936,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
         String fileName = startToken.getInputStream().getSourceName();
         int lineNo = startToken.getLine();
         Position actionInvokedLocation =  new Position(fileName, lineNo);
-        
+
         modelBuilder.createActionInvocationExpr(actionInvokedLocation);
     }
 

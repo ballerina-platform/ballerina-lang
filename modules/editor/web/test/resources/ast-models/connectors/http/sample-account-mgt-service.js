@@ -49,7 +49,7 @@ define(['ast/ballerina-ast-factory'], function (BallerinaASTFactory) {
         var resourceArgument_m = ballerinaASTFactory.createResourceArgument();
         resourceArgument_m.setType("message");
         resourceArgument_m.setIdentifier("m");
-        resource_passthrough.setResourceArguments(resourceArgument_m);
+        resource_passthrough.addArgument("message", "m");
 
         //Adding reply statement
         var statement_reply = ballerinaASTFactory.createReplyStatement();
