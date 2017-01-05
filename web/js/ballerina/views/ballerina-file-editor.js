@@ -375,6 +375,8 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                     }
                 });
 
+                $(importPackageTextBox).focus();
+
                 // Getting package name text box.
                 var packageTextBox = propertyPane.find(".package-name-wrapper input[type=text]");
 
