@@ -12,15 +12,15 @@ button.close {
     text-shadow: 0 0 0;
     font-weight: 100;
     opacity: 0.5;
-    font-size: 17px;
-    color: #fff;
+    font-size: 20px;
+    position: absolute;
+    top: 0px;
+    right: 5px;
+    color: inherit;
 }
 
-li.active > a > button {
-    color: #272c30;
-    opacity: 0.5;
-    font-weight: normal;
-    font-size: 17px;
+#tabs-container > div.tab-headers.tab-headers-bar > ul{
+    border-bottom: 0px;
 }
 
 .bottom-right-controls-container {
@@ -97,79 +97,47 @@ li.active > a > button {
     background-color: #333;
 }
 
-.navbar-default .navbar-nav > li a:hover {
-    background: #8d8d8d;
-}
-
-.navbar-default .navbar-nav > li a:active {
-    background: #8d8d8d;
-}
-
-.navbar-default .navbar-nav > li a:focus {
-    background: #8d8d8d;
-}
-
-.nav-tabs-bar > li > a {
-     border-radius: 0;
-     border: none;
-     margin: 0;
- }
-
-.nav-tabs > li > a {
-    border-radius: 0;
-    border: none;
-    margin: 0;
-}
-
-.nav-tabs>li.active>a, .nav-tabs>li.active>a:focus, .nav-tabs>li.active>a:hover{
-    border: none;
-}
-
-
-.nav-tabs-bar > li {
-    background-color: #333333;
-    width: 120px;
-    color: white;
-    font-weight: 100;
-}
-
-.nav-tabs {
-    border: 0;
-}
-
 .canvas-container{
     background: none;
 }
 
-.nav-tabs-bar > li > a {
-    border-radius: 0;
-    border: none;
-    margin: 0;
-    padding: 0 5px 0 6px;
+#tabs-container > div.tab-headers.tab-headers-bar > ul > li{
+    min-width: 120px;
+    color: rgb(153, 153, 153);
+    font-weight: 100;
+    margin: 0px;
+    padding-right: 17px;
+    padding-left: 5px;
+    border-right: 1px;
 }
 
-.nav-tabs-bar > li.active.inverse > a > button {
-    color: #959595;
+#tabs-container > div.tab-headers.tab-headers-bar > ul > li.active{
+    background: white;
+    color: #555;
 }
 
-.nav-tabs-bar > li.active.inverse > a {
-    color: #959595;
+#tabs-container > div.tab-headers.tab-headers-bar > ul > li.active.inverse{
+    color: rgb(190, 190, 190);
     background: #1D1F21;
 }
 
-.nav-tabs-bar > li.active.inverse {
+#tabs-container > div.tab-headers.tab-headers-bar > ul > li.active.inverse > a{
+    color: rgb(190, 190, 190);
+}
+
+#tabs-container > div.tab-headers.tab-headers-bar > ul > li > button:hover{
+    color: white;
+}
+
+#tabs-container > div.tab-headers.tab-headers-bar > ul > li.active > button:hover{
+    color: #000;
+}
+
+#tabs-container > div.tab-headers.tab-headers-bar > ul > li > a{
     border: none;
+    padding: 0 5px 0 6px;
+    border-radius: 0;
+    margin: 0;
+    height: 20px;
+    background: none;
 }
-
-.nav-tabs-bar >li>a:focus, .nav-tabs-bar >li>a:hover {
-    text-decoration: none;
-    background-color: #505050;
-}
-/*
-.tab-content.tab-content-default {
-    border: 2px solid #c7c7c7;
- }*/
-
-
-/** Resource level tabs related styles | -> End **/
-/*//////////////////////////////////////////////////*/
