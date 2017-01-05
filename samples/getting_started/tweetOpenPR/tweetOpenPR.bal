@@ -1,5 +1,6 @@
 package org.wso2.ballerina.sample;
 
+import ballerina.lang.array;
 import ballerina.lang.json;
 import ballerina.lang.message;
 import ballerina.lang.string;
@@ -35,7 +36,7 @@ function main (string[] args) {
     message response;
 
 
-    argumentLength = ballerina.lang.array:length(args);
+    argumentLength = array:length(args);
 
     if (argumentLength < 4) {
 
@@ -77,6 +78,8 @@ function main (string[] args) {
         tweetPath = "/1.1/statuses/update.json?status="+uri:encode(textMsg);
 
         response = http:HTTPConnector.post(tweeterEP, tweetPath, m);
+
+        system:println("Successfully tweeted: '" + textMsg + "'");
     }
 
 }

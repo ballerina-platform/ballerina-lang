@@ -6,13 +6,13 @@ import ballerina.lang.message;
 import ballerina.lang.system;
 
 @BasePath ("/cbr")
-service ContentBasedRouting {
+service contentBasedRouting {
 
     @POST
     resource cbrResource (message m) {
 
-        http:HTTPConnector nyseEP = new http:HTTPConnector("http://localhost:9090/NYSEStocks", 30000);
-        http:HTTPConnector nasdaqEP = new http:HTTPConnector("http://localhost:9090/NASDAQStocks", 60000);
+        http:HTTPConnector nyseEP = new http:HTTPConnector("http://localhost:9090/NYSEStocks");
+        http:HTTPConnector nasdaqEP = new http:HTTPConnector("http://localhost:9090/NASDAQStocks");
 
         message response;
         json jsonMsg;
@@ -35,13 +35,13 @@ service ContentBasedRouting {
 }
 
 @BasePath ("/hbr")
-service ContentBasedRouting {
+service headerBasedRouting {
 
     @POST
     resource cbrResource (message m) {
 
-        http:HTTPConnector nyseEP = new http:HTTPConnector("http://localhost:9090/NYSEStocks", 30000);
-        http:HTTPConnector nasdaqEP = new http:HTTPConnector("http://localhost:9090/NASDAQStocks", 60000);
+        http:HTTPConnector nyseEP = new http:HTTPConnector("http://localhost:9090/nyseStocks");
+        http:HTTPConnector nasdaqEP = new http:HTTPConnector("http://localhost:9090/nasdaqStocks");
 
         message response;
         string nameString;
@@ -62,8 +62,8 @@ service ContentBasedRouting {
     }
 }
 
-@BasePath("/NYSEStocks")
-service NYSEStockQuote {
+@BasePath("/nyseStocks")
+service nyseStockQuote {
 
     @POST
     resource stocks (message m) {
@@ -78,8 +78,8 @@ service NYSEStockQuote {
     }
 }
 
-@BasePath("/NASDAQStocks")
-service NASDAQStockQuote {
+@BasePath("/nasdaqStocks")
+service nasdaqStocksQuote {
 
     @POST
     resource stocks (message m) {
