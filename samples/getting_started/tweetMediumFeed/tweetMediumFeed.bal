@@ -1,5 +1,3 @@
-package org.wso2.ballerina.sample;
-
 import ballerina.lang.array;
 import ballerina.lang.message;
 import ballerina.lang.string;
@@ -15,11 +13,10 @@ function main (string[] args) {
     http:HTTPConnector tweeterEP = new http:HTTPConnector("https://api.twitter.com");
 
     int argumentLength;
-    message m;
+    message request;
     message mediumResponse;
     xml feedXML;
     string title;
-    json jsonRequest;
 
     string consumerKey;
     string consumerSecret;
@@ -43,25 +40,23 @@ function main (string[] args) {
             accessToken = args[2];
             accessTokenSecret = args[3];
 
-            //jsonRequest = `{"user":"wso2"}`;
-            //message:setJsonPayload(m, jsonRequest);
-            message:addHeader(m, "User-Agent", "Ballerina-1.0");
+            message:addHeader(request, "User-Agent", "Ballerina-1.0");
 
-            mediumResponse = http:HTTPConnector.get(mediumEP, "/feed/@wso2", m);
+            mediumResponse = http:HTTPConnector.get(mediumEP, "/feed/@wso2", request);
 
             feedXML = message:getXmlPayload(mediumResponse);
 
-            title = xml:getString(feedXML, "/rss/channel/item[3]/title/text()");
+            title = xml:getString(feedXML, "/rss/channel/item[1]/title/text()");
 
             oauthHeader = constructOAuthHeader(consumerKey, consumerSecret, accessToken, accessTokenSecret, title);
 
             system:println(oauthHeader);
 
-            message:setHeader(m, "Authorization", oauthHeader);
+            message:setHeader(request, "Authorization", oauthHeader);
 
             tweetPath = "/1.1/statuses/update.json?status="+uri:encode(title);
 
-            response = http:HTTPConnector.post(tweeterEP, tweetPath, m);
+            response = http:HTTPConnector.post(tweeterEP, tweetPath, request);
 
             system:println("Successfully tweeted: '" + title + "'");
         }
