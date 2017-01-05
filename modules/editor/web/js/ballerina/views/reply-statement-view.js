@@ -103,7 +103,7 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/reply-statement
             var arrowHeadWidth = 5;
             var reply_arrow_head = D3Utils.outputTriangle(line_end.x(), line_end.y(), startActionGroup).classed("action-arrow", true);
 
-            log.info("Rendering the Reply Statement.");
+            log.debug("Rendering the Reply Statement.");
 
             // Creating property pane
             var editableProperties = [

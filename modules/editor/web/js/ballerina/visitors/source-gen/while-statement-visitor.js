@@ -31,17 +31,17 @@ function(require, _, log, EventChannel, AbstractStatementSourceGenVisitor) {
 
     WhileStatementVisitor.prototype.beginVisitStatement = function(whileStatement){
         this.appendSource('While(' + whileStatement.getCondition() + '){');
-        log.info('Begin Visit If Statement Definition');
+        log.debug('Begin Visit If Statement Definition');
     };
 
     WhileStatementVisitor.prototype.visitWhileStatement = function(whileStatement){
-        log.info('Visit If Statement Definition');
+        log.debug('Visit If Statement Definition');
     };
 
     WhileStatementVisitor.prototype.endVisitStatement = function(whileStatement){
         this.appendSource("}\n");
         this.getParent().appendSource(this.getGeneratedSource());
-        log.info('End Visit If Statement Definition');
+        log.debug('End Visit If Statement Definition');
     };
 
     WhileStatementVisitor.prototype.visitStatement = function (statement) {

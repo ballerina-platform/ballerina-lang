@@ -298,7 +298,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
         };
 
         BallerinaFileEditor.prototype.childViewRemovedCallback = function (child) {
-            log.info("[Eventing] Child element view removed. ");
+            log.debug("[Eventing] Child element view removed. ");
             //TODO: remove canvas container for each delete click
             $(this._$canvasContainer)[0].remove();
 
