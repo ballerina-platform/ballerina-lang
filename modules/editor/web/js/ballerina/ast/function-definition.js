@@ -21,7 +21,7 @@ define(['lodash', './callable-definition', './connector-declaration'], function 
         this.id = autoGenerateId();
         CallableDefinition.call(this, 'Function');
         this._functionName = _.get(args, 'functionName') || 'newFunction';
-        this._functionArguments = _.get(args, "functionArgs", []);
+        this._arguments = _.get(args, "functionArgs", []);
         this._isPublic = _.get(args, "isPublic") || false;
     };
 
