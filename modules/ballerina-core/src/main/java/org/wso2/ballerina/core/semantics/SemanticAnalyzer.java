@@ -119,7 +119,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         currentPkg = bFile.getPackageName();
 
         // TODO We can move this logic to the parser.
-        bFile.getFunctions().values().forEach(this::addFuncSymbol);
+        Arrays.asList(bFile.getFunctions()).forEach(this::addFuncSymbol);
         bFile.getConnectorList().forEach(connector -> {
             addConnectorSymbol(connector);
             Arrays.asList(connector.getActions()).forEach(this::addActionSymbol);
@@ -146,7 +146,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             service.accept(this);
         }
 
-        for (Function function : bFile.getFunctions().values()) {
+        for (Function function : bFile.getFunctions()) {
             BallerinaFunction bFunction = (BallerinaFunction) function;
             bFunction.accept(this);
         }

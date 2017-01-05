@@ -31,7 +31,7 @@ public class WhileStatementParserTest {
 //    @Test
 //    public void testWhileStatement() {
 //        BallerinaFile bFile = ParserUtils.parseBalFile("lang/statements/while-stmt.bal");
-//        Map<String, Function> functions = bFile.getFunctions();
+//        Map<String, Function> functions = bFile.getFunctionList();
 //        Assert.assertEquals(functions.keySet().size(), 1);
 //        Function fooFunction = functions.get("foo");
 //        Assert.assertNotNull(fooFunction);

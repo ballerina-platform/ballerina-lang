@@ -21,11 +21,10 @@ package org.wso2.ballerina.core.model;
 import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
+import org.wso2.ballerina.core.model.types.BTypes;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * {@code BallerinaFile} represent a content of a Ballerina source file
@@ -42,12 +41,16 @@ import java.util.Map;
 @SuppressWarnings("unused")
 public class BallerinaFile implements Node {
 
+    // Name of the main function
+    public static final String MAIN_FUNCTION_NAME = "main";
+
     private String packageName = "main";
     private ImportPackage[] importPackages;
 
     private List<Service> services = new ArrayList<>();
     private List<BallerinaConnector> connectorList = new ArrayList<>();
-    private Map<String, Function> functions = new HashMap<>();
+    private Function[] functions;
+    private Function mainFunction;
     private List<FunctionInvocationExpr> funcIExprList = new ArrayList<>();
     private List<ActionInvocationExpr> actionIExprList = new ArrayList<>();
     private Const[] consts;
@@ -63,7 +66,8 @@ public class BallerinaFile implements Node {
             ImportPackage[] importPackages,
             List<Service> serviceList,
             List<BallerinaConnector> connectorList,
-            Map<String, Function> functionMap,
+            Function[] functions,
+            Function mainFunction,
             List<FunctionInvocationExpr> funcIExprList,
             List<ActionInvocationExpr> actionInvocationExpr,
             Const[] consts) {
@@ -72,7 +76,8 @@ public class BallerinaFile implements Node {
         this.importPackages = importPackages;
         this.services = serviceList;
         this.connectorList = connectorList;
-        this.functions = functionMap;
+        this.functions = functions;
+        this.mainFunction = mainFunction;
         this.funcIExprList = funcIExprList;
         this.actionIExprList = actionInvocationExpr;
         this.consts = consts;
@@ -156,31 +161,12 @@ public class BallerinaFile implements Node {
         services.add(service);
     }
 
-    /**
-     * Get {@code Function}s defined in the File
-     *
-     * @return map of functions defined in the File
-     */
-    public Map<String, Function> getFunctions() {
+    public Function[] getFunctions() {
         return functions;
     }
 
-    /**
-     * Set the {@code Function}s
-     *
-     * @param functions map of Functions
-     */
-    public void setFunctions(Map<String, Function> functions) {
-        this.functions = functions;
-    }
-
-    /**
-     * Add a {@code Function} to the File
-     *
-     * @param function a Function to be added to the File
-     */
-    public void addFunction(Function function) {
-        functions.put(function.getName(), function);
+    public Function getMainFunction() {
+        return this.mainFunction;
     }
 
     public void addFuncInvocationExpr(FunctionInvocationExpr expr) {
@@ -229,7 +215,8 @@ public class BallerinaFile implements Node {
         private List<ImportPackage> importPkgList = new ArrayList<>();
         private List<Service> serviceList = new ArrayList<>();
         private List<BallerinaConnector> connectorList = new ArrayList<>();
-        private Map<String, Function> functionList = new HashMap<>();
+        private List<Function> functionList = new ArrayList<>();
+        private Function mainFunction;
 
         private List<FunctionInvocationExpr> funcIExprList = new ArrayList<>();
         private List<ActionInvocationExpr> actionIExprList = new ArrayList<>();
@@ -244,7 +231,16 @@ public class BallerinaFile implements Node {
         }
 
         public void addFunction(BallerinaFunction function) {
-            this.functionList.put(function.getName(), function);
+            if (function.getName().equals(MAIN_FUNCTION_NAME)) {
+
+                Parameter[] parameters = function.getParameters();
+                if (parameters.length == 1 && parameters[0].getType() == BTypes.getArrayType(BTypes.
+                        STRING_TYPE.toString())) {
+                    mainFunction = function;
+                }
+            }
+
+            this.functionList.add(function);
         }
 
         public void addService(Service service) {
@@ -268,21 +264,20 @@ public class BallerinaFile implements Node {
         }
 
         public BallerinaFile build() {
-            
             if (packageName != null) {
                 importPkgList.add(new ImportPackage(packageName)); // Import self
             }
-            
+
             return new BallerinaFile(
                     packageName,
                     importPkgList.toArray(new ImportPackage[importPkgList.size()]),
                     serviceList,
                     connectorList,
-                    functionList,
+                    functionList.toArray(new Function[funcIExprList.size()]),
+                    mainFunction,
                     funcIExprList,
                     actionIExprList,
                     constList.toArray(new Const[constList.size()]));
-
         }
     }
 }
