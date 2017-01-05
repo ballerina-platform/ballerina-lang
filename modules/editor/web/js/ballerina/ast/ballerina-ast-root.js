@@ -182,6 +182,11 @@ define(['lodash', 'log', './node', './import-declaration'], function (_, log, AS
             return ballerinaASTFactory.isImportDeclaration(child);
         });
 
+        // If there are no imports index is -1. Then we need to add the first import after the package
+        // definition which is the first child of the ast root
+        if (index === -1) {
+            index = 0;
+        }
         this.getChildren().splice(index + 1, 0, importDeclaration);
     };
 
