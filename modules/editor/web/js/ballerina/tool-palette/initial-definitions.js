@@ -58,7 +58,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
             },
             icon: "images/tool-icons/main-function.svg",
             title: "Main Function",
-            nodeFactoryMethod:  BallerinaASTFactory.createFunctionDefinition
+            nodeFactoryMethod:  BallerinaASTFactory.createMainFunctionDefinition
         };
 
         var mainToolDefArray = [createServiceDefTool, createResourceDefTool, createFunctionDefTool, createMainFunctionDefTool];
