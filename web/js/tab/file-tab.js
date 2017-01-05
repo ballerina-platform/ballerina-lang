@@ -76,7 +76,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
 
             //package definition
             var packageDefinition = BallerinaASTFactory.createPackageDefinition();
-            packageDefinition.setPackageName("samples.passthrough");
+            packageDefinition.setPackageName("org.wso2.ballerina.sample");
             //packageDefinition.setPackageName("samples.echo");
             ballerinaAstRoot1.addChild(packageDefinition);
             ballerinaAstRoot1.setPackageDefinition(packageDefinition);
