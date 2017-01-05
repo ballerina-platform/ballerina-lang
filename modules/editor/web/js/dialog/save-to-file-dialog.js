@@ -163,8 +163,8 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
                 function saveConfiguration() {
                     var workspaceServiceURL = "http://localhost:8289/service/workspace";
                     var saveServiceURL = workspaceServiceURL + "/write";
-
-                    var ballerinaFileEditor= app.tabController.activeTab.getBallerinaFileEditor();
+                    var activeTab = app.tabController.activeTab;
+                    var ballerinaFileEditor= activeTab.getBallerinaFileEditor();
                     var config = ballerinaFileEditor.generateSource();
                     var payload = "location=" + btoa(location.val()) + "&configName=" + btoa(configName.val()) + "&config=" + (btoa(config));
 
@@ -176,6 +176,9 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
                         async: false,
                         success: function (data, textStatus, xhr) {
                             if (xhr.status == 200) {
+                                activeTab.setTitle(configName.val());
+                                activeTab.getFile().setPath(location.val()).setName(configName.val());
+                                app.breadcrumbController.setPath(location.val(), configName.val());
                                 alertSuccess();
                             } else {
                                 alertError();
