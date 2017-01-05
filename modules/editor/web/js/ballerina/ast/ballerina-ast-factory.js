@@ -72,6 +72,22 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
         };
 
         /**
+         * creates MainFunctionDefinition
+         * @param args
+         */
+        BallerinaASTFactory.createMainFunctionDefinition = function (args) {
+            var functionDefinition = BallerinaASTFactory.createFunctionDefinition();
+            functionDefinition.setFunctionName("main");
+            functionDefinition.addArgument("string[]", "args");
+            var printHelloWorldStatement = BallerinaASTFactory.createFunctionInvocationStatement();
+            printHelloWorldStatement.setPackageName("system");
+            printHelloWorldStatement.setFunctionName("println");
+            printHelloWorldStatement.setParams('"Hello world"');
+            functionDefinition.addChild(printHelloWorldStatement);
+            return functionDefinition;
+        };
+
+        /**
          * creates ConnectorDefinition
          * @param args
          */
