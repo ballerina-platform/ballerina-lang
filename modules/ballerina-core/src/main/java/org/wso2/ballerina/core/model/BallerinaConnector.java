@@ -49,10 +49,16 @@ public class BallerinaConnector implements Connector , Node {
     private ConnectorDcl[] connectorDcls;
     private VariableDcl[] variableDcls;
     private BallerinaAction[] actions;
+    private Position connectorLocation;
 
-    public BallerinaConnector(SymbolName serviceName, Annotation[] annotations, ConnectorDcl[] connectorDcls,
-            VariableDcl[] variableDcls, BallerinaAction[] actions) {
+    public BallerinaConnector(SymbolName serviceName,
+                              Position position,
+                              Annotation[] annotations,
+                              ConnectorDcl[] connectorDcls,
+                              VariableDcl[] variableDcls,
+                              BallerinaAction[] actions) {
         this.name = serviceName;
+        this.connectorLocation = position;
         this.annotations = annotations;
         this.connectorDcls = connectorDcls;
         this.variableDcls = variableDcls;
@@ -219,5 +225,21 @@ public class BallerinaConnector implements Connector , Node {
     @Override
     public Parameter[] getParameters() {
         return new Parameter[0];
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Position getConnectorLocation() {
+        return connectorLocation;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setConnectorLocation(Position location) {
+        this.connectorLocation = location;
     }
 }

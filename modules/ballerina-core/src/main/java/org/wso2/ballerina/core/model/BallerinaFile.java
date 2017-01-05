@@ -259,10 +259,11 @@ public class BallerinaFile implements Node {
         }
 
         public BallerinaFile build() {
+            
             if (packageName != null) {
                 importPkgList.add(new ImportPackage(packageName)); // Import self
             }
-
+            
             return new BallerinaFile(
                     packageName,
                     importPkgList.toArray(new ImportPackage[importPkgList.size()]),

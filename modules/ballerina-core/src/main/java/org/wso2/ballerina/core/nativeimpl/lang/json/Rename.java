@@ -23,13 +23,10 @@ import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.JsonPathException;
 import com.jayway.jsonpath.PathNotFoundException;
 import com.jayway.jsonpath.WriteContext;
-
-import org.osgi.service.component.annotations.Component;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BJSON;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 import org.wso2.ballerina.core.nativeimpl.lang.utils.ErrorHandler;
@@ -45,11 +42,6 @@ import org.wso2.ballerina.core.nativeimpl.lang.utils.ErrorHandler;
                 @Argument(name = "oldKey", type = TypeEnum.STRING),
                 @Argument(name = "newKey", type = TypeEnum.STRING)},
         isPublic = true
-)
-@Component(
-        name = "func.lang.json_rename",
-        immediate = true,
-        service = AbstractNativeFunction.class
 )
 public class Rename extends AbstractJSONFunction {
     

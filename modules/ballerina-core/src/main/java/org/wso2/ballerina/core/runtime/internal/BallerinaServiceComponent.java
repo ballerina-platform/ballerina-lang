@@ -56,6 +56,9 @@ public class BallerinaServiceComponent {
     @Activate
     protected void start(BundleContext bundleContext) {
 
+        // Load built-in native constructs
+        BuiltInNativeConstructLoader.loadConstructs();
+
         //Creating the processor and registering the service
         bundleContext.registerService(CarbonMessageProcessor.class, new MessageProcessor(), null);
 
@@ -176,8 +179,13 @@ public class BallerinaServiceComponent {
         } else if (Constants.RuntimeMode.RUN_FILE == ServiceContextHolder.getInstance().getRuntimeMode()) {
             BallerinaFile ballerinaFileToExecute = ServiceContextHolder.getInstance().getBallerinaFileToExecute();
             if (ballerinaFileToExecute != null) {
-                BalProgramExecutor.execute(ballerinaFileToExecute);
-                RuntimeUtils.shutdownRuntime();
+                try {
+                    BalProgramExecutor.execute(ballerinaFileToExecute);
+                } catch (Throwable throwable) {
+                    log.error(throwable.getMessage());
+                } finally {
+                    RuntimeUtils.shutdownRuntime();
+                }
             }
         }
     }

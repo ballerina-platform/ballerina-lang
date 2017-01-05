@@ -18,7 +18,6 @@
 
 package org.wso2.ballerina.core.nativeimpl.lang.string;
 
-import org.osgi.service.component.annotations.Component;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BLong;
@@ -40,11 +39,6 @@ import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
         args = {@Argument(name = "long", type = TypeEnum.LONG)},
         returnType = {@ReturnType(type = TypeEnum.STRING)},
         isPublic = true
-)
-@Component(
-        name = "func.lang.string_longValueOf",
-        immediate = true,
-        service = AbstractNativeFunction.class
 )
 public class LongValueOf extends AbstractNativeFunction {
 

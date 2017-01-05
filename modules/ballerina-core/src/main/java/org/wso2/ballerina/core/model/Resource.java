@@ -62,6 +62,7 @@ public class Resource implements Node {
     private Worker[] workers;
     private BlockStmt resourceBody;
     private SymbolName resourceName;
+    private Position position;
 
     private Application application;
 
@@ -73,6 +74,7 @@ public class Resource implements Node {
     }
 
     public Resource(SymbolName name,
+                    Position position,
                     Annotation[] annotations,
                     Parameter[] parameters,
                     ConnectorDcl[] connectorDcls,
@@ -81,6 +83,7 @@ public class Resource implements Node {
                     BlockStmt functionBody) {
 
         this.resourceName = name;
+        this.position = position;
         this.annotations = annotations;
         this.parameters = parameters;
         this.connectorDcls = connectorDcls;
@@ -216,5 +219,18 @@ public class Resource implements Node {
 
     public Parameter[] getParameters() {
         return parameters;
+    }
+    
+    public SymbolName getSymbolName() {
+        return this.resourceName;
+    }
+
+    /**
+     * Get the location of this resource in the ballerina source file.
+     * 
+     * @return  Location of this resource in the ballerina source file.
+     */
+    public Position getResourceLocation() {
+        return position;
     }
 }

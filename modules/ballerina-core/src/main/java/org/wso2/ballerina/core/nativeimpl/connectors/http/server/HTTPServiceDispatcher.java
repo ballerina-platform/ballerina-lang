@@ -21,6 +21,7 @@ package org.wso2.ballerina.core.nativeimpl.connectors.http.server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.exception.BallerinaException;
+import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.nativeimpl.connectors.http.Constants;
@@ -43,71 +44,75 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
     // Outer Map key=interface, Inner Map key=basePath
     private Map<String, Map<String, Service>> services = new HashMap<>();
 
-    public Service findService(CarbonMessage cMsg, CarbonCallback callback) {
+    public Service findService(CarbonMessage cMsg, CarbonCallback callback, Context balContext) {
 
-        String interfaceId = (String) cMsg.getProperty(org.wso2.carbon.messaging.Constants.LISTENER_INTERFACE_ID);
-        if (interfaceId == null) {
-            if (log.isDebugEnabled()) {
-                log.debug("Interface id not found on the message, hence using the default interface");
+        try {
+            String interfaceId = (String) cMsg.getProperty(org.wso2.carbon.messaging.Constants.LISTENER_INTERFACE_ID);
+            if (interfaceId == null) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Interface id not found on the message, hence using the default interface");
+                }
+                interfaceId = Constants.DEFAULT_INTERFACE;
             }
-            interfaceId = Constants.DEFAULT_INTERFACE;
-        }
 
-        Map<String, Service> servicesOnInterface = services.get(interfaceId);
-        if (servicesOnInterface == null) {
-            throw new BallerinaException("No services found for interface : " + interfaceId);
-        }
+            Map<String, Service> servicesOnInterface = services.get(interfaceId);
+            if (servicesOnInterface == null) {
+                throw new BallerinaException("No services found for interface : " + interfaceId);
+            }
 
-        String uri = (String) cMsg.getProperty(org.wso2.carbon.messaging.Constants.TO);
-        if (uri == null) {
-            throw new BallerinaException("URI not found in the message");
-        }
-        uri = uri.split("\\?")[0]; //remove if any query parameters, before matching a service
-        if (!uri.startsWith("/")) {
-            uri = "/".concat(uri);
-        }
+            String uri = (String) cMsg.getProperty(org.wso2.carbon.messaging.Constants.TO);
+            if (uri == null) {
+                throw new BallerinaException("URI not found in the message");
+            }
+            uri = uri.split("\\?")[0]; //remove if any query parameters, before matching a service
+            if (!uri.startsWith("/")) {
+                uri = "/".concat(uri);
+            }
 
-        String[] path = uri.split("/");
-        String basePath;
-        if (path.length > 1) {
-            basePath = "/".concat(path[1]);
-        } else {
-            basePath = Constants.DEFAULT_BASE_PATH;
-        }
-        String subPath = "";
+            String[] path = uri.split("/");
+            String basePath;
+            if (path.length > 1) {
+                basePath = "/".concat(path[1]);
+            } else {
+                basePath = Constants.DEFAULT_BASE_PATH;
+            }
+            String subPath = "";
 
-        //TODO: Add regex support
-        Service service = servicesOnInterface.get(basePath);  // 90% of the time we will find service from here
-        if (service == null) {
-            for (int i = 2; i < path.length; i++) {
-                basePath = basePath.concat("/").concat(path[i]);
-                service = servicesOnInterface.get(basePath);
-                if (service != null) {
-                    break;
+            //TODO: Add regex support
+            Service service = servicesOnInterface.get(basePath);  // 90% of the time we will find service from here
+            if (service == null) {
+                for (int i = 2; i < path.length; i++) {
+                    basePath = basePath.concat("/").concat(path[i]);
+                    service = servicesOnInterface.get(basePath);
+                    if (service != null) {
+                        break;
+                    }
                 }
             }
-        }
 
-        // Check if there is a service with default base path ("/")
-        if (service == null) {
-            service = servicesOnInterface.get(Constants.DEFAULT_BASE_PATH);
-            basePath = Constants.DEFAULT_BASE_PATH;
-            subPath = uri;
-        } else {
-            String[] tempPaths = uri.split(basePath);
-            if (tempPaths.length > 1) {
-                subPath = tempPaths[1];
+            // Check if there is a service with default base path ("/")
+            if (service == null) {
+                service = servicesOnInterface.get(Constants.DEFAULT_BASE_PATH);
+                basePath = Constants.DEFAULT_BASE_PATH;
+                subPath = uri;
+            } else {
+                String[] tempPaths = uri.split(basePath);
+                if (tempPaths.length > 1) {
+                    subPath = tempPaths[1];
+                }
             }
+
+            if (service == null) {
+                throw new BallerinaException("No Service found to handle incoming request recieved to : " + uri);
+            }
+
+            cMsg.setProperty(Constants.BASE_PATH, basePath);
+            cMsg.setProperty(Constants.SUB_PATH, subPath);
+
+            return service;
+        } catch (Throwable e) {
+            throw new BallerinaException(e.getMessage(), balContext);
         }
-
-        if (service == null) {
-            throw new BallerinaException("No Service found to handle request sent to : " + uri);
-        }
-
-        cMsg.setProperty(Constants.BASE_PATH, basePath);
-        cMsg.setProperty(Constants.SUB_PATH, subPath);
-
-        return service;
     }
 
     @Override
