@@ -19,6 +19,7 @@ body{
     max-height: 100vh;
     overflow: hidden;
     padding: 0px;
+    margin-bottom: 0;
 }
 
 html{

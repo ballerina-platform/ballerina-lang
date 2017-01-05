@@ -104,7 +104,7 @@ public class BMap<BString, V extends BValue> implements BRefType {
     }
 
     private void condenseArray(int start) {
-        System.arraycopy(values, start + 1, values, start, (size - start - 1));
+        System.arraycopy(values, start + 1, values, start, (values.length - start - 1));
     }
 
     /**

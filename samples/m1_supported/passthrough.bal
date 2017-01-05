@@ -10,7 +10,7 @@ service PassthroughService {
     @POST
     @Path ("/stocks")
     resource passthrough (message m) {
-        http:HTTPConnector nyseEP = new http:HTTPConnector("http://localhost:9090", 100);
+        http:HTTPConnector nyseEP = new http:HTTPConnector("http://localhost:9090");
         message response;
         response = http:HTTPConnector.post(nyseEP, "/NYSEStocks", m);
         reply response;

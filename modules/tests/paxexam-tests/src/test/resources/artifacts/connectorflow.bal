@@ -10,7 +10,7 @@ service PassthroughService {
 @GET
 @Path ("/employees")
     resource passthrough (message m) {
-            http:DummyHTTPConnector nyseEP = new http:DummyHTTPConnector("http://empdir-nuwanbando.herokuapp.com", 100);
+            http:DummyHTTPConnector nyseEP = new http:DummyHTTPConnector("http://empdir-nuwanbando.herokuapp.com");
             message response;
             response = http:DummyHTTPConnector.get(nyseEP, "/employees", m);
             reply response;

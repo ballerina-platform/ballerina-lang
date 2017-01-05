@@ -142,7 +142,7 @@ public class XMLTest {
     }
 
 
-    @Test
+    @Test(expectedExceptions = BallerinaException.class)
     public void testGetNonExistingString() {
         BValue[] args = {new BXML(s1), new BString("/xxx/text()")};
         BValue[] returns = Functions.invoke(bFile, "getString", args);
@@ -150,7 +150,7 @@ public class XMLTest {
         Assert.assertEquals(returns[0], null);
     }
 
-    @Test
+    @Test(expectedExceptions = BallerinaException.class)
     public void testGetNonExistingXML() {
         BValue[] args = {new BXML(s1), new BString("/xxx")};
         BValue[] returns = Functions.invoke(bFile, "getXML", args);
@@ -178,7 +178,7 @@ public class XMLTest {
         Assert.assertEquals(returnElement.toString().replaceAll("\\r|\\n|\\t| ", ""), s2);
     }
 
-    @Test
+    @Test(expectedExceptions = BallerinaException.class)
     public void testAddElementToNonExistingElement() {
         BValue[] args = {new BXML(s2), new BString("/xxx"), new BXML("<address>wso2</address>")};
         BValue[] returns = Functions.invoke(bFile, "addElement", args);
@@ -186,7 +186,7 @@ public class XMLTest {
         Assert.assertEquals(returns[0].stringValue(), s2);
     }
 
-    @Test
+    @Test(expectedExceptions = BallerinaException.class)
     public void testAddAttributeToNonExistingElement() {
         BValue[] args = {new BXML(s2), new BString("/xxx"), new BString("id"), new BString("person123")};
         BValue[] returns = Functions.invoke(bFile, "addAttribute", args);
