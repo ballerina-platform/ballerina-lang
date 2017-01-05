@@ -22,7 +22,7 @@ Available Commands:
     version     Print Ballerina version.
     help        Print this help message.
 
-    
+
 
 
 

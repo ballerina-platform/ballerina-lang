@@ -15,8 +15,8 @@ service TweetMediumFeed {
     @Path("/feed")
     resource getMediumFeed  (message m) {
 
-        http:HTTPConnector mediumEP = new http:HTTPConnector("https://medium.com", 100);
-        http:HTTPConnector tweeterEP = new http:HTTPConnector("https://api.twitter.com", 100);
+        http:HTTPConnector mediumEP = new http:HTTPConnector("https://medium.com");
+        http:HTTPConnector tweeterEP = new http:HTTPConnector("https://api.twitter.com");
 
         message mediumResponse;
         xml feedXML;

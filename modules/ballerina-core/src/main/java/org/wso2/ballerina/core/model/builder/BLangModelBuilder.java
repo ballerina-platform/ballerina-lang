@@ -291,7 +291,6 @@ public class BLangModelBuilder {
 
     public void createConnectorDcl(String varName) {
         // Here we build the object model for the following line
-        // ballerina.net.http:HTTPConnector nyseEP = new ballerina.net.http:HTTPConnector("http://..", 100);
 
         // Here we need to pop the symbolName stack twice as the connector name appears twice in the declaration.
         if (symbolNameStack.size() < 2) {

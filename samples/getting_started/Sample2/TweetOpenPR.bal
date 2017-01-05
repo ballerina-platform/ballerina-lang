@@ -15,8 +15,8 @@ service TweetOpenPR {
     @Path("/pr")
     resource getOpenPR  (message m) {
 
-        http:HTTPConnector gitHubEP = new http:HTTPConnector("https://api.github.com", 100);
-        http:HTTPConnector tweeterEP = new http:HTTPConnector("https://api.twitter.com", 100);
+        http:HTTPConnector gitHubEP = new http:HTTPConnector("https://api.github.com");
+        http:HTTPConnector tweeterEP = new http:HTTPConnector("https://api.twitter.com");
 
         string repo;
         string repoPRpath;

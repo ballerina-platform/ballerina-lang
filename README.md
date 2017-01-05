@@ -101,7 +101,7 @@ service PassthroughService {
     @POST
     @Path ("/stocks")
     resource passthrough (message m) {
-        http:HTTPConnector nyseEP = new http:HTTPConnector("http://localhost:9090", 100);
+        http:HTTPConnector nyseEP = new http:HTTPConnector("http://localhost:9090");
         message response;
         response = http:HTTPConnector.post(nyseEP, "/NYSEStocks", m);
         reply response;
@@ -158,8 +158,8 @@ service ContentBasedRouteService {
   @Path("/*")
   resource cbrResource (message m) {
     // Connector declarations
-    http:HTTPConnector nyseEP = new http:HTTPConnector("http://localhost:9090/NYSEStocks", 30000);
-    http:HTTPConnector nasdaqEP = new http:HTTPConnector("http://localhost:9090/NASDAQStocks", 60000);
+    http:HTTPConnector nyseEP = new http:HTTPConnector("http://localhost:9090/NYSEStocks");
+    http:HTTPConnector nasdaqEP = new http:HTTPConnector("http://localhost:9090/NASDAQStocks");
 
     // Variable declarations
     message response;
