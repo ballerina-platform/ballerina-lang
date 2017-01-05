@@ -91,6 +91,10 @@ define(['log', 'backbone'], function (log, Backbone) {
         },
         getTitle: function(){
            return _.isNil(this._title) ? "untitled" : this._title;
+        },
+        setTitle: function(title){
+           this._title = title;
+           this.trigger('title-changed', title);
         }
     });
 

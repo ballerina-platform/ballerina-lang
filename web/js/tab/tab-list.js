@@ -121,12 +121,16 @@ define(['log', 'jquery', 'lodash', 'backbone', './tab', 'bootstrap'], function (
                 });
 
                 var tabCloseBtn = $('<button type="button" >×</button>');
-                tabHeaderLink.append(tabCloseBtn);
+                tabHeader.append(tabCloseBtn);
                 tabCloseBtn.addClass( _.get(this.options, 'tabs.tab.cssClass.tab_close_btn'));
                 tabCloseBtn.click(function(e){
                     self.removeTab(tab);
                     e.preventDefault();
                     e.stopPropagation();
+                });
+
+                tab.on('title-changed', function(title){
+                    tabHeaderLink.text(title);
                 });
 
                 tab.setHeader(tabHeader);
