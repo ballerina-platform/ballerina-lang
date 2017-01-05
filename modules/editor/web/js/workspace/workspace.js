@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab/tab', 'bootstrap'],
-    function ($, _, Backbone, log, Dialogs, WelcomePages, GenericTab) {
+define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab/tab', 'workspace'],
+    function ($, _, Backbone, log, Dialogs, WelcomePages, GenericTab, Workspace) {
 
     // workspace manager constructor
     /**
@@ -31,7 +31,7 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab/t
         }
 
         this.createNewTab = function createNewTab(ballerinaRoot) {
-            //Showing menu bar
+            // Showing menu bar
             app.menuBar.show();
             app.tabController.newTab({ballerinaRoot: ballerinaRoot});
         };
@@ -48,8 +48,8 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab/t
                 var opts = _.get(app.config, 'welcome');
                 _.set(opts, 'application', app);
                 _.set(opts, 'tab', tab);
-                this.firstLaunchWelcomePage = new WelcomePages.FirstLaunchWelcomePage(opts);
-                this.firstLaunchWelcomePage.render();
+                this.welcomePage = new WelcomePages.FirstLaunchWelcomePage(opts);
+                this.welcomePage.render();
             } else {
                 // user has no active tabs from last session
                 if (!app.tabController.hasFilesInWorkingSet()) {
@@ -62,14 +62,42 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab/t
                     var opts = _.get(app.config, 'welcome');
                     _.set(opts, 'application', app);
                     _.set(opts, 'tab', tab);
-                    this.regularWelcomePage = new WelcomePages.FirstLaunchWelcomePage(opts);
-                    this.regularWelcomePage.render();
+                    this.welcomePage = new WelcomePages.FirstLaunchWelcomePage(opts);
+                    this.welcomePage.render();
                 }
             }
         };
 
         this.passedFirstLaunch = function(){
             return app.browserStorage.get("pref:passedFirstLaunch") || false;
+        };
+
+        /**
+         * Showing the welcome page. If "welcome page" exists, then show existing "welcome page", else create new
+         * "welcome page".
+         * @param workspaceManager - The workspace manager.
+         */
+        this.showWelcomePage = function(workspaceManager) {
+            var existingWelcomeTab = _.find(app.tabController.getTabList(), function (tab) {
+                return tab._title == "welcome-page";
+            });
+
+            if (_.isUndefined(existingWelcomeTab)) {
+                // Creating a new welcome tab.
+                var tab = app.tabController.newTab({
+                    tabModel: GenericTab,
+                    tabOptions:{title: 'welcome-page'}
+                });
+                // Showing FirstLaunchWelcomePage instead of regularWelcomePage
+                var opts = _.get(app.config, 'welcome');
+                _.set(opts, 'application', app);
+                _.set(opts, 'tab', tab);
+                workspaceManager.welcomePage = new WelcomePages.FirstLaunchWelcomePage(opts);
+                workspaceManager.welcomePage.render();
+            } else {
+                // Showing existing welcome tab.
+                app.tabController.setActiveTab(existingWelcomeTab);
+            }
         };
 
         this.openFileSaveDialog = function openFileSaveDialog() {
@@ -80,7 +108,11 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab/t
         this.openFileOpenDialog = function openFileOpenDialog() {
             var dialog = new Dialogs.open_file_dialog(app);
             dialog.render();
-        }
+        };
+
+        this.goToWelcomePage = function goToWelcomePage() {
+            this.workspaceManager.showWelcomePage(this.workspaceManager);
+        };
 
         app.commandManager.registerCommand("create-new-tab", {key: ""});
         app.commandManager.registerHandler('create-new-tab', this.createNewTab);
@@ -92,6 +124,10 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab/t
         // Open file open dialog
         app.commandManager.registerCommand("open-file-open-dialog", {key: ""});
         app.commandManager.registerHandler('open-file-open-dialog', this.openFileOpenDialog);
+
+        // Go to Welcome Page.
+        app.commandManager.registerCommand("go-to-welcome-page", {key: ""});
+        app.commandManager.registerHandler('go-to-welcome-page', this.goToWelcomePage);
 
     }
 

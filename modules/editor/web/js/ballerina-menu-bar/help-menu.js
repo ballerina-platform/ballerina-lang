@@ -16,12 +16,31 @@
  * under the License.
  */
 
-define(['file_menu', 'edit_menu', 'help_menu'], function (FileMenu, EditMenu, HelpMenu) {
-    var menuBar = {};
+define(([],function (){
+    var HelpMenu = {
+        id: "Help",
+        label: "Help",
+        items: [
+            {
+                id: "Help-WelcomePage",
+                label: "Go to Welcome Page",
+                action: "go-to-welcome-page"
+            },
+            {
+                id: "Help-About",
+                label: "About",
+                action: "show-about",
+                attributes: [{
+                    key: "data-toggle",
+                    value: "modal"
+                }, {
+                    key: "data-target",
+                    value: "#modalAbout"
+                }]
+            }
+        ]
 
-    menuBar[FileMenu.id] = FileMenu;
-    menuBar[EditMenu.id] = EditMenu;
-    menuBar[HelpMenu.id] = HelpMenu;
+    };
 
-    return menuBar;
-});
+    return HelpMenu;
+}));
