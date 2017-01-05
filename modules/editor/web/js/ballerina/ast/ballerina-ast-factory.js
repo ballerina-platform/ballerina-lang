@@ -270,7 +270,9 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
          * @param args
          */
         BallerinaASTFactory.createResourceDefinition = function (args) {
-            return new resourceDefinition(args);
+            var resourceDef = new resourceDefinition(args);
+            resourceDef.addArgument("message", "m");
+            return resourceDef;
         };
 
         /**
