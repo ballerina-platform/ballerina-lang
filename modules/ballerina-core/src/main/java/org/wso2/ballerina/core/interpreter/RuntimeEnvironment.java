@@ -18,7 +18,10 @@
 package org.wso2.ballerina.core.interpreter;
 
 import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.ConnectorDcl;
 import org.wso2.ballerina.core.model.Const;
+import org.wso2.ballerina.core.model.Service;
+import org.wso2.ballerina.core.model.VariableDcl;
 import org.wso2.ballerina.core.model.values.BValue;
 
 /**
@@ -40,10 +43,22 @@ public class RuntimeEnvironment {
     public static RuntimeEnvironment get(BallerinaFile bFile) {
         StaticMemory staticMemory = new StaticMemory(bFile.getSizeOfStaticMem());
 
-        Const[] constants = bFile.getConstants();
-        for (int i = 0; i < constants.length; i++) {
-            Const constant = constants[i];
-            staticMemory.setValue(i, constant.getValue());
+        int index = -1;
+        for (Const constant : bFile.getConstants()) {
+            index++;
+            staticMemory.setValue(index, constant.getValue());
+        }
+
+        for (Service service : bFile.getServices()) {
+            for (ConnectorDcl connectorDcl : service.getConnectorDcls()) {
+                index++;
+                // TODO
+            }
+
+            for (VariableDcl variableDcl : service.getVariableDcls()) {
+                index++;
+                staticMemory.setValue(index, variableDcl.getType().getDefaultValue());
+            }
         }
 
         return new RuntimeEnvironment(staticMemory);
