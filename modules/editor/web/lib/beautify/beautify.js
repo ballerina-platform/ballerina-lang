@@ -631,7 +631,6 @@ if (!Object.values) {
                     (flags.mode === MODE.ObjectLiteral && (
                         (flags.last_text === ':' && flags.ternary_depth === 0) || (last_type === 'TK_RESERVED' && in_array(flags.last_text, ['get', 'set']))))
                 ) {
-
                     set_mode(MODE.Statement);
                     indent();
 
@@ -1137,7 +1136,12 @@ if (!Object.values) {
                 } else if (prefix === 'SPACE') {
                     output.space_before_token = true;
                 }
-                print_token();
+                if(flags.last_text === ":" && current_token.type === "TK_WORD"){
+                    output.current_line.push(current_token.text);
+                    output.current_line.processedAFunctionInvocation = true;
+                }else{
+                    print_token();
+                }
                 flags.last_word = current_token.text;
 
                 if (current_token.type === 'TK_RESERVED') {
@@ -1659,7 +1663,13 @@ if (!Object.values) {
             };
 
             this.add_token = function(printable_token) {
-                this.add_space_before_token();
+                if(!(this.current_line.processedAFunctionInvocation === true)){
+                    this.add_space_before_token();
+                } else {
+                    if(printable_token === ")"){
+                        this.current_line.processedAFunctionInvocation = false;
+                    }
+                }
                 this.current_line.push(printable_token);
             };
 
