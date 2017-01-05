@@ -1092,3 +1092,12 @@ button.variable-list {
 /** Service container related styles | -> End **/
 /*//////////////////////////////////////////////////*/
 
+#breadcrumb-container > .breadcrumb{
+    text-transform: none;
+    padding: 6px 15px 6px 15px;
+    background: rgb(35, 35, 35);
+}
+
+#breadcrumb-container {
+    min-height: 32px;
+}
