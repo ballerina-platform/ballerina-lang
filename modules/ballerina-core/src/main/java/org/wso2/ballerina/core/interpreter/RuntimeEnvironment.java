@@ -89,7 +89,7 @@ public class RuntimeEnvironment {
                     connector = nativeConnector;
                 }
 
-                BConnector connectorValue = new BConnector(connector, connectorDcl.getArgExprs());
+                BConnector connectorValue = new BConnector(connector, bValueRefs);
                 staticMemory.setValue(index, connectorValue);
             }
 

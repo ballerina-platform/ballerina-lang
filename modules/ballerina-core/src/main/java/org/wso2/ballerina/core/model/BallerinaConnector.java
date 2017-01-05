@@ -18,9 +18,6 @@
 
 package org.wso2.ballerina.core.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * A {@code Connector} represents a participant in the integration and is used to interact with an external system.
  * Ballerina includes a set of standard Connectors.
@@ -36,29 +33,28 @@ import java.util.List;
  *
  * @since 1.0.0
  */
-@SuppressWarnings("unused")
 public class BallerinaConnector extends PositionAwareNode implements Connector , Node {
-
-    private List<Annotation> annotationList;
-    private List<Parameter> arguments;
-    private List<ConnectorDcl> connectorDclList;
-    private List<VariableDcl> variableDclList;
 
     private SymbolName name;
     private Annotation[] annotations;
+    private Parameter[] parameters;
     private ConnectorDcl[] connectorDcls;
     private VariableDcl[] variableDcls;
     private BallerinaAction[] actions;
     private Position connectorLocation;
 
+    private int sizeOfConnectorMem;
+
     public BallerinaConnector(SymbolName serviceName,
                               Position position,
                               Annotation[] annotations,
+                              Parameter[] parameters,
                               ConnectorDcl[] connectorDcls,
                               VariableDcl[] variableDcls,
                               BallerinaAction[] actions) {
         this.name = serviceName;
         this.connectorLocation = position;
+        this.parameters = parameters;
         this.annotations = annotations;
         this.connectorDcls = connectorDcls;
         this.variableDcls = variableDcls;
@@ -102,59 +98,13 @@ public class BallerinaConnector extends PositionAwareNode implements Connector ,
      *
      * @return list of Annotations
      */
-    public List<Annotation> getAnnotations() {
-        return annotationList;
+    public Annotation[] getAnnotations() {
+        return annotations;
     }
 
-    /**
-     * Set list of all the Annotations
-     *
-     * @param annotations list of Annotations
-     */
-    public void setAnnotations(List<Annotation> annotations) {
-        this.annotationList = annotations;
-    }
-
-    /**
-     * Add an {@code Annotation} to the Connector
-     *
-     * @param annotation Annotation to be added
-     */
-    public void addAnnotation(Annotation annotation) {
-        if (annotationList == null) {
-            annotationList = new ArrayList<Annotation>();
-        }
-        annotationList.add(annotation);
-    }
-
-    /**
-     * Get list of Arguments associated with the Connector definition
-     *
-     * @return list of Arguments
-     */
-    public List<Parameter> getArguments() {
-        return arguments;
-    }
-
-    /**
-     * Set Arguments list to the Connector
-     *
-     * @param arguments list of Arguments
-     */
-    public void setArguments(List<Parameter> arguments) {
-        this.arguments = arguments;
-    }
-
-    /**
-     * Add an {@code Argument} to the Connector
-     *
-     * @param argument Argument to be added to the Connector definition
-     */
-    public void addArgument(Parameter argument) {
-        if (arguments == null) {
-            arguments = new ArrayList<Parameter>();
-        }
-        arguments.add(argument);
+    @Override
+    public Parameter[] getParameters() {
+        return parameters;
     }
 
     /**
@@ -162,29 +112,8 @@ public class BallerinaConnector extends PositionAwareNode implements Connector ,
      *
      * @return list of all the Connections belongs to a Service
      */
-    public List<ConnectorDcl> getConnectorDcls() {
-        return connectorDclList;
-    }
-
-    /**
-     * Assign connections to the Connector
-     *
-     * @param connectorDcls list of connections to be assigned to a Connector
-     */
-    public void setConnectorDcls(List<ConnectorDcl> connectorDcls) {
-        this.connectorDclList = connectorDcls;
-    }
-
-    /**
-     * Add a {@code Connection} to the Connector
-     *
-     * @param connectorDcl Connection to be added to the Connector
-     */
-    public void addConnection(ConnectorDcl connectorDcl) {
-        if (connectorDclList == null) {
-            connectorDclList = new ArrayList<ConnectorDcl>();
-        }
-        connectorDclList.add(connectorDcl);
+    public ConnectorDcl[] getConnectorDcls() {
+        return connectorDcls;
     }
 
     /**
@@ -192,29 +121,8 @@ public class BallerinaConnector extends PositionAwareNode implements Connector ,
      *
      * @return list of all Connector scoped variables
      */
-    public List<VariableDcl> getVariables() {
-        return variableDclList;
-    }
-
-    /**
-     * Assign variables to the Connector
-     *
-     * @param variables list of variables
-     */
-    public void setVariables(List<VariableDcl> variables) {
-        this.variableDclList = variables;
-    }
-
-    /**
-     * Add a {@code Variable} to the Connector
-     *
-     * @param variable variable to be added to the Connector
-     */
-    public void addVariable(VariableDcl variable) {
-        if (variableDclList == null) {
-            variableDclList = new ArrayList<VariableDcl>();
-        }
-        variableDclList.add(variable);
+    public VariableDcl[] getVariableDcls() {
+        return variableDcls;
     }
 
     /**
@@ -226,16 +134,19 @@ public class BallerinaConnector extends PositionAwareNode implements Connector ,
         return actions;
     }
 
+    public void setSizeOfConnectorMem(int sizeOfConnectorMem) {
+        this.sizeOfConnectorMem = sizeOfConnectorMem;
+    }
+
+    public int getSizeOfConnectorMem() {
+        return sizeOfConnectorMem;
+    }
+
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 
-    @Override
-    public Parameter[] getParameters() {
-        return new Parameter[0];
-    }
-    
     /**
      * {@inheritDoc}
      */

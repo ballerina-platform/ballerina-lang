@@ -663,7 +663,7 @@ public class BLangInterpreter implements NodeVisitor {
                 nativeConnector.init(bValueRefs);
                 connector = nativeConnector;
             }
-            BConnector connectorValue = new BConnector(connector, connectorDcl.getArgExprs());
+            BConnector connectorValue = new BConnector(connector, bValueRefs);
 
             valueParams[valuesCounter] = connectorValue;
             valuesCounter++;
