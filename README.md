@@ -26,4 +26,4 @@ Ballerina is not designed to be a general purpose language. Instead you should u
 
 ## Running samples
 
-[Getting stated samples](samples/getting_started)
+[Getting started samples](samples/getting_started)
