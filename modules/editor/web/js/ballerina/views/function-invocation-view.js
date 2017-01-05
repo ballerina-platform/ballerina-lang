@@ -160,19 +160,18 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/function-invoca
         };
 
         FunctionInvocationStatementView.prototype.updateStatementText = function (updatedText) {
-            if (!_.isUndefined(updatedText) && updatedText !== '') {
-                var text = this._model.getPackageName() + ':' + this._model.getFunctionName() + '(';
-                var params = this._model.getParams();
-                for (var id = 0; id < params.length; id++) {
-                    if (id > 0) {
-                        text += ',' + params[id];
-                    } else {
-                        text += params[id];
-                    }
+            var text = this._model.getPackageName() + ':' + this._model.getFunctionName() + '(';
+            var params = this._model.getParams();
+            for (var id = 0; id < params.length; id++) {
+                if (id > 0) {
+                    text += ',' + params[id];
+                } else {
+                    text += params[id];
                 }
-                text += ')';
-                this.getStatementGroup().expression_text.node().textContent = text;
             }
+            text += ')';
+            text = ((text.length) > 11 ? (text.substring(0,11) + '..') : text);
+            this.getStatementGroup().expression_text.node().textContent = text;
         };
 
         return FunctionInvocationStatementView;
