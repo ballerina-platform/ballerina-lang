@@ -41,10 +41,10 @@ public class RuntimeUtils {
             try {
                 bundleContext.getBundle(0).stop();
             } catch (BundleException e) {
-                logger.error("Error while unloading Ballerina runtime. Manual termination is required.", e);
+                logger.error("Fatal: Error while unloading Ballerina runtime. Manual termination is required.", e);
             }
         } else {
-            logger.error("Unable to Shutdown Ballerina Runtime. Manual termination is required.");
+            logger.error("Fatal: Unable to Shutdown Ballerina Runtime. Manual termination is required.");
         }
     }
 }

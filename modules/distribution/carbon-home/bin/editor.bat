@@ -52,7 +52,7 @@ if not "%curDrive%" == "%wsasDrive%" %wsasDrive%:
 
 rem find CARBON_HOME if it does not exist due to either an invalid value passed
 rem by the user or the %0 problem on Windows 9x
-if not exist "%CARBON_HOME%\bin\kernel-version.txt" goto noServerHome
+if not exist "%CARBON_HOME%\bin\version.txt" goto noServerHome
 
 goto updateClasspath
 
@@ -84,13 +84,20 @@ if ""%1""==""debug""    goto commandDebug
 if ""%1""==""-debug""   goto commandDebug
 if ""%1""==""--debug""  goto commandDebug
 
+if ""%1""==""help""  goto commandHelp
+
 goto commandUnknownArg
 
 
 rem ----- commandUnknownArg ----------------------------------------------------
 :commandUnknownArg
 echo Not supported option or command or value : %1
-type "%CARBON_HOME%\bin\ballerina-win-help.txt"
+goto commandHelp
+
+rem ----- commandUnknownArg ----------------------------------------------------
+:commandHelp
+echo
+echo Start Ballerina Editor using 'editor.bat'
 goto end
 
 
@@ -137,11 +144,11 @@ rem ----------------- Execute The Requested Command ----------------------------
 :runServer
 cd %CARBON_HOME%
 
-FOR %%C in ("%CARBON_HOME%\bin\*.jar") DO set CARBON_CLASSPATH=!CARBON_CLASSPATH!;".\bin\%%~nC%%~xC"
+FOR %%C in ("%CARBON_HOME%\resources\editor\services\*.jar") DO set CARBON_CLASSPATH=!CARBON_CLASSPATH!;".\resources\editor\services\%%~nC%%~xC"
 
 rem ---------- Add jars to classpath ----------------
 
-set CARBON_CLASSPATH=.\bin\bootstrap;%CARBON_CLASSPATH%
+rem set CARBON_CLASSPATH=.\bin\bootstrap;%CARBON_CLASSPATH%
 
 set JAVA_ENDORSED=".\bin\bootstrap\endorsed";"%JAVA_HOME%\jre\lib\endorsed";"%JAVA_HOME%\lib\endorsed"
 

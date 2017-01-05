@@ -18,10 +18,11 @@
 define(['require', 'lodash', 'jquery'],
     function (require, _, $) {
 
-        var variableTypes = ['message', 'connection', 'string', 'int', 'exception'];
+        //TODO : Move this to a common constant.
+        var variableTypes = ['message', 'connection', 'string', 'int', 'exception', 'json', 'xml', 'string[]', 'int[]'];
 
         /**
-         * Creates the variable pane
+         * Creates the arguments pane.
          * @param {Object} args - Arguments for creating the view.
          * @param {Object} args.activatorElement - The variable button which activates to show the pane.
          * @param {ServiceDefinition} args.model - The service definition model.
@@ -35,7 +36,7 @@ define(['require', 'lodash', 'jquery'],
             var viewOptions = _.get(args, "viewOptions");
 
             var argumentsEditorWrapper = $("<div/>", {
-                class: "main-action-wrapper service-annotation-main-action-wrapper"
+                class: "main-action-wrapper arguments-main-action-wrapper"
             }).appendTo(paneElement);
 
             // Positioning the main wrapper
@@ -45,66 +46,67 @@ define(['require', 'lodash', 'jquery'],
 
             // Creating header content.
             var headerWrapper = $("<div/>", {
-                class: "action-content-wrapper-heading service-annotation-wrapper-heading"
+                class: "action-content-wrapper-heading arguments-wrapper-heading"
             }).appendTo(argumentsEditorWrapper);
 
-            // Creating annotations dropdown.
+            // Creating arguments dropdown.
             var argumentTypeDropDown = $("<select/>").appendTo(headerWrapper);
 
             // Adding dropdown elements.
             _.forEach(variableTypes, function (type) {
-                // Adding annotations which has no value to the dropdown.
+                // Adding arguments which has no value to the dropdown.
                 argumentTypeDropDown.append(
                     $('<option></option>').val(type).html(type)
                 );
             });
 
-            // Text input for editing the value of an annotation.
+            // Text input for editing the identifier of an arguments.
             var argumentIdentifierInput = $("<input/>", {
                 type: "text"
             }).appendTo(headerWrapper);
 
             // Wrapper for the add and check icon.
             var addIconWrapper = $("<div/>", {
-                class: "action-icon-wrapper service-annotation-action-icon"
+                class: "action-icon-wrapper arguments-action-icon"
             }).appendTo(headerWrapper);
 
             var addButton = $("<span class='fw-stack fw-lg'><i class='fw fw-square fw-stack-2x'></i>" +
-                "<i class='fw fw-add fw-stack-1x fw-inverse service-annotation-action-icon-i'></i></span>")
+                "<i class='fw fw-add fw-stack-1x fw-inverse arguments-action-icon-i'></i></span>")
                 .appendTo(addIconWrapper);
 
-            // Adding a value to a new annotation.
+            // Adding a value to a new arguments.
             $(addButton).click(function () {
                 var argumentType = argumentTypeDropDown.val();
                 var argumentValue = argumentIdentifierInput.val();
 
-                if (!_.isEmpty(argumentValue)) { // Sets the annotation values in the model
-                    model.addFunctionArgument(argumentType, argumentValue);
+                if (!_.isEmpty(argumentValue)) {
+                    // Sets the argument in the model
+                    model.addArgument(argumentType, argumentValue);
 
                     //Clear the text box and drop down value
                     argumentIdentifierInput.val("");
 
-                    // Recreating the annotation details view.
-                    _createCurrentAnnotationView(model, argumentsContentWrapper, argumentTypeDropDown, headerWrapper);
+                    // Recreating the arguments details view.
+                    _createCurrentArgumentsView(model, argumentsContentWrapper, argumentTypeDropDown, headerWrapper);
                 }
             });
 
             // Creating the content editing div.
             var argumentsContentWrapper = $("<div/>", {
-                class: "action-content-wrapper-body service-annotation-details-wrapper"
+                class: "action-content-wrapper-body arguments-details-wrapper"
             }).appendTo(argumentsEditorWrapper);
 
-            // Creating the annotation details view.
-            _createCurrentAnnotationView(model, argumentsContentWrapper, argumentTypeDropDown, headerWrapper);
+            // Creating the arguments details view.
+            _createCurrentArgumentsView(model, argumentsContentWrapper, argumentTypeDropDown, headerWrapper);
 
-            // Showing and hiding the annotation pane upton annotation button/activator is clicked.
+            // Showing and hiding the arguments pane upon arguments button/activator is clicked.
             $(activatorElement).click({argumentsEditorWrapper: argumentsEditorWrapper}, function (event) {
                 if ($(event.currentTarget).data("showing-pane") === "true") {
-                    $(event.currentTarget).removeClass("operations-annotation-icon");
+                    $(event.currentTarget).removeClass("operations-argument-icon");
                     event.data.argumentsEditorWrapper.hide();
                     $(event.currentTarget).data("showing-pane", "false");
                 } else {
-                    $(event.currentTarget).addClass("operations-annotation-icon");
+                    $(event.currentTarget).addClass("operations-argument-icon");
                     event.data.argumentsEditorWrapper.show();
                     $(event.currentTarget).data("showing-pane", "true");
                 }
@@ -112,80 +114,77 @@ define(['require', 'lodash', 'jquery'],
         };
 
         /**
-         * Creates the annotation detail wrapper and its events.
-         * @param model - The annotation data.
+         * Creates the arguments detail wrapper and its events.
+         * @param model - The arguments data.
          * @param wrapper - The wrapper element which these details should be appended to.
-         * @param annotationTypeDropDown - The dropdown which has the available annotations.
-         * @param headerWrapper - Wrapper which container the annotation editor.
+         * @param argumentsTypeDropDown - The dropdown which has the available arguments.
+         * @param headerWrapper - Wrapper which container the arguments editor.
          * @private
          */
-        function _createCurrentAnnotationView(model, wrapper, annotationTypeDropDown, headerWrapper) {
-            // Clearing all the element in the wrapper as we are rerendering the annotation view.
+        function _createCurrentArgumentsView(model, wrapper, argumentsTypeDropDown, headerWrapper) {
+            // Clearing all the element in the wrapper as we are rerendering the arguments view.
             wrapper.empty();
 
-            // Creating annotation info.
-            _.forEach(model.getFunctionArguments(), function (argument, index) {
-                var functionalArgumentWrapper = $("<div/>", {
-                    class: "service-annotation-detail-wrapper"
+            // Creating arguments info.
+            _.forEach(model.getArguments(), function (argument, index) {
+                var argumentWrapper = $("<div/>", {
+                    class: "arguments-detail-wrapper"
                 }).appendTo(wrapper);
 
-                // Creating a wrapper for the annotation type.
-                var functionArgumentTypeWrapper = $("<div/>", {
+                // Creating a wrapper for the argument type.
+                $("<div/>", {
                     text: argument.type,
-                    class: "service-annotation-detail-type-wrapper"
-                }).appendTo(functionalArgumentWrapper);
+                    class: "arguments-detail-type-wrapper"
+                }).appendTo(argumentWrapper);
 
-                // Creating a wrapper for the annotation value.
-                var functionalArgumentValueWrapper = $("<div/>", {
+                // Creating a wrapper for the argument value.
+                var argumentIdentifierWrapper = $("<div/>", {
                     text: ": " + argument.identifier,
-                    class: "service-annotation-detail-value-wrapper"
-                }).appendTo(functionalArgumentWrapper);
+                    class: "arguments-detail-identifier-wrapper"
+                }).appendTo(argumentWrapper);
 
-                var deleteIcon = $("<i class='fw fw-cancel service-annotation-detail-close-wrapper'></i>");
+                var deleteIcon = $("<i class='fw fw-cancel arguments-detail-close-wrapper'></i>");
 
-                deleteIcon.appendTo(functionalArgumentWrapper);
+                deleteIcon.appendTo(argumentWrapper);
 
-                // Removes the value of the annotation in the model and rebind the annotations to the dropdown and
-                // to the annotation view.
+                // Removes the value of the argument in the model and rebind the arguments to the arguments view.
                 deleteIcon.click(function () {
-                    $(functionalArgumentWrapper).remove();
-                    model.removeFunctionArgument(argument.identifier);
-                    _createCurrentAnnotationView(model, wrapper, annotationTypeDropDown, headerWrapper);
+                    $(argumentWrapper).remove();
+                    model.removeArgument(argument.identifier);
+                    _createCurrentArgumentsView(model, wrapper, argumentsTypeDropDown, headerWrapper);
                 });
 
                 // Not add a thematic break.
-                if (model.getFunctionArguments().length - 1 != index) {
+                if (model.getArguments().length - 1 != index) {
                     $("<hr/>").appendTo(wrapper);
                 }
 
-                // When an annotation detail is clicked.
-                functionalArgumentWrapper.click({
-                    clickedAnnotationValueWrapper: functionalArgumentValueWrapper,
-                    clickedAnnotationTypeWrapper: functionArgumentTypeWrapper,
+                // When an arguments detail is clicked.
+                argumentWrapper.click({
+                    clickedArgumentValueWrapper: argumentIdentifierWrapper,
                     deleteIcon: deleteIcon,
                     argument: argument
                 }, function (event) {
-                    var clickedAnnotationValueWrapper = event.data.clickedAnnotationValueWrapper;
+                    var clickedArgumentValueWrapper = event.data.clickedArgumentValueWrapper;
                     var argument = event.data.argument;
                     var deleteIcon = event.data.deleteIcon;
 
-                    // Empty the content inside the annotation value and type wrapper.
-                    clickedAnnotationValueWrapper.empty();
+                    // Empty the content inside the arguments value and type wrapper.
+                    clickedArgumentValueWrapper.empty();
 
                     // Changing the background
                     $(event.currentTarget).css("background-color", "#f5f5f5");
 
-                    // Creating the text area for the value of the annotation.
+                    // Creating the text area for the identifier of the argument.
                     var argumentValueTextbox = $("<input/>", {
-                        val: argument.identifier,
-                        class: "form-control"
-                    }).appendTo(clickedAnnotationValueWrapper);
+                        val: argument.identifier
+                    }).appendTo(clickedArgumentValueWrapper);
 
                     argumentValueTextbox.click(function (event) {
                         event.stopPropagation();
                     });
 
-                    // Gets the user input and set it as the annotation value
+                    // Gets the user input and set it as the argument identifier.
                     argumentValueTextbox.on("change keyup input", function (e) {
                         argument.identifier = e.target.value;
                     });
@@ -193,17 +192,17 @@ define(['require', 'lodash', 'jquery'],
                     // Adding in-line display block to override the hovering css.
                     deleteIcon.show();
 
-                    // Resetting of other annotations wrapper which has been used for editing.
-                    functionalArgumentWrapper.siblings().each(function () {
+                    // Resetting of other arguments wrapper which has been used for editing.
+                    argumentWrapper.siblings().each(function () {
 
-                        // Removing the textareas of other annotations and use simple text.
+                        // Removing the text box of other arguments and use simple text.
                         var argumentIdentifierDiv = $(this).children().eq(1);
                         if (argumentIdentifierDiv.find("input").length > 0) {
-                            // Reverting the background color of other annotation editors.
+                            // Reverting the background color of other argument editors.
                             $(this).removeAttr("style");
 
-                            var annotationIdentifier = ": " + argumentIdentifierDiv.find("input").val();
-                            argumentIdentifierDiv.empty().text(annotationIdentifier);
+                            var argumentIdentifier = ": " + argumentIdentifierDiv.find("input").val();
+                            argumentIdentifierDiv.empty().text(argumentIdentifier);
 
                             deleteIcon.removeAttr("style");
                         }

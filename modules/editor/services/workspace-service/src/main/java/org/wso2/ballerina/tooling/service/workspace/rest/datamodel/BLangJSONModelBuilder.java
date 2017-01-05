@@ -91,7 +91,6 @@ public class BLangJSONModelBuilder implements NodeVisitor {
 
     private JsonObject jsonObj;
     private Stack<JsonArray> tempJsonArrayRef = new Stack<>();
-    private Stack<JsonObject> tempJsonObjectRef = new Stack<>();
 
     public BLangJSONModelBuilder(JsonObject jsonObj) {
         this.jsonObj = jsonObj;

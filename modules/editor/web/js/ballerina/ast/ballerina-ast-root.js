@@ -30,7 +30,6 @@ define(['lodash', 'log', './node', './import-declaration'], function (_, log, AS
      */
     var BallerinaASTRoot = function (args) {
         this.packageDefinition = _.get(args, 'packageDefinition');
-        this.importDeclarations = _.get(args, 'importDeclarations', []);
         this.serviceDefinitions = _.get(args, 'serviceDefinitions', []);
         this.functionDefinitions = _.get(args, 'functionDefinitions', []);
         this.connectorDefinitions = _.get(args, 'connectorDefinitions', []);
@@ -60,7 +59,8 @@ define(['lodash', 'log', './node', './import-declaration'], function (_, log, AS
      */
     BallerinaASTRoot.prototype.setImportDeclarations = function (importDeclarations) {
         if(!_.isNil(importDeclarations)){
-            this.importDeclarations = importDeclarations;
+            // TODO : Need to be implemented.
+            throw "Set import declaration is not implemented";
         }
     };
     
@@ -115,11 +115,18 @@ define(['lodash', 'log', './node', './import-declaration'], function (_, log, AS
     };
 
     /**
-     * Getter function for PackageDefinition
+     * Getter function for import declarations.
      * @return {*}
      */
     BallerinaASTRoot.prototype.getImportDeclarations = function () {
-        return this.importDeclarations;
+        var importDeclarations = [];
+        var ballerinaASTFactory = this.getFactory();
+        _.forEach(this.getChildren(), function(child){
+            if (ballerinaASTFactory.isImportDeclaration(child)) {
+                importDeclarations.push(child);
+            }
+        });
+        return importDeclarations;
     };
 
     /**
@@ -159,8 +166,9 @@ define(['lodash', 'log', './node', './import-declaration'], function (_, log, AS
      * Deletes an import with given package name.
      */
     BallerinaASTRoot.prototype.deleteImport = function (packageName) {
-        _.remove(this.importDeclarations, function (importDeclaration) {
-            return importDeclaration.getPackageName() == packageName;
+        var ballerinaASTFactory = this.getFactory();
+        _.remove(this.getChildren(), function (child) {
+            return ballerinaASTFactory.isImportDeclaration(child) && child.getPackageName() == packageName;
         });
     };
 
@@ -169,12 +177,17 @@ define(['lodash', 'log', './node', './import-declaration'], function (_, log, AS
      * @param {ImportDeclaration} importDeclaration - New import declaration.
      */
     BallerinaASTRoot.prototype.addImport = function (importDeclaration) {
-        if (!_.isNil(importDeclaration) && importDeclaration instanceof ImportDeclaration) {
-            this.importDeclarations.push(importDeclaration);
-        } else {
-            log.error("Invalid import declaration received for AST root." + importDeclaration);
-            throw "Invalid import declaration received for AST root." + importDeclaration;
+        var ballerinaASTFactory = this.getFactory();
+        var index = _.findLastIndex(this.getChildren(), function(child){
+            return ballerinaASTFactory.isImportDeclaration(child);
+        });
+
+        // If there are no imports index is -1. Then we need to add the first import after the package
+        // definition which is the first child of the ast root
+        if (index === -1) {
+            index = 0;
         }
+        this.getChildren().splice(index + 1, 0, importDeclaration);
     };
 
     /**

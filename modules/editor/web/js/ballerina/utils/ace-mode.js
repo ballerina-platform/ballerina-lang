@@ -26,25 +26,27 @@ define('ace/mode/ballerina',
         var MyHighlightRules = function () {
 
             var keywordMapper = this.createKeywordMapper({
-                "ballerina-keyword-control": "if|else|iterator|try|catch|fork|join|while|new|reply|throw|throws|return|break|timeout",
+                "ballerina-keyword-control": "if|else|iterator|try|catch|fork|join|while|throw|throws|return|break|timeout",
                 "ballerina-keyword-other": "import|package|version|public",
                 "ballerina-keyword-primitive-type": "boolean|int|long|float|double|string",
                 "ballerina-keyword-non-primitive-type": "message|map|exception|json|xml|xmlDocument",
                 "ballerina-keyword-definition": "type|typeconvertor|connector|function|resource|service|worker|struct",
-                "ballerina-keyword-language": "const|true|false"
+                "ballerina-keyword-language": "const|true|false|new|reply"
             }, "ballerina-keyword-identifier");
 
             this.$rules = {
                 "start": [
                     {token: "comment", regex: "//"},
                     {token: "ballerina-strings", regex: '["](?:(?:\\\\.)|(?:[^"\\\\]))*?["]'},
-                    {token: "constant.numeric", regex: "0[xX][0-9a-fA-F]+\\b"},
-                    {token: "constant.numeric", regex: "[+-]?\\d+(?:(?:\\.\\d*)?(?:[eE][+-]?\\d+)?)?\\b"},
-                    {token: "keyword.operator", regex: "!|%|\\\\|/|\\*|\\-|\\+|~=|==|<>|!=|<=|>=|=|<|>|&&|\\|\\|"},
+                    {token: "ballerina-numeric", regex: "0[xX][0-9a-fA-F]+\\b"},
+                    {token: "ballerina-numeric", regex: "[+-]?\\d+(?:(?:\\.\\d*)?(?:[eE][+-]?\\d+)?)?\\b"},
+                    {token: "ballerina-operator", regex: "!|%|\\\\|/|\\*|\\-|\\+|~=|==|<>|!=|<=|>=|<|>|&&|\\|\\|"},
                     {token: "punctuation.operator", regex: "\\?|\\:|\\,|\\;|\\."},
                     {token: "paren.lparen", regex: "[[({]"},
                     {token: "paren.rparen", regex: "[\\])}]"},
                     {token: "text", regex: "\\s+"},
+                    {token: "ballerina-annotation", regex: "@[a-zA-Z_$][a-zA-Z0-9_$]*"},
+                    {token: "ballerina-package-reference", regex: "[a-zA-Z_$][a-zA-Z0-9_$]*:"},
                     {token: keywordMapper, regex: "[a-zA-Z_$][a-zA-Z0-9_$]*\\b"}
                 ]
             };

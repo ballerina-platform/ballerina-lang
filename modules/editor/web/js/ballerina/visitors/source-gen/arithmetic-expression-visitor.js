@@ -46,7 +46,7 @@ define(['require','lodash', 'log', 'event_channel', './abstract-source-gen-visit
         ArithmeticExpressionVisitor.prototype.endVisitStatement = function(expression){
             this.appendSource(";\n");
             this.getParent().appendSource(this.getGeneratedSource());
-            log.info('End Visit Logical expression');
+            log.debug('End Visit Logical expression');
         };
 
         return ArithmeticExpressionVisitor;

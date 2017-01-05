@@ -48,13 +48,11 @@ public class DummyHTTPConnector extends AbstractNativeConnector implements Servi
     public static final String CONNECTOR_NAME = "DummyHTTPConnector";
 
     private String serviceUri;
-    private int timeout;
 
     @Override
     public boolean init(BValue[] bValueRefs) {
-        if (bValueRefs != null && bValueRefs.length == 2) {
+        if (bValueRefs != null && bValueRefs.length == 1) {
             serviceUri = bValueRefs[0].stringValue();
-            timeout = ((BInteger) bValueRefs[1]).intValue();
         }
         return true;
     }
@@ -67,10 +65,6 @@ public class DummyHTTPConnector extends AbstractNativeConnector implements Servi
 
     public String getServiceUri() {
         return serviceUri;
-    }
-
-    public int getTimeout() {
-        return timeout;
     }
 
     @Override

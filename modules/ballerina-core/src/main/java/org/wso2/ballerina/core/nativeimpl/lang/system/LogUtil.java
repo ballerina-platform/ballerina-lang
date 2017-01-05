@@ -54,22 +54,22 @@ public class LogUtil {
     }
 
     private static void logTrace(Logger logger, String s) {
-        logger.trace(s);
+        logger.trace("[TRACE] " + s);
     }
 
     private static void logDebug(Logger logger, String s) {
-        logger.debug(s);
+        logger.debug("[DEBUG] " + s);
     }
 
     private static void logInfo(Logger logger, String s) {
-        logger.info(s);
+        logger.info("[INFO] " + s);
     }
 
     private static void logWarn(Logger logger, String s) {
-        logger.warn(s);
+        logger.warn("[WARN] " + s);
     }
 
     private static void logError(Logger logger, String s) {
-        logger.error(s);
+        logger.error("[ERROR] " + s);
     }
 }

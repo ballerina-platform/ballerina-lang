@@ -28,7 +28,6 @@ define(['lodash', './ballerina-ast-factory'], function (_, BallerinaASTFactory) 
      */
     BallerinaASTDeserializer.getASTModel = function (data) {
         var astRoot = deserializeNode(data.root);
-        //alert(JSON.stringify(astRoot));
         return astRoot;
     };
 

@@ -1,13 +1,18 @@
 <html lang="en" class=" webkit chrome mac js gr__localhost">
 
+
+
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
+    <!-- Favion -->
+    <link href="images/favicon.png" rel="icon" type="image/png" sizes="16x16" />
+
     <script src="lib/css-browser-selector_0.4.0/css_browser_selector.js"></script>
     <link href="lib/bootstrap_v3.3.6/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
-    <link href="lib/font-wso2_1.1.0/css/font-wso2.min.css" rel="stylesheet" type="text/css"/>
+    <link href="lib/font-wso2-1.2.1/css/font-wso2.min.css" rel="stylesheet" type="text/css"/>
     <link href="lib/theme-wso2_1.0/css/theme-wso2.css" rel="stylesheet" type="text/css"/>
     <link href="lib/jquery-ui_v1.12.1/jquery-ui.css" rel="stylesheet" type="text/css"/>
     <link href="lib/js-tree-v3.3.2/themes/default/style.css" rel="stylesheet" type="text/css"/>
@@ -109,7 +114,7 @@
 <!-- Start: footer -->
 <footer class="footer">
     <div id="footer-container" class="container-fluid">
-        <p>WSO2 Ballerina Editor v0.0.1 | ©
+        <p>WSO2 Ballerina Editor v0.8 | ©
             <script>document.write(new Date().getFullYear());</script>
             <a href="http://wso2.com/" target="_blank"><i class="icon fw fw-wso2"></i> Inc</a>.
         </p>
@@ -155,7 +160,11 @@
                         </div>
                     </div>
                 </div>
-                <div class="package-btn btn-icon"><i class="fw fw-lg fw-package fw-inverse fw-helper fw-helper-circle "></i>
+                <div class="package-btn btn-icon">
+                    <span class="fw-stack fw-lg">
+                        <i class="fw fw-circle fw-stack-2x"></i>
+                        <i class="fw fw-package fw-stack-1x fw-inverse"></i>
+                    </span>
                 </div>
             </div>
             <!-- End: TopRight Controls Container  -->
@@ -510,10 +519,11 @@
                                     },
                                     toolGroup: {
                                         tool: {
+                                            containment_element: '#tabs-container',
                                             cssClass: {
                                                 dragContainer: 'tool-drag-container',
                                                 disabledIconContainer: 'disabled-icon-container',
-                                                disabledIcon: 'fw fw-lg fw-disabled tool-disabled-icon'
+                                                disabledIcon: 'fw fw-lg fw-block tool-disabled-icon'
                                             }
                                         }
                                     }
@@ -552,7 +562,8 @@
                                 design_view_drop: 'design-view-hover',
                                 canvas_container: 'canvas-container',
                                 panel_delete_icon: 'fw fw-delete pull-right right-icon-clickable delete-icon hoverable',
-                                panel_annotation_icon: 'fw fw-annotation pull-right right-icon-clickable hoverable'
+                                panel_annotation_icon: 'fw fw-annotation pull-right right-icon-clickable hoverable',
+                                panel_args_icon: 'fw fw-import pull-right right-icon-clickable hoverable'
                             },
                             notifications: {
                                 container: '#notification-container'

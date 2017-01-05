@@ -216,8 +216,11 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
             }
             this._lastStatementView = lastStatementView;
 
-            this.getBoundingBox().h((this._lastStatementView.getBoundingBox().getBottom() - this.getBoundingBox().getTop()) +
+            if(this.getBoundingBox().getBottom() <
+                (this._lastStatementView.getBoundingBox().getBottom() + _.get(this._viewOptions, 'offset.bottom'))){
+                this.getBoundingBox().h((this._lastStatementView.getBoundingBox().getBottom() - this.getBoundingBox().getTop()) +
                     _.get(this._viewOptions, 'offset.bottom'));
+            }
 
             this.listenTo(this._lastStatementView.getBoundingBox(), 'bottom-edge-moved', function(dy){
                     if(!this.isOnWholeContainerMove){

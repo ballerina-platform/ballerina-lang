@@ -63,6 +63,7 @@ public class ErrorHandlerUtils {
                     + "\n");
         }
         
+        // print the service info
         CallableUnitInfo serviceInfo = context.getServiceInfo();
         if (serviceInfo != null) {
             sb.append("\t at " + serviceInfo.getPackage() + ":" + serviceInfo.getName() + 
@@ -82,7 +83,7 @@ public class ErrorHandlerUtils {
         StringBuilder sb = new StringBuilder();
         Stack<StackFrame> stack = controlStack.getStack();
 
-        for (int i = stack.size() - 1; i >= 0; i--) {
+        for (int i = stack.size() - 1; i > 0; i--) {
             CallableUnitInfo frameInfo = stack.get(i).getNodeInfo();
             sb.append("\t at " + frameInfo.getPackage() + ":" + frameInfo.getName() + getNodeLocation(frameInfo) 
                     + "\n");

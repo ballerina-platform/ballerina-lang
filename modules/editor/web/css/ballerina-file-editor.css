@@ -21,6 +21,7 @@
     float: left;
     height: auto;
     min-height: 1000px;
+    overflow: hidden;
 }
 
 .container-outer-div {
@@ -132,19 +133,27 @@
 
 /**  syntax highlight **/
 .ace_ballerina-keyword-control{
+    color: #CC7832;
+}
+
+.ace_ballerina-numeric{
     color: #6897BB;
 }
 
 .ace_ballerina-keyword-other{
-    color: #FFC66D;
-}
-
-.ace_ballerina-keyword-primitive-type{
     color: #9876AA;
 }
 
+.ace_ballerina-package-reference{
+    color: #ffffff;
+}
+
+.ace_ballerina-keyword-primitive-type{
+    color: #FFC66D;
+}
+
 .ace_ballerina-keyword-non-primitive-type{
-    color: #CC7832;
+    color: #FFC66D;
 }
 
 .ace_ballerina-keyword-definition{
@@ -164,7 +173,7 @@
 }
 
 .ace_ballerina-keyword-language{
-    color: #9876AA;
+    color: #CC7832;
 }
 
 .ace_ballerina-keyword-identifier{
