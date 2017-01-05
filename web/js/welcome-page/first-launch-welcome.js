@@ -258,7 +258,7 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
 
                 //package definition
                 var packageDefinition = BallerinaASTFactory.createPackageDefinition();
-                packageDefinition.setPackageName("samples.echo");
+                packageDefinition.setPackageName("");
                 ballerinaAstRoot1.addChild(packageDefinition);
                 ballerinaAstRoot1.setPackageDefinition(packageDefinition);
 
@@ -276,6 +276,7 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
 
                 var functionDefinition1 = BallerinaASTFactory.createFunctionDefinition();
                 functionDefinition1.setFunctionName("main");
+                functionDefinition1.addArgument("string[]", "args");
                 ballerinaAstRoot1.addChild(functionDefinition1);
 
                 var functionInvocation = BallerinaASTFactory.createFunctionInvocationStatement();
@@ -293,7 +294,7 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
 
                 //package definition
                 var packageDefinition = BallerinaASTFactory.createPackageDefinition();
-                packageDefinition.setPackageName("samples.message.passthrough");
+                packageDefinition.setPackageName("");
                 ballerinaAstRoot1.addChild(packageDefinition);
                 ballerinaAstRoot1.setPackageDefinition(packageDefinition);
 
@@ -302,7 +303,7 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
                 importDeclaration_langMessage.setPackageName("ballerina.lang.message");
                 importDeclaration_langMessage.setParent(ballerinaAstRoot1);
                 var importDeclaration_netHttp = BallerinaASTFactory.createImportDeclaration();
-                importDeclaration_netHttp.setPackageName("ballerina.net.http as http");
+                importDeclaration_netHttp.setPackageName("ballerina.net.http");
                 importDeclaration_netHttp.setParent(ballerinaAstRoot1);
                 ballerinaAstRoot1.addImport(importDeclaration_langMessage);
                 ballerinaAstRoot1.addImport(importDeclaration_netHttp);
@@ -311,14 +312,13 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
 
                 //service definition
                 var serviceDefinition_passthroughService2 = BallerinaASTFactory.createServiceDefinition();
-                serviceDefinition_passthroughService2.setServiceName("PassthroughService");
+                serviceDefinition_passthroughService2.setServiceName("passthroughService");
                 serviceDefinition_passthroughService2.addAnnotation("BasePath", "/passthrough");
                 ballerinaAstRoot1.addChild(serviceDefinition_passthroughService2);
                 // Adding Resources
                 var resource_passthrough2 = BallerinaASTFactory.createResourceDefinition();
                 resource_passthrough2.setResourceName('passthrough');
-                resource_passthrough2.addAnnotation("Method", "POST");
-                resource_passthrough2.addAnnotation("Path", "/stocks");
+                resource_passthrough2.addAnnotation("Method", "GET");
 
                 //Adding resource argument
                 var resourceArgument_m = BallerinaASTFactory.createResourceArgument();
@@ -327,7 +327,6 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
 
                 var resourceArguments = [];
                 resourceArguments.push(resourceArgument_m);
-                resource_passthrough2.addArgument("message", "m");
 
                 var connector_declaration = BallerinaASTFactory.createConnectorDeclaration();
                 connector_declaration.setConnectorName("nyseEP");
@@ -344,10 +343,10 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
                 var actionOpts = {connector:connector_declaration, isUserDropped:false};
                 var getActionStatement1 = BallerinaASTFactory.createActionInvocationExpression(actionOpts);
                 getActionStatement1.setConnector(connector_declaration);
-                getActionStatement1.setAction("post");
+                getActionStatement1.setAction("get");
                 getActionStatement1.setVariableAccessor("response");
                 getActionStatement1.setMessage("m");
-                getActionStatement1.setPath("/NYSEStocks");
+                getActionStatement1.setPath("/nyseStock");
                 resource_passthrough2.addChild(getActionStatement1);
 
                 //Adding reply statement
@@ -359,14 +358,13 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
 
                 //service definition
                 var serviceDefinition_NYSEStockQuote = BallerinaASTFactory.createServiceDefinition();
-                serviceDefinition_NYSEStockQuote.setServiceName("NYSEStockQuote");
-                serviceDefinition_NYSEStockQuote.addAnnotation("BasePath", "/NYSEStocks");
+                serviceDefinition_NYSEStockQuote.setServiceName("nyseStockQuoteService");
+                serviceDefinition_NYSEStockQuote.addAnnotation("BasePath", "/nyseStock");
                 ballerinaAstRoot1.addChild(serviceDefinition_NYSEStockQuote);
                 // Adding Resources
                 var resource_stocks = BallerinaASTFactory.createResourceDefinition();
                 resource_stocks.setResourceName('stocks');
-                resource_stocks.addAnnotation("Method", "POST");
-                resource_stocks.addAnnotation("Path", "/*");
+                resource_stocks.addAnnotation("Method", "GET");
 
                 //Adding resource argument
                 var resourceArgument_m = BallerinaASTFactory.createResourceArgument();
@@ -375,7 +373,6 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
 
                 var resourceArguments = [];
                 resourceArguments.push(resourceArgument_m);
-                resource_passthrough2.addArgument("message", "m");
 
                 var variableResponse = BallerinaASTFactory.createVariableDeclaration();
                 variableResponse.setType('message');
@@ -386,10 +383,6 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
                 variablePayload.setType('json');
                 variablePayload.setIdentifier('payload');
                 resource_stocks.addChild(variablePayload);
-
-                var responseAssignmentStatement = BallerinaASTFactory.createAssignmentStatement();
-                responseAssignmentStatement.setExpression("response = new message");
-                resource_stocks.addChild(responseAssignmentStatement);
 
                 var payloadAssignmentStatement = BallerinaASTFactory.createAssignmentStatement();
                 payloadAssignmentStatement.setExpression('payload = `{"exchange":"nyse", "name":"IBM", "value":"127.50"}`');
