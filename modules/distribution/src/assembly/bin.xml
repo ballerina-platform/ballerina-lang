@@ -77,8 +77,8 @@
             <fileMode>755</fileMode>
         </fileSet>
         <fileSet>
-            <directory>carbon-home/bin</directory>
-            <outputDirectory>bin</outputDirectory>
+            <directory>carbon-home/resources/help</directory>
+            <outputDirectory>resources/help</outputDirectory>
             <includes>
                 <include>**/*.txt</include>
             </includes>
@@ -124,18 +124,6 @@
     </fileSets>
 
     <files>
-        <file>
-            <source>target/wso2carbon-kernel-${carbon.kernel.version}/bin/kernel-version.txt</source>
-            <outputDirectory>bin/</outputDirectory>
-            <filtered>true</filtered>
-            <fileMode>444</fileMode>
-        </file>
-        <file>
-            <source>target/wso2carbon-kernel-${carbon.kernel.version}/bin/README.txt</source>
-            <outputDirectory>bin/</outputDirectory>
-            <filtered>true</filtered>
-            <fileMode>444</fileMode>
-        </file>
         <file>
             <source>carbon-home/conf/log4j2.xml</source>
             <outputDirectory>conf/</outputDirectory>

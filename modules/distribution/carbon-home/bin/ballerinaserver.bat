@@ -108,13 +108,13 @@ goto setupArgs
 rem ----- commandUnknownArg ----------------------------------------------------
 :commandUnknownArg
 echo Not supported option, command or value : %1
-type "%CARBON_HOME%\bin\ballerinaserver-win-help.txt"
+type "%CARBON_HOME%\resources\help\ballerinaserver-win-help.txt"
 goto end
 
 rem ----- commandNoBalFile -------------------------------------------------------
 :commandNoBalFile
 echo Please specify Ballerina file(s) to run. (Eg: ballerinaserver.bat echo.bal)
-type "%CARBON_HOME%\bin\ballerinaserver-win-help.txt"
+type "%CARBON_HOME%\resources\help\ballerinaserver-win-help.txt"
 goto end
 
 rem ----- commandVersion -------------------------------------------------------
@@ -126,7 +126,7 @@ goto end
 rem ----- commandHelp -------------------------------------------------------
 :commandHelp
 shift
-type "%CARBON_HOME%\bin\ballerinaserver-win-help.txt"
+type "%CARBON_HOME%\resources\help\ballerinaserver-win-help.txt"
 goto end
 
 rem ----- commandDebug ---------------------------------------------------------
