@@ -37,8 +37,8 @@
                 <exclude>**/*.ipr</exclude>
                 <exclude>**/*.iwr</exclude>
                 <exclude>**/*.eclipse</exclude>
-                <exclude>bin/carbon.sh</exclude>
-                <exclude>bin/carbon.bat</exclude>
+                <exclude>bin/*.sh</exclude>
+                <exclude>bin/*.bat</exclude>
             </excludes>
         </fileSet>
 
