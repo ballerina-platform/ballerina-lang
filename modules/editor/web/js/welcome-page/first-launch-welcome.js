@@ -204,7 +204,7 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
 
                 //package definition
                 var packageDefinition = BallerinaASTFactory.createPackageDefinition();
-                packageDefinition.setPackageName("samples.echo");
+                packageDefinition.setPackageName("");
                 ballerinaAstRoot1.addChild(packageDefinition);
                 ballerinaAstRoot1.setPackageDefinition(packageDefinition);
 
@@ -220,13 +220,12 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
                 //service definition
                 var serviceDefinition_passthroughService2 = BallerinaASTFactory.createServiceDefinition();
                 serviceDefinition_passthroughService2.setServiceName("EchoService");
-                serviceDefinition_passthroughService2.addAnnotation("BasePath", "/");
+                serviceDefinition_passthroughService2.addAnnotation("BasePath", "/echo");
                 ballerinaAstRoot1.addChild(serviceDefinition_passthroughService2);
                 // Adding Resources
                 var resource_passthrough2 = BallerinaASTFactory.createResourceDefinition();
-                resource_passthrough2.setResourceName('echoResource');
+                resource_passthrough2.setResourceName('echo');
                 resource_passthrough2.addAnnotation("Method", "POST");
-                resource_passthrough2.addAnnotation("Path", "/*");
 
                 //Adding resource argument
                 var resourceArgument_m = BallerinaASTFactory.createResourceArgument();
