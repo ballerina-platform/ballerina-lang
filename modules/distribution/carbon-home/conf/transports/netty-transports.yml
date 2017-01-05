@@ -93,7 +93,37 @@ listenerConfigurations:
 
 senderConfigurations:
  -
-  id: "netty-gw"
+  id: "http-sender"
+  parameters:
+    -
+     name: "connection.pool.count"
+     value: 0
+    -
+     name: "client.bootstrap.nodelay"
+     value: true
+    -
+     name: "client.bootstrap.keepalive"
+     value: true
+    -
+     name: "client.bootstrap.sendbuffersize"
+     value: 1048576
+    -
+     name: "client.bootstrap.recievebuffersize"
+     value: 1048576
+    -
+     name: "client.bootstrap.connect.timeout"
+     value: 15000
+    -
+     name: "client.bootstrap.socket.reuse"
+     value: false
+    -
+     name: "client.bootstrap.socket.timeout"
+     value: 15
+ -
+  id: "https-sender"
+  scheme: "https"
+  trustStoreFile: "resources/security/client-truststore.jks"
+  trustStorePass: "wso2carbon"
   parameters:
     -
      name: "connection.pool.count"

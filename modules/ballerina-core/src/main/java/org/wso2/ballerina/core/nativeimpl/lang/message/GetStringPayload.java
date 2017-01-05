@@ -18,7 +18,6 @@
 
 package org.wso2.ballerina.core.nativeimpl.lang.message;
 
-import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.exception.BallerinaException;
@@ -31,6 +30,7 @@ import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
+import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 
 /**
  * Native function to get payload as String..
@@ -40,13 +40,8 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
         packageName = "ballerina.lang.message",
         functionName = "getStringPayload",
         args = {@Argument(name = "message", type = TypeEnum.MESSAGE)},
-        returnType = {TypeEnum.STRING},
+        returnType = {@ReturnType(type = TypeEnum.STRING)},
         isPublic = true
-)
-@Component(
-        name = "func.lang.message_getStringPayload",
-        immediate = true,
-        service = AbstractNativeFunction.class
 )
 public class GetStringPayload extends AbstractNativeFunction {
 

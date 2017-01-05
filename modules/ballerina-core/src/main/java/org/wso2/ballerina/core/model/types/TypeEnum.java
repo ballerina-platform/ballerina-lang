@@ -34,7 +34,8 @@ public enum TypeEnum {
     JSON("json"),
     MAP("map"),
     ARRAY("array"),
-    CONNECTOR("connector");
+    CONNECTOR("connector"),
+    EMPTY("");
 
     private String name;
 

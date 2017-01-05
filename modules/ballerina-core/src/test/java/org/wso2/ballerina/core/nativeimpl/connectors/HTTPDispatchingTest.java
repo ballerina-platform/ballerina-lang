@@ -17,7 +17,7 @@
 */
 package org.wso2.ballerina.core.nativeimpl.connectors;
 
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.nativeimpl.connectors.http.server.HTTPResourceDispatcher;
 import org.wso2.ballerina.core.nativeimpl.connectors.http.server.HTTPServiceDispatcher;
@@ -31,7 +31,7 @@ import org.wso2.ballerina.core.runtime.registry.DispatcherRegistry;
  */
 public class HTTPDispatchingTest {
 
-    @BeforeTest
+    @BeforeClass
     public void setup() {
         // Resister HTTP Dispatchers
         DispatcherRegistry.getInstance().registerServiceDispatcher(new HTTPServiceDispatcher());

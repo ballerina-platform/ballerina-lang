@@ -18,11 +18,11 @@ compilationUnit
     ;
 
 packageDeclaration
-    :   'package' packageName ('version' '1.0')? ';'
+    :   'package' packageName ';'
     ;
 
 importDeclaration
-    :   'import' packageName ('version' '1.0')? ('as' Identifier)? ';'
+    :   'import' packageName ('as' Identifier)? ';'
     ;
 
 serviceDefinition
@@ -84,7 +84,8 @@ typeConvertorBody
     ;
 
 constantDefinition
-    :   'const' typeName Identifier '=' literalValue;
+    :   'const' typeName Identifier '=' literalValue ';'
+    ;
 
 variableDeclaration
     :   typeName Identifier ';'
@@ -404,8 +405,12 @@ expression
     |   expression ('==') expression                                        # binaryEqualExpression
     |   expression ('!=') expression                                        # binaryNotEqualExpression
     |   '[' expressionList ']'                                              # arrayInitializerExpression
-    |   '{' mapInitKeyValue (',' mapInitKeyValue)* '}'                      # mapInitializerExpression
+    |   '{' mapInitKeyValueList '}'                                         # mapInitializerExpression
     |   'new' (packageName ':' )? Identifier ('(' expressionList? ')')?     # typeInitializeExpression
+    ;
+
+mapInitKeyValueList
+    :   mapInitKeyValue (',' mapInitKeyValue)*
     ;
 
 mapInitKeyValue
@@ -443,7 +448,6 @@ WHILE	        :	'while';
 WORKER	        :	'worker';
 BACKTICK        :   '`';
 VERSION         :   'version';
-ONEZERO         :   '1.0';
 PUBLIC          :   'public';
 ANY             :   'any';
 ALL             :   'all';

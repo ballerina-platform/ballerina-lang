@@ -16,6 +16,7 @@
     <link href="css/welcome-screen.css" rel="stylesheet" type="text/css"/>
     <link href="css/tab-styles.css" rel="stylesheet" type="text/css"/>
     <link href="css/notification.css" rel="stylesheet" type="text/css"/>
+    <link href="css/fileDialog.css" rel="stylesheet" type="text/css"/>
     <link href="lib/nanoscroller_0.8.7/nanoscroller.css" rel="stylesheet" type="text/css"/>
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
@@ -30,7 +31,7 @@
     <link rel="stylesheet" type="text/css" href="css/tool-palette.css"/>
     <link rel="stylesheet" type="text/css" href="css/workspace-explorer.css"/>
     <link rel="stylesheet" type="text/css" href="css/diagram/preview-pane.css"/>
-    <title>Ballerina Tooling</title>
+    <title>Ballerina Editor</title>
 </head>
 
 <body>
@@ -42,7 +43,7 @@
         <div class="pull-left brand float-remove-xs text-center-xs">
             <a href="#">
                 <img src="lib/theme-wso2_1.0/images/logo-inverse.svg" alt="WSO2" title="WSO2" class="logo">
-                <h1>WSO2 Ballerina Tooling</h1>
+                <h1>Ballerina Editor</h1>
             </a>
         </div>
         <div id="menu-bar-container" class="menu-bar">
@@ -108,7 +109,7 @@
 <!-- Start: footer -->
 <footer class="footer">
     <div id="footer-container" class="container-fluid">
-        <p>WSO2 Ballerina Tooling v0.0.1 | ©
+        <p>WSO2 Ballerina Editor v0.0.1 | ©
             <script>document.write(new Date().getFullYear());</script>
             <a href="http://wso2.com/" target="_blank"><i class="icon fw fw-wso2"></i> Inc</a>.
         </p>
@@ -145,7 +146,6 @@
                             <div class="package-name-wrapper">
                                 <span>Package :</span>
                                 <input type="text">
-                                <i class="fw fw-check"></i>
                             </div>
                             <!--Div for imports-->
                             <div class="imports-wrapper">
@@ -155,7 +155,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="package-btn btn-icon"><i class="fw fw-lg fw-info fw-inverse fw-helper fw-helper-circle "></i>
+                <div class="package-btn btn-icon"><i class="fw fw-lg fw-package fw-inverse fw-helper fw-helper-circle "></i>
                 </div>
             </div>
             <!-- End: TopRight Controls Container  -->
@@ -170,7 +170,9 @@
         <div class="source-view-container" id="source-container-id">
             <!-- Start: BottomRight Controls Container -->
             <div class="bottom-right-controls-container">
-                <div class="view-design-btn btn-icon"><i class="fw fw-lg fw-design-view fw-inverse fw-helper fw-helper-circle"></i></div>
+                <div class="view-design-btn btn-icon">
+                    <i class="fw fw-lg fw-design-view fw-helper"></i>
+                </div>
             </div>
             <!-- End: BottomRight Controls Container  -->
         </div>
@@ -354,7 +356,7 @@
             js_tree: "lib/js-tree-v3.3.2/jstree",
             nano_scroller: "lib/nanoscroller_0.8.7/jquery.nanoscroller.min",
             theme_wso2: "lib/theme-wso2_1.0/js/theme-wso2",
-            ace: "lib/ace_v1.2.5",
+            ace: "lib/ace_v1.2.6",
             beautify: "lib/beautify/beautify",
             ///////////////////////
             // custom modules ////
@@ -391,8 +393,8 @@
         },
         packages: [
             {
-                name: 'welcome',
-                location: 'js/welcome-screen',
+                name: 'welcome-page',
+                location: 'js/welcome-page',
                 main: 'module'
             },
             {
@@ -523,7 +525,11 @@
                             },
                             source_view: {
                                 // relative selector within container for a tab
-                                container: '.source-view-container'
+                                container: '.source-view-container',
+                                theme: 'ace/theme/tomorrow_night',
+                                font_size: '12pt',
+                                scroll_margin: '20',
+                                mode: 'ace/mode/ballerina'
                             },
                             controls: {
                                 view_source_btn: '.view-source-btn',
@@ -536,16 +542,17 @@
                                 outer_div: 'panel panel-default container-outer-div',
                                 panel_title: 'panel-title',
                                 panel_icon: 'panel-icon',
-                                service_icon: 'fw fw-rest-service fw-inverse',
+                                service_icon: 'fw fw-settings fw-inverse',
                                 connector_icon:'fw fw-dgm-connector fw-inverse',
                                 function_icon:'fw fw-function fw-inverse',
                                 title_link:'collapsed',
-                                panel_right_icon:'fw fw-down pull-right right-icon-clickable collapser',
+                                panel_right_icon:'fw fw-down pull-right right-icon-clickable collapser hoverable',
                                 body_div:'panel-collapse collapse',
                                 canvas: 'panel-body',
                                 design_view_drop: 'design-view-hover',
                                 canvas_container: 'canvas-container',
-                                panel_delete_icon:'fw fw-delete pull-right right-icon-clickable'
+                                panel_delete_icon: 'fw fw-delete pull-right right-icon-clickable delete-icon hoverable',
+                                panel_annotation_icon: 'fw fw-annotation pull-right right-icon-clickable hoverable'
                             },
                             notifications: {
                                 container: '#notification-container'
@@ -558,7 +565,7 @@
             workspace_explorer: {
                 container: "#workspace-explorer",
                 cssClass: {
-                    activateBtn: 'fw fw-file-browse workspace-explorer-activate-btn',
+                    activateBtn: 'fw fw-file-browse fw-lg workspace-explorer-activate-btn',
                     container: 'workspace-explorer-container',
                     separator: 'workspace-explorer-separator'
                 }

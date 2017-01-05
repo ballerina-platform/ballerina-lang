@@ -19,6 +19,7 @@ package org.wso2.ballerina.core.nativeimpl.connectors.http.client;
 import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Connector;
 import org.wso2.ballerina.core.model.types.TypeEnum;
@@ -58,24 +59,28 @@ public class Delete extends AbstractHTTPAction {
     public BValue execute(Context context) {
 
         logger.debug("Executing Native Action : Delete");
+        try {
+            // Extract Argument values
+            BConnector bConnector = (BConnector) getArgument(context, 0);
+            String path = getArgument(context, 1).stringValue();
+            BMessage bMessage = (BMessage) getArgument(context, 2);
 
-        // Extract Argument values
-        BConnector bConnector = (BConnector) getArgument(context, 0);
-        String path = getArgument(context, 1).stringValue();
-        BMessage bMessage = (BMessage) getArgument(context, 2);
+            Connector connector = bConnector.value();
+            if (!(connector instanceof HTTPConnector)) {
+                logger.error("Need to use a HTTPConnector as the first argument");
+                return null;
+            }
+            // Prepare the message
+            CarbonMessage cMsg = bMessage.value();
+            prepareRequest(connector, path, cMsg);
+            cMsg.setProperty(Constants.HTTP_METHOD,
+                             Constants.HTTP_METHOD_DELETE);
 
-        Connector connector = bConnector.value();
-        if (!(connector instanceof HTTPConnector)) {
-            logger.error("Need to use a HTTPConnector as the first argument");
-            return null;
+            // Execute the operation
+            return executeAction(context, cMsg);
+        } catch (Throwable t) {
+            throw new BallerinaException("Failed to invoke 'Delete' action in " + HTTPConnector.CONNECTOR_NAME 
+                    + ". " + t.getMessage(), context);
         }
-        // Prepare the message
-        CarbonMessage cMsg = bMessage.value();
-        prepareRequest(connector, path, cMsg);
-        cMsg.setProperty(Constants.HTTP_METHOD,
-                         Constants.HTTP_METHOD_DELETE);
-
-        // Execute the operation
-        return executeAction(context, cMsg);
     }
 }

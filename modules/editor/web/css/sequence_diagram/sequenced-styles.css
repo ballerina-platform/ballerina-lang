@@ -53,13 +53,25 @@
     fill:#000000;
 }
 
-.headingCollapseIcon {
-    fill: url(#toggleIcon);
+.headingCollapsedIcon {
+    cursor: pointer;
+    fill: url(#collapsedIcon);
+}
+
+.headingExpandIcon {
+    cursor: pointer;
+    fill: url(#expandIcon);
 }
 
 .headingDeleteIcon {
-     fill: url(#deleteIcon);
+    cursor: pointer;
+    opacity: 0.4;
+    fill: url(#deleteIcon);
  }
+
+.headingDeleteIcon:hover {
+    opacity: 1;
+}
 
 .httpMethodRect {
     fill: #f3f3f3;
@@ -266,12 +278,6 @@ text-anchor: start;
 
 .variable-icon-background-circle {
     opacity: 0.4;
-    cursor: pointer;
-}
-
-.variable-icon-background-circle:hover {
-    opacity: 1;
-    cursor: pointer;
 }
 
 .annotation-icon-background-circle:hover {
@@ -285,7 +291,6 @@ text-anchor: start;
 }
 
 .variable-icon-rect {
-    cursor: pointer;
     fill: url(#variableIcon);
 }
 
@@ -306,12 +311,12 @@ text-anchor: start;
 }
 
 .client-life-line polygon{
-    stroke: #000000;
+    stroke: #333;
     fill: #FFFFFF;
 }
 
 .client-life-line line{
-    stroke: #000000;
+    stroke: #333;
 }
 
 .default-worker-life-line{
@@ -350,15 +355,18 @@ text-anchor: start;
     stroke: black;
 }
 
-
 .connector-life-line line{
     stroke: #000000;
 }
 
-
 .start-action{
     stroke: #000000;
     fill: #FFFFFF;
+}
+
+.start-action text{
+    fill: black;
+    stroke-opacity: 0;
 }
 
 .statement-container .main-drop-zone{
@@ -379,4 +387,43 @@ text-anchor: start;
 
 .statement-container .inner-drop-zone-hover{
     fill-opacity: 0.4;
+}
+
+.operations-separator {
+    stroke: #e8e8e8;
+}
+
+.heading-icon-wrapper {
+    cursor: pointer;
+    fill: #FFF;
+}
+
+.headingAnnotationIcon {
+    cursor: pointer;
+    opacity: 1;
+    fill: url(#annotationIcon);
+}
+
+.headingAnnotationBlackIcon {
+    cursor: pointer;
+    opacity: 0.4;
+    fill: url(#annotationBlackIcon);
+}
+
+.headingAnnotationBlackIcon:hover {
+    opacity: 1;
+}
+
+.headingAnnotationIcon:hover {
+    opacity: 1;
+}
+
+.deleteRedIcon {
+    cursor: pointer;
+    fill: url(#deleteRedIcon);
+}
+
+.heading-icon-annotation-wrapper-clicked {
+    stroke: #000;
+    fill: #000;
 }

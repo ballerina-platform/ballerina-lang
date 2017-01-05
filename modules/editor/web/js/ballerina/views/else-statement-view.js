@@ -56,14 +56,20 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
             this._diagramRenderingContext = diagramRenderingContext;
             var elseGroup = D3Utils.group(this._container);
             elseGroup.attr("id","_" +this._model.id);
+            var self = this;
 
+            var title_rect = D3Utils.rect(this.getBoundingBox().x(), this.getBoundingBox().y(), this.getBoundingBox().w(), 25, 0, 0, elseGroup).classed('if-else-title-rect', true);
             var outer_rect = D3Utils.rect(this.getBoundingBox().x(), this.getBoundingBox().y(), this.getBoundingBox().w(),
                 this.getBoundingBox().h(), 0, 0, elseGroup).classed('background-empty-rect', true);
-            var title_rect = D3Utils.rect(this.getBoundingBox().x(), this.getBoundingBox().y(), 40, 20, 0, 0, elseGroup).classed('statement-rect', true);
-            var title_text = D3Utils.textElement(this.getBoundingBox().x() + 20, this.getBoundingBox().y() + 10, 'Else', elseGroup).classed('statement-text', true);
+            var title_text = D3Utils.textElement(this.getBoundingBox().x() + 20, this.getBoundingBox().y() + 12, 'Else', elseGroup).classed('statement-text', true);
+            var points = "" + this.getBoundingBox().x() + "," + (parseInt(this.getBoundingBox().y()) + 25) + " " +
+                (parseInt(this.getBoundingBox().x()) + 35) + "," + (parseInt(this.getBoundingBox().y()) + 25) + " " +
+                (parseInt(this.getBoundingBox().x()) + 45) + "," + this.getBoundingBox().y();
+            var title_wrapper_polyline = D3Utils.polyline(points, elseGroup).classed('if-else-title-polyline', true);
             elseGroup.outerRect = outer_rect;
             elseGroup.titleRect = title_rect;
             elseGroup.titleText = title_text;
+            elseGroup.title_wrapper_polyline = title_wrapper_polyline;
             this.setStatementGroup(elseGroup);
 
             this.getBoundingBox().on('moved', function(offset){
@@ -73,6 +79,10 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
                 title_rect.attr("x", parseFloat(title_rect.attr('x')) + offset.dx);
                 title_text.attr("y", parseFloat(title_text.attr('y')) + offset.dy);
                 title_text.attr("x", parseFloat(title_text.attr('x')) + offset.dx);
+                var newPolylinePoints = "" + self.getBoundingBox().x() + "," + (parseInt(self.getBoundingBox().y()) + 25) + " " +
+                    (parseInt(self.getBoundingBox().x()) + 35) + "," + (parseInt(self.getBoundingBox().y()) + 25) + " " +
+                    (parseInt(self.getBoundingBox().x()) + 45) + "," + self.getBoundingBox().y();
+                title_wrapper_polyline.attr("points", newPolylinePoints);
             });
 
             this.getBoundingBox().on('width-changed', function(dw){
@@ -80,7 +90,10 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
                 outer_rect.attr("width", parseFloat(outer_rect.attr('width')) + dw);
                 title_rect.attr("x", parseFloat(title_rect.attr('x')) - dw/2);
                 title_text.attr("x", parseFloat(title_text.attr('x')) - dw/2);
-
+                var newPolylinePoints = "" + self.getBoundingBox().x() + "," + (parseInt(self.getBoundingBox().y()) + 25) + " " +
+                    (parseInt(self.getBoundingBox().x()) + 35) + "," + (parseInt(self.getBoundingBox().y()) + 25) + " " +
+                    (parseInt(self.getBoundingBox().x()) + 45) + "," + self.getBoundingBox().y();
+                title_wrapper_polyline.attr("points", newPolylinePoints);
             });
 
             this.getBoundingBox().on('height-changed', function(dh){
@@ -91,6 +104,10 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
             this._statementContainerGroup = D3Utils.group(elseGroup);
             this.renderStatementContainer();
             this._model.accept(this);
+            //Removing all the registered 'child-added' event listeners for this model.
+            //This is needed because we are not unregistering registered event while the diagram element deletion.
+            //Due to that, sometimes we are having two or more view elements listening to the 'child-added' event of same model.
+            this._model.off('child-added');
             this._model.on('child-added', function(child){
                 this.visit(child);
             }, this);
@@ -114,8 +131,8 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
             _.set(statementContainerOpts, 'topCenter', this.getTopCenter().clone().move(0, _.get(this._viewOptions, 'contentOffset.top')));
             var height = _.get(this._viewOptions, 'height') -
                 _.get(this._viewOptions, 'contentOffset.top') - _.get(this._viewOptions, 'contentOffset.bottom');
-            _.set(statementContainerOpts, 'bottomCenter', this.getTopCenter().clone().move(0, height));
-            _.set(statementContainerOpts, 'width', 120);
+            _.set(statementContainerOpts, 'bottomCenter', this.getTopCenter().clone().move(0,  _.get(this._viewOptions, 'height')));
+            _.set(statementContainerOpts, 'width', _.get(this._viewOptions, 'width'));
             _.set(statementContainerOpts, 'offset', {top: 40, bottom: 40});
             _.set(statementContainerOpts, 'parent', this);
             _.set(statementContainerOpts, 'container', this._statementContainerGroup.node());

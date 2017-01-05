@@ -28,7 +28,8 @@ define(([],function (){
             },
             {
                 id: "FileMenu-OpenFile",
-                label: "Open"
+                label: "Open",
+                action: "open-file-open-dialog"
             },
             {
                 id: "FileMenu-SaveFile",

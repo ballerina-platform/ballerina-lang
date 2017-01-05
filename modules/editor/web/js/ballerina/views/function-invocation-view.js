@@ -106,6 +106,7 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/function-invoca
                 }
             }
             text += ')';
+            text = ((text.length) > 11 ? (text.substring(0,11) + '...') : text);
             // TODO : Please revisit these calculations.
             var funInvokeText = D3Utils.textElement(x + width / 2, y + height / 2, text, funInvokeGroup).classed('statement-text', true);
 

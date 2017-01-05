@@ -18,7 +18,6 @@
 
 package org.wso2.ballerina.core.nativeimpl.lang.message;
 
-import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.Context;
@@ -39,11 +38,6 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
         args = {@Argument(name = "message", type = TypeEnum.MESSAGE),
                 @Argument(name = "key", type = TypeEnum.STRING)},
         isPublic = true
-)
-@Component(
-        name = "func.lang.message_removeHeader",
-        immediate = true,
-        service = AbstractNativeFunction.class
 )
 public class RemoveHeader extends AbstractNativeFunction {
 

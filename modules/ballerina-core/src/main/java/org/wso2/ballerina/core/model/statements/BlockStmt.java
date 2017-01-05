@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerina.core.model.statements;
 
+import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.NodeVisitor;
 
 import java.util.ArrayList;
@@ -42,6 +43,11 @@ public class BlockStmt implements Statement {
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public void execute(NodeExecutor executor) {
+        executor.visit(this);
     }
 
     /**

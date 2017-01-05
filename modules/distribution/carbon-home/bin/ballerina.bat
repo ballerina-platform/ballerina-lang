@@ -1,7 +1,7 @@
 @echo off
 
 REM ---------------------------------------------------------------------------
-REM   Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+REM   Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 REM
 REM   Licensed under the Apache License, Version 2.0 (the "License");
 REM   you may not use this file except in compliance with the License.
@@ -16,9 +16,9 @@ REM   See the License for the specific language governing permissions and
 REM   limitations under the License.
 
 rem ---------------------------------------------------------------------------
-rem Main Script for WSO2 Carbon
+rem Main Script for WSO2 Ballerina
 rem
-rem Environment Variable Prequisites
+rem Environment Variable Prerequisites
 rem
 rem   CARBON_HOME   Home of CARBON installation. If not set I will  try
 rem                   to figure it out.
@@ -30,6 +30,8 @@ rem                   is executed.
 rem ---------------------------------------------------------------------------
 
 rem ----- if JAVA_HOME is not set we're not happy ------------------------------
+
+set BASE_DIR=%CD%
 :checkJava
 
 if "%JAVA_HOME%" == "" goto noJavaHome
@@ -37,7 +39,7 @@ if not exist "%JAVA_HOME%\bin\java.exe" goto noJavaHome
 goto checkServer
 
 :noJavaHome
-echo "You must set the JAVA_HOME variable before running CARBON."
+echo "You must set the JAVA_HOME variable before running Ballerina."
 goto end
 
 rem ----- Only set CARBON_HOME if not already set ----------------------------
@@ -74,34 +76,76 @@ rem ----- Process the input command -------------------------------------------
 
 rem Slurp the command line arguments. This loop allows for an unlimited number
 rem of arguments (up to the command line limit, anyway).
-
+set BAL_FILE=
+set BARGS=
+set BPath=
+set BAL_EXECUTION_SUB_CMD=
 
 :setupArgs
+set tempValue=%~f1
 if ""%1""=="""" goto doneStart
 
-if ""%1""==""-run""     goto commandLifecycle
-if ""%1""==""--run""    goto commandLifecycle
-if ""%1""==""run""      goto commandLifecycle
+if %tempValue:~-4% == .bal if ""%BAL_FILE%""=="""" goto assignBalFile
 
-if ""%1""==""-restart""  goto commandLifecycle
-if ""%1""==""--restart"" goto commandLifecycle
-if ""%1""==""restart""   goto commandLifecycle
+if "%BAL_EXECUTION_SUB_CMD%"=="bargs" goto assignBArgs
 
 if ""%1""==""debug""    goto commandDebug
 if ""%1""==""-debug""   goto commandDebug
 if ""%1""==""--debug""  goto commandDebug
 
 if ""%1""==""version""   goto commandVersion
-if ""%1""==""-version""  goto commandVersion
-if ""%1""==""--version"" goto commandVersion
+
+if ""%1""==""help""   goto commandHelp
+
+goto commandUnknownArg
+
+rem ----- mark current sub command is bargs-------------------------------------
+:setExecutionSubCommandBArgs
 
 shift
 goto setupArgs
 
+
+rem ----- Assign Bal file to run------------------------------------------------
+:assignBalFile
+rem Get Bal file path from base path.
+set BAL_EXECUTION_SUB_CMD=bargs
+pushd .
+cd %BASE_DIR%
+set BAL_FILE=%~f1
+popd
+shift
+goto setupArgs
+
+rem ----- Assign Ballerina arguments for main function--------------------------
+:assignBArgs
+rem TODO: Remove leading semi colon
+set BARGS=%BARGS%;%1
+shift
+goto setupArgs
+
+rem ----- commandUnknownArg ----------------------------------------------------
+:commandUnknownArg
+echo Not supported option or command or value : %1
+type "%CARBON_HOME%\bin\ballerina-win-help.txt"
+goto end
+
+rem ----- commandNoBalFile -------------------------------------------------------
+:commandNoBalFile
+echo Please specify Ballerina file to run. (Eg: ballerina.bat main.bal)
+type "%CARBON_HOME%\bin\ballerina-win-help.txt"
+goto end
+
 rem ----- commandVersion -------------------------------------------------------
 :commandVersion
 shift
-type "%CARBON_HOME%\bin\kernel-version.txt"
+type "%CARBON_HOME%\bin\version.txt"
+goto end
+
+rem ----- commandHelp -------------------------------------------------------
+:commandHelp
+shift
+type "%CARBON_HOME%\bin\ballerina-win-help.txt"
 goto end
 
 rem ----- commandDebug ---------------------------------------------------------
@@ -118,17 +162,11 @@ goto findJdk
 echo Please specify the debug port after the --debug option
 goto end
 
-rem ----- commandLifecycle -----------------------------------------------------
-:commandLifecycle
-shift
-set BAL_FILE_NAME=%1
-set JAVA_OPTS=-Dbal-file=%BAL_FILE_NAME%
-echo Running the Ballerina file %BAL_FILE_NAME%
-goto findJdk
-
 :doneStart
+if ""%BAL_FILE%""==""""  goto commandNoBalFile
 if "%OS%"=="Windows_NT" @setlocal
 if "%OS%"=="WINNT" @setlocal
+goto findJdk
 
 rem ---------- Handle the SSL Issue with proper JDK version --------------------
 rem find the version of the jdk
@@ -142,8 +180,8 @@ IF ERRORLEVEL 1 goto unknownJdk
 goto jdk16
 
 :unknownJdk
-echo Starting WSO2 Carbon (in unsupported JDK)
-echo [ERROR] CARBON is supported only on JDK 1.8
+echo Starting WSO2 Ballerina (in unsupported JDK)
+echo [ERROR] WSO2 Ballerina is supported only on JDK 1.8
 goto jdk16
 
 :jdk16
@@ -160,11 +198,10 @@ set CARBON_CLASSPATH=.\bin\bootstrap;%CARBON_CLASSPATH%
 
 set JAVA_ENDORSED=".\bin\bootstrap\endorsed";"%JAVA_HOME%\jre\lib\endorsed";"%JAVA_HOME%\lib\endorsed"
 
-set CMD_LINE_ARGS=-Xbootclasspath/a:%CARBON_XBOOTCLASSPATH% -Xms256m -Xmx1024m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath="%CARBON_HOME%\logs\heap-dump.hprof"  -Dcom.sun.management.jmxremote -classpath %CARBON_CLASSPATH% %JAVA_OPTS% -Djava.endorsed.dirs=%JAVA_ENDORSED%  -Dcarbon.home="%CARBON_HOME%"  -Djava.command="%JAVA_HOME%\bin\java" -Djava.opts="%JAVA_OPTS%" -Djava.io.tmpdir="%CARBON_HOME%\tmp" -Dcarbon.classpath=%CARBON_CLASSPATH% -Dfile.encoding=UTF8
+set CMD_LINE_ARGS=-Xbootclasspath/a:%CARBON_XBOOTCLASSPATH% -Xms256m -Xmx1024m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath="%CARBON_HOME%\logs\heap-dump.hprof"  -Dcom.sun.management.jmxremote -classpath %CARBON_CLASSPATH% %JAVA_OPTS% -Djava.endorsed.dirs=%JAVA_ENDORSED%  -Dcarbon.home="%CARBON_HOME%"  -Djava.command="%JAVA_HOME%\bin\java" -Djava.opts="%JAVA_OPTS%" -Djava.io.tmpdir="%CARBON_HOME%\tmp" -Dcarbon.classpath=%CARBON_CLASSPATH% -Dfile.encoding=UTF8 -Drun-mode=run -Drun-file=%BAL_FILE% -Dbargs=%BARGS% -Dbpath=%BPATH%
+
 
 :runJava
-echo JAVA_HOME environment variable is set to %JAVA_HOME%
-REM echo CARBON_HOME environment variable is set to %CARBON_HOME%
 "%JAVA_HOME%\bin\java" %CMD_LINE_ARGS% org.wso2.carbon.launcher.Main %CMD%
 if "%ERRORLEVEL%"=="121" goto runJava
 :end

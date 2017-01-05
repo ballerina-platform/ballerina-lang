@@ -26,12 +26,11 @@ define(['lodash', './node'], function (_, ASTNode) {
      * @param configEnd
      * @constructor
      */
-    var CallableDefinition = function (connectionDeclarations, variableDeclarations, workerDeclarations,
-                                       statements, type) {
-        this.connectionDeclarations = connectionDeclarations || [];
-        this.variableDeclarations = variableDeclarations || [];
-        this.workerDeclarations = workerDeclarations || [];
-        this.statements = statements || [];
+    var CallableDefinition = function (type) {
+        this.connectionDeclarations = [];
+        this.variableDeclarations = [];
+        this.workerDeclarations = [];
+        this.statements = [];
 
         ASTNode.call(this, type);
     };

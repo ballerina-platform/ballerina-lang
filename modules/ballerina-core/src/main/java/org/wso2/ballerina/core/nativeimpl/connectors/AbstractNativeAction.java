@@ -49,10 +49,8 @@ public abstract class AbstractNativeAction implements Action, NativeConstruct {
     private SymbolName symbolName;
     private List<Annotation> annotations;
     private List<Parameter> parameters;
-
     private List<BType> returnTypes;
     private List<Const> constants;
-
     private int stackFrameSize;
 
     public AbstractNativeAction() {
@@ -120,6 +118,11 @@ public abstract class AbstractNativeAction implements Action, NativeConstruct {
     }
 
     @Override
+    public void setSymbolName(SymbolName symbolName) {
+        this.symbolName = symbolName;
+    }
+
+    @Override
     public Annotation[] getAnnotations() {
         return annotations.toArray(new Annotation[annotations.size()]);
     }
@@ -155,7 +158,7 @@ public abstract class AbstractNativeAction implements Action, NativeConstruct {
      */
     public BValue getArgument(Context context, int index) {
         if (index > -1 && index < parameters.size()) {
-            return context.getControlStack().getCurrentFrame().valuesNew[index];
+            return context.getControlStack().getCurrentFrame().values[index];
         }
         throw new ArgumentOutOfRangeException(index);
     }

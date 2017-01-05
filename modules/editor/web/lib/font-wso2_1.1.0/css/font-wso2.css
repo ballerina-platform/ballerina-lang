@@ -17,13 +17,13 @@
 
 @font-face {
 	font-family:"font-wso2";
-	src:local("font-wso2"), url("../fonts/font-wso2.eot?99479d7fcbd2b54481a59047c7592181");
+	src:local("font-wso2"), url("../fonts/font-wso2.eot?a41ab68b47e1ddc7744bb731ae642123");
 	src:local("font-wso2"),
         url("../fonts/font-wso2.eot?#iefix") format("embedded-opentype"),
-		url("../fonts/font-wso2.woff2?99479d7fcbd2b54481a59047c7592181") format("woff2"),
-		url("../fonts/font-wso2.woff?99479d7fcbd2b54481a59047c7592181") format("woff"),
-		url("../fonts/font-wso2.ttf?99479d7fcbd2b54481a59047c7592181") format("truetype"),
-		url("../fonts/font-wso2.svg?99479d7fcbd2b54481a59047c7592181#font-wso2") format("svg");
+		url("../fonts/font-wso2.woff2?a41ab68b47e1ddc7744bb731ae642123") format("woff2"),
+		url("../fonts/font-wso2.woff?a41ab68b47e1ddc7744bb731ae642123") format("woff"),
+		url("../fonts/font-wso2.ttf?a41ab68b47e1ddc7744bb731ae642123") format("truetype"),
+		url("../fonts/font-wso2.svg?a41ab68b47e1ddc7744bb731ae642123#font-wso2") format("svg");
 	font-weight:normal;
 	font-style:normal;
 }
@@ -288,6 +288,10 @@
  * font icons
  * ======================================================================== */
 
+.fw-action-invoke:before {
+    content:"\e6fe";
+}
+
 .fw-activate:before {
     content:"\e6cf";
 }
@@ -320,10 +324,6 @@
     content:"\e6e6";
 }
 
-.fw-variable:after {
-    content:"\e6e6";
-}
-
 .fw-api:before {
     content:"\e601";
 }
@@ -342,6 +342,10 @@
 
 .fw-arduino:before {
     content:"\e6ab";
+}
+
+.fw-assign:before {
+    content:"\e6ff";
 }
 
 .fw-bar-chart:before {
@@ -442,6 +446,14 @@
 
 .fw-configarations:before {
     content:"\e609";
+}
+
+.fw-connector:before {
+    content:"\e700";
+}
+
+.fw-constant:before {
+    content:"\e701";
 }
 
 .fw-contact:before {
@@ -852,6 +864,10 @@
     content:"\e64e";
 }
 
+.fw-logical:before {
+    content:"\e702";
+}
+
 .fw-mail:before {
     content:"\e64f";
 }
@@ -902,6 +918,10 @@
 
 .fw-own:before {
     content:"\e6c8";
+}
+
+.fw-package:before {
+    content:"\e6fd";
 }
 
 .fw-pages:before {
@@ -1150,6 +1170,10 @@
 
 .fw-tiles:before {
     content:"\e681";
+}
+
+.fw-try-catch:before {
+    content:"\e703";
 }
 
 .fw-twitter:before {

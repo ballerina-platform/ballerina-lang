@@ -18,13 +18,39 @@
 define(['lodash', './node'], function (_, ASTNode) {
 
     var ServiceDefinition = function (args) {
-        this._serviceName = _.get(args, 'serviceName');
-        this._basePath = _.get(args, 'basePath', "/");
-        this._source = _.get(args, 'source', {});
-        this._source.interface = _.get(args, 'source.interface', "default_http_listener");
+        this._serviceName = _.get(args, 'serviceName', 'newService');
+        this._annotations = _.get(args, 'annotations', []);
         this._resourceDefinitions = _.get(args, 'resourceDefinitions', []);
         this._variableDeclarations = _.get(args, 'variableDeclarations', []);
         this._connectionDeclarations = _.get(args, 'connectionDeclarations', []);
+
+        // Adding available annotations and their default values.
+        if (_.isNil(_.find(this._annotations, function (annotation) {
+                return annotation.key == "BasePath";
+            }))) {
+            this._annotations.push({
+                key: "BasePath",
+                value: "/"
+            });
+        }
+
+        if (_.isNil(_.find(this._annotations, function (annotation) {
+                return annotation.key == "Source:interface";
+            }))) {
+            this._annotations.push({
+                key: "Source:interface",
+                value: ""
+            });
+        }
+
+        if (_.isNil(_.find(this._annotations, function (annotation) {
+                return annotation.key == "Service:description";
+            }))) {
+            this._annotations.push({
+                key: "Service:description",
+                value: ""
+            });
+        }
 
         // TODO: All the types should be referred from the global constants
         ASTNode.call(this, 'Service');
@@ -36,18 +62,6 @@ define(['lodash', './node'], function (_, ASTNode) {
     ServiceDefinition.prototype.setServiceName = function (serviceName) {
         if(!_.isNil(serviceName)){
             this._serviceName = serviceName;
-        }
-    };
-
-    ServiceDefinition.prototype.setBasePath = function (basePath) {
-        if (!_.isNil(basePath)) {
-            this._basePath = basePath;
-        }
-    };
-
-    ServiceDefinition.prototype.setSource = function (source) {
-        if (!_.isNil(source)) {
-            this._source = source;
         }
     };
 
@@ -73,12 +87,8 @@ define(['lodash', './node'], function (_, ASTNode) {
         return this._serviceName;
     };
 
-    ServiceDefinition.prototype.getBasePath = function () {
-        return this._basePath;
-    };
-
-    ServiceDefinition.prototype.getSource = function () {
-        return this._source;
+    ServiceDefinition.prototype.getAnnotations = function () {
+        return this._annotations;
     };
 
     ServiceDefinition.prototype.getResourceDefinitions = function () {
@@ -93,6 +103,26 @@ define(['lodash', './node'], function (_, ASTNode) {
         return this._connectionDeclarations;
     };
 
+    /**
+     * Adding/Updating an annotation.
+     * @param key - Annotation key
+     * @param value - Value for the annotation.
+     */
+    ServiceDefinition.prototype.addAnnotation = function (key, value) {
+        var existingAnnotation = _.find(this._annotations, function (annotation) {
+            return annotation.key == key;
+        });
+        if (_.isNil(existingAnnotation)) {
+            // If such annotation does not exists, then add a new one.
+            this._annotations.push({
+                key: key,
+                value: value
+            });
+        } else {
+            // Updating existing annotation.
+            existingAnnotation.value = value;
+        }
+    };
 
     /**
      * Validates possible immediate child types.
@@ -103,8 +133,24 @@ define(['lodash', './node'], function (_, ASTNode) {
     ServiceDefinition.prototype.canBeParentOf = function (node) {
         var BallerinaASTFactory = this.getFactory();
         return BallerinaASTFactory.isResourceDefinition(node)
-            || BallerinaASTFactory.isVariableDeclaration(node)
-            || BallerinaASTFactory.isConnectorDeclaration(node);
+            || BallerinaASTFactory.isVariableDeclaration(node);
+    };
+
+    /**
+     * initialize from json
+     * @param jsonNode
+     */
+    ServiceDefinition.prototype.initFromJson = function (jsonNode) {
+        this._serviceName = jsonNode.service_name;
+        this._annotations = jsonNode.annotations;
+
+        var self = this;
+        var BallerinaASTFactory = this.getFactory();
+
+        _.each(jsonNode.children, function (childNode) {
+            var child = BallerinaASTFactory.createFromJson(childNode);
+            self.addChild(child);
+        });
     };
 
     return ServiceDefinition;

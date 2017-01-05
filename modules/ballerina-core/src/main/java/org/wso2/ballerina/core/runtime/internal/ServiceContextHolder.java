@@ -20,11 +20,11 @@ package org.wso2.ballerina.core.runtime.internal;
 
 
 import org.osgi.framework.BundleContext;
+import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.runtime.Constants;
 import org.wso2.ballerina.core.runtime.errors.handler.ServerConnectorErrorHandler;
 import org.wso2.carbon.messaging.TransportSender;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,14 +35,14 @@ public class ServiceContextHolder {
 
     private Map<String, TransportSender> transportSenders = new HashMap<>();
 
-    private Constants.RuntimeMode runtimeMode = Constants.RuntimeMode.DEFAULT;
+    private Constants.RuntimeMode runtimeMode = Constants.RuntimeMode.ERROR;
 
     /* Protocol specific error handlers */
     private Map<String, ServerConnectorErrorHandler> errorHandlers = new HashMap<>();
 
     private BundleContext bundleContext;
 
-    private File runningFile;
+    private BallerinaFile ballerinaFile;
 
     private ServiceContextHolder() {
     }
@@ -106,9 +106,9 @@ public class ServiceContextHolder {
     /**
      * Get Ballerina Bundle Context.
      *
-     * @return
+     * @return BundleContext instance.
      */
-    protected BundleContext getBundleContext() {
+    public BundleContext getBundleContext() {
         return this.bundleContext;
     }
 
@@ -117,26 +117,26 @@ public class ServiceContextHolder {
      *
      * @param bundleContext of the Ballerina Bundle.
      */
-    protected void setBundleContext(BundleContext bundleContext) {
+    void setBundleContext(BundleContext bundleContext) {
         this.bundleContext = bundleContext;
     }
 
     /**
-     * Get Ballerina File in RUN_FILE mode.
+     * Get BallerinaFile to be executed in RUN_FILE mode.
      *
-     * @return
+     * @return Ballerina Main function instance to be executed.
      */
-    protected File getRunningFile() {
-        return this.runningFile;
+    public BallerinaFile getBallerinaFileToExecute() {
+        return this.ballerinaFile;
     }
 
     /**
-     * Set Ballerina File in RUN_FILE mode.
+     * Set BallerinaFile to be executed in RUN_FILE mode.
      *
-     * @param file to be run.
+     * @param ballerinaFile to be run.
      */
-    protected void setRunningFile(File file) {
-        this.runningFile = file;
+    public void setBallerinaFileToExecute(BallerinaFile ballerinaFile) {
+        this.ballerinaFile = ballerinaFile;
     }
 
 }

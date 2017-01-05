@@ -18,7 +18,6 @@
 
 package org.wso2.ballerina.core.nativeimpl.lang.string;
 
-import org.osgi.service.component.annotations.Component;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BBoolean;
@@ -26,6 +25,7 @@ import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
+import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 
 /**
  * Native function ballerina.lang.string:contains.
@@ -37,13 +37,8 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
         functionName = "contains",
         args = {@Argument(name = "string", type = TypeEnum.STRING),
                 @Argument(name = "string", type = TypeEnum.STRING)},
-        returnType = {TypeEnum.BOOLEAN},
+        returnType = {@ReturnType(type = TypeEnum.BOOLEAN)},
         isPublic = true
-)
-@Component(
-        name = "func.lang.string_contains",
-        immediate = true,
-        service = AbstractNativeFunction.class
 )
 public class Contains extends AbstractNativeFunction {
 

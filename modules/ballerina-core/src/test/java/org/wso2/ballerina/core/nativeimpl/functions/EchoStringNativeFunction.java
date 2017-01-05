@@ -28,6 +28,7 @@ import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
+import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 
 /**
  * Test Class for Testing Ballerina Service.
@@ -36,7 +37,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
         packageName = "ballerina.test.echo",
         functionName = "echoString",
         args = {@Argument(name = "echoString", type = TypeEnum.STRING)},
-        returnType = {TypeEnum.STRING},
+        returnType = {@ReturnType(type = TypeEnum.STRING)},
         isPublic = true
 )
 public class EchoStringNativeFunction extends AbstractNativeFunction {

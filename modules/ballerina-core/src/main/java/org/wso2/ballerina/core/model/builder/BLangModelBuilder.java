@@ -26,8 +26,10 @@ import org.wso2.ballerina.core.model.BallerinaConnector;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.ConnectorDcl;
+import org.wso2.ballerina.core.model.Const;
 import org.wso2.ballerina.core.model.ImportPackage;
 import org.wso2.ballerina.core.model.Parameter;
+import org.wso2.ballerina.core.model.Position;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.model.SymbolName;
@@ -35,8 +37,8 @@ import org.wso2.ballerina.core.model.VariableDcl;
 import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.AddExpression;
 import org.wso2.ballerina.core.model.expressions.AndExpression;
-import org.wso2.ballerina.core.model.expressions.ArrayAccessExpr;
 import org.wso2.ballerina.core.model.expressions.ArrayInitExpr;
+import org.wso2.ballerina.core.model.expressions.ArrayMapAccessExpr;
 import org.wso2.ballerina.core.model.expressions.BackquoteExpr;
 import org.wso2.ballerina.core.model.expressions.BasicLiteral;
 import org.wso2.ballerina.core.model.expressions.BinaryExpression;
@@ -46,8 +48,10 @@ import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.GreaterEqualExpression;
 import org.wso2.ballerina.core.model.expressions.GreaterThanExpression;
 import org.wso2.ballerina.core.model.expressions.InstanceCreationExpr;
+import org.wso2.ballerina.core.model.expressions.KeyValueExpression;
 import org.wso2.ballerina.core.model.expressions.LessEqualExpression;
 import org.wso2.ballerina.core.model.expressions.LessThanExpression;
+import org.wso2.ballerina.core.model.expressions.MapInitExpr;
 import org.wso2.ballerina.core.model.expressions.MultExpression;
 import org.wso2.ballerina.core.model.expressions.NotEqualExpression;
 import org.wso2.ballerina.core.model.expressions.OrExpression;
@@ -103,6 +107,8 @@ public class BLangModelBuilder {
     private Stack<SymbolName> symbolNameStack = new Stack<>();
     private Stack<Expression> exprStack = new Stack<>();
 
+    private Stack<KeyValueExpression> keyValueStack = new Stack<>();
+
     private static final Logger log = LoggerFactory.getLogger(BLangModelBuilder.class);
 
 
@@ -110,6 +116,8 @@ public class BLangModelBuilder {
     private Stack<List<Expression>> exprListStack = new Stack<>();
 
     private Stack<List<Annotation>> annotationListStack = new Stack<>();
+
+    private Stack<List<KeyValueExpression>> mapInitKeyValueListStack = new Stack<>();
 
     public BallerinaFile build() {
         return bFileBuilder.build();
@@ -148,10 +156,14 @@ public class BLangModelBuilder {
         bFileBuilder.setPkgName(pkgName);
     }
 
-    public void addImportPackage() {
-        // TODO implement import as name
-        String pkgName = getPkgName();
-        bFileBuilder.addImportPackage(new ImportPackage(pkgName));
+    public void addImportPackage(String pkgName) {
+        String pkgPath = getPkgName();
+
+        if (pkgName != null) {
+            bFileBuilder.addImportPackage(new ImportPackage(pkgPath, pkgName));
+        } else {
+            bFileBuilder.addImportPackage(new ImportPackage(pkgPath));
+        }
     }
 
     // Annotations
@@ -187,7 +199,7 @@ public class BLangModelBuilder {
 
             // Assuming the annotation value is a string literal
             if (expr instanceof BasicLiteral && expr.getType() == BTypes.STRING_TYPE) {
-                String value = ((BasicLiteral) expr).getbValueNew().stringValue();
+                String value = ((BasicLiteral) expr).getBValue().stringValue();
                 annotationBuilder.setValue(value);
             } else {
                 throw new RuntimeException("Annotations with key/value pars are not support at the moment");
@@ -216,8 +228,12 @@ public class BLangModelBuilder {
         BType paramType = typeQueue.remove();
         Parameter param = new Parameter(paramType, paramNameId);
 
-        // Add the parameter to callableUnitBuilder.
-        currentCUBuilder.addParameter(param);
+        if (currentCUBuilder != null) {
+            // Add the parameter to callableUnitBuilder.
+            currentCUBuilder.addParameter(param);
+        } else {
+            currentCUGroupBuilder.addParameter(param);
+        }
     }
 
     public void createType(String typeName) {
@@ -230,6 +246,11 @@ public class BLangModelBuilder {
         typeQueue.add(type);
     }
 
+    public void registerConnectorType(String typeName) {
+        //TODO: We might have to do this through a symbol table in the future
+        BTypes.addConnectorType(typeName);
+    }
+
     public void createReturnTypes() {
         while (!typeQueue.isEmpty()) {
             currentCUBuilder.addReturnType(typeQueue.remove());
@@ -239,14 +260,33 @@ public class BLangModelBuilder {
 
     // Variable declarations, reference expressions
 
+    public void createConstant(String constName) {
+        SymbolName symbolName = new SymbolName(constName);
+        BType type = typeQueue.remove();
+
+        Const.ConstBuilder builder = new Const.ConstBuilder();
+        builder.setType(type);
+        builder.setSymbolName(symbolName);
+        builder.setValueExpr(exprStack.pop());
+
+        Const constant = builder.build();
+        bFileBuilder.addConst(constant);
+    }
+
     public void createVariableDcl(String varName) {
         // Create a variable declaration
         SymbolName localVarId = new SymbolName(varName);
         BType localVarType = typeQueue.remove();
         VariableDcl variableDcl = new VariableDcl(localVarType, localVarId);
 
-        // Add this variable declaration to the current callable unit
-        currentCUBuilder.addVariableDcl(variableDcl);
+        // Add this variable declaration to the current callable unit or callable unit group
+        if (currentCUBuilder != null) {
+            // This connector declaration should added to the relevant function/action or resource
+            currentCUBuilder.addVariableDcl(variableDcl);
+        } else {
+            currentCUGroupBuilder.addVariableDcl(variableDcl);
+        }
+
     }
 
     public void createConnectorDcl(String varName) {
@@ -298,12 +338,12 @@ public class BLangModelBuilder {
         Expression indexExpr = exprStack.pop();
         VariableRefExpr arrayVarRefExpr = new VariableRefExpr(symName);
 
-        ArrayAccessExpr.ArrayAccessExprBuilder builder = new ArrayAccessExpr.ArrayAccessExprBuilder();
+        ArrayMapAccessExpr.ArrayMapAccessExprBuilder builder = new ArrayMapAccessExpr.ArrayMapAccessExprBuilder();
         builder.setVarName(symName);
         builder.setIndexExpr(indexExpr);
-        builder.setArrayVarRefExpr(arrayVarRefExpr);
+        builder.setArrayMapVarRefExpr(arrayVarRefExpr);
 
-        ArrayAccessExpr accessExpr = builder.build();
+        ArrayMapAccessExpr accessExpr = builder.build();
         exprStack.push(accessExpr);
     }
 
@@ -388,21 +428,23 @@ public class BLangModelBuilder {
         addExprToList(exprList, exprCount);
     }
 
-    public void createFunctionInvocationExpr() {
+    public void createFunctionInvocationExpr(Position invokedLocation) {
         CallableUnitInvocationExprBuilder cIExprBuilder = new CallableUnitInvocationExprBuilder();
         cIExprBuilder.setExpressionList(exprListStack.pop());
         cIExprBuilder.setName(symbolNameStack.pop());
 
         FunctionInvocationExpr invocationExpr = cIExprBuilder.buildFuncInvocExpr();
+        invocationExpr.setInvokedLocation(invokedLocation);
         exprStack.push(invocationExpr);
     }
 
-    public void createActionInvocationExpr() {
+    public void createActionInvocationExpr(Position invokedLocation) {
         CallableUnitInvocationExprBuilder cIExprBuilder = new CallableUnitInvocationExprBuilder();
         cIExprBuilder.setExpressionList(exprListStack.pop());
         cIExprBuilder.setName(symbolNameStack.pop());
 
         ActionInvocationExpr invocationExpr = cIExprBuilder.buildActionInvocExpr();
+        invocationExpr.setInvokedLocation(invokedLocation);
         exprStack.push(invocationExpr);
     }
 
@@ -416,6 +458,38 @@ public class BLangModelBuilder {
 
         ArrayInitExpr arrayInitExpr = builder.build();
         exprStack.push(arrayInitExpr);
+    }
+
+    public void createMapInitExpr() {
+        MapInitExpr.MapInitExprBuilder builder = new MapInitExpr.MapInitExprBuilder();
+
+        if (!mapInitKeyValueListStack.isEmpty()) {
+            List<KeyValueExpression> argList = mapInitKeyValueListStack.pop();
+            builder.setArgList(argList);
+        }
+
+        MapInitExpr mapInitExpr = builder.build();
+        exprStack.push(mapInitExpr);
+    }
+
+    public void startMapInitKeyValue() {
+        mapInitKeyValueListStack.push(new ArrayList<>());
+    }
+
+    public void endMapInitKeyValue(int exprCount) {
+        List<KeyValueExpression> keyValueList = mapInitKeyValueListStack.peek();
+        addKeyValueToList(keyValueList, exprCount);
+    }
+
+    public void createMapInitKeyValue(String key) {
+        if (!exprStack.isEmpty()) {
+            Expression currentExpression = exprStack.pop();
+            keyValueStack.push(new KeyValueExpression(key, currentExpression));
+        } else {
+            keyValueStack.push(new KeyValueExpression(key, null));
+        }
+
+
     }
 
     // Functions, Actions and Resources
@@ -436,7 +510,7 @@ public class BLangModelBuilder {
         annotationListStack.push(new ArrayList<>());
     }
 
-    public void createFunction(String name, boolean isPublic, int position) {
+    public void createFunction(String name, boolean isPublic, Position location, int position) {
         currentCUBuilder.setName(new SymbolName(name, pkgName));
         currentCUBuilder.setPublic(isPublic);
 
@@ -451,8 +525,9 @@ public class BLangModelBuilder {
         currentCUBuilder = null;
     }
 
-    public void createResource(String name) {
+    public void createResource(String name, Position location) {
         currentCUBuilder.setName(new SymbolName(name, pkgName));
+        currentCUBuilder.setPosition(location);
 
         List<Annotation> annotationList = annotationListStack.pop();
         // TODO Improve this implementation
@@ -464,8 +539,9 @@ public class BLangModelBuilder {
         currentCUBuilder = null;
     }
 
-    public void createAction(String name) {
+    public void createAction(String name, Position location) {
         currentCUBuilder.setName(new SymbolName(name, pkgName));
+//        currentCUBuilder.setPosition(location);
 
         List<Annotation> annotationList = annotationListStack.pop();
         // TODO Improve this implementation
@@ -484,8 +560,9 @@ public class BLangModelBuilder {
         annotationListStack.push(new ArrayList<>());
     }
 
-    public void createService(String name, int position) {
+    public void createService(String name, Position location, int position) {
         currentCUGroupBuilder.setName(new SymbolName(name, pkgName));
+        currentCUGroupBuilder.setLocation(location);
 
         List<Annotation> annotationList = annotationListStack.pop();
         // TODO Improve this implementation
@@ -498,8 +575,9 @@ public class BLangModelBuilder {
         currentCUGroupBuilder = null;
     }
 
-    public void createConnector(String name, int position) {
+    public void createConnector(String name, Position location, int position) {
         currentCUGroupBuilder.setName(new SymbolName(name, pkgName));
+        currentCUGroupBuilder.setLocation(location);
 
         List<Annotation> annotationList = annotationListStack.pop();
         // TODO Improve this implementation
@@ -598,14 +676,13 @@ public class BLangModelBuilder {
         addToBlockStmt(ifElseStmt);
     }
 
-    public void createFunctionInvocationStmt() {
+    public void createFunctionInvocationStmt(Position invokedLocation) {
         CallableUnitInvocationExprBuilder cIExprBuilder = new CallableUnitInvocationExprBuilder();
-        if (!exprListStack.isEmpty()) {
-            cIExprBuilder.setExpressionList(exprListStack.pop());
-        }
+        cIExprBuilder.setExpressionList(exprListStack.pop());
         cIExprBuilder.setName(symbolNameStack.pop());
 
         FunctionInvocationExpr invocationExpr = cIExprBuilder.buildFuncInvocExpr();
+        invocationExpr.setInvokedLocation(invokedLocation);
 
         FunctionInvocationStmt.FunctionInvokeStmtBuilder stmtBuilder =
                 new FunctionInvocationStmt.FunctionInvokeStmtBuilder();
@@ -671,6 +748,26 @@ public class BLangModelBuilder {
             Expression expr = exprStack.pop();
             addExprToList(exprList, n - 1);
             exprList.add(expr);
+        }
+    }
+
+    /**
+     * @param keyValueDataHolderList List<KeyValueDataHolder>
+     * @param n        number of expression to be added the given list
+     */
+    private void addKeyValueToList(List<KeyValueExpression> keyValueDataHolderList, int n) {
+
+        if (keyValueStack.isEmpty()) {
+            throw new IllegalStateException("KeyValue stack cannot be empty in processing a KeyValueList");
+        }
+
+        if (n == 1) {
+            KeyValueExpression keyValue = keyValueStack.pop();
+            keyValueDataHolderList.add(keyValue);
+        } else {
+            KeyValueExpression keyValue = keyValueStack.pop();
+            addKeyValueToList(keyValueDataHolderList, n - 1);
+            keyValueDataHolderList.add(keyValue);
         }
     }
 

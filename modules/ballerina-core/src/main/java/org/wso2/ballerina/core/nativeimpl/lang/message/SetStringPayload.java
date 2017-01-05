@@ -18,7 +18,6 @@
 
 package org.wso2.ballerina.core.nativeimpl.lang.message;
 
-import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.Context;
@@ -29,6 +28,7 @@ import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
+import org.wso2.ballerina.core.nativeimpl.lang.utils.Constants;
 
 /**
  * Native function to get payload as String..
@@ -41,11 +41,6 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
                 @Argument(name = "payload", type = TypeEnum.STRING)},
         isPublic = true
 )
-@Component(
-        name = "func.lang.message_setStringPayload",
-        immediate = true,
-        service = AbstractNativeFunction.class
-)
 public class SetStringPayload extends AbstractNativeFunction {
 
     private static final Logger log = LoggerFactory.getLogger(SetStringPayload.class);
@@ -55,7 +50,7 @@ public class SetStringPayload extends AbstractNativeFunction {
         BMessage msg = (BMessage) getArgument(context, 0);
         BString payload = (BString) getArgument(context, 1);
         msg.setBuiltPayload(payload);
-        msg.setAlreadyRead(true);
+        msg.setHeader(Constants.CONTENT_TYPE, Constants.TEXT_PLAIN);
         if (log.isDebugEnabled()) {
             log.debug("Setting new payload: " + payload.stringValue());
         }

@@ -25,16 +25,15 @@ import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.JsonPathException;
 import com.jayway.jsonpath.PathNotFoundException;
 import com.jayway.jsonpath.ReadContext;
-import org.osgi.service.component.annotations.Component;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BDouble;
 import org.wso2.ballerina.core.model.values.BJSON;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
+import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 import org.wso2.ballerina.core.nativeimpl.lang.utils.ErrorHandler;
 
 /**
@@ -45,13 +44,8 @@ import org.wso2.ballerina.core.nativeimpl.lang.utils.ErrorHandler;
         functionName = "getDouble",
         args = {@Argument(name = "json", type = TypeEnum.JSON),
                 @Argument(name = "jsonPath", type = TypeEnum.STRING)},
-        returnType = {TypeEnum.DOUBLE},
+        returnType = {@ReturnType(type = TypeEnum.DOUBLE)},
         isPublic = true
-)
-@Component(
-        name = "func.lang.json_getDouble",
-        immediate = true,
-        service = AbstractNativeFunction.class
 )
 public class GetDouble extends AbstractJSONFunction {
     

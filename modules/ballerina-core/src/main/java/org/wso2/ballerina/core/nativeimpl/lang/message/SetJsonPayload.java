@@ -18,7 +18,6 @@
 
 package org.wso2.ballerina.core.nativeimpl.lang.message;
 
-import org.osgi.service.component.annotations.Component;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BJSON;
@@ -27,6 +26,7 @@ import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
+import org.wso2.ballerina.core.nativeimpl.lang.utils.Constants;
 
 /**
  * Set the payload of the Message as a JSON
@@ -38,11 +38,6 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
                 @Argument(name = "payload", type = TypeEnum.JSON)},
         isPublic = true
 )
-@Component(
-        name = "func.lang.echo_setJsonPayload",
-        immediate = true,
-        service = AbstractNativeFunction.class
-)
 public class SetJsonPayload extends AbstractNativeFunction {
 
     @Override
@@ -53,7 +48,7 @@ public class SetJsonPayload extends AbstractNativeFunction {
 
         // Setting the payload
         msg.setBuiltPayload(payload);
-        msg.setAlreadyRead(true);
+        msg.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
         return VOID_RETURN;
     }
 }

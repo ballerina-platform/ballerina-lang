@@ -18,19 +18,24 @@
 package org.wso2.ballerina.core.model.expressions;
 
 import org.wso2.ballerina.core.model.Action;
+import org.wso2.ballerina.core.model.ExecutableMultiReturnExpr;
+import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.NodeVisitor;
+import org.wso2.ballerina.core.model.Position;
 import org.wso2.ballerina.core.model.SymbolName;
+import org.wso2.ballerina.core.model.values.BValue;
 
 /**
  * {@code ActionInvocationExpr} represents action invocation expression
  *
  * @since 1.0.0
  */
-public class ActionInvocationExpr extends AbstractExpression {
+public class ActionInvocationExpr extends AbstractExpression implements ExecutableMultiReturnExpr {
 
     private SymbolName actionName;
     private Expression[] exprs;
     private Action action;
+    private Position actionInvokedLocation;
 
     public ActionInvocationExpr(SymbolName actionName, Expression[] exprs) {
         this.actionName = actionName;
@@ -60,5 +65,23 @@ public class ActionInvocationExpr extends AbstractExpression {
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public BValue[] executeMultiReturn(NodeExecutor executor) {
+        return executor.visit(this);
+    }
+
+    @Override
+    public BValue execute(NodeExecutor executor) {
+        return executor.visit(this)[0];
+    }
+
+    public Position getInvokedLocation() {
+        return actionInvokedLocation;
+    }
+
+    public void setInvokedLocation(Position actionInvokedLocation) {
+        this.actionInvokedLocation = actionInvokedLocation;
     }
 }

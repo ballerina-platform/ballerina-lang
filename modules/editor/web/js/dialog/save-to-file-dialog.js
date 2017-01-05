@@ -40,37 +40,44 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
 
                 var fileSave = $(
                     "<div class='modal fade' id='saveConfigModal' tabindex='-1' role='dialog' aria-tydden='true'>" +
-                    "<div class='modal-dialog' role='document'>" +
+                    "<div class='modal-dialog file-dialog' role='document'>" +
                     "<div class='modal-content'>" +
                     "<div class='modal-header'>" +
                     "<button type='button' class='close' data-dismiss='modal' aria-label='Close'>" +
                     "<span aria-hidden='true'>&times;</span>" +
                     "</button>" +
-                    "<h4 class='modal-title' id='newConfigModalLabel' style='margin-bottom: 15px'>Ballerina Service Save Wizard</h4>" +
+                    "<h4 class='modal-title file-dialog-title' id='newConfigModalLabel'>Ballerina Service Save Wizard</h4>" +
+                    "<hr class='style1'>"+
                     "</div>" +
                     "<div class='modal-body'>" +
                     "<div class='container-fluid'>" +
                     "<form class='form-horizontal'>" +
                     "<div class='form-group'>" +
-                    "<label for='location' class='control-label col-sm-2'>Location</label>" +
-                    "<div class='col-sm-8'>" +
-                    "<input type='text' class='form-control' id='location' placeholder='eg: /home/user/wso2-integration-server/ballerina-configs'>" +
-                    "</div>" +
-                    "<div class='col-sm-2' style='float: right'>" +
-                    "<button id='button1' type='button' class='btn btn-primary'>Select Folder</button>" +
+                    "<label for='location' class='col-sm-2 file-dialog-label'>Location :</label>" +
+                    "<div class='col-sm-9'>" +
+                    "<input type='text' class='file-dialog-form-control' id='location' placeholder='eg: /home/user/wso2-integration-server/ballerina-configs'>" +
                     "</div>" +
                     "</div>" +
                     "<div class='form-group'>" +
-                    "<label for='configName' class='control-label col-sm-2'>File Name</label>" +
-                    "<div class='col-sm-10'>" +
-                    "<input class='form-control' id='configName' placeholder='eg: hotel-check-in.xyz'>" +
+                    "<div class='file-dialog-form-scrollable-block'>" +
+                    "<div id='fileTree'>" +
+                    "</div>" +
+                    "<div id='file-browser-error' class='alert alert-danger' style='display: none;'>" +
+                    "</div>" +
                     "</div>" +
                     "</div>" +
                     "<div class='form-group'>" +
-                    "<div class='col-sm-offset-2     col-sm-10'>" +
-                    "<button type='button' class='btn btn-primary' data-dismiss='modal'>cancel</button>" +
-                    "<button id='saveButton' type='button' class='btn btn-primary' onclick='newConfiguration();'>save" +
+                    "<label for='configName' class='col-sm-2 file-dialog-label'>File Name :</label>" +
+                    "<div class='col-sm-9'>" +
+                    "<input class='file-dialog-form-control' id='configName' placeholder='eg: sample.bal'>" +
+                    "</div>" +
+                    "</div>" +
+                    "<div class='form-group'>" +
+                    "<div class='file-dialog-form-btn'>" +
+                    "<button id='saveButton' type='button' class='btn btn-file-dialog'>save" +
                     "</button>" +
+                    "<div class='divider'/>" +
+                    "<button type='cancelButton' class='btn btn-file-dialog' data-dismiss='modal'>cancel</button>" +
                     "</div>" +
                     "</div>" +
                     "</form>" +
@@ -78,32 +85,6 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
                     "<strong>Error!</strong> Something went wrong." +
                     "</div>" +
                     "</div>" +
-                    "</div>" +
-                    "</div>" +
-                    "</div>" +
-                    "</div>"
-                );
-
-                var fileBrowserModel = $(
-                    "<div class='modal fade' id='fileBrowserModel' tabindex='1000' role='dialog' aria-hidden='true'>" +
-                    "<div class='modal-dialog' role='document'>" +
-                    "<div class='modal-content'>" +
-                    "<div class='modal-header'>" +
-                    "<button type='button' class='close' onclick='onFileBrowserClose();' aria-label='Close'>" +
-                    "<span aria-hidden='true'>&times;</span>" +
-                    "</button>" +
-                    "<h4 class='modal-title'>Select root folder</h4>" +
-                    "</div>" +
-                    "<div class='modal-body'>" +
-                    "<div class='container-fluid .file-browser-container'>" +
-                    "<div id='fileTree'></div>" +
-                    "<div id='file-browser-error' class='alert alert-danger' style='display: none;'>" +
-                    "</div>" +
-                    "</div>" +
-                    "</div>" +
-                    "<div class='modal-footer'>" +
-                    "<button type='button' class='btn btn-default'  id='cancelBtn'>Cancel</button>" +
-                    "<button type='button' class='btn btn-primary'  id='selectBtn'>Select</button>" +
                     "</div>" +
                     "</div>" +
                     "</div>" +
@@ -130,27 +111,16 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
                 var location = fileSave.find("input").filter("#location");
                 var configName = fileSave.find("input").filter("#configName");
 
-                fileSave.find("button").filter("#button1").click(function() {
-                    fileBrowserModel.modal('show');
-                    saveConfigModal.modal('hide');
+                var treeContainer  = fileSave.find("div").filter("#fileTree")
+                fileBrowser = new FileBrowser({container: treeContainer, application:app, action:'saveFile'});
 
-                    var treeContainer  = fileBrowserModel.find("div").filter("#fileTree")
-                    fileBrowser = new FileBrowser({container: treeContainer, application:app});
-                    fileBrowser.render();
-                });
+                fileBrowser.render();
 
-                fileBrowserModel.find("button").filter("#selectBtn").click(function() {
-                    var selected = fileBrowser.selected;
-                    if(selected){
-                        fileBrowserModel.modal('hide');
-                        saveConfigModal.modal('show');
-                        location.val(selected);
+                //Gets the selected location from tree and sets the value as location
+                this.listenTo(fileBrowser, 'selected', function (selectedLocation) {
+                    if(selectedLocation){
+                        location.val(selectedLocation);
                     }
-                });
-
-                fileBrowserModel.find("button").filter("#cancelBtn").click(function() {
-                    fileBrowserModel.modal('hide');
-                    saveConfigModal.modal('show');
                 });
 
                 fileSave.find("button").filter("#saveButton").click(function() {
@@ -196,7 +166,7 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
 
                     var ballerinaFileEditor= app.tabController.activeTab.getBallerinaFileEditor();
                     var config = ballerinaFileEditor.generateSource();
-                    var payload = "location=" + (btoa(location.val() + "/" + configName.val())) + "&config=" + (btoa(config));
+                    var payload = "location=" + btoa(location.val()) + "&configName=" + btoa(configName.val()) + "&config=" + (btoa(config));
 
                     $.ajax({
                         url: saveServiceURL,

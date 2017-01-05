@@ -16,8 +16,9 @@
  * under the License.
  */
 
-define(['app/dialog/save-to-file-dialog'], function (SaveToFileDialog) {
+define(['app/dialog/save-to-file-dialog', 'app/dialog/open-file-dialog'], function (SaveToFileDialog,OpenFileDialog) {
     return {
-        save_to_file_dialog: SaveToFileDialog
+        save_to_file_dialog: SaveToFileDialog,
+        open_file_dialog: OpenFileDialog
     };
 })

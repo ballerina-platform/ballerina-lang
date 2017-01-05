@@ -20,7 +20,6 @@ package org.wso2.ballerina.core.utils;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.wso2.ballerina.core.interpreter.SymScope;
-import org.wso2.ballerina.core.linker.BLangLinker;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.builder.BLangModelBuilder;
 import org.wso2.ballerina.core.parser.BallerinaLexer;
@@ -49,8 +48,8 @@ public class ParserUtils {
      * @param sourceFilePath Path to Bal file.
      * @return BallerinaFile instance.
      */
-    public static BallerinaFile getLinkedBLangModel(String sourceFilePath) {
-        return getLinkedBLangModel(sourceFilePath, null);
+    public static BallerinaFile parseBalFile(String sourceFilePath) {
+        return parseBalFile(sourceFilePath, new SymScope(SymScope.Name.GLOBAL));
     }
 
     /**
@@ -60,7 +59,7 @@ public class ParserUtils {
      * @param globalSymScope Global symbol scope which includes all the native functions and actions
      * @return BallerinaFile instance.
      */
-    public static BallerinaFile getLinkedBLangModel(String sourceFilePath, SymScope globalSymScope) {
+    public static BallerinaFile parseBalFile(String sourceFilePath, SymScope globalSymScope) {
 
         BallerinaParser ballerinaParser = getBallerinaParser(sourceFilePath);
 
@@ -76,40 +75,8 @@ public class ParserUtils {
         BallerinaFile bFile = modelBuilder.build();
 
         // Analyze semantic properties of the source code
-        SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(bFile);
+        SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(bFile, globalSymScope);
         bFile.accept(semanticAnalyzer);
-
-        BLangLinker linker = new BLangLinker(bFile);
-        linker.link(globalSymScope);
-
-        return bFile;
-    }
-
-    /**
-     * Generate BallerinaFile instance by parsing .bal file.
-     *
-     * @param path Path to Bal file.
-     * @return BallerinaFile instance.
-     */
-    public static BallerinaFile parseBalFile(String path) {
-
-        BallerinaParser ballerinaParser = getBallerinaParser(path);
-
-        // Create Ballerina model builder class
-        BLangModelBuilder modelBuilder = new BLangModelBuilder();
-        BLangAntlr4Listener langModelBuilder = new BLangAntlr4Listener(modelBuilder);
-
-        ballerinaParser.addParseListener(langModelBuilder);
-        ballerinaParser.setErrorHandler(new BallerinaParserErrorStrategy());
-        ballerinaParser.compilationUnit();
-
-        // Get the model for source file
-        BallerinaFile bFile = modelBuilder.build();
-
-        // Analyze semantic properties of the source code
-        SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(bFile);
-        bFile.accept(semanticAnalyzer);
-
 
         return bFile;
     }

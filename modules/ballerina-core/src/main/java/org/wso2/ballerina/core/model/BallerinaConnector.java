@@ -43,21 +43,49 @@ public class BallerinaConnector extends PositionAwareNode implements Connector ,
     private List<Parameter> arguments;
     private List<ConnectorDcl> connectorDclList;
     private List<VariableDcl> variableDclList;
-    private List<BallerinaAction> actionList;
 
     private SymbolName name;
     private Annotation[] annotations;
     private ConnectorDcl[] connectorDcls;
     private VariableDcl[] variableDcls;
     private BallerinaAction[] actions;
+    private Position connectorLocation;
 
-    public BallerinaConnector(SymbolName serviceName, Annotation[] annotations, ConnectorDcl[] connectorDcls,
-            VariableDcl[] variableDcls, BallerinaAction[] actions) {
+    public BallerinaConnector(SymbolName serviceName,
+                              Position position,
+                              Annotation[] annotations,
+                              ConnectorDcl[] connectorDcls,
+                              VariableDcl[] variableDcls,
+                              BallerinaAction[] actions) {
         this.name = serviceName;
+        this.connectorLocation = position;
         this.annotations = annotations;
         this.connectorDcls = connectorDcls;
         this.variableDcls = variableDcls;
         this.actions = actions;
+
+        // Set the connector name for all the actions
+        for (Action action : actions) {
+            action.getSymbolName().setConnectorName(name.getName());
+        }
+    }
+
+    /**
+     * Get the name of the connector
+     *
+     * @return name of the connector
+     */
+    public String getName() {
+        return name.getName();
+    }
+
+    /**
+     * Get the package qualified name
+     *
+     * @return package qualified name
+     */
+    public String getPackageQualifiedName() {
+        return name.getPkgName() + ":" + name.getName();
     }
 
     /**
@@ -192,31 +220,10 @@ public class BallerinaConnector extends PositionAwareNode implements Connector ,
     /**
      * Get all the Actions can be performed in the Connector
      *
-     * @return list of all Actions
+     * @return array of all Actions
      */
-    public List<BallerinaAction> getActions() {
-        return actionList;
-    }
-
-    /**
-     * Set list of Actions to the Connector
-     *
-     * @param actions list of Actions
-     */
-    public void setActions(List<BallerinaAction> actions) {
-        this.actionList = actions;
-    }
-
-    /**
-     * Add an {@code Action} to the Connector
-     *
-     * @param action Action to be added to the Connector
-     */
-    public void addAction(BallerinaAction action) {
-        if (actionList == null) {
-            actionList = new ArrayList<BallerinaAction>();
-        }
-        actionList.add(action);
+    public BallerinaAction[] getActions() {
+        return actions;
     }
 
     @Override
@@ -227,5 +234,21 @@ public class BallerinaConnector extends PositionAwareNode implements Connector ,
     @Override
     public Parameter[] getParameters() {
         return new Parameter[0];
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Position getConnectorLocation() {
+        return connectorLocation;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setConnectorLocation(Position location) {
+        this.connectorLocation = location;
     }
 }

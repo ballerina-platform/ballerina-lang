@@ -19,7 +19,7 @@ package org.wso2.ballerina.lang.expressions;
 
 
 import org.testng.Assert;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.values.BInteger;
@@ -36,9 +36,9 @@ public class FuncInvocationExprTest {
 
     private BallerinaFile bFile;
 
-    @BeforeTest
+    @BeforeClass
     public void setup() {
-        bFile = ParserUtils.getLinkedBLangModel("lang/expressions/funcInvocation-expr.bal");
+        bFile = ParserUtils.parseBalFile("lang/expressions/funcInvocation-expr.bal");
     }
 
     @Test(description = "Test local function invocation expression")
@@ -66,5 +66,18 @@ public class FuncInvocationExprTest {
         int expected = 28;
         Assert.assertEquals(actual, expected);
 
+    }
+
+    @Test(description = "Test local function invocation expression advanced")
+    public void testFuncInvocationExprAdvanced() {
+        BValue[] args = {new BInteger(100), new BInteger(5), new BInteger(1)};
+        BValue[] returns = Functions.invoke(bFile, "funcInvocationWithinFuncInvocation", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+
+        int actual = ((BInteger) returns[0]).intValue();
+        int expected = 322;
+        Assert.assertEquals(actual, expected);
     }
 }

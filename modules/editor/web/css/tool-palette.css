@@ -21,7 +21,6 @@
 }
 
 .tool-group-header-title{
-    font-style: italic;
     padding:5px;
     width: 100%;
 }
@@ -60,6 +59,29 @@
     text-align: center;
 }
 
+.tool-container-vertical {
+    width: 100%;
+    height: 25px;
+    margin: 3px;
+    cursor: pointer;
+}
+
+.tool-container-vertical-title {
+    float: left;
+    margin-left: 20px;
+    margin-top: 2px;
+}
+
+.tool-container-vertical-icon {
+    width: 25px;
+    height: 25px;
+    cursor: pointer;
+    border:1px solid #ccc;
+    padding: 3px;
+    white-space: nowrap;
+    text-align: center;
+    float: left;
+}
 
 .tool-image {
     max-width:14px;
@@ -87,14 +109,12 @@
 .search-input{
     background-color: #f0f0f0;
     font-size: 12px;
-    font-style: italic;
     padding:5px;
     border: 1px solid #d9d9d9;
     width: 100%;
 }
 .searchIcon{
     position: absolute;
-    left: 158px;
     right: 17px;
     top: 18px;
     color: #7b7b7b;

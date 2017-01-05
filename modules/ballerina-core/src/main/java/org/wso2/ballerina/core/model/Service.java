@@ -44,16 +44,17 @@ public class Service extends PositionAwareNode implements Node {
 
     // TODO Refactor
     private SymbolName symbolName;
-
+    private Position serviceLocation;
     private SymbolName name;
     private Annotation[] annotations;
     private ConnectorDcl[] connectorDcls;
     private VariableDcl[] variableDcls;
     private Resource[] resources;
 
-    public Service(SymbolName serviceName, Annotation[] annotations, ConnectorDcl[] connectorDcls,
-            VariableDcl[] variableDcls, Resource[] resources) {
+    public Service(SymbolName serviceName, Position serviceLocation, Annotation[] annotations, 
+            ConnectorDcl[] connectorDcls, VariableDcl[] variableDcls, Resource[] resources) {
         this.name = serviceName;
+        this.serviceLocation = serviceLocation;
         this.annotations = annotations;
         this.connectorDcls = connectorDcls;
         this.variableDcls = variableDcls;
@@ -121,5 +122,14 @@ public class Service extends PositionAwareNode implements Node {
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
+    }
+    
+    /**
+     * Get the location of this service in the ballerina source file.
+     * 
+     * @return  Location of this service in the ballerina source file.
+     */
+    public Position getServiceLocation() {
+        return serviceLocation;
     }
 }

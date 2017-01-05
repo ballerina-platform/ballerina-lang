@@ -37,6 +37,8 @@
                 <exclude>**/*.ipr</exclude>
                 <exclude>**/*.iwr</exclude>
                 <exclude>**/*.eclipse</exclude>
+                <exclude>bin/*.sh</exclude>
+                <exclude>bin/*.bat</exclude>
             </excludes>
         </fileSet>
 
@@ -99,12 +101,24 @@
             <fileMode>644</fileMode>
         </fileSet>
         <fileSet>
-            <directory>carbon-home/deployment/ballerina-files</directory>
-            <outputDirectory>deployment/ballerina-files</outputDirectory>
-            <fileMode>644</fileMode>
+            <directory>../editor/web</directory>
+            <outputDirectory>resources/editor</outputDirectory>
             <excludes>
-                <exclude>empty.txt</exclude>
+                <exclude>target/**</exclude>
+                <exclude>**/*.ipr</exclude>
+                <exclude>**/*.iwr</exclude>
+                <exclude>**/*.eclipse</exclude>
+                <exclude>**/*.iml</exclude>
             </excludes>
+            <fileMode>644</fileMode>
+        </fileSet>
+        <fileSet>
+            <directory>../editor/services/workspace-service/target/</directory>
+            <outputDirectory>bin/</outputDirectory>
+            <includes>
+                <include>workspace-service*.jar</include>
+            </includes>
+            <fileMode>644</fileMode>
         </fileSet>
     </fileSets>
 

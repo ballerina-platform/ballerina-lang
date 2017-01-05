@@ -17,7 +17,9 @@
 */
 package org.wso2.ballerina.core.model.expressions;
 
+import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.NodeVisitor;
+import org.wso2.ballerina.core.model.values.BValue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,6 +43,10 @@ public class ArrayInitExpr extends NaryExpression {
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    public BValue execute(NodeExecutor executor) {
+        return executor.visit(this);
     }
 
     /**

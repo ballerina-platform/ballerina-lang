@@ -28,4 +28,6 @@ public @interface Argument {
 
     TypeEnum type();
 
+    // elementType specially used with Arrays to specify the type of array.
+    TypeEnum elementType() default TypeEnum.EMPTY;
 }

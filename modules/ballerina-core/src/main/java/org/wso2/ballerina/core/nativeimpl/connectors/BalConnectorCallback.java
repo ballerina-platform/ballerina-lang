@@ -43,7 +43,7 @@ public class BalConnectorCallback extends DefaultBalCallback {
         BMessage bMessage = new BMessage(carbonMessage);
         valueRef = bMessage;
         //context.getControlStack().setValue(4, valueRef);
-        context.getControlStack().setReturnValueNew(0, valueRef);
+        context.getControlStack().setReturnValue(0, valueRef);
         responseArrived = true;
         synchronized (context) {
             context.notifyAll();

@@ -15,7 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'bootstrap'], function ($, _, Backbone, log, Dialogs) {
+define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab/tab', 'bootstrap'],
+    function ($, _, Backbone, log, Dialogs, WelcomePages, GenericTab) {
 
     // workspace manager constructor
     /**
@@ -29,38 +30,55 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'bootstrap'], function
             throw error;
         }
 
-        this.createNewTab = function createNewTab() {
-            var welcomeContainerId = app.config.welcome.container;
-            $(welcomeContainerId).css("display", "none");
-            var editorId = app.config.container;
-            $(editorId).css("display", "block");
+        this.createNewTab = function createNewTab(ballerinaRoot) {
             //Showing menu bar
             app.menuBar.show();
-            app.tabController.newTab();
+            app.tabController.newTab({ballerinaRoot: ballerinaRoot});
         };
 
-        this.displayInitialView = function () {
-
-            app.hideWorkspaceArea();
-            app.initialWelcomePage.hide();
-            app.regularWelcomeScreen.hide();
-
-            if(app.initialWelcomePage.passedFirstLaunch()){
-                if(app.tabController.hasFilesInWorkingSet()){
-                    // there were active tabs when closing app last time - open them
-                    app.showWorkspaceArea();
-                } else {
-                    // show regular welcome screen with open recent, etc. and hide others
-                    app.regularWelcomeScreen.show();
-                }
+        this.displayInitialTab = function () {
+            //TODO : remove this if else condition
+            // display first launch welcome page tab
+            if (!this.passedFirstLaunch()) {
+                // create a generic tab - without ballerina editor components
+                var tab = app.tabController.newTab({
+                    tabModel: GenericTab,
+                    tabOptions:{title: 'Welcome'}
+                });
+                var opts = _.get(app.config, 'welcome');
+                _.set(opts, 'application', app);
+                _.set(opts, 'tab', tab);
+                this.firstLaunchWelcomePage = new WelcomePages.FirstLaunchWelcomePage(opts);
+                this.firstLaunchWelcomePage.render();
             } else {
-                // show initial product launch page and hide others
-               app.initialWelcomePage.show();
+                // user has no active tabs from last session
+                if (!app.tabController.hasFilesInWorkingSet()) {
+                    // create a generic tab - without ballerina editor components
+                    var tab = app.tabController.newTab({
+                        tabModel: GenericTab,
+                        tabOptions:{title: 'Welcome'}
+                    });
+                    // Showing FirstLaunchWelcomePage instead of regularWelcomePage
+                    var opts = _.get(app.config, 'welcome');
+                    _.set(opts, 'application', app);
+                    _.set(opts, 'tab', tab);
+                    this.regularWelcomePage = new WelcomePages.FirstLaunchWelcomePage(opts);
+                    this.regularWelcomePage.render();
+                }
             }
+        };
+
+        this.passedFirstLaunch = function(){
+            return app.browserStorage.get("pref:passedFirstLaunch") || false;
         };
 
         this.openFileSaveDialog = function openFileSaveDialog() {
             var dialog = new Dialogs.save_to_file_dialog(app);
+            dialog.render();
+        };
+
+        this.openFileOpenDialog = function openFileOpenDialog() {
+            var dialog = new Dialogs.open_file_dialog(app);
             dialog.render();
         }
 
@@ -71,8 +89,11 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'bootstrap'], function
         app.commandManager.registerCommand("open-file-save-dialog", {key: ""});
         app.commandManager.registerHandler('open-file-save-dialog', this.openFileSaveDialog);
 
-    }
+        // Open file open dialog
+        app.commandManager.registerCommand("open-file-open-dialog", {key: ""});
+        app.commandManager.registerHandler('open-file-open-dialog', this.openFileOpenDialog);
 
+    }
 
 });
 

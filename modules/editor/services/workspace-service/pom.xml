@@ -25,10 +25,10 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.wso2.integration.tooling</groupId>
+    <groupId>org.wso2.ballerina</groupId>
     <artifactId>workspace-service</artifactId>
     <version>1.0.0-SNAPSHOT</version>
-    <name>WSO2 Integration Server Tooling - Workspace Service</name>
+    <name>WSO2 Ballerina - Tooling - Workspace Service</name>
 
     <repositories>
         <!-- WSO2 released artifact repository -->
@@ -96,7 +96,7 @@
     </dependencies>
 
     <properties>
-        <microservice.mainClass>org.wso2.integration.tooling.service.workspace.app.WorkspaceServiceRunner</microservice.mainClass>
+        <microservice.mainClass>org.wso2.ballerina.tooling.service.workspace.app.WorkspaceServiceRunner</microservice.mainClass>
         <!-- dependency versions -->
         <guice.version>4.1.0</guice.version>
         <commons-cli.version>1.3.1</commons-cli.version>

@@ -116,6 +116,7 @@ header .brand img.logo {
 
 header .brand {
     padding: 5px;
+    margin-right: 25px;
 }
 
 header .brand h1 {
@@ -161,8 +162,7 @@ header .brand {
 }
 
 header .brand h1 {
-    text-transform: uppercase;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 200;
     color: #d6d6d6;
 }
@@ -215,44 +215,18 @@ ol#breadcrumbList {
 }
 
 .service-variable-typebutton {
-
     float: right;
 }
 
 .service-variable-pane {
-    background-color: #f3f3f3;
-    padding: 7px 7px 0 7px;
-    height: 38px;
+    border: 1px solid #f0f0f0;
+    background-color: #fff;
     position: absolute;
-    top: 25px;
-    right: 55px;
-    display: none;
+    top: 9px;
+    left: 28px;
     margin: auto;
-}
-
-.service-variable-pane input {
-    padding-left: 5px;
-    height: 25px;
-    /*margin-right: 5px;*/
-}
-
-.service-variable-pane select {
-    height: 25px;
-    margin-right: 5px;
-}
-
-.service-variable-pane form {
-    width: 326px;
-}
-
-.service-variable-pane input {
-    padding-left: 5px;
-    height: 25px;
-    /*margin-right: 5px;*/
-}
-
-.service-variable-pane form > input {
-    margin-right: 5px;
+    min-height: 29px;
+    padding: 3px 3px 0 16px;
 }
 
 .resource-variable-pane {
@@ -297,147 +271,206 @@ button.variable-list {
     height: 20px;
 }
 
-label.variable-type-message {
+.variable-wrapper i {
+    padding:6px;
+    font-size: 8px;
+    background-color: #fff;
+    color: #8a8a8a;
+}
+
+.variable-wrapper i:hover {
+    cursor: pointer;
+    color: #000;
+}
+
+.variable-type {
+    float: left;
     color: white;
-    background-color: mediumseagreen;
     padding: 0 4px 4px 4px;
-    height: 20px;
+    height: 22px;
 }
 
-input.variable-type-message {
-    border-style: solid;
-    border-color: mediumseagreen;
-    height: 20px;
+.variable-identifier {
+    float: left;
+    padding-left:5px;
+    height: 22px;
 }
 
-label.variable-type-connection {
-    color: white;
+/*Start Message*/
+
+.variable-wrapper-message i {
+    border: 1px solid #19b89c;
+    border-left-width: 0;
+}
+
+.variable-type-message {
+    background-color: #19b89c;
+}
+
+.variable-identifier-message {
+    border: 1px solid #19b89c;
+    border-right-width: 0;
+    max-width: 100px;
+}
+
+/*Start Connection*/
+
+.variable-wrapper-connection i {
+    border: 1px solid orange;
+    border-left-width: 0;
+}
+
+.variable-type-connection {
     background-color: orange;
-    padding: 0 4px 4px 4px;
-    height: 20px;
 }
 
-input.variable-type-connection {
-    border-style: solid;
-    border-color: orange;
-    height: 20px;
+.variable-identifier-connection {
+    border: 1px solid orange;
+    border-right-width: 0;
 }
 
-label.variable-type-string {
-    color: white;
+/*Start String*/
+
+.variable-wrapper-string i {
+    border: 1px solid purple;
+    border-left-width: 0;
+}
+
+.variable-type-string {
     background-color: purple;
-    padding: 0 4px 4px 4px;
-    height: 20px;
 }
 
-input.variable-type-string {
-    border-style: solid;
-    border-color: purple;
-    height: 20px;
+.variable-identifier-string {
+    border: 1px solid purple;
+    border-right-width: 0;
 }
 
-label.variable-type-int {
-    color: white;
+/*Start Int*/
+
+.variable-wrapper-int i {
+    border: 1px solid darkslateblue;
+    border-left-width: 0;
+}
+
+.variable-type-int {
     background-color: darkslateblue;
-    padding: 0 4px 4px 4px;
-    height: 20px;
 }
 
-input.variable-type-int {
-    border-style: solid;
-    border-color: darkslateblue;
-    height: 20px;
+.variable-identifier-int {
+    border: 1px solid darkslateblue;
+    border-right-width: 0;
 }
 
-label.variable-type-exception {
-    color: white;
+/*Start Exception*/
+
+.variable-wrapper-exception i {
+    border: 1px solid darkred;
+    border-left-width: 0;
+}
+
+.variable-type-exception {
     background-color: darkred;
-    padding: 0 4px 4px 4px;
-    height: 20px;
 }
 
-input.variable-type-exception {
-    border-style: solid;
-    border-color: darkred;
-    height: 20px;
+.variable-identifier-exception {
+    border: 1px solid darkred;
+    border-right-width: 0;
 }
 
-label.variable-type-boolean {
-    color: white;
-    background-color: darkred;
-    padding: 0 4px 4px 4px;
-    height: 20px;
+/*Start Boolean*/
+
+.variable-wrapper-boolean i {
+    border: 1px solid #156b8b;
+    border-left-width: 0;
 }
 
-input.variable-type-boolean {
-    border-style: solid;
-    border-color: darkred;
-    height: 20px;
+.variable-type-boolean {
+    background-color: #156b8b;
 }
 
-label.variable-type-double {
-    color: white;
+.variable-identifier-boolean {
+    border: 1px solid #156b8b;
+    border-right-width: 0;
+}
+
+/*Start Double*/
+
+.variable-wrapper-double i {
+    border: 1px solid #063B49;
+    border-left-width: 0;
+}
+
+.variable-type-double {
     background-color: #063B49;
-    padding: 0 4px 4px 4px;
-    height: 20px;
 }
 
-input.variable-type-double {
-    border-style: solid;
-    border-color: #063B49;
-    height: 20px;
+.variable-identifier-double {
+    border: 1px solid #063B49;
+    border-right-width: 0;
 }
 
-label.variable-type-float {
-    color: white;
+/*Start Float*/
+
+.variable-wrapper-float i {
+    border: 1px solid #009CCC;
+    border-left-width: 0;
+}
+
+.variable-type-float {
     background-color: #009CCC;
-    padding: 0 4px 4px 4px;
-    height: 20px;
 }
 
-input.variable-type-float {
-    border-style: solid;
-    border-color: #009CCC;
-    height: 20px;
+.variable-identifier-float {
+    border: 1px solid #009CCC;
+    border-right-width: 0;
 }
 
-label.variable-type-long {
-    color: white;
+/*Start Long*/
+
+.variable-wrapper-long i {
+    border: 1px solid #4864aa;
+    border-left-width: 0;
+}
+
+.variable-type-long {
     background-color: #4864aa;
-    padding: 0 4px 4px 4px;
-    height: 20px;
 }
 
-input.variable-type-long {
-    border-style: solid;
-    border-color: #4864aa;
-    height: 20px;
+.variable-identifier-long {
+    border: 1px solid #4864aa;
+    border-right-width: 0;
 }
 
-label.variable-type-json {
-    color: white;
+/*Start JSON*/
+
+.variable-wrapper-json i {
+    border: 1px solid #004d52;
+    border-left-width: 0;
+}
+
+.variable-type-json {
     background-color: #004d52;
-    padding: 0 4px 4px 4px;
-    height: 20px;
 }
 
-input.variable-type-json {
-    border-style: solid;
-    border-color: #004d52;
-    height: 20px;
+.variable-identifier-json {
+    border: 1px solid #004d52;
+    border-right-width: 0;
 }
 
-label.variable-type-xml {
-    color: white;
+/*Start XML*/
+
+.variable-wrapper-xml i {
+    border: 1px solid #232323;
+    border-left-width: 0;
+}
+
+.variable-type-xml {
     background-color: #232323;
-    padding: 0 4px 4px 4px;
-    height: 20px;
 }
 
-input.variable-type-xml {
-    border-style: solid;
-    border-color: #232323;
-    height: 20px;
+.variable-identifier-xml {
+    border: 1px solid #232323;
+    border-right-width: 0;
 }
 
 .property-panel-svg {
@@ -550,13 +583,32 @@ input.variable-type-xml {
     z-index:30;
 }
 
+.variable-btn {
+    position: absolute;
+    z-index: 30;
+    opacity: 0.4;
+}
+
+.variable-btn:hover {
+    opacity: 1;
+    cursor: pointer;
+}
+
+.right-icon-clickable {
+    padding: 10px 6px;
+}
+
+.collapser:hover {
+    color: #333;
+}
+
 .main-action-wrapper {
     position: absolute;
     right: 17px;
     width: 400px;
     overflow: hidden;
     z-index: 20;
-    top: 0px;
+    top: 0;
 }
 
 .action-icon-wrapper {
@@ -605,7 +657,7 @@ input.variable-type-xml {
 .package-name-wrapper input[type=text] {
     padding-left: 7px;
     margin-left: 2px;
-    width: 290px;
+    width: 295px;
     border: 1px solid #ccc;
 }
 
@@ -652,30 +704,24 @@ input.variable-type-xml {
     width: 276px;
 }
 
+.service-annotation-wrapper-heading {
+    background-color: #3d3d3d
+}
+
 .service-annotation-wrapper-heading input[type=text]{
-    width: 200px;
+    width: 224px;
     margin-left: 5px;
 }
 
-.action-content-dropdown-wrapper {
-    float: left;
-    width: 125px;
-}
-
-.action-content-dropdown-wrapper button {
-    width: 100%;
-    padding: 3px 6px;
-    border: 1px solid #ccc;
-    font-size: 12px;
-}
-
-.action-content-dropdown-wrapper button i {
-    padding-left: 5px !important;
-    font-size: 11px;
+.service-annotation-wrapper-heading select {
+    width: 160px;
 }
 
 .service-annotation-main-action-wrapper {
+    width: 435px;
     overflow: auto;
+    display: none;
+    background: #fff;
 }
 
 .action-content-dropdown-wrapper ul {
@@ -685,43 +731,54 @@ input.variable-type-xml {
 }
 
 .service-annotation-details-wrapper {
-    display: table;
+    padding: 0px;
+    overflow-y: scroll;
     width: 100%;
+    border-left: 1px solid #555;
+    border-bottom: 1px solid #555;
+    max-height: 450px;
+}
+
+.service-annotation-details-wrapper hr {
+    margin-left: 8px;
+    margin-right: 5px;
 }
 
 .service-annotation-detail-wrapper {
-    display: table-row;
+    overflow: hidden;
+    padding: 4px 5px 3px 12px;
     cursor: pointer;
 }
 
 .service-annotation-detail-wrapper:hover {
-    display: table-row;
     background-color: #f5f5f5;
 }
 
-.service-annotation-detail-cell-wrapper {
-    display: table-cell;
-    padding: 3px 6px 3px 6px;
+.service-annotation-detail-wrapper:hover .service-annotation-detail-close-wrapper {
+    display: block;
 }
 
-.service-annotation-detail-cell-wrapper textarea {
-    width: 255px;
+.service-annotation-detail-type-wrapper {
+    float: left;
+    width: 120px;
+    font-weight: bold;
+}
+
+.service-annotation-detail-value-wrapper {
     float: left;
 }
 
-.service-annotation-detail-cell-delete-icon {
+.service-annotation-detail-value-wrapper textarea {
+    width: 280px;
+    float: left;
+}
+
+.service-annotation-detail-close-wrapper {
     float: right;
     font-size: 10px;
     padding-top: 3px;
     color: #999;
     display: none;
-}
-
-.service-annotation-detail-wrapper:hover .service-annotation-detail-cell-delete-icon{
-    display: block;
-}
-
-.svg-action-content-wrapper {
 }
 
 .svg-action-content-wrapper-body {
@@ -731,6 +788,167 @@ input.variable-type-xml {
 
 .svg-action-content-wrapper-heading {
     fill: #eaeaea;
+}
+
+.variables-content-wrapper {
+    /*margin-right: 20px;*/
+    float: left;
+}
+
+.variables-action-wrapper {
+    float: left;
+}
+
+.variable-add-icon-wrapper {
+    margin-left: 2px;
+    height: 20px;
+    margin-top: 0;
+    position: static;
+    width: 19px;
+    font-size: 7px;
+    float: left;
+    margin-top: 2px;
+}
+
+.variable-add-action-wrapper {
+    height: auto;
+    display: none;
+    width: 340px;
+    padding-left: inherit;
+    padding-top: inherit;
+    background-color: #efefef;
+    height: 30px;
+    padding: 3px 8px;
+    margin-bottom: 4px;
+}
+
+.variable-add-action-wrapper input {
+    width: 163px;
+    margin-left: 4px;
+    height: 22px;
+    padding-left: 5px;
+}
+
+
+
+.variable-add-complete-action-wrapper {
+    height: 22px;
+    position: static;
+    float: right;
+}
+
+.variable-add-cancel-action-wrapper {
+    height: 22px;
+    position: static;
+    float: right;
+}
+
+.variable-wrapper {
+    float: left;
+    margin-left: 6px;
+    margin-bottom: 3px;
+}
+
+.variable-pane-collapser-wrapper {
+    font-size: 14px;
+    padding: 9px;
+    z-index: 1000;
+    /* opacity: 0.4; */
+    /* float: right; */
+    background-color:#efefef;
+    height: 27px;
+    width: 23px;
+    margin-left: 4px;
+    position: absolute;
+    right: -23px;
+    top: 0;
+}
+.variable-pane-collapser-wrapper:hover{
+    background-color:#333;
+    color:#fff;
+}
+
+.variable-pane-collapser-wrapper:hover {
+    cursor: pointer;
+    opacity: 1;
+}
+
+.variable-pane-collapser-wrapper i {
+    font-size: 12px;
+    position: absolute;
+    vertical-align: top;
+    top: 8px;
+    right: 7px;
+}
+
+.hoverable {
+    opacity: 0.4;
+    cursor: pointer;
+}
+
+.hoverable:hover {
+    opacity: 1;
+}
+
+.name-container-div {
+    position: absolute;
+    display: table;
+}
+
+.name-span {
+    display: table-cell;
+    vertical-align: middle;
+}
+
+.canvas-operations-wrapper {
+    float: right;
+    margin-right: 1px;
+}
+
+.annotation-icon {
+    margin-top: 8px;
+    cursor: pointer;
+}
+
+.annotation-icon:hover {
+    color: #000;
+}
+
+.canvas-operations-separator {
+    -webkit-transform: scale(1, 2);
+    -moz-transform: scale(1, 2);
+    -ms-transform: scale(1, 2);
+    -o-transform: scale(1, 2);
+    transform: scale(1, 2);
+    margin-top: 13px;
+    color: #d8d8d8;
+    font-size: 11px;
+}
+
+.service-annotation-action-icon {
+    top: 7px;
+    right: 6px;
+}
+
+.service-annotation-action-icon-i {
+    background-color: #818181;
+}
+
+.operations-annotation-icon {
+    color: #FFF;
+    opacity: 1;
+    background-color: #2b2b2b;
+    width: 30px;
+}
+
+.if-else-title-rect {
+    fill: #FFFFFF;
+    stroke: #818181;
+}
+
+.if-else-title-polyline {
+    fill: none;
+    stroke: #000000;
 }
 
 /** Service container related styles | -> End **/

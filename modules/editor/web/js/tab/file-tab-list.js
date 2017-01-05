@@ -52,22 +52,24 @@ define(['log', 'jquery', 'lodash', './tab-list', './file-tab',  'workspace'],
         addTab: function(tab) {
             TabList.prototype.addTab.call(this, tab);
             // avoid re-addition of init time files
-            if(!_.includes(this._workingFileSet, tab.getFile())){
+            if(tab instanceof ServiceTab && !_.includes(this._workingFileSet, tab.getFile())){
                 this._workingFileSet.push(tab.getFile());
                 this.getBrowserStorage().put('workingFileSet', this._workingFileSet);
             }
         },
         removeTab: function (tab) {
             TabList.prototype.removeTab.call(this, tab);
-            _.remove(this._workingFileSet, tab.getFile());
-            if(tab.getFile().get('isTemp')){
-                this.getBrowserStorage().destroy(tab.getFile());
+            if(tab instanceof ServiceTab){
+                _.remove(this._workingFileSet, tab.getFile());
+                if(tab.getFile().get('isTemp')){
+                    this.getBrowserStorage().destroy(tab.getFile());
+                }
+                this.getBrowserStorage().put('workingFileSet', this._workingFileSet);
             }
-            this.getBrowserStorage().put('workingFileSet', this._workingFileSet);
         },
         newTab: function(opts) {
             var options = opts || {};
-            TabList.prototype.newTab.call(this, options);
+            return TabList.prototype.newTab.call(this, options);
         },
         getBrowserStorage: function(){
             return _.get(this, 'options.application.browserStorage');

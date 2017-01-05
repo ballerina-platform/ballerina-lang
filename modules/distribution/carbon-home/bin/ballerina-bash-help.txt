@@ -1,25 +1,18 @@
 
-Usage:  ballerina.sh service.bal [command] [-options]
-            (To execute either the Ballerina main function or start Ballerina
-             services defined in the 'service.bal' Ballerina file)
-    or
-        ballerinaserver.sh [command] [-options]
-            (To start Ballerina Server in current terminal.)
+Usage:
 
-The command are :
-    start       Start Ballerina Server in background.
-    stop        Stop Ballerina Server running in background.
-    restart     Restart Ballerina Server in background.
+    ballerina.sh [ballerina-file] args...
+        - executes the Ballerina main function in given Ballerina file
+        (Eg: main.bal).
+
+        - Use args to defines input arguments for Ballerina main function.
+        Arguments are separated by spaces. If argument contains a space, define
+        the argument within double quote. (Eg: "Hello World")
+
+Additionally ballerina.sh support following commands.
+
     version     Print Ballerina version.
     help        Print this help message.
 
-Where -options include :
-    -bargs values...
-                Defines input arguments for Ballerina main function.
-                Values are separated by space. [Applies to ballerina.sh]
-
-    -servicespath path | -s path
-                Overrides default servicespath '.' with 'path'.
-                [Applies to ballerinaserver.sh]
-
-    -bpath      Define Ballerina Path.
+Command Syntax:
+        ballerina.sh [command]

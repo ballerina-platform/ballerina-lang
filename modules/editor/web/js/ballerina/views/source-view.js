@@ -15,7 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['log', 'lodash', 'jquery', 'event_channel', 'ace/ace', 'beautify'], function(log, _, $, EventChannel, ace, Beautify) {
+define(['log', 'lodash', 'jquery', 'event_channel', 'ace/ace', '../utils/ace-mode', 'beautify', 'ace/ext/language_tools'],
+    function(log, _, $, EventChannel, ace, BallerinaMode, Beautify) {
 
     /**
      * @class SourceView
@@ -42,11 +43,9 @@ define(['log', 'lodash', 'jquery', 'event_channel', 'ace/ace', 'beautify'], func
         this._editor = ace.edit(this._container);
         //Avoiding ace warning
         this._editor.$blockScrolling = Infinity;
-        //this._editor.setTheme("ace/theme/twilight");
-        // this._editor.session.setMode("ace/mode/ballerina"); FIXME: enable ballerina mod for ace
-        // var langTools = ace.require("ace/ext/language_tools");
+        this._editor.setTheme(_.get(this._options, 'theme'));
         this._editor.setOptions({
-            enableBasicAutoCompletion:true
+            enableBasicAutocompletion:true
         });
         this._editor.setBehavioursEnabled(true);
         var self = this;
@@ -56,7 +55,13 @@ define(['log', 'lodash', 'jquery', 'event_channel', 'ace/ace', 'beautify'], func
                 self._editor.execCommand("startAutocomplete");
             }
         });
-        this._editor.session.setValue(this._content);
+        this._editor.getSession().setValue(this._content);
+        this._editor.getSession().setMode(_.get(this._options, 'mode'));
+        this._editor.renderer.setScrollMargin(_.get(this._options, 'scroll_margin'), _.get(this._options, 'scroll_margin'));
+        this._editor.setOptions({
+            fontSize: _.get(this._options, 'font_size')
+        });
+
     };
 
     /**

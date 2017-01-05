@@ -18,7 +18,6 @@
 
 package org.wso2.ballerina.core.nativeimpl.lang.string;
 
-import org.osgi.service.component.annotations.Component;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BDouble;
@@ -27,6 +26,7 @@ import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
+import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 
 /**
  * Native function ballerina.lang.string:valueOf.
@@ -37,13 +37,8 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
         packageName = "ballerina.lang.string",
         functionName = "valueOf",
         args = {@Argument(name = "double", type = TypeEnum.DOUBLE)},
-        returnType = {TypeEnum.STRING},
+        returnType = {@ReturnType(type = TypeEnum.STRING)},
         isPublic = true
-)
-@Component(
-        name = "func.lang.string_doubleValueOf",
-        immediate = true,
-        service = AbstractNativeFunction.class
 )
 public class DoubleValueOf extends AbstractNativeFunction {
 

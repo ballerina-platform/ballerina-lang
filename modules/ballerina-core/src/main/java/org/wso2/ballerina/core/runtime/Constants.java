@@ -34,7 +34,7 @@ public class Constants {
     public static final String SYSTEM_PROP_RUN_MODE_RUN = "run";
 
     // Name of the system property to hold the input arguments
-    public static final String SYSTEM_PROP_BAL_ARGS = "bal-args";
+    public static final String SYSTEM_PROP_BAL_ARGS = "bargs";
 
     // Name of the directory where Bal files are stored.
     public static final String SYSTEM_PROP_DIR = "bal-dir";
@@ -54,9 +54,7 @@ public class Constants {
         // Run Ballerina Server Mode.
         SERVER,
         // Represents ERROR Condition.
-        ERROR,
-        // Carbonized Server mode.
-        DEFAULT
+        ERROR
     }
 
 }

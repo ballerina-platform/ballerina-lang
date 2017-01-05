@@ -19,20 +19,17 @@ package org.wso2.ballerina.core.nativeimpl.functions;
 
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.ballerina.core.interpreter.BLangInterpreter;
-import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.interpreter.SymScope;
-import org.wso2.ballerina.core.linker.BLangLinker;
 import org.wso2.ballerina.core.model.BallerinaFile;
-import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValueType;
 import org.wso2.ballerina.core.nativeimpl.lang.system.PrintString;
 import org.wso2.ballerina.core.nativeimpl.lang.system.PrintlnString;
 import org.wso2.ballerina.core.utils.FunctionUtils;
 import org.wso2.ballerina.core.utils.ParserUtils;
+import org.wso2.ballerina.lang.util.Functions;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -49,18 +46,16 @@ public class SystemTest {
 
     private PrintStream original;
 
-    @BeforeTest
+    @BeforeClass
     public void setup() {
         original = System.out;
         System.setOut(new PrintStream(outContent));
-        bFile = ParserUtils.parseBalFile("samples/nativeimpl/systemTest.bal");
 
-        // Linking Native functions.
+        // Add  Native functions.
         SymScope symScope = new SymScope(null);
         FunctionUtils.addNativeFunction(symScope, new PrintlnString());
         FunctionUtils.addNativeFunction(symScope, new PrintString());
-        BLangLinker linker = new BLangLinker(bFile);
-        linker.link(symScope);
+        bFile = ParserUtils.parseBalFile("samples/nativeimpl/systemTest.bal", symScope);
     }
 
     @AfterClass
@@ -74,13 +69,10 @@ public class SystemTest {
         final String s1 = "Hello World...!!!";
         final String s2 = "A Greeting from Ballerina...!!!";
         final String expected = s1 + "\n" + s2;
-        BValueType[] arguments = {new BString(s1), new BString(s2)};
-        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, funcName, arguments.length);
 
-        Context bContext = FunctionUtils.createInvocationContext(arguments, 1);
-        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
-        funcIExpr.accept(bLangInterpreter);
+        BValueType[] args = {new BString(s1), new BString(s2)};
+        Functions.invoke(bFile, funcName, args);
+
         Assert.assertEquals(outContent.toString(), expected);
     }
-
 }

@@ -3,6 +3,26 @@
     margin-bottom: 5px;
 }
 
+button.close {
+    -webkit-appearance: none;
+    padding: 0;
+    cursor: pointer;
+    background: 0 0;
+    border: 0;
+    text-shadow: 0 0 0;
+    font-weight: 100;
+    opacity: 0.5;
+    font-size: 17px;
+    color: #fff;
+}
+
+li.active > a > button {
+    color: #272c30;
+    opacity: 0.5;
+    font-weight: normal;
+    font-size: 17px;
+}
+
 .bottom-right-controls-container {
     position: absolute;
     bottom: 150px;
@@ -74,7 +94,7 @@
 }
 
 .tab-headers {
-    background-color: #e4e4e4;
+    background-color: #333;
 }
 
 .navbar-default .navbar-nav > li a:hover {
@@ -107,8 +127,10 @@
 
 
 .nav-tabs-bar > li {
-    background-color: #c4c4c4;
+    background-color: #333333;
     width: 120px;
+    color: white;
+    font-weight: 100;
 }
 
 .nav-tabs {
@@ -126,13 +148,23 @@
     padding: 0 5px 0 6px;
 }
 
-.nav-tabs-bar>li.active>a{
-    border-top: 1px solid #ccc;
-    border-left: 1px solid #ccc;
-    border-right: 1px solid #ccc;
+.nav-tabs-bar > li.active.inverse > a > button {
+    color: #959595;
 }
 
+.nav-tabs-bar > li.active.inverse > a {
+    color: #959595;
+    background: #1D1F21;
+}
 
+.nav-tabs-bar > li.active.inverse {
+    border: none;
+}
+
+.nav-tabs-bar >li>a:focus, .nav-tabs-bar >li>a:hover {
+    text-decoration: none;
+    background-color: #505050;
+}
 /*
 .tab-content.tab-content-default {
     border: 2px solid #c7c7c7;

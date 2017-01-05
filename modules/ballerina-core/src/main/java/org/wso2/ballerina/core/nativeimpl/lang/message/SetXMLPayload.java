@@ -16,7 +16,6 @@
 
 package org.wso2.ballerina.core.nativeimpl.lang.message;
 
-import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.Context;
@@ -27,21 +26,17 @@ import org.wso2.ballerina.core.model.values.BXML;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
+import org.wso2.ballerina.core.nativeimpl.lang.utils.Constants;
 
 /**
  * Set the payload of the Message as a XML
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.message",
-        functionName = "setXMLPayload",
+        functionName = "setXmlPayload",
         args = {@Argument(name = "message", type = TypeEnum.MESSAGE),
                 @Argument(name = "payload", type = TypeEnum.XML)},
         isPublic = true
-)
-@Component(
-        name = "func.lang.echo_setXMLPayload",
-        immediate = true,
-        service = AbstractNativeFunction.class
 )
 public class SetXMLPayload extends AbstractNativeFunction {
 
@@ -49,14 +44,13 @@ public class SetXMLPayload extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        log.info("Set XMLPayload Native Function Invoked.");
         // Accessing First Parameter Value.
         BMessage msg = (BMessage) getArgument(context, 0);
         BXML payload = (BXML) getArgument(context, 1);
 
         // Setting the payload
         msg.setBuiltPayload(payload);
-        msg.setAlreadyRead(true);
+        msg.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_XML);
         return VOID_RETURN;
     }
 }

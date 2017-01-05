@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.model.Connector;
 import org.wso2.ballerina.core.model.Parameter;
+import org.wso2.ballerina.core.model.Position;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.model.values.BValue;
@@ -36,14 +37,11 @@ import java.util.List;
 public abstract class AbstractNativeConnector implements Connector, NativeConstruct {
 
     private static final Logger log = LoggerFactory.getLogger(AbstractNativeConnector.class);
-
     private SymbolName symbolName;
-
     private String packageName;
-
     private String connectorName;
-
     private List<Parameter> parameters;
+    private Position connectorLocation;
 
     public AbstractNativeConnector() {
         parameters = new ArrayList<>();
@@ -91,4 +89,20 @@ public abstract class AbstractNativeConnector implements Connector, NativeConstr
      * @return an instance
      */
     public abstract AbstractNativeConnector  getInstance();
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Position getConnectorLocation() {
+        return connectorLocation;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setConnectorLocation(Position location) {
+        this.connectorLocation = location;
+    }
 }

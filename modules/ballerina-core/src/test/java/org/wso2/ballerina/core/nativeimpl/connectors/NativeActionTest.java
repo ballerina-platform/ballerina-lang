@@ -16,7 +16,7 @@
 
 package org.wso2.ballerina.core.nativeimpl.connectors;
 
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.BeforeClass;
 import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.nativeimpl.lang.system.PrintlnString;
@@ -27,11 +27,11 @@ public class NativeActionTest {
     private BallerinaFile bFile;
     private SymScope globalScope;
 
-    @BeforeTest
+    @BeforeClass
     public void setup() {
         bFile = ParserUtils.parseBalFile("samples/parser/PassthroughService.bal");
 
-        globalScope = new SymScope();
+        globalScope = new SymScope(SymScope.Name.GLOBAL);
 
         PrintlnString printlnFunc = new PrintlnString();
 

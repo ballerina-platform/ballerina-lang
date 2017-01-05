@@ -1805,7 +1805,7 @@ a.btn:hover, .btn:hover {
 
 .btn-primary:hover {
   background-color: #429ad4;
-  border-color: #2a80b9;
+  border-color: #429ad4;
 }
 
 .btn-bordered, .btn-bordered:focus, .btn-bordered:hover {
@@ -1897,6 +1897,34 @@ input[type=number].form-control {
   -moz-box-shadow: none;
   box-shadow: none;
 }
+
+.save-form-control{
+  width: 100%;
+  background-color: #2C2C2C;
+  border-style: none;
+  height: 35px;
+}
+
+.save-form-scrollable-block{
+  padding: 20px 20px;
+  overflow: auto;
+  height:200px;
+  width: 90%;
+  background-color: #2C2C2C;
+  margin-left: 30px;
+}
+
+.save-form-btn{
+  margin-left: 77%;
+}
+
+hr.style1 {
+  border-top: 1px solid #2C2C2C;
+  width: 92%;
+  margin-left: 20px;
+  padding: 5px;
+}
+
 
 .input-wrap .btn.wrap-input-right {
   border-left: none;

@@ -17,8 +17,11 @@
 */
 package org.wso2.ballerina.lang.util;
 
-import org.wso2.ballerina.core.interpreter.BLangInterpreter;
+import org.wso2.ballerina.core.interpreter.BLangExecutor;
+import org.wso2.ballerina.core.interpreter.CallableUnitInfo;
 import org.wso2.ballerina.core.interpreter.Context;
+import org.wso2.ballerina.core.interpreter.LocalVarLocation;
+import org.wso2.ballerina.core.interpreter.RuntimeEnvironment;
 import org.wso2.ballerina.core.interpreter.StackFrame;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.Function;
@@ -26,6 +29,7 @@ import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.expressions.Expression;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
+import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.utils.ParserUtils;
 
@@ -52,7 +56,7 @@ public class Functions {
     public static BValue[] invoke(String sourceFilePath, String functionName, BValue[] args) {
 
         // 1) Get the Ballerina language model from the source file.
-        BallerinaFile bFile = ParserUtils.getLinkedBLangModel(sourceFilePath);
+        BallerinaFile bFile = ParserUtils.parseBalFile(sourceFilePath);
         return invoke(bFile, functionName, args);
     }
 
@@ -77,7 +81,11 @@ public class Functions {
         Expression[] exprs = new Expression[args.length];
         for (int i = 0; i < args.length; i++) {
             VariableRefExpr variableRefExpr = new VariableRefExpr(new SymbolName("arg" + i));
-            variableRefExpr.setOffset(i);
+
+            LocalVarLocation location = new LocalVarLocation(i);
+            variableRefExpr.setLocation(location);
+            // TODO Set the type
+//            variableRefExpr.setType();
             exprs[i] = variableRefExpr;
         }
 
@@ -86,21 +94,32 @@ public class Functions {
         funcIExpr.setOffset(args.length);
         funcIExpr.setFunction(function);
 
-
-        //4) Invoke the function
-        Context bContext = new Context();
+        // 4) Prepare function arguments
         BValue[] functionArgs = args;
         if (function.getReturnTypes().length != 0) {
             functionArgs = Arrays.copyOf(args, args.length + function.getReturnTypes().length);
         }
 
-        StackFrame currentStackFrame = new StackFrame(functionArgs, new BValue[0]);
+        // 5) Create the RuntimeEnvironment
+        RuntimeEnvironment runtimeEnv = RuntimeEnvironment.get(bFile);
+
+        // 6) Create the control stack and the stack frame to invoke the functions
+        SymbolName functionSymbolName = function.getSymbolName();
+        CallableUnitInfo functionInfo = new CallableUnitInfo(functionSymbolName.getName(), 
+                functionSymbolName.getPkgName(), function.getFunctionLocation());
+        
+        StackFrame currentStackFrame = new StackFrame(functionArgs, new BValue[0], functionInfo);
+
+        Context bContext = new Context();
         bContext.getControlStack().pushFrame(currentStackFrame);
 
-        // 5) Invokes the function
-        BLangInterpreter interpreter = new BLangInterpreter(bContext);
-        funcIExpr.accept(interpreter);
+        // 7) Invoke the function
+        BLangExecutor executor = new BLangExecutor(runtimeEnv, bContext);
+        return funcIExpr.executeMultiReturn(executor);
 
-        return Arrays.copyOfRange(functionArgs, function.getParameters().length, functionArgs.length);
+    }
+
+    private BType getTypeOfValue(BValue bValue) {
+        return null;
     }
 }

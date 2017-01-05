@@ -63,7 +63,7 @@ define(['log', 'jquery', 'backbone', 'lodash', 'tree_view', /** void module - jq
 
             activateBtn.on('click', function(){
                 if(self._isActive){
-                    self._$parent_el.parent().width('20px');
+                    self._$parent_el.parent().width('32px');
                     self._isActive = false;
                 } else {
                     self._$parent_el.parent().width('200px');

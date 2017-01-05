@@ -17,9 +17,10 @@
  */
 define(['log', 'lodash','d3','./point', 'backbone','event_channel'], function (log, _, d3,Point, Backbone, EventChannel) {
 
-    var MessageManager = function() {
-    log.info("Initialising Message Manager");
+    var MessageManager = function(args) {
+        log.info("Initialising Message Manager");
         this.typeBeingDragged = undefined;
+        this._canvas = _.get(args, 'canvas');
     };
 
     MessageManager.prototype = Object.create(EventChannel.prototype);
@@ -115,44 +116,41 @@ define(['log', 'lodash','d3','./point', 'backbone','event_channel'], function (l
          * @event MessageManager#drag-stop
          * @type {ASTNode}
          */
-        //this.trigger('drag-stop', this.get('typeBeingDragged'));
-        // this.trigger('drop-target-changed', undefined);
         this.setMessageSource(undefined);
         this.setValidateCallBack( undefined);
         this.setActivatedDropTarget(undefined);
         this.typeBeingDragged = undefined;
+    };
 
-    },
-
-    MessageManager.prototype.startDrawMessage = function(source,sourcePoint,parent){
+    MessageManager.prototype.startDrawMessage = function(source, sourcePoint){
         this.setMessageSource(source);
-        var self = this;
-
-
-        var tempLine =  parent.append("line")
+        var self = this,
+            container = d3.select(this._canvas.getSVG().get(0));
+        var tempLine = container.append("line")
             .attr("x1", sourcePoint.x() )
             .attr("y1",sourcePoint.y())
             .attr("x2",sourcePoint.x() )
             .attr("y2", sourcePoint.y() )
             .attr("stroke","#9d9d9d");
-        var points = "" +  sourcePoint.x() + "," + (sourcePoint.y() - 5) + " " + ( sourcePoint.x() + 5) + "," + (sourcePoint.y()) + " " + sourcePoint.x() + "," + (sourcePoint.y() + 5);
-        var arrowPoint = parent.append("polyline")
+        var points = "" +  sourcePoint.x() + "," + (sourcePoint.y() - 5) + " " + ( sourcePoint.x() + 5) + ","
+            + (sourcePoint.y()) + " " + sourcePoint.x() + "," + (sourcePoint.y() + 5);
+        var arrowPoint = container.append("polyline")
             .attr("points", points);
 
-        parent.on("mousemove", function () {
-            log.info("in mousemove of start-draw-message");
+        container.on("mousemove", function () {
             var m = d3.mouse(this);
             //setting an offset of 5 to avoid the mouse pointer overlapping with the arrow
             tempLine.attr("x2", m[0] - 5);
             tempLine.attr("y2", m[1] - 5);
-            var newPoints = "" +  (m[0] - 5) + "," + (m[1] - 10) + " " + ( m[0]) + "," + (m[1] - 5) + " " +  (m[0]- 5) + "," + ( m[1]);
+            var newPoints = "" +  (m[0] - 5) + "," + (m[1] - 10) + " " + ( m[0]) + ","
+                + (m[1] - 5) + " " +  (m[0]- 5) + "," + ( m[1]);
             arrowPoint.attr("points",newPoints);
         });
 
-        parent.on("mouseup", function () {
+        container.on("mouseup", function () {
             // unbind current listeners
-           parent.on("mousemove", null);
-            parent.on("mouseup", null);
+            container.on("mousemove", null);
+            container.on("mouseup", null);
 
             var startPoint = new Point(tempLine.attr("x1"),tempLine.attr("y1"));
             var endPoint = new Point(tempLine.attr("x2"),tempLine.attr("y2"));
@@ -164,19 +162,12 @@ define(['log', 'lodash','d3','./point', 'backbone','event_channel'], function (l
             }
             tempLine.remove();
             arrowPoint.remove();
-            self.getMessageSource().trigger("drawConnectionForAction",startPoint,parent);
+            self.getMessageSource().trigger("drawConnectionForAction",startPoint, container);
             self.trigger('drop-target-changed', undefined);
             self.reset();
-
-            // line.remove();
-            // arrowPoint.remove();
         });
-
-
     };
-   //MessageManager.prototype.constructor = MessageManager;
 
     return MessageManager;
-
 });
 

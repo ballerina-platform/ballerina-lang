@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerina.core.model.statements;
 
+import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.Worker;
 import org.wso2.ballerina.core.model.expressions.Expression;
@@ -42,5 +43,10 @@ public class ForkJoinStmt implements Statement {
     @Override
     public void accept(NodeVisitor visitor) {
 //        visitor.accept(this);
+    }
+
+    @Override
+    public void execute(NodeExecutor executor) {
+
     }
 }

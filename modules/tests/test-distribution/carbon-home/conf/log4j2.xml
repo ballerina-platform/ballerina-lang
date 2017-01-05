@@ -37,14 +37,14 @@
     </Appenders>
     <Loggers>
         <Root level="info">
-            <!--<AppenderRef ref="CARBON_CONSOLE"/>-->
+            <AppenderRef ref="CARBON_CONSOLE"/>
             <AppenderRef ref="CARBON_LOGFILE"/>
         </Root>
         <Logger name="AUDIT_LOG" level="info" additivity="false">
             <AppenderRef ref="AUDIT_LOGFILE"/>
         </Logger>
-        <Logger name="org.wso2.ballerina.core" level="info">
-            <AppenderRef ref="CARBON_CONSOLE"/>
-        </Logger>
+        <!--<Logger name="org.wso2.ballerina.core" level="info">-->
+            <!--<AppenderRef ref="CARBON_CONSOLE"/>-->
+        <!--</Logger>-->
     </Loggers>
 </Configuration>

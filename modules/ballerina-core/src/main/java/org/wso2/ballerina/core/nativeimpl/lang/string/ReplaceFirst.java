@@ -18,7 +18,6 @@
 
 package org.wso2.ballerina.core.nativeimpl.lang.string;
 
-import org.osgi.service.component.annotations.Component;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BString;
@@ -26,6 +25,7 @@ import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
+import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 
 /**
  * Native function ballerina.lang.string:replaceFirst.
@@ -38,13 +38,8 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
         args = {@Argument(name = "string", type = TypeEnum.STRING),
                 @Argument(name = "string", type = TypeEnum.STRING),
                 @Argument(name = "string", type = TypeEnum.STRING)},
-        returnType = {TypeEnum.STRING},
+        returnType = {@ReturnType(type = TypeEnum.STRING)},
         isPublic = true
-)
-@Component(
-        name = "func.lang.string_replaceFirst",
-        immediate = true,
-        service = AbstractNativeFunction.class
 )
 public class ReplaceFirst extends AbstractNativeFunction {
 

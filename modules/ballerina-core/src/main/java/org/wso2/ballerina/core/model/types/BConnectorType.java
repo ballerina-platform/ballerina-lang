@@ -32,7 +32,7 @@ public class BConnectorType extends BType {
      *
      * @param typeName string name of the type
      */
-    BConnectorType(String typeName) {
+    public BConnectorType(String typeName) {
         super(typeName, BConnector.class);
     }
 

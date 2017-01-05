@@ -202,7 +202,10 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             var aceEditorContainer = $('<div></div>');
             aceEditorContainer.addClass(_.get(this._viewOptions, 'cssClass.text_editor_class'));
             sourceViewContainer.append(aceEditorContainer);
-            this._sourceView = new SourceView({container: aceEditorContainer.get(0), content: "test content"});
+            var sourceViewOpts = _.clone(_.get(this._viewOptions, 'source_view'));
+            _.set(sourceViewOpts, 'container', aceEditorContainer.get(0));
+            _.set(sourceViewOpts, 'content', "");
+            this._sourceView = new SourceView(sourceViewOpts);
             this._sourceView.render();
 
             var sourceViewBtn = $(this._container).find(_.get(this._viewOptions, 'controls.view_source_btn'));
@@ -217,6 +220,8 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 self._$designViewContainer.hide();
                 designViewBtn.show();
                 sourceViewBtn.hide();
+                self.trigger('source-view-activated');
+                self.trigger('design-view-deactivated');
             });
 
             var designViewBtn = $(this._container).find(_.get(this._viewOptions, 'controls.view_design_btn'));
@@ -226,6 +231,8 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 self._$designViewContainer.show();
                 sourceViewBtn.show();
                 designViewBtn.hide();
+                self.trigger('design-view-activated');
+                self.trigger('source-view-deactivated');
             });
             // activate design view by default
             designViewBtn.hide();
@@ -373,21 +380,17 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 // Setting package name to text box.
                 packageTextBox.val(currentASTRoot.getPackageDefinition().getPackageName());
 
-                // Get check mark for package
-                var packageTick = propertyPane.find(".package-name-wrapper i");
-
-                // Saving package name to AST root.
-                $(packageTick).click(function () {
+                // Updating model along with text change on package text box.
+                packageTextBox.on("change keyup input", function () {
                     log.debug("Saving package name : " + $(packageTextBox).val());
 
                     //TODO - this for loop needs to be replaced to get the package definition
                     var childrenArray = currentASTRoot.getChildren();
-                    for(var child in childrenArray){
-                        if(BallerinaASTFactory.isPackageDefinition(childrenArray[child]))    {
-                            childrenArray[child].setPackageName($(packageTextBox).val());
+                    for (var child in childrenArray) {
+                        if (BallerinaASTFactory.isPackageDefinition(childrenArray[child])) {
+                            childrenArray[child].setPackageName($(this).val());
                             break;
                         }
-
                     }
                 });
 
@@ -403,7 +406,9 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
 
                     // Unbinding all events.
                     $(this).unbind("click");
-                    $(packageTick).unbind("click");
+                    $(packageTextBox).unbind("change");
+                    $(packageTextBox).unbind("keyup");
+                    $(packageTextBox).unbind("input");
                     $(addImportButton).unbind("click");
                     $(propertyPane).unbind("click");
 
@@ -411,7 +416,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                     $(importPackageTextBox).val("");
 
                     // Resetting the opacity of the package button.
-                    packageButton.css("opacity", 0.5);
+                    packageButton.removeAttr("style");
                 });
 
                 /**

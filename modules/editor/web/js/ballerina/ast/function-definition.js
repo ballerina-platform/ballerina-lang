@@ -15,13 +15,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './callable-definition'], function (_, CallableDefinition) {
+define(['lodash', './callable-definition', './connector-declaration'], function (_, CallableDefinition, ConnectorDeclaration) {
 
-    var FunctionDefinition = function (connectionDeclarations, variableDeclarations, workerDeclarations, statements,args) {
+    var FunctionDefinition = function (args) {
         this.id = autoGenerateId();
-        CallableDefinition.call(this, connectionDeclarations, variableDeclarations, workerDeclarations,
-            statements, 'Function');
-        this.args = args || [];
+        CallableDefinition.call(this, 'Function');
+        this._functionName = _.get(args, 'functionName') || 'newFunction';
+        this._functionArguments = _.get(args, "functionArgs", []);
     };
 
     FunctionDefinition.prototype = Object.create(CallableDefinition.prototype);
@@ -38,16 +38,65 @@ define(['lodash', './callable-definition'], function (_, CallableDefinition) {
             s4() + '-' + s4() + s4() + s4();
     }
 
-    FunctionDefinition.prototype.setArgs = function(args){
-        if(!_.isNil(args)){
-            this.args = args;
+    FunctionDefinition.prototype.setFunctionName = function(name){
+        if(!_.isNil(name)){
+            this._functionName = name;
         }
     };
 
-    FunctionDefinition.prototype.getArgs = function () {
-        return this.args;
+    FunctionDefinition.prototype.setFunctionArguments = function (args) {
+        if (!_.isNil(name)) {
+            this._functionArguments = args;
+        }
     };
-    
+
+    FunctionDefinition.prototype.getFunctionName = function () {
+        return this._functionName;
+    };
+
+    FunctionDefinition.prototype.getFunctionArguments = function () {
+        return this._functionArguments;
+    };
+
+    FunctionDefinition.prototype.getFunctionArgumentsAsString = function () {
+        var functionArgsAsString = "";
+        var functionArgs = this._functionArguments;
+        _.forEach(this._functionArguments, function(argument, index){
+            functionArgsAsString += argument.type + " ";
+            functionArgsAsString += argument.identifier;
+            if (functionArgs.length - 1 != index) {
+                functionArgsAsString += ", ";
+            }
+        });
+
+        return functionArgsAsString;
+    };
+
+    FunctionDefinition.prototype.addFunctionArgument = function(type, identifier) {
+        this._functionArguments.push({
+            type: type,
+            identifier: identifier
+        })
+    };
+
+    FunctionDefinition.prototype.removeFunctionArgument = function(identifier) {
+        _.remove(this._functionArguments, function(functionArg) {
+            return functionArg.identifier === identifier;
+        });
+    };
+
+    /**
+     * Override the super call to addChild
+     * @param child
+     * @param index
+     */
+    FunctionDefinition.prototype.addChild = function (child, index) {
+        if (child instanceof ConnectorDeclaration) {
+            Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, 0);
+        } else {
+            Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, index);
+        }
+    };
     /**
      * Validates possible immediate child types.
      * @override

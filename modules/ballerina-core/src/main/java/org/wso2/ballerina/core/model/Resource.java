@@ -62,6 +62,9 @@ public class Resource implements Node {
     private Worker[] workers;
     private BlockStmt resourceBody;
     private SymbolName resourceName;
+    private Position position;
+
+    private Application application;
 
     public Resource() {
     }
@@ -71,6 +74,7 @@ public class Resource implements Node {
     }
 
     public Resource(SymbolName name,
+                    Position position,
                     Annotation[] annotations,
                     Parameter[] parameters,
                     ConnectorDcl[] connectorDcls,
@@ -79,6 +83,7 @@ public class Resource implements Node {
                     BlockStmt functionBody) {
 
         this.resourceName = name;
+        this.position = position;
         this.annotations = annotations;
         this.parameters = parameters;
         this.connectorDcls = connectorDcls;
@@ -179,7 +184,8 @@ public class Resource implements Node {
     }
 
     /**
-     *  Get resource body
+     * Get resource body
+     *
      * @return returns the block statement
      */
     public BlockStmt getResourceBody() {
@@ -207,6 +213,14 @@ public class Resource implements Node {
         this.stackFrameSize = stackFrameSize;
     }
 
+    public Application getApplication() {
+        return application;
+    }
+
+    public void setApplication(Application application) {
+        this.application = application;
+    }
+
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
@@ -214,5 +228,18 @@ public class Resource implements Node {
 
     public Parameter[] getParameters() {
         return parameters;
+    }
+    
+    public SymbolName getSymbolName() {
+        return this.resourceName;
+    }
+
+    /**
+     * Get the location of this resource in the ballerina source file.
+     * 
+     * @return  Location of this resource in the ballerina source file.
+     */
+    public Position getResourceLocation() {
+        return position;
     }
 }

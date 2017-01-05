@@ -17,9 +17,13 @@
 */
 package org.wso2.ballerina.core.model.expressions;
 
+import org.wso2.ballerina.core.model.ExecutableMultiReturnExpr;
 import org.wso2.ballerina.core.model.Function;
+import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.NodeVisitor;
+import org.wso2.ballerina.core.model.Position;
 import org.wso2.ballerina.core.model.SymbolName;
+import org.wso2.ballerina.core.model.values.BValue;
 
 import java.util.List;
 
@@ -28,12 +32,13 @@ import java.util.List;
  *
  * @since 1.0.0
  */
-public class FunctionInvocationExpr extends AbstractExpression {
+public class FunctionInvocationExpr extends AbstractExpression implements ExecutableMultiReturnExpr {
 
     private SymbolName functionName;
     private List<Expression> expressionList;
     private Expression[] exprs;
     private Function calleeFunction;
+    private Position functionInvokedLocation;
 
     public FunctionInvocationExpr(SymbolName functionName, List<Expression> expressionList) {
         this.functionName = functionName;
@@ -68,5 +73,29 @@ public class FunctionInvocationExpr extends AbstractExpression {
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    public Position getInvokedLocation() {
+        return functionInvokedLocation;
+    }
+
+    public void setInvokedLocation(Position position) {
+        this.functionInvokedLocation = position;
+    }
+    
+    @Override
+    public BValue[] executeMultiReturn(NodeExecutor executor) {
+        return executor.visit(this);
+    }
+
+    @Override
+    public BValue execute(NodeExecutor executor) {
+        BValue[] values = executor.visit(this);
+
+        if (calleeFunction.getReturnTypes().length == 0) {
+            return null;
+        }
+
+        return values[0];
     }
 }

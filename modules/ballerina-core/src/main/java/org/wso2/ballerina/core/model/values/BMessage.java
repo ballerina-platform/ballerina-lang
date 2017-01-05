@@ -18,6 +18,7 @@
 package org.wso2.ballerina.core.model.values;
 
 import org.wso2.ballerina.core.message.BallerinaMessageDataSource;
+import org.wso2.ballerina.core.message.StringDataSource;
 import org.wso2.ballerina.core.model.util.MessageUtils;
 import org.wso2.ballerina.core.runtime.Constants;
 import org.wso2.carbon.messaging.CarbonMessage;
@@ -91,12 +92,17 @@ public final class BMessage implements BRefType<CarbonMessage> {
      */
     public void setBuiltPayload(BValue builtMsg) {
         // Set the message data source once the message is built
-        if (builtMsg instanceof BXML || builtMsg instanceof BJSON || builtMsg instanceof StringValue) {
-            BallerinaMessageDataSource ballerinaMessageDataSource = (BallerinaMessageDataSource) builtMsg;
+        BallerinaMessageDataSource ballerinaMessageDataSource = null;
+        if (builtMsg instanceof BXML || builtMsg instanceof BJSON) {
+            ballerinaMessageDataSource = (BallerinaMessageDataSource) builtMsg;
             ballerinaMessageDataSource.setOutputStream(this.value.getOutputStream());
-            this.value.setMessageDataSource(ballerinaMessageDataSource);
+        } else {
+            ballerinaMessageDataSource = new StringDataSource(builtMsg.stringValue(), this.value.getOutputStream());
         }
+        ballerinaMessageDataSource.setOutputStream(this.value.getOutputStream());
+        this.value.setMessageDataSource(ballerinaMessageDataSource);
         this.builtPayload = builtMsg;
+        setAlreadyRead(true);
     }
 
     /**
@@ -130,7 +136,7 @@ public final class BMessage implements BRefType<CarbonMessage> {
      * @return header name
      */
     public String getHeader(String headerName) {
-        return headers.get(headerName);
+        return this.value.getHeader(headerName);
     }
 
     /**

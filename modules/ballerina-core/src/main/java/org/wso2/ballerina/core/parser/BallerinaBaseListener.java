@@ -1288,6 +1288,18 @@ public class BallerinaBaseListener implements BallerinaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterMapInitKeyValueList(BallerinaParser.MapInitKeyValueListContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitMapInitKeyValueList(BallerinaParser.MapInitKeyValueListContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterMapInitKeyValue(BallerinaParser.MapInitKeyValueContext ctx) { }
 	/**
 	 * {@inheritDoc}

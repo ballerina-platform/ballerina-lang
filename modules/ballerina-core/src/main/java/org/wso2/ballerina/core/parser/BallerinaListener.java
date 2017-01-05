@@ -1124,6 +1124,16 @@ public interface BallerinaListener extends ParseTreeListener {
 	 */
 	void exitBinaryAddExpression(BallerinaParser.BinaryAddExpressionContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#mapInitKeyValueList}.
+	 * @param ctx the parse tree
+	 */
+	void enterMapInitKeyValueList(BallerinaParser.MapInitKeyValueListContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#mapInitKeyValueList}.
+	 * @param ctx the parse tree
+	 */
+	void exitMapInitKeyValueList(BallerinaParser.MapInitKeyValueListContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#mapInitKeyValue}.
 	 * @param ctx the parse tree
 	 */

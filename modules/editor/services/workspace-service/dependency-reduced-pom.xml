@@ -7,9 +7,9 @@
     <relativePath>../pom.xml/pom.xml</relativePath>
   </parent>
   <modelVersion>4.0.0</modelVersion>
-  <groupId>org.wso2.integration.tooling</groupId>
+  <groupId>org.wso2.ballerina</groupId>
   <artifactId>workspace-service</artifactId>
-  <name>WSO2 Integration Server Tooling - Workspace Service</name>
+  <name>WSO2 Ballerina - Tooling - Workspace Service</name>
   <version>1.0.0-SNAPSHOT</version>
   <repositories>
     <repository>
@@ -53,7 +53,7 @@
     </dependency>
   </dependencies>
   <properties>
-    <microservice.mainClass>org.wso2.integration.tooling.service.workspace.app.WorkspaceServiceRunner</microservice.mainClass>
+    <microservice.mainClass>org.wso2.ballerina.tooling.service.workspace.app.WorkspaceServiceRunner</microservice.mainClass>
     <junit.version>4.12</junit.version>
     <guice.version>4.1.0</guice.version>
     <antlr4.runtime.version>4.5.1.wso2v1</antlr4.runtime.version>

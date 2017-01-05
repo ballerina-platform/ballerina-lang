@@ -29,6 +29,15 @@ define(['lodash', './argument'], function (_, Argument) {
         return this.annotation;
     };
 
+    /**
+     * initialize from json
+     * @param jsonNode
+     */
+    ResourceArgument.prototype.initFromJson = function (jsonNode) {
+        this.annotate = jsonNode.annotate;
+        Object.getPrototypeOf(this.constructor.prototype).initFromJson.call(this, jsonNode, 0);
+    };
+
     return ResourceArgument;
 
 });

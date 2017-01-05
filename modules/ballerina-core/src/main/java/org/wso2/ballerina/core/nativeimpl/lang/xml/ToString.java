@@ -18,7 +18,6 @@
 
 package org.wso2.ballerina.core.nativeimpl.lang.xml;
 
-import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.Context;
@@ -29,6 +28,7 @@ import org.wso2.ballerina.core.model.values.BXML;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
+import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 import org.wso2.ballerina.core.nativeimpl.lang.utils.ErrorHandler;
 
 /**
@@ -38,13 +38,8 @@ import org.wso2.ballerina.core.nativeimpl.lang.utils.ErrorHandler;
         packageName = "ballerina.lang.xml",
         functionName = "toString",
         args = {@Argument(name = "xml", type = TypeEnum.XML)},
-        returnType = {TypeEnum.STRING},
+        returnType = {@ReturnType(type = TypeEnum.STRING)},
         isPublic = true
-)
-@Component(
-        name = "func.lang.xml_toString",
-        immediate = true,
-        service = AbstractNativeFunction.class
 )
 public class ToString extends AbstractNativeFunction {
 

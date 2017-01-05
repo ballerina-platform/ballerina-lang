@@ -28,7 +28,6 @@
 }
 
 .outer-box{
-    padding: 15px;
     border: 1px solid;
     border-top: none;
 }
@@ -53,11 +52,8 @@
     padding-left: 10px;
 }
 
-.right-icon-clickable{
-    float: right;
-    padding-right: 10px;
-    padding-top: 8px;;
-    cursor: pointer;
+.delete-icon:hover{
+    color: #333;
 }
 
 .panel-collapse .collapse{
@@ -68,6 +64,10 @@
 .tab-pane .panel{
     background: none;
     width: 96%
+}
+
+.headingRect:hover{
+    cursor: pointer;
 }
 
 
@@ -92,9 +92,14 @@
     z-index: 1000;
 }
 
-.view-design-btn{
+.view-design-btn {
     position: relative;
+    color: #000;
     z-index: 1000;
+    background-color: #fff;
+    -moz-border-radius: 50px;
+    -webkit-border-radius: 50px;
+    border-radius: 50px;
 }
 
 /** when on a specific canvas hover **/
@@ -123,4 +128,45 @@
 .design-view-hover-svg{
     fill: #008000;
     fill-opacity: 0.2;
+}
+
+/**  syntax highlight **/
+.ace_ballerina-keyword-control{
+    color: #6897BB;
+}
+
+.ace_ballerina-keyword-other{
+    color: #FFC66D;
+}
+
+.ace_ballerina-keyword-primitive-type{
+    color: #9876AA;
+}
+
+.ace_ballerina-keyword-non-primitive-type{
+    color: #CC7832;
+}
+
+.ace_ballerina-keyword-definition{
+    color: #CC7832;
+}
+
+.ace_ballerina-annotation{
+    color: #BBB529;
+}
+
+.ace_ballerina-strings{
+    color: #629755;
+}
+
+.ace_ballerina-comments{
+    color: #808080;
+}
+
+.ace_ballerina-keyword-language{
+    color: #9876AA;
+}
+
+.ace_ballerina-keyword-identifier{
+    color: #fff;
 }

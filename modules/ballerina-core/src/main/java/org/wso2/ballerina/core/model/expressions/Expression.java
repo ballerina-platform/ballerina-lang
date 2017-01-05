@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerina.core.model.expressions;
 
+import org.wso2.ballerina.core.model.ExecutableExpr;
 import org.wso2.ballerina.core.model.Node;
 import org.wso2.ballerina.core.model.types.BType;
 
@@ -28,7 +29,7 @@ import org.wso2.ballerina.core.model.types.BType;
  * @see FunctionInvocationExpr
  * @since 1.0.0
  */
-public interface Expression extends Node {
+public interface Expression extends Node, ExecutableExpr {
 
     BType getType();
 

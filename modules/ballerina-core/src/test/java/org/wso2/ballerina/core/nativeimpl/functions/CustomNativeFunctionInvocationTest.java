@@ -19,16 +19,14 @@ package org.wso2.ballerina.core.nativeimpl.functions;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import org.wso2.ballerina.core.interpreter.BLangInterpreter;
-import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.interpreter.SymScope;
-import org.wso2.ballerina.core.linker.BLangLinker;
 import org.wso2.ballerina.core.model.BallerinaFile;
-import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.values.BString;
+import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BValueType;
 import org.wso2.ballerina.core.utils.FunctionUtils;
 import org.wso2.ballerina.core.utils.ParserUtils;
+import org.wso2.ballerina.lang.util.Functions;
 
 /**
  * Test Custom Native function Invocation.
@@ -38,22 +36,18 @@ public class CustomNativeFunctionInvocationTest {
     @Test
     public void testCustomNativeFunctionInvocation() {
         final String funcName = "invokeNativeFunction";
-        BallerinaFile bFile = ParserUtils.parseBalFile("samples/nativeimpl/customNative.bal");
 
-        // Linking Native functions.
-        SymScope symScope = new SymScope(null);
+        // Add Native functions.
+        SymScope symScope = new SymScope(SymScope.Name.GLOBAL);
         FunctionUtils.addNativeFunction(symScope, new EchoStringNativeFunction());
-        BLangLinker linker = new BLangLinker(bFile);
-        linker.link(symScope);
+
+        BallerinaFile bFile = ParserUtils.parseBalFile("samples/nativeimpl/customNative.bal", symScope);
 
         final String s1 = "Hello World...!!!";
-        BValueType[] arguments = {new BString(s1)};
-        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, funcName, arguments.length);
+        BValueType[] args = {new BString(s1)};
+        BValue[] returns = Functions.invoke(bFile, funcName, args);
 
-        Context bContext = FunctionUtils.createInvocationContext(arguments, 1);
-        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
-        funcIExpr.accept(bLangInterpreter);
-
-        Assert.assertEquals(FunctionUtils.getReturnValue(bContext).stringValue(), s1);
+        Assert.assertEquals(returns[0].stringValue(), s1);
     }
+
 }

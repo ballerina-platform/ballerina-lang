@@ -248,12 +248,20 @@ define(['log', 'jquery', 'lodash', 'backbone', './tab', 'bootstrap'], function (
              */
             newTab: function (opts) {
                 var tabOptions = _.get(opts, 'tabOptions') || {};
+                var ballerinaRoot = _.get(opts, 'ballerinaRoot');
                 _.set(tabOptions, 'application', this.options.application);
                 // merge view options from app config
                 _.assign(tabOptions, _.get(this.options, 'tabs.tab'));
                 _.set(tabOptions, 'tabs_container',_.get(this.options, 'tabs.container'));
                 _.set(tabOptions, 'parent', this);
-                var newTab = new this.TabModel(tabOptions);
+                var newTab;
+                // user provided a custom tab type
+                if (_.has(opts, 'tabModel')) {
+                    var TabModel = _.get(opts, 'tabModel');
+                    newTab = new TabModel(tabOptions);
+                } else {
+                    newTab = new this.TabModel(tabOptions);
+                }
                 this.addTab(newTab);
                 // check whether switch to new tab set to false
                 if (_.has(opts, 'switchToNewTab')) {
@@ -264,7 +272,7 @@ define(['log', 'jquery', 'lodash', 'backbone', './tab', 'bootstrap'], function (
                     // activate by default
                     this.setActiveTab(newTab);
                 }
-                newTab.render();
+                newTab.render(ballerinaRoot);
                 return newTab;
             },
 
