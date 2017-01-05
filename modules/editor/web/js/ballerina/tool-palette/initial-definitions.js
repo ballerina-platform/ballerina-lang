@@ -31,7 +31,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
         var createServiceDefTool = {
             id: "service",
             name: "Service",
-            icon: "images/tool-icons/settings.svg",
+            icon: "images/tool-icons/service.svg",
             title: "Service",
             nodeFactoryMethod: BallerinaASTFactory.createServiceDefinition
         };
@@ -58,7 +58,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
             },
             icon: "images/tool-icons/main-function.svg",
             title: "Main Function",
-            nodeFactoryMethod:  BallerinaASTFactory.createFunctionDefinition
+            nodeFactoryMethod:  BallerinaASTFactory.createMainFunctionDefinition
         };
 
         var mainToolDefArray = [createServiceDefTool, createResourceDefTool, createFunctionDefTool, createMainFunctionDefTool];
@@ -113,8 +113,16 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
             nodeFactoryMethod: BallerinaASTFactory.createReplyStatement
         };
 
+        var createReturnStatementTool = {
+            id: "Return",
+            name: "Return",
+            icon: "images/tool-icons/return.svg",
+            title: "Return",
+            nodeFactoryMethod: BallerinaASTFactory.createReturnStatement
+        };
+
         var statementToolDefArray = [createIfStatementTool, createAssignmentExpressionTool,
-            createFunctionInvocationTool, createReplyStatementTool];
+            createFunctionInvocationTool, createReturnStatementTool, createReplyStatementTool];
 
         // Create statements tool group
         var statementsToolGroup = new ToolGroup({

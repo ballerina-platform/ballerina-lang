@@ -1250,9 +1250,11 @@ public class BLangAntlr4Listener implements BallerinaListener {
     @Override
     public void exitMapInitKeyValue(BallerinaParser.MapInitKeyValueContext ctx) {
         if (ctx.exception == null) {
-            modelBuilder.createMapInitKeyValue(ctx.QuotedStringLiteral().toString());
+            // Remove the double quotes
+            String key = ctx.QuotedStringLiteral().toString().substring(1,
+                    ctx.QuotedStringLiteral().toString().length() - 1);
+            modelBuilder.createMapInitKeyValue(key);
         }
-
     }
 
     @Override

@@ -332,7 +332,7 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
                 });
 
                 $(deleteButtonRect.node()).click(function(event){
-                    log.info("Clicked delete button");
+                    log.debug("Clicked delete button");
 
                     event.stopPropagation();
 
@@ -379,7 +379,7 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
     };
 
     BallerinaStatementView.prototype.childViewRemovedCallback = function (child) {
-        log.info("[Eventing] Child element view removed. ");
+        log.debug("[Eventing] Child element view removed. ");
         //TODO: remove canvas container for each delete click
 
         var ballerinaFileEditor = this.getDiagramRenderingContext().ballerinaFileEditor;

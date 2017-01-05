@@ -187,7 +187,7 @@ public class BLangModelBuilder {
         //        Annotation.AnnotationBuilder annotationBuilder = annotationBuilderStack.peek();
         //        annotationBuilder.addKeyValuePair(new Identifier(key), value);
 
-        log.warn("Key/Value pairs in annotations are not supported");
+        log.warn("Warning: Key/Value pairs in annotations are not supported");
     }
 
     public void endAnnotation(String name, boolean valueAvailable) {
@@ -291,7 +291,6 @@ public class BLangModelBuilder {
 
     public void createConnectorDcl(String varName) {
         // Here we build the object model for the following line
-        // ballerina.net.http:HTTPConnector nyseEP = new ballerina.net.http:HTTPConnector("http://..", 100);
 
         // Here we need to pop the symbolName stack twice as the connector name appears twice in the declaration.
         if (symbolNameStack.size() < 2) {

@@ -24,7 +24,7 @@ define(['lodash', './statement'], function (_, Statement) {
     var Assignment = function (args) {
         Statement.call(this, 'Assignment');
         this._variableAccessor = _.get(args, 'accessor', 'var1');
-        this._expression = 'exp1';
+        this._expression = 'a = b';
     };
 
     Assignment.prototype = Object.create(Statement.prototype);

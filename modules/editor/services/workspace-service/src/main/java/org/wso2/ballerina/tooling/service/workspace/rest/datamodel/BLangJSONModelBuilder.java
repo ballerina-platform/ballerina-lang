@@ -206,8 +206,8 @@ public class BLangJSONModelBuilder implements NodeVisitor {
                 annotation.accept(this);
             }
         }
-        if (connector.getArguments() != null) {
-            for (Parameter parameter : connector.getArguments()) {
+        if (connector.getParameters() != null) {
+            for (Parameter parameter : connector.getParameters()) {
                 parameter.accept(this);
             }
         }
@@ -216,8 +216,8 @@ public class BLangJSONModelBuilder implements NodeVisitor {
                 connectDcl.accept(this);
             }
         }
-        if (connector.getVariables() != null) {
-            for (VariableDcl variableDcl : connector.getVariables()) {
+        if (connector.getVariableDcls() != null) {
+            for (VariableDcl variableDcl : connector.getVariableDcls()) {
                 variableDcl.accept(this);
             }
         }

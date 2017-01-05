@@ -99,6 +99,7 @@ import java.util.Map;
 public class SemanticAnalyzer implements NodeVisitor {
     private int stackFrameOffset = -1;
     private int staticMemAddrOffset = -1;
+    private int connectorMemAddrOffset = -1;
 
     private SymTable symbolTable;
 
@@ -214,11 +215,39 @@ public class SemanticAnalyzer implements NodeVisitor {
         Symbol symbol = new Symbol(connector, LangModelUtils.getTypesOfParams(connector.getParameters()));
         symbolTable.insert(new SymbolName(connector.getPackageQualifiedName()), symbol);
 
+        // We need to add all the action symbols to package scope
         for (BallerinaAction action : connector.getActions()) {
             addActionSymbol(action);
+        }
+
+        // Then open the connector namespace
+        openScope(SymScope.Name.CONNECTOR);
+
+        for (Parameter parameter : connector.getParameters()) {
+            connectorMemAddrOffset++;
+            visit(parameter);
+        }
+
+        for (ConnectorDcl connectorDcl : connector.getConnectorDcls()) {
+            connectorMemAddrOffset++;
+            visit(connectorDcl);
+        }
+
+        for (VariableDcl variableDcl : connector.getVariableDcls()) {
+            connectorMemAddrOffset++;
+            visit(variableDcl);
+        }
+
+        for (BallerinaAction action : connector.getActions()) {
             action.accept(this);
         }
 
+        int sizeOfConnectorMem = connectorMemAddrOffset + 1;
+        connector.setSizeOfConnectorMem(sizeOfConnectorMem);
+
+        // Close the symbol scope
+        connectorMemAddrOffset = -1;
+        closeScope();
     }
 
     @Override
@@ -301,7 +330,6 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(BallerinaAction action) {
-
         // Open a new symbol scope
         openScope(SymScope.Name.ACTION);
 
@@ -337,8 +365,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         action.setStackFrameSize(sizeOfStackFrame);
 
         // Close the symbol scope
+        stackFrameOffset = -1;
         closeScope();
-
     }
 
     @Override
@@ -362,7 +390,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         MemoryLocation location;
         if (isInScope(SymScope.Name.CONNECTOR)) {
-            location = new ConnectorVarLocation();
+            location = new ConnectorVarLocation(connectorMemAddrOffset);
 
         } else if (isInScope(SymScope.Name.FUNCTION) ||
                 isInScope(SymScope.Name.RESOURCE) ||
@@ -391,7 +419,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         MemoryLocation location;
         if (isInScope(SymScope.Name.CONNECTOR)) {
-            location = new ConnectorVarLocation();
+            location = new ConnectorVarLocation(connectorMemAddrOffset);
 
         } else if (isInScope(SymScope.Name.SERVICE)) {
             location = new ServiceVarLocation(staticMemAddrOffset);
@@ -423,7 +451,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         MemoryLocation location;
         if (isInScope(SymScope.Name.CONNECTOR)) {
-            location = new ConnectorVarLocation();
+            location = new ConnectorVarLocation(connectorMemAddrOffset);
 
         } else if (isInScope(SymScope.Name.SERVICE)) {
             location = new ServiceVarLocation(staticMemAddrOffset);

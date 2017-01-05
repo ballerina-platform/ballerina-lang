@@ -92,7 +92,7 @@ public class BalProgramExecutor {
                 Parameter[] parameters = mainFunction.getParameters();
                 if (parameters.length == 1 && parameters[0].getType() == BTypes.getArrayType(BTypes.
                         STRING_TYPE.toString())) {
-                   argsName = parameters[0].getName();
+                    argsName = parameters[0].getName();
                 } else {
                     throw new BallerinaException("Main function does not comply with standard main function in" +
                             " ballerina");
@@ -100,7 +100,13 @@ public class BalProgramExecutor {
 
                 // Read from command line arguments
                 String balArgs = System.getProperty(SYSTEM_PROP_BAL_ARGS);
-                String[] arguments = balArgs.split(";");
+                String[] arguments;
+
+                if (balArgs.trim().length() == 0) {
+                    arguments = new String[0];
+                } else {
+                    arguments = balArgs.split(";");
+                }
 
                 Expression[] exprs = new Expression[1];
                 VariableRefExpr variableRefExpr = new VariableRefExpr(argsName);
@@ -126,7 +132,7 @@ public class BalProgramExecutor {
                 SymbolName functionSymbolName = funcIExpr.getFunctionName();
                 CallableUnitInfo functionInfo = new CallableUnitInfo(functionSymbolName.getName(),
                         functionSymbolName.getPkgName(), mainFuncLocation);
-                
+
                 StackFrame currentStackFrame = new StackFrame(argValues, new BValue[0], functionInfo);
                 bContext.getControlStack().pushFrame(currentStackFrame);
                 RuntimeEnvironment runtimeEnv = RuntimeEnvironment.get(balFile);
@@ -137,7 +143,8 @@ public class BalProgramExecutor {
             }
         } catch (Throwable ex) {
             String stackTrace = ErrorHandlerUtils.getMainFunctionStackTrace(bContext);
-            log.error("Error while executing ballerina program. " + ex.getMessage() + "\n" + stackTrace);
+            log.error("Error while executing ballerina program. " + ex.getMessage() +
+                    (stackTrace.length() != 0 ? "\n" + stackTrace : ""));
         }
     }
 }
