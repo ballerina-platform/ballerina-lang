@@ -45,7 +45,7 @@ import javax.ws.rs.HttpMethod;
 public class BLangJSONModelTest {
 
     private MicroservicesRunner microservicesRunner;
-    HashMap<String, Package> packages = new HashMap<String, Package>();
+    //private HashMap<String, Package> packages = new HashMap<String, Package>();
     private String exptdStrFunc = "{\"root\":[{\"type\":\"package\",\"package_name\":\"samples.\"}," +
             "{\"type\":\"import\",\"import_package_name\":\"twitter\",\"import_package_path\":" +
             "\"ballerina.connectors.twitter\"},{\"type\":\"import\",\"import_package_name\":\"sf\"," +
