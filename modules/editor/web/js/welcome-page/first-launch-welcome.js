@@ -173,7 +173,7 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
                 // Rendering CBR sample preview
                 config =
                 {
-                    "sampleName": "contentBasedRouter.bal",
+                    "sampleName": "routingServices.bal",
                     "parentContainer": "#innerSamples",
                     "clickEventCallback": function () {
                         command.dispatch("create-new-tab", contentBasedRoutingSampleAST);
