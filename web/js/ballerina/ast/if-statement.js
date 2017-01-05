@@ -24,11 +24,11 @@ define(['lodash', 'log', './conditional-statement'], function (_, log, Condition
      * @constructor
      */
     var IfStatement = function (condition,statements) {
+        ConditionalStatement.call(this);
         if(!_.isNil(condition)){
             this._condition = condition;
         }
         this._statements = statements || [];
-        ConditionalStatement.call(this);
     };
 
     IfStatement.prototype = Object.create(ConditionalStatement.prototype);

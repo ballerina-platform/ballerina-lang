@@ -574,7 +574,6 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
                 resource_passthrough2.addChild(setJsonPayloadFunctionInvocation);
 
                 var ifelse1 = BallerinaASTFactory.createIfElseStatement();
-                var if1 = BallerinaASTFactory.createIfStatement();
 
                 var actionOpts = {connector:nyseEPConnectorDeclaration, isUserDropped:false};
                 var getActionStatement1 = BallerinaASTFactory.createActionInvocationExpression(actionOpts);
@@ -583,10 +582,9 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
                 getActionStatement1.setVariableAccessor("response");
                 getActionStatement1.setMessage("m");
                 getActionStatement1.setPath("/");
-                if1.addChild(getActionStatement1);
+                ifelse1.getIfStatement().addChild(getActionStatement1);
 
-                if1.setCondition("nameString == nyseString");
-                var else1 = BallerinaASTFactory.createElseStatement();
+                ifelse1.getIfStatement().setCondition("nameString == nyseString");
 
                 var actionOpts = {connector:nasdaqEPConnectorDeclaration, isUserDropped:false};
                 var getActionStatement2 = BallerinaASTFactory.createActionInvocationExpression(actionOpts);
@@ -595,10 +593,7 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
                 getActionStatement2.setVariableAccessor("response");
                 getActionStatement2.setMessage("m");
                 getActionStatement2.setPath("/");
-                else1.addChild(getActionStatement2);
-
-                ifelse1.addChild(if1);
-                ifelse1.addChild(else1);
+                ifelse1.getElseStatement().addChild(getActionStatement2);
 
                 resource_passthrough2.addChild(ifelse1);
 
