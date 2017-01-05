@@ -63,6 +63,8 @@ public class Resource implements Node {
     private BlockStmt resourceBody;
     private SymbolName resourceName;
 
+    private Application application;
+
     public Resource() {
     }
 
@@ -170,7 +172,8 @@ public class Resource implements Node {
     }
 
     /**
-     *  Get resource body
+     * Get resource body
+     *
      * @return returns the block statement
      */
     public BlockStmt getResourceBody() {
@@ -196,6 +199,14 @@ public class Resource implements Node {
 
     public void setStackFrameSize(int stackFrameSize) {
         this.stackFrameSize = stackFrameSize;
+    }
+
+    public Application getApplication() {
+        return application;
+    }
+
+    public void setApplication(Application application) {
+        this.application = application;
     }
 
     @Override
