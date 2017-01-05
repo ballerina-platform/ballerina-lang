@@ -94,8 +94,7 @@ public class BalDeployer {
                 balFile.accept(semanticAnalyzer);
 
                 if (Constants.RuntimeMode.RUN_FILE == ServiceContextHolder.getInstance().getRuntimeMode()) {
-                    BallerinaFunction function =
-                            (BallerinaFunction) balFile.getFunctions().get(Constants.MAIN_FUNCTION_NAME);
+                    BallerinaFunction function = (BallerinaFunction) balFile.getMainFunction();
                     if (function != null) {
                         ServiceContextHolder.getInstance().setBallerinaFileToExecute(balFile);
                         successful = true;

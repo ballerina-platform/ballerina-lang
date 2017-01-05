@@ -24,7 +24,7 @@ public class IfElseParserTest {
 //    public void testFuncInvocation() {
 //        final String funcName = "test";
 //        BallerinaFile bFile = ParserUtils.parseBalFile("lang/statements/if-stmt.bal");
-//        BallerinaFunction function = (BallerinaFunction) bFile.getFunctions().get(funcName);
+//        BallerinaFunction function = (BallerinaFunction) bFile.getFunctionList().get(funcName);
 //        Assert.assertNotNull(function);
 //    }
 
