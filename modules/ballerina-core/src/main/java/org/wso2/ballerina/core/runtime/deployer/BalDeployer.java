@@ -22,7 +22,6 @@ import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.RuntimeEnvironment;
 import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.model.Application;
@@ -146,12 +145,14 @@ public class BalDeployer {
                 }
                 log.error("File extension not supported. Support only {}.", FILE_EXTENSION);
             }
-        } catch (IOException e) {
-            log.error("Error while creating Ballerina object model from file : {}", file.getName(), e.getMessage());
+//        } catch (IOException e) {
+//            log.error("Error while compiling from file : {}", file.getName(), e.getMessage());
+//            successful = false;
+
+        } catch (Throwable e) {
+            log.error("Compilation failure in {} : {}", file.getName(), e.getMessage());
             successful = false;
-        } catch (BallerinaException e) {
-            log.error("Failed to deploy {} : {}", file.getName(), e.getMessage());
-            successful = false;
+
         } finally {
             if (inputStream != null) {
                 try {
