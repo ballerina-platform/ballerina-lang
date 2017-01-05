@@ -177,6 +177,10 @@ public class ChannelUtils {
             }
         } else if (carbonMessage instanceof DefaultCarbonMessage) {
             DefaultCarbonMessage defaultCMsg = (DefaultCarbonMessage) carbonMessage;
+            if (defaultCMsg.isEndOfMsgAdded() && defaultCMsg.isEmpty()) {
+                channel.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
+                return true;
+            }
             while (true) {
                 ByteBuffer byteBuffer = defaultCMsg.getMessageBody();
                 ByteBuf bbuf = Unpooled.wrappedBuffer(byteBuffer);
