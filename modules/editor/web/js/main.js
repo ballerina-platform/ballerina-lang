@@ -39,7 +39,7 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'app/menu-bar/menu-bar
         initComponents: function(){
 
             // init command manager
-            this.commandManager = new CommandManager();
+            this.commandManager = new CommandManager(this);
 
             this.browserStorage = new Workspace.BrowserStorage('ballerinaAppTempStorage');
 
