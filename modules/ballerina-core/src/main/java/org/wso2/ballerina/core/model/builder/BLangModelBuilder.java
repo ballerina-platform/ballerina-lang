@@ -57,6 +57,7 @@ import org.wso2.ballerina.core.model.expressions.NotEqualExpression;
 import org.wso2.ballerina.core.model.expressions.OrExpression;
 import org.wso2.ballerina.core.model.expressions.SubtractExpression;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
+import org.wso2.ballerina.core.model.statements.ActionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.statements.FunctionInvocationStmt;
@@ -692,6 +693,23 @@ public class BLangModelBuilder {
         blockStmtBuilderStack.peek().addStmt(functionInvocationStmt);
     }
 
+    public void createActionInvocationStmt(Position invokedLocation) {
+        CallableUnitInvocationExprBuilder cIExprBuilder = new CallableUnitInvocationExprBuilder();
+        cIExprBuilder.setExpressionList(exprListStack.pop());
+        cIExprBuilder.setName(symbolNameStack.pop());
+
+        ActionInvocationExpr invocationExpr = cIExprBuilder.buildActionInvocExpr();
+        invocationExpr.setInvokedLocation(invokedLocation);
+
+        ActionInvocationStmt.ActionInvocationStmtBuilder stmtBuilder =
+                new ActionInvocationStmt.ActionInvocationStmtBuilder();
+        stmtBuilder.setFunctionInvocationExpr(invocationExpr);
+        ActionInvocationStmt actionInvocationStmt = stmtBuilder.build();
+
+        blockStmtBuilderStack.peek().addStmt(actionInvocationStmt);
+    }
+
+
     // Literal Values
 
     public void createIntegerLiteral(String value) {
@@ -753,7 +771,7 @@ public class BLangModelBuilder {
 
     /**
      * @param keyValueDataHolderList List<KeyValueDataHolder>
-     * @param n        number of expression to be added the given list
+     * @param n                      number of expression to be added the given list
      */
     private void addKeyValueToList(List<KeyValueExpression> keyValueDataHolderList, int n) {
 
