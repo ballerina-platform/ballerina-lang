@@ -73,7 +73,7 @@ public class WorkspaceServiceRunner {
 
         int port = Integer.getInteger(Constants.SYS_FILE_WEB_PORT, Constants.DEFAULT_FILE_WEB_PORT);
         String contextRoot = Paths.get(balHome, Constants.FILE_CONTEXT_RESOURCE, Constants
-                .FILE_CONTEXT_RESOURCE_TOOl)
+                .FILE_CONTEXT_RESOURCE_EDITOR, Constants.FILE_CONTEXT_RESOURCE_EDITOR_WEB)
                 .toString();
         FileServer fileServer = new FileServer();
         fileServer.setContextRoot(contextRoot);
