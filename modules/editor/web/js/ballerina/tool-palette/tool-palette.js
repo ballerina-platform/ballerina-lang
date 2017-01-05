@@ -48,6 +48,8 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
             var searchBarDiv = $('<div></div>');
             searchBarDiv.addClass(_.get(this._options, 'search_bar.cssClass.search_box'));
             var searchInput = $('<input>');
+            // TODO: Need to enable this after the functionality implementation
+            searchInput.attr('disabled','disabled');
             searchInput.addClass(_.get(this._options, 'search_bar.cssClass.search_input'));
             searchInput.attr('id','search-field').attr('placeholder','Search').attr('type','text');
             var searchIcon = $('<i></i>');
