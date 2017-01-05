@@ -215,12 +215,7 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
                 var importDeclaration_netHttp = BallerinaASTFactory.createImportDeclaration();
                 importDeclaration_netHttp.setPackageName("ballerina.net.http");
                 importDeclaration_netHttp.setParent(ballerinaAstRoot1);
-                var importDeclarations = [];
-                //importDeclarations.push(importDeclaration_langMessage);
-                importDeclarations.push(importDeclaration_netHttp);
-                ballerinaAstRoot1.setImportDeclarations(importDeclarations);
-                //ballerinaAstRoot1.addChild(importDeclaration_langMessage);
-                ballerinaAstRoot1.addChild(importDeclaration_netHttp);
+                ballerinaAstRoot1.addImport(importDeclaration_netHttp);
 
                 //service definition
                 var serviceDefinition_passthroughService2 = BallerinaASTFactory.createServiceDefinition();
@@ -275,12 +270,8 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
                 var importDeclaration_netHttp = BallerinaASTFactory.createImportDeclaration();
                 importDeclaration_netHttp.setPackageName("ballerina.net.http");
                 importDeclaration_netHttp.setParent(ballerinaAstRoot1);
-                var importDeclarations = [];
-                importDeclarations.push(importDeclaration_langSystem);
-                //importDeclarations.push(importDeclaration_netHttp);
-                ballerinaAstRoot1.setImportDeclarations(importDeclarations);
-                ballerinaAstRoot1.addChild(importDeclaration_langSystem);
-                //ballerinaAstRoot1.addChild(importDeclaration_netHttp);
+                ballerinaAstRoot1.addImport(importDeclaration_langSystem);
+                // ballerinaAstRoot1.addImport(importDeclaration_netHttp);
 
                 //function definition
 
@@ -314,12 +305,8 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
                 var importDeclaration_netHttp = BallerinaASTFactory.createImportDeclaration();
                 importDeclaration_netHttp.setPackageName("ballerina.net.http as http");
                 importDeclaration_netHttp.setParent(ballerinaAstRoot1);
-                var importDeclarations = [];
-                importDeclarations.push(importDeclaration_langMessage);
-                importDeclarations.push(importDeclaration_netHttp);
-                ballerinaAstRoot1.setImportDeclarations(importDeclarations);
-                ballerinaAstRoot1.addChild(importDeclaration_langMessage);
-                ballerinaAstRoot1.addChild(importDeclaration_netHttp);
+                ballerinaAstRoot1.addImport(importDeclaration_langMessage);
+                ballerinaAstRoot1.addImport(importDeclaration_netHttp);
 
                 //service definition
 
@@ -452,14 +439,10 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
                 importDeclaration_langSystem.setPackageName("ballerina.lang.system");
                 importDeclaration_langSystem.setParent(ballerinaAstRoot1);
 
-                var importDeclarations = [];
-                importDeclarations.push(importDeclaration_netHttp);
-                importDeclarations.push(importDeclaration_langMessage);
-                ballerinaAstRoot1.setImportDeclarations(importDeclarations);
-                ballerinaAstRoot1.addChild(importDeclaration_netHttp);
-                ballerinaAstRoot1.addChild(importDeclaration_langJson);
-                ballerinaAstRoot1.addChild(importDeclaration_langMessage);
-                ballerinaAstRoot1.addChild(importDeclaration_langSystem);
+                ballerinaAstRoot1.addImport(importDeclaration_netHttp);
+                ballerinaAstRoot1.addImport(importDeclaration_langJson);
+                ballerinaAstRoot1.addImport(importDeclaration_langMessage);
+                ballerinaAstRoot1.addImport(importDeclaration_langSystem);
 
                 //service definition
                 var serviceDefinition_passthroughService2 = BallerinaASTFactory.createServiceDefinition();

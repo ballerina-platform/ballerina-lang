@@ -36,17 +36,17 @@ function (require, _, log, EventChannel, AbstractStatementSourceGenVisitor) {
         * that particular source generation has to be constructed here
         */
         this.appendSource('else {');
-        log.info('Begin visit Else Statement Definition');
+        log.debug('Begin visit Else Statement Definition');
     };
 
     ElseStatementVisitor.prototype.visitElseStatement = function(elseStatement){
-        log.info('Visit Else Statement Definition');
+        log.debug('Visit Else Statement Definition');
     };
 
     ElseStatementVisitor.prototype.endVisitElseStatement = function(elseStatement){
         this.appendSource("}\n");
         this.getParent().appendSource(this.getGeneratedSource());
-        log.info('End Visit Else Statement Definition');
+        log.debug('End Visit Else Statement Definition');
     };
 
     ElseStatementVisitor.prototype.visitStatement = function(statement){

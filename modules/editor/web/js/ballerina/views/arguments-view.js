@@ -19,7 +19,7 @@ define(['require', 'lodash', 'jquery'],
     function (require, _, $) {
 
         //TODO : Move this to a common constant.
-        var variableTypes = ['message', 'connection', 'string', 'int', 'exception', 'json'];
+        var variableTypes = ['message', 'connection', 'string', 'int', 'exception', 'json', 'xml', 'string[]', 'int[]'];
 
         /**
          * Creates the arguments pane.

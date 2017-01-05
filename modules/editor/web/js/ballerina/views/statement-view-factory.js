@@ -18,10 +18,12 @@
 define(['lodash', 'log', 'event_channel', '../ast/module', './try-catch-statement-view', './try-statement-view',
         './catch-statement-view', './if-else-statement-view', './if-statement-view', './else-statement-view',
         './else-if-statement-view', './assignment-view', './function-invocation-view',
-        './action-invocation-statement-view', './while-statement-view', './reply-statement-view', './logical-expression-view', './arithmetic-expression-view'],
+        './action-invocation-statement-view', './while-statement-view', './reply-statement-view',
+        './logical-expression-view', './arithmetic-expression-view', './return-statement-view'],
     function (_, log, EventChannel, AST, TryCatchStatementView, TryStatementView, CatchStatementView,
               IfElseStatementView, IfStatementView, ElseStatementView, ElseIfStatementView, AssignmentStatementView,
-              FunctionInvocationStatementView, ActionInvocationStatementView, WhileStatementView, ReplyStatementView, LogicalExpressionView, ArithmeticExpressionView) {
+              FunctionInvocationStatementView, ActionInvocationStatementView, WhileStatementView, ReplyStatementView,
+              LogicalExpressionView, ArithmeticExpressionView, ReturnStatement) {
 
         var StatementViewFactory = function () {
         };
@@ -56,6 +58,8 @@ define(['lodash', 'log', 'event_channel', '../ast/module', './try-catch-statemen
                 return new LogicalExpressionView(args);
             } else if (statement instanceof AST.ArithmeticExpression) {
                 return new ArithmeticExpressionView(args);
+            } else if (statement instanceof AST.ReturnStatement) {
+                return new ReturnStatement(args);
             }
         };
 

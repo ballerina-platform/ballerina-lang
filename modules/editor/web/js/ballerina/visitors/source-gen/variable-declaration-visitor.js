@@ -31,17 +31,17 @@ define(['require','lodash', 'log', 'event_channel', './abstract-source-gen-visit
 
         VariableDeclarationVisitor.prototype.beginVisitVariableDeclaration = function (variableDeclaration) {
             this.appendSource(variableDeclaration.getType() + " " +variableDeclaration.getIdentifier());
-            log.info('Begin Visit Variable Declaration');
+            log.debug('Begin Visit Variable Declaration');
         };
 
         VariableDeclarationVisitor.prototype.visitVariableDeclaration = function (variableDeclaration) {
-            log.info('Visit Variable Declaration');
+            log.debug('Visit Variable Declaration');
         };
 
         VariableDeclarationVisitor.prototype.endVisitVariableDeclaration = function (variableDeclaration) {
             this.appendSource(";\n");
             this.getParent().appendSource(this.getGeneratedSource());
-            log.info('End Visit Variable Declaration');
+            log.debug('End Visit Variable Declaration');
         };
 
         return VariableDeclarationVisitor;

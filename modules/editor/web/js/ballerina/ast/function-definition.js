@@ -15,13 +15,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './callable-definition', './connector-declaration'], function (_, CallableDefinition, ConnectorDeclaration) {
+define(['lodash', './callable-definition', './connector-declaration', './variable-declaration', './return-type'],
+    function (_, CallableDefinition, ConnectorDeclaration, VariableDeclaration, ReturnType) {
 
     var FunctionDefinition = function (args) {
         this.id = autoGenerateId();
         CallableDefinition.call(this, 'Function');
         this._functionName = _.get(args, 'functionName') || 'newFunction';
-        this._functionArguments = _.get(args, "functionArgs", []);
+        this._arguments = _.get(args, "functionArgs", []);
         this._isPublic = _.get(args, "isPublic") || false;
     };
 
@@ -57,6 +58,13 @@ define(['lodash', './callable-definition', './connector-declaration'], function 
         }
     };
 
+    FunctionDefinition.prototype.setVariableDeclarations = function (variableDeclarations) {
+        if (!_.isNil(variableDeclarations)) {
+            // TODO : To implement using child array.
+            throw "To be Implemented";
+        }
+    };
+
     FunctionDefinition.prototype.getFunctionName = function () {
         return this._functionName;
     };
@@ -67,6 +75,47 @@ define(['lodash', './callable-definition', './connector-declaration'], function 
 
     FunctionDefinition.prototype.getIsPublic = function () {
         return this._isPublic;
+    };
+
+    FunctionDefinition.prototype.getVariableDeclarations = function () {
+        var variableDeclarations = [];
+        _.forEach(this.getChildren(), function (child) {
+            if (child instanceof VariableDeclaration) {
+                variableDeclarations.push(child);
+            }
+        });
+        return variableDeclarations;
+    };
+
+    /**
+     * Adds new variable declaration.
+     */
+    FunctionDefinition.prototype.addVariableDeclaration = function (newVariableDeclaration) {
+        // Get the index of the last variable declaration.
+        var index = _.findLastIndex(this.getChildren(), function (child) {
+            return child instanceof VariableDeclaration;
+        });
+
+        // index = -1 when there are not any variable declarations, hence get the index for connector
+        // declarations.
+        if (index == -1) {
+            index = _.findLastIndex(this.getChildren(), function (child) {
+                return child instanceof ConnectorDeclaration;
+            });
+        }
+
+        this.addChild(newVariableDeclaration, index + 1);
+    };
+
+    /**
+     * Adds new variable declaration.
+     */
+    FunctionDefinition.prototype.removeVariableDeclaration = function (newVariableDeclaration) {
+        // Deleting the variable from the children.
+        _.remove(this.getChildren(), function (child) {
+            return child instanceof VariableDeclaration &&
+                child.getIdentifier() === newVariableDeclaration;
+        });
     };
 
     /**
@@ -107,6 +156,83 @@ define(['lodash', './callable-definition', './connector-declaration'], function 
     FunctionDefinition.prototype.removeArgument = function(identifier) {
        return  _.remove(this._arguments, function(functionArg) {
             return functionArg.identifier === identifier;
+        });
+    };
+
+    /**
+     * Gets the return type as a string separated by commas.
+     * @return {string} - Return types.
+     */
+    FunctionDefinition.prototype.getReturnTypesAsString = function(){
+        var returnTypes = [];
+        _.forEach(this.getChildren(), function(child) {
+            if (child instanceof ReturnType) {
+                _.forEach(child.getChildren(), function(returnTypeChild){
+                    returnTypes.push(returnTypeChild.getType())
+                });
+                // break;
+                return false;
+            }
+        });
+
+        return _.join(returnTypes, ", ");
+    };
+
+    /**
+     * Gets return types.
+     */
+    FunctionDefinition.prototype.getReturnTypes = function () {
+        var returnTypes = [];
+        _.forEach(this.getChildren(), function(child) {
+            if (child instanceof ReturnType) {
+                _.forEach(child.getChildren(), function(returnTypeChild){
+                    returnTypes.push(returnTypeChild)
+                });
+                // break;
+                return false;
+            }
+        });
+
+        return returnTypes;
+    };
+
+    /**
+     * Adds new return type.
+     */
+    FunctionDefinition.prototype.addReturnType = function (newReturnType) {
+        var typeName = this.getFactory().createTypeName();
+        typeName.setTypeName(newReturnType);
+
+        var existingReturnType = _.find(this.getChildren(), function(child){
+            return child instanceof ReturnType;
+        });
+
+        if (!_.isNil(existingReturnType)) {
+            existingReturnType.addChild(typeName, existingReturnType.length + 1);
+        } else {
+            var returnType = this.getFactory().createReturnType();
+            returnType.addChild(typeName, 0);
+            this.addChild(returnType);
+        }
+    };
+
+    /**
+     * Remove return type declaration.
+     */
+    FunctionDefinition.prototype.removeReturnType = function (returnType) {
+        _.forEach(this.getChildren(), function (child) {
+            if (child instanceof ReturnType) {
+                var childrenOfReturnType = child.getChildren();
+                _.forEach(childrenOfReturnType, function(type, index){
+                    if (type.getType() == returnType) {
+                        childrenOfReturnType.splice(index, 1);
+                        // break
+                        return false;
+                    }
+                });
+                // break
+                return false;
+            }
         });
     };
 

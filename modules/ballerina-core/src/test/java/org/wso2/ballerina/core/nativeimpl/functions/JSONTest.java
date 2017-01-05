@@ -218,7 +218,7 @@ public class JSONTest {
         Functions.invoke(bFile, "getInt", args);
     }
 
-    @Test(description = "Get a value in a non-existing jsonpath")
+    @Test(description = "Get a value in a non-existing jsonpath", expectedExceptions = BallerinaException.class)
     public void testGetNonExistingValue() {
         BValue[] args = {new BJSON(json1), new BString("$.name.surname")};
         BValue[] returns = Functions.invoke(bFile, "getString", args);
@@ -291,7 +291,7 @@ public class JSONTest {
         Assert.assertEquals(getJsonAsString(returns[0]), val);
     }
 
-    @Test(description = "Set a value to a non-existing jsonpath")
+    @Test(description = "Set a value to a non-existing jsonpath", expectedExceptions = BallerinaException.class)
     public void testSetNonExistingValue() {
         BValue[] args = {new BJSON(json1), new BString("$.name.surname"), new BString("Paul")};
         BValue[] returns = Functions.invoke(bFile, "setString", args);
@@ -513,7 +513,7 @@ public class JSONTest {
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
-    @Test(description = "Rename an element in a non-existing jsonpath")
+    @Test(description = "Rename an element in a non-existing jsonpath", expectedExceptions = BallerinaException.class)
     public void testRenameNonExistingElement() {
         BValue[] args = {new BJSON(json1), new BString("$.user"), new BString("fname"), new BString("firstName")};
         BValue[] returns = Functions.invoke(bFile, "rename", args);

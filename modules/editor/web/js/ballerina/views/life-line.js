@@ -431,7 +431,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
             });
 
             $(deleteButtonRect.node()).click(function(event){
-                log.info("Clicked delete button");
+                log.debug("Clicked delete button");
 
                 event.stopPropagation();
 

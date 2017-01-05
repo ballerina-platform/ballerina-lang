@@ -94,7 +94,8 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
                             .set(Constants.HTTP_CONTENT_LENGTH, String.valueOf(message.getFullMessageLength()));
 
                 } else {
-                    logger.error("Message is already built but cannot find the MessageDataSource");
+                    String errMsg = "Message is already built but cannot find the MessageDataSource";
+                    throw new BallerinaException("FATAL: Internal error.! " + errMsg, context);
                 }
             }
             ServiceContextHolder.getInstance().getSender().send(message, balConnectorCallback);
@@ -109,7 +110,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
             }
             return balConnectorCallback.valueRef;
         } catch (MessageProcessorException e) {
-            logger.error("Failed to send the message to an endpoint ", e);
+            throw new BallerinaException("Failed to send the message to an endpoint ", context);
         } catch (InterruptedException ignore) {
         } catch (Throwable e) {
             throw new BallerinaException(e.getMessage(), context);
