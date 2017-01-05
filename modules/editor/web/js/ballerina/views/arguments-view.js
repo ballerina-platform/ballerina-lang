@@ -91,6 +91,13 @@ define(['require', 'lodash', 'jquery'],
                 }
             });
 
+            // Add new argument upon enter key.
+            $(argumentIdentifierInput).on("change paste keydown", function (e) {
+                if (e.which == 13) {
+                    addButton.click();
+                }
+            });
+
             // Creating the content editing div.
             var argumentsContentWrapper = $("<div/>", {
                 class: "action-content-wrapper-body arguments-details-wrapper"

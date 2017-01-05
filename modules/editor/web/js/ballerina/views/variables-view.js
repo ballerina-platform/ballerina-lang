@@ -97,6 +97,13 @@ define(['require', 'lodash', 'jquery', 'log', 'd3utils', 'd3', './point', 'balle
                     .appendTo($(variableSelect));
             }
 
+            // Add new variable upon enter key.
+            $(variableText).on("change paste keydown", function (e) {
+                if (e.which == 13) {
+                    variableAddCompleteButtonPane.click();
+                }
+            });
+
             // Creating cancelling add new variable button.
             var variableAddCancelButtonPane = $("<div class='action-icon-wrapper variable-add-cancel-action-wrapper'/>")
                 .appendTo(variableAddPane);
@@ -153,6 +160,8 @@ define(['require', 'lodash', 'jquery', 'log', 'd3utils', 'd3', './point', 'balle
                 } else {
                     // TODO : Show alert of error.
                 }
+
+                variableText.val("");
             });
 
             // The click event for hiding and showing variables.
