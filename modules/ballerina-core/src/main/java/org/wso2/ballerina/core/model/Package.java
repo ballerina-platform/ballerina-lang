@@ -19,6 +19,7 @@
 package org.wso2.ballerina.core.model;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -85,11 +86,11 @@ public class Package {
         // Add references of top level entities in the Ballerina file to the package
         services.addAll(file.getServices());
 
-        file.getFunctions().forEach((funcName, function) -> {
+        Arrays.asList(file.getFunctions()).forEach(function -> {
             if (function.isPublic()) {
-                publicFunctions.put(funcName, function);
+                publicFunctions.put(function.getName(), function);
             } else {
-                privateFunctions.put(funcName, function);
+                privateFunctions.put(function.getName(), function);
             }
         });
     }

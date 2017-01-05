@@ -73,6 +73,7 @@ import org.wso2.ballerina.core.model.expressions.UnaryExpression;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.invokers.MainInvoker;
 import org.wso2.ballerina.core.model.invokers.ResourceInvocationExpr;
+import org.wso2.ballerina.core.model.statements.ActionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.statements.CommentStmt;
@@ -118,7 +119,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         currentPkg = bFile.getPackageName();
 
         // TODO We can move this logic to the parser.
-        bFile.getFunctions().values().forEach(this::addFuncSymbol);
+        Arrays.asList(bFile.getFunctions()).forEach(this::addFuncSymbol);
         bFile.getConnectorList().forEach(connector -> {
             addConnectorSymbol(connector);
             Arrays.asList(connector.getActions()).forEach(this::addActionSymbol);
@@ -145,7 +146,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             service.accept(this);
         }
 
-        for (Function function : bFile.getFunctions().values()) {
+        for (Function function : bFile.getFunctions()) {
             BallerinaFunction bFunction = (BallerinaFunction) function;
             bFunction.accept(this);
         }
@@ -587,6 +588,11 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(FunctionInvocationStmt functionInvocationStmt) {
         functionInvocationStmt.getFunctionInvocationExpr().accept(this);
+    }
+
+    @Override
+    public void visit(ActionInvocationStmt actionInvocationStmt) {
+        actionInvocationStmt.getActionInvocationExpr().accept(this);
     }
 
     @Override

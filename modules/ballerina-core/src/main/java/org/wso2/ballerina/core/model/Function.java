@@ -31,7 +31,10 @@ public interface Function {
      * @return name of the function.
      */
     String getName();
-    
+
+    // TODO Refactor function name related methods
+    String getFunctionName();
+
     /**
      * Get package name of the function.
      *
@@ -97,15 +100,15 @@ public interface Function {
     /**
      * Get the location of this function in the ballerina source file.
      * Returns the ballerina file and line number of the function.
-     * 
-     * @return  location of this function in the ballerina source file
+     *
+     * @return location of this function in the ballerina source file
      */
     Position getFunctionLocation();
-    
+
     /**
      * Set the location of this function in the ballerina source file.
-     * 
-     * @param  location of this function in the ballerina source file
+     *
+     * @param location of this function in the ballerina source file
      */
     void setFunctionLocation(Position location);
 
