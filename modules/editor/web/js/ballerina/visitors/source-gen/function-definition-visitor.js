@@ -39,7 +39,8 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './st
              * If we need to add additional parameters which are dynamically added to the configuration start
              * that particular source generation has to be constructed here
              */
-            var constructedSourceSegment = 'function ' + functionDefinition.getFunctionName() + '(' + functionDefinition.getFunctionArgumentsAsString() + '){';
+            var constructedSourceSegment = 'function ' + functionDefinition.getFunctionName() + '(' +
+                functionDefinition.getArgumentsAsString() + '){';
             this.appendSource(constructedSourceSegment);
             log.info('Begin Visit FunctionDefinition');
         };

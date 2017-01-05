@@ -60,7 +60,7 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './st
 
         var constructedSourceSegment = 'resource ' + resourceDefinition.getResourceName() + '(';
 
-        constructedSourceSegment += resourceDefinition.getResourceArguments() + ') {';
+        constructedSourceSegment += resourceDefinition.getArgumentsAsString() + ') {';
         this.appendSource(constructedSourceSegment);
         log.info('Begin Visit ResourceDefinition');
     };
