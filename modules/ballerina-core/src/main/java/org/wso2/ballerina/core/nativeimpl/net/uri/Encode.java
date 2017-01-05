@@ -20,6 +20,7 @@ package org.wso2.ballerina.core.nativeimpl.net.uri;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BString;
@@ -55,7 +56,7 @@ public class Encode extends AbstractNativeFunction {
         try {
             encodeURL = encode(url); //supporting percentage encoding
         } catch (UnsupportedEncodingException e) {
-            log.error("Error while encoding the url ", e);
+            throw new BallerinaException("Error while encoding the url. " + e.getMessage(), context);
         }
         return getBValues(new BString(encodeURL));
     }
