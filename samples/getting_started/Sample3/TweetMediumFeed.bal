@@ -8,7 +8,7 @@ import ballerina.net.http;
 import ballerina.net.uri;
 import ballerina.util;
 
-@BasePath ("/medium")
+@BasePath ("/tweet")
 service TweetMediumFeed {
 
     @GET
