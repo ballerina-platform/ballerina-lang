@@ -12,4 +12,4 @@ the above command will start the ballerina server in the current terminal and de
 
 Invoking the service
 ====================
-curl -v http://locahost:9090/echo -d "Hello Wold"
+curl -v http://localhost:9090/echo -d "Hello Wold"
