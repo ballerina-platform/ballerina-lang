@@ -189,6 +189,9 @@ define(['log', 'jquery', 'lodash', 'backbone', './tab', 'bootstrap'], function (
                  * @type {Tab}
                  */
                 this.trigger("tab-removed", tab);
+                if(_.isEmpty(this._tabs)){
+                    this.trigger("last-tab-removed", tab);
+                }
 
                 //switch to tab at last or next index
                 //make sure there are remaining tabs

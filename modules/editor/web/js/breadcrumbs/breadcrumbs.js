@@ -55,6 +55,10 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', /* void modules */ 'jq
                         this.setPath("", "");
                     }
                 });
+
+                this.listenTo(tabController, "last-tab-removed", function(evt){
+                    this.setPath("", "");
+                });
             },
             setPath: function(path, file){
                 path = _.replace(path, /\\/gi, "/");
