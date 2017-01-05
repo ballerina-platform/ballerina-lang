@@ -30,7 +30,7 @@ define(['lodash', './node', './variable-declaration', './connector-declaration']
             }))) {
             this._annotations.push({
                 key: "BasePath",
-                value: "/"
+                value: ""
             });
         }
 

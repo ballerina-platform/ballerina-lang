@@ -18,7 +18,6 @@
 
 package org.wso2.ballerina.core.runtime.internal;
 
-
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.model.Symbol;
@@ -77,6 +76,7 @@ import org.wso2.ballerina.core.nativeimpl.lang.json.SetInt;
 import org.wso2.ballerina.core.nativeimpl.lang.json.SetJSON;
 import org.wso2.ballerina.core.nativeimpl.lang.json.SetString;
 import org.wso2.ballerina.core.nativeimpl.lang.json.ToString;
+import org.wso2.ballerina.core.nativeimpl.lang.map.GetKeys;
 import org.wso2.ballerina.core.nativeimpl.lang.message.AddHeader;
 import org.wso2.ballerina.core.nativeimpl.lang.message.Clone;
 import org.wso2.ballerina.core.nativeimpl.lang.message.GetHeader;
@@ -288,6 +288,11 @@ public class BuiltInNativeConstructLoader {
         // net.uri
         registerFunction(scope, new Encode());
         registerFunction(scope, new GetQueryParam());
+
+        // lang.map
+        registerFunction(scope, new GetKeys());
+        registerFunction(scope, new org.wso2.ballerina.core.nativeimpl.lang.map.Length());
+        registerFunction(scope, new org.wso2.ballerina.core.nativeimpl.lang.map.Remove());
 
     }
 
