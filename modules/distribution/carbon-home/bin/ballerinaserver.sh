@@ -164,7 +164,7 @@ do
     # Parsing Commands.
     else
         echo "Not supported input argument : $c"
-        cat $CARBON_HOME/bin/ballerinaserver-bash-help.txt
+        cat $CARBON_HOME/resources/help/ballerinaserver-bash-help.txt
         exit 1
     fi
 done
@@ -179,7 +179,7 @@ fi
 
 if [ -z "$BAL_FILE_NAME" ]; then
     echo "Please specify Ballerina file(s) to run. (Eg: ballerinaserver.sh foo.bal)"
-    cat $CARBON_HOME/bin/ballerinaserver-bash-help.txt
+    cat $CARBON_HOME/resources/help/ballerinaserver-bash-help.txt
     exit 1
 fi
 
@@ -197,7 +197,7 @@ elif [ "$CMD" = "version" ]; then
   cat $CARBON_HOME/bin/version.txt
   exit 0
 elif [ "$CMD" = "help" ]; then
-  cat $CARBON_HOME/bin/ballerinaserver-bash-help.txt
+  cat $CARBON_HOME/resources/help/ballerinaserver-bash-help.txt
   exit 0
 elif [ "$CMD" = "start" ]; then
   if [ -e "$CARBON_HOME/carbon.pid" ]; then
