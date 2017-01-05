@@ -107,15 +107,15 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
             }
             ServiceContextHolder.getInstance().getSender().send(message, balConnectorCallback);
 
-            while (!balConnectorCallback.responseArrived) {
+            while (!balConnectorCallback.isResponseArrived()) {
                 synchronized (context) {
-                    if (!balConnectorCallback.responseArrived) {
+                    if (!balConnectorCallback.isResponseArrived()) {
                         logger.debug("Waiting for a response");
                         context.wait();
                     }
                 }
             }
-            return balConnectorCallback.valueRef;
+            return balConnectorCallback.getValueRef();
         } catch (MessageProcessorException e) {
             throw new BallerinaException("Failed to send the message to an endpoint ", context);
         } catch (InterruptedException ignore) {
