@@ -40,7 +40,8 @@ import org.wso2.ballerina.core.model.types.BType;
 public class BallerinaFunction extends PositionAwareNode implements Function, Node {
 
     // TODO: Rename this to BFunction after M1.
-    private SymbolName functionName;
+    private SymbolName symbolName;
+    private String functionName;
     private Position functionLocation;
 
     private Annotation[] annotations;
@@ -67,7 +68,8 @@ public class BallerinaFunction extends PositionAwareNode implements Function, No
                              Worker[] workers,
                              BlockStmt functionBody) {
 
-        this.functionName = name;
+        this.symbolName = name;
+        this.functionName = symbolName.getName();
         this.functionLocation = position;
         this.publicFunc = isPublic;
         this.annotations = annotations;
@@ -84,15 +86,20 @@ public class BallerinaFunction extends PositionAwareNode implements Function, No
      */
     @Override
     public String getName() {
-        return functionName.getName();
+        return symbolName.getName();
     }
-    
+
+    @Override
+    public String getFunctionName() {
+        return this.functionName;
+    }
+
     /**
      * {@inheritDoc}
      */
     @Override
     public String getPackageName() {
-        return functionName.getPkgName();
+        return symbolName.getPkgName();
     }
 
     /**
@@ -101,12 +108,12 @@ public class BallerinaFunction extends PositionAwareNode implements Function, No
      * @return function identifier
      */
     public SymbolName getSymbolName() {
-        return functionName;
+        return symbolName;
     }
 
     @Override
     public void setSymbolName(SymbolName symbolName) {
-        this.functionName = symbolName;
+        this.symbolName = symbolName;
     }
 
     /**
@@ -193,7 +200,7 @@ public class BallerinaFunction extends PositionAwareNode implements Function, No
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -201,7 +208,7 @@ public class BallerinaFunction extends PositionAwareNode implements Function, No
     public Position getFunctionLocation() {
         return functionLocation;
     }
-    
+
     /**
      * {@inheritDoc}
      */

@@ -140,6 +140,11 @@ public abstract class AbstractNativeFunction implements NativeConstruct, Functio
         return symbolName.getName();
     }
 
+    @Override
+    public String getFunctionName() {
+        return symbolName.getName();
+    }
+
     public SymbolName getSymbolName() {
         return symbolName;
     }
@@ -233,7 +238,7 @@ public abstract class AbstractNativeFunction implements NativeConstruct, Functio
     public void setStackFrameSize(int stackFrameSize) {
         this.stackFrameSize = stackFrameSize;
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -241,7 +246,7 @@ public abstract class AbstractNativeFunction implements NativeConstruct, Functio
     public Position getFunctionLocation() {
         return functionLocation;
     }
-    
+
     /**
      * {@inheritDoc}
      */

@@ -61,6 +61,7 @@ import org.wso2.ballerina.core.model.expressions.UnaryExpression;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.invokers.MainInvoker;
 import org.wso2.ballerina.core.model.invokers.ResourceInvocationExpr;
+import org.wso2.ballerina.core.model.statements.ActionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.statements.CommentStmt;
@@ -268,6 +269,11 @@ public class BLangInterpreter implements NodeVisitor {
     @Override
     public void visit(FunctionInvocationStmt functionInvocationStmt) {
         functionInvocationStmt.getFunctionInvocationExpr().accept(this);
+    }
+
+    @Override
+    public void visit(ActionInvocationStmt actionInvocationStmt) {
+
     }
 
     @Override

@@ -83,7 +83,7 @@ public class FunctionUtils {
 
         FunctionInvocationExpr funcIExpr = new FunctionInvocationExpr(new SymbolName(functionName), exprs);
         funcIExpr.setOffset(noOfArgs - 1);
-        funcIExpr.setFunction(bFile.getFunctions().get(functionName));
+//        funcIExpr.setFunction(bFile.getFunctionList().get(functionName));
 
         return funcIExpr;
     }

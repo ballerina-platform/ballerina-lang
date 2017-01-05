@@ -91,11 +91,11 @@ public class BLangAntlr4Listener implements BallerinaListener {
             if (identifier != null) {
                 String fileName = identifier.getSymbol().getInputStream().getSourceName();
                 int lineNo = identifier.getSymbol().getLine();
-                Position serviceLocation =  new Position(fileName, lineNo);
+                Position serviceLocation = new Position(fileName, lineNo);
 
                 modelBuilder.createService(identifier.getText(), serviceLocation, childPosition);
                 childPosition++;
-            } 
+            }
         }
     }
 
@@ -130,8 +130,8 @@ public class BLangAntlr4Listener implements BallerinaListener {
             if (identifier != null) {
                 String fileName = identifier.getSymbol().getInputStream().getSourceName();
                 int lineNo = identifier.getSymbol().getLine();
-                Position resourceLocation =  new Position(fileName, lineNo);
-        
+                Position resourceLocation = new Position(fileName, lineNo);
+
                 modelBuilder.createResource(identifier.getText(), resourceLocation);
             }
         }
@@ -162,7 +162,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
                     if (identifier != null) {
                         String fileName = identifier.getSymbol().getInputStream().getSourceName();
                         int lineNo = identifier.getSymbol().getLine();
-                        Position functionLocation =  new Position(fileName, lineNo);
+                        Position functionLocation = new Position(fileName, lineNo);
 
                         modelBuilder.createFunction(identifier.getText(), isPublic, functionLocation, childPosition);
                         childPosition++;
@@ -200,7 +200,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
             if (identifier != null) {
                 String fileName = identifier.getSymbol().getInputStream().getSourceName();
                 int lineNo = identifier.getSymbol().getLine();
-                Position connectorLocation =  new Position(fileName, lineNo);
+                Position connectorLocation = new Position(fileName, lineNo);
 
                 modelBuilder.createConnector(identifier.getText(), connectorLocation, childPosition);
                 childPosition++;
@@ -234,10 +234,10 @@ public class BLangAntlr4Listener implements BallerinaListener {
             if (identifier != null) {
                 String fileName = identifier.getSymbol().getInputStream().getSourceName();
                 int lineNo = identifier.getSymbol().getLine();
-                Position actionLocation =  new Position(fileName, lineNo);
+                Position actionLocation = new Position(fileName, lineNo);
 
                 modelBuilder.createAction(identifier.getText(), actionLocation);
-            } 
+            }
         }
     }
 
@@ -807,9 +807,9 @@ public class BLangAntlr4Listener implements BallerinaListener {
             Token startToken = ctx.getStart();
             String fileName = startToken.getInputStream().getSourceName();
             int lineNo = startToken.getLine();
-            Position actionInvokedLocation =  new Position(fileName, lineNo);
+            Position actionInvokedLocation = new Position(fileName, lineNo);
 
-            modelBuilder.createActionInvocationExpr(actionInvokedLocation);
+            modelBuilder.createActionInvocationStmt(actionInvokedLocation);
         }
     }
 
@@ -885,7 +885,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
         //      (a, b, c, d)    => childCount = 7, noOfArguments = 4;
         // Here childCount is always an odd number.
         // noOfarguments = childCount mod 2 + 1
-        
+
         if (ctx.exception == null) {
             int noOfArguments = childCountExprList / 2 + 1;
             modelBuilder.endExprList(noOfArguments);
@@ -1006,7 +1006,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
             Token startToken = ctx.getStart();
             String fileName = startToken.getInputStream().getSourceName();
             int lineNo = startToken.getLine();
-            Position functionInvokedLocation =  new Position(fileName, lineNo);
+            Position functionInvokedLocation = new Position(fileName, lineNo);
 
             modelBuilder.createFunctionInvocationExpr(functionInvokedLocation);
         }
@@ -1061,7 +1061,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
             Token startToken = ctx.getStart();
             String fileName = startToken.getInputStream().getSourceName();
             int lineNo = startToken.getLine();
-            Position actionInvokedLocation =  new Position(fileName, lineNo);
+            Position actionInvokedLocation = new Position(fileName, lineNo);
 
             modelBuilder.createActionInvocationExpr(actionInvokedLocation);
         }
