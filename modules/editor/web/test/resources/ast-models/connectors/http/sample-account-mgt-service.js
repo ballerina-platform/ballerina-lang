@@ -31,10 +31,8 @@ define(['ast/ballerina-ast-factory'], function (BallerinaASTFactory) {
         importDeclaration_langMessage.setPackageName("ballerina.lang.message");
         var importDeclaration_netHttp = ballerinaASTFactory.createImportDeclaration();
         importDeclaration_netHttp.setPackageName("ballerina.net.http");
-        var importDeclarations = [];
-        importDeclarations.push(importDeclaration_langMessage);
-        importDeclarations.push(importDeclaration_netHttp);
-        ballerinaAstRoot.setImportDeclarations(importDeclarations);
+        ballerinaAstRoot.addImport(importDeclaration_langMessage);
+        ballerinaAstRoot.addImport(importDeclaration_netHttp);
 
         //service definition
         var serviceDefinitions = [];
