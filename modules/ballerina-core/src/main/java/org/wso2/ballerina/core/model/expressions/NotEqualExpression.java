@@ -44,6 +44,9 @@ public class NotEqualExpression extends BinaryEqualityExpression {
     public static final BiFunction<BValueType, BValueType, BValueType> NOT_EQUAL_DOUBLE_FUNC =
             (lVal, rVal) -> new BBoolean(lVal.doubleValue() != rVal.doubleValue());
 
+    public static final BiFunction<BValueType, BValueType, BValueType> NOT_EQUAL_BOOLEAN_FUNC =
+            (lVal, rVal) -> new BBoolean(lVal.booleanValue() != rVal.booleanValue());
+
     public static final BiFunction<BValueType, BValueType, BValueType> NOT_EQUAL_STRING_FUNC =
             (lVal, rVal) -> new BBoolean(!lVal.stringValue().equals(rVal.stringValue()));
 

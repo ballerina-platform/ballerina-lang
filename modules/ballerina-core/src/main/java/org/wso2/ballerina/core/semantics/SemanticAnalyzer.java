@@ -759,9 +759,16 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         if (compareExprType == BTypes.INT_TYPE) {
             expr.setEvalFunc(EqualExpression.EQUAL_INT_FUNC);
+
+        } else if (compareExprType == BTypes.FLOAT_TYPE) {
+            expr.setEvalFunc(EqualExpression.EQUAL_FLOAT_FUNC);
+
+        } else if (compareExprType == BTypes.BOOLEAN_TYPE) {
+            expr.setEvalFunc(EqualExpression.EQUAL_BOOLEAN_FUNC);
+
         } else if (compareExprType == BTypes.STRING_TYPE) {
-            expr.setType(BTypes.BOOLEAN_TYPE);
             expr.setEvalFunc(EqualExpression.EQUAL_STRING_FUNC);
+
         } else {
             throw new SemanticException("Equals operation is not supported for type: "
                     + compareExprType);
@@ -774,8 +781,16 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         if (compareExprType == BTypes.INT_TYPE) {
             notEqualExpr.setEvalFunc(NotEqualExpression.NOT_EQUAL_INT_FUNC);
+
+        } else if (compareExprType == BTypes.FLOAT_TYPE) {
+            notEqualExpr.setEvalFunc(NotEqualExpression.NOT_EQUAL_FLOAT_FUNC);
+
+        } else if (compareExprType == BTypes.BOOLEAN_TYPE) {
+            notEqualExpr.setEvalFunc(NotEqualExpression.NOT_EQUAL_BOOLEAN_FUNC);
+
         } else if (compareExprType == BTypes.STRING_TYPE) {
             notEqualExpr.setEvalFunc(NotEqualExpression.NOT_EQUAL_STRING_FUNC);
+
         } else {
             throw new SemanticException("NotEqual operation is not supported for type: " + compareExprType);
         }
@@ -787,6 +802,10 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         if (compareExprType == BTypes.INT_TYPE) {
             greaterEqualExpr.setEvalFunc(GreaterEqualExpression.GREATER_EQUAL_INT_FUNC);
+
+        } else if (compareExprType == BTypes.FLOAT_TYPE) {
+            greaterEqualExpr.setEvalFunc(GreaterEqualExpression.GREATER_EQUAL_FLOAT_FUNC);
+
         } else {
             throw new SemanticException("Greater than equal operation is not supported for type: "
                     + compareExprType);
@@ -799,6 +818,10 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         if (compareExprType == BTypes.INT_TYPE) {
             greaterThanExpr.setEvalFunc(GreaterThanExpression.GREATER_THAN_INT_FUNC);
+
+        } else if (compareExprType == BTypes.FLOAT_TYPE) {
+            greaterThanExpr.setEvalFunc(GreaterThanExpression.GREATER_THAN_FLOAT_FUNC);
+
         } else {
             throw new SemanticException("Greater than operation is not supported for type: "
                     + compareExprType);
@@ -808,8 +831,13 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(LessEqualExpression lessEqualExpr) {
         BType compareExprType = verifyBinaryCompareExprType(lessEqualExpr);
+
         if (compareExprType == BTypes.INT_TYPE) {
             lessEqualExpr.setEvalFunc(LessEqualExpression.LESS_EQUAL_INT_FUNC);
+
+        } else if (compareExprType == BTypes.FLOAT_TYPE) {
+            lessEqualExpr.setEvalFunc(LessEqualExpression.LESS_EQUAL_FLOAT_FUNC);
+
         } else {
             throw new SemanticException("Less than equal operation is not supported for type: "
                     + compareExprType);
@@ -819,8 +847,13 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(LessThanExpression lessThanExpr) {
         BType compareExprType = verifyBinaryCompareExprType(lessThanExpr);
+
         if (compareExprType == BTypes.INT_TYPE) {
             lessThanExpr.setEvalFunc(LessThanExpression.LESS_THAN_INT_FUNC);
+
+        } else if (compareExprType == BTypes.FLOAT_TYPE) {
+            lessThanExpr.setEvalFunc(LessThanExpression.LESS_THAN_FLOAT_FUNC);
+
         } else {
             throw new SemanticException("Less than operation is not supported for type: " + compareExprType);
         }
