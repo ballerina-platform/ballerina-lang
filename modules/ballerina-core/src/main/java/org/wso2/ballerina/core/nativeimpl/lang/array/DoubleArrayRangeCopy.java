@@ -18,7 +18,6 @@
 
 package org.wso2.ballerina.core.nativeimpl.lang.array;
 
-import org.osgi.service.component.annotations.Component;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
@@ -42,11 +41,6 @@ import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
                 @Argument(name = "to", type = TypeEnum.INT)},
         returnType = {@ReturnType(type = TypeEnum.ARRAY, elementType = TypeEnum.DOUBLE)},
         isPublic = true
-)
-@Component(
-        name = "func.lang.array_doubleArrayRangeCopy",
-        immediate = true,
-        service = AbstractNativeFunction.class
 )
 public class DoubleArrayRangeCopy extends AbstractNativeFunction {
     @Override

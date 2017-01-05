@@ -18,7 +18,6 @@
 
 package org.wso2.ballerina.core.nativeimpl.lang.system;
 
-import org.osgi.service.component.annotations.Component;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BValue;
@@ -38,11 +37,6 @@ import java.io.PrintStream;
         functionName = "println",
         args = {@Argument(name = "double", type = TypeEnum.DOUBLE)},
         isPublic = true
-)
-@Component(
-        name = "func.lang.system_printlnDouble",
-        immediate = true,
-        service = AbstractNativeFunction.class
 )
 public class PrintlnDouble extends AbstractNativeFunction {
 

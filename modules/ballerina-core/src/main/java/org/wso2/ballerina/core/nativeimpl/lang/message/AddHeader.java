@@ -18,7 +18,6 @@
 
 package org.wso2.ballerina.core.nativeimpl.lang.message;
 
-import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.Context;
@@ -40,11 +39,6 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
                 @Argument(name = "key", type = TypeEnum.STRING),
                 @Argument(name = "value", type = TypeEnum.STRING)},
         isPublic = true
-)
-@Component(
-        name = "func.lang.message_addHeader",
-        immediate = true,
-        service = AbstractNativeFunction.class
 )
 public class AddHeader extends AbstractNativeFunction {
 

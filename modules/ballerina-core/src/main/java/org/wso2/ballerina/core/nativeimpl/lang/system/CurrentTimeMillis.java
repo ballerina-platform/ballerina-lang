@@ -18,7 +18,6 @@
 
 package org.wso2.ballerina.core.nativeimpl.lang.system;
 
-import org.osgi.service.component.annotations.Component;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BLong;
@@ -37,11 +36,6 @@ import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
         functionName = "currentTimeMillis",
         returnType = {@ReturnType(type = TypeEnum.LONG)},
         isPublic = true
-)
-@Component(
-        name = "func.lang.system_currentTimeMillis",
-        immediate = true,
-        service = AbstractNativeFunction.class
 )
 public class CurrentTimeMillis extends AbstractNativeFunction {
 
