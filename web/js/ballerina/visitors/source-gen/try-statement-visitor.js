@@ -35,17 +35,17 @@ define(['require', 'lodash', 'log', 'event_channel', './abstract-statement-sourc
          * that particular source generation has to be constructed here
          */
         this.appendSource('try {');
-        log.info('Begin Visit Try Statement');
+        log.debug('Begin Visit Try Statement');
     };
 
     TryStatementVisitor.prototype.visitTryStatement = function (tryStatement) {
-        log.info('Visit Try Statement');
+        log.debug('Visit Try Statement');
     };
 
     TryStatementVisitor.prototype.endVisitTryStatement = function (tryStatement) {
         this.appendSource("}\n");
         this.getParent().appendSource(this.getGeneratedSource());
-        log.info('End Visit Try Statement');
+        log.debug('End Visit Try Statement');
     };
 
     TryStatementVisitor.prototype.visitStatement = function(statement){

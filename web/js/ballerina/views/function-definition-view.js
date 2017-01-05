@@ -17,10 +17,12 @@
  */
 define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-definition', './default-worker', 'd3utils', '' +
         'd3', './worker-declaration-view', './statement-view-factory', './point', './axis',
-        './connector-declaration-view', './statement-container', './variables-view', './arguments-view'],
+        './connector-declaration-view', './statement-container', './variables-view', './arguments-view',
+        './return-type-view'],
     function (_, log, EventChannel, Canvas, FunctionDefinition, DefaultWorkerView, D3Utils,
               d3, WorkerDeclarationView, StatementViewFactory, Point, Axis,
-              ConnectorDeclarationView, StatementContainer, VariablesView, ArgumentsView) {
+              ConnectorDeclarationView, StatementContainer, VariablesView, ArgumentsView,
+              ReturnTypeView) {
 
         /**
          * The view to represent a function definition which is an AST visitor.
@@ -203,14 +205,24 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
 
             VariablesView.createVariablePane(variableProperties);
 
-            // Replacing annotation icon with function args.
-            var functionArgsIcons = this._panelAnnotationIcon;
-            functionArgsIcons.removeClass("fw-annotation");
-            functionArgsIcons.addClass("fw-import");
+            var operationsPane = this.getOperationsPane();
+
+            // Creating arguments icon.
+            var panelArgumentsIcon = $("<i/>", {
+                class: "fw fw-import pull-right right-icon-clickable hoverable"
+            }).appendTo(operationsPane);
+
+            // Stopping event propagation to the elements behind.
+            panelArgumentsIcon.click(function (event) {
+                event.stopPropagation();
+            });
+
+            // Adding separator for arguments icon.
+            $("<span class='pull-right canvas-operations-separator'>|</span>").appendTo(operationsPane);
 
             var argumentsProperties = {
                 model: this._model,
-                activatorElement: this.getAnnotationIcon(),
+                activatorElement: panelArgumentsIcon,
                 paneAppendElement: this.getChildContainer().node().ownerSVGElement.parentElement,
                 viewOptions: {
                     position: {
@@ -220,7 +232,36 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
                 }
             };
 
+            // Creating arguments pane.
             ArgumentsView.createArgumentsPane(argumentsProperties);
+
+            // Creating return type icon.
+            var panelReturnTypeIcon = $("<i/>", {
+                class: "fw fw-export pull-right right-icon-clickable hoverable"
+            }).appendTo(operationsPane);
+
+            // Stopping event propagation to the elements behind.
+            panelReturnTypeIcon.click(function (event) {
+                event.stopPropagation();
+            });
+
+            // Adding separator for return type icon.
+            $("<span class='pull-right canvas-operations-separator'>|</span>").appendTo(operationsPane);
+
+            var returnTypeProperties = {
+                model: this._model,
+                activatorElement: panelReturnTypeIcon,
+                paneAppendElement: this.getChildContainer().node().ownerSVGElement.parentElement,
+                viewOptions: {
+                    position: {
+                        left: parseInt(this.getChildContainer().node().parentElement.getBoundingClientRect().width),
+                        top: 0
+                    }
+                }
+            };
+
+            // Creating return type pane.
+            ReturnTypeView.createReturnTypePane(returnTypeProperties);
         };
 
         FunctionDefinitionView.prototype.init = function(){
@@ -314,13 +355,6 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
                     model: connectorDeclarationView._model,
                     getterMethod: connectorDeclarationView._model.getUri,
                     setterMethod: connectorDeclarationView._model.setUri
-                },
-                {
-                    propertyType: "text",
-                    key: "Timeout",
-                    model: connectorDeclarationView._model,
-                    getterMethod: connectorDeclarationView._model.getTimeout,
-                    setterMethod: connectorDeclarationView._model.setTimeout
                 }
             ];
             connectorDeclarationView.createPropertyPane({

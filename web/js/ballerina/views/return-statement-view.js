@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './ballerina-view', './../ast/return-statement', 'd3utils'],
-    function (_, log, BallerinaView, ReturnStatement, D3Utils) {
+define(['lodash', 'log', './../ast/return-statement', './ballerina-statement-view', 'd3utils', 'd3'],
+    function (_, log, ReturnStatement, BallerinaStatementView, D3Utils, d3) {
 
         /**
          * The view to represent a return statement which is an AST visitor.
@@ -27,7 +27,7 @@ define(['lodash', 'log', './ballerina-view', './../ast/return-statement', 'd3uti
          * @constructor
          */
         var ReturnStatementView = function (args) {
-            BallerinaView.call(this, args);
+            BallerinaStatementView.call(this, args);
             if (_.isNil(this._model) || !(this._model instanceof ReturnStatement)) {
                 log.error("Return statement definition is undefined or is of different type." + this._model);
                 throw "Return statement definition is undefined or is of different type." + this._model;
@@ -37,9 +37,14 @@ define(['lodash', 'log', './ballerina-view', './../ast/return-statement', 'd3uti
                 log.error("Container for return statement is undefined." + this._container);
                 throw "Container for return statement is undefined." + this._container;
             }
+
+            // View options for height and width of the assignment statement box.
+            this._viewOptions.height = _.get(args, "viewOptions.height", 30);
+            this._viewOptions.width = _.get(args, "viewOptions.width", 120);
+            this.getBoundingBox().fromTopCenter(this._topCenter, this._viewOptions.width, this._viewOptions.height);
         };
 
-        ReturnStatementView.prototype = Object.create(BallerinaView.prototype);
+        ReturnStatementView.prototype = Object.create(BallerinaStatementView.prototype);
         ReturnStatementView.prototype.constructor = ReturnStatementView;
 
         ReturnStatementView.prototype.setModel = function (model) {
@@ -81,11 +86,50 @@ define(['lodash', 'log', './ballerina-view', './../ast/return-statement', 'd3uti
          * @returns {Object} - The svg group which the return statement view resides in.
          */
         ReturnStatementView.prototype.render = function () {
-            var group = D3Utils.group(this._container);
-            // var rect = D3Utils.draw.rect(10, 10, 100, 100, 0, 0, group, "#FFFFFF");
-            log.info("Rendering the Return Statement.");
-            // group.rect = rect;
-            return group;
+            var returnStatementGroup = D3Utils.group(d3.select(this._container));
+            returnStatementGroup.attr("id","_" +this._model.id);//added attribute 'id' starting with '_' to be compatible with HTML4
+            var width = this.getBoundingBox().w();
+            var height = this.getBoundingBox().h();
+
+            var x = this.getBoundingBox().getLeft();
+            var y = this.getBoundingBox().getTop();
+
+            var expressionRect = D3Utils.rect(x, y, width, height, 0, 0, returnStatementGroup).classed('statement-rect', true);
+            var text = this._model.getReturnExpression();
+            text = ((text.length) > 11 ? (text.substring(0,11) + '...') : text);
+            var expressionText = D3Utils.textElement(x + width/2, y + height/2, text, returnStatementGroup).classed('statement-text', true);
+            returnStatementGroup.expression_rect = expressionRect;
+            returnStatementGroup.expression_text = expressionText;
+            this.setStatementGroup(returnStatementGroup);
+            this.listenTo(this._model, 'update-property-text', this.updateStatementText);
+            this._model.accept(this);
+
+            // Creating property pane
+            var editableProperties = [];
+            var editableProperty = {
+                propertyType: "text",
+                key: "Expression",
+                model: this._model,
+                getterMethod: this._model.getReturnExpression,
+                setterMethod: this._model.setReturnExpression
+            };
+            editableProperties.push(editableProperty);
+            this._createPropertyPane({
+                model: this._model,
+                statementGroup:returnStatementGroup,
+                editableProperties: editableProperties
+            });
+
+            this.getBoundingBox().on('top-edge-moved', function(dy){
+                expressionRect.attr('y',  parseFloat(expressionRect.attr('y')) + dy);
+                expressionText.attr('y',  parseFloat(expressionText.attr('y')) + dy);
+            });
+        };
+
+        ReturnStatementView.prototype.updateStatementText = function (updatedText) {
+            if (!_.isUndefined(updatedText) && updatedText !== '') {
+                this.getStatementGroup().expression_text.node().textContent = updatedText;
+            }
         };
 
         return ReturnStatementView;

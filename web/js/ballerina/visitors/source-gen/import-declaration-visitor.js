@@ -40,17 +40,17 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor'], func
          */
         var constructedSourceSegment = 'import ' + importDeclaration.getPackageName();
         this.appendSource(constructedSourceSegment);
-        log.info('Begin Visit ImportDeclaration');
+        log.debug('Begin Visit ImportDeclaration');
     };
 
     ImportDeclarationVisitor.prototype.visitImportDeclaration = function (importDeclaration) {
-        log.info('Visit ImportDeclaration');
+        log.debug('Visit ImportDeclaration');
     };
 
     ImportDeclarationVisitor.prototype.endVisitImportDeclaration = function (importDeclaration) {
         this.appendSource(";\n");
         this.getParent().appendSource(this.getGeneratedSource());
-        log.info('End Visit ImportDeclaration');
+        log.debug('End Visit ImportDeclaration');
     };
 
     return ImportDeclarationVisitor;

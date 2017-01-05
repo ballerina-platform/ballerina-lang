@@ -86,7 +86,7 @@ define(['lodash', 'log', './ballerina-view', './../ast/action-definition', 'd3ut
         ActionDefinitionView.prototype.render = function () {
             var group = D3Utils.group(this._container);
             // TODO : Draw the view of the action definition and add it to the above svg group.
-            log.info("Rendering action view.");
+            log.debug("Rendering action view.");
             return group;
         };
 
