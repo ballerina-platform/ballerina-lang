@@ -187,7 +187,7 @@ public class BLangModelBuilder {
         //        Annotation.AnnotationBuilder annotationBuilder = annotationBuilderStack.peek();
         //        annotationBuilder.addKeyValuePair(new Identifier(key), value);
 
-        log.warn("Key/Value pairs in annotations are not supported");
+        log.warn("Warning: Key/Value pairs in annotations are not supported");
     }
 
     public void endAnnotation(String name, boolean valueAvailable) {
