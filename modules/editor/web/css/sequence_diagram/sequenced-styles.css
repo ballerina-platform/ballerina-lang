@@ -55,12 +55,22 @@
 
 .headingCollapsedIcon {
     cursor: pointer;
+    opacity: 0.4;
     fill: url(#collapsedIcon);
+}
+
+.headingCollapsedIcon:hover {
+    opacity: 1;
 }
 
 .headingExpandIcon {
     cursor: pointer;
+    opacity: 0.4;
     fill: url(#expandIcon);
+}
+
+.headingExpandIcon:hover {
+    opacity: 1;
 }
 
 .headingDeleteIcon {
