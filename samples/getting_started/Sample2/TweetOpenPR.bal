@@ -8,68 +8,61 @@ import ballerina.net.http;
 import ballerina.net.uri;
 import ballerina.util;
 
-@BasePath ("/tweet")
-service TweetOpenPR {
 
-    @GET
-    @Path("/pr")
-    resource getOpenPR  (message m) {
+function main (sting[] args) {
 
-        http:HTTPConnector gitHubEP = new http:HTTPConnector("https://api.github.com", 100);
-        http:HTTPConnector tweeterEP = new http:HTTPConnector("https://api.twitter.com", 100);
+    http:HTTPConnector gitHubEP = new http:HTTPConnector("https://api.github.com", 100);
+    http:HTTPConnector tweeterEP = new http:HTTPConnector("https://api.twitter.com", 100);
 
-        string repo;
-        string repoPRpath;
-        message gitHubResponse;
-        json gitHubJsonResponse;
-        int noOfPRs;
-        string noOfPRstr;
-        string textMsg;
+    string repo;
+    string repoPRpath;
+    message gitHubResponse;
+    json gitHubJsonResponse;
+    int noOfPRs;
+    string noOfPRstr;
+    string textMsg;
 
-        string consumerKey;
-        string consumerSecret;
-        string accessToken;
-        string accessTokenSecret;
-        string oauthHeader;
-        string tweetPath;
-        message response;
+    string consumerKey;
+    string consumerSecret;
+    string accessToken;
+    string accessTokenSecret;
+    string oauthHeader;
+    string tweetPath;
+    message response;
 
-        consumerKey = message:getHeader(m, "consumerKey");
-        consumerSecret = message:getHeader(m, "consumerSecret");
-        accessToken = message:getHeader(m, "accessToken");
-        accessTokenSecret = message:getHeader(m, "accessTokenSecret");
+    consumerKey = message:getHeader(m, "consumerKey");
+    consumerSecret = message:getHeader(m, "consumerSecret");
+    accessToken = message:getHeader(m, "accessToken");
+    accessTokenSecret = message:getHeader(m, "accessTokenSecret");
 
 
-        repo = uri:getQueryParam(m, "repo");
-        if (repo == "") {
-            repo = "wso2-synapse";
-        }
-
-        repoPRpath = "/repos/wso2/"+ repo +"/pulls";
-
-        gitHubResponse = http:HTTPConnector.get(gitHubEP, repoPRpath, m);
-
-        gitHubJsonResponse = message:getJsonPayload(gitHubResponse);
-        noOfPRs = json:getInt(gitHubJsonResponse, "$.length()");
-
-        noOfPRstr = string:valueOf(noOfPRs);
-
-        textMsg = "Number of pending pull requests in " + repo + " is "+ noOfPRstr;
-
-        system:println(textMsg);
-
-        oauthHeader = constructOAuthHeader(consumerKey, consumerSecret, accessToken, accessTokenSecret, textMsg);
-
-        system:println(oauthHeader);
-
-        message:setHeader(m, "Authorization", oauthHeader);
-
-        tweetPath = "/1.1/statuses/update.json?status="+uri:encode(textMsg);
-
-        response = http:HTTPConnector.post(tweeterEP, tweetPath, m);
-
-        reply response;
+    repo = uri:getQueryParam(m, "repo");
+    if (repo == "") {
+        repo = "wso2-synapse";
     }
+
+    repoPRpath = "/repos/wso2/"+ repo +"/pulls";
+
+    gitHubResponse = http:HTTPConnector.get(gitHubEP, repoPRpath, m);
+
+    gitHubJsonResponse = message:getJsonPayload(gitHubResponse);
+    noOfPRs = json:getInt(gitHubJsonResponse, "$.length()");
+
+    noOfPRstr = string:valueOf(noOfPRs);
+
+    textMsg = "Number of pending pull requests in " + repo + " is "+ noOfPRstr;
+
+    system:println(textMsg);
+
+    oauthHeader = constructOAuthHeader(consumerKey, consumerSecret, accessToken, accessTokenSecret, textMsg);
+
+    system:println(oauthHeader);
+
+    message:setHeader(m, "Authorization", oauthHeader);
+
+    tweetPath = "/1.1/statuses/update.json?status="+uri:encode(textMsg);
+
+    response = http:HTTPConnector.post(tweeterEP, tweetPath, m);
 
 }
 

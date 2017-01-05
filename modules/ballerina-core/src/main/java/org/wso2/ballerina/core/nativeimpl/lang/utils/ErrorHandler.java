@@ -129,7 +129,7 @@ public class ErrorHandler {
     }
 
     public static void handleUndefineHeader(String headerName) {
-            throw new BallerinaException("Header '" + headerName+ "' not present in the message");
+        throw new BallerinaException("Header '" + headerName + "' not present in the message");
     }
     
     /**
