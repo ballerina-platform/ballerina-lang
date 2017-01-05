@@ -1,58 +1,126 @@
-# Working with Ballerina Runtime. 
+# Working with Ballerina v1.0.0-M1
+
+Ballerina is a new programming language for integration built on a sequence diagram metaphor. 
+
+## Working with Ballerina runtime. 
 
 Ballerina provides two runtime modes. 
 
-### **Standalone Ballerina runtime** 
+* Standalone Mode
+* Server Mode
 
-This runtime allows to execute either a Ballerina `main` function or start Ballerina `services` defined in a given Ballerina file. 
+### **Standalone Mode** 
 
-If given Ballerina file contains the `main` function, Ballerina runtime will execute it with given arguments. These arguments are optional. Once `main` function completes its execution, Ballerina runtime will exit. 
+Execute the `main` function of a given Ballerina program by providing zero or more arguments. Once `main` function completes its execution, Ballerina runtime will exit.
 
-If the Ballerina file contains Ballerina Services, The Ballerina runtime will deploy all Ballerina services in given file and start accepting requests for deployed services. 
-
-If the Ballerina file contains both `main` and Ballerina `services`, then the main function takes precedence. The Ballerina runtime execute only the `main` function then exit.
- 
-If the Ballerina file does not contain a `main` function or any Ballerina `Service`, Runtime will exit with an Error.  
-
-### **Ballerina Server runtime** 
-
-Start Ballerina runtime as a server. In this mode, the current directory will consider as deployment directory, unless it is overridden by `-servicespath` option. When Ballerina runtime starts, it deploys all Ballerina file, Ballerina Applications and archives (zip) in current deployment directory and its sub-directories.  
-
-Only Ballerina services will get deployed and No `main` functions will not run in this mode. 
-
-### Usage 
-
-**Running Ballerina in Standalone Mode.** 
-```
-ballerina.sh service.bal [command] [-options]
-```
-
-Executes either the Ballerina main function or start Ballerina services defined in the 'service.bal' Ballerina file.
-
-**Running Ballerina in Server Mode.**
+The Main function is structured as follow.  
 
 ```
-ballerinaserver.sh [command] [-options]
+function main (string[] args) {
+    ConnectorDeclaration;*
+    VariableDeclaration;*
+    Statement;+
+}
 ```
-Starts Ballerina Server in current terminal.
 
-**Supported commands**
+####Usage:
+```
+    ballerina.sh ballerina-file [args...]
+    ballerina.sh command
+```
 
-| Command | Description |
-|---|---|
-**start**  | Start Ballerina runtime in background.| 
-**stop**  | Stop Ballerina runtime running in background. |
-**restart** | Restart Ballerina runtime in background. | 
-**version** | Print Ballerina version. |  
-**help**  | Print help message. | 
+_**Note**: Use `ballerina.bat` in Windows environment._ 
 
-Note: If multiple Commands are defined as arguments last command will take precedence.
+**Available Commands:**
 
-**Supported -options**
+    version     Print Ballerina version.
+    help        Print help message.
 
-| Options | Description | Supported Scripts |
-|---|---|---|
-|**-bargs** values... | Defines input arguments for Ballerina main function. Values are separated by space. Default value is _empty_ | ballerina.sh |
-|**-servicespath** path <br/>or<br/> -s path | Overrides default servicespath '.' with 'path'. | ballerinaserver.sh |
-|**-bpath** location | Set Ballerina Path to `localtion`. | ballerina.sh & ballerinaserver.sh |
+####Examples:
+
+1) Execute the main function of the `say-hello-world.bal` Ballerina program with no arguments.
+```
+    ballerina.sh say-hello-world.bal
+```
+
+2) Execute the main function of the `hello-world.bal` Ballerina program with argument `WSO2`.
+```
+    ballerina.sh hello-world.bal WSO2
+```
+3) Execute the main function of the `hello-world.bal` Ballerina program with argument `WSO2 Inc`. If the argument value contains a space, use double quote to enclose it
+```
+    ballerina.sh hello-world.bal "WSO2 Inc" 
+```
+4) Execute the main function of the `multiplier.bal` Ballerina program with arguments `5` and `10`.
+```
+    ballerina.sh multiplier.bal 5 10
+```
+5) Print Ballerina version. 
+```
+    ballerina.sh version
+```
+6) Print `ballerina` help message. 
+```
+    ballerina.sh help
+```
+
+### **Server Mode** 
+
+Start Ballerina as a server. The Ballerina runtime will deploy all Ballerina services in given Ballerina programs,
+and start accepting requests for deployed services. 
+
+####Usage:
+```
+    ballerinaserver.sh [option] ballerina-file1 ballerina-file2 ...
+    ballerinaserver.sh command
+```
+
+_**Note**: Use `ballerinaserver.bat` in Windows environment._ 
+
+**Available Options (Unix/Linux Only)**
+
+    start       Start Ballerina Server in background.
+    stop        Stop Ballerina Server which is running in the background.
+    restart     Restart Ballerina Server which is running in the background.
+
+**Available Commands**
+
+    version     Print Ballerina version.
+    help        Print this help message.
+    
+####Examples:
+
+1) Deploy `passthrough.bal` Ballerina program. 
+```
+    ballerinaserver.sh passthrough.bal
+```
+2) Deploy `passthrough.bal` and `echo.bal` Ballerina programs. 
+```
+    ballerinaserver.sh passthrough.bal echo.bal
+```
+3) Print Ballerina version.
+```
+    ballerinaserver.sh version
+```
+4) Print `ballerinaserver` help message.
+```
+    ballerinaserver.sh help
+```
+
+## Working with Ballerina Editor. 
+
+Start Ballerina editor using,
+
+* **Unix/Linux**
+```
+editor.sh
+```
+
+* **Windows**
+```
+editor.bat
+```
+
+Access Ballerina editor via [http://localhost:9091](http://localhost:9091)
+
 
