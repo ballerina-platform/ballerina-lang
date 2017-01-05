@@ -52,6 +52,8 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
             return this.canVisitExpression(node);
         } else if (node instanceof AST.ReplyStatement) {
             return this.canVisitReplyStatement(node);
+        } else if (node instanceof AST.ReturnStatement) {
+            return this.canVisitReturnStatement(node);
         }  else if (node instanceof AST.FunctionInvocation) {
             return this.canVisitStatement(node);
         }
@@ -85,6 +87,8 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
             return this.beginVisitStatement(node);
         } else if (node instanceof AST.ReplyStatement) {
             return this.beginVisitReplyStatement(node);
+        } else if (node instanceof AST.ReturnStatement) {
+            return this.beginVisitReturnStatement(node);
         }  else if (node instanceof AST.FunctionInvocation) {
             return this.beginVisitStatement(node);
         }
@@ -118,6 +122,8 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
             return this.visitExpression(node);
         } else if (node instanceof AST.ReplyStatement) {
             return this.visitReplyStatement(node);
+        } else if (node instanceof AST.ReturnStatement) {
+            return this.visitReturnStatement(node);
         }  else if (node instanceof AST.FunctionInvocation) {
             return this.visitStatement(node);
         }
@@ -151,6 +157,8 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
             return this.endVisitExpression(node);
         } else if (node instanceof AST.ReplyStatement) {
             return this.endVisitReplyStatement(node);
+        }  else if (node instanceof AST.ReturnStatement) {
+            return this.endVisitReturnStatement(node);
         }  else if (node instanceof AST.FunctionInvocation) {
             return this.endVisitStatement(node);
         }
@@ -234,6 +242,16 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
     StatementVisitor.prototype.visitReplyStatement = function (statement) {
     };
     StatementVisitor.prototype.endVisitReplyStatement = function (statement) {
+    };
+
+    StatementVisitor.prototype.canVisitReturnStatement = function (statement) {
+        return false;
+    };
+    StatementVisitor.prototype.beginVisitReturnStatement = function (statement) {
+    };
+    StatementVisitor.prototype.visitReturnStatement = function (statement) {
+    };
+    StatementVisitor.prototype.endVisitReturnStatement = function (statement) {
     };
 
     StatementVisitor.prototype.canVisitActionInvocationExpression = function (statement) {
