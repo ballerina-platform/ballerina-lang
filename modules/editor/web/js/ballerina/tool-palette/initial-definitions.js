@@ -207,7 +207,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
             nodeFactoryMethod: BallerinaASTFactory.createActionInvocationExpression
         };
 
-        var httpConnectorToolArray = [createGetActionTool, createPostActionTool, createPutActionTool, createDeleteActionTool, createPatchActionTool];
+        var httpConnectorToolArray = [createGetActionTool, createPostActionTool, createPutActionTool, createDeleteActionTool/*, createPatchActionTool*/];
 
         // Create http-connectors tool group
         var httpConnectorsToolGroup = new ToolGroup({
