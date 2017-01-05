@@ -15,19 +15,62 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log','./statement'], function (_, log, Statement) {
+define(['lodash', 'log','./statement', './else-statement', './else-if-statement', './if-statement'], function (_, log, Statement, ElseStatement, ElseIfStatement, IfStatement) {
 
     /**
      * Class for if conditions in ballerina.
      * @constructor
      */
 
-var IfElseStatement = function () {
-      Statement.call(this);
+    var IfElseStatement = function (args) {
+        Statement.call(this);
+        var ifStatement = new IfStatement(args);
+        this.addChild(ifStatement);
+        this._ifStatement = ifStatement;
+        this._elseStatement = undefined;
+        this._elseIfStatements = [];
     };
 
     IfElseStatement.prototype = Object.create(Statement.prototype);
     IfElseStatement.prototype.constructor = IfElseStatement;
+
+    IfElseStatement.prototype.getIfStatement = function () {
+        return this._ifStatement;
+    };
+
+    IfElseStatement.prototype.getElseStatement = function () {
+        return this._elseStatement;
+    };
+
+    IfElseStatement.prototype.getElseIfStatement = function () {
+        return this._elseIfStatements;
+    };
+
+    IfElseStatement.prototype.setIfStatement = function (ifStatement) {
+        this._ifStatement = ifStatement;
+    };
+
+    /**
+     * creates Else Statement
+     * @param args
+     */
+    IfElseStatement.prototype.createElseStatement = function (args) {
+        var newElseStatement = new ElseStatement(args);
+        this._elseStatement = newElseStatement;
+        this.addChild(newElseStatement);
+        return newElseStatement;
+    };
+
+    /**
+     * creates Else If Statement
+     * @param args
+     */
+    IfElseStatement.prototype.createElseIfStatement = function (args) {
+        var newElseIfStatement = new ElseIfStatement(args);
+        this._elseIfStatements.push(newElseIfStatement);
+        this.addChild(newElseIfStatement);
+        return newElseIfStatement;
+    };
 
     return IfElseStatement;
 });
