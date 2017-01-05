@@ -14,14 +14,14 @@
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
 }
 
-.dropdown-menu>li>a{
-    color: #959595;
-}
-
 .menu-bar{
     height: 27px;
 }
 
 .dropdown-menu{
     font-size: 14px;
+}
+
+.dropdown-menu>li>a.menu-item-enabled {
+    color: #959595;
 }
