@@ -22,6 +22,7 @@ import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.BallerinaConnector;
 import org.wso2.ballerina.core.model.ConnectorDcl;
 import org.wso2.ballerina.core.model.Parameter;
+import org.wso2.ballerina.core.model.Position;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.model.SymbolName;
@@ -40,6 +41,7 @@ import java.util.List;
 class CallableUnitGroupBuilder {
 
     private SymbolName name;
+    private Position position;
     private List<Annotation> annotationList = new ArrayList<>();
     private List<Parameter> parameterList = new ArrayList<>();
     private List<ConnectorDcl> connectorDclList = new ArrayList<>();
@@ -76,16 +78,24 @@ class CallableUnitGroupBuilder {
     }
 
     Service buildService() {
-        return new Service(name, annotationList.toArray(new Annotation[annotationList.size()]),
+        return new Service(name, position, annotationList.toArray(new Annotation[annotationList.size()]),
                 connectorDclList.toArray(new ConnectorDcl[connectorDclList.size()]),
                 variableDclList.toArray(new VariableDcl[variableDclList.size()]),
                 resourceList.toArray(new Resource[resourceList.size()]));
     }
 
     BallerinaConnector buildConnector() {
-        return new BallerinaConnector(name, annotationList.toArray(new Annotation[annotationList.size()]),
+        return new BallerinaConnector(name, position, annotationList.toArray(new Annotation[annotationList.size()]),
                 connectorDclList.toArray(new ConnectorDcl[connectorDclList.size()]),
                 variableDclList.toArray(new VariableDcl[variableDclList.size()]),
                 actionList.toArray(new BallerinaAction[actionList.size()]));
+    }
+
+    public Position getLocation() {
+        return position;
+    }
+
+    public void setLocation(Position position) {
+        this.position = position;
     }
 }

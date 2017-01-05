@@ -154,6 +154,10 @@ define(['require', 'event_channel', 'lodash'], function(require, EventChannel, _
         return _.findIndex(this.children, ['id', child.id]);
     };
 
+    ASTNode.prototype.initFromJson = function(jsonNode) {
+        throw "InitFromJson not implemented";
+    };
+
     // Auto generated Id for service definitions (for accordion views)
     var uuid =  function (){
         function s4() {

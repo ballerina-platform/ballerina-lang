@@ -17,7 +17,9 @@
 */
 package org.wso2.ballerina.core.model.expressions;
 
+import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.types.BType;
+import org.wso2.ballerina.core.model.values.BValue;
 
 /**
  * All the expressions should extend {@code AbstractExpression}
@@ -45,5 +47,9 @@ public abstract class AbstractExpression implements Expression {
 
     public void setOffset(int offset) {
         this.offset = offset;
+    }
+
+    public BValue execute(NodeExecutor executor) {
+        return null;
     }
 }

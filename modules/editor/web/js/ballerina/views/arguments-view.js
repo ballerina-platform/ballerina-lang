@@ -18,6 +18,8 @@
 define(['require', 'lodash', 'jquery'],
     function (require, _, $) {
 
+        var variableTypes = ['message', 'connection', 'string', 'int', 'exception'];
+
         /**
          * Creates the variable pane
          * @param {Object} args - Arguments for creating the view.
@@ -47,10 +49,18 @@ define(['require', 'lodash', 'jquery'],
             }).appendTo(argumentsEditorWrapper);
 
             // Creating annotations dropdown.
-            var annotationTypeDropDown = $("<select/>").appendTo(headerWrapper);
+            var argumentTypeDropDown = $("<select/>").appendTo(headerWrapper);
+
+            // Adding dropdown elements.
+            _.forEach(variableTypes, function (type) {
+                // Adding annotations which has no value to the dropdown.
+                argumentTypeDropDown.append(
+                    $('<option></option>').val(type).html(type)
+                );
+            });
 
             // Text input for editing the value of an annotation.
-            var annotationValueInput = $("<input/>", {
+            var argumentIdentifierInput = $("<input/>", {
                 type: "text"
             }).appendTo(headerWrapper);
 
@@ -65,75 +75,41 @@ define(['require', 'lodash', 'jquery'],
 
             // Adding a value to a new annotation.
             $(addButton).click(function () {
-                var annotationType = annotationTypeDropDown.val();
-                var annotationValue = annotationValueInput.val();
+                var argumentType = argumentTypeDropDown.val();
+                var argumentValue = argumentIdentifierInput.val();
 
-                // Sets the annotation values in the model
-                model.addAnnotation(annotationType, annotationValue);
+                if (!_.isEmpty(argumentValue)) { // Sets the annotation values in the model
+                    model.addFunctionArgument(argumentType, argumentValue);
 
-                //Clear the text box and drop down value
-                annotationValueInput.val("");
+                    //Clear the text box and drop down value
+                    argumentIdentifierInput.val("");
 
-                // Recreating the annotation details view.
-                _createCurrentAnnotationView(model, annotationsContentWrapper, annotationTypeDropDown, headerWrapper);
-
-                // Re-add elements to dropdown.
-                _addAnnotationsToDropdown(model, annotationTypeDropDown, headerWrapper);
+                    // Recreating the annotation details view.
+                    _createCurrentAnnotationView(model, argumentsContentWrapper, argumentTypeDropDown, headerWrapper);
+                }
             });
 
-            // Add elements to dropdown.
-            _addAnnotationsToDropdown(model, annotationTypeDropDown, headerWrapper);
-
             // Creating the content editing div.
-            var annotationsContentWrapper = $("<div/>", {
+            var argumentsContentWrapper = $("<div/>", {
                 class: "action-content-wrapper-body service-annotation-details-wrapper"
             }).appendTo(argumentsEditorWrapper);
 
             // Creating the annotation details view.
-            _createCurrentAnnotationView(model, annotationsContentWrapper, annotationTypeDropDown, headerWrapper);
+            _createCurrentAnnotationView(model, argumentsContentWrapper, argumentTypeDropDown, headerWrapper);
 
             // Showing and hiding the annotation pane upton annotation button/activator is clicked.
-            $(activatorElement).click({annotationEditorWrapper: argumentsEditorWrapper}, function (event) {
+            $(activatorElement).click({argumentsEditorWrapper: argumentsEditorWrapper}, function (event) {
                 if ($(event.currentTarget).data("showing-pane") === "true") {
                     $(event.currentTarget).removeClass("operations-annotation-icon");
-                    event.data.annotationEditorWrapper.hide();
+                    event.data.argumentsEditorWrapper.hide();
                     $(event.currentTarget).data("showing-pane", "false");
                 } else {
                     $(event.currentTarget).addClass("operations-annotation-icon");
-                    event.data.annotationEditorWrapper.show();
+                    event.data.argumentsEditorWrapper.show();
                     $(event.currentTarget).data("showing-pane", "true");
                 }
             });
         };
-
-        /**
-         * Adds annotation with values to the dropdown.
-         * @param model - The model which contains the list of annotations.
-         * @param annotationTypeDropDown - The <select> element which has the available annotation.
-         * @param headerWrapper - Wrapper which container the annotation editor.
-         * @private
-         */
-        function _addAnnotationsToDropdown(model, annotationTypeDropDown, headerWrapper) {
-            // Clearing existing options in the dropdown.
-            annotationTypeDropDown.empty();
-
-            // Adding dropdown elements.
-            _.forEach(model.getAnnotations(), function (annotation) {
-                // Adding annotations which has no value to the dropdown.
-                if (_.isEmpty(annotation.value)) {
-                    annotationTypeDropDown.append(
-                        $('<option></option>').val(annotation.key).html(annotation.key)
-                    );
-                }
-            });
-
-            // Disable dropdown if options available.
-            if (annotationTypeDropDown.find("option").length == 0) {
-                headerWrapper.hide();
-            } else {
-                headerWrapper.show();
-            }
-        }
 
         /**
          * Creates the annotation detail wrapper and its events.
@@ -147,105 +123,92 @@ define(['require', 'lodash', 'jquery'],
             // Clearing all the element in the wrapper as we are rerendering the annotation view.
             wrapper.empty();
 
-            // Calculating the number of non-empty annotations.
-            var nonEmptyAnnotations = 0;
-            _.forEach(model.getAnnotations(), function (annotation) {
-                if (!_.isEmpty(annotation.value)) {
-                    nonEmptyAnnotations++;
-                }
-            });
-
             // Creating annotation info.
-            _.forEach(model.getAnnotations(), function (annotation, index) {
-                if (!_.isEmpty(annotation.value)) {
+            _.forEach(model.getFunctionArguments(), function (argument, index) {
+                var functionalArgumentWrapper = $("<div/>", {
+                    class: "service-annotation-detail-wrapper"
+                }).appendTo(wrapper);
 
-                    var annotationWrapper = $("<div/>", {
-                        class: "service-annotation-detail-wrapper"
-                    }).appendTo(wrapper);
+                // Creating a wrapper for the annotation type.
+                var functionArgumentTypeWrapper = $("<div/>", {
+                    text: argument.type,
+                    class: "service-annotation-detail-type-wrapper"
+                }).appendTo(functionalArgumentWrapper);
 
-                    // Creating a wrapper for the annotation type.
-                    var annotationTypeWrapper = $("<div/>", {
-                        text: annotation.key,
-                        class: "service-annotation-detail-type-wrapper"
-                    }).appendTo(annotationWrapper);
+                // Creating a wrapper for the annotation value.
+                var functionalArgumentValueWrapper = $("<div/>", {
+                    text: ": " + argument.identifier,
+                    class: "service-annotation-detail-value-wrapper"
+                }).appendTo(functionalArgumentWrapper);
 
-                    // Creating a wrapper for the annotation value.
-                    var annotationValueWrapper = $("<div/>", {
-                        text: ": " + annotation.value,
-                        class: "service-annotation-detail-value-wrapper"
-                    }).appendTo(annotationWrapper);
+                var deleteIcon = $("<i class='fw fw-cancel service-annotation-detail-close-wrapper'></i>");
 
-                    var deleteIcon = $("<i class='fw fw-cancel service-annotation-detail-close-wrapper'></i>");
+                deleteIcon.appendTo(functionalArgumentWrapper);
 
-                    deleteIcon.appendTo(annotationWrapper);
+                // Removes the value of the annotation in the model and rebind the annotations to the dropdown and
+                // to the annotation view.
+                deleteIcon.click(function () {
+                    $(functionalArgumentWrapper).remove();
+                    model.removeFunctionArgument(argument.identifier);
+                    _createCurrentAnnotationView(model, wrapper, annotationTypeDropDown, headerWrapper);
+                });
 
-                    // Removes the value of the annotation in the model and rebind the annotations to the dropdown and
-                    // to the annotation view.
-                    deleteIcon.click(function () {
-                        annotation.value = "";
-                        $(annotationWrapper).remove();
-                        _addAnnotationsToDropdown(model, annotationTypeDropDown, headerWrapper);
-                        _createCurrentAnnotationView(model, wrapper, annotationTypeDropDown, headerWrapper);
-                    });
-
-                    // Not add a thematic break.
-                    if (nonEmptyAnnotations - 1 != index) {
-                        $("<hr/>").appendTo(wrapper);
-                    }
-
-                    // When an annotation detail is clicked.
-                    annotationWrapper.click({
-                        clickedAnnotationValueWrapper: annotationValueWrapper,
-                        clickedAnnotationTypeWrapper: annotationTypeWrapper,
-                        deleteIcon: deleteIcon,
-                        annotation: annotation
-                    }, function (event) {
-                        var clickedAnnotationValueWrapper = event.data.clickedAnnotationValueWrapper;
-                        var annotation = event.data.annotation;
-                        var deleteIcon = event.data.deleteIcon;
-
-                        // Empty the content inside the annotation value and type wrapper.
-                        clickedAnnotationValueWrapper.empty();
-
-                        // Changing the background
-                        $(event.currentTarget).css("background-color", "#f5f5f5");
-
-                        // Creating the text area for the value of the annotation.
-                        var annotationValueTextArea = $("<textarea/>", {
-                            text: annotation.value,
-                            class: "form-control"
-                        }).appendTo(clickedAnnotationValueWrapper);
-
-                        annotationValueTextArea.click(function (event) {
-                            event.stopPropagation();
-                        });
-
-                        // Gets the user input and set it as the annotation value
-                        annotationValueTextArea.on("change keyup input", function (e) {
-                            annotation.value = e.target.value;
-                        });
-
-                        // Adding in-line display block to override the hovering css.
-                        deleteIcon.show();
-
-                        // Resetting of other annotations wrapper which has been used for editing.
-                        annotationWrapper.siblings().each(function () {
-
-                            // Removing the textareas of other annotations and use simple text.
-                            var annotationValueDiv = $(this).children().eq(1);
-                            if (annotationValueDiv.find("textarea").length > 0) {
-                                // Reverting the background color of other annotation editors.
-                                $(this).removeAttr("style");
-
-                                var annotationVal = ": " + annotationValueDiv.find("textarea").val();
-                                annotationValueDiv.empty().text(annotationVal);
-
-                                deleteIcon.removeAttr("style");
-                            }
-                        });
-                    });
+                // Not add a thematic break.
+                if (model.getFunctionArguments().length - 1 != index) {
+                    $("<hr/>").appendTo(wrapper);
                 }
 
+                // When an annotation detail is clicked.
+                functionalArgumentWrapper.click({
+                    clickedAnnotationValueWrapper: functionalArgumentValueWrapper,
+                    clickedAnnotationTypeWrapper: functionArgumentTypeWrapper,
+                    deleteIcon: deleteIcon,
+                    argument: argument
+                }, function (event) {
+                    var clickedAnnotationValueWrapper = event.data.clickedAnnotationValueWrapper;
+                    var argument = event.data.argument;
+                    var deleteIcon = event.data.deleteIcon;
+
+                    // Empty the content inside the annotation value and type wrapper.
+                    clickedAnnotationValueWrapper.empty();
+
+                    // Changing the background
+                    $(event.currentTarget).css("background-color", "#f5f5f5");
+
+                    // Creating the text area for the value of the annotation.
+                    var argumentValueTextbox = $("<input/>", {
+                        val: argument.identifier,
+                        class: "form-control"
+                    }).appendTo(clickedAnnotationValueWrapper);
+
+                    argumentValueTextbox.click(function (event) {
+                        event.stopPropagation();
+                    });
+
+                    // Gets the user input and set it as the annotation value
+                    argumentValueTextbox.on("change keyup input", function (e) {
+                        argument.identifier = e.target.value;
+                    });
+
+                    // Adding in-line display block to override the hovering css.
+                    deleteIcon.show();
+
+                    // Resetting of other annotations wrapper which has been used for editing.
+                    functionalArgumentWrapper.siblings().each(function () {
+
+                        // Removing the textareas of other annotations and use simple text.
+                        var argumentIdentifierDiv = $(this).children().eq(1);
+                        if (argumentIdentifierDiv.find("input").length > 0) {
+                            // Reverting the background color of other annotation editors.
+                            $(this).removeAttr("style");
+
+                            var annotationIdentifier = ": " + argumentIdentifierDiv.find("input").val();
+                            argumentIdentifierDiv.empty().text(annotationIdentifier);
+
+                            deleteIcon.removeAttr("style");
+                        }
+                    });
+                });
             });
         }
 

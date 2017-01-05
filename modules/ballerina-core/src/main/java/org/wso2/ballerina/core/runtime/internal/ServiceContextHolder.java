@@ -20,12 +20,11 @@ package org.wso2.ballerina.core.runtime.internal;
 
 
 import org.osgi.framework.BundleContext;
-import org.wso2.ballerina.core.model.BallerinaFunction;
+import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.runtime.Constants;
 import org.wso2.ballerina.core.runtime.errors.handler.ServerConnectorErrorHandler;
 import org.wso2.carbon.messaging.TransportSender;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,9 +42,7 @@ public class ServiceContextHolder {
 
     private BundleContext bundleContext;
 
-    private File runningFile;
-
-    private BallerinaFunction mainFunction;
+    private BallerinaFile ballerinaFile;
 
     private ServiceContextHolder() {
     }
@@ -125,39 +122,21 @@ public class ServiceContextHolder {
     }
 
     /**
-     * Get Ballerina File (or Directory) to run.
-     *
-     * @return
-     */
-    public File getRunningFile() {
-        return this.runningFile;
-    }
-
-    /**
-     * Set Ballerina File (or Directory) to run.
-     *
-     * @param file to be run.
-     */
-    protected void setRunningFile(File file) {
-        this.runningFile = file;
-    }
-
-    /**
-     * Get Ballerina Main function to be executed in RUN_FILE mode.
+     * Get BallerinaFile to be executed in RUN_FILE mode.
      *
      * @return Ballerina Main function instance to be executed.
      */
-    public BallerinaFunction getMainFunctionToExecute() {
-        return this.mainFunction;
+    public BallerinaFile getBallerinaFileToExecute() {
+        return this.ballerinaFile;
     }
 
     /**
-     * Set Ballerina Main function to be executed in RUN_FILE mode.
+     * Set BallerinaFile to be executed in RUN_FILE mode.
      *
-     * @param mainFunction to be run.
+     * @param ballerinaFile to be run.
      */
-    public void setMainFunctionToExecute(BallerinaFunction mainFunction) {
-        this.mainFunction = mainFunction;
+    public void setBallerinaFileToExecute(BallerinaFile ballerinaFile) {
+        this.ballerinaFile = ballerinaFile;
     }
 
 }

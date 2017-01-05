@@ -26,6 +26,7 @@ import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.Connector;
 import org.wso2.ballerina.core.model.ConnectorDcl;
+import org.wso2.ballerina.core.model.Const;
 import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.model.ImportPackage;
 import org.wso2.ballerina.core.model.NodeVisitor;
@@ -37,8 +38,8 @@ import org.wso2.ballerina.core.model.Worker;
 import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.AddExpression;
 import org.wso2.ballerina.core.model.expressions.AndExpression;
-import org.wso2.ballerina.core.model.expressions.ArrayAccessExpr;
 import org.wso2.ballerina.core.model.expressions.ArrayInitExpr;
+import org.wso2.ballerina.core.model.expressions.ArrayMapAccessExpr;
 import org.wso2.ballerina.core.model.expressions.BackquoteExpr;
 import org.wso2.ballerina.core.model.expressions.BasicLiteral;
 import org.wso2.ballerina.core.model.expressions.BinaryExpression;
@@ -48,8 +49,10 @@ import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.GreaterEqualExpression;
 import org.wso2.ballerina.core.model.expressions.GreaterThanExpression;
 import org.wso2.ballerina.core.model.expressions.InstanceCreationExpr;
+import org.wso2.ballerina.core.model.expressions.KeyValueExpression;
 import org.wso2.ballerina.core.model.expressions.LessEqualExpression;
 import org.wso2.ballerina.core.model.expressions.LessThanExpression;
+import org.wso2.ballerina.core.model.expressions.MapInitExpr;
 import org.wso2.ballerina.core.model.expressions.MultExpression;
 import org.wso2.ballerina.core.model.expressions.NotEqualExpression;
 import org.wso2.ballerina.core.model.expressions.OrExpression;
@@ -57,7 +60,7 @@ import org.wso2.ballerina.core.model.expressions.SubtractExpression;
 import org.wso2.ballerina.core.model.expressions.UnaryExpression;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.invokers.MainInvoker;
-import org.wso2.ballerina.core.model.invokers.ResourceInvoker;
+import org.wso2.ballerina.core.model.invokers.ResourceInvocationExpr;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.statements.CommentStmt;
@@ -75,7 +78,9 @@ import org.wso2.ballerina.core.model.values.BBoolean;
 import org.wso2.ballerina.core.model.values.BConnector;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BJSON;
+import org.wso2.ballerina.core.model.values.BMap;
 import org.wso2.ballerina.core.model.values.BMessage;
+import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BValueType;
 import org.wso2.ballerina.core.model.values.BXML;
@@ -110,6 +115,10 @@ public class BLangInterpreter implements NodeVisitor {
     @Override
     public void visit(ImportPackage importPkg) {
 
+    }
+
+    @Override
+    public void visit(Const constant) {
     }
 
     @Override
@@ -187,13 +196,19 @@ public class BLangInterpreter implements NodeVisitor {
         Expression lExpr = assignStmt.getLExpr();
         lExpr.accept(this);
 
-
-        if (lExpr instanceof ArrayAccessExpr) {
-            ArrayAccessExpr accessExpr = (ArrayAccessExpr) lExpr;
-            BArray arrayVal = (BArray) getValue(accessExpr.getRExpr());
-            BInteger indexVal = (BInteger) getValue(accessExpr.getIndexExpr());
-
-            arrayVal.add(indexVal.intValue(), rValue);
+        if (lExpr instanceof ArrayMapAccessExpr) {
+            ArrayMapAccessExpr accessExpr = (ArrayMapAccessExpr) lExpr;
+            if (!(accessExpr.getType() == BTypes.MAP_TYPE)) {
+                BArray arrayVal = (BArray) getValue(accessExpr.getRExpr());
+                BInteger indexVal = (BInteger) getValue(accessExpr.getIndexExpr());
+                arrayVal.add(indexVal.intValue(), rValue);
+            } else {
+                BMap<BString, BValue> mapVal = new BMap<>();
+                BString indexVal = (BString) getValue(accessExpr.getIndexExpr());
+                mapVal.put(indexVal, rValue);
+                // set the type of this expression here
+                accessExpr.setType(rExpr.getType());
+            }
 
         } else {
             setValue(lExpr, rValue);
@@ -447,26 +462,35 @@ public class BLangInterpreter implements NodeVisitor {
     }
 
     @Override
-    public void visit(VariableRefExpr variableRefExpr) {
-    }
-
-    @Override
-    public void visit(ArrayAccessExpr arrayAccessExpr) {
-        Expression arrayVarRefExpr = arrayAccessExpr.getRExpr();
+    public void visit(ArrayMapAccessExpr arrayMapAccessExpr) {
+        Expression arrayVarRefExpr = arrayMapAccessExpr.getRExpr();
         arrayVarRefExpr.accept(this);
 
-        Expression indexExpr = arrayAccessExpr.getIndexExpr();
+        Expression indexExpr = arrayMapAccessExpr.getIndexExpr();
         indexExpr.accept(this);
 
-        BArray arrayVal = (BArray) getValue(arrayVarRefExpr);
-        BInteger indexVal = (BInteger) getValue(indexExpr);
+        BValue collectionValue = getValue(arrayVarRefExpr);
+        BValue indexValue  = getValue(indexExpr);
 
-        // Check whether this array access expression is in the left hand of an assignment expresion
+        // Check whether this collection access expression is in the left hand of an assignment expression
         // If yes skip setting the value;
-        if (!arrayAccessExpr.isLHSExpr()) {
-            // Get the value stored in the index
-            BValue val = arrayVal.get(indexVal.intValue());
-            setValue(arrayAccessExpr, val);
+        if (!arrayMapAccessExpr.isLHSExpr()) {
+
+            if (arrayMapAccessExpr.getType() != BTypes.MAP_TYPE) {
+                // Get the value stored in the index
+                BValue val = ((BArray) collectionValue).get(((BInteger) indexValue).intValue());
+                setValue(arrayMapAccessExpr, val);
+            } else {
+                // Get the value stored in the index
+                BValue val;
+                if (indexValue instanceof BString) {
+                    val = ((BMap) collectionValue).get(indexValue);
+                } else {
+                    val = ((BMap) collectionValue).get(indexValue.toString());
+                }
+                setValue(arrayMapAccessExpr, val);
+            }
+
         }
     }
 
@@ -487,6 +511,27 @@ public class BLangInterpreter implements NodeVisitor {
     }
 
     @Override
+    public void visit(MapInitExpr mapInitExpr) {
+        Expression[] argExprs = mapInitExpr.getArgExprs();
+        // Creating a new map
+        BMap<BString, BValue> bMap = new BMap<>();
+
+        for (int i = 0; i < argExprs.length; i++) {
+            KeyValueExpression expr = (KeyValueExpression) argExprs[i];
+            BString key = new BString(expr.getKey());
+            Expression expression = expr.getValueExpression();
+            expression.accept(this);
+            bMap.put(key, getValue(expression));
+        }
+        setValue(mapInitExpr, bMap);
+    }
+
+    @Override
+    public void visit(KeyValueExpression keyValueExpr) {
+
+    }
+
+    @Override
     public void visit(BackquoteExpr backquoteExpr) {
         BValue bValue;
 
@@ -499,9 +544,34 @@ public class BLangInterpreter implements NodeVisitor {
         controlStack.setValue(backquoteExpr.getOffset(), bValue);
     }
 
-    public void visit(ResourceInvoker resourceInvoker) {
+    @Override
+    public void visit(VariableRefExpr variableRefExpr) {
+        variableRefExpr.getLocation().accept(this);
+    }
 
-        Resource resource = resourceInvoker.getResource();
+    @Override
+    public void visit(LocalVarLocation localVarLocation) {
+//        int offset = localVarLocation.getStackFrameOffset();
+    }
+
+    @Override
+    public void visit(ServiceVarLocation serviceVarLocation) {
+
+    }
+
+    @Override
+    public void visit(ConnectorVarLocation connectorVarLocation) {
+
+    }
+
+    @Override
+    public void visit(ConstantLocation constantLocation) {
+
+    }
+
+    public void visit(ResourceInvocationExpr resourceIExpr) {
+
+        Resource resource = resourceIExpr.getResource();
 
         ControlStack controlStack = bContext.getControlStack();
         BValue[] valueParams = new BValue[resource.getStackFrameSize()];
@@ -602,10 +672,10 @@ public class BLangInterpreter implements NodeVisitor {
 
     private BValue getValue(Expression expr) {
         if (expr instanceof BasicLiteral) {
-            return ((BasicLiteral) expr).getbValueNew();
+            return ((BasicLiteral) expr).getBValue();
         }
 
-        return controlStack.getValueNew(expr.getOffset());
+        return controlStack.getValue(expr.getOffset());
     }
 
     private void setValue(Expression expr, BValue bValue) {

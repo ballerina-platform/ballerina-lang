@@ -71,4 +71,9 @@ public final class BBoolean extends BValueType {
     public String stringValue() {
         return Boolean.toString(value);
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        return ((BBoolean) obj).booleanValue() == value;
+    }
 }

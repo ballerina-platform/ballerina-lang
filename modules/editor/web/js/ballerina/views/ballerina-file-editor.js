@@ -416,7 +416,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                     $(importPackageTextBox).val("");
 
                     // Resetting the opacity of the package button.
-                    packageButton.css("opacity", 0.5);
+                    packageButton.removeAttr("style");
                 });
 
                 /**

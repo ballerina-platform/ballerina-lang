@@ -21,7 +21,7 @@ define(['require', 'lodash', 'jquery', 'log', 'd3utils', 'd3', './point', 'balle
               VariableDeclaration, ConnectorDeclaration) {
 
         // TODO move variable types into constant class
-        var variableTypes = ['message', 'connection', 'string', 'int', 'exception'];
+        var variableTypes = ['message', 'connection', 'string', 'int', 'exception', 'json'];
 
         /**
          * Creating the variable variable button.
@@ -91,7 +91,7 @@ define(['require', 'lodash', 'jquery', 'log', 'd3utils', 'd3', './point', 'balle
                 .appendTo(variablesActionWrapper);
 
             var variableSelect = $("<select/>").appendTo(variableAddPane);
-            var variableText = $("<input id='text' placeholder='&nbsp;Variable Name'/>").appendTo(variableAddPane);
+            var variableText = $("<input id='text' placeholder='Variable Name'/>").appendTo(variableAddPane);
             for (var typeCount = 0; typeCount < variableTypes.length; typeCount++) {
                 $("<option value=" + variableTypes[typeCount] + ">" + variableTypes[typeCount] + "</option>")
                     .appendTo($(variableSelect));

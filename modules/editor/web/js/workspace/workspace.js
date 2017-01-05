@@ -37,6 +37,7 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab/t
         };
 
         this.displayInitialTab = function () {
+            //TODO : remove this if else condition
             // display first launch welcome page tab
             if (!this.passedFirstLaunch()) {
                 // create a generic tab - without ballerina editor components
@@ -57,10 +58,11 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab/t
                         tabModel: GenericTab,
                         tabOptions:{title: 'Welcome'}
                     });
-                    this.regularWelcomePage = new WelcomePages.RegularWelcomePage({
-                        application: app,
-                        tab: tab
-                    });
+                    // Showing FirstLaunchWelcomePage instead of regularWelcomePage
+                    var opts = _.get(app.config, 'welcome');
+                    _.set(opts, 'application', app);
+                    _.set(opts, 'tab', tab);
+                    this.regularWelcomePage = new WelcomePages.FirstLaunchWelcomePage(opts);
                     this.regularWelcomePage.render();
                 }
             }

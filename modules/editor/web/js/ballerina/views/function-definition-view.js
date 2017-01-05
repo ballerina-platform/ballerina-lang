@@ -165,12 +165,16 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
             this.renderStatementContainer();
             this.init();
             this.getModel().accept(this);
+            //Removing all the registered 'child-added' event listeners for this model.
+            //This is needed because we are not unregistering registered event while the diagram element deletion.
+            //Due to that, sometimes we are having two or more view elements listening to the 'child-added' event of same model.
+            this._model.off('child-added');
             this._model.on('child-added', function (child) {
                 self.visit(child);
                 self._model.trigger("childVisitedEvent", child);
             });
 
-            var variableButton = VariablesView.createVariableButton(this.getChildContainer().node(), 4, 7);
+            var variableButton = VariablesView.createVariableButton(this.getChildContainer().node(), 14, 10);
 
             var variableProperties = {
                 model: this._model,
@@ -192,12 +196,6 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
             functionArgsIcons.removeClass("fw-annotation");
             functionArgsIcons.addClass("fw-import");
 
-            // TODO : Implement the function args
-            // Hiding icon.
-            functionArgsIcons.hide();
-            // Hiding separator.
-            functionArgsIcons.next().hide();
-
             var argumentsProperties = {
                 model: this._model,
                 activatorElement: this.getAnnotationIcon(),
@@ -210,7 +208,7 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
                 }
             };
 
-            //ArgumentsView.createArgumentsPane(argumentsProperties);
+            ArgumentsView.createArgumentsPane(argumentsProperties);
         };
 
         FunctionDefinitionView.prototype.init = function(){

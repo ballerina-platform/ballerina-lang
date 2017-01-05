@@ -31,7 +31,7 @@ public class NativeActionTest {
     public void setup() {
         bFile = ParserUtils.parseBalFile("samples/parser/PassthroughService.bal");
 
-        globalScope = new SymScope();
+        globalScope = new SymScope(SymScope.Name.GLOBAL);
 
         PrintlnString printlnFunc = new PrintlnString();
 

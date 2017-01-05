@@ -42,5 +42,13 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
         return this._message;
     };
 
+    /**
+     * initialize from json
+     * @param jsonNode
+     */
+    ReplyStatement.prototype.initFromJson = function (jsonNode) {
+        //TODO : load properties from expression
+    };
+
     return ReplyStatement;
 });

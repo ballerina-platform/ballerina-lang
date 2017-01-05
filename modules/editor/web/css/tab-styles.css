@@ -11,6 +11,16 @@ button.close {
     border: 0;
     text-shadow: 0 0 0;
     font-weight: 100;
+    opacity: 0.5;
+    font-size: 17px;
+    color: #fff;
+}
+
+li.active > a > button {
+    color: #272c30;
+    opacity: 0.5;
+    font-weight: normal;
+    font-size: 17px;
 }
 
 .bottom-right-controls-container {

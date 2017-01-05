@@ -18,11 +18,11 @@ compilationUnit
     ;
 
 packageDeclaration
-    :   'package' packageName ('version' '1.0')? ';'
+    :   'package' packageName ';'
     ;
 
 importDeclaration
-    :   'import' packageName ('version' '1.0')? ('as' Identifier)? ';'
+    :   'import' packageName ('as' Identifier)? ';'
     ;
 
 serviceDefinition
@@ -448,7 +448,6 @@ WHILE	        :	'while';
 WORKER	        :	'worker';
 BACKTICK        :   '`';
 VERSION         :   'version';
-ONEZERO         :   '1.0';
 PUBLIC          :   'public';
 ANY             :   'any';
 ALL             :   'all';

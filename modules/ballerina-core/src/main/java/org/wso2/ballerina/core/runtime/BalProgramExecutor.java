@@ -21,14 +21,30 @@ package org.wso2.ballerina.core.runtime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.exception.BallerinaException;
-import org.wso2.ballerina.core.interpreter.BLangInterpreter;
+import org.wso2.ballerina.core.interpreter.BLangExecutor;
+import org.wso2.ballerina.core.interpreter.CallableUnitInfo;
 import org.wso2.ballerina.core.interpreter.Context;
+import org.wso2.ballerina.core.interpreter.LocalVarLocation;
+import org.wso2.ballerina.core.interpreter.RuntimeEnvironment;
+import org.wso2.ballerina.core.interpreter.StackFrame;
+import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
+import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.Resource;
-import org.wso2.ballerina.core.model.invokers.MainInvoker;
-import org.wso2.ballerina.core.model.invokers.ResourceInvoker;
+import org.wso2.ballerina.core.model.Service;
+import org.wso2.ballerina.core.model.SymbolName;
+import org.wso2.ballerina.core.model.expressions.Expression;
+import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
+import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
+import org.wso2.ballerina.core.model.invokers.ResourceInvocationExpr;
+import org.wso2.ballerina.core.model.types.BTypes;
+import org.wso2.ballerina.core.model.values.BInteger;
+import org.wso2.ballerina.core.model.values.BValue;
+import org.wso2.ballerina.core.runtime.errors.handler.ErrorHandlerUtils;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
+
+import static org.wso2.ballerina.core.runtime.Constants.SYSTEM_PROP_BAL_ARGS;
 
 /**
  * {@code BalProgramExecutor} is responsible for executing a BallerinaProgram
@@ -39,31 +55,88 @@ public class BalProgramExecutor {
 
     private static final Logger log = LoggerFactory.getLogger(BalProgramExecutor.class);
 
-    public static void execute(CarbonMessage cMsg, CarbonCallback callback, Resource resource) {
+    public static void execute(CarbonMessage cMsg, CarbonCallback callback, Resource resource, Service service,
+                               Context balContext) {
+        try {
+            SymbolName symbolName = service.getSymbolName();
+            balContext.setServiceInfo(
+                    new CallableUnitInfo(symbolName.getName(), symbolName.getPkgName(), service.getServiceLocation()));
 
-        // Create the Ballerina Context
-        Context balContext = new Context(cMsg);
-        balContext.setBalCallback(new DefaultBalCallback(callback));
+            balContext.setBalCallback(new DefaultBalCallback(callback));
 
-        // Create the interpreter and Execute
-        BLangInterpreter interpreter = new BLangInterpreter(balContext);
-        new ResourceInvoker(resource).accept(interpreter);
+            // Create the interpreter and Execute
+            RuntimeEnvironment runtimeEnv = resource.getApplication().getRuntimeEnv();
+            BLangExecutor executor = new BLangExecutor(runtimeEnv, balContext);
+            new ResourceInvocationExpr(resource).executeMultiReturn(executor);
+        } catch (Throwable e) {
+            throw new BallerinaException(e.getMessage(), balContext);
+        }
     }
 
     /**
      * Execute a BallerinaFunction main function.
      *
-     * @param mainFunction Ballerina main function to be executed.
+     * @param balFile Ballerina main function to be executed in given Ballerina File.
      */
-    public static void execute(BallerinaFunction mainFunction) {
+    public static void execute(BallerinaFile balFile) {
+
+        Context bContext = new Context();
         try {
-            Context ctx = new Context();
-            BLangInterpreter interpreter = new BLangInterpreter(ctx);
-            new MainInvoker(mainFunction).accept(interpreter);
-        } catch (BallerinaException ex) {
-            log.error(ex.getMessage());
+            BallerinaFunction mainFunction = (BallerinaFunction) balFile.getFunctions()
+                    .get(Constants.MAIN_FUNCTION_NAME);
+            if (mainFunction != null) {
+                // TODO Refactor this logic ASAP
+                Parameter[] parameters = mainFunction.getParameters();
+                if (parameters.length != 1 || parameters[0].getType() != BTypes.INT_TYPE) {
+                    throw new BallerinaException("Main function does not comply with standard main function in" +
+                            " ballerina");
+                }
+
+                // Main function only have one input parameter
+                // Read from command line arguments
+                String balArgs = System.getProperty(SYSTEM_PROP_BAL_ARGS);
+
+                // Only integers allowed at the moment
+                BInteger bInteger;
+                if (balArgs != null) {
+                    bInteger = new BInteger(Integer.parseInt(balArgs));
+                } else {
+                    bInteger = new BInteger(0);
+                }
+
+                BValue[] args = {bInteger};
+
+                VariableRefExpr variableRefExpr = new VariableRefExpr(new SymbolName("arg"));
+                LocalVarLocation location = new LocalVarLocation(0);
+                variableRefExpr.setLocation(location);
+                variableRefExpr.setType(BTypes.INT_TYPE);
+
+                Expression[] exprs = new Expression[args.length];
+                exprs[0] = variableRefExpr;
+
+                // 3) Create a function invocation expression
+                FunctionInvocationExpr funcIExpr = new FunctionInvocationExpr(
+                        new SymbolName("main", balFile.getPackageName()), exprs);
+                funcIExpr.setOffset(1);
+                funcIExpr.setFunction(mainFunction);
+
+                SymbolName functionSymbolName = funcIExpr.getFunctionName();
+                CallableUnitInfo functionInfo = new CallableUnitInfo(functionSymbolName.getName(),
+                        functionSymbolName.getPkgName(), mainFunction.getFunctionLocation());
+
+                StackFrame currentStackFrame = new StackFrame(args, new BValue[0], functionInfo);
+                bContext.getControlStack().pushFrame(currentStackFrame);
+
+                RuntimeEnvironment runtimeEnv = RuntimeEnvironment.get(balFile);
+
+                BLangExecutor executor = new BLangExecutor(runtimeEnv, bContext);
+                funcIExpr.execute(executor);
+
+                bContext.getControlStack().popFrame();
+            }
+        } catch (Throwable ex) {
+            String stackTrace = ErrorHandlerUtils.getMainFunctionStackTrace(bContext);
+            log.error("Error while executing ballerina program. " + ex.getMessage() + "\n" + stackTrace);
         }
-
     }
-
 }

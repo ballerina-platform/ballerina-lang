@@ -17,11 +17,15 @@
 */
 package org.wso2.ballerina.core.model;
 
+import org.wso2.ballerina.core.interpreter.ConnectorVarLocation;
+import org.wso2.ballerina.core.interpreter.ConstantLocation;
+import org.wso2.ballerina.core.interpreter.LocalVarLocation;
+import org.wso2.ballerina.core.interpreter.ServiceVarLocation;
 import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.AddExpression;
 import org.wso2.ballerina.core.model.expressions.AndExpression;
-import org.wso2.ballerina.core.model.expressions.ArrayAccessExpr;
 import org.wso2.ballerina.core.model.expressions.ArrayInitExpr;
+import org.wso2.ballerina.core.model.expressions.ArrayMapAccessExpr;
 import org.wso2.ballerina.core.model.expressions.BackquoteExpr;
 import org.wso2.ballerina.core.model.expressions.BasicLiteral;
 import org.wso2.ballerina.core.model.expressions.EqualExpression;
@@ -29,8 +33,10 @@ import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.GreaterEqualExpression;
 import org.wso2.ballerina.core.model.expressions.GreaterThanExpression;
 import org.wso2.ballerina.core.model.expressions.InstanceCreationExpr;
+import org.wso2.ballerina.core.model.expressions.KeyValueExpression;
 import org.wso2.ballerina.core.model.expressions.LessEqualExpression;
 import org.wso2.ballerina.core.model.expressions.LessThanExpression;
+import org.wso2.ballerina.core.model.expressions.MapInitExpr;
 import org.wso2.ballerina.core.model.expressions.MultExpression;
 import org.wso2.ballerina.core.model.expressions.NotEqualExpression;
 import org.wso2.ballerina.core.model.expressions.OrExpression;
@@ -38,7 +44,7 @@ import org.wso2.ballerina.core.model.expressions.SubtractExpression;
 import org.wso2.ballerina.core.model.expressions.UnaryExpression;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.invokers.MainInvoker;
-import org.wso2.ballerina.core.model.invokers.ResourceInvoker;
+import org.wso2.ballerina.core.model.invokers.ResourceInvocationExpr;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.statements.CommentStmt;
@@ -49,13 +55,17 @@ import org.wso2.ballerina.core.model.statements.ReturnStmt;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
 
 /**
+ * {@code NodeVisitor} responsible for executing a Ballerina applications by traversing statements and expressions
  *
+ * @since 1.0.0
  */
 public interface NodeVisitor {
 
     void visit(BallerinaFile bFile);
 
     void visit(ImportPackage importPkg);
+
+    void visit(Const constant);
 
     void visit(Service service);
 
@@ -129,15 +139,27 @@ public interface NodeVisitor {
 
     void visit(UnaryExpression unaryExpression);
 
-    void visit(VariableRefExpr variableRefExpr);
-
-    void visit(ArrayAccessExpr arrayAccessExpr);
+    void visit(ArrayMapAccessExpr arrayMapAccessExpr);
 
     void visit(ArrayInitExpr arrayInitExpr);
 
+    void visit(MapInitExpr mapInitExpr);
+
+    void visit(KeyValueExpression keyValueExpr);
+
     void visit(BackquoteExpr backquoteExpr);
 
-    void visit(ResourceInvoker resourceInvoker);
+    void visit(VariableRefExpr variableRefExpr);
+
+    void visit(LocalVarLocation localVarLocation);
+
+    void visit(ServiceVarLocation serviceVarLocation);
+
+    void visit(ConnectorVarLocation connectorVarLocation);
+
+    void visit(ConstantLocation constantLocation);
+
+    void visit(ResourceInvocationExpr resourceIExpr);
 
     void visit(MainInvoker mainInvoker);
 }

@@ -31,6 +31,13 @@ public interface Function {
      * @return name of the function.
      */
     String getName();
+    
+    /**
+     * Get package name of the function.
+     *
+     * @return package name of the function.
+     */
+    String getPackageName();
 
     /**
      * Get the function Identifier
@@ -87,5 +94,19 @@ public interface Function {
      */
     void setStackFrameSize(int frameSize);
 
+    /**
+     * Get the location of this function in the ballerina source file.
+     * Returns the ballerina file and line number of the function.
+     * 
+     * @return  location of this function in the ballerina source file
+     */
+    Position getFunctionLocation();
+    
+    /**
+     * Set the location of this function in the ballerina source file.
+     * 
+     * @param  location of this function in the ballerina source file
+     */
+    void setFunctionLocation(Position location);
 
 }

@@ -59,4 +59,9 @@ public final class BInteger extends BValueType {
     public String stringValue() {
         return Integer.toString(value);
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        return ((BInteger) obj).intValue() == value;
+    }
 }

@@ -50,8 +50,11 @@ public class BallerinaFile implements Node {
     private Map<String, Function> functions = new HashMap<>();
     private List<FunctionInvocationExpr> funcIExprList = new ArrayList<>();
     private List<ActionInvocationExpr> actionIExprList = new ArrayList<>();
+    private Const[] consts;
     //TODO: add TypeConverters
     //TODO: add constants
+
+    private int sizeOfStaticMem;
 
     private SymScope packageScope;
 
@@ -62,7 +65,8 @@ public class BallerinaFile implements Node {
             List<BallerinaConnector> connectorList,
             Map<String, Function> functionMap,
             List<FunctionInvocationExpr> funcIExprList,
-            List<ActionInvocationExpr> actionInvocationExpr) {
+            List<ActionInvocationExpr> actionInvocationExpr,
+            Const[] consts) {
 
         this.packageName = packageName;
         this.importPackages = importPackages;
@@ -71,8 +75,9 @@ public class BallerinaFile implements Node {
         this.functions = functionMap;
         this.funcIExprList = funcIExprList;
         this.actionIExprList = actionInvocationExpr;
+        this.consts = consts;
 
-        packageScope = new SymScope();
+        packageScope = new SymScope(SymScope.Name.PACKAGE);
     }
 
     /**
@@ -100,6 +105,10 @@ public class BallerinaFile implements Node {
      */
     public ImportPackage[] getImportPackages() {
         return importPackages;
+    }
+
+    public Const[] getConstants() {
+        return consts;
     }
 
     /**
@@ -189,6 +198,14 @@ public class BallerinaFile implements Node {
         this.packageScope = packageScope;
     }
 
+    public int getSizeOfStaticMem() {
+        return sizeOfStaticMem;
+    }
+
+    public void setSizeOfStaticMem(int sizeOfStaticMem) {
+        this.sizeOfStaticMem = sizeOfStaticMem;
+    }
+
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
@@ -207,6 +224,8 @@ public class BallerinaFile implements Node {
 
         private List<FunctionInvocationExpr> funcIExprList = new ArrayList<>();
         private List<ActionInvocationExpr> actionIExprList = new ArrayList<>();
+
+        private List<Const> constList = new ArrayList<>();
 
         public BFileBuilder() {
         }
@@ -235,11 +254,16 @@ public class BallerinaFile implements Node {
             this.funcIExprList.add(expr);
         }
 
+        public void addConst(Const constant) {
+            this.constList.add(constant);
+        }
+
         public BallerinaFile build() {
+            
             if (packageName != null) {
                 importPkgList.add(new ImportPackage(packageName)); // Import self
             }
-
+            
             return new BallerinaFile(
                     packageName,
                     importPkgList.toArray(new ImportPackage[importPkgList.size()]),
@@ -247,7 +271,8 @@ public class BallerinaFile implements Node {
                     connectorList,
                     functionList,
                     funcIExprList,
-                    actionIExprList);
+                    actionIExprList,
+                    constList.toArray(new Const[constList.size()]));
 
         }
     }

@@ -31,7 +31,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
         var createServiceDefTool = {
             id: "service",
             name: "Service",
-            icon: "images/tool-icons/rest-service.svg",
+            icon: "images/tool-icons/settings.svg",
             title: "Service",
             nodeFactoryMethod: BallerinaASTFactory.createServiceDefinition
         };
@@ -46,13 +46,13 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
 
         var createMainFunctionDefTool = {
             id: "function",
-            name: "Function",
+            name: "Main Function",
             meta: {
                 functionName: "main",
                 functionArgs: "message m"
             },
             icon: "images/tool-icons/main-function.svg",
-            title: "Function",
+            title: "Main Function",
             nodeFactoryMethod:  BallerinaASTFactory.createFunctionDefinition
         };
 
@@ -143,9 +143,9 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
             id: "get",
             name: "Get",
             icon: "images/tool-icons/http.svg",
-            title: "Get",
+            title: "GET",
             meta: {
-                action: "Get"
+                action: "get"
             },
             nodeFactoryMethod: BallerinaASTFactory.createActionInvocationExpression
         };
@@ -154,9 +154,9 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
             id: "post",
             name: "Post",
             icon: "images/tool-icons/http.svg",
-            title: "post",
+            title: "POST",
             meta: {
-                action: "Post"
+                action: "post"
             },
             nodeFactoryMethod: BallerinaASTFactory.createActionInvocationExpression
         };
@@ -165,7 +165,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
             id: "put",
             name: "Put",
             icon: "images/tool-icons/http.svg",
-            title: "Put",
+            title: "PUT",
             meta: {
                 action: "put"
             },
@@ -176,7 +176,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
             id: "delete",
             name: "Delete",
             icon: "images/tool-icons/http.svg",
-            title: "Delete",
+            title: "DELETE",
             meta: {
                 action: "delete"
             },
@@ -187,7 +187,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
             id: "patch",
             name: "Patch",
             icon: "images/tool-icons/http.svg",
-            title: "Patch",
+            title: "PATCH",
             meta: {
                 action: "patch"
             },

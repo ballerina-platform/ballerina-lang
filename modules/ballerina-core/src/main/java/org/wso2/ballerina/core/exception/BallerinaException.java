@@ -17,12 +17,15 @@
  */
 package org.wso2.ballerina.core.exception;
 
+import org.wso2.ballerina.core.interpreter.Context;
+
 /**
  * This is the runtime exception occurs at executing ballerina code.
  */
 public class BallerinaException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
+    private transient Context context;
 
     /**
      * Constructs a new {@link BallerinaException} with the specified detail message.
@@ -33,6 +36,17 @@ public class BallerinaException extends RuntimeException {
         super(message);
     }
 
+    /**
+     * Constructs a new {@link BallerinaException} with ballerina context.
+     * 
+     * @param message   Error message
+     * @param context     Ballerina context
+     */
+    public BallerinaException(String message, Context context) {
+        super(message);
+        this.context = context;
+    }
+    
     /**
      * Constructs a new {@link BallerinaException} with the specified detail message and cause.
      *
@@ -50,5 +64,13 @@ public class BallerinaException extends RuntimeException {
      */
     public BallerinaException(Throwable cause) {
         super(cause);
+    }
+    
+    public BallerinaException(Context stack) {
+        this.context = stack;
+    }
+
+    public Context getContext() {
+        return this.context;
     }
 }

@@ -136,7 +136,7 @@ public final class BMessage implements BRefType<CarbonMessage> {
      * @return header name
      */
     public String getHeader(String headerName) {
-        return headers.get(headerName);
+        return this.value.getHeader(headerName);
     }
 
     /**

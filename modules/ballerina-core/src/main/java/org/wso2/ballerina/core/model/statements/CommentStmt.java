@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerina.core.model.statements;
 
+import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.NodeVisitor;
 
 /**
@@ -32,5 +33,9 @@ public class CommentStmt implements Statement {
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public void execute(NodeExecutor executor) {
     }
 }

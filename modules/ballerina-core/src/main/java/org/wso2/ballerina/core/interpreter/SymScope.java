@@ -29,30 +29,34 @@ import java.util.Map;
  * @since 1.0.0
  */
 public class SymScope {
+    private Name scopeName;
     private SymScope parent;
     private Map<SymbolName, Symbol> symbolMap;
 
-    public SymScope() {
-        this.parent = null;
+    public SymScope(Name scopeName) {
+        this(scopeName, null);
+    }
+
+    public SymScope(Name scopeName, SymScope parent) {
+        this.scopeName = scopeName;
+        this.parent = parent;
         this.symbolMap = new HashMap<>();
     }
 
-    public SymScope(SymScope parent) {
-        this.parent = parent;
-        this.symbolMap = new HashMap<>();
+    public Name getScopeName() {
+        return scopeName;
     }
 
     public void setParent(SymScope parent) {
         this.parent = parent;
     }
 
-
     public SymScope getParent() {
         return parent;
     }
 
-    public SymScope openScope() {
-        return new SymScope(this);
+    public SymScope openScope(Name scopeName) {
+        return new SymScope(scopeName, this);
     }
 
     public SymScope closeScope() {
@@ -72,8 +76,29 @@ public class SymScope {
             }
         }
 
-        // TODO Implement proper error handling here.
-//        throw new RuntimeException("Variable reference '" + symName.getName() + "'  is not declared.");
         return null;
+    }
+
+    /**
+     * {@code Name} represents a name of an scope
+     * <p>
+     * These names defined names and cannot add random names
+     *
+     * @since 1.0.0
+     */
+    public enum Name {
+        GLOBAL("_global"),
+        PACKAGE("_package"),
+        SERVICE("_service"),
+        CONNECTOR("_connector"),
+        FUNCTION("_function"),
+        RESOURCE("_resource"),
+        ACTION("_action");
+
+        private String name;
+
+        Name(String name) {
+            this.name = name;
+        }
     }
 }

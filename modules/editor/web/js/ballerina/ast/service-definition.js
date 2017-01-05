@@ -136,6 +136,23 @@ define(['lodash', './node'], function (_, ASTNode) {
             || BallerinaASTFactory.isVariableDeclaration(node);
     };
 
+    /**
+     * initialize from json
+     * @param jsonNode
+     */
+    ServiceDefinition.prototype.initFromJson = function (jsonNode) {
+        this._serviceName = jsonNode.service_name;
+        this._annotations = jsonNode.annotations;
+
+        var self = this;
+        var BallerinaASTFactory = this.getFactory();
+
+        _.each(jsonNode.children, function (childNode) {
+            var child = BallerinaASTFactory.createFromJson(childNode);
+            self.addChild(child);
+        });
+    };
+
     return ServiceDefinition;
 
 });

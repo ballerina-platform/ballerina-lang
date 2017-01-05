@@ -18,8 +18,10 @@
 package org.wso2.ballerina.core.parser.antlr4;
 
 import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
+import org.wso2.ballerina.core.model.Position;
 import org.wso2.ballerina.core.model.builder.BLangModelBuilder;
 import org.wso2.ballerina.core.parser.BallerinaListener;
 import org.wso2.ballerina.core.parser.BallerinaParser;
@@ -61,8 +63,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitImportDeclaration(BallerinaParser.ImportDeclarationContext ctx) {
-        // TODO Support import ffy.http as fhttp
-        modelBuilder.addImportPackage();
+        modelBuilder.addImportPackage((ctx.Identifier() != null) ? ctx.Identifier().getText() : null);
     }
 
     @Override
@@ -72,7 +73,13 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitServiceDefinition(BallerinaParser.ServiceDefinitionContext ctx) {
-        modelBuilder.createService(ctx.getChild(1).getText());
+        // Set the location info needed to generate the stack trace
+        TerminalNode identifier = ctx.Identifier();
+        String fileName = identifier.getSymbol().getInputStream().getSourceName();
+        int lineNo = identifier.getSymbol().getLine();
+        Position serviceLocation =  new Position(fileName, lineNo);
+        
+        modelBuilder.createService(identifier.getText(), serviceLocation);
     }
 
     @Override
@@ -98,7 +105,13 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitResourceDefinition(BallerinaParser.ResourceDefinitionContext ctx) {
-        modelBuilder.createResource(ctx.getChild(1).getText());
+        // Set the location info needed to generate the stack trace
+        TerminalNode identifier = ctx.Identifier();
+        String fileName = identifier.getSymbol().getInputStream().getSourceName();
+        int lineNo = identifier.getSymbol().getLine();
+        Position resourceLocation =  new Position(fileName, lineNo);
+        
+        modelBuilder.createResource(identifier.getText(), resourceLocation);
     }
 
     @Override
@@ -108,16 +121,19 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitFunctionDefinition(BallerinaParser.FunctionDefinitionContext ctx) {
-        int nameTokenIndex = 1;
         boolean isPublic = false;
-        String tokenStr = ctx.getChild(0).getText();
+        String tokenStr = ctx.getChild(ctx.annotation().size()).getText();
         if ("public".equals(tokenStr)) {
             isPublic = true;
-            nameTokenIndex = 2;
         }
 
-        String name = ctx.getChild(nameTokenIndex).getText();
-        modelBuilder.createFunction(name, isPublic);
+        // Set the location info needed to generate the stack trace
+        TerminalNode identifier = ctx.Identifier(0);
+        String fileName = identifier.getSymbol().getInputStream().getSourceName();
+        int lineNo = identifier.getSymbol().getLine();
+        Position functionLocation =  new Position(fileName, lineNo);
+        
+        modelBuilder.createFunction(identifier.getText(), isPublic, functionLocation);
     }
 
     @Override
@@ -137,7 +153,12 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitConnectorDefinition(BallerinaParser.ConnectorDefinitionContext ctx) {
-        modelBuilder.createConnector(ctx.getChild(1).getText());
+        TerminalNode identifier = ctx.Identifier();
+        String fileName = identifier.getSymbol().getInputStream().getSourceName();
+        int lineNo = identifier.getSymbol().getLine();
+        Position connectorLocation =  new Position(fileName, lineNo);
+        
+        modelBuilder.createConnector(identifier.getText(), connectorLocation);
     }
 
     @Override
@@ -156,7 +177,13 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitActionDefinition(BallerinaParser.ActionDefinitionContext ctx) {
-        modelBuilder.createAction(ctx.getChild(1).getText());
+        // Set the location info needed to generate the stack trace
+        TerminalNode identifier = ctx.Identifier(0);
+        String fileName = identifier.getSymbol().getInputStream().getSourceName();
+        int lineNo = identifier.getSymbol().getLine();
+        Position actionLocation =  new Position(fileName, lineNo);
+        
+        modelBuilder.createAction(identifier.getText(), actionLocation);
     }
 
     @Override
@@ -206,6 +233,8 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitConstantDefinition(BallerinaParser.ConstantDefinitionContext ctx) {
+        createBasicLiteral(ctx.literalValue());
+        modelBuilder.createConstant(ctx.Identifier().getText());
     }
 
     @Override
@@ -456,7 +485,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitElementValuePair(BallerinaParser.ElementValuePairContext ctx) {
-        String key = ctx.getChild(0).getText();
+        String key = ctx.Identifier().getText();
         modelBuilder.createAnnotationKeyValue(key);
     }
 
@@ -673,7 +702,12 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitActionInvocationStatement(BallerinaParser.ActionInvocationStatementContext ctx) {
-        modelBuilder.createActionInvocationExpr();
+        Token startToken = ctx.getStart();
+        String fileName = startToken.getInputStream().getSourceName();
+        int lineNo = startToken.getLine();
+        Position actionInvokedLocation =  new Position(fileName, lineNo);
+        
+        modelBuilder.createActionInvocationExpr(actionInvokedLocation);
     }
 
     @Override
@@ -754,7 +788,12 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitFunctionInvocationStatement(BallerinaParser.FunctionInvocationStatementContext ctx) {
-        modelBuilder.createFunctionInvocationStmt();
+        Token startToken = ctx.getStart();
+        String fileName = startToken.getInputStream().getSourceName();
+        int lineNo = startToken.getLine();
+        Position functionInvokedLocation =  new Position(fileName, lineNo);
+        
+        modelBuilder.createFunctionInvocationStmt(functionInvokedLocation);
     }
 
     @Override
@@ -839,7 +878,12 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitFunctionInvocationExpression(BallerinaParser.FunctionInvocationExpressionContext ctx) {
-        modelBuilder.createFunctionInvocationExpr();
+        Token startToken = ctx.getStart();
+        String fileName = startToken.getInputStream().getSourceName();
+        int lineNo = startToken.getLine();
+        Position functionInvokedLocation =  new Position(fileName, lineNo);
+        
+        modelBuilder.createFunctionInvocationExpr(functionInvokedLocation);
     }
 
     @Override
@@ -883,7 +927,12 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitActionInvocationExpression(BallerinaParser.ActionInvocationExpressionContext ctx) {
-        modelBuilder.createActionInvocationExpr();
+        Token startToken = ctx.getStart();
+        String fileName = startToken.getInputStream().getSourceName();
+        int lineNo = startToken.getLine();
+        Position actionInvokedLocation =  new Position(fileName, lineNo);
+        
+        modelBuilder.createActionInvocationExpr(actionInvokedLocation);
     }
 
     @Override
@@ -986,10 +1035,12 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void enterMapInitializerExpression(BallerinaParser.MapInitializerExpressionContext ctx) {
+        modelBuilder.startMapInitKeyValue();
     }
 
     @Override
     public void exitMapInitializerExpression(BallerinaParser.MapInitializerExpressionContext ctx) {
+        modelBuilder.createMapInitExpr();
     }
 
     @Override
@@ -1010,14 +1061,24 @@ public class BLangAntlr4Listener implements BallerinaListener {
         createBinaryExpr(ctx);
     }
 
+    /**
+     * Enter a parse tree produced by {@link BallerinaParser#mapInitKeyValueList}.
+     *
+     * @param ctx the parse tree
+     */
     @Override
     public void enterMapInitKeyValueList(BallerinaParser.MapInitKeyValueListContext ctx) {
-
+        modelBuilder.startMapInitKeyValue();
     }
 
+    /**
+     * Exit a parse tree produced by {@link BallerinaParser#mapInitKeyValueList}.
+     *
+     * @param ctx the parse tree
+     */
     @Override
     public void exitMapInitKeyValueList(BallerinaParser.MapInitKeyValueListContext ctx) {
-
+        modelBuilder.endMapInitKeyValue(ctx.mapInitKeyValue().size());
     }
 
     @Override
@@ -1026,6 +1087,8 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitMapInitKeyValue(BallerinaParser.MapInitKeyValueContext ctx) {
+        modelBuilder.createMapInitKeyValue(ctx.QuotedStringLiteral().toString());
+
     }
 
     @Override

@@ -19,6 +19,7 @@ package org.wso2.ballerina.core.nativeimpl.connectors.http.client;
 import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Connector;
 import org.wso2.ballerina.core.model.types.TypeEnum;
@@ -61,30 +62,35 @@ public class Execute extends AbstractHTTPAction {
     public BValue execute(Context context) {
 
         logger.debug("Executing Native Action : Execute");
+        try {
+            // Extract Argument values
+            BConnector bConnector = (BConnector) getArgument(context, 0);
+            String httpVerb = getArgument(context, 1).stringValue();
+            String path = getArgument(context, 2).stringValue();
+            BMessage bMessage = (BMessage) getArgument(context, 3);
 
-        // Extract Argument values
-        BConnector bConnector = (BConnector) getArgument(context, 0);
-        String httpVerb = getArgument(context, 1).stringValue();
-        String path = getArgument(context, 2).stringValue();
-        BMessage bMessage = (BMessage) getArgument(context, 3);
+            Connector connector = bConnector.value();
+            if (!(connector instanceof HTTPConnector)) {
+                logger.error("Need to use a HTTPConnector as the first argument");
+                return null;
+            }
 
-        Connector connector = bConnector.value();
-        if (!(connector instanceof HTTPConnector)) {
-            logger.error("Need to use a HTTPConnector as the first argument");
-            return null;
+            // Prepare the message
+            CarbonMessage cMsg = bMessage.value();
+            prepareRequest(connector, path, cMsg);
+
+            // If the verb is not specified, use the verb in incoming message
+            if (httpVerb == null || "".equals(httpVerb)) { 
+                httpVerb = (String) cMsg.getProperty(Constants.HTTP_METHOD);
+            }
+            cMsg.setProperty(Constants.HTTP_METHOD,
+                             httpVerb.trim().toUpperCase(Locale.getDefault()));
+
+            // Execute the operation
+            return executeAction(context, cMsg);
+        } catch (Throwable t) {
+            throw new BallerinaException("Failed to invoke 'Execute' action in " + HTTPConnector.CONNECTOR_NAME 
+                + ". " + t.getMessage(), context);
         }
-
-        // Prepare the message
-        CarbonMessage cMsg = bMessage.value();
-        prepareRequest(connector, path, cMsg);
-
-        if (httpVerb == null || "".equals(httpVerb)) { // If the verb is not specified, use the verb in incoming message
-            httpVerb = (String) cMsg.getProperty(Constants.HTTP_METHOD);
-        }
-        cMsg.setProperty(Constants.HTTP_METHOD,
-                         httpVerb.trim().toUpperCase(Locale.getDefault()));
-
-        // Execute the operation
-        return executeAction(context, cMsg);
     }
 }

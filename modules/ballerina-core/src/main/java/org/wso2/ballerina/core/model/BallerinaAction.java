@@ -74,10 +74,6 @@ public class BallerinaAction implements Action, Node {
         return name.getName();
     }
 
-    public BlockStmt getActionBody() {
-        return actionBody;
-    }
-
     @Override
     public Annotation[] getAnnotations() {
         return annotations;
@@ -100,7 +96,7 @@ public class BallerinaAction implements Action, Node {
 
     @Override
     public BType[] getReturnTypes() {
-        return new BType[0];
+        return returnTypes;
     }
 
     @Override
@@ -124,5 +120,13 @@ public class BallerinaAction implements Action, Node {
 
     public ConnectorDcl[] getConnectorDcls() {
         return connectorDcls;
+    }
+    
+    public BlockStmt getActionBody() {
+        return actionBody;
+    }
+
+    public void setActionBody(BlockStmt actionBody) {
+        this.actionBody = actionBody;
     }
 }

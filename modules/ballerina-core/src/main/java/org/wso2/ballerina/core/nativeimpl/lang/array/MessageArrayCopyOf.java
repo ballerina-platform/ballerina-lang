@@ -18,7 +18,6 @@
 
 package org.wso2.ballerina.core.nativeimpl.lang.array;
 
-import org.osgi.service.component.annotations.Component;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BArray;
@@ -38,11 +37,6 @@ import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
         args = {@Argument(name = "arr", type = TypeEnum.ARRAY, elementType = TypeEnum.MESSAGE)},
         returnType = {@ReturnType(type = TypeEnum.ARRAY, elementType = TypeEnum.MESSAGE)},
         isPublic = true
-)
-@Component(
-        name = "func.lang.array_messageArrayCopyOf",
-        immediate = true,
-        service = AbstractNativeFunction.class
 )
 public class MessageArrayCopyOf extends AbstractNativeFunction {
     @Override

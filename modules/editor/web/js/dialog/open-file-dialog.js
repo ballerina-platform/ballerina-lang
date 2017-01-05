@@ -162,6 +162,14 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser', 'ballerina', 'ba
                     });
                 };
 
+                function openModel(data){
+                    var BallerinaASTDeserializer = Ballerina.ast.BallerinaASTDeserializer;
+                    var root = BallerinaASTDeserializer.getASTModel(data);
+
+                    var command = app.commandManager;
+                    command.dispatch("create-new-tab", root);
+                }
+
                 function openConfiguration() {
                     var defaultView = {configLocation: location.val()};
 
@@ -177,10 +185,9 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser', 'ballerina', 'ba
                         contentType: "text/plain; charset=utf-8",
                         async: false,
                         success: function (data, textStatus, xhr) {
-                            var obj = JSON.stringify(data);
-                            fileContent = $.parseJSON(obj);
+                            fileContent = $.parseJSON(data.content);
                             if (xhr.status == 200) {
-                                alert("fileContent " + fileContent['content']);
+                                openModel(fileContent);
                                 alertSuccess();
                             } else {
                                 alertError();
