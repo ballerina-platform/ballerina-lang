@@ -68,8 +68,13 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './life-line'], f
      * @private
      */
     ClientLifeLineView.prototype._calculatePolygonPoints = function(point){
+<<<<<<< Updated upstream
         var polygonYOffset = 25,
             polygonXOffset = 35;
+=======
+        var polygonYOffset = 27,
+            polygonXOffset = 40;
+>>>>>>> Stashed changes
         var topPolygonPoints =
             // Bottom point of the polygon.
             " " + point.x() + "," + (point.y() + polygonYOffset) +
