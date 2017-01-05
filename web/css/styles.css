@@ -1073,6 +1073,14 @@ button.variable-list {
     background-color: #818181;
 }
 
+#modalAbout a {
+    color: #337ab7;
+}
+
+#modalAbout .modal-dialog {
+    width: 30%;
+}
+
 /** Service container related styles | -> End **/
 /*//////////////////////////////////////////////////*/
 
