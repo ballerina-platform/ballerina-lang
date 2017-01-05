@@ -16,7 +16,6 @@
 
 package org.wso2.ballerina.core.nativeimpl.lang.message;
 
-import org.osgi.service.component.annotations.Component;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BMessage;
@@ -37,11 +36,6 @@ import org.wso2.ballerina.core.nativeimpl.lang.utils.ErrorHandler;
         args = {@Argument(name = "message", type = TypeEnum.MESSAGE)},
         returnType = {@ReturnType(type = TypeEnum.XML)},
         isPublic = true
-)
-@Component(
-        name = "func.lang.echo_getXmlPayload",
-        immediate = true,
-        service = AbstractNativeFunction.class
 )
 public class GetXMLPayload extends AbstractNativeFunction {
 

@@ -31,47 +31,54 @@ import java.util.Map;
 public class Context {
 
     //TODO: Rename this into BContext and move this to runtime package
-
     private ControlStack controlStack;
     private CarbonMessage cMsg;
     private BalCallback balCallback;
-
     protected Map<String, Object> properties = new HashMap();
+    private CallableUnitInfo serviceInfo;
 
     public Context() {
-        controlStack = new ControlStack();
+        this.controlStack = new ControlStack();
     }
 
     public Context(CarbonMessage cMsg) {
         this.cMsg = cMsg;
-        controlStack = new ControlStack();
+        this.controlStack = new ControlStack();
     }
 
     public ControlStack getControlStack() {
-        return controlStack;
+        return this.controlStack;
     }
 
     public CarbonMessage getCarbonMessage() {
-        return cMsg;
+        return this.cMsg;
     }
 
     public Object getProperty(String key) {
-        return properties.get(key);
+        return this.properties.get(key);
     }
 
     public Map<String, Object> getProperties() {
-        return properties;
+        return this.properties;
     }
 
     public void setProperty(String key, Object value) {
-        properties.put(key, value);
+        this.properties.put(key, value);
     }
 
     public BalCallback getBalCallback() {
-        return balCallback;
+        return this.balCallback;
     }
 
     public void setBalCallback(BalCallback balCallback) {
         this.balCallback = balCallback;
+    }
+    
+    public CallableUnitInfo getServiceInfo() {
+        return this.serviceInfo;
+    }
+
+    public void setServiceInfo(CallableUnitInfo serviceInfo) {
+        this.serviceInfo = serviceInfo;
     }
 }

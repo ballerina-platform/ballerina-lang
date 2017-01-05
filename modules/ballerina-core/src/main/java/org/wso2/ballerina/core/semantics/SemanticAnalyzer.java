@@ -48,8 +48,8 @@ import org.wso2.ballerina.core.model.Worker;
 import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.AddExpression;
 import org.wso2.ballerina.core.model.expressions.AndExpression;
-import org.wso2.ballerina.core.model.expressions.ArrayAccessExpr;
 import org.wso2.ballerina.core.model.expressions.ArrayInitExpr;
+import org.wso2.ballerina.core.model.expressions.ArrayMapAccessExpr;
 import org.wso2.ballerina.core.model.expressions.BackquoteExpr;
 import org.wso2.ballerina.core.model.expressions.BasicLiteral;
 import org.wso2.ballerina.core.model.expressions.BinaryArithmeticExpression;
@@ -61,8 +61,10 @@ import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.GreaterEqualExpression;
 import org.wso2.ballerina.core.model.expressions.GreaterThanExpression;
 import org.wso2.ballerina.core.model.expressions.InstanceCreationExpr;
+import org.wso2.ballerina.core.model.expressions.KeyValueExpression;
 import org.wso2.ballerina.core.model.expressions.LessEqualExpression;
 import org.wso2.ballerina.core.model.expressions.LessThanExpression;
+import org.wso2.ballerina.core.model.expressions.MapInitExpr;
 import org.wso2.ballerina.core.model.expressions.MultExpression;
 import org.wso2.ballerina.core.model.expressions.NotEqualExpression;
 import org.wso2.ballerina.core.model.expressions.OrExpression;
@@ -81,6 +83,7 @@ import org.wso2.ballerina.core.model.statements.ReturnStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
 import org.wso2.ballerina.core.model.types.BArrayType;
+import org.wso2.ballerina.core.model.types.BMapType;
 import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.model.util.LangModelUtils;
@@ -98,6 +101,10 @@ public class SemanticAnalyzer implements NodeVisitor {
     private int staticMemAddrOffset = -1;
 
     private SymTable symbolTable;
+    
+    private String currentPkg;
+    
+    
 
     // We need to keep a map of import packages.
     // This is useful when analyzing import functions, actions and types.
@@ -107,6 +114,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         SymScope pkgScope = bFile.getPackageScope();
         pkgScope.setParent(globalScope);
         symbolTable = new SymTable(pkgScope);
+        
+        currentPkg = bFile.getPackageName();
 
         // TODO We can move this logic to the parser.
         bFile.getFunctions().values().forEach(this::addFuncSymbol);
@@ -449,14 +458,14 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(AssignStmt assignStmt) {
         Expression lExpr = assignStmt.getLExpr();
+        if (lExpr instanceof ArrayMapAccessExpr) {
+            ((ArrayMapAccessExpr) lExpr).setLHSExpr(true);
+        }
         lExpr.accept(this);
 
         Expression rExpr = assignStmt.getRExpr();
         rExpr.accept(this);
 
-        if (lExpr instanceof ArrayAccessExpr) {
-            ((ArrayAccessExpr) lExpr).setLHSExpr(true);
-        }
 
         // Return types of the function or action invoked are only available during the linking phase
         // There type compatibility check is impossible during the semantic analysis phase.
@@ -478,8 +487,9 @@ public class SemanticAnalyzer implements NodeVisitor {
             //rExpr.accept(this);
 
         }
-
-        if (lExpr.getType() != rExpr.getType()) {
+        // TODO Remove the MAP related logic when type casting is implemented
+        if ((lExpr.getType() != BTypes.MAP_TYPE) && (rExpr.getType() != BTypes.MAP_TYPE) &&
+                (lExpr.getType() != rExpr.getType())) {
             throw new SemanticException("Error:() ballerina: incompatible types: " + rExpr.getType() +
                     " cannot be converted to " + lExpr.getType());
         }
@@ -584,7 +594,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         for (Expression expr : exprs) {
             expr.accept(this);
         }
-
+        
         linkFunction(funcIExpr);
 
         // Can we do this bit in the linker
@@ -774,36 +784,70 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     @Override
-    public void visit(ArrayAccessExpr arrayAccessExpr) {
+    public void visit(ArrayMapAccessExpr arrayMapAccessExpr) {
         // Check whether this access expression is in left hand side of an assignment expression
         // If yes, skip assigning a stack frame offset
-        if (!arrayAccessExpr.isLHSExpr()) {
-            visitExpr(arrayAccessExpr);
+        if (!arrayMapAccessExpr.isLHSExpr()) {
+            visitExpr(arrayMapAccessExpr);
         }
 
         // Here we assume that rExpr of array access expression is always a variable reference expression.
         // This according to the grammar
-        VariableRefExpr arrayVarRefExpr = (VariableRefExpr) arrayAccessExpr.getRExpr();
-        arrayVarRefExpr.accept(this);
+        VariableRefExpr arrayMapVarRefExpr = (VariableRefExpr) arrayMapAccessExpr.getRExpr();
+        arrayMapVarRefExpr.accept(this);
 
-        // Type returned by the symbol should always be the ArrayType
-        if (!(arrayVarRefExpr.getType() instanceof BArrayType)) {
-            throw new SemanticException("Attempt to index non-array variable: " +
-                    arrayVarRefExpr.getSymbolName().getName());
+        // Handle the array type
+        if (arrayMapVarRefExpr.getType() instanceof BArrayType) {
+            // Check the type of the index expression
+            Expression indexExpr = arrayMapAccessExpr.getIndexExpr();
+            indexExpr.accept(this);
+            if (indexExpr.getType() != BTypes.INT_TYPE) {
+                throw new SemanticException("Array index should be of type int, not " + indexExpr.getType().toString() +
+                        ". Array name: " + arrayMapVarRefExpr.getSymbolName().getName());
+            }
+            // Set type of the array access expression
+            BType typeOfArray = ((BArrayType) arrayMapVarRefExpr.getType()).getElementType();
+            arrayMapAccessExpr.setType(typeOfArray);
+        } else if (arrayMapVarRefExpr.getType() instanceof BMapType) {
+            // Check the type of the index expression
+            Expression indexExpr = arrayMapAccessExpr.getIndexExpr();
+            indexExpr.accept(this);
+            if (indexExpr.getType() != BTypes.STRING_TYPE) {
+                throw new SemanticException("Map index should be of type string, not " +
+                        indexExpr.getType().toString() +
+                        ". Map name: " + arrayMapVarRefExpr.getSymbolName().getName());
+            }
+            // Set type of the map access expression
+            BType typeOfMap = arrayMapVarRefExpr.getType();
+            arrayMapAccessExpr.setType(typeOfMap);
+        } else {
+            throw new SemanticException("Attempt to index non-array, non-map variable: " +
+                    arrayMapVarRefExpr.getSymbolName().getName());
+        }
+    }
+
+    @Override
+    public void visit(MapInitExpr mapInitExpr) {
+        Expression[] argExprs = mapInitExpr.getArgExprs();
+
+        if (argExprs.length == 0) {
+            throw new SemanticException("Array initializer should have at least one argument");
         }
 
-        // Check the type of the index expression
-        Expression indexExpr = arrayAccessExpr.getIndexExpr();
-        indexExpr.accept(this);
+        argExprs[0].accept(this);
+        BType typeOfMap = ((KeyValueExpression) argExprs[0]).getValueExpression().getType();
 
-        if (indexExpr.getType() != BTypes.INT_TYPE) {
-            throw new SemanticException("Array index should be of type int, not " + indexExpr.getType().toString() +
-                    ". Array name: " + arrayVarRefExpr.getSymbolName().getName());
+        for (int i = 1; i < argExprs.length; i++) {
+            argExprs[i].accept(this);
+
+            if (((KeyValueExpression) argExprs[i]).getValueExpression().getType() != typeOfMap) {
+                throw new SemanticException("Incompatible types used in map initializer: " +
+                        "All arguments must have the same type.");
+            }
         }
 
-        // Set type of the array access expression
-        BType typeOfArray = ((BArrayType) arrayVarRefExpr.getType()).getElementType();
-        arrayAccessExpr.setType(typeOfArray);
+        // Type of this expression is map and internal data type cannot be identifier from declaration
+        mapInitExpr.setType(BTypes.MAP_TYPE);
     }
 
     @Override
@@ -827,6 +871,11 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         arrayInitExpr.setType(BTypes.getArrayType(typeOfArray.toString()));
+    }
+
+    @Override
+    public void visit(KeyValueExpression keyValueExpr) {
+
     }
 
     @Override
@@ -1009,6 +1058,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                 pkgPath = pkgName;
             }
         }
+        
         return pkgPath;
     }
 
@@ -1027,7 +1077,9 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         SymbolName funcName = funcIExpr.getFunctionName();
         String pkgPath = getPackagePath(funcName);
+        funcName.setPkgName(pkgPath);
 
+        
         Expression[] exprs = funcIExpr.getExprs();
         BType[] paramTypes = new BType[exprs.length];
         for (int i = 0; i < exprs.length; i++) {
@@ -1040,6 +1092,14 @@ public class SemanticAnalyzer implements NodeVisitor {
             throw new LinkerException("Undefined function: " + funcIExpr.getFunctionName().getName());
         }
 
+        // Package name null means the function is defined in the same bal file. 
+        // Hence set the package name of the bal file as the function's package name.
+        // TODO: Do this in a better way
+        if (funcName.getPkgName() == null) {
+            String fullPackageName = getPackagePath(new SymbolName(funcName.getName(), currentPkg));
+            funcName.setPkgName(fullPackageName);
+        }
+        
         // Link
         Function function = symbol.getFunction();
         funcIExpr.setFunction(function);
@@ -1056,6 +1116,9 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         String pkgPath = getPackagePath(actionName);
+        
+        // Set the fully qualified package name
+        actionName.setPkgName(pkgPath);
 
         Expression[] exprs = actionIExpr.getExprs();
         BType[] paramTypes = new BType[exprs.length];
@@ -1072,6 +1135,14 @@ public class SemanticAnalyzer implements NodeVisitor {
                     actionIExpr.getActionName().getName());
         }
 
+        // Package name null means the action is defined in the same bal file. 
+        // Hence set the package name of the bal file as the action's package name.
+        // TODO: Do this in a better way
+        if (actionName.getPkgName() == null) {
+            String fullPackageName = getPackagePath(new SymbolName(actionName.getName(), currentPkg));
+            actionName.setPkgName(fullPackageName);
+        }
+        
         // Link
         Action action = symbol.getAction();
         actionIExpr.setAction(action);

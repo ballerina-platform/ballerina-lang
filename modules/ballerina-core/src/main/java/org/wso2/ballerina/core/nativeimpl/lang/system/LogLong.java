@@ -18,7 +18,6 @@
 
 package org.wso2.ballerina.core.nativeimpl.lang.system;
 
-import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.Context;
@@ -51,11 +50,6 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
                 @BallerinaConstant(identifier = "LOG_LEVEL_ERROR", type = TypeEnum.INT, value = "5",
                         argumentRefs = {"logLevel"})
         }
-)
-@Component(
-        name = "func.lang.system_logLong",
-        immediate = true,
-        service = AbstractNativeFunction.class
 )
 public class LogLong extends AbstractNativeFunction {
 

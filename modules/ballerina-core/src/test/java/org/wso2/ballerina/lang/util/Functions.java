@@ -18,6 +18,7 @@
 package org.wso2.ballerina.lang.util;
 
 import org.wso2.ballerina.core.interpreter.BLangExecutor;
+import org.wso2.ballerina.core.interpreter.CallableUnitInfo;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.interpreter.LocalVarLocation;
 import org.wso2.ballerina.core.interpreter.RuntimeEnvironment;
@@ -103,7 +104,11 @@ public class Functions {
         RuntimeEnvironment runtimeEnv = RuntimeEnvironment.get(bFile);
 
         // 6) Create the control stack and the stack frame to invoke the functions
-        StackFrame currentStackFrame = new StackFrame(functionArgs, new BValue[0]);
+        SymbolName functionSymbolName = function.getSymbolName();
+        CallableUnitInfo functionInfo = new CallableUnitInfo(functionSymbolName.getName(), 
+                functionSymbolName.getPkgName(), function.getFunctionLocation());
+        
+        StackFrame currentStackFrame = new StackFrame(functionArgs, new BValue[0], functionInfo);
 
         Context bContext = new Context();
         bContext.getControlStack().pushFrame(currentStackFrame);

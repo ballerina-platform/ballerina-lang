@@ -28,9 +28,32 @@ import org.wso2.ballerina.core.model.values.BValue;
 public class StackFrame {
     public BValue[] values;
     public BValue[] returnValues;
+    private CallableUnitInfo callableUnitInfo;
 
     public StackFrame(BValue[] values, BValue[] returnValues) {
         this.values = values;
         this.returnValues = returnValues;
+    }
+    
+    /**
+     * Create a Stack frame.
+     * 
+     * @param values         Parameter and local variable values
+     * @param returnValues   Return values
+     * @param callableUnitInfo         Meta info of the node.   
+     */
+    public StackFrame(BValue[] values, BValue[] returnValues, CallableUnitInfo callableUnitInfo) {
+        this.values = values;
+        this.returnValues = returnValues;
+        this.callableUnitInfo = callableUnitInfo;
+    }
+
+    /**
+     * Get the meta info (see {@link CallableUnitInfo}) of this CallableUnit.
+     * 
+     * @return  Meta info (see {@link CallableUnitInfo}) of this CallableUnit.
+     */
+    public CallableUnitInfo getNodeInfo() {
+        return this.callableUnitInfo;
     }
 }

@@ -77,14 +77,12 @@ rem ----- Process the input command -------------------------------------------
 rem Slurp the command line arguments. This loop allows for an unlimited number
 rem of arguments (up to the command line limit, anyway).
 set BAL_FILE=
-set BPath=
 
 :setupArgs
+set tempValue=%~f1
 if ""%1""=="""" goto doneStart
 
-if ""%1""==""-s"" goto assignBServicespath
-if ""%1""==""-servicespath"" goto assignBServicespath
-if ""%1""==""-bpath"" goto assignBPath
+if %tempValue:~-4% == .bal goto assignBalFile
 
 if ""%1""==""debug""    goto commandDebug
 if ""%1""==""-debug""   goto commandDebug
@@ -96,36 +94,28 @@ if ""%1""==""help""   goto commandHelp
 
 goto commandUnknownArg
 
-rem ----- Assign Ballerina Service Path ----------------------------------------
-:assignBServicespath
-shift
+rem ----- Assign Bal file to run------------------------------------------------
+:assignBalFile
+rem Get Bal file path from base path.
 pushd .
 cd %BASE_DIR%
-set BAL_FILE=%~f1
+set BAL_FILE=%BAL_FILE%;%~f1
 popd
 shift
 goto setupArgs
 
-rem ----- Assign Ballerina Path ------------------------------------------------
-:assignBPath
-shift
-pushd .
-cd %BASE_DIR%
-set BPath=%~f1
-popd
-shift
-goto setupArgs
 
 rem ----- commandUnknownArg ----------------------------------------------------
 :commandUnknownArg
 echo Not supported option, command or value : %1
-type "%CARBON_HOME%\bin\ballerina-win-help.txt"
+type "%CARBON_HOME%\bin\ballerinaserver-win-help.txt"
 goto end
 
-rem ----- commandNoBalDeploymentDir --------------------------------------------
-:commandNoBalDeploymentDir
-set BAL_FILE=%BASE_DIR%
-goto doneStart
+rem ----- commandNoBalFile -------------------------------------------------------
+:commandNoBalFile
+echo Please specify Ballerina file(s) to run. (Eg: ballerinaserver.bat echo.bal)
+type "%CARBON_HOME%\bin\ballerinaserver-win-help.txt"
+goto end
 
 rem ----- commandVersion -------------------------------------------------------
 :commandVersion
@@ -136,7 +126,7 @@ goto end
 rem ----- commandHelp -------------------------------------------------------
 :commandHelp
 shift
-type "%CARBON_HOME%\bin\ballerina-win-help.txt"
+type "%CARBON_HOME%\bin\ballerinaserver-win-help.txt"
 goto end
 
 rem ----- commandDebug ---------------------------------------------------------
@@ -154,7 +144,7 @@ echo Please specify the debug port after the --debug option
 goto end
 
 :doneStart
-if ""%BAL_FILE%""==""""  goto commandNoBalDeploymentDir
+if "%BAL_FILE%"==""  goto commandNoBalFile
 if "%OS%"=="Windows_NT" @setlocal
 if "%OS%"=="WINNT" @setlocal
 goto findJdk

@@ -25,16 +25,19 @@ import org.wso2.ballerina.core.model.ConnectorDcl;
 import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.Resource;
+import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.VariableDcl;
 import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
-import org.wso2.ballerina.core.model.expressions.ArrayAccessExpr;
 import org.wso2.ballerina.core.model.expressions.ArrayInitExpr;
+import org.wso2.ballerina.core.model.expressions.ArrayMapAccessExpr;
 import org.wso2.ballerina.core.model.expressions.BackquoteExpr;
 import org.wso2.ballerina.core.model.expressions.BasicLiteral;
 import org.wso2.ballerina.core.model.expressions.BinaryExpression;
 import org.wso2.ballerina.core.model.expressions.Expression;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.InstanceCreationExpr;
+import org.wso2.ballerina.core.model.expressions.KeyValueExpression;
+import org.wso2.ballerina.core.model.expressions.MapInitExpr;
 import org.wso2.ballerina.core.model.expressions.UnaryExpression;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.invokers.ResourceInvocationExpr;
@@ -54,7 +57,9 @@ import org.wso2.ballerina.core.model.values.BBoolean;
 import org.wso2.ballerina.core.model.values.BConnector;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BJSON;
+import org.wso2.ballerina.core.model.values.BMap;
 import org.wso2.ballerina.core.model.values.BMessage;
+import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BValueType;
 import org.wso2.ballerina.core.model.values.BXML;
@@ -116,13 +121,20 @@ public class BLangExecutor implements NodeExecutor {
             }
 
 
-        } else if (lExpr instanceof ArrayAccessExpr) {
+        } else if (lExpr instanceof ArrayMapAccessExpr) {
 
-            ArrayAccessExpr accessExpr = (ArrayAccessExpr) lExpr;
-            BArray arrayVal = (BArray) accessExpr.getRExpr().execute(this);
-            BInteger indexVal = (BInteger) accessExpr.getIndexExpr().execute(this);
-            arrayVal.add(indexVal.intValue(), rValue);
-
+            ArrayMapAccessExpr accessExpr = (ArrayMapAccessExpr) lExpr;
+            if (!(accessExpr.getType() == BTypes.MAP_TYPE)) {
+                BArray arrayVal = (BArray) accessExpr.getRExpr().execute(this);
+                BInteger indexVal = (BInteger) accessExpr.getIndexExpr().execute(this);
+                arrayVal.add(indexVal.intValue(), rValue);
+            } else {
+                BMap<BString, BValue> mapVal = (BMap<BString, BValue>) accessExpr.getRExpr().execute(this);
+                BString indexVal = (BString) accessExpr.getIndexExpr().execute(this);
+                mapVal.put(indexVal, rValue);
+                // set the type of this expression here
+                // accessExpr.setType(rExpr.getType());
+            }
         }
 
     }
@@ -219,9 +231,13 @@ public class BLangExecutor implements NodeExecutor {
         // Create an array in the stack frame to hold return values;
         BValue[] returnVals = new BValue[function.getReturnTypes().length];
 
-        // Create a new stack frame with memory locations to hold parameters, local values, temp expression value and
-        // return values;
-        StackFrame stackFrame = new StackFrame(localVals, returnVals);
+        // Create a new stack frame with memory locations to hold parameters, local values, temp expression value,
+        // return values and function invocation location;
+        SymbolName functionSymbolName = funcIExpr.getFunctionName();
+        CallableUnitInfo functionInfo = new CallableUnitInfo(functionSymbolName.getName(), 
+                functionSymbolName.getPkgName(), funcIExpr.getInvokedLocation());
+        
+        StackFrame stackFrame = new StackFrame(localVals, returnVals, functionInfo);
         controlStack.pushFrame(stackFrame);
 
         // Check whether we are invoking a native function or not.
@@ -267,7 +283,10 @@ public class BLangExecutor implements NodeExecutor {
 
         // Create a new stack frame with memory locations to hold parameters, local values, temp expression values and
         // return values;
-        StackFrame stackFrame = new StackFrame(localVals, returnVals);
+        SymbolName actionSymbolName = actionIExpr.getActionName();
+        CallableUnitInfo actionInfo = new CallableUnitInfo(actionSymbolName.getName(), actionSymbolName.getPkgName(), 
+                actionIExpr.getInvokedLocation());
+        StackFrame stackFrame = new StackFrame(localVals, returnVals, actionInfo);
         controlStack.pushFrame(stackFrame);
 
         // Check whether we are invoking a native action or not.
@@ -311,7 +330,11 @@ public class BLangExecutor implements NodeExecutor {
 
         BValue[] ret = new BValue[1];
 
-        StackFrame stackFrame = new StackFrame(valueParams, ret);
+        SymbolName resourceSymbolName = resource.getSymbolName();
+        CallableUnitInfo resourceInfo = new CallableUnitInfo(resourceSymbolName.getName(), 
+                resourceSymbolName.getPkgName(), resource.getResourceLocation());
+        
+        StackFrame stackFrame = new StackFrame(valueParams, ret, resourceInfo);
         controlStack.pushFrame(stackFrame);
 
         resource.getResourceBody().execute(this);
@@ -341,19 +364,33 @@ public class BLangExecutor implements NodeExecutor {
     }
 
     @Override
-    public BValue visit(ArrayAccessExpr arrayAccessExpr) {
-        Expression arrayVarRefExpr = arrayAccessExpr.getRExpr();
-        BArray arrayVal = (BArray) arrayVarRefExpr.execute(this);
+    public BValue visit(ArrayMapAccessExpr arrayMapAccessExpr) {
 
-        Expression indexExpr = arrayAccessExpr.getIndexExpr();
-        BInteger indexVal = (BInteger) indexExpr.execute(this);
+        Expression arrayVarRefExpr = arrayMapAccessExpr.getRExpr();
+        BValue collectionValue = arrayVarRefExpr.execute(this);
 
-        // Check whether this array access expression is in the left hand of an assignment expression
+        Expression indexExpr = arrayMapAccessExpr.getIndexExpr();
+        BValue indexValue = indexExpr.execute(this);
+
+
+        // Check whether this collection access expression is in the left hand of an assignment expression
         // If yes skip setting the value;
-        if (!arrayAccessExpr.isLHSExpr()) {
-            // Get the value stored in the index
-            return arrayVal.get(indexVal.intValue());
+        if (!arrayMapAccessExpr.isLHSExpr()) {
 
+            if (arrayMapAccessExpr.getType() != BTypes.MAP_TYPE) {
+                // Get the value stored in the index
+                BValue val = ((BArray) collectionValue).get(((BInteger) indexValue).intValue());
+                return val;
+            } else {
+                // Get the value stored in the index
+                BValue val;
+                if (indexValue instanceof BString) {
+                    val = ((BMap) collectionValue).get(indexValue);
+                } else {
+                    val = ((BMap) collectionValue).get(indexValue.toString());
+                }
+                return val;
+            }
         } else {
             throw new IllegalStateException("This branch shouldn't be executed. ");
         }
@@ -373,6 +410,22 @@ public class BLangExecutor implements NodeExecutor {
         }
 
         return bArray;
+    }
+
+    @Override
+    public BValue visit(MapInitExpr mapInitExpr) {
+        Expression[] argExprs = mapInitExpr.getArgExprs();
+        // Creating a new map
+        BMap<BString, BValue> bMap = new BMap<>();
+
+        for (int i = 0; i < argExprs.length; i++) {
+            KeyValueExpression expr = (KeyValueExpression) argExprs[i];
+            BString key = new BString(expr.getKey());
+            Expression expression = expr.getValueExpression();
+            BValue value = expression.execute(this);
+            bMap.put(key, value);
+        }
+        return bMap;
     }
 
     @Override
