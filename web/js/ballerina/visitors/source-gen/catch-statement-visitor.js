@@ -35,17 +35,17 @@ define(['require', 'lodash', 'log', 'event_channel', './abstract-statement-sourc
          * that particular source generation has to be constructed here
          */
         this.appendSource('catch('+ catchStatement.getExceptionType() + '){');
-        log.info('Begin Visit Catch Statement');
+        log.debug('Begin Visit Catch Statement');
     };
 
     CatchStatementVisitor.prototype.visitCatchStatement = function (catchStatement) {
-        log.info('Visit Catch Statement');
+        log.debug('Visit Catch Statement');
     };
 
     CatchStatementVisitor.prototype.endVisitCatchStatement = function (catchStatement) {
         this.appendSource("}\n");
         this.getParent().appendSource(this.getGeneratedSource());
-        log.info('End Visit Catch Statement');
+        log.debug('End Visit Catch Statement');
     };
 
     CatchStatementVisitor.prototype.visitStatement = function (statement) {

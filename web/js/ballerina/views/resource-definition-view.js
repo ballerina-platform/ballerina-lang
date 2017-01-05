@@ -139,13 +139,13 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
         ResourceDefinitionView.prototype.childViewAddedCallback = function (child) {
             if(BallerinaASTFactory.isResourceDefinition(child)){
                 if(child !== this._model){
-                    log.info("[Eventing] Resource view added : ");
+                    log.debug("[Eventing] Resource view added : ");
                 }
             }
         };
 
         ResourceDefinitionView.prototype.childRemovedCallback = function (child) {
-            log.info("[Eventing] Child element removed. ");
+            log.debug("[Eventing] Child element removed. ");
             (d3.select(this._container)).selectAll('#_' +child.id).remove();
         };
 
@@ -557,7 +557,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
             // On click of delete icon
             headingDeleteIcon.on("click", function () {
-                log.info("Clicked delete button");
+                log.debug("Clicked delete button");
                 var child = self._model;
                 var parent = child.parent;
                 parent.removeChild(child);

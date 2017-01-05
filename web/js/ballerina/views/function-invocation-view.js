@@ -86,7 +86,7 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/function-invoca
         FunctionInvocationStatementView.prototype.render = function (renderingContext) {
             // TODO : Please revisit this method. Needs a refactor
             this.setDiagramRenderingContext(renderingContext);
-            log.info("Rendering the Function Invocation Statement.");
+            log.debug("Rendering the Function Invocation Statement.");
 
             var funInvokeGroup = D3Utils.group(d3.select(this._container));
             funInvokeGroup.attr("id", "_" + this._model.id);//added attribute 'id' starting with '_' to be compatible with HTML4

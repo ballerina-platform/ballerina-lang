@@ -51,7 +51,7 @@ define(['require','lodash', 'log', 'event_channel', './abstract-statement-source
         FunctionInvocationVisitor.prototype.endVisitStatement = function(functionInvocation){
             this.appendSource(";\n");
             this.getParent().appendSource(this.getGeneratedSource());
-            log.info('End Visit Function Invocation expression');
+            log.debug('End Visit Function Invocation expression');
         };
 
         return FunctionInvocationVisitor;
