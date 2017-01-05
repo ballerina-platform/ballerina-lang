@@ -7,3 +7,4 @@
 5. [Echo Service](echoService)
 6. [Passthrough Service](passthroughService)
 7. [Content/Header Based Routing Service](routingServices)
+10. [Twitter Connector](twitterConnector)
