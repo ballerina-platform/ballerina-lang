@@ -488,14 +488,22 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(AssignStmt assignStmt) {
         Expression lExpr = assignStmt.getLExpr();
+
         if (lExpr instanceof ArrayMapAccessExpr) {
             ((ArrayMapAccessExpr) lExpr).setLHSExpr(true);
         }
+
         lExpr.accept(this);
+
+        // Check whether someone is trying to change the values of a constant
+        if (lExpr instanceof VariableRefExpr &&
+                ((VariableRefExpr) lExpr).getLocation() instanceof ConstantLocation) {
+            throw new SemanticException("Error: cannot assign a value to constant: " +
+                    ((VariableRefExpr) lExpr).getSymbolName());
+        }
 
         Expression rExpr = assignStmt.getRExpr();
         rExpr.accept(this);
-
 
         // Return types of the function or action invoked are only available during the linking phase
         // There type compatibility check is impossible during the semantic analysis phase.
