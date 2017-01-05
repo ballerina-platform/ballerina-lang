@@ -39,8 +39,14 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './st
              * If we need to add additional parameters which are dynamically added to the configuration start
              * that particular source generation has to be constructed here
              */
+            var functionReturnTypes = functionDefinition.getReturnTypesAsString();
+            var functionReturnTypesSource = "";
+            if (!_.isEmpty(functionReturnTypes)) {
+                functionReturnTypesSource = '(' + functionDefinition.getReturnTypesAsString() + ') ';
+            }
+
             var constructedSourceSegment = 'function ' + functionDefinition.getFunctionName() + '(' +
-                functionDefinition.getArgumentsAsString() + '){';
+                functionDefinition.getArgumentsAsString() + ') ' + functionReturnTypesSource + '{';
             this.appendSource(constructedSourceSegment);
             log.info('Begin Visit FunctionDefinition');
         };
