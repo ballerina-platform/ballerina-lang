@@ -19,7 +19,7 @@ define(['require', 'lodash', 'jquery'],
     function (require, _, $) {
 
         //TODO : Move this to a common constant.
-        var variableTypes = ['message', 'connection', 'string', 'int', 'exception', 'json', 'xml', 'string[]', 'int[]'];
+        var variableTypes = ['message', 'connection', 'string', 'int', 'exception', 'json', 'xml', 'map', 'string[]', 'int[]'];
 
         /**
          * Creates the return type pane.
