@@ -1027,6 +1027,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitUnaryExpression(BallerinaParser.UnaryExpressionContext ctx) {
+        createUnaryExpr(ctx);
     }
 
     @Override
@@ -1117,6 +1118,10 @@ public class BLangAntlr4Listener implements BallerinaListener {
     private void createBinaryExpr(ParserRuleContext ctx) {
         String opStr = ctx.getChild(1).getText();
         modelBuilder.createBinaryExpr(opStr);
+    }
+    private void createUnaryExpr(ParserRuleContext ctx) {
+        String op = ctx.getChild(0).getText();
+        modelBuilder.createUnaryExpr(op);
     }
 
     private void createBasicLiteral(BallerinaParser.LiteralValueContext ctx) {

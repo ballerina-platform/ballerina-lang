@@ -38,6 +38,7 @@ import org.wso2.ballerina.core.model.Const;
 import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.model.ImportPackage;
 import org.wso2.ballerina.core.model.NodeVisitor;
+import org.wso2.ballerina.core.model.Operator;
 import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
@@ -688,7 +689,34 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(UnaryExpression unaryExpr) {
+        if (Operator.DIV.equals(unaryExpr.getOperation())) {
+            if (unaryExpr.getType() == BTypes.INT_TYPE) {
+                unaryExpr.setEvalFunc(UnaryExpression.NEGATIVE_INT_FUNC);
+            } else if (unaryExpr.getType() == BTypes.DOUBLE_TYPE) {
+                unaryExpr.setEvalFunc(UnaryExpression.NEGATIVE_DOUBLE_FUNC);
+            } else if (unaryExpr.getType() == BTypes.LONG_TYPE) {
+                unaryExpr.setEvalFunc(UnaryExpression.NEGATIVE_LONG_FUNC);
+            } else if (unaryExpr.getType() == BTypes.FLOAT_TYPE) {
+                unaryExpr.setEvalFunc(UnaryExpression.NEGATIVE_FLOAT_FUNC);
+            } else {
+                throw new SemanticException("Unsupported type " + unaryExpr.getType());
+            }
+        } else if (Operator.ADD.equals(unaryExpr.getOperation())) {
+            if (unaryExpr.getType() == BTypes.INT_TYPE) {
+                unaryExpr.setEvalFunc(UnaryExpression.POSITIVE_INT_FUNC);
+            } else if (unaryExpr.getType() == BTypes.DOUBLE_TYPE) {
+                unaryExpr.setEvalFunc(UnaryExpression.POSITIVE_DOUBLE_FUNC);
+            } else if (unaryExpr.getType() == BTypes.LONG_TYPE) {
+                unaryExpr.setEvalFunc(UnaryExpression.POSITIVE_LONG_FUNC);
+            } else if (unaryExpr.getType() == BTypes.FLOAT_TYPE) {
+                unaryExpr.setEvalFunc(UnaryExpression.POSITIVE_FLOAT_FUNC);
+            } else {
+                throw new SemanticException("Unsupported type " + unaryExpr.getType());
+            }
 
+        } else {
+            throw new SemanticException("Unsupported operation " + unaryExpr.getOperation().name());
+        }
     }
 
     @Override
