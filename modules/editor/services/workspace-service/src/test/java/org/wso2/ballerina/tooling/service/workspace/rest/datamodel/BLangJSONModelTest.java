@@ -24,6 +24,7 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerina.core.model.Package;
 import org.wso2.msf4j.MicroservicesRunner;
 import org.wso2.msf4j.formparam.util.StreamUtil;
 
@@ -36,6 +37,7 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Scanner;
 
 import javax.ws.rs.HttpMethod;
@@ -43,27 +45,26 @@ import javax.ws.rs.HttpMethod;
 public class BLangJSONModelTest {
 
     private MicroservicesRunner microservicesRunner;
+    HashMap<String, Package> packages = new HashMap<String, Package>();
     private String exptdStrFunc = "{\"root\":[{\"type\":\"package\",\"package_name\":\"test.samples\"}," +
             "{\"type\":\"import\",\"import_package_name\":\"twitter\",\"import_package_path\":" +
             "\"ballerina.connectors.twitter\"},{\"type\":\"import\",\"import_package_name\":\"sf\"," +
             "\"import_package_path\":\"ballerina.connectors.salesforce\"},{\"type\":\"import\"," +
-            "\"import_package_name\":\"samples\",\"import_package_path\":\"test.samples\"}," +
-            "{\"type\":\"service_definition\",\"service_name\":\"HelloService\",\"children\":" +
-            "[{\"type\":\"resource_definition\",\"resource_name\":null,\"children\":" +
-            "[{\"type\":\"annotation\",\"annotation_name\":\"GET\",\"annotation_value\":null," +
-            "\"children\":[]},{\"type\":\"annotation\",\"annotation_name\":\"Path\"," +
-            "\"annotation_value\":\"/tweet\",\"children\":[]},{\"type\":\"parameter\"," +
-            "\"parameter_name\":\"m\",\"parameter_type\":\"message\",\"children\":[]}," +
-            "{\"type\":\"block_statement\",\"children\":[{\"type\":\"reply_statement\"," +
-            "\"children\":[{\"type\":\"variable_reference_expression\"," +
-            "\"variable_reference_name\":\"m\"}]}]}]}]},{\"type\":\"function\"," +
-            "\"function_name\":\"test_int\",\"is_public_function\":false,\"children\":" +
-            "[{\"type\":\"parameter\",\"parameter_name\":\"a\",\"parameter_type\":\"int\"," +
-            "\"children\":[]},{\"type\":\"return_type\",\"children\":[\"int\"]},{\"type\":" +
-            "\"block_statement\",\"children\":[{\"type\":\"return_statement\",\"children\":" +
+            "\"import_package_name\":\"samples\",\"import_package_path\":\"test.samples\"},{\"type\":" +
+            "\"service_definition\",\"service_name\":\"HelloService\",\"annotations\":[],\"children\":[{\"type\":" +
+            "\"resource_definition\",\"resource_name\":null,\"annotations\":[{\"type\":\"annotation\"," +
+            "\"annotation_name\":\"GET\",\"annotation_value\":null,\"children\":[]},{\"type\":\"annotation\"," +
+            "\"annotation_name\":\"Path\",\"annotation_value\":\"/tweet\",\"children\":[]}],\"children\":" +
+            "[{\"type\":\"argument_declaration\",\"parameter_name\":\"m\",\"parameter_type\":" +
+            "\"message\",\"children\":[]},{\"type\":\"reply_statement\",\"children\":" +
+            "[{\"type\":\"variable_reference_expression\",\"variable_reference_name\":\"m\"}]}]}]}," +
+            "{\"type\":\"function_definition\",\"function_name\":\"test_int\",\"is_public_function\"" +
+            ":false,\"annotations\":[],\"children\":[{\"type\":\"argument_declaration\",\"parameter_name\":" +
+            "\"a\",\"parameter_type\":\"int\",\"children\":[]},{\"type\":\"return_type\",\"children\":" +
+            "[{\"type\":\"type_name\",\"type_name\":\"int\"}]},{\"type\":\"return_statement\",\"children\":" +
             "[{\"type\":\"add_expression\",\"children\":[{\"type\":\"variable_reference_expression\"," +
-            "\"variable_reference_name\":\"a\"},{\"type\":\"basic_literal_expression\"," +
-            "\"basic_literal_type\":\"int\",\"basic_literal_value\":\"2\"}]}]}]}]}]}";
+            "\"variable_reference_name\":\"a\"},{\"type\":\"basic_literal_expression\",\"basic_literal_type\":\"int\"," +
+            "\"basic_literal_value\":\"2\"}]}]}]}]}";
 
     public static void main(String[] args) {
         try {
@@ -79,7 +80,48 @@ public class BLangJSONModelTest {
     public void setup() throws Exception {
         microservicesRunner = new MicroservicesRunner(9091);
         microservicesRunner.deploy(new BLangFileRestService()).start();
+        //HTTPConnector connector = new HTTPConnector();
+        //String connectorName = connector.getSymbolName().getName();
+        //SymbolName symbolName = SymbolUtils.getSymNameWithParams(CONNECTOR_NAME, connector.getParameters());
+        //Symbol symbol = new Symbol(connector, LangModelUtils.getTypesOfParams(connector.getParameters()));
+        //GlobalScopeHolder.getInstance().insert(new SymbolName(connectorName), symbol);
+        //addNativeFunction(GlobalScopeHolder.getInstance().getScope(), new SetHeader());
+        //addNativeFunction(GlobalScopeHolder.getInstance().getScope(), new GetHeader());
+        //addNativeFunction(GlobalScopeHolder.getInstance().getScope(), new GetQueryParam());
+        //addNativeFunction(GlobalScopeHolder.getInstance().getScope(), new GetJsonPayload());
+        //addNativeFunction(GlobalScopeHolder.getInstance().getScope(), new GetInt());
+        //addNativeFunction(GlobalScopeHolder.getInstance().getScope(), new StringValueOf());
+        //addNativeFunction(GlobalScopeHolder.getInstance().getScope(), new PrintlnString());
+        //addNativeFunction(GlobalScopeHolder.getInstance().getScope(), new SetStringPayload());
+        //addNativeFunction(GlobalScopeHolder.getInstance().getScope(), new ConvertToResponse());
+        //addNativeFunction(GlobalScopeHolder.getInstance().getScope(), new SetJsonPayload());
+        //addNativeFunction(GlobalScopeHolder.getInstance().getScope(), new GetString());
+        //registerNativeAction(new Get());
+        //registerNativeAction(new Post());
     }
+
+    /*
+    public static void addNativeFunction(SymScope symScope, AbstractNativeFunction function) {
+        SymbolName symbolName = LangModelUtils.getSymNameWithParams(function.getPackageName() + ":" +
+                function.getClass().getAnnotation(BallerinaFunction.class).functionName(), function.getParameters());
+        Symbol symbol = new Symbol(function,
+                LangModelUtils.getTypesOfParams(function.getParameters()), function.getReturnTypes());
+        symScope.insert(symbolName, symbol);
+    }
+
+    public void registerNativeAction(AbstractNativeAction action) {
+        Package aPackage = packages
+                .computeIfAbsent(action.getPackageName(), k -> new Package(action.getPackageName()));
+        aPackage.getActions().put(action.getName(), action);
+
+        String actionName = action.getSymbolName().getName();
+        SymbolName symbolName = LangModelUtils.getSymNameWithParams(actionName, action.getParameters());
+        Symbol symbol = new Symbol(action, LangModelUtils.getTypesOfParams(action.getParameters()),
+                action.getReturnTypes());
+
+        GlobalScopeHolder.getInstance().insert(symbolName, symbol);
+
+    } */
 
     @Test
     public void testBLangJSONModelService() throws IOException, URISyntaxException {
@@ -112,6 +154,34 @@ public class BLangJSONModelTest {
         urlConn.disconnect();
     }
 
+    /*
+    @Test
+    public void testBLangJSONModelServiceUsingPost2() throws IOException, URISyntaxException {
+        File file = new File(getClass().getClassLoader().getResource("samples/service/ServiceSample.bal")
+                .getFile());
+        ANTLRInputStream antlrInputStream = new ANTLRInputStream(new FileInputStream(file));
+        BallerinaLexer ballerinaLexer = new BallerinaLexer(antlrInputStream);
+        CommonTokenStream ballerinaToken = new CommonTokenStream(ballerinaLexer);
+
+        BallerinaParser ballerinaParser = new BallerinaParser(ballerinaToken);
+
+        BLangModelBuilder modelBuilder = new BLangModelBuilder();
+        BLangAntlr4Listener langModelBuilder = new BLangAntlr4Listener(modelBuilder);
+
+        ballerinaParser.addParseListener(langModelBuilder);
+        ballerinaParser.compilationUnit();
+
+        BallerinaFile bFile = modelBuilder.build();
+
+        SymScope globalScope = GlobalScopeHolder.getInstance().getScope();
+        SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(bFile, globalScope);
+        bFile.accept(semanticAnalyzer);
+
+        JsonObject response = new JsonObject();
+        BLangJSONModelBuilder jsonModelBuilder = new BLangJSONModelBuilder(response);
+        bFile.accept(jsonModelBuilder);
+
+    } */
 
     @AfterClass
     public void teardown() throws Exception {
