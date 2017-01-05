@@ -24,6 +24,7 @@ import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.BLangExecutor;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.interpreter.LocalVarLocation;
+import org.wso2.ballerina.core.interpreter.RuntimeEnvironment;
 import org.wso2.ballerina.core.interpreter.StackFrame;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
@@ -58,7 +59,8 @@ public class BalProgramExecutor {
         bContext.setBalCallback(new DefaultBalCallback(callback));
 
         // Create the interpreter and Execute
-        BLangExecutor executor = new BLangExecutor(bContext);
+        RuntimeEnvironment runtimeEnv = resource.getApplication().getRuntimeEnv();
+        BLangExecutor executor = new BLangExecutor(runtimeEnv, bContext);
         new ResourceInvocationExpr(resource).executeMultiReturn(executor);
     }
 
@@ -110,7 +112,9 @@ public class BalProgramExecutor {
                 StackFrame currentStackFrame = new StackFrame(args, new BValue[0]);
                 bContext.getControlStack().pushFrame(currentStackFrame);
 
-                BLangExecutor executor = new BLangExecutor(bContext);
+                RuntimeEnvironment runtimeEnv = RuntimeEnvironment.get(balFile);
+
+                BLangExecutor executor = new BLangExecutor(runtimeEnv, bContext);
                 funcIExpr.execute(executor);
 
                 bContext.getControlStack().popFrame();
