@@ -591,6 +591,9 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
                 case 'type_name':
                     node = BallerinaASTFactory.createTypeName();
                     break;
+                case 'function_invocation':
+                    node = BallerinaASTFactory.createFunctionInvocationStatement();
+                    break;
                 default:
                     throw "Unknown node definition for " + jsonNode.type;
             }
