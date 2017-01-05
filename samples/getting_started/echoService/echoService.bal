@@ -1,5 +1,3 @@
-package org.wso2.ballerina.sample;
-
 import ballerina.net.http;
 
 @BasePath ("/echo")

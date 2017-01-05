@@ -1,5 +1,3 @@
-package org.wso2.ballerina.sample;
-
 import ballerina.lang.message;
 import ballerina.net.http;
 

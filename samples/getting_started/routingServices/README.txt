@@ -10,4 +10,13 @@ bin$ ./ballerinaserver.sh ../samples/routingServices/routingServices.bal
 
 the above command will start the ballerina server in the current terminal and deploy the routingServices.bal file and publish the  following services.
 'contentBasedRouting', 'headerBasedRouting', 'nyseStockQuote' and 'nasdaqStocksQuote'
-Here the 'nyseStockQuote' and  will act as a backend.
+Here the 'nyseStockQuote' and 'nasdaqStocksQuote' will act as backend.
+
+
+Invoking the service
+====================
+curl -v http://locahost:9090/cbr -d '{"name" : "nyse"}'
+curl -v http://locahost:9090/cbr -d '{"name" : "nasdaq"}'
+
+curl -v http://locahost:9090/hbr -H "name: nyse"
+curl -v http://locahost:9090/hbr -H "name: nasdaq"

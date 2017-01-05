@@ -1,5 +1,3 @@
-package org.wso2.ballerina.sample;
-
 import ballerina.net.http;
 import ballerina.lang.json;
 import ballerina.lang.message;
@@ -19,7 +17,7 @@ service contentBasedRouting {
         string nameString;
         string nyseString;
 
-        nyseString = "NYSE";
+        nyseString = "nyse";
 
         jsonMsg = message:getJsonPayload(m);
         nameString = json:getString(jsonMsg, "$.name");
@@ -37,7 +35,7 @@ service contentBasedRouting {
 @BasePath ("/hbr")
 service headerBasedRouting {
 
-    @POST
+    @GET
     resource cbrResource (message m) {
 
         http:HTTPConnector nyseEP = new http:HTTPConnector("http://localhost:9090/nyseStocks");
@@ -47,7 +45,7 @@ service headerBasedRouting {
         string nameString;
         string nyseString;
 
-        nyseString = "NYSE";
+        nyseString = "nyse";
 
 
         nameString = message:getHeader(m, "name");

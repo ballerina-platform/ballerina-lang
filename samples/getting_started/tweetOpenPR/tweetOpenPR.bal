@@ -1,5 +1,3 @@
-package org.wso2.ballerina.sample;
-
 import ballerina.lang.array;
 import ballerina.lang.json;
 import ballerina.lang.message;
@@ -15,9 +13,8 @@ function main (string[] args) {
     http:HTTPConnector gitHubEP = new http:HTTPConnector("https://api.github.com");
     http:HTTPConnector tweeterEP = new http:HTTPConnector("https://api.twitter.com");
 
-
     int argumentLength;
-    message m;
+    message request;
     string repo;
     string repoPRpath;
     message gitHubResponse;
@@ -25,7 +22,6 @@ function main (string[] args) {
     int noOfPRs;
     string noOfPRstr;
     string textMsg;
-    json jsonRequest;
 
     string consumerKey;
     string consumerSecret;
@@ -34,7 +30,6 @@ function main (string[] args) {
     string oauthHeader;
     string tweetPath;
     message response;
-
 
     argumentLength = array:length(args);
 
@@ -58,11 +53,9 @@ function main (string[] args) {
 
         repoPRpath = "/repos/wso2/"+ repo +"/pulls";
 
-        jsonRequest = `{"user":"wso2"}`;
-        message:setJsonPayload(m, jsonRequest);
-        message:addHeader(m, "User-Agent", "Ballerina-1.0");
+        message:addHeader(request, "User-Agent", "Ballerina-1.0");
 
-        gitHubResponse = http:HTTPConnector.get(gitHubEP, repoPRpath, m);
+        gitHubResponse = http:HTTPConnector.get(gitHubEP, repoPRpath, request);
 
         gitHubJsonResponse = message:getJsonPayload(gitHubResponse);
         noOfPRs = json:getInt(gitHubJsonResponse, "$.length()");
@@ -73,11 +66,11 @@ function main (string[] args) {
 
         oauthHeader = constructOAuthHeader(consumerKey, consumerSecret, accessToken, accessTokenSecret, textMsg);
 
-        message:setHeader(m, "Authorization", oauthHeader);
+        message:setHeader(request, "Authorization", oauthHeader);
 
         tweetPath = "/1.1/statuses/update.json?status="+uri:encode(textMsg);
 
-        response = http:HTTPConnector.post(tweeterEP, tweetPath, m);
+        response = http:HTTPConnector.post(tweeterEP, tweetPath, request);
 
         system:println("Successfully tweeted: '" + textMsg + "'");
     }
