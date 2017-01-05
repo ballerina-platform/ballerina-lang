@@ -65,6 +65,7 @@ import org.wso2.ballerina.core.model.expressions.UnaryExpression;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.invokers.MainInvoker;
 import org.wso2.ballerina.core.model.invokers.ResourceInvocationExpr;
+import org.wso2.ballerina.core.model.statements.ActionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.statements.CommentStmt;
@@ -124,12 +125,11 @@ public class BLangJSONModelBuilder implements NodeVisitor {
             }
         }
 
-        if (bFile.getFunctions() != null) {
-            for (Function function : bFile.getFunctions().values()) {
-                BallerinaFunction bFunction = (BallerinaFunction) function;
-                rootElements.add(bFunction);
-            }
+        for (Function function : bFile.getFunctions()) {
+            BallerinaFunction bFunction = (BallerinaFunction) function;
+            rootElements.add(bFunction);
         }
+
 
         if (bFile.getConnectors() != null) {
             for (BallerinaConnector connector : bFile.getConnectors()) {
@@ -520,6 +520,11 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         functionInvcStmtObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
         tempJsonArrayRef.pop();
         tempJsonArrayRef.peek().add(functionInvcStmtObj);
+    }
+
+    @Override
+    public void visit(ActionInvocationStmt actionInvocationStmt) {
+
     }
 
     @Override
