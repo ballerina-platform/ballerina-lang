@@ -78,11 +78,6 @@ public class BLangExecutor implements NodeExecutor {
     private Context bContext;
     private ControlStack controlStack;
 
-    public BLangExecutor(Context bContext) {
-        this.bContext = bContext;
-        this.controlStack = bContext.getControlStack();
-    }
-
     public BLangExecutor(RuntimeEnvironment runtimeEnv, Context bContext) {
         this.runtimeEnv = runtimeEnv;
         this.bContext = bContext;
@@ -102,7 +97,7 @@ public class BLangExecutor implements NodeExecutor {
 
     @Override
     public void visit(AssignStmt assignStmt) {
-        // TODO Implementation of this method is inefficient
+        // TODO WARN: Implementation of this method is inefficient
         // TODO We are in the process of refactoring this method, please bear with us.
         Expression rExpr = assignStmt.getRExpr();
         BValue rValue = rExpr.execute(this);
@@ -112,8 +107,19 @@ public class BLangExecutor implements NodeExecutor {
         if (lExpr instanceof VariableRefExpr) {
 
             VariableRefExpr variableRefExpr = (VariableRefExpr) lExpr;
-            int offset = ((LocalVarLocation) variableRefExpr.getLocation()).getStackFrameOffset();
-            controlStack.setValue(offset, rValue);
+            MemoryLocation memoryLocation = variableRefExpr.getLocation();
+            if (memoryLocation instanceof LocalVarLocation) {
+                int stackFrameOffset = ((LocalVarLocation) memoryLocation).getStackFrameOffset();
+                controlStack.setValue(stackFrameOffset, rValue);
+
+            } else if (memoryLocation instanceof ServiceVarLocation) {
+                int staticMemOffset = ((ServiceVarLocation) memoryLocation).getStaticMemAddrOffset();
+                runtimeEnv.getStaticMemory().setValue(staticMemOffset, rValue);
+
+            } else if (memoryLocation instanceof ConnectorVarLocation) {
+
+            }
+
 
         } else if (lExpr instanceof ArrayMapAccessExpr) {
 
@@ -503,7 +509,6 @@ public class BLangExecutor implements NodeExecutor {
             Expression[] argExpressions = connectorDcl.getArgExprs();
             BValue[] bValueRefs = new BValue[argExpressions.length];
             for (int j = 0; j < argExpressions.length; j++) {
-//                argExpressions[j].accept(this);
                 bValueRefs[j] = argExpressions[j].execute(this);
             }
 
