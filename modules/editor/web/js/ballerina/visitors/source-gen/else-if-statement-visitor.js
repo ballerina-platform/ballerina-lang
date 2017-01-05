@@ -31,17 +31,17 @@ define(['require','lodash', 'log', 'event_channel', './abstract-statement-source
 
         ElseIfStatementVisitor.prototype.beginVisitElseIfStatement = function(elseIfStatement){
             this.appendSource('elseIf(' + elseIfStatement.getCondition() + '){');
-            log.info('Begin Visit Else If Statement Definition');
+            log.debug('Begin Visit Else If Statement Definition');
         };
 
         ElseIfStatementVisitor.prototype.visitElseIfStatement = function(elseIfStatement){
-            log.info('Visit Else If Statement Definition');
+            log.debug('Visit Else If Statement Definition');
         };
 
         ElseIfStatementVisitor.prototype.endVisitElseIfStatement = function(elseIfStatement){
             this.appendSource("}\n");
             this.getParent().appendSource(this.getGeneratedSource());
-            log.info('End Visit Else If Statement Definition');
+            log.debug('End Visit Else If Statement Definition');
         };
 
         ElseIfStatementVisitor.prototype.visitStatement = function (statement) {

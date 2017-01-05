@@ -73,7 +73,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
         ServiceDefinitionView.prototype.childViewAddedCallback = function (child) {
             if (BallerinaASTFactory.isServiceDefinition(child)) {
                 if (child !== this._model) {
-                    log.info("[Eventing] Service view added : ");
+                    log.debug("[Eventing] Service view added : ");
                 }
             }
         };
@@ -243,7 +243,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
          * @param {ResourceDefinition} resourceDefinition - The resource definition model.
          */
         ServiceDefinitionView.prototype.visitResourceDefinition = function (resourceDefinition) {
-            log.info("Visiting resource definition");
+            log.debug("Visiting resource definition");
             var resourceContainer = this.getChildContainer();
             // If more than 1 resource
             if (this.getResourceViewList().length > 0) {

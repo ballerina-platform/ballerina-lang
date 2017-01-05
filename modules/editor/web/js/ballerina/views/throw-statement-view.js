@@ -84,7 +84,7 @@ define(['lodash', 'log', './ballerina-view', './../ast/throw-statement', 'd3util
          */
         ThrowStatementView.prototype.render = function () {
             var group = D3Utils.group(this._container);
-            log.info("Rendering the throw Statement.");
+            log.debug("Rendering the throw Statement.");
             return group;
         };
 

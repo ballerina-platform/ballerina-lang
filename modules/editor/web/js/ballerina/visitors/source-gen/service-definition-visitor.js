@@ -55,17 +55,17 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './re
 
         var constructedSourceSegment = 'service ' + serviceDefinition.getServiceName() + ' {\n';
         this.appendSource(constructedSourceSegment);
-        log.info('Begin Visit Service Definition');
+        log.debug('Begin Visit Service Definition');
     };
 
     ServiceDefinitionVisitor.prototype.visitServiceDefinition = function(serviceDefinition){
-        log.info('Visit Service Definition');
+        log.debug('Visit Service Definition');
     };
 
     ServiceDefinitionVisitor.prototype.endVisitServiceDefinition = function(serviceDefinition){
         this.appendSource("}\n");
         this.getParent().appendSource(this.getGeneratedSource());
-        log.info('End Visit Service Definition');
+        log.debug('End Visit Service Definition');
     };
 
     ServiceDefinitionVisitor.prototype.visitResourceDefinition = function(resourceDefinition){

@@ -64,8 +64,8 @@ public abstract class AbstractNativeConnector implements Connector, NativeConstr
                                 new SymbolName(argument.name())));
                     } catch (BallerinaException e) {
                         // TODO: Fix this when TypeC.getType method is improved.
-                        log.warn("Error while processing Parameters for Native ballerina Connector {}:{}.", packageName,
-                                connectorName, e);
+                        log.error("Internal Error..! Error while processing Parameters for Native ballerina" +
+                                " Connector {}:{}.", packageName, connectorName, e);
                     }
                 });
     }
