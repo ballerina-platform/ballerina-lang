@@ -343,6 +343,24 @@
 </div>
 <!-- End: Set Service Parameters Modal -->
 
+<!--Start: About Modal-->
+<div class="modal fade" id="modalAbout" tabindex="-1" role="dialog" aria-labelledby="modalDemo">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content clearfix">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="fw fw-cancel"></i></button>
+                <h3 class="modal-title" id="aboutModalLabel">Welcome to Ballerina Editor</h3>
+            </div>
+            <div class="modal-body add-margin-top-2x add-margin-bottom-2x">
+                <p>See <a target="_blank" href="https://github.com/wso2/ballerina">here</a> for documentation and reporting issues.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--End: About Modal-->
 
 <script src="lib/requirejs-2.3.2/require.js"></script>
 <script type="text/javascript">
@@ -382,6 +400,7 @@
             dialogs: "js/dialog/module",
             file_menu: "js/ballerina-menu-bar/file-menu",
             edit_menu: "js/ballerina-menu-bar/edit-menu",
+            help_menu: "js/ballerina-menu-bar/help-menu",
             menu_bar_provider: "js/ballerina-menu-bar/module",
             menu_bar: "js/menu-bar/menu-bar",
             tool_bar: "js/tool-bar/tool-bar",
