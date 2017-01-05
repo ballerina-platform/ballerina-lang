@@ -31,7 +31,7 @@ function main (string[] args) {
         if (argumentLength < 4) {
 
             system:println("Incorrect number of arguments");
-            system:println("Please specify: consumerKey consumerSecret accessToken accessTokenSecret [repo-name]");
+            system:println("Please specify: consumerKey consumerSecret accessToken accessTokenSecret");
 
         } else  {
 

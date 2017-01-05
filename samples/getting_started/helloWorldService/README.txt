@@ -12,6 +12,6 @@ the above command will start the ballerina server in the current terminal and de
 
 Invoking the service
 ====================
-curl -v http://locahost:9090/hello?name=wso2
+curl -v http://localhost:9090/hello?name=wso2
 
 Here the query parameter 'name' is optional, if we don't specify the name the greeting will not have any name.
