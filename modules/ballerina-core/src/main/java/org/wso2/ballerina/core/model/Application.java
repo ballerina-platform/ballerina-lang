@@ -18,6 +18,8 @@
 
 package org.wso2.ballerina.core.model;
 
+import org.wso2.ballerina.core.interpreter.RuntimeEnvironment;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,6 +32,9 @@ public class Application {
 
     private String appName;
     private Map<String, Package> packages = new HashMap<>();
+
+    // Each application instance should have its own runtime environment
+    private RuntimeEnvironment runtimeEnv;
 
     /**
      * @param appName Name of the application, not null
@@ -61,8 +66,8 @@ public class Application {
 
     /**
      * Get a {@code Package}
-     * @param fqn full qualified name
      *
+     * @param fqn full qualified name
      * @return a Package
      */
     public Package getPackage(String fqn) {
@@ -71,8 +76,8 @@ public class Application {
 
     /**
      * Remove a package from this application.
-     * 
-     * @param packageName   Name of the package
+     *
+     * @param packageName Name of the package
      */
     public void removePackage(String packageName) {
         packages.remove(packageName);
@@ -87,4 +92,11 @@ public class Application {
         return appName;
     }
 
+    public RuntimeEnvironment getRuntimeEnv() {
+        return runtimeEnv;
+    }
+
+    public void setRuntimeEnv(RuntimeEnvironment runtimeEnv) {
+        this.runtimeEnv = runtimeEnv;
+    }
 }
