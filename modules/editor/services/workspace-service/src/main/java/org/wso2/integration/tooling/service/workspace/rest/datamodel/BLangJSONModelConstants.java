@@ -36,13 +36,9 @@ public class BLangJSONModelConstants {
 
     public static final String IS_PUBLIC_FUNCTION = "is_public_function";
 
-    public static final String ANNOTATION_DECLARATIONS = "annotations";
-
     public static final String ANNOTATION_NAME = "annotation_name";
 
     public static final String ANNOTATION_VALUE = "annotation_value";
-
-    public static final String ANNOTATION_PAIRS = "annotation_pairs";
 
     public static final String PACKAGE_DEFINITION = "package";
 
@@ -58,8 +54,6 @@ public class BLangJSONModelConstants {
 
     public static final String SERVICE_NAME = "service_name";
 
-    public static final String RESOURCE_DEFINITIONS = "resource_definitions";
-
     public static final String RESOURCE_DEFINITION = "resource";
 
     public static final String ANNOTATION_DEFINITION = "annotation";
@@ -70,15 +64,7 @@ public class BLangJSONModelConstants {
 
     public static final String VARIABLE_DECLARATION = "variable_declaration";
 
-    public static final String CONNECTOR_DECLARATIONS = "connector_declarations";
-
-    public static final String VARIABLE_DECLARATIONS = "variable_declarations";
-
     public static final String RESOURCE_NAME = "resource_name";
-
-    public static final String ARGUMENT_DECLARATIONS = "argument_declarations";
-
-    public static final String WORKER_DECLARATIONS = "worker_declarations";
 
     public static final String WORKER_DEFINITION = "worker";
 
@@ -86,21 +72,15 @@ public class BLangJSONModelConstants {
 
     public static final String PARAMETER_TYPE = "parameter_type";
 
-    public static final String STATEMENT_DECLARATIONS = "statement_declarations";
-
     public static final String CONNECTOR_DCL_NAME = "connector_name";
 
     public static final String CONNECTOR_DCL_VARIABLE = "connector_variable";
-
-    public static final String EXPRESSION_DECLARATIONS = "expressions";
 
     public static final String VARIABLE_NAME = "variable_name";
 
     public static final String VARIABLE_TYPE = "variable_type";
 
     public static final String BLOCK_STATEMENT = "block_statement";
-
-    public static final String ACTION_DECLARATIONS = "action_declarations";
 
     public static final String CONNECTOR_NAME = "connector_name";
 
@@ -119,8 +99,6 @@ public class BLangJSONModelConstants {
     public static final String WHILE_STATEMENT = "while_statement";
 
     public static final String FUNCTION_INVOCATION_STATEMENT = "function_invocation_statement";
-
-    public static final String FUNCTION_RETURN_TYPES = "function_return_types";
 
     public static final String RETURN_TYPE = "return_type";
 
@@ -175,10 +153,6 @@ public class BLangJSONModelConstants {
     public static final String INSTANCE_CREATION_EXPRESSION = "instance_creation_expression";
 
     public static final String IF_ELSE_STATEMENT = "if_else_statement";
-
-    public static final String THEN_STATEMENT_BODY = "then_body";
-
-    public static final String ELSE_STATEMENT_BODY = "else_body";
 
     public static final String ARRAY_ACCESS_EXPRESSION = "array_access_expression";
 
