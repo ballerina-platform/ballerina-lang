@@ -143,7 +143,7 @@ do
           cat $CARBON_HOME/bin/version.txt
           exit 0
     elif [ "$c" = "help" ]; then
-          cat $CARBON_HOME/bin/ballerina-bash-help.txt
+          cat $CARBON_HOME/resources/help/ballerina-bash-help.txt
           exit 0
     elif [[ "$c" = *.bal ]] && [ -z "$BAL_FILE_NAME" ]; then
           BAL_FILE_NAME="$c"
@@ -157,14 +157,14 @@ do
         fi
     else
         echo "Not supported option or command : $c"
-        cat $CARBON_HOME/bin/ballerina-bash-help.txt
+        cat $CARBON_HOME/resources/help/ballerina-bash-help.txt
         exit 1
     fi
 done
 
 if [ "$BAL_FILE_NAME" = "" ]; then
     echo "Please specify Ballerina file to run. (Eg: ballerina.sh foo.bal)"
-    cat $CARBON_HOME/bin/ballerina-bash-help.txt
+    cat $CARBON_HOME/resources/help/ballerina-bash-help.txt
     exit 1
 else
     if [[ "$BAL_FILE_NAME" != /* ]]; then
