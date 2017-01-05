@@ -71,14 +71,14 @@ public class BallerinaServiceComponent {
         String runtimeMode = System.getProperty(Constants.SYSTEM_PROP_RUN_MODE);
         String runningFileName = System.getProperty(Constants.SYSTEM_PROP_RUN_FILE);
         if (runtimeMode == null) {
-            log.warn("Ballerina is runtime mode is not set. System property {} is not set.",
+            log.error("Error: Ballerina is runtime mode is not set. System property {} is not set.",
                     Constants.SYSTEM_PROP_RUN_MODE);
             ServiceContextHolder.getInstance().setRuntimeMode(Constants.RuntimeMode.ERROR);
             return;
         }
         if (runningFileName == null || runningFileName.trim().equals("")) {
             // Can't Continue. We shouldn't be here. that means there is a bug in the startup script.
-            log.error("Can't get target file(s) to run. System property {} is not set.",
+            log.error("Error: Can't get target file(s) to run. System property {} is not set.",
                     Constants.SYSTEM_PROP_RUN_FILE);
             ServiceContextHolder.getInstance().setRuntimeMode(Constants.RuntimeMode.ERROR);
             return;
@@ -88,7 +88,7 @@ public class BallerinaServiceComponent {
             ServiceContextHolder.getInstance().setRuntimeMode(Constants.RuntimeMode.RUN_FILE);
             runningFile = new File(runningFileName);
             if (!runningFile.exists()) {
-                log.error("File " + runningFile.getName() + " not found in the given location.");
+                log.error("Error: File " + runningFile.getName() + " not found in the given location.");
                 ServiceContextHolder.getInstance().setRuntimeMode(Constants.RuntimeMode.ERROR);
                 return;
             }
@@ -96,6 +96,7 @@ public class BallerinaServiceComponent {
         } else if (runtimeMode.equalsIgnoreCase(Constants.SYSTEM_PROP_RUN_MODE_SERVER)) {
             ServiceContextHolder.getInstance().setRuntimeMode(Constants.RuntimeMode.SERVER);
             String[] filesToRun = runningFileName.split(";");
+            int serviceDeployed = 0;
             for (String file : filesToRun) {
                 if (!file.trim().equals("")) {
                     runningFile = new File(file);
@@ -103,11 +104,14 @@ public class BallerinaServiceComponent {
                         log.error("File " + runningFile.getName() + " not found in the given location.");
                         continue;
                     }
-                    BalDeployer.deployBalFile(runningFile);
+                    serviceDeployed += BalDeployer.deployBalFile(runningFile);
                 }
             }
+            if (serviceDeployed <= 0) {
+                log.warn("Warning: Can't find any Ballerina services.");
+            }
         } else {
-            log.error("Can't identify Runtime mode.");
+            log.error("Error: Can't identify Runtime mode.");
             ServiceContextHolder.getInstance().setRuntimeMode(Constants.RuntimeMode.ERROR);
             return;
         }

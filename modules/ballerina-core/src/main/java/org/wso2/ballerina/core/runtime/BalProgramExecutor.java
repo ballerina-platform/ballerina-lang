@@ -143,7 +143,8 @@ public class BalProgramExecutor {
             }
         } catch (Throwable ex) {
             String stackTrace = ErrorHandlerUtils.getMainFunctionStackTrace(bContext);
-            log.error("Error while executing ballerina program. " + ex.getMessage() + "\n" + stackTrace);
+            log.error("Error while executing ballerina program. " + ex.getMessage() +
+                    (stackTrace.length() != 0 ? "\n" + stackTrace : ""));
         }
     }
 }
