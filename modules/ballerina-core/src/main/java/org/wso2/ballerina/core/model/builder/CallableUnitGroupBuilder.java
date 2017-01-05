@@ -86,6 +86,7 @@ class CallableUnitGroupBuilder {
 
     BallerinaConnector buildConnector() {
         return new BallerinaConnector(name, position, annotationList.toArray(new Annotation[annotationList.size()]),
+                parameterList.toArray(new Parameter[parameterList.size()]),
                 connectorDclList.toArray(new ConnectorDcl[connectorDclList.size()]),
                 variableDclList.toArray(new VariableDcl[variableDclList.size()]),
                 actionList.toArray(new BallerinaAction[actionList.size()]));
