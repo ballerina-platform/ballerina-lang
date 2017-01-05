@@ -30,8 +30,6 @@ import net.sf.saxon.tree.tiny.TinyAttributeImpl;
 import net.sf.saxon.tree.tiny.TinyElementImpl;
 import net.sf.saxon.tree.tiny.TinyTextImpl;
 import net.sf.saxon.value.EmptySequence;
-
-import org.osgi.service.component.annotations.Component;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
@@ -54,11 +52,6 @@ import org.wso2.ballerina.core.nativeimpl.lang.utils.ErrorHandler;
 //                @Argument(name = "nameSpaces", type = TypeEnum.MAP)},
         returnType = {@ReturnType(type = TypeEnum.XML)},
         isPublic = true
-)
-@Component(
-        name = "func.lang.xml_getXml",
-        immediate = true,
-        service = AbstractNativeFunction.class
 )
 public class GetXML extends AbstractNativeFunction {
     
