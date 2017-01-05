@@ -5,7 +5,7 @@ import ballerina.lang.string;
 import ballerina.lang.json;
 
 @BasePath ("/ABCBank")
-service passthroughService {
+service ATMLocatorService {
 
     @POST
     @Path ("/locator")
