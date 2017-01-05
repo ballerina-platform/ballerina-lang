@@ -29,6 +29,16 @@ import org.wso2.ballerina.core.model.values.BValue;
  * @since 1.0.0
  */
 public class ConnectorVarLocation extends MemoryLocation implements Node {
+    private int connectorMemAddrOffset;
+
+    public ConnectorVarLocation(int connectorMemAddrOffset) {
+        this.connectorMemAddrOffset = connectorMemAddrOffset;
+    }
+
+    public int getConnectorMemAddrOffset() {
+        return connectorMemAddrOffset;
+    }
+
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
