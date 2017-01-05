@@ -87,7 +87,7 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/logical-express
             var expressionRect = D3Utils.rect(x, y, 120, 30, 0, 0, group).classed('statement-rect', true);
             var text = this._model.getExpression();
             var expressionText = D3Utils.textElement(x + width/2, y + height/2, text, group).classed('statement-text', true);
-            log.info("Rendering logical expression view.");
+            log.debug("Rendering logical expression view.");
             group.expression_rect = expressionRect;
             group.expression_text = expressionText;
             this.setStatementGroup(group);

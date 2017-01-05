@@ -52,9 +52,9 @@ public class MapInitializerExprTest {
         BMap<BString, BString> mapValue = (BMap) returns[0];
         Assert.assertEquals(mapValue.size(), 4);
 
-        Assert.assertEquals(mapValue.get(new BString("\"animal1\"")).stringValue(), "Lion");
-        Assert.assertEquals(mapValue.get(new BString("\"animal2\"")).stringValue(), "Cat");
-        Assert.assertEquals(mapValue.get(new BString("\"animal4\"")).stringValue(), "Dog");
+        Assert.assertEquals(mapValue.get(new BString("animal1")).stringValue(), "Lion");
+        Assert.assertEquals(mapValue.get(new BString("animal2")).stringValue(), "Cat");
+        Assert.assertEquals(mapValue.get(new BString("animal4")).stringValue(), "Dog");
 
     }
 

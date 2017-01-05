@@ -58,7 +58,13 @@ public class BalDeployer {
 
     private static final String FILE_EXTENSION = ".bal";
 
-    public static void deployBalFile(File file) {
+    /**
+     * Deploy given Ballerina file.
+     *
+     * @param file Ballerina file.
+     * @return Number of services deployed.
+     */
+    public static int deployBalFile(File file) {
         InputStream inputStream = null;
         boolean successful = false;
         try {
@@ -93,12 +99,12 @@ public class BalDeployer {
                     if (function != null) {
                         ServiceContextHolder.getInstance().setBallerinaFileToExecute(balFile);
                         successful = true;
-                        return;
+                        return 0;
                     } else {
-                        log.error("Unable to locate Main function.");
+                        log.error("Error: Unable to locate Main function.");
                         ServiceContextHolder.getInstance().setRuntimeMode(Constants.RuntimeMode.ERROR);
                         successful = false;
-                        return;
+                        return 0;
                     }
                 }
 
@@ -137,20 +143,18 @@ public class BalDeployer {
                 ApplicationRegistry.getInstance().updatePackage(aPackage);
                 successful = true;
                 log.info("Deployed ballerina file : " + file.getName());
+                return balFile.getServices().size();
             } else {
                 if (Constants.RuntimeMode.RUN_FILE == ServiceContextHolder.getInstance().getRuntimeMode()) {
-                    log.error("File extension not supported. Supported extensions {}.", FILE_EXTENSION);
+                    log.error("Error: File extension not supported. Supported extensions {}.", FILE_EXTENSION);
                     ServiceContextHolder.getInstance().setRuntimeMode(Constants.RuntimeMode.ERROR);
-                    return;
                 }
-                log.error("File extension not supported. Support only {}.", FILE_EXTENSION);
+                log.error("Error: File extension not supported. Support only {}.", FILE_EXTENSION);
+                return 0;
             }
-//        } catch (IOException e) {
-//            log.error("Error while compiling from file : {}", file.getName(), e.getMessage());
-//            successful = false;
 
         } catch (Throwable e) {
-            log.error("Compilation failure in {} : {}", file.getName(), e.getMessage());
+            log.error("Error: Compilation failure in {} : {}", file.getName(), e.getMessage());
             successful = false;
 
         } finally {
@@ -164,6 +168,7 @@ public class BalDeployer {
                 ServiceContextHolder.getInstance().setRuntimeMode(Constants.RuntimeMode.ERROR);
             }
         }
+        return 0;
     }
 
     /**
@@ -186,7 +191,7 @@ public class BalDeployer {
     public void undeployBalFile(String fileName) {
         Application app = ApplicationRegistry.getInstance().getApplication(fileName);
         if (app == null) {
-            log.warn("Could not find service to undeploy: " + fileName + ".");
+            log.warn("Warning: Could not find service to undeploy: " + fileName + ".");
             return;
         }
         ApplicationRegistry.getInstance().unregisterApplication(app);

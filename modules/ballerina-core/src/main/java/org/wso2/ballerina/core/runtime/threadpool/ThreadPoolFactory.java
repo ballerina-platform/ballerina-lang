@@ -31,7 +31,7 @@ public class ThreadPoolFactory {
     private static ThreadPoolFactory instance = new ThreadPoolFactory();
 
     //TODO: Make this configurable
-    private ExecutorService executorService =  Executors.newFixedThreadPool(100);
+    private ExecutorService executorService =  Executors.newFixedThreadPool(500);
 
     private ThreadPoolFactory(){};
 

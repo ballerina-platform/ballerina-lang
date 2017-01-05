@@ -28,7 +28,7 @@ define(['require', 'lodash', 'log', './ast-visitor', './../views/ballerina-file-
     DiagramRenderingVisitor.prototype.constructor = DiagramRenderingVisitor;
 
     DiagramRenderingVisitor.prototype.visitBallerinaASTRoot = function (astNode) {
-        log.info("Visiting BallerinaASTRoot");
+        log.debug("Visiting BallerinaASTRoot");
         var fileEditor = new FileEditor(null, astNode);
         fileEditor.init(astNode, this.containerView);
         this._viewsList.push(fileEditor);
@@ -36,7 +36,7 @@ define(['require', 'lodash', 'log', './ast-visitor', './../views/ballerina-file-
     };
 
     DiagramRenderingVisitor.prototype.visitReplyStatement = function (astNode) {
-        log.info("Visiting ReplyStatement");
+        log.debug("Visiting ReplyStatement");
         var parent = astNode.getParent();
         var parentView  = _.find(this._viewsList, ['_model',parent]);
         //TODO create new reply statement view and call render
@@ -44,7 +44,7 @@ define(['require', 'lodash', 'log', './ast-visitor', './../views/ballerina-file-
     };
 
     DiagramRenderingVisitor.prototype.visitConnectionDeclaration = function () {
-        log.info("Visiting ConnectionDefinition");
+        log.debug("Visiting ConnectionDefinition");
         return false;
     };
 
@@ -53,7 +53,7 @@ define(['require', 'lodash', 'log', './ast-visitor', './../views/ballerina-file-
     };
 
     DiagramRenderingVisitor.prototype.visitReturnStatement = function (astNode) {
-        log.info("Visiting ReturnStatement");
+        log.debug("Visiting ReturnStatement");
         var parent = astNode.getParent();
         var parentView  = _.find(this._viewsList, ['_model',parent]);
         //TODO create new return statement view and call render
@@ -62,7 +62,7 @@ define(['require', 'lodash', 'log', './ast-visitor', './../views/ballerina-file-
 
     DiagramRenderingVisitor.prototype.visitServiceDefinition = function (astNode) {
         //modelView.render();
-        log.info("Visiting ServiceDefinition");
+        log.debug("Visiting ServiceDefinition");
         var parent = astNode.getParent();
         var parentView  = _.find(this._viewsList, ['_model',parent]);
         for (var id in parent.serviceDefinitions) {
@@ -98,7 +98,7 @@ define(['require', 'lodash', 'log', './ast-visitor', './../views/ballerina-file-
     };
 
     DiagramRenderingVisitor.prototype.visitThrowStatement = function (astNode) {
-        log.info("Visiting ThrowStatement");
+        log.debug("Visiting ThrowStatement");
         var parent = astNode.getParent();
         var parentView  = _.find(this._viewsList, ['_model',parent]);
         //TODO create new throw statement view and call render
@@ -106,7 +106,7 @@ define(['require', 'lodash', 'log', './ast-visitor', './../views/ballerina-file-
     };
 
     DiagramRenderingVisitor.prototype.visitWhileStatement = function (astNode) {
-        log.info("Visiting WhileStatement");
+        log.debug("Visiting WhileStatement");
         var parent = astNode.getParent();
         var parentView  = _.find(this._viewsList, ['_model',parent]);
         //TODO create new while statement view and call render
@@ -114,7 +114,7 @@ define(['require', 'lodash', 'log', './ast-visitor', './../views/ballerina-file-
     };
 
     DiagramRenderingVisitor.prototype.visitFunctionDefinition = function(astNode) {
-        log.info("Visiting FunctionDefinition");
+        log.debug("Visiting FunctionDefinition");
         var parent = astNode.getParent();
         var parentView  = _.find(this._viewsList, ['_model',parent]);
         for (var id in parent.functionDefinitions) {

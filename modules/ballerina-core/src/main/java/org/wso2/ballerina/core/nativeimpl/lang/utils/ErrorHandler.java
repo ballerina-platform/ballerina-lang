@@ -49,8 +49,9 @@ public class ErrorHandler {
      * @param e         Exception to handle
      */
     public static void handleNonExistingJsonpPath(String operation, String jsonPath, Exception e) {
-        log.warn("Failed to " + operation + ". Jsonpath " + jsonPath + " does not match any element: " 
-                + e.getMessage());
+        // TODO : Fix this properly when BNull comes. Until then we throw BallerinaException.
+        throw new BallerinaException("Failed to " + operation + ". Jsonpath " + jsonPath +
+                " does not match any element: " + e.getMessage());
     }
     
     /**
@@ -127,6 +128,10 @@ public class ErrorHandler {
                     e.getMessage());
         }
     }
+
+    public static void handleUndefineHeader(String headerName) {
+        throw new BallerinaException("Header '" + headerName + "' not present in the message");
+    }
     
     /**
      * Log a warn.
@@ -135,6 +140,7 @@ public class ErrorHandler {
      * @param msg           Warning message
      */
     public static void logWarn(String operation, String msg) {
-        log.warn("Failed to " + operation + ". " + msg);
+        // TODO: Check this logic again.
+        throw new BallerinaException("Failed to " + operation + ". " + msg);
     }
 }

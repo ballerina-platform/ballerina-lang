@@ -105,7 +105,7 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/assignment', 'd
             var editableProperties = [];
             var editableProperty = {
                 propertyType: "text",
-                key: "Expression",
+                key: "Assignment",
                 model: this._model,
                 getterMethod: this._model.getExpression,
                 setterMethod: this._model.setExpression
