@@ -55,6 +55,7 @@ import org.wso2.ballerina.core.model.expressions.BasicLiteral;
 import org.wso2.ballerina.core.model.expressions.BinaryArithmeticExpression;
 import org.wso2.ballerina.core.model.expressions.BinaryExpression;
 import org.wso2.ballerina.core.model.expressions.BinaryLogicalExpression;
+import org.wso2.ballerina.core.model.expressions.DivideExpr;
 import org.wso2.ballerina.core.model.expressions.EqualExpression;
 import org.wso2.ballerina.core.model.expressions.Expression;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
@@ -701,6 +702,21 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     @Override
+    public void visit(DivideExpr divideExpr) {
+        BType arithmeticExprType = verifyBinaryArithmeticExprType(divideExpr);
+
+        if (arithmeticExprType == BTypes.INT_TYPE) {
+            divideExpr.setEvalFunc(DivideExpr.DIV_INT_FUNC);
+
+        } else if (arithmeticExprType == BTypes.FLOAT_TYPE) {
+            divideExpr.setEvalFunc(DivideExpr.DIV_FLOAT_FUNC);
+
+        } else {
+            throw new SemanticException("Add operation is not supported for type: " + arithmeticExprType);
+        }
+    }
+
+    @Override
     public void visit(UnaryExpression unaryExpr) {
 
     }
@@ -709,7 +725,6 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(AddExpression addExpr) {
         BType arithmeticExprType = verifyBinaryArithmeticExprType(addExpr);
 
-        // We need to find a better implementation than this.
         if (arithmeticExprType == BTypes.INT_TYPE) {
             addExpr.setEvalFunc(AddExpression.ADD_INT_FUNC);
 

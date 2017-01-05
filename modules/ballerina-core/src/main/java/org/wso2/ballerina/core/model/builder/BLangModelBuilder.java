@@ -42,6 +42,7 @@ import org.wso2.ballerina.core.model.expressions.ArrayMapAccessExpr;
 import org.wso2.ballerina.core.model.expressions.BackquoteExpr;
 import org.wso2.ballerina.core.model.expressions.BasicLiteral;
 import org.wso2.ballerina.core.model.expressions.BinaryExpression;
+import org.wso2.ballerina.core.model.expressions.DivideExpr;
 import org.wso2.ballerina.core.model.expressions.EqualExpression;
 import org.wso2.ballerina.core.model.expressions.Expression;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
@@ -352,7 +353,6 @@ public class BLangModelBuilder {
     public void createBinaryExpr(String opStr) {
         Expression rExpr = exprStack.pop();
         Expression lExpr = exprStack.pop();
-        //        String opStr = ctx.getChild(1).getText();
 
         BinaryExpression expr;
         switch (opStr) {
@@ -369,7 +369,8 @@ public class BLangModelBuilder {
                 break;
 
             case "/":
-                throw new ParserException("Unsupported operator: " + opStr);
+                expr = new DivideExpr(lExpr, rExpr);
+                break;
 
             case "&&":
                 expr = new AndExpression(lExpr, rExpr);

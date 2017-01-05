@@ -43,6 +43,7 @@ import org.wso2.ballerina.core.model.expressions.ArrayMapAccessExpr;
 import org.wso2.ballerina.core.model.expressions.BackquoteExpr;
 import org.wso2.ballerina.core.model.expressions.BasicLiteral;
 import org.wso2.ballerina.core.model.expressions.BinaryExpression;
+import org.wso2.ballerina.core.model.expressions.DivideExpr;
 import org.wso2.ballerina.core.model.expressions.EqualExpression;
 import org.wso2.ballerina.core.model.expressions.Expression;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
@@ -404,6 +405,11 @@ public class BLangInterpreter implements NodeVisitor {
 
     @Override
     public void visit(BasicLiteral basicLiteral) {
+
+    }
+
+    @Override
+    public void visit(DivideExpr divideExpr) {
 
     }
 
