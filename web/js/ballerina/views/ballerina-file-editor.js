@@ -16,8 +16,8 @@
  * under the License.
  */
 define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-view',  './function-definition-view', './../ast/ballerina-ast-root',
-        './../ast/ballerina-ast-factory', './../ast/package-definition', './../ast/import-declaration', './source-view', './../visitors/source-gen/ballerina-ast-root-visitor', './../tool-palette/tool-palette'],
-    function (_, $, log, BallerinaView, ServiceDefinitionView, FunctionDefinitionView, BallerinaASTRoot, BallerinaASTFactory, PackageDefinition, ImportDeclaration, SourceView, SourceGenVisitor, ToolPalette) {
+        './../ast/ballerina-ast-factory', './../ast/package-definition', './source-view', './../visitors/source-gen/ballerina-ast-root-visitor', './../tool-palette/tool-palette'],
+    function (_, $, log, BallerinaView, ServiceDefinitionView, FunctionDefinitionView, BallerinaASTRoot, BallerinaASTFactory, PackageDefinition, SourceView, SourceGenVisitor, ToolPalette) {
 
         /**
          * The view to represent a ballerina file editor which is an AST visitor.
@@ -355,23 +355,11 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                         log.debug("Adding new import");
 
                         // Creating new import.
-                        var newImportDeclaration = new ImportDeclaration({
-                            packageName: importPackageTextBox.val()
-                        });
+                        var newImportDeclaration = BallerinaASTFactory.createImportDeclaration();
+                        newImportDeclaration.setPackageName(importPackageTextBox.val());
 
-                        //Adding import declaration to the model
-                        var index = _.findLastIndex(currentASTRoot.getChildren(), function (child) {
-                            return child instanceof ImportDeclaration;
-                        });
-
-                        // If there are no imports index is -1. Then we need to add the first import after the package
-                        // definition which is the first child of the ast root
-                        if (index === -1) {
-                            index = 0;
-                        }
-                        currentASTRoot.addChild(newImportDeclaration, index + 1);
-                        //Adding import to be displayed in the imports wrapper
                         currentASTRoot.addImport(newImportDeclaration);
+
                         //Clear the import value box
                         importPackageTextBox.val("");
 
@@ -452,13 +440,6 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                             log.debug("Delete import clicked :" + event.data.packageName);
                             $(event.data.wrapper).remove();
                             event.data.model.deleteImport(event.data.packageName);
-
-                            //Removing the deleted imports from the model
-                            var childArray = event.data.model.getChildren();
-                            var deletedImports= _.filter(childArray, function(child){
-                                return BallerinaASTFactory.isImportDeclaration(child) && child._packageName == event.data.packageName;
-                            });
-                            event.data.model.removeChild(deletedImports[0]);
                         });
                     });
                 }
