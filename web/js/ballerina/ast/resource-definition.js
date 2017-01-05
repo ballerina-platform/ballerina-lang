@@ -15,13 +15,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './node', './worker-declaration', './connector-declaration'],
-    function (_, log, ASTNode, WorkerDeclaration, ConnectorDeclaration) {
+define(['lodash', 'log', './node', './worker-declaration', './connector-declaration', './variable-declaration'],
+    function (_, log, ASTNode, WorkerDeclaration, ConnectorDeclaration, VariableDeclaration) {
 
     var ResourceDefinition = function (args) {
         this._path = _.get(args, 'path', '/');
         this._connectionDeclarations = _.get(args, 'connectorDefinitions', []);
-        this._variableDeclarations = _.get(args, 'variableDeclarations', []);
         this._workerDeclarations = _.get(args, 'workerDeclarations', []);
         this._statements = _.get(args, 'statements', []);
         this._arguments = _.get(args, 'resourceArguments', []);
@@ -63,11 +62,14 @@ define(['lodash', 'log', './node', './worker-declaration', './connector-declarat
             this._connectionDeclarations = connections;
         }
     };
-    ResourceDefinition.prototype.setVariableDeclarations = function (variables) {
-        if (!_.isNil(variables)) {
-            this._variableDeclarations = variables;
-        }
+
+    ResourceDefinition.prototype.setVariableDeclarations = function (variableDeclarations) {
+            if (!_.isNil(variableDeclarations)) {
+                // TODO : To implement using child array.
+                throw "To be Implemented";
+            }
     };
+
     ResourceDefinition.prototype.setWorkers = function (workers) {
         if (!_.isNil(workers)) {
             this._workerDeclarations = workers;
@@ -104,7 +106,13 @@ define(['lodash', 'log', './node', './worker-declaration', './connector-declarat
     };
 
     ResourceDefinition.prototype.getVariableDeclarations = function () {
-        return this._variableDeclarations;
+        var variableDeclarations = [];
+        _.forEach(this.getChildren(), function (child) {
+            if (child instanceof VariableDeclaration) {
+                variableDeclarations.push(child);
+            }
+        });
+        return variableDeclarations;
     };
 
     ResourceDefinition.prototype.getConnections = function () {
@@ -121,6 +129,37 @@ define(['lodash', 'log', './node', './worker-declaration', './connector-declarat
 
     ResourceDefinition.prototype.getAnnotations = function () {
         return this._annotations;
+    };
+
+    /**
+     * Adds new variable declaration.
+     */
+    ResourceDefinition.prototype.addVariableDeclaration = function (newVariableDeclaration) {
+        // Get the index of the last variable declaration.
+        var index = _.findLastIndex(this.getChildren(), function (child) {
+            return child instanceof VariableDeclaration;
+        });
+
+        // index = -1 when there are not any variable declarations, hence get the index for connector
+        // declarations.
+        if (index == -1) {
+            index = _.findLastIndex(this.getChildren(), function (child) {
+                return child instanceof ConnectorDeclaration;
+            });
+        }
+
+        this.addChild(newVariableDeclaration, index + 1);
+    };
+
+    /**
+     * Adds new variable declaration.
+     */
+    ResourceDefinition.prototype.removeVariableDeclaration = function (newVariableDeclaration) {
+        // Deleting the variable from the children.
+        _.remove(this.getChildren(), function (child) {
+            return child instanceof VariableDeclaration &&
+                child.getIdentifier() === newVariableDeclaration;
+        });
     };
 
     /**
