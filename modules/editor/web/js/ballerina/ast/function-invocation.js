@@ -61,5 +61,15 @@ define(['lodash', './statement'], function (_, Statement) {
         return params;
     };
 
+    /**
+     * initialize from json
+     * @param jsonNode
+     */
+    FunctionInvocation.prototype.initFromJson = function (jsonNode) {
+        this._packageName = jsonNode.package_name;
+        this._functionName = jsonNode.function_name;
+        this._params = jsonNode.params;
+    };
+
     return FunctionInvocation;
 });
