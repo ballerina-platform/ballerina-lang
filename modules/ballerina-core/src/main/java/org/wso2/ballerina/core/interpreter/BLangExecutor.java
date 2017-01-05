@@ -373,17 +373,18 @@ public class BLangExecutor implements NodeExecutor {
 
             if (arrayMapAccessExpr.getType() != BTypes.MAP_TYPE) {
                 // Get the value stored in the index
-                BValue val = ((BArray) collectionValue).get(((BInteger) indexValue).intValue());
-                return val;
+                if (collectionValue instanceof BArray) {
+                    return ((BArray) collectionValue).get(((BInteger) indexValue).intValue());
+                } else {
+                    return collectionValue;
+                }
             } else {
                 // Get the value stored in the index
-                BValue val;
                 if (indexValue instanceof BString) {
-                    val = ((BMap) collectionValue).get(indexValue);
+                    return ((BMap) collectionValue).get(indexValue);
                 } else {
-                    val = ((BMap) collectionValue).get(indexValue.toString());
+                    throw new IllegalStateException("Index of a map should be string type");
                 }
-                return val;
             }
         } else {
             throw new IllegalStateException("This branch shouldn't be executed. ");
