@@ -650,6 +650,24 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
             ArgumentsView.createArgumentsPane(argumentsProperties);
 
+            var operationButtons = [headingAnnotationIcon.node(), headingArgumentsIcon.node()];
+
+
+            // Closing the shown pane when another operation button is clicked.
+            _.forEach(operationButtons, function (button) {
+                $(button).click(function(event){
+                    event.stopPropagation();
+                });
+
+                $(button).click(function () {
+                    _.forEach(operationButtons, function (buttonToClick) {
+                        if (button !== buttonToClick && $(buttonToClick).data("showing-pane") == "true") {
+                            $(buttonToClick).click();
+                        }
+                    });
+                });
+            });
+
             this.getBoundingBox().on("moved", function(offset){
                 var currentTransform = this._resourceGroup.attr("transform");
                this._resourceGroup.attr("transform", (!_.isNil(currentTransform) ? currentTransform : "") +
