@@ -713,6 +713,9 @@ public class SemanticAnalyzer implements NodeVisitor {
         if (arithmeticExprType == BTypes.INT_TYPE) {
             addExpr.setEvalFunc(AddExpression.ADD_INT_FUNC);
 
+        } else if (arithmeticExprType == BTypes.FLOAT_TYPE) {
+            addExpr.setEvalFunc(AddExpression.ADD_FLOAT_FUNC);
+
         } else if (arithmeticExprType == BTypes.STRING_TYPE) {
             addExpr.setEvalFunc(AddExpression.ADD_STRING_FUNC);
 
@@ -724,8 +727,13 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(MultExpression multExpr) {
         BType binaryExprType = verifyBinaryArithmeticExprType(multExpr);
+
         if (binaryExprType == BTypes.INT_TYPE) {
             multExpr.setEvalFunc(MultExpression.MULT_INT_FUNC);
+
+        } else if (binaryExprType == BTypes.FLOAT_TYPE) {
+            multExpr.setEvalFunc(MultExpression.MULT_FLOAT_FUNC);
+
         } else {
             throw new SemanticException("Mult operation is not supported for type: " + binaryExprType);
         }
@@ -734,8 +742,13 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(SubtractExpression subtractExpr) {
         BType binaryExprType = verifyBinaryArithmeticExprType(subtractExpr);
+
         if (binaryExprType == BTypes.INT_TYPE) {
             subtractExpr.setEvalFunc(SubtractExpression.SUB_INT_FUNC);
+
+        } else if (binaryExprType == BTypes.FLOAT_TYPE) {
+            subtractExpr.setEvalFunc(SubtractExpression.SUB_FLOAT_FUNC);
+
         } else {
             throw new SemanticException("Subtraction operation is not supported for type: " + binaryExprType);
         }
