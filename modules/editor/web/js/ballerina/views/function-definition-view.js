@@ -355,13 +355,6 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
                     model: connectorDeclarationView._model,
                     getterMethod: connectorDeclarationView._model.getUri,
                     setterMethod: connectorDeclarationView._model.setUri
-                },
-                {
-                    propertyType: "text",
-                    key: "Timeout",
-                    model: connectorDeclarationView._model,
-                    getterMethod: connectorDeclarationView._model.getTimeout,
-                    setterMethod: connectorDeclarationView._model.setTimeout
                 }
             ];
             connectorDeclarationView.createPropertyPane({

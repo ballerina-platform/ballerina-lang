@@ -169,7 +169,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             this.toolPalette.addConnectorTool({
                 id: "http-connector-declaration",
                 name: "HTTPConnector",
-                icon: "images/tool-icons/dgm-connector.svg",
+                icon: "images/tool-icons/http-connector.svg",
                 title: "HTTPConnector",
                 nodeFactoryMethod: this._model.getFactory().createConnectorDeclaration
             });
