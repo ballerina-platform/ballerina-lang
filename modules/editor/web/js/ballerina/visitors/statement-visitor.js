@@ -53,7 +53,7 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
         } else if (node instanceof AST.ReplyStatement) {
             return this.canVisitReplyStatement(node);
         } else if (node instanceof AST.ReturnStatement) {
-            return this.canVisitReturnStatement(node);
+            return this.canVisitStatement(node);
         }  else if (node instanceof AST.FunctionInvocation) {
             return this.canVisitStatement(node);
         }
@@ -88,7 +88,7 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
         } else if (node instanceof AST.ReplyStatement) {
             return this.beginVisitReplyStatement(node);
         } else if (node instanceof AST.ReturnStatement) {
-            return this.beginVisitReturnStatement(node);
+            return this.beginVisitStatement(node);
         }  else if (node instanceof AST.FunctionInvocation) {
             return this.beginVisitStatement(node);
         }
@@ -123,7 +123,7 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
         } else if (node instanceof AST.ReplyStatement) {
             return this.visitReplyStatement(node);
         } else if (node instanceof AST.ReturnStatement) {
-            return this.visitReturnStatement(node);
+            return this.visitStatement(node);
         }  else if (node instanceof AST.FunctionInvocation) {
             return this.visitStatement(node);
         }
@@ -158,7 +158,7 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
         } else if (node instanceof AST.ReplyStatement) {
             return this.endVisitReplyStatement(node);
         }  else if (node instanceof AST.ReturnStatement) {
-            return this.endVisitReturnStatement(node);
+            return this.endVisitStatement(node);
         }  else if (node instanceof AST.FunctionInvocation) {
             return this.endVisitStatement(node);
         }

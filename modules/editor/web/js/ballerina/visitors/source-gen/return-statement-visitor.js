@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor'], function(_, log, EventChannel, AbstractStatementSourceGenVisitor) {
+define(['lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor', '../../ast/return-statement'], function(_, log, EventChannel, AbstractStatementSourceGenVisitor, ReturnStatement) {
 
     var ReturnStatementVisitor = function(parent){
         AbstractStatementSourceGenVisitor.call(this, parent);
@@ -24,11 +24,11 @@ define(['lodash', 'log', 'event_channel', './abstract-statement-source-gen-visit
     ReturnStatementVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
     ReturnStatementVisitor.prototype.constructor = ReturnStatementVisitor;
 
-    ReturnStatementVisitor.prototype.canVisitReturnStatement = function(returnStatement){
-        return true;
+    ReturnStatementVisitor.prototype.canVisitStatement = function(returnStatement){
+        return returnStatement instanceof ReturnStatement;
     };
 
-    ReturnStatementVisitor.prototype.beginVisitReturnStatement = function(returnStatement){
+    ReturnStatementVisitor.prototype.beginVisitStatement = function(returnStatement){
         /**
          * set the configuration start for the reply statement definition language construct
          * If we need to add additional parameters which are dynamically added to the configuration start
@@ -38,11 +38,7 @@ define(['lodash', 'log', 'event_channel', './abstract-statement-source-gen-visit
         log.info('Begin Visit Return Statement Definition');
     };
 
-    ReturnStatementVisitor.prototype.visitReturnStatement = function(returnStatement){
-        log.info('Visit Reply Statement Definition');
-    };
-
-    ReturnStatementVisitor.prototype.endVisitReturnStatement = function(returnStatement){
+    ReturnStatementVisitor.prototype.endVisitStatement = function(returnStatement){
         this.appendSource(returnStatement.getReturnExpression() + ";\n");
         this.getParent().appendSource(this.getGeneratedSource());
         log.info('End Visit Return Statement Definition');
