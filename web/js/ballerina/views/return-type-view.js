@@ -89,7 +89,10 @@ define(['require', 'lodash', 'jquery'],
             _createCurrentReturnTypeView(model, returnTypeContentWrapper, returnTypeDropDown, headerWrapper);
 
             // Showing and hiding the return types pane upon arguments button/activator is clicked.
-            $(activatorElement).click({returnTypeEditorWrapper: returnTypeEditorWrapper}, function (event) {
+            $(activatorElement).click({
+                returnTypeEditorWrapper: returnTypeEditorWrapper,
+                returnTypeDropDown: returnTypeDropDown
+            }, function (event) {
                 if ($(event.currentTarget).data("showing-pane") === "true") {
                     $(event.currentTarget).removeClass("operations-argument-icon");
                     event.data.returnTypeEditorWrapper.hide();
@@ -98,6 +101,7 @@ define(['require', 'lodash', 'jquery'],
                     $(event.currentTarget).addClass("operations-argument-icon");
                     event.data.returnTypeEditorWrapper.show();
                     $(event.currentTarget).data("showing-pane", "true");
+                    $(event.data.returnTypeDropDown).focus();
                 }
             });
 

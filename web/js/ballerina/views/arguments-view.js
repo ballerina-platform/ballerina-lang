@@ -107,7 +107,10 @@ define(['require', 'lodash', 'jquery'],
             _createCurrentArgumentsView(model, argumentsContentWrapper, argumentTypeDropDown, headerWrapper);
 
             // Showing and hiding the arguments pane upon arguments button/activator is clicked.
-            $(activatorElement).click({argumentsEditorWrapper: argumentsEditorWrapper}, function (event) {
+            $(activatorElement).click({
+                argumentsEditorWrapper: argumentsEditorWrapper,
+                argumentIdentifierInput: argumentIdentifierInput
+            }, function (event) {
                 if ($(event.currentTarget).data("showing-pane") === "true") {
                     $(event.currentTarget).removeClass("operations-argument-icon");
                     event.data.argumentsEditorWrapper.hide();
@@ -116,6 +119,7 @@ define(['require', 'lodash', 'jquery'],
                     $(event.currentTarget).addClass("operations-argument-icon");
                     event.data.argumentsEditorWrapper.show();
                     $(event.currentTarget).data("showing-pane", "true");
+                    $(event.data.argumentIdentifierInput).focus();
                 }
             });
 

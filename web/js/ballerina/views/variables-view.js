@@ -119,6 +119,7 @@ define(['require', 'lodash', 'jquery', 'log', 'd3utils', 'd3', './point', 'balle
             $(addVariableButton).click(function () {
                 $(variableAddPane).show();
                 $(this).hide();
+                $(variableText).focus();
             });
 
             // Cancel adding a new variable.
