@@ -14,10 +14,12 @@ function lazyInitSizeZero() (string[]) {
 
 function addValueToIntArray() (int[]) {
     int[] arr;
+    int x;
+    x = 4;
     arr[0] = -10;
     arr[15] = 2 + 18;
     arr[99] = 2147483647;
-    arr[100] = 4;
+    arr[100] = -x;
     arr[115] = -2147483647;
     arr[199] = 6;
 

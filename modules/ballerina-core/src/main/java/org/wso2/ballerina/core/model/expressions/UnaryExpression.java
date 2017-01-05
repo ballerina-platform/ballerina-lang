@@ -20,6 +20,7 @@ package org.wso2.ballerina.core.model.expressions;
 import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.Operator;
+import org.wso2.ballerina.core.model.values.BBoolean;
 import org.wso2.ballerina.core.model.values.BDouble;
 import org.wso2.ballerina.core.model.values.BFloat;
 import org.wso2.ballerina.core.model.values.BInteger;
@@ -44,10 +45,10 @@ public class UnaryExpression extends AbstractExpression {
     public UnaryExpression(Operator op, Expression rExpr) {
         this.op = op;
         this.rExpr = rExpr;
-        if (rExpr != null) {
-            this.type = rExpr.getType();
-        }
     }
+
+    public static final BiFunction<BValueType, BValueType, BValueType> NOT_BOOLEAN_FUNC =
+            (lVal, rVal) -> new BBoolean(!rVal.booleanValue());
 
     public static final BiFunction<BValueType, BValueType, BValueType> NEGATIVE_INT_FUNC =
             (lVal, rVal) -> new BInteger(-(rVal.intValue()));
@@ -85,7 +86,7 @@ public class UnaryExpression extends AbstractExpression {
         return rExpr;
     }
 
-    public Operator getOperation() {
+    public Operator getOperator() {
         return op;
     }
 

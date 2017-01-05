@@ -421,7 +421,11 @@ public class BLangModelBuilder {
                 break;
 
             case "-":
-                expr = new UnaryExpression(Operator.DIV, rExpr);
+                expr = new UnaryExpression(Operator.SUB, rExpr);
+                break;
+
+            case "!":
+                expr = new UnaryExpression(Operator.NOT, rExpr);
                 break;
 
             default:

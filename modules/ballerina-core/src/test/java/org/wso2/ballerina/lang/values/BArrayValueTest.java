@@ -80,7 +80,7 @@ public class BArrayValueTest {
         Assert.assertEquals(arrayValue.get(99).intValue(), 2147483647, "Invalid value returned.");
 
         Assert.assertEquals(arrayValue.get(100).getClass(), BInteger.class, "Invalid class type returned.");
-        Assert.assertEquals(arrayValue.get(100).intValue(), 4, "Invalid value returned.");
+        Assert.assertEquals(arrayValue.get(100).intValue(), -4, "Invalid value returned.");
 
         Assert.assertEquals(arrayValue.get(115).getClass(), BInteger.class, "Invalid class type returned.");
         Assert.assertEquals(arrayValue.get(115).intValue(), -2147483647, "Invalid value returned.");

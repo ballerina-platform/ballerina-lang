@@ -689,7 +689,10 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(UnaryExpression unaryExpr) {
-        if (Operator.DIV.equals(unaryExpr.getOperation())) {
+        unaryExpr.getRExpr().accept(this);
+        unaryExpr.setType(unaryExpr.getRExpr().getType());
+
+        if (Operator.SUB.equals(unaryExpr.getOperator())) {
             if (unaryExpr.getType() == BTypes.INT_TYPE) {
                 unaryExpr.setEvalFunc(UnaryExpression.NEGATIVE_INT_FUNC);
             } else if (unaryExpr.getType() == BTypes.DOUBLE_TYPE) {
@@ -699,9 +702,9 @@ public class SemanticAnalyzer implements NodeVisitor {
             } else if (unaryExpr.getType() == BTypes.FLOAT_TYPE) {
                 unaryExpr.setEvalFunc(UnaryExpression.NEGATIVE_FLOAT_FUNC);
             } else {
-                throw new SemanticException("Unsupported type " + unaryExpr.getType());
+                throw new SemanticException("Incompatible type in unary expression " + unaryExpr.getType());
             }
-        } else if (Operator.ADD.equals(unaryExpr.getOperation())) {
+        } else if (Operator.ADD.equals(unaryExpr.getOperator())) {
             if (unaryExpr.getType() == BTypes.INT_TYPE) {
                 unaryExpr.setEvalFunc(UnaryExpression.POSITIVE_INT_FUNC);
             } else if (unaryExpr.getType() == BTypes.DOUBLE_TYPE) {
@@ -711,12 +714,22 @@ public class SemanticAnalyzer implements NodeVisitor {
             } else if (unaryExpr.getType() == BTypes.FLOAT_TYPE) {
                 unaryExpr.setEvalFunc(UnaryExpression.POSITIVE_FLOAT_FUNC);
             } else {
-                throw new SemanticException("Unsupported type " + unaryExpr.getType());
+                throw new SemanticException("Incompatible type in unary expression " + unaryExpr.getType());
+            }
+
+        } else if (Operator.NOT.equals(unaryExpr.getOperator())) {
+            if (unaryExpr.getType() == BTypes.BOOLEAN_TYPE) {
+                unaryExpr.setEvalFunc(UnaryExpression.NOT_BOOLEAN_FUNC);
+            } else {
+                throw new SemanticException("Incompatible type in unary expression " + unaryExpr.getType()
+                                            + " Not Only support boolean");
             }
 
         } else {
-            throw new SemanticException("Unsupported operation " + unaryExpr.getOperation().name());
+            throw new SemanticException("Incompatible operation for unary expression" + unaryExpr.getOperator().name());
         }
+
+
     }
 
     @Override
