@@ -51,7 +51,7 @@ public class DummyHTTPConnector extends AbstractNativeConnector implements Servi
 
     @Override
     public boolean init(BValue[] bValueRefs) {
-        if (bValueRefs != null && bValueRefs.length == 2) {
+        if (bValueRefs != null && bValueRefs.length == 1) {
             serviceUri = bValueRefs[0].stringValue();
         }
         return true;
