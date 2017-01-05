@@ -363,6 +363,12 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                         var index = _.findLastIndex(currentASTRoot.getChildren(), function (child) {
                             return child instanceof ImportDeclaration;
                         });
+
+                        // If there are no imports index is -1. Then we need to add the first import after the package
+                        // definition which is the first child of the ast root
+                        if (index === -1) {
+                            index = 0;
+                        }
                         currentASTRoot.addChild(newImportDeclaration, index + 1);
                         //Adding import to be displayed in the imports wrapper
                         currentASTRoot.addImport(newImportDeclaration);
