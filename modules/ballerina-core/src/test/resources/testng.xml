@@ -31,6 +31,7 @@ under the License.
             <class name="org.wso2.ballerina.lang.expressions.FuncInvocationExprTest"/>
             <class name="org.wso2.ballerina.lang.expressions.ArrayAccessExprTest"/>
             <class name="org.wso2.ballerina.lang.expressions.ArrayInitializerExprTest"/>
+            <class name="org.wso2.ballerina.lang.expressions.UnaryExprTest"/>
 
             <!-- Statements -->
             <class name="org.wso2.ballerina.lang.statements.WhileStmtTest"/>

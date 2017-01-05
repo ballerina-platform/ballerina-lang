@@ -118,6 +118,18 @@ public class Functions {
 
     }
 
+    /**
+     * Invokes a Ballerina function defined in the given language model
+     *
+     * @param bFile        parsed, analyzed and linked object model
+     * @param functionName name of the function to be invoked
+     * @return return values from the function
+     */
+    public static BValue[] invoke(BallerinaFile bFile, String functionName) {
+        BValue[] args = {};
+        return invoke(bFile, functionName, args);
+    }
+
 //    private BType getTypeOfValue(BValue bValue) {
 //        if (bValue instanceof BInteger) {
 //            return BTypes.INT_TYPE;
