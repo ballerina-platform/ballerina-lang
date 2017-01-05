@@ -9,8 +9,8 @@ service contentBasedRouting {
     @POST
     resource cbrResource (message m) {
 
-        http:HTTPConnector nyseEP = new http:HTTPConnector("http://localhost:9090/NYSEStocks");
-        http:HTTPConnector nasdaqEP = new http:HTTPConnector("http://localhost:9090/NASDAQStocks");
+        http:HTTPConnector nyseEP = new http:HTTPConnector("http://localhost:9090/nyseStocks");
+        http:HTTPConnector nasdaqEP = new http:HTTPConnector("http://localhost:9090/nasdaqStocks");
 
         message response;
         json jsonMsg;
