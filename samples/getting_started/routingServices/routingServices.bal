@@ -1,25 +1,23 @@
-package org.wso2.ballerina.sample;
-
 import ballerina.net.http;
 import ballerina.lang.json;
 import ballerina.lang.message;
 import ballerina.lang.system;
 
 @BasePath ("/cbr")
-service ContentBasedRouting {
+service contentBasedRouting {
 
     @POST
     resource cbrResource (message m) {
 
-        http:HTTPConnector nyseEP = new http:HTTPConnector("http://localhost:9090/NYSEStocks", 30000);
-        http:HTTPConnector nasdaqEP = new http:HTTPConnector("http://localhost:9090/NASDAQStocks", 60000);
+        http:HTTPConnector nyseEP = new http:HTTPConnector("http://localhost:9090/NYSEStocks");
+        http:HTTPConnector nasdaqEP = new http:HTTPConnector("http://localhost:9090/NASDAQStocks");
 
         message response;
         json jsonMsg;
         string nameString;
         string nyseString;
 
-        nyseString = "NYSE";
+        nyseString = "nyse";
 
         jsonMsg = message:getJsonPayload(m);
         nameString = json:getString(jsonMsg, "$.name");
@@ -35,19 +33,19 @@ service ContentBasedRouting {
 }
 
 @BasePath ("/hbr")
-service ContentBasedRouting {
+service headerBasedRouting {
 
-    @POST
+    @GET
     resource cbrResource (message m) {
 
-        http:HTTPConnector nyseEP = new http:HTTPConnector("http://localhost:9090/NYSEStocks", 30000);
-        http:HTTPConnector nasdaqEP = new http:HTTPConnector("http://localhost:9090/NASDAQStocks", 60000);
+        http:HTTPConnector nyseEP = new http:HTTPConnector("http://localhost:9090/nyseStocks");
+        http:HTTPConnector nasdaqEP = new http:HTTPConnector("http://localhost:9090/nasdaqStocks");
 
         message response;
         string nameString;
         string nyseString;
 
-        nyseString = "NYSE";
+        nyseString = "nyse";
 
 
         nameString = message:getHeader(m, "name");
@@ -62,8 +60,8 @@ service ContentBasedRouting {
     }
 }
 
-@BasePath("/NYSEStocks")
-service NYSEStockQuote {
+@BasePath("/nyseStocks")
+service nyseStockQuote {
 
     @POST
     resource stocks (message m) {
@@ -78,8 +76,8 @@ service NYSEStockQuote {
     }
 }
 
-@BasePath("/NASDAQStocks")
-service NASDAQStockQuote {
+@BasePath("/nasdaqStocks")
+service nasdaqStocksQuote {
 
     @POST
     resource stocks (message m) {

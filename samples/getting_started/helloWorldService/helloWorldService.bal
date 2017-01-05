@@ -1,10 +1,8 @@
-package org.wso2.ballerina.sample;
-
 import ballerina.lang.message;
 import ballerina.net.uri;
 
 @BasePath ("/hello")
-service HelloWorldService {
+service helloWorldService {
 
     @GET
     resource sayHello(message m) {
