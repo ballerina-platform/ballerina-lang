@@ -45,6 +45,7 @@ define('ace/mode/ballerina',
                     {token: "paren.lparen", regex: "[[({]"},
                     {token: "paren.rparen", regex: "[\\])}]"},
                     {token: "text", regex: "\\s+"},
+                    {token: "ballerina-annotation", regex: "@[a-zA-Z_$][a-zA-Z0-9_$]*"},
                     {token: keywordMapper, regex: "[a-zA-Z_$][a-zA-Z0-9_$]*\\b"}
                 ]
             };
