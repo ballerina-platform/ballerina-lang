@@ -25,6 +25,7 @@ import org.wso2.ballerina.core.interpreter.BLangExecutor;
 import org.wso2.ballerina.core.interpreter.CallableUnitInfo;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.interpreter.LocalVarLocation;
+import org.wso2.ballerina.core.interpreter.RuntimeEnvironment;
 import org.wso2.ballerina.core.interpreter.StackFrame;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
@@ -55,16 +56,17 @@ public class BalProgramExecutor {
     private static final Logger log = LoggerFactory.getLogger(BalProgramExecutor.class);
 
     public static void execute(CarbonMessage cMsg, CarbonCallback callback, Resource resource, Service service,
-        Context balContext) {
+                               Context balContext) {
         try {
             SymbolName symbolName = service.getSymbolName();
             balContext.setServiceInfo(
-                new CallableUnitInfo(symbolName.getName(), symbolName.getPkgName(), service.getServiceLocation()));
+                    new CallableUnitInfo(symbolName.getName(), symbolName.getPkgName(), service.getServiceLocation()));
 
             balContext.setBalCallback(new DefaultBalCallback(callback));
 
             // Create the interpreter and Execute
-            BLangExecutor executor = new BLangExecutor(balContext);
+            RuntimeEnvironment runtimeEnv = resource.getApplication().getRuntimeEnv();
+            BLangExecutor executor = new BLangExecutor(runtimeEnv, balContext);
             new ResourceInvocationExpr(resource).executeMultiReturn(executor);
         } catch (Throwable e) {
             throw new BallerinaException(e.getMessage(), balContext);
@@ -77,7 +79,7 @@ public class BalProgramExecutor {
      * @param balFile Ballerina main function to be executed in given Ballerina File.
      */
     public static void execute(BallerinaFile balFile) {
-        
+
         Context bContext = new Context();
         try {
             BallerinaFunction mainFunction = (BallerinaFunction) balFile.getFunctions()
@@ -113,13 +115,13 @@ public class BalProgramExecutor {
                 funcIExpr.setFunction(mainFunction);
 
                 SymbolName functionSymbolName = funcIExpr.getFunctionName();
-                CallableUnitInfo functionInfo = new CallableUnitInfo(functionSymbolName.getName(), 
+                CallableUnitInfo functionInfo = new CallableUnitInfo(functionSymbolName.getName(),
                         functionSymbolName.getPkgName(), mainFunction.getFunctionLocation());
-                
+
                 StackFrame currentStackFrame = new StackFrame(argValues, new BValue[0], functionInfo);
                 bContext.getControlStack().pushFrame(currentStackFrame);
-
-                BLangExecutor executor = new BLangExecutor(bContext);
+                RuntimeEnvironment runtimeEnv = RuntimeEnvironment.get(balFile);
+                BLangExecutor executor = new BLangExecutor(runtimeEnv, bContext);
                 funcIExpr.execute(executor);
 
                 bContext.getControlStack().popFrame();

@@ -16,7 +16,6 @@
 
 package org.wso2.ballerina.core.nativeimpl.lang.message;
 
-import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.Context;
@@ -38,11 +37,6 @@ import org.wso2.ballerina.core.nativeimpl.lang.utils.Constants;
         args = {@Argument(name = "message", type = TypeEnum.MESSAGE),
                 @Argument(name = "payload", type = TypeEnum.XML)},
         isPublic = true
-)
-@Component(
-        name = "func.lang.echo_setXmlPayload",
-        immediate = true,
-        service = AbstractNativeFunction.class
 )
 public class SetXMLPayload extends AbstractNativeFunction {
 

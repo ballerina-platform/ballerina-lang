@@ -24,7 +24,6 @@ import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.xpath.AXIOMXPath;
 import org.jaxen.JaxenException;
 import org.jaxen.XPathSyntaxException;
-import org.osgi.service.component.annotations.Component;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BValue;
@@ -51,11 +50,6 @@ import java.util.List;
 //                @Argument(name = "nameSpaces", type = TypeEnum.MAP),
                 @Argument(name = "value", type = TypeEnum.XML)},
         isPublic = true
-)
-@Component(
-        name = "func.lang.xml_setXml",
-        immediate = true,
-        service = AbstractNativeFunction.class
 )
 public class SetXML extends AbstractNativeFunction {
 

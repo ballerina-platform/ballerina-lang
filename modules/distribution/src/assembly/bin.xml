@@ -102,7 +102,7 @@
         </fileSet>
         <fileSet>
             <directory>../editor/web</directory>
-            <outputDirectory>resources/tool</outputDirectory>
+            <outputDirectory>resources/editor</outputDirectory>
             <excludes>
                 <exclude>target/**</exclude>
                 <exclude>**/*.ipr</exclude>

@@ -23,11 +23,14 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.exception.BallerinaException;
+import org.wso2.ballerina.core.interpreter.RuntimeEnvironment;
 import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.model.Application;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.Package;
+import org.wso2.ballerina.core.model.Resource;
+import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.model.builder.BLangModelBuilder;
 import org.wso2.ballerina.core.parser.BallerinaLexer;
 import org.wso2.ballerina.core.parser.BallerinaParser;
@@ -100,11 +103,15 @@ public class BalDeployer {
                     }
                 }
 
+                // Create a runtime environment for this Ballerina application
+                RuntimeEnvironment runtimeEnv = RuntimeEnvironment.get(balFile);
+
                 // Get the existing application associated with this ballerina config
                 Application app = ApplicationRegistry.getInstance().getApplication(file.getName());
                 if (app == null) {
                     // Create a new application with ballerina file name, if there is no app currently exists.
                     app = new Application(file.getName());
+                    app.setRuntimeEnv(runtimeEnv);
                     ApplicationRegistry.getInstance().registerApplication(app);
                 }
 
@@ -119,6 +126,15 @@ public class BalDeployer {
                     app.addPackage(aPackage);
                 }
                 aPackage.addFiles(balFile);
+
+                // Here we need to link all the resources with this application. We execute the matching resource
+                // when a request is made. At that point, we need to access runtime environment to execute the resource.
+                for (Service service : balFile.getServices()) {
+                    for (Resource resource : service.getResources()) {
+                        resource.setApplication(app);
+                    }
+                }
+
                 ApplicationRegistry.getInstance().updatePackage(aPackage);
                 successful = true;
                 log.info("Deployed ballerina file : " + file.getName());

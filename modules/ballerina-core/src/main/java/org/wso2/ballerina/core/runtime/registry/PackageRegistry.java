@@ -73,7 +73,7 @@ public class PackageRegistry {
         String funcName = function.getName();
         SymbolName symbolName = LangModelUtils.getSymNameWithParams(funcName, function.getParameters());
         Symbol symbol = new Symbol(function, LangModelUtils.getTypesOfParams(function.getParameters()),
-                function.getReturnTypes());
+                                   function.getReturnTypes());
 
         GlobalScopeHolder.getInstance().insert(symbolName, symbol);
 
