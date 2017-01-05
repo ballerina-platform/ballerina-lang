@@ -30,7 +30,11 @@ define(['require','lodash', 'log', 'event_channel', './abstract-statement-source
         };
 
         FunctionInvocationVisitor.prototype.beginVisitStatement = function(functionInvocation){
-            var source = functionInvocation.getPackageName() + ':' + functionInvocation.getFunctionName() + '(';
+            var source = "";
+            if (!_.isNil(functionInvocation.getPackageName()) && functionInvocation.getPackageName() !== "") {
+                source += functionInvocation.getPackageName() + ':';
+            }
+            source += functionInvocation.getFunctionName() + '(';
             var params = functionInvocation.getParams();
             for (var id = 0; id < params.length; id ++) {
                 if (id > 0) {
