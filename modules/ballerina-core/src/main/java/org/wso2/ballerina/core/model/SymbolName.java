@@ -58,7 +58,7 @@ public class SymbolName {
     /**
      * Set the package name of this symbol name.
      *
-     * @param pkgName   package name of this symbol name
+     * @param pkgName package name of this symbol name
      */
     public void setPkgName(String pkgName) {
         this.pkgName = pkgName;
@@ -83,5 +83,9 @@ public class SymbolName {
         int result = name.hashCode();
         result = 31 * result;
         return result;
+    }
+
+    public String toString() {
+        return (pkgName == null) ? name : pkgName + ":" + name;
     }
 }
