@@ -85,7 +85,7 @@
             <fileMode>444</fileMode>
         </fileSet>
         <fileSet>
-            <directory>../../samples</directory>
+            <directory>../../samples/getting_started</directory>
             <outputDirectory>samples</outputDirectory>
             <excludes>
                 <exclude>target/**</exclude>
