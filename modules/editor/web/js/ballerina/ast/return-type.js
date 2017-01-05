@@ -15,32 +15,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+define(['lodash', './node'], function (_, ASTNode) {
 
-define(['lodash', './ballerina-ast-factory'], function (_, BallerinaASTFactory) {
-
-    var BallerinaASTDeserializer = function () {
-
+    var ReturnType = function (type) {
+        ASTNode.call(this, 'ReturnType');
     };
+
+    ReturnType.prototype = Object.create(ASTNode.prototype);
+    ReturnType.prototype.constructor = ReturnType;
 
     /**
-     * deserialize to the AST model from source
-     * @returns {{}|*}
+     * initialize from json
+     * @param jsonNode
      */
-    BallerinaASTDeserializer.getASTModel = function (data) {
-        var astRoot = deserializeNode(data.root);
-        return astRoot;
+    ReturnType.prototype.initFromJson = function (jsonNode) {
+        var self = this;
+        var BallerinaASTFactory = this.getFactory();
+
+        _.each(jsonNode.children, function (childNode) {
+            var child = BallerinaASTFactory.createFromJson(childNode);
+            self.addChild(child);
+        });
     };
 
-    function deserializeNode(node) {
-        var astRoot = BallerinaASTFactory.createBallerinaAstRoot();
-
-        _.each(node, function (childNode) {
-            var child = BallerinaASTFactory.createFromJson(childNode);
-            astRoot.addChild(child)
-        });
-        return astRoot;
-    }
-
-
-    return BallerinaASTDeserializer;
+    return ReturnType;
 });
