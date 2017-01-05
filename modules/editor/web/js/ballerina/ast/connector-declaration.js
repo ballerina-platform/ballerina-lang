@@ -50,7 +50,7 @@ define(['lodash', './node'], function(_, ASTNode){
         // TODO: need a proper way of extracting the protocol
         if (this.validateUri(uri)) {
             var tokens = uri.split(":");
-            this.setConnectorType(tokens[0] + ':HTTPConnector');
+            this.setConnectorType( 'http:HTTPConnector');
         }
         this._uri = uri;
     };
