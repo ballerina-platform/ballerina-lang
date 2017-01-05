@@ -1,4 +1,4 @@
-package samples.service;
+package test.samples;
 
 import ballerina.connectors.twitter;
 import ballerina.connectors.salesforce as sf;
