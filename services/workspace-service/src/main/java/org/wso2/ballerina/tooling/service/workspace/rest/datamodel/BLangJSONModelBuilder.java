@@ -125,12 +125,11 @@ public class BLangJSONModelBuilder implements NodeVisitor {
             }
         }
 
-        if (bFile.getFunctions() != null) {
-            for (Function function : bFile.getFunctions().values()) {
-                BallerinaFunction bFunction = (BallerinaFunction) function;
-                rootElements.add(bFunction);
-            }
+        for (Function function : bFile.getFunctions()) {
+            BallerinaFunction bFunction = (BallerinaFunction) function;
+            rootElements.add(bFunction);
         }
+
 
         if (bFile.getConnectors() != null) {
             for (BallerinaConnector connector : bFile.getConnectors()) {
