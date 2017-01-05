@@ -22,8 +22,9 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
      * @param expression zero or many expressions for a return statement.
      * @constructor
      */
-    var ReturnStatement = function (expression) {
-        this._expression = expression || [];
+    var ReturnStatement = function (args) {
+        Statement.call(this);
+        this._expression = _.get(args, 'expression') || 'expression';
     };
 
     ReturnStatement.prototype = Object.create(Statement.prototype);
@@ -39,6 +40,14 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
 
     ReturnStatement.prototype.getReturnExpression = function () {
         return this._expression;
+    };
+
+    /**
+     * initialize from json
+     * @param jsonNode
+     */
+    ReturnStatement.prototype.initFromJson = function (jsonNode) {
+        //TODO : add expression
     };
 
     return ReturnStatement;

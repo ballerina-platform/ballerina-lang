@@ -19,7 +19,7 @@ define(['require', 'lodash', 'jquery'],
     function (require, _, $) {
 
         //TODO : Move this to a common constant.
-        var variableTypes = ['message', 'connection', 'string', 'int', 'exception', 'json'];
+        var variableTypes = ['message', 'connection', 'string', 'int', 'exception', 'json', 'xml', 'string[]', 'int[]'];
 
         /**
          * Creates the arguments pane.
@@ -103,11 +103,11 @@ define(['require', 'lodash', 'jquery'],
             $(activatorElement).click({argumentsEditorWrapper: argumentsEditorWrapper}, function (event) {
                 if ($(event.currentTarget).data("showing-pane") === "true") {
                     $(event.currentTarget).removeClass("operations-argument-icon");
-                    event.data.argumentsEditorWrapper.hide();
+                    event.data.returnTypeEditorWrapper.hide();
                     $(event.currentTarget).data("showing-pane", "false");
                 } else {
                     $(event.currentTarget).addClass("operations-argument-icon");
-                    event.data.argumentsEditorWrapper.show();
+                    event.data.returnTypeEditorWrapper.show();
                     $(event.currentTarget).data("showing-pane", "true");
                 }
             });

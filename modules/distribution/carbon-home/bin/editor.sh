@@ -134,8 +134,14 @@ do
           CMD="--debug"
     elif [ "$CMD" = "--debug" ] && [ -z "$PORT" ]; then
           PORT=$c
+    elif [ "$CMD" = "help" ] && [ -z "$PORT" ]; then
+        echo "  "
+        echo "Usage : Start Ballerina Editor using './editor.sh'"
+        exit 0
     else
         echo "Not supported command : $c"
+        echo "  "
+        echo "Usage : Start Ballerina Editor using './editor.sh'"
         exit 1
     fi
 done
@@ -185,7 +191,7 @@ status=$START_EXIT_STATUS
     -XX:+HeapDumpOnOutOfMemoryError \
     -XX:HeapDumpPath="$BAL_HOME/logs/heap-dump-tool.hprof" \
     $JAVA_OPTS \
-    -classpath ./bin/workspace-service-*.jar \
+    -classpath ./resources/editor/services/workspace-service-*.jar \
     -Djava.io.tmpdir="$BAL_HOME/tmp" \
     -Djava.command="$JAVACMD" \
     -Dballerina.home="$BAL_HOME" \

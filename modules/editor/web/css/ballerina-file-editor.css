@@ -21,6 +21,7 @@
     float: left;
     height: auto;
     min-height: 1000px;
+    overflow: hidden;
 }
 
 .container-outer-div {
@@ -136,6 +137,10 @@
 }
 
 .ace_ballerina-keyword-other{
+    color: #FFC66D;
+}
+
+.ace_ballerina-package-reference{
     color: #FFC66D;
 }
 

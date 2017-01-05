@@ -143,21 +143,21 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
             var editableProperties = [
                 {
                     propertyType: "text",
-                    key: "Variable",
+                    key: "Assign To",
                     model: this._model,
                     getterMethod: this._model.getVariableAccessor,
                     setterMethod: this._model.setVariableAccessor
                 },
                 {
                     propertyType: "text",
-                    key: "Path",
+                    key: "Path Parameter",
                     model: this._model,
                     getterMethod: this._model.getPath,
                     setterMethod: this._model.setPath
                 },
                 {
                     propertyType: "text",
-                    key: "Message",
+                    key: "Message Parameter",
                     model: this._model,
                     getterMethod: this._model.getMessage,
                     setterMethod: this._model.setMessage

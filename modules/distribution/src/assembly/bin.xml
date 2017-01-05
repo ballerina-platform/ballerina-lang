@@ -39,6 +39,7 @@
                 <exclude>**/*.eclipse</exclude>
                 <exclude>bin/*.sh</exclude>
                 <exclude>bin/*.bat</exclude>
+                <exclude>bin/*.txt</exclude>
             </excludes>
         </fileSet>
 
@@ -76,15 +77,15 @@
             <fileMode>755</fileMode>
         </fileSet>
         <fileSet>
-            <directory>carbon-home/bin</directory>
-            <outputDirectory>bin</outputDirectory>
+            <directory>carbon-home/resources/help</directory>
+            <outputDirectory>resources/help</outputDirectory>
             <includes>
                 <include>**/*.txt</include>
             </includes>
             <fileMode>444</fileMode>
         </fileSet>
         <fileSet>
-            <directory>../../samples</directory>
+            <directory>../../samples/getting_started</directory>
             <outputDirectory>samples</outputDirectory>
             <excludes>
                 <exclude>target/**</exclude>
@@ -102,7 +103,7 @@
         </fileSet>
         <fileSet>
             <directory>../editor/web</directory>
-            <outputDirectory>resources/editor</outputDirectory>
+            <outputDirectory>resources/editor/web</outputDirectory>
             <excludes>
                 <exclude>target/**</exclude>
                 <exclude>**/*.ipr</exclude>
@@ -114,7 +115,7 @@
         </fileSet>
         <fileSet>
             <directory>../editor/services/workspace-service/target/</directory>
-            <outputDirectory>bin/</outputDirectory>
+            <outputDirectory>resources/editor/services</outputDirectory>
             <includes>
                 <include>workspace-service*.jar</include>
             </includes>
@@ -123,18 +124,6 @@
     </fileSets>
 
     <files>
-        <file>
-            <source>target/wso2carbon-kernel-${carbon.kernel.version}/bin/kernel-version.txt</source>
-            <outputDirectory>bin/</outputDirectory>
-            <filtered>true</filtered>
-            <fileMode>444</fileMode>
-        </file>
-        <file>
-            <source>target/wso2carbon-kernel-${carbon.kernel.version}/bin/README.txt</source>
-            <outputDirectory>bin/</outputDirectory>
-            <filtered>true</filtered>
-            <fileMode>444</fileMode>
-        </file>
         <file>
             <source>carbon-home/conf/log4j2.xml</source>
             <outputDirectory>conf/</outputDirectory>

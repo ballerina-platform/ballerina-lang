@@ -288,6 +288,7 @@ button.variable-list {
     color: white;
     padding: 0 4px 4px 4px;
     height: 22px;
+    margin-bottom: 10px;
 }
 
 .variable-identifier {
@@ -879,11 +880,13 @@ button.variable-list {
     vertical-align: top;
     top: 8px;
     right: 7px;
+    opacity: 0.5;
 }
 
 .hoverable {
     opacity: 0.4;
     cursor: pointer;
+    font-size: 14px;
 }
 
 .hoverable:hover {
@@ -1038,6 +1041,36 @@ button.variable-list {
     opacity: 1;
     background-color: #2b2b2b;
     width: 30px;
+}
+
+.return-type-main-action-wrapper {
+    width: 210px;
+    overflow: auto;
+    display: none;
+    background: #fff;
+}
+
+.return-type-wrapper-heading {
+    height:32px;
+    background-color: #3d3d3d
+}
+
+.return-type-wrapper-heading input[type=text]{
+    width: 224px;
+    margin-left: 5px;
+}
+
+.return-type-wrapper-heading select {
+    width: 160px;
+}
+
+.return-type-action-icon {
+    top: 5px;
+    right: 6px;
+}
+
+.return-type-action-icon-i {
+    background-color: #818181;
 }
 
 /** Service container related styles | -> End **/

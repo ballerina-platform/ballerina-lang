@@ -15,13 +15,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './callable-definition', './connector-declaration'], function (_, CallableDefinition, ConnectorDeclaration) {
+define(['lodash', './callable-definition', './connector-declaration', './variable-declaration', './return-type'],
+    function (_, CallableDefinition, ConnectorDeclaration, VariableDeclaration, ReturnType) {
 
     var FunctionDefinition = function (args) {
         this.id = autoGenerateId();
         CallableDefinition.call(this, 'Function');
         this._functionName = _.get(args, 'functionName') || 'newFunction';
         this._arguments = _.get(args, "functionArgs", []);
+        this._isPublic = _.get(args, "isPublic") || false;
     };
 
     FunctionDefinition.prototype = Object.create(CallableDefinition.prototype);
@@ -50,12 +52,70 @@ define(['lodash', './callable-definition', './connector-declaration'], function 
         }
     };
 
+    FunctionDefinition.prototype.setIsPublic = function(isPublic){
+        if(!_.isNil(isPublic)){
+            this._isPublic = isPublic;
+        }
+    };
+
+    FunctionDefinition.prototype.setVariableDeclarations = function (variableDeclarations) {
+        if (!_.isNil(variableDeclarations)) {
+            // TODO : To implement using child array.
+            throw "To be Implemented";
+        }
+    };
+
     FunctionDefinition.prototype.getFunctionName = function () {
         return this._functionName;
     };
 
     FunctionDefinition.prototype.getArguments = function () {
         return this._arguments;
+    };
+
+    FunctionDefinition.prototype.getIsPublic = function () {
+        return this._isPublic;
+    };
+
+    FunctionDefinition.prototype.getVariableDeclarations = function () {
+        var variableDeclarations = [];
+        _.forEach(this.getChildren(), function (child) {
+            if (child instanceof VariableDeclaration) {
+                variableDeclarations.push(child);
+            }
+        });
+        return variableDeclarations;
+    };
+
+    /**
+     * Adds new variable declaration.
+     */
+    FunctionDefinition.prototype.addVariableDeclaration = function (newVariableDeclaration) {
+        // Get the index of the last variable declaration.
+        var index = _.findLastIndex(this.getChildren(), function (child) {
+            return child instanceof VariableDeclaration;
+        });
+
+        // index = -1 when there are not any variable declarations, hence get the index for connector
+        // declarations.
+        if (index == -1) {
+            index = _.findLastIndex(this.getChildren(), function (child) {
+                return child instanceof ConnectorDeclaration;
+            });
+        }
+
+        this.addChild(newVariableDeclaration, index + 1);
+    };
+
+    /**
+     * Adds new variable declaration.
+     */
+    FunctionDefinition.prototype.removeVariableDeclaration = function (newVariableDeclaration) {
+        // Deleting the variable from the children.
+        _.remove(this.getChildren(), function (child) {
+            return child instanceof VariableDeclaration &&
+                child.getIdentifier() === newVariableDeclaration;
+        });
     };
 
     /**
@@ -100,6 +160,64 @@ define(['lodash', './callable-definition', './connector-declaration'], function 
     };
 
     /**
+     * Gets return types.
+     */
+    FunctionDefinition.prototype.getReturnTypes = function () {
+        var returnTypes = [];
+        _.forEach(this.getChildren(), function(child) {
+            if (child instanceof ReturnType) {
+                _.forEach(child.getChildren(), function(returnTypeChild){
+                    returnTypes.push(returnTypeChild)
+                });
+                // break;
+                return false;
+            }
+        });
+
+        return returnTypes;
+    };
+
+    /**
+     * Adds new return type.
+     */
+    FunctionDefinition.prototype.addReturnType = function (newReturnType) {
+        var typeName = this.getFactory().createTypeName();
+        typeName.setTypeName(newReturnType);
+
+        var existingReturnType = _.find(this.getChildren(), function(child){
+            return child instanceof ReturnType;
+        });
+
+        if (!_.isNil(existingReturnType)) {
+            existingReturnType.addChild(typeName, existingReturnType.length + 1);
+        } else {
+            var returnType = this.getFactory().createReturnType();
+            returnType.addChild(typeName, 0);
+            this.addChild(returnType);
+        }
+    };
+
+    /**
+     * Remove return type declaration.
+     */
+    FunctionDefinition.prototype.removeReturnType = function (returnType) {
+        _.forEach(this.getChildren(), function (child) {
+            if (child instanceof ReturnType) {
+                var childrenOfReturnType = child.getChildren();
+                _.forEach(childrenOfReturnType, function(type, index){
+                    if (type.getType() == returnType) {
+                        childrenOfReturnType.splice(index, 1);
+                        // break
+                        return false;
+                    }
+                });
+                // break
+                return false;
+            }
+        });
+    };
+
+    /**
      * Override the super call to addChild
      * @param child
      * @param index
@@ -123,6 +241,24 @@ define(['lodash', './callable-definition', './connector-declaration'], function 
             || BallerinaASTFactory.isVariableDeclaration(node)
             || BallerinaASTFactory.isWorkerDeclaration(node)
             || BallerinaASTFactory.isStatement(node);
+    };
+
+    /**
+     * initialize from json
+     * @param jsonNode
+     */
+    FunctionDefinition.prototype.initFromJson = function (jsonNode) {
+        this._functionName = jsonNode.function_name;
+        this._annotations = jsonNode.annotations;
+        this._isPublic = jsonNode.is_public_function;
+
+        var self = this;
+        var BallerinaASTFactory = this.getFactory();
+
+        _.each(jsonNode.children, function (childNode) {
+            var child = BallerinaASTFactory.createFromJson(childNode);
+            self.addChild(child);
+        });
     };
 
     return FunctionDefinition;

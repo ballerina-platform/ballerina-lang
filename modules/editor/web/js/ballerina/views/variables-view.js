@@ -21,7 +21,7 @@ define(['require', 'lodash', 'jquery', 'log', 'd3utils', 'd3', './point', 'balle
               VariableDeclaration, ConnectorDeclaration) {
 
         // TODO move variable types into constant class
-        var variableTypes = ['message', 'connection', 'string', 'int', 'exception', 'json'];
+        var variableTypes = ['message', 'connection', 'string', 'int', 'exception', 'json', 'xml', 'string[]', 'int[]'];
 
         /**
          * Creating the variable variable button.
@@ -141,22 +141,7 @@ define(['require', 'lodash', 'jquery', 'log', 'd3utils', 'd3', './point', 'balle
                     newVariableDeclaration.setType(typeOfNewVariable);
                     newVariableDeclaration.setIdentifier(identifierOfNewVariable);
 
-                    declaredVariables.push(newVariableDeclaration);
-
-                    // Get the index of the last variable declaration.
-                    var index = _.findLastIndex(model.getChildren(), function (child) {
-                        return child instanceof VariableDeclaration;
-                    });
-
-                    // index = -1 when there are not any variable declarations, hence get the index for connector
-                    // declarations.
-                    if (index == -1) {
-                        index = _.findLastIndex(model.getChildren(), function (child) {
-                            return child instanceof ConnectorDeclaration;
-                        });
-                    }
-
-                    model.addChild(newVariableDeclaration, index + 1);
+                    model.addVariableDeclaration(newVariableDeclaration);
 
                     // Rendering the variables after adding a new variable.
                     _renderVariables(variablesContentWrapper, model, collapserWrapper, variablesContentWrapper);
@@ -272,21 +257,10 @@ define(['require', 'lodash', 'jquery', 'log', 'd3utils', 'd3', './point', 'balle
                         variableIdentifier: variableIdentifierWrapper.val(),
                         model: model
                     }, function (event) {
-                        var declaredVariables = event.data.model.getVariableDeclarations();
-
                         // Deleting variable from UI.
                         event.data.variableWrapper.remove();
 
-                        // Deleting variable from the model.
-                        _.remove(declaredVariables, function (declaredVariable) {
-                            return declaredVariable.getIdentifier() === event.data.variableIdentifier;
-                        });
-
-                        // Deleting the variable from the children.
-                        _.remove(model.getChildren(), function (child) {
-                            return BallerinaASTFactory.isVariableDeclaration(child) &&
-                                child.getIdentifier() === event.data.variableIdentifier;
-                        });
+                        event.data.model.removeVariableDeclaration(event.data.variableIdentifier);
 
                         // Re-rendering variable declarations.
                         _renderVariables(variablePaneWrapper, model);

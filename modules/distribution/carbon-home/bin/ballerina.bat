@@ -52,7 +52,7 @@ if not "%curDrive%" == "%wsasDrive%" %wsasDrive%:
 
 rem find CARBON_HOME if it does not exist due to either an invalid value passed
 rem by the user or the %0 problem on Windows 9x
-if not exist "%CARBON_HOME%\bin\kernel-version.txt" goto noServerHome
+if not exist "%CARBON_HOME%\bin\version.txt" goto noServerHome
 
 goto updateClasspath
 
@@ -127,13 +127,13 @@ goto setupArgs
 rem ----- commandUnknownArg ----------------------------------------------------
 :commandUnknownArg
 echo Not supported option or command or value : %1
-type "%CARBON_HOME%\bin\ballerina-win-help.txt"
+type "%CARBON_HOME%\resources\help\ballerina-win-help.txt"
 goto end
 
 rem ----- commandNoBalFile -------------------------------------------------------
 :commandNoBalFile
 echo Please specify Ballerina file to run. (Eg: ballerina.bat main.bal)
-type "%CARBON_HOME%\bin\ballerina-win-help.txt"
+type "%CARBON_HOME%\resources\help\ballerina-win-help.txt"
 goto end
 
 rem ----- commandVersion -------------------------------------------------------
@@ -145,7 +145,7 @@ goto end
 rem ----- commandHelp -------------------------------------------------------
 :commandHelp
 shift
-type "%CARBON_HOME%\bin\ballerina-win-help.txt"
+type "%CARBON_HOME%\resources\help\ballerina-win-help.txt"
 goto end
 
 rem ----- commandDebug ---------------------------------------------------------

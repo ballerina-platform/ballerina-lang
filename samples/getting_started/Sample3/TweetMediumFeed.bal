@@ -8,15 +8,15 @@ import ballerina.net.http;
 import ballerina.net.uri;
 import ballerina.util;
 
-@BasePath ("/medium")
+@BasePath ("/tweet")
 service TweetMediumFeed {
 
     @GET
     @Path("/feed")
     resource getMediumFeed  (message m) {
 
-        http:HTTPConnector mediumEP = new http:HTTPConnector("https://medium.com", 100);
-        http:HTTPConnector tweeterEP = new http:HTTPConnector("https://api.twitter.com", 100);
+        http:HTTPConnector mediumEP = new http:HTTPConnector("https://medium.com");
+        http:HTTPConnector tweeterEP = new http:HTTPConnector("https://api.twitter.com");
 
         message mediumResponse;
         xml feedXML;
