@@ -74,6 +74,7 @@ import org.wso2.ballerina.core.model.expressions.UnaryExpression;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.invokers.MainInvoker;
 import org.wso2.ballerina.core.model.invokers.ResourceInvocationExpr;
+import org.wso2.ballerina.core.model.statements.ActionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.statements.CommentStmt;
@@ -119,7 +120,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         currentPkg = bFile.getPackageName();
 
         // TODO We can move this logic to the parser.
-        bFile.getFunctions().values().forEach(this::addFuncSymbol);
+        Arrays.asList(bFile.getFunctions()).forEach(this::addFuncSymbol);
         bFile.getConnectorList().forEach(connector -> {
             addConnectorSymbol(connector);
             Arrays.asList(connector.getActions()).forEach(this::addActionSymbol);
@@ -146,7 +147,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             service.accept(this);
         }
 
-        for (Function function : bFile.getFunctions().values()) {
+        for (Function function : bFile.getFunctions()) {
             BallerinaFunction bFunction = (BallerinaFunction) function;
             bFunction.accept(this);
         }
@@ -488,14 +489,22 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(AssignStmt assignStmt) {
         Expression lExpr = assignStmt.getLExpr();
+
         if (lExpr instanceof ArrayMapAccessExpr) {
             ((ArrayMapAccessExpr) lExpr).setLHSExpr(true);
         }
+
         lExpr.accept(this);
+
+        // Check whether someone is trying to change the values of a constant
+        if (lExpr instanceof VariableRefExpr &&
+                ((VariableRefExpr) lExpr).getLocation() instanceof ConstantLocation) {
+            throw new SemanticException("Error: cannot assign a value to constant: " +
+                    ((VariableRefExpr) lExpr).getSymbolName());
+        }
 
         Expression rExpr = assignStmt.getRExpr();
         rExpr.accept(this);
-
 
         // Return types of the function or action invoked are only available during the linking phase
         // There type compatibility check is impossible during the semantic analysis phase.
@@ -588,6 +597,11 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(FunctionInvocationStmt functionInvocationStmt) {
         functionInvocationStmt.getFunctionInvocationExpr().accept(this);
+    }
+
+    @Override
+    public void visit(ActionInvocationStmt actionInvocationStmt) {
+        actionInvocationStmt.getActionInvocationExpr().accept(this);
     }
 
     @Override
@@ -786,9 +800,16 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         if (compareExprType == BTypes.INT_TYPE) {
             expr.setEvalFunc(EqualExpression.EQUAL_INT_FUNC);
+
+        } else if (compareExprType == BTypes.FLOAT_TYPE) {
+            expr.setEvalFunc(EqualExpression.EQUAL_FLOAT_FUNC);
+
+        } else if (compareExprType == BTypes.BOOLEAN_TYPE) {
+            expr.setEvalFunc(EqualExpression.EQUAL_BOOLEAN_FUNC);
+
         } else if (compareExprType == BTypes.STRING_TYPE) {
-            expr.setType(BTypes.BOOLEAN_TYPE);
             expr.setEvalFunc(EqualExpression.EQUAL_STRING_FUNC);
+
         } else {
             throw new SemanticException("Equals operation is not supported for type: "
                     + compareExprType);
@@ -801,8 +822,16 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         if (compareExprType == BTypes.INT_TYPE) {
             notEqualExpr.setEvalFunc(NotEqualExpression.NOT_EQUAL_INT_FUNC);
+
+        } else if (compareExprType == BTypes.FLOAT_TYPE) {
+            notEqualExpr.setEvalFunc(NotEqualExpression.NOT_EQUAL_FLOAT_FUNC);
+
+        } else if (compareExprType == BTypes.BOOLEAN_TYPE) {
+            notEqualExpr.setEvalFunc(NotEqualExpression.NOT_EQUAL_BOOLEAN_FUNC);
+
         } else if (compareExprType == BTypes.STRING_TYPE) {
             notEqualExpr.setEvalFunc(NotEqualExpression.NOT_EQUAL_STRING_FUNC);
+
         } else {
             throw new SemanticException("NotEqual operation is not supported for type: " + compareExprType);
         }
@@ -814,6 +843,10 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         if (compareExprType == BTypes.INT_TYPE) {
             greaterEqualExpr.setEvalFunc(GreaterEqualExpression.GREATER_EQUAL_INT_FUNC);
+
+        } else if (compareExprType == BTypes.FLOAT_TYPE) {
+            greaterEqualExpr.setEvalFunc(GreaterEqualExpression.GREATER_EQUAL_FLOAT_FUNC);
+
         } else {
             throw new SemanticException("Greater than equal operation is not supported for type: "
                     + compareExprType);
@@ -826,6 +859,10 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         if (compareExprType == BTypes.INT_TYPE) {
             greaterThanExpr.setEvalFunc(GreaterThanExpression.GREATER_THAN_INT_FUNC);
+
+        } else if (compareExprType == BTypes.FLOAT_TYPE) {
+            greaterThanExpr.setEvalFunc(GreaterThanExpression.GREATER_THAN_FLOAT_FUNC);
+
         } else {
             throw new SemanticException("Greater than operation is not supported for type: "
                     + compareExprType);
@@ -835,8 +872,13 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(LessEqualExpression lessEqualExpr) {
         BType compareExprType = verifyBinaryCompareExprType(lessEqualExpr);
+
         if (compareExprType == BTypes.INT_TYPE) {
             lessEqualExpr.setEvalFunc(LessEqualExpression.LESS_EQUAL_INT_FUNC);
+
+        } else if (compareExprType == BTypes.FLOAT_TYPE) {
+            lessEqualExpr.setEvalFunc(LessEqualExpression.LESS_EQUAL_FLOAT_FUNC);
+
         } else {
             throw new SemanticException("Less than equal operation is not supported for type: "
                     + compareExprType);
@@ -846,8 +888,13 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(LessThanExpression lessThanExpr) {
         BType compareExprType = verifyBinaryCompareExprType(lessThanExpr);
+
         if (compareExprType == BTypes.INT_TYPE) {
             lessThanExpr.setEvalFunc(LessThanExpression.LESS_THAN_INT_FUNC);
+
+        } else if (compareExprType == BTypes.FLOAT_TYPE) {
+            lessThanExpr.setEvalFunc(LessThanExpression.LESS_THAN_FLOAT_FUNC);
+
         } else {
             throw new SemanticException("Less than operation is not supported for type: " + compareExprType);
         }
