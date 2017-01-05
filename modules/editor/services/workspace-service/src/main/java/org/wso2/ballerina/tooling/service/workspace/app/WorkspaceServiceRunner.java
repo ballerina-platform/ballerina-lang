@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.tooling.service.workspace.Constants;
 import org.wso2.ballerina.tooling.service.workspace.rest.FileServer;
 import org.wso2.ballerina.tooling.service.workspace.rest.WorkspaceService;
+import org.wso2.ballerina.tooling.service.workspace.rest.datamodel.BLangFileRestService;
 import org.wso2.msf4j.MicroservicesRunner;
 
 import java.nio.file.Paths;
@@ -69,6 +70,7 @@ public class WorkspaceServiceRunner {
         Injector injector = Guice.createInjector(new WorkspaceServiceModule(isCloudMode));
         new MicroservicesRunner(Integer.getInteger(Constants.SYS_WORKSPACE_PORT, Constants.DEFAULT_WORKSPACE_PORT))
                 .deploy(injector.getInstance(WorkspaceService.class))
+                .deploy(new BLangFileRestService())
                 .start();
 
         int port = Integer.getInteger(Constants.SYS_FILE_WEB_PORT, Constants.DEFAULT_FILE_WEB_PORT);
