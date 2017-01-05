@@ -103,11 +103,11 @@ define(['require', 'lodash', 'jquery'],
             $(activatorElement).click({argumentsEditorWrapper: argumentsEditorWrapper}, function (event) {
                 if ($(event.currentTarget).data("showing-pane") === "true") {
                     $(event.currentTarget).removeClass("operations-argument-icon");
-                    event.data.returnTypeEditorWrapper.hide();
+                    event.data.argumentsEditorWrapper.hide();
                     $(event.currentTarget).data("showing-pane", "false");
                 } else {
                     $(event.currentTarget).addClass("operations-argument-icon");
-                    event.data.returnTypeEditorWrapper.show();
+                    event.data.argumentsEditorWrapper.show();
                     $(event.currentTarget).data("showing-pane", "true");
                 }
             });
