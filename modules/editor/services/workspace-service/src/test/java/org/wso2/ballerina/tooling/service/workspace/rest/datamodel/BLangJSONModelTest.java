@@ -46,15 +46,15 @@ public class BLangJSONModelTest {
 
     private MicroservicesRunner microservicesRunner;
     HashMap<String, Package> packages = new HashMap<String, Package>();
-    private String exptdStrFunc = "{\"root\":[{\"type\":\"package\",\"package_name\":\"samples.\"}," +
+    private String exptdStrFunc = "{\"root\":[{\"type\":\"package\",\"package_name\":\"test.samples\"}," +
             "{\"type\":\"import\",\"import_package_name\":\"twitter\",\"import_package_path\":" +
             "\"ballerina.connectors.twitter\"},{\"type\":\"import\",\"import_package_name\":\"sf\"," +
             "\"import_package_path\":\"ballerina.connectors.salesforce\"},{\"type\":\"import\"," +
-            "\"import_package_name\":\"\",\"import_package_path\":\"samples.\"},{\"type\":\"service_definition\"," +
-            "\"service_name\":\"HelloService\",\"annotations\":[],\"children\":[{\"type\":\"resource_definition\"," +
-            "\"resource_name\":null,\"annotations\":[{\"type\":\"annotation\",\"annotation_name\":\"GET\"," +
-            "\"annotation_value\":null,\"children\":[]},{\"type\":\"annotation\",\"annotation_name\":" +
-            "\"Path\",\"annotation_value\":\"/tweet\",\"children\":[]}],\"children\":" +
+            "\"import_package_name\":\"samples\",\"import_package_path\":\"test.samples\"},{\"type\":" +
+            "\"service_definition\",\"service_name\":\"HelloService\",\"annotations\":[],\"children\":[{\"type\":" +
+            "\"resource_definition\",\"resource_name\":null,\"annotations\":[{\"type\":\"annotation\"," +
+            "\"annotation_name\":\"GET\",\"annotation_value\":null,\"children\":[]},{\"type\":\"annotation\"," +
+            "\"annotation_name\":\"Path\",\"annotation_value\":\"/tweet\",\"children\":[]}],\"children\":" +
             "[{\"type\":\"argument_declaration\",\"parameter_name\":\"m\",\"parameter_type\":" +
             "\"message\",\"children\":[]},{\"type\":\"reply_statement\",\"children\":" +
             "[{\"type\":\"variable_reference_expression\",\"variable_reference_name\":\"m\"}]}]}]}," +

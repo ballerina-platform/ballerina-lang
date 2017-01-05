@@ -21,10 +21,11 @@ import org.antlr.v4.runtime.FailedPredicateException;
 import org.antlr.v4.runtime.InputMismatchException;
 import org.antlr.v4.runtime.NoViableAltException;
 import org.antlr.v4.runtime.Parser;
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.misc.IntervalSet;
-import org.wso2.ballerina.core.exception.ParserException;
+import org.antlr.v4.runtime.misc.ParseCancellationException;
 
 /**
  * Error Handling strategy for {@link BallerinaParser}.
@@ -33,7 +34,14 @@ public class BallerinaParserErrorStrategy extends DefaultErrorStrategy {
     
     @Override
     public void recover(Parser parser, RecognitionException e) {
-        throw new ParserException(e);
+        Token missingSymbol = parser.getCurrentToken();
+        int line = missingSymbol.getLine();
+        int position = missingSymbol.getCharPositionInLine();
+        String mismatchedToken = getTokenErrorDisplay(missingSymbol);
+        String msg = "Invalid token " + mismatchedToken + " in " + parser.getSourceName() + "["+ line + ":" +
+                position + "]. " + e.getMessage();
+        setContextException(parser);
+        throw new ParseCancellationException(msg);
     }
 
     @Override
@@ -44,9 +52,10 @@ public class BallerinaParserErrorStrategy extends DefaultErrorStrategy {
         String expectedToken = e.getExpectedTokens().toString(parser.getVocabulary());
         String msg = "Mismatched input " + mismatchedToken + " in " + parser.getSourceName() + "["+ line + ":" +
                 position + "]. Expecting one of " + expectedToken;
-        throw new ParserException(msg);
+        setContextException(parser);
+        throw new ParseCancellationException(msg);
     }
-
+    
     @Override
     public void reportMissingToken(Parser parser) {
         Token t = parser.getCurrentToken();
@@ -56,7 +65,8 @@ public class BallerinaParserErrorStrategy extends DefaultErrorStrategy {
         String missingToken = expecting.toString(parser.getVocabulary());
         String msg = "Missing " + missingToken + " before " + getTokenErrorDisplay(t) + " in " + parser.getSourceName()
                 + "["+ line + ":" + position + "]";
-        throw new ParserException(msg);
+        setContextException(parser);
+        throw new ParseCancellationException(msg);
     }
     
     @Override
@@ -66,7 +76,8 @@ public class BallerinaParserErrorStrategy extends DefaultErrorStrategy {
         int position = getMissingSymbol(parser).getCharPositionInLine();
         String msg = "Invalid identifier " + getTokenErrorDisplay(t) +  " in " + parser.getSourceName() + "["+ line +
                 ":" + position + "]";
-        throw new ParserException(msg);
+        setContextException(parser);
+        throw new ParseCancellationException(msg);
     }
     
     @Override
@@ -76,13 +87,46 @@ public class BallerinaParserErrorStrategy extends DefaultErrorStrategy {
         int position = getMissingSymbol(parser).getCharPositionInLine();
         String msg = "Unwanted token " + getTokenErrorDisplay(t) + " in " + parser.getSourceName() + "["+ line + ":" 
                 + position + "]";
-        throw new ParserException(msg);
+        setContextException(parser);
+        throw new ParseCancellationException(msg);
     }
     
     @Override
     public void reportFailedPredicate(Parser parser, FailedPredicateException e) {
         int line = getMissingSymbol(parser).getLine();
         int position = getMissingSymbol(parser).getCharPositionInLine();
-        throw new ParserException(e.getMessage() + " in " + parser.getSourceName() + "["+ line + ":" + position + "]");
+        setContextException(parser);
+        throw new ParseCancellationException(e.getMessage() + " in " + parser.getSourceName() + "["+ line + ":" + position + "]");
     }
+    
+    
+    public void reportError(Parser parser, RecognitionException e) {
+        if (e instanceof NoViableAltException) {
+            reportNoViableAlternative(parser, (NoViableAltException) e);
+        } else if (e instanceof InputMismatchException) {
+            reportInputMismatch(parser, (InputMismatchException) e);
+        } else if (e instanceof FailedPredicateException) {
+            reportFailedPredicate(parser, (FailedPredicateException) e);
+        } else {
+            int line = getMissingSymbol(parser).getLine();
+            int position = getMissingSymbol(parser).getCharPositionInLine();
+            setContextException(parser);
+            throw new ParseCancellationException(e.getMessage() + " in " + parser.getSourceName() + "["+ line + ":" + position + "]");
+        }
+    }
+    
+    /**
+     * Set an exception in the parser context. This is later used at {@link BLangAntlr4Listener} level
+     * to determine whether the parse exception has occured and is in error state.
+     * 
+     * @param parser    Current parser
+     */
+    private void setContextException(Parser parser) {
+        // Here the type of the exception is not important. 
+        InputMismatchException e = new InputMismatchException(parser);
+        for (ParserRuleContext context = parser.getContext(); context != null; context = context.getParent()) {
+            context.exception = e;
+        }
+    }
+    
 }
