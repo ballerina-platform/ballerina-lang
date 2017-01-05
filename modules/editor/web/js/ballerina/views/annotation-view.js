@@ -81,6 +81,13 @@ define(['require', 'lodash', 'jquery'],
                 _addAnnotationsToDropdown(model, annotationTypeDropDown, headerWrapper);
             });
 
+            // Add new annotation upon enter key.
+            $(annotationValueInput).on("change paste keydown", function (e) {
+                if (e.which == 13) {
+                    addButton.click();
+                }
+            });
+
             // Add elements to dropdown.
             _addAnnotationsToDropdown(model, annotationTypeDropDown, headerWrapper);
 
