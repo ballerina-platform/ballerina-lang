@@ -35,7 +35,7 @@ Ballerina is not designed to be a general purpose language. Instead you should u
 package samples.hello;
 import ballerina.lang.system;
 
-function main(int z) {
+function main(string[] args) {
     system:println("Hello world");
 }
 ```
@@ -43,7 +43,7 @@ function main(int z) {
 
 - Go inside the ballerina/bin directory and run the following command
 ```
-./ballerina.sh run hello.bal
+./ballerina.sh hello.bal
 ```
 
 - This will execute the main function and print the "Hello world" in the console.
@@ -72,7 +72,7 @@ service EchoService{
 
 - Go inside the ballerina/bin directory and run the following command
 ```
-./ballerina.sh run echo.bal
+./ballerinaserver.sh echo.bal
 ```
 
 - This will start the ballerina server with the port 9090 and you can invoke the service with the following curl command.
@@ -127,7 +127,7 @@ service NYSEStockQuote {
 
 - Go inside the ballerina/bin directory and run the following command
 ```
-./ballerina.sh run passthrough.bal
+./ballerinaserver.sh passthrough.bal
 ```
 
 - This will start the ballerina server with the port 9090 and you can invoke the service with the following curl command.
@@ -232,7 +232,7 @@ service NASDAQStockQuote {
 
 - Go inside the ballerina/bin directory and run the following command
 ```
-./ballerina.sh run content-based-router.bal
+./ballerinaserver.sh content-based-router.bal
 ```
 
 - This will start the ballerina server with the port 9090 and you can invoke the service with the following curl command.

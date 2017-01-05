@@ -101,10 +101,9 @@ public class SemanticAnalyzer implements NodeVisitor {
     private int staticMemAddrOffset = -1;
 
     private SymTable symbolTable;
-    
+
     private String currentPkg;
-    
-    
+
 
     // We need to keep a map of import packages.
     // This is useful when analyzing import functions, actions and types.
@@ -114,7 +113,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         SymScope pkgScope = bFile.getPackageScope();
         pkgScope.setParent(globalScope);
         symbolTable = new SymTable(pkgScope);
-        
+
         currentPkg = bFile.getPackageName();
 
         // TODO We can move this logic to the parser.
@@ -191,10 +190,12 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Open a new symbol scope
         openScope(SymScope.Name.SERVICE);
 
-        //TODO: Handle connector declarations
+        for (ConnectorDcl connectorDcl : service.getConnectorDcls()) {
+            staticMemAddrOffset++;
+            visit(connectorDcl);
+        }
 
-        VariableDcl[] variableDcls = service.getVariableDcls();
-        for (VariableDcl variableDcl : variableDcls) {
+        for (VariableDcl variableDcl : service.getVariableDcls()) {
             staticMemAddrOffset++;
             visit(variableDcl);
         }
@@ -453,6 +454,10 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
         connectorDcl.setConnector(connectorSym.getConnector());
 
+        // Visit connector arguments
+        for (Expression argExpr : connectorDcl.getArgExprs()) {
+            argExpr.accept(this);
+        }
     }
 
     @Override
@@ -594,7 +599,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         for (Expression expr : exprs) {
             expr.accept(this);
         }
-        
+
         linkFunction(funcIExpr);
 
         // Can we do this bit in the linker
@@ -1058,7 +1063,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                 pkgPath = pkgName;
             }
         }
-        
+
         return pkgPath;
     }
 
@@ -1079,7 +1084,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         String pkgPath = getPackagePath(funcName);
         funcName.setPkgName(pkgPath);
 
-        
+
         Expression[] exprs = funcIExpr.getExprs();
         BType[] paramTypes = new BType[exprs.length];
         for (int i = 0; i < exprs.length; i++) {
@@ -1099,7 +1104,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             String fullPackageName = getPackagePath(new SymbolName(funcName.getName(), currentPkg));
             funcName.setPkgName(fullPackageName);
         }
-        
+
         // Link
         Function function = symbol.getFunction();
         funcIExpr.setFunction(function);
@@ -1116,7 +1121,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         String pkgPath = getPackagePath(actionName);
-        
+
         // Set the fully qualified package name
         actionName.setPkgName(pkgPath);
 
@@ -1142,7 +1147,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             String fullPackageName = getPackagePath(new SymbolName(actionName.getName(), currentPkg));
             actionName.setPkgName(fullPackageName);
         }
-        
+
         // Link
         Action action = symbol.getAction();
         actionIExpr.setAction(action);
