@@ -100,6 +100,23 @@ define(['require', 'lodash', 'jquery'],
                     $(event.currentTarget).data("showing-pane", "true");
                 }
             });
+
+            $(returnTypeEditorWrapper).click(function (event) {
+                event.stopPropagation();
+            });
+
+            // On window click.
+            $(window).click({
+                activatorElement: activatorElement,
+                returnTypeEditorWrapper: returnTypeEditorWrapper
+            }, function (event) {
+                $(activatorElement).click(function (event) {
+                    event.stopPropagation();
+                });
+                if ($(event.data.activatorElement).data("showing-pane") === "true"){
+                    $(event.data.activatorElement).click();
+                }
+            });
         };
 
         /**

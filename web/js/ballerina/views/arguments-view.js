@@ -118,6 +118,20 @@ define(['require', 'lodash', 'jquery'],
                     $(event.currentTarget).data("showing-pane", "true");
                 }
             });
+
+            $(argumentsEditorWrapper).click(function (event) {
+                event.stopPropagation();
+            });
+
+            // On window click.
+            $(window).click({
+                activatorElement: activatorElement,
+                argumentsEditorWrapper: argumentsEditorWrapper
+            }, function (event) {
+                if ($(event.data.activatorElement).data("showing-pane") === "true"){
+                    $(event.data.activatorElement).click();
+                }
+            });
         };
 
         /**
