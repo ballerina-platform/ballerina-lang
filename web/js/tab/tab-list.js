@@ -160,6 +160,9 @@ define(['log', 'jquery', 'lodash', 'backbone', './tab', 'bootstrap'], function (
             getTab: function (tabId) {
                 return _.find(this._tabs, ['id', tabId]);
             },
+            getTabList: function() {
+              return this._tabs;
+            },
             /**
              * removes a tab
              * @param {Tab} tab the tab instance

@@ -72,6 +72,10 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'menu_bar_provider'],
                                 link.click(function () {
                                     command.dispatch(menuItem.action);
                                 });
+
+                                _.forEach(menuItem.attributes, function(attribute){
+                                    link.attr(attribute.key, attribute.value);
+                                });
                                 item.append(link);
                                 menu.append(item);
                             });
