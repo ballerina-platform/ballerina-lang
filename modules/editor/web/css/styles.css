@@ -288,6 +288,7 @@ button.variable-list {
     color: white;
     padding: 0 4px 4px 4px;
     height: 22px;
+    margin-bottom: 10px;
 }
 
 .variable-identifier {
@@ -879,11 +880,13 @@ button.variable-list {
     vertical-align: top;
     top: 8px;
     right: 7px;
+    opacity: 0.5;
 }
 
 .hoverable {
     opacity: 0.4;
     cursor: pointer;
+    font-size: 14px;
 }
 
 .hoverable:hover {

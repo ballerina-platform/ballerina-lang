@@ -21,6 +21,7 @@
     float: left;
     height: auto;
     min-height: 1000px;
+    overflow: hidden;
 }
 
 .container-outer-div {
