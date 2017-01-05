@@ -15,31 +15,22 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerina.core.model.statements;
 
-import org.wso2.ballerina.core.model.NodeExecutor;
-import org.wso2.ballerina.core.model.NodeVisitor;
+package org.wso2.ballerina.tooling.service.workspace.rest.datamodel;
 
 /**
- * Represents a single line comment. //-style
+ * Wraps BFileContent as String.
  */
-public class CommentStmt implements Statement {
-    private String comment;
+public class BFileContent {
 
-    public CommentStmt(String comment) {
-        this.comment = comment;
+    private String content;
+
+    public String getContent() {
+        return content;
     }
 
-    public String getComment() {
-        return comment;
+    public void setContent(String content) {
+        this.content = content;
     }
 
-    @Override
-    public void accept(NodeVisitor visitor) {
-        visitor.visit(this);
-    }
-
-    @Override
-    public void execute(NodeExecutor executor) {
-    }
 }
