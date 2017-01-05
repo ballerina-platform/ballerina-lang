@@ -88,12 +88,8 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             var importDeclaration_netHttp = BallerinaASTFactory.createImportDeclaration();
             importDeclaration_netHttp.setPackageName("ballerina.net.http");
             importDeclaration_netHttp.setParent(ballerinaAstRoot1);
-            var importDeclarations = [];
-            importDeclarations.push(importDeclaration_langMessage);
-            importDeclarations.push(importDeclaration_netHttp);
-            ballerinaAstRoot1.setImportDeclarations(importDeclarations);
-            ballerinaAstRoot1.addChild(importDeclaration_langMessage);
-            ballerinaAstRoot1.addChild(importDeclaration_netHttp);
+            ballerinaAstRoot1.addImport(importDeclaration_langMessage);
+            ballerinaAstRoot1.addImport(importDeclaration_netHttp);
 
             var root = ballerinaRoot || ballerinaAstRoot1;
 
