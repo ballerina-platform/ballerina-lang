@@ -21,6 +21,7 @@
     float: left;
     height: auto;
     min-height: 1000px;
+    overflow: hidden;
 }
 
 .container-outer-div {
@@ -144,7 +145,7 @@
 }
 
 .ace_ballerina-keyword-non-primitive-type{
-    color: #CC7832;
+    color: #9876AA;
 }
 
 .ace_ballerina-keyword-definition{

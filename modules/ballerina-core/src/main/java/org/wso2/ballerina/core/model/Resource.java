@@ -121,6 +121,15 @@ public class Resource implements Node {
     }
 
     /**
+     * Get all the Annotations associated with a Resource
+     *
+     * @return list of Annotations
+     */
+    public Annotation[] getResourceAnnotations() {
+        return annotations;
+    }
+
+    /**
      * Set Annotations
      *
      * @param annotations map of Annotations

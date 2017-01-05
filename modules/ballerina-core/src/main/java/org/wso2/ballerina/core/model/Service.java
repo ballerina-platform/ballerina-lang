@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
  * @since 1.0.0
  */
 @SuppressWarnings("unused")
-public class Service implements Node {
+public class Service extends PositionAwareNode implements Node {
 
     private static final Logger logger = LoggerFactory.getLogger(Service.class);
 

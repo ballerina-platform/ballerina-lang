@@ -178,7 +178,7 @@ if [ "$CMD" = "stop" ]; then
 fi
 
 if [ -z "$BAL_FILE_NAME" ]; then
-    echo "Please specify Ballerina file(s) to run. (Eg: ballerina.sh foo.bal)"
+    echo "Please specify Ballerina file(s) to run. (Eg: ballerinaserver.sh foo.bal)"
     cat $CARBON_HOME/bin/ballerinaserver-bash-help.txt
     exit 1
 fi
