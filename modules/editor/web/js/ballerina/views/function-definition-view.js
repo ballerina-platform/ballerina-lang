@@ -113,6 +113,18 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
         };
 
         /**
+         * @override
+         */
+        FunctionDefinitionView.prototype.isAValidNodeForCanvasDropArea = function (node) {
+            var nodeFactory = this._model.getFactory();
+            // IMPORTANT: override canvas's default validation logic
+            // Canvas drop zone is for worker and connector declarations only.
+            // Statements should only be allowed on top of function worker's drop zone.
+            return nodeFactory.isConnectorDeclaration(node)
+                || nodeFactory.isWorkerDeclaration(node);
+        };
+
+        /**
          * Calls the render method for a worker declaration.
          * @param {WorkerDeclaration} workerDeclaration - The resource definition model.
          */
