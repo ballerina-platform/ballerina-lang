@@ -43,11 +43,11 @@ import javax.ws.rs.HttpMethod;
 public class BLangJSONModelTest {
 
     private MicroservicesRunner microservicesRunner;
-    private String exptdStrFunc = "{\"root\":[{\"type\":\"package\",\"package_name\":\"samples.\"}," +
+    private String exptdStrFunc = "{\"root\":[{\"type\":\"package\",\"package_name\":\"test.samples\"}," +
             "{\"type\":\"import\",\"import_package_name\":\"twitter\",\"import_package_path\":" +
             "\"ballerina.connectors.twitter\"},{\"type\":\"import\",\"import_package_name\":\"sf\"," +
             "\"import_package_path\":\"ballerina.connectors.salesforce\"},{\"type\":\"import\"," +
-            "\"import_package_name\":\"\",\"import_package_path\":\"samples.\"}," +
+            "\"import_package_name\":\"samples\",\"import_package_path\":\"test.samples\"}," +
             "{\"type\":\"service_definition\",\"service_name\":\"HelloService\",\"children\":" +
             "[{\"type\":\"resource_definition\",\"resource_name\":null,\"children\":" +
             "[{\"type\":\"annotation\",\"annotation_name\":\"GET\",\"annotation_value\":null," +
