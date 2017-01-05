@@ -24,17 +24,20 @@ define(([],function (){
             {
                 id: "FileMenu-NewFile",
                 label: "New",
-                action: "create-new-tab"
+                action: "create-new-tab",
+                disabled: false
             },
             {
                 id: "FileMenu-OpenFile",
                 label: "Open",
-                action: "open-file-open-dialog"
+                action: "open-file-open-dialog",
+                disabled: true
             },
             {
                 id: "FileMenu-SaveFile",
                 label: "Save",
-                action: "open-file-save-dialog"
+                action: "open-file-save-dialog",
+                disabled: false
             }
 
             ],

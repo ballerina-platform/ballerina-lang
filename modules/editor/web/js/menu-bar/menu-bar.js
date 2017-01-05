@@ -68,10 +68,18 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'menu_bar_provider'],
                             _.forEach(menuGroupDefinition.items, function (menuItem, menuItemId) {
                                 var item = $('<li></li>');
                                 var link = $('<a></a>');
+                                if (menuItem.disabled) {
+                                    link.addClass("menu-item-disabled");
+                                    link.on("click", function (e) {
+                                        e.preventDefault();
+                                    });
+                                } else {
+                                    link.addClass("menu-item-enabled");
+                                    link.click(function () {
+                                        command.dispatch(menuItem.action);
+                                    });
+                                }
                                 link.text(menuItem.label);
-                                link.click(function () {
-                                    command.dispatch(menuItem.action);
-                                });
 
                                 _.forEach(menuItem.attributes, function(attribute){
                                     link.attr(attribute.key, attribute.value);
