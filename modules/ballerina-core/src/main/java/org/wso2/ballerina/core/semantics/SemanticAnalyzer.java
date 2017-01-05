@@ -88,6 +88,7 @@ import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.model.util.LangModelUtils;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -105,7 +106,6 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     private String currentPkg;
 
-
     // We need to keep a map of import packages.
     // This is useful when analyzing import functions, actions and types.
     private Map<String, ImportPackage> importPkgMap = new HashMap<>();
@@ -119,6 +119,10 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         // TODO We can move this logic to the parser.
         bFile.getFunctions().values().forEach(this::addFuncSymbol);
+        bFile.getConnectorList().forEach(connector -> {
+            addConnectorSymbol(connector);
+            Arrays.asList(connector.getActions()).forEach(this::addActionSymbol);
+        });
     }
 
     @Override
@@ -212,14 +216,6 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(BallerinaConnector connector) {
-        Symbol symbol = new Symbol(connector, LangModelUtils.getTypesOfParams(connector.getParameters()));
-        symbolTable.insert(new SymbolName(connector.getPackageQualifiedName()), symbol);
-
-        // We need to add all the action symbols to package scope
-        for (BallerinaAction action : connector.getActions()) {
-            addActionSymbol(action);
-        }
-
         // Then open the connector namespace
         openScope(SymScope.Name.CONNECTOR);
 
@@ -996,19 +992,17 @@ public class SemanticAnalyzer implements NodeVisitor {
         function.setSymbolName(symbolName);
 
         BType[] paramTypes = LangModelUtils.getTypesOfParams(function.getParameters());
-
         Symbol symbol = new Symbol(function, paramTypes, function.getReturnTypes());
 
         if (symbolTable.lookup(symbolName) != null) {
-            throw new SemanticException("Duplicate function definition: " + symbolName.getName());
+            throw new SemanticException("Duplicate function definition: " + symbolName);
         }
+
         symbolTable.insert(symbolName, symbol);
     }
 
     private void addActionSymbol(BallerinaAction action) {
-
         SymbolName actionSymbolName = action.getSymbolName();
-
         BType[] paramTypes = LangModelUtils.getTypesOfParams(action.getParameters());
 
         SymbolName symbolName =
@@ -1018,9 +1012,22 @@ public class SemanticAnalyzer implements NodeVisitor {
         Symbol symbol = new Symbol(action, paramTypes, action.getReturnTypes());
 
         if (symbolTable.lookup(symbolName) != null) {
-            throw new SemanticException("Duplicate action definition: " + symbolName.getName());
+            throw new SemanticException("Duplicate action definition: " + symbolName);
         }
+
         symbolTable.insert(symbolName, symbol);
+    }
+
+    private void addConnectorSymbol(BallerinaConnector connector) {
+        BType[] paramTypes = LangModelUtils.getTypesOfParams(connector.getParameters());
+        Symbol symbol = new Symbol(connector, paramTypes);
+
+        SymbolName symbolName = new SymbolName(connector.getPackageQualifiedName());
+        if (symbolTable.lookup(symbolName) != null) {
+            throw new SemanticException("Duplicate connector definition: " + symbolName);
+        }
+
+        symbolTable.insert(new SymbolName(connector.getPackageQualifiedName()), symbol);
     }
 
     private BType verifyBinaryArithmeticExprType(BinaryArithmeticExpression binaryArithmeticExpr) {
