@@ -8,11 +8,9 @@ service passthroughService {
     resource passthrough (message m) {
         http:HTTPConnector nyseEP = new http:HTTPConnector("http://localhost:9090");
         message response;
-        string httpMethod;
 
-        httpMethod = http:getMethod(m);
+        response = http:HTTPConnector.get(nyseEP, "/nyseStock", m);
 
-        response = http:HTTPConnector.execute(nyseEP, httpMethod, "/nyseStock", m);
         reply response;
     }
 }
