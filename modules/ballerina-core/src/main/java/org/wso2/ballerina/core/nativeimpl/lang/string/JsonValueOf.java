@@ -18,7 +18,6 @@
 
 package org.wso2.ballerina.core.nativeimpl.lang.string;
 
-import org.osgi.service.component.annotations.Component;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BJSON;
@@ -41,11 +40,6 @@ import org.wso2.ballerina.core.nativeimpl.lang.utils.ErrorHandler;
         args = {@Argument(name = "json", type = TypeEnum.JSON)},
         returnType = {@ReturnType(type = TypeEnum.STRING)},
         isPublic = true
-)
-@Component(
-        name = "func.lang.string_jsonValueOf",
-        immediate = true,
-        service = AbstractNativeFunction.class
 )
 public class JsonValueOf extends AbstractNativeFunction {
 

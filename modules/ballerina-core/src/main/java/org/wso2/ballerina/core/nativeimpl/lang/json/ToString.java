@@ -18,7 +18,6 @@
 
 package org.wso2.ballerina.core.nativeimpl.lang.json;
 
-import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.Context;
@@ -26,7 +25,6 @@ import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BJSON;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
@@ -41,11 +39,6 @@ import org.wso2.ballerina.core.nativeimpl.lang.utils.ErrorHandler;
         args = {@Argument(name = "json", type = TypeEnum.JSON)},
         returnType = {@ReturnType(type = TypeEnum.STRING)},
         isPublic = true
-)
-@Component(
-        name = "func.lang.json_toString",
-        immediate = true,
-        service = AbstractNativeFunction.class
 )
 public class ToString extends AbstractJSONFunction {
 
