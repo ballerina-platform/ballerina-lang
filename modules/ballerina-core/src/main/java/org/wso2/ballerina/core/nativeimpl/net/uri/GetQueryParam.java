@@ -20,6 +20,7 @@ package org.wso2.ballerina.core.nativeimpl.net.uri;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BMessage;
@@ -83,7 +84,7 @@ public class GetQueryParam extends AbstractNativeFunction {
                 queryParamMap.put(URLDecoder.decode(keyValArray[0].trim(), "UTF-8"),
                         URLDecoder.decode(keyValArray[1].trim(), "UTF-8"));
             } catch (UnsupportedEncodingException e) {
-                log.error("Cannot decode the query parameter", e);
+                throw new BallerinaException("Cannot decode the query parameter. " + e.getMessage());
             }
         }
         return queryParamMap;

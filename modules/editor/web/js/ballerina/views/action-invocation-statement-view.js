@@ -55,7 +55,7 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
 
         // TODO : Please revisit this method. Needs a refactor
         ActionInvocationStatementView.prototype.drawActionConnections = function(startPoint){
-            log.info("Drawing connections for http connector actions");
+            log.debug("Drawing connections for http connector actions");
             // TODO : Please alter this logic
             if(!_.isNil(this.getModel().getConnector())) {
                 var connector = this.getDiagramRenderingContext().getViewModelMap()[this.messageManager.getActivatedDropTarget().id];

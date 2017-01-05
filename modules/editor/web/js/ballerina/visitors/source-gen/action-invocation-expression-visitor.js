@@ -41,7 +41,7 @@ define(['require','lodash', 'log', 'event_channel', './abstract-statement-source
         ActionInvocationExpressionVisitor.prototype.endVisitStatement = function(action){
             this.appendSource(";\n");
             this.getParent().appendSource(this.getGeneratedSource());
-            log.info('End Visit action Invocation Expression');
+            log.debug('End Visit action Invocation Expression');
         };
 
         return ActionInvocationExpressionVisitor;

@@ -67,8 +67,7 @@ public class Get extends AbstractHTTPAction {
 
             Connector connector = bConnector.value();
             if (!(connector instanceof HTTPConnector)) {
-                logger.error("Need to use a HTTPConnector as the first argument");
-                return null;
+                throw new BallerinaException("Need to use a HTTPConnector as the first argument", context);
             }
             // Prepare the message
             CarbonMessage cMsg = bMessage.value();

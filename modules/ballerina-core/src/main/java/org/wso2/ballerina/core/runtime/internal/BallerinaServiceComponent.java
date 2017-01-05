@@ -101,17 +101,17 @@ public class BallerinaServiceComponent {
                 if (!file.trim().equals("")) {
                     runningFile = new File(file);
                     if (!runningFile.exists()) {
-                        log.error("File " + runningFile.getName() + " not found in the given location.");
+                        log.error("Error: File " + runningFile.getName() + " not found in the given location.");
                         continue;
                     }
                     serviceDeployed += BalDeployer.deployBalFile(runningFile);
                 }
             }
             if (serviceDeployed <= 0) {
-                log.warn("Warning: Can't find any Ballerina services.");
+                log.warn("Warning: No Ballerina service to deploy.");
             }
         } else {
-            log.error("Error: Can't identify Runtime mode.");
+            log.error("Error: Unable to identify Runtime mode.");
             ServiceContextHolder.getInstance().setRuntimeMode(Constants.RuntimeMode.ERROR);
             return;
         }
@@ -186,7 +186,7 @@ public class BallerinaServiceComponent {
                 try {
                     BalProgramExecutor.execute(ballerinaFileToExecute);
                 } catch (Throwable throwable) {
-                    log.error(throwable.getMessage());
+                    log.error("Error: " + throwable.getMessage());
                 } finally {
                     RuntimeUtils.shutdownRuntime();
                 }

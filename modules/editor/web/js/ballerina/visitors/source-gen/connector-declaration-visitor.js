@@ -42,17 +42,17 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor'],
             var constructedSource = '\n' + connectorDeclaration.getConnectorType() + ' ' + connectorDeclaration.getConnectorName() + ' = new ' +
                 connectorDeclaration.getConnectorType() +'(\"' + connectorDeclaration.getUri() + '")';
             this.appendSource(constructedSource);
-            log.info('Begin Visit Connector Declaration');
+            log.debug('Begin Visit Connector Declaration');
         };
 
         ConnectorDeclarationVisitor.prototype.visitConnectorDeclaration = function (connectorDeclaration) {
-            log.info('Visit Connector Declaration');
+            log.debug('Visit Connector Declaration');
         };
 
         ConnectorDeclarationVisitor.prototype.endVisitConnectorDeclaration = function (connectorDeclaration) {
             this.appendSource(";\n");
             this.getParent().appendSource(this.getGeneratedSource());
-            log.info('End Visit Connector Declaration');
+            log.debug('End Visit Connector Declaration');
         };
 
         return ConnectorDeclarationVisitor;
