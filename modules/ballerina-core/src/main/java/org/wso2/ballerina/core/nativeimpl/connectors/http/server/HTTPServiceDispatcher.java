@@ -96,10 +96,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
                 basePath = Constants.DEFAULT_BASE_PATH;
                 subPath = uri;
             } else {
-                String[] tempPaths = uri.split(basePath);
-                if (tempPaths.length > 1) {
-                    subPath = tempPaths[1];
-                }
+                subPath = uri.substring(basePath.length());
             }
 
             if (service == null) {
