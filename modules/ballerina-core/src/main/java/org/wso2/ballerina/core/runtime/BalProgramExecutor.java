@@ -38,7 +38,7 @@ import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.invokers.ResourceInvocationExpr;
 import org.wso2.ballerina.core.model.types.BTypes;
-import org.wso2.ballerina.core.model.values.BInteger;
+import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.runtime.errors.handler.ErrorHandlerUtils;
 import org.wso2.carbon.messaging.CarbonCallback;
@@ -87,48 +87,40 @@ public class BalProgramExecutor {
             if (mainFunction != null) {
                 // TODO Refactor this logic ASAP
                 Parameter[] parameters = mainFunction.getParameters();
-                if (parameters.length != 1 || parameters[0].getType() != BTypes.INT_TYPE) {
+                if (parameters.length != 1 || parameters[0].getType() != BTypes.getArrayType(BTypes.
+                        STRING_TYPE.toString())) {
                     throw new BallerinaException("Main function does not comply with standard main function in" +
                             " ballerina");
                 }
 
-                // Main function only have one input parameter
                 // Read from command line arguments
                 String balArgs = System.getProperty(SYSTEM_PROP_BAL_ARGS);
+                String[] arguments = balArgs.split(";");
 
-                // Only integers allowed at the moment
-                BInteger bInteger;
-                if (balArgs != null) {
-                    bInteger = new BInteger(Integer.parseInt(balArgs));
-                } else {
-                    bInteger = new BInteger(0);
+                Expression[] exprs = new Expression[arguments.length];
+                BValue[] argValues = new BValue[arguments.length];
+                for (int i = 0; i < arguments.length; i++) {
+                    VariableRefExpr variableRefExpr = new VariableRefExpr(new SymbolName(arguments[i]));
+                    LocalVarLocation location = new LocalVarLocation(i);
+                    variableRefExpr.setLocation(location);
+                    variableRefExpr.setType(BTypes.STRING_TYPE);
+                    exprs[i] = variableRefExpr;
+                    argValues[i] = new BString(arguments[i]);
                 }
-
-                BValue[] args = {bInteger};
-
-                VariableRefExpr variableRefExpr = new VariableRefExpr(new SymbolName("arg"));
-                LocalVarLocation location = new LocalVarLocation(0);
-                variableRefExpr.setLocation(location);
-                variableRefExpr.setType(BTypes.INT_TYPE);
-
-                Expression[] exprs = new Expression[args.length];
-                exprs[0] = variableRefExpr;
 
                 // 3) Create a function invocation expression
                 FunctionInvocationExpr funcIExpr = new FunctionInvocationExpr(
                         new SymbolName("main", balFile.getPackageName()), exprs);
-                funcIExpr.setOffset(1);
+                funcIExpr.setOffset(arguments.length);
                 funcIExpr.setFunction(mainFunction);
 
                 SymbolName functionSymbolName = funcIExpr.getFunctionName();
                 CallableUnitInfo functionInfo = new CallableUnitInfo(functionSymbolName.getName(),
                         functionSymbolName.getPkgName(), mainFunction.getFunctionLocation());
 
-                StackFrame currentStackFrame = new StackFrame(args, new BValue[0], functionInfo);
+                StackFrame currentStackFrame = new StackFrame(argValues, new BValue[0], functionInfo);
                 bContext.getControlStack().pushFrame(currentStackFrame);
-
                 RuntimeEnvironment runtimeEnv = RuntimeEnvironment.get(balFile);
-
                 BLangExecutor executor = new BLangExecutor(runtimeEnv, bContext);
                 funcIExpr.execute(executor);
 
