@@ -43,6 +43,7 @@ import org.wso2.ballerina.core.model.expressions.MapInitExpr;
 import org.wso2.ballerina.core.model.expressions.UnaryExpression;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.invokers.ResourceInvocationExpr;
+import org.wso2.ballerina.core.model.statements.ActionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.statements.FunctionInvocationStmt;
@@ -191,6 +192,11 @@ public class BLangExecutor implements NodeExecutor {
     @Override
     public void visit(FunctionInvocationStmt funcIStmt) {
         funcIStmt.getFunctionInvocationExpr().executeMultiReturn(this);
+    }
+
+    @Override
+    public void visit(ActionInvocationStmt actionIStmt) {
+        actionIStmt.getActionInvocationExpr().executeMultiReturn(this);
     }
 
     @Override
