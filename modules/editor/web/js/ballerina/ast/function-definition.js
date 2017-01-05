@@ -160,6 +160,25 @@ define(['lodash', './callable-definition', './connector-declaration', './variabl
     };
 
     /**
+     * Gets the return type as a string separated by commas.
+     * @return {string} - Return types.
+     */
+    FunctionDefinition.prototype.getReturnTypesAsString = function(){
+        var returnTypes = [];
+        _.forEach(this.getChildren(), function(child) {
+            if (child instanceof ReturnType) {
+                _.forEach(child.getChildren(), function(returnTypeChild){
+                    returnTypes.push(returnTypeChild.getType())
+                });
+                // break;
+                return false;
+            }
+        });
+
+        return _.join(returnTypes, ", ");
+    };
+
+    /**
      * Gets return types.
      */
     FunctionDefinition.prototype.getReturnTypes = function () {
