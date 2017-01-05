@@ -20,6 +20,7 @@ package org.wso2.ballerina.core.runtime.errors.handler;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
@@ -40,7 +41,7 @@ public class DefaultServerConnectorErrorHandler implements ServerConnectorErrorH
 
     @Override
     public void handleError(Exception ex, CarbonMessage cMsg, CarbonCallback callback) {
-        log.error(ex.getMessage());
+        throw new BallerinaException(ex);
     }
 
     @Override
