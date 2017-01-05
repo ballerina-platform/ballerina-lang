@@ -1081,6 +1081,14 @@ button.variable-list {
     width: 30%;
 }
 
+.service-title-text:hover {
+    cursor: text;
+}
+
+.function-title-text:hover {
+    cursor: text;
+}
+
 /** Service container related styles | -> End **/
 /*//////////////////////////////////////////////////*/
 
