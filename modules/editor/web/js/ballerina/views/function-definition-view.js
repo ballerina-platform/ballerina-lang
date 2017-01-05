@@ -207,15 +207,18 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
 
             var operationsPane = this.getOperationsPane();
 
+            var operationButtons = [];
+
             // Creating arguments icon.
             var panelArgumentsIcon = $("<i/>", {
                 class: "fw fw-import pull-right right-icon-clickable hoverable"
             }).appendTo(operationsPane);
 
-            // Stopping event propagation to the elements behind.
-            panelArgumentsIcon.click(function (event) {
+            $(panelArgumentsIcon).click(function (event) {
                 event.stopPropagation();
             });
+
+            operationButtons.push(panelArgumentsIcon);
 
             // Adding separator for arguments icon.
             $("<span class='pull-right canvas-operations-separator'>|</span>").appendTo(operationsPane);
@@ -240,10 +243,11 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
                 class: "fw fw-export pull-right right-icon-clickable hoverable"
             }).appendTo(operationsPane);
 
-            // Stopping event propagation to the elements behind.
-            panelReturnTypeIcon.click(function (event) {
+            $(panelReturnTypeIcon).click(function (event) {
                 event.stopPropagation();
             });
+
+            operationButtons.push(panelReturnTypeIcon);
 
             // Adding separator for return type icon.
             $("<span class='pull-right canvas-operations-separator'>|</span>").appendTo(operationsPane);
@@ -262,6 +266,17 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
 
             // Creating return type pane.
             ReturnTypeView.createReturnTypePane(returnTypeProperties);
+
+            // Closing the shown pane when another operation button is clicked.
+            _.forEach(operationButtons, function (button) {
+                button.click(function () {
+                    _.forEach(operationButtons, function (buttonToClick) {
+                        if (button !== buttonToClick && $(buttonToClick).data("showing-pane") == "true") {
+                            $(buttonToClick).click();
+                        }
+                    });
+                });
+            });
         };
 
         FunctionDefinitionView.prototype.init = function(){
