@@ -20,7 +20,8 @@ define(['jquery', 'lodash', 'backbone', 'log'], function ($, _, Backbone, log) {
     var File = Backbone.Model.extend(
         {
             defaults: {
-                path: 'unsaved/',
+                path: '*',
+                name: 'untitled',
                 isTemp: true,
                 isPersisted: false
             },
@@ -37,7 +38,26 @@ define(['jquery', 'lodash', 'backbone', 'log'], function ($, _, Backbone, log) {
                     this.set('isPersisted', true);
                     storage.create(this);
                 }
+            },
+
+            setPath: function(path){
+                this.set('path', path);
+                return this;
+            },
+
+            setName: function(name){
+                this.set('name', name);
+                return this;
+            },
+
+            getPath: function(){
+                return this.get('path')
+            },
+
+            getName: function(){
+                return this.get('name')
             }
+
         });
 
     return File;
