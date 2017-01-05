@@ -513,6 +513,7 @@ public class BLangModelBuilder {
     public void createFunction(String name, boolean isPublic, Position location) {
         currentCUBuilder.setName(new SymbolName(name, pkgName));
         currentCUBuilder.setPublic(isPublic);
+        currentCUBuilder.setPosition(location);
 
         List<Annotation> annotationList = annotationListStack.pop();
         // TODO Improve this implementation
