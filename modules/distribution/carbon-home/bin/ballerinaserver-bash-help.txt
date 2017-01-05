@@ -1,14 +1,21 @@
 
 Usage:
-        ballerinaserver.sh [command] [ballerina-file-1]*
-            - Start Ballerina Server in current terminal and deploy given
-            ballerina-file(s) and publish Ballerina services.
+      ballerinaserver.sh [option] ballerina-file1 ballerina-file2...
 
-The command is one of the followings :
-    start       Start Ballerina Server in background.
-    stop        Stop Ballerina Server running in background.
-    restart     Restart Ballerina Server in background.
-    version     Print Ballerina version.
-    help        Print this help message.
+          Start Ballerina server in current terminal and deploy one or more
+          ballerina-files contains services.
+
+          where an option can be one of the following:
+                start       Start Ballerina Server in background.
+                stop        Stop Ballerina Server running in background.
+                restart     Restart Ballerina Server in background.
+
+   or ballerinaserver.sh command
+
+           where a command can be one of the following:
+                version     Print Ballerina version.
+                help        Print this help message.
+
+
 
 
