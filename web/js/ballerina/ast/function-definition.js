@@ -22,6 +22,7 @@ define(['lodash', './callable-definition', './connector-declaration'], function 
         CallableDefinition.call(this, 'Function');
         this._functionName = _.get(args, 'functionName') || 'newFunction';
         this._functionArguments = _.get(args, "functionArgs", []);
+        this._isPublic = _.get(args, "isPublic") || false;
     };
 
     FunctionDefinition.prototype = Object.create(CallableDefinition.prototype);
@@ -109,6 +110,24 @@ define(['lodash', './callable-definition', './connector-declaration'], function 
             || BallerinaASTFactory.isVariableDeclaration(node)
             || BallerinaASTFactory.isWorkerDeclaration(node)
             || BallerinaASTFactory.isStatement(node);
+    };
+
+    /**
+     * initialize from json
+     * @param jsonNode
+     */
+    FunctionDefinition.prototype.initFromJson = function (jsonNode) {
+        this._functionName = jsonNode.function_name;
+        this._annotations = jsonNode.annotations;
+        this._isPublic = jsonNode.is_public_function;
+
+        var self = this;
+        var BallerinaASTFactory = this.getFactory();
+
+        _.each(jsonNode.children, function (childNode) {
+            var child = BallerinaASTFactory.createFromJson(childNode);
+            self.addChild(child);
+        });
     };
 
     return FunctionDefinition;
