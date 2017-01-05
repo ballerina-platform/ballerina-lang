@@ -97,8 +97,8 @@ public abstract class AbstractNativeFunction implements NativeConstruct, Functio
                         parameters.add(new Parameter(bType, new SymbolName(argument.name())));
                     } catch (BallerinaException e) {
                         // TODO: Fix this when TypeC.getType method is improved.
-                        log.warn("Error while processing Parameters for Native ballerina function {}:{}.", packageName,
-                                functionName, e);
+                        log.error("Internal Error..! Error while processing Parameters for Native ballerina" +
+                                " function {}:{}.", packageName, functionName, e);
                     }
                 });
         Arrays.stream(function.returnType()).forEach(
@@ -113,8 +113,8 @@ public abstract class AbstractNativeFunction implements NativeConstruct, Functio
                         returnTypes.add(type);
                     } catch (BallerinaException e) {
                         // TODO: Fix this when TypeC.getType method is improved.
-                        log.warn("Error while processing ReturnTypes for Native ballerina function {}:{}.",
-                                packageName, functionName, e);
+                        log.error("Internal Error..! Error while processing ReturnTypes for Native ballerina " +
+                                "function {}:{}.", packageName, functionName, e);
                     }
                 });
 
@@ -123,8 +123,8 @@ public abstract class AbstractNativeFunction implements NativeConstruct, Functio
                     try {
                         constants.add(Utils.getConst(constant));
                     } catch (MalformedEntryException e) {
-                        log.warn("Error while processing pre defined const {} for Native ballerina function {}:{}.",
-                                constant.identifier(), packageName, functionName, e);
+                        log.error("Internal Error..! Error while processing pre defined const {} for Native " +
+                                "ballerina function {}:{}.", constant.identifier(), packageName, functionName, e);
                     }
                 }
         );
