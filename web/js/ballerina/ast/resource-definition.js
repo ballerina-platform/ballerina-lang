@@ -15,16 +15,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './node', './worker-declaration', './connector-declaration'], function (_, log, ASTNode, WorkerDeclaration, ConnectorDeclaration) {
+define(['lodash', 'log', './node', './worker-declaration', './connector-declaration'],
+    function (_, log, ASTNode, WorkerDeclaration, ConnectorDeclaration) {
 
     var ResourceDefinition = function (args) {
         this._path = _.get(args, 'path', '/');
-        this._method = _.get(args, 'method', 'GET');
         this._connectionDeclarations = _.get(args, 'connectorDefinitions', []);
         this._variableDeclarations = _.get(args, 'variableDeclarations', []);
         this._workerDeclarations = _.get(args, 'workerDeclarations', []);
         this._statements = _.get(args, 'statements', []);
-        this._resourceArguments = _.get(args, 'resourceArguments', '');
+        this._arguments = _.get(args, 'resourceArguments', []);
         this._resourceName = _.get(args, 'resourceName', 'Resource');
         this._annotations = _.get(args, 'annotations', []);
 
@@ -80,9 +80,9 @@ define(['lodash', 'log', './node', './worker-declaration', './connector-declarat
         }
     };
 
-    ResourceDefinition.prototype.setResourceArguments = function (resourceArgs) {
+    ResourceDefinition.prototype.setArguments = function (resourceArgs) {
         if (!_.isNil(resourceArgs)) {
-            this._resourceArguments = resourceArgs;
+            this._arguments = resourceArgs;
         }
     };
 
@@ -111,8 +111,8 @@ define(['lodash', 'log', './node', './worker-declaration', './connector-declarat
         return this._connectionDeclarations;
     };
 
-    ResourceDefinition.prototype.getResourceArguments = function () {
-        return this._resourceArguments;
+    ResourceDefinition.prototype.getArguments = function () {
+        return this._arguments;
     };
 
     ResourceDefinition.prototype.getResourceName = function () {
@@ -121,6 +121,47 @@ define(['lodash', 'log', './node', './worker-declaration', './connector-declarat
 
     ResourceDefinition.prototype.getAnnotations = function () {
         return this._annotations;
+    };
+
+    /**
+     * Returns the list of arguments as a string separated by commas.
+     * @return {string} - Arguments as string.
+     */
+    ResourceDefinition.prototype.getArgumentsAsString = function () {
+        var argsAsString = "";
+        var args = this._arguments;
+        _.forEach(this._arguments, function(argument, index){
+            argsAsString += argument.type + " ";
+            argsAsString += argument.identifier;
+            if (args.length - 1 != index) {
+                argsAsString += ", ";
+            }
+        });
+
+        return argsAsString;
+    };
+
+    /**
+     * Adds new argument to the resource definition.
+     * @param type - The type of the argument.
+     * @param identifier - The identifier of the argument.
+     */
+    ResourceDefinition.prototype.addArgument = function(type, identifier) {
+        this._arguments.push({
+            type: type,
+            identifier: identifier
+        })
+    };
+
+    /**
+     * Removes an argument from a resource definition.
+     * @param identifier - The identifier of the argument.
+     * @return {Array} - The removed argument.
+     */
+    ResourceDefinition.prototype.removeArgument = function(identifier) {
+        return  _.remove(this._arguments, function(functionArg) {
+            return functionArg.identifier === identifier;
+        });
     };
 
     ResourceDefinition.prototype.resourceParent = function (parent) {
