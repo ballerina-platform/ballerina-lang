@@ -37,7 +37,7 @@ import java.util.List;
  * @since 1.0.0
  */
 @SuppressWarnings("unused")
-public class BallerinaConnector implements Connector , Node {
+public class BallerinaConnector extends PositionAwareNode implements Connector , Node {
 
     private List<Annotation> annotationList;
     private List<Parameter> arguments;
@@ -86,6 +86,15 @@ public class BallerinaConnector implements Connector , Node {
      */
     public String getPackageQualifiedName() {
         return name.getPkgName() + ":" + name.getName();
+    }
+
+    /**
+     * Get {@code SymbolName} for Ballerina connector
+     *
+     * @return Symbol name of Ballerina connector
+     */
+    public SymbolName getConnectorName() {
+        return name;
     }
 
     /**

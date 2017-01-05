@@ -15,31 +15,21 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerina.core.model.statements;
 
-import org.wso2.ballerina.core.model.NodeExecutor;
-import org.wso2.ballerina.core.model.NodeVisitor;
+package org.wso2.ballerina.core.model;
 
 /**
- * Represents a single line comment. //-style
+ * Decorates Node with position information.
  */
-public class CommentStmt implements Statement {
-    private String comment;
+public abstract class PositionAwareNode implements Node {
 
-    public CommentStmt(String comment) {
-        this.comment = comment;
+    private int childPosition;
+
+    public int getRelativePosition() {
+        return childPosition;
     }
 
-    public String getComment() {
-        return comment;
-    }
-
-    @Override
-    public void accept(NodeVisitor visitor) {
-        visitor.visit(this);
-    }
-
-    @Override
-    public void execute(NodeExecutor executor) {
+    public void setRelativePosition(int childPosition) {
+        this.childPosition = childPosition;
     }
 }

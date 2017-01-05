@@ -1,10 +1,12 @@
 
 Usage:
-        ballerinaserver.bat [command] [ballerina-file-1]*
-            - Start Ballerina Server in current terminal and deploy given
-            ballerina-file(s) and publish Ballerina services.
+      ballerinaserver.bat ballerina-file1 ballerina-file2...
 
-Additionally ballerinaserver.bat support following commands.
+          Start Ballerina server in current terminal and deploy one or more
+          ballerina-files contains services.
 
-    version     Print Ballerina version.
-    help        Print this help message.
+   or ballerinaserver.bat command
+
+           where a command can be one of the following:
+                version     Print Ballerina version.
+                help        Print this help message.

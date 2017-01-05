@@ -196,7 +196,6 @@ define(['require', 'lodash', 'jquery'],
                     // When an annotation detail is clicked.
                     annotationWrapper.click({
                         clickedAnnotationValueWrapper: annotationValueWrapper,
-                        clickedAnnotationTypeWrapper: annotationTypeWrapper,
                         deleteIcon: deleteIcon,
                         annotation: annotation
                     }, function (event) {

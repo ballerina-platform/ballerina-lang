@@ -163,36 +163,10 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
          * @param args
          */
         BallerinaASTFactory.createIfElseStatement = function (args) {
-            var ifStmt = new ifStatement(args);
-            var elseStmt = new elseStatement(args);
             var ifElse = new ifElseStatement(args);
-            ifElse.addChild(ifStmt);
-            ifElse.addChild(elseStmt);
+            // TODO: Else statement should add through a button click. By default If else consists an if statement only
+            var elseStmt = ifElse.createElseStatement(args);
             return ifElse;
-        };
-
-        /**
-         * creates If Statement
-         * @param args
-         */
-        BallerinaASTFactory.createIfStatement = function (args) {
-            return new ifStatement(args);
-        };
-
-        /**
-         * creates Else Statement
-         * @param args
-         */
-        BallerinaASTFactory.createElseStatement = function (args) {
-            return new elseStatement(args);
-        };
-
-        /**
-         * creates Else If Statement
-         * @param args
-         */
-        BallerinaASTFactory.createElseIfStatement = function (args) {
-            return new elseIfStatement(args);
         };
 
         /**

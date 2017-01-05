@@ -1,18 +1,16 @@
 
 Usage:
+      ballerina.bat ballerina-file [args...]
 
-    ballerina.bat [ballerina-file] args...
-        - executes the Ballerina main function in given Ballerina file
-        (eg: main.bal).
+        Executes the Ballerina main function in given Ballerina file
+        (Eg: main.bal).
 
-        - Use args to defines input arguments for Ballerina main function.
+        Use args to defines input arguments for Ballerina main function.
         Arguments are separated by spaces. If argument contains a space, define
         the argument within double quote. (Eg: "Hello World")
 
-Additionally ballerina.bat support following commands.
+   or ballerina.bat command
 
-    version     Print Ballerina version.
-    help        Print this help message.
-
-Command Syntax:
-        ballerina.bat [command]
+        where a command can be one of the following:
+            version     Print Ballerina version.
+            help        Print this help message.
