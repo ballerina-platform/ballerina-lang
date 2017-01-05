@@ -15,13 +15,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './node'], function (_, ASTNode) {
+define(['lodash', './node', './variable-declaration', './connector-declaration'],
+    function (_, ASTNode, VariableDeclaration, ConnectorDeclaration) {
 
     var ServiceDefinition = function (args) {
         this._serviceName = _.get(args, 'serviceName', 'newService');
         this._annotations = _.get(args, 'annotations', []);
         this._resourceDefinitions = _.get(args, 'resourceDefinitions', []);
-        this._variableDeclarations = _.get(args, 'variableDeclarations', []);
         this._connectionDeclarations = _.get(args, 'connectionDeclarations', []);
 
         // Adding available annotations and their default values.
@@ -73,7 +73,8 @@ define(['lodash', './node'], function (_, ASTNode) {
 
     ServiceDefinition.prototype.setVariableDeclarations = function (variableDeclarations) {
         if (!_.isNil(variableDeclarations)) {
-            this._variableDeclarations = variableDeclarations;
+            // TODO : To implement using child array.
+            throw "To be Implemented";
         }
     };
 
@@ -96,11 +97,48 @@ define(['lodash', './node'], function (_, ASTNode) {
     };
 
     ServiceDefinition.prototype.getVariableDeclarations = function () {
-        return this._variableDeclarations;
+        var variableDeclarations = [];
+        _.forEach(this.getChildren(), function (child) {
+            if (child instanceof VariableDeclaration) {
+                variableDeclarations.push(child);
+            }
+        });
+        return variableDeclarations;
     };
 
     ServiceDefinition.prototype.getConnectionDeclarations = function () {
         return this._connectionDeclarations;
+    };
+
+    /**
+     * Adds new variable declaration.
+     */
+    ServiceDefinition.prototype.addVariableDeclaration = function (newVariableDeclaration) {
+        // Get the index of the last variable declaration.
+        var index = _.findLastIndex(this.getChildren(), function (child) {
+            return child instanceof VariableDeclaration;
+        });
+
+        // index = -1 when there are not any variable declarations, hence get the index for connector
+        // declarations.
+        if (index == -1) {
+            index = _.findLastIndex(this.getChildren(), function (child) {
+                return child instanceof ConnectorDeclaration;
+            });
+        }
+
+        this.addChild(newVariableDeclaration, index + 1);
+    };
+
+    /**
+     * Adds new variable declaration.
+     */
+    ServiceDefinition.prototype.removeVariableDeclaration = function (newVariableDeclaration) {
+        // Deleting the variable from the children.
+        _.remove(this.getChildren(), function (child) {
+            return child instanceof VariableDeclaration &&
+                child.getIdentifier() === newVariableDeclaration;
+        });
     };
 
     /**
