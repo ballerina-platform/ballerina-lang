@@ -517,7 +517,7 @@ public class BLangExecutor implements NodeExecutor {
         return i;
     }
 
-    private void populateConnectorDclValues(ConnectorDcl[] connectorDcls, BValue[] valueParams, int valuesCounter) {
+    private int populateConnectorDclValues(ConnectorDcl[] connectorDcls, BValue[] valueParams, int valuesCounter) {
         for (ConnectorDcl connectorDcl : connectorDcls) {
 
             BValue[] connectorMemBlock;
@@ -546,10 +546,8 @@ public class BLangExecutor implements NodeExecutor {
                     offset++;
                 }
 
-                // TODO go though connector DCLs
-//                for (ConnectorDcl cDcls : ballerinaConnector.getConnectorDcls()) {
-//
-//                }
+                // Populate all connector declarations
+                offset = populateConnectorDclValues(ballerinaConnector.getConnectorDcls(), connectorMemBlock, offset);
 
                 for (VariableDcl variableDcl : ballerinaConnector.getVariableDcls()) {
                     connectorMemBlock[offset] = variableDcl.getType().getDefaultValue();
@@ -561,5 +559,7 @@ public class BLangExecutor implements NodeExecutor {
             valueParams[valuesCounter] = connectorValue;
             valuesCounter++;
         }
+
+        return valuesCounter;
     }
 }
