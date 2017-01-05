@@ -368,6 +368,13 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                     }
                 });
 
+                // Add new import upon enter key.
+                $(importPackageTextBox).on("change paste keydown", function (e) {
+                    if (e.which == 13) {
+                        addImportButton.click();
+                    }
+                });
+
                 // Getting package name text box.
                 var packageTextBox = propertyPane.find(".package-name-wrapper input[type=text]");
 
