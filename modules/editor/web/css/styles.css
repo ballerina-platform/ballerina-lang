@@ -1073,6 +1073,22 @@ button.variable-list {
     background-color: #818181;
 }
 
+#modalAbout a {
+    color: #337ab7;
+}
+
+#modalAbout .modal-dialog {
+    width: 30%;
+}
+
+.service-title-text:hover {
+    cursor: text;
+}
+
+.function-title-text:hover {
+    cursor: text;
+}
+
 /** Service container related styles | -> End **/
 /*//////////////////////////////////////////////////*/
 

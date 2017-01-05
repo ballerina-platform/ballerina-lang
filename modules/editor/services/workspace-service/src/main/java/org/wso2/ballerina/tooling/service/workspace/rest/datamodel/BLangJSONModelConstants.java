@@ -28,7 +28,7 @@ public class BLangJSONModelConstants {
 
     public static final String CONNECTOR_DEFINITION = "connector";
 
-    public static final String FUNCTION_DEFINITION = "function";
+    public static final String FUNCTION_DEFINITION = "function_definition";
 
     public static final String ACTION_DEFINITION = "action";
 
@@ -58,7 +58,9 @@ public class BLangJSONModelConstants {
 
     public static final String ANNOTATION_DEFINITION = "annotation";
 
-    public static final String PARAMETER_DEFINITION = "parameter";
+    public static final String ANNOTATION_DEFINITIONS = "annotations";
+
+    public static final String PARAMETER_DEFINITION = "argument_declaration";
 
     public static final String CONNECTOR_DECLARATION = "connector_declaration";
 
@@ -101,6 +103,8 @@ public class BLangJSONModelConstants {
     public static final String FUNCTION_INVOCATION_STATEMENT = "function_invocation_statement";
 
     public static final String RETURN_TYPE = "return_type";
+
+    public static final String RETURN_TYPE_NAME = "type_name";
 
     public static final String REPLY_STATEMENT = "reply_statement";
 
