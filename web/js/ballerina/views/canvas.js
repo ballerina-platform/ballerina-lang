@@ -39,6 +39,19 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
         return this._panelAnnotationIcon;
     };
 
+    /**
+     * Since canvas by default init a drop area within content area. Hence, all the subclasses need a way to override
+     * allowed type of node to drop there.
+     * This method is to achieve that extensibility. Override this in subclasses to allow only a certain type of nodes
+     * to drop.
+     *
+     * @param node {ASTNode} node which is being dragged ATM
+     * @return {boolean}
+     */
+    Canvas.prototype.isAValidNodeForCanvasDropArea = function (node) {
+        return true;
+    };
+
     Canvas.prototype.drawAccordionCanvas = function (parent, options, id, name, title) {
         var svgContainer = $('<div style="position:relative; top:0; right:0;"></div>');
         svgContainer.attr('id', id);
@@ -139,7 +152,7 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
                 // register this as a drop target and validate possible types of nodes to drop - second arg is a call back to validate
                 // tool view will use this to provide feedback on impossible drop zones
                 self.toolPalette.dragDropManager.setActivatedDropTarget(self._model, function(nodeBeingDragged){
-                    return self._model.canBeParentOf(nodeBeingDragged) && nodeBeingDragged.canBeAChildOf(self._model);
+                    return self.isAValidNodeForCanvasDropArea(nodeBeingDragged);
                 });
 
                 // indicate drop area

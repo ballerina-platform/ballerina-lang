@@ -43,7 +43,7 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab/t
                 // create a generic tab - without ballerina editor components
                 var tab = app.tabController.newTab({
                     tabModel: GenericTab,
-                    tabOptions:{title: 'Welcome'}
+                    tabOptions:{title: 'welcome-page'}
                 });
                 var opts = _.get(app.config, 'welcome');
                 _.set(opts, 'application', app);
@@ -56,7 +56,7 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab/t
                     // create a generic tab - without ballerina editor components
                     var tab = app.tabController.newTab({
                         tabModel: GenericTab,
-                        tabOptions:{title: 'Welcome'}
+                        tabOptions:{title: 'welcome-page'}
                     });
                     // Showing FirstLaunchWelcomePage instead of regularWelcomePage
                     var opts = _.get(app.config, 'welcome');

@@ -427,3 +427,45 @@ text-anchor: start;
     stroke: #000;
     fill: #000;
 }
+
+.headingArgumentsIcon {
+    cursor: pointer;
+    opacity: 1;
+    fill: url(#argumentsIcon);
+}
+
+.headingArgumentsBlackIcon {
+    cursor: pointer;
+    opacity: 0.4;
+    fill: url(#argumentsBlackIcon);
+}
+
+.headingArgumentsBlackIcon:hover {
+    opacity: 2;
+}
+
+.headingReturnTypeIcon {
+    cursor: pointer;
+    opacity: 1;
+    fill: url(#returnTypeIcon);
+}
+
+.headingReturnTypeBlackIcon {
+    cursor: pointer;
+    opacity: 0.4;
+    fill: url(#returnTypeBlackIcon);
+}
+
+.headingReturnTypeBlackIcon:hover {
+    opacity: 1;
+}
+
+.heading-icon-arguments-wrapper-clicked {
+    stroke: #000;
+    fill: #000;
+}
+
+.heading-icon-return-type-wrapper-clicked {
+    stroke: #000;
+    fill: #000;
+}
