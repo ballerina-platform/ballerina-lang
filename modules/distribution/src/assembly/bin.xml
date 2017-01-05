@@ -29,6 +29,13 @@
             <outputDirectory>.</outputDirectory>
             <excludes>
                 <exclude>README.txt</exclude>
+                <exclude>bin/bootstrap/README.txt</exclude>
+                <exclude>bin/bootstrap/tools/README.txt</exclude>
+                <exclude>conf/README</exclude>
+                <exclude>logs/README.txt</exclude>
+                <exclude>osgi/README.txt</exclude>
+                <exclude>osgi/dropins/README.txt</exclude>
+                <exclude>tmp/README.txt</exclude>
                 <exclude>LICENSE.txt</exclude>
                 <exclude>release-notes.html</exclude>
                 <exclude>conf/log4j2.xml</exclude>
