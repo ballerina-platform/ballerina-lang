@@ -9,7 +9,7 @@ service ATMLocatorService {
 
     @POST
     @Path ("/locator")
-    resource passthrough (message m) {
+    resource locator (message m) {
         http:HTTPConnector branchLocatorService = new http:HTTPConnector("http://localhost:9090/branchlocator");
         http:HTTPConnector bankInfoService = new http:HTTPConnector("http://localhost:9090/bankinfo");
         message response;
