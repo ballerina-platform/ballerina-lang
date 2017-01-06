@@ -191,6 +191,12 @@ public class BallerinaServiceComponent {
                     RuntimeUtils.shutdownRuntime();
                 }
             }
+        } else if (Constants.RuntimeMode.SERVER == ServiceContextHolder.getInstance().getRuntimeMode()) {
+            String host = "localhost";
+            int port = 9090;
+            String id = host + ":" + port;
+            // TODO: Fix this.
+            log.info("Ballerina Server Started with Base Path : {}://{}", "http", id);
         }
     }
 
