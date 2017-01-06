@@ -2,7 +2,7 @@ import ballerina.lang.message;
 import ballerina.net.http;
 
 @BasePath ("/passthrough")
-service passthroughService {
+service passthrough {
 
     @GET
     resource passthrough (message m) {
@@ -16,7 +16,7 @@ service passthroughService {
 }
 
 @BasePath("/nyseStock")
-service nyseStockQuoteService {
+service nyseStockQuote {
 
     @GET
     resource stocks (message m) {
