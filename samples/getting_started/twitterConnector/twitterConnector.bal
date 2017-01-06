@@ -67,5 +67,4 @@ function main (string[] args) {
 
     tweetJSONResponse = message:getJsonPayload(tweetResponse);
     system:println(json:toString(tweetJSONResponse));
-
 }

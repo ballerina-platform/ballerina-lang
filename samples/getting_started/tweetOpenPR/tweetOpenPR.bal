@@ -7,7 +7,6 @@ import ballerina.net.http;
 import ballerina.net.uri;
 import ballerina.util;
 
-
 function main (string[] args) {
 
     http:HTTPConnector gitHubEP = new http:HTTPConnector("https://api.github.com");
