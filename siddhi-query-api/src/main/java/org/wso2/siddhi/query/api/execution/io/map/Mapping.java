@@ -43,12 +43,12 @@ public class Mapping {
 
     public Mapping map(String mapping) {
         attributeMappingList.add(new AttributeMapping(mapping));
-        return null;
+        return this;
     }
 
     public Mapping map(String rename, String mapping) {
         attributeMappingList.add(new AttributeMapping(rename, mapping));
-        return null;
+        return this;
     }
 
     public String getFormat() {
