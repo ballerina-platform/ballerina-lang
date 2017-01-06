@@ -145,10 +145,12 @@ do
           CMD="start"
     elif [ "$c" = "restart" ]; then
           CMD="restart"
-    elif [ "$c" = "version" ]; then
-          CMD="version"
-    elif [ "$c" = "help" ]; then
-          CMD="help"
+    elif [ "$c" = "-version" ]; then
+          cat $CARBON_HOME/bin/version.txt
+          exit 0
+    elif [ "$c" = "-help" ]; then
+          cat $CARBON_HOME/resources/help/ballerinaserver-bash-help.txt
+          exit 0
     # Parsing Options.
     elif [[ "$c" = *.bal ]]; then
           FILE_NAME=$c
@@ -178,7 +180,7 @@ if [ "$CMD" = "stop" ]; then
 fi
 
 if [ -z "$BAL_FILE_NAME" ]; then
-    echo "Please specify Ballerina file(s) to run. (Eg: ballerinaserver.sh foo.bal)"
+    echo "Please specify Ballerina file(s) to run."
     cat $CARBON_HOME/resources/help/ballerinaserver-bash-help.txt
     exit 1
 fi
@@ -193,12 +195,6 @@ if [ "$CMD" = "--debug" ]; then
   fi
   JAVA_OPTS="-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=$PORT"
   echo "Please start the remote debugging client to continue..."
-elif [ "$CMD" = "version" ]; then
-  cat $CARBON_HOME/bin/version.txt
-  exit 0
-elif [ "$CMD" = "help" ]; then
-  cat $CARBON_HOME/resources/help/ballerinaserver-bash-help.txt
-  exit 0
 elif [ "$CMD" = "start" ]; then
   if [ -e "$CARBON_HOME/carbon.pid" ]; then
     if  ps -p $PID > /dev/null ; then

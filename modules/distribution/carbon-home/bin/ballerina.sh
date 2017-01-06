@@ -139,10 +139,10 @@ do
           CMD="--debug"
     elif [ "$CMD" = "--debug" ] && [ -z "$PORT" ]; then
           PORT=$c
-    elif [ "$c" = "version" ]; then
+    elif [ "$c" = "-version" ]; then
           cat $CARBON_HOME/bin/version.txt
           exit 0
-    elif [ "$c" = "help" ]; then
+    elif [ "$c" = "-help" ]; then
           cat $CARBON_HOME/resources/help/ballerina-bash-help.txt
           exit 0
     elif [[ "$c" = *.bal ]] && [ -z "$BAL_FILE_NAME" ]; then
@@ -163,7 +163,7 @@ do
 done
 
 if [ "$BAL_FILE_NAME" = "" ]; then
-    echo "Please specify Ballerina file to run. (Eg: ballerina.sh foo.bal)"
+    echo "Please specify Ballerina file to run."
     cat $CARBON_HOME/resources/help/ballerina-bash-help.txt
     exit 1
 else

@@ -82,15 +82,15 @@ set BAL_FILE=
 set tempValue=%~f1
 if ""%1""=="""" goto doneStart
 
+if ""%1""==""-version""   goto commandVersion
+
+if ""%1""==""-help""   goto commandHelp
 if %tempValue:~-4% == .bal goto assignBalFile
 
 if ""%1""==""debug""    goto commandDebug
 if ""%1""==""-debug""   goto commandDebug
 if ""%1""==""--debug""  goto commandDebug
 
-if ""%1""==""version""   goto commandVersion
-
-if ""%1""==""help""   goto commandHelp
 
 goto commandUnknownArg
 
@@ -113,7 +113,7 @@ goto end
 
 rem ----- commandNoBalFile -------------------------------------------------------
 :commandNoBalFile
-echo Please specify Ballerina file(s) to run. (Eg: ballerinaserver.bat echo.bal)
+echo Please specify Ballerina file(s) to run.
 type "%CARBON_HOME%\resources\help\ballerinaserver-win-help.txt"
 goto end
 
