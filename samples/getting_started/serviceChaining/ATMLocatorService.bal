@@ -5,7 +5,7 @@ import ballerina.lang.string;
 import ballerina.lang.json;
 
 @BasePath ("/ABCBank")
-service ATMLocatorService {
+service ATMLocator {
 
     @POST
     @Path ("/locator")
@@ -51,7 +51,7 @@ service ATMLocatorService {
 
 
 @BasePath("/branchlocator")
-service BankinfoService {
+service Banklocator {
 
     @POST
     resource product (message m) {
@@ -76,7 +76,7 @@ service BankinfoService {
 
 @BasePath("/bankinfo")
 
-service BankinfoService {
+service Bankinfo {
 
     @POST
     resource product (message m) {
