@@ -4,7 +4,7 @@ import ballerina.lang.system;
 import ballerina.lang.string;
 
 @BasePath ("/ecommerceservice")
-service EcommerceService {
+service Ecommerce {
 
     @GET
     @Path ("/products")
@@ -63,7 +63,7 @@ service EcommerceService {
 }
 
 @BasePath("/productsservice")
-service productmgtService {
+service productmgt {
 
     @GET
     @POST
