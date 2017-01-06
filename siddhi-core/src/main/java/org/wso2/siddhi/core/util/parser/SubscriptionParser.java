@@ -20,7 +20,6 @@ package org.wso2.siddhi.core.util.parser;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
-import org.wso2.siddhi.core.event.stream.converter.ZeroStreamEventConverter;
 import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.query.output.callback.OutputCallback;
 import org.wso2.siddhi.core.query.output.ratelimit.OutputRateLimiter;
@@ -47,6 +46,7 @@ import org.wso2.siddhi.query.api.extension.Extension;
 import org.wso2.siddhi.query.api.util.AnnotationHelper;
 
 import java.util.Map;
+import java.util.UUID;
 
 public class SubscriptionParser {
 // TODO: 11/23/16 fix this
@@ -69,11 +69,17 @@ public class SubscriptionParser {
                                             Map<String, EventWindow> eventWindowMap,
                                             LockSynchronizer lockSynchronizer) {
         SubscriptionRuntime subscriptionRuntime;
+        String subscriptionName = null;
         Element nameElement = null;
         LatencyTracker latencyTracker = null;
         LockWrapper lockWrapper = null;
         try {
             nameElement = AnnotationHelper.getAnnotationElement("info", "name", subscription.getAnnotations());
+            if (nameElement != null) {
+                subscriptionName = nameElement.getValue();
+            } else {
+                subscriptionName = "subscription_" + UUID.randomUUID().toString();
+            }
             if (executionPlanContext.isStatsEnabled() && executionPlanContext.getStatisticsManager() != null) {
                 if (nameElement != null) {
                     String metricName =
@@ -82,7 +88,7 @@ public class SubscriptionParser {
                                     SiddhiConstants.METRIC_DELIMITER + executionPlanContext.getName() +
                                     SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_SIDDHI +
                                     SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_QUERIES +
-                                    SiddhiConstants.METRIC_DELIMITER + nameElement.getValue();
+                                    SiddhiConstants.METRIC_DELIMITER + subscriptionName;
                     latencyTracker = executionPlanContext.getSiddhiContext()
                             .getStatisticsConfiguration()
                             .getFactory()
@@ -126,18 +132,18 @@ public class SubscriptionParser {
             inputMapper.inferOutputStreamDefinition(outputStreamDefinition);
 
             OutputCallback outputCallback = OutputParser.constructOutputCallback(subscription.getOutputStream(), inputMapper.getOutputStreamDefinition(),
-                    eventTableMap, eventWindowMap, executionPlanContext, false);
+                    eventTableMap, eventWindowMap, executionPlanContext, false, subscriptionName);
 
             MetaStreamEvent metaStreamEvent = new MetaStreamEvent();
             metaStreamEvent.setOutputDefinition(inputMapper.getOutputStreamDefinition());
-            for(Attribute attribute: inputMapper.getOutputStreamDefinition().getAttributeList()){
+            for (Attribute attribute : inputMapper.getOutputStreamDefinition().getAttributeList()) {
                 metaStreamEvent.addOutputData(attribute);
             }
             //todo create event creator and pass to init()
             inputMapper.init(outputCallback, metaStreamEvent);
 
             OutputRateLimiter outputRateLimiter = OutputParser.constructOutputRateLimiter(subscription.getOutputStream().getId(),
-                    subscription.getOutputRate(), false, false, executionPlanContext.getScheduledExecutorService(), executionPlanContext);
+                    subscription.getOutputRate(), false, false, executionPlanContext.getScheduledExecutorService(), executionPlanContext, subscriptionName);
             subscriptionRuntime = new SubscriptionRuntime(inputTransport, inputMapper, outputRateLimiter, outputCallback);
 
             executionPlanContext.addEternalReferencedHolder(inputTransport);
@@ -147,20 +153,20 @@ public class SubscriptionParser {
                 throw new ExecutionPlanCreationException("Snapshot rate limiting not supported in subscription of name:" +
                         nameElement + " type:" + subscription.getTransport().getType());
             }
-            outputRateLimiter.init(executionPlanContext, null);
+            outputRateLimiter.init(executionPlanContext, null, subscriptionName);
 
 
             subscriptionRuntime.init(subscription.getTransport().getOptions(), executionPlanContext);
 
         } catch (DuplicateDefinitionException e) {
             if (nameElement != null) {
-                throw new DuplicateDefinitionException(e.getMessage() + ", when creating subscription " + nameElement.getValue(), e);
+                throw new DuplicateDefinitionException(e.getMessage() + ", when creating subscription " + subscriptionName, e);
             } else {
                 throw new DuplicateDefinitionException(e.getMessage(), e);
             }
         } catch (RuntimeException e) {
             if (nameElement != null) {
-                throw new ExecutionPlanCreationException(e.getMessage() + ", when creating subscription " + nameElement.getValue(), e);
+                throw new ExecutionPlanCreationException(e.getMessage() + ", when creating subscription " + subscriptionName, e);
             } else {
                 throw new ExecutionPlanCreationException(e.getMessage(), e);
             }
