@@ -1,0 +1,8 @@
+@Plan:name('TestExecutionPlan')
+
+define stream sensorStream (sensorId string, temperature float);
+
+@info(name = 'query1')
+from sensorStream
+select sensorId
+insert into outputStream;

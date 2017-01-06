@@ -30,10 +30,12 @@ public class SingleProcessStreamReceiver extends ProcessStreamReceiver {
     protected ComplexEventChunk<StreamEvent> currentStreamEventChunk = new ComplexEventChunk<StreamEvent>(batchProcessingAllowed);
     protected final String lockKey;
     private QuerySelector querySelector;
+    protected String queryName;
 
-    public SingleProcessStreamReceiver(String streamId, String lockKey, LatencyTracker latencyTracker) {
-        super(streamId, latencyTracker);
+    public SingleProcessStreamReceiver(String streamId, String lockKey, LatencyTracker latencyTracker, String queryName) {
+        super(streamId, latencyTracker, queryName);
         this.lockKey = lockKey;
+        this.queryName = queryName;
     }
 
     public void setNext(Processor next) {
@@ -42,7 +44,7 @@ public class SingleProcessStreamReceiver extends ProcessStreamReceiver {
     }
 
     public SingleProcessStreamReceiver clone(String key) {
-        return new SingleProcessStreamReceiver(streamId + key, key, latencyTracker);
+        return new SingleProcessStreamReceiver(streamId + key, key, latencyTracker, queryName);
     }
 
     protected void processAndClear(ComplexEventChunk<StreamEvent> streamEventChunk) {

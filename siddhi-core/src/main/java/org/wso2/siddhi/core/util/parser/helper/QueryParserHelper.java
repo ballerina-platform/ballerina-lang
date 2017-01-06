@@ -153,23 +153,23 @@ public class QueryParserHelper {
         }
     }
 
-    public static void initStreamRuntime(StreamRuntime runtime, MetaComplexEvent metaComplexEvent, LockWrapper lockWrapper) {
+    public static void initStreamRuntime(StreamRuntime runtime, MetaComplexEvent metaComplexEvent, LockWrapper lockWrapper, String queryName) {
 
         if (runtime instanceof SingleStreamRuntime) {
-            initSingleStreamRuntime((SingleStreamRuntime) runtime, 0, metaComplexEvent, null, lockWrapper);
+            initSingleStreamRuntime((SingleStreamRuntime) runtime, 0, metaComplexEvent, null, lockWrapper, queryName);
         } else {
             MetaStateEvent metaStateEvent = (MetaStateEvent) metaComplexEvent;
             StateEventPool stateEventPool = new StateEventPool(metaStateEvent, 5);
             MetaStreamEvent[] metaStreamEvents = metaStateEvent.getMetaStreamEvents();
             for (int i = 0, metaStreamEventsLength = metaStreamEvents.length; i < metaStreamEventsLength; i++) {
                 initSingleStreamRuntime(runtime.getSingleStreamRuntimes().get(i),
-                        i, metaStateEvent, stateEventPool, lockWrapper);
+                        i, metaStateEvent, stateEventPool, lockWrapper, queryName);
             }
         }
     }
 
     private static void initSingleStreamRuntime(SingleStreamRuntime singleStreamRuntime, int streamEventChainIndex,
-                                                MetaComplexEvent metaComplexEvent, StateEventPool stateEventPool, LockWrapper lockWrapper) {
+                                                MetaComplexEvent metaComplexEvent, StateEventPool stateEventPool, LockWrapper lockWrapper, String queryName) {
         MetaStreamEvent metaStreamEvent;
 
         if (metaComplexEvent instanceof MetaStateEvent) {
@@ -187,7 +187,7 @@ public class QueryParserHelper {
         while (processor != null) {
             if (processor instanceof SchedulingProcessor) {
                 ((SchedulingProcessor) processor).getScheduler().setStreamEventPool(streamEventPool);
-                ((SchedulingProcessor) processor).getScheduler().init(lockWrapper);
+                ((SchedulingProcessor) processor).getScheduler().init(lockWrapper, queryName);
             }
             if (processor instanceof AbstractStreamProcessor) {
                 ((AbstractStreamProcessor) processor).setStreamEventCloner(new StreamEventCloner(metaStreamEvent,

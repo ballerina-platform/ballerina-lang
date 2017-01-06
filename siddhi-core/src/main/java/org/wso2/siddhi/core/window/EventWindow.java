@@ -38,6 +38,7 @@ import org.wso2.siddhi.core.util.Scheduler;
 import org.wso2.siddhi.core.util.collection.operator.Finder;
 import org.wso2.siddhi.core.util.collection.operator.MatchingMetaStateHolder;
 import org.wso2.siddhi.core.util.lock.LockWrapper;
+import org.wso2.siddhi.core.util.parser.SchedulerParser;
 import org.wso2.siddhi.core.util.parser.SingleInputStreamParser;
 import org.wso2.siddhi.core.util.snapshot.Snapshotable;
 import org.wso2.siddhi.core.util.statistics.LatencyTracker;
@@ -125,7 +126,7 @@ public class EventWindow implements FindableProcessor, Snapshotable {
      * @param eventWindowMap map of EventWindows
      * @param latencyTracker to rack the latency if statistic of underlying {@link WindowProcessor} is required
      */
-    public void init(Map<String, EventTable> eventTableMap, Map<String, EventWindow> eventWindowMap, LatencyTracker latencyTracker) {
+    public void init(Map<String, EventTable> eventTableMap, Map<String, EventWindow> eventWindowMap, LatencyTracker latencyTracker, String queryName) {
         if (this.windowProcessor != null) {
             return;
         }
@@ -144,15 +145,15 @@ public class EventWindow implements FindableProcessor, Snapshotable {
         OutputStream.OutputEventType outputEventType = windowDefinition.getOutputEventType();
         boolean outputExpectsExpiredEvents = outputEventType != OutputStream.OutputEventType.CURRENT_EVENTS;
 
-        WindowProcessor internalWindowProcessor = (WindowProcessor) SingleInputStreamParser.generateProcessor(windowDefinition.getWindow(), metaStreamEvent, new ArrayList<VariableExpressionExecutor>(), this.executionPlanContext, eventTableMap, false, outputExpectsExpiredEvents);
+        WindowProcessor internalWindowProcessor = (WindowProcessor) SingleInputStreamParser.generateProcessor(windowDefinition.getWindow(), metaStreamEvent, new ArrayList<VariableExpressionExecutor>(), this.executionPlanContext, eventTableMap, false, outputExpectsExpiredEvents, queryName);
         internalWindowProcessor.setStreamEventCloner(streamEventCloner);
         internalWindowProcessor.constructStreamEventPopulater(metaStreamEvent, 0);
 
         EntryValveProcessor entryValveProcessor = null;
         if (internalWindowProcessor instanceof SchedulingProcessor) {
             entryValveProcessor = new EntryValveProcessor(this.executionPlanContext);
-            Scheduler scheduler = new Scheduler(this.executionPlanContext.getScheduledExecutorService(), entryValveProcessor, this.executionPlanContext);
-            scheduler.init(this.lockWrapper);
+            Scheduler scheduler = SchedulerParser.parse(this.executionPlanContext.getScheduledExecutorService(), entryValveProcessor, this.executionPlanContext);
+            scheduler.init(this.lockWrapper, queryName);
             scheduler.setStreamEventPool(streamEventPool);
             ((SchedulingProcessor) internalWindowProcessor).setScheduler(scheduler);
         }

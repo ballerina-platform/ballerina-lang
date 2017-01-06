@@ -28,12 +28,13 @@ import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.table.EventTable;
-import org.wso2.siddhi.core.util.parser.OperatorParser;
 import org.wso2.siddhi.core.util.collection.operator.Finder;
 import org.wso2.siddhi.core.util.collection.operator.MatchingMetaStateHolder;
+import org.wso2.siddhi.core.util.parser.OperatorParser;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import org.wso2.siddhi.query.api.expression.Expression;
 
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -132,9 +133,9 @@ public class LengthBatchWindowProcessor extends WindowProcessor implements Finda
     @Override
     public Object[] currentState() {
         if (expiredEventChunk != null) {
-            return new Object[]{currentEventChunk.getFirst(), expiredEventChunk.getFirst(), count, resetEvent};
+            return new Object[]{new AbstractMap.SimpleEntry<String, Object>("CurrentEventChunk", currentEventChunk.getFirst()), new AbstractMap.SimpleEntry<String, Object>("ExpiredEventChunk", expiredEventChunk.getFirst()), new AbstractMap.SimpleEntry<String, Object>("Count", count), new AbstractMap.SimpleEntry<String, Object>("ResetEvent", resetEvent)};
         } else {
-            return new Object[]{currentEventChunk.getFirst(), count, resetEvent};
+            return new Object[]{new AbstractMap.SimpleEntry<String, Object>("CurrentEventChunk", currentEventChunk.getFirst()), new AbstractMap.SimpleEntry<String, Object>("Count", count), new AbstractMap.SimpleEntry<String, Object>("ResetEvent", resetEvent)};
         }
     }
 
@@ -142,17 +143,24 @@ public class LengthBatchWindowProcessor extends WindowProcessor implements Finda
     public void restoreState(Object[] state) {
         if (state.length > 3) {
             currentEventChunk.clear();
-            currentEventChunk.add((StreamEvent) state[0]);
+            Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
+            currentEventChunk.add((StreamEvent) stateEntry.getValue());
             expiredEventChunk.clear();
-            expiredEventChunk.add((StreamEvent) state[1]);
-            count = (Integer) state[2];
-            resetEvent = (StreamEvent) state[3];
+            Map.Entry<String, Object> stateEntry2 = (Map.Entry<String, Object>) state[1];
+            expiredEventChunk.add((StreamEvent) stateEntry2.getValue());
+            Map.Entry<String, Object> stateEntry3 = (Map.Entry<String, Object>) state[2];
+            count = (Integer) stateEntry3.getValue();
+            Map.Entry<String, Object> stateEntry4 = (Map.Entry<String, Object>) state[3];
+            resetEvent = (StreamEvent) stateEntry4.getValue();
 
         } else {
             currentEventChunk.clear();
-            currentEventChunk.add((StreamEvent) state[0]);
-            count = (Integer) state[1];
-            resetEvent = (StreamEvent) state[2];
+            Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
+            currentEventChunk.add((StreamEvent) stateEntry.getValue());
+            Map.Entry<String, Object> stateEntry2 = (Map.Entry<String, Object>) state[1];
+            count = (Integer) stateEntry2.getValue();
+            Map.Entry<String, Object> stateEntry3 = (Map.Entry<String, Object>) state[2];
+            resetEvent = (StreamEvent) stateEntry3.getValue();
         }
     }
 
@@ -167,6 +175,6 @@ public class LengthBatchWindowProcessor extends WindowProcessor implements Finda
         if (expiredEventChunk == null) {
             expiredEventChunk = new ComplexEventChunk<StreamEvent>(false);
         }
-        return OperatorParser.constructOperator(expiredEventChunk, expression, matchingMetaStateHolder,executionPlanContext,variableExpressionExecutors,eventTableMap);
+        return OperatorParser.constructOperator(expiredEventChunk, expression, matchingMetaStateHolder, executionPlanContext, variableExpressionExecutors, eventTableMap, queryName);
     }
 }

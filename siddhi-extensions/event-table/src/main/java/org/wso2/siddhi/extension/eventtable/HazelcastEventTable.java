@@ -225,7 +225,7 @@ public class HazelcastEventTable implements EventTable {
                                   List<VariableExpressionExecutor> variableExpressionExecutors,
                                   Map<String, EventTable> eventTableMap) {
         return HazelcastOperatorParser.constructOperator(eventHolder, expression, matchingMetaStateHolder,
-                executionPlanContext, variableExpressionExecutors, eventTableMap);
+                executionPlanContext, variableExpressionExecutors, eventTableMap, tableDefinition.getId());
     }
 
 
@@ -235,6 +235,6 @@ public class HazelcastEventTable implements EventTable {
                                       List<VariableExpressionExecutor> variableExpressionExecutors,
                                       Map<String, EventTable> eventTableMap) {
         return HazelcastOperatorParser.constructOperator(eventHolder, expression, matchingMetaStateHolder,
-                executionPlanContext, variableExpressionExecutors, eventTableMap);
+                executionPlanContext, variableExpressionExecutors, eventTableMap, tableDefinition.getId());
     }
 }

@@ -29,11 +29,12 @@ import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.table.EventTable;
-import org.wso2.siddhi.core.util.parser.OperatorParser;
 import org.wso2.siddhi.core.util.collection.operator.Finder;
 import org.wso2.siddhi.core.util.collection.operator.MatchingMetaStateHolder;
+import org.wso2.siddhi.core.util.parser.OperatorParser;
 import org.wso2.siddhi.query.api.expression.Expression;
 
+import java.util.AbstractMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -82,12 +83,13 @@ public class FirstUniqueWindowProcessor extends WindowProcessor implements Finda
 
     @Override
     public Object[] currentState() {
-        return new Object[]{map};
+        return new Object[]{new AbstractMap.SimpleEntry<String, Object>("Map", map)};
     }
 
     @Override
     public void restoreState(Object[] state) {
-        map = (ConcurrentHashMap<String, StreamEvent>) state[0];
+        Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
+        map = (ConcurrentHashMap<String, StreamEvent>) stateEntry.getValue();
     }
 
     private String generateKey(StreamEvent event) {
@@ -106,6 +108,6 @@ public class FirstUniqueWindowProcessor extends WindowProcessor implements Finda
     @Override
     public Finder constructFinder(Expression expression, MatchingMetaStateHolder matchingMetaStateHolder, ExecutionPlanContext executionPlanContext,
                                   List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap) {
-        return OperatorParser.constructOperator(map.values(), expression, matchingMetaStateHolder,executionPlanContext,variableExpressionExecutors,eventTableMap);
+        return OperatorParser.constructOperator(map.values(), expression, matchingMetaStateHolder, executionPlanContext, variableExpressionExecutors, eventTableMap, queryName);
     }
 }

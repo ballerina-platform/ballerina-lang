@@ -33,6 +33,7 @@ import org.wso2.siddhi.core.stream.input.InputProcessor;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.statistics.ThroughputTracker;
+import org.wso2.siddhi.core.util.timestamp.EventTimeBasedMillisTimestampGenerator;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.exception.DuplicateAnnotationException;
@@ -196,6 +197,10 @@ public class StreamJunction {
     }
 
     private void sendData(long timeStamp, Object[] data) {
+        // Set timestamp to system if Siddhi is in playback mode
+        if (executionPlanContext.isPlayback()) {
+            ((EventTimeBasedMillisTimestampGenerator) this.executionPlanContext.getTimestampGenerator()).setCurrentTimestamp(timeStamp);
+        }
         if (throughputTracker != null) {
             throughputTracker.eventIn();
         }

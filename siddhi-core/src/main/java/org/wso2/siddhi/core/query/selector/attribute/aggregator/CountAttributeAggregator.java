@@ -21,6 +21,9 @@ import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
+import java.util.AbstractMap;
+import java.util.Map;
+
 public class CountAttributeAggregator extends AttributeAggregator {
 
     private static Attribute.Type type = Attribute.Type.LONG;
@@ -83,11 +86,12 @@ public class CountAttributeAggregator extends AttributeAggregator {
 
     @Override
     public Object[] currentState() {
-        return new Object[]{value};
+        return new Object[]{new AbstractMap.SimpleEntry<String, Object>("Value", value)};
     }
 
     @Override
     public void restoreState(Object[] state) {
-        value = (Long) state[0];
+        Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
+        value = (Long) stateEntry.getValue();
     }
 }

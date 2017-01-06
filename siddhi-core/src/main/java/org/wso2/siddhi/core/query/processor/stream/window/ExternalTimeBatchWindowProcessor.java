@@ -38,6 +38,7 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import org.wso2.siddhi.query.api.expression.Expression;
 
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -355,15 +356,17 @@ public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements
     }
 
     public Object[] currentState() {
-        return new Object[]{currentEventChunk.getFirst(), expiredEventChunk != null ? expiredEventChunk.getFirst() : null, resetEvent, endTime, startTime, lastScheduledTime, lastCurrentEventTime, flushed};
+        return new Object[]{new AbstractMap.SimpleEntry<String, Object>("CurrentEventChunk", currentEventChunk.getFirst()), new AbstractMap.SimpleEntry<String, Object>("ExpiredEventChunk", expiredEventChunk != null ? expiredEventChunk.getFirst() : null), new AbstractMap.SimpleEntry<String, Object>("ResetEvent", resetEvent), new AbstractMap.SimpleEntry<String, Object>("EndTime", endTime), new AbstractMap.SimpleEntry<String, Object>("StartTime", startTime), new AbstractMap.SimpleEntry<String, Object>("LastScheduledTime", lastScheduledTime), new AbstractMap.SimpleEntry<String, Object>("LastCurrentEventTime", lastCurrentEventTime), new AbstractMap.SimpleEntry<String, Object>("Flushed", flushed)};
     }
 
     public void restoreState(Object[] state) {
         currentEventChunk.clear();
-        currentEventChunk.add((StreamEvent) state[0]);
+        Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
+        currentEventChunk.add((StreamEvent) stateEntry.getValue());
         if (state[1] != null) {
             expiredEventChunk.clear();
-            expiredEventChunk.add((StreamEvent) state[1]);
+            Map.Entry<String, Object> stateEntry2 = (Map.Entry<String, Object>) state[1];
+            expiredEventChunk.add((StreamEvent) stateEntry2.getValue());
         } else {
             if (outputExpectsExpiredEvents) {
                 expiredEventChunk = new ComplexEventChunk<StreamEvent>(false);
@@ -372,12 +375,19 @@ public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements
                 expiredEventChunk = new ComplexEventChunk<StreamEvent>(false);
             }
         }
-        resetEvent = (StreamEvent) state[2];
-        endTime = (Long) state[3];
-        startTime = (Long) state[4];
-        lastScheduledTime = (Long) state[5];
-        lastCurrentEventTime = (Long) state[6];
-        flushed = (Boolean) state[7];
+
+        Map.Entry<String, Object> stateEntry3 = (Map.Entry<String, Object>) state[2];
+        resetEvent = (StreamEvent) stateEntry3.getValue();
+        Map.Entry<String, Object> stateEntry4 = (Map.Entry<String, Object>) state[3];
+        endTime = (Long) stateEntry4.getValue();
+        Map.Entry<String, Object> stateEntry5 = (Map.Entry<String, Object>) state[4];
+        startTime = (Long) stateEntry5.getValue();
+        Map.Entry<String, Object> stateEntry6 = (Map.Entry<String, Object>) state[5];
+        lastScheduledTime = (Long) stateEntry6.getValue();
+        Map.Entry<String, Object> stateEntry7 = (Map.Entry<String, Object>) state[6];
+        lastCurrentEventTime = (Long) stateEntry7.getValue();
+        Map.Entry<String, Object> stateEntry8 = (Map.Entry<String, Object>) state[7];
+        flushed = (Boolean) stateEntry8.getValue();
     }
 
     public synchronized StreamEvent find(StateEvent matchingEvent, Finder finder) {
@@ -391,7 +401,7 @@ public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements
             expiredEventChunk = new ComplexEventChunk<StreamEvent>(false);
             storeExpiredEvents = true;
         }
-        return OperatorParser.constructOperator(expiredEventChunk, expression, matchingMetaStateHolder, executionPlanContext, variableExpressionExecutors, eventTableMap);
+        return OperatorParser.constructOperator(expiredEventChunk, expression, matchingMetaStateHolder, executionPlanContext, variableExpressionExecutors, eventTableMap, queryName);
     }
 
     @Override

@@ -25,6 +25,8 @@ import org.wso2.siddhi.core.executor.function.FunctionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
+import java.util.AbstractMap;
+import java.util.Map;
 import java.util.Random;
 
 /*
@@ -101,11 +103,12 @@ public class RandomFunctionExtension extends FunctionExecutor {
 
     @Override
     public Object[] currentState() {
-        return new Object[]{random};
+        return new Object[]{new AbstractMap.SimpleEntry<String, Object>("Random", random)};
     }
 
     @Override
     public void restoreState(Object[] state) {
-        random = (Random) state[0];
+        Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
+        random = (Random) stateEntry.getValue();
     }
 }

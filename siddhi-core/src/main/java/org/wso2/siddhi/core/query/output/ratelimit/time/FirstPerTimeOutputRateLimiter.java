@@ -25,8 +25,11 @@ import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.query.output.ratelimit.OutputRateLimiter;
 import org.wso2.siddhi.core.util.Schedulable;
 import org.wso2.siddhi.core.util.Scheduler;
+import org.wso2.siddhi.core.util.parser.SchedulerParser;
 
+import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 
 public class FirstPerTimeOutputRateLimiter extends OutputRateLimiter implements Schedulable {
@@ -36,10 +39,11 @@ public class FirstPerTimeOutputRateLimiter extends OutputRateLimiter implements 
     private ScheduledExecutorService scheduledExecutorService;
     private Scheduler scheduler;
     private long scheduledTime;
-
+    private String queryName;
     static final Logger log = Logger.getLogger(FirstPerTimeOutputRateLimiter.class);
 
-    public FirstPerTimeOutputRateLimiter(String id, Long value, ScheduledExecutorService scheduledExecutorService) {
+    public FirstPerTimeOutputRateLimiter(String id, Long value, ScheduledExecutorService scheduledExecutorService, String queryName) {
+        this.queryName = queryName;
         this.id = id;
         this.value = value;
         this.scheduledExecutorService = scheduledExecutorService;
@@ -47,7 +51,7 @@ public class FirstPerTimeOutputRateLimiter extends OutputRateLimiter implements 
 
     @Override
     public OutputRateLimiter clone(String key) {
-        FirstPerTimeOutputRateLimiter instance = new FirstPerTimeOutputRateLimiter(id + key, value, scheduledExecutorService);
+        FirstPerTimeOutputRateLimiter instance = new FirstPerTimeOutputRateLimiter(id + key, value, scheduledExecutorService, queryName);
         instance.setLatencyTracker(latencyTracker);
         return instance;
     }
@@ -86,9 +90,9 @@ public class FirstPerTimeOutputRateLimiter extends OutputRateLimiter implements 
 
     @Override
     public void start() {
-        scheduler = new Scheduler(scheduledExecutorService, this, executionPlanContext);
+        scheduler = SchedulerParser.parse(scheduledExecutorService, this, executionPlanContext);
         scheduler.setStreamEventPool(new StreamEventPool(0, 0, 0, 5));
-        scheduler.init(lockWrapper);
+        scheduler.init(lockWrapper, queryName);
         long currentTime = System.currentTimeMillis();
         scheduledTime = currentTime + value;
         scheduler.notifyAt(scheduledTime);
@@ -101,12 +105,13 @@ public class FirstPerTimeOutputRateLimiter extends OutputRateLimiter implements 
 
     @Override
     public Object[] currentState() {
-        return new Object[]{firstEvent};
+        return new Object[]{new AbstractMap.SimpleEntry<String, Object>("FirstEvent", firstEvent)};
     }
 
     @Override
     public void restoreState(Object[] state) {
-        firstEvent = (ComplexEvent) state[0];
+        Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
+        firstEvent = (ComplexEvent) stateEntry.getValue();
     }
 
 }

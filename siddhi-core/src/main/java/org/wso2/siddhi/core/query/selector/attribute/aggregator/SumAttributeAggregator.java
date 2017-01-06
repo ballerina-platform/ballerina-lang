@@ -22,7 +22,9 @@ import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
+import java.util.AbstractMap;
 import java.util.Arrays;
+import java.util.Map;
 
 public class SumAttributeAggregator extends AttributeAggregator {
 
@@ -140,12 +142,13 @@ public class SumAttributeAggregator extends AttributeAggregator {
 
         @Override
         public Object[] currentState() {
-            return new Object[]{value};
+            return new Object[]{new AbstractMap.SimpleEntry<String, Object>("Value", value)};
         }
 
         @Override
         public void restoreState(Object[] state) {
-            value = (Double) state[0];
+            Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
+            value = (Double) stateEntry.getValue();
         }
 
     }
@@ -178,12 +181,13 @@ public class SumAttributeAggregator extends AttributeAggregator {
 
         @Override
         public Object[] currentState() {
-            return new Object[]{value};
+            return new Object[]{new AbstractMap.SimpleEntry<String, Object>("Value", value)};
         }
 
         @Override
         public void restoreState(Object[] state) {
-            value = (Double) state[0];
+            Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
+            value = (Double) stateEntry.getValue();
         }
 
     }
@@ -216,12 +220,13 @@ public class SumAttributeAggregator extends AttributeAggregator {
 
         @Override
         public Object[] currentState() {
-            return new Object[]{value};
+            return new Object[]{new AbstractMap.SimpleEntry<String, Object>("Value", value)};
         }
 
         @Override
         public void restoreState(Object[] state) {
-            value = (Long) state[0];
+            Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
+            value = (Long) stateEntry.getValue();
         }
 
     }
@@ -254,12 +259,13 @@ public class SumAttributeAggregator extends AttributeAggregator {
 
         @Override
         public Object[] currentState() {
-            return new Object[]{value};
+            return new Object[]{new AbstractMap.SimpleEntry<String, Object>("Value", value)};
         }
 
         @Override
         public void restoreState(Object[] state) {
-            value = (Long) state[0];
+            Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
+            value = (Long) stateEntry.getValue();
         }
 
     }

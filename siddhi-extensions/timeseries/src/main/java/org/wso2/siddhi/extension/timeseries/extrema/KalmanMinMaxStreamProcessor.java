@@ -35,10 +35,7 @@ import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 
 public class KalmanMinMaxStreamProcessor extends StreamProcessor {
 
@@ -233,14 +230,17 @@ public class KalmanMinMaxStreamProcessor extends StreamProcessor {
 
     @Override
     public Object[] currentState() {
-        return new Object[]{eventStack, valueStack, uniqueQueue};
+        return new Object[]{new AbstractMap.SimpleEntry<String, Object>("EventStack", eventStack), new AbstractMap.SimpleEntry<String, Object>("ValueStack", valueStack), new AbstractMap.SimpleEntry<String, Object>("UniqueQueue", uniqueQueue)};
     }
 
     @Override
     public void restoreState(Object[] state) {
-        eventStack = (LinkedList<StreamEvent>) state[0];
-        valueStack = (Queue<Double>) state[1];
-        uniqueQueue = (Queue<StreamEvent>) state[2];
+        Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
+        eventStack = (LinkedList<StreamEvent>) stateEntry.getValue();
+        Map.Entry<String, Object> stateEntry2 = (Map.Entry<String, Object>) state[1];
+        valueStack = (Queue<Double>) stateEntry2.getValue();
+        Map.Entry<String, Object> stateEntry3 = (Map.Entry<String, Object>) state[2];
+        uniqueQueue = (Queue<StreamEvent>) stateEntry3.getValue();
     }
 
 

@@ -23,7 +23,9 @@ import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
+import java.util.AbstractMap;
 import java.util.Arrays;
+import java.util.Map;
 
 public class StddevAttributeAggregator extends AttributeAggregator {
     private StddevAttributeAggregator stddevOutputAttributeAggregator;
@@ -248,16 +250,21 @@ public class StddevAttributeAggregator extends AttributeAggregator {
 
         @Override
         public Object[] currentState() {
-            return new Object[]{sum, mean, oldMean, stdDeviation, count};
+            return new Object[]{new AbstractMap.SimpleEntry<String, Object>("Sum", sum), new AbstractMap.SimpleEntry<String, Object>("Mean", mean), new AbstractMap.SimpleEntry<String, Object>("OldMean", oldMean), new AbstractMap.SimpleEntry<String, Object>("StandardDeviation", stdDeviation), new AbstractMap.SimpleEntry<String, Object>("Count", count)};
         }
 
         @Override
         public void restoreState(Object[] state) {
-            sum = (Double) state[0];
-            mean = (Double) state[1];
-            oldMean = (Double) state[2];
-            stdDeviation = (Double) state[3];
-            count = (Integer) state[4];
+            Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
+            sum = (Double) stateEntry.getValue();
+            Map.Entry<String, Object> stateEntry2 = (Map.Entry<String, Object>) state[1];
+            mean = (Double) stateEntry2.getValue();
+            Map.Entry<String, Object> stateEntry3 = (Map.Entry<String, Object>) state[2];
+            oldMean = (Double) stateEntry3.getValue();
+            Map.Entry<String, Object> stateEntry4 = (Map.Entry<String, Object>) state[3];
+            stdDeviation = (Double) stateEntry4.getValue();
+            Map.Entry<String, Object> stateEntry5 = (Map.Entry<String, Object>) state[4];
+            count = (Integer) stateEntry5.getValue();
         }
     }
 
@@ -324,16 +331,21 @@ public class StddevAttributeAggregator extends AttributeAggregator {
 
         @Override
         public Object[] currentState() {
-            return new Object[]{sum, mean, oldMean, stdDeviation, count};
+            return new Object[]{new AbstractMap.SimpleEntry<String, Object>("Sum", sum), new AbstractMap.SimpleEntry<String, Object>("Mean", mean), new AbstractMap.SimpleEntry<String, Object>("OldMean", oldMean), new AbstractMap.SimpleEntry<String, Object>("StandardDeviation", stdDeviation), new AbstractMap.SimpleEntry<String, Object>("Count", count)};
         }
 
         @Override
         public void restoreState(Object[] state) {
-            sum = (Double) state[0];
-            mean = (Double) state[1];
-            oldMean = (Double) state[2];
-            stdDeviation = (Double) state[3];
-            count = (Integer) state[4];
+            Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
+            sum = (Double) stateEntry.getValue();
+            Map.Entry<String, Object> stateEntry2 = (Map.Entry<String, Object>) state[1];
+            mean = (Double) stateEntry2.getValue();
+            Map.Entry<String, Object> stateEntry3 = (Map.Entry<String, Object>) state[2];
+            oldMean = (Double) stateEntry3.getValue();
+            Map.Entry<String, Object> stateEntry4 = (Map.Entry<String, Object>) state[3];
+            stdDeviation = (Double) stateEntry4.getValue();
+            Map.Entry<String, Object> stateEntry5 = (Map.Entry<String, Object>) state[4];
+            count = (Integer) stateEntry5.getValue();
         }
     }
 
@@ -400,16 +412,21 @@ public class StddevAttributeAggregator extends AttributeAggregator {
 
         @Override
         public Object[] currentState() {
-            return new Object[]{sum, mean, oldMean, stdDeviation, count};
+            return new Object[]{new AbstractMap.SimpleEntry<String, Object>("Sum", sum), new AbstractMap.SimpleEntry<String, Object>("Mean", mean), new AbstractMap.SimpleEntry<String, Object>("OldMean", oldMean), new AbstractMap.SimpleEntry<String, Object>("StandardDeviation", stdDeviation), new AbstractMap.SimpleEntry<String, Object>("Count", count)};
         }
 
         @Override
         public void restoreState(Object[] state) {
-            sum = (Double) state[0];
-            mean = (Double) state[1];
-            oldMean = (Double) state[2];
-            stdDeviation = (Double) state[3];
-            count = (Integer) state[4];
+            Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
+            sum = (Double) stateEntry.getValue();
+            Map.Entry<String, Object> stateEntry2 = (Map.Entry<String, Object>) state[1];
+            mean = (Double) stateEntry2.getValue();
+            Map.Entry<String, Object> stateEntry3 = (Map.Entry<String, Object>) state[2];
+            oldMean = (Double) stateEntry3.getValue();
+            Map.Entry<String, Object> stateEntry4 = (Map.Entry<String, Object>) state[3];
+            stdDeviation = (Double) stateEntry4.getValue();
+            Map.Entry<String, Object> stateEntry5 = (Map.Entry<String, Object>) state[4];
+            count = (Integer) stateEntry5.getValue();
         }
     }
 }

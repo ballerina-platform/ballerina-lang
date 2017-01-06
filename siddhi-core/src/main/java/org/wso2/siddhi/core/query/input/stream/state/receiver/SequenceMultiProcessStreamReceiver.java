@@ -28,8 +28,8 @@ public class SequenceMultiProcessStreamReceiver extends StateMultiProcessStreamR
 
     private StateStreamRuntime stateStreamRuntime;
 
-    public SequenceMultiProcessStreamReceiver(String streamId, int processCount, StateStreamRuntime stateStreamRuntime, LatencyTracker latencyTracker) {
-        super(streamId, processCount, latencyTracker);
+    public SequenceMultiProcessStreamReceiver(String streamId, int processCount, StateStreamRuntime stateStreamRuntime, LatencyTracker latencyTracker, String queryName) {
+        super(streamId, processCount, latencyTracker, queryName);
         this.stateStreamRuntime = stateStreamRuntime;
         eventSequence = new int[processCount];
         int count = 0;
@@ -40,7 +40,7 @@ public class SequenceMultiProcessStreamReceiver extends StateMultiProcessStreamR
     }
 
     public SequenceMultiProcessStreamReceiver clone(String key) {
-        return new SequenceMultiProcessStreamReceiver(streamId + key, processCount, null, latencyTracker);
+        return new SequenceMultiProcessStreamReceiver(streamId + key, processCount, null, latencyTracker, queryName);
     }
 
     public void setStateStreamRuntime(StateStreamRuntime stateStreamRuntime) {

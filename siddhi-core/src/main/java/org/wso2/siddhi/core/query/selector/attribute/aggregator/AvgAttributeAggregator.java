@@ -22,7 +22,9 @@ import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
+import java.util.AbstractMap;
 import java.util.Arrays;
+import java.util.Map;
 
 public class AvgAttributeAggregator extends AttributeAggregator {
 
@@ -149,13 +151,15 @@ public class AvgAttributeAggregator extends AttributeAggregator {
 
         @Override
         public Object[] currentState() {
-            return new Object[]{value, count};
+            return new Object[]{new AbstractMap.SimpleEntry<String, Object>("Value", value), new AbstractMap.SimpleEntry<String, Object>("Count", count)};
         }
 
         @Override
         public void restoreState(Object[] state) {
-            value = (Double) state[0];
-            count = (Long) state[1];
+            Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
+            value = (Double) stateEntry.getValue();
+            Map.Entry<String, Object> stateEntry2 = (Map.Entry<String, Object>) state[1];
+            count = (Long) stateEntry2.getValue();
         }
     }
 
@@ -198,13 +202,15 @@ public class AvgAttributeAggregator extends AttributeAggregator {
 
         @Override
         public Object[] currentState() {
-            return new Object[]{value, count};
+            return new Object[]{new AbstractMap.SimpleEntry<String, Object>("Value", value), new AbstractMap.SimpleEntry<String, Object>("Count", count)};
         }
 
         @Override
         public void restoreState(Object[] state) {
-            value = (Double) state[0];
-            count = (Long) state[1];
+            Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
+            value = (Double) stateEntry.getValue();
+            Map.Entry<String, Object> stateEntry2 = (Map.Entry<String, Object>) state[1];
+            count = (Long) stateEntry2.getValue();
         }
     }
 
@@ -247,13 +253,15 @@ public class AvgAttributeAggregator extends AttributeAggregator {
 
         @Override
         public Object[] currentState() {
-            return new Object[]{value, count};
+            return new Object[]{new AbstractMap.SimpleEntry<String, Object>("Value", value), new AbstractMap.SimpleEntry<String, Object>("Count", count)};
         }
 
         @Override
         public void restoreState(Object[] state) {
-            value = (Double) state[0];
-            count = (Long) state[1];
+            Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
+            value = (Double) stateEntry.getValue();
+            Map.Entry<String, Object> stateEntry2 = (Map.Entry<String, Object>) state[1];
+            count = (Long) stateEntry2.getValue();
         }
 
     }
@@ -297,13 +305,15 @@ public class AvgAttributeAggregator extends AttributeAggregator {
 
         @Override
         public Object[] currentState() {
-            return new Object[]{value, count};
+            return new Object[]{new AbstractMap.SimpleEntry<String, Object>("Value", value), new AbstractMap.SimpleEntry<String, Object>("Count", count)};
         }
 
         @Override
         public void restoreState(Object[] state) {
-            value = (Double) state[0];
-            count = (Long) state[1];
+            Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
+            value = (Double) stateEntry.getValue();
+            Map.Entry<String, Object> stateEntry2 = (Map.Entry<String, Object>) state[1];
+            count = (Long) stateEntry2.getValue();
         }
 
     }

@@ -22,7 +22,9 @@ import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.query.output.ratelimit.OutputRateLimiter;
 
+import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.Map;
 
 public class FirstPerEventOutputRateLimiter extends OutputRateLimiter {
     private final Integer value;
@@ -79,12 +81,13 @@ public class FirstPerEventOutputRateLimiter extends OutputRateLimiter {
 
     @Override
     public Object[] currentState() {
-        return new Object[]{counter};
+        return new Object[]{new AbstractMap.SimpleEntry<String, Object>("Counter", counter)};
     }
 
     @Override
     public void restoreState(Object[] state) {
-        counter = (Integer) state[0];
+        Map.Entry<String, Object> stateEntry = (Map.Entry<String, Object>) state[0];
+        counter = (Integer) stateEntry.getValue();
     }
 
 }

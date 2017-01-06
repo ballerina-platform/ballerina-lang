@@ -52,7 +52,7 @@ public class LogicalPreStateProcessor extends StreamPreStateProcessor {
     public PreStateProcessor cloneProcessor(String key) {
         LogicalPreStateProcessor logicalPreStateProcessor = new LogicalPreStateProcessor(logicalType, stateType, withinStates);
         cloneProperties(logicalPreStateProcessor, key);
-        logicalPreStateProcessor.init(executionPlanContext);
+        logicalPreStateProcessor.init(executionPlanContext, queryName);
         return logicalPreStateProcessor;
     }
 

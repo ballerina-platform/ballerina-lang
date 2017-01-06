@@ -51,42 +51,42 @@ public class StreamPartitioner {
     private List<List<PartitionExecutor>> partitionExecutorLists = new ArrayList<List<PartitionExecutor>>();
 
     public StreamPartitioner(InputStream inputStream, Partition partition, MetaStateEvent metaEvent,
-                             List<VariableExpressionExecutor> executors, ExecutionPlanContext executionPlanContext) {
+                             List<VariableExpressionExecutor> executors, ExecutionPlanContext executionPlanContext, String queryName) {
         if (partition != null) {
-            createExecutors(inputStream, partition, metaEvent, executors, executionPlanContext);
+            createExecutors(inputStream, partition, metaEvent, executors, executionPlanContext, queryName);
         }
     }
 
     private void createExecutors(InputStream inputStream, Partition partition, MetaComplexEvent metaEvent,
-                                 List<VariableExpressionExecutor> executors, ExecutionPlanContext executionPlanContext) {
+                                 List<VariableExpressionExecutor> executors, ExecutionPlanContext executionPlanContext, String queryName) {
         if (inputStream instanceof SingleInputStream) {
             if (metaEvent instanceof MetaStateEvent) {
-                createSingleInputStreamExecutors((SingleInputStream) inputStream, partition, ((MetaStateEvent) metaEvent).getMetaStreamEvent(0), executors, null, executionPlanContext);
+                createSingleInputStreamExecutors((SingleInputStream) inputStream, partition, ((MetaStateEvent) metaEvent).getMetaStreamEvent(0), executors, null, executionPlanContext, queryName);
             } else {
-                createSingleInputStreamExecutors((SingleInputStream) inputStream, partition, (MetaStreamEvent) metaEvent, executors, null, executionPlanContext);
+                createSingleInputStreamExecutors((SingleInputStream) inputStream, partition, (MetaStreamEvent) metaEvent, executors, null, executionPlanContext, queryName);
             }
         } else if (inputStream instanceof JoinInputStream) {
-            createJoinInputStreamExecutors((JoinInputStream) inputStream, partition, (MetaStateEvent) metaEvent, executors, executionPlanContext);
+            createJoinInputStreamExecutors((JoinInputStream) inputStream, partition, (MetaStateEvent) metaEvent, executors, executionPlanContext, queryName);
         } else if (inputStream instanceof StateInputStream) {
-            createStateInputStreamExecutors(((StateInputStream) inputStream).getStateElement(), partition, (MetaStateEvent) metaEvent, executors, executionPlanContext, 0);
+            createStateInputStreamExecutors(((StateInputStream) inputStream).getStateElement(), partition, (MetaStateEvent) metaEvent, executors, executionPlanContext, 0, queryName);
         }
     }
 
-    private int createStateInputStreamExecutors(StateElement stateElement, Partition partition, MetaStateEvent metaEvent, List<VariableExpressionExecutor> executors, ExecutionPlanContext executionPlanContext, int executorIndex) {
+    private int createStateInputStreamExecutors(StateElement stateElement, Partition partition, MetaStateEvent metaEvent, List<VariableExpressionExecutor> executors, ExecutionPlanContext executionPlanContext, int executorIndex, String queryName) {
 
         if (stateElement instanceof EveryStateElement) {
-            return createStateInputStreamExecutors(((EveryStateElement) stateElement).getStateElement(), partition, metaEvent, executors, executionPlanContext, executorIndex);
+            return createStateInputStreamExecutors(((EveryStateElement) stateElement).getStateElement(), partition, metaEvent, executors, executionPlanContext, executorIndex, queryName);
         } else if (stateElement instanceof NextStateElement) {
-            executorIndex = createStateInputStreamExecutors(((NextStateElement) stateElement).getStateElement(), partition, metaEvent, executors, executionPlanContext, executorIndex);
-            return createStateInputStreamExecutors(((NextStateElement) stateElement).getNextStateElement(), partition, metaEvent, executors, executionPlanContext, executorIndex);
+            executorIndex = createStateInputStreamExecutors(((NextStateElement) stateElement).getStateElement(), partition, metaEvent, executors, executionPlanContext, executorIndex, queryName);
+            return createStateInputStreamExecutors(((NextStateElement) stateElement).getNextStateElement(), partition, metaEvent, executors, executionPlanContext, executorIndex, queryName);
         } else if (stateElement instanceof LogicalStateElement) {
-            executorIndex = createStateInputStreamExecutors(((LogicalStateElement) stateElement).getStreamStateElement1(), partition, metaEvent, executors, executionPlanContext, executorIndex);
-            return createStateInputStreamExecutors(((LogicalStateElement) stateElement).getStreamStateElement2(), partition, metaEvent, executors, executionPlanContext, executorIndex);
+            executorIndex = createStateInputStreamExecutors(((LogicalStateElement) stateElement).getStreamStateElement1(), partition, metaEvent, executors, executionPlanContext, executorIndex, queryName);
+            return createStateInputStreamExecutors(((LogicalStateElement) stateElement).getStreamStateElement2(), partition, metaEvent, executors, executionPlanContext, executorIndex, queryName);
         } else if (stateElement instanceof CountStateElement) {
-            return createStateInputStreamExecutors(((CountStateElement) stateElement).getStreamStateElement(), partition, metaEvent, executors, executionPlanContext, executorIndex);
+            return createStateInputStreamExecutors(((CountStateElement) stateElement).getStreamStateElement(), partition, metaEvent, executors, executionPlanContext, executorIndex, queryName);
         } else {  //when stateElement is an instanceof StreamStateElement
             int size = executors.size();
-            createExecutors(((StreamStateElement) stateElement).getBasicSingleInputStream(), partition, metaEvent.getMetaStreamEvent(executorIndex), executors, executionPlanContext);
+            createExecutors(((StreamStateElement) stateElement).getBasicSingleInputStream(), partition, metaEvent.getMetaStreamEvent(executorIndex), executors, executionPlanContext, queryName);
             for (int j = size; j < executors.size(); j++) {
                 executors.get(j).getPosition()[SiddhiConstants.STREAM_EVENT_CHAIN_INDEX] = executorIndex;
             }
@@ -94,20 +94,20 @@ public class StreamPartitioner {
         }
     }
 
-    private void createJoinInputStreamExecutors(JoinInputStream inputStream, Partition partition, MetaStateEvent metaEvent, List<VariableExpressionExecutor> executors, ExecutionPlanContext executionPlanContext) {
-        createExecutors(inputStream.getLeftInputStream(), partition, metaEvent.getMetaStreamEvent(0), executors, executionPlanContext);
+    private void createJoinInputStreamExecutors(JoinInputStream inputStream, Partition partition, MetaStateEvent metaEvent, List<VariableExpressionExecutor> executors, ExecutionPlanContext executionPlanContext, String queryName) {
+        createExecutors(inputStream.getLeftInputStream(), partition, metaEvent.getMetaStreamEvent(0), executors, executionPlanContext, queryName);
         int size = executors.size();
         for (VariableExpressionExecutor variableExpressionExecutor : executors) {
             variableExpressionExecutor.getPosition()[SiddhiConstants.STREAM_EVENT_CHAIN_INDEX] = 0;
         }
-        createExecutors(inputStream.getRightInputStream(), partition, metaEvent.getMetaStreamEvent(1), executors, executionPlanContext);
+        createExecutors(inputStream.getRightInputStream(), partition, metaEvent.getMetaStreamEvent(1), executors, executionPlanContext, queryName);
         for (int i = size; i < executors.size(); i++) {
             executors.get(i).getPosition()[SiddhiConstants.STREAM_EVENT_CHAIN_INDEX] = 1;
         }
 
     }
 
-    private void createSingleInputStreamExecutors(SingleInputStream inputStream, Partition partition, MetaStreamEvent metaEvent, List<VariableExpressionExecutor> executors, Map<String, EventTable> eventTableMap, ExecutionPlanContext executionPlanContext) {
+    private void createSingleInputStreamExecutors(SingleInputStream inputStream, Partition partition, MetaStreamEvent metaEvent, List<VariableExpressionExecutor> executors, Map<String, EventTable> eventTableMap, ExecutionPlanContext executionPlanContext, String queryName) {
         List<PartitionExecutor> executorList = new ArrayList<PartitionExecutor>();
         partitionExecutorLists.add(executorList);
         if (!inputStream.isInnerStream()) {
@@ -115,14 +115,14 @@ public class StreamPartitioner {
                 if (partitionType instanceof ValuePartitionType) {
                     if (partitionType.getStreamId().equals(inputStream.getStreamId())) {
                         executorList.add(new ValuePartitionExecutor(ExpressionParser.parseExpression(((ValuePartitionType) partitionType).getExpression(),
-                                metaEvent, SiddhiConstants.UNKNOWN_STATE, eventTableMap, executors, executionPlanContext, false, 0)));
+                                metaEvent, SiddhiConstants.UNKNOWN_STATE, eventTableMap, executors, executionPlanContext, false, 0, queryName)));
                     }
                 } else {
                     for (RangePartitionType.RangePartitionProperty rangePartitionProperty : ((RangePartitionType) partitionType).getRangePartitionProperties()) {
                         if (partitionType.getStreamId().equals(inputStream.getStreamId())) {
                             executorList.add(new RangePartitionExecutor((ConditionExpressionExecutor)
                                     ExpressionParser.parseExpression(rangePartitionProperty.getCondition(), metaEvent,
-                                            SiddhiConstants.UNKNOWN_STATE, eventTableMap, executors, executionPlanContext, false, 0),
+                                            SiddhiConstants.UNKNOWN_STATE, eventTableMap, executors, executionPlanContext, false, 0, queryName),
                                     rangePartitionProperty.getPartitionKey()));
 
                         }

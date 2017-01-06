@@ -52,19 +52,21 @@ public abstract class AbstractStreamProcessor implements Processor, EternalRefer
     protected ComplexEventPopulater complexEventPopulater;
     protected String elementId = null;
     private boolean outputExpectsExpiredEvents;
+    protected String queryName;
 
     public AbstractDefinition initProcessor(AbstractDefinition inputDefinition,
-                                            ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext, boolean outputExpectsExpiredEvents) {
+                                            ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext, boolean outputExpectsExpiredEvents, String queryName) {
         this.outputExpectsExpiredEvents = outputExpectsExpiredEvents;
         try {
             this.inputDefinition = inputDefinition;
             this.attributeExpressionExecutors = attributeExpressionExecutors;
             this.executionPlanContext = executionPlanContext;
             this.attributeExpressionLength = attributeExpressionExecutors.length;
+            this.queryName = queryName;
             if (elementId == null) {
-                elementId = executionPlanContext.getElementIdGenerator().createNewId();
+                elementId = "AbstractStreamProcessor-" + executionPlanContext.getElementIdGenerator().createNewId();
             }
-            executionPlanContext.getSnapshotService().addSnapshotable(this);
+            executionPlanContext.getSnapshotService().addSnapshotable(queryName, this);
             this.additionalAttributes = init(inputDefinition, attributeExpressionExecutors, executionPlanContext, outputExpectsExpiredEvents);
 
             executionPlanContext.addEternalReferencedHolder(this);

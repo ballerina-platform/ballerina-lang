@@ -25,6 +25,7 @@ import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.partition.PartitionRuntime;
 import org.wso2.siddhi.core.query.QueryRuntime;
 import org.wso2.siddhi.core.subscription.SubscriptionRuntime;
+import org.wso2.siddhi.core.window.EventWindow;
 import org.wso2.siddhi.core.util.ElementIdGenerator;
 import org.wso2.siddhi.core.util.ExecutionPlanRuntimeBuilder;
 import org.wso2.siddhi.core.util.SiddhiConstants;
@@ -32,6 +33,7 @@ import org.wso2.siddhi.core.util.ThreadBarrier;
 import org.wso2.siddhi.core.util.persistence.PersistenceService;
 import org.wso2.siddhi.core.util.snapshot.SnapshotService;
 import org.wso2.siddhi.core.util.statistics.LatencyTracker;
+import org.wso2.siddhi.core.util.timestamp.EventTimeBasedMillisTimestampGenerator;
 import org.wso2.siddhi.core.util.timestamp.SystemCurrentTimeMillisTimestampGenerator;
 import org.wso2.siddhi.core.window.EventWindow;
 import org.wso2.siddhi.query.api.ExecutionPlan;
@@ -46,6 +48,8 @@ import org.wso2.siddhi.query.api.execution.Subscription;
 import org.wso2.siddhi.query.api.execution.partition.Partition;
 import org.wso2.siddhi.query.api.execution.query.Query;
 import org.wso2.siddhi.query.api.util.AnnotationHelper;
+import org.wso2.siddhi.query.compiler.SiddhiCompiler;
+import org.wso2.siddhi.query.compiler.exception.SiddhiParserException;
 
 import java.util.Map;
 import java.util.UUID;
@@ -75,13 +79,7 @@ public class ExecutionPlanParser {
                 executionPlanContext.setName(UUID.randomUUID().toString());
             }
 
-            Annotation annotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_PLAYBACK,
-                    executionPlan.getAnnotations());
-            if (annotation != null) {
-                executionPlanContext.setPlayback(true);
-            }
-
-            annotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_ENFORCE_ORDER,
+            Annotation annotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_ENFORCE_ORDER,
                     executionPlan.getAnnotations());
             if (annotation != null) {
                 executionPlanContext.setEnforceOrder(true);
@@ -128,7 +126,49 @@ public class ExecutionPlanParser {
             executionPlanContext.setScheduledExecutorService(Executors.newScheduledThreadPool(5,
                     new ThreadFactoryBuilder().setNameFormat("Siddhi-" +
                             executionPlanContext.getName() + "-scheduler-thread-%d").build()));
-            executionPlanContext.setTimestampGenerator(new SystemCurrentTimeMillisTimestampGenerator());
+
+            // Select the TimestampGenerator based on playback mode on/off
+            annotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_PLAYBACK,
+                    executionPlan.getAnnotations());
+            if (annotation != null) {
+                String idleTime = null;
+                String increment = null;
+                EventTimeBasedMillisTimestampGenerator timestampGenerator = new EventTimeBasedMillisTimestampGenerator(executionPlanContext.getScheduledExecutorService());
+                // Get the optional elements of playback annotation
+                for (Element e : annotation.getElements()) {
+                    if (SiddhiConstants.ANNOTATION_IDLE_TIME.equalsIgnoreCase(e.getKey())) {
+                        idleTime = e.getValue();
+                    } else if (SiddhiConstants.ANNOTATION_INCREMENT.equalsIgnoreCase(e.getKey())) {
+                        increment = e.getValue();
+                    } else {
+                        throw new ExecutionPlanValidationException("Playback annotation accepts only idleTime and increment but found " + e.getKey());
+                    }
+                }
+
+                // idleTime and increment are optional but if one presents, the other also should be given
+                if (idleTime != null && increment == null) {
+                    throw new ExecutionPlanValidationException("Playback annotation requires both idleTime and increment but increment not found");
+                } else if (idleTime == null && increment != null) {
+                    throw new ExecutionPlanValidationException("Playback annotation requires both idleTime and increment but idleTime does not found");
+                } else if (idleTime != null) {
+                    // The fourth case idleTime == null && increment == null are ignored because it means no heartbeat.
+                    try {
+                        timestampGenerator.setIdleTime(SiddhiCompiler.parseTimeConstantDefinition(idleTime).value());
+                    } catch (SiddhiParserException ex) {
+                        throw new SiddhiParserException("Invalid idleTime constant '" + idleTime + "' in playback annotation", ex);
+                    }
+                    try {
+                        timestampGenerator.setIncrementInMilliseconds(SiddhiCompiler.parseTimeConstantDefinition(increment).value());
+                    } catch (SiddhiParserException ex) {
+                        throw new SiddhiParserException("Invalid increment constant '" + increment + "' in playback annotation", ex);
+                    }
+                }
+
+                executionPlanContext.setTimestampGenerator(timestampGenerator);
+                executionPlanContext.setPlayback(true);
+            } else {
+                executionPlanContext.setTimestampGenerator(new SystemCurrentTimeMillisTimestampGenerator());
+            }
             executionPlanContext.setSnapshotService(new SnapshotService(executionPlanContext));
             executionPlanContext.setPersistenceService(new PersistenceService(executionPlanContext));
             executionPlanContext.setElementIdGenerator(new ElementIdGenerator(executionPlanContext.getName()));
@@ -159,7 +199,7 @@ public class ExecutionPlanParser {
                         .getFactory()
                         .createLatencyTracker(metricName, executionPlanContext.getStatisticsManager());
             }
-            eventWindow.init(executionPlanRuntimeBuilder.getEventTableMap(), executionPlanRuntimeBuilder.getEventWindowMap(), latencyTracker);
+            eventWindow.init(executionPlanRuntimeBuilder.getEventTableMap(), executionPlanRuntimeBuilder.getEventWindowMap(), latencyTracker, eventWindow.getWindowDefinition().getId());
         }
         try {
             for (ExecutionElement executionElement : executionPlan.getExecutionElementList()) {

@@ -141,11 +141,11 @@ public class QueryRuntime {
         StreamRuntime clonedStreamRuntime = this.streamRuntime.clone(key);
         QuerySelector clonedSelector = this.selector.clone(key);
         OutputRateLimiter clonedOutputRateLimiter = outputRateLimiter.clone(key);
-        clonedOutputRateLimiter.init(executionPlanContext, lockWrapper);
+        clonedOutputRateLimiter.init(executionPlanContext, lockWrapper, queryId);
 
         QueryRuntime queryRuntime = new QueryRuntime(query, executionPlanContext, clonedStreamRuntime, clonedSelector,
                 clonedOutputRateLimiter, outputCallback, this.metaComplexEvent, synchronised);
-        QueryParserHelper.initStreamRuntime(clonedStreamRuntime, metaComplexEvent, lockWrapper);
+        QueryParserHelper.initStreamRuntime(clonedStreamRuntime, metaComplexEvent, lockWrapper, queryId);
 
         queryRuntime.queryId = this.queryId + key;
         queryRuntime.setToLocalStream(toLocalStream);
@@ -155,7 +155,7 @@ public class QueryRuntime {
             queryRuntime.outputCallback = this.outputCallback;
         } else {
             OutputCallback clonedQueryOutputCallback = OutputParser.constructOutputCallback(query.getOutputStream(), key,
-                    localStreamJunctionMap, outputStreamDefinition, executionPlanContext);
+                    localStreamJunctionMap, outputStreamDefinition, executionPlanContext, queryId);
             queryRuntime.outputRateLimiter.setOutputCallback(clonedQueryOutputCallback);
             queryRuntime.outputCallback = clonedQueryOutputCallback;
         }

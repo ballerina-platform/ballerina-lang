@@ -384,6 +384,6 @@ public class UniqueExternalTimeBatchWindowProcessor extends WindowProcessor impl
             expiredEvents = new LinkedHashMap<Object, StreamEvent>();
             storeExpiredEvents = true;
         }
-        return OperatorParser.constructOperator(expiredEvents, expression, matchingMetaStateHolder, executionPlanContext, variableExpressionExecutors, eventTableMap);
+        return OperatorParser.constructOperator(expiredEvents, expression, matchingMetaStateHolder, executionPlanContext, variableExpressionExecutors, eventTableMap, queryName);
     }
 }

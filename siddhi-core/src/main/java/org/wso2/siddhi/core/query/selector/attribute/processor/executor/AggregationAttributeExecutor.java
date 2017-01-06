@@ -25,8 +25,8 @@ import org.wso2.siddhi.core.query.selector.attribute.aggregator.AttributeAggrega
 public class AggregationAttributeExecutor extends AbstractAggregationAttributeExecutor {
 
     public AggregationAttributeExecutor(AttributeAggregator attributeAggregator,
-                                        ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
-        super(attributeAggregator, attributeExpressionExecutors, executionPlanContext);
+                                        ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext, String queryName) {
+        super(attributeAggregator, attributeExpressionExecutors, executionPlanContext, queryName);
     }
 
     @Override
@@ -35,7 +35,7 @@ public class AggregationAttributeExecutor extends AbstractAggregationAttributeEx
     }
 
     public ExpressionExecutor cloneExecutor(String key) {
-        return new AggregationAttributeExecutor(attributeAggregator.cloneAggregator(key), attributeExpressionExecutors, executionPlanContext);
+        return new AggregationAttributeExecutor(attributeAggregator.cloneAggregator(key), attributeExpressionExecutors, executionPlanContext, queryName);
     }
 
     @Override
