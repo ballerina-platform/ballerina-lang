@@ -29,13 +29,21 @@ public class BalConnectorCallback extends DefaultBalCallback {
 
     private Context context;
 
-    public boolean responseArrived = false;
+    private boolean responseArrived = false;
 
-    public BValue valueRef;
+    private BValue valueRef;
 
     public BalConnectorCallback(Context context) {
         super(context.getBalCallback());
         this.context = context;
+    }
+
+    public boolean isResponseArrived() {
+        return responseArrived;
+    }
+
+    public BValue getValueRef() {
+        return valueRef;
     }
 
     @Override

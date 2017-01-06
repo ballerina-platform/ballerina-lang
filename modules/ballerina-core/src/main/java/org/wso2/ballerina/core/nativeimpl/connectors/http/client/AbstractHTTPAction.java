@@ -29,6 +29,7 @@ import org.wso2.ballerina.core.nativeimpl.connectors.BalConnectorCallback;
 import org.wso2.ballerina.core.nativeimpl.connectors.http.Constants;
 import org.wso2.ballerina.core.runtime.internal.ServiceContextHolder;
 import org.wso2.carbon.messaging.CarbonMessage;
+import org.wso2.carbon.messaging.DefaultCarbonMessage;
 import org.wso2.carbon.messaging.MessageDataSource;
 import org.wso2.carbon.messaging.MessageProcessorException;
 
@@ -43,6 +44,12 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
     private static final Logger logger = LoggerFactory.getLogger(AbstractHTTPAction.class);
 
     protected void prepareRequest(Connector connector, String path, CarbonMessage cMsg) {
+
+        // Handle operations for empty content messages initiated from the Ballerina core itself
+        if (cMsg instanceof DefaultCarbonMessage && cMsg.isEmpty() && cMsg.getMessageDataSource() == null) {
+            cMsg.setEndOfMsgAdded(true);
+        }
+
         String uri = null;
         try {
             uri = ((HTTPConnector) connector).getServiceUri() + path;
@@ -100,15 +107,15 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
             }
             ServiceContextHolder.getInstance().getSender().send(message, balConnectorCallback);
 
-            while (!balConnectorCallback.responseArrived) {
+            while (!balConnectorCallback.isResponseArrived()) {
                 synchronized (context) {
-                    if (!balConnectorCallback.responseArrived) {
+                    if (!balConnectorCallback.isResponseArrived()) {
                         logger.debug("Waiting for a response");
                         context.wait();
                     }
                 }
             }
-            return balConnectorCallback.valueRef;
+            return balConnectorCallback.getValueRef();
         } catch (MessageProcessorException e) {
             throw new BallerinaException("Failed to send the message to an endpoint ", context);
         } catch (InterruptedException ignore) {

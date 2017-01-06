@@ -2,7 +2,7 @@ import ballerina.lang.message;
 import ballerina.net.uri;
 
 @BasePath ("/hello")
-service helloWorldService {
+service helloWorld {
 
     @GET
     resource sayHello(message m) {
@@ -22,6 +22,5 @@ service helloWorldService {
         message:setStringPayload(response, greeting);
 
         reply response;
-
     }
 }

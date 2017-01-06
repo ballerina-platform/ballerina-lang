@@ -109,6 +109,14 @@
             <fileMode>644</fileMode>
         </fileSet>
         <fileSet>
+            <directory>../../libsrc</directory>
+            <outputDirectory>libsrc</outputDirectory>
+            <excludes>
+                <exclude>ballerina/lang/types/**</exclude>
+            </excludes>
+            <fileMode>444</fileMode>
+        </fileSet>
+        <fileSet>
             <directory>../editor/web</directory>
             <outputDirectory>resources/editor/web</outputDirectory>
             <excludes>

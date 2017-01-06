@@ -31,7 +31,6 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.http.Constants;
 import org.wso2.carbon.messaging.CarbonMessage;
-import org.wso2.carbon.messaging.DefaultCarbonMessage;
 
 /**
  * {@code Get} is the GET action implementation of the HTTP Connector
@@ -72,10 +71,6 @@ public class Get extends AbstractHTTPAction {
             }
             // Prepare the message
             CarbonMessage cMsg = bMessage.value();
-            // Handle GET with empty content initiated from the Ballerina core itself (not from the transport listener)
-            if (cMsg instanceof DefaultCarbonMessage && cMsg.isEmpty() && cMsg.getMessageDataSource() == null) {
-                cMsg.setEndOfMsgAdded(true);
-            }
             prepareRequest(connector, path, cMsg);
             cMsg.setProperty(Constants.HTTP_METHOD,
                              Constants.HTTP_METHOD_GET);
