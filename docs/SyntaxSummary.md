@@ -18,7 +18,7 @@ This is an informal introduction to the Ballerina language.
 
 ## Introduction
 
-Every Ballerina program has both a textual representation and a canonical visual representation.
+Every Ballerina program has both canonical representations both visually and textually.
 
 ### Concepts
 
@@ -297,7 +297,7 @@ The following are examples of literal values for various types:
 int age = 4;
 double price = 4.0;
 string name = "John";
-xmlElement address_xml = `<address><name>$name</name></address>`;
+xml address_xml = `<address><name>$name</name></address>`;
 json address_json = `{"name" : "$name", "streetName" : "$street"}`;
 map m = {"name" : "John", "age" : 34 };
 int[] data = [1, 2, 3, 6, 10];
