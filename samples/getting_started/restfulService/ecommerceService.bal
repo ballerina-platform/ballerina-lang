@@ -62,8 +62,6 @@ service EcommerceService {
     }
 }
 
-
-
 @BasePath("/productsservice")
 service productmgtService {
 
@@ -85,10 +83,7 @@ service productmgtService {
     }
 }
 
-
-
 @BasePath("/orderservice")
-
 service OrderMgtService {
 
     @GET
@@ -110,9 +105,7 @@ service OrderMgtService {
     }
 }
 
-
 @BasePath("/customerservice")
-
 service CustomerMgtService {
 
     @GET

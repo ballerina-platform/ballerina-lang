@@ -7,7 +7,5 @@ service EchoService {
     resource echo (message m) {
         http:convertToResponse(m);
         reply m;
-
     }
-
 }

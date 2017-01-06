@@ -22,6 +22,5 @@ service helloWorldService {
         message:setStringPayload(response, greeting);
 
         reply response;
-
     }
 }
