@@ -38,6 +38,7 @@ import org.wso2.ballerina.core.model.Const;
 import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.model.ImportPackage;
 import org.wso2.ballerina.core.model.NodeVisitor;
+import org.wso2.ballerina.core.model.Operator;
 import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
@@ -702,6 +703,45 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(UnaryExpression unaryExpr) {
+        unaryExpr.getRExpr().accept(this);
+        unaryExpr.setType(unaryExpr.getRExpr().getType());
+
+        if (Operator.SUB.equals(unaryExpr.getOperator())) {
+            if (unaryExpr.getType() == BTypes.INT_TYPE) {
+                unaryExpr.setEvalFunc(UnaryExpression.NEGATIVE_INT_FUNC);
+            } else if (unaryExpr.getType() == BTypes.DOUBLE_TYPE) {
+                unaryExpr.setEvalFunc(UnaryExpression.NEGATIVE_DOUBLE_FUNC);
+            } else if (unaryExpr.getType() == BTypes.LONG_TYPE) {
+                unaryExpr.setEvalFunc(UnaryExpression.NEGATIVE_LONG_FUNC);
+            } else if (unaryExpr.getType() == BTypes.FLOAT_TYPE) {
+                unaryExpr.setEvalFunc(UnaryExpression.NEGATIVE_FLOAT_FUNC);
+            } else {
+                throw new SemanticException("Incompatible type in unary expression " + unaryExpr.getType());
+            }
+        } else if (Operator.ADD.equals(unaryExpr.getOperator())) {
+            if (unaryExpr.getType() == BTypes.INT_TYPE) {
+                unaryExpr.setEvalFunc(UnaryExpression.POSITIVE_INT_FUNC);
+            } else if (unaryExpr.getType() == BTypes.DOUBLE_TYPE) {
+                unaryExpr.setEvalFunc(UnaryExpression.POSITIVE_DOUBLE_FUNC);
+            } else if (unaryExpr.getType() == BTypes.LONG_TYPE) {
+                unaryExpr.setEvalFunc(UnaryExpression.POSITIVE_LONG_FUNC);
+            } else if (unaryExpr.getType() == BTypes.FLOAT_TYPE) {
+                unaryExpr.setEvalFunc(UnaryExpression.POSITIVE_FLOAT_FUNC);
+            } else {
+                throw new SemanticException("Incompatible type in unary expression " + unaryExpr.getType());
+            }
+
+        } else if (Operator.NOT.equals(unaryExpr.getOperator())) {
+            if (unaryExpr.getType() == BTypes.BOOLEAN_TYPE) {
+                unaryExpr.setEvalFunc(UnaryExpression.NOT_BOOLEAN_FUNC);
+            } else {
+                throw new SemanticException("Incompatible type in unary expression " + unaryExpr.getType()
+                                            + " Not Only support boolean");
+            }
+
+        } else {
+            throw new SemanticException("Incompatible operation for unary expression" + unaryExpr.getOperator().name());
+        }
 
     }
 
