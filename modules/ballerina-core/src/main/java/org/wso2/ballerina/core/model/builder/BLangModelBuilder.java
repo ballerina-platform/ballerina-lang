@@ -173,9 +173,13 @@ public class BLangModelBuilder {
     public void createInstanceCreaterExpr(String typeName) {
         InstanceCreationExpr expression = new InstanceCreationExpr(null);
         BType type = BTypes.getType(typeName);
+
+        if (type == null) {
+            throw new ParserException("Unknown type: " + typeName);
+        }
+
         expression.setType(type);
         exprStack.push(expression);
-
     }
 
     public void startAnnotation() {

@@ -624,10 +624,13 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(InstanceCreationExpr instanceCreationExpr) {
         visitExpr(instanceCreationExpr);
 
+        if (BTypes.isValueType(instanceCreationExpr.getType())) {
+            throw new SemanticException("Error: cannot use 'new' for value types: " + instanceCreationExpr.getType());
+        }
         // TODO here the type shouldn't be a value type
-
 //        Expression expr = instanceCreationExpr.getRExpr();
 //        expr.accept(this);
+
     }
 
     @Override
