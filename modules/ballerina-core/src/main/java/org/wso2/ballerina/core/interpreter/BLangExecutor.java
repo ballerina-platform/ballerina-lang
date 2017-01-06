@@ -364,7 +364,10 @@ public class BLangExecutor implements NodeExecutor {
 
     @Override
     public BValue visit(UnaryExpression unaryExpr) {
-        return null;
+        Expression rExpr = unaryExpr.getRExpr();
+        BValueType rValue = (BValueType) rExpr.execute(this);
+        //ToDO this has to be improved property in UnaryExpression class since Unary does not need BiFunction
+        return unaryExpr.getEvalFunc().apply(null, rValue);
     }
 
     @Override

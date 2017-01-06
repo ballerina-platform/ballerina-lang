@@ -28,6 +28,7 @@ import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.ConnectorDcl;
 import org.wso2.ballerina.core.model.Const;
 import org.wso2.ballerina.core.model.ImportPackage;
+import org.wso2.ballerina.core.model.Operator;
 import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.Position;
 import org.wso2.ballerina.core.model.Resource;
@@ -56,6 +57,7 @@ import org.wso2.ballerina.core.model.expressions.MultExpression;
 import org.wso2.ballerina.core.model.expressions.NotEqualExpression;
 import org.wso2.ballerina.core.model.expressions.OrExpression;
 import org.wso2.ballerina.core.model.expressions.SubtractExpression;
+import org.wso2.ballerina.core.model.expressions.UnaryExpression;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.statements.ActionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
@@ -405,6 +407,30 @@ public class BLangModelBuilder {
 
             default:
                 throw new ParserException("Unsupported operator: " + opStr);
+        }
+
+        exprStack.push(expr);
+    }
+
+    public void createUnaryExpr(String op) {
+        Expression rExpr = exprStack.pop();
+
+        UnaryExpression expr;
+        switch (op) {
+            case "+":
+                expr = new UnaryExpression(Operator.ADD, rExpr);
+                break;
+
+            case "-":
+                expr = new UnaryExpression(Operator.SUB, rExpr);
+                break;
+
+            case "!":
+                expr = new UnaryExpression(Operator.NOT, rExpr);
+                break;
+
+            default:
+                throw new ParserException("Unsupported operator: " + op);
         }
 
         exprStack.push(expr);

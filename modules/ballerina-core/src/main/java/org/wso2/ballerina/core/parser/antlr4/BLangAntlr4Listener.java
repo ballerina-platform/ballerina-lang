@@ -1170,6 +1170,10 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitUnaryExpression(BallerinaParser.UnaryExpressionContext ctx) {
+        if (ctx.exception == null) {
+            String op = ctx.getChild(0).getText();
+            modelBuilder.createUnaryExpr(op);
+        }
     }
 
     @Override
