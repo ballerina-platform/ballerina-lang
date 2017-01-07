@@ -64,7 +64,7 @@ A Ballerina file is structured as follows:
  ConstantDefinition)+
 ```
 
-
+**Note**: We follow the convention that terminals of the language (i.e. keywords) are lowercase words, non-terminals are uppercase words. 
 
 ### Services & Resources
 
