@@ -158,7 +158,7 @@ Once a connector of name `ConnectorInstanceName` has been instantiated, actions 
 ### Workers
 
 #### Defining & Declaring Workers
-Workers are defined and declared as follows:
+A `worker` is defined and declared as follows:
 ```
 worker WorkerName (message m) {
     VariableDeclaration;*
