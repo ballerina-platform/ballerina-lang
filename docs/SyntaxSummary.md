@@ -101,7 +101,7 @@ m1 and m2 are messages that are passed by a client as input to the resource name
 
 ### Functions
 
-The structure of a `function` is as follows:
+A `function` is defined as follows:
 
 ```
 [FunctionAnnotations]
@@ -128,7 +128,7 @@ connector ConnectorName ([ConnectorParamAnnotations]TypeName VariableName[(, Typ
 }
 ```
 
-Note that ConnectorAnnotations are designed to help the editor provide a better user experience for connector users.
+Note that `ConnectorAnnotations` are designed to help the editor provide a better user experience for connector users.
 
 A `connector` defines a set of actions. Actions are operations that can be executed against a connector. The  structure of an `action` definition is as follows:
 
@@ -144,13 +144,15 @@ action ActionName (ConnectorName VariableName[, ([ActionParamAnnotations] TypeNa
 }
 ```
 
-Connectors are instantiated by giving the necessary data as follows:
+Connectors are instantiated as follows:
 ```
-[ConnectorPackageName:]ConnectorName VariableName = new [ConnectorPackageName:]ConnectorName (ValueList[, map]);
+[ConnectorPackageName:]ConnectorName ConnectorInstanceName = new [ConnectorPackageName:]ConnectorName (ValueList[, map]);
 ```
-Once a connector has been created, actions can be invoked against that connector as follows:
+The newly created instance has the `ConnectorInstanceName` assigned. 
+
+Once a connector of name `ConnectorInstanceName` has been instantiated, actions can be invoked against that connector as follows:
 ```
-[ConnectorPackageName:]ConnectorName.ActionName (ConnectorVariableName, ValueList);
+[ConnectorPackageName:]ConnectorName.ActionName (ConnectorInstanceName, ValueList);
 ```
 
 ### Workers
