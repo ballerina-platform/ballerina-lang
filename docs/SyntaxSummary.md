@@ -228,7 +228,7 @@ A `TypeName` may also be one of the following built-in *non-primitive types*:
 
 A `TypeName` may also be the name of a *user defined type*.
 
-#### Constructed Types
+#### Constructed Types (User Defined Types)
 
 ##### Structured Types (Records)
 User defined record types are defined using the `struct` keyword as follows:
@@ -276,7 +276,9 @@ A variable of type `xmlDocument` can hold any XML document and the optional sche
 #### Allocating Variables
 
 Primitive types do not have to be dynamically allocated as they are always allocated
-on the stack. For all non-primitive types, user defined types and array types have to be
+on the stack. 
+
+For all non-primitive types, user defined types and array types have to be
 allocated on the heap using `new` as follows:
 ```
 new TypeName[(ValueList)]
@@ -318,7 +320,7 @@ The following lossless type coercions are pre-defined in Ballerina:
 In addition to these built in type coercions, Ballerina allows one to define
 arbitrary conversions from one non-primitive type to another non-primitive and have the language apply it automatically.
 
-A TypeConvertor is defined as follows:
+A `TypeConvertor` is defined as follows:
 ```
 typeconverter TypeConverterName (TypeName VariableName) (TypeName) {
     VariableDeclaration;*
@@ -368,11 +370,11 @@ A Statement may be one of the following:
 
 #### Assignment Statement
 
-Assignment statements look like the following:
+Assignment statements are encoded as follows:
 ```
 VariableAccessor = Expression;
 ```
-A VariableAccessor is one of:
+A `VariableAccessor` is one of:
 - VariableName
 - VariableAccessor'['ArrayIndex']'
 - VariableAccessor'['MapIndex']'
@@ -380,7 +382,7 @@ A VariableAccessor is one of:
 
 #### If Statement
 
-Provides a way to perform conditional execution.
+An `if` statement provides a way to perform conditional execution.
 ```
 if (BooleanExpression) {
     Statement;*
@@ -403,6 +405,7 @@ iterate (VariableType VariableName : Iterator) {
 
 #### While Statement
 
+A `while` statement provides a way to execute a series of statements as long as a Boolean expression is met. 
 ```
 while (BooleanExpression) {
     Statement;+
@@ -419,7 +422,7 @@ break;
 
 #### Fork/Join Statement
 
-A fork statement allows one to replicate a message to any number of parallel
+A `fork` statement allows one to replicate a message to any number of parallel
 workers and have them independently operate on the copies of the message. The `join`
 part of the `fork` statement allows one to define how the caller of `fork`
 will wait for the parallel workers to complete.
@@ -437,11 +440,11 @@ fork (MessageName) {
   Statement;*  
 }]
 ```
-Note that if the `join` clause is missing then its equivalent to waiting for all to complete and ignorning the results.
+Note that if the `join` clause is missing then it is equivalent to waiting for all workers to complete and ignorning the results.
 
-The JoinCondition is one of the following:
-- any IntegerValue[(, WorkerName)+]): wait for any k (IntegerValue) of the given workers or any of the workers
-- all [WorkerNameList]: wait for all given workers or all of the workers
+The `JoinCondition` is one of the following:
+- `any IntegerValue [(WorkerName (, WorkerName)+)]`: wait for any k (i.e. the IntegerValue) of the given workers or any of the workers
+- `all [(WorkerName (, WorkerName)+)]`: wait for all given workers or all of the workers
 
 When the `JoinCondition` has been satisfied, the corresponding slots of the message array will be filled with the returned messages from the workers in the order the workers' lexical order. If the condition asks for up to some number of results to be available to satisfy the condition, it may be the case that more than that number are available by the time the statements within the join condition are executed. If a particular worker has completed but not sent a response message, or not yet completed, the corresponding message slot will be null.
 
