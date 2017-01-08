@@ -164,6 +164,16 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
     StatementVisitor.prototype.endVisitAssignmentStatement = function (statement) {
     };
 
+    StatementVisitor.prototype.canVisitWhileStatement = function (statement) {
+        return false;
+    };
+    StatementVisitor.prototype.beginVisitWhileStatement = function (statement) {
+    };
+    StatementVisitor.prototype.visitWhileStatement= function (statement) {
+    };
+    StatementVisitor.prototype.endVisitWhileStatement = function (statement) {
+    };
+
     /**
      * @param node {ASTNode}
      */
