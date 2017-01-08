@@ -471,19 +471,20 @@ try {
 ```
 
 The syntax of a `throw` statement is as follows:
-
 ```
 throw Expression;
 ```
 
 #### Return Statement
 
+The syntax of a `return` statement is as follows:
 ```
 return Expression*;
 ```
 
 #### Reply Statement
 
+The syntax of a `reply` statement is as follows:
 ```
 reply Message?;
 ```
