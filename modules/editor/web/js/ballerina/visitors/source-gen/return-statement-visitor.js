@@ -24,11 +24,11 @@ define(['lodash', 'log', 'event_channel', './abstract-statement-source-gen-visit
     ReturnStatementVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
     ReturnStatementVisitor.prototype.constructor = ReturnStatementVisitor;
 
-    ReturnStatementVisitor.prototype.canVisitStatement = function(returnStatement){
+    ReturnStatementVisitor.prototype.canVisitReturnStatement = function(returnStatement){
         return returnStatement instanceof ReturnStatement;
     };
 
-    ReturnStatementVisitor.prototype.beginVisitStatement = function(returnStatement){
+    ReturnStatementVisitor.prototype.beginVisitReturnStatement = function(returnStatement){
         /**
          * set the configuration start for the reply statement definition language construct
          * If we need to add additional parameters which are dynamically added to the configuration start
@@ -38,7 +38,7 @@ define(['lodash', 'log', 'event_channel', './abstract-statement-source-gen-visit
         log.debug('Begin Visit Return Statement Definition');
     };
 
-    ReturnStatementVisitor.prototype.endVisitStatement = function(returnStatement){
+    ReturnStatementVisitor.prototype.endVisitReturnStatement = function(returnStatement){
         this.appendSource(returnStatement.getReturnExpression() + ";\n");
         this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit Return Statement Definition');
