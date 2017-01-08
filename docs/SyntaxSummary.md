@@ -144,7 +144,7 @@ action ActionName (ConnectorName VariableName[, ([ActionParamAnnotations] TypeNa
 }
 ```
 
-Connectors are instantiated as follows:
+Connectors are instantiated (by means of the `new` keyword) as follows:
 ```
 [ConnectorPackageName:]ConnectorName ConnectorInstanceName = new [ConnectorPackageName:]ConnectorName (ValueList[, map]);
 ```
@@ -204,13 +204,13 @@ The type system is illustrated in the following:
 
 #### Declaring Variables
 
-A VariableDeclaration has the following structure:
+A `VariableDeclaration` has the following structure:
 
 ```
 TypeName VariableName;
 ```
 
-A TypeName may be one of the following built-in primitive types:
+A `TypeName` may be one of the following built-in *primitive types*:
 - boolean
 - int
 - long
@@ -221,17 +221,17 @@ A TypeName may be one of the following built-in primitive types:
 Primitive types do not have to be dynamically allocated as they are always allocated
 on the stack.
 
-A TypeName may also be one of the following built-in non-primitive types:
+A `TypeName` may also be one of the following built-in *non-primitive types*:
 - message
 - map
 - exception
 
-A TypeName may also be the name of a user defined type.
+A `TypeName` may also be the name of a *user defined type*.
 
 #### Constructed Types
 
 ##### Structured Types (Records)
-User defined record types are defined using a TypeDefinition as follows:
+User defined record types are defined using the `struct` keyword as follows:
 ```
 [public] struct TypeName {
     TypeName VariableName;+
@@ -251,10 +251,9 @@ Iterators may be defined using the iterator constructor `~` as follows:
 ```
 TypeName~
 ```
-Iterator typed values  can be navigated through using an `iterate` statement.
+Iterator typed values can be navigated through using an `iterate` statement.
 
 Iterators are currently only available for the built-in types xml and json. In the future we will allow developers to define their own iterators for their types.
-
 
 #### XML & JSON Types
 
