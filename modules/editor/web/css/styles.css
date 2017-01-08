@@ -944,12 +944,12 @@ button.variable-list {
     width: 30px;
 }
 
-.if-else-title-rect {
+.statement-title-rect {
     fill: #FFFFFF;
     stroke: #818181;
 }
 
-.if-else-title-polyline {
+.statement-title-polyline {
     fill: none;
     stroke: #000000;
 }
