@@ -226,7 +226,7 @@
                                     <symbolicName>org.apache.commons.vfs2</symbolicName>
                                     <version>${commons.vfs.version}</version>
                                 </bundle>
-                                <!--bundle>
+                                <bundle>
                                     <symbolicName>org.apache.commons.compress</symbolicName>
                                     <version>${commons.compress.version}</version>
                                 </bundle>
@@ -237,7 +237,7 @@
                                 <bundle>
                                     <symbolicName>org.apache.commons.lang</symbolicName>
                                     <version>${commons.lang.version}</version>
-                                </bundle-->
+                                </bundle>
                             </bundles>
                         </configuration>
                     </execution>
