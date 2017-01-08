@@ -459,7 +459,7 @@ Ballerina supports exception handling as a way to address unexpected scenarios i
 
 The built-in `exception` type has three properties: its category (a string), its message (a string) and its properties (a map). These properties are manipulated using the functions defined in `ballerina.lang.exception` package.
 
-Note that there is only one built in exception type - all exceptions use this type with different values for the category property. All standard exception "types" are defined as category string constants in the `ballerina.lang.exception` package.
+Note that there is only one built-in exception type - all exceptions use this type with different values for the category property. All standard exception "types" are defined by category string constants in the `ballerina.lang.exception` package.
 
 The syntax of a `try/catch` is as follows:
 ```
