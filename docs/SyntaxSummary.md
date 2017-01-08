@@ -443,8 +443,9 @@ fork (MessageName) {
 Note that if the `join` clause is missing then it is equivalent to waiting for all workers to complete and ignorning the results.
 
 The `JoinCondition` is one of the following:
-- `any IntegerValue [(WorkerName (, WorkerName)+)]`: wait for any k (i.e. the IntegerValue) of the given workers or any of the workers
-- `all [(WorkerName (, WorkerName)+)]`: wait for all given workers or all of the workers
+- `any IntegerValue [(WorkerNameList)]`: wait for any k (i.e. the IntegerValue) of the given workers or any of the workers
+- `all [(WorkerNameList)]`: wait for all given workers or all of the workers
+where `WorkerNameList` is a list of comma separated names of workers.
 
 When the `JoinCondition` has been satisfied, the corresponding slots of the message array will be filled with the returned messages from the workers in the order the workers' lexical order. If the condition asks for up to some number of results to be available to satisfy the condition, it may be the case that more than that number are available by the time the statements within the join condition are executed. If a particular worker has completed but not sent a response message, or not yet completed, the corresponding message slot will be null.
 
