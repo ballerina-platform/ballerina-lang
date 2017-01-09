@@ -61,7 +61,7 @@ import javax.xml.stream.XMLStreamException;
                 @Argument(name = "message", type = TypeEnum.MESSAGE)
         })
 @Component(
-        name = "action.file.send",
+        name = "action.netfile.send",
         immediate = true,
         service = AbstractNativeAction.class)
 public class Send extends AbstractFileAction {

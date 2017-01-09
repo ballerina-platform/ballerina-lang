@@ -18,8 +18,6 @@
 package org.wso2.ballerina.core.nativeimpl.connectors.file.util;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileSystemOptions;
@@ -27,6 +25,8 @@ import org.apache.commons.vfs2.impl.StandardFileSystemManager;
 import org.apache.commons.vfs2.provider.ftp.FtpFileSystemConfigBuilder;
 import org.apache.commons.vfs2.provider.ftps.FtpsFileSystemConfigBuilder;
 import org.apache.commons.vfs2.provider.sftp.SftpFileSystemConfigBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 
@@ -34,7 +34,7 @@ import org.wso2.ballerina.core.interpreter.Context;
  * Utility class for file related operations
  */
 public class FileConnectorUtils {
-    private static final Log log = LogFactory.getLog(FileUnzipUtil.class);
+    private static final Logger logger = LoggerFactory.getLogger(FileConnectorUtils.class);
 
     /**
      * @param remoteFile Location of the remote file
@@ -54,7 +54,7 @@ public class FileConnectorUtils {
             fsm = new StandardFileSystemManager();
             fsm.init();
         } catch (FileSystemException e) {
-            log.error("Unable to get FileSystemManager: " + e.getMessage(), e);
+            logger.error("Unable to get FileSystemManager: " + e.getMessage(), e);
         }
         return fsm;
     }
@@ -66,8 +66,8 @@ public class FileConnectorUtils {
         String setStrictHostKeyChecking = params[3];
         String setUserDirIsRoot = params[4];
 
-        if (log.isDebugEnabled()) {
-            log.debug("File init starts with " + setTimeout + "," + setPassiveMode + "," +
+        if (logger.isDebugEnabled()) {
+            logger.debug("File init starts with " + setTimeout + "," + setPassiveMode + "," +
                     "" + setSoTimeout + "," + setStrictHostKeyChecking + "," + setUserDirIsRoot);
         }
         FileSystemOptions opts = new FileSystemOptions();
@@ -137,8 +137,8 @@ public class FileConnectorUtils {
                         "setSoTimeout", e);
             }
         }
-        if (log.isDebugEnabled()) {
-            log.debug("FileConnector configuration is completed.");
+        if (logger.isDebugEnabled()) {
+            logger.debug("FileConnector configuration is completed.");
         }
         return opts;
     }

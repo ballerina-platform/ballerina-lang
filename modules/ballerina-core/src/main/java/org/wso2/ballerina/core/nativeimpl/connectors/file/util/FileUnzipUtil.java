@@ -18,10 +18,10 @@
 package org.wso2.ballerina.core.nativeimpl.connectors.file.util;
 
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.commons.vfs2.FileSystemOptions;
 import org.apache.commons.vfs2.impl.StandardFileSystemManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.Context;
 
 import java.util.zip.ZipInputStream;
@@ -30,7 +30,7 @@ import java.util.zip.ZipInputStream;
  * Utility class for file unzip
  */
 public class FileUnzipUtil {
-    private static final Log log = LogFactory.getLog(FileUnzipUtil.class);
+    private static final Logger logger = LoggerFactory.getLogger(FileUnzipUtil.class);
     private static StandardFileSystemManager manager = null;
 
     /**

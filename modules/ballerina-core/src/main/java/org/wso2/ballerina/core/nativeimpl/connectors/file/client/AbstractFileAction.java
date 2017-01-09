@@ -23,7 +23,6 @@ import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Connector;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
-import org.wso2.ballerina.core.nativeimpl.connectors.http.client.AbstractHTTPAction;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
@@ -31,7 +30,7 @@ import org.wso2.carbon.messaging.CarbonMessage;
  */
 public class AbstractFileAction extends AbstractNativeAction {
 
-    private static final Logger logger = LoggerFactory.getLogger(AbstractHTTPAction.class);
+    private static final Logger logger = LoggerFactory.getLogger(AbstractFileAction.class);
 
     protected void prepareRequest(Connector connector, String path, CarbonMessage cMsg) {
     }

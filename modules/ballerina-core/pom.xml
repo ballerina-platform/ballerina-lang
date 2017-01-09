@@ -105,7 +105,7 @@
             <artifactId>apache-mime4j-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.commons</groupId>
+            <groupId>org.apache.commons.wso2</groupId>
             <artifactId>commons-vfs2</artifactId>
         </dependency>
         <dependency>
@@ -171,7 +171,9 @@
             com.google.gson.*;version="${gson.import.version.range}",
             com.jayway.jsonpath.*;version="${jayway.jsonpath.import.version.range}",
             org.jaxen.*;version="${jaxen.import.version.range}",
-            net.sf.saxon.*;version="${saxon.import.version.range}"
+            net.sf.saxon.*;version="${saxon.import.version.range}",
+            org.apache.commons.io.*;version="${commons.io.version}",
+            org.apache.commons.vfs2.*;version="${commons.vfs.version}"
         </import.package>
         <carbon.component>
             startup.listener;componentName="ballerina-native-provider";

@@ -24,9 +24,9 @@ import org.apache.axiom.om.OMFactory;
 import org.apache.axiom.om.OMNamespace;
 import org.apache.axiom.om.util.AXIOMUtil;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.commons.vfs2.FileObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.Context;
 
 import java.io.IOException;
@@ -37,7 +37,7 @@ import javax.xml.stream.XMLStreamException;
  */
 @SuppressWarnings("ALL")
 public class ResultPayloadCreate {
-    private static final Log log = LogFactory.getLog(ResultPayloadCreate.class);
+    private static final Logger logger = LoggerFactory.getLogger(FileUnzipUtil.class);
     private static final OMFactory fac = OMAbstractFactory.getOMFactory();
 
     /**
