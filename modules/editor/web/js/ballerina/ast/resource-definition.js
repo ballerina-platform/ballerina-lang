@@ -166,10 +166,10 @@ define(['lodash', 'log', './node', './worker-declaration', './connector-declarat
      * @param identifier - The identifier of the argument.
      * @return {Array} - The removed argument.
      */
-    ResourceDefinition.prototype.removeArgument = function(argument) {
+    ResourceDefinition.prototype.removeArgument = function(identifier) {
         // Deleting the variable from the children.
         _.remove(this.getChildren(), function (child) {
-            return child instanceof ResourceArgument && child.getIdentifier() === argument;
+            return child instanceof ResourceArgument && child.getIdentifier() === identifier;
         });
     };
 
