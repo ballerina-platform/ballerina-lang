@@ -33,6 +33,7 @@ define(['lodash', './node'], function (_, ASTNode) {
         this.statements = [];
 
         ASTNode.call(this, type);
+        this.type = "CallableDefinition";
     };
 
     CallableDefinition .prototype = Object.create(ASTNode.prototype);

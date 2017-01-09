@@ -16,8 +16,11 @@
  * under the License.
  */
 define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-view',  './function-definition-view', './../ast/ballerina-ast-root',
-        './../ast/ballerina-ast-factory', './../ast/package-definition', './source-view', './../visitors/source-gen/ballerina-ast-root-visitor', './../tool-palette/tool-palette'],
-    function (_, $, log, BallerinaView, ServiceDefinitionView, FunctionDefinitionView, BallerinaASTRoot, BallerinaASTFactory, PackageDefinition, SourceView, SourceGenVisitor, ToolPalette) {
+        './../ast/ballerina-ast-factory', './../ast/package-definition', './source-view',
+        './../visitors/source-gen/ballerina-ast-root-visitor', './../tool-palette/tool-palette',
+        './../undo-manager/undo-manager'],
+    function (_, $, log, BallerinaView, ServiceDefinitionView, FunctionDefinitionView, BallerinaASTRoot, BallerinaASTFactory,
+              PackageDefinition, SourceView, SourceGenVisitor, ToolPalette, UndoManager) {
 
         /**
          * The view to represent a ballerina file editor which is an AST visitor.
@@ -171,6 +174,8 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             });
 
             this._createPackagePropertyPane(canvasContainer);
+            // init undo manager
+            this.undoManager = new UndoManager();
 
             //Registering event listeners
             this.listenTo(this._model, 'child-removed', this.childViewRemovedCallback);
@@ -237,6 +242,11 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             this._model.on('child-added', function(child){
                 self.visit(child);
                 self._model.trigger("child-visited", child);
+            });
+
+            // make undo-manager capture all tree modifications after initial rendering
+            this._model.on('tree-modified', function(event){
+                self.undoManager.onUndoableOperation(event);
             });
     };
 

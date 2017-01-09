@@ -24,6 +24,7 @@ define(['lodash', './statement'], function (_, Statement) {
     var ArithmeticExpression = function (args) {
         this._expression = 'x = a + b';
         Statement.call(this, 'ArithmeticExpression');
+        this.type = "ArithmeticExpression";
     };
 
     ArithmeticExpression.prototype = Object.create(Statement.prototype);

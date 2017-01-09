@@ -23,6 +23,7 @@ define(['lodash', './node'], function (_, ASTNode) {
         this._childrenList = [];
 
         ASTNode.call(this);
+        this.type = "WorkerDeclaration";
     };
 
     WorkerDeclaration.prototype = Object.create(ASTNode.prototype);
