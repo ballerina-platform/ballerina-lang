@@ -67,36 +67,7 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
          * @param {IfStatement} statement
          */
         IfElseStatementView.prototype.visitIfStatement = function(statement){
-            var StatementViewFactory = require('./statement-view-factory');
-            var statementViewFactory = new StatementViewFactory();
-            var topCenter = this.getTopCenter().clone();
-            var args = {model: statement, container: this.getStatementGroup(), viewOptions: {}, parent: this, topCenter: topCenter,
-                toolPalette: this.toolPalette, messageManager: this.messageManager};
-            var statementView = statementViewFactory.getStatementView(args);
-            this._ifBlockView = statementView;
-            this._diagramRenderingContext.getViewModelMap()[statement.id] = statementView;
-
-            this.getBoundingBox().on('top-edge-moved', function(dy){
-                statementView.getBoundingBox().y(statementView.getBoundingBox().y() + dy);
-            });
-            this.getBoundingBox().h(this.getBoundingBox().h() + statementView.getBoundingBox().h());
-
-            statementView.getBoundingBox().on("width-changed", function(dw){
-                if(this.getBoundingBox().w() < statementView.getBoundingBox().w()){
-                    this.getBoundingBox().w(statementView.getBoundingBox().w());
-                }
-            }, this);
-
-            this.getBoundingBox().on('width-changed', function(dw){
-                if(statementView.getBoundingBox().w() < this.getBoundingBox().w()){
-                    statementView.getBoundingBox().w(this.getBoundingBox().w());
-                }
-            }, this);
-
-            this.listenTo(statementView.getBoundingBox(), 'height-changed', function(dh){
-                this.getBoundingBox().h(this.getBoundingBox().h() + dh);
-            });
-            statementView.render(this._diagramRenderingContext);
+            this.visitChildStatement(statement);
         };
 
         /**
@@ -104,61 +75,7 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
          * @param {ElseIfStatement} statement
          */
         IfElseStatementView.prototype.visitElseIfStatement = function(statement){
-            var StatementViewFactory = require('./statement-view-factory');
-            var statementViewFactory = new StatementViewFactory();
-            var topCenterX = this.getBoundingBox().x() + this.getBoundingBox().w()/2;
-            var topCenterY = this.getBoundingBox().getBottom();
-
-            if(_.isEmpty(this._elseIfViews)){
-                topCenterY = this._ifBlockView.getBoundingBox().getBottom();
-            } else {
-                topCenterY = _.last(this._elseIfViews).getBoundingBox().getBottom();
-            }
-
-            var topCenter = new Point(topCenterX, topCenterY);
-            // For the viewOptions currently pass width only.
-            // This is because the initial width of the component should be based on my bounding box values
-            var viewOptions = {width: this.getBoundingBox().w()};
-            var args = {model: statement, container: this.getStatementGroup(), viewOptions: viewOptions, parent: this, topCenter: topCenter,
-                toolPalette: this.toolPalette, messageManager: this.messageManager};
-            var statementView = statementViewFactory.getStatementView(args);
-
-
-            // bind unbind event handlers
-            if(_.isEmpty(this._elseIfViews)){
-                // this is the first else if part - previously else block should be listening  on if view block
-                if(!_.isNil(this._elseBlockView)){
-                    this._elseBlockView.stopListening(this._ifBlockView.getBoundingBox(), 'bottom-edge-moved');
-                }
-            } else {
-                // else should be listening to current last else if view
-                if(!_.isNil(this._elseBlockView)){
-                    this._elseBlockView.stopListening(_.last(this._elseIfViews).getBoundingBox(), 'bottom-edge-moved');
-                }
-            }
-
-            this._elseIfViews.push(statementView);
-            this._diagramRenderingContext.getViewModelMap()[statement.id] = statementView;
-
-            // make else view listen to new last else if
-            if(!_.isNil(this._elseBlockView)){
-                this._elseBlockView.listenTo(_.last(this._elseIfViews).getBoundingBox(), 'bottom-edge-moved', function(dy){
-                    this.getBoundingBox().y( this.getBoundingBox().y() + dy);
-                });
-            }
-            this.getBoundingBox().h(this.getBoundingBox().h() + statementView.getBoundingBox().h());
-
-            this.getBoundingBox().on('width-changed', function(dw){
-                if(statementView.getBoundingBox().w() < this.getBoundingBox().w()){
-                    statementView.getBoundingBox().w(this.getBoundingBox().w());
-                }
-            }, this);
-
-            this.listenTo(statementView.getBoundingBox(), 'height-changed', function(dh){
-                this.getBoundingBox().h(this.getBoundingBox().h() + dh);
-            });
-
-            statementView.render(this._diagramRenderingContext);
+            this.visitChildStatement(statement);
         };
 
         /**
@@ -166,44 +83,7 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
          * @param {ElseStatement} statement
          */
         IfElseStatementView.prototype.visitElseStatement = function(statement){
-            var StatementViewFactory = require('./statement-view-factory');
-            var statementViewFactory = new StatementViewFactory();
-            var topCenterX = this.getBoundingBox().x() + this.getBoundingBox().w()/2;
-            var topCenterY = this.getBoundingBox().getBottom();
-
-            // find last view
-            var lastViewBlock = this._ifBlockView;
-            if(!_.isEmpty(this._elseIfViews)){
-                lastViewBlock = _.last(this._elseIfViews);
-            }
-            topCenterY = lastViewBlock.getBoundingBox().getBottom();
-
-            var topCenter = new Point(topCenterX, topCenterY);
-            var args = {model: statement, container: this.getStatementGroup(), viewOptions: {}, parent: this, topCenter: topCenter,
-                toolPalette: this.toolPalette, messageManager: this.messageManager};
-
-            var statementView = statementViewFactory.getStatementView(args);
-            this._elseBlockView = statementView;
-            this._diagramRenderingContext.getViewModelMap()[statement.id] = statementView;
-
-
-            statementView.listenTo(lastViewBlock.getBoundingBox(), 'bottom-edge-moved', function(dy){
-                statementView.getBoundingBox().y(statementView.getBoundingBox().y() + dy);
-            });
-
-            this.getBoundingBox().h(this.getBoundingBox().h() + statementView.getBoundingBox().h());
-
-            this.getBoundingBox().on('width-changed', function(dw){
-                if(statementView.getBoundingBox().w() < this.getBoundingBox().w()){
-                    statementView.getBoundingBox().w(this.getBoundingBox().w());
-                }
-            }, this);
-
-            this.listenTo(statementView.getBoundingBox(), 'height-changed', function(dh){
-                this.getBoundingBox().h(this.getBoundingBox().h() + dh);
-            });
-
-            statementView.render(this._diagramRenderingContext);
+            this.visitChildStatement(statement);
         };
 
         /**
@@ -214,7 +94,7 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
             var ifElseGroup = D3Utils.group(d3.select(this._container));
             ifElseGroup.attr("id","_" +this._model.id);
             this.setStatementGroup(ifElseGroup);
-            this._model.accept(this);
+            var self = this;
 
             var editableProperties = [];
             _.forEach(this._model.getChildren(), function(child, index){
@@ -247,6 +127,46 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
                 statementGroup:ifElseGroup,
                 editableProperties: editableProperties
             });
+
+            // If the top-edge-moved event triggered we only move the First child statement (If Statement).
+            // Because other child statements are listening to it's previous sibling and accordingly move
+            this.getBoundingBox().on('top-edge-moved', function (offset) {
+                self._childrenViewsList[0].getBoundingBox().move(0, offset, false);
+            });
+
+            this._model.accept(this);
+        };
+
+        IfElseStatementView.prototype.visitChildStatement = function (statement) {
+            var StatementViewFactory = require('./statement-view-factory');
+            var statementViewFactory = new StatementViewFactory();
+            var topCenter;
+            if (_.isEmpty(this._childrenViewsList)) {
+                topCenter = new Point(this.getTopCenter().x(), this.getTopCenter().y());
+            } else {
+                var childX = this.getTopCenter().x();
+                var childY = _.last(this._childrenViewsList).getBoundingBox().getBottom();
+                topCenter = new Point(childX, childY);
+            }
+            var args = {model: statement, container: this._statementGroup.node(), viewOptions: {},
+                parent:this, topCenter: topCenter, toolPalette: this.toolPalette};
+            var statementView = statementViewFactory.getStatementView(args);
+            this._diagramRenderingContext.getViewModelMap()[statement.id] = statementView;
+            var lastChildView = _.last(this._childrenViewsList);
+            if (!_.isUndefined(lastChildView)) {
+                lastChildView.getBoundingBox().on('bottom-edge-moved', function (offset) {
+                    statementView.getBoundingBox().move(0, offset, false);
+                });
+            }
+            this._childrenViewsList.push(statementView);
+            statementView.render(this._diagramRenderingContext);
+            this.resizeOnChildRendered(statementView.getBoundingBox());
+        };
+
+        IfElseStatementView.prototype.resizeOnChildRendered = function (childBBox) {
+            var newWidth = childBBox.x();
+            var newHeight = this.getBoundingBox().h() + childBBox.h();
+            this.getBoundingBox().x(childBBox.x()).w(childBBox.w()).h(newHeight);
         };
 
         /**
