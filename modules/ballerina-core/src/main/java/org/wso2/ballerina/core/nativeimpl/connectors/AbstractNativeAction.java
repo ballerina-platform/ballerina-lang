@@ -80,8 +80,8 @@ public abstract class AbstractNativeAction implements Action, NativeConstruct {
                                 new SymbolName(argument.name())));
                     } catch (BallerinaException e) {
                         // TODO: Fix this when TypeC.getType method is improved.
-                        log.warn("Error while processing Parameters for Native ballerina action {}:{}.", packageName,
-                                actionName, e);
+                        log.error("Internal Error..! Error while processing Parameters for Native ballerina" +
+                                " action {}:{}.", packageName, actionName, e);
                     }
                 });
         Arrays.stream(action.returnType()).forEach(returnType -> {
@@ -89,16 +89,16 @@ public abstract class AbstractNativeAction implements Action, NativeConstruct {
                 returnTypes.add(BTypes.getType(returnType.getName()));
             } catch (BallerinaException e) {
                 // TODO: Fix this when TypeC.getType method is improved.
-                log.warn("Error while processing ReturnTypes for Native ballerina action {}:{}.", packageName,
-                        actionName, e);
+                log.error("Internal Error..! Error while processing ReturnTypes for Native ballerina" +
+                        " action {}:{}.", packageName, actionName, e);
             }
         });
         Arrays.stream(action.consts()).forEach(constant -> {
             try {
                 constants.add(Utils.getConst(constant));
             } catch (MalformedEntryException e) {
-                log.warn("Error while processing pre defined const {} for Native ballerina action {}:{}.",
-                        constant.identifier(), packageName, actionName, e);
+                log.error("Internal Error..! Error while processing pre defined const {} for Native ballerina" +
+                        " action {}:{}.", constant.identifier(), packageName, actionName, e);
             }
         });
         // TODO: Handle Ballerina Annotations.

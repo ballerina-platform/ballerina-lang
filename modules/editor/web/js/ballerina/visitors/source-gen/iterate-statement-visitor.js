@@ -24,20 +24,20 @@ define(['lodash', 'log', 'event_channel', './abstract-statement-source-gen-visit
     IterateStatementVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
     IterateStatementVisitor.prototype.constructor = IterateStatementVisitor;
 
-    IterateStatementVisitor.prototype.canVisitStatement = function(iterateStatement){
+    IterateStatementVisitor.prototype.canVisitIterateStatement = function(iterateStatement){
         return true;
     };
 
-    IterateStatementVisitor.prototype.beginVisitStatement = function(iterateStatement){
-        log.info('Begin Visit Iterate Statement Definition');
+    IterateStatementVisitor.prototype.beginVisitIterateStatement = function(iterateStatement){
+        log.debug('Begin Visit Iterate Statement Definition');
     };
 
-    IterateStatementVisitor.prototype.visitStatement = function(iterateStatement){
-        log.info('Visit Iterate Statement Definition');
+    IterateStatementVisitor.prototype.visitIterateStatement = function(iterateStatement){
+        log.debug('Visit Iterate Statement Definition');
     };
 
-    IterateStatementVisitor.prototype.endVisitStatement = function(iterateStatement){
-        log.info('End Visit Iterate Statement Definition');
+    IterateStatementVisitor.prototype.endVisitIterateStatement = function(iterateStatement){
+        log.debug('End Visit Iterate Statement Definition');
     };
 
     return IterateStatementVisitor;

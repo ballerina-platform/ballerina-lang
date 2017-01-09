@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerina.core.interpreter;
 
+import org.wso2.ballerina.core.model.BallerinaConnector;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.Connector;
 import org.wso2.ballerina.core.model.ConnectorDcl;
@@ -49,57 +50,95 @@ public class RuntimeEnvironment {
     public static RuntimeEnvironment get(BallerinaFile bFile) {
         StaticMemory staticMemory = new StaticMemory(bFile.getSizeOfStaticMem());
 
-        int index = -1;
+        int staticMemOffset = 0;
         for (Const constant : bFile.getConstants()) {
-            index++;
-            staticMemory.setValue(index, constant.getValue());
+            staticMemory.setValue(staticMemOffset, constant.getValue());
+            staticMemOffset++;
         }
 
         for (Service service : bFile.getServices()) {
             for (ConnectorDcl connectorDcl : service.getConnectorDcls()) {
-                index++;
-
-                Connector connector = connectorDcl.getConnector();
-                Expression[] argExpressions = connectorDcl.getArgExprs();
-                BValue[] bValueRefs = new BValue[argExpressions.length];
-                for (int j = 0; j < argExpressions.length; j++) {
-
-                    Expression argExpr = argExpressions[j];
-                    if (argExpr instanceof BasicLiteral) {
-                        bValueRefs[j] = ((BasicLiteral) argExpr).getBValue();
-                        continue;
-
-                    } else if (argExpr instanceof VariableRefExpr) {
-                        VariableRefExpr variableRefExpr = (VariableRefExpr) argExpr;
-                        if (variableRefExpr.getLocation() instanceof ConstantLocation) {
-                            ConstantLocation location = (ConstantLocation) variableRefExpr.getLocation();
-                            bValueRefs[j] = staticMemory.getValue(location.getStaticMemAddrOffset());
-                            continue;
-                        }
-                    }
-
-                    // This branch shouldn't be hit
-                    throw new IllegalStateException("Invalid argument in connector declaration");
-                }
-
-                if (connector instanceof AbstractNativeConnector) {
-                    //TODO Fix Issue#320
-                    AbstractNativeConnector nativeConnector = ((AbstractNativeConnector) connector).getInstance();
-                    nativeConnector.init(bValueRefs);
-                    connector = nativeConnector;
-                }
-
-                BConnector connectorValue = new BConnector(connector, connectorDcl.getArgExprs());
-                staticMemory.setValue(index, connectorValue);
+                BConnector bConnector = populateConnectorDcls(staticMemory, connectorDcl);
+                staticMemory.setValue(staticMemOffset, bConnector);
+                staticMemOffset++;
             }
 
-            for (VariableDcl variableDcl : service.getVariableDcls()) {
-                index++;
-                staticMemory.setValue(index, variableDcl.getType().getDefaultValue());
-            }
+            staticMemOffset = initVariableDcls(staticMemory, staticMemOffset, service);
         }
 
         return new RuntimeEnvironment(staticMemory);
+    }
+
+    private static int initVariableDcls(StaticMemory staticMemory, int staticMemOffset, Service service) {
+        for (VariableDcl variableDcl : service.getVariableDcls()) {
+            staticMemory.setValue(staticMemOffset, variableDcl.getType().getDefaultValue());
+            staticMemOffset++;
+        }
+        return staticMemOffset;
+    }
+
+    private static BConnector populateConnectorDcls(StaticMemory staticMemory, ConnectorDcl connectorDcl) {
+        Connector connector = connectorDcl.getConnector();
+        Expression[] argExprs = connectorDcl.getArgExprs();
+        BValue[] bValueRefs;
+
+        int offset = 0;
+        if (connector instanceof AbstractNativeConnector) {
+            //TODO Fix Issue#320
+            bValueRefs = new BValue[argExprs.length];
+            populateConnectorArgs(staticMemory, argExprs, bValueRefs, offset);
+            AbstractNativeConnector nativeConnector = ((AbstractNativeConnector) connector).getInstance();
+            nativeConnector.init(bValueRefs);
+            connector = nativeConnector;
+
+        } else {
+            bValueRefs = new BValue[argExprs.length];
+            BallerinaConnector ballerinaConnector = (BallerinaConnector) connector;
+
+            offset = populateConnectorArgs(staticMemory, argExprs, bValueRefs, offset);
+
+            for (ConnectorDcl connectorDcl1 : ballerinaConnector.getConnectorDcls()) {
+                BConnector bConnector = populateConnectorDcls(staticMemory, connectorDcl1);
+                bValueRefs[offset] = bConnector;
+                offset++;
+            }
+
+            for (VariableDcl variableDcl : ballerinaConnector.getVariableDcls()) {
+                bValueRefs[offset] = variableDcl.getType().getDefaultValue();
+                offset++;
+            }
+        }
+
+        return new BConnector(connector, bValueRefs);
+    }
+
+    private static int populateConnectorArgs(StaticMemory staticMemory,
+                                             Expression[] argExpressions,
+                                             BValue[] bValueRefs,
+                                             int offset) {
+
+        for (int j = 0; j < argExpressions.length; j++) {
+            Expression argExpr = argExpressions[j];
+
+            if (argExpr instanceof BasicLiteral) {
+                bValueRefs[j] = ((BasicLiteral) argExpr).getBValue();
+                offset++;
+                continue;
+
+            } else if (argExpr instanceof VariableRefExpr) {
+                VariableRefExpr variableRefExpr = (VariableRefExpr) argExpr;
+                if (variableRefExpr.getLocation() instanceof ConstantLocation) {
+                    ConstantLocation location = (ConstantLocation) variableRefExpr.getLocation();
+                    bValueRefs[j] = staticMemory.getValue(location.getStaticMemAddrOffset());
+                    offset++;
+                    continue;
+                }
+            }
+
+            // This branch shouldn't be hit
+            throw new IllegalStateException("Invalid argument in connector declaration");
+        }
+        return offset;
     }
 
     /**

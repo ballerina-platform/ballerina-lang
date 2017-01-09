@@ -28,6 +28,7 @@ import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.ConnectorDcl;
 import org.wso2.ballerina.core.model.Const;
 import org.wso2.ballerina.core.model.ImportPackage;
+import org.wso2.ballerina.core.model.Operator;
 import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.Position;
 import org.wso2.ballerina.core.model.Resource;
@@ -42,6 +43,7 @@ import org.wso2.ballerina.core.model.expressions.ArrayMapAccessExpr;
 import org.wso2.ballerina.core.model.expressions.BackquoteExpr;
 import org.wso2.ballerina.core.model.expressions.BasicLiteral;
 import org.wso2.ballerina.core.model.expressions.BinaryExpression;
+import org.wso2.ballerina.core.model.expressions.DivideExpr;
 import org.wso2.ballerina.core.model.expressions.EqualExpression;
 import org.wso2.ballerina.core.model.expressions.Expression;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
@@ -56,7 +58,9 @@ import org.wso2.ballerina.core.model.expressions.MultExpression;
 import org.wso2.ballerina.core.model.expressions.NotEqualExpression;
 import org.wso2.ballerina.core.model.expressions.OrExpression;
 import org.wso2.ballerina.core.model.expressions.SubtractExpression;
+import org.wso2.ballerina.core.model.expressions.UnaryExpression;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
+import org.wso2.ballerina.core.model.statements.ActionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.statements.FunctionInvocationStmt;
@@ -171,9 +175,13 @@ public class BLangModelBuilder {
     public void createInstanceCreaterExpr(String typeName) {
         InstanceCreationExpr expression = new InstanceCreationExpr(null);
         BType type = BTypes.getType(typeName);
+
+        if (type == null) {
+            throw new ParserException("Unknown type: " + typeName);
+        }
+
         expression.setType(type);
         exprStack.push(expression);
-
     }
 
     public void startAnnotation() {
@@ -187,7 +195,7 @@ public class BLangModelBuilder {
         //        Annotation.AnnotationBuilder annotationBuilder = annotationBuilderStack.peek();
         //        annotationBuilder.addKeyValuePair(new Identifier(key), value);
 
-        log.warn("Key/Value pairs in annotations are not supported");
+        log.warn("Warning: Key/Value pairs in annotations are not supported");
     }
 
     public void endAnnotation(String name, boolean valueAvailable) {
@@ -351,7 +359,6 @@ public class BLangModelBuilder {
     public void createBinaryExpr(String opStr) {
         Expression rExpr = exprStack.pop();
         Expression lExpr = exprStack.pop();
-        //        String opStr = ctx.getChild(1).getText();
 
         BinaryExpression expr;
         switch (opStr) {
@@ -368,7 +375,8 @@ public class BLangModelBuilder {
                 break;
 
             case "/":
-                throw new ParserException("Unsupported operator: " + opStr);
+                expr = new DivideExpr(lExpr, rExpr);
+                break;
 
             case "&&":
                 expr = new AndExpression(lExpr, rExpr);
@@ -404,6 +412,30 @@ public class BLangModelBuilder {
 
             default:
                 throw new ParserException("Unsupported operator: " + opStr);
+        }
+
+        exprStack.push(expr);
+    }
+
+    public void createUnaryExpr(String op) {
+        Expression rExpr = exprStack.pop();
+
+        UnaryExpression expr;
+        switch (op) {
+            case "+":
+                expr = new UnaryExpression(Operator.ADD, rExpr);
+                break;
+
+            case "-":
+                expr = new UnaryExpression(Operator.SUB, rExpr);
+                break;
+
+            case "!":
+                expr = new UnaryExpression(Operator.NOT, rExpr);
+                break;
+
+            default:
+                throw new ParserException("Unsupported operator: " + op);
         }
 
         exprStack.push(expr);
@@ -692,6 +724,23 @@ public class BLangModelBuilder {
         blockStmtBuilderStack.peek().addStmt(functionInvocationStmt);
     }
 
+    public void createActionInvocationStmt(Position invokedLocation) {
+        CallableUnitInvocationExprBuilder cIExprBuilder = new CallableUnitInvocationExprBuilder();
+        cIExprBuilder.setExpressionList(exprListStack.pop());
+        cIExprBuilder.setName(symbolNameStack.pop());
+
+        ActionInvocationExpr invocationExpr = cIExprBuilder.buildActionInvocExpr();
+        invocationExpr.setInvokedLocation(invokedLocation);
+
+        ActionInvocationStmt.ActionInvocationStmtBuilder stmtBuilder =
+                new ActionInvocationStmt.ActionInvocationStmtBuilder();
+        stmtBuilder.setFunctionInvocationExpr(invocationExpr);
+        ActionInvocationStmt actionInvocationStmt = stmtBuilder.build();
+
+        blockStmtBuilderStack.peek().addStmt(actionInvocationStmt);
+    }
+
+
     // Literal Values
 
     public void createIntegerLiteral(String value) {
@@ -753,7 +802,7 @@ public class BLangModelBuilder {
 
     /**
      * @param keyValueDataHolderList List<KeyValueDataHolder>
-     * @param n        number of expression to be added the given list
+     * @param n                      number of expression to be added the given list
      */
     private void addKeyValueToList(List<KeyValueExpression> keyValueDataHolderList, int n) {
 

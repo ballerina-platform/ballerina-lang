@@ -139,13 +139,13 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
         ResourceDefinitionView.prototype.childViewAddedCallback = function (child) {
             if(BallerinaASTFactory.isResourceDefinition(child)){
                 if(child !== this._model){
-                    log.info("[Eventing] Resource view added : ");
+                    log.debug("[Eventing] Resource view added : ");
                 }
             }
         };
 
         ResourceDefinitionView.prototype.childRemovedCallback = function (child) {
-            log.info("[Eventing] Child element removed. ");
+            log.debug("[Eventing] Child element removed. ");
             (d3.select(this._container)).selectAll('#_' +child.id).remove();
         };
 
@@ -506,7 +506,10 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             var contentGroup = D3utils.group(resourceGroup);
             contentGroup.attr('id', "contentGroup");
 
-            nameSpan.on("change paste keyup", function () {
+            nameSpan.on("change paste keydown", function (e) {
+                if (e.which == 13) {
+                    return false;
+                }
                 self._model.setResourceName($(this).text());
             });
 
@@ -557,7 +560,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
             // On click of delete icon
             headingDeleteIcon.on("click", function () {
-                log.info("Clicked delete button");
+                log.debug("Clicked delete button");
                 var child = self._model;
                 var parent = child.parent;
                 parent.removeChild(child);
@@ -646,6 +649,24 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             };
 
             ArgumentsView.createArgumentsPane(argumentsProperties);
+
+            var operationButtons = [headingAnnotationIcon.node(), headingArgumentsIcon.node()];
+
+
+            // Closing the shown pane when another operation button is clicked.
+            _.forEach(operationButtons, function (button) {
+                $(button).click(function(event){
+                    event.stopPropagation();
+                });
+
+                $(button).click(function () {
+                    _.forEach(operationButtons, function (buttonToClick) {
+                        if (button !== buttonToClick && $(buttonToClick).data("showing-pane") == "true") {
+                            $(buttonToClick).click();
+                        }
+                    });
+                });
+            });
 
             this.getBoundingBox().on("moved", function(offset){
                 var currentTransform = this._resourceGroup.attr("transform");
@@ -803,13 +824,6 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                     model: connectorDeclarationView._model,
                     getterMethod: connectorDeclarationView._model.getUri,
                     setterMethod: connectorDeclarationView._model.setUri
-                },
-                {
-                    propertyType: "text",
-                    key: "Timeout",
-                    model: connectorDeclarationView._model,
-                    getterMethod: connectorDeclarationView._model.getTimeout,
-                    setterMethod: connectorDeclarationView._model.setTimeout
                 }
             ];
             connectorDeclarationView.createPropertyPane({

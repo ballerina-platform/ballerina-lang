@@ -30,7 +30,11 @@ define(['require','lodash', 'log', 'event_channel', './abstract-statement-source
         };
 
         FunctionInvocationVisitor.prototype.beginVisitStatement = function(functionInvocation){
-            var source = functionInvocation.getPackageName() + ':' + functionInvocation.getFunctionName() + '(';
+            var source = "";
+            if (!_.isNil(functionInvocation.getPackageName()) && functionInvocation.getPackageName() !== "") {
+                source += functionInvocation.getPackageName() + ':';
+            }
+            source += functionInvocation.getFunctionName() + '(';
             var params = functionInvocation.getParams();
             for (var id = 0; id < params.length; id ++) {
                 if (id > 0) {
@@ -51,7 +55,7 @@ define(['require','lodash', 'log', 'event_channel', './abstract-statement-source
         FunctionInvocationVisitor.prototype.endVisitStatement = function(functionInvocation){
             this.appendSource(";\n");
             this.getParent().appendSource(this.getGeneratedSource());
-            log.info('End Visit Function Invocation expression');
+            log.debug('End Visit Function Invocation expression');
         };
 
         return FunctionInvocationVisitor;

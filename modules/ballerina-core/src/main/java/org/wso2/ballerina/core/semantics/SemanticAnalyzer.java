@@ -38,6 +38,7 @@ import org.wso2.ballerina.core.model.Const;
 import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.model.ImportPackage;
 import org.wso2.ballerina.core.model.NodeVisitor;
+import org.wso2.ballerina.core.model.Operator;
 import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
@@ -55,6 +56,7 @@ import org.wso2.ballerina.core.model.expressions.BasicLiteral;
 import org.wso2.ballerina.core.model.expressions.BinaryArithmeticExpression;
 import org.wso2.ballerina.core.model.expressions.BinaryExpression;
 import org.wso2.ballerina.core.model.expressions.BinaryLogicalExpression;
+import org.wso2.ballerina.core.model.expressions.DivideExpr;
 import org.wso2.ballerina.core.model.expressions.EqualExpression;
 import org.wso2.ballerina.core.model.expressions.Expression;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
@@ -73,6 +75,7 @@ import org.wso2.ballerina.core.model.expressions.UnaryExpression;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.invokers.MainInvoker;
 import org.wso2.ballerina.core.model.invokers.ResourceInvocationExpr;
+import org.wso2.ballerina.core.model.statements.ActionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.statements.CommentStmt;
@@ -88,6 +91,7 @@ import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.model.util.LangModelUtils;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -99,11 +103,11 @@ import java.util.Map;
 public class SemanticAnalyzer implements NodeVisitor {
     private int stackFrameOffset = -1;
     private int staticMemAddrOffset = -1;
+    private int connectorMemAddrOffset = -1;
 
     private SymTable symbolTable;
 
     private String currentPkg;
-
 
     // We need to keep a map of import packages.
     // This is useful when analyzing import functions, actions and types.
@@ -117,7 +121,11 @@ public class SemanticAnalyzer implements NodeVisitor {
         currentPkg = bFile.getPackageName();
 
         // TODO We can move this logic to the parser.
-        bFile.getFunctions().values().forEach(this::addFuncSymbol);
+        Arrays.asList(bFile.getFunctions()).forEach(this::addFuncSymbol);
+        bFile.getConnectorList().forEach(connector -> {
+            addConnectorSymbol(connector);
+            Arrays.asList(connector.getActions()).forEach(this::addActionSymbol);
+        });
     }
 
     @Override
@@ -140,7 +148,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             service.accept(this);
         }
 
-        for (Function function : bFile.getFunctions().values()) {
+        for (Function function : bFile.getFunctions()) {
             BallerinaFunction bFunction = (BallerinaFunction) function;
             bFunction.accept(this);
         }
@@ -211,14 +219,34 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(BallerinaConnector connector) {
-        Symbol symbol = new Symbol(connector, LangModelUtils.getTypesOfParams(connector.getParameters()));
-        symbolTable.insert(new SymbolName(connector.getPackageQualifiedName()), symbol);
+        // Then open the connector namespace
+        openScope(SymScope.Name.CONNECTOR);
+
+        for (Parameter parameter : connector.getParameters()) {
+            connectorMemAddrOffset++;
+            visit(parameter);
+        }
+
+        for (ConnectorDcl connectorDcl : connector.getConnectorDcls()) {
+            connectorMemAddrOffset++;
+            visit(connectorDcl);
+        }
+
+        for (VariableDcl variableDcl : connector.getVariableDcls()) {
+            connectorMemAddrOffset++;
+            visit(variableDcl);
+        }
 
         for (BallerinaAction action : connector.getActions()) {
-            addActionSymbol(action);
             action.accept(this);
         }
 
+        int sizeOfConnectorMem = connectorMemAddrOffset + 1;
+        connector.setSizeOfConnectorMem(sizeOfConnectorMem);
+
+        // Close the symbol scope
+        connectorMemAddrOffset = -1;
+        closeScope();
     }
 
     @Override
@@ -301,7 +329,6 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(BallerinaAction action) {
-
         // Open a new symbol scope
         openScope(SymScope.Name.ACTION);
 
@@ -337,8 +364,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         action.setStackFrameSize(sizeOfStackFrame);
 
         // Close the symbol scope
+        stackFrameOffset = -1;
         closeScope();
-
     }
 
     @Override
@@ -362,7 +389,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         MemoryLocation location;
         if (isInScope(SymScope.Name.CONNECTOR)) {
-            location = new ConnectorVarLocation();
+            location = new ConnectorVarLocation(connectorMemAddrOffset);
 
         } else if (isInScope(SymScope.Name.FUNCTION) ||
                 isInScope(SymScope.Name.RESOURCE) ||
@@ -391,7 +418,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         MemoryLocation location;
         if (isInScope(SymScope.Name.CONNECTOR)) {
-            location = new ConnectorVarLocation();
+            location = new ConnectorVarLocation(connectorMemAddrOffset);
 
         } else if (isInScope(SymScope.Name.SERVICE)) {
             location = new ServiceVarLocation(staticMemAddrOffset);
@@ -423,7 +450,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         MemoryLocation location;
         if (isInScope(SymScope.Name.CONNECTOR)) {
-            location = new ConnectorVarLocation();
+            location = new ConnectorVarLocation(connectorMemAddrOffset);
 
         } else if (isInScope(SymScope.Name.SERVICE)) {
             location = new ServiceVarLocation(staticMemAddrOffset);
@@ -463,14 +490,22 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(AssignStmt assignStmt) {
         Expression lExpr = assignStmt.getLExpr();
+
         if (lExpr instanceof ArrayMapAccessExpr) {
             ((ArrayMapAccessExpr) lExpr).setLHSExpr(true);
         }
+
         lExpr.accept(this);
+
+        // Check whether someone is trying to change the values of a constant
+        if (lExpr instanceof VariableRefExpr &&
+                ((VariableRefExpr) lExpr).getLocation() instanceof ConstantLocation) {
+            throw new SemanticException("Error: cannot assign a value to constant: " +
+                    ((VariableRefExpr) lExpr).getSymbolName());
+        }
 
         Expression rExpr = assignStmt.getRExpr();
         rExpr.accept(this);
-
 
         // Return types of the function or action invoked are only available during the linking phase
         // There type compatibility check is impossible during the semantic analysis phase.
@@ -566,6 +601,11 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     @Override
+    public void visit(ActionInvocationStmt actionInvocationStmt) {
+        actionInvocationStmt.getActionInvocationExpr().accept(this);
+    }
+
+    @Override
     public void visit(ReplyStmt replyStmt) {
         replyStmt.getReplyExpr().accept(this);
     }
@@ -585,10 +625,13 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(InstanceCreationExpr instanceCreationExpr) {
         visitExpr(instanceCreationExpr);
 
+        if (BTypes.isValueType(instanceCreationExpr.getType())) {
+            throw new SemanticException("Error: cannot use 'new' for value types: " + instanceCreationExpr.getType());
+        }
         // TODO here the type shouldn't be a value type
-
 //        Expression expr = instanceCreationExpr.getRExpr();
 //        expr.accept(this);
+
     }
 
     @Override
@@ -663,7 +706,61 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     @Override
+    public void visit(DivideExpr divideExpr) {
+        BType arithmeticExprType = verifyBinaryArithmeticExprType(divideExpr);
+
+        if (arithmeticExprType == BTypes.INT_TYPE) {
+            divideExpr.setEvalFunc(DivideExpr.DIV_INT_FUNC);
+
+        } else if (arithmeticExprType == BTypes.FLOAT_TYPE) {
+            divideExpr.setEvalFunc(DivideExpr.DIV_FLOAT_FUNC);
+
+        } else {
+            throw new SemanticException("Add operation is not supported for type: " + arithmeticExprType);
+        }
+    }
+
+    @Override
     public void visit(UnaryExpression unaryExpr) {
+        unaryExpr.getRExpr().accept(this);
+        unaryExpr.setType(unaryExpr.getRExpr().getType());
+
+        if (Operator.SUB.equals(unaryExpr.getOperator())) {
+            if (unaryExpr.getType() == BTypes.INT_TYPE) {
+                unaryExpr.setEvalFunc(UnaryExpression.NEGATIVE_INT_FUNC);
+            } else if (unaryExpr.getType() == BTypes.DOUBLE_TYPE) {
+                unaryExpr.setEvalFunc(UnaryExpression.NEGATIVE_DOUBLE_FUNC);
+            } else if (unaryExpr.getType() == BTypes.LONG_TYPE) {
+                unaryExpr.setEvalFunc(UnaryExpression.NEGATIVE_LONG_FUNC);
+            } else if (unaryExpr.getType() == BTypes.FLOAT_TYPE) {
+                unaryExpr.setEvalFunc(UnaryExpression.NEGATIVE_FLOAT_FUNC);
+            } else {
+                throw new SemanticException("Incompatible type in unary expression " + unaryExpr.getType());
+            }
+        } else if (Operator.ADD.equals(unaryExpr.getOperator())) {
+            if (unaryExpr.getType() == BTypes.INT_TYPE) {
+                unaryExpr.setEvalFunc(UnaryExpression.POSITIVE_INT_FUNC);
+            } else if (unaryExpr.getType() == BTypes.DOUBLE_TYPE) {
+                unaryExpr.setEvalFunc(UnaryExpression.POSITIVE_DOUBLE_FUNC);
+            } else if (unaryExpr.getType() == BTypes.LONG_TYPE) {
+                unaryExpr.setEvalFunc(UnaryExpression.POSITIVE_LONG_FUNC);
+            } else if (unaryExpr.getType() == BTypes.FLOAT_TYPE) {
+                unaryExpr.setEvalFunc(UnaryExpression.POSITIVE_FLOAT_FUNC);
+            } else {
+                throw new SemanticException("Incompatible type in unary expression " + unaryExpr.getType());
+            }
+
+        } else if (Operator.NOT.equals(unaryExpr.getOperator())) {
+            if (unaryExpr.getType() == BTypes.BOOLEAN_TYPE) {
+                unaryExpr.setEvalFunc(UnaryExpression.NOT_BOOLEAN_FUNC);
+            } else {
+                throw new SemanticException("Incompatible type in unary expression " + unaryExpr.getType()
+                                            + " Not Only support boolean");
+            }
+
+        } else {
+            throw new SemanticException("Incompatible operation for unary expression" + unaryExpr.getOperator().name());
+        }
 
     }
 
@@ -671,9 +768,11 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(AddExpression addExpr) {
         BType arithmeticExprType = verifyBinaryArithmeticExprType(addExpr);
 
-        // We need to find a better implementation than this.
         if (arithmeticExprType == BTypes.INT_TYPE) {
             addExpr.setEvalFunc(AddExpression.ADD_INT_FUNC);
+
+        } else if (arithmeticExprType == BTypes.FLOAT_TYPE) {
+            addExpr.setEvalFunc(AddExpression.ADD_FLOAT_FUNC);
 
         } else if (arithmeticExprType == BTypes.STRING_TYPE) {
             addExpr.setEvalFunc(AddExpression.ADD_STRING_FUNC);
@@ -686,8 +785,13 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(MultExpression multExpr) {
         BType binaryExprType = verifyBinaryArithmeticExprType(multExpr);
+
         if (binaryExprType == BTypes.INT_TYPE) {
             multExpr.setEvalFunc(MultExpression.MULT_INT_FUNC);
+
+        } else if (binaryExprType == BTypes.FLOAT_TYPE) {
+            multExpr.setEvalFunc(MultExpression.MULT_FLOAT_FUNC);
+
         } else {
             throw new SemanticException("Mult operation is not supported for type: " + binaryExprType);
         }
@@ -696,8 +800,13 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(SubtractExpression subtractExpr) {
         BType binaryExprType = verifyBinaryArithmeticExprType(subtractExpr);
+
         if (binaryExprType == BTypes.INT_TYPE) {
             subtractExpr.setEvalFunc(SubtractExpression.SUB_INT_FUNC);
+
+        } else if (binaryExprType == BTypes.FLOAT_TYPE) {
+            subtractExpr.setEvalFunc(SubtractExpression.SUB_FLOAT_FUNC);
+
         } else {
             throw new SemanticException("Subtraction operation is not supported for type: " + binaryExprType);
         }
@@ -721,9 +830,16 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         if (compareExprType == BTypes.INT_TYPE) {
             expr.setEvalFunc(EqualExpression.EQUAL_INT_FUNC);
+
+        } else if (compareExprType == BTypes.FLOAT_TYPE) {
+            expr.setEvalFunc(EqualExpression.EQUAL_FLOAT_FUNC);
+
+        } else if (compareExprType == BTypes.BOOLEAN_TYPE) {
+            expr.setEvalFunc(EqualExpression.EQUAL_BOOLEAN_FUNC);
+
         } else if (compareExprType == BTypes.STRING_TYPE) {
-            expr.setType(BTypes.BOOLEAN_TYPE);
             expr.setEvalFunc(EqualExpression.EQUAL_STRING_FUNC);
+
         } else {
             throw new SemanticException("Equals operation is not supported for type: "
                     + compareExprType);
@@ -736,8 +852,16 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         if (compareExprType == BTypes.INT_TYPE) {
             notEqualExpr.setEvalFunc(NotEqualExpression.NOT_EQUAL_INT_FUNC);
+
+        } else if (compareExprType == BTypes.FLOAT_TYPE) {
+            notEqualExpr.setEvalFunc(NotEqualExpression.NOT_EQUAL_FLOAT_FUNC);
+
+        } else if (compareExprType == BTypes.BOOLEAN_TYPE) {
+            notEqualExpr.setEvalFunc(NotEqualExpression.NOT_EQUAL_BOOLEAN_FUNC);
+
         } else if (compareExprType == BTypes.STRING_TYPE) {
             notEqualExpr.setEvalFunc(NotEqualExpression.NOT_EQUAL_STRING_FUNC);
+
         } else {
             throw new SemanticException("NotEqual operation is not supported for type: " + compareExprType);
         }
@@ -749,6 +873,10 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         if (compareExprType == BTypes.INT_TYPE) {
             greaterEqualExpr.setEvalFunc(GreaterEqualExpression.GREATER_EQUAL_INT_FUNC);
+
+        } else if (compareExprType == BTypes.FLOAT_TYPE) {
+            greaterEqualExpr.setEvalFunc(GreaterEqualExpression.GREATER_EQUAL_FLOAT_FUNC);
+
         } else {
             throw new SemanticException("Greater than equal operation is not supported for type: "
                     + compareExprType);
@@ -761,6 +889,10 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         if (compareExprType == BTypes.INT_TYPE) {
             greaterThanExpr.setEvalFunc(GreaterThanExpression.GREATER_THAN_INT_FUNC);
+
+        } else if (compareExprType == BTypes.FLOAT_TYPE) {
+            greaterThanExpr.setEvalFunc(GreaterThanExpression.GREATER_THAN_FLOAT_FUNC);
+
         } else {
             throw new SemanticException("Greater than operation is not supported for type: "
                     + compareExprType);
@@ -770,8 +902,13 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(LessEqualExpression lessEqualExpr) {
         BType compareExprType = verifyBinaryCompareExprType(lessEqualExpr);
+
         if (compareExprType == BTypes.INT_TYPE) {
             lessEqualExpr.setEvalFunc(LessEqualExpression.LESS_EQUAL_INT_FUNC);
+
+        } else if (compareExprType == BTypes.FLOAT_TYPE) {
+            lessEqualExpr.setEvalFunc(LessEqualExpression.LESS_EQUAL_FLOAT_FUNC);
+
         } else {
             throw new SemanticException("Less than equal operation is not supported for type: "
                     + compareExprType);
@@ -781,8 +918,13 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(LessThanExpression lessThanExpr) {
         BType compareExprType = verifyBinaryCompareExprType(lessThanExpr);
+
         if (compareExprType == BTypes.INT_TYPE) {
             lessThanExpr.setEvalFunc(LessThanExpression.LESS_THAN_INT_FUNC);
+
+        } else if (compareExprType == BTypes.FLOAT_TYPE) {
+            lessThanExpr.setEvalFunc(LessThanExpression.LESS_THAN_FLOAT_FUNC);
+
         } else {
             throw new SemanticException("Less than operation is not supported for type: " + compareExprType);
         }
@@ -968,19 +1110,17 @@ public class SemanticAnalyzer implements NodeVisitor {
         function.setSymbolName(symbolName);
 
         BType[] paramTypes = LangModelUtils.getTypesOfParams(function.getParameters());
-
         Symbol symbol = new Symbol(function, paramTypes, function.getReturnTypes());
 
         if (symbolTable.lookup(symbolName) != null) {
-            throw new SemanticException("Duplicate function definition: " + symbolName.getName());
+            throw new SemanticException("Duplicate function definition: " + symbolName);
         }
+
         symbolTable.insert(symbolName, symbol);
     }
 
     private void addActionSymbol(BallerinaAction action) {
-
         SymbolName actionSymbolName = action.getSymbolName();
-
         BType[] paramTypes = LangModelUtils.getTypesOfParams(action.getParameters());
 
         SymbolName symbolName =
@@ -990,9 +1130,22 @@ public class SemanticAnalyzer implements NodeVisitor {
         Symbol symbol = new Symbol(action, paramTypes, action.getReturnTypes());
 
         if (symbolTable.lookup(symbolName) != null) {
-            throw new SemanticException("Duplicate action definition: " + symbolName.getName());
+            throw new SemanticException("Duplicate action definition: " + symbolName);
         }
+
         symbolTable.insert(symbolName, symbol);
+    }
+
+    private void addConnectorSymbol(BallerinaConnector connector) {
+        BType[] paramTypes = LangModelUtils.getTypesOfParams(connector.getParameters());
+        Symbol symbol = new Symbol(connector, paramTypes);
+
+        SymbolName symbolName = new SymbolName(connector.getPackageQualifiedName());
+        if (symbolTable.lookup(symbolName) != null) {
+            throw new SemanticException("Duplicate connector definition: " + symbolName);
+        }
+
+        symbolTable.insert(new SymbolName(connector.getPackageQualifiedName()), symbol);
     }
 
     private BType verifyBinaryArithmeticExprType(BinaryArithmeticExpression binaryArithmeticExpr) {

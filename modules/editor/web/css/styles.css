@@ -944,12 +944,12 @@ button.variable-list {
     width: 30px;
 }
 
-.if-else-title-rect {
+.statement-title-rect {
     fill: #FFFFFF;
     stroke: #818181;
 }
 
-.if-else-title-polyline {
+.statement-title-polyline {
     fill: none;
     stroke: #000000;
 }
@@ -1073,6 +1073,31 @@ button.variable-list {
     background-color: #818181;
 }
 
+#modalAbout a {
+    color: #337ab7;
+}
+
+#modalAbout .modal-dialog {
+    width: 30%;
+}
+
+.service-title-text:hover {
+    cursor: text;
+}
+
+.function-title-text:hover {
+    cursor: text;
+}
+
 /** Service container related styles | -> End **/
 /*//////////////////////////////////////////////////*/
 
+#breadcrumb-container > .breadcrumb{
+    text-transform: none;
+    padding: 6px 15px 6px 15px;
+    background: rgb(35, 35, 35);
+}
+
+#breadcrumb-container {
+    min-height: 32px;
+}

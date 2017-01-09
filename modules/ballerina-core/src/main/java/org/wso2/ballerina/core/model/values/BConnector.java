@@ -17,7 +17,6 @@
 package org.wso2.ballerina.core.model.values;
 
 import org.wso2.ballerina.core.model.Connector;
-import org.wso2.ballerina.core.model.expressions.Expression;
 
 /**
  * The {@code BConnector} represents a Connector in Ballerina
@@ -27,19 +26,23 @@ import org.wso2.ballerina.core.model.expressions.Expression;
 public final class BConnector implements BRefType<Connector> {
 
     private Connector connector;
-    private Expression[] argExprs;
+    private BValue[] connectorMemBlock;
 
     public BConnector() {
-        this(null, new Expression[0]);
+        this(null, new BValue[0]);
     }
 
-    public BConnector(Connector connector, Expression[] argExprs) {
+    public BConnector(Connector connector, BValue[] connectorMemBlock) {
         this.connector = connector;
-        this.argExprs = argExprs;
+        this.connectorMemBlock = connectorMemBlock;
     }
 
-    public Expression[] getArgExprs() {
-        return argExprs;
+    public BValue getValue(int offset) {
+        return connectorMemBlock[offset];
+    }
+
+    public void setValue(int offset, BValue bValue) {
+        this.connectorMemBlock[offset] = bValue;
     }
 
     @Override

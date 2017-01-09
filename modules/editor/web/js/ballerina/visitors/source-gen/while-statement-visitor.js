@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require','lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor'],
-function(require, _, log, EventChannel, AbstractStatementSourceGenVisitor) {
+define(['require','lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor', '../../ast/while-statement'],
+function(require, _, log, EventChannel, AbstractStatementSourceGenVisitor, WhileStatement) {
 
     var WhileStatementVisitor = function(parent){
         AbstractStatementSourceGenVisitor.call(this,parent);
@@ -25,23 +25,23 @@ function(require, _, log, EventChannel, AbstractStatementSourceGenVisitor) {
     WhileStatementVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
     WhileStatementVisitor.prototype.constructor = WhileStatementVisitor;
 
-    WhileStatementVisitor.prototype.canVisitStatement = function(whileStatement){
-        return true;
+    WhileStatementVisitor.prototype.canVisitWhileStatement = function(whileStatement){
+        return whileStatement instanceof WhileStatement && this._generatedSource === "";
     };
 
-    WhileStatementVisitor.prototype.beginVisitStatement = function(whileStatement){
+    WhileStatementVisitor.prototype.beginVisitWhileStatement = function(whileStatement){
         this.appendSource('While(' + whileStatement.getCondition() + '){');
-        log.info('Begin Visit If Statement Definition');
+        log.debug('Begin Visit If Statement Definition');
     };
 
     WhileStatementVisitor.prototype.visitWhileStatement = function(whileStatement){
-        log.info('Visit If Statement Definition');
+        log.debug('Visit If Statement Definition');
     };
 
-    WhileStatementVisitor.prototype.endVisitStatement = function(whileStatement){
+    WhileStatementVisitor.prototype.endVisitWhileStatement = function(whileStatement){
         this.appendSource("}\n");
         this.getParent().appendSource(this.getGeneratedSource());
-        log.info('End Visit If Statement Definition');
+        log.debug('End Visit If Statement Definition');
     };
 
     WhileStatementVisitor.prototype.visitStatement = function (statement) {

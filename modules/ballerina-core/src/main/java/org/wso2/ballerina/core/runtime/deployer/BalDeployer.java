@@ -94,8 +94,7 @@ public class BalDeployer {
                 balFile.accept(semanticAnalyzer);
 
                 if (Constants.RuntimeMode.RUN_FILE == ServiceContextHolder.getInstance().getRuntimeMode()) {
-                    BallerinaFunction function =
-                            (BallerinaFunction) balFile.getFunctions().get(Constants.MAIN_FUNCTION_NAME);
+                    BallerinaFunction function = (BallerinaFunction) balFile.getMainFunction();
                     if (function != null) {
                         ServiceContextHolder.getInstance().setBallerinaFileToExecute(balFile);
                         successful = true;
@@ -164,7 +163,7 @@ public class BalDeployer {
                 } catch (IOException ignore) {
                 }
             }
-            if (!successful) {
+            if (!successful && Constants.RuntimeMode.RUN_FILE == ServiceContextHolder.getInstance().getRuntimeMode()) {
                 ServiceContextHolder.getInstance().setRuntimeMode(Constants.RuntimeMode.ERROR);
             }
         }
@@ -191,7 +190,7 @@ public class BalDeployer {
     public void undeployBalFile(String fileName) {
         Application app = ApplicationRegistry.getInstance().getApplication(fileName);
         if (app == null) {
-            log.warn("Could not find service to undeploy: " + fileName + ".");
+            log.warn("Warning: Could not find service to undeploy: " + fileName + ".");
             return;
         }
         ApplicationRegistry.getInstance().unregisterApplication(app);

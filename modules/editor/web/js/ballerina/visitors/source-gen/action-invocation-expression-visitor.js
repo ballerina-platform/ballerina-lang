@@ -18,18 +18,18 @@
 define(['require','lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor', '../../ast/action-invocation-expression'],
     function(require, _, log, EventChannel, AbstractStatementSourceGenVisitor, ActionInvocation) {
 
-        var ActionInvocationExpressionVisitor = function(parent){
+        var ActionInvocationStatementVisitor = function(parent){
             AbstractStatementSourceGenVisitor.call(this,parent);
         };
 
-        ActionInvocationExpressionVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
-        ActionInvocationExpressionVisitor.prototype.constructor = ActionInvocationExpressionVisitor;
+        ActionInvocationStatementVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
+        ActionInvocationStatementVisitor.prototype.constructor = ActionInvocationStatementVisitor;
 
-        ActionInvocationExpressionVisitor.prototype.canVisitStatement = function(action){
+        ActionInvocationStatementVisitor.prototype.canVisitActionInvocationStatement = function(action){
             return action instanceof ActionInvocation;
         };
 
-        ActionInvocationExpressionVisitor.prototype.beginVisitStatement = function(action){
+        ActionInvocationStatementVisitor.prototype.beginVisitActionInvocationStatement = function(action){
             var self = action;
             var connectorType = true === _.isUndefined(self._connector) ? undefined : self._connector._connectorType;
             var connectorName = true === _.isUndefined(self._connector) ? undefined : self._connector._connectorName;
@@ -38,11 +38,11 @@ define(['require','lodash', 'log', 'event_channel', './abstract-statement-source
             log.debug('Begin Visit action invocation expression');
         };
 
-        ActionInvocationExpressionVisitor.prototype.endVisitStatement = function(action){
+        ActionInvocationStatementVisitor.prototype.endVisitActionInvocationStatement = function(action){
             this.appendSource(";\n");
             this.getParent().appendSource(this.getGeneratedSource());
-            log.info('End Visit action Invocation Expression');
+            log.debug('End Visit action Invocation Expression');
         };
 
-        return ActionInvocationExpressionVisitor;
+        return ActionInvocationStatementVisitor;
     });

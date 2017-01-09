@@ -133,23 +133,27 @@
 
 /**  syntax highlight **/
 .ace_ballerina-keyword-control{
+    color: #CC7832;
+}
+
+.ace_ballerina-numeric{
     color: #6897BB;
 }
 
 .ace_ballerina-keyword-other{
-    color: #FFC66D;
+    color: #9876AA;
 }
 
 .ace_ballerina-package-reference{
-    color: #FFC66D;
+    color: #9876AA;
 }
 
 .ace_ballerina-keyword-primitive-type{
-    color: #9876AA;
+    color: #FFC66D;
 }
 
 .ace_ballerina-keyword-non-primitive-type{
-    color: #9876AA;
+    color: #FFC66D;
 }
 
 .ace_ballerina-keyword-definition{
@@ -169,7 +173,7 @@
 }
 
 .ace_ballerina-keyword-language{
-    color: #9876AA;
+    color: #CC7832;
 }
 
 .ace_ballerina-keyword-identifier{

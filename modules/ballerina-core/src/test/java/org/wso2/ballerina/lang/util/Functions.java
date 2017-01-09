@@ -29,7 +29,6 @@ import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.expressions.Expression;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
-import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.utils.ParserUtils;
 
@@ -72,7 +71,7 @@ public class Functions {
     public static BValue[] invoke(BallerinaFile bFile, String functionName, BValue[] args) {
 
         // 1) Check whether the given function is defined in the source file.
-        Function function = bFile.getFunctions().get(functionName);
+        Function function = getFunction(bFile.getFunctions(), functionName);
         if (function == null) {
             throw new RuntimeException("Function '" + functionName + "' is not defined");
         }
@@ -105,9 +104,9 @@ public class Functions {
 
         // 6) Create the control stack and the stack frame to invoke the functions
         SymbolName functionSymbolName = function.getSymbolName();
-        CallableUnitInfo functionInfo = new CallableUnitInfo(functionSymbolName.getName(), 
+        CallableUnitInfo functionInfo = new CallableUnitInfo(functionSymbolName.getName(),
                 functionSymbolName.getPkgName(), function.getFunctionLocation());
-        
+
         StackFrame currentStackFrame = new StackFrame(functionArgs, new BValue[0], functionInfo);
 
         Context bContext = new Context();
@@ -119,7 +118,58 @@ public class Functions {
 
     }
 
-    private BType getTypeOfValue(BValue bValue) {
+    /**
+     * Invokes a Ballerina function defined in the given language model
+     *
+     * @param bFile        parsed, analyzed and linked object model
+     * @param functionName name of the function to be invoked
+     * @return return values from the function
+     */
+    public static BValue[] invoke(BallerinaFile bFile, String functionName) {
+        BValue[] args = {};
+        return invoke(bFile, functionName, args);
+    }
+
+//    private BType getTypeOfValue(BValue bValue) {
+//        if (bValue instanceof BInteger) {
+//            return BTypes.INT_TYPE;
+//
+//        } else if (bValue instanceof BLong) {
+//            return BTypes.LONG_TYPE;
+//
+//        } else if (bValue instanceof BFloat) {
+//            return BTypes.FLOAT_TYPE;
+//
+//        } else if (bValue instanceof BDouble) {
+//            return BTypes.DOUBLE_TYPE;
+//
+//        } else if (bValue instanceof BBoolean) {
+//            return BTypes.BOOLEAN_TYPE;
+//
+//        } else if (bValue instanceof BString) {
+//            return BTypes.STRING_TYPE;
+//
+//        } else if (bValue instanceof BJSON) {
+//            return BTypes.JSON_TYPE;
+//
+//        } else if (bValue instanceof BMessage) {
+//            return BTypes.MESSAGE_TYPE;
+//
+//        } else if (bValue instanceof BArray) {
+//            BArray bArray = (BArray) bValue;
+//            return BTypes.getArrayType(bArray.)
+//        }
+//
+//
+//        return null;
+//    }
+
+    private static Function getFunction(Function[] functions, String funcName) {
+        for (Function function : functions) {
+            if (function.getFunctionName().equals(funcName)) {
+                return function;
+            }
+        }
         return null;
     }
 }

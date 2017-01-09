@@ -81,6 +81,14 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
             nodeFactoryMethod: BallerinaASTFactory.createIfElseStatement
         };
 
+        var createWhileStatementTool = {
+            id: "while",
+            name: "While",
+            icon: "images/tool-icons/dgm-if-else.svg",
+            title: "While",
+            nodeFactoryMethod: BallerinaASTFactory.createWhileStatement
+        };
+
         //var createTryCatchStatementTool = {
         //    id: "TryCatch",
         //    name: "TryCatch",
@@ -122,7 +130,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
         };
 
         var statementToolDefArray = [createIfStatementTool, createAssignmentExpressionTool,
-            createFunctionInvocationTool, createReturnStatementTool, createReplyStatementTool];
+            createFunctionInvocationTool, createReturnStatementTool, createReplyStatementTool, createWhileStatementTool];
 
         // Create statements tool group
         var statementsToolGroup = new ToolGroup({
@@ -207,7 +215,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
             nodeFactoryMethod: BallerinaASTFactory.createActionInvocationExpression
         };
 
-        var httpConnectorToolArray = [createGetActionTool, createPostActionTool, createPutActionTool, createDeleteActionTool, createPatchActionTool];
+        var httpConnectorToolArray = [createGetActionTool, createPostActionTool, createPutActionTool, createDeleteActionTool/*, createPatchActionTool*/];
 
         // Create http-connectors tool group
         var httpConnectorsToolGroup = new ToolGroup({

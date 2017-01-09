@@ -19,7 +19,7 @@ define(['require', 'lodash', 'jquery'],
     function (require, _, $) {
 
         //TODO : Move this to a common constant.
-        var variableTypes = ['message', 'connection', 'string', 'int', 'exception', 'json', 'xml', 'string[]', 'int[]'];
+        var variableTypes = ['message', 'connection', 'string', 'int', 'exception', 'json', 'xml', 'map', 'string[]', 'int[]'];
 
         /**
          * Creates the arguments pane.
@@ -91,6 +91,13 @@ define(['require', 'lodash', 'jquery'],
                 }
             });
 
+            // Add new argument upon enter key.
+            $(argumentIdentifierInput).on("change paste keydown", function (e) {
+                if (e.which == 13) {
+                    addButton.click();
+                }
+            });
+
             // Creating the content editing div.
             var argumentsContentWrapper = $("<div/>", {
                 class: "action-content-wrapper-body arguments-details-wrapper"
@@ -100,15 +107,33 @@ define(['require', 'lodash', 'jquery'],
             _createCurrentArgumentsView(model, argumentsContentWrapper, argumentTypeDropDown, headerWrapper);
 
             // Showing and hiding the arguments pane upon arguments button/activator is clicked.
-            $(activatorElement).click({argumentsEditorWrapper: argumentsEditorWrapper}, function (event) {
+            $(activatorElement).click({
+                argumentsEditorWrapper: argumentsEditorWrapper,
+                argumentIdentifierInput: argumentIdentifierInput
+            }, function (event) {
                 if ($(event.currentTarget).data("showing-pane") === "true") {
                     $(event.currentTarget).removeClass("operations-argument-icon");
-                    event.data.returnTypeEditorWrapper.hide();
+                    event.data.argumentsEditorWrapper.hide();
                     $(event.currentTarget).data("showing-pane", "false");
                 } else {
                     $(event.currentTarget).addClass("operations-argument-icon");
-                    event.data.returnTypeEditorWrapper.show();
+                    event.data.argumentsEditorWrapper.show();
                     $(event.currentTarget).data("showing-pane", "true");
+                    $(event.data.argumentIdentifierInput).focus();
+                }
+            });
+
+            $(argumentsEditorWrapper).click(function (event) {
+                event.stopPropagation();
+            });
+
+            // On window click.
+            $(window).click({
+                activatorElement: activatorElement,
+                argumentsEditorWrapper: argumentsEditorWrapper
+            }, function (event) {
+                if ($(event.data.activatorElement).data("showing-pane") === "true"){
+                    $(event.data.activatorElement).click();
                 }
             });
         };

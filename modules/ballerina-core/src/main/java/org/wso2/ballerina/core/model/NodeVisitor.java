@@ -28,6 +28,7 @@ import org.wso2.ballerina.core.model.expressions.ArrayInitExpr;
 import org.wso2.ballerina.core.model.expressions.ArrayMapAccessExpr;
 import org.wso2.ballerina.core.model.expressions.BackquoteExpr;
 import org.wso2.ballerina.core.model.expressions.BasicLiteral;
+import org.wso2.ballerina.core.model.expressions.DivideExpr;
 import org.wso2.ballerina.core.model.expressions.EqualExpression;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.GreaterEqualExpression;
@@ -45,6 +46,7 @@ import org.wso2.ballerina.core.model.expressions.UnaryExpression;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.invokers.MainInvoker;
 import org.wso2.ballerina.core.model.invokers.ResourceInvocationExpr;
+import org.wso2.ballerina.core.model.statements.ActionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.statements.CommentStmt;
@@ -105,6 +107,8 @@ public interface NodeVisitor {
 
     void visit(FunctionInvocationStmt functionInvocationStmt);
 
+    void visit(ActionInvocationStmt actionInvocationStmt);
+
     // Expressions
 
     void visit(AddExpression addExpr);
@@ -112,6 +116,8 @@ public interface NodeVisitor {
     void visit(AndExpression andExpression);
 
     void visit(BasicLiteral basicLiteral);
+
+    void visit(DivideExpr divideExpr);
 
     void visit(EqualExpression equalExpression);
 

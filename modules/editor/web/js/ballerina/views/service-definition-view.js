@@ -73,7 +73,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
         ServiceDefinitionView.prototype.childViewAddedCallback = function (child) {
             if (BallerinaASTFactory.isServiceDefinition(child)) {
                 if (child !== this._model) {
-                    log.info("[Eventing] Service view added : ");
+                    log.debug("[Eventing] Service view added : ");
                 }
             }
         };
@@ -164,15 +164,15 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
             this.getModel().accept(this);
             var self = this;
 
-            $("#title-" + this._model.id).text(this._model.getServiceName());
-            // Listen to the service name changing event and dynamically update the service name
-            $("#title-" + this._model.id)
-                .on("change paste keyup", function () {
+            $("#title-" + this._model.id).addClass("service-title-text").text(this._model.getServiceName())
+                .on("change paste keydown", function (e) {
+                    if (e.which == 13) {
+                        return false;
+                    }
                     self._model.setServiceName($(this).text());
-                })
-                .on("click", function (event) {
-                    event.stopPropagation();
-                });
+                }).on("click", function (event) {
+                event.stopPropagation();
+            });
 
             this._model.on('child-added', function (child) {
                 self.visit(child);
@@ -243,7 +243,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
          * @param {ResourceDefinition} resourceDefinition - The resource definition model.
          */
         ServiceDefinitionView.prototype.visitResourceDefinition = function (resourceDefinition) {
-            log.info("Visiting resource definition");
+            log.debug("Visiting resource definition");
             var resourceContainer = this.getChildContainer();
             // If more than 1 resource
             if (this.getResourceViewList().length > 0) {

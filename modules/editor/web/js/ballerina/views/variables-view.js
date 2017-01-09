@@ -21,7 +21,7 @@ define(['require', 'lodash', 'jquery', 'log', 'd3utils', 'd3', './point', 'balle
               VariableDeclaration, ConnectorDeclaration) {
 
         // TODO move variable types into constant class
-        var variableTypes = ['message', 'connection', 'string', 'int', 'exception', 'json', 'xml', 'string[]', 'int[]'];
+        var variableTypes = ['message', 'connection', 'string', 'int', 'exception', 'json', 'xml', 'map', 'string[]', 'int[]'];
 
         /**
          * Creating the variable variable button.
@@ -97,6 +97,13 @@ define(['require', 'lodash', 'jquery', 'log', 'd3utils', 'd3', './point', 'balle
                     .appendTo($(variableSelect));
             }
 
+            // Add new variable upon enter key.
+            $(variableText).on("change paste keydown", function (e) {
+                if (e.which == 13) {
+                    variableAddCompleteButtonPane.click();
+                }
+            });
+
             // Creating cancelling add new variable button.
             var variableAddCancelButtonPane = $("<div class='action-icon-wrapper variable-add-cancel-action-wrapper'/>")
                 .appendTo(variableAddPane);
@@ -112,6 +119,7 @@ define(['require', 'lodash', 'jquery', 'log', 'd3utils', 'd3', './point', 'balle
             $(addVariableButton).click(function () {
                 $(variableAddPane).show();
                 $(this).hide();
+                $(variableText).focus();
             });
 
             // Cancel adding a new variable.
@@ -153,6 +161,8 @@ define(['require', 'lodash', 'jquery', 'log', 'd3utils', 'd3', './point', 'balle
                 } else {
                     // TODO : Show alert of error.
                 }
+
+                variableText.val("");
             });
 
             // The click event for hiding and showing variables.

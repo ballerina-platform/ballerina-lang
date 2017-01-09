@@ -85,18 +85,19 @@ public class BalProgramExecutor {
         Context bContext = new Context();
         try {
             SymbolName argsName;
-            BallerinaFunction mainFunction = (BallerinaFunction) balFile.getFunctions()
-                    .get(Constants.MAIN_FUNCTION_NAME);
+            BallerinaFunction mainFunction = (BallerinaFunction) balFile.getMainFunction();
             if (mainFunction != null) {
+
                 // TODO Refactor this logic ASAP
                 Parameter[] parameters = mainFunction.getParameters();
-                if (parameters.length == 1 && parameters[0].getType() == BTypes.getArrayType(BTypes.
-                        STRING_TYPE.toString())) {
-                   argsName = parameters[0].getName();
-                } else {
-                    throw new BallerinaException("Main function does not comply with standard main function in" +
-                            " ballerina");
-                }
+                argsName = parameters[0].getName();
+
+//                if (parameters.length == 1 && parameters[0].getType() == BTypes.getArrayType(BTypes.
+//                        STRING_TYPE.toString())) {
+//                } else {
+//                    throw new BallerinaException("Main function does not comply with standard main function in" +
+//                            " ballerina");
+//                }
 
                 // Read from command line arguments
                 String balArgs = System.getProperty(SYSTEM_PROP_BAL_ARGS);
@@ -132,7 +133,7 @@ public class BalProgramExecutor {
                 SymbolName functionSymbolName = funcIExpr.getFunctionName();
                 CallableUnitInfo functionInfo = new CallableUnitInfo(functionSymbolName.getName(),
                         functionSymbolName.getPkgName(), mainFuncLocation);
-                
+
                 StackFrame currentStackFrame = new StackFrame(argValues, new BValue[0], functionInfo);
                 bContext.getControlStack().pushFrame(currentStackFrame);
                 RuntimeEnvironment runtimeEnv = RuntimeEnvironment.get(balFile);

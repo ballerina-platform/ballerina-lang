@@ -121,12 +121,16 @@ define(['log', 'jquery', 'lodash', 'backbone', './tab', 'bootstrap'], function (
                 });
 
                 var tabCloseBtn = $('<button type="button" >×</button>');
-                tabHeaderLink.append(tabCloseBtn);
+                tabHeader.append(tabCloseBtn);
                 tabCloseBtn.addClass( _.get(this.options, 'tabs.tab.cssClass.tab_close_btn'));
                 tabCloseBtn.click(function(e){
                     self.removeTab(tab);
                     e.preventDefault();
                     e.stopPropagation();
+                });
+
+                tab.on('title-changed', function(title){
+                    tabHeaderLink.text(title);
                 });
 
                 tab.setHeader(tabHeader);
@@ -160,6 +164,9 @@ define(['log', 'jquery', 'lodash', 'backbone', './tab', 'bootstrap'], function (
             getTab: function (tabId) {
                 return _.find(this._tabs, ['id', tabId]);
             },
+            getTabList: function() {
+              return this._tabs;
+            },
             /**
              * removes a tab
              * @param {Tab} tab the tab instance
@@ -182,6 +189,9 @@ define(['log', 'jquery', 'lodash', 'backbone', './tab', 'bootstrap'], function (
                  * @type {Tab}
                  */
                 this.trigger("tab-removed", tab);
+                if(_.isEmpty(this._tabs)){
+                    this.trigger("last-tab-removed", tab);
+                }
 
                 //switch to tab at last or next index
                 //make sure there are remaining tabs

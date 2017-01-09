@@ -50,8 +50,16 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './st
                         annotation.key.split(":")[1] + ' = "' + annotation.value + '")\n';
                 }
 
+                // Separately handling the HTTP method annotations.
                 if (annotation.key == "Method") {
-                    constructedPathAnnotation = "@" + annotation.value + "\n";
+                    constructedPathAnnotation = "";
+                    var methods = annotation.value.replace( /\n/g, " " ).split(" ");
+                    _.forEach(methods, function(method){
+                        var cleanedMethod = method.trim();
+                        if (!_.isEmpty(cleanedMethod)) {
+                            constructedPathAnnotation += "@" + cleanedMethod + "\n";
+                        }
+                    });
                 }
 
                 self.appendSource(constructedPathAnnotation);
@@ -62,17 +70,17 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './st
 
         constructedSourceSegment += resourceDefinition.getArgumentsAsString() + ') {';
         this.appendSource(constructedSourceSegment);
-        log.info('Begin Visit ResourceDefinition');
+        log.debug('Begin Visit ResourceDefinition');
     };
 
     ResourceDefinitionVisitor.prototype.visitResourceDefinition = function (resourceDefinition) {
-        log.info('Visit ResourceDefinition');
+        log.debug('Visit ResourceDefinition');
     };
 
     ResourceDefinitionVisitor.prototype.endVisitResourceDefinition = function (resourceDefinition) {
         this.appendSource("}\n");
         this.getParent().appendSource(this.getGeneratedSource());
-        log.info('End Visit ResourceDefinition');
+        log.debug('End Visit ResourceDefinition');
     };
 
     ResourceDefinitionVisitor.prototype.visitStatement = function (statement) {

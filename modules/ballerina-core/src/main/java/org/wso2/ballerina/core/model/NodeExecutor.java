@@ -33,6 +33,7 @@ import org.wso2.ballerina.core.model.expressions.MapInitExpr;
 import org.wso2.ballerina.core.model.expressions.UnaryExpression;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.invokers.ResourceInvocationExpr;
+import org.wso2.ballerina.core.model.statements.ActionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.statements.FunctionInvocationStmt;
@@ -48,6 +49,7 @@ import org.wso2.ballerina.core.model.values.BValue;
  * @since 1.0.0
  */
 public interface NodeExecutor {
+
     void visit(BlockStmt blockStmt);
 
     void visit(AssignStmt assignStmt);
@@ -57,6 +59,8 @@ public interface NodeExecutor {
     void visit(WhileStmt whileStmt);
 
     void visit(FunctionInvocationStmt funcIStmt);
+
+    void visit(ActionInvocationStmt actionIStmt);
 
     void visit(ReturnStmt returnStmt);
 

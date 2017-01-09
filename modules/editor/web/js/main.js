@@ -39,7 +39,7 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'app/menu-bar/menu-bar
         initComponents: function(){
 
             // init command manager
-            this.commandManager = new CommandManager();
+            this.commandManager = new CommandManager(this);
 
             this.browserStorage = new Workspace.BrowserStorage('ballerinaAppTempStorage');
 
@@ -51,8 +51,10 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'app/menu-bar/menu-bar
             _.set(menuBarOpts, 'application', this);
             this.menuBar = new MenuBar(menuBarOpts);
 
+            var breadCrumbsOpts = _.get(this.config, "breadcrumbs");
+            _.set(breadCrumbsOpts, 'application', this);
             // init breadcrumbs controller
-            this.breadcrumbController = new BreadcrumbController(_.get(this.config, "breadcrumbs"));
+            this.breadcrumbController = new BreadcrumbController(breadCrumbsOpts);
 
             //init workspace explorer
             var workspaceExplorerOpts = _.get(this.config, "workspace_explorer");

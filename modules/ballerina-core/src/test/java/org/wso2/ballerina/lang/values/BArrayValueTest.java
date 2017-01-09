@@ -23,6 +23,8 @@ import org.testng.annotations.Test;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.values.BArray;
+import org.wso2.ballerina.core.model.values.BFloat;
+import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.utils.ParserUtils;
@@ -56,5 +58,64 @@ public class BArrayValueTest {
 
         BArray<BString> arrayValue = (BArray<BString>) returns[0];
         Assert.assertEquals(arrayValue.size(), 0);
+    }
+
+    @Test(description = "Test add value operation on int array")
+    public void addValueToIntegerArray() {
+        BValue[] returns = Functions.invoke(bFile, "addValueToIntArray");
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BArray.class);
+
+        BArray<BInteger> arrayValue = (BArray<BInteger>) returns[0];
+        Assert.assertEquals(arrayValue.size(), 200, "Invalid array size.");
+
+        Assert.assertSame(arrayValue.get(0).getClass(), BInteger.class, "Invalid class type returned.");
+        Assert.assertEquals(arrayValue.get(0).intValue(), (-10), "Invalid value returned.");
+
+        Assert.assertEquals(arrayValue.get(15).getClass(), BInteger.class, "Invalid class type returned.");
+        Assert.assertEquals(arrayValue.get(15).intValue(), 20, "Invalid value returned.");
+
+        Assert.assertEquals(arrayValue.get(99).getClass(), BInteger.class, "Invalid class type returned.");
+        Assert.assertEquals(arrayValue.get(99).intValue(), 2147483647, "Invalid value returned.");
+
+        Assert.assertEquals(arrayValue.get(100).getClass(), BInteger.class, "Invalid class type returned.");
+        Assert.assertEquals(arrayValue.get(100).intValue(), -4, "Invalid value returned.");
+
+        Assert.assertEquals(arrayValue.get(115).getClass(), BInteger.class, "Invalid class type returned.");
+        Assert.assertEquals(arrayValue.get(115).intValue(), -2147483647, "Invalid value returned.");
+
+        Assert.assertEquals(arrayValue.get(199).getClass(), BInteger.class, "Invalid class type returned.");
+        Assert.assertEquals(arrayValue.get(199).intValue(), 6, "Invalid value returned.");
+
+    }
+
+    @Test(description = "Test add value operation on float array")
+    public void addValueToFloatArray() {
+        BValue[] returns = Functions.invoke(bFile, "addValueToFloatArray");
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BArray.class);
+
+        BArray<BFloat> arrayValue = (BArray<BFloat>) returns[0];
+        Assert.assertEquals(arrayValue.size(), 200, "Invalid array size.");
+
+        Assert.assertSame(arrayValue.get(0).getClass(), BFloat.class, "Invalid class type returned.");
+        Assert.assertEquals(arrayValue.get(0).floatValue(), new Float(-10.0), "Invalid value returned.");
+        Assert.assertEquals(arrayValue.get(15).getClass(), BFloat.class, "Invalid class type returned.");
+        Assert.assertEquals(arrayValue.get(15).floatValue(), new Float(2.5), "Invalid value returned.");
+
+        Assert.assertEquals(arrayValue.get(99).getClass(), BFloat.class, "Invalid class type returned.");
+        Assert.assertEquals(arrayValue.get(99).floatValue(), new Float(2147483647.1), "Invalid value returned.");
+
+        Assert.assertEquals(arrayValue.get(100).getClass(), BFloat.class, "Invalid class type returned.");
+        Assert.assertEquals(arrayValue.get(100).floatValue(), new Float(4.3), "Invalid value returned.");
+
+        Assert.assertEquals(arrayValue.get(115).getClass(), BFloat.class, "Invalid class type returned.");
+        Assert.assertEquals(arrayValue.get(115).floatValue(), new Float(-2147483647.7), "Invalid value returned.");
+
+        Assert.assertEquals(arrayValue.get(199).getClass(), BFloat.class, "Invalid class type returned.");
+        Assert.assertEquals(arrayValue.get(199).floatValue(), new Float(6.9), "Invalid value returned.");
+
     }
 }

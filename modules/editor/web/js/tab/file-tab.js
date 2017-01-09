@@ -76,24 +76,16 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
 
             //package definition
             var packageDefinition = BallerinaASTFactory.createPackageDefinition();
-            packageDefinition.setPackageName("samples.passthrough");
+            packageDefinition.setPackageName("");
             //packageDefinition.setPackageName("samples.echo");
             ballerinaAstRoot1.addChild(packageDefinition);
             ballerinaAstRoot1.setPackageDefinition(packageDefinition);
 
             //import declarations
-            var importDeclaration_langMessage = BallerinaASTFactory.createImportDeclaration();
-            importDeclaration_langMessage.setPackageName("ballerina.lang.message");
-            importDeclaration_langMessage.setParent(ballerinaAstRoot1);
-            var importDeclaration_netHttp = BallerinaASTFactory.createImportDeclaration();
-            importDeclaration_netHttp.setPackageName("ballerina.net.http");
-            importDeclaration_netHttp.setParent(ballerinaAstRoot1);
-            var importDeclarations = [];
-            importDeclarations.push(importDeclaration_langMessage);
-            importDeclarations.push(importDeclaration_netHttp);
-            ballerinaAstRoot1.setImportDeclarations(importDeclarations);
-            ballerinaAstRoot1.addChild(importDeclaration_langMessage);
-            ballerinaAstRoot1.addChild(importDeclaration_netHttp);
+            var importDeclaration_langSystem = BallerinaASTFactory.createImportDeclaration();
+            importDeclaration_langSystem.setPackageName("ballerina.lang.system");
+            importDeclaration_langSystem.setParent(ballerinaAstRoot1);
+            ballerinaAstRoot1.addImport(importDeclaration_langSystem);
 
             var root = ballerinaRoot || ballerinaAstRoot1;
 

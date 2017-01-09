@@ -38,19 +38,23 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor'], func
          * If we need to add additional parameters which are dynamically added to the configuration start
          * that particular source generation has to be constructed here
          */
-        var constructedSourceSegment = 'package ' + packageDefinition.getPackageName();
-        this.appendSource(constructedSourceSegment);
-        log.info('Begin Visit PackageDefinition');
+        if (!_.isNil(packageDefinition.getPackageName()) && packageDefinition.getPackageName() !== "") {
+            var constructedSourceSegment = 'package ' + packageDefinition.getPackageName();
+            this.appendSource(constructedSourceSegment);
+        }
+        log.debug('Begin Visit PackageDefinition');
     };
 
     PackageDefinitionVisitor.prototype.visitPackageDefinition = function (packageDefinition) {
-        log.info('Visit PackageDefinition');
+        log.debug('Visit PackageDefinition');
     };
 
     PackageDefinitionVisitor.prototype.endVisitPackageDefinition = function (packageDefinition) {
-        this.appendSource(";\n");
-        this.getParent().appendSource(this.getGeneratedSource());
-        log.info('End Visit PackageDefinition');
+        if (!_.isNil(packageDefinition.getPackageName()) && packageDefinition.getPackageName() !== "") {
+            this.appendSource(";\n");
+            this.getParent().appendSource(this.getGeneratedSource());
+        }
+        log.debug('End Visit PackageDefinition');
     };
 
     return PackageDefinitionVisitor;

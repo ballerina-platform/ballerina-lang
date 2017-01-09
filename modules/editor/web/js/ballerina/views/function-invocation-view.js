@@ -86,7 +86,7 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/function-invoca
         FunctionInvocationStatementView.prototype.render = function (renderingContext) {
             // TODO : Please revisit this method. Needs a refactor
             this.setDiagramRenderingContext(renderingContext);
-            log.info("Rendering the Function Invocation Statement.");
+            log.debug("Rendering the Function Invocation Statement.");
 
             var funInvokeGroup = D3Utils.group(d3.select(this._container));
             funInvokeGroup.attr("id", "_" + this._model.id);//added attribute 'id' starting with '_' to be compatible with HTML4
@@ -95,8 +95,12 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/function-invoca
             var x = this.getBoundingBox().getLeft();
             var y = this.getBoundingBox().getTop();
 
-            var funInvokeRect = D3Utils.rect(x, y, width, height, 0, 0, funInvokeGroup).classed('statement-rect', true)
-            var text = this._model.getPackageName() + ':' +this._model.getFunctionName() + '(';
+            var funInvokeRect = D3Utils.rect(x, y, width, height, 0, 0, funInvokeGroup).classed('statement-rect', true);
+            var text = "";
+            if (!_.isNil(this._model.getPackageName()) && this._model.getPackageName() !== "") {
+                text += this._model.getPackageName() + ':';
+            }
+            text += this._model.getFunctionName() + '(';
             var params = this._model.getParams();
             for (var id = 0; id < params.length; id ++) {
                 if (id > 0) {
@@ -160,7 +164,11 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/function-invoca
         };
 
         FunctionInvocationStatementView.prototype.updateStatementText = function (updatedText) {
-            var text = this._model.getPackageName() + ':' + this._model.getFunctionName() + '(';
+            var text = "";
+            if (!_.isNil(this._model.getPackageName()) && this._model.getPackageName() !== "") {
+                text += this._model.getPackageName() + ':';
+            }
+            text += this._model.getFunctionName() + '(';
             var params = this._model.getParams();
             for (var id = 0; id < params.length; id++) {
                 if (id > 0) {

@@ -21,6 +21,8 @@ package org.wso2.ballerina.tooling.service.workspace.rest.datamodel;
 import com.google.gson.JsonObject;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.builder.BLangModelBuilder;
@@ -41,6 +43,7 @@ import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
@@ -50,26 +53,46 @@ import java.nio.charset.StandardCharsets;
 @Path("/ballerina")
 public class BLangFileRestService {
 
+    private static final Logger logger = LoggerFactory.getLogger(BLangFileRestService.class);
+
     @GET
     @Path("/model")
     @Produces("application/json")
-    public Response getBallerinaJsonDataModelGivenLocation(@QueryParam("location") String location) throws Exception {
-        InputStream stream = new FileInputStream(new File(location));
-        String response = parseJsonDataModel(stream);
-        return Response.ok(response, MediaType.APPLICATION_JSON).build();
+    public Response getBallerinaJsonDataModelGivenLocation(@QueryParam("location") String location) {
+        try {
+            InputStream stream = new FileInputStream(new File(location));
+            String response = parseJsonDataModel(stream);
+            return Response.ok(response, MediaType.APPLICATION_JSON).build();
+        } catch (IOException ex) {
+            logger.error("IOException occured while generating JSON data model for ballerina file", ex);
+            JsonObject entity = new JsonObject();
+            entity.addProperty("Error", ex.toString());
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(entity)
+                    .header("Access-Control-Allow-Origin", '*')
+                    .type(MediaType.APPLICATION_JSON).build();
+        }
     }
 
     @POST
     @Path("/model/content")
     @Consumes("application/json")
     @Produces("application/json")
-    public Response getBallerinaJsonDataModelGivenContent(BFileContent content) throws Exception {
-        InputStream stream = new ByteArrayInputStream(content.getContent().getBytes(StandardCharsets.UTF_8));
-        String response = parseJsonDataModel(stream);
-        return Response.ok(response, MediaType.APPLICATION_JSON).build();
+    public Response getBallerinaJsonDataModelGivenContent(BFileContent content) {
+        try {
+            InputStream stream = new ByteArrayInputStream(content.getContent().getBytes(StandardCharsets.UTF_8));
+            String response = parseJsonDataModel(stream);
+            return Response.ok(response, MediaType.APPLICATION_JSON).build();
+        } catch (IOException ex) {
+            logger.error("IOException occured while generating JSON data model for ballerina file", ex);
+            JsonObject entity = new JsonObject();
+            entity.addProperty("Error", ex.toString());
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(entity)
+                    .header("Access-Control-Allow-Origin", '*')
+                    .type(MediaType.APPLICATION_JSON).build();
+        }
     }
 
-    private String parseJsonDataModel(InputStream stream) throws Exception {
+    private String parseJsonDataModel(InputStream stream) throws IOException {
 
         ANTLRInputStream antlrInputStream = new ANTLRInputStream(stream);
         BallerinaLexer ballerinaLexer = new BallerinaLexer(antlrInputStream);

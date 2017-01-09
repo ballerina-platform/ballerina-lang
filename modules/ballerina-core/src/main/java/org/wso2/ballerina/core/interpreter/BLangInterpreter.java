@@ -43,6 +43,7 @@ import org.wso2.ballerina.core.model.expressions.ArrayMapAccessExpr;
 import org.wso2.ballerina.core.model.expressions.BackquoteExpr;
 import org.wso2.ballerina.core.model.expressions.BasicLiteral;
 import org.wso2.ballerina.core.model.expressions.BinaryExpression;
+import org.wso2.ballerina.core.model.expressions.DivideExpr;
 import org.wso2.ballerina.core.model.expressions.EqualExpression;
 import org.wso2.ballerina.core.model.expressions.Expression;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
@@ -61,6 +62,7 @@ import org.wso2.ballerina.core.model.expressions.UnaryExpression;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.invokers.MainInvoker;
 import org.wso2.ballerina.core.model.invokers.ResourceInvocationExpr;
+import org.wso2.ballerina.core.model.statements.ActionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.statements.CommentStmt;
@@ -271,6 +273,11 @@ public class BLangInterpreter implements NodeVisitor {
     }
 
     @Override
+    public void visit(ActionInvocationStmt actionInvocationStmt) {
+
+    }
+
+    @Override
     public void visit(ReplyStmt replyStmt) {
         // TODO revisit this logic
         BMessage bMessage =
@@ -398,6 +405,11 @@ public class BLangInterpreter implements NodeVisitor {
 
     @Override
     public void visit(BasicLiteral basicLiteral) {
+
+    }
+
+    @Override
+    public void visit(DivideExpr divideExpr) {
 
     }
 
@@ -663,7 +675,7 @@ public class BLangInterpreter implements NodeVisitor {
                 nativeConnector.init(bValueRefs);
                 connector = nativeConnector;
             }
-            BConnector connectorValue = new BConnector(connector, connectorDcl.getArgExprs());
+            BConnector connectorValue = new BConnector(connector, bValueRefs);
 
             valueParams[valuesCounter] = connectorValue;
             valuesCounter++;

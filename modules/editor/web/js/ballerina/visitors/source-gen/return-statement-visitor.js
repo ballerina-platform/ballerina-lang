@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor'], function(_, log, EventChannel, AbstractStatementSourceGenVisitor) {
+define(['lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor', '../../ast/return-statement'], function(_, log, EventChannel, AbstractStatementSourceGenVisitor, ReturnStatement) {
 
     var ReturnStatementVisitor = function(parent){
         AbstractStatementSourceGenVisitor.call(this, parent);
@@ -25,7 +25,7 @@ define(['lodash', 'log', 'event_channel', './abstract-statement-source-gen-visit
     ReturnStatementVisitor.prototype.constructor = ReturnStatementVisitor;
 
     ReturnStatementVisitor.prototype.canVisitReturnStatement = function(returnStatement){
-        return true;
+        return returnStatement instanceof ReturnStatement;
     };
 
     ReturnStatementVisitor.prototype.beginVisitReturnStatement = function(returnStatement){
@@ -35,17 +35,13 @@ define(['lodash', 'log', 'event_channel', './abstract-statement-source-gen-visit
          * that particular source generation has to be constructed here
          */
         this.appendSource('return ');
-        log.info('Begin Visit Return Statement Definition');
-    };
-
-    ReturnStatementVisitor.prototype.visitReturnStatement = function(returnStatement){
-        log.info('Visit Reply Statement Definition');
+        log.debug('Begin Visit Return Statement Definition');
     };
 
     ReturnStatementVisitor.prototype.endVisitReturnStatement = function(returnStatement){
         this.appendSource(returnStatement.getReturnExpression() + ";\n");
         this.getParent().appendSource(this.getGeneratedSource());
-        log.info('End Visit Return Statement Definition');
+        log.debug('End Visit Return Statement Definition');
     };
 
     return ReturnStatementVisitor;

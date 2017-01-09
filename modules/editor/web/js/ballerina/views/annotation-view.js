@@ -81,6 +81,13 @@ define(['require', 'lodash', 'jquery'],
                 _addAnnotationsToDropdown(model, annotationTypeDropDown, headerWrapper);
             });
 
+            // Add new annotation upon enter key.
+            $(annotationValueInput).on("change paste keydown", function (e) {
+                if (e.which == 13) {
+                    addButton.click();
+                }
+            });
+
             // Add elements to dropdown.
             _addAnnotationsToDropdown(model, annotationTypeDropDown, headerWrapper);
 
@@ -93,7 +100,10 @@ define(['require', 'lodash', 'jquery'],
             _createCurrentAnnotationView(model, annotationsContentWrapper, annotationTypeDropDown, headerWrapper);
 
             // Showing and hiding the annotation pane upton annotation button/activator is clicked.
-            $(activatorElement).click({annotationEditorWrapper: annotationEditorWrapper}, function (event) {
+            $(activatorElement).click({
+                annotationEditorWrapper: annotationEditorWrapper,
+                annotationValueInput: annotationValueInput
+            }, function (event) {
                 if ($(event.currentTarget).data("showing-pane") === "true") {
                     $(event.currentTarget).removeClass("operations-annotation-icon");
                     event.data.annotationEditorWrapper.hide();
@@ -102,6 +112,21 @@ define(['require', 'lodash', 'jquery'],
                     $(event.currentTarget).addClass("operations-annotation-icon");
                     event.data.annotationEditorWrapper.show();
                     $(event.currentTarget).data("showing-pane", "true");
+                    $(event.data.annotationValueInput).focus();
+                }
+            });
+
+            $(annotationEditorWrapper).click(function (event) {
+                event.stopPropagation();
+            });
+
+            // On window click.
+            $(window).click({
+                activatorElement: activatorElement,
+                argumentsEditorWrapper: annotationEditorWrapper
+            }, function (event) {
+                if ($(event.data.activatorElement).data("showing-pane") === "true"){
+                    $(event.data.activatorElement).click();
                 }
             });
         };

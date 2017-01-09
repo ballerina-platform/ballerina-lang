@@ -270,7 +270,9 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
          * @param args
          */
         BallerinaASTFactory.createResourceDefinition = function (args) {
-            return new resourceDefinition(args);
+            var resourceDef = new resourceDefinition(args);
+            resourceDef.addArgument("message", "m");
+            return resourceDef;
         };
 
         /**
@@ -606,6 +608,9 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
                     break;
                 case 'type_name':
                     node = BallerinaASTFactory.createTypeName();
+                    break;
+                case 'function_invocation':
+                    node = BallerinaASTFactory.createFunctionInvocationStatement();
                     break;
                 default:
                     throw "Unknown node definition for " + jsonNode.type;

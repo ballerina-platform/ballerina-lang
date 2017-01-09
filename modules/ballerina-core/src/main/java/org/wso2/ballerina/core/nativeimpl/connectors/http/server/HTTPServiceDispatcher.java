@@ -96,10 +96,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
                 basePath = Constants.DEFAULT_BASE_PATH;
                 subPath = uri;
             } else {
-                String[] tempPaths = uri.split(basePath);
-                if (tempPaths.length > 1) {
-                    subPath = tempPaths[1];
-                }
+                subPath = uri.substring(basePath.length());
             }
 
             if (service == null) {
@@ -157,8 +154,11 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
         }
 
         servicesOnInterface.put(basePath, service);
-        log.info("Service deployed : {}:{} with context {}", service.getSymbolName().getPkgName(),
-                service.getSymbolName().getName(), basePath);
+
+        log.info("Service deployed : " +
+                 (service.getSymbolName().getPkgName() != null ?  service.getSymbolName().getPkgName() + ":" : "") +
+                 service.getSymbolName().getName() +
+                 " with context " +  basePath);
 
     }
 

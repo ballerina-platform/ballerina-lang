@@ -93,9 +93,9 @@ if ""%1""==""debug""    goto commandDebug
 if ""%1""==""-debug""   goto commandDebug
 if ""%1""==""--debug""  goto commandDebug
 
-if ""%1""==""version""   goto commandVersion
+if ""%1""==""-version""   goto commandVersion
 
-if ""%1""==""help""   goto commandHelp
+if ""%1""==""-help""   goto commandHelp
 
 goto commandUnknownArg
 
@@ -132,7 +132,7 @@ goto end
 
 rem ----- commandNoBalFile -------------------------------------------------------
 :commandNoBalFile
-echo Please specify Ballerina file to run. (Eg: ballerina.bat main.bal)
+echo Please specify Ballerina file to run.
 type "%CARBON_HOME%\resources\help\ballerina-win-help.txt"
 goto end
 
