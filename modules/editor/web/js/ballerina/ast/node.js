@@ -90,7 +90,7 @@ define(['require', 'event_channel', 'lodash'], function(require, EventChannel, _
         for (var itr = 0; itr < parentModelChildren.length; itr++) {
             if (parentModelChildren[itr].id === child.id) {
                 parentModelChildren.splice(itr, 1);
-                this.trigger("childRemovedEvent", child);
+                this.trigger("child-removed", child);
                 break;
             }
         }
@@ -107,8 +107,7 @@ define(['require', 'event_channel', 'lodash'], function(require, EventChannel, _
             _.forEach(this.children, function (child) {
                 // visit current child
                 visitor.visit(child);
-                // firing childVisitedEvent
-                self.trigger("childVisitedEvent", child);
+                self.trigger("child-visited", child);
                 // forward visitor down the hierarchy to visit children of current child
                 // if visitor doesn't support visiting children of current child, it will break
                 child.accept(visitor);

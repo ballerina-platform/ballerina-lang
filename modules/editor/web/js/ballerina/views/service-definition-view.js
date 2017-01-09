@@ -61,21 +61,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
 
         ServiceDefinitionView.prototype.init = function(){
             //Registering event listeners
-            this.listenTo(this._model, 'childVisitedEvent', this.childVisitedCallback);
-            this.listenTo(this._parentView, 'childViewAddedEvent', this.childViewAddedCallback);
-            this.listenTo(this._model, 'childRemovedEvent', this.childViewRemovedCallback);
-        };
-
-        ServiceDefinitionView.prototype.childVisitedCallback = function (child) {
-
-        };
-
-        ServiceDefinitionView.prototype.childViewAddedCallback = function (child) {
-            if (BallerinaASTFactory.isServiceDefinition(child)) {
-                if (child !== this._model) {
-                    log.debug("[Eventing] Service view added : ");
-                }
-            }
+            this.listenTo(this._model, 'child-removed', this.childViewRemovedCallback);
         };
 
         ServiceDefinitionView.prototype.setModel = function (model) {
@@ -176,7 +162,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
 
             this._model.on('child-added', function (child) {
                 self.visit(child);
-                self._model.trigger("childVisitedEvent", child);
+                self._model.trigger("child-visited", child);
             });
 
             var variableButton = VariablesView.createVariableButton(this.getChildContainer().node(), 14, 10);
@@ -272,11 +258,6 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
             var staticHeights = childView.getGapBetweenResources();
             this._totalHeight = this._totalHeight + childView.getBoundingBox().h() + staticHeights;
             this.setServiceContainerHeight(this._totalHeight);
-
-            //setting client lifeline's height. Value is calculated by reducing required amount of height from the total height of the service.
-            // this.setClientLifelineHeight(this._totalHeight);
-
-            this.trigger("childViewAddedEvent", resourceDefinition);
         };
 
         /**

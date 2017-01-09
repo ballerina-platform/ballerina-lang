@@ -185,7 +185,7 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
             this._model.off('child-added');
             this._model.on('child-added', function (child) {
                 self.visit(child);
-                self._model.trigger("childVisitedEvent", child);
+                self._model.trigger("child-visited", child);
             });
 
             var variableButton = VariablesView.createVariableButton(this.getChildContainer().node(), 14, 10);
@@ -281,7 +281,7 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
 
         FunctionDefinitionView.prototype.init = function(){
             //Registering event listeners
-            this.listenTo(this._model, 'childRemovedEvent', this.childViewRemovedCallback);
+            this.listenTo(this._model, 'child-removed', this.childViewRemovedCallback);
         };
 
         /**
