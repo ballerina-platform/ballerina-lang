@@ -92,7 +92,6 @@
 .initial-background-container {
     background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAHUlEQVQYV2NkYGAwBuKzQIwXMBJSAJMfVUidcAQAnUQBC6jEGBUAAAAASUVORK5CYII=');
     background-color: white;
-    display: flex;
     align-items: center;
     justify-content: center;
     width: 100%;
@@ -101,16 +100,15 @@
 
 .initial-welcome-container {
     width: 1000px;
-    height: 600px;
     border: solid 2px #e9e9e9;
-    position: absolute;
-    top: 50px;
+    position: relative;
+    top: 30px;
+    margin: 0 auto;
 }
 
 .heading-welcome-container {
-    height: 300px;
+    height: 250px;
     background-color: #ffffff;
-
 }
 
 .welcome-title {
@@ -149,13 +147,13 @@
 
 .body-welcome-container {
     background-color: #f5f5f5;
-    height: 300px;
-    width: 1000px;
+    height: 270px;
+    width: 996px;
 }
 
 .welcome-body-title {
     position: absolute;
-    top: 330px;
+    top: 275px;
     left: 80px;
     font-size: 20px;
     color: #222222;
@@ -166,13 +164,13 @@
     position: absolute;
     border-top: 1px solid #d7d7d7;
     width: 850px;
-    top: 370px;
+    top: 315px;
     left: 80px;
     height: 200px;
 }
 
 .top-heading{
-    padding-top: 50px;
+    padding-top: 30px;
     width: 35%;
     margin: 0 auto;
 }
