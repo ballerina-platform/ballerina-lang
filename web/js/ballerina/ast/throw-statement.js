@@ -24,6 +24,7 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
      */
     var ThrowStatement = function (expression) {
         this._expression = expression;
+        this.type = "ThrowStatement";
     };
 
     ThrowStatement.prototype = Object.create(Statement.prototype);

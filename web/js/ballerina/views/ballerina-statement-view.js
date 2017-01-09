@@ -50,16 +50,9 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
 
     BallerinaStatementView.prototype.init = function(){
         //Registering event listeners
-        this.listenTo(this._model, 'childVisitedEvent', this.childVisitedCallback);
         this.listenTo(this._parent, 'changeStatementMetricsEvent', this.changeMetricsCallback);
     };
 
-    BallerinaStatementView.prototype.childVisitedCallback = function (child) {
-        // this.trigger("childViewAddedEvent", child);
-    };
-
-    BallerinaStatementView.prototype.childViewAddedCallback = function (child) {
-    };
 
     BallerinaStatementView.prototype.setParent = function (parent) {
         this._parent = parent;

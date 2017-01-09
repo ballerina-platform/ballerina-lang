@@ -29,6 +29,7 @@ define(['lodash', 'log', './conditional-statement'], function (_, log, Condition
             this._condition = _.get(args,'condition');
         }
         this._statements = _.get(args,'statements') || [];
+        this.type = "WhileStatement";
     };
 
     WhileStatement.prototype = Object.create(ConditionalStatement.prototype);

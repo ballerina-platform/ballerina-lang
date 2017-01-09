@@ -24,6 +24,7 @@ define(['lodash', './callable-definition', './connector-declaration', './variabl
         CallableDefinition.call(this, 'Function');
         this._functionName = _.get(args, 'functionName') || 'newFunction';
         this._isPublic = _.get(args, "isPublic") || false;
+        this.type = "FunctionDefinition";
     };
 
     FunctionDefinition.prototype = Object.create(CallableDefinition.prototype);
@@ -103,12 +104,8 @@ define(['lodash', './callable-definition', './connector-declaration', './variabl
     /**
      * Adds new variable declaration.
      */
-    FunctionDefinition.prototype.removeVariableDeclaration = function (newVariableDeclaration) {
-        // Deleting the variable from the children.
-        _.remove(this.getChildren(), function (child) {
-            return child instanceof VariableDeclaration &&
-                child.getIdentifier() === newVariableDeclaration;
-        });
+    FunctionDefinition.prototype.removeVariableDeclaration = function (variableDeclaration) {
+       this.removeChild(variableDeclaration)
     };
 
     /**

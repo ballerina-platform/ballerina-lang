@@ -25,6 +25,7 @@ define(['lodash', 'log', './action-invocation-statement'], function (_, log, Act
     var ActionInvocationExpression = function (args) {
         ActionInvocationStatement.call(this, args);
         this._variableAccessor = _.get(args, 'accessor');
+        this.type = "ActionInvocationExpression";
     };
 
     ActionInvocationExpression.prototype = Object.create(ActionInvocationStatement.prototype);

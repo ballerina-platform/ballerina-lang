@@ -36,10 +36,10 @@ define(['log', 'jquery', 'd3', 'backbone', 'lodash', 'd3utils'], function (log, 
                     var indexForNewNode = toolView.toolPalette.dragDropManager.getDroppedNodeIndex();
                     if(indexForNewNode >= 0){
                         toolView.toolPalette.dragDropManager.getActivatedDropTarget()
-                            .addChild(toolView.toolPalette.dragDropManager.getTypeBeingDragged(), indexForNewNode);
+                            .addChild(toolView.toolPalette.dragDropManager.getNodeBeingDragged(), indexForNewNode);
                     } else {
                         toolView.toolPalette.dragDropManager.getActivatedDropTarget()
-                            .addChild(toolView.toolPalette.dragDropManager.getTypeBeingDragged());
+                            .addChild(toolView.toolPalette.dragDropManager.getNodeBeingDragged());
                     }
                 }
                 toolView.toolPalette.dragDropManager.reset();
@@ -66,7 +66,7 @@ define(['log', 'jquery', 'd3', 'backbone', 'lodash', 'd3utils'], function (log, 
             return function(event,ui){
                 // Get the meta information/ arguments to create the particular tool
                 var meta = toolView.model.get('meta') || {};
-                toolView.toolPalette.dragDropManager.setTypeBeingDragged(toolView.model.nodeFactoryMethod(meta, true));
+                toolView.toolPalette.dragDropManager.setNodeBeingDragged(toolView.model.nodeFactoryMethod(meta, true));
             }
         },
 

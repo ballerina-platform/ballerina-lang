@@ -114,11 +114,7 @@ define(['lodash', 'log', './node', './worker-declaration', './connector-declarat
      * Adds new variable declaration.
      */
     ResourceDefinition.prototype.removeVariableDeclaration = function (variableDeclaration) {
-        // Deleting the variable from the children.
-        _.remove(this.getChildren(), function (child) {
-            return child instanceof VariableDeclaration &&
-                child.getIdentifier() === variableDeclaration;
-        });
+        this.removeChild(variableDeclaration);
     };
 
     /**
