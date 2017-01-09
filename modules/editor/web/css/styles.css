@@ -6,7 +6,7 @@ body {
     display: none
 }
 
-#right-container {
+.right-container {
     background-color: #232323;
 }
 

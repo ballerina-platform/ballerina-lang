@@ -78,7 +78,7 @@ div[class*="col-sm-"] {
     position: fixed;
 }
 
-#right-container{
+.right-container{
     height: 100%;
     margin-left: 32px;
 }
