@@ -20,6 +20,7 @@ define(['lodash', './node'], function (_, ASTNode) {
     var Argument = function (type, identifier) {
         this.type = type;
         this.identifier = identifier;
+        this.type = "Argument";
     };
 
     Argument.prototype = Object.create(ASTNode.prototype);

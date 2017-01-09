@@ -24,6 +24,7 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
      */
     var ElseStatement = function () {
         Statement.call(this);
+        this.type = "ElseStatement";
     };
 
     ElseStatement.prototype = Object.create(Statement.prototype);

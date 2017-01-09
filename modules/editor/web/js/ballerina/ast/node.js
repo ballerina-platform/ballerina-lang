@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'event_channel', 'lodash'], function(require, EventChannel, _){
+define(['log', 'require', 'event_channel', 'lodash'], function(log, require, EventChannel, _){
 
     /**
      * Constructor for the ASTNode
@@ -30,6 +30,14 @@ define(['require', 'event_channel', 'lodash'], function(require, EventChannel, _
         this.children = [];
         this.type = type;
         this.id = uuid();
+        this.on('tree-modified', function(event){
+            if(!_.isNil(this.parent)){
+                this.parent.trigger('tree-modified', event);
+            } else {
+              log.debug("Cannot find the parent node to propagate tree modified event up. Node: " + this.getType()
+                  + ", EventType: " + event.type + ", EventTitle: " + event.title)
+            }
+        })
     };
 
     ASTNode.prototype = Object.create(EventChannel.prototype);
@@ -63,9 +71,11 @@ define(['require', 'event_channel', 'lodash'], function(require, EventChannel, _
      * Insert a given child to the children array for a given index or otherwise to the array normally
      * @param child
      * @param index
+     * @param ignoreTreeModifiedEvent {boolean}
      * @fires  ASTNode#child-added
+     * @fires  ASTNode#tree-modified
      */
-    ASTNode.prototype.addChild = function (child, index) {
+    ASTNode.prototype.addChild = function (child, index, ignoreTreeModifiedEvent) {
         if (_.isUndefined(index)) {
             this.children.push(child);
         } else {
@@ -75,6 +85,20 @@ define(['require', 'event_channel', 'lodash'], function(require, EventChannel, _
          * @event ASTNode#child-added
          */
         this.trigger('child-added', child, index);
+
+        if(!ignoreTreeModifiedEvent) {
+            /**
+             * @event ASTNode#tree-modified
+             */
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                data: {
+                    child: child,
+                    index: index
+                }
+            });
+        }
         //setting the parent node
         child.setParent(this);
     };
@@ -82,15 +106,34 @@ define(['require', 'event_channel', 'lodash'], function(require, EventChannel, _
     /**
      * Remove a given child from the AST tree
      * @param child
-     * @param index
+     * @param ignoreTreeModifiedEvent {boolean}
      * @fires  ASTNode#child-removed
+     * @fires  ASTNode#tree-modified
      */
-    ASTNode.prototype.removeChild = function (child) {
+    ASTNode.prototype.removeChild = function (child, ignoreTreeModifiedEvent) {
         var parentModelChildren = this.children;
         for (var itr = 0; itr < parentModelChildren.length; itr++) {
             if (parentModelChildren[itr].id === child.id) {
                 parentModelChildren.splice(itr, 1);
+
+                /**
+                 * @event ASTNode#child-removed
+                 */
                 this.trigger("child-removed", child);
+
+                if(!ignoreTreeModifiedEvent){
+                    /**
+                     * @event ASTNode#tree-modified
+                     */
+                    this.trigger('tree-modified', {
+                        origin: this,
+                        type: 'child-removed',
+                        data: {
+                            child: child,
+                            index: itr
+                        }
+                    });
+                }
                 break;
             }
         }

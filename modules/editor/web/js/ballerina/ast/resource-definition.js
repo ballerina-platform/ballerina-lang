@@ -52,6 +52,7 @@ define(['lodash', 'log', './node', './worker-declaration', './connector-declarat
         // Adding the default worker declaration.
         var defaultWorker = new WorkerDeclaration({isDefaultWorker: true});
         this._workerDeclarations.push(defaultWorker);
+        this.type = "ResourceDefinition";
     };
 
     ResourceDefinition.prototype = Object.create(ASTNode.prototype);
@@ -154,12 +155,8 @@ define(['lodash', 'log', './node', './worker-declaration', './connector-declarat
     /**
      * Adds new variable declaration.
      */
-    ResourceDefinition.prototype.removeVariableDeclaration = function (newVariableDeclaration) {
-        // Deleting the variable from the children.
-        _.remove(this.getChildren(), function (child) {
-            return child instanceof VariableDeclaration &&
-                child.getIdentifier() === newVariableDeclaration;
-        });
+    ResourceDefinition.prototype.removeVariableDeclaration = function (variableDeclaration) {
+        this.removeChild(variableDeclaration);
     };
 
     /**

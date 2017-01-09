@@ -29,6 +29,7 @@ define(['lodash', './node'], function (_, ASTNode) {
         this._identifier = _.get(args, 'identifier', "");
 
         ASTNode.call(this);
+        this.type = "ImportDeclaration";
     };
 
     ImportDeclaration.prototype = Object.create(ASTNode.prototype);
