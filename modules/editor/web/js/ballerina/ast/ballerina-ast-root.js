@@ -36,8 +36,7 @@ define(['lodash', 'log', './node', './import-declaration'], function (_, log, AS
         this.typeDefinitions = _.get(args, 'typeDefinitions', []);
         this.typeConvertorDefinitions = _.get(args, 'typeConvertorDefinitions', []);
         this.constantDefinitions = _.get(args, 'constantDefinitions', []);
-        ASTNode.call(this);
-        this.type = "BallerinaASTRoot";
+        ASTNode.call(this, "BallerinaASTRoot");
     };
 
     BallerinaASTRoot.prototype = Object.create(ASTNode.prototype);

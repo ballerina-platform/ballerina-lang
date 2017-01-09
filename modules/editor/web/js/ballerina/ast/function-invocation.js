@@ -26,7 +26,6 @@ define(['lodash', './statement'], function (_, Statement) {
         this._functionName = _.get(args, 'function', 'default');
         this._params = _.get(args, 'params');
         Statement.call(this, 'FunctionInvocation');
-        this.type = "FunctionInvocation";
     };
 
     FunctionInvocation.prototype = Object.create(Statement.prototype);
