@@ -28,7 +28,11 @@ import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
 import org.wso2.siddhi.query.api.definition.TriggerDefinition;
 import org.wso2.siddhi.query.api.definition.WindowDefinition;
+import org.wso2.siddhi.query.api.definition.io.Store;
 import org.wso2.siddhi.query.api.execution.ExecutionElement;
+import org.wso2.siddhi.query.api.execution.Subscription;
+import org.wso2.siddhi.query.api.execution.io.Transport;
+import org.wso2.siddhi.query.api.execution.io.map.Mapping;
 import org.wso2.siddhi.query.api.execution.partition.Partition;
 import org.wso2.siddhi.query.api.execution.partition.PartitionType;
 import org.wso2.siddhi.query.api.execution.partition.RangePartitionType;
@@ -304,6 +308,11 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      */
     @Override
     public TableDefinition visitDefinition_table(@NotNull SiddhiQLParser.Definition_tableContext ctx) {
+
+//        definition_table
+//        : annotation* DEFINE TABLE source '(' attribute_name attribute_type (',' attribute_name attribute_type )* ')' definition_store?
+//        ;
+
         Source source = (Source) visit(ctx.source());
         if (source.isInnerStream) {
             throw newSiddhiParserException(ctx, "'#' cannot be used, because EventTables can't be defined as InnerStream!");
@@ -320,8 +329,32 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
         for (SiddhiQLParser.AnnotationContext annotationContext : ctx.annotation()) {
             tableDefinition.annotation((Annotation) visit(annotationContext));
         }
+        if (ctx.storage() != null) {
+            tableDefinition.store((Store) visit(ctx.storage()));
+        }
         return tableDefinition;
 
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
+     *
+     * @param ctx
+     */
+    @Override public Store visitStorage(@NotNull SiddhiQLParser.StorageContext ctx) {
+
+//        definition_store
+//        :STORE type OPTIONS '(' option (',' option)* ')'
+//        ;
+
+        Store store = Store.store((String) visit(ctx.type()));
+        for (SiddhiQLParser.OptionContext optionContext : ctx.option()){
+            store.option((String) visit(optionContext.key()), ((StringConstant) visit(optionContext.value())).getValue());
+        }
+        return store;
     }
 
     @Override
@@ -500,6 +533,168 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
         } finally {
             activeStreams.clear();
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
+     *
+     * @param ctx
+     */
+    @Override public Object visitSubscription_final(@NotNull SiddhiQLParser.Subscription_finalContext ctx) {
+
+//        subscription_final
+//        : subscription ';'? EOF
+//        ;
+
+        return visit(ctx.subscription());
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
+     *
+     * @param ctx
+     */
+    @Override
+    public Subscription visitSubscription(@NotNull SiddhiQLParser.SubscriptionContext ctx) {
+
+//        subscription
+//       :annotation* SUBSCRIBE transport MAP mapping subscription_output
+//        ;
+
+        Subscription subscription = Subscription.Subscribe((Transport) visit(ctx.transport()));
+        subscription.map((Mapping) visit(ctx.mapping()));
+        for (SiddhiQLParser.AnnotationContext annotationContext : ctx.annotation()) {
+            subscription.annotation((Annotation) visit(annotationContext));
+        }
+        subscription.outStream((OutputStream) visit(ctx.subscription_output()));
+
+        return subscription;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
+     *
+     * @param ctx
+     */
+    @Override
+    public OutputStream visitSubscription_output(@NotNull SiddhiQLParser.Subscription_outputContext ctx) {
+
+//        subscription_output
+//        :INSERT OVERWRITE? output_event_type? INTO target
+//        |DELETE target (FOR output_event_type)? (ON expression)?
+//        |UPDATE target (FOR output_event_type)? (ON expression)?
+//        ;
+
+        if (ctx.INSERT() != null) {
+            Source source = (Source) visit(ctx.target());
+            if (ctx.OVERWRITE() != null) {
+                if (source.isInnerStream) {
+                    throw newSiddhiParserException(ctx, "INSERT OVERWRITE INTO can be only used with EventTables!");
+                }
+                if (ctx.output_event_type() != null) {
+                    return new InsertOverwriteStream(source.streamId,
+                            (OutputStream.OutputEventType) visit(ctx.output_event_type()),
+                            (Expression) visit(ctx.expression()));
+                } else {
+                    return new InsertOverwriteStream(source.streamId, (Expression) visit(ctx.expression()));
+                }
+            } else {
+                if (ctx.output_event_type() != null) {
+                    return new InsertIntoStream(source.streamId, source.isInnerStream,
+                            (OutputStream.OutputEventType) visit(ctx.output_event_type()));
+                } else {
+                    return new InsertIntoStream(source.streamId, source.isInnerStream);
+                }
+            }
+        } else if (ctx.DELETE() != null) {
+            Source source = (Source) visit(ctx.target());
+            if (source.isInnerStream) {
+                throw newSiddhiParserException(ctx, "DELETE can be only used with EventTables!");
+            }
+            if (ctx.output_event_type() != null) {
+                return new DeleteStream(source.streamId,
+                        (OutputStream.OutputEventType) visit(ctx.output_event_type()),
+                        (Expression) visit(ctx.expression()));
+            } else {
+                return new DeleteStream(source.streamId, (Expression) visit(ctx.expression()));
+            }
+        } else if (ctx.UPDATE() != null) {
+            Source source = (Source) visit(ctx.target());
+            if (source.isInnerStream) {
+                throw newSiddhiParserException(ctx, "DELETE can be only used with EventTables!");
+            }
+            if (ctx.output_event_type() != null) {
+                return new UpdateStream(source.streamId,
+                        (OutputStream.OutputEventType) visit(ctx.output_event_type()),
+                        (Expression) visit(ctx.expression()));
+            } else {
+                return new UpdateStream(source.streamId, (Expression) visit(ctx.expression()));
+            }
+        } else {
+            throw newSiddhiParserException(ctx);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
+     *
+     * @param ctx
+     */
+    @Override
+    public Transport visitTransport(@NotNull SiddhiQLParser.TransportContext ctx) {
+
+//        transport
+//        :type (OPTIONS '(' option (',' option)* ')')?
+//        ;
+
+        Transport transport = Transport.transport((String) visit(ctx.type()));
+        if (ctx.OPTIONS()!=null){
+            for (SiddhiQLParser.OptionContext optionContext : ctx.option()){
+                transport.option((String) visit(optionContext.key()), ((StringConstant) visit(optionContext.value())).getValue());
+            }
+        }
+        return transport;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
+     *
+     * @param ctx
+     */
+    @Override
+    public Mapping visitMapping(@NotNull SiddhiQLParser.MappingContext ctx) {
+
+//        mapping
+//        :type (map_attribute (',' map_attribute)*)? (OPTIONS '(' option (',' option)* ')')?
+//        ;
+
+        Mapping mapping = Mapping.format((String) visit(ctx.type()));
+        if (ctx.map_attribute().size() != 0){
+            for (SiddhiQLParser.Map_attributeContext map_attributeContext: ctx.map_attribute()) {
+                mapping.map(((StringConstant) visit(map_attributeContext)).getValue());
+            }
+        }
+        if (ctx.OPTIONS()!=null && ctx.option().size() != 0){
+            for (SiddhiQLParser.OptionContext optionContext : ctx.option()){
+                mapping.option((String) visit(optionContext.key()), ((StringConstant) visit(optionContext.value())).getValue());
+            }
+        }
+        return mapping;
     }
 
     /**
@@ -1690,6 +1885,24 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
      */
     @Override
     public Object visitProperty_name(@NotNull SiddhiQLParser.Property_nameContext ctx) {
+
+        StringBuilder stringBuilder = new StringBuilder();
+        for (SiddhiQLParser.NameContext nameContext : ctx.name()) {
+            stringBuilder.append(".").append(visit(nameContext));
+        }
+        return stringBuilder.substring(1);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation returns the result of calling
+     * {@link #visitChildren} on {@code ctx}.</p>
+     *
+     * @param ctx
+     */
+    @Override
+    public Object visitKey(@NotNull SiddhiQLParser.KeyContext ctx) {
 
         StringBuilder stringBuilder = new StringBuilder();
         for (SiddhiQLParser.NameContext nameContext : ctx.name()) {

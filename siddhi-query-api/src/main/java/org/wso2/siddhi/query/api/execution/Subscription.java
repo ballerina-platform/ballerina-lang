@@ -50,6 +50,11 @@ public class Subscription implements ExecutionElement {
         return this;
     }
 
+    public Subscription outStream(OutputStream outputStream) {
+        this.outputStream = outputStream;
+        return this;
+    }
+
     public Subscription insertInto(String outputStreamId, OutputStream.OutputEventType outputEventType) {
         this.outputStream = new InsertIntoStream(outputStreamId, outputEventType);
         return this;

@@ -37,6 +37,7 @@ import org.wso2.siddhi.core.util.extension.holder.EventTableExtensionHolder;
 import org.wso2.siddhi.core.window.EventWindow;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.definition.*;
+import org.wso2.siddhi.query.api.definition.io.Store;
 import org.wso2.siddhi.query.api.exception.DuplicateDefinitionException;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import org.wso2.siddhi.query.api.extension.Extension;
@@ -104,12 +105,28 @@ public class DefinitionParserHelper {
             StreamEventCloner tableStreamEventCloner = new StreamEventCloner(tableMetaStreamEvent, tableStreamEventPool);
 
             Annotation annotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_FROM,
-                    tableDefinition.getAnnotations());
+                    tableDefinition.getAnnotations()); //// TODO: 12/5/16 this must be removed
+            
+            Store store = tableDefinition.getStore();
 
             EventTable eventTable;
             if (annotation != null) {
                 final String evenTableType = annotation.getElement(SiddhiConstants.EVENT_TABLE);
                 Extension extension = new Extension() {
+                    @Override
+                    public String getNamespace() {
+                        return SiddhiConstants.EVENT_TABLE;
+                    }
+
+                    @Override
+                    public String getFunction() {
+                        return evenTableType;
+                    }
+                };
+                eventTable = (EventTable) SiddhiClassLoader.loadExtensionImplementation(extension, EventTableExtensionHolder.getInstance(executionPlanContext));
+            } else if (store != null) {
+                final String evenTableType = store.getType();
+                Extension extension = new Extension() { //// TODO: 12/5/16 check this
                     @Override
                     public String getNamespace() {
                         return SiddhiConstants.EVENT_TABLE;
