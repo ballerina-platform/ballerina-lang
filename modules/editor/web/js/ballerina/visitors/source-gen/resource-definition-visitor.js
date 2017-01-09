@@ -50,8 +50,16 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './st
                         annotation.key.split(":")[1] + ' = "' + annotation.value + '")\n';
                 }
 
+                // Separately handling the HTTP method annotations.
                 if (annotation.key == "Method") {
-                    constructedPathAnnotation = "@" + annotation.value + "\n";
+                    constructedPathAnnotation = "";
+                    var methods = annotation.value.replace( /\n/g, " " ).split(" ");
+                    _.forEach(methods, function(method){
+                        var cleanedMethod = method.trim();
+                        if (!_.isEmpty(cleanedMethod)) {
+                            constructedPathAnnotation += "@" + cleanedMethod + "\n";
+                        }
+                    });
                 }
 
                 self.appendSource(constructedPathAnnotation);

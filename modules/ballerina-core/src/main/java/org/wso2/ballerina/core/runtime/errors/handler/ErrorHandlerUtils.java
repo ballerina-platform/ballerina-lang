@@ -29,12 +29,12 @@ import java.util.Stack;
  * Class contains utility methods for ballerina server error handling.
  */
 public class ErrorHandlerUtils {
-    
+
     /**
      * Get the ballerina stack trace from a throwable.
-     * 
+     *
      * @param throwable Throwable
-     * @return          Ballerina stack trace
+     * @return Ballerina stack trace
      */
     public static String getBallerinaStackTrace(Throwable throwable) {
         if (throwable instanceof BallerinaException) {
@@ -49,9 +49,9 @@ public class ErrorHandlerUtils {
 
     /**
      * Get the ballerina stack trace from context.
-     * 
-     * @param context   Ballerina context
-     * @return          Ballerina stack trace
+     *
+     * @param context Ballerina context
+     * @return Ballerina stack trace
      */
     public static String getBallerinaStackTrace(Context context) {
         ControlStack controlStack = context.getControlStack();
@@ -59,24 +59,24 @@ public class ErrorHandlerUtils {
         Stack<StackFrame> stack = controlStack.getStack();
         for (int i = stack.size() - 1; i >= 0; i--) {
             CallableUnitInfo frameInfo = stack.get(i).getNodeInfo();
-            sb.append("\t at " + frameInfo.getPackage() + ":" + frameInfo.getName() + getNodeLocation(frameInfo) 
+            sb.append("\t at " + frameInfo.getPackage() + ":" + frameInfo.getName() + getNodeLocation(frameInfo)
                     + "\n");
         }
-        
+
         // print the service info
         CallableUnitInfo serviceInfo = context.getServiceInfo();
         if (serviceInfo != null) {
-            sb.append("\t at " + serviceInfo.getPackage() + ":" + serviceInfo.getName() + 
+            sb.append("\t at " + serviceInfo.getPackage() + ":" + serviceInfo.getName() +
                     getNodeLocation(serviceInfo) + "\n");
         }
         return sb.toString();
     }
-    
+
     /**
      * Get the ballerina stack trace for a main function.
-     * 
-     * @param context       Ballerina context associated with the main function
-     * @return              Ballerina stack trace
+     *
+     * @param context Ballerina context associated with the main function
+     * @return Ballerina stack trace
      */
     public static String getMainFunctionStackTrace(Context context) {
         ControlStack controlStack = context.getControlStack();
@@ -85,13 +85,14 @@ public class ErrorHandlerUtils {
 
         for (int i = stack.size() - 1; i > 0; i--) {
             CallableUnitInfo frameInfo = stack.get(i).getNodeInfo();
-            sb.append("\t at " + frameInfo.getPackage() + ":" + frameInfo.getName() + getNodeLocation(frameInfo) 
+            String pkgName = (frameInfo.getPackage() != null) ? frameInfo.getPackage() + ":" : "";
+            sb.append("\t at " + pkgName + frameInfo.getName() + getNodeLocation(frameInfo)
                     + "\n");
         }
 
         return sb.toString();
     }
-    
+
     private static String getNodeLocation(CallableUnitInfo nodeInfo) {
         Position nodePosition = nodeInfo.getLocation();
         if (nodePosition != null) {
