@@ -26,6 +26,7 @@ define(['lodash', 'log', './conditional-statement'], function (_, log, Condition
             this._exceptionType = exceptionType;
         }
         ConditionalStatement.call(this);
+        this.type = "CatchStatement";
     };
 
     CatchStatement.prototype = Object.create(ConditionalStatement.prototype);

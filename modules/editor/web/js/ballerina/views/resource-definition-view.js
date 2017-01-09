@@ -114,10 +114,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
         var variableTypes = ['message', 'boolean', 'string', 'int', 'float', 'long', 'double', 'json', 'xml'];
 
         ResourceDefinitionView.prototype.init = function(){
-            //Registering event listeners
-            this.listenTo(this._model, 'childVisitedEvent', this.childVisitedCallback);
-            this.listenTo(this._parentView, 'childViewAddedEvent', this.childViewAddedCallback);
-            this.listenTo(this._model, 'childRemovedEvent', this.childViewRemovedCallback);
+            this.listenTo(this._model, 'child-removed', this.childViewRemovedCallback);
         };
 
         ResourceDefinitionView.prototype.getChildContainer = function () {
@@ -126,27 +123,6 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
         ResourceDefinitionView.prototype.canVisitResourceDefinition = function (resourceDefinition) {
             return true;
-        };
-
-        /**
-         * callback function for childVisited event
-         * @param child
-         */
-        ResourceDefinitionView.prototype.childVisitedCallback = function (child) {
-            this.trigger("childViewAddedEvent", child);
-        };
-
-        ResourceDefinitionView.prototype.childViewAddedCallback = function (child) {
-            if(BallerinaASTFactory.isResourceDefinition(child)){
-                if(child !== this._model){
-                    log.debug("[Eventing] Resource view added : ");
-                }
-            }
-        };
-
-        ResourceDefinitionView.prototype.childRemovedCallback = function (child) {
-            log.debug("[Eventing] Child element removed. ");
-            (d3.select(this._container)).selectAll('#_' +child.id).remove();
         };
 
         ResourceDefinitionView.prototype.setModel = function (model) {
