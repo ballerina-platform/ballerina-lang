@@ -52,7 +52,6 @@ define(['lodash', 'log', './node', './worker-declaration', './connector-declarat
         // Adding the default worker declaration.
         var defaultWorker = new WorkerDeclaration({isDefaultWorker: true});
         this._workerDeclarations.push(defaultWorker);
-        this.type = "ResourceDefinition";
     };
 
     ResourceDefinition.prototype = Object.create(ASTNode.prototype);
