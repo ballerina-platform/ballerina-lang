@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'lodash', 'jquery'],
-    function (require, _, $) {
+define(['require', 'lodash', 'jquery', 'ballerina/ast/ballerina-ast-factory'],
+    function (require, _, $, BallerinaASTFactory) {
 
         //TODO : Move this to a common constant.
         var variableTypes = ['message', 'connection', 'string', 'int', 'exception', 'json', 'xml', 'map', 'string[]', 'int[]'];
