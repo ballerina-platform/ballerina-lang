@@ -20,10 +20,12 @@ package org.wso2.siddhi.query.api.execution.io;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 public class Transport {
     private String type;
     private Map<String, String> options = new HashMap<String, String>();
+    private Map<String, String> dynamicOptions = new HashMap<String, String>();
 
     private Transport(String type) {
         this.type = type;
@@ -34,7 +36,11 @@ public class Transport {
     }
 
     public Transport option(String key, String value) {
-        options.put(key, value);
+        if (Pattern.matches("\\{\\{.*?}}", value)) {
+            dynamicOptions.put(key, value);
+        } else {
+            options.put(key, value);
+        }
         return this;
     }
 
@@ -46,11 +52,16 @@ public class Transport {
         return options;
     }
 
+    public Map<String, String> getDynamicOptions() {
+        return dynamicOptions;
+    }
+
     @Override
     public String toString() {
         return "Transport{" +
                 "type='" + type + '\'' +
                 ", options=" + options +
+                ", dynamicOptions=" + dynamicOptions +
                 '}';
     }
 
@@ -62,14 +73,16 @@ public class Transport {
         Transport transport = (Transport) o;
 
         if (type != null ? !type.equals(transport.type) : transport.type != null) return false;
-        return !(options != null ? !options.equals(transport.options) : transport.options != null);
-
+        else if (options != null ? !options.equals(transport.options) : transport.options != null) return false;
+        else
+            return dynamicOptions != null ? dynamicOptions.equals(transport.dynamicOptions) : transport.dynamicOptions == null;
     }
 
     @Override
     public int hashCode() {
         int result = type != null ? type.hashCode() : 0;
         result = 31 * result + (options != null ? options.hashCode() : 0);
+        result = 31 * result + (dynamicOptions != null ? dynamicOptions.hashCode() : 0);
         return result;
     }
 }

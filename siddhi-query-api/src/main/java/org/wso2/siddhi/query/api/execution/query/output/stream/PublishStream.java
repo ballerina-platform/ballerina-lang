@@ -23,7 +23,6 @@ import org.wso2.siddhi.query.api.execution.io.map.Mapping;
 public class PublishStream extends OutputStream {
 
     private Transport transport;
-    private OutputEventType outputEventType;
     private Mapping mapping;
 
     public PublishStream(Transport transport, Mapping mapping) {
@@ -32,9 +31,8 @@ public class PublishStream extends OutputStream {
     }
 
     public PublishStream(Transport transport, OutputEventType outputEventType, Mapping mapping) {
-        this.transport = transport;
+        this(transport, mapping);
         this.outputEventType = outputEventType;
-        this.mapping = mapping;
     }
 
     public Transport getTransport() {
@@ -61,11 +59,9 @@ public class PublishStream extends OutputStream {
         if (!super.equals(o)) return false;
 
         PublishStream that = (PublishStream) o;
-
         if (transport != null ? !transport.equals(that.transport) : that.transport != null) return false;
         if (outputEventType != that.outputEventType) return false;
         return !(mapping != null ? !mapping.equals(that.mapping) : that.mapping != null);
-
     }
 
     @Override

@@ -28,15 +28,21 @@ import org.wso2.siddhi.core.query.input.stream.single.SingleStreamRuntime;
 import org.wso2.siddhi.core.query.output.callback.InsertIntoStreamCallback;
 import org.wso2.siddhi.core.query.output.callback.InsertIntoWindowCallback;
 import org.wso2.siddhi.core.query.output.callback.OutputCallback;
+import org.wso2.siddhi.core.query.output.callback.PublishStreamCallback;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.core.stream.input.InputManager;
 import org.wso2.siddhi.core.subscription.SubscriptionRuntime;
 import org.wso2.siddhi.core.table.EventTable;
-import org.wso2.siddhi.core.window.EventWindow;
 import org.wso2.siddhi.core.trigger.EventTrigger;
 import org.wso2.siddhi.core.util.lock.LockSynchronizer;
 import org.wso2.siddhi.core.util.parser.helper.DefinitionParserHelper;
-import org.wso2.siddhi.query.api.definition.*;
+import org.wso2.siddhi.core.window.EventWindow;
+import org.wso2.siddhi.query.api.definition.AbstractDefinition;
+import org.wso2.siddhi.query.api.definition.FunctionDefinition;
+import org.wso2.siddhi.query.api.definition.StreamDefinition;
+import org.wso2.siddhi.query.api.definition.TableDefinition;
+import org.wso2.siddhi.query.api.definition.TriggerDefinition;
+import org.wso2.siddhi.query.api.definition.WindowDefinition;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -149,6 +155,9 @@ public class ExecutionPlanRuntimeBuilder {
                 streamJunctionMap.putIfAbsent(streamDefinition.getId(), outputStreamJunction);
             }
             insertIntoWindowCallback.getEventWindow().setPublisher(streamJunctionMap.get(insertIntoWindowCallback.getOutputStreamDefinition().getId()).constructPublisher());
+        } else if (outputCallback != null && outputCallback instanceof PublishStreamCallback) {
+            PublishStreamCallback publishStreamCallback = (PublishStreamCallback) outputCallback;
+            publishStreamCallback.init(executionPlanContext);
         }
 
         return queryRuntime.getQueryId();
