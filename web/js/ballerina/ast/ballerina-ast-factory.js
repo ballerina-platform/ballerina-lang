@@ -26,14 +26,14 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
         './type-converter-definition', './type-definition', './type-element', './variable-declaration',
         './package-definition', './import-declaration', './resource-arg', './assignment', './function-invocation',
         './action-invocation-statement', './arithmetic-expression', './logical-expression', './action-invocation-expression',
-        './return-type', './type-name'],
+        './return-type', './type-name', './argument'],
     function (ballerinaAstRoot, serviceDefinition, functionDefinition, connectorDefinition, resourceDefinition,
               workerDeclaration, statement, conditionalStatement, connectorDeclaration, expression,
               ifElseStatement, ifStatement, elseStatement, elseIfStatement, tryCatchStatement, tryStatement, catchStatement, replyStatement,
               whileStatement, returnStatement, typeConverterDefinition, typeDefinition, typeElement, variableDeclaration,
               packageDefinition, importDeclaration, resourceArgument, assignmentStatement, functionInvocation,
               actionInvocationStatement, arithmeticExpression, logicalExpression, actionInvocationExpression, returnType,
-              typeName) {
+              typeName, argument) {
 
 
         /**
@@ -306,6 +306,15 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
         };
 
         /**
+         * creates Argument
+         * @param args
+         * @returns {Argument}
+         */
+        BallerinaASTFactory.createArgument = function (args) {
+            return new argument(args);
+        };
+
+        /**
          * creates ReturnType
          * @param args
          * @returns {ReturnType}
@@ -547,6 +556,15 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
             if (statement instanceof actionInvocationStatement){
                 return true;
             }
+        };
+
+        /**
+         * instanceof check for Argument
+         * @param child - Object for instanceof check
+         * @returns {boolean} - true if same type, else false
+         */
+        BallerinaASTFactory.isArgument = function (child) {
+            return child instanceof argument;
         };
 
         /**

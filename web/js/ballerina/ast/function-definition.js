@@ -15,14 +15,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './callable-definition', './connector-declaration', './variable-declaration', './return-type'],
-    function (_, CallableDefinition, ConnectorDeclaration, VariableDeclaration, ReturnType) {
+define(['lodash', './callable-definition', './connector-declaration', './variable-declaration', './return-type',
+        './argument'],
+    function (_, CallableDefinition, ConnectorDeclaration, VariableDeclaration, ReturnType, Argument) {
 
     var FunctionDefinition = function (args) {
         this.id = autoGenerateId();
         CallableDefinition.call(this, 'Function');
         this._functionName = _.get(args, 'functionName') || 'newFunction';
-        this._arguments = _.get(args, "functionArgs", []);
         this._isPublic = _.get(args, "isPublic") || false;
     };
 
@@ -46,22 +46,9 @@ define(['lodash', './callable-definition', './connector-declaration', './variabl
         }
     };
 
-    FunctionDefinition.prototype.setArguments = function (args) {
-        if (!_.isNil(name)) {
-            this._arguments = args;
-        }
-    };
-
     FunctionDefinition.prototype.setIsPublic = function(isPublic){
         if(!_.isNil(isPublic)){
             this._isPublic = isPublic;
-        }
-    };
-
-    FunctionDefinition.prototype.setVariableDeclarations = function (variableDeclarations) {
-        if (!_.isNil(variableDeclarations)) {
-            // TODO : To implement using child array.
-            throw "To be Implemented";
         }
     };
 
@@ -70,7 +57,13 @@ define(['lodash', './callable-definition', './connector-declaration', './variabl
     };
 
     FunctionDefinition.prototype.getArguments = function () {
-        return this._arguments;
+        var functionArgs = [];
+        _.forEach(this.getChildren(), function (child) {
+            if (child instanceof Argument) {
+                functionArgs.push(child);
+            }
+        });
+        return functionArgs;
     };
 
     FunctionDefinition.prototype.getIsPublic = function () {
@@ -124,8 +117,8 @@ define(['lodash', './callable-definition', './connector-declaration', './variabl
      */
     FunctionDefinition.prototype.getArgumentsAsString = function () {
         var argsAsString = "";
-        var args = this._arguments;
-        _.forEach(this._arguments, function(argument, index){
+        var args = this.getArguments();
+        _.forEach(args, function(argument, index){
             argsAsString += argument.type + " ";
             argsAsString += argument.identifier;
             if (args.length - 1 != index) {
@@ -142,10 +135,19 @@ define(['lodash', './callable-definition', './connector-declaration', './variabl
      * @param identifier - The identifier of the argument.
      */
     FunctionDefinition.prototype.addArgument = function(type, identifier) {
-        this._arguments.push({
-            type: type,
-            identifier: identifier
-        })
+        //creating resource argument
+        var BallerinaASTFactory = this.getFactory();
+
+        var newArgument = BallerinaASTFactory.createArgument();
+        newArgument.setType(type);
+        newArgument.setIdentifier(identifier);
+
+        // Get the index of the last resource argument declaration.
+        var index = _.findLastIndex(this.getChildren(), function (child) {
+            return child instanceof Argument;
+        });
+
+        this.addChild(newArgument, index + 1);
     };
 
     /**
@@ -154,8 +156,8 @@ define(['lodash', './callable-definition', './connector-declaration', './variabl
      * @return {Array} - The removed argument.
      */
     FunctionDefinition.prototype.removeArgument = function(identifier) {
-       return  _.remove(this._arguments, function(functionArg) {
-            return functionArg.identifier === identifier;
+        _.remove(this.getChildren(), function (child) {
+            return child instanceof Argument && child.getIdentifier() === identifier;
         });
     };
 
