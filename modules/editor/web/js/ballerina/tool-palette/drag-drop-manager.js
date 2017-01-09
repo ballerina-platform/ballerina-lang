@@ -35,14 +35,14 @@ define(['log', 'lodash', 'backbone'], function (log, _, Backbone) {
          * @param validateDropTargetCallback {DragDropManager~validateDropTargetCallback} - call back to do additional validations on drop target
          *
          */
-        setTypeBeingDragged: function (type, validateDropTargetCallback) {
+        setNodeBeingDragged: function (type, validateDropTargetCallback) {
             if (!_.isUndefined(type)) {
-                this.set('typeBeingDragged', type);
+                this.set('nodeBeingDragged', type);
             }
             if (!_.isUndefined(validateDropTargetCallback)) {
                 this.set('validateDropTargetCallback', validateDropTargetCallback);
             }
-            this.trigger('drag-start', this.get('typeBeingDragged'));
+            this.trigger('drag-start', this.get('nodeBeingDragged'));
         },
 
         /**
@@ -57,8 +57,8 @@ define(['log', 'lodash', 'backbone'], function (log, _, Backbone) {
          * Gets the node which is being dragged at a given moment - if any.
          * @return {ASTNode}
          */
-        getTypeBeingDragged: function () {
-            return  this.get('typeBeingDragged');
+        getNodeBeingDragged: function () {
+            return  this.get('nodeBeingDragged');
         },
 
         /**
@@ -70,9 +70,9 @@ define(['log', 'lodash', 'backbone'], function (log, _, Backbone) {
              * @event DragDropManager#drag-stop
              * @type {ASTNode}
              */
-            this.trigger('drag-stop', this.get('typeBeingDragged'));
+            this.trigger('drag-stop', this.get('nodeBeingDragged'));
             this.trigger('drop-target-changed', undefined);
-            this.set('typeBeingDragged', undefined);
+            this.set('nodeBeingDragged', undefined);
             this.set('validateDropTargetCallback', undefined);
             this.set('activatedDropTarget', undefined);
             this.set('validateDropSourceCallback', undefined);
@@ -136,7 +136,7 @@ define(['log', 'lodash', 'backbone'], function (log, _, Backbone) {
          */
         getDroppedNodeIndex: function () {
              if(this.isAtValidDropTarget() && _.isFunction(this.get('getDroppedNodeIndexCallBack'))){
-                 return this.get('getDroppedNodeIndexCallBack')(this.getTypeBeingDragged());
+                 return this.get('getDroppedNodeIndexCallBack')(this.getNodeBeingDragged());
              }
              return -1;
         },
@@ -164,8 +164,8 @@ define(['log', 'lodash', 'backbone'], function (log, _, Backbone) {
 
             if(!_.isUndefined(this.getActivatedDropTarget())){
 
-                allowedBySource = this.getTypeBeingDragged().canBeAChildOf(this.getActivatedDropTarget());
-                allowedByTarget = this.getActivatedDropTarget().canBeParentOf(this.getTypeBeingDragged());
+                allowedBySource = this.getNodeBeingDragged().canBeAChildOf(this.getActivatedDropTarget());
+                allowedByTarget = this.getActivatedDropTarget().canBeParentOf(this.getNodeBeingDragged());
 
                 var validateDropTargetCallback = this.get('validateDropTargetCallback');
                 if(!_.isUndefined(validateDropTargetCallback)){
@@ -177,7 +177,7 @@ define(['log', 'lodash', 'backbone'], function (log, _, Backbone) {
                 var validateDropSourceCallback = this.get('validateDropSourceCallback');
                 if(!_.isUndefined(validateDropSourceCallback)){
                     if(_.isFunction(validateDropSourceCallback)){
-                        allowedBySourceValidateCallBack = validateDropSourceCallback(this.getTypeBeingDragged());
+                        allowedBySourceValidateCallBack = validateDropSourceCallback(this.getNodeBeingDragged());
                     }
                 }
 
@@ -193,7 +193,7 @@ define(['log', 'lodash', 'backbone'], function (log, _, Backbone) {
          * @return {boolean}
          */
         isOnDrag: function(){
-            return !_.isNil(this.get('typeBeingDragged'));
+            return !_.isNil(this.get('nodeBeingDragged'));
         }
     });
 
