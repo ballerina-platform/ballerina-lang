@@ -25,6 +25,7 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
     var ReplyStatement = function (args) {
         Statement.call(this);
         this._message = _.get(args, 'message') || '';
+        this.type = "ReplyStatement";
     };
 
     ReplyStatement.prototype = Object.create(Statement.prototype);
@@ -40,6 +41,11 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
 
     ReplyStatement.prototype.getReplyMessage = function () {
         return this._message;
+    };
+
+    ReplyStatement.prototype.canBeAChildOf = function (node) {
+        return this.getFactory().isResourceDefinition(node) ||
+                this.getFactory().isStatement(node);
     };
 
     /**

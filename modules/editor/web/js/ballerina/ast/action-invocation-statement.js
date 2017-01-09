@@ -28,6 +28,7 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
         this._action = _.get(args, 'action');
         this._message =  _.get(args, 'message') || [];
         this._path = _.get(args, 'path');
+        this.type = "ActionInvocationStatement";
     };
 
     ActionInvocationStatement.prototype = Object.create(Statement.prototype);
