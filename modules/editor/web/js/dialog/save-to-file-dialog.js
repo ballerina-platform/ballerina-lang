@@ -36,6 +36,7 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
                 //TODO : this render method should be rewritten with improved UI
                 var fileBrowser;
                 var app = this.app;
+                var parent = this;
                 var notification_container = this.notification_container;
 
                 var fileSave = $(
@@ -64,6 +65,12 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
                     "</div>" +
                     "<div id='file-browser-error' class='alert alert-danger' style='display: none;'>" +
                     "</div>" +
+                    "</div>" +
+                    "</div>" +
+                    "<div class='form-group'>" +
+                    "<div class='file-dialog-form-btn'>" +
+                    "<button id='createFolderButton' type='button' class='btn btn-file-dialog'>create new folder" +
+                    "</button>" +
                     "</div>" +
                     "</div>" +
                     "<div class='form-group'>" +
@@ -105,6 +112,20 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
                     "</span>"+
                     "</div>");
 
+                var successFolderCreationNotification = $(
+                    "<div style='z-index: 9999;' style='line-height: 20%;' class='alert alert-success' id='success-alert'>"+
+                    "<span class='notification'>"+
+                    "Location created successfully !"+
+                    "</span>"+
+                    "</div>");
+
+                var errorFolderCreationNotification = $(
+                    "<div style='z-index: 9999;' style='line-height: 20%;' class='alert alert-danger' id='error-alert'>"+
+                    "<span class='notification'>"+
+                    "Error while creating the new location !"+
+                    "</span>"+
+                    "</div>");
+
 
                 var saveConfigModal = fileSave.filter("#saveConfigModal");
                 var newWizardError = fileSave.find("#newWizardError");
@@ -116,12 +137,29 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
 
                 fileBrowser.render();
 
+                var selectedNode;
                 //Gets the selected location from tree and sets the value as location
                 this.listenTo(fileBrowser, 'selected', function (selectedLocation) {
                     if(selectedLocation){
-                        location.val(selectedLocation);
+                        selectedNode = selectedLocation;
+                        location.val(selectedNode);
                     }
                 });
+
+                var createdNode;
+                fileSave.find("button").filter("#createFolderButton").click(function () {
+                    treeContainer.jstree().create_node(selectedNode, null, "last", function (node) {
+                        this.edit(node);
+                        parent.listenTo(fileBrowser, 'changedName', function (newNode) {
+                            if (newNode) {
+                                createdNode = newNode;
+                                createLocationInFileSystem({location: location, createdNode: createdNode});
+                                treeContainer.jstree("refresh");
+                            }
+                        });
+                    });
+                });
+
 
                 fileSave.find("button").filter("#saveButton").click(function() {
 
@@ -157,6 +195,44 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
                     $(notification_container).append(errorNotification);
                     errorNotification.fadeTo(2000, 200).slideUp(1000, function(){
                         errorNotification.slideUp(1000);
+                    });
+                };
+
+                function alertFolderCreationSuccess() {
+                    $(notification_container).append(successFolderCreationNotification);
+                    successFolderCreationNotification.fadeTo(2000, 200).slideUp(1000, function () {
+                        successFolderCreationNotification.slideUp(1000);
+                    });
+                };
+
+                function alertFolderCreationError() {
+                    $(notification_container).append(errorFolderCreationNotification);
+                    errorFolderCreationNotification.fadeTo(2000, 200).slideUp(1000, function () {
+                        errorFolderCreationNotification.slideUp(1000);
+                    });
+                };
+
+                function createLocationInFileSystem() {
+                    var workspaceServiceURL = "http://localhost:8289/service/workspace";
+                    var saveServiceURL = workspaceServiceURL + "/createLocation";
+                    var payload = "location=" + (btoa(location.val())) + "&createdNode=" + (btoa(createdNode));
+
+                    $.ajax({
+                        url: saveServiceURL,
+                        type: "POST",
+                        data: payload,
+                        contentType: "text/plain; charset=utf-8",
+                        async: false,
+                        success: function (data, textStatus, xhr) {
+                            if (xhr.status == 200) {
+                                alertFolderCreationSuccess();
+                            } else {
+                                alertFolderCreationError();
+                            }
+                        },
+                        error: function (res, errorCode, error) {
+                            alertFolderCreationError();
+                        }
                     });
                 };
 
