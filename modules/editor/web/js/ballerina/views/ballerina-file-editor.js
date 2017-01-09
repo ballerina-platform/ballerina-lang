@@ -237,7 +237,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             // activate design view by default
             designViewBtn.hide();
             sourceViewContainer.hide();
-            this.initResourceLevelDropTarget();
+            this.initDropTarget();
 
             this._model.on('child-added', function(child){
                 self.visit(child);
@@ -250,7 +250,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             });
     };
 
-    BallerinaFileEditor.prototype.initResourceLevelDropTarget = function() {
+    BallerinaFileEditor.prototype.initDropTarget = function() {
         var self = this,
             dropActiveClass = _.get(this._viewOptions, 'cssClass.design_view_drop');
 
@@ -267,9 +267,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
 
                 // register this as a drop target and validate possible types of nodes to drop - second arg is a call back to validate
                 // tool view will use this to provide feedback on impossible drop zones
-                self.toolPalette.dragDropManager.setActivatedDropTarget(self._model, function(nodeBeingDragged){
-                        return self._model.canBeParentOf(nodeBeingDragged) && nodeBeingDragged.canBeAChildOf(self._model);
-                });
+                self.toolPalette.dragDropManager.setActivatedDropTarget(self._model);
 
                 // indicate drop area
                 self._$canvasContainer.addClass(dropActiveClass);
