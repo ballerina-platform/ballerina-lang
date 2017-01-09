@@ -32,10 +32,14 @@ under the License.
             <class name="org.wso2.ballerina.lang.expressions.ArrayAccessExprTest"/>
             <class name="org.wso2.ballerina.lang.expressions.ArrayInitializerExprTest"/>
             <class name="org.wso2.ballerina.lang.expressions.UnaryExprTest"/>
+            <class name="org.wso2.ballerina.lang.expressions.InstanceCreationExprTest"/>
+            <class name="org.wso2.ballerina.lang.expressions.AddExprTest"/>
+            <class name="org.wso2.ballerina.lang.expressions.GreaterLessThanExprTest"/>
 
             <!-- Statements -->
             <class name="org.wso2.ballerina.lang.statements.WhileStmtTest"/>
             <class name="org.wso2.ballerina.lang.statements.IfElseStmtTest"/>
+            <class name="org.wso2.ballerina.lang.statements.AssignStmtTest"/>
         </classes>
     </test>
 
