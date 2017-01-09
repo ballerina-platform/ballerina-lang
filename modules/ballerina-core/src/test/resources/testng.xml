@@ -34,6 +34,7 @@ under the License.
             <class name="org.wso2.ballerina.lang.expressions.UnaryExprTest"/>
 
             <!-- Statements -->
+            <class name="org.wso2.ballerina.lang.statements.FunctionStmtTest"/>
             <class name="org.wso2.ballerina.lang.statements.WhileStmtTest"/>
             <class name="org.wso2.ballerina.lang.statements.IfElseStmtTest"/>
         </classes>
