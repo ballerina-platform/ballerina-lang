@@ -92,7 +92,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
             if(hasPendingInnerDropRender){
                 var nextStatement = _.nth(this._managedStatements, this._selectedInnerDropZoneIndex),
                     nextStatementView = this.diagramRenderingContext.getViewOfModel(nextStatement),
-                    topX = this.getBoundingBox().getTopCenterX();
+                    topX = nextStatementView.getBoundingBox().getTopCenterX();
                     topY = nextStatementView.getBoundingBox().getTop();
                     topCenter = new Point(topX, topY);
 
@@ -151,7 +151,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
                     lastStatementViewBBox = lastStatementView.getBoundingBox(),
                     topX, topY;
 
-                topX = this.getBoundingBox().getTopCenterX();
+                topX = lastStatementViewBBox.getTopCenterX();
                 topY = lastStatementViewBBox.y() + lastStatementViewBBox.h() + this._gap;
                 topCenter = new Point(topX, topY);
                 _.set(args, 'topCenter', topCenter);

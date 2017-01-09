@@ -483,7 +483,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
 
             this._model.accept(this);
 
-            this.initResourceLevelDropTarget();
+            this.initDropTarget();
         };
 
         return BallerinaFileEditor;
