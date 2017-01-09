@@ -54,7 +54,7 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
          */
         IfStatementView.prototype.render = function (diagramRenderingContext) {
             this._diagramRenderingContext = diagramRenderingContext;
-            var ifGroup = D3Utils.group(this._container);
+            var ifGroup = D3Utils.group(d3.select(this._container));
             ifGroup.attr("id","_" +this._model.id);
             var self = this;
 
@@ -98,6 +98,8 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
 
             this.getBoundingBox().on('height-changed', function(dh){
                 outer_rect.attr("height", parseFloat(outer_rect.attr('height')) + dh);
+                var newHeight = dh + self.getParent().getBoundingBox().h() + 20;
+                self.getParent().getBoundingBox().h(newHeight);
             });
 
             this._rootGroup = ifGroup;
