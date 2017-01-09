@@ -37,6 +37,7 @@ import org.wso2.ballerina.core.nativeimpl.lang.xml.SetXML;
 import org.wso2.ballerina.core.nativeimpl.lang.xml.ToString;
 import org.wso2.ballerina.core.utils.FunctionUtils;
 import org.wso2.ballerina.core.utils.ParserUtils;
+import org.wso2.ballerina.core.utils.XMLUtils;
 import org.wso2.ballerina.lang.util.Functions;
 
 /**
@@ -47,6 +48,9 @@ public class XMLTest {
     private BallerinaFile bFile;
     private static final String s1 = "<persons><person><name>Jack</name><address>wso2</address></person></persons>";
     private static final String s2 = "<person><name>Jack</name></person>";
+    private static String l1;
+
+
 
     @BeforeClass
     public void setup() {
@@ -127,6 +131,23 @@ public class XMLTest {
 
         OMElement returnElement = ((BXML) returns[0]).value();
         Assert.assertEquals(returnElement.toString(), "<person><name id=\"person123\">Jack</name></person>");
+    }
+
+    @Test
+    public void testGetXMLLarge() {
+        // Load large xml
+        l1 = XMLUtils.readFileToString("datafiles/message13k.xml");
+        BValue[] args = {new BXML(l1),
+                new BString("/persons/person[160]")};
+        BValue[] returns = Functions.invoke(bFile, "getXML", args);
+
+        Assert.assertTrue(returns[0] instanceof BXML);
+
+        OMElement returnElement = ((BXML) returns[0]).value();
+        Assert.assertEquals(returnElement.toString().replaceAll("\\r|\\n|\\t| ", ""), "<person>" +
+                "<name>Jill</name>" +
+                "<address>wso2</address>" +
+                "</person>");
     }
 
     @Test
@@ -246,4 +267,5 @@ public class XMLTest {
         BValue[] args = {new BXML(s1), new BString("$worng#path")};
         Functions.invoke(bFile, "remove", args);
     }
+
 }
