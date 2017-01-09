@@ -31,34 +31,7 @@ import org.wso2.ballerina.core.model.values.BJSON;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BValueType;
-import org.wso2.ballerina.core.nativeimpl.lang.json.AddBooleanToArray;
-import org.wso2.ballerina.core.nativeimpl.lang.json.AddBooleanToObject;
-import org.wso2.ballerina.core.nativeimpl.lang.json.AddDoubleToArray;
-import org.wso2.ballerina.core.nativeimpl.lang.json.AddDoubleToObject;
-import org.wso2.ballerina.core.nativeimpl.lang.json.AddFloatToArray;
-import org.wso2.ballerina.core.nativeimpl.lang.json.AddFloatToObject;
-import org.wso2.ballerina.core.nativeimpl.lang.json.AddIntToArray;
-import org.wso2.ballerina.core.nativeimpl.lang.json.AddIntToObject;
-import org.wso2.ballerina.core.nativeimpl.lang.json.AddJSONToArray;
-import org.wso2.ballerina.core.nativeimpl.lang.json.AddJSONToObject;
-import org.wso2.ballerina.core.nativeimpl.lang.json.AddStringToArray;
-import org.wso2.ballerina.core.nativeimpl.lang.json.AddStringToObject;
-import org.wso2.ballerina.core.nativeimpl.lang.json.GetBoolean;
-import org.wso2.ballerina.core.nativeimpl.lang.json.GetDouble;
-import org.wso2.ballerina.core.nativeimpl.lang.json.GetFloat;
-import org.wso2.ballerina.core.nativeimpl.lang.json.GetInt;
-import org.wso2.ballerina.core.nativeimpl.lang.json.GetJSON;
-import org.wso2.ballerina.core.nativeimpl.lang.json.GetString;
-import org.wso2.ballerina.core.nativeimpl.lang.json.Remove;
-import org.wso2.ballerina.core.nativeimpl.lang.json.Rename;
-import org.wso2.ballerina.core.nativeimpl.lang.json.SetBoolean;
-import org.wso2.ballerina.core.nativeimpl.lang.json.SetDouble;
-import org.wso2.ballerina.core.nativeimpl.lang.json.SetFloat;
-import org.wso2.ballerina.core.nativeimpl.lang.json.SetInt;
-import org.wso2.ballerina.core.nativeimpl.lang.json.SetJSON;
-import org.wso2.ballerina.core.nativeimpl.lang.json.SetString;
-import org.wso2.ballerina.core.nativeimpl.lang.json.ToString;
-import org.wso2.ballerina.core.utils.FunctionUtils;
+import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 import org.wso2.ballerina.core.utils.ParserUtils;
 import org.wso2.ballerina.lang.util.Functions;
 
@@ -81,36 +54,7 @@ public class JSONTest {
     @BeforeClass
     public void setup() {
         // Add Native functions.
-        SymScope symScope = new SymScope(null);
-        FunctionUtils.addNativeFunction(symScope, new AddBooleanToArray());
-        FunctionUtils.addNativeFunction(symScope, new AddBooleanToObject());
-        FunctionUtils.addNativeFunction(symScope, new AddDoubleToArray());
-        FunctionUtils.addNativeFunction(symScope, new AddDoubleToObject());
-        FunctionUtils.addNativeFunction(symScope, new AddFloatToArray());
-        FunctionUtils.addNativeFunction(symScope, new AddFloatToObject());
-        FunctionUtils.addNativeFunction(symScope, new AddIntToArray());
-        FunctionUtils.addNativeFunction(symScope, new AddIntToObject());
-        FunctionUtils.addNativeFunction(symScope, new AddJSONToArray());
-        FunctionUtils.addNativeFunction(symScope, new AddJSONToObject());
-        FunctionUtils.addNativeFunction(symScope, new AddJSONToObject());
-        FunctionUtils.addNativeFunction(symScope, new AddStringToArray());
-        FunctionUtils.addNativeFunction(symScope, new AddStringToObject());
-        FunctionUtils.addNativeFunction(symScope, new GetBoolean());
-        FunctionUtils.addNativeFunction(symScope, new GetDouble());
-        FunctionUtils.addNativeFunction(symScope, new GetFloat());
-        FunctionUtils.addNativeFunction(symScope, new GetInt());
-        FunctionUtils.addNativeFunction(symScope, new GetJSON());
-        FunctionUtils.addNativeFunction(symScope, new GetString());
-        FunctionUtils.addNativeFunction(symScope, new Remove());
-        FunctionUtils.addNativeFunction(symScope, new Rename());
-        FunctionUtils.addNativeFunction(symScope, new SetBoolean());
-        FunctionUtils.addNativeFunction(symScope, new SetDouble());
-        FunctionUtils.addNativeFunction(symScope, new SetFloat());
-        FunctionUtils.addNativeFunction(symScope, new SetInt());
-        FunctionUtils.addNativeFunction(symScope, new SetJSON());
-        FunctionUtils.addNativeFunction(symScope, new SetString());
-        FunctionUtils.addNativeFunction(symScope, new ToString());
-
+        SymScope symScope = GlobalScopeHolder.getInstance().getScope();
         bFile = ParserUtils.parseBalFile("samples/nativeimpl/jsonTest.bal", symScope);
     }
 

@@ -124,6 +124,8 @@ import org.wso2.ballerina.core.nativeimpl.lang.system.PrintBoolean;
 import org.wso2.ballerina.core.nativeimpl.lang.system.PrintDouble;
 import org.wso2.ballerina.core.nativeimpl.lang.system.PrintFloat;
 import org.wso2.ballerina.core.nativeimpl.lang.system.PrintInt;
+import org.wso2.ballerina.core.nativeimpl.lang.system.PrintLong;
+import org.wso2.ballerina.core.nativeimpl.lang.system.PrintString;
 import org.wso2.ballerina.core.nativeimpl.lang.system.PrintlnBoolean;
 import org.wso2.ballerina.core.nativeimpl.lang.system.PrintlnDouble;
 import org.wso2.ballerina.core.nativeimpl.lang.system.PrintlnFloat;
@@ -153,7 +155,7 @@ import org.wso2.ballerina.core.nativeimpl.net.uri.GetQueryParam;
 public class BuiltInNativeConstructLoader {
 
 
-    static void loadConstructs() {
+    public static void loadConstructs() {
         loadNativeFunctions();
     }
 
@@ -276,8 +278,8 @@ public class BuiltInNativeConstructLoader {
         registerFunction(scope, new PrintlnInt());
         registerFunction(scope, new PrintlnLong());
         registerFunction(scope, new PrintlnString());
-        registerFunction(scope, new PrintlnLong());
-        registerFunction(scope, new PrintlnString());
+        registerFunction(scope, new PrintLong());
+        registerFunction(scope, new PrintString());
 
         // lang.xml
         registerFunction(scope, new AddAttribute());
