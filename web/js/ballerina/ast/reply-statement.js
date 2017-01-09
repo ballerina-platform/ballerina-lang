@@ -25,6 +25,7 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
     var ReplyStatement = function (args) {
         Statement.call(this);
         this._message = _.get(args, 'message') || '';
+        this.type = "ReplyStatement";
     };
 
     ReplyStatement.prototype = Object.create(Statement.prototype);

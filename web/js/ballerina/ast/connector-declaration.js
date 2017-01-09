@@ -24,6 +24,7 @@ define(['lodash', './node'], function(_, ASTNode){
         this._timeout = '';
         this._uri = '';
         ASTNode.call(this);
+        this.type = "ConnectorDeclaration";
     };
 
     ConnectorDeclaration.prototype = Object.create(ASTNode.prototype);

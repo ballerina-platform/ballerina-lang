@@ -21,6 +21,7 @@ define(['lodash', './node'], function(_, ASTNode){
         this._name = _.get(args, 'name');
         this._type = _.get(args, 'type');
         this._value = _.get(args, 'value');
+        this.type = "ConstantDefinition";
     };
 
     ConstantDefinition.prototype = Object.create(ASTNode.prototype);

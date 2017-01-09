@@ -26,6 +26,7 @@ define(['lodash', './node'], function (_, ASTNode) {
         this._packageName = _.get(args, 'packageName');
 
         ASTNode.call(this);
+        this.type = "PackageDefinition";
     };
 
     PackageDefinition.prototype = Object.create(ASTNode.prototype);
@@ -38,6 +39,15 @@ define(['lodash', './node'], function (_, ASTNode) {
     PackageDefinition.prototype.setPackageName = function (packageName) {
       if(!_.isNil(packageName)){
           this._packageName = packageName;
+
+          /**
+           * @event ASTNode#tree-modified
+           */
+          this.trigger('tree-modified', {
+              origin: this,
+              type: 'node-modified',
+              title: 'package name change'
+          });
       }
     };
 

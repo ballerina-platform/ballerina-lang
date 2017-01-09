@@ -37,6 +37,7 @@ define(['lodash', 'log', './node', './import-declaration'], function (_, log, AS
         this.typeConvertorDefinitions = _.get(args, 'typeConvertorDefinitions', []);
         this.constantDefinitions = _.get(args, 'constantDefinitions', []);
         ASTNode.call(this);
+        this.type = "BallerinaASTRoot";
     };
 
     BallerinaASTRoot.prototype = Object.create(ASTNode.prototype);
@@ -167,9 +168,28 @@ define(['lodash', 'log', './node', './import-declaration'], function (_, log, AS
      */
     BallerinaASTRoot.prototype.deleteImport = function (packageName) {
         var ballerinaASTFactory = this.getFactory();
+        var importDeclaration = _.find(this.getChildren(), function (child) {
+            return ballerinaASTFactory.isImportDeclaration(child) && child.getPackageName() == packageName;
+        });
+
+        var modifiedEvent = {
+            origin: this,
+            type: 'child-removed',
+            title: 'remove import',
+            data: {
+                child: importDeclaration,
+                index: this.getIndexOfChild(importDeclaration)
+            }
+        };
+
         _.remove(this.getChildren(), function (child) {
             return ballerinaASTFactory.isImportDeclaration(child) && child.getPackageName() == packageName;
         });
+
+        /**
+         * @event ASTNode#tree-modified
+         */
+        this.trigger('tree-modified', modifiedEvent);
     };
 
     /**
@@ -188,6 +208,21 @@ define(['lodash', 'log', './node', './import-declaration'], function (_, log, AS
             index = 0;
         }
         this.getChildren().splice(index + 1, 0, importDeclaration);
+
+        var modifiedEvent = {
+            origin: this,
+            type: 'child-added',
+            title: 'add import',
+            data: {
+                child: importDeclaration,
+                index: index + 1
+            }
+        };
+
+        /**
+         * @event ASTNode#tree-modified
+         */
+        this.trigger('tree-modified', modifiedEvent);
     };
 
     /**
