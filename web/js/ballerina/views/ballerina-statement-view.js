@@ -80,26 +80,6 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
         return this._diagramRenderingContext;
     };
 
-    BallerinaStatementView.prototype.visitStatement = function (statement) {
-        var StatementViewFactory = require('./statement-view-factory');
-        var statementViewFactory = new StatementViewFactory();
-        var newStatementGap = 30;
-        var topCenter;
-        if (_.isEmpty(this._childrenViewsList)) {
-            topCenter = new Point(this.getTopCenter().x(), this.getTopCenter().y() + newStatementGap);
-        } else {
-            var childX = this.getTopCenter().x();
-            var childY = _.last(this._childrenViewsList).getBoundingBox().getBottom() + newStatementGap;
-            topCenter = new Point(childX, childY);
-        }
-        var args = {model: statement, container: this._statementGroup.node(), viewOptions: {}, parent:this, topCenter: topCenter};
-        var statementView = statementViewFactory.getStatementView(args);
-        this._diagramRenderingContext.getViewModelMap()[statement.id] = statementView;
-        this._childrenViewsList.push(statementView);
-        statementView.render(this._diagramRenderingContext);
-        this.resizeOnChildRendered(statementView.getBoundingBox());
-    };
-
     BallerinaStatementView.prototype.visitExpression = function (statement) {
         var ExpressionViewFactory = require('./expression-view-factory');
         var expressionViewFactory = new ExpressionViewFactory();
@@ -357,18 +337,6 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
     BallerinaStatementView.prototype.repositionStatement = function (options) {
         this.getBoundingBox().y(this.getBoundingBox().y() + options.dy);
         this.getStatementGroup().attr('transform', ('translate(0,' + options.dy + ')'));
-    };
-
-    BallerinaStatementView.prototype.resizeOnChildRendered = function (childBBox) {
-        // TODO: Get these from the constants
-        var widthIncrease = 20;
-        var newHeight = childBBox.getBottom() + widthIncrease/2 - this.getBoundingBox().getTop();
-        this.getBoundingBox().x(childBBox.x() - widthIncrease/2).w(childBBox.w() + widthIncrease).h(newHeight);
-        this.getStatementGroup().outerRect.attr('height', newHeight);
-        this.getStatementGroup().outerRect.attr('width', this.getBoundingBox().w());
-        this.getStatementGroup().outerRect.attr('x', this.getBoundingBox().x());
-        this.getStatementGroup().titleRect.attr('x', this.getBoundingBox().x());
-        this.getStatementGroup().titleText.attr('x', this.getBoundingBox().x() + 20);
     };
 
     BallerinaStatementView.prototype.childViewRemovedCallback = function (child) {
