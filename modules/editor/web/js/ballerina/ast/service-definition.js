@@ -54,7 +54,6 @@ define(['lodash', './node', './variable-declaration', './connector-declaration']
 
         // TODO: All the types should be referred from the global constants
         ASTNode.call(this, 'Service');
-        this.type = "ServiceDefinition";
     };
 
     ServiceDefinition.prototype = Object.create(ASTNode.prototype);

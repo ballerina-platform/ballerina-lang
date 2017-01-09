@@ -25,8 +25,7 @@ define(['lodash', './node'], function (_, ASTNode) {
     var PackageDefinition = function (args) {
         this._packageName = _.get(args, 'packageName');
 
-        ASTNode.call(this);
-        this.type = "PackageDefinition";
+        ASTNode.call(this, "PackageDefinition");
     };
 
     PackageDefinition.prototype = Object.create(ASTNode.prototype);

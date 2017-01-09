@@ -19,7 +19,6 @@ define(['lodash', './node'], function (_, ASTNode) {
 
     var ReturnType = function (type) {
         ASTNode.call(this, 'ReturnType');
-        this.type = "ReturnType";
     };
 
     ReturnType.prototype = Object.create(ASTNode.prototype);
