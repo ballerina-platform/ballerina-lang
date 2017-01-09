@@ -43,6 +43,11 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
         return this._message;
     };
 
+    ReplyStatement.prototype.canBeAChildOf = function (node) {
+        return this.getFactory().isResourceDefinition(node) ||
+                this.getFactory().isStatement(node);
+    };
+
     /**
      * initialize from json
      * @param jsonNode
