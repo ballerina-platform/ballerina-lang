@@ -19,6 +19,7 @@ define(['lodash', './node'], function (_, ASTNode) {
 
     var TypeDefinition = function (typeElement) {
         this.typeElement = typeElement || [];
+        this.type = "TypeDefinition";
     };
 
     TypeDefinition.prototype = Object.create(ASTNode.prototype);

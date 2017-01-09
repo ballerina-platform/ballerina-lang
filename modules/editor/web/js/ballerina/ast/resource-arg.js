@@ -20,6 +20,7 @@ define(['lodash', './argument'], function (_, Argument) {
     var ResourceArgument = function (type, identifier,annotation) {
         Argument.call(this, type, identifier);
         this.annotation = annotation;
+        this.type = "ResourceArgument";
     };
 
     ResourceArgument.prototype = Object.create(Argument.prototype);

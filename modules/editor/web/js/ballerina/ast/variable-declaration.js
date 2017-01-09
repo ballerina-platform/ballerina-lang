@@ -21,6 +21,7 @@ define(['lodash', './node'], function(_, ASTNode){
         this._type = type;
         this._identifier = identifier;
         this.initialValue = undefined;
+        this.type = "VariableDeclaration";
     };
 
     VariableDeclaration.prototype = Object.create(ASTNode.prototype);
