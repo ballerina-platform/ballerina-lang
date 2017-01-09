@@ -177,6 +177,41 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
     /**
      * @param node {ASTNode}
      */
+    StatementVisitor.prototype.visitStatement = function (node) {
+        if (node instanceof AST.WhileStatement) {
+            return this.visitWhileStatement(node);
+        } else if (node instanceof AST.IfElseStatement) {
+            return this.visitIfElseStatement(node);
+        } else if (node instanceof AST.IfStatement) {
+            return this.visitIfStatement(node);
+        } else if (node instanceof AST.ElseStatement) {
+            return this.visitElseStatement(node);
+        }  else if (node instanceof AST.ElseIfStatement) {
+            return this.visitElseIfStatement(node);
+        } else if (node instanceof AST.TryCatchStatement) {
+            return this.visitTryCatchStatement(node);
+        } else if (node instanceof AST.TryStatement) {
+            return this.visitTryStatement(node);
+        } else if (node instanceof AST.CatchStatement) {
+            return this.visitCatchStatement(node);
+        } else if (node instanceof AST.Assignment) {
+            return this.visitAssignmentStatement(node);
+        } else if (node instanceof AST.ActionInvocationStatement) {
+            return this.visitActionInvocationStatement(node);
+        } else if (node instanceof AST.Expression) {
+            return this.visitExpression(node);
+        } else if (node instanceof AST.ReplyStatement) {
+            return this.visitReplyStatement(node);
+        } else if (node instanceof AST.ReturnStatement) {
+            return this.visitReturnStatement(node);
+        }  else if (node instanceof AST.FunctionInvocation) {
+            return this.visitFuncInvocationStatement(node);
+        }
+    };
+
+    /**
+     * @param node {ASTNode}
+     */
     StatementVisitor.prototype.canVisitStatement = function (node) {
         if (node instanceof AST.WhileStatement) {
             return this.canVisitWhileStatement(node);
