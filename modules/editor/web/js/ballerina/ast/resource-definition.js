@@ -15,15 +15,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './node', './worker-declaration', './connector-declaration', './variable-declaration'],
-    function (_, log, ASTNode, WorkerDeclaration, ConnectorDeclaration, VariableDeclaration) {
+define(['lodash', 'log', './node', './worker-declaration', './connector-declaration', './variable-declaration',
+        './resource-arg'],
+    function (_, log, ASTNode, WorkerDeclaration, ConnectorDeclaration, VariableDeclaration, ResourceArgument) {
 
     var ResourceDefinition = function (args) {
-        this._path = _.get(args, 'path', '/');
-        this._connectionDeclarations = _.get(args, 'connectorDefinitions', []);
-        this._workerDeclarations = _.get(args, 'workerDeclarations', []);
-        this._statements = _.get(args, 'statements', []);
-        this._arguments = _.get(args, 'resourceArguments', []);
         this._resourceName = _.get(args, 'resourceName', 'Resource');
         this._annotations = _.get(args, 'annotations', []);
 
@@ -51,42 +47,11 @@ define(['lodash', 'log', './node', './worker-declaration', './connector-declarat
 
         // Adding the default worker declaration.
         var defaultWorker = new WorkerDeclaration({isDefaultWorker: true});
-        this._workerDeclarations.push(defaultWorker);
+        this.addChild(defaultWorker);
     };
 
     ResourceDefinition.prototype = Object.create(ASTNode.prototype);
     ResourceDefinition.prototype.constructor = ResourceDefinition;
-
-    ResourceDefinition.prototype.setConnections = function (connections) {
-        if (!_.isNil(connections)) {
-            this._connectionDeclarations = connections;
-        }
-    };
-
-    ResourceDefinition.prototype.setVariableDeclarations = function (variableDeclarations) {
-            if (!_.isNil(variableDeclarations)) {
-                // TODO : To implement using child array.
-                throw "To be Implemented";
-            }
-    };
-
-    ResourceDefinition.prototype.setWorkers = function (workers) {
-        if (!_.isNil(workers)) {
-            this._workerDeclarations = workers;
-        }
-    };
-
-    ResourceDefinition.prototype.setStatements = function (statements) {
-        if (!_.isNil(statements)) {
-            this._statements = statements;
-        }
-    };
-
-    ResourceDefinition.prototype.setArguments = function (resourceArgs) {
-        if (!_.isNil(resourceArgs)) {
-            this._arguments = resourceArgs;
-        }
-    };
 
     ResourceDefinition.prototype.setResourceName = function (resourceName) {
         if (!_.isNil(resourceName)) {
@@ -95,14 +60,6 @@ define(['lodash', 'log', './node', './worker-declaration', './connector-declarat
             log.error('Invalid Resource name [' + resourceName + '] Provided');
             throw 'Invalid Resource name [' + resourceName + '] Provided';
         }
-    };
-
-    ResourceDefinition.prototype.getStatements = function () {
-        return this._statements;
-    };
-
-    ResourceDefinition.prototype.getWorkers = function () {
-        return this._workerDeclarations;
     };
 
     ResourceDefinition.prototype.getVariableDeclarations = function () {
@@ -115,12 +72,14 @@ define(['lodash', 'log', './node', './worker-declaration', './connector-declarat
         return variableDeclarations;
     };
 
-    ResourceDefinition.prototype.getConnections = function () {
-        return this._connectionDeclarations;
-    };
-
     ResourceDefinition.prototype.getArguments = function () {
-        return this._arguments;
+        var resourceArgs = [];
+        _.forEach(this.getChildren(), function (child) {
+            if (child instanceof ResourceArgument) {
+                resourceArgs.push(child);
+            }
+        });
+        return resourceArgs;
     };
 
     ResourceDefinition.prototype.getResourceName = function () {
@@ -154,11 +113,11 @@ define(['lodash', 'log', './node', './worker-declaration', './connector-declarat
     /**
      * Adds new variable declaration.
      */
-    ResourceDefinition.prototype.removeVariableDeclaration = function (newVariableDeclaration) {
+    ResourceDefinition.prototype.removeVariableDeclaration = function (variableDeclaration) {
         // Deleting the variable from the children.
         _.remove(this.getChildren(), function (child) {
             return child instanceof VariableDeclaration &&
-                child.getIdentifier() === newVariableDeclaration;
+                child.getIdentifier() === variableDeclaration;
         });
     };
 
@@ -168,8 +127,9 @@ define(['lodash', 'log', './node', './worker-declaration', './connector-declarat
      */
     ResourceDefinition.prototype.getArgumentsAsString = function () {
         var argsAsString = "";
-        var args = this._arguments;
-        _.forEach(this._arguments, function(argument, index){
+        var args = this.getArguments();
+
+        _.forEach(args, function(argument, index){
             argsAsString += argument.type + " ";
             argsAsString += argument.identifier;
             if (args.length - 1 != index) {
@@ -186,10 +146,19 @@ define(['lodash', 'log', './node', './worker-declaration', './connector-declarat
      * @param identifier - The identifier of the argument.
      */
     ResourceDefinition.prototype.addArgument = function(type, identifier) {
-        this._arguments.push({
-            type: type,
-            identifier: identifier
-        })
+        //creating resource argument
+        var BallerinaASTFactory = this.getFactory();
+
+        var newResourceArgument = BallerinaASTFactory.createResourceArgument();
+        newResourceArgument.setType(type);
+        newResourceArgument.setIdentifier(identifier);
+
+        // Get the index of the last resource argument declaration.
+        var index = _.findLastIndex(this.getChildren(), function (child) {
+            return child instanceof ResourceArgument;
+        });
+
+        this.addChild(newResourceArgument, index + 1);
     };
 
     /**
@@ -197,9 +166,10 @@ define(['lodash', 'log', './node', './worker-declaration', './connector-declarat
      * @param identifier - The identifier of the argument.
      * @return {Array} - The removed argument.
      */
-    ResourceDefinition.prototype.removeArgument = function(identifier) {
-        return  _.remove(this._arguments, function(functionArg) {
-            return functionArg.identifier === identifier;
+    ResourceDefinition.prototype.removeArgument = function(argument) {
+        // Deleting the variable from the children.
+        _.remove(this.getChildren(), function (child) {
+            return child instanceof ResourceArgument && child.getIdentifier() === argument;
         });
     };
 
@@ -263,8 +233,8 @@ define(['lodash', 'log', './node', './worker-declaration', './connector-declarat
      * @param jsonNode
      */
     ResourceDefinition.prototype.initFromJson = function (jsonNode) {
-        //TODO : add annotations
         this._resourceName = jsonNode.resource_name;
+        this._annotations = jsonNode.annotations;
 
         var self = this;
         var BallerinaASTFactory = this.getFactory();

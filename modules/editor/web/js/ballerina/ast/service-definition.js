@@ -21,8 +21,6 @@ define(['lodash', './node', './variable-declaration', './connector-declaration']
     var ServiceDefinition = function (args) {
         this._serviceName = _.get(args, 'serviceName', 'newService');
         this._annotations = _.get(args, 'annotations', []);
-        this._resourceDefinitions = _.get(args, 'resourceDefinitions', []);
-        this._connectionDeclarations = _.get(args, 'connectionDeclarations', []);
 
         // Adding available annotations and their default values.
         if (_.isNil(_.find(this._annotations, function (annotation) {
@@ -62,25 +60,6 @@ define(['lodash', './node', './variable-declaration', './connector-declaration']
     ServiceDefinition.prototype.setServiceName = function (serviceName) {
         if(!_.isNil(serviceName)){
             this._serviceName = serviceName;
-        }
-    };
-
-    ServiceDefinition.prototype.setResourceDefinitions = function (resourceDefinitions) {
-        if (!_.isNil(resourceDefinitions)) {
-            this._resourceDefinitions = resourceDefinitions;
-        }
-    };
-
-    ServiceDefinition.prototype.setVariableDeclarations = function (variableDeclarations) {
-        if (!_.isNil(variableDeclarations)) {
-            // TODO : To implement using child array.
-            throw "To be Implemented";
-        }
-    };
-
-    ServiceDefinition.prototype.setConnectionDeclarations = function (connectionDeclarations) {
-        if (!_.isNil(connectionDeclarations)) {
-            this._connectionDeclarations = connectionDeclarations;
         }
     };
 
