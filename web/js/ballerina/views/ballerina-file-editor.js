@@ -116,10 +116,6 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
 
         };
 
-        BallerinaFileEditor.prototype.childVisitedCallback = function (child) {
-            this.trigger("childViewAddedEvent", child);
-        };
-
         /**
          * Visits FunctionDefinition
          * @param functionDefinition
@@ -177,8 +173,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             this._createPackagePropertyPane(canvasContainer);
 
             //Registering event listeners
-            this.listenTo(this._model, 'childVisitedEvent', this.childVisitedCallback);
-            this.listenTo(this._model, 'childRemovedEvent', this.childViewRemovedCallback);
+            this.listenTo(this._model, 'child-removed', this.childViewRemovedCallback);
         };
 
         /**
@@ -241,7 +236,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
 
             this._model.on('child-added', function(child){
                 self.visit(child);
-                self._model.trigger("childVisitedEvent", child);
+                self._model.trigger("child-visited", child);
             });
     };
 
@@ -476,8 +471,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             }
 
             //Registering event listeners
-            this.listenTo(this._model, 'childVisitedEvent', this.childVisitedCallback);
-            this.listenTo(this._model, 'childRemovedEvent', this.childViewRemovedCallback);
+            this.listenTo(this._model, 'child-removed', this.childViewRemovedCallback);
 
             this._model.accept(this);
 

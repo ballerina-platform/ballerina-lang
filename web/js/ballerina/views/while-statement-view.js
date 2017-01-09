@@ -42,7 +42,7 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
         WhileStatementView.prototype.constructor = WhileStatementView;
 
         WhileStatementView.prototype.init = function () {
-            this.listenTo(this._model, 'childRemovedEvent', this.childViewRemovedCallback);
+            this.listenTo(this._model, 'child-removed', this.childViewRemovedCallback);
         };
 
         WhileStatementView.prototype.canVisitWhileStatement = function(){
