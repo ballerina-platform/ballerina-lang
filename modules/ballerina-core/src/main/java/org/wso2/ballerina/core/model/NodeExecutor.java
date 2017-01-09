@@ -49,6 +49,7 @@ import org.wso2.ballerina.core.model.values.BValue;
  * @since 1.0.0
  */
 public interface NodeExecutor {
+
     void visit(BlockStmt blockStmt);
 
     void visit(AssignStmt assignStmt);

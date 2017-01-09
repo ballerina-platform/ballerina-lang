@@ -116,6 +116,8 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
                 this._$parent_el.append(backgroundDiv);
                 this.$el = backgroundDiv;
 
+                mainWelcomeDiv.parentsUntil(".right-container").css("overflow-y", "scroll");
+
                 var innerDiv = $('<div></div>');
                 innerDiv.attr('id', "innerSamples");
                 samplesDiv.append(innerDiv);
