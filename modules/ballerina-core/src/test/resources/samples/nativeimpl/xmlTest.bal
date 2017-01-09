@@ -4,8 +4,8 @@ function getString(xml msg, string xPath) (string) {
     return xml:getString(msg, xPath);
 }
 
-function getXML(xml msg, string xPath, map namespaces) (string) {
-    return xml:getXml(msg, xPath, namespaces);
+function getXML(xml msg, string xPath) (string) {
+    return xml:getXml(msg, xPath);
 }
 
 function setString(xml msg, string xPath, string value) (xml) {

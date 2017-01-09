@@ -33,8 +33,6 @@ import net.sf.saxon.value.EmptySequence;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
-import org.wso2.ballerina.core.model.values.BMap;
-import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BXML;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
@@ -50,8 +48,7 @@ import org.wso2.ballerina.core.nativeimpl.lang.utils.ErrorHandler;
         packageName = "ballerina.lang.xml",
         functionName = "getXml",
         args = {@Argument(name = "xml", type = TypeEnum.XML),
-                @Argument(name = "xPath", type = TypeEnum.STRING),
-                @Argument(name = "namespaces", type = TypeEnum.MAP)},
+                @Argument(name = "xPath", type = TypeEnum.STRING)},
         returnType = {@ReturnType(type = TypeEnum.XML)},
         isPublic = true
 )
@@ -66,18 +63,12 @@ public class GetXML extends AbstractNativeFunction {
             // Accessing Parameters.
             BXML xml = (BXML) getArgument(ctx, 0);
             String xPath = getArgument(ctx, 1).stringValue();
-            BMap<BString, BString> namespaces = (BMap) getArgument(ctx, 2);
-            
+
             // Getting the value from XML
             Processor processor = new Processor(false);
             XPathCompiler xPathCompiler = processor.newXPathCompiler();
             DocumentBuilder builder = processor.newDocumentBuilder();
             XdmNode doc = builder.build(xml.value().getSAXSource(true));
-            if (namespaces != null && !namespaces.isEmpty()) {
-                for (BString entry : namespaces.keySet()) {
-                    xPathCompiler.declareNamespace(entry.stringValue(), namespaces.get(entry).stringValue());
-                }
-            }
             XPathSelector selector = xPathCompiler.compile(xPath).load();
             selector.setContextItem(doc);
             XdmValue xdmValue = selector.evaluate();
@@ -88,9 +79,11 @@ public class GetXML extends AbstractNativeFunction {
             } else if (sequence instanceof TinyElementImpl || sequence.head() instanceof TinyElementImpl) {
                 result = new BXML(xdmValue.toString());
             } else if (sequence instanceof TinyAttributeImpl || sequence.head() instanceof TinyAttributeImpl) {
-                result = new BString(xdmValue.toString());
+                throw new BallerinaException("The element matching path '" + xPath + "' is an attribute, but not a " +
+                        "XML element.");
             } else if (sequence instanceof TinyTextImpl || sequence.head() instanceof TinyTextImpl) {
-                result = new BString(xdmValue.toString());
+                throw new BallerinaException("The element matching path '" + xPath + "' is a text, but not a XML " +
+                        "element.");
             } else {
                 throw new BallerinaException("The element matching path '" + xPath + "' is not a XML element.");
             }

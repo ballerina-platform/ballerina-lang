@@ -24,7 +24,6 @@ import org.testng.annotations.Test;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.model.BallerinaFile;
-import org.wso2.ballerina.core.model.values.BMap;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BXML;
@@ -38,18 +37,8 @@ import org.wso2.ballerina.core.nativeimpl.lang.xml.SetXML;
 import org.wso2.ballerina.core.nativeimpl.lang.xml.ToString;
 import org.wso2.ballerina.core.utils.FunctionUtils;
 import org.wso2.ballerina.core.utils.ParserUtils;
+import org.wso2.ballerina.core.utils.XMLUtils;
 import org.wso2.ballerina.lang.util.Functions;
-
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 
 /**
  * Test Native function in ballerina.lang.xml
@@ -59,18 +48,12 @@ public class XMLTest {
     private BallerinaFile bFile;
     private static final String s1 = "<persons><person><name>Jack</name><address>wso2</address></person></persons>";
     private static final String s2 = "<person><name>Jack</name></person>";
-    private static final String c1 = "<employees><employee><name>Parakum</name><age>32</age>" +
-            "<address><line1>King's palace</line1><line2>Polonnaruwa</line2></address></employee>" +
-            "<employee><name>Kashyapa</name><age>35</age><address><line1>Rock palace</line1>" +
-            "<line2>Sigiriya</line2></address></employee></employees>";
     private static String l1;
 
 
 
     @BeforeClass
     public void setup() {
-        // Load large xml
-        l1 = readFileToString("datafiles/messageSimple.xml");
         // Add Native functions.
         SymScope symScope = new SymScope(null);
         FunctionUtils.addNativeFunction(symScope, new GetString());
@@ -152,22 +135,19 @@ public class XMLTest {
 
     @Test
     public void testGetXMLLarge() {
-        BMap<BString, BString> namespaces = new BMap<>();
-        namespaces.put(new BString("soapenv"), new BString("http://schemas.xmlsoap.org/soap/envelope/"));
-        namespaces.put(new BString("m0"), new BString("http://services.samples"));
+        // Load large xml
+        l1 = XMLUtils.readFileToString("datafiles/message13k.xml");
         BValue[] args = {new BXML(l1),
-                new BString("/soapenv:Envelope/soapenv:Body/m0:getQuote/m0:request/m0:symbol/text()"), namespaces};
+                new BString("/persons/person[160]")};
         BValue[] returns = Functions.invoke(bFile, "getXML", args);
 
-        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertTrue(returns[0] instanceof BXML);
 
-        //OMElement returnElement = ((BXML) returns[0]).value();
-//        Assert.assertEquals(returnElement.toString().replaceAll("\\r|\\n|\\t| ", ""), "<m0:getQuote xmlns:m0=" +
-//                "\"http://services.samples\"><m0:request>\n" +
-//                "                <m0:symbol>WSO2</m0:symbol>\n" +
-//                "            </m0:request>\n" +
-//                "        </m0:getQuote>");
-        Assert.assertEquals(((BString)returns[0]).stringValue(), "IBM");
+        OMElement returnElement = ((BXML) returns[0]).value();
+        Assert.assertEquals(returnElement.toString().replaceAll("\\r|\\n|\\t| ", ""), "<person>" +
+                "<name>Jill</name>" +
+                "<address>wso2</address>" +
+                "</person>");
     }
 
     @Test
@@ -288,36 +268,4 @@ public class XMLTest {
         Functions.invoke(bFile, "remove", args);
     }
 
-    public static String readFileToString(String path) {
-        InputStream is = null;
-        String fileAsString = null;
-        URL fileResource = ParserUtils.class.getClassLoader().getResource(path);
-        try {
-            is = new FileInputStream(fileResource.getFile());
-            BufferedReader buf = new BufferedReader(new InputStreamReader(is));
-            String line = buf.readLine();
-            StringBuilder sb = new StringBuilder();
-            while (line != null) {
-                sb.append(line).append("\n");
-                line = buf.readLine();
-            }
-            fileAsString = sb.toString();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return fileAsString;
-    }
-
-//    static String readFile(String path) {
-//        byte[] encoded = new byte[0];
-//        try {
-//            encoded = Files.readAllBytes(Paths.get(path));
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//        return new String(encoded, Charset.defaultCharset());
-//    }
 }
