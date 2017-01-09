@@ -29,6 +29,7 @@ define(['lodash', 'log', './conditional-statement'], function (_, log, Condition
             this._condition = condition;
         }
         this._statements = statements || [];
+        this.type = "IfStatement";
     };
 
     IfStatement.prototype = Object.create(ConditionalStatement.prototype);
