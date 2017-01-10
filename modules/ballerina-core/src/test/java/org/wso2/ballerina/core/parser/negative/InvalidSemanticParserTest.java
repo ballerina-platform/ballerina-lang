@@ -61,5 +61,4 @@ public class InvalidSemanticParserTest {
     public void testUnsupportedTypeVariable() {
         ParserUtils.parseBalFile("samples/parser/invalidSemantic/UnsupportedVariableType.bal");
     }
-    
 }
