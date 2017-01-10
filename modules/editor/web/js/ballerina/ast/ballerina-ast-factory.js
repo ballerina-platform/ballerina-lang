@@ -307,7 +307,9 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
 
         /**
          * creates Argument
-         * @param args
+         * @param {Object} args - The arguments to create the Argument
+         * @param {string} args.type - Type of the argument
+         * @param {string} args.identifier - Identifier of the argument
          * @returns {Argument}
          */
         BallerinaASTFactory.createArgument = function (args) {
