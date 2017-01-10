@@ -27,6 +27,7 @@ define(['lodash', 'log', './statement', './expression'], function (_, log, State
         Statement.call(this);
         this._condition = condition;
         this._statments = statements || [];
+        this.type = "ConditionalStatement";
     };
 
     ConditionalStatement.prototype = Object.create(Statement.prototype);

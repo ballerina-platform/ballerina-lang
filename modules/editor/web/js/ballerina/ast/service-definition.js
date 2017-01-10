@@ -133,12 +133,8 @@ define(['lodash', './node', './variable-declaration', './connector-declaration']
     /**
      * Adds new variable declaration.
      */
-    ServiceDefinition.prototype.removeVariableDeclaration = function (newVariableDeclaration) {
-        // Deleting the variable from the children.
-        _.remove(this.getChildren(), function (child) {
-            return child instanceof VariableDeclaration &&
-                child.getIdentifier() === newVariableDeclaration;
-        });
+    ServiceDefinition.prototype.removeVariableDeclaration = function (variableDeclaration) {
+        this.removeChild(variableDeclaration)
     };
 
     /**

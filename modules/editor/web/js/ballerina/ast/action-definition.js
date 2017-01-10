@@ -20,6 +20,7 @@ define(['lodash', './callable-definition'], function (_, CallableDefinition) {
     var ActionDefinition = function (connectionDeclarations, variableDeclarations, workerDeclarations, statements,args) {
         CallableDefinition.call(this, connectionDeclarations, variableDeclarations, workerDeclarations, statements)
         this.args = args || [];
+        this.type = "ActionDefinition";
     };
 
     ActionDefinition.prototype = Object.create(CallableDefinition.prototype);
