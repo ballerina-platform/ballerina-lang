@@ -17,21 +17,10 @@
 */
 package org.wso2.ballerina.core.utils;
 
-import org.testng.Assert;
-import org.wso2.ballerina.core.interpreter.Context;
-import org.wso2.ballerina.core.interpreter.LocalVarLocation;
-import org.wso2.ballerina.core.interpreter.StackFrame;
 import org.wso2.ballerina.core.interpreter.SymScope;
-import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.Symbol;
 import org.wso2.ballerina.core.model.SymbolName;
-import org.wso2.ballerina.core.model.expressions.Expression;
-import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
-import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.util.LangModelUtils;
-import org.wso2.ballerina.core.model.values.BRefType;
-import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.model.values.BValueType;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 
@@ -58,85 +47,4 @@ public class FunctionUtils {
         symScope.insert(symbolName, symbol);
     }
 
-    /**
-     * Generate FunctionInvocationExpr.
-     *
-     * @param bFile        BallerinaFile instance where callee function is defined.
-     * @param functionName Callee function name.
-     * @param noOfArgs     Number of input arguments for callee function.
-     * @return FunctionInvocationExpr instance.
-     */
-    public static FunctionInvocationExpr createInvocationExpr(BallerinaFile bFile, String functionName,
-                                                              int noOfArgs) {
-        Assert.assertNotNull(functionName, "FunctionName can't be null.");
-
-        Expression[] exprs = new Expression[noOfArgs];
-
-        for (int i = 0; i < noOfArgs; i++) {
-            VariableRefExpr variableRefExpr = new VariableRefExpr(new SymbolName("Ignored"));
-
-            LocalVarLocation location = new LocalVarLocation(i);
-            variableRefExpr.setLocation(location);
-//            variableRefExpr.setOffset(i);
-            exprs[i] = variableRefExpr;
-        }
-
-        FunctionInvocationExpr funcIExpr = new FunctionInvocationExpr(new SymbolName(functionName), exprs);
-        funcIExpr.setOffset(noOfArgs - 1);
-//        funcIExpr.setFunction(bFile.getFunctionList().get(functionName));
-
-        return funcIExpr;
-    }
-
-
-    /**
-     * Create Ballerina Context for function invocation.
-     *
-     * @param sizeOfReturnValues size of the return values.
-     * @return Context instance for interpret function.
-     */
-    public static Context createInvocationContext(BValue[] params, int sizeOfReturnValues) {
-        Assert.assertTrue(sizeOfReturnValues >= 0);
-        Context bContext = new Context();
-
-        // Increase the
-
-        BValue[] results = new BValueType[sizeOfReturnValues];
-        StackFrame currentStackFrame = new StackFrame(params, results);
-
-        bContext.getControlStack().pushFrame(currentStackFrame);
-        return bContext;
-    }
-
-    /**
-     * Get Value of the given position from the Context.
-     *
-     * @param context  Ballerina Context instance.
-     * @param position position of the value.
-     * @return BValueNew.
-     */
-    public static BValue getValue(Context context, int position) {
-        StackFrame currentFrame = context.getControlStack().getCurrentFrame();
-        return currentFrame.values[position];
-    }
-
-    /**
-     * Get return Value from the Context.
-     *
-     * @param context Ballerina Context instance.
-     * @return BValueNew.
-     */
-    public static BValue getReturnValue(Context context) {
-        StackFrame currentFrame = context.getControlStack().getCurrentFrame();
-        return currentFrame.values[currentFrame.values.length - 1];
-    }
-
-
-    public static BValueType getReturnBValue(Context context) {
-        return (BValueType) getReturnValue(context);
-    }
-
-    public static BRefType getReturnBRef(Context context) {
-        return (BRefType) getReturnValue(context);
-    }
 }

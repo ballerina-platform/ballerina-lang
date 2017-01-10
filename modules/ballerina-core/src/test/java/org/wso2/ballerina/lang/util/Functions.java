@@ -164,6 +164,17 @@ public class Functions {
 //        return null;
 //    }
 
+    /**
+     * Util method to get Given function.
+     *
+     * @param ballerinaFile Ballerina File instance.
+     * @param functionName  name of the function.
+     * @return Function instance or null if function doesn't exist.
+     */
+    public static Function getFunction(BallerinaFile ballerinaFile, String functionName) {
+        return getFunction(ballerinaFile.getFunctions(), functionName);
+    }
+
     private static Function getFunction(Function[] functions, String funcName) {
         for (Function function : functions) {
             if (function.getFunctionName().equals(funcName)) {
