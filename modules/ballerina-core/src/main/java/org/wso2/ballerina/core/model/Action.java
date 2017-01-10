@@ -58,16 +58,31 @@ public interface Action {
     void setStackFrameSize(int stackFrameSize);
 
     /**
-     * Get the action Identifier
+     * Get the action Identifier.
      *
      * @return action identifier
      */
     SymbolName getSymbolName();
 
     /**
-     * Set the action identifier
+     * Set the action identifier.
      *
      * @param symbolName identifier
      */
     void setSymbolName(SymbolName symbolName);
+
+    /**
+     * Set the location of this function in the ballerina source file.
+     * 
+     * @param location  Location of this function in the ballerina source file
+     */
+    void setLocation(Position location);
+
+    /**
+     * Get the location of this action in the ballerina source file.
+     * Returns the ballerina file and line number of the action.
+     * 
+     * @return  location of this function in the ballerina source file
+     */
+    Position getLocation();
 }

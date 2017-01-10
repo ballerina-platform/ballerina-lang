@@ -20,6 +20,7 @@ package org.wso2.ballerina.core.model.statements;
 
 import org.wso2.ballerina.core.model.ExecutableStmt;
 import org.wso2.ballerina.core.model.Node;
+import org.wso2.ballerina.core.model.Position;
 
 /**
  * Represents a statement. All statements nodes implements this interface.
@@ -30,4 +31,8 @@ import org.wso2.ballerina.core.model.Node;
  * @since 1.0.0
  */
 public interface Statement extends Node, ExecutableStmt {
+    
+    public Position getLocation();
+    
+    public void setLocation(Position location);
 }

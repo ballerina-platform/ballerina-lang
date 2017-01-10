@@ -18,6 +18,7 @@
 package org.wso2.ballerina.core.model.expressions;
 
 import org.wso2.ballerina.core.model.NodeVisitor;
+import org.wso2.ballerina.core.model.Position;
 import org.wso2.ballerina.core.model.values.BDouble;
 import org.wso2.ballerina.core.model.values.BFloat;
 import org.wso2.ballerina.core.model.values.BInteger;
@@ -47,8 +48,8 @@ public class MultExpression extends BinaryArithmeticExpression {
     public static final BiFunction<BValueType, BValueType, BValueType> MULT_DOUBLE_FUNC =
             (lVal, rVal) -> new BDouble(lVal.doubleValue() * rVal.doubleValue());
 
-    public MultExpression(Expression lExpr, Expression rExpr) {
-        super(lExpr, MUL, rExpr);
+    public MultExpression(Expression lExpr, Expression rExpr, Position location) {
+        super(lExpr, MUL, rExpr, location);
     }
 
     @Override

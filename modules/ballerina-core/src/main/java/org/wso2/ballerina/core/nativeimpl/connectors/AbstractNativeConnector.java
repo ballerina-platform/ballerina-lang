@@ -94,7 +94,7 @@ public abstract class AbstractNativeConnector implements Connector, NativeConstr
      * {@inheritDoc}
      */
     @Override
-    public Position getConnectorLocation() {
+    public Position getLocation() {
         return connectorLocation;
     }
     
@@ -102,7 +102,7 @@ public abstract class AbstractNativeConnector implements Connector, NativeConstr
      * {@inheritDoc}
      */
     @Override
-    public void setConnectorLocation(Position location) {
+    public void setLocation(Position location) {
         this.connectorLocation = location;
     }
 }

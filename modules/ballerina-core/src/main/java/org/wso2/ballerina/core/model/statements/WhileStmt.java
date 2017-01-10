@@ -26,7 +26,7 @@ import org.wso2.ballerina.core.model.expressions.Expression;
  *
  * @since 1.0.0
  */
-public class WhileStmt implements Statement {
+public class WhileStmt extends AbstractStatement {
     private Expression whileCondition;
     private BlockStmt whileBody;
 

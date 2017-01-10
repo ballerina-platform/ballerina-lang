@@ -32,7 +32,6 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 import org.wso2.ballerina.core.nativeimpl.connectors.http.Constants;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.Map;
@@ -83,7 +82,7 @@ public class GetQueryParam extends AbstractNativeFunction {
             try {
                 queryParamMap.put(URLDecoder.decode(keyValArray[0].trim(), "UTF-8"),
                         URLDecoder.decode(keyValArray[1].trim(), "UTF-8"));
-            } catch (UnsupportedEncodingException e) {
+            } catch (Throwable e) {
                 throw new BallerinaException("Cannot decode the query parameter. " + e.getMessage());
             }
         }
