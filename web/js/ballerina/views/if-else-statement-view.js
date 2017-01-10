@@ -55,7 +55,7 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
         IfElseStatementView.prototype = Object.create(BallerinaStatementView.prototype);
         IfElseStatementView.prototype.constructor = IfElseStatementView;
 
-        IfElseStatementView.prototype.canVisitStatement = function(){
+        IfElseStatementView.prototype.canVisitIfElseStatement = function(){
             return true;
         };
 
