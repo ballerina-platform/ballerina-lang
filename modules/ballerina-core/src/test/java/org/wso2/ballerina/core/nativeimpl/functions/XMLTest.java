@@ -24,19 +24,14 @@ import org.testng.annotations.Test;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BXML;
-import org.wso2.ballerina.core.nativeimpl.lang.xml.AddAttribute;
-import org.wso2.ballerina.core.nativeimpl.lang.xml.AddElement;
-import org.wso2.ballerina.core.nativeimpl.lang.xml.GetString;
-import org.wso2.ballerina.core.nativeimpl.lang.xml.GetXML;
-import org.wso2.ballerina.core.nativeimpl.lang.xml.Remove;
-import org.wso2.ballerina.core.nativeimpl.lang.xml.SetString;
-import org.wso2.ballerina.core.nativeimpl.lang.xml.SetXML;
-import org.wso2.ballerina.core.nativeimpl.lang.xml.ToString;
-import org.wso2.ballerina.core.utils.FunctionUtils;
+import org.wso2.ballerina.core.runtime.internal.BuiltInNativeConstructLoader;
+import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 import org.wso2.ballerina.core.utils.ParserUtils;
+import org.wso2.ballerina.core.utils.XMLUtils;
 import org.wso2.ballerina.lang.util.Functions;
 
 /**
@@ -47,20 +42,17 @@ public class XMLTest {
     private BallerinaFile bFile;
     private static final String s1 = "<persons><person><name>Jack</name><address>wso2</address></person></persons>";
     private static final String s2 = "<person><name>Jack</name></person>";
+    private static String l1;
+
+
 
     @BeforeClass
     public void setup() {
         // Add Native functions.
-        SymScope symScope = new SymScope(null);
-        FunctionUtils.addNativeFunction(symScope, new GetString());
-        FunctionUtils.addNativeFunction(symScope, new GetXML());
-        FunctionUtils.addNativeFunction(symScope, new Remove());
-        FunctionUtils.addNativeFunction(symScope, new SetString());
-        FunctionUtils.addNativeFunction(symScope, new SetXML());
-        FunctionUtils.addNativeFunction(symScope, new ToString());
-        FunctionUtils.addNativeFunction(symScope, new AddAttribute());
-        FunctionUtils.addNativeFunction(symScope, new AddElement());
-
+        SymScope symScope = GlobalScopeHolder.getInstance().getScope();
+        if (symScope.lookup(new SymbolName("ballerina.lang.system:print_string")) == null) {
+            BuiltInNativeConstructLoader.loadConstructs();
+        }
         bFile = ParserUtils.parseBalFile("samples/nativeimpl/xmlTest.bal", symScope);
     }
 
@@ -127,6 +119,23 @@ public class XMLTest {
 
         OMElement returnElement = ((BXML) returns[0]).value();
         Assert.assertEquals(returnElement.toString(), "<person><name id=\"person123\">Jack</name></person>");
+    }
+
+    @Test
+    public void testGetXMLLarge() {
+        // Load large xml
+        l1 = XMLUtils.readFileToString("datafiles/message13k.xml");
+        BValue[] args = {new BXML(l1),
+                new BString("/persons/person[160]")};
+        BValue[] returns = Functions.invoke(bFile, "getXML", args);
+
+        Assert.assertTrue(returns[0] instanceof BXML);
+
+        OMElement returnElement = ((BXML) returns[0]).value();
+        Assert.assertEquals(returnElement.toString().replaceAll("\\r|\\n|\\t| ", ""), "<person>" +
+                "<name>Jill</name>" +
+                "<address>wso2</address>" +
+                "</person>");
     }
 
     @Test
@@ -246,4 +255,5 @@ public class XMLTest {
         BValue[] args = {new BXML(s1), new BString("$worng#path")};
         Functions.invoke(bFile, "remove", args);
     }
+
 }
