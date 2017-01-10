@@ -103,13 +103,13 @@ public interface Function {
      *
      * @return location of this function in the ballerina source file
      */
-    Position getFunctionLocation();
+    Position getLocation();
 
     /**
      * Set the location of this function in the ballerina source file.
      *
-     * @param location of this function in the ballerina source file
+     * @param location Location of this function in the ballerina source file
      */
-    void setFunctionLocation(Position location);
+    void setLocation(Position location);
 
 }

@@ -18,6 +18,7 @@
 package org.wso2.ballerina.core.model.expressions;
 
 import org.wso2.ballerina.core.model.NodeVisitor;
+import org.wso2.ballerina.core.model.Position;
 
 /**
  * Class to hold map initialization data
@@ -30,6 +31,12 @@ public class KeyValueExpression extends AbstractExpression {
         this.key = key;
         this.valueExpression = valueExpression;
     }
+    
+    public KeyValueExpression(String key, Expression valueExpression, Position location) {
+        this(key, valueExpression);
+        super.expressionLocation = location;
+    }
+    
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);

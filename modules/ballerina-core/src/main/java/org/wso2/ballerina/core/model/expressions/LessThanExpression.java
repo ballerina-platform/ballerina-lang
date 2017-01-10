@@ -18,6 +18,7 @@
 package org.wso2.ballerina.core.model.expressions;
 
 import org.wso2.ballerina.core.model.NodeVisitor;
+import org.wso2.ballerina.core.model.Position;
 import org.wso2.ballerina.core.model.values.BBoolean;
 import org.wso2.ballerina.core.model.values.BValueType;
 
@@ -44,8 +45,8 @@ public class LessThanExpression extends BinaryCompareExpression {
     public static final BiFunction<BValueType, BValueType, BValueType> LESS_THAN_DOUBLE_FUNC =
             (lVal, rVal) -> new BBoolean(lVal.doubleValue() < rVal.doubleValue());
 
-    public LessThanExpression(Expression lExpr, Expression rExpr) {
-        super(lExpr, LESS_THAN, rExpr);
+    public LessThanExpression(Expression lExpr, Expression rExpr, Position location) {
+        super(lExpr, LESS_THAN, rExpr, location);
     }
 
     @Override

@@ -141,7 +141,7 @@ public class BalDeployer {
 
                 ApplicationRegistry.getInstance().updatePackage(aPackage);
                 successful = true;
-                log.info("Deployed ballerina file : " + file.getName());
+                log.info("Deployed ballerina file: " + file.getName());
                 return balFile.getServices().size();
             } else {
                 if (Constants.RuntimeMode.RUN_FILE == ServiceContextHolder.getInstance().getRuntimeMode()) {
@@ -153,7 +153,7 @@ public class BalDeployer {
             }
 
         } catch (Throwable e) {
-            log.error("Error: Compilation failure in {} : {}", file.getName(), e.getMessage());
+            log.error("Error: Compilation failure in {}: {}", file.getName(), e.getMessage());
             successful = false;
 
         } finally {
