@@ -19,8 +19,6 @@
 
 package org.wso2.ballerina.core.nativeimpl.functions;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BString;
@@ -42,10 +40,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 )
 public class EchoStringNativeFunction extends AbstractNativeFunction {
 
-    private static final Logger log = LoggerFactory.getLogger(EchoStringNativeFunction.class);
-
     public BValue[] execute(Context ctx) {
-        log.info("EchoString Native Function Invoked.");
         // Accessing First Parameter Value.
         String param = getArgument(ctx, 0).stringValue();
         // Return values.
