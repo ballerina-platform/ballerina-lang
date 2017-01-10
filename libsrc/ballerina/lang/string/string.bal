@@ -14,11 +14,15 @@ native function lastIndexOf(string s, string str) (int);
 
 native function replace(string s, string old, string new) (string);
 
+native function replaceAll(string s, string old, string new) (string);
+
+native function replaceFirst(string s, string old, string new) (string);
+
 native function split(string s, string sep) (string[]);
 
-native function toLower(string s) (string);
+native function toLowerCase(string s) (string);
 
-native function toUpper(string s) (string);
+native function toUpperCase(string s) (string);
 
 native function trim(string s) (string);
 
@@ -37,3 +41,7 @@ native function valueOf(string s) (string);
 native function valueOf(xml e) (string);
 
 native function valueOf(json j) (string);
+
+native function length(string s) (int);
+
+native function unescape(string s) (string);
