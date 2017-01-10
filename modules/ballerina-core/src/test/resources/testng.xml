@@ -41,6 +41,7 @@ under the License.
             <class name="org.wso2.ballerina.lang.expressions.MapInitializerExprTest"/>
             <class name="org.wso2.ballerina.lang.expressions.MapAccessExprTest"/>
             <class name="org.wso2.ballerina.lang.expressions.NotEqualExprTest"/>
+            <class name="org.wso2.ballerina.lang.expressions.BackQuoteExprTest"/>
 
             <!-- Statements -->
             <class name="org.wso2.ballerina.lang.statements.FunctionStmtTest"/>
