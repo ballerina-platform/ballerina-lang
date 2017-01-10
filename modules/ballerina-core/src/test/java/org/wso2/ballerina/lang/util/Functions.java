@@ -56,7 +56,7 @@ public class Functions {
 
         // 1) Get the Ballerina language model from the source file.
         BallerinaFile bFile = ParserUtils.parseBalFile(sourceFilePath);
-        return invoke(bFile, functionName, args);
+        return invoke(bFile, functionName, args, new Context());
     }
 
     /**
@@ -67,8 +67,7 @@ public class Functions {
      * @param args         function arguments
      * @return return values from the function
      */
-
-    public static BValue[] invoke(BallerinaFile bFile, String functionName, BValue[] args) {
+    public static BValue[] invoke(BallerinaFile bFile, String functionName, BValue[] args, Context bContext) {
 
         // 1) Check whether the given function is defined in the source file.
         Function function = getFunction(bFile.getFunctions(), functionName);
@@ -89,9 +88,11 @@ public class Functions {
         }
 
         // 3) Create a function invocation expression
-        FunctionInvocationExpr funcIExpr = new FunctionInvocationExpr(new SymbolName(functionName), exprs);
+        FunctionInvocationExpr funcIExpr = new FunctionInvocationExpr(new SymbolName(functionName, 
+                bFile.getPackageName()), exprs);
         funcIExpr.setOffset(args.length);
         funcIExpr.setFunction(function);
+        funcIExpr.setLocation(function.getLocation());
 
         // 4) Prepare function arguments
         BValue[] functionArgs = args;
@@ -108,8 +109,6 @@ public class Functions {
                 functionSymbolName.getPkgName(), function.getLocation());
 
         StackFrame currentStackFrame = new StackFrame(functionArgs, new BValue[0], functionInfo);
-
-        Context bContext = new Context();
         bContext.getControlStack().pushFrame(currentStackFrame);
 
         // 7) Invoke the function
@@ -127,7 +126,31 @@ public class Functions {
      */
     public static BValue[] invoke(BallerinaFile bFile, String functionName) {
         BValue[] args = {};
-        return invoke(bFile, functionName, args);
+        return invoke(bFile, functionName, args, new Context());
+    }
+    
+    /**
+     * Invokes a Ballerina function defined in the given language model
+     *
+     * @param bFile        parsed, analyzed and linked object model
+     * @param functionName name of the function to be invoked
+     * @return return values from the function
+     */
+    public static BValue[] invoke(BallerinaFile bFile, String functionName, BValue[] args) {
+        return invoke(bFile, functionName, args, new Context());
+    }
+    
+    /**
+     * Invokes a Ballerina function defined in the given language model, given the ballerina context.
+     *
+     * @param bFile         Parsed, analyzed and linked object model
+     * @param functionName  Name of the function to be invoked
+     * @param bContext      Ballerina Context
+     * @return return values from the function
+     */
+    public static BValue[] invoke(BallerinaFile bFile, String functionName, Context bContext) {
+        BValue[] args = {};
+        return invoke(bFile, functionName, args, bContext);
     }
 
 //    private BType getTypeOfValue(BValue bValue) {

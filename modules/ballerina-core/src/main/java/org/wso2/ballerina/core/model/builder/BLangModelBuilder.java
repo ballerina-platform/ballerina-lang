@@ -162,7 +162,6 @@ public class BLangModelBuilder {
 
     public void addImportPackage(String pkgName, Position sourceLocation) {
         String pkgPath = getPkgName();
-
         if (pkgName != null) {
             bFileBuilder.addImportPackage(new ImportPackage(pkgPath, pkgName, sourceLocation));
         } else {
@@ -250,13 +249,21 @@ public class BLangModelBuilder {
         }
     }
 
-    public void createType(String typeName) {
+    public void createType(String typeName, Position sourceLocation) {
         BType type = BTypes.getType(typeName);
+        if (type == null) {
+            throw new ParserException("Unsupported type: " + typeName + " in " + 
+                    sourceLocation.getFileName() + ":" + sourceLocation.getLine());
+        }
         typeQueue.add(type);
     }
 
-    public void createArrayType(String typeName) {
+    public void createArrayType(String typeName, Position sourceLocation) {
         BType type = BTypes.getArrayType(typeName);
+        /*if (type == null) {
+            throw new ParserException("Unsupported type: " + typeName + " in " + 
+                    sourceLocation.getFileName() + ":" + sourceLocation.getLine());
+        }*/
         typeQueue.add(type);
     }
 
@@ -355,6 +362,7 @@ public class BLangModelBuilder {
         SymbolName symName = new SymbolName(varName);
         Expression indexExpr = exprStack.pop();
         VariableRefExpr arrayVarRefExpr = new VariableRefExpr(symName);
+        arrayVarRefExpr.setLocation(sourceLocation);
 
         ArrayMapAccessExpr.ArrayMapAccessExprBuilder builder = new ArrayMapAccessExpr.ArrayMapAccessExprBuilder();
         builder.setVarName(symName);

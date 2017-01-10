@@ -49,7 +49,7 @@ public class SubtractExpression extends BinaryArithmeticExpression {
             (lVal, rVal) -> new BDouble(lVal.doubleValue() - rVal.doubleValue());
 
     public SubtractExpression(Expression lExpr, Expression rExpr, Position location) {
-        super(lExpr, SUB, rExpr);
+        super(lExpr, SUB, rExpr, location);
     }
 
     @Override
