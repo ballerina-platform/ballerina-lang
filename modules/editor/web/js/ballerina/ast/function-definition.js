@@ -20,9 +20,10 @@ define(['lodash', './callable-definition'],
 
     /**
      * Constructor for FunctionDefinition
-     * @param {Object} args - The arguments to create the Argument
-     * @param {string} args.functionName - Function name
-     * @param {string} args.isPublic - Identifier of the argument
+     * @param {Object} args - The arguments to create the FunctionDefinition
+     * @param {string} args.functionName [args.functionName=newFunction] - Function name
+     * @param {string} args.isPublic [args.isPublic=false] - Public or not of the function
+     * @param {string[]} args.annotations - Function annotations
      * @constructor
      */
     var FunctionDefinition = function (args) {
@@ -30,13 +31,14 @@ define(['lodash', './callable-definition'],
         CallableDefinition.call(this, 'Function');
         this._functionName = _.get(args, 'functionName') || 'newFunction';
         this._isPublic = _.get(args, "isPublic") || false;
+        this._annotations = _.get(args, 'annotations', []);
         this.BallerinaASTFactory = this.getFactory();
     };
 
     FunctionDefinition.prototype = Object.create(CallableDefinition.prototype);
     FunctionDefinition.prototype.constructor = FunctionDefinition;
 
-    // Auto generated Id for service definitions (for accordion views)
+    // Auto generated Id for function definitions (for accordion views)
     function autoGenerateId(){
         function s4() {
             return Math.floor((1 + Math.random()) * 0x10000)
@@ -99,7 +101,7 @@ define(['lodash', './callable-definition'],
         var self = this;
 
         var index = _.findLastIndex(this.getChildren(), function (child) {
-            return self.isVariableDeclaration(child);
+            return self.BallerinaASTFactory.isVariableDeclaration(child);
         });
 
         // index = -1 when there are not any variable declarations, hence get the index for connector

@@ -15,12 +15,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './node', './worker-declaration', './connector-declaration', './variable-declaration',
-        './resource-arg'],
-    function (_, log, ASTNode, WorkerDeclaration, ConnectorDeclaration, VariableDeclaration, ResourceArgument) {
+define(['lodash', 'log', './node'],
+    function (_, log, ASTNode) {
 
+    /**
+     * Constructor for ResourceDefinition
+     * @param {Object} args - The arguments to create the ServiceDefinition
+     * @param {string} args.resourceName [args.resourceName=newResource] - Service name
+     * @param {string[]} args.annotations - Resource annotations
+     * @param {string} args.annotations.Method - Resource annotation for Method
+     * @param {string} args.annotations.Path - Resource annotation for Path
+     * @constructor
+     */
     var ResourceDefinition = function (args) {
-        this._resourceName = _.get(args, 'resourceName', 'Resource');
+        this._resourceName = _.get(args, 'resourceName', 'newResource');
         this._annotations = _.get(args, 'annotations', []);
 
         // Adding available annotations and their default values.
@@ -45,8 +53,10 @@ define(['lodash', 'log', './node', './worker-declaration', './connector-declarat
         // TODO: All the types should be referred from the global constants
         ASTNode.call(this, 'Resource', 'resource {', '}');
 
+        this.BallerinaASTFactory = this.getFactory();
+
         // Adding the default worker declaration.
-        var defaultWorker = new WorkerDeclaration({isDefaultWorker: true});
+        var defaultWorker = this.BallerinaASTFactory.createWorkerDeclaration({isDefaultWorker: true});
         this.addChild(defaultWorker);
     };
 
@@ -64,8 +74,10 @@ define(['lodash', 'log', './node', './worker-declaration', './connector-declarat
 
     ResourceDefinition.prototype.getVariableDeclarations = function () {
         var variableDeclarations = [];
+        var self = this;
+
         _.forEach(this.getChildren(), function (child) {
-            if (child instanceof VariableDeclaration) {
+            if (self.BallerinaASTFactory.isVariableDeclaration(child)) {
                 variableDeclarations.push(child);
             }
         });
@@ -74,8 +86,10 @@ define(['lodash', 'log', './node', './worker-declaration', './connector-declarat
 
     ResourceDefinition.prototype.getArguments = function () {
         var resourceArgs = [];
+        var self = this;
+
         _.forEach(this.getChildren(), function (child) {
-            if (child instanceof ResourceArgument) {
+            if (self.BallerinaASTFactory.isResourceArgument(child)) {
                 resourceArgs.push(child);
             }
         });
@@ -94,16 +108,17 @@ define(['lodash', 'log', './node', './worker-declaration', './connector-declarat
      * Adds new variable declaration.
      */
     ResourceDefinition.prototype.addVariableDeclaration = function (newVariableDeclaration) {
+        var self = this;
         // Get the index of the last variable declaration.
         var index = _.findLastIndex(this.getChildren(), function (child) {
-            return child instanceof VariableDeclaration;
+            return self.BallerinaASTFactory.isVariableDeclaration(child);
         });
 
         // index = -1 when there are not any variable declarations, hence get the index for connector
         // declarations.
         if (index == -1) {
             index = _.findLastIndex(this.getChildren(), function (child) {
-                return child instanceof ConnectorDeclaration;
+                return self.BallerinaASTFactory.isConnectorDeclaration(child);
             });
         }
 
@@ -143,15 +158,15 @@ define(['lodash', 'log', './node', './worker-declaration', './connector-declarat
      */
     ResourceDefinition.prototype.addArgument = function(type, identifier) {
         //creating resource argument
-        var BallerinaASTFactory = this.getFactory();
-
-        var newResourceArgument = BallerinaASTFactory.createResourceArgument();
+        var newResourceArgument = this.BallerinaASTFactory.createResourceArgument();
         newResourceArgument.setType(type);
         newResourceArgument.setIdentifier(identifier);
 
+        var self = this;
+
         // Get the index of the last resource argument declaration.
         var index = _.findLastIndex(this.getChildren(), function (child) {
-            return child instanceof ResourceArgument;
+            return self.BallerinaASTFactory.isResourceArgument(child);
         });
 
         this.addChild(newResourceArgument, index + 1);
@@ -163,9 +178,10 @@ define(['lodash', 'log', './node', './worker-declaration', './connector-declarat
      * @return {Array} - The removed argument.
      */
     ResourceDefinition.prototype.removeArgument = function(identifier) {
+        var self = this;
         // Deleting the variable from the children.
         _.remove(this.getChildren(), function (child) {
-            return child instanceof ResourceArgument && child.getIdentifier() === identifier;
+            return self.BallerinaASTFactory.isResourceArgument(child) && child.getIdentifier() === identifier;
         });
     };
 
@@ -183,7 +199,7 @@ define(['lodash', 'log', './node', './worker-declaration', './connector-declarat
      * @param index
      */
     ResourceDefinition.prototype.addChild = function (child, index) {
-        if (child instanceof ConnectorDeclaration) {
+        if (this.BallerinaASTFactory.isConnectorDeclaration(child)) {
             Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, 0);
         } else {
             Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, index);
@@ -217,26 +233,26 @@ define(['lodash', 'log', './node', './worker-declaration', './connector-declarat
      * @return {boolean}
      */
     ResourceDefinition.prototype.canBeParentOf = function (node) {
-        var BallerinaASTFactory = this.getFactory();
-        return BallerinaASTFactory.isConnectorDeclaration(node)
-            || BallerinaASTFactory.isVariableDeclaration(node)
-            || BallerinaASTFactory.isWorkerDeclaration(node)
-            || BallerinaASTFactory.isStatement(node);
+        return this.BallerinaASTFactory.isConnectorDeclaration(node)
+            || this.BallerinaASTFactory.isVariableDeclaration(node)
+            || this.BallerinaASTFactory.isWorkerDeclaration(node)
+            || this.BallerinaASTFactory.isStatement(node);
     };
 
     /**
-     * initialize from json
-     * @param jsonNode
+     * initialize ResourceDefinition from json object
+     * @param {Object} jsonNode to initialize from
+     * @param {string} jsonNode.resource_name - Name of the resource definition
+     * @param {string} jsonNode.annotations - Annotations of the resource definition
      */
     ResourceDefinition.prototype.initFromJson = function (jsonNode) {
         this._resourceName = jsonNode.resource_name;
         this._annotations = jsonNode.annotations;
 
         var self = this;
-        var BallerinaASTFactory = this.getFactory();
 
         _.each(jsonNode.children, function (childNode) {
-            var child = BallerinaASTFactory.createFromJson(childNode);
+            var child = self.BallerinaASTFactory.createFromJson(childNode);
             self.addChild(child);
         });
     };
