@@ -94,7 +94,7 @@ public class GetHmac extends AbstractNativeFunction {
             mac.init(secretKey);
             byte[] baseStringBytes = baseString.getBytes(Charset.defaultCharset());
             result = new String(Base64.getEncoder().encode(mac.doFinal(baseStringBytes)), Charset.defaultCharset());
-        } catch (InvalidKeyException | NoSuchAlgorithmException e) {
+        } catch (IllegalArgumentException | InvalidKeyException | NoSuchAlgorithmException e) {
             throw new BallerinaException("Error while calculating HMAC for " + hmacAlgorithm + ": " + e.getMessage(),
                     context);
         }

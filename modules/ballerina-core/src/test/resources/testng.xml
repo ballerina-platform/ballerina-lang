@@ -32,11 +32,21 @@ under the License.
             <class name="org.wso2.ballerina.lang.expressions.ArrayAccessExprTest"/>
             <class name="org.wso2.ballerina.lang.expressions.ArrayInitializerExprTest"/>
             <class name="org.wso2.ballerina.lang.expressions.UnaryExprTest"/>
+            <class name="org.wso2.ballerina.lang.expressions.InstanceCreationExprTest"/>
+            <class name="org.wso2.ballerina.lang.expressions.AddExprTest"/>
+            <class name="org.wso2.ballerina.lang.expressions.GreaterLessThanExprTest"/>
+            <class name="org.wso2.ballerina.lang.expressions.DivideExprTest"/>
+            <class name="org.wso2.ballerina.lang.expressions.MultiplyExprTest"/>
+            <class name="org.wso2.ballerina.lang.expressions.BinaryExprTest"/>
+            <class name="org.wso2.ballerina.lang.expressions.MapInitializerExprTest"/>
+            <class name="org.wso2.ballerina.lang.expressions.MapAccessExprTest"/>
+            <class name="org.wso2.ballerina.lang.expressions.NotEqualExprTest"/>
 
             <!-- Statements -->
             <class name="org.wso2.ballerina.lang.statements.FunctionStmtTest"/>
             <class name="org.wso2.ballerina.lang.statements.WhileStmtTest"/>
             <class name="org.wso2.ballerina.lang.statements.IfElseStmtTest"/>
+            <class name="org.wso2.ballerina.lang.statements.AssignStmtTest"/>
 
             <!-- Service-->
             <class name="org.wso2.ballerina.lang.service.ServiceTest"/>
@@ -52,6 +62,7 @@ under the License.
             <class name="org.wso2.ballerina.core.parser.statements.IfElseParserTest"/>
             <!-- Negative Test cases -->
             <class name="org.wso2.ballerina.core.parser.negative.InvalidSyntaxParserTest"/>
+            <class name="org.wso2.ballerina.core.parser.negative.InvalidSemanticParserTest"/>
         </classes>
     </test>
 
@@ -67,6 +78,13 @@ under the License.
     <test name="ballerina-native-connectors-unit-tests" preserve-order="true" parallel="false">
         <packages>
             <package name="org.wso2.ballerina.core.behaviour.nativeimpl.connectors"/>
+        </packages>
+    </test>
+    
+    <!-- Runtime Test Cases -->
+    <test name="ballerina-runtime-unit-tests" preserve-order="true" parallel="false">
+        <packages>
+            <package name="org.wso2.ballerina.core.runtime.RuntimeErrorsTest"/>
         </packages>
     </test>
 </suite>
