@@ -47,6 +47,10 @@ under the License.
             <class name="org.wso2.ballerina.lang.statements.WhileStmtTest"/>
             <class name="org.wso2.ballerina.lang.statements.IfElseStmtTest"/>
             <class name="org.wso2.ballerina.lang.statements.AssignStmtTest"/>
+
+            <!-- Service-->
+            <class name="org.wso2.ballerina.lang.service.ServiceTest"/>
+            
         </classes>
     </test>
 
