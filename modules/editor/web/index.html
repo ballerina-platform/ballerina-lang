@@ -398,10 +398,6 @@
             processors: "js/processors/module",
             file_browser: "js/file-browser/file-browser",
             dialogs: "js/dialog/module",
-            file_menu: "js/ballerina-menu-bar/file-menu",
-            edit_menu: "js/ballerina-menu-bar/edit-menu",
-            help_menu: "js/ballerina-menu-bar/help-menu",
-            menu_bar_provider: "js/ballerina-menu-bar/module",
             menu_bar: "js/menu-bar/menu-bar",
             tool_bar: "js/tool-bar/tool-bar",
             tab: "js/tab/",
@@ -485,11 +481,21 @@
             },
             menu_bar: {
                 container: "#menu-bar-container",
+                menu_group: {
+                    menu_item: {
+                        cssClass: {
+                            active: "menu-item-enabled",
+                            inactive: "menu-item-disabled"
+                        }
+                    },
+                    cssClass: {
+                        group: "menu-group",
+                        menu: "dropdown-menu",
+                        toggle: "dropdown-toggle"
+                    }
+                },
                 cssClass: {
-                    active: "active",
-                    menu: "dropdown-menu",
-                    item: "dropdown-toggle",
-                    menu_group: "menu-group",
+                    menu_bar: "dropdown-menu"
                 }
             },
             breadcrumbs:{

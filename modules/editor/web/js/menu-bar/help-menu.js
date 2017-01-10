@@ -17,29 +17,30 @@
  */
 
 define(([],function (){
-    var EditMenu = {
-        id: "EditMenu",
-        label: "Edit",
+    var HelpMenu = {
+        id: "help",
+        label: "Help",
         items: [
             {
-                id: "EditMenu-Undo",
-                label: "Undo",
-                disabled: true
+                id: "welcome_page",
+                label: "Go to Welcome Page",
+                action: "go-to-welcome-page"
             },
             {
-                id: "EditMenu-Redo",
-                label: "Redo",
-                disabled: true
-            },
-            {
-                id: "EditMenu-Cut",
-                label: "Cut",
-                disabled: true
+                id: "about",
+                label: "About",
+                action: "show-about",
+                attributes: [{
+                    key: "data-toggle",
+                    value: "modal"
+                }, {
+                    key: "data-target",
+                    value: "#modalAbout"
+                }]
             }
-
-        ],
+        ]
 
     };
 
-    return EditMenu;
+    return HelpMenu;
 }));

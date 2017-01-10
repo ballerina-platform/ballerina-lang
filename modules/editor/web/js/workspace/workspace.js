@@ -32,7 +32,6 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab/t
 
         this.createNewTab = function createNewTab(ballerinaRoot) {
             // Showing menu bar
-            app.menuBar.show();
             app.tabController.newTab({ballerinaRoot: ballerinaRoot});
         };
 
@@ -114,8 +113,24 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab/t
             this.workspaceManager.showWelcomePage(this.workspaceManager);
         };
 
+        this.handleUndo = function() {
+            app.tabController.getActiveTab().getBallerinaFileEditor().undoManager.undo();
+            app.menuBar.getMenuItemByID('edit.undo').addLabelSuffix(
+                app.tabController.getActiveTab().getBallerinaFileEditor().undoManager.undoStackTop().getTitle());
+        };
+
+        this.handleRedo = function() {
+            app.tabController.getActiveTab().getBallerinaFileEditor().undoManager.redo();
+        };
+
         app.commandManager.registerCommand("create-new-tab", {key: ""});
         app.commandManager.registerHandler('create-new-tab', this.createNewTab);
+
+        app.commandManager.registerCommand("undo", {key: ""});
+        app.commandManager.registerHandler('undo', this.handleUndo);
+
+        app.commandManager.registerCommand("redo", {key: ""});
+        app.commandManager.registerHandler('redo', this.handleRedo);
 
         // Open file save dialog
         app.commandManager.registerCommand("open-file-save-dialog", {key: ""});
