@@ -87,7 +87,8 @@ public class SetString extends AbstractNativeFunction {
                         OMAttribute omAttribute = (OMAttribute) obj;
                         omAttribute.setAttributeValue(value);
                     } else {
-                        ErrorHandler.logWarn(OPERATION, "xPath '" + xPath + "' doesnot refers to a attribute or text.");
+                        ErrorHandler.logWarn(OPERATION, "xPath '" + xPath +
+                                "' does not refers to a attribute or text.");
                     }
                 }
             }

@@ -29,6 +29,7 @@ define(['lodash', 'log','./statement', './else-statement', './else-if-statement'
         this._ifStatement = ifStatement;
         this._elseStatement = undefined;
         this._elseIfStatements = [];
+        this.type = "IfElseStatement";
     };
 
     IfElseStatement.prototype = Object.create(Statement.prototype);

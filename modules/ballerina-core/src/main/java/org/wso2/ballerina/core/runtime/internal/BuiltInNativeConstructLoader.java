@@ -124,6 +124,8 @@ import org.wso2.ballerina.core.nativeimpl.lang.system.PrintBoolean;
 import org.wso2.ballerina.core.nativeimpl.lang.system.PrintDouble;
 import org.wso2.ballerina.core.nativeimpl.lang.system.PrintFloat;
 import org.wso2.ballerina.core.nativeimpl.lang.system.PrintInt;
+import org.wso2.ballerina.core.nativeimpl.lang.system.PrintLong;
+import org.wso2.ballerina.core.nativeimpl.lang.system.PrintString;
 import org.wso2.ballerina.core.nativeimpl.lang.system.PrintlnBoolean;
 import org.wso2.ballerina.core.nativeimpl.lang.system.PrintlnDouble;
 import org.wso2.ballerina.core.nativeimpl.lang.system.PrintlnFloat;
@@ -131,9 +133,13 @@ import org.wso2.ballerina.core.nativeimpl.lang.system.PrintlnInt;
 import org.wso2.ballerina.core.nativeimpl.lang.system.PrintlnLong;
 import org.wso2.ballerina.core.nativeimpl.lang.system.PrintlnString;
 import org.wso2.ballerina.core.nativeimpl.lang.xml.AddAttribute;
+import org.wso2.ballerina.core.nativeimpl.lang.xml.AddAttributeWithNamespaces;
 import org.wso2.ballerina.core.nativeimpl.lang.xml.AddElement;
+import org.wso2.ballerina.core.nativeimpl.lang.xml.AddElementWithNamespaces;
 import org.wso2.ballerina.core.nativeimpl.lang.xml.GetXML;
+import org.wso2.ballerina.core.nativeimpl.lang.xml.GetXMLWithNamespaces;
 import org.wso2.ballerina.core.nativeimpl.lang.xml.SetXML;
+import org.wso2.ballerina.core.nativeimpl.lang.xml.SetXMLWithNamespaces;
 import org.wso2.ballerina.core.nativeimpl.net.uri.Encode;
 import org.wso2.ballerina.core.nativeimpl.net.uri.GetQueryParam;
 
@@ -149,7 +155,7 @@ import org.wso2.ballerina.core.nativeimpl.net.uri.GetQueryParam;
 public class BuiltInNativeConstructLoader {
 
 
-    static void loadConstructs() {
+    public static void loadConstructs() {
         loadNativeFunctions();
     }
 
@@ -272,17 +278,24 @@ public class BuiltInNativeConstructLoader {
         registerFunction(scope, new PrintlnInt());
         registerFunction(scope, new PrintlnLong());
         registerFunction(scope, new PrintlnString());
-        registerFunction(scope, new PrintlnLong());
-        registerFunction(scope, new PrintlnString());
+        registerFunction(scope, new PrintLong());
+        registerFunction(scope, new PrintString());
 
         // lang.xml
         registerFunction(scope, new AddAttribute());
+        registerFunction(scope, new AddAttributeWithNamespaces());
         registerFunction(scope, new AddElement());
+        registerFunction(scope, new AddElementWithNamespaces());
         registerFunction(scope, new org.wso2.ballerina.core.nativeimpl.lang.xml.GetString());
+        registerFunction(scope, new org.wso2.ballerina.core.nativeimpl.lang.xml.GetStringWithNamespaces());
         registerFunction(scope, new GetXML());
+        registerFunction(scope, new GetXMLWithNamespaces());
         registerFunction(scope, new org.wso2.ballerina.core.nativeimpl.lang.xml.Remove());
+        registerFunction(scope, new org.wso2.ballerina.core.nativeimpl.lang.xml.RemoveWithNamespaces());
         registerFunction(scope, new org.wso2.ballerina.core.nativeimpl.lang.xml.SetString());
+        registerFunction(scope, new org.wso2.ballerina.core.nativeimpl.lang.xml.SetStringWithNamespaces());
         registerFunction(scope, new SetXML());
+        registerFunction(scope, new SetXMLWithNamespaces());
         registerFunction(scope, new org.wso2.ballerina.core.nativeimpl.lang.xml.ToString());
 
         // net.uri
