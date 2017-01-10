@@ -1,6 +1,5 @@
 package org.wso2.ballerina.core.nativeimpl.connectors.http.function;
 
-import org.osgi.service.component.annotations.Component;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BString;
@@ -21,12 +20,6 @@ import static org.wso2.ballerina.core.nativeimpl.connectors.http.Constants.HTTP_
         args = {@Argument(name = "message", type = TypeEnum.MESSAGE)},
         returnType = {@ReturnType(type = TypeEnum.STRING)},
         isPublic = true
-)
-
-@Component(
-        name = "func.net.http_getHeader",
-        immediate = true,
-        service = AbstractNativeFunction.class
 )
 public class GetMethod extends AbstractNativeFunction {
     String httpMethod;
