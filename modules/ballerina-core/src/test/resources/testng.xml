@@ -35,6 +35,12 @@ under the License.
             <class name="org.wso2.ballerina.lang.expressions.InstanceCreationExprTest"/>
             <class name="org.wso2.ballerina.lang.expressions.AddExprTest"/>
             <class name="org.wso2.ballerina.lang.expressions.GreaterLessThanExprTest"/>
+            <class name="org.wso2.ballerina.lang.expressions.DivideExprTest"/>
+            <class name="org.wso2.ballerina.lang.expressions.MultiplyExprTest"/>
+            <class name="org.wso2.ballerina.lang.expressions.BinaryExprTest"/>
+            <class name="org.wso2.ballerina.lang.expressions.MapInitializerExprTest"/>
+            <class name="org.wso2.ballerina.lang.expressions.MapAccessExprTest"/>
+            <class name="org.wso2.ballerina.lang.expressions.NotEqualExprTest"/>
 
             <!-- Statements -->
             <class name="org.wso2.ballerina.lang.statements.FunctionStmtTest"/>

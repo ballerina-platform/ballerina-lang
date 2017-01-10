@@ -21,6 +21,7 @@ package org.wso2.ballerina.lang.expressions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.values.BDouble;
 import org.wso2.ballerina.core.model.values.BFloat;
@@ -55,6 +56,12 @@ public class DivideExprTest {
         Assert.assertEquals(actual, expected);
     }
 
+    @Test(description = "Test two int divide expression", expectedExceptions = BallerinaException.class)
+    public void testIntDivideByZeroExpr() {
+        BValue[] args = { new BInteger(2000), new BInteger(0) };
+        Functions.invoke(bFile, "intDivide", args);
+    }
+
 //    @Test(description = "Test two long divide expression")
     public void testLongDivideExpr() {
         BValue[] args = { new BLong(100), new BLong(50) };
@@ -79,6 +86,12 @@ public class DivideExprTest {
         float actual = ((BFloat) returns[0]).floatValue();
         float expected = 2.0f;
         Assert.assertEquals(actual, expected);
+    }
+
+    @Test(description = "Test two float divide expression", expectedExceptions = BallerinaException.class)
+    public void testFloatDivideByZeroExpr() {
+        BValue[] args = { new BFloat(300.0f), new BFloat(0) };
+        Functions.invoke(bFile, "floatDivide", args);
     }
 
 //    @Test(description = "Test two double divide expression")
