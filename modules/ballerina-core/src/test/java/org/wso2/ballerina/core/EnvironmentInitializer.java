@@ -70,7 +70,6 @@ public class EnvironmentInitializer {
             }
         }
         ApplicationRegistry.getInstance().registerApplication(app);
-
     }
 
 }

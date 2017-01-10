@@ -34,8 +34,8 @@ public class Services {
 
         TestCallback callback = new TestCallback();
         ServerConnectorMessageHandler.handleInbound(cMsg, callback);
-        return callback.getResponse();  // This will only work for blocking behaviour
 
+        return callback.getResponse();  // This will only work for blocking behaviour
     }
 
 }

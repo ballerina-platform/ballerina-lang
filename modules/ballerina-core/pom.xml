@@ -113,6 +113,9 @@
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>0.7.8</version>
                 <configuration>
+                    <excludes>
+                        <exclude>org/wso2/ballerina/core/parser/*</exclude>
+                    </excludes>
                     <destFile>${basedir}/target/coverage-reports/jacoco-unit.exec</destFile>
                 </configuration>
                 <executions>
