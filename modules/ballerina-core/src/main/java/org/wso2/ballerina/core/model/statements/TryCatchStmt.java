@@ -25,7 +25,7 @@ import org.wso2.ballerina.core.model.NodeVisitor;
  *
  * @since 1.0.0
  */
-public class TryCatchStmt implements Statement {
+public class TryCatchStmt extends AbstractStatement {
     private Statement tryBlock;
 //    private List<ExceptionType> catchExceptions;
     private Statement catchBlock;
