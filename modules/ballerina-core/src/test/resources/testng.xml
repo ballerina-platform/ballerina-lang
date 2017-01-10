@@ -60,7 +60,7 @@ under the License.
     <!-- Native Connectors Related Test Cases -->
     <test name="ballerina-native-connectors-unit-tests" preserve-order="true" parallel="false">
         <packages>
-            <package name="org.wso2.ballerina.core.behaviour.nativeimpl.connectors"/>
+            <package name="org.wso2.ballerina.core.nativeimpl.connectors"/>
         </packages>
     </test>
 </suite>
