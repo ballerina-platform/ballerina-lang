@@ -28,7 +28,7 @@ import java.util.List;
  *
  * @since 1.0.0
  */
-public class BlockStmt implements Statement {
+public class BlockStmt extends AbstractStatement {
 
     private Statement[] statements;
 

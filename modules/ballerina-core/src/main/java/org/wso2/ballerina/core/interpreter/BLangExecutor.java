@@ -110,7 +110,7 @@ public class BLangExecutor implements NodeExecutor {
         if (lExpr instanceof VariableRefExpr) {
 
             VariableRefExpr variableRefExpr = (VariableRefExpr) lExpr;
-            MemoryLocation memoryLocation = variableRefExpr.getLocation();
+            MemoryLocation memoryLocation = variableRefExpr.getMemoryLocation();
             if (memoryLocation instanceof LocalVarLocation) {
                 int stackFrameOffset = ((LocalVarLocation) memoryLocation).getStackFrameOffset();
                 controlStack.setValue(stackFrameOffset, rValue);
@@ -250,7 +250,7 @@ public class BLangExecutor implements NodeExecutor {
         // return values and function invocation location;
         SymbolName functionSymbolName = funcIExpr.getFunctionName();
         CallableUnitInfo functionInfo = new CallableUnitInfo(functionSymbolName.getName(),
-                functionSymbolName.getPkgName(), funcIExpr.getInvokedLocation());
+                functionSymbolName.getPkgName(), funcIExpr.getLocation());
 
         StackFrame stackFrame = new StackFrame(localVals, returnVals, functionInfo);
         controlStack.pushFrame(stackFrame);
@@ -300,7 +300,7 @@ public class BLangExecutor implements NodeExecutor {
         // return values;
         SymbolName actionSymbolName = actionIExpr.getActionName();
         CallableUnitInfo actionInfo = new CallableUnitInfo(actionSymbolName.getName(), actionSymbolName.getPkgName(),
-                actionIExpr.getInvokedLocation());
+                actionIExpr.getLocation());
         StackFrame stackFrame = new StackFrame(localVals, returnVals, actionInfo);
         controlStack.pushFrame(stackFrame);
 
@@ -460,7 +460,7 @@ public class BLangExecutor implements NodeExecutor {
 
     @Override
     public BValue visit(VariableRefExpr variableRefExpr) {
-        MemoryLocation memoryLocation = variableRefExpr.getLocation();
+        MemoryLocation memoryLocation = variableRefExpr.getMemoryLocation();
         return memoryLocation.execute(this);
     }
 

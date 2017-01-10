@@ -40,6 +40,8 @@ public class ConnectorDcl implements Node {
 
     /* Reference to the connector instance which is referred by the declaration */
     Connector connector;
+    
+    protected Position sourceLocation;
 
     public ConnectorDcl(SymbolName connectorName, SymbolName varName, Expression[] argExprs) {
         this.connectorName = connectorName;
@@ -127,5 +129,24 @@ public class ConnectorDcl implements Node {
                     varName,
                     exprList.toArray(new Expression[exprList.size()]));
         }
+    }
+    
+    /**
+     * Get the source location of this connector declaration.
+     * Return the source file and the line number of this connector declaration.
+     * 
+     * @return  Source location of this connector declaration
+     */
+    public Position getLocation() {
+        return sourceLocation;
+    }
+
+    /**
+     * Set the source location of this connector declaration.
+     * 
+     * @param location  Source location of this connector declaration.
+     */
+    public void setLocation(Position location) {
+        this.sourceLocation = location;
     }
 }

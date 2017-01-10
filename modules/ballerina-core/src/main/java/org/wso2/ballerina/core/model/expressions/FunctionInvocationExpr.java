@@ -75,14 +75,6 @@ public class FunctionInvocationExpr extends AbstractExpression implements Execut
         visitor.visit(this);
     }
 
-    public Position getInvokedLocation() {
-        return functionInvokedLocation;
-    }
-
-    public void setInvokedLocation(Position position) {
-        this.functionInvokedLocation = position;
-    }
-    
     @Override
     public BValue[] executeMultiReturn(NodeExecutor executor) {
         return executor.visit(this);
