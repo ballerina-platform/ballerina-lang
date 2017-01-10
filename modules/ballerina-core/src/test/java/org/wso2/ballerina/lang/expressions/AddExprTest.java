@@ -46,13 +46,19 @@ public class AddExprTest {
     @Test(description = "Test two int add expression")
     public void testIntAddExpr() {
         BValue[] args = { new BInteger(100), new BInteger(200)};
-        BValue[] returns = Functions.invoke(bFile, "intAdd", args);
 
+        BValue[] returns = Functions.invoke(bFile, "intAdd", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
-
         int actual = ((BInteger) returns[0]).intValue();
         int expected = 300;
+        Assert.assertEquals(actual, expected);
+
+        returns = Functions.invoke(bFile, "intSubtract", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        actual = ((BInteger) returns[0]).intValue();
+        expected = -100;
         Assert.assertEquals(actual, expected);
     }
 
@@ -71,14 +77,20 @@ public class AddExprTest {
 
     @Test(description = "Test two float add expression")
     public void testFloatAddExpr() {
-        BValue[] args = { new BFloat(100), new BFloat(200)};
-        BValue[] returns = Functions.invoke(bFile, "floatAdd", args);
+        BValue[] args = { new BFloat(100.0f), new BFloat(200.0f)};
 
+        BValue[] returns = Functions.invoke(bFile, "floatAdd", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
-
         float actual = ((BFloat) returns[0]).floatValue();
-        float expected = 300;
+        float expected = 300.0f;
+        Assert.assertEquals(actual, expected);
+
+        returns = Functions.invoke(bFile, "floatSubtract", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BFloat.class);
+        actual = ((BFloat) returns[0]).floatValue();
+        expected = -100.0f;
         Assert.assertEquals(actual, expected);
     }
 
