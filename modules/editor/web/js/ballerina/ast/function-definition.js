@@ -21,9 +21,9 @@ define(['lodash', './callable-definition'],
     /**
      * Constructor for FunctionDefinition
      * @param {Object} args - The arguments to create the FunctionDefinition
-     * @param {string} args.functionName [args.functionName=newFunction] - Function name
-     * @param {string} args.isPublic [args.isPublic=false] - Public or not of the function
-     * @param {string[]} args.annotations - Function annotations
+     * @param {string} [args.functionName=newFunction] - Function name
+     * @param {boolean} [args.isPublic=false] - Public or not of the function
+     * @param {string[]} [args.annotations] - Function annotations
      * @constructor
      */
     var FunctionDefinition = function (args) {
@@ -283,9 +283,9 @@ define(['lodash', './callable-definition'],
     /**
      * initialize FunctionDefinition from json object
      * @param {Object} jsonNode to initialize from
-     * @param {string} jsonNode.function_name - Name of the function definition
-     * @param {string} jsonNode.annotations - Annotations of the function definition
-     * @param {string} jsonNode.is_public_function - Public or not of the function
+     * @param {string} [jsonNode.function_name] - Name of the function definition
+     * @param {string} [jsonNode.annotations] - Annotations of the function definition
+     * @param {boolean} [jsonNode.is_public_function] - Public or not of the function
      */
     FunctionDefinition.prototype.initFromJson = function (jsonNode) {
         this._functionName = jsonNode.function_name;
