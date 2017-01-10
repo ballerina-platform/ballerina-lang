@@ -58,6 +58,7 @@ under the License.
             <class name="org.wso2.ballerina.core.parser.statements.IfElseParserTest"/>
             <!-- Negative Test cases -->
             <class name="org.wso2.ballerina.core.parser.negative.InvalidSyntaxParserTest"/>
+            <class name="org.wso2.ballerina.core.parser.negative.InvalidSemanticParserTest"/>
         </classes>
     </test>
 
@@ -73,6 +74,13 @@ under the License.
     <test name="ballerina-native-connectors-unit-tests" preserve-order="true" parallel="false">
         <packages>
             <package name="org.wso2.ballerina.core.behaviour.nativeimpl.connectors"/>
+        </packages>
+    </test>
+    
+    <!-- Runtime Test Cases -->
+    <test name="ballerina-runtime-unit-tests" preserve-order="true" parallel="false">
+        <packages>
+            <package name="org.wso2.ballerina.core.runtime.RuntimeErrorsTest"/>
         </packages>
     </test>
 </suite>

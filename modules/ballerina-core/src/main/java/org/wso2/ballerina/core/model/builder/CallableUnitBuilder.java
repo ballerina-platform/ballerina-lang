@@ -115,7 +115,7 @@ class CallableUnitBuilder {
     }
 
     BallerinaAction buildAction() {
-        return new BallerinaAction(name, annotationList.toArray(new Annotation[annotationList.size()]),
+        return new BallerinaAction(name, position, annotationList.toArray(new Annotation[annotationList.size()]),
                 parameterList.toArray(new Parameter[parameterList.size()]),
                 rTypesList.toArray(new BType[rTypesList.size()]),
                 connectorDclList.toArray(new ConnectorDcl[connectorDclList.size()]),

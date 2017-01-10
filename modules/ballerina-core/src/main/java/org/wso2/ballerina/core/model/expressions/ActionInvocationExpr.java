@@ -77,11 +77,11 @@ public class ActionInvocationExpr extends AbstractExpression implements Executab
         return executor.visit(this)[0];
     }
 
-    public Position getInvokedLocation() {
+    public Position getLocation() {
         return actionInvokedLocation;
     }
 
-    public void setInvokedLocation(Position actionInvokedLocation) {
+    public void setLocation(Position actionInvokedLocation) {
         this.actionInvokedLocation = actionInvokedLocation;
     }
 }

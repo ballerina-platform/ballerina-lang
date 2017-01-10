@@ -38,6 +38,7 @@ public class Annotation implements Node {
     private String value;
     private Map<String, String> keyValPairs = new HashMap<>();
     private Map<SymbolName, String> elementPair = new HashMap<>();
+    protected Position sourceLocation;
 
     public Annotation(String name) {
         this.name = name;
@@ -131,4 +132,22 @@ public class Annotation implements Node {
         }
     }
 
+    /**
+     * Get the source location of this annotation.
+     * Return the source file and the line number of this annotation.
+     * 
+     * @return  Source location of this annotation
+     */
+    public Position getLocation() {
+        return sourceLocation;
+    }
+
+    /**
+     * Set the source location of this annotation.
+     * 
+     * @param location  Source location of this annotation.
+     */
+    public void setLocation(Position location) {
+        this.sourceLocation = location;
+    }
 }
