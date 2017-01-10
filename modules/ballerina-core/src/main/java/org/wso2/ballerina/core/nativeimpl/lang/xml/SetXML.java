@@ -47,7 +47,6 @@ import java.util.List;
         functionName = "set",
         args = {@Argument(name = "xml", type = TypeEnum.XML),
                 @Argument(name = "xPath", type = TypeEnum.STRING),
-//                @Argument(name = "nameSpaces", type = TypeEnum.MAP),
                 @Argument(name = "value", type = TypeEnum.XML)},
         isPublic = true
 )
@@ -61,7 +60,6 @@ public class SetXML extends AbstractNativeFunction {
             // Accessing Parameters.
             BXML xml = (BXML) getArgument(ctx, 0);
             String xPath = getArgument(ctx, 1).stringValue();
-            // MapValue<String, String> nameSpaces = getArgument(ctx, 2).getMap();
             OMElement value = ((BXML) getArgument(ctx, 2)).value();
 
             if (value == null) {
@@ -70,13 +68,6 @@ public class SetXML extends AbstractNativeFunction {
 
             // Setting the value to XML
             AXIOMXPath axiomxPath = new AXIOMXPath(xPath);
-            /*if (nameSpaces != null && !nameSpaces.isEmpty()) {
-                for (MapValue<String, String>.MapEntry<String, String> entry : nameSpaces.getValue()) {
-                    axiomxPath.addNamespace(entry.getKey(), (entry.getValue()));
-
-                }
-            }*/
-
             Object ob = axiomxPath.evaluate(xml.value());
             if (ob instanceof ArrayList) {
                 List<?> list = (List<?>) ob;

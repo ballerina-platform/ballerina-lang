@@ -1,0 +1,7 @@
+<m0:SampleMessage xmlns:m0="http://services.samples">
+        <m0:getQuote>
+            <m0:request>
+                <m0:symbol>IBM</m0:symbol>
+            </m0:request>
+        </m0:getQuote>
+</m0:SampleMessage>
