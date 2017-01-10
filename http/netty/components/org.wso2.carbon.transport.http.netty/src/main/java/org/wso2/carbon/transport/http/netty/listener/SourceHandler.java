@@ -49,6 +49,7 @@ import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 
 import java.net.InetSocketAddress;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
@@ -108,8 +109,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             }
 
         } else if (msg instanceof HttpRequest) {
-                publishToMessageProcessor(msg);
-
+            publishToMessageProcessor(msg);
         } else {
             if (cMsg != null) {
                 if (msg instanceof HttpContent) {
@@ -127,6 +127,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
                 }
             }
         }
+
     }
 
 
@@ -233,7 +234,6 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
 
         HttpRequest httpRequest = (HttpRequest) msg;
 
-        cMsg.setProperty(Constants.TO, httpRequest.getUri());
         cMsg.setProperty(Constants.CHNL_HNDLR_CTX, this.ctx);
         cMsg.setProperty(Constants.SRC_HNDLR, this);
         cMsg.setProperty(Constants.HTTP_VERSION, httpRequest.getProtocolVersion().text());
@@ -275,10 +275,13 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
                 cMsg.setProperty(Constants.CHANNEL_ID, ctx.channel().toString());
                 cMsg.setProperty(Constants.WEBSOCKET_HANDSHAKER, webSocketHandshaker);
                 cMsg.setProperty(Constants.WEBSOCKET_RESPONDER, webSocketResponder);
+                //Here TO is separately handled since all the implementations of WebSocket uses URI
+                cMsg.setProperty(Constants.TO, new URI(httpRequest.getUri()));
             }
         } else {
             cMsg.setProperty(Constants.CONNECTION, null);
             cMsg.setProperty(Constants.CHANNEL_ID, ((SourceHandler) handler).getListenerConfiguration().getId());
+            cMsg.setProperty(Constants.TO, httpRequest.getUri());
         }
 
         return cMsg;

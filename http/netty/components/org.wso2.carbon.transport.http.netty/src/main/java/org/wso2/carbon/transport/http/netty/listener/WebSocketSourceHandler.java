@@ -31,12 +31,10 @@ import org.wso2.carbon.messaging.CarbonMessageProcessor;
 import org.wso2.carbon.messaging.websocket.BinaryWebSocketMessage;
 import org.wso2.carbon.messaging.websocket.CloseWebSocketMessage;
 import org.wso2.carbon.messaging.websocket.TextWebSocketMessage;
-import org.wso2.carbon.messaging.websocket.WebSocketResponder;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.exception.UnknownWebSocketFrameTypeException;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
-import org.wso2.carbon.transport.http.netty.internal.WebSocketResponderImpl;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 
 import java.net.InetSocketAddress;
@@ -53,7 +51,6 @@ public class WebSocketSourceHandler extends SourceHandler {
     private static Logger log = LoggerFactory.getLogger(WebSocketSourceHandler.class);
     private final URI uri;
     private CarbonMessage cMsg;
-    private WebSocketResponder webSocketResponder;
 
     public WebSocketSourceHandler(ConnectionManager connectionManager,
                                   ListenerConfiguration listenerConfiguration,
@@ -65,9 +62,8 @@ public class WebSocketSourceHandler extends SourceHandler {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        log.info("Channel " + ctx.channel() + " is active.");
         super.channelActive(ctx);
-        //Only one WebSocketResponder is needed for a pipeline
-        webSocketResponder = new WebSocketResponderImpl(this.ctx);
     }
 
     /**
@@ -85,20 +81,20 @@ public class WebSocketSourceHandler extends SourceHandler {
             if (msg instanceof TextWebSocketFrame) {
                 TextWebSocketFrame textWebSocketFrame = (TextWebSocketFrame) msg;
                 String text = textWebSocketFrame.text();
-                cMsg = new TextWebSocketMessage(text, webSocketResponder);
+                cMsg = new TextWebSocketMessage(text);
 
             } else if (msg instanceof BinaryWebSocketFrame) {
                 BinaryWebSocketFrame binaryWebSocketFrame = (BinaryWebSocketFrame) msg;
                 boolean finalFragment = binaryWebSocketFrame.isFinalFragment();
                 ByteBuf byteBuf = binaryWebSocketFrame.content();
                 ByteBuffer byteBuffer = byteBuf.nioBuffer();
-                cMsg = new BinaryWebSocketMessage(byteBuffer, finalFragment, webSocketResponder);
+                cMsg = new BinaryWebSocketMessage(byteBuffer, finalFragment);
 
             } else if (msg instanceof CloseWebSocketFrame) {
                 CloseWebSocketFrame closeWebSocketFrame = (CloseWebSocketFrame) msg;
                 String reasonText = closeWebSocketFrame.reasonText();
                 int statusCode = closeWebSocketFrame.statusCode();
-                cMsg = new CloseWebSocketMessage(statusCode, reasonText, webSocketResponder);
+                cMsg = new CloseWebSocketMessage(statusCode, reasonText);
             }
 
             setupBasicCarbonMessageProperties(ctx);

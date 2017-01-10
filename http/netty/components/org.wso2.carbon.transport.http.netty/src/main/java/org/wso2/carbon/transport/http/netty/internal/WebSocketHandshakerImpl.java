@@ -18,7 +18,6 @@
 
 package org.wso2.carbon.transport.http.netty.internal;
 
-import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.http.HttpRequest;
@@ -29,10 +28,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.websocket.WebSocketHandshaker;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
+import org.wso2.carbon.transport.http.netty.listener.SourceHandler;
 import org.wso2.carbon.transport.http.netty.listener.WebSocketSourceHandler;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
-
-import java.net.URISyntaxException;
 
 /**
  * This implementation handles the handshake of requested WebSocket Connection.
@@ -71,41 +69,40 @@ public class WebSocketHandshakerImpl implements WebSocketHandshaker {
         log.info("Upgrading the connection from Http to WebSocket for " +
                          "channel : " + ctx.channel());
 
-        boolean isDone = false;
+        handleWebSocketHandshake(ctx, request);
+        //Replace HTTP handlers  with  new Handlers for WebSocket in the pipeline
+        ChannelPipeline pipeline = ctx.pipeline();
         try {
-            isDone = handleWebSocketHandshake(ctx, request);
-
-            //Replace HTTP handlers  with  new Handlers for WebSocket in the pipeline
-            ChannelPipeline pipeline = ctx.pipeline();
-            pipeline.replace("handler",
-                             "ws_handler",
+            pipeline.replace(SourceHandler.class,
+                             "websocket_handler",
                              new WebSocketSourceHandler(this.connectionManager,
                                                         this.listenerConfiguration,
                                                         request.getUri()));
-            log.info("WebSocket upgrade is successful");
-        } catch (URISyntaxException e) {
-            log.error(e.toString());
         } catch (Exception e) {
-            log.error(e.toString());
+            log.error("Handshake error : " + e.toString());
         }
-
-        return isDone;
+        log.info("WebSocket upgrade is successful");
+        return true;
     }
 
     @Override
     public void cancel() {
-        handshaker.close(ctx.channel(), new CloseWebSocketFrame());
+        handshaker.close(ctx.channel(), new CloseWebSocketFrame(1001, "Cannot find requested URI"));
         log.info("Handshake is cancelled.");
     }
 
     /* Do the handshaking for WebSocket request */
-    private boolean handleWebSocketHandshake(ChannelHandlerContext ctx, HttpRequest req) throws URISyntaxException {
+    private void handleWebSocketHandshake(ChannelHandlerContext ctx, HttpRequest req) {
         if (handshaker == null) {
             WebSocketServerHandshakerFactory.sendUnsupportedVersionResponse(ctx.channel());
-            return false;
         } else {
-            ChannelFuture channelFuture = handshaker.handshake(ctx.channel(), req);
-            return channelFuture.isDone();
+            /*
+            Since httpAggregator and handshaker is already added when the handshaker is given from
+            WebSocketServerHandshakerFactory those should be removed when it is done separately.
+             */
+            ctx.pipeline().remove("httpAggregator");
+            ctx.pipeline().remove("handshaker");
+            handshaker.handshake(ctx.channel(), req);
         }
     }
 
