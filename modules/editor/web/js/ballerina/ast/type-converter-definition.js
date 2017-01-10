@@ -22,6 +22,7 @@ define(['lodash', './node'], function (_, ASTNode) {
         this.variableDeclarations = variableDeclarations || [];
         this.statements = statements || [];
         this.returnType = returnType;
+        this.type = "TypeConverterDefinition";
     };
 
     TypeConverterDefinition.prototype = Object.create(ASTNode.prototype);

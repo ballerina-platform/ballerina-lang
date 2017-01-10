@@ -23,6 +23,7 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
      */
     var TryCatchStatement = function () {
         Statement.call(this);
+        this.type = "TryCatchStatement";
     };
 
     TryCatchStatement.prototype = Object.create(Statement.prototype);

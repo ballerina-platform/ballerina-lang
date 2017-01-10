@@ -42,7 +42,7 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
         IfStatementView.prototype.constructor = IfStatementView;
 
         IfStatementView.prototype.init = function () {
-            this.listenTo(this._model, 'childRemovedEvent', this.childViewRemovedCallback);
+            this.listenTo(this._model, 'child-removed', this.childViewRemovedCallback);
         };
 
         IfStatementView.prototype.canVisitIfStatement = function(){
@@ -54,17 +54,17 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
          */
         IfStatementView.prototype.render = function (diagramRenderingContext) {
             this._diagramRenderingContext = diagramRenderingContext;
-            var ifGroup = D3Utils.group(this._container);
+            var ifGroup = D3Utils.group(d3.select(this._container));
             ifGroup.attr("id","_" +this._model.id);
             var self = this;
 
-            var title_rect = D3Utils.rect(this.getBoundingBox().x(), this.getBoundingBox().y(), this.getBoundingBox().w(), 25, 0, 0, ifGroup).classed('if-else-title-rect', true);
+            var title_rect = D3Utils.rect(this.getBoundingBox().x(), this.getBoundingBox().y(), this.getBoundingBox().w(), 25, 0, 0, ifGroup).classed('statement-title-rect', true);
             var outer_rect = D3Utils.rect(this.getBoundingBox().x(), this.getBoundingBox().y(), this.getBoundingBox().w(),
                 this.getBoundingBox().h(), 0, 0, ifGroup).classed('background-empty-rect', true);
             var points = "" + this.getBoundingBox().x() + "," + (parseInt(this.getBoundingBox().y()) + 25) + " " +
                 (parseInt(this.getBoundingBox().x()) + 35) + "," + (parseInt(this.getBoundingBox().y()) + 25) + " " +
                 (parseInt(this.getBoundingBox().x()) + 45) + "," + this.getBoundingBox().y();
-            var title_wrapper_polyline = D3Utils.polyline(points, ifGroup).classed('if-else-title-polyline', true);
+            var title_wrapper_polyline = D3Utils.polyline(points, ifGroup).classed('statement-title-polyline', true);
             var title_text = D3Utils.textElement(this.getBoundingBox().x() + 20, this.getBoundingBox().y() + 12, 'If', ifGroup).classed('statement-text', true);
             ifGroup.outerRect = outer_rect;
             ifGroup.titleRect = title_rect;
@@ -98,6 +98,8 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
 
             this.getBoundingBox().on('height-changed', function(dh){
                 outer_rect.attr("height", parseFloat(outer_rect.attr('height')) + dh);
+                var newHeight = dh + self.getParent().getBoundingBox().h() + 20;
+                self.getParent().getBoundingBox().h(newHeight);
             });
 
             this._rootGroup = ifGroup;

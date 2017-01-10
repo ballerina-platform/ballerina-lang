@@ -22,24 +22,13 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.values.BJSON;
 import org.wso2.ballerina.core.model.values.BMessage;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.nativeimpl.lang.message.AddHeader;
-import org.wso2.ballerina.core.nativeimpl.lang.message.Clone;
-import org.wso2.ballerina.core.nativeimpl.lang.message.GetHeader;
-import org.wso2.ballerina.core.nativeimpl.lang.message.GetHeaders;
-import org.wso2.ballerina.core.nativeimpl.lang.message.GetJsonPayload;
-import org.wso2.ballerina.core.nativeimpl.lang.message.GetStringPayload;
-import org.wso2.ballerina.core.nativeimpl.lang.message.GetXMLPayload;
-import org.wso2.ballerina.core.nativeimpl.lang.message.RemoveHeader;
-import org.wso2.ballerina.core.nativeimpl.lang.message.SetHeader;
-import org.wso2.ballerina.core.nativeimpl.lang.message.SetJsonPayload;
-import org.wso2.ballerina.core.nativeimpl.lang.message.SetStringPayload;
-import org.wso2.ballerina.core.nativeimpl.lang.message.SetXMLPayload;
-import org.wso2.ballerina.core.nativeimpl.lang.system.LogString;
-import org.wso2.ballerina.core.utils.FunctionUtils;
+import org.wso2.ballerina.core.runtime.internal.BuiltInNativeConstructLoader;
+import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 import org.wso2.ballerina.core.utils.ParserUtils;
 import org.wso2.ballerina.lang.util.Functions;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
@@ -58,21 +47,10 @@ public class MessageTest {
     @BeforeClass
     public void setup() {
         // Add Native functions.
-        SymScope symScope = new SymScope(null);
-        FunctionUtils.addNativeFunction(symScope, new AddHeader());
-        FunctionUtils.addNativeFunction(symScope, new Clone());
-        FunctionUtils.addNativeFunction(symScope, new GetHeader());
-        FunctionUtils.addNativeFunction(symScope, new GetHeaders());
-        FunctionUtils.addNativeFunction(symScope, new GetJsonPayload());
-        FunctionUtils.addNativeFunction(symScope, new GetStringPayload());
-        FunctionUtils.addNativeFunction(symScope, new GetXMLPayload());
-        FunctionUtils.addNativeFunction(symScope, new RemoveHeader());
-        FunctionUtils.addNativeFunction(symScope, new SetHeader());
-        FunctionUtils.addNativeFunction(symScope, new SetJsonPayload());
-        FunctionUtils.addNativeFunction(symScope, new SetStringPayload());
-        FunctionUtils.addNativeFunction(symScope, new SetXMLPayload());
-        FunctionUtils.addNativeFunction(symScope, new LogString());
-
+        SymScope symScope = GlobalScopeHolder.getInstance().getScope();
+        if (symScope.lookup(new SymbolName("ballerina.lang.system:print_string")) == null) {
+            BuiltInNativeConstructLoader.loadConstructs();
+        }
         bFile = ParserUtils.parseBalFile("samples/nativeimpl/messageTest.bal", symScope);
     }
 
