@@ -35,7 +35,7 @@ import java.util.Locale;
  */
 public class MessageUtils {
 
-    public CarbonMessage generateRawMessage() {
+    public static CarbonMessage generateRawMessage() {
         return new DefaultCarbonMessage();
     }
 

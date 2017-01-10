@@ -327,13 +327,22 @@ public class XMLTest {
     @Test
     public void testRemoveNonExistingElement() {
         BValue[] args = {new BXML(s1), new BString("/xxx")};
-        Functions.invoke(bFile, "remove", args);
+        BValue[] returns = Functions.invoke(bFile, "remove", args);
+        Assert.assertEquals(returns[0].stringValue(), s1);
     }
 
     @Test(expectedExceptions = {BallerinaException.class})
     public void testRemoveFromMalformedXpath() {
         BValue[] args = {new BXML(s1), new BString("$worng#path")};
         Functions.invoke(bFile, "remove", args);
+    }
+
+    @Test
+    public void testToString() {
+        BValue[] args = {new BXML(s1)};
+        BValue[] returns = Functions.invoke(bFile, "toString", args);
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(returns[0].stringValue(), s1);
     }
 
 }

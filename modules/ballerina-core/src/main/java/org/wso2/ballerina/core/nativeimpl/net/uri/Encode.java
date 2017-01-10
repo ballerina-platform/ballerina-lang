@@ -55,7 +55,7 @@ public class Encode extends AbstractNativeFunction {
         String encodeURL = "";
         try {
             encodeURL = encode(url); //supporting percentage encoding
-        } catch (UnsupportedEncodingException e) {
+        } catch (Throwable e) {
             throw new BallerinaException("Error while encoding the url. " + e.getMessage(), context);
         }
         return getBValues(new BString(encodeURL));

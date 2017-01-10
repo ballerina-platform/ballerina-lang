@@ -36,7 +36,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
         packageName = "ballerina.lang.string",
         functionName = "hasSuffix",
         args = {@Argument(name = "string", type = TypeEnum.STRING),
-                @Argument(name = "string", type = TypeEnum.STRING)},
+                @Argument(name = "suffix", type = TypeEnum.STRING)},
         returnType = {@ReturnType(type = TypeEnum.BOOLEAN)},
         isPublic = true
 )
