@@ -28,7 +28,7 @@ define(['lodash', './node'], function (_, ASTNode) {
         this._importVersionNumber = _.get(args, 'importVersionName', "1.0.0");
         this._identifier = _.get(args, 'identifier', "");
 
-        ASTNode.call(this);
+        ASTNode.call(this, "ImportDeclaration");
     };
 
     ImportDeclaration.prototype = Object.create(ASTNode.prototype);

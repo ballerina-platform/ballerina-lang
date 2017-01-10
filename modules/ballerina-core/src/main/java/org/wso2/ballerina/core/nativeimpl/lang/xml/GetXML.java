@@ -49,7 +49,6 @@ import org.wso2.ballerina.core.nativeimpl.lang.utils.ErrorHandler;
         functionName = "getXml",
         args = {@Argument(name = "xml", type = TypeEnum.XML),
                 @Argument(name = "xPath", type = TypeEnum.STRING)},
-//                @Argument(name = "nameSpaces", type = TypeEnum.MAP)},
         returnType = {@ReturnType(type = TypeEnum.XML)},
         isPublic = true
 )
@@ -64,19 +63,12 @@ public class GetXML extends AbstractNativeFunction {
             // Accessing Parameters.
             BXML xml = (BXML) getArgument(ctx, 0);
             String xPath = getArgument(ctx, 1).stringValue();
-            //MapValue<String, String> nameSpaces = getArgument(ctx, 2).getMap();
-            
+
             // Getting the value from XML
             Processor processor = new Processor(false);
             XPathCompiler xPathCompiler = processor.newXPathCompiler();
             DocumentBuilder builder = processor.newDocumentBuilder();
             XdmNode doc = builder.build(xml.value().getSAXSource(true));
-            // TODO : Add it back once Map support is added.
-//            if (nameSpaces != null && !nameSpaces.isEmpty()) {
-//                for (MapValue<String, String>.MapEntry<String, String> entry : nameSpaces.getValue()) {
-//                    xPathCompiler.declareNamespace(entry.getKey(), entry.getValue());
-//                }
-//            }
             XPathSelector selector = xPathCompiler.compile(xPath).load();
             selector.setContextItem(doc);
             XdmValue xdmValue = selector.evaluate();

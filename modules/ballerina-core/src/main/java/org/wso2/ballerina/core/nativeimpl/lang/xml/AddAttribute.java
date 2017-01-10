@@ -48,7 +48,6 @@ import java.util.List;
         functionName = "addAttribute",
         args = {@Argument(name = "xml", type = TypeEnum.XML),
                 @Argument(name = "xPath", type = TypeEnum.STRING),
-//                @Argument(name = "nameSpaces", type = TypeEnum.MAP),
                 @Argument(name = "name", type = TypeEnum.STRING),
                 @Argument(name = "value", type = TypeEnum.STRING)},
         isPublic = true
@@ -63,7 +62,6 @@ public class AddAttribute extends AbstractNativeFunction {
             // Accessing Parameters.
             BXML xml = (BXML) getArgument(ctx, 0);
             String xPath = getArgument(ctx, 1).stringValue();
-            // MapValue<String, String> nameSpaces = getArgument(ctx, 2).getMap();
             String name = getArgument(ctx, 2).stringValue();
             String value = getArgument(ctx, 3).stringValue();
             
@@ -73,13 +71,6 @@ public class AddAttribute extends AbstractNativeFunction {
             
             // Setting the value to XML
             AXIOMXPath axiomxPath = new AXIOMXPath(xPath);
-            /*if (nameSpaces != null && !nameSpaces.isEmpty()) {
-                for (MapValue<String, String>.MapEntry<String, String> entry : nameSpaces.getValue()) {
-                    axiomxPath.addNamespace(entry.getKey(), (entry.getValue()));
-
-                }
-            }*/
-            
             Object result = axiomxPath.evaluate(xml.value());
             if (result instanceof ArrayList) {
                 List<?> macthingElements = (List<?>) result;

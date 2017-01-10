@@ -70,13 +70,6 @@ public class AddElement extends AbstractNativeFunction {
 
             // Setting the value to XML
             AXIOMXPath axiomxPath = new AXIOMXPath(xPath);
-            /*if (nameSpaces != null && !nameSpaces.isEmpty()) {
-                for (MapValue<String, String>.MapEntry<String, String> entry : nameSpaces.getValue()) {
-                    axiomxPath.addNamespace(entry.getKey(), (entry.getValue()));
-
-                }
-            }*/
-
             Object result = axiomxPath.evaluate(xml.value());
             if (result instanceof ArrayList) {
                 List<?> macthingElements = (List<?>) result;

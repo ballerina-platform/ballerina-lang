@@ -25,7 +25,7 @@ function(require, _, log, EventChannel, AbstractStatementSourceGenVisitor) {
     IfElseStatementVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
     IfElseStatementVisitor.prototype.constructor = IfElseStatementVisitor;
 
-    IfElseStatementVisitor.prototype.canVisitStatement = function(statement){
+    IfElseStatementVisitor.prototype.canVisitIfElseStatement = function(statement){
         return true;
     };
 

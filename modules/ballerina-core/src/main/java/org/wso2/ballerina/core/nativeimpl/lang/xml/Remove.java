@@ -42,7 +42,6 @@ import java.util.List;
         functionName = "remove",
         args = {@Argument(name = "xml", type = TypeEnum.XML),
                 @Argument(name = "xPath", type = TypeEnum.STRING)},
-//                @Argument(name = "nameSpaces", type = TypeEnum.MAP)},
         isPublic = true
 )
 public class Remove extends AbstractNativeFunction {
@@ -55,16 +54,9 @@ public class Remove extends AbstractNativeFunction {
             // Accessing Parameters.
             BXML xml = (BXML) getArgument(ctx, 0);
             String xPath = getArgument(ctx, 1).stringValue();
-            // MapValue<String, String> nameSpaces = getArgument(ctx, 2).getMap();
-            
+
             // Setting the value to XML
             AXIOMXPath axiomxPath = new AXIOMXPath(xPath);
-            /*if (nameSpaces != null && !nameSpaces.isEmpty()) {
-                for (MapValue<String, String>.MapEntry<String, String> entry : nameSpaces.getValue()) {
-                    axiomxPath.addNamespace(entry.getKey(), entry.getValue());
-
-                }
-            }*/
             Object ob = axiomxPath.evaluate(xml.value());
             if (ob instanceof ArrayList) {
                 List<?> list = (List<?>) ob;

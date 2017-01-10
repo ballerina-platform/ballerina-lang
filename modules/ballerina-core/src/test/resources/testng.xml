@@ -32,10 +32,21 @@ under the License.
             <class name="org.wso2.ballerina.lang.expressions.ArrayAccessExprTest"/>
             <class name="org.wso2.ballerina.lang.expressions.ArrayInitializerExprTest"/>
             <class name="org.wso2.ballerina.lang.expressions.UnaryExprTest"/>
+            <class name="org.wso2.ballerina.lang.expressions.InstanceCreationExprTest"/>
+            <class name="org.wso2.ballerina.lang.expressions.AddExprTest"/>
+            <class name="org.wso2.ballerina.lang.expressions.GreaterLessThanExprTest"/>
+            <class name="org.wso2.ballerina.lang.expressions.DivideExprTest"/>
+            <class name="org.wso2.ballerina.lang.expressions.MultiplyExprTest"/>
+            <class name="org.wso2.ballerina.lang.expressions.BinaryExprTest"/>
+            <class name="org.wso2.ballerina.lang.expressions.MapInitializerExprTest"/>
+            <class name="org.wso2.ballerina.lang.expressions.MapAccessExprTest"/>
+            <class name="org.wso2.ballerina.lang.expressions.NotEqualExprTest"/>
 
             <!-- Statements -->
+            <class name="org.wso2.ballerina.lang.statements.FunctionStmtTest"/>
             <class name="org.wso2.ballerina.lang.statements.WhileStmtTest"/>
             <class name="org.wso2.ballerina.lang.statements.IfElseStmtTest"/>
+            <class name="org.wso2.ballerina.lang.statements.AssignStmtTest"/>
         </classes>
     </test>
 
@@ -55,6 +66,7 @@ under the License.
     <test name="ballerina-native-functions-unit-tests" preserve-order="true" parallel="false">
         <packages>
             <package name="org.wso2.ballerina.core.nativeimpl.functions" />
+            <package name="org.wso2.ballerina.core.nativeimpl.lang" />
         </packages>
     </test>
 

@@ -24,146 +24,6 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
     StatementVisitor.prototype = Object.create(ASTVisitor.prototype);
     StatementVisitor.prototype.constructor = StatementVisitor;
 
-    /**
-     * @param node {ASTNode}
-     */
-    StatementVisitor.prototype.canVisit = function (node) {
-        if (node instanceof AST.IfElseStatement) {
-            return this.canVisitStatement(node);
-        } else if (node instanceof AST.IfStatement) {
-            return this.canVisitIfStatement(node);
-        } else if (node instanceof AST.ElseStatement) {
-            return this.canVisitElseStatement(node);
-        }  else if (node instanceof AST.ElseIfStatement) {
-            return this.canVisitElseIfStatement(node);
-        } else if (node instanceof AST.TryCatchStatement) {
-            return this.canVisitStatement(node);
-        } else if (node instanceof AST.TryStatement) {
-            return this.canVisitTryStatement(node);
-        } else if (node instanceof AST.CatchStatement) {
-            return this.canVisitCatchStatement(node);
-        } else if (node instanceof AST.WhileStatement) {
-            return this.canVisitStatement(node);
-        } else if (node instanceof AST.Assignment) {
-            return this.canVisitStatement(node);
-        } else if (node instanceof AST.ActionInvocationStatement) {
-            return this.canVisitStatement(node);
-        } else if (node instanceof AST.Expression) {
-            return this.canVisitExpression(node);
-        } else if (node instanceof AST.ReplyStatement) {
-            return this.canVisitReplyStatement(node);
-        } else if (node instanceof AST.ReturnStatement) {
-            return this.canVisitStatement(node);
-        }  else if (node instanceof AST.FunctionInvocation) {
-            return this.canVisitStatement(node);
-        }
-    };
-
-    /**
-     * @param node {ASTNode}
-     */
-    StatementVisitor.prototype.beginVisit = function (node) {
-        if (node instanceof AST.IfElseStatement) {
-            return this.beginVisitStatement(node);
-        } else if (node instanceof AST.IfStatement) {
-            return this.beginVisitIfStatement(node);
-        } else if (node instanceof AST.ElseStatement) {
-            return this.beginVisitElseStatement(node);
-        } else if (node instanceof AST.ElseIfStatement) {
-            return this.beginVisitElseIfStatement(node);
-        } else if (node instanceof AST.TryCatchStatement) {
-            return this.beginVisitStatement(node);
-        } else if (node instanceof AST.TryStatement) {
-            return this.beginVisitTryStatement(node);
-        } else if (node instanceof AST.CatchStatement) {
-            return this.beginVisitCatchStatement(node);
-        } else if (node instanceof AST.WhileStatement) {
-            return this.beginVisitStatement(node);
-        } else if (node instanceof AST.Assignment) {
-            return this.beginVisitStatement(node);
-        } else if (node instanceof AST.Expression) {
-            return this.beginVisitExpression(node);
-        } else if (node instanceof AST.ActionInvocationStatement) {
-            return this.beginVisitStatement(node);
-        } else if (node instanceof AST.ReplyStatement) {
-            return this.beginVisitReplyStatement(node);
-        } else if (node instanceof AST.ReturnStatement) {
-            return this.beginVisitStatement(node);
-        }  else if (node instanceof AST.FunctionInvocation) {
-            return this.beginVisitStatement(node);
-        }
-    };
-
-    /**
-     * @param node {ASTNode}
-     */
-    StatementVisitor.prototype.visit = function (node) {
-        if (node instanceof AST.IfElseStatement) {
-            return this.visitStatement(node);
-        } else if (node instanceof AST.IfStatement) {
-            return this.visitIfStatement(node);
-        } else if (node instanceof AST.ElseStatement) {
-            return this.visitElseStatement(node);
-        }  else if (node instanceof AST.ElseIfStatement) {
-            return this.visitElseIfStatement(node);
-        } else if (node instanceof AST.TryCatchStatement) {
-            return this.visitStatement(node);
-        } else if (node instanceof AST.TryStatement) {
-            return this.visitTryStatement(node);
-        } else if (node instanceof AST.CatchStatement) {
-            return this.visitCatchStatement(node);
-        } else if (node instanceof AST.WhileStatement) {
-            return this.visitStatement(node);
-        } else if (node instanceof AST.Assignment) {
-            return this.visitStatement(node);
-        } else if (node instanceof AST.ActionInvocationStatement) {
-            return this.visitStatement(node);
-        } else if (node instanceof AST.Expression) {
-            return this.visitExpression(node);
-        } else if (node instanceof AST.ReplyStatement) {
-            return this.visitReplyStatement(node);
-        } else if (node instanceof AST.ReturnStatement) {
-            return this.visitStatement(node);
-        }  else if (node instanceof AST.FunctionInvocation) {
-            return this.visitStatement(node);
-        }
-    };
-
-    /**
-     * @param node {ASTNode}
-     */
-    StatementVisitor.prototype.endVisit = function (node) {
-        if (node instanceof AST.IfElseStatement) {
-            return this.endVisitStatement(node);
-        } else if (node instanceof AST.IfStatement) {
-            return this.endVisitIfStatement(node);
-        } else if (node instanceof AST.ElseStatement) {
-            return this.endVisitElseStatement(node);
-        }  else if (node instanceof AST.ElseIfStatement) {
-            return this.endVisitElseIfStatement(node);
-        } else if (node instanceof AST.TryCatchStatement) {
-            return this.endVisitStatement(node);
-        } else if (node instanceof AST.TryStatement) {
-            return this.endVisitTryStatement(node);
-        } else if (node instanceof AST.CatchStatement) {
-            return this.endVisitCatchStatement(node);
-        } else if (node instanceof AST.WhileStatement) {
-            return this.endVisitStatement(node);
-        } else if (node instanceof AST.Assignment) {
-            return this.endVisitStatement(node);
-        } else if (node instanceof AST.ActionInvocationStatement) {
-            return this.endVisitStatement(node);
-        } else if (node instanceof AST.Expression) {
-            return this.endVisitExpression(node);
-        } else if (node instanceof AST.ReplyStatement) {
-            return this.endVisitReplyStatement(node);
-        }  else if (node instanceof AST.ReturnStatement) {
-            return this.endVisitStatement(node);
-        }  else if (node instanceof AST.FunctionInvocation) {
-            return this.endVisitStatement(node);
-        }
-    };
-
     StatementVisitor.prototype.canVisitIfStatement = function (statement) {
         return false;
     };
@@ -214,16 +74,6 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
     StatementVisitor.prototype.endVisitCatchStatement = function (statement) {
     };
 
-    StatementVisitor.prototype.canVisitWhileStatement = function (statement) {
-        return false;
-    };
-    StatementVisitor.prototype.beginVisitWhileStatement = function (statement) {
-    };
-    StatementVisitor.prototype.visitWhileStatement = function (statement) {
-    };
-    StatementVisitor.prototype.endVisitWhileStatement = function (statement) {
-    };
-
     StatementVisitor.prototype.canVisitStatement = function (statement) {
         return false;
     };
@@ -232,6 +82,16 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
     StatementVisitor.prototype.visitStatement = function (statement) {
     };
     StatementVisitor.prototype.endVisitStatement = function (statement) {
+    };
+
+    StatementVisitor.prototype.canVisitIfElseStatement = function (statement) {
+        return false;
+    };
+    StatementVisitor.prototype.beginVisitIfElseStatement = function (statement) {
+    };
+    StatementVisitor.prototype.visitIfElseStatement = function (statement) {
+    };
+    StatementVisitor.prototype.endVisitIfElseStatement = function (statement) {
     };
 
     StatementVisitor.prototype.canVisitReplyStatement = function (statement) {
@@ -254,14 +114,14 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
     StatementVisitor.prototype.endVisitReturnStatement = function (statement) {
     };
 
-    StatementVisitor.prototype.canVisitActionInvocationExpression = function (statement) {
+    StatementVisitor.prototype.canVisitActionInvocationStatement = function (statement) {
         return false;
     };
-    StatementVisitor.prototype.beginVisitActionInvocationExpression = function (statement) {
+    StatementVisitor.prototype.beginVisitActionInvocationStatement = function (statement) {
     };
-    StatementVisitor.prototype.visitActionInvocationExpression = function (statement) {
+    StatementVisitor.prototype.visitActionInvocationStatement = function (statement) {
     };
-    StatementVisitor.prototype.endVisitActionInvocationExpression = function (statement) {
+    StatementVisitor.prototype.endVisitActionInvocationStatement = function (statement) {
     };
 
     StatementVisitor.prototype.canVisitExpression = function (statement) {
@@ -282,6 +142,176 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
     StatementVisitor.prototype.visitFuncInvocationStatement= function (statement) {
     };
     StatementVisitor.prototype.endVisitFuncInvocationStatement = function (statement) {
+    };
+
+    StatementVisitor.prototype.canVisitTryCatchStatement = function (statement) {
+        return false;
+    };
+    StatementVisitor.prototype.beginVisitTryCatchStatement = function (statement) {
+    };
+    StatementVisitor.prototype.visitTryCatchStatement= function (statement) {
+    };
+    StatementVisitor.prototype.endVisitTryCatchStatement = function (statement) {
+    };
+
+    StatementVisitor.prototype.canVisitAssignmentStatement = function (statement) {
+        return false;
+    };
+    StatementVisitor.prototype.beginVisitAssignmentStatement = function (statement) {
+    };
+    StatementVisitor.prototype.visitAssignmentStatement= function (statement) {
+    };
+    StatementVisitor.prototype.endVisitAssignmentStatement = function (statement) {
+    };
+
+    StatementVisitor.prototype.canVisitWhileStatement = function (statement) {
+        return false;
+    };
+    StatementVisitor.prototype.beginVisitWhileStatement = function (statement) {
+    };
+    StatementVisitor.prototype.visitWhileStatement= function (statement) {
+    };
+    StatementVisitor.prototype.endVisitWhileStatement = function (statement) {
+    };
+
+    /**
+     * @param node {ASTNode}
+     */
+    StatementVisitor.prototype.visitStatement = function (node) {
+        if (node instanceof AST.WhileStatement) {
+            return this.visitWhileStatement(node);
+        } else if (node instanceof AST.IfElseStatement) {
+            return this.visitIfElseStatement(node);
+        } else if (node instanceof AST.IfStatement) {
+            return this.visitIfStatement(node);
+        } else if (node instanceof AST.ElseStatement) {
+            return this.visitElseStatement(node);
+        }  else if (node instanceof AST.ElseIfStatement) {
+            return this.visitElseIfStatement(node);
+        } else if (node instanceof AST.TryCatchStatement) {
+            return this.visitTryCatchStatement(node);
+        } else if (node instanceof AST.TryStatement) {
+            return this.visitTryStatement(node);
+        } else if (node instanceof AST.CatchStatement) {
+            return this.visitCatchStatement(node);
+        } else if (node instanceof AST.Assignment) {
+            return this.visitAssignmentStatement(node);
+        } else if (node instanceof AST.ActionInvocationStatement) {
+            return this.visitActionInvocationStatement(node);
+        } else if (node instanceof AST.Expression) {
+            return this.visitExpression(node);
+        } else if (node instanceof AST.ReplyStatement) {
+            return this.visitReplyStatement(node);
+        } else if (node instanceof AST.ReturnStatement) {
+            return this.visitReturnStatement(node);
+        }  else if (node instanceof AST.FunctionInvocation) {
+            return this.visitFuncInvocationStatement(node);
+        }
+    };
+
+    /**
+     * @param node {ASTNode}
+     */
+    StatementVisitor.prototype.canVisitStatement = function (node) {
+        if (node instanceof AST.WhileStatement) {
+            return this.canVisitWhileStatement(node);
+        } else if (node instanceof AST.IfElseStatement) {
+            return this.canVisitIfElseStatement(node);
+        } else if (node instanceof AST.IfStatement) {
+            return this.canVisitIfStatement(node);
+        } else if (node instanceof AST.ElseStatement) {
+            return this.canVisitElseStatement(node);
+        }  else if (node instanceof AST.ElseIfStatement) {
+            return this.canVisitElseIfStatement(node);
+        } else if (node instanceof AST.TryCatchStatement) {
+            return this.canVisitTryCatchStatement(node);
+        } else if (node instanceof AST.TryStatement) {
+            return this.canVisitTryStatement(node);
+        } else if (node instanceof AST.CatchStatement) {
+            return this.canVisitCatchStatement(node);
+        } else if (node instanceof AST.Assignment) {
+            return this.canVisitAssignmentStatement(node);
+        } else if (node instanceof AST.ActionInvocationStatement) {
+            return this.canVisitActionInvocationStatement(node);
+        } else if (node instanceof AST.Expression) {
+            return this.canVisitExpression(node);
+        } else if (node instanceof AST.ReplyStatement) {
+            return this.canVisitReplyStatement(node);
+        } else if (node instanceof AST.ReturnStatement) {
+            return this.canVisitReturnStatement(node);
+        }  else if (node instanceof AST.FunctionInvocation) {
+            return this.canVisitFuncInvocationStatement(node);
+        }
+    };
+
+    /**
+     * @param node {ASTNode}
+     */
+    StatementVisitor.prototype.beginVisitStatement = function (node) {
+        if (node instanceof AST.WhileStatement) {
+            this.beginVisitWhileStatement(node);
+        } else if (node instanceof AST.IfElseStatement) {
+            return this.beginVisitIfElseStatement(node);
+        } else if (node instanceof AST.IfStatement) {
+            return this.beginVisitIfStatement(node);
+        } else if (node instanceof AST.ElseStatement) {
+            return this.beginVisitElseStatement(node);
+        }  else if (node instanceof AST.ElseIfStatement) {
+            return this.beginVisitElseIfStatement(node);
+        } else if (node instanceof AST.TryCatchStatement) {
+            return this.beginVisitTryCatchStatement(node);
+        } else if (node instanceof AST.TryStatement) {
+            return this.beginVisitTryStatement(node);
+        } else if (node instanceof AST.CatchStatement) {
+            return this.beginVisitCatchStatement(node);
+        } else if (node instanceof AST.Assignment) {
+            return this.beginVisitAssignmentStatement(node);
+        } else if (node instanceof AST.ActionInvocationStatement) {
+            return this.beginVisitActionInvocationStatement(node);
+        } else if (node instanceof AST.Expression) {
+            return this.beginVisitExpression(node);
+        } else if (node instanceof AST.ReplyStatement) {
+            return this.beginVisitReplyStatement(node);
+        } else if (node instanceof AST.ReturnStatement) {
+            return this.beginVisitReturnStatement(node);
+        }  else if (node instanceof AST.FunctionInvocation) {
+            return this.beginVisitFuncInvocationStatement(node);
+        }
+    };
+
+    /**
+     * @param node {ASTNode}
+     */
+    StatementVisitor.prototype.endVisitStatement = function (node) {
+        if (node instanceof AST.WhileStatement) {
+            return this.endVisitWhileStatement(node);
+        } else if (node instanceof AST.IfElseStatement) {
+            return this.endVisitIfElseStatement(node);
+        } else if (node instanceof AST.IfStatement) {
+            return this.endVisitIfStatement(node);
+        } else if (node instanceof AST.ElseStatement) {
+            return this.endVisitElseStatement(node);
+        }  else if (node instanceof AST.ElseIfStatement) {
+            return this.endVisitElseIfStatement(node);
+        } else if (node instanceof AST.TryCatchStatement) {
+            return this.endVisitTryCatchStatement(node);
+        } else if (node instanceof AST.TryStatement) {
+            return this.endVisitTryStatement(node);
+        } else if (node instanceof AST.CatchStatement) {
+            return this.endVisitCatchStatement(node);
+        } else if (node instanceof AST.Assignment) {
+            return this.endVisitAssignmentStatement(node);
+        } else if (node instanceof AST.ActionInvocationStatement) {
+            return this.endVisitActionInvocationStatement(node);
+        } else if (node instanceof AST.Expression) {
+            return this.endVisitExpression(node);
+        } else if (node instanceof AST.ReplyStatement) {
+            return this.endVisitReplyStatement(node);
+        }  else if (node instanceof AST.ReturnStatement) {
+            return this.endVisitReturnStatement(node);
+        }  else if (node instanceof AST.FunctionInvocation) {
+            return this.endVisitFuncInvocationStatement(node);
+        }
     };
 
     return StatementVisitor;

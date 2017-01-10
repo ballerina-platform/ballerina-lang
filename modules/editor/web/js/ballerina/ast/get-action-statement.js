@@ -23,6 +23,7 @@ define(['lodash', 'log', './action-invocation-statement'], function (_, log, act
         this._path = _.get(args, 'path');
         this.isUserDropped = _.get(args, 'isUserDropped') || false;
         actionInvocationStatement.call(this, args);
+        this.type = "getActionStatement";
     };
 
     getActionStatement.prototype = Object.create(actionInvocationStatement.prototype);
