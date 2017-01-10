@@ -108,10 +108,12 @@ public class ServerConnectorMessageHandler {
         }
 
         Object protocol = cMsg.getProperty("PROTOCOL");
-        Object errorHandler;
+        Object errorHandler = null;
         if (protocol != null) {
             errorHandler = ServiceContextHolder.getInstance().getErrorHandler((String) protocol);
-        } else {
+        }
+
+        if (errorHandler == null) {
             errorHandler = DefaultServerConnectorErrorHandler.getInstance();
         }
 

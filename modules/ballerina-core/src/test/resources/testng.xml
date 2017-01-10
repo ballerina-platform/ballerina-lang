@@ -23,10 +23,35 @@ under the License.
 
     <!-- Ballerina language Test Cases. -->
     <test name="ballerina-lang-test-suite" preserve-order="true" parallel="false">
-        <packages>
-            <package name="org.wso2.ballerina.lang.expressions"/>
-            <package name="org.wso2.ballerina.lang.statements"/>
-        </packages>
+        <classes>
+            <!-- Statements -->
+            <class name="org.wso2.ballerina.lang.values.BArrayValueTest"/>
+
+            <!-- Expressions -->
+            <class name="org.wso2.ballerina.lang.expressions.FuncInvocationExprTest"/>
+            <class name="org.wso2.ballerina.lang.expressions.ArrayAccessExprTest"/>
+            <class name="org.wso2.ballerina.lang.expressions.ArrayInitializerExprTest"/>
+            <class name="org.wso2.ballerina.lang.expressions.UnaryExprTest"/>
+            <class name="org.wso2.ballerina.lang.expressions.InstanceCreationExprTest"/>
+            <class name="org.wso2.ballerina.lang.expressions.AddExprTest"/>
+            <class name="org.wso2.ballerina.lang.expressions.GreaterLessThanExprTest"/>
+            <class name="org.wso2.ballerina.lang.expressions.DivideExprTest"/>
+            <class name="org.wso2.ballerina.lang.expressions.MultiplyExprTest"/>
+            <class name="org.wso2.ballerina.lang.expressions.BinaryExprTest"/>
+            <class name="org.wso2.ballerina.lang.expressions.MapInitializerExprTest"/>
+            <class name="org.wso2.ballerina.lang.expressions.MapAccessExprTest"/>
+            <class name="org.wso2.ballerina.lang.expressions.NotEqualExprTest"/>
+
+            <!-- Statements -->
+            <class name="org.wso2.ballerina.lang.statements.FunctionStmtTest"/>
+            <class name="org.wso2.ballerina.lang.statements.WhileStmtTest"/>
+            <class name="org.wso2.ballerina.lang.statements.IfElseStmtTest"/>
+            <class name="org.wso2.ballerina.lang.statements.AssignStmtTest"/>
+
+            <!-- Service-->
+            <class name="org.wso2.ballerina.lang.service.ServiceTest"/>
+
+        </classes>
     </test>
 
     <!-- Parser Level Test Cases -->
@@ -52,7 +77,7 @@ under the License.
     <!-- Native Connectors Related Test Cases -->
     <test name="ballerina-native-connectors-unit-tests" preserve-order="true" parallel="false">
         <packages>
-            <package name="org.wso2.ballerina.core.behaviour.nativeimpl.connectors"/>
+            <package name="org.wso2.ballerina.core.nativeimpl.connectors"/>
         </packages>
     </test>
     
