@@ -127,8 +127,8 @@ public class RuntimeEnvironment {
 
             } else if (argExpr instanceof VariableRefExpr) {
                 VariableRefExpr variableRefExpr = (VariableRefExpr) argExpr;
-                if (variableRefExpr.getLocation() instanceof ConstantLocation) {
-                    ConstantLocation location = (ConstantLocation) variableRefExpr.getLocation();
+                if (variableRefExpr.getMemoryLocation() instanceof ConstantLocation) {
+                    ConstantLocation location = (ConstantLocation) variableRefExpr.getMemoryLocation();
                     bValueRefs[j] = staticMemory.getValue(location.getStaticMemAddrOffset());
                     offset++;
                     continue;

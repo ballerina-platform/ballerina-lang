@@ -26,7 +26,7 @@ import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
  *
  * @since 1.0.0
  */
-public class ActionInvocationStmt implements Statement {
+public class ActionInvocationStmt extends AbstractStatement {
 
     private ActionInvocationExpr actionInvocationExpr;
 

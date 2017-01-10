@@ -558,7 +558,7 @@ public class BLangInterpreter implements NodeVisitor {
 
     @Override
     public void visit(VariableRefExpr variableRefExpr) {
-        variableRefExpr.getLocation().accept(this);
+        variableRefExpr.getMemoryLocation().accept(this);
     }
 
     @Override

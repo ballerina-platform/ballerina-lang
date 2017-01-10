@@ -26,7 +26,7 @@ import org.wso2.ballerina.core.model.expressions.Expression;
  *
  * @since 1.0.0
  */
-public class ForeachStmt implements Statement {
+public class ForeachStmt extends AbstractStatement {
     private Expression condition;
 //    private IteratorType itr;
     private Statement forEachBlock;

@@ -23,6 +23,7 @@ import org.wso2.ballerina.core.model.Action;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.Const;
 import org.wso2.ballerina.core.model.Parameter;
+import org.wso2.ballerina.core.model.Position;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.VariableDcl;
 import org.wso2.ballerina.core.model.types.BType;
@@ -52,6 +53,7 @@ public abstract class AbstractNativeAction implements Action, NativeConstruct {
     private List<BType> returnTypes;
     private List<Const> constants;
     private int stackFrameSize;
+    private Position actionLocation;
 
     public AbstractNativeAction() {
         parameters = new ArrayList<>();
@@ -173,4 +175,19 @@ public abstract class AbstractNativeAction implements Action, NativeConstruct {
 
 //    }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Position getLocation() {
+        return actionLocation;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setLocation(Position location) {
+        this.actionLocation = location;
+    }
 }

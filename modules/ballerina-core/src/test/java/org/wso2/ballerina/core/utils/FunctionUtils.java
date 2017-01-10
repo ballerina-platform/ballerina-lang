@@ -76,7 +76,7 @@ public class FunctionUtils {
             VariableRefExpr variableRefExpr = new VariableRefExpr(new SymbolName("Ignored"));
 
             LocalVarLocation location = new LocalVarLocation(i);
-            variableRefExpr.setLocation(location);
+            variableRefExpr.setMemoryLocation(location);
 //            variableRefExpr.setOffset(i);
             exprs[i] = variableRefExpr;
         }

@@ -29,7 +29,7 @@ import java.util.List;
  *
  * @since 1.0.0
  */
-public class ForkJoinStmt implements Statement {
+public class ForkJoinStmt extends AbstractStatement {
     private List<Worker> workers;
     private Expression joinCondition;
     private Statement joinBlock;
