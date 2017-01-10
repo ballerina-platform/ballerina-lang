@@ -21,29 +21,27 @@ import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.model.Symbol;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.util.LangModelUtils;
-import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
 
 /**
  * Utility functions for Function Invocations.
  */
-public class FunctionUtils {
+public class ConnectorUtils {
 
-    private FunctionUtils() {
+    private ConnectorUtils() {
     }
 
     /**
-     * Add Native Function instance to given SymScope.
+     * Add Native Connector instance to given SymScope.
      *
      * @param symScope  SymScope instance.
-     * @param function  Function instance.
+     * @param connector Connector instance.
      */
-    public static void addNativeFunction(SymScope symScope, AbstractNativeFunction function) {
-        SymbolName symbolName = LangModelUtils.getSymNameWithParams(function.getPackageName() + ":" +
-                function.getClass().getAnnotation(BallerinaFunction.class).functionName(), function.getParameters());
-        Symbol symbol = new Symbol(function,
-                LangModelUtils.getTypesOfParams(function.getParameters()), function.getReturnTypes());
+    public static void addNativeConnector(SymScope symScope, AbstractNativeConnector connector) {
+        SymbolName symbolName = LangModelUtils.getSymNameWithParams(connector.getPackageName() + ":" +
+                connector.getClass().getAnnotation(BallerinaFunction.class).functionName(), connector.getParameters());
+        Symbol symbol = new Symbol(connector, LangModelUtils.getTypesOfParams(connector.getParameters()));
         symScope.insert(symbolName, symbol);
     }
 }
