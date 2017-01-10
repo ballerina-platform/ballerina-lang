@@ -32,7 +32,7 @@ public class VariableRefExpr extends AbstractExpression {
 
     private SymbolName symbolName;
 
-    private MemoryLocation location;
+    private MemoryLocation memoryLocation;
 
     public VariableRefExpr(SymbolName symbolName) {
         this.symbolName = symbolName;
@@ -43,11 +43,11 @@ public class VariableRefExpr extends AbstractExpression {
     }
 
     public MemoryLocation getMemoryLocation() {
-        return location;
+        return memoryLocation;
     }
 
     public void setMemoryLocation(MemoryLocation location) {
-        this.location = location;
+        this.memoryLocation = location;
     }
 
     @Override

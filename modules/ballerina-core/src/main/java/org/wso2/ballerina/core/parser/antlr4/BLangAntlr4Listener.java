@@ -366,7 +366,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
     @Override
     public void exitSimpleType(BallerinaParser.SimpleTypeContext ctx) {
         if (ctx.exception == null) {
-            modelBuilder.createType(ctx.getText());
+            modelBuilder.createType(ctx.getText(), getCurrentLocation(ctx));
         }
     }
 
@@ -377,7 +377,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
     @Override
     public void exitSimpleTypeArray(BallerinaParser.SimpleTypeArrayContext ctx) {
         if (ctx.exception == null && ctx.Identifier() != null) {
-            modelBuilder.createArrayType(ctx.Identifier().getText());
+            modelBuilder.createArrayType(ctx.Identifier().getText(), getCurrentLocation(ctx));
         }
     }
 
