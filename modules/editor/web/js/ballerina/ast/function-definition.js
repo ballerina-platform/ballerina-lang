@@ -15,16 +15,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './callable-definition', './connector-declaration', './variable-declaration', './return-type',
-        './argument'],
-    function (_, CallableDefinition, ConnectorDeclaration, VariableDeclaration, ReturnType, Argument) {
+define(['lodash', './callable-definition'],
+    function (_, CallableDefinition) {
 
+    /**
+     * Constructor for FunctionDefinition
+     * @param {Object} args - The arguments to create the Argument
+     * @param {string} args.functionName - Function name
+     * @param {string} args.isPublic - Identifier of the argument
+     * @constructor
+     */
     var FunctionDefinition = function (args) {
         this.id = autoGenerateId();
         CallableDefinition.call(this, 'Function');
         this._functionName = _.get(args, 'functionName') || 'newFunction';
         this._isPublic = _.get(args, "isPublic") || false;
-        this.type = "FunctionDefinition";
+        this.BallerinaASTFactory = this.getFactory();
     };
 
     FunctionDefinition.prototype = Object.create(CallableDefinition.prototype);
@@ -59,8 +65,10 @@ define(['lodash', './callable-definition', './connector-declaration', './variabl
 
     FunctionDefinition.prototype.getArguments = function () {
         var functionArgs = [];
+        var self = this;
+
         _.forEach(this.getChildren(), function (child) {
-            if (child instanceof Argument) {
+            if (self.BallerinaASTFactory.isArgument(child)) {
                 functionArgs.push(child);
             }
         });
@@ -73,8 +81,10 @@ define(['lodash', './callable-definition', './connector-declaration', './variabl
 
     FunctionDefinition.prototype.getVariableDeclarations = function () {
         var variableDeclarations = [];
+        var self = this;
+
         _.forEach(this.getChildren(), function (child) {
-            if (child instanceof VariableDeclaration) {
+            if (self.BallerinaASTFactory.isVariableDeclaration(child)) {
                 variableDeclarations.push(child);
             }
         });
@@ -86,15 +96,17 @@ define(['lodash', './callable-definition', './connector-declaration', './variabl
      */
     FunctionDefinition.prototype.addVariableDeclaration = function (newVariableDeclaration) {
         // Get the index of the last variable declaration.
+        var self = this;
+
         var index = _.findLastIndex(this.getChildren(), function (child) {
-            return child instanceof VariableDeclaration;
+            return self.isVariableDeclaration(child);
         });
 
         // index = -1 when there are not any variable declarations, hence get the index for connector
         // declarations.
         if (index == -1) {
             index = _.findLastIndex(this.getChildren(), function (child) {
-                return child instanceof ConnectorDeclaration;
+                return self.BallerinaASTFactory.isConnectorDeclaration(child);
             });
         }
 
@@ -133,15 +145,15 @@ define(['lodash', './callable-definition', './connector-declaration', './variabl
      */
     FunctionDefinition.prototype.addArgument = function(type, identifier) {
         //creating resource argument
-        var BallerinaASTFactory = this.getFactory();
-
-        var newArgument = BallerinaASTFactory.createArgument();
+        var newArgument = this.BallerinaASTFactory.createArgument();
         newArgument.setType(type);
         newArgument.setIdentifier(identifier);
 
+        var self = this;
+
         // Get the index of the last resource argument declaration.
         var index = _.findLastIndex(this.getChildren(), function (child) {
-            return child instanceof Argument;
+            return self.BallerinaASTFactory.isArgument(child);
         });
 
         this.addChild(newArgument, index + 1);
@@ -153,8 +165,9 @@ define(['lodash', './callable-definition', './connector-declaration', './variabl
      * @return {Array} - The removed argument.
      */
     FunctionDefinition.prototype.removeArgument = function(identifier) {
+        var self = this;
         _.remove(this.getChildren(), function (child) {
-            return child instanceof Argument && child.getIdentifier() === identifier;
+            return self.BallerinaASTFactory.isArgument(child) && child.getIdentifier() === identifier;
         });
     };
 
@@ -164,8 +177,10 @@ define(['lodash', './callable-definition', './connector-declaration', './variabl
      */
     FunctionDefinition.prototype.getReturnTypesAsString = function(){
         var returnTypes = [];
+        var self = this;
+
         _.forEach(this.getChildren(), function(child) {
-            if (child instanceof ReturnType) {
+            if (self.BallerinaASTFactory.isReturnType(child)) {
                 _.forEach(child.getChildren(), function(returnTypeChild){
                     returnTypes.push(returnTypeChild.getType())
                 });
@@ -182,8 +197,9 @@ define(['lodash', './callable-definition', './connector-declaration', './variabl
      */
     FunctionDefinition.prototype.getReturnTypes = function () {
         var returnTypes = [];
+        var self = this;
         _.forEach(this.getChildren(), function(child) {
-            if (child instanceof ReturnType) {
+            if (self.BallerinaASTFactory.isReturnType(child)) {
                 _.forEach(child.getChildren(), function(returnTypeChild){
                     returnTypes.push(returnTypeChild)
                 });
@@ -199,17 +215,18 @@ define(['lodash', './callable-definition', './connector-declaration', './variabl
      * Adds new return type.
      */
     FunctionDefinition.prototype.addReturnType = function (newReturnType) {
-        var typeName = this.getFactory().createTypeName();
+        var self = this;
+        var typeName = this.BallerinaASTFactory.createTypeName();
         typeName.setTypeName(newReturnType);
 
         var existingReturnType = _.find(this.getChildren(), function(child){
-            return child instanceof ReturnType;
+            return self.BallerinaASTFactory.isReturnType(child)
         });
 
         if (!_.isNil(existingReturnType)) {
             existingReturnType.addChild(typeName, existingReturnType.length + 1);
         } else {
-            var returnType = this.getFactory().createReturnType();
+            var returnType = this.BallerinaASTFactory.createReturnType();
             returnType.addChild(typeName, 0);
             this.addChild(returnType);
         }
@@ -219,8 +236,9 @@ define(['lodash', './callable-definition', './connector-declaration', './variabl
      * Remove return type declaration.
      */
     FunctionDefinition.prototype.removeReturnType = function (returnType) {
+        var self = this;
         _.forEach(this.getChildren(), function (child) {
-            if (child instanceof ReturnType) {
+            if (self.BallerinaASTFactory.isReturnType(child)) {
                 var childrenOfReturnType = child.getChildren();
                 _.forEach(childrenOfReturnType, function(type, index){
                     if (type.getType() == returnType) {
@@ -241,7 +259,7 @@ define(['lodash', './callable-definition', './connector-declaration', './variabl
      * @param index
      */
     FunctionDefinition.prototype.addChild = function (child, index) {
-        if (child instanceof ConnectorDeclaration) {
+        if (this.BallerinaASTFactory.isConnectorDeclaration(child)) {
             Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, 0);
         } else {
             Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, index);
@@ -254,16 +272,18 @@ define(['lodash', './callable-definition', './connector-declaration', './variabl
      * @return {boolean}
      */
     FunctionDefinition.prototype.canBeParentOf = function (node) {
-        var BallerinaASTFactory = this.getFactory();
-        return BallerinaASTFactory.isConnectorDeclaration(node)
-            || BallerinaASTFactory.isVariableDeclaration(node)
-            || BallerinaASTFactory.isWorkerDeclaration(node)
-            || BallerinaASTFactory.isStatement(node);
+        return this.BallerinaASTFactory.isConnectorDeclaration(node)
+            || this.BallerinaASTFactory.isVariableDeclaration(node)
+            || this.BallerinaASTFactory.isWorkerDeclaration(node)
+            || this.BallerinaASTFactory.isStatement(node);
     };
 
     /**
-     * initialize from json
-     * @param jsonNode
+     * initialize FunctionDefinition from json object
+     * @param {Object} jsonNode to initialize from
+     * @param {string} jsonNode.function_name - Name of the function definition
+     * @param {string} jsonNode.annotations - Annotations of the function definition
+     * @param {string} jsonNode.is_public_function - Public or not of the function
      */
     FunctionDefinition.prototype.initFromJson = function (jsonNode) {
         this._functionName = jsonNode.function_name;
@@ -271,10 +291,9 @@ define(['lodash', './callable-definition', './connector-declaration', './variabl
         this._isPublic = jsonNode.is_public_function;
 
         var self = this;
-        var BallerinaASTFactory = this.getFactory();
 
         _.each(jsonNode.children, function (childNode) {
-            var child = BallerinaASTFactory.createFromJson(childNode);
+            var child = self.BallerinaASTFactory.createFromJson(childNode);
             self.addChild(child);
         });
     };
