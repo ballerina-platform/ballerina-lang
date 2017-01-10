@@ -186,7 +186,8 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
             _.set(dropZoneOptions, 'topCenter', newDropZoneTopCenter);
             var innerDropZone = this._createNextInnerDropZone(dropZoneOptions);
             if(this.getBoundingBox().getBottom() < statementView.getBoundingBox().getBottom()){
-                this.getBoundingBox().h(this.getBoundingBox().h() + statementView.getBoundingBox().getBottom() +
+                this.getBoundingBox().h(statementView.getBoundingBox().h() +
+                    statementView.getBoundingBox().getBottom() - this.getBoundingBox().getBottom() +
                     _.get(this._viewOptions, 'offset.bottom')
                 );
             }
