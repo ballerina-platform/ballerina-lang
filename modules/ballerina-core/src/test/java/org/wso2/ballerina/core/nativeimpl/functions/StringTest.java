@@ -38,6 +38,9 @@ import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 import org.wso2.ballerina.core.utils.ParserUtils;
 import org.wso2.ballerina.lang.util.Functions;
 
+/**
+ * Test Native functions in ballerina.lang.string.
+ */
 public class StringTest {
     private BallerinaFile bFile;
     private static final String s1 = "WSO2 Inc.";
