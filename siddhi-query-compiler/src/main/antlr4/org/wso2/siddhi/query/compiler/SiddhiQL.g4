@@ -144,7 +144,7 @@ subscription_final
     ;
 
 query
-    : annotation* FROM query_input query_section? output_rate? query_output
+    : annotation* FROM query_input query_section? output_rate? (query_output | query_publish)
     ;
 
 query_input
@@ -280,6 +280,10 @@ query_output
     |RETURN output_event_type?
     ;
 
+query_publish
+    :PUBLISH transport MAP mapping (FOR output_event_type)?
+    ;
+
 subscription_output
     :INSERT output_event_type? INTO target
     |DELETE target (FOR output_event_type)? ON expression
@@ -362,7 +366,7 @@ attribute_index
     ;
 
 option
-    :key value
+    :property_name property_value
     ;
 
 function_id
@@ -382,7 +386,7 @@ stream_alias
     ;
 
 property_name
-    : name ('.' name )*
+    : name (property_separator name )*
     ;
 
 attribute_name
@@ -393,10 +397,6 @@ type
     :name
     ;
 
-key
-    :name ('.' name )*
-    ;
-
 map_attribute
     :string_value
     ;
@@ -405,8 +405,8 @@ property_value
     :string_value
     ;
 
-value
-    :string_value
+property_separator
+    : DOT | MINUS
     ;
 
 source
@@ -530,6 +530,7 @@ keyword
     | SUBSCRIBE
     | OPTIONS
     | MAP
+    | PUBLISH
     | STORE
     ;
 
@@ -711,6 +712,7 @@ OBJECT:   O B J E C T;
 SUBSCRIBE: S U B S C R I B E;
 OPTIONS: O P T I O N S;
 MAP: M A P;
+PUBLISH: P U B L I S H;
 STORE: S T O R E;
 
 ID_QUOTES : '`'[a-zA-Z_] [a-zA-Z_0-9]*'`' {setText(getText().substring(1, getText().length()-1));};
@@ -719,10 +721,11 @@ ID : [a-zA-Z_] [a-zA-Z_0-9]* ;
 
 STRING_LITERAL
     :(
-        '\'' ( ~('\u0000'..'\u001f' | '\''| '\"' ) )* '\'' 
-        |'"' ( ~('\u0000'..'\u001f'  |'\"') )* '"' 
-     )  {setText(getText().substring(1, getText().length()-1));}         
-    ;	
+        '\'' ( ~('\u0000'..'\u001f' | '\''| '\"' ) )* '\''
+        |'"' ( ~('\u0000'..'\u001f'  |'\"') )* '"'
+     )  {setText(getText().substring(1, getText().length()-1));}
+     |('"""'(.*?)'"""')  {setText(getText().substring(3, getText().length()-3));}
+    ;
 
 //Hidden channels
 SINGLE_LINE_COMMENT
