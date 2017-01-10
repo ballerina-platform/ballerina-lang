@@ -29,7 +29,7 @@ import java.util.List;
  *
  * @since 1.0.0
  */
-public class ReturnStmt implements Statement {
+public class ReturnStmt extends AbstractStatement {
     private Expression expr;
 
     private Expression[] exprs;

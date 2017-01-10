@@ -18,21 +18,24 @@
 
 package org.wso2.ballerina.core.model.statements;
 
-import org.wso2.ballerina.core.model.ExecutableStmt;
-import org.wso2.ballerina.core.model.Node;
 import org.wso2.ballerina.core.model.Position;
 
 /**
- * Represents a statement. All statements nodes implements this interface.
+ * Represents an abstract statement. All statements nodes extends this abstract class.
  * <p>
  * A statement is a tree consisting of one or more of the concrete implementations
- * of this interface.
+ * of {@link Statement} interface.
  *
  * @since 1.0.0
  */
-public interface Statement extends Node, ExecutableStmt {
+public abstract class AbstractStatement implements Statement {
+    protected Position expressionLocation;
     
-    public Position getLocation();
-    
-    public void setLocation(Position location);
+    public Position getLocation() {
+        return expressionLocation;
+    }
+
+    public void setLocation(Position location) {
+        this.expressionLocation = location;
+    }
 }

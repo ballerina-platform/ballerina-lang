@@ -18,6 +18,7 @@
 package org.wso2.ballerina.core.model.expressions;
 
 import org.wso2.ballerina.core.model.NodeVisitor;
+import org.wso2.ballerina.core.model.Position;
 import org.wso2.ballerina.core.model.values.BDouble;
 import org.wso2.ballerina.core.model.values.BFloat;
 import org.wso2.ballerina.core.model.values.BInteger;
@@ -47,7 +48,7 @@ public class SubtractExpression extends BinaryArithmeticExpression {
     public static final BiFunction<BValueType, BValueType, BValueType> SUB_DOUBLE_FUNC =
             (lVal, rVal) -> new BDouble(lVal.doubleValue() - rVal.doubleValue());
 
-    public SubtractExpression(Expression lExpr, Expression rExpr) {
+    public SubtractExpression(Expression lExpr, Expression rExpr, Position location) {
         super(lExpr, SUB, rExpr);
     }
 

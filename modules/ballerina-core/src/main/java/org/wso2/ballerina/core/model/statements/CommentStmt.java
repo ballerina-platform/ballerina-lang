@@ -23,7 +23,7 @@ import org.wso2.ballerina.core.model.NodeVisitor;
 /**
  * Represents a single line comment. //-style
  */
-public class CommentStmt implements Statement {
+public class CommentStmt extends AbstractStatement {
     private String comment;
 
     public CommentStmt(String comment) {

@@ -34,12 +34,12 @@ public interface Connector {
      * 
      * @return  location of this connector in the ballerina source file
      */
-    Position getConnectorLocation();
+    Position getLocation();
 
     /**
      * Set the location of this action in the ballerina source file.
      * 
      * @param location  Location of this action in the ballerina source file
      */
-    void setConnectorLocation(Position location);
+    void setLocation(Position location);
 }

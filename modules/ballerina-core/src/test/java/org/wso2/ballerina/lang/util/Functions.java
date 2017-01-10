@@ -82,7 +82,7 @@ public class Functions {
             VariableRefExpr variableRefExpr = new VariableRefExpr(new SymbolName("arg" + i));
 
             LocalVarLocation location = new LocalVarLocation(i);
-            variableRefExpr.setLocation(location);
+            variableRefExpr.setMemoryLocation(location);
             // TODO Set the type
 //            variableRefExpr.setType();
             exprs[i] = variableRefExpr;
@@ -105,7 +105,7 @@ public class Functions {
         // 6) Create the control stack and the stack frame to invoke the functions
         SymbolName functionSymbolName = function.getSymbolName();
         CallableUnitInfo functionInfo = new CallableUnitInfo(functionSymbolName.getName(),
-                functionSymbolName.getPkgName(), function.getFunctionLocation());
+                functionSymbolName.getPkgName(), function.getLocation());
 
         StackFrame currentStackFrame = new StackFrame(functionArgs, new BValue[0], functionInfo);
 

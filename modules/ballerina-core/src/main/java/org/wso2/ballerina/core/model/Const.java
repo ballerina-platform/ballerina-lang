@@ -32,6 +32,7 @@ public class Const implements Node {
     private SymbolName symbolName;
     private Expression valueExpr;
     private BValue value;
+    protected Position sourceLocation;
 
     /**
      * Constructing a Ballerina Const Statement.
@@ -118,5 +119,24 @@ public class Const implements Node {
         public Const build() {
             return new Const(type, symbolName, valueExpr);
         }
+    }
+    
+    /**
+     * Get the source location of this constant.
+     * Return the source file and the line number of this constant.
+     * 
+     * @return  Source location of this constant
+     */
+    public Position getLocation() {
+        return sourceLocation;
+    }
+
+    /**
+     * Set the source location of this constant.
+     * 
+     * @param location  Source location of this constant.
+     */
+    public void setLocation(Position location) {
+        this.sourceLocation = location;
     }
 }
