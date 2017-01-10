@@ -24,7 +24,6 @@ define(['lodash', './callable-definition', './connector-declaration', './variabl
         this._functionName = _.get(args, 'functionName') || 'newFunction';
         this._arguments = _.get(args, "functionArgs", []);
         this._isPublic = _.get(args, "isPublic") || false;
-        this.type = "FunctionDefinition";
     };
 
     FunctionDefinition.prototype = Object.create(CallableDefinition.prototype);
