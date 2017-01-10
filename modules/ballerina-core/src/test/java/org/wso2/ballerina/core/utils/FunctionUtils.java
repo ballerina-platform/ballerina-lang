@@ -23,7 +23,6 @@ import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.util.LangModelUtils;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
-import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
 
 /**
  * Utility functions for Function Invocations.
