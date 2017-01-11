@@ -22,6 +22,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.exception.BallerinaException;
+import org.wso2.ballerina.core.exception.SemanticException;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.values.BDouble;
 import org.wso2.ballerina.core.model.values.BFloat;
@@ -105,5 +106,17 @@ public class DivideExprTest {
         double actual = ((BDouble) returns[0]).doubleValue();
         double expected = 4;
         Assert.assertEquals(actual, expected);
+    }
+    
+    /*
+     * Negative tests
+     */
+    
+    @Test(description = "Test dividing values of two types",
+            expectedExceptions = {SemanticException.class },
+            expectedExceptionsMessageRegExp = "Incompatible types in binary expression: string vs float in " +
+                "divide-incompatible-types.bal:5")
+    public void testAddIncompatibleTypes() {
+        ParserUtils.parseBalFile("lang/expressions/divide-incompatible-types.bal");
     }
 }

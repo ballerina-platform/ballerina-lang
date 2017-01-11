@@ -50,12 +50,6 @@ public class RuntimeErrorsTest {
         bFile = ParserUtils.parseBalFile("lang/runtime-errors.bal", symScope);
     }
 
-    @Test(expectedExceptions = {BallerinaException.class },
-            expectedExceptionsMessageRegExp = "Array index out of range: Index: 5, Size: 2")
-    public void testArrayIndexOutOfBoundError() {
-        Functions.invoke(bFile, "arrayIndexOutOfBoundTest");
-    }
-    
     @Test
     public void testStackTraceOnError() {
         Exception ex = null;
