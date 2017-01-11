@@ -68,4 +68,17 @@ public class DispatcherRegistry {
         resourceDispatchers.put(dispatcher.getProtocol(), dispatcher);
     }
 
+    public void clearDispatchers() {
+        serviceDispatchers.clear();
+        resourceDispatchers.clear();
+    }
+
+    public void unregisterServiceDispatcher(String name) {
+        serviceDispatchers.remove(name);
+    }
+
+    public void unregisterResourceDispatcher(String name) {
+        resourceDispatchers.remove(name);
+    }
+
 }

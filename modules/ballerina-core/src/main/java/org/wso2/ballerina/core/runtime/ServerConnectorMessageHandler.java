@@ -76,7 +76,13 @@ public class ServerConnectorMessageHandler {
             }
 
             // Find the Resource
-            Resource resource = resourceDispatcher.findResource(service, cMsg, callback, balContext);
+            Resource resource = null;
+            try {
+                resource = resourceDispatcher.findResource(service, cMsg, callback, balContext);
+            } catch (BallerinaException ex) {
+                throw new BallerinaException("No Resource found to handle the request to Service : " +
+                                             service.getSymbolName().getName() + " : " + ex.getMessage());
+            }
             if (resource == null) {
                 throw new BallerinaException("No Resource found to handle the request to Service : " +
                                              service.getSymbolName().getName());
@@ -118,7 +124,7 @@ public class ServerConnectorMessageHandler {
         }
 
         ((ServerConnectorErrorHandler) errorHandler)
-            .handleError(new Exception(throwable.getMessage(), throwable.getCause()), cMsg, callback);
+            .handleError(new BallerinaException(throwable.getMessage(), throwable.getCause()), cMsg, callback);
     }
 
 }
