@@ -20,6 +20,8 @@ package org.wso2.ballerina.lang.expressions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerina.core.exception.BallerinaException;
+import org.wso2.ballerina.core.exception.SemanticException;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.values.BArray;
 import org.wso2.ballerina.core.model.values.BInteger;
@@ -55,7 +57,7 @@ public class ArrayAccessExprTest {
     }
 
     @Test(description = "Test array return value")
-    public void testArrayReturnValueTest() {
+    public void testArrayReturnValue() {
         BValue[] args = {new BInteger(100), new BInteger(5)};
         BValue[] returns = Functions.invoke(bFile, "arrayReturnTest", args);
 
@@ -71,7 +73,7 @@ public class ArrayAccessExprTest {
     }
 
     @Test(description = "Test array arg value")
-    public void testArrayArgValueTest() {
+    public void testArrayArgValue() {
         BArray<BInteger> arrayValue = new BArray<>(BInteger.class);
         arrayValue.add(0, new BInteger(10));
         arrayValue.add(1, new BInteger(1));
@@ -85,5 +87,20 @@ public class ArrayAccessExprTest {
         int actual = ((BInteger) returns[0]).intValue();
         int expected = 11;
         Assert.assertEquals(actual, expected);
+    }
+    
+    @Test(description = "Test accessing an out of bound array-index",
+            expectedExceptions = { BallerinaException.class },
+            expectedExceptionsMessageRegExp = "Array index out of range: Index: 5, Size: 2")
+    public void testArrayIndexOutOfBoundError() {
+        Functions.invoke(bFile, "arrayIndexOutOfBoundTest");
+    }
+    
+    @Test(description = "Test array access with a key",
+            expectedExceptions = {SemanticException.class },
+            expectedExceptionsMessageRegExp = "Array index should be of type int, not string. Array name: animals in " +
+            "incorrect-array-access.bal:4")
+    public void testArrayAccessWithKey() {
+        ParserUtils.parseBalFile("lang/expressions/incorrect-array-access.bal");
     }
 }

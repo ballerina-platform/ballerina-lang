@@ -21,6 +21,7 @@ package org.wso2.ballerina.lang.expressions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerina.core.exception.SemanticException;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.values.BFloat;
 import org.wso2.ballerina.core.model.values.BInteger;
@@ -92,5 +93,41 @@ public class GreaterLessThanExprTest {
         actual = ((BInteger) returns[0]).intValue();
         expected = 3;
         Assert.assertEquals(actual, expected);
+    }
+    
+    /*
+     * Negative tests
+     */
+    
+    @Test(description = "Test greater-than check for two different types",
+            expectedExceptions = {SemanticException.class },
+            expectedExceptionsMessageRegExp = "Incompatible types in binary expression: int vs boolean in " +
+            "incompatible-type-greater-than.bal:6")
+    public void testIncompatibleGreaterThan() {
+        ParserUtils.parseBalFile("lang/expressions/incompatible-type-greater-than.bal");
+    }
+    
+    @Test(description = "Test greater-than-equal check for two different types",
+            expectedExceptions = {SemanticException.class },
+            expectedExceptionsMessageRegExp = "Incompatible types in binary expression: int vs boolean in " +
+            "incompatible-type-greater-than-equal.bal:6")
+    public void testIncompatibleGreaterThanEqual() {
+        ParserUtils.parseBalFile("lang/expressions/incompatible-type-greater-than-equal.bal");
+    }
+    
+    @Test(description = "Test less-than check for two different types",
+            expectedExceptions = {SemanticException.class },
+            expectedExceptionsMessageRegExp = "Incompatible types in binary expression: int vs boolean in " +
+            "incompatible-type-less-than.bal:6")
+    public void testIncompatibleLessThan() {
+        ParserUtils.parseBalFile("lang/expressions/incompatible-type-less-than.bal");
+    }
+    
+    @Test(description = "Test less-than-equal check for two different types",
+            expectedExceptions = {SemanticException.class },
+            expectedExceptionsMessageRegExp = "Incompatible types in binary expression: int vs boolean in " +
+            "incompatible-type-less-than-equal.bal:6")
+    public void testIncompatibleLessThanEqual() {
+        ParserUtils.parseBalFile("lang/expressions/incompatible-type-less-than-equal.bal");
     }
 }
