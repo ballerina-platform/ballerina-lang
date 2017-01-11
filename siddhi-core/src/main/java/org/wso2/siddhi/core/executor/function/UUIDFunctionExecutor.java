@@ -18,20 +18,24 @@
 
 package org.wso2.siddhi.core.executor.function;
 
+import org.wso2.siddhi.annotation.Description;
+import org.wso2.siddhi.annotation.Return;
+import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
 import java.util.UUID;
 
-public class UUIDFunctionExecutor extends FunctionExecutor{
+@Description("Generates a UUID (Universally Unique Identifier).")
+@Return(type = {DataType.STRING})
+public class UUIDFunctionExecutor extends FunctionExecutor {
 
     Attribute.Type returnType = Attribute.Type.STRING;
 
     @Override
     protected void init(ExpressionExecutor[] attributeExpressionExecutors,
-            ExecutionPlanContext executionPlanContext) {
-
+                        ExecutionPlanContext executionPlanContext) {
         //Nothing to be done.
     }
 

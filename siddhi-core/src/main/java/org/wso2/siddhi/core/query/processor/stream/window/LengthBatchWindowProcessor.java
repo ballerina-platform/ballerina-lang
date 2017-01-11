@@ -17,6 +17,10 @@
  */
 package org.wso2.siddhi.core.query.processor.stream.window;
 
+import org.wso2.siddhi.annotation.Description;
+import org.wso2.siddhi.annotation.Parameter;
+import org.wso2.siddhi.annotation.Parameters;
+import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
@@ -39,6 +43,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+@Description("A batch (tumbling) length window that holds a number of events " +
+        "specified as the windowLength. The window is updated each time a batch " +
+        "of events that equals the number specified as the windowLength arrives.")
+@Parameters({
+        @Parameter(name = "windowLength", type = {DataType.INT})
+})
 public class LengthBatchWindowProcessor extends WindowProcessor implements FindableProcessor {
 
     private int length;

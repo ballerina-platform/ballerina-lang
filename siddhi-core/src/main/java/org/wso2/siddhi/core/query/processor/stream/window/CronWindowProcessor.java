@@ -17,8 +17,22 @@
  */
 package org.wso2.siddhi.core.query.processor.stream.window;
 
-import org.quartz.*;
+import org.quartz.CronScheduleBuilder;
+import org.quartz.Job;
+import org.quartz.JobDataMap;
+import org.quartz.JobDetail;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
+import org.quartz.JobKey;
+import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
+import org.quartz.SchedulerFactory;
+import org.quartz.Trigger;
 import org.quartz.impl.StdSchedulerFactory;
+import org.wso2.siddhi.annotation.Description;
+import org.wso2.siddhi.annotation.Parameter;
+import org.wso2.siddhi.annotation.Parameters;
+import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
@@ -30,14 +44,19 @@ import org.wso2.siddhi.core.query.processor.Processor;
 import java.util.AbstractMap;
 import java.util.Map;
 
+@Description("This window returns events processed periodically as the " +
+        "output in time-repeating patterns, triggered based on time passing.")
+@Parameters({
+        @Parameter(name = "cronExpression", type = {DataType.STRING})
+})
 public class CronWindowProcessor extends WindowProcessor implements Job {
 
+    private final String jobGroup = "CronWindowGroup";
     private ComplexEventChunk<StreamEvent> currentEventChunk = new ComplexEventChunk<StreamEvent>(false);
     private ComplexEventChunk<StreamEvent> expiredEventChunk = new ComplexEventChunk<StreamEvent>(false);
     private ExecutionPlanContext executionPlanContext;
     private Scheduler scheduler;
     private String jobName;
-    private final String jobGroup = "CronWindowGroup";
     private String cronString;
 
 
