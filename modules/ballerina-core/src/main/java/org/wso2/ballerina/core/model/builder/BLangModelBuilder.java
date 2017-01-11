@@ -72,8 +72,10 @@ import org.wso2.ballerina.core.model.statements.WhileStmt;
 import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.model.values.BBoolean;
+import org.wso2.ballerina.core.model.values.BDouble;
 import org.wso2.ballerina.core.model.values.BFloat;
 import org.wso2.ballerina.core.model.values.BInteger;
+import org.wso2.ballerina.core.model.values.BLong;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValueType;
 
@@ -783,9 +785,19 @@ public class BLangModelBuilder {
         createLiteral(bValue, BTypes.INT_TYPE, sourceLocation);
     }
 
+    public void createLongLiteral(String value, Position sourceLocation) {
+        BValueType bValue = new BLong(Long.parseLong(value));
+        createLiteral(bValue, BTypes.LONG_TYPE, sourceLocation);
+    }
+
     public void createFloatLiteral(String value, Position sourceLocation) {
         BValueType bValue = new BFloat(Float.parseFloat(value));
         createLiteral(bValue, BTypes.FLOAT_TYPE, sourceLocation);
+    }
+
+    public void createDoubleLiteral(String value, Position sourceLocation) {
+        BValueType bValue = new BDouble(Double.parseDouble(value));
+        createLiteral(bValue, BTypes.DOUBLE_TYPE, sourceLocation);
     }
 
     public void createStringLiteral(String value, Position sourceLocation) {

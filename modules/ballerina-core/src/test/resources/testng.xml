@@ -26,6 +26,8 @@ under the License.
         <classes>
             <!-- Statements -->
             <class name="org.wso2.ballerina.lang.values.BArrayValueTest"/>
+            <class name="org.wso2.ballerina.lang.values.BDoubleValueTest"/>
+            <class name="org.wso2.ballerina.lang.values.BLongValueTest"/>
 
             <!-- Expressions -->
             <class name="org.wso2.ballerina.lang.expressions.FuncInvocationExprTest"/>
