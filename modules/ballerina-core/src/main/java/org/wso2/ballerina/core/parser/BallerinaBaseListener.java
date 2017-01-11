@@ -268,25 +268,37 @@ public class BallerinaBaseListener implements BallerinaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterReturnParameterList(BallerinaParser.ReturnParameterListContext ctx) { }
+	@Override public void enterNamedParameterList(BallerinaParser.NamedParameterListContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitReturnParameterList(BallerinaParser.ReturnParameterListContext ctx) { }
+	@Override public void exitNamedParameterList(BallerinaParser.NamedParameterListContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterReturnParameter(BallerinaParser.ReturnParameterContext ctx) { }
+	@Override public void enterNamedParameter(BallerinaParser.NamedParameterContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitReturnParameter(BallerinaParser.ReturnParameterContext ctx) { }
+	@Override public void exitNamedParameter(BallerinaParser.NamedParameterContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterReturnTypeList(BallerinaParser.ReturnTypeListContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitReturnTypeList(BallerinaParser.ReturnTypeListContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
