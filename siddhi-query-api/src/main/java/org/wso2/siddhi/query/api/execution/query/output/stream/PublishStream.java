@@ -26,6 +26,7 @@ public class PublishStream extends OutputStream {
     private Mapping mapping;
 
     public PublishStream(Transport transport, Mapping mapping) {
+        this.outputEventType = OutputEventType.CURRENT_EVENTS;
         this.transport = transport;
         this.mapping = mapping;
     }
