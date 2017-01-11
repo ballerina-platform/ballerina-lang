@@ -497,6 +497,13 @@ Ballerina has designed, structured mechanisms via annotations to document all Ba
 Any statement that starts with the characters `//` is a comment.
 
 ### Expressions
+Similar to languages such as Java, Go etc, Ballerina supports following expressions. 
+* mathamtical expressions `(e.g. x + y, x/y etc)`
+* function calls `(e.g. foo(a,b))`
+* action calls `(e.g. tweet(twitterActor, "hello"))`
+* complex expressions `(e.g. foo(a,bar(c,d)))`
+
+Please see grammer file for more details. 
 
 ## Disabling Constructs from Execution
 
