@@ -22,6 +22,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.EnvironmentInitializer;
+import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.nativeimpl.connectors.http.server.HTTPResourceDispatcher;
 import org.wso2.ballerina.core.runtime.registry.DispatcherRegistry;
 import org.wso2.ballerina.core.utils.MessageUtils;
@@ -40,76 +41,56 @@ public class ServiceTest {
 
     @Test
     public void testServiceDispatching() {
-
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/message", "GET");
         CarbonMessage response = Services.invoke(cMsg);
         Assert.assertNotNull(response);
         // TODO: Improve with more assets
     }
 
-    @Test
+    @Test(description = "Test for protocol availability check", expectedExceptions = {BallerinaException.class},
+            expectedExceptionsMessageRegExp = ".* Protocol not defined .*")
     public void testProtocolAvailabilityCheck() {
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/message", "GET");
         cMsg.removeProperty(org.wso2.carbon.messaging.Constants.PROTOCOL);
-        String errorMsg = "Check for protocol logic absent";
-        try {
-            Services.invoke(cMsg);
-            Assert.fail(errorMsg);
-        } catch (Exception ex) {
-            Assert.assertTrue(ex.getMessage().contains("Protocol not defined"), errorMsg);
-        }
+        Services.invoke(cMsg);
     }
 
-    @Test
+    @Test(description = "Test for service dispatcher availability check",
+            expectedExceptions = {BallerinaException.class},
+            expectedExceptionsMessageRegExp = ".* No service dispatcher available .*")
     public void testServiceDispatcherAvailabilityCheck() {
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/message", "GET");
         cMsg.setProperty(org.wso2.carbon.messaging.Constants.PROTOCOL, "FOO");   // setting incorrect protocol
-        String errorMsg = "Check for service dispatcher not found";
-        try {
-            Services.invoke(cMsg);
-            Assert.fail(errorMsg);
-        } catch (Exception ex) {
-            Assert.assertTrue(ex.getMessage().contains("No service dispatcher available"), errorMsg);
-        }
+        Services.invoke(cMsg);
     }
 
-    @Test
+    @Test(description = "Test for service availability check",
+            expectedExceptions = {BallerinaException.class},
+            expectedExceptionsMessageRegExp = ".* No Service found .*")
     public void testServiceAvailabilityCheck() {
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/foo/message", "GET");
-        String errorMsg = "Check for service not found logic absent";
-        try {
-            Services.invoke(cMsg);
-            Assert.fail(errorMsg);
-        } catch (Exception ex) {
-            Assert.assertTrue(ex.getMessage().contains("No Service found"), errorMsg);
-        }
+        Services.invoke(cMsg);
     }
 
-    @Test
+    @Test(description = "Test for resource dispatcher availability check",
+            expectedExceptions = {BallerinaException.class},
+            expectedExceptionsMessageRegExp = ".* No resource dispatcher available .*")
     public void testResourceDispatcherAvailabilityCheck() {
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/message", "GET");
         DispatcherRegistry.getInstance().unregisterResourceDispatcher("http"); // Remove http resource dispatcher
-        String errorMsg = "Check for not resource dispatcher logic absent";
         try {
             Services.invoke(cMsg);
-            Assert.fail(errorMsg);
-        } catch (Exception ex) {
-            Assert.assertTrue(ex.getMessage().contains("No resource dispatcher available"), errorMsg);
+        } finally {
+            DispatcherRegistry.getInstance().registerResourceDispatcher(new HTTPResourceDispatcher()); // Add back
         }
-        DispatcherRegistry.getInstance().registerResourceDispatcher(new HTTPResourceDispatcher()); // Add back
     }
 
-    @Test
+    @Test(description = "Test for resource availability check",
+            expectedExceptions = {BallerinaException.class},
+            expectedExceptionsMessageRegExp = ".* No Resource found .*")
     public void testResourceAvailabilityCheck() {
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/echo/bar", "GET");
-        String errMessage = "Check for resource not found logic absent";
-        try {
-            Services.invoke(cMsg);
-            Assert.fail(errMessage);
-        } catch (Exception ex) {
-            Assert.assertTrue(ex.getMessage().contains("No Resource found"),
-                              errMessage);
-        }
+        Services.invoke(cMsg);
     }
 
     //TODO: add more test cases

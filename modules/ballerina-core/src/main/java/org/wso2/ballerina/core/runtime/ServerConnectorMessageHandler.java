@@ -124,7 +124,7 @@ public class ServerConnectorMessageHandler {
         }
 
         ((ServerConnectorErrorHandler) errorHandler)
-            .handleError(new Exception(throwable.getMessage(), throwable.getCause()), cMsg, callback);
+            .handleError(new BallerinaException(throwable.getMessage(), throwable.getCause()), cMsg, callback);
     }
 
 }
