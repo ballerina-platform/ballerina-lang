@@ -92,8 +92,9 @@ public class RuntimeEnvironment {
             connector = nativeConnector;
 
         } else {
-            bValueRefs = new BValue[argExprs.length];
             BallerinaConnector ballerinaConnector = (BallerinaConnector) connector;
+            // sum of, number of arguments and number of declared variables
+            bValueRefs = new BValue[argExprs.length + ballerinaConnector.getVariableDcls().length];
 
             offset = populateConnectorArgs(staticMemory, argExprs, bValueRefs, offset);
 
