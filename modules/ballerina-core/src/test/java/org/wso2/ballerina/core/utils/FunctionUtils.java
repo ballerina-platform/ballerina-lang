@@ -46,5 +46,4 @@ public class FunctionUtils {
                 LangModelUtils.getTypesOfParams(function.getParameters()), function.getReturnTypes());
         symScope.insert(symbolName, symbol);
     }
-
 }

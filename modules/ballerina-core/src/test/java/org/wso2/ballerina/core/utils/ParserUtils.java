@@ -28,6 +28,7 @@ import org.wso2.ballerina.core.parser.BallerinaParserErrorStrategy;
 import org.wso2.ballerina.core.parser.antlr4.BLangAntlr4Listener;
 import org.wso2.ballerina.core.semantics.SemanticAnalyzer;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URL;
@@ -95,7 +96,9 @@ public class ParserUtils {
 
         ANTLRInputStream antlrInputStream = null;
         try {
-            antlrInputStream = new ANTLRInputStream(new FileInputStream(fileResource.getFile()));
+            File file = new File(fileResource.getFile());
+            antlrInputStream = new ANTLRInputStream(new FileInputStream(file));
+            antlrInputStream.name = file.getName();
         } catch (IOException e) {
             throw new RuntimeException("Unable read file: " + path, e);
         }

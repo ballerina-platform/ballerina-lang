@@ -22,6 +22,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.values.BInteger;
+import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.utils.ParserUtils;
 import org.wso2.ballerina.lang.util.Functions;
@@ -116,5 +117,27 @@ public class IfElseStmtTest {
 //        actual = ((BInteger) returns[1]).intValue();
 //        expected = 21;
 //        Assert.assertEquals(actual, expected);
+    }
+
+    @Test(description = "Check simple ifElse")
+    public void testAge() {
+        BValue[] args = {new BInteger(21)};
+        BValue[] returns = Functions.invoke(bFile, "testAgeGroup", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        String actual = returns[0].stringValue();
+        String expected = "elder";
+        Assert.assertEquals(actual, expected);
+
+        args = new BValue[] { new BInteger(16) };
+        returns = Functions.invoke(bFile, "testAgeGroup", args);
+
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+
+        actual = returns[0].stringValue();
+        expected = "minor";
+        Assert.assertEquals(actual, expected);
     }
 }

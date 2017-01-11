@@ -29,7 +29,7 @@ import java.util.List;
  *
  * @since 1.0.0
  */
-public class IfElseStmt implements Statement {
+public class IfElseStmt extends AbstractStatement {
     private Expression ifCondition;
     private Statement thenBody;
     private ElseIfBlock[] elseIfBlocks;
