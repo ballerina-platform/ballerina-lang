@@ -40,8 +40,10 @@ public class SubscriptionRuntime {
     }
 
     public void init(Map<String, String> transportOptions, ExecutionPlanContext executionPlanContext) {
-
         inputTransport.init(transportOptions, inputMapper,executionPlanContext );
     }
 
+    public OutputCallback getOutputCallback() {
+        return outputCallback;
+    }
 }

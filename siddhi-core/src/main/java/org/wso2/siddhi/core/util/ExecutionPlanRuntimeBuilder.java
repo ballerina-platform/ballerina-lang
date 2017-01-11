@@ -110,6 +110,39 @@ public class ExecutionPlanRuntimeBuilder {
 
     public void addSubscription(SubscriptionRuntime subscriptionRuntime) {
         // TODO: 11/23/16  fix subscription mgt
+        OutputCallback outputCallback = subscriptionRuntime.getOutputCallback();
+
+        if (outputCallback != null && outputCallback instanceof InsertIntoStreamCallback) {
+            InsertIntoStreamCallback insertIntoStreamCallback = (InsertIntoStreamCallback) outputCallback;
+            StreamDefinition streamDefinition = insertIntoStreamCallback.getOutputStreamDefinition();
+
+            streamDefinitionMap.putIfAbsent(streamDefinition.getId(), streamDefinition);
+            DefinitionParserHelper.validateOutputStream(streamDefinition, streamDefinitionMap.get(streamDefinition.getId()));
+            StreamJunction outputStreamJunction = streamJunctionMap.get(streamDefinition.getId());
+
+            if (outputStreamJunction == null) {
+                outputStreamJunction = new StreamJunction(streamDefinition,
+                        executionPlanContext.getExecutorService(),
+                        executionPlanContext.getBufferSize(), executionPlanContext);
+                streamJunctionMap.putIfAbsent(streamDefinition.getId(), outputStreamJunction);
+            }
+            insertIntoStreamCallback.init(streamJunctionMap.get(insertIntoStreamCallback.getOutputStreamDefinition().getId()));
+        } else if (outputCallback != null && outputCallback instanceof InsertIntoWindowCallback) {
+            InsertIntoWindowCallback insertIntoWindowCallback = (InsertIntoWindowCallback) outputCallback;
+            StreamDefinition streamDefinition = insertIntoWindowCallback.getOutputStreamDefinition();
+
+            windowDefinitionMap.putIfAbsent(streamDefinition.getId(), streamDefinition);
+            DefinitionParserHelper.validateOutputStream(streamDefinition, windowDefinitionMap.get(streamDefinition.getId()));
+            StreamJunction outputStreamJunction = streamJunctionMap.get(streamDefinition.getId());
+
+            if (outputStreamJunction == null) {
+                outputStreamJunction = new StreamJunction(streamDefinition,
+                        executionPlanContext.getExecutorService(),
+                        executionPlanContext.getBufferSize(), executionPlanContext);
+                streamJunctionMap.putIfAbsent(streamDefinition.getId(), outputStreamJunction);
+            }
+            insertIntoWindowCallback.getEventWindow().setPublisher(streamJunctionMap.get(insertIntoWindowCallback.getOutputStreamDefinition().getId()).constructPublisher());
+        }
     }
 
     public String addQuery(QueryRuntime queryRuntime) {

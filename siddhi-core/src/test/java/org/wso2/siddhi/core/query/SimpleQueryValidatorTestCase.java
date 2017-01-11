@@ -20,7 +20,6 @@ package org.wso2.siddhi.core.query;
 import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.config.SiddhiContext;
-import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.parser.ExecutionPlanParser;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import org.wso2.siddhi.query.compiler.SiddhiCompiler;

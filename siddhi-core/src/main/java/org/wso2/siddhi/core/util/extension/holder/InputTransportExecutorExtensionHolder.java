@@ -18,12 +18,12 @@
 package org.wso2.siddhi.core.util.extension.holder;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
-import org.wso2.siddhi.core.executor.function.FunctionExecutor;
+import org.wso2.siddhi.core.subscription.InputTransport;
 
 import java.util.concurrent.ConcurrentHashMap;
 
 public class InputTransportExecutorExtensionHolder extends AbstractExtensionHolder {
-    private static Class clazz =FunctionExecutor.class;
+    private static Class clazz = InputTransport.class;
 
     private InputTransportExecutorExtensionHolder(ExecutionPlanContext executionPlanContext) {
         super(clazz, executionPlanContext);
@@ -31,9 +31,9 @@ public class InputTransportExecutorExtensionHolder extends AbstractExtensionHold
 
     public static InputTransportExecutorExtensionHolder getInstance(ExecutionPlanContext executionPlanContext) {
         ConcurrentHashMap<Class, AbstractExtensionHolder> extensionHolderMap = executionPlanContext.getSiddhiContext().getExtensionHolderMap();
-        AbstractExtensionHolder abstractExtensionHolder= extensionHolderMap.get(clazz);
+        AbstractExtensionHolder abstractExtensionHolder = extensionHolderMap.get(clazz);
         if (abstractExtensionHolder == null) {
-            abstractExtensionHolder=new InputTransportExecutorExtensionHolder(executionPlanContext);
+            abstractExtensionHolder = new InputTransportExecutorExtensionHolder(executionPlanContext);
             extensionHolderMap.putIfAbsent(clazz, abstractExtensionHolder);
         }
         return (InputTransportExecutorExtensionHolder) extensionHolderMap.get(clazz);

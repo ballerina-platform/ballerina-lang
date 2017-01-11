@@ -21,12 +21,16 @@ package org.wso2.siddhi.core.subscription;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.query.output.callback.OutputCallback;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
+import org.wso2.siddhi.query.api.execution.io.map.AttributeMapping;
 
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Convert custom input from {@link InputTransport} to {@link org.wso2.siddhi.core.event.ComplexEventChunk}.
+ */
 public interface InputMapper extends InputCallback {
 
-    StreamDefinition getOutputStreamDefinition();
-
-    void inferOutputStreamDefinition(StreamDefinition outputStreamDefinition);
-
-    void init(OutputCallback outputCallback, MetaStreamEvent metaStreamEvent);
+    void init(StreamDefinition outputStreamDefinition, OutputCallback outputCallback, MetaStreamEvent
+            metaStreamEvent, Map<String, String> options, List<AttributeMapping> attributeMappingList);
 }
