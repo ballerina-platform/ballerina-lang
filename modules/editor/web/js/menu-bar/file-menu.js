@@ -17,30 +17,32 @@
  */
 
 define(([],function (){
-    var HelpMenu = {
-        id: "Help",
-        label: "Help",
+    var FileMenu = {
+        id: "file",
+        label: "File",
         items: [
             {
-                id: "Help-WelcomePage",
-                label: "Go to Welcome Page",
-                action: "go-to-welcome-page"
+                id: "new",
+                label: "New",
+                action: "create-new-tab",
+                disabled: false
             },
             {
-                id: "Help-About",
-                label: "About",
-                action: "show-about",
-                attributes: [{
-                    key: "data-toggle",
-                    value: "modal"
-                }, {
-                    key: "data-target",
-                    value: "#modalAbout"
-                }]
+                id: "open",
+                label: "Open",
+                action: "open-file-open-dialog",
+                disabled: true
+            },
+            {
+                id: "save",
+                label: "Save",
+                action: "open-file-save-dialog",
+                disabled: false
             }
-        ]
+
+            ]
 
     };
 
-    return HelpMenu;
+    return FileMenu;
 }));

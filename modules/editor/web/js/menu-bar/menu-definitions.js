@@ -16,7 +16,7 @@
  * under the License.
  */
 
-define(['file_menu', 'edit_menu', 'help_menu'], function (FileMenu, EditMenu, HelpMenu) {
+define(['./file-menu', './edit-menu', './help-menu'], function (FileMenu, EditMenu, HelpMenu) {
     var menuBar = {};
 
     menuBar[FileMenu.id] = FileMenu;

@@ -202,7 +202,7 @@ public class Resource implements Node {
     }
 
     public String getName() {
-        return name;
+        return getSymbolName().getName();
     }
 
     public int getStackFrameSize() {
