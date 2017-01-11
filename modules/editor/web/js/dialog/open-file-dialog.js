@@ -171,7 +171,6 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser', 'ballerina', 'ba
                         async: false,
                         dataType:"json",
                         success: function (data, textStatus, xhr) {
-                            console.log(data);
                             if (xhr.status == 200) {
                                 var BallerinaASTDeserializer = Ballerina.ast.BallerinaASTDeserializer;
                                 var root = BallerinaASTDeserializer.getASTModel(data);
