@@ -31,7 +31,7 @@ define(([],function (){
                 id: "FileMenu-OpenFile",
                 label: "Open",
                 action: "open-file-open-dialog",
-                disabled: true
+                disabled: false
             },
             {
                 id: "FileMenu-SaveFile",
