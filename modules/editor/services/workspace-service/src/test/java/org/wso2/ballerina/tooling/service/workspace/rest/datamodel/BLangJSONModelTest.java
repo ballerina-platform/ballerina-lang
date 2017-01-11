@@ -49,13 +49,13 @@ public class BLangJSONModelTest {
             "\"import\",\"import_package_name\":\"sf\",\"import_package_path\":\"ballerina.connectors.salesforce\"}," +
             "{\"type\":\"import\",\"import_package_name\":\"samples\",\"import_package_path\":\"test.samples\"},{\"type\":" +
             "\"service_definition\",\"service_name\":\"HelloService\",\"annotations\":[],\"children\":[{\"type\":" +
-            "\"resource_definition\",\"resource_name\":null,\"annotations\":[{\"type\":\"annotation\",\"annotation_name\":" +
+            "\"resource_definition\",\"resource_name\":\"tweet\",\"annotations\":[{\"type\":\"annotation\",\"annotation_name\":" +
             "\"GET\",\"annotation_value\":null,\"children\":[]},{\"type\":\"annotation\",\"annotation_name\":\"Path\"," +
             "\"annotation_value\":\"/tweet\",\"children\":[]}],\"children\":[{\"type\":\"argument_declaration\",\"parameter_name\":\"" +
             "m\",\"parameter_type\":\"message\",\"children\":[]},{\"statement\":\"reply m;\"}]}]},{\"type\":\"function_definition\"," +
             "\"function_name\":\"test_int\",\"is_public_function\":false,\"annotations\":[],\"children\":[{\"type\":\"argument_declaration\"," +
             "\"parameter_name\":\"a\",\"parameter_type\":\"int\",\"children\":[]},{\"type\":\"return_type\",\"children\":" +
-            "[{\"type\":\"type_name\",\"type_name\":\"int\"}]},{\"statement\":\"reply 2 + 2 ;\"}]}]}";
+            "[{\"type\":\"type_name\",\"type_name\":\"int\"}]},{\"statement\":\"reply a + 2 ;\"}]}]}";
 
     public static void main(String[] args) {
         try {
