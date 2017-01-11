@@ -17,6 +17,10 @@
  */
 package org.wso2.siddhi.core.query.processor.stream.window;
 
+import org.wso2.siddhi.annotation.Description;
+import org.wso2.siddhi.annotation.Parameter;
+import org.wso2.siddhi.annotation.Parameters;
+import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
@@ -41,6 +45,14 @@ import java.util.AbstractMap;
 import java.util.List;
 import java.util.Map;
 
+@Description("A batch (tumbling) time window that holds events that arrive during windowTime periods, and gets updated for each windowTime.")
+@Parameters({
+        @Parameter(name = "windowTime", type = {DataType.INT, DataType.LONG, DataType.TIME},
+                description = "The batch time period for which the window should hold events"),
+        @Parameter(name = "startTime", type = {DataType.INT}, optional = true,
+                description = "This specifies an offset in milliseconds in order to start the " +
+                        "window at a time different to the standard time")
+})
 public class TimeBatchWindowProcessor extends WindowProcessor implements SchedulingProcessor, FindableProcessor {
 
     private long timeInMilliSeconds;
@@ -58,13 +70,13 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
     }
 
     @Override
-    public void setScheduler(Scheduler scheduler) {
-        this.scheduler = scheduler;
+    public Scheduler getScheduler() {
+        return scheduler;
     }
 
     @Override
-    public Scheduler getScheduler() {
-        return scheduler;
+    public void setScheduler(Scheduler scheduler) {
+        this.scheduler = scheduler;
     }
 
     @Override

@@ -41,7 +41,10 @@ import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.exception.DuplicateDefinitionException;
+import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import org.wso2.siddhi.query.api.execution.Subscription;
+import org.wso2.siddhi.query.api.execution.io.map.AttributeMapping;
+import org.wso2.siddhi.query.api.execution.io.map.Mapping;
 import org.wso2.siddhi.query.api.extension.Extension;
 import org.wso2.siddhi.query.api.util.AnnotationHelper;
 
@@ -107,8 +110,35 @@ public class SubscriptionParser {
                     return subscription.getTransport().getType();
                 }
             };
-            InputTransport inputTransport = (InputTransport) SiddhiClassLoader.loadExtensionImplementation(transportExtension,
-                    InputTransportExecutorExtensionHolder.getInstance(executionPlanContext));
+
+            InputTransport inputTransport = (InputTransport) SiddhiClassLoader.loadExtensionImplementation
+                    (transportExtension, InputTransportExecutorExtensionHolder.getInstance(executionPlanContext));
+
+//            InputTransport inputTransport = (InputTransport) SiddhiClassLoader.loadSiddhiImplementation
+//                    (transportExtension.getFunction(), InputTransport.class);
+
+            Mapping mapping = subscription.getMapping();
+            if (mapping == null) {
+                // Subscription without mapping
+                throw new ExecutionPlanValidationException("Subscription must have a mapping plan but " +
+                        transportExtension.getFunction() + " subscription does not have a mapping plan");
+            }
+
+            // Named mapping and positional mapping cannot be together
+            boolean namedMappingFound = false;
+            boolean positionalMappingFound = false;
+            for (AttributeMapping attributeMapping : mapping.getAttributeMappingList()) {
+                if (attributeMapping.getRename() == null) {
+                    positionalMappingFound = true;
+                } else {
+                    namedMappingFound = true;
+                }
+                if (namedMappingFound && positionalMappingFound) {
+                    throw new ExecutionPlanValidationException("Subscription mapping cannot have both named mapping " +
+                            "and positional mapping together but " + mapping.getFormat() + " mapping uses both of " +
+                            "them");
+                }
+            }
 
             Extension mapperExtension = new Extension() {
                 @Override
@@ -121,36 +151,51 @@ public class SubscriptionParser {
                     return subscription.getMapping().getFormat();
                 }
             };
+
             InputMapper inputMapper = (InputMapper) SiddhiClassLoader.loadExtensionImplementation(mapperExtension,
                     InputMapperExecutorExtensionHolder.getInstance(executionPlanContext));
 
-            StreamDefinition outputStreamDefinition = (StreamDefinition) streamDefinitionMap.get(subscription.getOutputStream().getId());
+            StreamDefinition outputStreamDefinition = (StreamDefinition) streamDefinitionMap.get(subscription
+                    .getOutputStream().getId());
             if (outputStreamDefinition == null) {
-                outputStreamDefinition = (StreamDefinition) windowDefinitionMap.get(subscription.getOutputStream().getId());
+                outputStreamDefinition = (StreamDefinition) windowDefinitionMap.get(subscription.getOutputStream()
+                        .getId());
             }
 
-            inputMapper.inferOutputStreamDefinition(outputStreamDefinition);
+            if (outputStreamDefinition == null) {
+                // Cannot infer the output stream
+                throw new ExecutionPlanValidationException("Subscription must have an output stream or event window " +
+                        "but " + transportExtension.getFunction() + " subscription does not have output stream");
+            }
 
-            OutputCallback outputCallback = OutputParser.constructOutputCallback(subscription.getOutputStream(), inputMapper.getOutputStreamDefinition(),
+            OutputCallback outputCallback = OutputParser.constructOutputCallback(subscription.getOutputStream(),
+                    outputStreamDefinition,
                     eventTableMap, eventWindowMap, executionPlanContext, false, subscriptionName);
 
             MetaStreamEvent metaStreamEvent = new MetaStreamEvent();
-            metaStreamEvent.setOutputDefinition(inputMapper.getOutputStreamDefinition());
-            for (Attribute attribute : inputMapper.getOutputStreamDefinition().getAttributeList()) {
+            metaStreamEvent.setOutputDefinition(outputStreamDefinition);
+            for (Attribute attribute : outputStreamDefinition.getAttributeList()) {
                 metaStreamEvent.addOutputData(attribute);
             }
             //todo create event creator and pass to init()
-            inputMapper.init(outputCallback, metaStreamEvent);
+            inputMapper.init(outputStreamDefinition, outputCallback, metaStreamEvent, subscription.getMapping()
+                    .getOptions(), subscription.getMapping().getAttributeMappingList());
 
-            OutputRateLimiter outputRateLimiter = OutputParser.constructOutputRateLimiter(subscription.getOutputStream().getId(),
-                    subscription.getOutputRate(), false, false, executionPlanContext.getScheduledExecutorService(), executionPlanContext, subscriptionName);
-            subscriptionRuntime = new SubscriptionRuntime(inputTransport, inputMapper, outputRateLimiter, outputCallback);
+            inputTransport.init(subscription.getTransport().getOptions(), inputMapper);
+
+            OutputRateLimiter outputRateLimiter = OutputParser.constructOutputRateLimiter(subscription
+                            .getOutputStream().getId(),
+                    subscription.getOutputRate(), false, false, executionPlanContext.getScheduledExecutorService(),
+                    executionPlanContext, subscriptionName);
+            subscriptionRuntime = new SubscriptionRuntime(inputTransport, inputMapper, outputRateLimiter,
+                    outputCallback);
 
             executionPlanContext.addEternalReferencedHolder(inputTransport);
             executionPlanContext.addEternalReferencedHolder(outputRateLimiter);
 
             if (outputRateLimiter instanceof WrappedSnapshotOutputRateLimiter) {
-                throw new ExecutionPlanCreationException("Snapshot rate limiting not supported in subscription of name:" +
+                throw new ExecutionPlanCreationException("Snapshot rate limiting not supported in subscription of " +
+                        "name:" +
                         nameElement + " type:" + subscription.getTransport().getType());
             }
             outputRateLimiter.init(executionPlanContext, null, subscriptionName);

@@ -18,6 +18,10 @@
 
 package org.wso2.siddhi.core.query.processor.stream.window;
 
+import org.wso2.siddhi.annotation.Description;
+import org.wso2.siddhi.annotation.Parameter;
+import org.wso2.siddhi.annotation.Parameters;
+import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
@@ -39,6 +43,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Description("This window identifies and returns all the events of which the current " +
+        "frequency exceeds the value specified for the supportThreshold parameter.")
+@Parameters({
+        @Parameter(name = "supportThreshold", type = {DataType.DOUBLE}),
+        @Parameter(name = "errorBound", type = {DataType.DOUBLE}),
+        @Parameter(name = "attribute1", type = {DataType.STRING}, optional = true),
+        @Parameter(name = "attribute2", type = {DataType.STRING}, optional = true)
+})
 public class LossyFrequentWindowProcessor extends WindowProcessor implements FindableProcessor {
 
     private ConcurrentHashMap<String, LossyCount> countMap = new ConcurrentHashMap<String, LossyCount>();

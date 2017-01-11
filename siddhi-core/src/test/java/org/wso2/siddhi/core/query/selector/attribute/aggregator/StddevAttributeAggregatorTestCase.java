@@ -19,6 +19,7 @@
 package org.wso2.siddhi.core.query.selector.attribute.aggregator;
 
 import junit.framework.Assert;
+import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
@@ -27,8 +28,6 @@ import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
-
-import org.apache.log4j.Logger;
 
 public class StddevAttributeAggregatorTestCase {
     static final Logger log = Logger.getLogger(StddevAttributeAggregatorTestCase.class);

@@ -20,11 +20,21 @@
 package org.wso2.siddhi.core.executor.function;
 
 
+import org.wso2.siddhi.annotation.Description;
+import org.wso2.siddhi.annotation.Parameter;
+import org.wso2.siddhi.annotation.Parameters;
+import org.wso2.siddhi.annotation.Return;
+import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
+@Description("Returns the minimum value of the input parameters.")
+@Parameters({
+        @Parameter(name = "arg", type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT})
+})
+@Return(type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT})
 public class MinimumFunctionExecutor extends FunctionExecutor {
 
     private Attribute.Type returnType;

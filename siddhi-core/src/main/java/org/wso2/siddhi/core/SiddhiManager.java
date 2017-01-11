@@ -19,10 +19,10 @@ package org.wso2.siddhi.core;
 
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.SiddhiContext;
+import org.wso2.siddhi.core.config.StatisticsConfiguration;
 import org.wso2.siddhi.core.util.ExecutionPlanRuntimeBuilder;
 import org.wso2.siddhi.core.util.parser.ExecutionPlanParser;
 import org.wso2.siddhi.core.util.persistence.PersistenceStore;
-import org.wso2.siddhi.core.config.StatisticsConfiguration;
 import org.wso2.siddhi.query.api.ExecutionPlan;
 import org.wso2.siddhi.query.compiler.SiddhiCompiler;
 

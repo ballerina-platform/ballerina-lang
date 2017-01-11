@@ -17,6 +17,10 @@
  */
 package org.wso2.siddhi.core.query.processor.stream.window;
 
+import org.wso2.siddhi.annotation.Description;
+import org.wso2.siddhi.annotation.Parameter;
+import org.wso2.siddhi.annotation.Parameters;
+import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
@@ -37,6 +41,11 @@ import java.util.AbstractMap;
 import java.util.List;
 import java.util.Map;
 
+@Description("A sliding length window that holds the last windowLength events" +
+        " at a given time, and gets updated for each arrival and expiry.")
+@Parameters({
+        @Parameter(name = "windowLength", type = {DataType.INT})
+})
 public class LengthWindowProcessor extends WindowProcessor implements FindableProcessor {
 
     private int length;

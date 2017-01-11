@@ -17,11 +17,27 @@
  */
 package org.wso2.siddhi.core.executor.function;
 
+import org.wso2.siddhi.annotation.Description;
+import org.wso2.siddhi.annotation.Parameter;
+import org.wso2.siddhi.annotation.Parameters;
+import org.wso2.siddhi.annotation.Return;
+import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
+@Description("Returns the value of the first input parameter that is not null.")
+@Parameters({
+        @Parameter(name = "arg1", type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT,
+                DataType.STRING, DataType.BOOL, DataType.OBJECT}),
+        @Parameter(name = "arg2", type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT,
+                DataType.STRING, DataType.BOOL, DataType.OBJECT}),
+        @Parameter(name = "argN", type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT,
+                DataType.STRING, DataType.BOOL, DataType.OBJECT})
+})
+@Return(type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT, DataType.STRING, DataType.BOOL,
+        DataType.OBJECT})
 public class CoalesceFunctionExecutor extends FunctionExecutor {
 
     private Attribute.Type returnType;

@@ -161,7 +161,7 @@ public class EvalScriptTestCase {
         siddhiManager.setExtension("evalscript:javascript", org.wso2.siddhi.extension.evalscript.EvalJavaScript.class);
         siddhiManager.setExtension("evalscript:scala", org.wso2.siddhi.extension.evalscript.EvalScala.class);
 
-        String concatFunc =  "define function concatJ[JavaScript] return string {\n" +
+        String concatFunc = "define function concatJ[JavaScript] return string {\n" +
                 "  var str1 = data[0;\n" +
                 "  var str2 = data[1];\n" +
                 "  var str3 = data[2];\n" +

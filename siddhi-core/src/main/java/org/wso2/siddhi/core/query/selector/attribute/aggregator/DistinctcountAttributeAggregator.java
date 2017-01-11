@@ -17,6 +17,11 @@
  */
 package org.wso2.siddhi.core.query.selector.attribute.aggregator;
 
+import org.wso2.siddhi.annotation.Description;
+import org.wso2.siddhi.annotation.Parameter;
+import org.wso2.siddhi.annotation.Parameters;
+import org.wso2.siddhi.annotation.Return;
+import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
@@ -27,6 +32,12 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+@Description("Returns the count of distinct occurrences for a given arg.")
+@Parameters({
+        @Parameter(name = "attribute", type = {DataType.INT, DataType.LONG, DataType.DOUBLE,
+                DataType.FLOAT, DataType.STRING})
+})
+@Return(type = {DataType.LONG})
 public class DistinctcountAttributeAggregator extends AttributeAggregator {
     private Map<Object, Long> distinctValues = new HashMap<Object, Long>();
 
