@@ -20,19 +20,28 @@ package org.wso2.ballerina.core.nativeimpl.connectors;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerina.core.exception.LinkerException;
+import org.wso2.ballerina.core.exception.SemanticException;
+import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.values.BBoolean;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
+import org.wso2.ballerina.core.nativeimpl.connectors.http.client.HTTPConnector;
+import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
+import org.wso2.ballerina.core.utils.ConnectorUtils;
 import org.wso2.ballerina.core.utils.ParserUtils;
 import org.wso2.ballerina.lang.util.Functions;
 
 public class ConnectorActionTest {
     private BallerinaFile bFile;
+    private SymScope symScope;
 
     @BeforeClass()
     public void setup() {
+        symScope = GlobalScopeHolder.getInstance().getScope();
+        ConnectorUtils.addNativeConnector(symScope, new HTTPConnector());
         bFile = ParserUtils.parseBalFile("lang/connectors/connector-actions.bal");
     }
 
@@ -115,5 +124,37 @@ public class ConnectorActionTest {
 //        BInteger returnVal3 = (BInteger) returns[2];
 //        Assert.assertSame(returnVal3.getClass(), BString.class, "Invalid class type returned.");
 //        Assert.assertEquals(returnVal3.intValue(), functionArg3, "action 5 failed on 3rd return value");
+    }
+    
+    @Test(description = "Test invoking an undefined connector",
+            expectedExceptions = {SemanticException.class },
+            expectedExceptionsMessageRegExp = "Connector : ballerina.net.http:HTTPConnector not found in " +
+            "undefined-action-stmt.bal:4")
+    public void testUndefinedConnector() {
+        // symScope is not parsed, hence the connector is not available
+        ParserUtils.parseBalFile("lang/statements/undefined-action-stmt.bal");
+    }
+    
+    @Test(description = "Test invoking an undefined action",
+            expectedExceptions = {LinkerException.class },
+            expectedExceptionsMessageRegExp = "Undefined action: foo in undefined-action-stmt.bal:5")
+    public void testUndefinedAction() {
+        ParserUtils.parseBalFile("lang/statements/undefined-action-stmt.bal", symScope);
+    }
+    
+    @Test(description = "Test defining duplicate connector",
+            expectedExceptions = {SemanticException.class },
+            expectedExceptionsMessageRegExp = "Duplicate connector definition: samples.connectors.test:TestConnector" +
+            " in duplicate-connector.bal:13")
+    public void testDuplicateConnectorDef() {
+        ParserUtils.parseBalFile("lang/connectors/duplicate-connector.bal", symScope);
+    }
+    
+    @Test(description = "Test defining duplicate action",
+            expectedExceptions = {SemanticException.class },
+            expectedExceptionsMessageRegExp = "Duplicate action definition: " +
+            "samples.connectors.test:TestConnector.foo_TestConnector in duplicate-action.bal:13")
+    public void testDuplicateAction() {
+        ParserUtils.parseBalFile("lang/connectors/duplicate-action.bal", symScope);
     }
 }
