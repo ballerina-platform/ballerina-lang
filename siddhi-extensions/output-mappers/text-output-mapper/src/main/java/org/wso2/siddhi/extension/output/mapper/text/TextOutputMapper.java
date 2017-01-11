@@ -33,12 +33,12 @@ public class TextOutputMapper extends OutputMapper {
     }
 
     @Override
-    public Object convertToMappedInputEvent(Event event, Map<String, String> dynamicOptions) {
+    public Object convertToTypedInputEvent(Event event, Map<String, String> dynamicOptions) {
         return event;
     }
 
     @Override
-    public Object convertToTypedInputEvent(Event event, String[] mappedAttributes, Map<String, String> dynamicOptions) {
+    public Object convertToMappedInputEvent(Event event, String[] mappedAttributes, Map<String, String> dynamicOptions) {
         return mappedAttributes;
     }
 }
