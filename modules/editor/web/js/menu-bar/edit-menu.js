@@ -17,32 +17,31 @@
  */
 
 define(([],function (){
-    var FileMenu = {
-        id: "FileMenu",
-        label: "File",
+    var EditMenu = {
+        id: "edit",
+        label: "Edit",
         items: [
             {
-                id: "FileMenu-NewFile",
-                label: "New",
-                action: "create-new-tab",
+                id: "undo",
+                label: "Undo",
+                action: "undo",
                 disabled: false
             },
             {
-                id: "FileMenu-OpenFile",
-                label: "Open",
-                action: "open-file-open-dialog",
+                id: "redo",
+                label: "Redo",
+                action: "Redo",
                 disabled: false
             },
             {
-                id: "FileMenu-SaveFile",
-                label: "Save",
-                action: "open-file-save-dialog",
-                disabled: false
+                id: "cut",
+                label: "Cut",
+                disabled: true
             }
 
-            ],
+        ]
 
     };
 
-    return FileMenu;
+    return EditMenu;
 }));
