@@ -16,12 +16,33 @@
  * under the License.
  */
 
-define(['file_menu', 'edit_menu', 'help_menu'], function (FileMenu, EditMenu, HelpMenu) {
-    var menuBar = {};
+define(([],function (){
+    var FileMenu = {
+        id: "file",
+        label: "File",
+        items: [
+            {
+                id: "new",
+                label: "New",
+                action: "create-new-tab",
+                disabled: false
+            },
+            {
+                id: "open",
+                label: "Open",
+                action: "open-file-open-dialog",
+                disabled: false
+            },
+            {
+                id: "save",
+                label: "Save",
+                action: "open-file-save-dialog",
+                disabled: false
+            }
 
-    menuBar[FileMenu.id] = FileMenu;
-    menuBar[EditMenu.id] = EditMenu;
-    menuBar[HelpMenu.id] = HelpMenu;
+            ]
 
-    return menuBar;
-});
+    };
+
+    return FileMenu;
+}));
