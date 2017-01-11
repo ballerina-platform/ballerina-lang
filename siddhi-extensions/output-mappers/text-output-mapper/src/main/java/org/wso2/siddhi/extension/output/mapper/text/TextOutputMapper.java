@@ -26,6 +26,9 @@ import java.util.Map;
 
 public class TextOutputMapper extends OutputMapper {
     StreamDefinition streamDefinition;
+    //todo: where should we maintain mapping constants?
+    public static final String EVENT_ATTRIBUTE_SEPARATOR = ",";
+    public static final String EVENT_ATTRIBUTE_VALUE_SEPARATOR = ":";
 
     @Override
     public void init(StreamDefinition streamDefinition, Map<String, String> options, Map<String, String> unmappedDynamicOptions) {
@@ -34,11 +37,36 @@ public class TextOutputMapper extends OutputMapper {
 
     @Override
     public Object convertToTypedInputEvent(Event event, Map<String, String> dynamicOptions) {
-        return event;
+        StringBuilder eventText = new StringBuilder();
+        Object[] data = event.getData();
+        for (int i = 0; i < data.length; i++) {
+            String attributeName = streamDefinition.getAttributeNameArray()[i];
+            Object attributeValue = data[i];
+            eventText.append("\n").append(attributeName).append(EVENT_ATTRIBUTE_VALUE_SEPARATOR).append(attributeValue.toString()).append(EVENT_ATTRIBUTE_SEPARATOR);
+        }
+        eventText.deleteCharAt(eventText.lastIndexOf(EVENT_ATTRIBUTE_SEPARATOR));
+
+        // Get arbitrary data from event
+        Map<String, Object> arbitraryDataMap = event.getArbitraryDataMap();
+        if (arbitraryDataMap != null && !arbitraryDataMap.isEmpty()) {
+            // Add arbitrary data map to the default template
+            eventText.append(EVENT_ATTRIBUTE_SEPARATOR);
+            for (Map.Entry<String, Object> entry : arbitraryDataMap.entrySet()) {
+                eventText.append("\n" + entry.getKey() + EVENT_ATTRIBUTE_SEPARATOR + entry.getValue() + EVENT_ATTRIBUTE_SEPARATOR);
+            }
+            eventText.deleteCharAt(eventText.lastIndexOf(EVENT_ATTRIBUTE_SEPARATOR));
+        }
+        return eventText.toString();
     }
 
     @Override
     public Object convertToMappedInputEvent(Event event, String[] mappedAttributes, Map<String, String> dynamicOptions) {
-        return mappedAttributes;
+        StringBuilder eventText = new StringBuilder();
+        for (int i = 0; i < mappedAttributes.length; i++) {
+            String mappedAttribute = mappedAttributes[i];
+            eventText.append("\n").append(mappedAttribute).append(EVENT_ATTRIBUTE_SEPARATOR);
+        }
+        eventText.deleteCharAt(eventText.lastIndexOf(EVENT_ATTRIBUTE_SEPARATOR));
+        return eventText.toString();
     }
 }
