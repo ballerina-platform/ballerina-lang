@@ -33,6 +33,7 @@ public class VariableDcl implements Node {
 
     private BType type;
     private SymbolName symbolName;
+    protected Position sourceLocation;
 
     public VariableDcl(BType type, SymbolName symbolName) {
         this.type = type;
@@ -55,5 +56,24 @@ public class VariableDcl implements Node {
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
+    }
+    
+    /**
+     * Get the source location of this variable declaration.
+     * Return the source file and the line number of this variable declaration.
+     * 
+     * @return  Source location of this variable declaration
+     */
+    public Position getLocation() {
+        return sourceLocation;
+    }
+
+    /**
+     * Set the source location of this variable declaration.
+     * 
+     * @param location  Source location of this variable declaration.
+     */
+    public void setLocation(Position location) {
+        this.sourceLocation = location;
     }
 }

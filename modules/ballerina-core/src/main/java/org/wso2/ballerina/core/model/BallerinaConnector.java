@@ -151,7 +151,7 @@ public class BallerinaConnector extends PositionAwareNode implements Connector ,
      * {@inheritDoc}
      */
     @Override
-    public Position getConnectorLocation() {
+    public Position getLocation() {
         return connectorLocation;
     }
 
@@ -159,7 +159,7 @@ public class BallerinaConnector extends PositionAwareNode implements Connector ,
      * {@inheritDoc}
      */
     @Override
-    public void setConnectorLocation(Position location) {
+    public void setLocation(Position location) {
         this.connectorLocation = location;
     }
 }

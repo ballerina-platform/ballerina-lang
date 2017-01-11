@@ -47,10 +47,12 @@ public class BallerinaAction implements Action, Node {
     private Worker[] workers;
     private BType[] returnTypes;
     private BlockStmt actionBody;
+    private Position actionLocation;
 
     private int stackFrameSize;
 
     public BallerinaAction(SymbolName name,
+                           Position location,
                            Annotation[] annotations,
                            Parameter[] parameters,
                            BType[] returnTypes,
@@ -60,6 +62,7 @@ public class BallerinaAction implements Action, Node {
                            BlockStmt actionBody) {
 
         this.name = name;
+        this.actionLocation = location;
         this.annotations = annotations;
         this.parameters = parameters;
         this.returnTypes = returnTypes;
@@ -128,5 +131,21 @@ public class BallerinaAction implements Action, Node {
 
     public void setActionBody(BlockStmt actionBody) {
         this.actionBody = actionBody;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Position getLocation() {
+        return actionLocation;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setLocation(Position location) {
+        this.actionLocation = location;
     }
 }

@@ -20,6 +20,7 @@ package org.wso2.ballerina.core.model.expressions;
 import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.Operator;
+import org.wso2.ballerina.core.model.Position;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BValueType;
 
@@ -41,6 +42,11 @@ public class BinaryExpression extends UnaryExpression {
 
     public BinaryExpression(Expression lExpr, Operator op, Expression rExpr) {
         super(op, rExpr);
+        this.lExpr = lExpr;
+    }
+    
+    public BinaryExpression(Expression lExpr, Operator op, Expression rExpr, Position location) {
+        super(op, rExpr, location);
         this.lExpr = lExpr;
     }
 

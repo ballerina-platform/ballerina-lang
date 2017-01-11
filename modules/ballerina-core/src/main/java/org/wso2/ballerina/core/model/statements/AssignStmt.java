@@ -26,7 +26,7 @@ import org.wso2.ballerina.core.model.expressions.Expression;
  *
  * @since 1.0.0
  */
-public class AssignStmt implements Statement {
+public class AssignStmt extends AbstractStatement {
     private Expression lhsExpr;
     private Expression rhsExpr;
 
