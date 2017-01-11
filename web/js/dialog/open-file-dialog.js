@@ -162,12 +162,32 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser', 'ballerina', 'ba
                     });
                 };
 
-                function openModel(data){
-                    var BallerinaASTDeserializer = Ballerina.ast.BallerinaASTDeserializer;
-                    var root = BallerinaASTDeserializer.getASTModel(data);
+                function openModel(source){
+                    $.ajax({
+                        url: "http://localhost:8289/ballerina/model/content",
+                        type: "POST",
+                        data: JSON.stringify(source),
+                        contentType: "application/json; charset=utf-8",
+                        async: false,
+                        dataType:"json",
+                        success: function (data, textStatus, xhr) {
+                            console.log(data);
+                            if (xhr.status == 200) {
+                                var BallerinaASTDeserializer = Ballerina.ast.BallerinaASTDeserializer;
+                                var root = BallerinaASTDeserializer.getASTModel(data);
 
-                    var command = app.commandManager;
-                    command.dispatch("create-new-tab", root);
+                                var command = app.commandManager;
+                                command.dispatch("create-new-tab", root);
+
+                                alertSuccess();
+                            } else {
+                                alertError();
+                            }
+                        },
+                        error: function (res, errorCode, error) {
+                            alertError();
+                        }
+                    });
                 }
 
                 function openConfiguration() {
@@ -185,10 +205,8 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser', 'ballerina', 'ba
                         contentType: "text/plain; charset=utf-8",
                         async: false,
                         success: function (data, textStatus, xhr) {
-                            fileContent = $.parseJSON(data.content);
                             if (xhr.status == 200) {
-                                openModel(fileContent);
-                                alertSuccess();
+                                openModel(data);
                             } else {
                                 alertError();
                             }
