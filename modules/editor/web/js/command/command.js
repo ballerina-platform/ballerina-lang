@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'backbone', 'log'], function (_, Backbone, log) {
+define(['lodash', 'backbone', 'log', 'mousetrap'], function (_, Backbone, log, Mousetrap) {
 
     // command manager constructor
     /**
@@ -39,7 +39,15 @@ define(['lodash', 'backbone', 'log'], function (_, Backbone, log) {
                 _.set(commands, cmd, options);
                 log.debug("Command: " + cmd +
                     " is registered.");
-                //TODO: create key-bindings etc. for the command
+                // do shortcut key bindings
+                if(_.has(options, 'key')){
+                    var key = _.get(options, 'key');
+                    Mousetrap.bind(key, function(e) {
+                        commandBus.trigger(cmd);
+                        e.preventDefault();
+                        e.stopPropagation();
+                    });
+                }
             } else {
                 log.error("Command: " + cmd +
                     " is already registered. ");
