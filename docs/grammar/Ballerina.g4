@@ -97,15 +97,19 @@ workerDeclaration
     ;
 
 returnParameters
-    : '(' returnParameterList ')'
+    : '(' (namedParameterList | returnTypeList) ')'
     ;
 
-returnParameterList
-    :   returnParameter (',' returnParameter)*
+namedParameterList
+    :   namedParameter (',' namedParameter)*
     ;
 
-returnParameter
-    :   typeName Identifier?
+namedParameter
+    :   typeName Identifier
+    ;
+
+returnTypeList
+    :   typeName (',' typeName)*
     ;
 
 qualifiedTypeName

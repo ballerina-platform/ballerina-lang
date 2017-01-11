@@ -218,25 +218,35 @@ public interface BallerinaListener extends ParseTreeListener {
 	 */
 	void exitReturnParameters(BallerinaParser.ReturnParametersContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#returnParameterList}.
+	 * Enter a parse tree produced by {@link BallerinaParser#namedParameterList}.
 	 * @param ctx the parse tree
 	 */
-	void enterReturnParameterList(BallerinaParser.ReturnParameterListContext ctx);
+	void enterNamedParameterList(BallerinaParser.NamedParameterListContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#returnParameterList}.
+	 * Exit a parse tree produced by {@link BallerinaParser#namedParameterList}.
 	 * @param ctx the parse tree
 	 */
-	void exitReturnParameterList(BallerinaParser.ReturnParameterListContext ctx);
+	void exitNamedParameterList(BallerinaParser.NamedParameterListContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#returnParameter}.
+	 * Enter a parse tree produced by {@link BallerinaParser#namedParameter}.
 	 * @param ctx the parse tree
 	 */
-	void enterReturnParameter(BallerinaParser.ReturnParameterContext ctx);
+	void enterNamedParameter(BallerinaParser.NamedParameterContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#returnParameter}.
+	 * Exit a parse tree produced by {@link BallerinaParser#namedParameter}.
 	 * @param ctx the parse tree
 	 */
-	void exitReturnParameter(BallerinaParser.ReturnParameterContext ctx);
+	void exitNamedParameter(BallerinaParser.NamedParameterContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#returnTypeList}.
+	 * @param ctx the parse tree
+	 */
+	void enterReturnTypeList(BallerinaParser.ReturnTypeListContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#returnTypeList}.
+	 * @param ctx the parse tree
+	 */
+	void exitReturnTypeList(BallerinaParser.ReturnTypeListContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#qualifiedTypeName}.
 	 * @param ctx the parse tree
