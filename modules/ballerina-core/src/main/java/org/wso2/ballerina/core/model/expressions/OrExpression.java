@@ -18,6 +18,7 @@
 package org.wso2.ballerina.core.model.expressions;
 
 import org.wso2.ballerina.core.model.NodeVisitor;
+import org.wso2.ballerina.core.model.Position;
 import org.wso2.ballerina.core.model.values.BBoolean;
 import org.wso2.ballerina.core.model.values.BValueType;
 
@@ -35,8 +36,8 @@ public class OrExpression extends BinaryLogicalExpression {
     public static final BiFunction<BValueType, BValueType, BValueType> OR_FUNC =
             (lVal, rVal) -> new BBoolean(lVal.booleanValue() || rVal.booleanValue());
 
-    public OrExpression(Expression lExpr, Expression rExpr) {
-        super(lExpr, OR, rExpr);
+    public OrExpression(Expression lExpr, Expression rExpr, Position location) {
+        super(lExpr, OR, rExpr, location);
     }
 
     @Override
