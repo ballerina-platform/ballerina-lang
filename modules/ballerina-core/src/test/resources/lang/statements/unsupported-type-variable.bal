@@ -1,9 +1,8 @@
-package samples.parser.invalidSemantic;
+package lang.statements;
 
 function main(string[] i) {
 
 	// Following line is invalid.
-	boolean b;
-	float b;
+	Foo bar;
 	reply m;
 }

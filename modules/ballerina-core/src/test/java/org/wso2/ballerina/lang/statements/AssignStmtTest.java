@@ -21,6 +21,7 @@ package org.wso2.ballerina.lang.statements;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerina.core.exception.SemanticException;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.values.BArray;
 import org.wso2.ballerina.core.model.values.BBoolean;
@@ -135,5 +136,16 @@ public class AssignStmtTest {
         actual = ((BInteger) returns[0]).intValue();
         expected = 250;
         Assert.assertEquals(actual, expected);
+    }
+    
+    /*
+     * Negative tests
+     */
+    
+    @Test(expectedExceptions = {SemanticException.class },
+            expectedExceptionsMessageRegExp = "Incompatible types: int cannot be converted to boolean in " +
+                "incompatible-type-assignment.bal:8")
+    public void testIncompatibleTypeAssignment() {
+        ParserUtils.parseBalFile("lang/expressions/incompatible-type-assignment.bal");
     }
 }
