@@ -1094,10 +1094,14 @@ button.variable-list {
 
 #breadcrumb-container > .breadcrumb{
     text-transform: none;
-    padding: 6px 15px 6px 15px;
     background: rgb(35, 35, 35);
 }
-
-#breadcrumb-container {
-    min-height: 32px;
+footer{
+    min-height: 30px;
+    line-height: 0;
+}
+footer > .container p, footer > .container-fluid p{
+    line-height: 0;
+    font-size: 13px;
+    margin: 0;
 }
