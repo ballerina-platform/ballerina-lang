@@ -16,31 +16,12 @@
  * under the License.
  */
 
-define(([],function (){
-    var HelpMenu = {
-        id: "Help",
-        label: "Help",
-        items: [
-            {
-                id: "Help-WelcomePage",
-                label: "Go to Welcome Page",
-                action: "go-to-welcome-page"
-            },
-            {
-                id: "Help-About",
-                label: "About",
-                action: "show-about",
-                attributes: [{
-                    key: "data-toggle",
-                    value: "modal"
-                }, {
-                    key: "data-target",
-                    value: "#modalAbout"
-                }]
-            }
-        ]
+define(['./file-menu', './edit-menu', './help-menu'], function (FileMenu, EditMenu, HelpMenu) {
+    var menuBar = {};
 
-    };
+    menuBar[FileMenu.id] = FileMenu;
+    menuBar[EditMenu.id] = EditMenu;
+    menuBar[HelpMenu.id] = HelpMenu;
 
-    return HelpMenu;
-}));
+    return menuBar;
+});
