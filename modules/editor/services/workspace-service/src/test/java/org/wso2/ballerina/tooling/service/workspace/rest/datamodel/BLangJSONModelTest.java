@@ -24,7 +24,6 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.ballerina.core.model.Package;
 import org.wso2.msf4j.MicroservicesRunner;
 import org.wso2.msf4j.formparam.util.StreamUtil;
 
@@ -37,7 +36,6 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.HashMap;
 import java.util.Scanner;
 
 import javax.ws.rs.HttpMethod;
@@ -46,27 +44,18 @@ public class BLangJSONModelTest {
 
     private MicroservicesRunner microservicesRunner;
     //private HashMap<String, Package> packages = new HashMap<String, Package>();
-    private String exptdStrFunc = "{\"root\":[{\"type\":\"package\",\"package_name\":\"test.samples\"},{\"type\":" +
-            "\"import\",\"import_package_name\":\"twitter\",\"import_package_path\":" +
-            "\"ballerina.connectors.twitter\"},{\"type\":\"import\",\"import_package_name\":\"sf\"," +
-            "\"import_package_path\":\"ballerina.connectors.salesforce\"}," +
-            "{\"type\":\"import\",\"import_package_name\":\"samples\",\"import_package_path\":" +
-            "\"test.samples\"},{\"type\":\"service_definition\",\"service_name\":\"HelloService\"," +
-            "\"annotations\":[],\"children\":[{\"type\":\"resource_definition\",\"resource_name\":null," +
-            "\"annotations\":[{\"type\":\"annotation\",\"annotation_name\":\"GET\"," +
-            "\"annotation_value\":null,\"children\":[]},{\"type\":\"annotation\",\"annotation_name\":" +
-            "\"Path\",\"annotation_value\":\"/tweet\",\"children\":[]}],\"children\":[{\"type\":" +
-            "\"argument_declaration\",\"parameter_name\":\"m\",\"parameter_type\":\"message\"," +
-            "\"children\":[]},{\"type\":\"reply_statement\",\"children\":[{\"type\":" +
-            "\"variable_reference_expression\",\"variable_reference_name\":\"m\"}]}]}]},{\"type\":" +
-            "\"function_definition\",\"function_name\":\"test_int\",\"is_public_function\":false," +
-            "\"annotations\":[],\"children\":[{\"type\":\"argument_declaration\",\"parameter_name\":\"a\"," +
-            "\"parameter_type\":\"int\",\"children\":[]},{\"type\":\"return_type\",\"children\":" +
-            "[{\"type\":\"type_name\",\"type_name\":\"int\"}]},{\"type\":\"return_statement\"," +
-            "\"children\":[{\"type\":\"add_expression\",\"children\":" +
-            "[{\"type\":\"variable_reference_expression\",\"variable_reference_name\":\"a\"}," +
-            "{\"type\":\"basic_literal_expression\",\"basic_literal_type\":\"int\"," +
-            "\"basic_literal_value\":\"2\"}]}]}]}]}";
+    private String exptdStrFunc = "{\"root\":[{\"type\":\"package\",\"package_name\":\"test.samples\"},{\"type\":\"import\"," +
+            "\"import_package_name\":\"twitter\",\"import_package_path\":\"ballerina.connectors.twitter\"},{\"type\":" +
+            "\"import\",\"import_package_name\":\"sf\",\"import_package_path\":\"ballerina.connectors.salesforce\"}," +
+            "{\"type\":\"import\",\"import_package_name\":\"samples\",\"import_package_path\":\"test.samples\"},{\"type\":" +
+            "\"service_definition\",\"service_name\":\"HelloService\",\"annotations\":[],\"children\":[{\"type\":" +
+            "\"resource_definition\",\"resource_name\":null,\"annotations\":[{\"type\":\"annotation\",\"annotation_name\":" +
+            "\"GET\",\"annotation_value\":null,\"children\":[]},{\"type\":\"annotation\",\"annotation_name\":\"Path\"," +
+            "\"annotation_value\":\"/tweet\",\"children\":[]}],\"children\":[{\"type\":\"argument_declaration\",\"parameter_name\":\"" +
+            "m\",\"parameter_type\":\"message\",\"children\":[]},{\"statement\":\"reply m;\"}]}]},{\"type\":\"function_definition\"," +
+            "\"function_name\":\"test_int\",\"is_public_function\":false,\"annotations\":[],\"children\":[{\"type\":\"argument_declaration\"," +
+            "\"parameter_name\":\"a\",\"parameter_type\":\"int\",\"children\":[]},{\"type\":\"return_type\",\"children\":" +
+            "[{\"type\":\"type_name\",\"type_name\":\"int\"}]},{\"statement\":\"reply 2 + 2 ;\"}]}]}";
 
     public static void main(String[] args) {
         try {
