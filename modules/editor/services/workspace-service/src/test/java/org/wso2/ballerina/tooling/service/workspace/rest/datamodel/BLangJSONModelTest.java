@@ -55,7 +55,7 @@ public class BLangJSONModelTest {
             "m\",\"parameter_type\":\"message\",\"children\":[]},{\"statement\":\"reply m;\"}]}]},{\"type\":\"function_definition\"," +
             "\"function_name\":\"test_int\",\"is_public_function\":false,\"annotations\":[],\"children\":[{\"type\":\"argument_declaration\"," +
             "\"parameter_name\":\"a\",\"parameter_type\":\"int\",\"children\":[]},{\"type\":\"return_type\",\"children\":" +
-            "[{\"type\":\"type_name\",\"type_name\":\"int\"}]},{\"statement\":\"reply 2 + 2 ;\"}]}]}";
+            "[{\"type\":\"type_name\",\"type_name\":\"int\"}]},{\"statement\":\"reply a + 2 ;\"}]}]}";
 
     public static void main(String[] args) {
         try {
