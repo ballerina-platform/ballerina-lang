@@ -64,7 +64,7 @@ public class HTTPConnector extends AbstractNativeConnector implements ServiceFac
 
     @Override
     public String getPackageName() {
-        return null;
+        return "ballerina.net.http";
     }
 
     @Override

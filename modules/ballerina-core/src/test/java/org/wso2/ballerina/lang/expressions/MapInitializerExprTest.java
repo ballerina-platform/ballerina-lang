@@ -20,6 +20,7 @@ package org.wso2.ballerina.lang.expressions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
+import org.wso2.ballerina.core.exception.SemanticException;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.values.BMap;
 import org.wso2.ballerina.core.model.values.BString;
@@ -55,7 +56,13 @@ public class MapInitializerExprTest {
         Assert.assertEquals(mapValue.get(new BString("animal1")).stringValue(), "Lion");
         Assert.assertEquals(mapValue.get(new BString("animal2")).stringValue(), "Cat");
         Assert.assertEquals(mapValue.get(new BString("animal4")).stringValue(), "Dog");
-
     }
 
+    @Test(description = "Test map initializing with different types",
+            expectedExceptions = {SemanticException.class },
+            expectedExceptionsMessageRegExp = "Incompatible types used in map initializer: All arguments must have " +
+            "the same type. in multi-type-map-initializer.bal:3")
+    public void testMultiTypeMapInit() {
+        ParserUtils.parseBalFile("lang/expressions/multi-type-map-initializer.bal");
+    }
 }

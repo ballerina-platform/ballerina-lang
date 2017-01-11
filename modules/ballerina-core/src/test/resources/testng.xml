@@ -87,7 +87,7 @@ under the License.
     <!-- Runtime Test Cases -->
     <test name="ballerina-runtime-unit-tests" preserve-order="true" parallel="false">
         <packages>
-            <package name="org.wso2.ballerina.core.runtime.RuntimeErrorsTest"/>
+            <package name="org.wso2.ballerina.core.runtime"/>
         </packages>
     </test>
 </suite>

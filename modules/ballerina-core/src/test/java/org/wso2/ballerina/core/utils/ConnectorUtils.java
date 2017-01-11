@@ -21,7 +21,9 @@ import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.model.Symbol;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.util.LangModelUtils;
-import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
+import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAction;
+import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaConnector;
+import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
 
 /**
@@ -39,9 +41,25 @@ public class ConnectorUtils {
      * @param connector Connector instance.
      */
     public static void addNativeConnector(SymScope symScope, AbstractNativeConnector connector) {
-        SymbolName symbolName = LangModelUtils.getSymNameWithParams(connector.getPackageName() + ":" +
-                connector.getClass().getAnnotation(BallerinaFunction.class).functionName(), connector.getParameters());
+        SymbolName symbolName = LangModelUtils.getConnectorSymName(
+                connector.getClass().getAnnotation(BallerinaConnector.class).connectorName(), 
+                connector.getPackageName());
         Symbol symbol = new Symbol(connector, LangModelUtils.getTypesOfParams(connector.getParameters()));
+        symScope.insert(symbolName, symbol);
+    }
+    
+    /**
+     * Add action instance to given SymScope.
+     *
+     * @param symScope  SymScope instance.
+     * @param action    Action instance.
+     */
+    public static void addAction(SymScope symScope, AbstractNativeAction action) {
+        BallerinaAction annotations = (BallerinaAction) action.getClass().getAnnotation(BallerinaAction.class);
+        SymbolName symbolName = LangModelUtils.getActionSymName(annotations.actionName(), annotations.connectorName(),
+                annotations.packageName(), LangModelUtils.getTypesOfParams(action.getParameters()));
+        Symbol symbol = new Symbol(action, LangModelUtils.getTypesOfParams(action.getParameters()), 
+                action.getReturnTypes());
         symScope.insert(symbolName, symbol);
     }
 }

@@ -33,14 +33,19 @@ public class VariableDeclarationTest {
      */
     
     @Test(expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "Duplicate variable declaration with name: b in " +
-            "duplicate-variables.bal:7")
+            expectedExceptionsMessageRegExp = "Duplicate variable 'b' in duplicate-variables.bal:7")
     public void testDuplicateVariables() {
         ParserUtils.parseBalFile("lang/statements/duplicate-variables.bal");
     }
     
+    @Test(expectedExceptions = {SemanticException.class },
+            expectedExceptionsMessageRegExp = "Undeclared variable 'a' in undeclared-variables.bal:2")
+    public void testUndeclaredVariables() {
+        ParserUtils.parseBalFile("lang/statements/undeclared-variables.bal");
+    }
+    
     @Test(expectedExceptions = {ParserException.class },
-            expectedExceptionsMessageRegExp = "Unsupported type: Foo in unsupported-type-variable.bal:6")
+            expectedExceptionsMessageRegExp = "Unsupported type 'Foo' in unsupported-type-variable.bal:6")
     public void testUnsupportedTypeVariable() {
         ParserUtils.parseBalFile("lang/statements/unsupported-type-variable.bal");
     }
