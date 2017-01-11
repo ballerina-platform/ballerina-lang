@@ -22,3 +22,8 @@ function arrayArgTest(int[] arr) (int) {
     return arr[0] + arr[1];
 }
 
+function arrayIndexOutOfBoundTest() {
+    string[] animals;
+    animals = ["Lion", "Cat"];
+    return animals[5];
+}

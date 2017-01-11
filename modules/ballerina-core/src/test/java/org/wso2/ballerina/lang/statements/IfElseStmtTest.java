@@ -20,6 +20,7 @@ package org.wso2.ballerina.lang.statements;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerina.core.exception.SemanticException;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BString;
@@ -139,5 +140,13 @@ public class IfElseStmtTest {
         actual = returns[0].stringValue();
         expected = "minor";
         Assert.assertEquals(actual, expected);
+    }
+    
+    @Test(description = "Test if statement with incompatible types",
+            expectedExceptions = {SemanticException.class },
+            expectedExceptionsMessageRegExp = "Incompatible types: expected a boolean expression in " +
+            "if-stmnt-with-incompatible-types.bal:2")
+    public void testMapAccessWithIndex() {
+        ParserUtils.parseBalFile("lang/statements/if-stmnt-with-incompatible-types.bal");
     }
 }

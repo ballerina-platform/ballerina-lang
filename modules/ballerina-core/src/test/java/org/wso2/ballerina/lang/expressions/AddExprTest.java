@@ -21,6 +21,7 @@ package org.wso2.ballerina.lang.expressions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerina.core.exception.SemanticException;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.values.BDouble;
 import org.wso2.ballerina.core.model.values.BFloat;
@@ -118,5 +119,18 @@ public class AddExprTest {
         String actual = returns[0].stringValue();
         String expected = "WSO2 Inc.";
         Assert.assertEquals(actual, expected);
+    }
+    
+    
+    /*
+     * Negative tests
+     */
+    
+    @Test(description = "Test adding values of two types",
+            expectedExceptions = {SemanticException.class },
+            expectedExceptionsMessageRegExp = "Incompatible types in binary expression: int vs boolean in " +
+                "add-incompatible-types.bal:5")
+    public void testAddIncompatibleTypes() {
+        ParserUtils.parseBalFile("lang/expressions/add-incompatible-types.bal");
     }
 }

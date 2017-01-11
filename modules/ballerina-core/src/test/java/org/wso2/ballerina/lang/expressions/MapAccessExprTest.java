@@ -20,6 +20,7 @@ package org.wso2.ballerina.lang.expressions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
+import org.wso2.ballerina.core.exception.SemanticException;
 import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.values.BInteger;
@@ -95,4 +96,12 @@ public class MapAccessExprTest {
 //        int expected = 11;
 //        Assert.assertEquals(actual, expected);
 //    }
+    
+    @Test(description = "Test map access with an index",
+            expectedExceptions = {SemanticException.class },
+            expectedExceptionsMessageRegExp = "Map index should be of type string, not int. Map name: animals in " +
+            "incorrect-map-access.bal:4")
+    public void testMapAccessWithIndex() {
+        ParserUtils.parseBalFile("lang/expressions/incorrect-map-access.bal");
+    }
 }
