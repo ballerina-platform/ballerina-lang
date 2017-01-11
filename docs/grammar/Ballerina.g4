@@ -43,7 +43,7 @@ resourceDefinition
     ;
 
 functionDefinition
-    :   annotation* 'public'? 'function' Identifier '(' parameterList? ')' returnTypeList? ('throws' Identifier)? functionBody
+    :   annotation* 'public'? 'function' Identifier '(' parameterList? ')' returnParameters? ('throws' Identifier)? functionBody
     ;
 
 //todo rename, this is used in resource, action and funtion
@@ -60,7 +60,7 @@ connectorBody
     ;
 
 actionDefinition
-    :   annotation* 'action' Identifier '(' parameterList ')' returnTypeList?  ('throws' Identifier)? functionBody
+    :   annotation* 'action' Identifier '(' parameterList ')' returnParameters?  ('throws' Identifier)? functionBody
     ;
 
 connectorDeclaration
@@ -96,12 +96,16 @@ workerDeclaration
     :   'worker' Identifier '(' typeName Identifier ')'  '{' variableDeclaration* statement+ '}'
     ;
 
-returnTypeList
-    : '(' typeNameList ')'
+returnParameters
+    : '(' returnParameterList ')'
     ;
 
-typeNameList
-    :   typeName (',' typeName)*
+returnParameterList
+    :   returnParameter (',' returnParameter)*
+    ;
+
+returnParameter
+    :   typeName Identifier?
     ;
 
 qualifiedTypeName
