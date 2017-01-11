@@ -6,6 +6,8 @@ function mapAccessTest(int x, int y)(int) {
     int yy;
     testMap["first"] = x;
     testMap["second"] = y;
+    testMap["third"] = x + y;
+    testMap["forth"] = x - y;
     xx = testMap["first"];
     yy = testMap["second"];
     system:println(xx);

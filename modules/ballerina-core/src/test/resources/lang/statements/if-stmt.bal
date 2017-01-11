@@ -20,3 +20,13 @@ function testIfStmt(int a, int b, int c) (int, int) {
 
     return a + x, b + 1;
 }
+
+function testAgeGroup(int age) (string) {
+    string group;
+    if (age > 18) {
+        group = "elder";
+    } else {
+        group = "minor";
+    }
+    return group;
+}

@@ -20,11 +20,13 @@ package org.wso2.ballerina.core.utils;
 
 import org.wso2.ballerina.core.message.BallerinaMessageDataSource;
 import org.wso2.ballerina.core.message.StringDataSource;
+import org.wso2.ballerina.core.nativeimpl.connectors.http.Constants;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
 import org.wso2.carbon.messaging.Header;
 
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Util Class contains method for generating a message
@@ -33,24 +35,23 @@ import java.util.List;
  */
 public class MessageUtils {
 
-    public CarbonMessage generateRawMessage() {
+    public static CarbonMessage generateRawMessage() {
         return new DefaultCarbonMessage();
     }
 
-    public CarbonMessage generateHTTPMessage(String path, String method) {
+    public static CarbonMessage generateHTTPMessage(String path, String method) {
         return generateHTTPMessage(path, method, null, null);
     }
 
-    public CarbonMessage generateHTTPMessage(String path, String method, BallerinaMessageDataSource payload) {
+    public static CarbonMessage generateHTTPMessage(String path, String method, BallerinaMessageDataSource payload) {
         return generateHTTPMessage(path, method, null, payload);
     }
 
-    public CarbonMessage generateHTTPMessage(String path, String method, String payload) {
+    public static CarbonMessage generateHTTPMessage(String path, String method, String payload) {
         return generateHTTPMessage(path, method, null, new StringDataSource(payload));
     }
 
-
-    public CarbonMessage generateHTTPMessage(String path, String method, List<Header> headers,
+    public static CarbonMessage generateHTTPMessage(String path, String method, List<Header> headers,
                                              BallerinaMessageDataSource payload) {
 
         CarbonMessage carbonMessage = new DefaultCarbonMessage();
@@ -62,6 +63,9 @@ public class MessageUtils {
                                   org.wso2.ballerina.core.nativeimpl.connectors.http.Constants.DEFAULT_INTERFACE);
         // Set url
         carbonMessage.setProperty(org.wso2.carbon.messaging.Constants.TO, path);
+
+        // Set method
+        carbonMessage.setProperty(Constants.HTTP_METHOD, method.trim().toUpperCase(Locale.getDefault()));
 
         // Set Headers
         if (headers != null) {
@@ -77,7 +81,5 @@ public class MessageUtils {
 
         return carbonMessage;
     }
-
-
 
 }

@@ -32,3 +32,7 @@ function remove(xml msg, string xPath) (string) {
     xml:remove(msg, xPath);
     return msg;
 }
+
+function toString(xml msg) (string) {
+    return xml:toString(msg);
+}

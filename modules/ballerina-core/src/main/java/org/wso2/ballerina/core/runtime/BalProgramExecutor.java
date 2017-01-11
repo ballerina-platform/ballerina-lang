@@ -112,7 +112,7 @@ public class BalProgramExecutor {
                 Expression[] exprs = new Expression[1];
                 VariableRefExpr variableRefExpr = new VariableRefExpr(argsName);
                 LocalVarLocation location = new LocalVarLocation(0);
-                variableRefExpr.setLocation(location);
+                variableRefExpr.setMemoryLocation(location);
                 variableRefExpr.setType(BTypes.STRING_TYPE);
                 exprs[0] = variableRefExpr;
 
@@ -123,12 +123,12 @@ public class BalProgramExecutor {
                 BValue[] argValues = {arrayArgs};
 
                 // 3) Create a function invocation expression
-                Position mainFuncLocation = mainFunction.getFunctionLocation();
+                Position mainFuncLocation = mainFunction.getLocation();
                 FunctionInvocationExpr funcIExpr = new FunctionInvocationExpr(
                         new SymbolName("main", balFile.getPackageName()), exprs);
                 funcIExpr.setOffset(1);
                 funcIExpr.setFunction(mainFunction);
-                funcIExpr.setInvokedLocation(mainFuncLocation);
+                funcIExpr.setLocation(mainFuncLocation);
 
                 SymbolName functionSymbolName = funcIExpr.getFunctionName();
                 CallableUnitInfo functionInfo = new CallableUnitInfo(functionSymbolName.getName(),

@@ -36,7 +36,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
         packageName = "ballerina.lang.string",
         functionName = "hasPrefix",
         args = {@Argument(name = "string", type = TypeEnum.STRING),
-                @Argument(name = "string", type = TypeEnum.STRING)},
+                @Argument(name = "prefix", type = TypeEnum.STRING)},
         returnType = {@ReturnType(type = TypeEnum.BOOLEAN)},
         isPublic = true
 )
