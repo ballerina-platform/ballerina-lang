@@ -26,6 +26,8 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 
 /**
  * Utility functions for Function Invocations.
+ *
+ * @since 1.0.0
  */
 public class FunctionUtils {
 
@@ -35,14 +37,13 @@ public class FunctionUtils {
     /**
      * Add Native Function instance to given SymScope.
      *
-     * @param symScope  SymScope instance.
-     * @param function  Function instance.
+     * @param symScope SymScope instance.
+     * @param function Function instance.
      */
     public static void addNativeFunction(SymScope symScope, AbstractNativeFunction function) {
         SymbolName symbolName = LangModelUtils.getSymNameWithParams(function.getPackageName() + ":" +
                 function.getClass().getAnnotation(BallerinaFunction.class).functionName(), function.getParameters());
-        Symbol symbol = new Symbol(function,
-                LangModelUtils.getTypesOfParams(function.getParameters()), function.getReturnTypes());
+        Symbol symbol = new Symbol(function);
         symScope.insert(symbolName, symbol);
     }
 }
