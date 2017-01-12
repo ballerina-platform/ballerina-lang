@@ -35,9 +35,8 @@ public class FunctionUtils {
     /**
      * Add Native Function instance to given SymScope.
      *
-     * @param symScope SymScope instance.
-     * @param function Function instance.
-     * @return Given SymScope instance.
+     * @param symScope  SymScope instance.
+     * @param function  Function instance.
      */
     public static void addNativeFunction(SymScope symScope, AbstractNativeFunction function) {
         SymbolName symbolName = LangModelUtils.getSymNameWithParams(function.getPackageName() + ":" +

@@ -317,7 +317,38 @@ public class BLangAntlr4Listener implements BallerinaListener {
     }
 
     @Override
+    public void enterReturnParameters(BallerinaParser.ReturnParametersContext ctx) {
+
+    }
+
+    @Override
+    public void exitReturnParameters(BallerinaParser.ReturnParametersContext ctx) {
+
+    }
+
+    @Override
+    public void enterNamedParameterList(BallerinaParser.NamedParameterListContext ctx) {
+
+    }
+
+    @Override
+    public void exitNamedParameterList(BallerinaParser.NamedParameterListContext ctx) {
+
+    }
+
+    @Override
+    public void enterNamedParameter(BallerinaParser.NamedParameterContext ctx) {
+
+    }
+
+    @Override
+    public void exitNamedParameter(BallerinaParser.NamedParameterContext ctx) {
+
+    }
+
+    @Override
     public void enterReturnTypeList(BallerinaParser.ReturnTypeListContext ctx) {
+
     }
 
     @Override
@@ -325,14 +356,6 @@ public class BLangAntlr4Listener implements BallerinaListener {
         if (ctx.exception == null) {
             modelBuilder.createReturnTypes();
         }
-    }
-
-    @Override
-    public void enterTypeNameList(BallerinaParser.TypeNameListContext ctx) {
-    }
-
-    @Override
-    public void exitTypeNameList(BallerinaParser.TypeNameListContext ctx) {
     }
 
     @Override
