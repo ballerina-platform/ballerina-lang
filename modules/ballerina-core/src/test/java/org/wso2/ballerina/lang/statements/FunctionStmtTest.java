@@ -20,6 +20,7 @@ package org.wso2.ballerina.lang.statements;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerina.core.exception.LinkerException;
 import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.Function;
@@ -57,4 +58,10 @@ public class FunctionStmtTest {
         //Assert.assertEquals(testHelloWorldPrivate.getPackageName(), "lang.statements.func");
     }
 
+    @Test(description = "Test invoking an undefined function",
+            expectedExceptions = {LinkerException.class },
+            expectedExceptionsMessageRegExp = "Undefined function 'foo' in undefined-function-stmt.bal:2")
+    public void testUndefinedFunction() {
+        ParserUtils.parseBalFile("lang/statements/undefined-function-stmt.bal");
+    }
 }

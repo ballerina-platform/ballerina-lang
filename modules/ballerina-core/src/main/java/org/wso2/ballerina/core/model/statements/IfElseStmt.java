@@ -35,12 +35,6 @@ public class IfElseStmt extends AbstractStatement {
     private ElseIfBlock[] elseIfBlocks;
     private Statement elseBody;
 
-    public IfElseStmt(Expression ifCondition, Statement thenBody, Statement elseBody) {
-        this.ifCondition = ifCondition;
-        this.thenBody = thenBody;
-        this.elseBody = elseBody;
-    }
-
     private IfElseStmt(Expression ifCondition, Statement thenBody, ElseIfBlock[] elseIfBlocks, Statement elseBody) {
         this.ifCondition = ifCondition;
         this.thenBody = thenBody;

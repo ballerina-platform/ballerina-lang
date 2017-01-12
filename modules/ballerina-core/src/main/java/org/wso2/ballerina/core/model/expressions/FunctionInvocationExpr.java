@@ -40,11 +40,6 @@ public class FunctionInvocationExpr extends AbstractExpression implements Execut
     private Function calleeFunction;
     private Position functionInvokedLocation;
 
-    public FunctionInvocationExpr(SymbolName functionName, List<Expression> expressionList) {
-        this.functionName = functionName;
-        this.expressionList = expressionList;
-    }
-
     public FunctionInvocationExpr(SymbolName functionName, Expression[] exprs) {
         this.functionName = functionName;
         this.exprs = exprs;

@@ -20,6 +20,7 @@ package org.wso2.ballerina.lang.expressions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerina.core.exception.SemanticException;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.values.BArray;
 import org.wso2.ballerina.core.model.values.BInteger;
@@ -69,5 +70,13 @@ public class ArrayInitializerExprTest {
         Assert.assertEquals(arrayValue.get(0).stringValue(), "Lion");
         Assert.assertEquals(arrayValue.get(1).stringValue(), "Cat");
         Assert.assertEquals(arrayValue.get(5).stringValue(), "Croc");
+    }
+    
+    @Test(description = "Test array initializing with different types",
+            expectedExceptions = {SemanticException.class },
+            expectedExceptionsMessageRegExp = "Incompatible types used in array initializer. All arguments must have" +
+            " the same type. in multi-type-array-initializer.bal:3")
+    public void testMultiTypeMapInit() {
+        ParserUtils.parseBalFile("lang/expressions/multi-type-array-initializer.bal");
     }
 }

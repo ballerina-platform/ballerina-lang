@@ -208,6 +208,36 @@ public interface BallerinaListener extends ParseTreeListener {
 	 */
 	void exitWorkerDeclaration(BallerinaParser.WorkerDeclarationContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#returnParameters}.
+	 * @param ctx the parse tree
+	 */
+	void enterReturnParameters(BallerinaParser.ReturnParametersContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#returnParameters}.
+	 * @param ctx the parse tree
+	 */
+	void exitReturnParameters(BallerinaParser.ReturnParametersContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#namedParameterList}.
+	 * @param ctx the parse tree
+	 */
+	void enterNamedParameterList(BallerinaParser.NamedParameterListContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#namedParameterList}.
+	 * @param ctx the parse tree
+	 */
+	void exitNamedParameterList(BallerinaParser.NamedParameterListContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#namedParameter}.
+	 * @param ctx the parse tree
+	 */
+	void enterNamedParameter(BallerinaParser.NamedParameterContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#namedParameter}.
+	 * @param ctx the parse tree
+	 */
+	void exitNamedParameter(BallerinaParser.NamedParameterContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#returnTypeList}.
 	 * @param ctx the parse tree
 	 */
@@ -217,16 +247,6 @@ public interface BallerinaListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitReturnTypeList(BallerinaParser.ReturnTypeListContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#typeNameList}.
-	 * @param ctx the parse tree
-	 */
-	void enterTypeNameList(BallerinaParser.TypeNameListContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#typeNameList}.
-	 * @param ctx the parse tree
-	 */
-	void exitTypeNameList(BallerinaParser.TypeNameListContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#qualifiedTypeName}.
 	 * @param ctx the parse tree

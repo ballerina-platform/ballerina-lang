@@ -21,6 +21,7 @@ package org.wso2.ballerina.lang.expressions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerina.core.exception.SemanticException;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.values.BBoolean;
 import org.wso2.ballerina.core.model.values.BFloat;
@@ -125,5 +126,17 @@ public class NotEqualExprTest {
         actual = ((BInteger) returns[0]).intValue();
         expected = 2;
         Assert.assertEquals(actual, expected);
+    }
+    
+    /*
+     * Negative tests
+     */
+    
+    @Test(description = "Test checking equality of two types",
+            expectedExceptions = {SemanticException.class },
+            expectedExceptionsMessageRegExp = "Incompatible types in binary expression: int vs boolean in " +
+                "incompatible-type-equal-expr.bal:6")
+    public void testIncompatibleEquality() {
+        ParserUtils.parseBalFile("lang/expressions/incompatible-type-equal-expr.bal");
     }
 }
