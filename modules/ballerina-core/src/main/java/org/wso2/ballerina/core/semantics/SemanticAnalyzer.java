@@ -808,7 +808,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         } else {
             throw new SemanticException("Add operation is not supported for type: " + arithmeticExprType + " in " +
-                                        addExpr.getLocation().getFileName() + ":" + addExpr.getLocation().getLine());
+                      addExpr.getLocation().getFileName() + ":" + addExpr.getLocation().getLine());
         }
     }
 
@@ -830,7 +830,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         } else {
             throw new SemanticException("Mult operation is not supported for type: " + binaryExprType + " in " +
-                                        multExpr.getLocation().getFileName() + ":" + multExpr.getLocation().getLine());
+                      multExpr.getLocation().getFileName() + ":" + multExpr.getLocation().getLine());
         }
     }
 
@@ -852,7 +852,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         } else {
             throw new SemanticException("Subtraction operation is not supported for type: " + binaryExprType + " in " +
-                       subtractExpr.getLocation().getFileName() + ":" + subtractExpr.getLocation().getLine());
+                      subtractExpr.getLocation().getFileName() + ":" + subtractExpr.getLocation().getLine());
         }
     }
 
