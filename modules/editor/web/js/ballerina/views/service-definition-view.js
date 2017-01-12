@@ -302,7 +302,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
 
         /**
          * Get the Widest resource
-         * @returns ResourceDefinition
+         * @returns {ResourceDefinition} - The resource definition view
          */
         ServiceDefinitionView.prototype.getWidestResource = function () {
             var sortedArray = _.sortBy(this._resourceViewList, [function (resourceDefView) {

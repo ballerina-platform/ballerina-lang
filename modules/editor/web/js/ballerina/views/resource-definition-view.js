@@ -870,15 +870,15 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
         /**
          * Default width of the content area
-         * @returns {number}
+         * @returns {number} Default content width
          */
         ResourceDefinitionView.prototype.getContentDefaultWidth = function () {
             return this._viewOptions.contentDfaultWidth;
         };
 
         /**
-         * Default with of the heading
-         * @returns {number}
+         * Default width of the heading
+         * @returns {number} Default Heading Width
          */
         ResourceDefinitionView.prototype.getHeadingDefaultWidth = function () {
             return this._viewOptions.heading.defaultWidth;
@@ -891,7 +891,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
         ResourceDefinitionView.prototype.getLastConnectorOrWorker = function () {
             var lastConnectorOrWorker = _.last(this.getModel().getChildren());
             if (BallerinaASTFactory.isWorkerDeclaration(lastConnectorOrWorker) ||
-                BallerinaASTFactory.isWorkerDeclaration(lastConnectorOrWorker)) {
+                BallerinaASTFactory.isConnectorDeclaration(lastConnectorOrWorker)) {
                 return lastConnectorOrWorker;
             } else {
                 return undefined;
@@ -900,9 +900,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
         /**
          * Shrink or Expand the Resource
-         * @param dh
-         * @param dw
-         * @constructor
+         * @param {number} dh - delta height
+         * @param {number} dw - delta width
          */
         ResourceDefinitionView.prototype.ShrinkOrExpand = function (dh, dw) {
             if (this.getBoundingBox().w() + dw > this._viewOptions.contentDfaultWidth) {
