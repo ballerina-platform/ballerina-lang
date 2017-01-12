@@ -21,21 +21,38 @@ import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.values.BValue;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
- * {@code BackquoteExpr} represents an xml or a json string wrapped in between backticks/backquotes
+ * {@code BacktickExpr} represents an xml or a json string wrapped in between backticks/backquotes
  *
  * @since 1.0.0
  */
-public class BackquoteExpr extends AbstractExpression {
+public class BacktickExpr extends AbstractExpression {
 
     private String templateStr;
 
-    private BackquoteExpr(String templateStr) {
+    private Map<String, VariableRefExpr> variableRefExprMap = new HashMap<>();
+
+    private BacktickExpr(String templateStr) {
         this.templateStr = templateStr;
     }
 
     public String getTemplateStr() {
         return templateStr;
+    }
+
+    public VariableRefExpr getVariableRefExpr(String name) {
+        return variableRefExprMap.get(name);
+    }
+
+    public Map<String, VariableRefExpr> getVariableRefExprMap() {
+        return variableRefExprMap;
+    }
+
+    public void addVariableRefExpr(String name, VariableRefExpr variableRefExpr) {
+        variableRefExprMap.put(name, variableRefExpr);
     }
 
     @Override
@@ -50,18 +67,18 @@ public class BackquoteExpr extends AbstractExpression {
     /**
      *
      */
-    public static class BackquoteExprBuilder {
+    public static class BacktickExprBuilder {
         private String templateStr;
 
-        public BackquoteExprBuilder() {
+        public BacktickExprBuilder() {
         }
 
         public void setTemplateStr(String templateStr) {
             this.templateStr = templateStr;
         }
 
-        public BackquoteExpr build() {
-            return new BackquoteExpr(this.templateStr);
+        public BacktickExpr build() {
+            return new BacktickExpr(this.templateStr);
         }
     }
 }

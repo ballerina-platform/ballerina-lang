@@ -40,7 +40,7 @@ import org.wso2.ballerina.core.model.expressions.AddExpression;
 import org.wso2.ballerina.core.model.expressions.AndExpression;
 import org.wso2.ballerina.core.model.expressions.ArrayInitExpr;
 import org.wso2.ballerina.core.model.expressions.ArrayMapAccessExpr;
-import org.wso2.ballerina.core.model.expressions.BackquoteExpr;
+import org.wso2.ballerina.core.model.expressions.BacktickExpr;
 import org.wso2.ballerina.core.model.expressions.BasicLiteral;
 import org.wso2.ballerina.core.model.expressions.BinaryExpression;
 import org.wso2.ballerina.core.model.expressions.DivideExpr;
@@ -465,12 +465,21 @@ public class BLangModelBuilder {
         exprStack.push(expr);
     }
 
-    public void createBackquoteExpr(String stringContent, Position sourceLocation) {
+    public void createBacktickExpr(String stringContent, Position sourceLocation) {
         String templateStr = getValueWithinBackquote(stringContent);
-
-        BackquoteExpr.BackquoteExprBuilder builder = new BackquoteExpr.BackquoteExprBuilder();
+        BacktickExpr.BacktickExprBuilder builder = new BacktickExpr.BacktickExprBuilder();
         builder.setTemplateStr(templateStr);
-        BackquoteExpr expr = builder.build();
+        BacktickExpr expr = builder.build();
+        // Check for variable references in the backtick string
+        Pattern p = Pattern.compile("\\$\\{([a-zA-Z_][a-zA-Z0-9_]*)\\}");
+        Matcher m = p.matcher(templateStr);
+        while (m.find()) {
+            String result = m.group(1);
+            SymbolName symName = new SymbolName(result);
+            VariableRefExpr variableRefExpr = new VariableRefExpr(symName);
+            variableRefExpr.setLocation(sourceLocation);
+            expr.addVariableRefExpr(result, variableRefExpr);
+        }
         expr.setLocation(sourceLocation);
         exprStack.push(expr);
     }
