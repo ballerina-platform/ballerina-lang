@@ -589,13 +589,11 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
 
         BallerinaASTFactory.createFromJson = function (jsonNode) {
             var node;
-            console.log("type:" + jsonNode.type);
             var nodeType = jsonNode.type;
 
             if (_.isUndefined(jsonNode.type)) {
                 var statement = jsonNode.statement;
                 node = BallerinaASTFactory.createAssignmentStatement();
-                console.log("statement:" + statement);
             } else {
                 switch (nodeType) {
                     case 'package':
