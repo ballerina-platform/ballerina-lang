@@ -24,16 +24,16 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
         './if-else-statement', './if-statement', './else-statement', './else-if-statement', './trycatch-statement', './try-statement',
         './catch-statement', './reply-statement', './while-statement', './return-statement',
         './type-converter-definition', './type-definition', './type-element', './variable-declaration',
-        './package-definition', './import-declaration', './resource-arg', './assignment', './function-invocation',
+        './package-definition', './import-declaration', './resource-arg', './assignment', './assignment-statement', './function-invocation', './function-invocation-expression', './variable-reference-expression',
         './action-invocation-statement', './arithmetic-expression', './logical-expression', './action-invocation-expression',
-        './return-type', './type-name', './argument'],
+        './return-type', './type-name', './argument', './back-quote-expression'],
     function (ballerinaAstRoot, serviceDefinition, functionDefinition, connectorDefinition, resourceDefinition,
               workerDeclaration, statement, conditionalStatement, connectorDeclaration, expression,
               ifElseStatement, ifStatement, elseStatement, elseIfStatement, tryCatchStatement, tryStatement, catchStatement, replyStatement,
               whileStatement, returnStatement, typeConverterDefinition, typeDefinition, typeElement, variableDeclaration,
-              packageDefinition, importDeclaration, resourceArgument, assignmentStatement, functionInvocation,
+              packageDefinition, importDeclaration, resourceArgument, assignment, assignmentStatement, functionInvocation, functionInvocationExpression, variableReferenceExpression,
               actionInvocationStatement, arithmeticExpression, logicalExpression, actionInvocationExpression, returnType,
-              typeName, argument) {
+              typeName, argument, backQuoteExpression) {
 
 
         /**
@@ -57,9 +57,6 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
          */
         BallerinaASTFactory.createServiceDefinition = function (args, setDefaults) {
             var serviceDef = new serviceDefinition(args);
-            if(setDefaults){
-                serviceDef.addChild(BallerinaASTFactory.createResourceDefinition(args));
-            }
             return serviceDef;
         };
 
@@ -210,12 +207,21 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
         };
 
         /**
+         * creates Assignment
+         * @param args
+         */
+        BallerinaASTFactory.createAssignment = function (args) {
+            return new assignment(args);
+        };
+
+        /**
          * creates AssignmentStatement
          * @param args
+         * @returns {AssignmentStatement}
          */
         BallerinaASTFactory.createAssignmentStatement = function (args) {
             return new assignmentStatement(args);
-        };
+        }
 
         /**
          * creates ReplyStatement
@@ -232,6 +238,19 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
         BallerinaASTFactory.createFunctionInvocationStatement = function (args) {
             return new functionInvocation(args);
         };
+
+        /**
+         * creates FunctionInvocationExpression
+         * @param {Object} args
+         * @returns {FunctionInvocationExpression}
+         */
+        BallerinaASTFactory.createFunctionInvocationExpression = function (args) {
+            return new functionInvocationExpression();
+        }
+
+        BallerinaASTFactory.createVariableReferenceExpression = function (args) {
+            return new variableReferenceExpression();
+        }
 
         /**
          * creates ArithmeticExpression
@@ -332,6 +351,24 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
          */
         BallerinaASTFactory.createTypeName = function (args) {
             return new typeName(args);
+        };
+
+        /**
+         * creates BackQuoteExpression
+         * @param args
+         * @returns {backQuoteExpression}
+         */
+        BallerinaASTFactory.createBackQuoteExpression = function (args) {
+            return new backQuoteExpression(args);
+        }
+
+        /**
+         * instanceof check for BallerinaAstRoot
+         * @param child
+         * @returns {boolean}
+         */
+        BallerinaASTFactory.isBallerinaAstRoot = function (child) {
+            return child instanceof ballerinaAstRoot;
         };
 
         /**
@@ -561,6 +598,17 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
         };
 
         /**
+         * instanceof check for ActionInvocationExpression
+         * @param child - Object for instanceof check
+         * @returns {boolean} - true if same type, else false
+         */
+        BallerinaASTFactory.isActionInvocationExpression = function(statement){
+            if (statement instanceof actionInvocationExpression){
+                return true;
+            }
+        };
+
+        /**
          * instanceof check for Argument
          * @param child - Object for instanceof check
          * @returns {boolean} - true if same type, else false
@@ -587,13 +635,31 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
             return child instanceof typeName;
         };
 
+        /**
+         * instanceof check for BackQuoteExpression
+         * @param child
+         * @returns {boolean}
+         */
+        BallerinaASTFactory.isBackQuoteExpression = function (child) {
+            return child instanceof backQuoteExpression;
+        }
+
+        /**
+         * instanceof check for Assignment
+         * @param child
+         * @returns {boolean}
+         */
+        BallerinaASTFactory.isAssignment = function (child) {
+            return child instanceof assignment;
+        }
+
         BallerinaASTFactory.createFromJson = function (jsonNode) {
             var node;
             var nodeType = jsonNode.type;
 
             if (_.isUndefined(jsonNode.type)) {
                 var statement = jsonNode.statement;
-                node = BallerinaASTFactory.createAssignmentStatement();
+                node = BallerinaASTFactory.createAssignment();
             } else {
                 switch (nodeType) {
                     case 'package':
@@ -638,14 +704,28 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
                     case 'type_name':
                         node = BallerinaASTFactory.createTypeName();
                         break;
-                    case 'function_invocation':
+                    case 'function_invocation_statement':
                         node = BallerinaASTFactory.createFunctionInvocationStatement();
+                        break;
+                    case 'function_invocation_expression':
+                        node = BallerinaASTFactory.createFunctionInvocationExpression();
+                        break;
+                    case 'variable_reference_expression':
+                        node = BallerinaASTFactory.createVariableReferenceExpression();
+                        break;
+                    case 'action_invocation_expression':
+                        node = BallerinaASTFactory.createActionInvocationExpression();
+                        break;
+                    case 'assignment_statement':
+                        node = BallerinaASTFactory.createAssignmentStatement();
+                        break;
+                    case 'back_quote_expression':
+                        node = BallerinaASTFactory.createAssignment();
                         break;
                     default:
                         throw "Unknown node definition for " + jsonNode.type;
                 }
             }
-            node.initFromJson(jsonNode);
             return node;
         };
 
