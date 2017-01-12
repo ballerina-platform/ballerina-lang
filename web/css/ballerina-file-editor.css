@@ -1,5 +1,4 @@
 .service-container {
-    width: 100%;
     background: none;
 }
 
@@ -31,6 +30,7 @@
 .outer-box{
     border: 1px solid;
     border-top: none;
+    overflow-x: scroll;
 }
 
 .panel-title{
