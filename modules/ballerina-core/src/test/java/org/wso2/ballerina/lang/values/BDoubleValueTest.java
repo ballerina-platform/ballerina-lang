@@ -50,7 +50,6 @@ public class BDoubleValueTest {
         BValue[] returns = Functions.invoke(bFile, "testDoubleValue");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BDouble.class);
-
         BDouble doubleValue = (BDouble) returns[0];
         Assert.assertEquals(doubleValue.doubleValue(), 10.1, "Invalid double value returned.");
     }
@@ -60,7 +59,6 @@ public class BDoubleValueTest {
         BValue[] returns = Functions.invoke(bFile, "testNegativeDoubleValue");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BDouble.class);
-
         BDouble doubleValue = (BDouble) returns[0];
         Assert.assertEquals(doubleValue.doubleValue(), (-10.1), "Invalid double value returned.");
     }
@@ -70,7 +68,6 @@ public class BDoubleValueTest {
         BValue[] returns = Functions.invoke(bFile, "testDoubleValueAssignmentByReturnValue");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BDouble.class);
-
         BDouble doubleValue = (BDouble) returns[0];
         Assert.assertEquals(doubleValue.doubleValue(), 10.1, "Invalid double value returned.");
     }
@@ -81,7 +78,6 @@ public class BDoubleValueTest {
         BValue[] returns = Functions.invoke(bFile, "testDoubleParameter", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BDouble.class);
-
         BDouble doubleValue = (BDouble) returns[0];
         Assert.assertEquals(doubleValue.doubleValue(), 3.3, "Invalid double value returned.");
     }
@@ -91,7 +87,6 @@ public class BDoubleValueTest {
         BValue[] returns = Functions.invoke(bFile, "testDoubleAddition");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BDouble.class);
-
         BDouble doubleValue = (BDouble) returns[0];
         Assert.assertEquals(doubleValue.doubleValue(), 20.0, "Invalid double value returned.");
     }
@@ -101,7 +96,6 @@ public class BDoubleValueTest {
         BValue[] returns = Functions.invoke(bFile, "testDoubleSubtraction");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BDouble.class);
-
         BDouble doubleValue = (BDouble) returns[0];
         Assert.assertEquals(doubleValue.doubleValue(), 10.0, "Invalid double value returned.");
     }
@@ -111,7 +105,6 @@ public class BDoubleValueTest {
         BValue[] returns = Functions.invoke(bFile, "testDoubleMultiplication");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BDouble.class);
-
         BDouble doubleValue = (BDouble) returns[0];
         Assert.assertEquals(doubleValue.doubleValue(), 13.75, "Invalid double value returned.");
     }
@@ -121,7 +114,6 @@ public class BDoubleValueTest {
         BValue[] returns = Functions.invoke(bFile, "testDoubleDivision");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BDouble.class);
-
         BDouble doubleValue = (BDouble) returns[0];
         Assert.assertEquals(doubleValue.doubleValue(), 5.0, "Invalid double value returned.");
     }

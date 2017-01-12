@@ -50,7 +50,6 @@ public class BLongValueTest {
         BValue[] returns = Functions.invoke(bFile, "testLongValue");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BLong.class);
-
         BLong longValue = (BLong) returns[0];
         Assert.assertEquals(longValue.longValue(), 10L, "Invalid long value returned.");
     }
@@ -60,7 +59,6 @@ public class BLongValueTest {
         BValue[] returns = Functions.invoke(bFile, "testNegativeLongValue");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BLong.class);
-
         BLong longValue = (BLong) returns[0];
         Assert.assertEquals(longValue.longValue(), (-10L), "Invalid long value returned.");
     }
@@ -70,7 +68,6 @@ public class BLongValueTest {
         BValue[] returns = Functions.invoke(bFile, "testLongValueAssignmentByReturnValue");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BLong.class);
-
         BLong longValue = (BLong) returns[0];
         Assert.assertEquals(longValue.longValue(), 10L, "Invalid long value returned.");
     }
@@ -81,7 +78,6 @@ public class BLongValueTest {
         BValue[] returns = Functions.invoke(bFile, "testLongParameter", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BLong.class);
-
         BLong longValue = (BLong) returns[0];
         Assert.assertEquals(longValue.longValue(), 20L, "Invalid long value returned.");
     }
@@ -91,7 +87,6 @@ public class BLongValueTest {
         BValue[] returns = Functions.invoke(bFile, "testLongAddition");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BLong.class);
-
         BLong longValue = (BLong) returns[0];
         Assert.assertEquals(longValue.longValue(), 19L, "Invalid long value returned.");
     }
@@ -101,7 +96,6 @@ public class BLongValueTest {
         BValue[] returns = Functions.invoke(bFile, "testLongSubtraction");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BLong.class);
-
         BLong longValue = (BLong) returns[0];
         Assert.assertEquals(longValue.longValue(), 10L, "Invalid long value returned.");
     }
@@ -111,7 +105,6 @@ public class BLongValueTest {
         BValue[] returns = Functions.invoke(bFile, "testLongMultiplication");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BLong.class);
-
         BLong longValue = (BLong) returns[0];
         Assert.assertEquals(longValue.longValue(), 10L, "Invalid long value returned.");
     }
@@ -121,7 +114,6 @@ public class BLongValueTest {
         BValue[] returns = Functions.invoke(bFile, "testLongDivision");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BLong.class);
-
         BLong longValue = (BLong) returns[0];
         Assert.assertEquals(longValue.longValue(), 5L, "Invalid long value returned.");
     }
