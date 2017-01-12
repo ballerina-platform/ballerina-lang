@@ -55,8 +55,7 @@ public abstract class AbstractNativeFunction implements NativeConstruct, Functio
     private SymbolName symbolName;
     private List<Annotation> annotations;
     private List<Parameter> parameters;
-    private List<BType> returnTypes;
-    private BType[] returnTypesC;
+    private List<Parameter> returnParams;
     private boolean isPublicFunction;
     private List<Const> constants;
     private int stackFrameSize;
@@ -64,7 +63,7 @@ public abstract class AbstractNativeFunction implements NativeConstruct, Functio
 
     public AbstractNativeFunction() {
         parameters = new ArrayList<>();
-        returnTypes = new ArrayList<>();
+        returnParams = new ArrayList<>();
         annotations = new ArrayList<>();
         constants = new ArrayList<>();
         buildModel();
@@ -110,7 +109,7 @@ public abstract class AbstractNativeFunction implements NativeConstruct, Functio
                         } else {
                             type = BTypes.getArrayType(returnType.elementType().getName());
                         }
-                        returnTypes.add(type);
+                        returnParams.add(new Parameter(type, null));
                     } catch (BallerinaException e) {
                         // TODO: Fix this when TypeC.getType method is improved.
                         log.error("Internal Error..! Error while processing ReturnTypes for Native ballerina " +
@@ -173,10 +172,8 @@ public abstract class AbstractNativeFunction implements NativeConstruct, Functio
         return new VariableDcl[0];
     }
 
-
-    @SuppressWarnings("unchecked")
-    public BType[] getReturnTypes() {
-        return returnTypes.toArray(new BType[returnTypes.size()]);
+    public Parameter[] getReturnParameters() {
+        return returnParams.toArray(new Parameter[returnParams.size()]);
     }
 
     /**

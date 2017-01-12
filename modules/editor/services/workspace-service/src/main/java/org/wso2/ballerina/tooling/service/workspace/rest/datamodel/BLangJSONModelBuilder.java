@@ -312,11 +312,11 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         JsonObject returnTypeObj = new JsonObject();
         returnTypeObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.RETURN_TYPE);
         JsonArray returnTypeArray = new JsonArray();
-        if (function.getReturnTypes() != null) {
-            for (BType type : function.getReturnTypes()) {
+        if (function.getReturnParameters() != null) {
+            for (Parameter parameter : function.getReturnParameters()) {
                 JsonObject typeObj = new JsonObject();
                 typeObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.RETURN_TYPE_NAME);
-                typeObj.addProperty(BLangJSONModelConstants.RETURN_TYPE_NAME, type.toString());
+                typeObj.addProperty(BLangJSONModelConstants.RETURN_TYPE_NAME, parameter.getType().toString());
                 returnTypeArray.add(typeObj);
             }
         }

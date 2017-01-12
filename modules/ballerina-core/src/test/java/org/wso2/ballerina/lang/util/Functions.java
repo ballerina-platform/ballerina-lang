@@ -96,8 +96,8 @@ public class Functions {
 
         // 4) Prepare function arguments
         BValue[] functionArgs = args;
-        if (function.getReturnTypes().length != 0) {
-            functionArgs = Arrays.copyOf(args, args.length + function.getReturnTypes().length);
+        if (function.getReturnParameters().length != 0) {
+            functionArgs = Arrays.copyOf(args, args.length + function.getReturnParameters().length);
         }
 
         // 5) Create the RuntimeEnvironment

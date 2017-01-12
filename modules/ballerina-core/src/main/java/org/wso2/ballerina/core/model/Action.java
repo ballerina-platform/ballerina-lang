@@ -16,8 +16,6 @@
 
 package org.wso2.ballerina.core.model;
 
-import org.wso2.ballerina.core.model.types.BType;
-
 /**
  * {@code {@link Action}} represents any Ballerina Action.
  */
@@ -47,11 +45,11 @@ public interface Action {
     VariableDcl[] getVariableDcls();
 
     /**
-     * Get list of return Types associated with action definition.
+     * Get list of return parameters
      *
-     * @return list of Return types.
+     * @return list of Return types
      */
-    BType[] getReturnTypes();
+    Parameter[] getReturnParameters();
 
     int getStackFrameSize();
 

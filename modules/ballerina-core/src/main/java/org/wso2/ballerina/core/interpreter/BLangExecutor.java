@@ -26,6 +26,7 @@ import org.wso2.ballerina.core.model.Connector;
 import org.wso2.ballerina.core.model.ConnectorDcl;
 import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.model.NodeExecutor;
+import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.VariableDcl;
@@ -228,23 +229,33 @@ public class BLangExecutor implements NodeExecutor {
         BValue[] localVals = new BValue[sizeOfValueArray];
 
         // Get values for all the function arguments
-        int valuesCounter = populateArgumentValues(funcIExpr.getExprs(), localVals);
-
-        // Create default values for all declared local variables
-        VariableDcl[] variableDcls = function.getVariableDcls();
-        for (VariableDcl variableDcl : variableDcls) {
-            localVals[valuesCounter] = variableDcl.getType().getDefaultValue();
-            valuesCounter++;
-        }
+        int valueCounter = populateArgumentValues(funcIExpr.getExprs(), localVals);
 
         // Populate values for Connector declarations
         if (function instanceof BallerinaFunction) {
             BallerinaFunction ballerinaFunction = (BallerinaFunction) function;
-            populateConnectorDclValues(ballerinaFunction.getConnectorDcls(), localVals, valuesCounter);
+            valueCounter = populateConnectorDclValues(ballerinaFunction.getConnectorDcls(), localVals, valueCounter);
+        }
+
+        // Create default values for all declared local variables
+        for (VariableDcl variableDcl : function.getVariableDcls()) {
+            localVals[valueCounter] = variableDcl.getType().getDefaultValue();
+            valueCounter++;
+        }
+
+        for (Parameter returnParam : function.getReturnParameters()) {
+            // Check whether these are unnamed set of return types.
+            // If so break the loop. You can't have a mix of unnamed and named returns parameters.
+            if (returnParam.getName() == null) {
+                break;
+            }
+
+            localVals[valueCounter] = returnParam.getType().getDefaultValue();
+            valueCounter++;
         }
 
         // Create an array in the stack frame to hold return values;
-        BValue[] returnVals = new BValue[function.getReturnTypes().length];
+        BValue[] returnVals = new BValue[function.getReturnParameters().length];
 
         // Create a new stack frame with memory locations to hold parameters, local values, temp expression value,
         // return values and function invocation location;
@@ -280,21 +291,31 @@ public class BLangExecutor implements NodeExecutor {
         // Create default values for all declared local variables
         int valueCounter = populateArgumentValues(actionIExpr.getExprs(), localVals);
 
+        // Populate values for Connector declarations
+        if (action instanceof BallerinaAction) {
+            BallerinaAction ballerinaAction = (BallerinaAction) action;
+            valueCounter = populateConnectorDclValues(ballerinaAction.getConnectorDcls(), localVals, valueCounter);
+        }
+
         // Create default values for all declared local variables
-        VariableDcl[] variableDcls = action.getVariableDcls();
-        for (VariableDcl variableDcl : variableDcls) {
+        for (VariableDcl variableDcl : action.getVariableDcls()) {
             localVals[valueCounter] = variableDcl.getType().getDefaultValue();
             valueCounter++;
         }
 
-        // Populate values for Connector declarations
-        if (action instanceof BallerinaAction) {
-            BallerinaAction ballerinaAction = (BallerinaAction) action;
-            populateConnectorDclValues(ballerinaAction.getConnectorDcls(), localVals, valueCounter);
+        for (Parameter returnParam : action.getReturnParameters()) {
+            // Check whether these are unnamed set of return types.
+            // If so break the loop. You can't have a mix of unnamed and named returns parameters.
+            if (returnParam.getName() == null) {
+                break;
+            }
+
+            localVals[valueCounter] = returnParam.getType().getDefaultValue();
+            valueCounter++;
         }
 
         // Create an array in the stack frame to hold return values;
-        BValue[] returnVals = new BValue[action.getReturnTypes().length];
+        BValue[] returnVals = new BValue[action.getReturnParameters().length];
 
         // Create a new stack frame with memory locations to hold parameters, local values, temp expression values and
         // return values;
@@ -332,16 +353,16 @@ public class BLangExecutor implements NodeExecutor {
 
         valueParams[0] = messageValue;
 
-        int valuesCounter = 1;
+        int valueCounter = 1;
         // Create default values for all declared local variables
         VariableDcl[] variableDcls = resource.getVariableDcls();
         for (VariableDcl variableDcl : variableDcls) {
-            valueParams[valuesCounter] = variableDcl.getType().getDefaultValue();
-            valuesCounter++;
+            valueParams[valueCounter] = variableDcl.getType().getDefaultValue();
+            valueCounter++;
         }
 
         // Populate values for Connector declarations
-        populateConnectorDclValues(resource.getConnectorDcls(), valueParams, valuesCounter);
+        populateConnectorDclValues(resource.getConnectorDcls(), valueParams, valueCounter);
 
         BValue[] ret = new BValue[1];
 
@@ -526,7 +547,7 @@ public class BLangExecutor implements NodeExecutor {
         return i;
     }
 
-    private int populateConnectorDclValues(ConnectorDcl[] connectorDcls, BValue[] valueParams, int valuesCounter) {
+    private int populateConnectorDclValues(ConnectorDcl[] connectorDcls, BValue[] valueParams, int valueCounter) {
         for (ConnectorDcl connectorDcl : connectorDcls) {
 
             BValue[] connectorMemBlock;
@@ -565,10 +586,10 @@ public class BLangExecutor implements NodeExecutor {
             }
 
             BConnector connectorValue = new BConnector(connector, connectorMemBlock);
-            valueParams[valuesCounter] = connectorValue;
-            valuesCounter++;
+            valueParams[valueCounter] = connectorValue;
+            valueCounter++;
         }
 
-        return valuesCounter;
+        return valueCounter;
     }
 }

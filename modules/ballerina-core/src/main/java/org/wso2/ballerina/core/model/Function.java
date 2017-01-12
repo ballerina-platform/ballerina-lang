@@ -18,8 +18,6 @@
 
 package org.wso2.ballerina.core.model;
 
-import org.wso2.ballerina.core.model.types.BType;
-
 /**
  * {@code {@link Function}} represents any Ballerina function.
  */
@@ -73,11 +71,11 @@ public interface Function {
     VariableDcl[] getVariableDcls();
 
     /**
-     * Get list of return Types associated with function defintion.
+     * Get list of return parameters
      *
-     * @return list of Return types.
+     * @return list of Return types
      */
-    BType[] getReturnTypes();
+    Parameter[] getReturnParameters();
 
     /**
      * Check whether function is public, which means function is visible outside the package
