@@ -46,6 +46,7 @@ public class BallerinaAction implements Action, Node {
     private VariableDcl[] variableDcls;
     private Worker[] workers;
     private BType[] returnTypes;
+    private Parameter[] returnParams;
     private BlockStmt actionBody;
     private Position actionLocation;
 
@@ -55,7 +56,7 @@ public class BallerinaAction implements Action, Node {
                            Position location,
                            Annotation[] annotations,
                            Parameter[] parameters,
-                           BType[] returnTypes,
+                           Parameter[] returnParams,
                            ConnectorDcl[] connectorDcls,
                            VariableDcl[] variableDcls,
                            Worker[] workers,
@@ -65,7 +66,7 @@ public class BallerinaAction implements Action, Node {
         this.actionLocation = location;
         this.annotations = annotations;
         this.parameters = parameters;
-        this.returnTypes = returnTypes;
+        this.returnParams = returnParams;
         this.connectorDcls = connectorDcls;
         this.variableDcls = variableDcls;
         this.workers = workers;
@@ -98,8 +99,8 @@ public class BallerinaAction implements Action, Node {
     }
 
     @Override
-    public BType[] getReturnTypes() {
-        return returnTypes;
+    public Parameter[] getReturnParameters() {
+        return returnParams;
     }
 
     @Override

@@ -51,6 +51,7 @@ public class BallerinaFunction extends PositionAwareNode implements Function, No
     private Worker[] workers;
 
     private BType[] returnTypes;
+    private Parameter[] returnParams;
     private BlockStmt functionBody;
 
     private boolean publicFunc;
@@ -62,7 +63,7 @@ public class BallerinaFunction extends PositionAwareNode implements Function, No
                              Boolean isPublic,
                              Annotation[] annotations,
                              Parameter[] parameters,
-                             BType[] returnTypes,
+                             Parameter[] returnParams,
                              ConnectorDcl[] connectorDcls,
                              VariableDcl[] variableDcls,
                              Worker[] workers,
@@ -74,7 +75,7 @@ public class BallerinaFunction extends PositionAwareNode implements Function, No
         this.publicFunc = isPublic;
         this.annotations = annotations;
         this.parameters = parameters;
-        this.returnTypes = returnTypes;
+        this.returnParams = returnParams;
         this.connectorDcls = connectorDcls;
         this.variableDcls = variableDcls;
         this.workers = workers;
@@ -163,8 +164,8 @@ public class BallerinaFunction extends PositionAwareNode implements Function, No
         return workers;
     }
 
-    public BType[] getReturnTypes() {
-        return returnTypes;
+    public Parameter[] getReturnParameters() {
+        return returnParams;
     }
 
     /**

@@ -79,7 +79,7 @@ public class FunctionInvocationExpr extends AbstractExpression implements Execut
     public BValue execute(NodeExecutor executor) {
         BValue[] values = executor.visit(this);
 
-        if (calleeFunction.getReturnTypes().length == 0) {
+        if (calleeFunction.getReturnParameters().length == 0) {
             return null;
         }
 

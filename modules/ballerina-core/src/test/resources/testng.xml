@@ -56,6 +56,9 @@ under the License.
             <!-- Service-->
             <class name="org.wso2.ballerina.lang.service.ServiceTest"/>
 
+            <!-- Functions -->
+            <class name="org.wso2.ballerina.lang.functions.NamedReturnParameterTest"/>
+
         </classes>
     </test>
 
