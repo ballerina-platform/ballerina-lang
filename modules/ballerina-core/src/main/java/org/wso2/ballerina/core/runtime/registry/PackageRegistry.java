@@ -72,15 +72,9 @@ public class PackageRegistry {
 
         String funcName = function.getName();
         SymbolName symbolName = LangModelUtils.getSymNameWithParams(funcName, function.getParameters());
-        Symbol symbol = new Symbol(function, LangModelUtils.getTypesOfParams(function.getParameters()),
-                                   function.getReturnTypes());
+        Symbol symbol = new Symbol(function);
 
         GlobalScopeHolder.getInstance().insert(symbolName, symbol);
-
-//        CallableUnitType callableUnitType = new CallableUnitType(CallableUnit.FUNCTION, function.getSymbolName());
-//        callableUnitType.setParamType(function.getSymbolName().getParameters());
-//        callableUnitType.setReturnType(function.getReturnTypes());
-//        GlobalScopeHolder.getInstance().insert(function.getSymbolName(), new Symbol(callableUnitType, 0));
     }
 
     /**
@@ -95,8 +89,7 @@ public class PackageRegistry {
 
         String actionName = action.getSymbolName().getName();
         SymbolName symbolName = LangModelUtils.getSymNameWithParams(actionName, action.getParameters());
-        Symbol symbol = new Symbol(action, LangModelUtils.getTypesOfParams(action.getParameters()),
-                action.getReturnTypes());
+        Symbol symbol = new Symbol(action);
 
         GlobalScopeHolder.getInstance().insert(symbolName, symbol);
 
@@ -143,7 +136,7 @@ public class PackageRegistry {
 
         String connectorName = connector.getSymbolName().getName();
         //SymbolName symbolName = SymbolUtils.getSymNameWithParams(CONNECTOR_NAME, connector.getParameters());
-        Symbol symbol = new Symbol(connector, LangModelUtils.getTypesOfParams(connector.getParameters()));
+        Symbol symbol = new Symbol(connector);
 
         GlobalScopeHolder.getInstance().insert(new SymbolName(connectorName), symbol);
 

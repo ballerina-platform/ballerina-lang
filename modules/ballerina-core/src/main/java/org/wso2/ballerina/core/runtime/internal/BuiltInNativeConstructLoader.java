@@ -153,6 +153,8 @@ import org.wso2.ballerina.core.nativeimpl.net.uri.GetQueryParam;
  * All the external native constructs are plugged into the core through osgi services.
  * Making built-in constructs also plugged through osgi increases the boot-up time.
  * That's the main reason for doing this in this fashion.
+ *
+ * @since 1.0.0
  */
 public class BuiltInNativeConstructLoader {
 
@@ -330,10 +332,8 @@ public class BuiltInNativeConstructLoader {
 
         SymbolName symbolName =
                 LangModelUtils.getSymNameWithParams(function.getPackageName() + ":" +
-                                                    functionNameAnnotation.functionName(), function.getParameters());
-        Symbol symbol = new Symbol(function,
-                                   LangModelUtils.getTypesOfParams(function.getParameters()),
-                                   function.getReturnTypes());
+                        functionNameAnnotation.functionName(), function.getParameters());
+        Symbol symbol = new Symbol(function);
         symScope.insert(symbolName, symbol);
     }
 
