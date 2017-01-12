@@ -39,6 +39,7 @@ import org.wso2.ballerina.core.model.ImportPackage;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.Operator;
 import org.wso2.ballerina.core.model.Parameter;
+import org.wso2.ballerina.core.model.Position;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.model.Symbol;
@@ -414,7 +415,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         SymbolName symName = variableDcl.getName();
         Symbol symbol = symbolTable.lookup(symName);
         if (symbol != null && isSymbolInCurrentScope(symbol)) {
-            throw new SemanticException("Duplicate variable declaration with name: " + symName.getName() + " in " +
+            throw new SemanticException("Duplicate variable '" + symName.getName() + "' in " +
                     variableDcl.getLocation().getFileName() + ":" + variableDcl.getLocation().getLine());
         }
 
@@ -1002,7 +1003,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         Expression[] argExprs = mapInitExpr.getArgExprs();
 
         if (argExprs.length == 0) {
-            throw new SemanticException("Array initializer should have at least one argument" + " in " 
+            throw new SemanticException("Map initializer should have at least one argument" + " in " 
                     + mapInitExpr.getLocation().getFileName() + ":" + mapInitExpr.getLocation().getLine());
         }
 
@@ -1065,7 +1066,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         SymbolName varName = variableRefExpr.getSymbolName();
 
         // Check whether this symName is declared
-        Symbol symbol = getSymbol(varName);
+        Symbol symbol = getSymbol(varName, variableRefExpr.getLocation());
 
         variableRefExpr.setType(symbol.getType());
 //        variableRefExpr.setOffset(symbol.getOffset());
@@ -1142,7 +1143,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         Symbol symbol = new Symbol(function, paramTypes, function.getReturnTypes());
 
         if (symbolTable.lookup(symbolName) != null) {
-            throw new SemanticException("Duplicate function definition: " + symbolName + " in " 
+            throw new SemanticException("Duplicate function definition: " + function.getFunctionName() + " in " 
                     + function.getLocation().getFileName() + ":" + function.getLocation().getLine());
         }
 
@@ -1253,12 +1254,13 @@ public class SemanticAnalyzer implements NodeVisitor {
         return pkgPath;
     }
 
-    private Symbol getSymbol(SymbolName symName) {
+    private Symbol getSymbol(SymbolName symName, Position sourceLocation) {
         // Check whether this symName is declared
         Symbol symbol = symbolTable.lookup(symName);
 
         if (symbol == null) {
-            throw new SemanticException("Undeclared variable: " + symName.getName());
+            throw new SemanticException("Undeclared variable '" + symName.getName() + "' in " + 
+                    sourceLocation.getFileName() + ":" + sourceLocation.getLine());
         }
 
         return symbol;
@@ -1280,7 +1282,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         SymbolName symbolName = LangModelUtils.getSymNameWithParams(funcName.getName(), pkgPath, paramTypes);
         Symbol symbol = symbolTable.lookup(symbolName);
         if (symbol == null) {
-            throw new LinkerException("Undefined function: " + funcIExpr.getFunctionName().getName() + " in " 
+            throw new LinkerException("Undefined function '" + funcIExpr.getFunctionName().getName() + "' in " 
                     + funcIExpr.getLocation().getFileName() + ":" + funcIExpr.getLocation().getLine());
         }
 
