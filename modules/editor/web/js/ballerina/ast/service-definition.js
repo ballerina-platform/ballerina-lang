@@ -153,8 +153,10 @@ define(['lodash', './node'],
      * @return {boolean}
      */
     ServiceDefinition.prototype.canBeParentOf = function (node) {
-        return this.BallerinaASTFactory.isResourceDefinition(node)
-            || this.BallerinaASTFactory.isVariableDeclaration(node);
+        var BallerinaASTFactory = this.getFactory();
+        return BallerinaASTFactory.isResourceDefinition(node)
+            || BallerinaASTFactory.isVariableDeclaration(node)
+            || BallerinaASTFactory.isConnectorDeclaration(node);
     };
 
     /**
