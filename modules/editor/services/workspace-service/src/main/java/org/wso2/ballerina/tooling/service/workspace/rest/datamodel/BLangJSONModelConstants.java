@@ -160,4 +160,6 @@ public class BLangJSONModelConstants {
 
     public static final String STATEMENT = "statement";
 
+    public static final String EXPRESSION = "expression";
+
 }
