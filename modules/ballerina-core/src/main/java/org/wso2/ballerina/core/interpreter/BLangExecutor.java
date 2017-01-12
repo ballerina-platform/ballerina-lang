@@ -70,8 +70,6 @@ import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * {@code BLangExecutor} executes a Ballerina application
@@ -577,20 +575,9 @@ public class BLangExecutor implements NodeExecutor {
     }
 
     private String evaluteBacktickString(BacktickExpr backtickExpr) {
-        String varString = backtickExpr.getTemplateStr();
-        Pattern p = Pattern.compile("\\$\\{([a-zA-Z_][a-zA-Z0-9_]*)\\}");
-        Matcher m = p.matcher(varString);
-        while (m.find()) {
-            String result = m.group(1);
-            VariableRefExpr variableRefExpr = backtickExpr.getVariableRefExpr(result);
-            BValue value = visit(variableRefExpr);
-            String referenceString = "${" + result + "}";
-            // If the value is string and type is JSON, then include surrounding double quotes
-            if (value instanceof BString && (variableRefExpr.getType() == BTypes.JSON_TYPE)) {
-                varString = varString.replace(referenceString, "\"" + value.stringValue() + "\"");
-            } else {
-                varString = varString.replace(referenceString, value.stringValue());
-            }
+        String varString = "";
+        for (Expression expression : backtickExpr.getExpressionList()) {
+            varString = varString + expression.execute(this).stringValue();
         }
         return varString;
     }

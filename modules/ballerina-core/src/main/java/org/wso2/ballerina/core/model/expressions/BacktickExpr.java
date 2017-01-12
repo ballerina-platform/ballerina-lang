@@ -21,8 +21,8 @@ import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.values.BValue;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * {@code BacktickExpr} represents an xml or a json string wrapped in between backticks/backquotes
@@ -33,7 +33,7 @@ public class BacktickExpr extends AbstractExpression {
 
     private String templateStr;
 
-    private Map<String, VariableRefExpr> variableRefExprMap = new HashMap<>();
+    List<Expression> expressionList = new ArrayList<>();
 
     private BacktickExpr(String templateStr) {
         this.templateStr = templateStr;
@@ -43,16 +43,12 @@ public class BacktickExpr extends AbstractExpression {
         return templateStr;
     }
 
-    public VariableRefExpr getVariableRefExpr(String name) {
-        return variableRefExprMap.get(name);
+    public List<Expression> getExpressionList() {
+        return expressionList;
     }
 
-    public Map<String, VariableRefExpr> getVariableRefExprMap() {
-        return variableRefExprMap;
-    }
-
-    public void addVariableRefExpr(String name, VariableRefExpr variableRefExpr) {
-        variableRefExprMap.put(name, variableRefExpr);
+    public void addExpression(Expression expression) {
+        expressionList.add(expression);
     }
 
     @Override

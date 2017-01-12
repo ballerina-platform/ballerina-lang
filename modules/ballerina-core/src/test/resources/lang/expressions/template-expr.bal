@@ -20,8 +20,14 @@ function backtickVariableAccessXML(string variable) (xml) {
 }
 
 
-function backtickVariableAccessJSON(string variable) (json) {
+function backtickStringVariableAccessJSON(string variable) (json) {
     json backTickMessage;
     backTickMessage = `{"name":${variable}}`;
+    return backTickMessage;
+}
+
+function backtickIntegerVariableAccessJSON(int variable) (json) {
+    json backTickMessage;
+    backTickMessage = `{"age":${variable}}`;
     return backTickMessage;
 }

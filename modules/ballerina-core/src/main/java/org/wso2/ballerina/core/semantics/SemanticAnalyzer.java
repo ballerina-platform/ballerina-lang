@@ -90,10 +90,15 @@ import org.wso2.ballerina.core.model.types.BMapType;
 import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.model.util.LangModelUtils;
+import org.wso2.ballerina.core.model.values.BString;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * {@code SemanticAnalyzer} analyzes semantic properties of a Ballerina program
@@ -1081,10 +1086,36 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(BacktickExpr backtickExpr) {
-        // Iterate through variable references and analyze
-        for (String key : backtickExpr.getVariableRefExprMap().keySet()) {
-            VariableRefExpr variableRefExpr = backtickExpr.getVariableRefExpr(key);
+        // Analyze the string and create relevant tokens
+        // First check the literals
+        String patternString = "\\$\\{([a-zA-Z_][a-zA-Z0-9_]*)\\}";
+        String[] literals = backtickExpr.getTemplateStr().split(patternString);
+        // Then get the variable references
+        List<String> variableRefs = new ArrayList<>();
+        Pattern p = Pattern.compile(patternString);
+        Matcher m = p.matcher(backtickExpr.getTemplateStr());
+        while (m.find()) {
+            variableRefs.add(m.group(1));
+        }
+        // Now create the expression list and add that for later use at runtime
+        int j = 0;
+        for (; j < literals.length; j++) {
+            BasicLiteral basicLiteral = new BasicLiteral(new BString(literals[j]));
+            visit(basicLiteral);
+            backtickExpr.addExpression(basicLiteral);
+            if (variableRefs.size() > j) {
+                VariableRefExpr variableRefExpr = new VariableRefExpr(new SymbolName(variableRefs.get(j)));
+                variableRefExpr.setLocation(backtickExpr.getLocation());
+                visit(variableRefExpr);
+                backtickExpr.addExpression(variableRefExpr);
+            }
+        }
+        // Check if there is one missing
+        if (variableRefs.size() > j) {
+            VariableRefExpr variableRefExpr = new VariableRefExpr(new SymbolName(variableRefs.get(j)));
+            variableRefExpr.setLocation(backtickExpr.getLocation());
             visit(variableRefExpr);
+            backtickExpr.addExpression(variableRefExpr);
         }
         // TODO If the type is not set then just return
         visitExpr(backtickExpr);

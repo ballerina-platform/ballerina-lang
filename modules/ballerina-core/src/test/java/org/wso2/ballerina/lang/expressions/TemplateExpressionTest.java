@@ -23,6 +23,7 @@ import org.testng.annotations.Test;
 import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.SymbolName;
+import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BJSON;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
@@ -65,10 +66,10 @@ public class TemplateExpressionTest {
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
-    @Test(description = "Test JSON backtick expression with variable reference")
+    @Test(description = "Test JSON backtick expression with string variable reference")
     public void testBacktickJSONVariableAccessExpr() {
         BValue[] args = { new BString("WSO2")};
-        BValue[] returns = Functions.invoke(bFile, "backtickVariableAccessJSON", args);
+        BValue[] returns = Functions.invoke(bFile, "backtickStringVariableAccessJSON", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BJSON.class);
         String expected = "{\"name\":\"WSO2\"}";
@@ -82,6 +83,16 @@ public class TemplateExpressionTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BXML.class);
         String expected = "<name>WSO2</name>";
+        Assert.assertEquals(returns[0].stringValue(), expected);
+    }
+
+    @Test(description = "Test JSON backtick expression with integer variable reference")
+    public void testBacktickJSONIntegerVariableAccessExpr() {
+        BValue[] args = { new BInteger(11)};
+        BValue[] returns = Functions.invoke(bFile, "backtickIntegerVariableAccessJSON", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BJSON.class);
+        String expected = "{\"age\":11}";
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 

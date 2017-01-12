@@ -470,16 +470,6 @@ public class BLangModelBuilder {
         BacktickExpr.BacktickExprBuilder builder = new BacktickExpr.BacktickExprBuilder();
         builder.setTemplateStr(templateStr);
         BacktickExpr expr = builder.build();
-        // Check for variable references in the backtick string
-        Pattern p = Pattern.compile("\\$\\{([a-zA-Z_][a-zA-Z0-9_]*)\\}");
-        Matcher m = p.matcher(templateStr);
-        while (m.find()) {
-            String result = m.group(1);
-            SymbolName symName = new SymbolName(result);
-            VariableRefExpr variableRefExpr = new VariableRefExpr(symName);
-            variableRefExpr.setLocation(sourceLocation);
-            expr.addVariableRefExpr(result, variableRefExpr);
-        }
         expr.setLocation(sourceLocation);
         exprStack.push(expr);
     }
