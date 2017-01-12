@@ -27,11 +27,13 @@ import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
 
 /**
- * Utility functions for Function Invocations.
+ *  This class contain util methods to add connectors and actions to a given symbol scope
+ *
+ *  @since 1.0.0
  */
-public class ConnectorUtils {
+public class Connectors {
 
-    private ConnectorUtils() {
+    private Connectors() {
     }
 
     /**

@@ -30,7 +30,7 @@ import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.connectors.http.client.HTTPConnector;
 import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
-import org.wso2.ballerina.core.utils.ConnectorUtils;
+import org.wso2.ballerina.core.utils.Connectors;
 import org.wso2.ballerina.core.utils.ParserUtils;
 import org.wso2.ballerina.lang.util.Functions;
 
@@ -41,7 +41,7 @@ public class ConnectorActionTest {
     @BeforeClass()
     public void setup() {
         symScope = GlobalScopeHolder.getInstance().getScope();
-        ConnectorUtils.addNativeConnector(symScope, new HTTPConnector());
+        Connectors.addNativeConnector(symScope, new HTTPConnector());
         bFile = ParserUtils.parseBalFile("lang/connectors/connector-actions.bal");
     }
 
