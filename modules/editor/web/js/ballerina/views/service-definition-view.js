@@ -209,6 +209,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
                 }
             };
 
+            this.setServiceContainerWidth(this._container.width());
             AnnotationView.createAnnotationPane(annotationProperties);
         };
 
@@ -248,9 +249,6 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
             this.diagramRenderingContext.getViewModelMap()[resourceDefinition.id] = resourceDefinitionView;
 
             this.addToResourceViewList(resourceDefinitionView);
-
-            this.listenTo(resourceDefinitionView, 'childConnectorViewAddedEvent', this.childConnectorViewAddedCallback);
-            this.listenTo(resourceDefinitionView, 'defaultWorkerViewAddedEvent',this.defaultWorkerViewAddedCallback);
             resourceDefinitionView.render(this.diagramRenderingContext);
 
             //setting height of the service view
@@ -259,34 +257,6 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
             this._totalHeight = this._totalHeight + childView.getBoundingBox().h() + staticHeights;
             this.setServiceContainerHeight(this._totalHeight);
         };
-
-        /**
-         * callback function for connector view added event
-         * @param connectorView
-         */
-        ServiceDefinitionView.prototype.childConnectorViewAddedCallback = function (connectorView) {
-            this.updateLifelineMargin(connectorView);
-        };
-
-        /**
-         * callback function for default worker view added event
-         * @param defaultWorkerView
-         */
-        ServiceDefinitionView.prototype.defaultWorkerViewAddedCallback = function (defaultWorkerView) {
-            this.updateLifelineMargin(defaultWorkerView);
-        };
-
-        /**
-         * updates lifeline margin of this service
-         * @param lifeLineView
-         */
-        ServiceDefinitionView.prototype.updateLifelineMargin = function (lifeLineView) {
-            var centerX = lifeLineView.getBoundingBox().getTopCenterX();
-            if (centerX > this.getLifelineMargin().getPosition()) {
-                this.getLifelineMargin().setPosition(centerX);
-            }
-        };
-
 
         ServiceDefinitionView.prototype.canVisitConnectorDeclaration = function (connectorDeclaration) {
             return true;
@@ -307,7 +277,16 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
                 connectorDeclarationView,
                 center;
 
-            center = new Point(this.getLifelineMargin().getPosition(), this._viewOptions.offsetTop).move(this._viewOptions.LifeLineCenterGap, 0);
+            // Calculate the new connector's center point
+            var widestResource = this.getWidestResource();
+
+            if (_.isEmpty(this._connectorViewList)) {
+                // If this is the first service level connector adding
+                center = new Point(widestResource.getBoundingBox().getRight() + 120, this._viewOptions.offsetTop);
+            } else {
+                center = new Point(_.last(this._connectorViewList).getBoundingBox().getTopCenterX(),
+                    this._viewOptions.offsetTop).move(this._viewOptions.LifeLineCenterGap, 0);
+            }
             _.set(connectorOpts, 'centerPoint', center);
             connectorDeclarationView = new ConnectorDeclarationView(connectorOpts);
             this.diagramRenderingContext.getViewModelMap()[connectorDeclaration.id] = connectorDeclarationView;
@@ -315,33 +294,21 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
 
             connectorDeclarationView.render();
             connectorDeclarationView.setParent(this);
-            connectorDeclarationView.listenTo(this.getLifelineMargin(), 'moved', this.updateConnectorPositionCallback);
+            widestResource.getBoundingBox().on('right-edge-moved', function (dw) {
+                connectorDeclarationView.getBoundingBox().move(dw, 0);
+            });
+            widestResource.ShrinkOrExpand(0, -(this._viewOptions.LifeLineCenterGap));
         };
 
         /**
-         * updates connector position
-         * @param dx
+         * Get the Widest resource
+         * @returns ResourceDefinition
          */
-        ServiceDefinitionView.prototype.updateConnectorPositionCallback = function (dx) {
-            // "this" will be a connector instance
-            this.position(dx, 0);
-            this.getBoundingBox().move(dx, 0);
-        };
-
-        /**
-         * set the lifeline margin
-         * @param position
-         */
-        ServiceDefinitionView.prototype.setLifelineMargin = function (position) {
-            this._lifelineMargin.setPosition(position);
-        };
-
-        /**
-         * get the lifeline margin
-         * @returns {Axis|*}
-         */
-        ServiceDefinitionView.prototype.getLifelineMargin = function () {
-            return this._lifelineMargin;
+        ServiceDefinitionView.prototype.getWidestResource = function () {
+            var sortedArray = _.sortBy(this._resourceViewList, [function (resourceDefView) {
+                return resourceDefView.getBoundingBox().getRight();
+            }]);
+            return _.last(sortedArray);
         };
 
         return ServiceDefinitionView;

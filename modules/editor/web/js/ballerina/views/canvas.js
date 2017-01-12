@@ -187,6 +187,19 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
         this.getBoundingBox().h(newHeight);
     };
 
+    /**
+     * Set canvas container width
+     * @param newWidth
+     */
+    Canvas.prototype.setServiceContainerWidth = function (newWidth) {
+        this._svg.attr('width', newWidth);
+        this.getBoundingBox().w(newWidth);
+    };
+
+    Canvas.prototype.getServiceContainer = function () {
+        return this._svg;
+    };
+
     return Canvas;
 
 });

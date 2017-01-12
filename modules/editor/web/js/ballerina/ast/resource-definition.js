@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './node'],
-    function (_, log, ASTNode) {
+define(['lodash', 'require', 'log', './node'],
+    function (_, require, log, ASTNode) {
 
     /**
      * Constructor for ResourceDefinition
@@ -255,6 +255,44 @@ define(['lodash', 'log', './node'],
             var child = self.BallerinaASTFactory.createFromJson(childNode);
             self.addChild(child);
         });
+    };
+
+        /**
+         * Override the addChild method for ordering the child elements as
+         * [Statements, Workers, Connectors]
+         * @param {ASTNode} child
+         * @param {Integer|undefined} index
+         */
+    ResourceDefinition.prototype.addChild = function (child, index) {
+        var indexNew;
+        var BallerinaASTFactory = require('./ballerina-ast-factory');
+        if (BallerinaASTFactory.isConnectorDeclaration(child)) {
+            indexNew = index;
+        } else if (BallerinaASTFactory.isWorkerDeclaration(child)) {
+            var firstConnector = _.findIndex(this.getChildren(), function (node) {
+                BallerinaASTFactory.isConnectorDeclaration(node);
+            });
+            if (firstConnector !== -1) {
+                indexNew = firstConnector - 1;
+            }
+        } else {
+            var firstConnector = _.findIndex(this.getChildren(), function (node) {
+                BallerinaASTFactory.isConnectorDeclaration(node);
+            });
+            var firstWorker = _.findIndex(this.getChildren(), function (node) {
+                BallerinaASTFactory.isConnectorDeclaration(node);
+            });
+
+            if (firstWorker !== -1) {
+                indexNew = firstWorker - 1;
+            } else if (firstConnector !== -1) {
+                indexNew = index
+            } else {
+                indexNew = index
+            }
+        }
+
+        Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, indexNew);
     };
 
     return ResourceDefinition;
