@@ -255,11 +255,9 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
     public void visit(ReplyStmt replyStmt) {
         StringBuffer buffer = new StringBuffer();
         bufferStack.push(buffer);
-        buffer.append("reply ");
         replyStmt.getReplyExpr().accept(this);
         buffer.append(bufferStack.peek());
         bufferStack.pop();
-        buffer.append(";");
     }
 
     @Override
