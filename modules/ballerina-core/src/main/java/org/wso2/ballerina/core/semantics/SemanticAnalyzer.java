@@ -727,9 +727,15 @@ public class SemanticAnalyzer implements NodeVisitor {
         } else if (arithmeticExprType == BTypes.FLOAT_TYPE) {
             divideExpr.setEvalFunc(DivideExpr.DIV_FLOAT_FUNC);
 
+        } else if (arithmeticExprType == BTypes.DOUBLE_TYPE) {
+            divideExpr.setEvalFunc(DivideExpr.DIV_DOUBLE_FUNC);
+
+        } else if (arithmeticExprType == BTypes.LONG_TYPE) {
+            divideExpr.setEvalFunc(DivideExpr.DIV_LONG_FUNC);
+
         } else {
-            throw new SemanticException("Add operation is not supported for type: " + arithmeticExprType + " in " +
-                    divideExpr.getLocation().getFileName() + ":" + divideExpr.getLocation().getLine());
+            throw new SemanticException("Div operation is not supported for type: " + arithmeticExprType + " in " +
+                      divideExpr.getLocation().getFileName() + ":" + divideExpr.getLocation().getLine());
         }
     }
 
@@ -792,12 +798,18 @@ public class SemanticAnalyzer implements NodeVisitor {
         } else if (arithmeticExprType == BTypes.FLOAT_TYPE) {
             addExpr.setEvalFunc(AddExpression.ADD_FLOAT_FUNC);
 
+        } else if (arithmeticExprType == BTypes.LONG_TYPE) {
+            addExpr.setEvalFunc(AddExpression.ADD_LONG_FUNC);
+
+        } else if (arithmeticExprType == BTypes.DOUBLE_TYPE) {
+            addExpr.setEvalFunc(AddExpression.ADD_DOUBLE_FUNC);
+
         } else if (arithmeticExprType == BTypes.STRING_TYPE) {
             addExpr.setEvalFunc(AddExpression.ADD_STRING_FUNC);
 
         } else {
             throw new SemanticException("Add operation is not supported for type: " + arithmeticExprType + " in " +
-                    addExpr.getLocation().getFileName() + ":" + addExpr.getLocation().getLine());
+                      addExpr.getLocation().getFileName() + ":" + addExpr.getLocation().getLine());
         }
     }
 
@@ -811,9 +823,15 @@ public class SemanticAnalyzer implements NodeVisitor {
         } else if (binaryExprType == BTypes.FLOAT_TYPE) {
             multExpr.setEvalFunc(MultExpression.MULT_FLOAT_FUNC);
 
+        } else if (binaryExprType == BTypes.DOUBLE_TYPE) {
+            multExpr.setEvalFunc(MultExpression.MULT_DOUBLE_FUNC);
+
+        } else if (binaryExprType == BTypes.LONG_TYPE) {
+            multExpr.setEvalFunc(MultExpression.MULT_LONG_FUNC);
+
         } else {
             throw new SemanticException("Mult operation is not supported for type: " + binaryExprType + " in " +
-                    multExpr.getLocation().getFileName() + ":" + multExpr.getLocation().getLine());
+                      multExpr.getLocation().getFileName() + ":" + multExpr.getLocation().getLine());
         }
     }
 
@@ -827,9 +845,15 @@ public class SemanticAnalyzer implements NodeVisitor {
         } else if (binaryExprType == BTypes.FLOAT_TYPE) {
             subtractExpr.setEvalFunc(SubtractExpression.SUB_FLOAT_FUNC);
 
+        } else if (binaryExprType == BTypes.DOUBLE_TYPE) {
+            subtractExpr.setEvalFunc(SubtractExpression.SUB_DOUBLE_FUNC);
+
+        } else if (binaryExprType == BTypes.LONG_TYPE) {
+            subtractExpr.setEvalFunc(SubtractExpression.SUB_LONG_FUNC);
+
         } else {
             throw new SemanticException("Subtraction operation is not supported for type: " + binaryExprType + " in " +
-                    subtractExpr.getLocation().getFileName() + ":" + subtractExpr.getLocation().getLine());
+                      subtractExpr.getLocation().getFileName() + ":" + subtractExpr.getLocation().getLine());
         }
     }
 
