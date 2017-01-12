@@ -18,10 +18,8 @@
 package org.wso2.ballerina.core.model.expressions;
 
 import org.wso2.ballerina.core.model.Action;
-import org.wso2.ballerina.core.model.ExecutableMultiReturnExpr;
 import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.NodeVisitor;
-import org.wso2.ballerina.core.model.Position;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.values.BValue;
 
@@ -30,36 +28,35 @@ import org.wso2.ballerina.core.model.values.BValue;
  *
  * @since 1.0.0
  */
-public class ActionInvocationExpr extends AbstractExpression implements ExecutableMultiReturnExpr {
+public class ActionInvocationExpr extends AbstractExpression implements CallableUnitInvocationExpr<Action>  {
 
     private SymbolName actionName;
     private Expression[] exprs;
     private Action action;
-    private Position actionInvokedLocation;
 
     public ActionInvocationExpr(SymbolName actionName, Expression[] exprs) {
         this.actionName = actionName;
         this.exprs = exprs;
     }
 
-    public SymbolName getActionName() {
+    @Override
+    public SymbolName getCallableUnitName() {
         return actionName;
     }
 
-    public void setActionName(SymbolName actionName) {
-        this.actionName = actionName;
-    }
-
-    public Expression[] getExprs() {
+    @Override
+    public Expression[] getArgExprs() {
         return exprs;
     }
 
-    public Action getAction() {
+    @Override
+    public Action getCallableUnit() {
         return action;
     }
 
-    public void setAction(Action action) {
-        this.action = action;
+    @Override
+    public void setCallableUnit(Action callableUnit) {
+        this.action = callableUnit;
     }
 
     @Override
@@ -75,13 +72,5 @@ public class ActionInvocationExpr extends AbstractExpression implements Executab
     @Override
     public BValue execute(NodeExecutor executor) {
         return executor.visit(this)[0];
-    }
-
-    public Position getLocation() {
-        return actionInvokedLocation;
-    }
-
-    public void setLocation(Position actionInvokedLocation) {
-        this.actionInvokedLocation = actionInvokedLocation;
     }
 }

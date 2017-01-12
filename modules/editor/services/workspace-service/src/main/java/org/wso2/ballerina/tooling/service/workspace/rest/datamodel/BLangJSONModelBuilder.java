@@ -65,7 +65,7 @@ import org.wso2.ballerina.core.model.expressions.SubtractExpression;
 import org.wso2.ballerina.core.model.expressions.UnaryExpression;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.invokers.MainInvoker;
-import org.wso2.ballerina.core.model.invokers.ResourceInvocationExpr;
+import org.wso2.ballerina.core.model.expressions.ResourceInvocationExpr;
 import org.wso2.ballerina.core.model.statements.ActionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
@@ -76,7 +76,6 @@ import org.wso2.ballerina.core.model.statements.ReplyStmt;
 import org.wso2.ballerina.core.model.statements.ReturnStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
-import org.wso2.ballerina.core.model.types.BType;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -590,12 +589,12 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         funcInvcObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
                 BLangJSONModelConstants.FUNCTION_INVOCATION_EXPRESSION);
         funcInvcObj.addProperty(BLangJSONModelConstants.FUNCTIONS_NAME,
-                funcIExpr.getFunctionName().getName());
+                funcIExpr.getCallableUnitName().getName());
         funcInvcObj.addProperty(BLangJSONModelConstants.PACKAGE_NAME,
-                funcIExpr.getFunction().getPackageName());
+                funcIExpr.getCallableUnit().getPackageName());
         tempJsonArrayRef.push(new JsonArray());
-        if (funcIExpr.getExprs() != null) {
-            for (Expression expression : funcIExpr.getExprs()) {
+        if (funcIExpr.getArgExprs() != null) {
+            for (Expression expression : funcIExpr.getArgExprs()) {
                 expression.accept(this);
             }
         }
@@ -610,10 +609,10 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         actionInvcObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
                 BLangJSONModelConstants.ACTION_INVOCATION_EXPRESSION);
         actionInvcObj.addProperty(BLangJSONModelConstants.ACTION_NAME,
-                actionIExpr.getActionName().getName());
+                actionIExpr.getCallableUnitName().getName());
         tempJsonArrayRef.push(new JsonArray());
-        if (actionIExpr.getExprs() != null) {
-            for (Expression expression : actionIExpr.getExprs()) {
+        if (actionIExpr.getArgExprs() != null) {
+            for (Expression expression : actionIExpr.getArgExprs()) {
                 expression.accept(this);
             }
         }

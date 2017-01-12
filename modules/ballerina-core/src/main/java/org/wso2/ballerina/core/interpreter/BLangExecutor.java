@@ -41,9 +41,9 @@ import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.InstanceCreationExpr;
 import org.wso2.ballerina.core.model.expressions.KeyValueExpression;
 import org.wso2.ballerina.core.model.expressions.MapInitExpr;
+import org.wso2.ballerina.core.model.expressions.ResourceInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.UnaryExpression;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
-import org.wso2.ballerina.core.model.invokers.ResourceInvocationExpr;
 import org.wso2.ballerina.core.model.statements.ActionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
@@ -223,13 +223,13 @@ public class BLangExecutor implements NodeExecutor {
     public BValue[] visit(FunctionInvocationExpr funcIExpr) {
 
         // Create the Stack frame
-        Function function = funcIExpr.getFunction();
+        Function function = funcIExpr.getCallableUnit();
 
         int sizeOfValueArray = function.getStackFrameSize();
         BValue[] localVals = new BValue[sizeOfValueArray];
 
         // Get values for all the function arguments
-        int valueCounter = populateArgumentValues(funcIExpr.getExprs(), localVals);
+        int valueCounter = populateArgumentValues(funcIExpr.getArgExprs(), localVals);
 
         // Populate values for Connector declarations
         if (function instanceof BallerinaFunction) {
@@ -259,7 +259,7 @@ public class BLangExecutor implements NodeExecutor {
 
         // Create a new stack frame with memory locations to hold parameters, local values, temp expression value,
         // return values and function invocation location;
-        SymbolName functionSymbolName = funcIExpr.getFunctionName();
+        SymbolName functionSymbolName = funcIExpr.getCallableUnitName();
         CallableUnitInfo functionInfo = new CallableUnitInfo(functionSymbolName.getName(),
                 functionSymbolName.getPkgName(), funcIExpr.getLocation());
 
@@ -284,12 +284,12 @@ public class BLangExecutor implements NodeExecutor {
     @Override
     public BValue[] visit(ActionInvocationExpr actionIExpr) {
         // Create the Stack frame
-        Action action = actionIExpr.getAction();
+        Action action = actionIExpr.getCallableUnit();
 
         BValue[] localVals = new BValue[action.getStackFrameSize()];
 
         // Create default values for all declared local variables
-        int valueCounter = populateArgumentValues(actionIExpr.getExprs(), localVals);
+        int valueCounter = populateArgumentValues(actionIExpr.getArgExprs(), localVals);
 
         // Populate values for Connector declarations
         if (action instanceof BallerinaAction) {
@@ -319,7 +319,7 @@ public class BLangExecutor implements NodeExecutor {
 
         // Create a new stack frame with memory locations to hold parameters, local values, temp expression values and
         // return values;
-        SymbolName actionSymbolName = actionIExpr.getActionName();
+        SymbolName actionSymbolName = actionIExpr.getCallableUnitName();
         CallableUnitInfo actionInfo = new CallableUnitInfo(actionSymbolName.getName(), actionSymbolName.getPkgName(),
                 actionIExpr.getLocation());
         StackFrame stackFrame = new StackFrame(localVals, returnVals, actionInfo);
