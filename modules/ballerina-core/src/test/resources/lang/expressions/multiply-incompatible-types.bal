@@ -1,10 +1,8 @@
-package samples.parser.invalidSemantic;
-
 function main(string[] s) {
-	int i;
+	float f;
 	
 	// Following line is invalid.
-	i = 5 + true;
+	f = 5.0 * 4;
 	
 	reply m;
 }
