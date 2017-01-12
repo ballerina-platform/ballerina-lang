@@ -91,7 +91,7 @@ public class Functions {
         FunctionInvocationExpr funcIExpr = new FunctionInvocationExpr(new SymbolName(functionName, 
                 bFile.getPackageName()), exprs);
         funcIExpr.setOffset(args.length);
-        funcIExpr.setFunction(function);
+        funcIExpr.setCallableUnit(function);
         funcIExpr.setLocation(function.getLocation());
 
         // 4) Prepare function arguments

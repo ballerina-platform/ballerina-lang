@@ -36,8 +36,8 @@ import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.expressions.Expression;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
+import org.wso2.ballerina.core.model.expressions.ResourceInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
-import org.wso2.ballerina.core.model.invokers.ResourceInvocationExpr;
 import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.model.values.BArray;
 import org.wso2.ballerina.core.model.values.BString;
@@ -127,10 +127,10 @@ public class BalProgramExecutor {
                 FunctionInvocationExpr funcIExpr = new FunctionInvocationExpr(
                         new SymbolName("main", balFile.getPackageName()), exprs);
                 funcIExpr.setOffset(1);
-                funcIExpr.setFunction(mainFunction);
+                funcIExpr.setCallableUnit(mainFunction);
                 funcIExpr.setLocation(mainFuncLocation);
 
-                SymbolName functionSymbolName = funcIExpr.getFunctionName();
+                SymbolName functionSymbolName = funcIExpr.getCallableUnitName();
                 CallableUnitInfo functionInfo = new CallableUnitInfo(functionSymbolName.getName(),
                         functionSymbolName.getPkgName(), mainFuncLocation);
 

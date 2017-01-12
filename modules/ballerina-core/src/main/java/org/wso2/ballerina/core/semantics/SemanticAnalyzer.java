@@ -32,6 +32,7 @@ import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.BallerinaConnector;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
+import org.wso2.ballerina.core.model.CallableUnit;
 import org.wso2.ballerina.core.model.ConnectorDcl;
 import org.wso2.ballerina.core.model.Const;
 import org.wso2.ballerina.core.model.Function;
@@ -70,11 +71,11 @@ import org.wso2.ballerina.core.model.expressions.MapInitExpr;
 import org.wso2.ballerina.core.model.expressions.MultExpression;
 import org.wso2.ballerina.core.model.expressions.NotEqualExpression;
 import org.wso2.ballerina.core.model.expressions.OrExpression;
+import org.wso2.ballerina.core.model.expressions.ResourceInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.SubtractExpression;
 import org.wso2.ballerina.core.model.expressions.UnaryExpression;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.invokers.MainInvoker;
-import org.wso2.ballerina.core.model.invokers.ResourceInvocationExpr;
 import org.wso2.ballerina.core.model.statements.ActionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
@@ -108,6 +109,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     private SymTable symbolTable;
 
     private String currentPkg;
+    private CallableUnit currentCallableUnit;
 
     // We need to keep a map of import packages.
     // This is useful when analyzing import functions, actions and types.
@@ -257,6 +259,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Visit the contents within a resource
         // Open a new symbol scope
         openScope(SymScope.Name.RESOURCE);
+        currentCallableUnit = resource;
 
         for (Parameter parameter : resource.getParameters()) {
             stackFrameOffset++;
@@ -281,6 +284,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         // Close the symbol scope
         stackFrameOffset = -1;
+        currentCallableUnit = null;
         closeScope();
     }
 
@@ -288,6 +292,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(BallerinaFunction function) {
         // Open a new symbol scope
         openScope(SymScope.Name.FUNCTION);
+        currentCallableUnit = function;
 
         for (Parameter parameter : function.getParameters()) {
             stackFrameOffset++;
@@ -330,6 +335,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         // Close the symbol scope
         stackFrameOffset = -1;
+        currentCallableUnit = null;
         closeScope();
     }
 
@@ -337,6 +343,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(BallerinaAction action) {
         // Open a new symbol scope
         openScope(SymScope.Name.ACTION);
+        currentCallableUnit = action;
 
         for (Parameter parameter : action.getParameters()) {
             stackFrameOffset++;
@@ -379,6 +386,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         // Close the symbol scope
         stackFrameOffset = -1;
+        currentCallableUnit = null;
         closeScope();
     }
 
@@ -627,12 +635,34 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(ReplyStmt replyStmt) {
+        if (currentCallableUnit instanceof Function) {
+            throw new SemanticException(currentCallableUnit.getLocation().getFileName() + ":" +
+                    currentCallableUnit.getLocation().getLine() +
+                    ": reply statement cannot be used in a function definition");
+
+        } else if (currentCallableUnit instanceof Action) {
+            throw new SemanticException(currentCallableUnit.getLocation().getFileName() + ":" +
+                    currentCallableUnit.getLocation().getLine() +
+                    ": reply statement cannot be used in a action definition");
+        }
+
         replyStmt.getReplyExpr().accept(this);
     }
 
     @Override
     public void visit(ReturnStmt returnStmt) {
+        if (currentCallableUnit instanceof Resource) {
+            throw new SemanticException(currentCallableUnit.getLocation().getFileName() + ":" +
+                    currentCallableUnit.getLocation().getLine() +
+                    ": return statement cannot be used in a resource definition");
+        }
+
         Expression[] exprs = returnStmt.getExprs();
+        if (exprs.length == 0) {
+            return;
+        }
+
+//        if (exprs[0]
 
         for (Expression expr : exprs) {
             expr.accept(this);
@@ -660,7 +690,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(FunctionInvocationExpr funcIExpr) {
         visitExpr(funcIExpr);
 
-        Expression[] exprs = funcIExpr.getExprs();
+        Expression[] exprs = funcIExpr.getArgExprs();
         for (Expression expr : exprs) {
             expr.accept(this);
         }
@@ -694,7 +724,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(ActionInvocationExpr actionIExpr) {
         visitExpr(actionIExpr);
 
-        Expression[] exprs = actionIExpr.getExprs();
+        Expression[] exprs = actionIExpr.getArgExprs();
         for (Expression expr : exprs) {
             expr.accept(this);
         }
@@ -1301,12 +1331,12 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     private void linkFunction(FunctionInvocationExpr funcIExpr) {
 
-        SymbolName funcName = funcIExpr.getFunctionName();
+        SymbolName funcName = funcIExpr.getCallableUnitName();
         String pkgPath = getPackagePath(funcName);
         funcName.setPkgName(pkgPath);
 
 
-        Expression[] exprs = funcIExpr.getExprs();
+        Expression[] exprs = funcIExpr.getArgExprs();
         BType[] paramTypes = new BType[exprs.length];
         for (int i = 0; i < exprs.length; i++) {
             paramTypes[i] = exprs[i].getType();
@@ -1315,7 +1345,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         SymbolName symbolName = LangModelUtils.getSymNameWithParams(funcName.getName(), pkgPath, paramTypes);
         Symbol symbol = symbolTable.lookup(symbolName);
         if (symbol == null) {
-            throw new LinkerException("Undefined function '" + funcIExpr.getFunctionName().getName() + "' in "
+            throw new LinkerException("Undefined function '" + funcIExpr.getCallableUnitName().getName() + "' in "
                     + funcIExpr.getLocation().getFileName() + ":" + funcIExpr.getLocation().getLine());
         }
 
@@ -1329,7 +1359,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         // Link
         Function function = symbol.getFunction();
-        funcIExpr.setFunction(function);
+        funcIExpr.setCallableUnit(function);
 
         // TODO improve this once multiple return types are supported
         funcIExpr.setType((function.getReturnParameters().length != 0) ?
@@ -1338,7 +1368,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     private void linkAction(ActionInvocationExpr actionIExpr) {
         // Can we do this bit in the linker
-        SymbolName actionName = actionIExpr.getActionName();
+        SymbolName actionName = actionIExpr.getCallableUnitName();
         if (actionName.getConnectorName() == null) {
             throw new SemanticException("Connector type is not associated with the action invocation in "
                     + actionIExpr.getLocation().getFileName() + ":" + actionIExpr.getLocation().getLine());
@@ -1349,7 +1379,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Set the fully qualified package name
         actionName.setPkgName(pkgPath);
 
-        Expression[] exprs = actionIExpr.getExprs();
+        Expression[] exprs = actionIExpr.getArgExprs();
         BType[] paramTypes = new BType[exprs.length];
         for (int i = 0; i < exprs.length; i++) {
             paramTypes[i] = exprs[i].getType();
@@ -1360,7 +1390,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         Symbol symbol = symbolTable.lookup(symName);
         if (symbol == null) {
-            throw new LinkerException("Undefined action: " + actionIExpr.getActionName().getName() + " in "
+            throw new LinkerException("Undefined action: " + actionIExpr.getCallableUnitName().getName() + " in "
                     + actionIExpr.getLocation().getFileName() + ":" + actionIExpr.getLocation().getLine());
         }
 
@@ -1374,7 +1404,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         // Link
         Action action = symbol.getAction();
-        actionIExpr.setAction(action);
+        actionIExpr.setCallableUnit(action);
 
         // TODO improve this once multiple return types are supported
         actionIExpr.setType((action.getReturnParameters().length != 0) ?
