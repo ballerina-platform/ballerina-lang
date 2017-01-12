@@ -175,7 +175,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
 
             this._createPackagePropertyPane(canvasContainer);
             // init undo manager
-            this.undoManager = new UndoManager();
+            this._undoManager = new UndoManager();
 
             //Registering event listeners
             this.listenTo(this._model, 'child-removed', this.childViewRemovedCallback);
@@ -246,7 +246,8 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
 
             // make undo-manager capture all tree modifications after initial rendering
             this._model.on('tree-modified', function(event){
-                self.undoManager.onUndoableOperation(event);
+                self.getUndoManager().onUndoableOperation(event);
+                self.trigger("content-modified");
             });
     };
 
@@ -484,6 +485,10 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             this._model.accept(this);
 
             this.initDropTarget();
+        };
+
+        BallerinaFileEditor.prototype.getUndoManager = function(){
+            return this._undoManager;
         };
 
         return BallerinaFileEditor;
