@@ -261,26 +261,26 @@ define(['lodash', 'require', 'log', './node'],
          * Override the addChild method for ordering the child elements as
          * [Statements, Workers, Connectors]
          * @param {ASTNode} child
-         * @param {Integer|undefined} index
+         * @param {number|undefined} index
          */
     ResourceDefinition.prototype.addChild = function (child, index) {
         var indexNew;
-        var BallerinaASTFactory = require('./ballerina-ast-factory');
-        if (BallerinaASTFactory.isConnectorDeclaration(child)) {
+        var self = this;
+        if (self.BallerinaASTFactory.isConnectorDeclaration(child)) {
             indexNew = index;
-        } else if (BallerinaASTFactory.isWorkerDeclaration(child)) {
+        } else if (this.BallerinaASTFactory.isWorkerDeclaration(child)) {
             var firstConnector = _.findIndex(this.getChildren(), function (node) {
-                BallerinaASTFactory.isConnectorDeclaration(node);
+                self.BallerinaASTFactory.isConnectorDeclaration(node);
             });
             if (firstConnector !== -1) {
                 indexNew = firstConnector - 1;
             }
         } else {
             var firstConnector = _.findIndex(this.getChildren(), function (node) {
-                BallerinaASTFactory.isConnectorDeclaration(node);
+                self.BallerinaASTFactory.isConnectorDeclaration(node);
             });
             var firstWorker = _.findIndex(this.getChildren(), function (node) {
-                BallerinaASTFactory.isConnectorDeclaration(node);
+                self.BallerinaASTFactory.isConnectorDeclaration(node);
             });
 
             if (firstWorker !== -1) {

@@ -189,7 +189,7 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
 
     /**
      * Set canvas container width
-     * @param newWidth
+     * @param {number} newWidth
      */
     Canvas.prototype.setServiceContainerWidth = function (newWidth) {
         this._svg.attr('width', newWidth);
