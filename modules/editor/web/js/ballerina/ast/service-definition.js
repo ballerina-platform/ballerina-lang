@@ -21,9 +21,9 @@ define(['lodash', './node'],
     /**
      * Constructor for ServiceDefinition
      * @param {Object} args - The arguments to create the ServiceDefinition
-     * @param {string} args.serviceName [args.serviceName=newService] - Service name
-     * @param {string[]} args.annotations - Service annotations
-     * @param {string} args.annotations.BasePath - Service annotation for BasePath
+     * @param {string} [args.serviceName=newService] - Service name
+     * @param {string[]} [args.annotations] - Service annotations
+     * @param {string} [args.annotations.BasePath] - Service annotation for BasePath
      * @constructor
      */
     var ServiceDefinition = function (args) {
@@ -160,8 +160,8 @@ define(['lodash', './node'],
     /**
      * initialize ServiceDefinition from json object
      * @param {Object} jsonNode to initialize from
-     * @param {string} jsonNode.service_name - Name of the service definition
-     * @param {string} jsonNode.annotations - Annotations of the function definition
+     * @param {string} [jsonNode.service_name] - Name of the service definition
+     * @param {string} [jsonNode.annotations] - Annotations of the function definition
      */
     ServiceDefinition.prototype.initFromJson = function (jsonNode) {
         this._serviceName = jsonNode.service_name;
