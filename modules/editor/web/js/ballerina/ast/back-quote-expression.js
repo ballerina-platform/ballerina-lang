@@ -15,29 +15,33 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './node'], function (_, ASTNode) {
-
-    var ReturnType = function (type) {
-        ASTNode.call(this, 'ReturnType');
-    };
-
-    ReturnType.prototype = Object.create(ASTNode.prototype);
-    ReturnType.prototype.constructor = ReturnType;
+define(['lodash', './expression'], function (_, Expression) {
 
     /**
-     * initialize from json
+     * Constructor for BackQuoteExpression
+     * @param {Object} args - Arguments to create the BackQuoteExpression
+     * @constructor
+     */
+    var BackQuoteExpression = function (args) {
+        Expression.call(this, 'BackQuoteExpression');
+    }
+
+    BackQuoteExpression.prototype = Object.create(Expression.prototype);
+    BackQuoteExpression.prototype.constructor = BackQuoteExpression;
+
+    /**
+     * setting parameters from json
      * @param jsonNode
      */
-    ReturnType.prototype.initFromJson = function (jsonNode) {
-        var self = this;
-        var BallerinaASTFactory = this.getFactory();
+    BackQuoteExpression.prototype.initFromJson = function (jsonNode) {
 
+        var self = this;
         _.each(jsonNode.children, function (childNode) {
-            var child = BallerinaASTFactory.createFromJson(childNode);
+            var child = self.getFactory().createFromJson(childNode);
             self.addChild(child);
             child.initFromJson(childNode);
         });
     };
 
-    return ReturnType;
+    return BackQuoteExpression;
 });
