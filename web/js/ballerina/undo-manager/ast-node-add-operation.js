@@ -28,7 +28,7 @@ define(['lodash', './ast-manipulation-operation'],
         var ASTNodeAddOperation = function(args){
             ASTManipulationOperation.call(this, args);
             if(_.isNil(this.getTitle())){
-                this.setTitle("add " + this._data.child.getType())
+                this.setTitle("Add " + this._data.child.getType())
             }
         };
 
