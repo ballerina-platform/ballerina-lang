@@ -79,6 +79,11 @@ public class BallerinaAction implements Action, Node {
     }
 
     @Override
+    public String getPackageName() {
+        return null;
+    }
+
+    @Override
     public Annotation[] getAnnotations() {
         return annotations;
     }
@@ -125,7 +130,7 @@ public class BallerinaAction implements Action, Node {
     public ConnectorDcl[] getConnectorDcls() {
         return connectorDcls;
     }
-    
+
     public BlockStmt getActionBody() {
         return actionBody;
     }
@@ -133,20 +138,12 @@ public class BallerinaAction implements Action, Node {
     public void setActionBody(BlockStmt actionBody) {
         this.actionBody = actionBody;
     }
-    
+
     /**
      * {@inheritDoc}
      */
     @Override
     public Position getLocation() {
         return actionLocation;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setLocation(Position location) {
-        this.actionLocation = location;
     }
 }

@@ -209,13 +209,4 @@ public class BallerinaFunction extends PositionAwareNode implements Function, No
     public Position getLocation() {
         return functionLocation;
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setLocation(Position location) {
-        this.functionLocation = location;
-    }
-
 }

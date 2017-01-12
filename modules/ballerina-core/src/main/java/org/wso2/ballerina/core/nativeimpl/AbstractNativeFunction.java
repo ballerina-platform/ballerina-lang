@@ -243,12 +243,4 @@ public abstract class AbstractNativeFunction implements NativeConstruct, Functio
     public Position getLocation() {
         return functionLocation;
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setLocation(Position location) {
-        this.functionLocation = location;
-    }
 }

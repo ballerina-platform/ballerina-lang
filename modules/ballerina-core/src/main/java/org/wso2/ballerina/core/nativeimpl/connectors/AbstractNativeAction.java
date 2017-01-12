@@ -181,12 +181,4 @@ public abstract class AbstractNativeAction implements Action, NativeConstruct {
     public Position getLocation() {
         return actionLocation;
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setLocation(Position location) {
-        this.actionLocation = location;
-    }
 }
