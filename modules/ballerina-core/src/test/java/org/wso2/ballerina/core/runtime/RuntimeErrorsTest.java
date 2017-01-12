@@ -30,7 +30,7 @@ import org.wso2.ballerina.core.nativeimpl.connectors.http.client.HTTPConnector;
 import org.wso2.ballerina.core.nativeimpl.lang.json.GetString;
 import org.wso2.ballerina.core.runtime.errors.handler.ErrorHandlerUtils;
 import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
-import org.wso2.ballerina.core.utils.ConnectorUtils;
+import org.wso2.ballerina.core.utils.Connectors;
 import org.wso2.ballerina.core.utils.FunctionUtils;
 import org.wso2.ballerina.core.utils.ParserUtils;
 import org.wso2.ballerina.lang.util.Functions;
@@ -47,8 +47,8 @@ public class RuntimeErrorsTest {
     public void setup() {
         SymScope symScope = GlobalScopeHolder.getInstance().getScope();
         FunctionUtils.addNativeFunction(symScope, new GetString());
-        ConnectorUtils.addNativeConnector(symScope, new HTTPConnector());
-        ConnectorUtils.addAction(symScope, new Get());
+        Connectors.addNativeConnector(symScope, new HTTPConnector());
+        Connectors.addAction(symScope, new Get());
         bFile = ParserUtils.parseBalFile("lang/runtime-errors.bal", symScope);
     }
 
