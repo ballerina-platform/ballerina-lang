@@ -17,7 +17,6 @@
 */
 package org.wso2.ballerina.core.model.expressions;
 
-import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.Operator;
 import org.wso2.ballerina.core.model.Position;
 
@@ -34,10 +33,5 @@ public class BinaryCompareExpression extends BinaryExpression {
 
     public BinaryCompareExpression(Expression lExpr, Operator op, Expression rExpr, Position location) {
         super(lExpr, op, rExpr, location);
-    }
-
-    @Override
-    public void accept(NodeVisitor visitor) {
-        visitor.visit(this);
     }
 }
