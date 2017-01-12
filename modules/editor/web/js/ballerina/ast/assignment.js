@@ -46,5 +46,13 @@ define(['lodash', './statement'], function (_, Statement) {
         return this._expression;
     };
 
+    /**
+     * initialize from json
+     * @param jsonNode
+     */
+    Assignment.prototype.initFromJson = function (jsonNode) {
+        this._expression = jsonNode.statement;
+    };
+
     return Assignment;
 });

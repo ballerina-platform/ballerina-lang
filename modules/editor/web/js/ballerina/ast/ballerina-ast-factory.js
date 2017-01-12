@@ -589,56 +589,62 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
 
         BallerinaASTFactory.createFromJson = function (jsonNode) {
             var node;
-            switch (jsonNode.type) {
-                case 'package':
-                    node = BallerinaASTFactory.createPackageDefinition();
-                    break;
-                case 'import':
-                    node = BallerinaASTFactory.createImportDeclaration();
-                    break;
-                case 'service_definition':
-                    node = BallerinaASTFactory.createServiceDefinition();
-                    break;
-                case 'function_definition':
-                    node = BallerinaASTFactory.createFunctionDefinition();
-                    break;
-                case 'connector_definition':
-                    node = BallerinaASTFactory.createConnectorDefinition();
-                    break;
-                case 'type_definition':
-                    node = BallerinaASTFactory.createTypeDefinition();
-                    break;
-                case 'resource_definition':
-                    node = BallerinaASTFactory.createResourceDefinition();
-                    break;
-                case 'connector_declaration':
-                    node = BallerinaASTFactory.createConnectorDeclaration();
-                    break;
-                case 'variable_declaration':
-                    node = BallerinaASTFactory.createVariableDeclaration();
-                    break;
-                case 'argument_declaration':
-                    node = BallerinaASTFactory.createResourceArgument();
-                    break;
-                case 'reply_statement':
-                    node = BallerinaASTFactory.createReplyStatement();
-                    break;
-                case 'return_statement':
-                    node = BallerinaASTFactory.createReturnStatement();
-                    break;
-                case 'return_type':
-                    node = BallerinaASTFactory.createReturnType();
-                    break;
-                case 'type_name':
-                    node = BallerinaASTFactory.createTypeName();
-                    break;
-                case 'function_invocation':
-                    node = BallerinaASTFactory.createFunctionInvocationStatement();
-                    break;
-                default:
-                    throw "Unknown node definition for " + jsonNode.type;
-            }
+            var nodeType = jsonNode.type;
 
+            if (_.isUndefined(jsonNode.type)) {
+                var statement = jsonNode.statement;
+                node = BallerinaASTFactory.createAssignmentStatement();
+            } else {
+                switch (nodeType) {
+                    case 'package':
+                        node = BallerinaASTFactory.createPackageDefinition();
+                        break;
+                    case 'import':
+                        node = BallerinaASTFactory.createImportDeclaration();
+                        break;
+                    case 'service_definition':
+                        node = BallerinaASTFactory.createServiceDefinition();
+                        break;
+                    case 'function_definition':
+                        node = BallerinaASTFactory.createFunctionDefinition();
+                        break;
+                    case 'connector_definition':
+                        node = BallerinaASTFactory.createConnectorDefinition();
+                        break;
+                    case 'type_definition':
+                        node = BallerinaASTFactory.createTypeDefinition();
+                        break;
+                    case 'resource_definition':
+                        node = BallerinaASTFactory.createResourceDefinition();
+                        break;
+                    case 'connector_declaration':
+                        node = BallerinaASTFactory.createConnectorDeclaration();
+                        break;
+                    case 'variable_declaration':
+                        node = BallerinaASTFactory.createVariableDeclaration();
+                        break;
+                    case 'argument_declaration':
+                        node = BallerinaASTFactory.createResourceArgument();
+                        break;
+                    case 'reply_statement':
+                        node = BallerinaASTFactory.createReplyStatement();
+                        break;
+                    case 'return_statement':
+                        node = BallerinaASTFactory.createReturnStatement();
+                        break;
+                    case 'return_type':
+                        node = BallerinaASTFactory.createReturnType();
+                        break;
+                    case 'type_name':
+                        node = BallerinaASTFactory.createTypeName();
+                        break;
+                    case 'function_invocation':
+                        node = BallerinaASTFactory.createFunctionInvocationStatement();
+                        break;
+                    default:
+                        throw "Unknown node definition for " + jsonNode.type;
+                }
+            }
             node.initFromJson(jsonNode);
             return node;
         };
