@@ -21,10 +21,10 @@ define(['lodash', 'log', './node'],
     /**
      * Constructor for ResourceDefinition
      * @param {Object} args - The arguments to create the ServiceDefinition
-     * @param {string} args.resourceName [args.resourceName=newResource] - Service name
-     * @param {string[]} args.annotations - Resource annotations
-     * @param {string} args.annotations.Method - Resource annotation for Method
-     * @param {string} args.annotations.Path - Resource annotation for Path
+     * @param {string} [args.resourceName=newResource] - Service name
+     * @param {string[]} [args.annotations] - Resource annotations
+     * @param {string} [args.annotations.Method] - Resource annotation for Method
+     * @param {string} [args.annotations.Path] - Resource annotation for Path
      * @constructor
      */
     var ResourceDefinition = function (args) {
@@ -242,8 +242,8 @@ define(['lodash', 'log', './node'],
     /**
      * initialize ResourceDefinition from json object
      * @param {Object} jsonNode to initialize from
-     * @param {string} jsonNode.resource_name - Name of the resource definition
-     * @param {string} jsonNode.annotations - Annotations of the resource definition
+     * @param {string} [jsonNode.resource_name] - Name of the resource definition
+     * @param {string} [jsonNode.annotations] - Annotations of the resource definition
      */
     ResourceDefinition.prototype.initFromJson = function (jsonNode) {
         this._resourceName = jsonNode.resource_name;
