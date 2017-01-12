@@ -45,7 +45,7 @@ import java.util.Map;
  * @since 1.0.0
  */
 @SuppressWarnings("unused")
-public class Resource implements Node {
+public class Resource implements Node, CallableUnit {
 
     private static final Logger LOG = LoggerFactory.getLogger(Resource.class);
 
@@ -116,7 +116,7 @@ public class Resource implements Node {
      *
      * @return map of Annotations
      */
-    public Map<String, Annotation> getAnnotations() {
+    public Map<String, Annotation> getAnnotationMap() {
         return annotationMap;
     }
 
@@ -201,8 +201,32 @@ public class Resource implements Node {
         return variableDcls;
     }
 
+    @Override
+    public Parameter[] getReturnParameters() {
+        return new Parameter[0];
+    }
+
     public String getName() {
         return getSymbolName().getName();
+    }
+
+    public SymbolName getSymbolName() {
+        return this.resourceName;
+    }
+
+    @Override
+    public void setSymbolName(SymbolName symbolName) {
+        this.resourceName = symbolName;
+    }
+
+    @Override
+    public String getPackageName() {
+        return null;
+    }
+
+    @Override
+    public Annotation[] getAnnotations() {
+        return new Annotation[0];
     }
 
     public int getStackFrameSize() {
@@ -211,6 +235,11 @@ public class Resource implements Node {
 
     public void setStackFrameSize(int stackFrameSize) {
         this.stackFrameSize = stackFrameSize;
+    }
+
+    @Override
+    public Position getLocation() {
+        return position;
     }
 
     public Application getApplication() {
@@ -228,18 +257,5 @@ public class Resource implements Node {
 
     public Parameter[] getParameters() {
         return parameters;
-    }
-    
-    public SymbolName getSymbolName() {
-        return this.resourceName;
-    }
-
-    /**
-     * Get the location of this resource in the ballerina source file.
-     * 
-     * @return  Location of this resource in the ballerina source file.
-     */
-    public Position getResourceLocation() {
-        return position;
     }
 }

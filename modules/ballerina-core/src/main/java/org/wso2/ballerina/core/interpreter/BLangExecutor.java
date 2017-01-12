@@ -368,7 +368,7 @@ public class BLangExecutor implements NodeExecutor {
 
         SymbolName resourceSymbolName = resource.getSymbolName();
         CallableUnitInfo resourceInfo = new CallableUnitInfo(resourceSymbolName.getName(),
-                resourceSymbolName.getPkgName(), resource.getResourceLocation());
+                resourceSymbolName.getPkgName(), resource.getLocation());
 
         StackFrame stackFrame = new StackFrame(valueParams, ret, resourceInfo);
         controlStack.pushFrame(stackFrame);
