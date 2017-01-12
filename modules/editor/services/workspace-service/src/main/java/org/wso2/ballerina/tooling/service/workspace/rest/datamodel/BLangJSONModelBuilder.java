@@ -474,15 +474,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     public void visit(BlockStmt blockStmt) {
         if (blockStmt.getStatements() != null) {
             for (Statement statement : blockStmt.getStatements()) {
-                if (isExprAsString) {
-                    JsonObject jsonObject = new JsonObject();
-                    statement.accept(exprVisitor);
-                    jsonObject.addProperty(BLangJSONModelConstants.STATEMENT,
-                            exprVisitor.getBuffer().toString());
-                    tempJsonArrayRef.peek().add(jsonObject);
-                } else {
-                    statement.accept(this);
-                }
+                statement.accept(this);
             }
         }
     }
@@ -564,6 +556,11 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         JsonObject replyStmtObj = new JsonObject();
         replyStmtObj.addProperty(BLangJSONModelConstants.STATEMENT_TYPE,
                 BLangJSONModelConstants.REPLY_STATEMENT);
+        if (isExprAsString) {
+            replyStmt.accept(exprVisitor);
+            String stmtExpression = exprVisitor.getBuffer().toString();
+            replyStmtObj.addProperty(BLangJSONModelConstants.EXPRESSION, stmtExpression);
+        }
         tempJsonArrayRef.push(new JsonArray());
         replyStmt.getReplyExpr().accept(this);
         replyStmtObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
