@@ -1,7 +1,5 @@
 package samples.connectors.test;
 
-import ballerina.lang.system;
-
 connector TestConnector(string param1, string param2, int param3) {
 
     boolean action2Invoked;
