@@ -93,7 +93,7 @@ define(['jquery', 'backbone', 'lodash', 'tree_view', /** void module - jquery pl
                             'icon': 'glyphicon glyphicon-folder-close'
                         },
                         'file': {
-                            'icon': 'glyphicon glyphicon-file'
+                            'icon': 'fw fw-folder'
                         }
                     },
                     'plugins': ['types']
