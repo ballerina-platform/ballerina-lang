@@ -136,6 +136,14 @@
             </includes>
             <fileMode>644</fileMode>
         </fileSet>
+        <fileSet>
+            <directory>../editor/services/workspace-service/src/main/resources/</directory>
+            <outputDirectory>resources/editor/services</outputDirectory>
+            <includes>
+                <include>netty-transports.yml</include>
+            </includes>
+            <fileMode>644</fileMode>
+        </fileSet>
     </fileSets>
 
     <files>
