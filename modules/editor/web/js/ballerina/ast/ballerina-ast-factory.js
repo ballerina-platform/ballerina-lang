@@ -216,12 +216,12 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
 
         /**
          * creates AssignmentStatement
-         * @param args
+         * @param {Object} args
          * @returns {AssignmentStatement}
          */
         BallerinaASTFactory.createAssignmentStatement = function (args) {
             return new assignmentStatement(args);
-        }
+        };
 
         /**
          * creates ReplyStatement
@@ -360,7 +360,7 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
 
         /**
          * creates BackQuoteExpression
-         * @param args
+         * @param {Object} args
          * @returns {backQuoteExpression}
          */
         BallerinaASTFactory.createBackQuoteExpression = function (args) {
@@ -369,7 +369,7 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
 
         /**
          * instanceof check for BallerinaAstRoot
-         * @param child
+         * @param {Object} child
          * @returns {boolean}
          */
         BallerinaASTFactory.isBallerinaAstRoot = function (child) {
