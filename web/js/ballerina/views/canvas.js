@@ -62,7 +62,8 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
         svgContainer.append(svg);
         this._rootGroup = D3Utils.group(d3.select(svg.get(0)));
         this._svg = svg;
-
+        // Set the initial service container height to 300px
+        this.setServiceContainerHeight(300);
         //draw a collapse accordion
         var outerDiv = $('<div></div>');
         outerDiv.attr('id', '_'+canvas[0].id);//to support HTML4
