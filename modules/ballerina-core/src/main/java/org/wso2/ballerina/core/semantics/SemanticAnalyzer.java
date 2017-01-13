@@ -1034,18 +1034,18 @@ public class SemanticAnalyzer implements NodeVisitor {
                     + mapInitExpr.getLocation().getFileName() + ":" + mapInitExpr.getLocation().getLine());
         }
 
-        argExprs[0].accept(this);
-        BType typeOfMap = ((KeyValueExpression) argExprs[0]).getValueExpression().getType();
+//        argExprs[0].accept(this);
+//        BType typeOfMap = ((KeyValueExpression) argExprs[0]).getValueExpression().getType();
 
-        for (int i = 1; i < argExprs.length; i++) {
+        for (int i = 0; i < argExprs.length; i++) {
             argExprs[i].accept(this);
             
-            Expression valueExpression = ((KeyValueExpression) argExprs[i]).getValueExpression();
-            if (valueExpression.getType() != typeOfMap) {
-                throw new SemanticException("Incompatible types used in map initializer: All arguments must have " +
-                        "the same type." + " in " + valueExpression.getLocation().getFileName() + ":" + 
-                        valueExpression.getLocation().getLine());
-            }
+//            Expression valueExpression = ((KeyValueExpression) argExprs[i]).getValueExpression();
+//            if (valueExpression.getType() != typeOfMap) {
+//                throw new SemanticException("Incompatible types used in map initializer: All arguments must have " +
+//                        "the same type." + " in " + valueExpression.getLocation().getFileName() + ":" +
+//                        valueExpression.getLocation().getLine());
+//            }
         }
 
         // Type of this expression is map and internal data type cannot be identifier from declaration
