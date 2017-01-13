@@ -74,7 +74,7 @@ public class RuntimeErrorsTest {
             bContext.getControlStack().getStack().remove(0);
             
             // Check the stack trace
-            String stackTrace = ErrorHandlerUtils.getBallerinaStackTrace(bContext);
+            String stackTrace = ErrorHandlerUtils.getServiceStackTrace(bContext, ex);
             Assert.assertEquals(stackTrace, expectedStackTrace);
         }
     }
@@ -91,5 +91,41 @@ public class RuntimeErrorsTest {
             "specified. no protocol: malformed/url/context")
     public void testNativeConnectorError() {
         Functions.invoke(bFile, "nativeConnectorErrorTest");
+    }
+    
+    @Test
+    public void testStackOverflowError() {
+        Throwable ex = null;
+        Context bContext = new Context();
+        String expectedStackTrace = getStackOverflowTrace();
+        try {
+            Functions.invoke(bFile, "testStackOverflow", bContext);
+        } catch (Throwable e) {
+            ex = e;
+        } finally {
+            Assert.assertTrue(ex instanceof StackOverflowError, "Expected a " + StackOverflowError.class.getName() +
+                ", but found: " + ex + ".");
+            
+            // removing the first element since we are not invoking a main function
+            bContext.getControlStack().getStack().remove(0);
+            
+            // Check the stack trace
+            String stackTrace = ErrorHandlerUtils.getServiceStackTrace(bContext, ex);
+            Assert.assertEquals(stackTrace, expectedStackTrace);
+        }
+    }
+    
+    private static String getStackOverflowTrace() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < 40; i++) {
+            if (i == 20 || i == 21) {
+                sb.append("\t ...\n");
+            } else {
+                sb.append("\t at test.lang:infiniteRecurse(runtime-errors.bal:48)\n");
+            }
+        }
+        sb.append("\t at test.lang:infiniteRecurse(runtime-errors.bal:44)\n");
+        sb.append("\t at test.lang:testStackOverflow(runtime-errors.bal:43)\n");
+        return sb.toString();
     }
 }
