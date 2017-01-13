@@ -273,7 +273,14 @@ public class BLangJSONModelBuilder implements NodeVisitor {
                 variableDcl.accept(BLangJSONModelBuilder.this);
             }
         }
-        resource.getResourceBody().accept(this);
+        if (resource.getConnectorDcls() != null) {
+            for (ConnectorDcl connectDcl : resource.getConnectorDcls()) {
+                connectDcl.accept(this);
+            }
+        }
+        if(resource.getResourceBody() != null) {
+            resource.getResourceBody().accept(this);
+        }
         resourceObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
         tempJsonArrayRef.pop();
         tempJsonArrayRef.peek().add(resourceObj);
@@ -435,22 +442,17 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         JsonObject connectObj = new JsonObject();
         connectObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE,
                 BLangJSONModelConstants.CONNECTOR_DECLARATION);
-        if (isExprAsString) {
-            connectorDcl.accept(exprVisitor);
-            connectObj.addProperty(BLangJSONModelConstants.STATEMENT,
-                    exprVisitor.getBuffer().toString());
-        } else {
-            connectObj.addProperty(BLangJSONModelConstants.CONNECTOR_DCL_NAME, connectorDcl.getConnectorName().getName());
-            connectObj.addProperty(BLangJSONModelConstants.CONNECTOR_DCL_VARIABLE, connectorDcl.getVarName().getName());
-            this.tempJsonArrayRef.push(new JsonArray());
-            if (connectorDcl.getArgExprs() != null) {
-                for (Expression expression : connectorDcl.getArgExprs()) {
-                    expression.accept(this);
-                }
+        connectObj.addProperty(BLangJSONModelConstants.CONNECTOR_DCL_NAME, connectorDcl.getConnectorName().getName());
+        connectObj.addProperty(BLangJSONModelConstants.CONNECTOR_DCL_PKG_NAME, connectorDcl.getConnectorName().getPkgName());
+        connectObj.addProperty(BLangJSONModelConstants.CONNECTOR_DCL_VARIABLE, connectorDcl.getVarName().getName());
+        this.tempJsonArrayRef.push(new JsonArray());
+        if (connectorDcl.getArgExprs() != null) {
+            for (Expression expression : connectorDcl.getArgExprs()) {
+                expression.accept(this);
             }
-            connectObj.add(BLangJSONModelConstants.CHILDREN, this.tempJsonArrayRef.peek());
-            this.tempJsonArrayRef.pop();
         }
+        connectObj.add(BLangJSONModelConstants.CHILDREN, this.tempJsonArrayRef.peek());
+        this.tempJsonArrayRef.pop();
         this.tempJsonArrayRef.peek().add(connectObj);
     }
 
@@ -591,8 +593,6 @@ public class BLangJSONModelBuilder implements NodeVisitor {
                 BLangJSONModelConstants.FUNCTION_INVOCATION_EXPRESSION);
         funcInvcObj.addProperty(BLangJSONModelConstants.FUNCTIONS_NAME,
                 funcIExpr.getFunctionName().getName());
-        funcInvcObj.addProperty(BLangJSONModelConstants.PACKAGE_NAME,
-                funcIExpr.getFunction().getPackageName());
         tempJsonArrayRef.push(new JsonArray());
         if (funcIExpr.getExprs() != null) {
             for (Expression expression : funcIExpr.getExprs()) {
@@ -611,6 +611,10 @@ public class BLangJSONModelBuilder implements NodeVisitor {
                 BLangJSONModelConstants.ACTION_INVOCATION_EXPRESSION);
         actionInvcObj.addProperty(BLangJSONModelConstants.ACTION_NAME,
                 actionIExpr.getActionName().getName());
+        actionInvcObj.addProperty(BLangJSONModelConstants.ACTION_PKG_NAME,
+                actionIExpr.getActionName().getPkgName());
+        actionInvcObj.addProperty(BLangJSONModelConstants.ACTION_CONNECTOR_NAME,
+                actionIExpr.getActionName().getConnectorName());
         tempJsonArrayRef.push(new JsonArray());
         if (actionIExpr.getExprs() != null) {
             for (Expression expression : actionIExpr.getExprs()) {

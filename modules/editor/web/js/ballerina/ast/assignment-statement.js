@@ -15,29 +15,32 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './node'], function (_, ASTNode) {
-
-    var ReturnType = function (type) {
-        ASTNode.call(this, 'ReturnType');
+define(['lodash', './statement'], function (_, Statement) {
+    /**
+     * Class to represent an Assignment statement.
+     * @constructor
+     */
+    var AssignmentStatement = function (args) {
+        Statement.call(this, 'AssignmentStatement');
+        this._variableAccessor = _.get(args, 'accessor', 'var1');
     };
 
-    ReturnType.prototype = Object.create(ASTNode.prototype);
-    ReturnType.prototype.constructor = ReturnType;
+    AssignmentStatement.prototype = Object.create(Statement.prototype);
+    AssignmentStatement.prototype.constructor = AssignmentStatement;
 
     /**
-     * initialize from json
-     * @param jsonNode
+     * initialize AssignmentStatement from json object
+     * @param {Object} jsonNode to initialize from
      */
-    ReturnType.prototype.initFromJson = function (jsonNode) {
+    AssignmentStatement.prototype.initFromJson = function (jsonNode) {
         var self = this;
-        var BallerinaASTFactory = this.getFactory();
 
         _.each(jsonNode.children, function (childNode) {
-            var child = BallerinaASTFactory.createFromJson(childNode);
+            var child = self.getFactory().createFromJson(childNode);
             self.addChild(child);
             child.initFromJson(childNode);
         });
     };
 
-    return ReturnType;
+    return AssignmentStatement;
 });
