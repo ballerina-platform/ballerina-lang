@@ -28,7 +28,7 @@ define(['log', 'lodash', './ast-manipulation-operation'],
         var ASTNodeRemoveOperation = function(args){
             ASTManipulationOperation.call(this, args);
             if(_.isNil(this.getTitle())){
-                this.setTitle("remove " + this._data.child.getType())
+                this.setTitle("Remove " + this._data.child.getType())
             }
         };
 
