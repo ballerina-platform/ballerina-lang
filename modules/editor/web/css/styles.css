@@ -1105,3 +1105,19 @@ footer > .container p, footer > .container-fluid p{
     font-size: 13px;
     margin: 0;
 }
+header .brand span {
+    font-size: 15px;
+}
+a {
+    color: #333;
+    text-decoration: none;
+}
+a:hover {
+    text-decoration: none;
+}
+.panel-body {
+    padding: 0;
+}
+.panel-default {
+    border:0;
+}
