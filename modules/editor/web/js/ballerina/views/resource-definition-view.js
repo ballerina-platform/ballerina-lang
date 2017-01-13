@@ -38,7 +38,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
             BallerinaView.call(this, args);
 
-            this._connectorViewList =  [];
+            this._connectorWorkerViewList =  [];
             this._defaultWorker = undefined;
             this._statementExpressionViewList = [];
             // TODO: Instead of using the parentView use the parent. Fix this from BallerinaView.js and bellow
@@ -92,8 +92,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 cssClass: 'start-action'
             });
 
-            this._viewOptions.heading.defaultWidth = 1000;
-            this._viewOptions.contentDfaultWidth = 1000;
+            this._viewOptions.heading.minWidth = 1000;
+            this._viewOptions.contentMinWidth = 1000;
 
             this._viewOptions.totalHeightGap = 50;
             this._viewOptions.LifeLineCenterGap = 180;
@@ -542,6 +542,10 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 this._headerIconGroup.node().transform.baseVal.getItem(0).setTranslate(transformX + dw, transformY);
                 this._contentRect.attr('width', parseFloat(this._contentRect.attr('width')) + dw);
                 this._headingRect.attr('width', parseFloat(this._headingRect.attr('width')) + dw);
+                // If the bounding box of the resource go over the svg's current width
+                if (this.getBoundingBox().getRight() > this._parentView.getServiceContainer().width()) {
+                    this._parentView.setServiceContainerWidth(this.getBoundingBox().getRight() + 60);
+                }
             }, this);
 
             // render client life line
@@ -736,8 +740,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             this._headingRect.on("mouseout", mouseOutHandler);
         };
 
-        ResourceDefinitionView.prototype.getConnectorViewList = function(){
-            return this._connectorViewList;
+        ResourceDefinitionView.prototype.getConnectorWorkerViewList = function(){
+            return this._connectorWorkerViewList;
         };
         /**
          * @inheritDoc
@@ -777,11 +781,18 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             _.set(connectorOpts, 'centerPoint', center);
             connectorDeclarationView = new ConnectorDeclarationView(connectorOpts);
             this.diagramRenderingContext.getViewModelMap()[connectorDeclaration.id] = connectorDeclarationView;
-            this._connectorViewList.push(connectorDeclarationView);
+            this._connectorWorkerViewList.push(connectorDeclarationView);
 
             connectorDeclarationView._rootGroup.attr('id', '_' +connectorDeclarationView._model.id);
 
             connectorDeclarationView.render();
+
+            // If the New Connector or the worker goes out of the resource bounding box we expand the resource BBox
+            if (connectorDeclarationView.getBoundingBox().getRight() > this.getBoundingBox().getRight()) {
+                this._parentView.getLifeLineMargin().setPosition(this._parentView.getLifeLineMargin().getPosition() + this._viewOptions.LifeLineCenterGap);
+                this.setContentMinWidth(connectorDeclarationView.getBoundingBox().getRight());
+                this.setHeadingMinWidth(connectorDeclarationView.getBoundingBox().getRight());
+            }
 
             // Creating property pane
             var editableProperties = [
@@ -827,8 +838,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
         };
 
         ResourceDefinitionView.prototype.getLastLifeLine = function () {
-            if(this.getConnectorViewList().length > 0 ){
-                return _.last(this.getConnectorViewList());
+            if(this.getConnectorWorkerViewList().length > 0 ){
+                return _.last(this.getConnectorWorkerViewList());
             }
             else{
                 return this.getDefaultWorker();
@@ -869,48 +880,49 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
         };
 
         /**
-         * Default width of the content area
-         * @returns {number} Default content width
+         * Minimum width of the content area
+         * @returns {number} Minimum content width
          */
-        ResourceDefinitionView.prototype.getContentDefaultWidth = function () {
-            return this._viewOptions.contentDfaultWidth;
+        ResourceDefinitionView.prototype.getContentMinWidth = function () {
+            return this._viewOptions.contentMinWidth;
         };
 
         /**
-         * Default width of the heading
-         * @returns {number} Default Heading Width
+         * Set Minimum width of the content area
+         * @param {number} minWidth - Minimum width
          */
-        ResourceDefinitionView.prototype.getHeadingDefaultWidth = function () {
-            return this._viewOptions.heading.defaultWidth;
+        ResourceDefinitionView.prototype.setContentMinWidth = function (minWidth) {
+            this._viewOptions.contentMinWidth = minWidth;
         };
 
         /**
-         * Get the last connector or the worker of the resource Definition
-         * @returns {ASTNode|undefined}
+         * Set Minimum width of the heading
+         * @param {number} minWidth - Minimum width
          */
-        ResourceDefinitionView.prototype.getLastConnectorOrWorker = function () {
-            var lastConnectorOrWorker = _.last(this.getModel().getChildren());
-            if (BallerinaASTFactory.isWorkerDeclaration(lastConnectorOrWorker) ||
-                BallerinaASTFactory.isConnectorDeclaration(lastConnectorOrWorker)) {
-                return lastConnectorOrWorker;
-            } else {
-                return undefined;
-            }
+        ResourceDefinitionView.prototype.setHeadingMinWidth = function (minWidth) {
+            this._viewOptions.heading.minWidth = minWidth;
+        };
+
+        /**
+         * Minimum width of the heading
+         * @returns {number} Minimum Heading Width
+         */
+        ResourceDefinitionView.prototype.getHeadingMinWidth = function () {
+            return this._viewOptions.heading.minWidth;
         };
 
         /**
          * Shrink or Expand the Resource
-         * @param {number} dh - delta height
          * @param {number} dw - delta width
+         * @returns {boolean} - Shrink or expanded
          */
-        ResourceDefinitionView.prototype.ShrinkOrExpand = function (dh, dw) {
-            if (this.getBoundingBox().w() + dw > this._viewOptions.contentDfaultWidth) {
+        ResourceDefinitionView.prototype.ShrinkOrExpand = function (dw) {
+            if (this.getBoundingBox().w() + dw > this._viewOptions.contentMinWidth) {
                 this.getBoundingBox().w(this.getBoundingBox().w() + dw);
+                return true;
             } else {
-                var currentSvgWidth = this._parentView.getServiceContainer().width();
-                this._parentView.setServiceContainerWidth(currentSvgWidth + (-dw));
+                return false;
             }
-            this.getBoundingBox().h(this.getBoundingBox().h() + dh);
         };
 
         return ResourceDefinitionView;

@@ -238,11 +238,23 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
                 var prevResourceHeight = prevView.getBoundingBox().h();
                 var prevResourceY = prevView.getBoundingBox().y();
                 var newY = prevResourceHeight + prevResourceY + prevView.getGapBetweenResources();
-                var viewOpts = { topLeft: new Point( 50, newY)};
+                var newX = 50;
+                var width = undefined;
+
+                if (!_.isEmpty(this._connectorViewList)) {
+                    width = this.getLifeLineMargin().getPosition() - newX - 60;
+                }
+                var viewOpts = {
+                    topLeft: new Point(newX, newY),
+                    contentWidth: width,
+                    heading: {
+                        width:width
+                    }
+                };
                 var resourceDefinitionView = new ResourceDefinitionView({model: resourceDefinition,container: resourceContainer,
                     toolPalette: this.toolPalette, messageManager: this.messageManager, viewOptions: viewOpts, parentView: this});
             }
-            else{
+            else {
                 var resourceDefinitionView = new ResourceDefinitionView({model: resourceDefinition, container: resourceContainer,
                     toolPalette: this.toolPalette,messageManager: this.messageManager, parentView: this});
             }
@@ -250,6 +262,13 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
 
             this.addToResourceViewList(resourceDefinitionView);
             resourceDefinitionView.render(this.diagramRenderingContext);
+
+            // Set the lifelineMargin
+            this.setLifelineMargin(resourceDefinitionView.getBoundingBox().getRight());
+            // If the lifeline margin is changed then accordingly the resource should move the bounding box
+            this.getLifeLineMargin().on('moved', function (offset) {
+                resourceDefinitionView.getBoundingBox().w(resourceDefinitionView.getBoundingBox().w() + offset);
+            });
 
             //setting height of the service view
             var childView = this.diagramRenderingContext.getViewModelMap()[resourceDefinition.id];
@@ -272,17 +291,19 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
                     model: connectorDeclaration,
                     container: connectorContainer,
                     parentView: this,
-                    lineHeight: this.getBoundingBox().h() - this._viewOptions.topBottomTotalGap
+                    lineHeight: this.getBoundingBox().h() - this._viewOptions.topBottomTotalGap,
+                    messageManager: this.messageManager
                 },
                 connectorDeclarationView,
                 center;
+            var self = this;
 
             // Calculate the new connector's center point
             var widestResource = this.getWidestResource();
 
             if (_.isEmpty(this._connectorViewList)) {
                 // If this is the first service level connector adding
-                center = new Point(widestResource.getBoundingBox().getRight() + 120, this._viewOptions.offsetTop);
+                center = new Point(this.getLifeLineMargin().getPosition() + 120, this._viewOptions.offsetTop);
             } else {
                 center = new Point(_.last(this._connectorViewList).getBoundingBox().getTopCenterX(),
                     this._viewOptions.offsetTop).move(this._viewOptions.LifeLineCenterGap, 0);
@@ -294,10 +315,21 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
 
             connectorDeclarationView.render();
             connectorDeclarationView.setParent(this);
-            widestResource.getBoundingBox().on('right-edge-moved', function (dw) {
-                connectorDeclarationView.getBoundingBox().move(dw, 0);
+            // We render the service level connector first. Then call the ShrinkOrExpand of the resource
+            // This will change the resource BBox if needed. If changed, we move the connector/ reposition it
+            this.getLifeLineMargin().on('moved', function (offset) {
+                connectorDeclarationView.getBoundingBox().move(offset, 0);
+                // After moving the connector, if it go beyond the svg's width, we need to increase the parent svg width
+                if (connectorDeclarationView.getBoundingBox().getRight() > self.getServiceContainer().width()) {
+                    // Add an offset of 60 to the current connector's BBox's right value
+                    self.setServiceContainerWidth(connectorDeclarationView.getBoundingBox().getRight() + 60);
+                }
             });
-            widestResource.ShrinkOrExpand(0, -(this._viewOptions.LifeLineCenterGap));
+            this.getBoundingBox().on('bottom-edge-moved', function (dh) {
+                connectorDeclarationView.getBoundingBox().h(connectorDeclarationView.getBoundingBox().h() + dh);
+            });
+
+            this.getLifeLineMargin().setPosition(this.getLifeLineMargin().getPosition() - this._viewOptions.LifeLineCenterGap);
         };
 
         /**
@@ -309,6 +341,22 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
                 return resourceDefView.getBoundingBox().getRight();
             }]);
             return _.last(sortedArray);
+        };
+
+        /**
+         * Set the Lifeline Margin
+         * @param {number} position - New Axis Position
+         */
+        ServiceDefinitionView.prototype.setLifelineMargin = function (position) {
+            this._lifelineMargin.setPosition(position);
+        };
+
+        /**
+         * Returns the Lifeline Margin
+         * @returns {Axis} - The LifelineMargin
+         */
+        ServiceDefinitionView.prototype.getLifeLineMargin = function () {
+            return this._lifelineMargin;
         };
 
         return ServiceDefinitionView;
