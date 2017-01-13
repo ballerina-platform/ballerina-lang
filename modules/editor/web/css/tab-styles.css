@@ -14,7 +14,7 @@ button.close {
     opacity: 0.5;
     font-size: 20px;
     position: absolute;
-    top: 0px;
+    top: -1px;
     right: 5px;
     color: inherit;
 }
@@ -101,10 +101,11 @@ button.close {
     min-width: 120px;
     color: rgb(153, 153, 153);
     font-weight: 100;
-    margin: 0px;
+    margin: 0;
     padding-right: 17px;
     padding-left: 5px;
     border-right: 1px;
+    background: #555
 }
 
 #tabs-container > div.tab-headers.tab-headers-bar > ul > li.active {
@@ -142,7 +143,6 @@ button.close {
 
 #tabs-container > div.tab-headers.tab-headers-bar > ul > li > a:active {
     opacity: 1;
-    color: red;
 }
 
 #tabs-container > div.tab-headers.tab-headers-bar > ul > .active > a {
