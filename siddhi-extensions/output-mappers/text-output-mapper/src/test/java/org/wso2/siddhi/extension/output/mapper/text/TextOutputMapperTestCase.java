@@ -19,12 +19,12 @@
 package org.wso2.siddhi.extension.output.mapper.text;
 
 import org.apache.log4j.Logger;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.exception.NoSuchAttributeException;
 import org.wso2.siddhi.core.stream.input.InputHandler;
+import org.wso2.siddhi.core.util.transport.InMemoryOutputTransport;
 import org.wso2.siddhi.query.api.ExecutionPlan;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
@@ -43,8 +43,6 @@ public class TextOutputMapperTestCase {
     //          Hi user
     //          {{data}} on {{time}}
     //          """;
-    // TODO: 1/8/17 fix this properly
-    @Ignore("Having test transport here will create a cyclic dependency")
     @Test(expected = NoSuchAttributeException.class)
     public void testPublisherWithHttpTransport() throws InterruptedException {
         StreamDefinition streamDefinition = StreamDefinition.id("FooStream")
@@ -57,7 +55,7 @@ public class TextOutputMapperTestCase {
                 InputStream.stream("FooStream")
         );
         query.publish(
-                Transport.transport("test")
+                Transport.transport("inMemory")
                         .option("topic", "foo")
                         .option("symbol", "{{symbol}}")
                         .option("symbol-price", "{{symbol}}-{{price}}")
@@ -68,6 +66,7 @@ public class TextOutputMapperTestCase {
         );
 
         SiddhiManager siddhiManager = new SiddhiManager();
+        siddhiManager.setExtension("outputtransport:inMemory", InMemoryOutputTransport.class);
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
         executionPlan.defineStream(streamDefinition);
         executionPlan.addQuery(query);

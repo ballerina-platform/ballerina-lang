@@ -25,8 +25,8 @@ import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.stream.input.InputHandler;
-import org.wso2.siddhi.core.util.InMemoryBroker;
-import org.wso2.siddhi.extension.output.mapper.text.TextOutputMapper;
+import org.wso2.siddhi.core.util.transport.InMemoryBroker;
+import org.wso2.siddhi.core.util.transport.PassThroughOutputMapper;
 import org.wso2.siddhi.query.api.ExecutionPlan;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
@@ -99,23 +99,81 @@ public class TestOutputTransportTestCase {
         );
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.setExtension("outputmapper:text", TextOutputMapper.class);
+        siddhiManager.setExtension("outputmapper:text", PassThroughOutputMapper.class);
 
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
         executionPlan.defineStream(streamDefinition);
         executionPlan.addQuery(query);
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
-        InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
+        try {
+            InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
 
-        executionPlanRuntime.start();
-        stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
-        stockStream.send(new Object[]{"IBM", 75.6f, 100L});
-        stockStream.send(new Object[]{"WSO2", 57.6f, 100L});
-        Thread.sleep(100);
+            executionPlanRuntime.start();
+            stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
+            stockStream.send(new Object[]{"IBM", 75.6f, 100L});
+            stockStream.send(new Object[]{"WSO2", 57.6f, 100L});
+            Thread.sleep(100);
 
-        Assert.assertEquals("Number of WSO2 events", 2, wso2Count.get());
-        Assert.assertEquals("Number of IBM events", 1, ibmCount.get());
+            Assert.assertEquals("Number of WSO2 events", 2, wso2Count.get());
+            Assert.assertEquals("Number of IBM events", 1, ibmCount.get());
+        } finally {
+            executionPlanRuntime.shutdown();
+        }
+    }
 
-        executionPlanRuntime.shutdown();
+    @Test
+    public void testPublisherWithSelectorQL() throws InterruptedException {
+        InMemoryBroker.subscribe(new InMemoryBroker.Subscriber() {
+            @Override
+            public void onMessage(Object msg) {
+                wso2Count.incrementAndGet();
+            }
+
+            @Override
+            public String getTopic() {
+                return "WSO2";
+            }
+        });
+
+        InMemoryBroker.subscribe(new InMemoryBroker.Subscriber() {
+            @Override
+            public void onMessage(Object msg) {
+                ibmCount.incrementAndGet();
+            }
+
+            @Override
+            public String getTopic() {
+                return "IBM";
+            }
+        });
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        siddhiManager.setExtension("outputmapper:text", PassThroughOutputMapper.class);
+
+        String streams = "" +
+                "@Plan:name('TestExecutionPlan')" +
+                "define stream FooStream (symbol string, price float, volume long); ";
+
+        String query = "" +
+                "from FooStream " +
+                "select symbol " +
+                "publish test options (topic '{{symbol}}') " +
+                "map text; ";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        try {
+            InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
+
+            executionPlanRuntime.start();
+            stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
+            stockStream.send(new Object[]{"IBM", 75.6f, 100L});
+            stockStream.send(new Object[]{"WSO2", 57.6f, 100L});
+            Thread.sleep(100);
+
+            Assert.assertEquals("Number of WSO2 events", 2, wso2Count.get());
+            Assert.assertEquals("Number of IBM events", 1, ibmCount.get());
+        } finally {
+            executionPlanRuntime.shutdown();
+        }
     }
 }
