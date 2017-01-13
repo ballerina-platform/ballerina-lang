@@ -87,6 +87,7 @@ public class InMemoryOutputTransport extends OutputTransport {
     public List<String> getSupportedMessageFormats() {
         return new ArrayList<String>() {{
             add(MessageType.TEXT);
+            add(MessageType.JSON);
         }};
     }
 }
