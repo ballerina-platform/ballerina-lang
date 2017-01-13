@@ -258,7 +258,6 @@ define(['log', 'jquery', 'lodash', 'backbone', './tab', 'bootstrap'], function (
              */
             newTab: function (opts) {
                 var tabOptions = _.get(opts, 'tabOptions') || {};
-                var ballerinaRoot = _.get(opts, 'ballerinaRoot');
                 _.set(tabOptions, 'application', this.options.application);
                 // merge view options from app config
                 _.assign(tabOptions, _.get(this.options, 'tabs.tab'));
@@ -282,7 +281,7 @@ define(['log', 'jquery', 'lodash', 'backbone', './tab', 'bootstrap'], function (
                     // activate by default
                     this.setActiveTab(newTab);
                 }
-                newTab.render(ballerinaRoot);
+                newTab.render();
                 return newTab;
             },
 

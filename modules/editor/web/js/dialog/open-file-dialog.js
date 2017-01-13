@@ -16,7 +16,9 @@
  * under the License.
  */
 
-define(['require', 'jquery', 'log', 'backbone', 'file_browser', 'ballerina', 'ballerina/diagram-render/diagram-render-context', 'ballerina/views/source-view'], function (require, $, log, Backbone, FileBrowser, Ballerina, DiagramRenderContext, SourceView) {
+define(['require', 'jquery', 'log', 'backbone', 'file_browser', 'ballerina', 'ballerina/diagram-render/diagram-render-context',
+        'ballerina/views/source-view', 'workspace/file'],
+    function (require, $, log, Backbone, FileBrowser, Ballerina, DiagramRenderContext, SourceView, File) {
     var OpenFileDialog = Backbone.View.extend(
         /** @lends SaveToFileDialog.prototype */
         {
@@ -205,7 +207,13 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser', 'ballerina', 'ba
                         async: false,
                         success: function (data, textStatus, xhr) {
                             if (xhr.status == 200) {
-                                openModel(data);
+                                var file = new File({
+                                    path: path,
+                                    content: data,
+                                    isPersisted: true
+                                });
+                                app.commandManager.dispatch("create-new-tab", {tabOptions: {file: file}});
+                                alertSuccess();
                             } else {
                                 alertError();
                             }

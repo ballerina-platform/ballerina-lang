@@ -15,7 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace', 'ballerina/diagram-render/diagram-render-context'], function (require, log, jquery, _, Tab, Ballerina, Workspace, DiagramRenderContext) {
+define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace', 'ballerina/diagram-render/diagram-render-context'],
+    function (require, log, jquery, _, Tab, Ballerina, Workspace, DiagramRenderContext) {
     var FileTab;
 
     FileTab = Tab.extend({
@@ -32,70 +33,26 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             return this._file;
         },
 
-        render: function (ballerinaRoot) {
+        render: function () {
             Tab.prototype.render.call(this);
+            // if file already has content
+            if(!_.isNil(this._file.getContent())){
+                var workspaceManager = _.get(this, 'options.application.workspaceManager'),
+                    self = this;
+                workspaceManager.getParsedTree(this._file, function(astRoot){
+                    self.renderAST(astRoot);
+                })
+            } else {
+                this.renderAST(this.createEmptyBallerinaRoot());
+            }
+        },
+
+        renderAST: function(astRoot){
             var ballerinaEditorOptions = _.get(this.options, 'ballerina_editor');
-
-//            var BallerinaASTFactory = new Ballerina.ast.BallerinaASTFactory();
-//            var ballerinaAstRoot = BallerinaASTFactory.createBallerinaAstRoot();
-//            var serviceDefinitions = [];
-//            var serviceDefinitions1 = [];
-//
-//            // Create sample connector definition
-//            var connectorDefinitions = [];
-//            var connectorDefinition1 = BallerinaASTFactory.createConnectorDefinition();
-//            connectorDefinitions.push(connectorDefinition1);
-//
-//            var serviceDefinition1 = BallerinaASTFactory.createServiceDefinition();
-//            serviceDefinition1.addAnnotation("BasePath", "/basePath1");
-//
-//            // Create Sample Resource Definitions
-//            var resourceDefinition1 = BallerinaASTFactory.createResourceDefinition();
-//
-//            ballerinaAstRoot.addChild(serviceDefinition1);
-//
-//            serviceDefinition1.setResourceDefinitions([resourceDefinition1]);
-//            serviceDefinition1.addChild(resourceDefinition1);
-//
-//            serviceDefinitions.push(serviceDefinition1);
-//
-//            ballerinaAstRoot.setServiceDefinitions(serviceDefinitions);
-//
-//            // Create Sample Function Definitions
-//            var functionDefinitions = [];
-//            var functionDefinitions1 = [];
-//
-//            var functionDefinition1 = BallerinaASTFactory.createFunctionDefinition();
-//            functionDefinitions.push(functionDefinition1);
-//            ballerinaAstRoot.addChild(functionDefinition1);
-//            ballerinaAstRoot.setFunctionDefinitions(functionDefinitions);
-
-            var sourceGenVisitor = new Ballerina.visitors.SourceGen.BallerinaASTRootVisitor();
-            var BallerinaASTFactory = Ballerina.ast.BallerinaASTFactory;
-            var ballerinaAstRoot1 = BallerinaASTFactory.createBallerinaAstRoot();
-
-            //package definition
-            var packageDefinition = BallerinaASTFactory.createPackageDefinition();
-            packageDefinition.setPackageName("");
-            //packageDefinition.setPackageName("samples.echo");
-            ballerinaAstRoot1.addChild(packageDefinition);
-            ballerinaAstRoot1.setPackageDefinition(packageDefinition);
-
-            //import declarations
-            var importDeclaration_langSystem = BallerinaASTFactory.createImportDeclaration();
-            importDeclaration_langSystem.setPackageName("ballerina.lang.system");
-            importDeclaration_langSystem.setParent(ballerinaAstRoot1);
-            ballerinaAstRoot1.addImport(importDeclaration_langSystem);
-
-            var root = ballerinaRoot || ballerinaAstRoot1;
-
-            //Create environment and add add package list
-            var ballerinaEnvironment = new Ballerina.env.Environment();
-
             var diagramRenderingContext = new DiagramRenderContext();
 
             var fileEditor = new Ballerina.views.BallerinaFileEditor({
-                model: root,
+                model: astRoot,
                 container: this.$el.get(0),
                 viewOptions: ballerinaEditorOptions
             });
@@ -113,7 +70,31 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
 
             fileEditor.on("content-modified", function(){
                 this.trigger("tab-content-modified");
+                var updatedContent = this.getBallerinaFileEditor().generateSource();
+                this._file.setContent(updatedContent);
+                this._file.save();
             }, this);
+        },
+
+        createEmptyBallerinaRoot: function() {
+
+            var BallerinaASTFactory = Ballerina.ast.BallerinaASTFactory;
+            var ballerinaAstRoot = BallerinaASTFactory.createBallerinaAstRoot();
+
+            //package definition
+            var packageDefinition = BallerinaASTFactory.createPackageDefinition();
+            packageDefinition.setPackageName("");
+            //packageDefinition.setPackageName("samples.echo");
+            ballerinaAstRoot.addChild(packageDefinition);
+            ballerinaAstRoot.setPackageDefinition(packageDefinition);
+
+            //import declarations
+            var importDeclaration_langSystem = BallerinaASTFactory.createImportDeclaration();
+            importDeclaration_langSystem.setPackageName("ballerina.lang.system");
+            importDeclaration_langSystem.setParent(ballerinaAstRoot);
+            ballerinaAstRoot.addImport(importDeclaration_langSystem);
+
+            return ballerinaAstRoot;
         },
 
         getBallerinaFileEditor: function () {
