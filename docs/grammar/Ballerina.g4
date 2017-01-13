@@ -333,7 +333,7 @@ returnStatement
 
 // below Identifier is only a type of 'message'
 replyStatement
-    :   'reply' expression? ';'
+    :   'reply' expression ';'
     ;
 
 workerInteractionStatement
