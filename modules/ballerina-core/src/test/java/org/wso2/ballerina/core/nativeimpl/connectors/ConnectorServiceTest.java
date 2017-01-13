@@ -81,9 +81,31 @@ public class ConnectorServiceTest {
         Assert.assertNotNull(stringDataSource);
 
         Assert.assertEquals(stringDataSource.getValue(), "true");
+    }
 
+    @Test(description = "Test action5Resource")
+    public void testAction5Resource() {
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/invoke/action5", "GET");
+        CarbonMessage response = Services.invoke(cMsg);
+        Assert.assertNotNull(response);
 
+        StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
+        Assert.assertNotNull(stringDataSource);
 
+        Assert.assertEquals(stringDataSource.getValue(), "MyParam1, MyParam1");
+    }
+
+    @Test(description = "Test action6Resource")
+    public void testAction6Resource() {
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/invoke/action6", "GET");
+        CarbonMessage response = Services.invoke(cMsg);
+        Assert.assertNotNull(response);
+
+        StringDataSource stringDataSource = (StringDataSource) response.getMessageDataSource();
+        Assert.assertNotNull(stringDataSource);
+
+        //action level connector declaration not supported yet
+        //Assert.assertEquals(stringDataSource.getValue(), "Hello, World");
     }
 
 }
