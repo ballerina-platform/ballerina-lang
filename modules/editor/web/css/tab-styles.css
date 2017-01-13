@@ -13,6 +13,7 @@ button.close {
     font-weight: 100;
     opacity: 0.5;
     font-size: 20px;
+    line-height: 15px;
     position: absolute;
     top: 0px;
     right: 5px;
