@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab/tab', 'workspace', 'bootstrap'],
-    function ($, _, Backbone, log, Dialogs, WelcomePages, GenericTab, Workspace) {
+define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab/tab', 'workspace', 'ballerina', 'bootstrap'],
+    function ($, _, Backbone, log, Dialogs, WelcomePages, GenericTab, Workspace, Ballerina) {
 
     // workspace manager constructor
     /**
@@ -31,9 +31,8 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab/t
             throw error;
         }
 
-        this.createNewTab = function createNewTab(ballerinaRoot) {
-            // Showing menu bar
-            app.tabController.newTab({ballerinaRoot: ballerinaRoot});
+        this.createNewTab = function createNewTab(options) {
+            app.tabController.newTab(options);
         };
 
         this.displayInitialTab = function () {
@@ -112,6 +111,29 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab/t
 
         this.goToWelcomePage = function goToWelcomePage() {
             this.workspaceManager.showWelcomePage(this.workspaceManager);
+        };
+
+        this.getParsedTree = function (file, onSuccessCallBack) {
+            $.ajax({
+                url: _.get(app, 'config.services.parser.endpoint'),
+                type: "POST",
+                data: JSON.stringify(file.getContent()),
+                contentType: "application/json; charset=utf-8",
+                async: false,
+                dataType: "json",
+                success: function (data, textStatus, xhr) {
+                    if (xhr.status == 200) {
+                        var BallerinaASTDeserializer = Ballerina.ast.BallerinaASTDeserializer;
+                        var root = BallerinaASTDeserializer.getASTModel(data);
+                        onSuccessCallBack(root);
+                    } else {
+                        log.error("Error while parsing the source. " + JSON.stringify(xhr));
+                    }
+                },
+                error: function (res, errorCode, error) {
+                    log.error("Error while parsing the source. " + JSON.stringify(res));
+                }
+            });
         };
 
         this.updateUndoRedoMenus = function(){
