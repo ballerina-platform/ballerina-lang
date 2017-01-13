@@ -29,7 +29,7 @@ import java.io.IOException;
  * Testing the passthrough service sample located in
  * ballerina_home/samples/passthroughService/passthroughService.bal
  */
-public class HttpPassthroughServiceSampleTestCase extends IntegrationTestCase {
+public class PassthroughServiceSampleTestCase extends IntegrationTestCase {
 
     @Test(description = "Test Passthrough sample test case invoking base path")
     public void testPassthroughServiceByBasePath() throws IOException {
