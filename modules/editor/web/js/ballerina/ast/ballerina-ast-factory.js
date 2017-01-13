@@ -26,14 +26,14 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
         './type-converter-definition', './type-definition', './type-element', './variable-declaration',
         './package-definition', './import-declaration', './resource-arg', './assignment', './assignment-statement', './function-invocation', './function-invocation-expression', './variable-reference-expression',
         './action-invocation-statement', './arithmetic-expression', './logical-expression', './action-invocation-expression',
-        './return-type', './type-name', './argument', './back-quote-expression'],
+        './return-type', './type-name', './argument', './back-quote-expression', './basic-literal-expression'],
     function (ballerinaAstRoot, serviceDefinition, functionDefinition, connectorDefinition, resourceDefinition,
               workerDeclaration, statement, conditionalStatement, connectorDeclaration, expression,
               ifElseStatement, ifStatement, elseStatement, elseIfStatement, tryCatchStatement, tryStatement, catchStatement, replyStatement,
               whileStatement, returnStatement, typeConverterDefinition, typeDefinition, typeElement, variableDeclaration,
               packageDefinition, importDeclaration, resourceArgument, assignment, assignmentStatement, functionInvocation, functionInvocationExpression, variableReferenceExpression,
               actionInvocationStatement, arithmeticExpression, logicalExpression, actionInvocationExpression, returnType,
-              typeName, argument, backQuoteExpression) {
+              typeName, argument, backQuoteExpression, basicLiteralExpression) {
 
 
         /**
@@ -365,7 +365,16 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
          */
         BallerinaASTFactory.createBackQuoteExpression = function (args) {
             return new backQuoteExpression(args);
-        }
+        };
+
+        /**
+         * creates BasicLiteralExpression
+         * @param args
+         * @returns {basicLiteralExpression}
+         */
+        BallerinaASTFactory.createBasicLiteralExpression = function (args) {
+            return new basicLiteralExpression(args);
+        };
 
         /**
          * instanceof check for BallerinaAstRoot
@@ -647,7 +656,7 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
          */
         BallerinaASTFactory.isBackQuoteExpression = function (child) {
             return child instanceof backQuoteExpression;
-        }
+        };
 
         /**
          * instanceof check for Assignment
@@ -656,7 +665,16 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
          */
         BallerinaASTFactory.isAssignment = function (child) {
             return child instanceof assignment;
-        }
+        };
+
+        /**
+         * instanceof check for BasicLiteralExpression
+         * @param child
+         * @returns {boolean}
+         */
+        BallerinaASTFactory.isBasicLiteralExpression = function (child) {
+            return child instanceof basicLiteralExpression;
+        };
 
         BallerinaASTFactory.createFromJson = function (jsonNode) {
             var node;
@@ -726,6 +744,12 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
                         break;
                     case 'back_quote_expression':
                         node = BallerinaASTFactory.createAssignment();
+                        break;
+                    case 'while_statement' :
+                        node = BallerinaASTFactory.createWhileStatement();
+                        break;
+                    case 'basic_literal_expression' :
+                        node = BallerinaASTFactory.createBasicLiteralExpression();
                         break;
                     default:
                         throw "Unknown node definition for " + jsonNode.type;
