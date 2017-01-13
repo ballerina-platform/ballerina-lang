@@ -154,7 +154,8 @@ define(['lodash', './node'],
      */
     ServiceDefinition.prototype.canBeParentOf = function (node) {
         return this.BallerinaASTFactory.isResourceDefinition(node)
-            || this.BallerinaASTFactory.isVariableDeclaration(node);
+            || this.BallerinaASTFactory.isVariableDeclaration(node)
+            || this.BallerinaASTFactory.isConnectorDeclaration(node);
     };
 
     /**
