@@ -181,13 +181,6 @@ public class SemanticAnalyzer implements NodeVisitor {
                     constant.getLocation().getFileName() + ":" + constant.getLocation().getLine());
         }
 
-        // Constants values must be basic literals
-        if (!(constant.getValueExpr() instanceof BasicLiteral)) {
-            throw new SemanticException("Invalid value in constant definition: constant name: " +
-                    constant.getName().getName() + " in " + constant.getLocation().getFileName() + ":" + 
-                    constant.getLocation().getLine());
-        }
-
         BasicLiteral basicLiteral = (BasicLiteral) constant.getValueExpr();
         constant.setValue(basicLiteral.getBValue());
 
