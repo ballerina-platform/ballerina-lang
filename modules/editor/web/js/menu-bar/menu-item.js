@@ -29,31 +29,25 @@ define(['lodash', 'event_channel'],
     MenuItem.prototype.render = function(){
         var self = this;
         var parent = _.get(this, 'options.parent');
-        var commandManager = _.get(this, 'options.commandManager');
-        var commandID = _.get(this, 'definition.action');
+        this._commandManager = _.get(this, 'options.commandManager');
+        this._commandID = _.get(this, 'definition.action');
 
         var item = $('<li></li>');
         var link = $('<a></a>');
         parent.append(item);
         item.append(link);
 
-        if (_.get(this, 'definition.disabled')) {
-            link.addClass(_.get(this, 'options.cssClass.inactive'));
-            link.on("click", function (e) {
-                e.preventDefault();
-            });
-        } else {
-            link.addClass(_.get(this, 'options.cssClass.active'));
-            link.click(function () {
-                commandManager.dispatch(commandID);
-            });
-        }
-
         link.text(_.get(this, 'definition.label'));
         this._labelElement = link;
         _.forEach(_.get(this, 'definition.attributes'), function(attribute){
             link.attr(attribute.key, attribute.value);
         });
+
+        if (_.get(this, 'definition.disabled')) {
+            this.disable();
+        } else {
+            this.enable();
+        }
     };
 
     MenuItem.prototype.getID = function(){
@@ -63,11 +57,18 @@ define(['lodash', 'event_channel'],
     MenuItem.prototype.disable = function(){
         this._labelElement.addClass(_.get(this, 'options.cssClass.inactive'));
         this._labelElement.removeClass(_.get(this, 'options.cssClass.active'));
+        this._labelElement.on("click", function (e) {
+            e.preventDefault();
+        });
     };
 
     MenuItem.prototype.enable = function(){
         this._labelElement.addClass(_.get(this, 'options.cssClass.active'));
         this._labelElement.removeClass(_.get(this, 'options.cssClass.inactive'));
+        var self = this;
+        this._labelElement.click(function () {
+            self._commandManager.dispatch(self._commandID);
+        });
     };
 
     MenuItem.prototype.addLabelSuffix = function(labelSuffix){

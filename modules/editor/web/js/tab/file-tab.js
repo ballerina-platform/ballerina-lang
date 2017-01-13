@@ -110,6 +110,10 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
 
             this._fileEditor = fileEditor;
             fileEditor.render(diagramRenderingContext);
+
+            fileEditor.on("content-modified", function(){
+                this.trigger("tab-content-modified");
+            }, this);
         },
 
         getBallerinaFileEditor: function () {
