@@ -155,6 +155,11 @@ define(['lodash','d3', 'jquery', './ballerina-view', './../ast/connector-declara
                 self._middleRectangle.attr('height', parseFloat(self._middleRectangle.attr('height')) + offset);
                 self.getBottomCenter().move(0, offset);
             });
+            this.getBoundingBox().on('right-edge-moved', function(offset){
+                var currentX = parseInt(self._middleRectangle.attr('x'));
+                var currentY = parseInt(self._middleRectangle.attr('y'));
+                self._middleRectangle.attr('x', currentX + offset)
+            });
             var dropZoneOptions = {
                 dropZone: this._middleRectangle,
                 //hoverClass: _.get(this._viewOptions, 'cssClass.mainDropZoneHover'),
