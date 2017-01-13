@@ -129,6 +129,8 @@ define(['require', 'lodash', 'jquery'],
                     $(event.data.activatorElement).click();
                 }
             });
+
+            return annotationEditorWrapper;
         };
 
         /**

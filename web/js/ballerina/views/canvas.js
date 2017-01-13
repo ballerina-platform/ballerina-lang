@@ -168,7 +168,7 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
             event.stopPropagation();
         });
 
-        panelDeleteIcon.click(function(event){
+        panelDeleteIcon.click(function (event) {
             log.debug("Clicked delete button");
 
             event.stopPropagation();
@@ -177,6 +177,96 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
             var parent = child.parent;
             parent.removeChild(child);
         });
+
+        // Creating scroll panes.
+        var leftScroll = $("<div class='service-left-scroll'/>").appendTo(svgContainer);
+        var rightScroll = $("<div class='service-right-scroll'/>").appendTo(svgContainer);
+
+        $("<i class='fw fw-left'></i>").appendTo(leftScroll);
+        $("<i class='fw fw-right'></i>").appendTo(rightScroll);
+
+        // Setting heights of the scrolls.
+        $(leftScroll).height($(svgContainer).height());
+        $(rightScroll).height($(svgContainer).height());
+
+        // Positioning the arrows of the scrolls.
+        $(leftScroll).find("i").css("padding-top", ($(svgContainer).height() / 2) - 22 + "px");
+        $(rightScroll).find("i").css("padding-top", ($(svgContainer).height() / 2) - 22 + "px");
+
+        // Positioning scrolls when scrolling the container.
+        $(svgContainer).scroll(function () {
+            $(rightScroll).css("left", $(svgContainer).width() - $(rightScroll).width() + $(svgContainer).scrollLeft());
+            $(leftScroll).css("left", $(svgContainer).scrollLeft());
+            _showHideScrolls(svgContainer, svg, leftScroll, rightScroll);
+        });
+
+        _showHideScrolls(svgContainer, svg, leftScroll, rightScroll);
+
+        // Binding scroll events.
+        $(rightScroll).click(function () {
+            $(svgContainer).animate({scrollLeft: $(svgContainer).scrollLeft() + $(svgContainer).width() / 2}, {
+                duration: 300,
+                complete: function() {
+                    $(rightScroll).css("left", $(svgContainer).width() - $(rightScroll).width() +
+                        $(svgContainer).scrollLeft());
+                    $(leftScroll).css("left", $(svgContainer).scrollLeft());
+                    _showHideScrolls(svgContainer, svg, leftScroll, rightScroll);
+                },
+                progress: function(animation, progress) {
+                    $(rightScroll).css("left", $(svgContainer).width() - $(rightScroll).width() +
+                        $(svgContainer).scrollLeft());
+                    $(leftScroll).css("left", $(svgContainer).scrollLeft());
+                }
+            });
+        });
+
+        // Binding scroll events.
+        $(leftScroll).click(function () {
+            $(svgContainer).animate({scrollLeft: $(svgContainer).scrollLeft() - $(svgContainer).width() / 2}, {
+                duration: 300,
+                complete: function() {
+                    $(rightScroll).css("left", $(svgContainer).width() - $(rightScroll).width() +
+                        $(svgContainer).scrollLeft());
+                    $(leftScroll).css("left", $(svgContainer).scrollLeft());
+                    _showHideScrolls(svgContainer, svg, leftScroll, rightScroll);
+                },
+                progress: function(animation, progress) {
+                    $(rightScroll).css("left", $(svgContainer).width() - $(rightScroll).width() +
+                        $(svgContainer).scrollLeft());
+                    $(leftScroll).css("left", $(svgContainer).scrollLeft());
+                }
+            });
+        });
+
+        /**
+         * Shows and hide the custom scrolls depending on the amount scrolled.
+         * @param {Element} container - The container of the SVG. i.e the parent of the SVG.
+         * @param {Element} svgElement - The SVG element.
+         * @param {Element} leftScroll - The DIV wrapper for the left scroll.
+         * @param {Element} rightScroll - The DIV wrapper for the right scroll.
+         */
+        function _showHideScrolls(container, svgElement, leftScroll, rightScroll) {
+            // Showing/Hiding scrolls.
+            if (parseInt($(container).width(), 10) >= parseInt($(svgElement).width(), 10)) {
+                // If the svg width is less than or equal to the container, then no need to show the arrows.
+                $(leftScroll).hide();
+                $(rightScroll).hide();
+            } else {
+                // If the svg width is greater than the width of the container...
+                if ($(container).scrollLeft() == 0) {
+                    // When scrollLeft is 0, means that it is already scrolled to the left corner.
+                    $(leftScroll).hide();
+                    $(rightScroll).show();
+                } else if (Math.abs(parseInt($(container).scrollLeft()) - (parseInt($(svgElement).width(), 10) - parseInt($(container).width(), 10))) < 5) {
+                    // When scrolled all the way to the right.
+                    $(leftScroll).show();
+                    $(rightScroll).hide();
+                } else {
+                    $(leftScroll).show();
+                    $(rightScroll).show();
+                }
+            }
+        }
     };
 
     /**
