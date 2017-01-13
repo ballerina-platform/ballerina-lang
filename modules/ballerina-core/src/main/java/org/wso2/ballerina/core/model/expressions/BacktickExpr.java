@@ -21,21 +21,34 @@ import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.values.BValue;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * {@code BackquoteExpr} represents an xml or a json string wrapped in between backticks/backquotes
+ * {@code BacktickExpr} represents an xml or a json string wrapped in between backticks/backquotes
  *
  * @since 1.0.0
  */
-public class BackquoteExpr extends AbstractExpression {
+public class BacktickExpr extends AbstractExpression {
 
     private String templateStr;
 
-    private BackquoteExpr(String templateStr) {
+    List<Expression> expressionList = new ArrayList<>();
+
+    private BacktickExpr(String templateStr) {
         this.templateStr = templateStr;
     }
 
     public String getTemplateStr() {
         return templateStr;
+    }
+
+    public List<Expression> getExpressionList() {
+        return expressionList;
+    }
+
+    public void addExpression(Expression expression) {
+        expressionList.add(expression);
     }
 
     @Override
@@ -50,18 +63,18 @@ public class BackquoteExpr extends AbstractExpression {
     /**
      *
      */
-    public static class BackquoteExprBuilder {
+    public static class BacktickExprBuilder {
         private String templateStr;
 
-        public BackquoteExprBuilder() {
+        public BacktickExprBuilder() {
         }
 
         public void setTemplateStr(String templateStr) {
             this.templateStr = templateStr;
         }
 
-        public BackquoteExpr build() {
-            return new BackquoteExpr(this.templateStr);
+        public BacktickExpr build() {
+            return new BacktickExpr(this.templateStr);
         }
     }
 }

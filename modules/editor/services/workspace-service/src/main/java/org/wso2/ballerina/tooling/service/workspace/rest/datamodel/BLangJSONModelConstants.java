@@ -76,6 +76,8 @@ public class BLangJSONModelConstants {
 
     public static final String CONNECTOR_DCL_NAME = "connector_name";
 
+    public static final String CONNECTOR_DCL_PKG_NAME = "connector_pkg_name";
+
     public static final String CONNECTOR_DCL_VARIABLE = "connector_variable";
 
     public static final String VARIABLE_NAME = "variable_name";
@@ -87,6 +89,10 @@ public class BLangJSONModelConstants {
     public static final String CONNECTOR_NAME = "connector_name";
 
     public static final String ACTION_NAME = "action_name";
+
+    public static final String ACTION_PKG_NAME = "action_pkg_name";
+
+    public static final String ACTION_CONNECTOR_NAME = "action_connector_name";
 
     public static final String STATEMENT_TYPE = "type";
 

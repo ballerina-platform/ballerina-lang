@@ -24,7 +24,7 @@ import org.wso2.ballerina.core.interpreter.ServiceVarLocation;
 import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.ArrayInitExpr;
 import org.wso2.ballerina.core.model.expressions.ArrayMapAccessExpr;
-import org.wso2.ballerina.core.model.expressions.BackquoteExpr;
+import org.wso2.ballerina.core.model.expressions.BacktickExpr;
 import org.wso2.ballerina.core.model.expressions.BasicLiteral;
 import org.wso2.ballerina.core.model.expressions.BinaryExpression;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
@@ -84,7 +84,7 @@ public interface NodeExecutor {
 
     BValue visit(MapInitExpr mapInitExpr);
 
-    BValue visit(BackquoteExpr backquoteExpr);
+    BValue visit(BacktickExpr backtickExpr);
 
     BValue visit(VariableRefExpr variableRefExpr);
 

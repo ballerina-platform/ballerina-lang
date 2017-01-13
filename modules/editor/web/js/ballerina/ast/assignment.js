@@ -51,7 +51,7 @@ define(['lodash', './statement'], function (_, Statement) {
      * @param jsonNode
      */
     Assignment.prototype.initFromJson = function (jsonNode) {
-        this._expression = jsonNode.statement;
+        this._expression = 'a = b';
     };
 
     return Assignment;
