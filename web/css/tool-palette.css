@@ -19,7 +19,6 @@
     padding: 5px 1px;
     background: whitesmoke;
     border-bottom: 1px solid #e4e4e4;
-    margin-bottom: 10px;
 }
 
 .tool-group-header-title{
@@ -38,7 +37,7 @@
 
 .tool-group-body{
     overflow: hidden;
-    padding: 0 9px 10px 9px;
+    padding:10px 9px;
 }
 
 .collapse-icon{
