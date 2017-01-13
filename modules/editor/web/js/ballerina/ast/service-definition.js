@@ -173,6 +173,7 @@ define(['lodash', './node'],
         _.each(jsonNode.children, function (childNode) {
             var child = self.BallerinaASTFactory.createFromJson(childNode);
             self.addChild(child);
+            child.initFromJson(childNode);
         });
     };
 
