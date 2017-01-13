@@ -48,7 +48,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
 
 /**
  * {@code BalDeployer} is responsible for all ballerina file deployment tasks
@@ -174,17 +173,17 @@ public class BalDeployer {
         return 0;
     }
 
-    /**
-     * Deploy all Ballerina files in a give directory.
-     *
-     * @param files to deploy.
-     */
-    public static void deployBalFiles(File[] files) {
-        if (files != null) {
-            Arrays.stream(files).filter(file1 -> file1.getName().endsWith(FILE_EXTENSION)).forEach
-                    (BalDeployer::deployBalFile);
-        }
-    }
+//    /**
+//     * Deploy all Ballerina files in a give directory.
+//     *
+//     * @param files to deploy.
+//     */
+//    public static void deployBalFiles(File[] files) {
+//        if (files != null) {
+//            Arrays.stream(files).filter(file1 -> file1.getName().endsWith(FILE_EXTENSION)).forEach
+//                    (BalDeployer::deployBalFile);
+//        }
+//    }
 
     /**
      * Undeploy a service registered through a ballerina file.
