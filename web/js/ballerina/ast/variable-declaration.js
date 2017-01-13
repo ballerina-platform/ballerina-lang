@@ -47,5 +47,14 @@ define(['lodash', './node'], function(_, ASTNode){
         return this._identifier;
     };
 
+    /**
+     * initialize VariableDeclaration from json object
+     * @param {Object} jsonNode to initialize from
+     */
+    VariableDeclaration.prototype.initFromJson = function (jsonNode) {
+        this.setType('message');
+        this.setIdentifier('response');
+    };
+
     return VariableDeclaration;
 });

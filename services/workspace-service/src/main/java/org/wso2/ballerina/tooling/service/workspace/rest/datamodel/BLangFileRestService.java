@@ -124,7 +124,8 @@ public class BLangFileRestService {
 
         SymScope globalScope = GlobalScopeHolder.getInstance().getScope();
         SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(bFile, globalScope);
-        bFile.accept(semanticAnalyzer);
+        // TODO: There is a bug in SemanticAnalyzer of the Ballerina engine. Temporary avoiding Semantic Analyzing due to that issue.
+        //bFile.accept(semanticAnalyzer);
 
         JsonObject response = new JsonObject();
         BLangJSONModelBuilder jsonModelBuilder = new BLangJSONModelBuilder(response);

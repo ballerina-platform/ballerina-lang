@@ -60,6 +60,20 @@ define(['lodash', 'log', 'event_channel', '../ast/module', './try-catch-statemen
                 return new ArithmeticExpressionView(args);
             } else if (statement instanceof AST.ReturnStatement) {
                 return new ReturnStatement(args);
+            } else if (statement instanceof AST.AssignmentStatement){
+                // TODO : This logic needs to be refactored.
+                var children  = _.get(statement, "children");
+                var assignmenStatement;
+                _.each(children, function (child) {
+                    if(AST.BallerinaASTFactory.isActionInvocationExpression(child)){
+                        _.set(args, 'model', child);
+                        assignmenStatement = new ActionInvocationStatementView(args);
+                    }else if(AST.BallerinaASTFactory.isAssignment(child)){
+                        _.set(args, 'model', child);
+                        assignmenStatement = new AssignmentStatementView(args);
+                    }
+                });
+                return assignmenStatement;
             }
         };
 
