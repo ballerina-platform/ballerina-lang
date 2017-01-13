@@ -54,7 +54,7 @@ define(['lodash', 'event_channel', './menu-item'],
             var menuItemOptions = {definition: _.cloneDeep(menuItemDef)};
             _.set(menuItemOptions, 'options', menuItemOpts);
             _.set(menuItemOptions, 'options.parent', menu);
-            _.set(menuItemOptions, 'options.commandManager', _.get(self, 'options.commandManager'));
+            _.set(menuItemOptions, 'options.application', _.get(self, 'options.application'));
             var menuItem = new MenuItem(menuItemOptions);
             menuItem.render();
             _.set(self, menuItem.getID(), menuItem);

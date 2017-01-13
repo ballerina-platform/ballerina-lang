@@ -43,13 +43,13 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'app/menu-bar/menu-bar
 
             this.browserStorage = new Workspace.BrowserStorage('ballerinaAppTempStorage');
 
-            //init workspace manager
-            this.workspaceManager = new Workspace.Manager(this);
-
             //init menu bar
             var menuBarOpts = _.get(this.config, "menu_bar");
             _.set(menuBarOpts, 'application', this);
             this.menuBar = new MenuBar(menuBarOpts);
+
+            //init workspace manager
+            this.workspaceManager = new Workspace.Manager(this);
 
             var breadCrumbsOpts = _.get(this.config, "breadcrumbs");
             _.set(breadCrumbsOpts, 'application', this);
@@ -114,6 +114,27 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'app/menu-bar/menu-bar
 
         showWorkspaceArea: function(){
             $(this.config.container).show();
+        },
+
+        getOperatingSystem: function(){
+            var operatingSystem = "Unknown OS";
+            if (navigator.appVersion.indexOf("Win") != -1) {
+                operatingSystem = "Windows";
+            }
+            else if (navigator.appVersion.indexOf("Mac") != -1) {
+                operatingSystem = "MacOS";
+            }
+            else if (navigator.appVersion.indexOf("X11") != -1) {
+                operatingSystem = "UNIX";
+            }
+            else if (navigator.appVersion.indexOf("Linux") != -1) {
+                operatingSystem = "Linux";
+            }
+            return operatingSystem;
+        },
+
+        isRunningOnMacOS: function(){
+            return _.isEqual(this.getOperatingSystem(), 'MacOS');
         }
 
     });
