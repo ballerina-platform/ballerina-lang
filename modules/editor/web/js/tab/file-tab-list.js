@@ -49,6 +49,14 @@ define(['log', 'jquery', 'lodash', './tab-list', './file-tab',  'workspace'],
                 });
             }
         },
+        setActiveTab: function(tab) {
+            TabList.prototype.setActiveTab.call(this, tab);
+            if(tab instanceof ServiceTab){
+                var app = _.get(this, 'options.application'),
+                    workspaceManager = app.workspaceManager;
+                workspaceManager.updateUndoRedoMenus();
+            }
+        },
         addTab: function(tab) {
             TabList.prototype.addTab.call(this, tab);
             // avoid re-addition of init time files
@@ -56,6 +64,13 @@ define(['log', 'jquery', 'lodash', './tab-list', './file-tab',  'workspace'],
                 this._workingFileSet.push(tab.getFile());
                 this.getBrowserStorage().put('workingFileSet', this._workingFileSet);
             }
+            tab.on("tab-content-modified", function(){
+                if (tab.isActive()) {
+                    var app = _.get(this, 'options.application'),
+                        workspaceManager = app.workspaceManager;
+                    workspaceManager.updateUndoRedoMenus();
+                }
+            }, this)
         },
         removeTab: function (tab) {
             TabList.prototype.removeTab.call(this, tab);

@@ -1163,14 +1163,12 @@ public class SemanticAnalyzer implements NodeVisitor {
         SymbolName symbolName = LangModelUtils.getSymNameWithParams(function.getName(), function.getParameters());
         function.setSymbolName(symbolName);
 
-        BType[] paramTypes = LangModelUtils.getTypesOfParams(function.getParameters());
-        Symbol symbol = new Symbol(function, paramTypes, function.getReturnTypes());
-
         if (symbolTable.lookup(symbolName) != null) {
-            throw new SemanticException("Duplicate function definition: " + function.getFunctionName() + " in " 
+            throw new SemanticException("Duplicate function definition: " + function.getFunctionName() + " in "
                     + function.getLocation().getFileName() + ":" + function.getLocation().getLine());
         }
 
+        Symbol symbol = new Symbol(function);
         symbolTable.insert(symbolName, symbol);
     }
 
@@ -1182,7 +1180,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                 LangModelUtils.getActionSymName(actionSymbolName.getName(),
                         actionSymbolName.getConnectorName(),
                         actionSymbolName.getPkgName(), paramTypes);
-        Symbol symbol = new Symbol(action, paramTypes, action.getReturnTypes());
+        Symbol symbol = new Symbol(action);
 
         if (symbolTable.lookup(symbolName) != null) {
             throw new SemanticException("Duplicate action definition: " + symbolName + " in " 
@@ -1193,8 +1191,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     private void addConnectorSymbol(BallerinaConnector connector) {
-        BType[] paramTypes = LangModelUtils.getTypesOfParams(connector.getParameters());
-        Symbol symbol = new Symbol(connector, paramTypes);
+        Symbol symbol = new Symbol(connector);
 
         SymbolName symbolName = new SymbolName(connector.getPackageQualifiedName());
         if (symbolTable.lookup(symbolName) != null) {

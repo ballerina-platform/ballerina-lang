@@ -28,7 +28,7 @@ define(['lodash', './ast-manipulation-operation'],
         var ASTNodeModifyOperation = function(args){
             ASTManipulationOperation.call(this, args);
             if(_.isNil(this.getTitle())){
-                this.setTitle("modify " + this._data.child.getType())
+                this.setTitle("Modify " + this._data.child.getType())
             }
             this._clonedOriginNode = _.cloneDeep(this._originNode);
             this._parentOfOriginNode = this._originNode.getParent();
