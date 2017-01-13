@@ -95,9 +95,10 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
 
     LifeLineView.prototype._updateBoundingBox = function () {
         
-    }
+    };
 
     LifeLineView.prototype.render = function () {
+        var self = this;
         this.renderMiddleLine();
         this.renderTopPolygon();
         this.renderBottomPolygon();
@@ -105,6 +106,9 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         this.renderMiddleRectangle();
         this.renderContentArea();
         this.listenTo(this._model, 'update-property-text', this.updateTitleText);
+        this.getBoundingBox().on('right-edge-moved', function (dx) {
+            self.move(dx, 0);
+        });
         return this;
     };
 
@@ -138,7 +142,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         this._topCenter.on('moved', function (offset) {
             var x = parseFloat(self._topPolygon.attr('x'));
             var y = parseFloat(self._topPolygon.attr('y'));
-            self._topPolygonText
+            self._topPolygon
                 .attr('x', x + offset.dx)
                 .attr('y', y + offset.dy)
         });

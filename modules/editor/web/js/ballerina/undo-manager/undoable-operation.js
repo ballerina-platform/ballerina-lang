@@ -26,7 +26,7 @@ define(['lodash', 'event_channel'],
          * @constructor
          */
         var UndoableOperation = function(args){
-            this.setTitle(_.get(args, 'title', "undefined"));
+            this.setTitle(_.get(args, 'title', undefined));
         };
 
         UndoableOperation.prototype = Object.create(EventChannel.prototype);
