@@ -45,7 +45,7 @@ import org.wso2.ballerina.core.model.expressions.AddExpression;
 import org.wso2.ballerina.core.model.expressions.AndExpression;
 import org.wso2.ballerina.core.model.expressions.ArrayInitExpr;
 import org.wso2.ballerina.core.model.expressions.ArrayMapAccessExpr;
-import org.wso2.ballerina.core.model.expressions.BackquoteExpr;
+import org.wso2.ballerina.core.model.expressions.BacktickExpr;
 import org.wso2.ballerina.core.model.expressions.BasicLiteral;
 import org.wso2.ballerina.core.model.expressions.DivideExpr;
 import org.wso2.ballerina.core.model.expressions.EqualExpression;
@@ -821,12 +821,12 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     }
 
     @Override
-    public void visit(BackquoteExpr backquoteExpr) {
+    public void visit(BacktickExpr backtickExpr) {
         JsonObject backquoteExprObj = new JsonObject();
         backquoteExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
                 BLangJSONModelConstants.BACK_QUOTE_EXPRESSION);
         backquoteExprObj.addProperty(BLangJSONModelConstants.BACK_QUOTE_ENCLOSED_STRING,
-                backquoteExpr.getTemplateStr());
+                backtickExpr.getTemplateStr());
         tempJsonArrayRef.peek().add(backquoteExprObj);
     }
 

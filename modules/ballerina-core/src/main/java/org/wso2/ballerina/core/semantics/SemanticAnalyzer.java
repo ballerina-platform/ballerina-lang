@@ -51,7 +51,7 @@ import org.wso2.ballerina.core.model.expressions.AddExpression;
 import org.wso2.ballerina.core.model.expressions.AndExpression;
 import org.wso2.ballerina.core.model.expressions.ArrayInitExpr;
 import org.wso2.ballerina.core.model.expressions.ArrayMapAccessExpr;
-import org.wso2.ballerina.core.model.expressions.BackquoteExpr;
+import org.wso2.ballerina.core.model.expressions.BacktickExpr;
 import org.wso2.ballerina.core.model.expressions.BasicLiteral;
 import org.wso2.ballerina.core.model.expressions.BinaryArithmeticExpression;
 import org.wso2.ballerina.core.model.expressions.BinaryExpression;
@@ -90,10 +90,13 @@ import org.wso2.ballerina.core.model.types.BMapType;
 import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.model.util.LangModelUtils;
+import org.wso2.ballerina.core.model.values.BString;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * {@code SemanticAnalyzer} analyzes semantic properties of a Ballerina program
@@ -517,8 +520,8 @@ public class SemanticAnalyzer implements NodeVisitor {
             return;
         }
 
-        // If the rExpr typ is not set, then check whether it is a BackquoteExpr
-        if (rExpr.getType() == null && rExpr instanceof BackquoteExpr) {
+        // If the rExpr typ is not set, then check whether it is a BacktickExpr
+        if (rExpr.getType() == null && rExpr instanceof BacktickExpr) {
 
             // In this case, type of the lExpr should be either xml or json
             if (lExpr.getType() != BTypes.JSON_TYPE && lExpr.getType() != BTypes.XML_TYPE) {
@@ -1080,9 +1083,37 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     @Override
-    public void visit(BackquoteExpr backquoteExpr) {
+    public void visit(BacktickExpr backtickExpr) {
+        // Analyze the string and create relevant tokens
+        // First check the literals
+        String patternString = "\\$\\{([a-zA-Z_][a-zA-Z0-9_]*)\\}";
+        String[] literals = backtickExpr.getTemplateStr().split(patternString);
+        // Split will always have at least one matching literal
+        int i = 0;
+        if (literals.length > i) {
+            BasicLiteral basicLiteral = new BasicLiteral(new BString(literals[i]));
+            visit(basicLiteral);
+            backtickExpr.addExpression(basicLiteral);
+            i++;
+        }
+        // Then get the variable references
+        Pattern p = Pattern.compile(patternString);
+        Matcher m = p.matcher(backtickExpr.getTemplateStr());
+
+        while (m.find()) {
+            VariableRefExpr variableRefExpr = new VariableRefExpr(new SymbolName(m.group(1)));
+            variableRefExpr.setLocation(backtickExpr.getLocation());
+            visit(variableRefExpr);
+            backtickExpr.addExpression(variableRefExpr);
+            if (literals.length > i) {
+                BasicLiteral basicLiteral = new BasicLiteral(new BString(literals[i]));
+                visit(basicLiteral);
+                backtickExpr.addExpression(basicLiteral);
+                i++;
+            }
+        }
         // TODO If the type is not set then just return
-        visitExpr(backquoteExpr);
+        visitExpr(backtickExpr);
     }
 
     @Override
