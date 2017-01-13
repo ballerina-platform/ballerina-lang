@@ -1,4 +1,4 @@
-.closeTab{
+.closeTab {
     margin-left: 5px;
     margin-bottom: 5px;
 }
@@ -19,7 +19,7 @@ button.close {
     color: inherit;
 }
 
-#tabs-container > div.tab-headers.tab-headers-bar > ul{
+#tabs-container > div.tab-headers.tab-headers-bar > ul {
     border-bottom: 0px;
 }
 
@@ -35,19 +35,16 @@ button.close {
     right: 25px;
 }
 
-
 .toggle-to-design {
     width: 30px;
     height: 30px;
 }
 
-.tab-pane{
+.tab-pane {
 }
 
-
-.grid-background{
-    background:
-    linear-gradient(-90deg, rgba(0, 0, 0, .03) 1px, transparent 1px),
+.grid-background {
+    background: linear-gradient(-90deg, rgba(0, 0, 0, .03) 1px, transparent 1px),
     linear-gradient(rgba(0, 0, 0, .03) 1px, transparent 1px),
     linear-gradient(-90deg, rgba(0, 0, 0, .03) 1px, transparent 1px),
     linear-gradient(rgba(0, 0, 0, .03) 1px, transparent 1px),
@@ -55,8 +52,7 @@ button.close {
     linear-gradient(-90deg, transparent 1px, transparent 1px),
     linear-gradient(-90deg, transparent 3px, transparent 3px, transparent 78px, transparent 78px),
     linear-gradient(transparent 1px, transparent 1px), transparent;
-    background-size:
-    10px 10px,
+    background-size: 10px 10px,
     10px 10px,
     10px 10px,
     10px 10px,
@@ -66,19 +62,19 @@ button.close {
     10px 10px;
 }
 
-
-
 .toggle-to-source {
     width: 30px;
     height: 30px;
 }
-.preview-container{
+
+.preview-container {
     display: none;
 }
+
 .source-view-enabled {
     display: block;
     width: 100%;
-    height:100%;
+    height: 100%;
 }
 
 .source-view-disabled {
@@ -97,11 +93,11 @@ button.close {
     background-color: #333;
 }
 
-.canvas-container{
+.canvas-container {
     background: none;
 }
 
-#tabs-container > div.tab-headers.tab-headers-bar > ul > li{
+#tabs-container > div.tab-headers.tab-headers-bar > ul > li {
     min-width: 120px;
     color: rgb(153, 153, 153);
     font-weight: 100;
@@ -111,25 +107,25 @@ button.close {
     border-right: 1px;
 }
 
-#tabs-container > div.tab-headers.tab-headers-bar > ul > li.active{
+#tabs-container > div.tab-headers.tab-headers-bar > ul > li.active {
     background: white;
     color: #555;
 }
 
-#tabs-container > div.tab-headers.tab-headers-bar > ul > li.active.inverse{
+#tabs-container > div.tab-headers.tab-headers-bar > ul > li.active.inverse {
     color: rgb(190, 190, 190);
     background: #1D1F21;
 }
 
-#tabs-container > div.tab-headers.tab-headers-bar > ul > li.active.inverse > a{
+#tabs-container > div.tab-headers.tab-headers-bar > ul > li.active.inverse > a {
     color: rgb(190, 190, 190);
 }
 
-#tabs-container > div.tab-headers.tab-headers-bar > ul > li > button:hover{
+#tabs-container > div.tab-headers.tab-headers-bar > ul > li > button:hover {
     color: white;
 }
 
-#tabs-container > div.tab-headers.tab-headers-bar > ul > li.active > button:hover{
+#tabs-container > div.tab-headers.tab-headers-bar > ul > li.active > button:hover {
     color: #000;
 }
 
@@ -143,12 +139,13 @@ button.close {
     color: #ccc;
     font-weight: 300;
 }
+
 #tabs-container > div.tab-headers.tab-headers-bar > ul > li > a:active {
     opacity: 1;
     color: red;
 }
 
-#tabs-container > div.tab-headers.tab-headers-bar > ul > .active > a{
+#tabs-container > div.tab-headers.tab-headers-bar > ul > .active > a {
     opacity: 1;
     color: #333;
 }
