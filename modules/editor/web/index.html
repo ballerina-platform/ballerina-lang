@@ -11,9 +11,8 @@
     <link href="images/favicon.png" rel="icon" type="image/png" sizes="16x16" />
 
     <script src="lib/css-browser-selector_0.4.0/css_browser_selector.js"></script>
-    <link href="lib/bootstrap_v3.3.6/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
     <link href="lib/font-wso2-1.2.1/css/font-wso2.min.css" rel="stylesheet" type="text/css"/>
-    <link href="lib/theme-wso2_1.0/css/theme-wso2.css" rel="stylesheet" type="text/css"/>
+    <link href="lib/theme-wso2-2.0.0/css/theme-wso2.css" rel="stylesheet" type="text/css"/>
     <link href="lib/jquery-ui_v1.12.1/jquery-ui.css" rel="stylesheet" type="text/css"/>
     <link href="lib/js-tree-v3.3.2/themes/default/style.css" rel="stylesheet" type="text/css"/>
     <link href="css/layout.css" rel="stylesheet" type="text/css"/>
@@ -39,16 +38,16 @@
     <title>Ballerina Editor</title>
 </head>
 
-<body>
+<body class="sticky-footer">
 
 <!-- Start: header -->
 <header class="header header-default">
     <!-- Start: header - logo, title & menu-bar -->
     <div id="header-container" class="container-fluid">
-        <div class="pull-left brand float-remove-xs text-center-xs">
+        <div class="pull-left brand">
             <a href="#">
-                <img src="lib/theme-wso2_1.0/images/logo-inverse.svg" alt="WSO2" title="WSO2" class="logo">
-                <h1>Ballerina Editor</h1>
+                <img src="lib/theme-wso2_1.0/images/logo-inverse.svg" alt="wso2" title="wso2" class="logo">
+                <span>Ballerina Editor </span>
             </a>
         </div>
         <div id="menu-bar-container" class="menu-bar">
@@ -578,7 +577,7 @@
                                 outer_div: 'panel panel-default container-outer-div',
                                 panel_title: 'panel-title',
                                 panel_icon: 'panel-icon',
-                                service_icon: 'fw fw-settings fw-inverse',
+                                service_icon: 'fw fw-dmg-service fw-inverse',
                                 connector_icon:'fw fw-dgm-connector fw-inverse',
                                 function_icon:'fw fw-function fw-inverse',
                                 title_link:'collapsed',
