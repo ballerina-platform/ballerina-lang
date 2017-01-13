@@ -15,8 +15,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './resource-definition-visitor', './variable-declaration-visitor'],
-    function(_, log, EventChannel, AbstractSourceGenVisitor, ResourceDefinitionVisitor,VariableDeclarationVisitor) {
+define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './resource-definition-visitor',
+        './variable-declaration-visitor', './connector-declaration-visitor'],
+    function(_, log, EventChannel, AbstractSourceGenVisitor, ResourceDefinitionVisitor,
+             VariableDeclarationVisitor, ConnectorDeclarationVisitor) {
 
     /**
      * @param parent
@@ -73,9 +75,14 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './re
         resourceDefinition.accept(resourceDefinitionVisitor);
     };
 
+    ServiceDefinitionVisitor.prototype.visitConnectorDeclaration = function(connectorDeclaration){
+        var connectorDeclarationVisitor = new ConnectorDeclarationVisitor(this);
+        connectorDeclaration.accept(connectorDeclarationVisitor);
+    };
+
     ServiceDefinitionVisitor.prototype.visitVariableDeclaration = function(variableDeclaration){
-        var varialeDeclarationVisitor = new VariableDeclarationVisitor(this);
-        variableDeclaration.accept(varialeDeclarationVisitor);
+        var variableDeclarationVisitor = new VariableDeclarationVisitor(this);
+        variableDeclaration.accept(variableDeclarationVisitor);
     };
 
     return ServiceDefinitionVisitor;
