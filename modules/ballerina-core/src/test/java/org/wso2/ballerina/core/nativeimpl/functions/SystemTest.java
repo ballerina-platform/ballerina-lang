@@ -225,7 +225,7 @@ public class SystemTest {
     }
 
 
-    class TestLogAppender extends AppenderSkeleton {
+    static class TestLogAppender extends AppenderSkeleton {
 
         List<LoggingEvent> events;
 

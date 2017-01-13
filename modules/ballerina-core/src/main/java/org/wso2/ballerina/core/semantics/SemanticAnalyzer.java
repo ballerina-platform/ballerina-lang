@@ -107,10 +107,10 @@ public class SemanticAnalyzer implements NodeVisitor {
     private int stackFrameOffset = -1;
     private int staticMemAddrOffset = -1;
     private int connectorMemAddrOffset = -1;
-
     private SymTable symbolTable;
-
     private String currentPkg;
+    private static final String patternString = "\\$\\{([a-zA-Z_][a-zA-Z0-9_]*)\\}";
+    private static final Pattern compiledPattern = Pattern.compile(patternString);
 
     // We need to keep a map of import packages.
     // This is useful when analyzing import functions, actions and types.
@@ -179,13 +179,6 @@ public class SemanticAnalyzer implements NodeVisitor {
         if (symbol != null && isSymbolInCurrentScope(symbol)) {
             throw new SemanticException("Duplicate constant name: " + symName.getName() + " in " +
                     constant.getLocation().getFileName() + ":" + constant.getLocation().getLine());
-        }
-
-        // Constants values must be basic literals
-        if (!(constant.getValueExpr() instanceof BasicLiteral)) {
-            throw new SemanticException("Invalid value in constant definition: constant name: " +
-                    constant.getName().getName() + " in " + constant.getLocation().getFileName() + ":" + 
-                    constant.getLocation().getLine());
         }
 
         BasicLiteral basicLiteral = (BasicLiteral) constant.getValueExpr();
@@ -1034,18 +1027,18 @@ public class SemanticAnalyzer implements NodeVisitor {
                     + mapInitExpr.getLocation().getFileName() + ":" + mapInitExpr.getLocation().getLine());
         }
 
-        argExprs[0].accept(this);
-        BType typeOfMap = ((KeyValueExpression) argExprs[0]).getValueExpression().getType();
+//        argExprs[0].accept(this);
+//        BType typeOfMap = ((KeyValueExpression) argExprs[0]).getValueExpression().getType();
 
-        for (int i = 1; i < argExprs.length; i++) {
+        for (int i = 0; i < argExprs.length; i++) {
             argExprs[i].accept(this);
             
-            Expression valueExpression = ((KeyValueExpression) argExprs[i]).getValueExpression();
-            if (valueExpression.getType() != typeOfMap) {
-                throw new SemanticException("Incompatible types used in map initializer: All arguments must have " +
-                        "the same type." + " in " + valueExpression.getLocation().getFileName() + ":" + 
-                        valueExpression.getLocation().getLine());
-            }
+//            Expression valueExpression = ((KeyValueExpression) argExprs[i]).getValueExpression();
+//            if (valueExpression.getType() != typeOfMap) {
+//                throw new SemanticException("Incompatible types used in map initializer: All arguments must have " +
+//                        "the same type." + " in " + valueExpression.getLocation().getFileName() + ":" +
+//                        valueExpression.getLocation().getLine());
+//            }
         }
 
         // Type of this expression is map and internal data type cannot be identifier from declaration
@@ -1086,7 +1079,6 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(BacktickExpr backtickExpr) {
         // Analyze the string and create relevant tokens
         // First check the literals
-        String patternString = "\\$\\{([a-zA-Z_][a-zA-Z0-9_]*)\\}";
         String[] literals = backtickExpr.getTemplateStr().split(patternString);
         // Split will always have at least one matching literal
         int i = 0;
@@ -1097,8 +1089,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             i++;
         }
         // Then get the variable references
-        Pattern p = Pattern.compile(patternString);
-        Matcher m = p.matcher(backtickExpr.getTemplateStr());
+        Matcher m = compiledPattern.matcher(backtickExpr.getTemplateStr());
 
         while (m.find()) {
             VariableRefExpr variableRefExpr = new VariableRefExpr(new SymbolName(m.group(1)));

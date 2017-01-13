@@ -20,8 +20,11 @@ package org.wso2.ballerina.core.runtime.deployer;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerina.core.exception.LinkerException;
+import org.wso2.ballerina.core.exception.SemanticException;
 import org.wso2.ballerina.core.interpreter.RuntimeEnvironment;
 import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.model.Application;
@@ -45,7 +48,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
 
 /**
  * {@code BalDeployer} is responsible for all ballerina file deployment tasks
@@ -151,11 +153,12 @@ public class BalDeployer {
                 log.error("Error: File extension not supported. Support only {}.", FILE_EXTENSION);
                 return 0;
             }
-
-        } catch (Throwable e) {
-            log.error("Error: Compilation failure in {}: {}", file.getName(), e.getMessage());
+        } catch (ParseCancellationException | SemanticException | LinkerException e) {
+            log.error(e.getMessage());
             successful = false;
-
+        } catch (Throwable e) {
+            log.error(file.getName() + ": " + e.getMessage());
+            successful = false;
         } finally {
             if (inputStream != null) {
                 try {
@@ -170,17 +173,17 @@ public class BalDeployer {
         return 0;
     }
 
-    /**
-     * Deploy all Ballerina files in a give directory.
-     *
-     * @param files to deploy.
-     */
-    public static void deployBalFiles(File[] files) {
-        if (files != null) {
-            Arrays.stream(files).filter(file1 -> file1.getName().endsWith(FILE_EXTENSION)).forEach
-                    (BalDeployer::deployBalFile);
-        }
-    }
+//    /**
+//     * Deploy all Ballerina files in a give directory.
+//     *
+//     * @param files to deploy.
+//     */
+//    public static void deployBalFiles(File[] files) {
+//        if (files != null) {
+//            Arrays.stream(files).filter(file1 -> file1.getName().endsWith(FILE_EXTENSION)).forEach
+//                    (BalDeployer::deployBalFile);
+//        }
+//    }
 
     /**
      * Undeploy a service registered through a ballerina file.

@@ -487,8 +487,23 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         assignmentStmtObj.addProperty(BLangJSONModelConstants.STATEMENT_TYPE,
                 BLangJSONModelConstants.ASSIGNMENT_STATEMENT);
         tempJsonArrayRef.push(new JsonArray());
+
+        JsonObject LExprObj = new JsonObject();
+        LExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, "left_operand_expression");
+        tempJsonArrayRef.push(new JsonArray());
         assignStmt.getLExpr().accept(this);
+        LExprObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(LExprObj);
+
+        JsonObject RExprObj = new JsonObject();
+        RExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, "right_operand_expression");
+        tempJsonArrayRef.push(new JsonArray());
         assignStmt.getRExpr().accept(this);
+        RExprObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(RExprObj);
+
         assignmentStmtObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
         tempJsonArrayRef.pop();
         tempJsonArrayRef.peek().add(assignmentStmtObj);
@@ -509,14 +524,19 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         ifElseStmtObj.addProperty(BLangJSONModelConstants.STATEMENT_TYPE,
                 BLangJSONModelConstants.IF_ELSE_STATEMENT);
         tempJsonArrayRef.push(new JsonArray());
-        ifElseStmt.getCondition().accept(this);
         if (ifElseStmt.getThenBody() != null) {
+            tempJsonArrayRef.push(new JsonArray());
             ifElseStmt.getThenBody().accept(this);
+            ifElseStmt.getCondition().accept(this);
+            ifElseStmtObj.add(BLangJSONModelConstants.IF_STATEMENT, tempJsonArrayRef.peek());
+            tempJsonArrayRef.pop();
         }
         if (ifElseStmt.getElseBody() != null) {
+            tempJsonArrayRef.push(new JsonArray());
             ifElseStmt.getElseBody().accept(this);
+            ifElseStmtObj.add(BLangJSONModelConstants.ELSE_STATEMENT, tempJsonArrayRef.peek());
+            tempJsonArrayRef.pop();
         }
-        ifElseStmtObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
         tempJsonArrayRef.pop();
         tempJsonArrayRef.peek().add(ifElseStmtObj);
     }

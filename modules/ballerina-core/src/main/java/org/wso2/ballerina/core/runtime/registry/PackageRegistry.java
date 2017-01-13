@@ -47,13 +47,13 @@ public class PackageRegistry {
         return instance;
     }
 
-    public void registerPackage(Package aPackage) {
-        packages.put(aPackage.getFullyQualifiedName(), aPackage);
-    }
+//    public void registerPackage(Package aPackage) {
+//        packages.put(aPackage.getFullyQualifiedName(), aPackage);
+//    }
 
-    public Package getPackage(String fqn) {
-        return packages.get(fqn);
-    }
+//    public Package getPackage(String fqn) {
+//        return packages.get(fqn);
+//    }
 
     /**
      * Register Native Function.
@@ -142,17 +142,17 @@ public class PackageRegistry {
 
     }
 
-    /**
-     * Unregister Native Action.
-     *
-     * @param action AbstractNativeAction instance.
-     */
-    public void unregisterNativeConnector(AbstractNativeAction action) {
-        Package aPackage = packages.get(action.getPackageName());
-        if (aPackage == null) {
-            // Nothing to do.
-            return;
-        }
-        aPackage.getActions().remove(action.getName());
-    }
+//    /**
+//     * Unregister Native Action.
+//     *
+//     * @param action AbstractNativeAction instance.
+//     */
+//    public void unregisterNativeConnector(AbstractNativeAction action) {
+//        Package aPackage = packages.get(action.getPackageName());
+//        if (aPackage == null) {
+//            // Nothing to do.
+//            return;
+//        }
+//        aPackage.getActions().remove(action.getName());
+//    }
 }
