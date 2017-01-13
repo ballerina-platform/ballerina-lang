@@ -290,6 +290,9 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitConstantDefinition(BallerinaParser.ConstantDefinitionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
         createBasicLiteral(ctx.literalValue());
         if (ctx.Identifier() != null) {
             modelBuilder.createConstant(ctx.Identifier().getText(), getCurrentLocation(ctx));
