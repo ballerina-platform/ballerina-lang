@@ -23,20 +23,21 @@ define(([],function (){
         items: [
             {
                 id: "welcome_page",
-                label: "Go to Welcome Page",
-                action: "go-to-welcome-page"
+                label: "Welcome Page",
+                command: {
+                    id: "go-to-welcome-page"
+                }
             },
             {
                 id: "about",
                 label: "About",
-                action: "show-about",
-                attributes: [{
-                    key: "data-toggle",
-                    value: "modal"
-                }, {
-                    key: "data-target",
-                    value: "#modalAbout"
-                }]
+                command: {
+                    id: "show-about-dialog",
+                    shortcuts: {
+                        mac: "f1",
+                        other: "f1"
+                    }
+                }
             }
         ]
 
