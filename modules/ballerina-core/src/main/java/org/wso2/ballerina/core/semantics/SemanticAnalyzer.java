@@ -107,10 +107,10 @@ public class SemanticAnalyzer implements NodeVisitor {
     private int stackFrameOffset = -1;
     private int staticMemAddrOffset = -1;
     private int connectorMemAddrOffset = -1;
-
     private SymTable symbolTable;
-
     private String currentPkg;
+    private static final String patternString = "\\$\\{([a-zA-Z_][a-zA-Z0-9_]*)\\}";
+    private static final Pattern compiledPattern = Pattern.compile(patternString);
 
     // We need to keep a map of import packages.
     // This is useful when analyzing import functions, actions and types.
@@ -1086,7 +1086,6 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(BacktickExpr backtickExpr) {
         // Analyze the string and create relevant tokens
         // First check the literals
-        String patternString = "\\$\\{([a-zA-Z_][a-zA-Z0-9_]*)\\}";
         String[] literals = backtickExpr.getTemplateStr().split(patternString);
         // Split will always have at least one matching literal
         int i = 0;
@@ -1097,8 +1096,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             i++;
         }
         // Then get the variable references
-        Pattern p = Pattern.compile(patternString);
-        Matcher m = p.matcher(backtickExpr.getTemplateStr());
+        Matcher m = compiledPattern.matcher(backtickExpr.getTemplateStr());
 
         while (m.find()) {
             VariableRefExpr variableRefExpr = new VariableRefExpr(new SymbolName(m.group(1)));
