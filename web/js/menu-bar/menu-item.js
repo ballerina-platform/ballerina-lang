@@ -57,15 +57,14 @@ define(['lodash', 'event_channel'],
     MenuItem.prototype.disable = function(){
         this._labelElement.addClass(_.get(this, 'options.cssClass.inactive'));
         this._labelElement.removeClass(_.get(this, 'options.cssClass.active'));
-        this._labelElement.on("click", function (e) {
-            e.preventDefault();
-        });
+        this._labelElement.off("click");
     };
 
     MenuItem.prototype.enable = function(){
         this._labelElement.addClass(_.get(this, 'options.cssClass.active'));
         this._labelElement.removeClass(_.get(this, 'options.cssClass.inactive'));
         var self = this;
+        this._labelElement.off("click");
         this._labelElement.click(function () {
             self._commandManager.dispatch(self._commandID);
         });
