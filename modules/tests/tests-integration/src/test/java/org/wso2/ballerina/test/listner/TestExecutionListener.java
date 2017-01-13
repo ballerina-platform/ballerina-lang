@@ -18,17 +18,27 @@
 package org.wso2.ballerina.test.listner;
 
 import org.testng.IExecutionListener;
+import org.wso2.ballerina.test.context.Constant;
 import org.wso2.ballerina.test.context.Server;
 import org.wso2.ballerina.test.context.ServerInstance;
+import org.wso2.ballerina.test.context.Utils;
+
+import java.io.File;
 
 public class TestExecutionListener implements IExecutionListener {
 
-    private Server newServer;
+    private static Server newServer;
 
     @Override
     public void onExecutionStart() {
-        String serverPath = System.getProperty("server.zip");
-        newServer = new ServerInstance(serverPath);
+        //path of the zip file distribution
+        String serverPath = System.getProperty(Constant.SYSTEM_PROP_SERVER_ZIP);
+        //path of the sample bal file directory
+        String serviceSampleDir = System.getProperty(Constant.SYSTEM_PROP_BASE_DIR) + File.separator
+                                  + Constant.SERVICE_RESOURCE_DIR;
+        //list of sample bal files to be deploy
+        String[] serviceFiles = Utils.listFiles(serviceSampleDir);
+        newServer = new ServerInstance(serverPath, serviceFiles);
         try {
             newServer.start();
         } catch (Exception e) {
@@ -49,7 +59,10 @@ public class TestExecutionListener implements IExecutionListener {
         }
     }
 
-    public Server getServerInstance() {
+    public static Server getServerInstance() {
+        if(newServer == null || !newServer.isRunning()) {
+            throw new RuntimeException("Server in not started Properly");
+        }
         return newServer;
     }
 }

@@ -21,9 +21,10 @@
     <listeners>
         <listener class-name="org.wso2.ballerina.test.listner.TestExecutionListener"/>
     </listeners>
-    <test name="ballerina-integration-tests" preserve-order="true" parallel="false">
-        <classes>
-            <class name="org.wso2.ballerina.test.service.http.EchoServiceTestCase"/>
-        </classes>
+
+    <test name="ballerina-sample-tests" preserve-order="true" parallel="false">
+        <packages>
+            <package name="org.wso2.ballerina.test.service.http.sample"/>
+        </packages>
     </test>
 </suite>

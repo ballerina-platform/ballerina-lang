@@ -23,5 +23,4 @@ public interface Server {
     public void stop() throws Exception;
     public void restart() throws Exception;
     public boolean isRunning();
-
 }

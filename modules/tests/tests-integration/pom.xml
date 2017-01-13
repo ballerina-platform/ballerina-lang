@@ -31,7 +31,6 @@
     <name>WSO2 Ballerina - Test Integration</name>
 
     <dependencies>
-
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
@@ -58,28 +57,12 @@
                         <server.zip>
                             ${basedir}/../../distribution/target/ballerina-${ballerina.version}.zip
                         </server.zip>
-                        <org.ops4j.pax.url.mvn.localRepository>
-                            ${settings.localRepository}
-                        </org.ops4j.pax.url.mvn.localRepository>
-                        <jacoco-agent.destfile>${project.build.directory}/jacoco.exec
-                        </jacoco-agent.destfile>
-                        <org.wso2.carbon.test.default.distribution>
-                            org.wso2.ballerina:ballerina-test-distribution
-                        </org.wso2.carbon.test.default.distribution>
-                        <org.ops4j.pax.logging.DefaultServiceLog.level>
-                            ERROR
-                        </org.ops4j.pax.logging.DefaultServiceLog.level>
                     </systemPropertyVariables>
                     <suiteXmlFiles>
                         <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
                     </suiteXmlFiles>
-                    <!--<environmentVariables>-->
-                        <!--<JAVA_OPTS>${jcoverage.command}</JAVA_OPTS>-->
-                    <!--</environmentVariables>-->
                 </configuration>
             </plugin>
-
         </plugins>
     </build>
-
 </project>
