@@ -38,7 +38,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
             BallerinaView.call(this, args);
 
-            this._connectorViewList =  [];
+            this._connectorWorkerViewList =  [];
             this._defaultWorker = undefined;
             this._statementExpressionViewList = [];
             // TODO: Instead of using the parentView use the parent. Fix this from BallerinaView.js and bellow
@@ -92,6 +92,9 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 cssClass: 'start-action'
             });
 
+            this._viewOptions.heading.minWidth = 1000;
+            this._viewOptions.contentMinWidth = 1000;
+
             this._viewOptions.totalHeightGap = 50;
             this._viewOptions.LifeLineCenterGap = 180;
             this._viewOptions.defua = 180;
@@ -102,6 +105,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
             //setting initial height for resource container
             this._totalHeight = 230;
+            this._headerIconGroup = undefined;
             // initialize bounding box
             this.getBoundingBox().fromTopLeft(this._viewOptions.topLeft, this._viewOptions.heading.width, this._viewOptions.heading.height
                 + this._viewOptions.contentHeight);
@@ -314,6 +318,10 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 0, 0, headerGroup).classed("headingRect", true);
             this._headingRect = headingRect;
 
+            var headingIconsGroup = D3utils.group(headerGroup);
+            headingIconsGroup.attr("transform", "translate(0,0)");
+            this._headerIconGroup = headingIconsGroup;
+
             // Drawing resource icon
             var headingRectIconHolder = D3utils.rect(headingStart.x(),
                 headingStart.y(), this._viewOptions.heading.icon.width,
@@ -328,93 +336,75 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             // Creating wrapper for collpase icon.
             var headingCollapseIconWrapper = D3utils.rect(
                 xEndOfHeadingRect - this._viewOptions.heading.icon.width, headingStart.y() + 1,
-                this._viewOptions.heading.icon.width - 1, this._viewOptions.heading.icon.height - 1, 0, 0, headerGroup)
+                this._viewOptions.heading.icon.width - 1, this._viewOptions.heading.icon.height - 1, 0, 0, headingIconsGroup)
                 .classed("heading-icon-wrapper hoverable heading-icon-collpase-wrapper", true);
 
             var xForCollpaseIcon = xEndOfHeadingRect - this._viewOptions.heading.icon.width + (((this._viewOptions.heading.icon.width) / 2) - (14 / 2));
 
             // Creating resource heading collapse icon.
             var headingCollapseIcon = D3utils.rect(xForCollpaseIcon, yForIcons,
-                iconSizeSideLength, iconSizeSideLength, 0, 0, headerGroup)
+                iconSizeSideLength, iconSizeSideLength, 0, 0, headingIconsGroup)
                 .classed("headingCollapsedIcon", true);
 
             // Creating separator for collapse icon.
             D3utils.line(xEndOfHeadingRect - this._viewOptions.heading.icon.width, parseFloat(headingRect.attr("y")) + 5,
                 xEndOfHeadingRect - this._viewOptions.heading.icon.width,
-                parseFloat(headingRect.attr("y")) + parseFloat(headingRect.attr("height")) - 5, headerGroup)
+                parseFloat(headingRect.attr("y")) + parseFloat(headingRect.attr("height")) - 5, headingIconsGroup)
                 .classed("operations-separator", true);
 
             // Creating separator for delete icon.
             D3utils.line(xEndOfHeadingRect - (2 * this._viewOptions.heading.icon.width),
                 parseFloat(headingRect.attr("y")) + 5, xEndOfHeadingRect - (2 * this._viewOptions.heading.icon.width),
-                parseFloat(headingRect.attr("y")) + parseFloat(headingRect.attr("height")) - 5, headerGroup)
+                parseFloat(headingRect.attr("y")) + parseFloat(headingRect.attr("height")) - 5, headingIconsGroup)
                 .classed("operations-separator", true);
 
             // Creating separator for annotation icon.
             D3utils.line(xEndOfHeadingRect - (3 * this._viewOptions.heading.icon.width),
                 parseFloat(headingRect.attr("y")) + 5, xEndOfHeadingRect - (3 * this._viewOptions.heading.icon.width),
-                parseFloat(headingRect.attr("y")) + parseFloat(headingRect.attr("height")) - 5, headerGroup)
+                parseFloat(headingRect.attr("y")) + parseFloat(headingRect.attr("height")) - 5, headingIconsGroup)
                 .classed("operations-separator", true);
 
             // Creating separator for annotation icon.
             D3utils.line(xEndOfHeadingRect - (4 * this._viewOptions.heading.icon.width),
                 parseFloat(headingRect.attr("y")) + 5, xEndOfHeadingRect - (4 * this._viewOptions.heading.icon.width),
-                parseFloat(headingRect.attr("y")) + parseFloat(headingRect.attr("height")) - 5, headerGroup)
+                parseFloat(headingRect.attr("y")) + parseFloat(headingRect.attr("height")) - 5, headingIconsGroup)
                 .classed("operations-separator", true);
-
-            // Creating separator for annotation icon.
-            // D3utils.line(xEndOfHeadingRect - (5 * this._viewOptions.heading.icon.width),
-            //     parseFloat(headingRect.attr("y")) + 5, xEndOfHeadingRect - (5 * this._viewOptions.heading.icon.width),
-            //     parseFloat(headingRect.attr("y")) + parseFloat(headingRect.attr("height")) - 5, headerGroup)
-            //     .classed("operations-separator", true);
 
             // Creating wrapper for delete icon.
             var headingDeleteIconWrapper = D3utils.rect(
                 xEndOfHeadingRect - (2 * this._viewOptions.heading.icon.width), headingStart.y() + 1,
-                this._viewOptions.heading.icon.width - 1, this._viewOptions.heading.icon.height - 2, 0, 0, headerGroup)
+                this._viewOptions.heading.icon.width - 1, this._viewOptions.heading.icon.height - 2, 0, 0, headingIconsGroup)
                 .classed("heading-icon-wrapper heading-icon-delete-wrapper", true);
 
             var xForDeleteIcon = xEndOfHeadingRect - (2 * this._viewOptions.heading.icon.width) + (((this._viewOptions.heading.icon.width) / 2) - (14 / 2));
 
             // Resource heading delete icon
             var headingDeleteIcon = D3utils.rect(xForDeleteIcon, yForIcons,
-                iconSizeSideLength, iconSizeSideLength, 0, 0, headerGroup).classed("headingDeleteIcon", true);
+                iconSizeSideLength, iconSizeSideLength, 0, 0, headingIconsGroup).classed("headingDeleteIcon", true);
 
             // Creating wrapper for annotation icon.
             var headingAnnotationIconWrapper = D3utils.rect(
                 xEndOfHeadingRect - (3 * this._viewOptions.heading.icon.width), headingStart.y() + 1,
-                this._viewOptions.heading.icon.width - 1, this._viewOptions.heading.icon.height - 2, 0, 0, headerGroup)
+                this._viewOptions.heading.icon.width - 1, this._viewOptions.heading.icon.height - 2, 0, 0, headingIconsGroup)
                 .classed("heading-icon-wrapper heading-icon-annotation-wrapper", true);
 
             var xForAnnotationIcon = xEndOfHeadingRect - (3 * this._viewOptions.heading.icon.width) + (((this._viewOptions.heading.icon.width) / 2) - (14 / 2));
 
             // Resource heading annotation icon
             var headingAnnotationIcon = D3utils.rect(xForAnnotationIcon, yForIcons,
-                iconSizeSideLength, iconSizeSideLength, 0, 0, headerGroup).classed("headingAnnotationBlackIcon", true);
+                iconSizeSideLength, iconSizeSideLength, 0, 0, headingIconsGroup).classed("headingAnnotationBlackIcon", true);
 
             // Creating wrapper for arguments icon.
             var headingArgumentsIconWrapper = D3utils.rect(
                 xEndOfHeadingRect - (4 * this._viewOptions.heading.icon.width), headingStart.y() + 1,
-                this._viewOptions.heading.icon.width - 1, this._viewOptions.heading.icon.height - 2, 0, 0, headerGroup)
+                this._viewOptions.heading.icon.width - 1, this._viewOptions.heading.icon.height - 2, 0, 0, headingIconsGroup)
                 .classed("heading-icon-wrapper heading-icon-arguments-wrapper", true);
 
             var xForArgumentsIcon = xEndOfHeadingRect - (4 * this._viewOptions.heading.icon.width) + (((this._viewOptions.heading.icon.width) / 2) - (14 / 2));
 
             // Resource heading arguments icon.
             var headingArgumentsIcon = D3utils.rect(xForArgumentsIcon, yForIcons,
-                iconSizeSideLength, iconSizeSideLength, 0, 0, headerGroup).classed("headingArgumentsBlackIcon", true);
-
-            // Creating wrapper for return type icon.
-            // var headingReturnTypeIconWrapper = D3utils.rect(
-            //     xEndOfHeadingRect - (5 * this._viewOptions.heading.icon.width), headingStart.y() + 1,
-            //     this._viewOptions.heading.icon.width - 1, this._viewOptions.heading.icon.height - 2, 0, 0, headerGroup)
-            //     .classed("heading-icon-wrapper heading-icon-return-type-wrapper", true);
-            //
-            // var xForReturnTypeIcon = xEndOfHeadingRect - (5 * this._viewOptions.heading.icon.width) + (((this._viewOptions.heading.icon.width) / 2) - (14 / 2));
-            //
-            // // Resource heading return type icon.
-            // var headingReturnTypeIcon = D3utils.rect(xForReturnTypeIcon, yForIcons,
-            //     iconSizeSideLength, iconSizeSideLength, 0, 0, headerGroup).classed("headingReturnTypeBlackIcon", true);
+                iconSizeSideLength, iconSizeSideLength, 0, 0, headingIconsGroup).classed("headingArgumentsBlackIcon", true);
 
             // UI changes when the annotation button is clicked.
             $(headingAnnotationIcon.node()).click(function () {
@@ -544,6 +534,18 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
             this.getBoundingBox().on("height-changed", function(dh){
                 this._contentRect.attr('height', parseFloat(this._contentRect.attr('height')) + dh);
+            }, this);
+
+            this.getBoundingBox().on("right-edge-moved", function(dw){
+                var transformX = this._headerIconGroup.node().transform.baseVal.consolidate().matrix.e;
+                var transformY = this._headerIconGroup.node().transform.baseVal.consolidate().matrix.f;
+                this._headerIconGroup.node().transform.baseVal.getItem(0).setTranslate(transformX + dw, transformY);
+                this._contentRect.attr('width', parseFloat(this._contentRect.attr('width')) + dw);
+                this._headingRect.attr('width', parseFloat(this._headingRect.attr('width')) + dw);
+                // If the bounding box of the resource go over the svg's current width
+                if (this.getBoundingBox().getRight() > this._parentView.getServiceContainer().width()) {
+                    this._parentView.setServiceContainerWidth(this.getBoundingBox().getRight() + 60);
+                }
             }, this);
 
             // render client life line
@@ -738,8 +740,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             this._headingRect.on("mouseout", mouseOutHandler);
         };
 
-        ResourceDefinitionView.prototype.getConnectorViewList = function(){
-            return this._connectorViewList;
+        ResourceDefinitionView.prototype.getConnectorWorkerViewList = function(){
+            return this._connectorWorkerViewList;
         };
         /**
          * @inheritDoc
@@ -779,11 +781,18 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             _.set(connectorOpts, 'centerPoint', center);
             connectorDeclarationView = new ConnectorDeclarationView(connectorOpts);
             this.diagramRenderingContext.getViewModelMap()[connectorDeclaration.id] = connectorDeclarationView;
-            this._connectorViewList.push(connectorDeclarationView);
+            this._connectorWorkerViewList.push(connectorDeclarationView);
 
             connectorDeclarationView._rootGroup.attr('id', '_' +connectorDeclarationView._model.id);
 
             connectorDeclarationView.render();
+
+            // If the New Connector or the worker goes out of the resource bounding box we expand the resource BBox
+            if (connectorDeclarationView.getBoundingBox().getRight() > this.getBoundingBox().getRight()) {
+                this._parentView.getLifeLineMargin().setPosition(this._parentView.getLifeLineMargin().getPosition() + this._viewOptions.LifeLineCenterGap);
+                this.setContentMinWidth(connectorDeclarationView.getBoundingBox().getRight());
+                this.setHeadingMinWidth(connectorDeclarationView.getBoundingBox().getRight());
+            }
 
             // Creating property pane
             var editableProperties = [
@@ -829,8 +838,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
         };
 
         ResourceDefinitionView.prototype.getLastLifeLine = function () {
-            if(this.getConnectorViewList().length > 0 ){
-                return _.last(this.getConnectorViewList());
+            if(this.getConnectorWorkerViewList().length > 0 ){
+                return _.last(this.getConnectorWorkerViewList());
             }
             else{
                 return this.getDefaultWorker();
@@ -868,6 +877,52 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
          */
         ResourceDefinitionView.prototype.getResourceHeadingHeight = function () {
             return this._viewOptions.heading.height;
+        };
+
+        /**
+         * Minimum width of the content area
+         * @returns {number} Minimum content width
+         */
+        ResourceDefinitionView.prototype.getContentMinWidth = function () {
+            return this._viewOptions.contentMinWidth;
+        };
+
+        /**
+         * Set Minimum width of the content area
+         * @param {number} minWidth - Minimum width
+         */
+        ResourceDefinitionView.prototype.setContentMinWidth = function (minWidth) {
+            this._viewOptions.contentMinWidth = minWidth;
+        };
+
+        /**
+         * Set Minimum width of the heading
+         * @param {number} minWidth - Minimum width
+         */
+        ResourceDefinitionView.prototype.setHeadingMinWidth = function (minWidth) {
+            this._viewOptions.heading.minWidth = minWidth;
+        };
+
+        /**
+         * Minimum width of the heading
+         * @returns {number} Minimum Heading Width
+         */
+        ResourceDefinitionView.prototype.getHeadingMinWidth = function () {
+            return this._viewOptions.heading.minWidth;
+        };
+
+        /**
+         * Shrink or Expand the Resource
+         * @param {number} dw - delta width
+         * @returns {boolean} - Shrink or expanded
+         */
+        ResourceDefinitionView.prototype.ShrinkOrExpand = function (dw) {
+            if (this.getBoundingBox().w() + dw > this._viewOptions.contentMinWidth) {
+                this.getBoundingBox().w(this.getBoundingBox().w() + dw);
+                return true;
+            } else {
+                return false;
+            }
         };
 
         return ResourceDefinitionView;
