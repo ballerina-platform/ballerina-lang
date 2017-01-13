@@ -25,13 +25,13 @@ define(([],function (){
                 id: "undo",
                 label: "Undo",
                 action: "undo",
-                disabled: false
+                disabled: true
             },
             {
                 id: "redo",
                 label: "Redo",
-                action: "Redo",
-                disabled: false
+                action: "redo",
+                disabled: true
             },
             {
                 id: "cut",
