@@ -332,5 +332,7 @@ div[class*="col-sm-"] {
     background-color: white;
 }
 
-/** ace editor (source view) related styles | -> End **/
-/*//////////////////////////////////////////////////*/
+.about-dialog-close {
+    margin-top: 12px;
+    margin-right: 12px;
+}
