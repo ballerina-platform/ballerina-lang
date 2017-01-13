@@ -248,6 +248,11 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
             return new functionInvocationExpression();
         }
 
+        /**
+         * creates VariableReferenceExpression
+         * @param {Object} args
+         * @returns {VariableReferenceExpression}
+         */
         BallerinaASTFactory.createVariableReferenceExpression = function (args) {
             return new variableReferenceExpression();
         }
