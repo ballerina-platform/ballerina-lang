@@ -853,9 +853,6 @@ button.variable-list {
 .variable-pane-collapser-wrapper {
     font-size: 14px;
     padding: 9px;
-    /*z-index: 1000;*/
-    /* opacity: 0.4; */
-    /* float: right; */
     background-color:#efefef;
     height: 27px;
     width: 23px;
