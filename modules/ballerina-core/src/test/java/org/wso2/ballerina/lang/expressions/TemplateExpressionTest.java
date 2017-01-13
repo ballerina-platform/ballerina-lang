@@ -33,7 +33,9 @@ import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 import org.wso2.ballerina.core.utils.ParserUtils;
 import org.wso2.ballerina.lang.util.Functions;
 
-
+/**
+ * Test class to validate the backtick based inline xml and json definitions
+ */
 public class TemplateExpressionTest {
     private BallerinaFile bFile;
     @BeforeClass
@@ -96,4 +98,33 @@ public class TemplateExpressionTest {
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
+    @Test(description = "Test JSON backtick expression with embedding full JSON")
+    public void testBacktickJSONFullReplacement() {
+        BValue[] args = { new BInteger(11)};
+        BValue[] returns = Functions.invoke(bFile, "backticJSONEnrichFullJSON", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BJSON.class);
+        String expected =  "{\"name\":\"John\"}";
+        Assert.assertEquals(returns[0].stringValue(), expected);
+    }
+
+    @Test(description = "Test JSON backtick expression with multiple variables embedding full JSON")
+    public void testBacktickMultipleVariablesFullJSONReplacement() {
+        BValue[] args = { new BString("Chanaka"), new BString("Fernando")};
+        BValue[] returns = Functions.invoke(bFile, "backticJSONMultipleVariables", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BJSON.class);
+        String expected =  "{\"name\":{\"first_name\":\"Chanaka\",\"last_name\":\"Fernando\"}}";
+        Assert.assertEquals(returns[0].stringValue(), expected);
+    }
+
+    @Test(description = "Test JSON backtick expression with parts of json added into full JSON")
+    public void testBacktickPartsJSON() {
+        BValue[] args = { new BString("{\"name\":"), new BString("\"chanaka\"}")};
+        BValue[] returns = Functions.invoke(bFile, "backticJSONParts", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BJSON.class);
+        String expected =  "{\"name\":\"chanaka\"}";
+        Assert.assertEquals(returns[0].stringValue(), expected);
+    }
 }

@@ -31,3 +31,25 @@ function backtickIntegerVariableAccessJSON(int variable) (json) {
     backTickMessage = `{"age":${variable}}`;
     return backTickMessage;
 }
+
+function backticJSONEnrichFullJSON(int variable) (json) {
+    json msg;
+    json backTickMessage;
+    msg = `{"name":"John"}`;
+    backTickMessage = `${msg}`;
+    return backTickMessage;
+}
+
+function backticJSONMultipleVariables(string fname, string lname) (json) {
+    json msg;
+    json backTickMessage;
+    msg = `{"name":{"first_name":${fname}, "last_name":${lname}}}`;
+    backTickMessage = `${msg}`;
+    return backTickMessage;
+}
+
+function backticJSONParts(string firstSection, string secondSection) (json) {
+    json backTickMessage;
+    backTickMessage = `${firstSection}${secondSection}`;
+    return backTickMessage;
+}
