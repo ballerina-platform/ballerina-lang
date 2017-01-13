@@ -314,6 +314,31 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
             this._connectorViewList.push(connectorDeclarationView);
 
             connectorDeclarationView.render();
+            
+            // Creating property pane
+            var editableProperties = [
+                {
+                    propertyType: "text",
+                    key: "Name",
+                    model: connectorDeclarationView._model,
+                    getterMethod: connectorDeclarationView._model.getConnectorName,
+                    setterMethod: connectorDeclarationView._model.setConnectorName
+                },
+                {
+                    propertyType: "text",
+                    key: "Uri",
+                    model: connectorDeclarationView._model,
+                    getterMethod: connectorDeclarationView._model.getUri,
+                    setterMethod: connectorDeclarationView._model.setUri
+                }
+            ];
+
+            connectorDeclarationView.createPropertyPane({
+                model: connectorDeclarationView._model,
+                lifeLineGroup:connectorDeclarationView._rootGroup,
+                editableProperties: editableProperties
+            });
+
             connectorDeclarationView.setParent(this);
             // We render the service level connector first. Then call the ShrinkOrExpand of the resource
             // This will change the resource BBox if needed. If changed, we move the connector/ reposition it
