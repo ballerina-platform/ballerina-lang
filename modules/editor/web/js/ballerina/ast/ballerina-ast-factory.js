@@ -751,6 +751,9 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
                     case 'basic_literal_expression' :
                         node = BallerinaASTFactory.createBasicLiteralExpression();
                         break;
+                    case 'if_else_statement' :
+                        node = BallerinaASTFactory.createIfElseStatement();
+                        break;
                     default:
                         throw "Unknown node definition for " + jsonNode.type;
                 }
