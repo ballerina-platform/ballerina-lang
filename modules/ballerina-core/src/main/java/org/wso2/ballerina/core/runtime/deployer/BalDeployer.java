@@ -158,7 +158,7 @@ public class BalDeployer {
             log.error(e.getMessage());
             successful = false;
         } catch (Throwable e) {
-            log.error("Compilation failure in {}: {}", file.getName(), e.getMessage());
+            log.error(file.getName() + ": " + e.getMessage());
             successful = false;
         } finally {
             if (inputStream != null) {
