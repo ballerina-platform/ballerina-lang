@@ -39,3 +39,11 @@ function nativeConnectorErrorTest() {
 	request = new message("test");
 	http:HTTPConnector.get(endpoint, "/context", request);
 }
+
+function testStackOverflow() {
+	infiniteRecurse();
+}
+
+function infiniteRecurse() {
+	infiniteRecurse();
+}
