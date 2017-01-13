@@ -32,7 +32,7 @@ import org.wso2.ballerina.core.model.VariableDcl;
 import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.ArrayInitExpr;
 import org.wso2.ballerina.core.model.expressions.ArrayMapAccessExpr;
-import org.wso2.ballerina.core.model.expressions.BackquoteExpr;
+import org.wso2.ballerina.core.model.expressions.BacktickExpr;
 import org.wso2.ballerina.core.model.expressions.BasicLiteral;
 import org.wso2.ballerina.core.model.expressions.BinaryExpression;
 import org.wso2.ballerina.core.model.expressions.Expression;
@@ -69,6 +69,7 @@ import org.wso2.ballerina.core.model.values.BXML;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
+
 
 /**
  * {@code BLangExecutor} executes a Ballerina application
@@ -448,13 +449,14 @@ public class BLangExecutor implements NodeExecutor {
     }
 
     @Override
-    public BValue visit(BackquoteExpr backquoteExpr) {
-
-        if (backquoteExpr.getType() == BTypes.JSON_TYPE) {
-            return new BJSON(backquoteExpr.getTemplateStr());
+    public BValue visit(BacktickExpr backtickExpr) {
+        // Evaluate the variable references before creating objects
+        String evaluatedString = evaluteBacktickString(backtickExpr);
+        if (backtickExpr.getType() == BTypes.JSON_TYPE) {
+            return new BJSON(evaluatedString);
 
         } else {
-            return new BXML(backquoteExpr.getTemplateStr());
+            return new BXML(evaluatedString);
         }
     }
 
@@ -570,5 +572,13 @@ public class BLangExecutor implements NodeExecutor {
         }
 
         return valuesCounter;
+    }
+
+    private String evaluteBacktickString(BacktickExpr backtickExpr) {
+        String varString = "";
+        for (Expression expression : backtickExpr.getExpressionList()) {
+            varString = varString + expression.execute(this).stringValue();
+        }
+        return varString;
     }
 }
