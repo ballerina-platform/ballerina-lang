@@ -359,7 +359,7 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
                 variablePayload.setIdentifier('payload');
                 resource_stocks.addChild(variablePayload);
 
-                var payloadAssignmentStatement = BallerinaASTFactory.createAssignmentStatement();
+                var payloadAssignmentStatement = BallerinaASTFactory.createAssignment();
                 payloadAssignmentStatement.setExpression('payload = `{"exchange":"nyse", "name":"IBM", "value":"127.50"}`');
                 resource_stocks.addChild(payloadAssignmentStatement);
 
@@ -473,15 +473,15 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
                 requestJsonVariable.setIdentifier('requestJson');
                 //resource_passthrough2.addChild(requestJsonVariable);
 
-                var nyseStringAssignmentStatement = BallerinaASTFactory.createAssignmentStatement();
+                var nyseStringAssignmentStatement = BallerinaASTFactory.createAssignment();
                 nyseStringAssignmentStatement.setExpression('nyseString = "nyse"');
                 resource_passthrough2.addChild(nyseStringAssignmentStatement);
 
-                var jsonMsgAssignmentStatement = BallerinaASTFactory.createAssignmentStatement();
+                var jsonMsgAssignmentStatement = BallerinaASTFactory.createAssignment();
                 jsonMsgAssignmentStatement.setExpression('jsonMsg = message:getJsonPayload(m)');
                 resource_passthrough2.addChild(jsonMsgAssignmentStatement);
 
-                var resultAssignmentStatement = BallerinaASTFactory.createAssignmentStatement();
+                var resultAssignmentStatement = BallerinaASTFactory.createAssignment();
                 resultAssignmentStatement.setExpression('nameString = json:getString(jsonMsg, "$.name")');
                 resource_passthrough2.addChild(resultAssignmentStatement);
 
@@ -491,7 +491,7 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
                 functionInvocation.setParams('result');
                 //resource_passthrough2.addChild(functionInvocation);
 
-                var nameStringAssignmentStatement = BallerinaASTFactory.createAssignmentStatement();
+                var nameStringAssignmentStatement = BallerinaASTFactory.createAssignment();
                 nameStringAssignmentStatement.setExpression('nameString = json:getString(jsonMsg, "$.name")');
                 //resource_passthrough2.addChild(nameStringAssignmentStatement);
 
@@ -501,7 +501,7 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
                 printlnFunctionInvocation.setParams('nameString');
                 //resource_passthrough2.addChild(printlnFunctionInvocation);
 
-                var requestJsonAssignmentStatement = BallerinaASTFactory.createAssignmentStatement();
+                var requestJsonAssignmentStatement = BallerinaASTFactory.createAssignment();
                 requestJsonAssignmentStatement.setExpression('requestJson = json:getJson(jsonMsg, "$")');
                 //resource_passthrough2.addChild(requestJsonAssignmentStatement);
 
@@ -604,15 +604,15 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
                 requestJsonVariable.setIdentifier('requestJson');
                 //resource_passthrough2.addChild(requestJsonVariable);
 
-                var nyseStringAssignmentStatement = BallerinaASTFactory.createAssignmentStatement();
+                var nyseStringAssignmentStatement = BallerinaASTFactory.createAssignment();
                 nyseStringAssignmentStatement.setExpression('nyseString = "nyse"');
                 resource_passthrough2.addChild(nyseStringAssignmentStatement);
 
-                var jsonMsgAssignmentStatement = BallerinaASTFactory.createAssignmentStatement();
+                var jsonMsgAssignmentStatement = BallerinaASTFactory.createAssignment();
                 jsonMsgAssignmentStatement.setExpression('nameString = message:getHeader(m, "name")');
                 resource_passthrough2.addChild(jsonMsgAssignmentStatement);
 
-                var resultAssignmentStatement = BallerinaASTFactory.createAssignmentStatement();
+                var resultAssignmentStatement = BallerinaASTFactory.createAssignment();
                 resultAssignmentStatement.setExpression('nameString = json:getString(jsonMsg, "$.name")');
                 //resource_passthrough2.addChild(resultAssignmentStatement);
 
@@ -622,7 +622,7 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
                 functionInvocation.setParams('result');
                 //resource_passthrough2.addChild(functionInvocation);
 
-                var nameStringAssignmentStatement = BallerinaASTFactory.createAssignmentStatement();
+                var nameStringAssignmentStatement = BallerinaASTFactory.createAssignment();
                 nameStringAssignmentStatement.setExpression('nameString = json:getString(jsonMsg, "$.name")');
                 //resource_passthrough2.addChild(nameStringAssignmentStatement);
 
@@ -632,7 +632,7 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
                 printlnFunctionInvocation.setParams('nameString');
                 //resource_passthrough2.addChild(printlnFunctionInvocation);
 
-                var requestJsonAssignmentStatement = BallerinaASTFactory.createAssignmentStatement();
+                var requestJsonAssignmentStatement = BallerinaASTFactory.createAssignment();
                 requestJsonAssignmentStatement.setExpression('requestJson = json:getJson(jsonMsg, "$")');
                 //resource_passthrough2.addChild(requestJsonAssignmentStatement);
 
@@ -694,11 +694,11 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
                 variablePayload.setIdentifier('payload');
                 resource_stocks.addChild(variablePayload);
 
-                var responseAssignmentStatement = BallerinaASTFactory.createAssignmentStatement();
+                var responseAssignmentStatement = BallerinaASTFactory.createAssignment();
                 responseAssignmentStatement.setExpression("response = new message");
                 //resource_stocks.addChild(responseAssignmentStatement);
 
-                var payloadAssignmentStatement = BallerinaASTFactory.createAssignmentStatement();
+                var payloadAssignmentStatement = BallerinaASTFactory.createAssignment();
                 payloadAssignmentStatement.setExpression('payload = `{"exchange":"nyse", "name":"IBM", "value":"127.50"}`');
                 resource_stocks.addChild(payloadAssignmentStatement);
 
@@ -736,11 +736,11 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
                 variablePayload.setIdentifier('payload');
                 resource_stocks.addChild(variablePayload);
 
-                var responseAssignmentStatement = BallerinaASTFactory.createAssignmentStatement();
+                var responseAssignmentStatement = BallerinaASTFactory.createAssignment();
                 responseAssignmentStatement.setExpression("response = new message");
                 //resource_stocks.addChild(responseAssignmentStatement);
 
-                var payloadAssignmentStatement = BallerinaASTFactory.createAssignmentStatement();
+                var payloadAssignmentStatement = BallerinaASTFactory.createAssignment();
                 payloadAssignmentStatement.setExpression('payload = `{"exchange":"nasdaq", "name":"IBM", "value":"127.50"}`');
                 resource_stocks.addChild(payloadAssignmentStatement);
 
