@@ -16,8 +16,4 @@
 # under the License.
 #
 
-json=org.wso2.siddhi.core.subscription.JsonInputMapper
-text=org.wso2.siddhi.core.subscription.TextInputMapper
-passThrough=org.wso2.siddhi.core.subscription.PassThroughInputMapper
-xml=org.wso2.siddhi.core.subscription.XmlInputMapper
-map=org.wso2.siddhi.core.subscription.MapInputMapper
+passThrough=org.wso2.siddhi.core.util.transport.PassThroughInputMapper

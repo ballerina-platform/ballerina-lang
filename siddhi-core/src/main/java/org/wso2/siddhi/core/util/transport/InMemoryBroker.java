@@ -30,6 +30,10 @@ public class InMemoryBroker {
         broker.register(subscriber);
     }
 
+    public static void unsubscribe(Subscriber subscriber) {
+        broker.unregister(subscriber);
+    }
+
     public static void publish(String topic, Object message) {
         broker.publish(topic, message);
     }
