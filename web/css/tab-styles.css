@@ -133,11 +133,22 @@ button.close {
     color: #000;
 }
 
-#tabs-container > div.tab-headers.tab-headers-bar > ul > li > a{
+#tabs-container > div.tab-headers.tab-headers-bar > ul > li > a {
     border: none;
     padding: 0 5px 0 6px;
     border-radius: 0;
     margin: 0;
     height: 20px;
     background: none;
+    color: #ccc;
+    font-weight: 300;
+}
+#tabs-container > div.tab-headers.tab-headers-bar > ul > li > a:active {
+    opacity: 1;
+    color: red;
+}
+
+#tabs-container > div.tab-headers.tab-headers-bar > ul > .active > a{
+    opacity: 1;
+    color: #333;
 }
