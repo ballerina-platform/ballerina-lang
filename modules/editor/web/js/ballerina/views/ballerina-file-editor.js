@@ -18,9 +18,9 @@
 define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-view',  './function-definition-view', './../ast/ballerina-ast-root',
         './../ast/ballerina-ast-factory', './../ast/package-definition', './source-view',
         './../visitors/source-gen/ballerina-ast-root-visitor', './../tool-palette/tool-palette',
-        './../undo-manager/undo-manager'],
+        './../undo-manager/undo-manager','./backend', './../ast/ballerina-ast-deserializer'],
     function (_, $, log, BallerinaView, ServiceDefinitionView, FunctionDefinitionView, BallerinaASTRoot, BallerinaASTFactory,
-              PackageDefinition, SourceView, SourceGenVisitor, ToolPalette, UndoManager) {
+              PackageDefinition, SourceView, SourceGenVisitor, ToolPalette, UndoManager, Backend, BallerinaASTDeserializer) {
 
         /**
          * The view to represent a ballerina file editor which is an AST visitor.
@@ -39,6 +39,14 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 log.error("Ballerina AST Root is undefined or is of different type." + this._model);
                 throw "Ballerina AST Root is undefined or is of different type." + this._model;
             }
+
+
+            if (!_.has(args, 'viewOptions.backend')){
+                log.error("Backend is not defined.");
+                // not throwing an exception for now since we need to work without a backend.
+            }
+            this.backend = new Backend(_.get(args, 'viewOptions.backend', {}));
+            this.deserializer = new BallerinaASTDeserializer();
             this.init();
         };
 
@@ -226,6 +234,18 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
 
             var designViewBtn = $(this._container).find(_.get(this._viewOptions, 'controls.view_design_btn'));
             designViewBtn.click(function () {
+                var source = self._sourceView._editor.getValue();
+
+                var response = self.backend.parse(source);
+                //if there are errors display the error.
+                //@todo: proper error handling need to get the service specs
+                if(response.error != undefined && response.error){
+                    $('#modalError').modal();
+                    return;
+                }
+                //if no errors display the design.
+                //@todo
+
                 self.toolPalette.show();
                 sourceViewContainer.hide();
                 self._$designViewContainer.show();
