@@ -23,6 +23,7 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab/t
      * Arg: application instance
      */
     return function (app) {
+        var self = this;
 
         if (_.isUndefined(app.commandManager)) {
             var error = "CommandManager is not initialized.";
@@ -113,14 +114,54 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab/t
             this.workspaceManager.showWelcomePage(this.workspaceManager);
         };
 
+        this.updateUndoRedoMenus = function(){
+            // undo manager for current tab
+            var fileEditor = app.tabController.getActiveTab().getBallerinaFileEditor(),
+                undoMenuItem = app.menuBar.getMenuItemByID('edit.undo'),
+                redoMenuItem = app.menuBar.getMenuItemByID('edit.redo');
+
+            if(!_.isNil(fileEditor)){
+                var undoManager = fileEditor.getUndoManager();
+                if (undoManager.hasUndo()) {
+                    undoMenuItem.enable();
+                    undoMenuItem.addLabelSuffix(
+                        undoManager.undoStackTop().getTitle());
+                } else {
+                    undoMenuItem.disable();
+                    undoMenuItem.clearLabelSuffix();
+                }
+                if (undoManager.hasRedo()) {
+                    redoMenuItem.enable();
+                    redoMenuItem.addLabelSuffix(
+                        undoManager.redoStackTop().getTitle());
+                } else {
+                    redoMenuItem.disable();
+                    redoMenuItem.clearLabelSuffix();
+                }
+            } else {
+                undoMenuItem.disable();
+                undoMenuItem.clearLabelSuffix();
+                redoMenuItem.disable();
+                redoMenuItem.clearLabelSuffix();
+            }
+        };
+
         this.handleUndo = function() {
-            app.tabController.getActiveTab().getBallerinaFileEditor().undoManager.undo();
-            app.menuBar.getMenuItemByID('edit.undo').addLabelSuffix(
-                app.tabController.getActiveTab().getBallerinaFileEditor().undoManager.undoStackTop().getTitle());
+            // undo manager for current tab
+            var undoManager = app.tabController.getActiveTab().getBallerinaFileEditor().getUndoManager();
+            if (undoManager.hasUndo()) {
+                undoManager.undo();
+            }
+            self.updateUndoRedoMenus();
         };
 
         this.handleRedo = function() {
-            app.tabController.getActiveTab().getBallerinaFileEditor().undoManager.redo();
+            // undo manager for current tab
+            var undoManager = app.tabController.getActiveTab().getBallerinaFileEditor().getUndoManager();
+            if (undoManager.hasRedo()) {
+                undoManager.redo();
+            }
+            self.updateUndoRedoMenus();
         };
 
         app.commandManager.registerCommand("create-new-tab", {key: ["ctrl+alt+n", "command+option+n"]});
