@@ -108,6 +108,14 @@ public class InvalidSyntaxParserTest {
         getParserForFile("samples/parser/invalidSyntax/MainFuncWithoutParams.bal").compilationUnit();
     }
     
+    @Test(expectedExceptions = {ParseCancellationException.class },
+            expectedExceptionsMessageRegExp = "Mismatched input ';' in ResourceWithEmptyReply.bal\\[11:6\\]. " +
+            "Expecting one of \\{'new', '\\(', '\\{', '\\[', '!', '\\+', '-', IntegerLiteral, FloatingPointLiteral, " +
+            "BooleanLiteral, QuotedStringLiteral, BacktickStringLiteral, 'null', Identifier}")
+    public void testResourceWithEmptyReply() {
+        getParserForFile("samples/parser/invalidSyntax/ResourceWithEmptyReply.bal").compilationUnit();
+    }
+    
     
     private BallerinaParser getParserForFile(String path) {
         BallerinaParser ballerinaParser = ParserUtils.getBallerinaParser(path);
