@@ -237,7 +237,6 @@ public class HTTPTransportListener extends TransportListener {
             if (sslConfig != null) {
                 sslConfigMap.put(id, sslConfig);
             }
-
             ChannelFuture future = bootstrap.bind(new InetSocketAddress(listenerConfiguration.getHost(),
                                                                         listenerConfiguration.getPort())).sync();
             if (future.isSuccess()) {
