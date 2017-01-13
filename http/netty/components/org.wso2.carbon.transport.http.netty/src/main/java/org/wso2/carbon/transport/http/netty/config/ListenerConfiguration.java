@@ -54,6 +54,9 @@ public class ListenerConfiguration {
     private int port;
 
     @XmlAttribute
+    private boolean bindOnStartup = true;
+
+    @XmlAttribute
     private String scheme = "http";
 
     @XmlAttribute
@@ -130,6 +133,14 @@ public class ListenerConfiguration {
 
     public void setPort(int port) {
         this.port = port;
+    }
+
+    public boolean isBindOnStartup() {
+        return bindOnStartup;
+    }
+
+    public void setBindOnStartup(boolean bindOnStartup) {
+        this.bindOnStartup = bindOnStartup;
     }
 
     public String getScheme() {

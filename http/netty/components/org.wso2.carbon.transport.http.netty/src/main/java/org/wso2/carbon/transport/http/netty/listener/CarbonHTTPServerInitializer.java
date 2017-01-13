@@ -81,10 +81,9 @@ public class CarbonHTTPServerInitializer extends ChannelInitializer<SocketChanne
         if (log.isDebugEnabled()) {
             log.debug("Initializing source channel pipeline");
         }
-        String host = ch.localAddress().getHostName();
         int port = ch.localAddress().getPort();
 
-        String id = host + ":" + port;
+        String id = String.valueOf(port);
         ListenerConfiguration listenerConfiguration = listenerConfigurationMap.get(id);
         if (sslConfigMap.get(id) != null) {
             SslHandler sslHandler = new SSLHandlerFactory(sslConfigMap.get(id)).create();
