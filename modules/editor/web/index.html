@@ -503,6 +503,8 @@
                 menu_group: {
                     menu_item: {
                         cssClass: {
+                            label: "menu-label pull-left",
+                            shortcut: "shortcut-label pull-right",
                             active: "menu-item-enabled",
                             inactive: "menu-item-disabled"
                         }
@@ -629,7 +631,10 @@
                 }
             },
             dialog: {
-                container: $('body'),
+                container: $('body')
+            },
+            about_dialog:{
+                selector: "#modalAbout"
             }
         };
         app = new Application(config);
