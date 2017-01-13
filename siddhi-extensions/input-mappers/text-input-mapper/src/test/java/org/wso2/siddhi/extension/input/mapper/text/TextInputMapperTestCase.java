@@ -19,25 +19,20 @@
 package org.wso2.siddhi.extension.input.mapper.text;
 
 import org.apache.log4j.Logger;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.exception.NoSuchAttributeException;
-import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
-import org.wso2.siddhi.core.subscription.InMemoryInputTransport;
 import org.wso2.siddhi.core.util.EventPrinter;
+import org.wso2.siddhi.core.util.transport.InMemoryBroker;
+import org.wso2.siddhi.core.util.transport.InMemoryInputTransport;
 import org.wso2.siddhi.query.api.ExecutionPlan;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.execution.Subscription;
 import org.wso2.siddhi.query.api.execution.io.Transport;
 import org.wso2.siddhi.query.api.execution.io.map.Mapping;
-import org.wso2.siddhi.query.api.execution.query.Query;
-import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
-import org.wso2.siddhi.query.api.execution.query.output.stream.OutputStream;
 
 public class TextInputMapperTestCase {
     static final Logger log = Logger.getLogger(TextInputMapperTestCase.class);
@@ -51,7 +46,7 @@ public class TextInputMapperTestCase {
     public void subscriptionTest7() throws InterruptedException {
         log.info("Subscription Test 7: Test an in memory transport with default text mapping");
 
-        Subscription subscription = Subscription.Subscribe(Transport.transport("inMemory"));
+        Subscription subscription = Subscription.Subscribe(Transport.transport("inMemory").option("topic", "stock"));
         subscription.map(Mapping.format("text"));
         subscription.insertInto("FooStream");
 
@@ -59,7 +54,7 @@ public class TextInputMapperTestCase {
         executionPlan.defineStream(StreamDefinition.id("FooStream")
                 .attribute("symbol", Attribute.Type.STRING)
                 .attribute("price", Attribute.Type.FLOAT)
-                .attribute("volume", Attribute.Type.INT));
+                .attribute("volume", Attribute.Type.LONG));
         executionPlan.addSubscription(subscription);
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -75,6 +70,9 @@ public class TextInputMapperTestCase {
         executionPlanRuntime.start();
 
         Thread.sleep(5000);
+
+        InMemoryBroker.publish("stock", "WSO2,55.6,100");
+        InMemoryBroker.publish("stock", "IBM,75.6,10");
 
         executionPlanRuntime.shutdown();
     }

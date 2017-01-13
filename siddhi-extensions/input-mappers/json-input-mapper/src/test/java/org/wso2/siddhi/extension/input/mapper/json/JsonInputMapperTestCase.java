@@ -19,18 +19,13 @@
 package org.wso2.siddhi.extension.input.mapper.json;
 
 import org.apache.log4j.Logger;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.exception.NoSuchAttributeException;
-import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
-import org.wso2.siddhi.core.subscription.InMemoryInputTransport;
 import org.wso2.siddhi.core.util.EventPrinter;
-import org.wso2.siddhi.core.util.transport.PassThroughInputMapper;
-import org.wso2.siddhi.extension.input.mapper.json.JsonInputMapper;
+import org.wso2.siddhi.core.util.transport.InMemoryInputTransport;
 import org.wso2.siddhi.query.api.ExecutionPlan;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
@@ -38,9 +33,6 @@ import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import org.wso2.siddhi.query.api.execution.Subscription;
 import org.wso2.siddhi.query.api.execution.io.Transport;
 import org.wso2.siddhi.query.api.execution.io.map.Mapping;
-import org.wso2.siddhi.query.api.execution.query.Query;
-import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
-import org.wso2.siddhi.query.api.execution.query.output.stream.OutputStream;
 
 public class JsonInputMapperTestCase {
     static final Logger log = Logger.getLogger(JsonInputMapperTestCase.class);

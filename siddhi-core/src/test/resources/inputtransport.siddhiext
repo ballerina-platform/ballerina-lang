@@ -16,5 +16,5 @@
 # under the License.
 #
 
-inMemory=org.wso2.siddhi.core.subscription.InMemoryInputTransport
+inMemory=org.wso2.siddhi.core.util.transport.InMemoryInputTransport
 
