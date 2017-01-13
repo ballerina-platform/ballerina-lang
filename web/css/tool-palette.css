@@ -47,8 +47,8 @@
 }
 
 .tool-container {
-    width: 25px;
-    height: 25px;
+    width: 39px;
+    height: 39px;
     margin: 3px;
     float: left;
     cursor: pointer;
@@ -82,12 +82,12 @@
     float: left;
 }
 
-.tool-image {
-    max-width: 18px;
-    max-height: 18px;
-    display : block;
-    margin : auto;
-}
+/*.tool-image {*/
+    /*max-width: 18px;*/
+    /*max-height: 18px;*/
+    /*display : block;*/
+    /*margin : auto;*/
+/*}*/
 
 .tool-title {
     padding-top:0px;
@@ -132,4 +132,11 @@
     position: absolute;
     right: 0px;
     top: 0px;
+}
+.tool-container > .tool-image{
+    max-width: 24px;
+    max-height: 24px;
+    display: block;
+    margin: 3px 0 0 4px;
+    color: #333;
 }
