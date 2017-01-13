@@ -46,8 +46,6 @@ define(['lodash', 'log', './action-invocation-statement'], function (_, log, Act
     /**
      * initialize ActionInvocationExpression from json object
      * @param {Object} jsonNode to initialize from
-     * @param {string} [jsonNode.service_name] - Name of the service definition
-     * @param {string} [jsonNode.annotations] - Annotations of the function definition
      */
     ActionInvocationExpression.prototype.initFromJson = function (jsonNode) {
         //TODO : Need to refactor the whole method

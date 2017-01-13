@@ -90,12 +90,10 @@ define(['lodash', './node'], function(_, ASTNode){
     /**
      * initialize ConnectorDeclaration from json object
      * @param {Object} jsonNode to initialize from
-     * @param {string} [jsonNode.service_name] - Name of the service definition
-     * @param {string} [jsonNode.annotations] - Annotations of the function definition
      */
     ConnectorDeclaration.prototype.initFromJson = function (jsonNode) {
-        this.setConnectorName(jsonNode.service_name);
-        this.setConnectorType(jsonNode.service_name);
+        this.setConnectorName('connectorName');
+        this.setConnectorType('connectorType');
         this.setConnectorVariable(jsonNode.connector_variable);
         this.setUri('http://localhost');
     };
