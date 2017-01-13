@@ -29,8 +29,8 @@
     <modelVersion>4.0.0</modelVersion>
     <packaging>bundle</packaging>
 
-    <artifactId>siddhi-extension-http-output-transport</artifactId>
-    <name>Siddhi Extension - HTTP Output Transport</name>
+    <artifactId>siddhi-extension-kafka-output-transport</artifactId>
+    <name>Siddhi Extension - Kafka Output Transport</name>
 
 
     <dependencies>
@@ -52,12 +52,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.apache.axis2.transport</groupId>
-            <artifactId>axis2-transport-mail</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.orbit.org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka_2.10</artifactId>
         </dependency>
     </dependencies>
 

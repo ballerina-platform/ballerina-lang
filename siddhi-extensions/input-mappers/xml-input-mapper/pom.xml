@@ -29,8 +29,8 @@
     <modelVersion>4.0.0</modelVersion>
     <packaging>bundle</packaging>
 
-    <artifactId>siddhi-extension-http-output-transport</artifactId>
-    <name>Siddhi Extension - HTTP Output Transport</name>
+    <artifactId>siddhi-extension-xml-input-mapper</artifactId>
+    <name>Siddhi Extension - XML Input Mapper</name>
 
 
     <dependencies>
@@ -51,14 +51,6 @@
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.apache.axis2.transport</groupId>
-            <artifactId>axis2-transport-mail</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.orbit.org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-        </dependency>
     </dependencies>
 
     <build>
@@ -72,7 +64,7 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Export-Package>
-                            org.wso2.siddhi.extension.output.transport.http.*
+                            org.wso2.siddhi.extension.input.mapper.xml.*
                         </Export-Package>
                         <Import-Package>
                             *;resolution:=optional

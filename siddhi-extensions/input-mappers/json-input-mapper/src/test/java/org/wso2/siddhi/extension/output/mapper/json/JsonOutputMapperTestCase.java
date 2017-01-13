@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.siddhi.extension.output.transport.http;
+package org.wso2.siddhi.extension.output.mapper.json;
 
 import org.apache.log4j.Logger;
 import org.junit.Ignore;
@@ -25,7 +25,6 @@ import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.exception.NoSuchAttributeException;
 import org.wso2.siddhi.core.stream.input.InputHandler;
-import org.wso2.siddhi.core.util.transport.PassThroughOutputMapper;
 import org.wso2.siddhi.query.api.ExecutionPlan;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
@@ -35,8 +34,8 @@ import org.wso2.siddhi.query.api.execution.query.Query;
 import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
 import org.wso2.siddhi.query.api.execution.query.output.stream.OutputStream;
 
-public class HttpOutputTransportTestCase {
-    static final Logger log = Logger.getLogger(HttpOutputTransportTestCase.class);
+public class JsonOutputMapperTestCase {
+    static final Logger log = Logger.getLogger(JsonOutputMapperTestCase.class);
 
     //    from FooStream
     //    publish inMemory options (topic "foo", symbol "{{symbol}}")
@@ -45,7 +44,7 @@ public class HttpOutputTransportTestCase {
     //          {{data}} on {{time}}
     //          """;
     // TODO: 1/8/17 fix this properly
-    @Ignore("This require a working endpoint")
+    @Ignore("Having test transport here will create a cyclic dependency")
     @Test(expected = NoSuchAttributeException.class)
     public void testPublisherWithHttpTransport() throws InterruptedException {
         StreamDefinition streamDefinition = StreamDefinition.id("FooStream")
@@ -58,16 +57,17 @@ public class HttpOutputTransportTestCase {
                 InputStream.stream("FooStream")
         );
         query.publish(
-                Transport.transport("http")
+                Transport.transport("test")
                         .option("topic", "foo")
-                        .option("symbol", "{{symbol}}"),
+                        .option("symbol", "{{symbol}}")
+                        .option("symbol-price", "{{symbol}}-{{price}}")
+                        .option("non-exist-symbol", "{{non-exist}}-{{symbol}}")
+                        .option("non-exist", "{{non-exist}}"),
                 OutputStream.OutputEventType.CURRENT_EVENTS,
-                Mapping.format("text").map("Price of a {{symbol}} share is ${{price}}.")
+                Mapping.format("json").map("Testing {{non-exist}} attribute.")
         );
 
         SiddhiManager siddhiManager = new SiddhiManager();
-        siddhiManager.setExtension("outputmapper:text", PassThroughOutputMapper.class);
-
         ExecutionPlan executionPlan = new ExecutionPlan("ep1");
         executionPlan.defineStream(streamDefinition);
         executionPlan.addQuery(query);

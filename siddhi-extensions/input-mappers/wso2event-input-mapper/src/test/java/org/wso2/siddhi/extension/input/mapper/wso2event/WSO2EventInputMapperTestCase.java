@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c)  2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -15,7 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.subscription;
+
+package org.wso2.siddhi.extension.input.mapper.wso2event;
 
 import org.apache.log4j.Logger;
 import org.junit.Test;
@@ -23,6 +24,7 @@ import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
+import org.wso2.siddhi.core.subscription.InMemoryInputTransport;
 import org.wso2.siddhi.core.util.EventPrinter;
 import org.wso2.siddhi.query.api.ExecutionPlan;
 import org.wso2.siddhi.query.api.definition.Attribute;
@@ -31,14 +33,15 @@ import org.wso2.siddhi.query.api.execution.Subscription;
 import org.wso2.siddhi.query.api.execution.io.Transport;
 import org.wso2.siddhi.query.api.execution.io.map.Mapping;
 
-public class SubscribeTestCase {
-
-    private static final Logger log = Logger.getLogger(SubscribeTestCase.class);
+public class WSO2EventInputMapperTestCase {
+    static final Logger log = Logger.getLogger(WSO2EventInputMapperTestCase.class);
 
     @Test
-    public void testCreatingInmemorySubscription() throws InterruptedException {
-        Subscription subscription = Subscription.Subscribe(Transport.transport("inMemory").option("topic", "foo"));
-        subscription.map(Mapping.format("passThrough"));
+    public void subscriptionTest12() throws InterruptedException {
+        log.info("Subscription Test 12: Test an in memory transport with wso2event");
+
+        Subscription subscription = Subscription.Subscribe(Transport.transport("inMemory"));
+        subscription.map(Mapping.format("wso2event"));
         subscription.insertInto("FooStream");
 
         ExecutionPlan executionPlan = ExecutionPlan.executionPlan();
@@ -49,6 +52,7 @@ public class SubscribeTestCase {
         executionPlan.addSubscription(subscription);
 
         SiddhiManager siddhiManager = new SiddhiManager();
+        siddhiManager.setExtension("inputtransport:inMemory", InMemoryInputTransport.class);
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
         executionPlanRuntime.addCallback("FooStream", new StreamCallback() {
             @Override
@@ -63,4 +67,5 @@ public class SubscribeTestCase {
 
         executionPlanRuntime.shutdown();
     }
+
 }

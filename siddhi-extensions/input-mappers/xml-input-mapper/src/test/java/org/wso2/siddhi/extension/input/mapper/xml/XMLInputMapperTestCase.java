@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c)  2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -15,7 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.siddhi.core.subscription;
+
+package org.wso2.siddhi.extension.input.mapper.xml;
 
 import org.apache.log4j.Logger;
 import org.junit.Test;
@@ -23,6 +24,7 @@ import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
+import org.wso2.siddhi.core.subscription.InMemoryInputTransport;
 import org.wso2.siddhi.core.util.EventPrinter;
 import org.wso2.siddhi.query.api.ExecutionPlan;
 import org.wso2.siddhi.query.api.definition.Attribute;
@@ -31,14 +33,16 @@ import org.wso2.siddhi.query.api.execution.Subscription;
 import org.wso2.siddhi.query.api.execution.io.Transport;
 import org.wso2.siddhi.query.api.execution.io.map.Mapping;
 
-public class SubscribeTestCase {
+public class XMLInputMapperTestCase {
+    static final Logger log = Logger.getLogger(XMLInputMapperTestCase.class);
 
-    private static final Logger log = Logger.getLogger(SubscribeTestCase.class);
 
     @Test
-    public void testCreatingInmemorySubscription() throws InterruptedException {
-        Subscription subscription = Subscription.Subscribe(Transport.transport("inMemory").option("topic", "foo"));
-        subscription.map(Mapping.format("passThrough"));
+    public void subscriptionTest10() throws InterruptedException {
+        log.info("Subscription Test 10: Test an in memory transport with default xml mapping");
+
+        Subscription subscription = Subscription.Subscribe(Transport.transport("inMemory"));
+        subscription.map(Mapping.format("xml"));
         subscription.insertInto("FooStream");
 
         ExecutionPlan executionPlan = ExecutionPlan.executionPlan();
@@ -49,6 +53,40 @@ public class SubscribeTestCase {
         executionPlan.addSubscription(subscription);
 
         SiddhiManager siddhiManager = new SiddhiManager();
+        siddhiManager.setExtension("inputtransport:inMemory", InMemoryInputTransport.class);
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
+        executionPlanRuntime.addCallback("FooStream", new StreamCallback() {
+            @Override
+            public void receive(Event[] events) {
+                EventPrinter.print(events);
+            }
+        });
+
+        executionPlanRuntime.start();
+
+        Thread.sleep(5000);
+
+        executionPlanRuntime.shutdown();
+    }
+
+    @Test
+    public void subscriptionTest11() throws InterruptedException {
+        log.info("Subscription Test 11: Test an in memory transport with custom named xml mapping");
+
+        Subscription subscription = Subscription.Subscribe(Transport.transport("inMemory"));
+        subscription.map(Mapping.format("xml").map("volume", "//x:volume").map("symbol", "//x:symbol").map("price", "//x:" +
+                "price"));
+        subscription.insertInto("FooStream");
+
+        ExecutionPlan executionPlan = ExecutionPlan.executionPlan();
+        executionPlan.defineStream(StreamDefinition.id("FooStream")
+                .attribute("symbol", Attribute.Type.STRING)
+                .attribute("price", Attribute.Type.FLOAT)
+                .attribute("volume", Attribute.Type.INT));
+        executionPlan.addSubscription(subscription);
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        siddhiManager.setExtension("inputtransport:inMemory", InMemoryInputTransport.class);
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
         executionPlanRuntime.addCallback("FooStream", new StreamCallback() {
             @Override
