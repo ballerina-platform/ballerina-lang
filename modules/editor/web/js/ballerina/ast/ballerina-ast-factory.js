@@ -26,14 +26,14 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         './type-converter-definition', './type-definition', './type-element', './variable-declaration',
         './package-definition', './import-declaration', './resource-arg', './assignment', './assignment-statement', './function-invocation', './function-invocation-expression', './variable-reference-expression',
         './action-invocation-statement', './arithmetic-expression', './logical-expression', './action-invocation-expression',
-        './return-type', './type-name', './argument', './back-quote-expression', './basic-literal-expression', './left-operand-expression', './right-operand-expression'],
+        './return-type', './type-name', './argument', './back-quote-expression', './basic-literal-expression', './left-operand-expression', './right-operand-expression', './instance-creation-expression'],
     function (_, ballerinaAstRoot, serviceDefinition, functionDefinition, connectorDefinition, resourceDefinition,
               workerDeclaration, statement, conditionalStatement, connectorDeclaration, expression,
               ifElseStatement, ifStatement, elseStatement, elseIfStatement, tryCatchStatement, tryStatement, catchStatement, replyStatement,
               whileStatement, returnStatement, typeConverterDefinition, typeDefinition, typeElement, variableDeclaration,
               packageDefinition, importDeclaration, resourceArgument, assignment, assignmentStatement, functionInvocation, functionInvocationExpression, variableReferenceExpression,
               actionInvocationStatement, arithmeticExpression, logicalExpression, actionInvocationExpression, returnType,
-              typeName, argument, backQuoteExpression, basicLiteralExpression, leftOperandExpression, rightOperandExpression) {
+              typeName, argument, backQuoteExpression, basicLiteralExpression, leftOperandExpression, rightOperandExpression, instanceCreationExpression) {
 
 
         /**
@@ -299,12 +299,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          * @param args
          */
         BallerinaASTFactory.createResourceDefinition = function (args) {
-            var resourceDef = new resourceDefinition(args);
-            var resourceArg = BallerinaASTFactory.createResourceArgument();
-            resourceArg.setType("message");
-            resourceArg.setIdentifier("m");
-            resourceDef.addChild(resourceArg);
-            return resourceDef;
+            return new resourceDefinition(args);
         };
 
         /**
@@ -397,6 +392,16 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          */
         BallerinaASTFactory.createRightOperandExpression = function (args) {
             return new rightOperandExpression(args);
+        };
+
+        /**
+         * creates InstanceCreationExpression
+         * @param {Object} args - Arguments for creating a new instance creation.
+         * @param {Object} args.typeName - Type of the new instance creation.
+         * @returns {InstanceCreationExpression} - New instance creation node.
+         */
+        BallerinaASTFactory.createInstanceCreationExpression = function (args) {
+            return new instanceCreationExpression(args);
         };
 
         /**
@@ -715,7 +720,16 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          */
         BallerinaASTFactory.isRightOperandExpression = function (child) {
             return child instanceof rightOperandExpression;
-        }
+        };
+
+        /**
+         * instanceof check for InstanceCreationExpression
+         * @param {ASTNode} child - The ast node.
+         * @returns {boolean} - True if node is an instance creation, else false.
+         */
+        BallerinaASTFactory.isInstanceCreationExpression = function (child) {
+            return child instanceof instanceCreationExpression;
+        };
 
         BallerinaASTFactory.createFromJson = function (jsonNode) {
             var node;
@@ -800,6 +814,9 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
                         break;
                     case 'if_else_statement' :
                         node = BallerinaASTFactory.createIfElseStatement();
+                        break;
+                    case 'instance_creation_expression':
+                        node = BallerinaASTFactory.createAssignment();
                         break;
                     default:
                         throw "Unknown node definition for " + jsonNode.type;

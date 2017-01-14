@@ -77,6 +77,9 @@ define(['lodash', 'log', 'event_channel', '../ast/module', './try-catch-statemen
                             } else if (AST.BallerinaASTFactory.isVariableReferenceExpression(child)) {
                                 _.set(args, 'model', child);
                                 assignmenStatement = new AssignmentStatementView(args);
+                            } else if (AST.BallerinaASTFactory.isInstanceCreationExpression(child)){
+                                _.set(args, 'model', child);
+                                assignmenStatement = new AssignmentStatementView(args);
                             }
                         });
                     }
