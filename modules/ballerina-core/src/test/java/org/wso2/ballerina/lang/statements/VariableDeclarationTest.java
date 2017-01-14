@@ -39,13 +39,13 @@ public class VariableDeclarationTest {
     }
     
     @Test(expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "Undeclared variable 'a' in undeclared-variables.bal:2")
+            expectedExceptionsMessageRegExp = "undeclared-variables.bal:2: undeclared variable 'a'")
     public void testUndeclaredVariables() {
         ParserUtils.parseBalFile("lang/statements/undeclared-variables.bal");
     }
     
     @Test(expectedExceptions = {ParserException.class },
-            expectedExceptionsMessageRegExp = "Unsupported type 'Foo' in unsupported-type-variable.bal:6")
+            expectedExceptionsMessageRegExp = "unsupported-type-variable.bal:6: unsupported type 'Foo'")
     public void testUnsupportedTypeVariable() {
         ParserUtils.parseBalFile("lang/statements/unsupported-type-variable.bal");
     }

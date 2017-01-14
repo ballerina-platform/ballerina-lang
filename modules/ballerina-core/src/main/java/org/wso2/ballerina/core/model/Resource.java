@@ -238,6 +238,11 @@ public class Resource implements Node, CallableUnit {
     }
 
     @Override
+    public BlockStmt getCallableUnitBody() {
+        return resourceBody;
+    }
+
+    @Override
     public Position getLocation() {
         return position;
     }

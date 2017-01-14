@@ -29,6 +29,7 @@ import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.Position;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.VariableDcl;
+import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.model.types.TypeEnum;
@@ -242,5 +243,10 @@ public abstract class AbstractNativeFunction implements NativeConstruct, Functio
     @Override
     public Position getLocation() {
         return functionLocation;
+    }
+
+    @Override
+    public BlockStmt getCallableUnitBody() {
+        return null;
     }
 }

@@ -131,11 +131,11 @@ public class NotEqualExprTest {
     /*
      * Negative tests
      */
-    
+
     @Test(description = "Test checking equality of two types",
             expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "Incompatible types in binary expression: int vs boolean in " +
-                "incompatible-type-equal-expr.bal:6")
+            expectedExceptionsMessageRegExp = "incompatible-type-equal-expr.bal:6: incompatible " +
+                    "types in binary expression: int vs boolean")
     public void testIncompatibleEquality() {
         ParserUtils.parseBalFile("lang/expressions/incompatible-type-equal-expr.bal");
     }

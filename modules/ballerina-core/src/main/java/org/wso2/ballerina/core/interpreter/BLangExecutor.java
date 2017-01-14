@@ -204,11 +204,24 @@ public class BLangExecutor implements NodeExecutor {
     public void visit(ReturnStmt returnStmt) {
         Expression[] exprs = returnStmt.getExprs();
 
+        // Check whether the first argument is a multi-return function
+        if (exprs.length == 1 && exprs[0] instanceof FunctionInvocationExpr) {
+            FunctionInvocationExpr funcIExpr = (FunctionInvocationExpr) exprs[0];
+            if (funcIExpr.getTypes().length > 1) {
+                BValue[] returnVals = funcIExpr.executeMultiReturn(this);
+                for (int i = 0; i < returnVals.length; i++) {
+                    controlStack.setReturnValue(i, returnVals[i]);
+                }
+                return;
+            }
+        }
+
         for (int i = 0; i < exprs.length; i++) {
             Expression expr = exprs[i];
-            BValue value = expr.execute(this);
-            controlStack.setReturnValue(i, value);
+            BValue returnVal = expr.execute(this);
+            controlStack.setReturnValue(i, returnVal);
         }
+
     }
 
     @Override
@@ -269,7 +282,7 @@ public class BLangExecutor implements NodeExecutor {
         // Check whether we are invoking a native function or not.
         if (function instanceof BallerinaFunction) {
             BallerinaFunction bFunction = (BallerinaFunction) function;
-            bFunction.getFunctionBody().execute(this);
+            bFunction.getCallableUnitBody().execute(this);
         } else {
             AbstractNativeFunction nativeFunction = (AbstractNativeFunction) function;
             nativeFunction.executeNative(bContext);
@@ -328,7 +341,7 @@ public class BLangExecutor implements NodeExecutor {
         // Check whether we are invoking a native action or not.
         if (action instanceof BallerinaAction) {
             BallerinaAction bAction = (BallerinaAction) action;
-            bAction.getActionBody().execute(this);
+            bAction.getCallableUnitBody().execute(this);
         } else {
             AbstractNativeAction nativeAction = (AbstractNativeAction) action;
             nativeAction.execute(bContext);

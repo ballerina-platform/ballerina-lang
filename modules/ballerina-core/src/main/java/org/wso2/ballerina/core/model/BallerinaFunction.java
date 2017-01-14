@@ -19,7 +19,6 @@
 package org.wso2.ballerina.core.model;
 
 import org.wso2.ballerina.core.model.statements.BlockStmt;
-import org.wso2.ballerina.core.model.types.BType;
 
 /**
  * A {@code BallerinaFunction} is an operation that is executed by a {@code Worker}.
@@ -49,13 +48,10 @@ public class BallerinaFunction extends PositionAwareNode implements Function, No
     private ConnectorDcl[] connectorDcls;
     private VariableDcl[] variableDcls;
     private Worker[] workers;
-
-    private BType[] returnTypes;
     private Parameter[] returnParams;
     private BlockStmt functionBody;
 
     private boolean publicFunc;
-
     private int stackFrameSize;
 
     public BallerinaFunction(SymbolName name,
@@ -184,10 +180,6 @@ public class BallerinaFunction extends PositionAwareNode implements Function, No
         publicFunc = true;
     }
 
-    public BlockStmt getFunctionBody() {
-        return this.functionBody;
-    }
-
     public int getStackFrameSize() {
         return stackFrameSize;
     }
@@ -195,6 +187,11 @@ public class BallerinaFunction extends PositionAwareNode implements Function, No
 
     public void setStackFrameSize(int stackFrameSize) {
         this.stackFrameSize = stackFrameSize;
+    }
+
+    @Override
+    public BlockStmt getCallableUnitBody() {
+        return this.functionBody;
     }
 
     @Override

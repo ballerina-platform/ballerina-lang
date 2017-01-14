@@ -21,6 +21,7 @@ import org.wso2.ballerina.core.model.Action;
 import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.SymbolName;
+import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.values.BValue;
 
 /**
@@ -33,6 +34,7 @@ public class ActionInvocationExpr extends AbstractExpression implements Callable
     private SymbolName actionName;
     private Expression[] exprs;
     private Action action;
+    private BType[] types = new BType[0];
 
     public ActionInvocationExpr(SymbolName actionName, Expression[] exprs) {
         this.actionName = actionName;
@@ -57,6 +59,16 @@ public class ActionInvocationExpr extends AbstractExpression implements Callable
     @Override
     public void setCallableUnit(Action callableUnit) {
         this.action = callableUnit;
+    }
+
+    @Override
+    public BType[] getTypes() {
+        return types;
+    }
+
+    @Override
+    public void setTypes(BType[] types) {
+        this.types = types;
     }
 
     @Override

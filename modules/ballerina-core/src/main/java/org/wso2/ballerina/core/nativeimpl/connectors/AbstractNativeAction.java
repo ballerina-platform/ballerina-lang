@@ -26,6 +26,7 @@ import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.Position;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.VariableDcl;
+import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.NativeConstruct;
@@ -180,5 +181,10 @@ public abstract class AbstractNativeAction implements Action, NativeConstruct {
     @Override
     public Position getLocation() {
         return actionLocation;
+    }
+
+    @Override
+    public BlockStmt getCallableUnitBody() {
+        return null;
     }
 }
