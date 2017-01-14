@@ -239,7 +239,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 //if there are errors display the error.
                 //@todo: proper error handling need to get the service specs
                 if(response.error != undefined && response.error){
-                    $('#modalError').modal();
+                    $(_.get(self._viewOptions, 'dialog_boxes.parser_error')).modal();
                     return;
                 }
                 //if no errors display the design.

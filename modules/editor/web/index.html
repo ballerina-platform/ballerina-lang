@@ -362,7 +362,7 @@
 <!--End: About Modal-->
 
 <!--Start: About Modal-->
-<div class="modal fade" id="modalError" tabindex="-1" role="dialog">
+<div class="modal fade" id="parserErrorModel" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
         <div class="modal-content clearfix">
             <div class="modal-header">
@@ -619,6 +619,9 @@
                             },
                             backend:{
                                 url:"http://localhost:8289/ballerina/model/content"
+                            },
+                            dialog_boxes:{
+                                parser_error: "#parserErrorModel"
                             }
                         }
                     }
