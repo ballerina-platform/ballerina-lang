@@ -853,8 +853,9 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         JsonObject instanceCreationExprObj = new JsonObject();
         instanceCreationExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
                 BLangJSONModelConstants.INSTANCE_CREATION_EXPRESSION);
+        instanceCreationExprObj.addProperty(BLangJSONModelConstants.INSTANCE_CREATION_EXPRESSION_INSTANCE_TYPE ,
+                instanceCreationExpr.getType().toString());
         tempJsonArrayRef.push(new JsonArray());
-        instanceCreationExpr.getRExpr().accept(this);
         instanceCreationExprObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
         tempJsonArrayRef.pop();
         tempJsonArrayRef.peek().add(instanceCreationExprObj);
