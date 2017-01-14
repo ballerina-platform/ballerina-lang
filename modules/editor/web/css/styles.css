@@ -1084,6 +1084,13 @@ button.variable-list {
     text-transform: none;
     background: rgb(35, 35, 35);
 }
+#breadcrumb-container > ol > li.breadcrumb-item {
+    color: grey;
+}
+#breadcrumb-container > ol > li.breadcrumb-item.active {
+    color: white;
+}
+
 
 footer {
     min-height: 30px;

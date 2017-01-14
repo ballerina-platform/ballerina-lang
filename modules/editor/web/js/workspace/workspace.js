@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab/tab', 'workspace'],
-    function ($, _, Backbone, log, Dialogs, WelcomePages, GenericTab, Workspace) {
+define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab/tab', 'workspace', 'ballerina', 'bootstrap'],
+    function ($, _, Backbone, log, Dialogs, WelcomePages, GenericTab, Workspace, Ballerina) {
 
     // workspace manager constructor
     /**
@@ -31,9 +31,8 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab/t
             throw error;
         }
 
-        this.createNewTab = function createNewTab(ballerinaRoot) {
-            // Showing menu bar
-            app.tabController.newTab({ballerinaRoot: ballerinaRoot});
+        this.createNewTab = function createNewTab(options) {
+            app.tabController.newTab(options);
         };
 
         this.displayInitialTab = function () {
@@ -114,6 +113,29 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab/t
             this.workspaceManager.showWelcomePage(this.workspaceManager);
         };
 
+        this.getParsedTree = function (file, onSuccessCallBack) {
+            $.ajax({
+                url: _.get(app, 'config.services.parser.endpoint'),
+                type: "POST",
+                data: JSON.stringify(file.getContent()),
+                contentType: "application/json; charset=utf-8",
+                async: false,
+                dataType: "json",
+                success: function (data, textStatus, xhr) {
+                    if (xhr.status == 200) {
+                        var BallerinaASTDeserializer = Ballerina.ast.BallerinaASTDeserializer;
+                        var root = BallerinaASTDeserializer.getASTModel(data);
+                        onSuccessCallBack(root);
+                    } else {
+                        log.error("Error while parsing the source. " + JSON.stringify(xhr));
+                    }
+                },
+                error: function (res, errorCode, error) {
+                    log.error("Error while parsing the source. " + JSON.stringify(res));
+                }
+            });
+        };
+
         this.updateUndoRedoMenus = function(){
             // undo manager for current tab
             var fileEditor = app.tabController.getActiveTab().getBallerinaFileEditor(),
@@ -164,26 +186,27 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab/t
             self.updateUndoRedoMenus();
         };
 
-        app.commandManager.registerCommand("create-new-tab", {key: ["ctrl+alt+n", "command+option+n"]});
+        this.showAboutDialog = function(){
+            var aboutModal = $(_.get(app, 'config.about_dialog.selector'));
+            aboutModal.modal('show')
+        };
+
         app.commandManager.registerHandler('create-new-tab', this.createNewTab);
 
-        app.commandManager.registerCommand("undo", {key: ["ctrl+z", "command+z"]});
         app.commandManager.registerHandler('undo', this.handleUndo);
 
-        app.commandManager.registerCommand("redo", {key: ["ctrl+shift+z", "command+shift+z"]});
         app.commandManager.registerHandler('redo', this.handleRedo);
 
         // Open file save dialog
-        app.commandManager.registerCommand("open-file-save-dialog", {key:  ["ctrl+s", "command+s"]});
         app.commandManager.registerHandler('open-file-save-dialog', this.openFileSaveDialog);
 
         // Open file open dialog
-        app.commandManager.registerCommand("open-file-open-dialog", {key:  ["ctrl+o", "command+o"]});
         app.commandManager.registerHandler('open-file-open-dialog', this.openFileOpenDialog);
 
         // Go to Welcome Page.
-        app.commandManager.registerCommand("go-to-welcome-page", {key: ["ctrl+alt+w", "command+option+w"]});
         app.commandManager.registerHandler('go-to-welcome-page', this.goToWelcomePage);
+
+        app.commandManager.registerHandler('show-about-dialog', this.showAboutDialog);
 
     }
 
