@@ -61,7 +61,7 @@ import org.wso2.ballerina.core.model.expressions.SubtractExpression;
 import org.wso2.ballerina.core.model.expressions.UnaryExpression;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.invokers.MainInvoker;
-import org.wso2.ballerina.core.model.invokers.ResourceInvocationExpr;
+import org.wso2.ballerina.core.model.expressions.ResourceInvocationExpr;
 import org.wso2.ballerina.core.model.statements.ActionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
@@ -281,18 +281,18 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
     public void visit(FunctionInvocationExpr funcIExpr) {
         StringBuffer buffer = new StringBuffer();
         bufferStack.push(buffer);
-        if(funcIExpr.getFunctionName().getPkgName() != null){
-            buffer.append(funcIExpr.getFunctionName().getPkgName()).append(":");
+        if(funcIExpr.getCallableUnitName().getPkgName() != null){
+            buffer.append(funcIExpr.getCallableUnitName().getPkgName()).append(":");
         }
         boolean isFirstItr = true;
-        buffer.append(funcIExpr.getFunctionName().getName()).append("( ");
-        if (funcIExpr.getExprs() != null) {
+        buffer.append(funcIExpr.getCallableUnitName().getName()).append("( ");
+        if (funcIExpr.getArgExprs() != null) {
             if(!isFirstItr){
 
             } else {
                 isFirstItr = false;
             }
-            for (Expression expression : funcIExpr.getExprs()) {
+            for (Expression expression : funcIExpr.getArgExprs()) {
                 expression.accept(this);
             }
         }
@@ -304,18 +304,18 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
         StringBuffer buffer = new StringBuffer();
         bufferStack.push(buffer);
         boolean isFirstItr = true;
-        if(actionIExpr.getActionName().getPkgName() != null){
-            buffer.append(actionIExpr.getActionName().getPkgName()).append(":");
+        if(actionIExpr.getCallableUnitName().getPkgName() != null){
+            buffer.append(actionIExpr.getCallableUnitName().getPkgName()).append(":");
         }
-        buffer.append(actionIExpr.getActionName().getConnectorName())
-                .append(".").append(actionIExpr.getActionName().getName()).append("( ");
-        if (actionIExpr.getExprs() != null) {
+        buffer.append(actionIExpr.getCallableUnitName().getConnectorName())
+                .append(".").append(actionIExpr.getCallableUnitName().getName()).append("( ");
+        if (actionIExpr.getArgExprs() != null) {
             if(!isFirstItr){
 
             } else {
                 isFirstItr = false;
             }
-            for (Expression expression : actionIExpr.getExprs()) {
+            for (Expression expression : actionIExpr.getArgExprs()) {
                 expression.accept(this);
             }
         }

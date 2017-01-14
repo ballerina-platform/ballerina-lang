@@ -117,7 +117,6 @@ public class BLangModelBuilder {
 
     private static final Logger log = LoggerFactory.getLogger(BLangModelBuilder.class);
 
-
     // Holds ExpressionLists required for return statements, function/action invocations and connector declarations
     private Stack<List<Expression>> exprListStack = new Stack<>();
 
@@ -178,7 +177,7 @@ public class BLangModelBuilder {
         BType type = BTypes.getType(typeName);
 
         if (type == null) {
-            throw new ParserException("Unknown type: " + typeName + " in " + sourceLocation.getFileName() + ":" + 
+            throw new ParserException("Unknown type: " + typeName + " in " + sourceLocation.getFileName() + ":" +
                     sourceLocation.getLine());
         }
 
@@ -213,7 +212,7 @@ public class BLangModelBuilder {
                 String value = ((BasicLiteral) expr).getBValue().stringValue();
                 annotationBuilder.setValue(value);
             } else {
-                throw new RuntimeException("Annotations with key/value pars are not support at the moment" + " in " + 
+                throw new RuntimeException("Annotations with key/value pars are not support at the moment" + " in " +
                         sourceLocation.getFileName() + ":" + sourceLocation.getLine());
             }
         }
@@ -223,7 +222,6 @@ public class BLangModelBuilder {
         annotation.setLocation(sourceLocation);
         annotationList.add(annotation);
     }
-
 
     // Function parameters and types
 
@@ -236,12 +234,9 @@ public class BLangModelBuilder {
      * @param paramName name of the function parameter
      */
     public void createParam(String paramName, Position sourceLocation) {
-        //        paramIndex++;
-
         SymbolName paramNameId = new SymbolName(paramName);
         BType paramType = typeQueue.remove();
-        Parameter param = new Parameter(paramType, paramNameId);
-        param.setLocation(sourceLocation);
+        Parameter param = new Parameter(paramType, paramNameId, sourceLocation);
 
         if (currentCUBuilder != null) {
             // Add the parameter to callableUnitBuilder.
@@ -254,8 +249,8 @@ public class BLangModelBuilder {
     public void createType(String typeName, Position sourceLocation) {
         BType type = BTypes.getType(typeName);
         if (type == null) {
-            throw new ParserException("Unsupported type '" + typeName + "' in " + 
-                    sourceLocation.getFileName() + ":" + sourceLocation.getLine());
+            throw new ParserException(sourceLocation.getFileName() + ":" + sourceLocation.getLine() +
+                    ": unsupported type '" + typeName + "'");
         }
         typeQueue.add(type);
     }
@@ -274,12 +269,21 @@ public class BLangModelBuilder {
         BTypes.addConnectorType(typeName);
     }
 
-    public void createReturnTypes() {
+    public void createReturnTypes(Position sourceLocation) {
         while (!typeQueue.isEmpty()) {
-            currentCUBuilder.addReturnType(typeQueue.remove());
+            BType paramType = typeQueue.remove();
+            Parameter param = new Parameter(paramType, null, sourceLocation);
+            currentCUBuilder.addReturnParameter(param);
         }
     }
 
+    public void createNamedReturnParams(String paramName, Position sourceLocation) {
+        SymbolName paramNameId = new SymbolName(paramName);
+        BType paramType = typeQueue.remove();
+
+        Parameter param = new Parameter(paramType, paramNameId, sourceLocation);
+        currentCUBuilder.addReturnParameter(param);
+    }
 
     // Variable declarations, reference expressions
 
@@ -321,7 +325,7 @@ public class BLangModelBuilder {
         if (symbolNameStack.size() < 2) {
             IllegalStateException ex = new IllegalStateException("symbol stack size should be " +
                     "greater than or equal to two");
-            throw new ParserException("Failed to parse connector declaration" + varName + " in " + 
+            throw new ParserException("Failed to parse connector declaration" + varName + " in " +
                     sourceLocation.getFileName() + ":" + sourceLocation.getLine(), ex);
         }
 
@@ -433,7 +437,7 @@ public class BLangModelBuilder {
                 break;
 
             default:
-                throw new ParserException("Unsupported operator '" + opStr + "' in " + 
+                throw new ParserException("Unsupported operator '" + opStr + "' in " +
                         sourceLocation.getFileName() + ":" + sourceLocation.getLine());
         }
 
@@ -458,7 +462,7 @@ public class BLangModelBuilder {
                 break;
 
             default:
-                throw new ParserException("Unsupported operator '" + op + "' in " + 
+                throw new ParserException("Unsupported operator '" + op + "' in " +
                         sourceLocation.getFileName() + ":" + sourceLocation.getLine());
         }
 
@@ -776,7 +780,6 @@ public class BLangModelBuilder {
         blockStmtBuilderStack.peek().addStmt(actionInvocationStmt);
     }
 
-
     // Literal Values
 
     public void createIntegerLiteral(String value, Position sourceLocation) {
@@ -811,7 +814,7 @@ public class BLangModelBuilder {
 
     public void createNullLiteral(String value, Position sourceLocation) {
         throw new RuntimeException("Null values are not yet supported in Ballerina in " + sourceLocation.getFileName()
-            + ":" + sourceLocation.getLine());
+                + ":" + sourceLocation.getLine());
     }
 
     // Private methods

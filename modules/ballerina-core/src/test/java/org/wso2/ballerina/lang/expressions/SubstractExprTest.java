@@ -33,8 +33,8 @@ public class SubstractExprTest {
     
     @Test(description = "Test substracting values of two types",
             expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "Incompatible types in binary expression: int vs string in " +
-                "substract-incompatible-types.bal:5")
+            expectedExceptionsMessageRegExp = "substract-incompatible-types.bal:5: incompatible types " +
+                    "in binary expression: int vs string")
     public void testAddIncompatibleTypes() {
         ParserUtils.parseBalFile("lang/expressions/substract-incompatible-types.bal");
     }

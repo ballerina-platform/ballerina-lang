@@ -55,10 +55,10 @@ public class RuntimeErrorsTest {
     public void testStackTraceOnError() {
         Exception ex = null;
         Context bContext = new Context();
-        String expectedStackTrace = "\t at test.lang:getApple(runtime-errors.bal:23)\n" +
-                "\t at test.lang:getFruit2(runtime-errors.bal:19)\n" +
-                "\t at test.lang:getFruit1(runtime-errors.bal:15)\n" +
-                "\t at test.lang:testStackTrace(runtime-errors.bal:12)\n";
+        String expectedStackTrace = "\t at test.lang:getApple(runtime-errors.bal:26)\n" +
+                "\t at test.lang:getFruit2(runtime-errors.bal:22)\n" +
+                "\t at test.lang:getFruit1(runtime-errors.bal:18)\n" +
+                "\t at test.lang:testStackTrace(runtime-errors.bal:15)\n";
         try {
             Functions.invoke(bFile, "testStackTrace", bContext);
         } catch (BallerinaException e) {
@@ -120,11 +120,11 @@ public class RuntimeErrorsTest {
             if (i == 20 || i == 21) {
                 sb.append("\t ...\n");
             } else {
-                sb.append("\t at test.lang:infiniteRecurse(runtime-errors.bal:48)\n");
+                sb.append("\t at test.lang:infiniteRecurse(runtime-errors.bal:51)\n");
             }
         }
-        sb.append("\t at test.lang:infiniteRecurse(runtime-errors.bal:44)\n");
-        sb.append("\t at test.lang:testStackOverflow(runtime-errors.bal:43)\n");
+        sb.append("\t at test.lang:infiniteRecurse(runtime-errors.bal:47)\n");
+        sb.append("\t at test.lang:testStackOverflow(runtime-errors.bal:46)\n");
         return sb.toString();
     }
 }

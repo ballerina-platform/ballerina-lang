@@ -28,7 +28,7 @@ function testBooleanAssignStmt(boolean a) (boolean) {
     return x;
 }
 
-function testStringAssignStmt(string a) (int) {
+function testStringAssignStmt(string a) (string) {
     string x;
     x = a;
     return x;

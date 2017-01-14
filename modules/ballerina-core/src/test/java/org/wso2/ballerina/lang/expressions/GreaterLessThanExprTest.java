@@ -43,7 +43,7 @@ public class GreaterLessThanExprTest {
 
     @Test(description = "Test int greater than, less than expression")
     public void testIntRangeExpr() {
-        BValue[] args = { new BInteger(0) };
+        BValue[] args = {new BInteger(0)};
         BValue[] returns = Functions.invoke(bFile, "testIntRanges", args);
 
         Assert.assertEquals(returns.length, 1);
@@ -53,14 +53,14 @@ public class GreaterLessThanExprTest {
         int expected = 1;
         Assert.assertEquals(actual, expected);
 
-        args = new BValue[] { new BInteger(50) };
+        args = new BValue[]{new BInteger(50)};
         returns = Functions.invoke(bFile, "testIntRanges", args);
 
         actual = ((BInteger) returns[0]).intValue();
         expected = 2;
         Assert.assertEquals(actual, expected);
 
-        args = new BValue[] { new BInteger(200) };
+        args = new BValue[]{new BInteger(200)};
         returns = Functions.invoke(bFile, "testIntRanges", args);
 
         actual = ((BInteger) returns[0]).intValue();
@@ -70,7 +70,7 @@ public class GreaterLessThanExprTest {
 
     @Test(description = "Test float greater than, less than expression")
     public void testFloatRangeExpr() {
-        BValue[] args = { new BFloat(-123.8f) };
+        BValue[] args = {new BFloat(-123.8f)};
         BValue[] returns = Functions.invoke(bFile, "testFloatRanges", args);
 
         Assert.assertEquals(returns.length, 1);
@@ -80,14 +80,14 @@ public class GreaterLessThanExprTest {
         int expected = 1;
         Assert.assertEquals(actual, expected);
 
-        args = new BValue[] { new BFloat(75.4f) };
+        args = new BValue[]{new BFloat(75.4f)};
         returns = Functions.invoke(bFile, "testFloatRanges", args);
 
         actual = ((BInteger) returns[0]).intValue();
         expected = 2;
         Assert.assertEquals(actual, expected);
 
-        args = new BValue[] { new BFloat(321.45f) };
+        args = new BValue[]{new BFloat(321.45f)};
         returns = Functions.invoke(bFile, "testFloatRanges", args);
 
         actual = ((BInteger) returns[0]).intValue();
@@ -98,35 +98,35 @@ public class GreaterLessThanExprTest {
     /*
      * Negative tests
      */
-    
+
     @Test(description = "Test greater-than check for two different types",
-            expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "Incompatible types in binary expression: int vs boolean in " +
-            "incompatible-type-greater-than.bal:6")
+            expectedExceptions = {SemanticException.class},
+            expectedExceptionsMessageRegExp = "incompatible-type-greater-than.bal:6: incompatible " +
+                    "types in binary expression: int vs boolean")
     public void testIncompatibleGreaterThan() {
         ParserUtils.parseBalFile("lang/expressions/incompatible-type-greater-than.bal");
     }
-    
+
     @Test(description = "Test greater-than-equal check for two different types",
-            expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "Incompatible types in binary expression: int vs boolean in " +
-            "incompatible-type-greater-than-equal.bal:6")
+            expectedExceptions = {SemanticException.class},
+            expectedExceptionsMessageRegExp = "incompatible-type-greater-than-equal.bal:6: " +
+                    "incompatible types in binary expression: int vs boolean")
     public void testIncompatibleGreaterThanEqual() {
         ParserUtils.parseBalFile("lang/expressions/incompatible-type-greater-than-equal.bal");
     }
-    
+
     @Test(description = "Test less-than check for two different types",
-            expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "Incompatible types in binary expression: int vs boolean in " +
-            "incompatible-type-less-than.bal:6")
+            expectedExceptions = {SemanticException.class},
+            expectedExceptionsMessageRegExp = "incompatible-type-less-than.bal:6: incompatible " +
+                    "types in binary expression: int vs boolean")
     public void testIncompatibleLessThan() {
         ParserUtils.parseBalFile("lang/expressions/incompatible-type-less-than.bal");
     }
-    
+
     @Test(description = "Test less-than-equal check for two different types",
-            expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "Incompatible types in binary expression: int vs boolean in " +
-            "incompatible-type-less-than-equal.bal:6")
+            expectedExceptions = {SemanticException.class},
+            expectedExceptionsMessageRegExp = "incompatible-type-less-than-equal.bal:6: incompatible " +
+                    "types in binary expression: int vs boolean")
     public void testIncompatibleLessThanEqual() {
         ParserUtils.parseBalFile("lang/expressions/incompatible-type-less-than-equal.bal");
     }

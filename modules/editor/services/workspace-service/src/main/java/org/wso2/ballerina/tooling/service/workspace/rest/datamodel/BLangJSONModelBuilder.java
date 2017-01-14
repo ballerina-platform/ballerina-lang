@@ -65,7 +65,7 @@ import org.wso2.ballerina.core.model.expressions.SubtractExpression;
 import org.wso2.ballerina.core.model.expressions.UnaryExpression;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.invokers.MainInvoker;
-import org.wso2.ballerina.core.model.invokers.ResourceInvocationExpr;
+import org.wso2.ballerina.core.model.expressions.ResourceInvocationExpr;
 import org.wso2.ballerina.core.model.statements.ActionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
@@ -76,7 +76,6 @@ import org.wso2.ballerina.core.model.statements.ReplyStmt;
 import org.wso2.ballerina.core.model.statements.ReturnStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
-import org.wso2.ballerina.core.model.types.BType;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -319,17 +318,17 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         JsonObject returnTypeObj = new JsonObject();
         returnTypeObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.RETURN_TYPE);
         JsonArray returnTypeArray = new JsonArray();
-        if (function.getReturnTypes() != null) {
-            for (BType type : function.getReturnTypes()) {
+        if (function.getReturnParameters() != null) {
+            for (Parameter parameter : function.getReturnParameters()) {
                 JsonObject typeObj = new JsonObject();
                 typeObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.RETURN_TYPE_NAME);
-                typeObj.addProperty(BLangJSONModelConstants.RETURN_TYPE_NAME, type.toString());
+                typeObj.addProperty(BLangJSONModelConstants.RETURN_TYPE_NAME, parameter.getType().toString());
                 returnTypeArray.add(typeObj);
             }
         }
         returnTypeObj.add(BLangJSONModelConstants.CHILDREN, returnTypeArray);
         tempJsonArrayRef.peek().add(returnTypeObj);
-        function.getFunctionBody().accept(this);
+        function.getCallableUnitBody().accept(this);
         jsonFunc.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
         tempJsonArrayRef.pop();
         tempJsonArrayRef.peek().add(jsonFunc);
@@ -623,10 +622,10 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         funcInvcObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
                 BLangJSONModelConstants.FUNCTION_INVOCATION_EXPRESSION);
         funcInvcObj.addProperty(BLangJSONModelConstants.FUNCTIONS_NAME,
-                funcIExpr.getFunctionName().toString());
+                funcIExpr.getCallableUnitName().toString());
         tempJsonArrayRef.push(new JsonArray());
-        if (funcIExpr.getExprs() != null) {
-            for (Expression expression : funcIExpr.getExprs()) {
+        if (funcIExpr.getArgExprs() != null) {
+            for (Expression expression : funcIExpr.getArgExprs()) {
                 expression.accept(this);
             }
         }
@@ -641,14 +640,14 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         actionInvcObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
                 BLangJSONModelConstants.ACTION_INVOCATION_EXPRESSION);
         actionInvcObj.addProperty(BLangJSONModelConstants.ACTION_NAME,
-                actionIExpr.getActionName().getName());
+                actionIExpr.getCallableUnitName().getName());
         actionInvcObj.addProperty(BLangJSONModelConstants.ACTION_PKG_NAME,
-                actionIExpr.getActionName().getPkgName());
+                actionIExpr.getCallableUnitName().getPkgName());
         actionInvcObj.addProperty(BLangJSONModelConstants.ACTION_CONNECTOR_NAME,
-                actionIExpr.getActionName().getConnectorName());
+                actionIExpr.getCallableUnitName().getConnectorName());
         tempJsonArrayRef.push(new JsonArray());
-        if (actionIExpr.getExprs() != null) {
-            for (Expression expression : actionIExpr.getExprs()) {
+        if (actionIExpr.getArgExprs() != null) {
+            for (Expression expression : actionIExpr.getArgExprs()) {
                 expression.accept(this);
             }
         }
