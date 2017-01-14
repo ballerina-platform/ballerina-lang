@@ -20,7 +20,7 @@ define(['jquery', 'lodash', 'backbone', 'log'], function ($, _, Backbone, log) {
     var File = Backbone.Model.extend(
         {
             defaults: {
-                path: '*',
+                path: 'temp',
                 name: 'untitled',
                 content: undefined,
                 isPersisted: false
