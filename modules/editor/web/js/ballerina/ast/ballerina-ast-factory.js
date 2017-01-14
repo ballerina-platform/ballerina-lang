@@ -26,14 +26,15 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
         './type-converter-definition', './type-definition', './type-element', './variable-declaration',
         './package-definition', './import-declaration', './resource-arg', './assignment', './assignment-statement', './function-invocation', './function-invocation-expression', './variable-reference-expression',
         './action-invocation-statement', './arithmetic-expression', './logical-expression', './action-invocation-expression',
-        './return-type', './type-name', './argument', './back-quote-expression', './basic-literal-expression', './left-operand-expression', './right-operand-expression', './instance-creation-expression', './then-body', './if-condition'],
+        './return-type', './type-name', './argument', './back-quote-expression', './basic-literal-expression', './left-operand-expression', './right-operand-expression', './instance-creation-expression', './then-body',
+        './if-condition', './equal-expression'],
     function (ballerinaAstRoot, serviceDefinition, functionDefinition, connectorDefinition, resourceDefinition,
               workerDeclaration, statement, conditionalStatement, connectorDeclaration, expression,
               ifElseStatement, ifStatement, elseStatement, elseIfStatement, tryCatchStatement, tryStatement, catchStatement, replyStatement,
               whileStatement, returnStatement, typeConverterDefinition, typeDefinition, typeElement, variableDeclaration,
               packageDefinition, importDeclaration, resourceArgument, assignment, assignmentStatement, functionInvocation, functionInvocationExpression, variableReferenceExpression,
               actionInvocationStatement, arithmeticExpression, logicalExpression, actionInvocationExpression, returnType,
-              typeName, argument, backQuoteExpression, basicLiteralExpression, leftOperandExpression, rightOperandExpression, instanceCreationExpression, thenBody, ifCondition) {
+              typeName, argument, backQuoteExpression, basicLiteralExpression, leftOperandExpression, rightOperandExpression, instanceCreationExpression, thenBody, ifCondition, equalExpression) {
 
 
         /**
@@ -418,6 +419,15 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
         };
 
         /**
+         * creates EqualExpression
+         * @param {Object} args - Arguments for creating a new instance creation.
+         * @returns {EqualExpression}
+         */
+        BallerinaASTFactory.createEqualExpression = function (args) {
+            return new equalExpression(args);
+        };
+
+        /**
          * instanceof check for BallerinaAstRoot
          * @param {Object} child
          * @returns {boolean}
@@ -762,6 +772,24 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
             return child instanceof ifCondition;
         };
 
+        /**
+         * instanceof check for equalExpression
+         * @param {ASTNode} child - The ast node.
+         * @returns {boolean} - true if same type, else false
+         */
+        BallerinaASTFactory.isEqualExpression = function (child) {
+            return child instanceof equalExpression;
+        };
+
+        /**
+         * instanceof check for functionInvocationExpression
+         * @param {ASTNode} child - The ast node.
+         * @returns {boolean} - true if same type, else false
+         */
+        BallerinaASTFactory.isFunctionInvocationExpression = function (child) {
+            return child instanceof functionInvocationExpression;
+        };
+
         BallerinaASTFactory.createFromJson = function (jsonNode) {
             var node;
             var nodeType = jsonNode.type;
@@ -817,7 +845,7 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
                         node = BallerinaASTFactory.createFunctionInvocationStatement();
                         break;
                     case 'function_invocation_expression':
-                        node = BallerinaASTFactory.createFunctionInvocationExpression();
+                        node = BallerinaASTFactory.createAssignment();
                         break;
                     case 'variable_reference_expression':
                         node = BallerinaASTFactory.createAssignment();
@@ -835,7 +863,7 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
                         node = BallerinaASTFactory.createWhileStatement();
                         break;
                     case 'basic_literal_expression' :
-                        node = BallerinaASTFactory.createBasicLiteralExpression();
+                        node = BallerinaASTFactory.createAssignment();
                         break;
                     case 'left_operand_expression':
                         node = BallerinaASTFactory.createLeftOperandExpression();
@@ -854,6 +882,9 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
                         break;
                     case 'if_condition':
                         node = BallerinaASTFactory.createIfCondition();
+                        break;
+                    case 'equal_expression':
+                        node = BallerinaASTFactory.createEqualExpression();
                         break;
                     default:
                         throw "Unknown node definition for " + jsonNode.type;
