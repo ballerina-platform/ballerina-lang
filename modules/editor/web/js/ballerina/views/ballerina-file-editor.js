@@ -46,7 +46,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 // not throwing an exception for now since we need to work without a backend.
             }
             this.backend = new Backend(_.get(args, 'viewOptions.backend', {}));
-            this.deserializer = new BallerinaASTDeserializer();
+            this.deserializer = BallerinaASTDeserializer;
             this.init();
         };
 
@@ -235,7 +235,6 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             var designViewBtn = $(this._container).find(_.get(this._viewOptions, 'controls.view_design_btn'));
             designViewBtn.click(function () {
                 var source = self._sourceView._editor.getValue();
-
                 var response = self.backend.parse(source);
                 //if there are errors display the error.
                 //@todo: proper error handling need to get the service specs
@@ -245,6 +244,9 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 }
                 //if no errors display the design.
                 //@todo
+                var root = self.deserializer.getASTModel(response);
+                self._model = root;
+                self.reDraw();
 
                 self.toolPalette.show();
                 sourceViewContainer.hide();
@@ -487,6 +489,10 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             }
             // this._viewOptions.container is the root div for tab content
             var container = $(this._container).find(_.get(this._viewOptions, 'design_view.container'));
+            //remove the old canves before creating a new one.
+            var canvas = container.find('div.canvas-container');
+            canvas.remove();
+
             this._$designViewContainer = container;
             var canvasContainer = $('<div></div>');
             canvasContainer.addClass(_.get(this._viewOptions, 'cssClass.canvas_container'));
