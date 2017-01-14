@@ -391,8 +391,9 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
 
         /**
          * creates InstanceCreationExpression
-         * @param {Object} args
-         * @returns {InstanceCreationExpression}
+         * @param {Object} args - Arguments for creating a new instance creation.
+         * @param {Object} args.typeName - Type of the new instance creation.
+         * @returns {InstanceCreationExpression} - New instance creation node.
          */
         BallerinaASTFactory.createInstanceCreationExpression = function (args) {
             return new instanceCreationExpression(args);
@@ -718,8 +719,8 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
 
         /**
          * instanceof check for InstanceCreationExpression
-         * @param child
-         * @returns {boolean}
+         * @param {ASTNode} child - The ast node.
+         * @returns {boolean} - True if node is an instance creation, else false.
          */
         BallerinaASTFactory.isInstanceCreationExpression = function (child) {
             return child instanceof instanceCreationExpression;

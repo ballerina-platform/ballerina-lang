@@ -20,7 +20,9 @@ define(['lodash', './expression'], function (_, Expression) {
     /**
      * Constructor for FunctionInvocationExpression
      * @param {Object} args - Arguments to create the FunctionInvocationExpression
+     * @param {Object} args.typeName - Type of the instance creation.
      * @constructor
+     * @augments Expression
      */
     var InstanceCreationExpression = function (args) {
         Expression.call(this, 'InstanceCreationExpression');
@@ -41,6 +43,7 @@ define(['lodash', './expression'], function (_, Expression) {
     /**
      * setting parameters from json
      * @param jsonNode
+     * @param {Object} [jsonNode.instance_type] - Instance Type Name
      */
     InstanceCreationExpression.prototype.initFromJson = function (jsonNode) {
         this.setTypeName(jsonNode.instance_type);
