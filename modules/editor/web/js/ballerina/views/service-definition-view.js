@@ -146,7 +146,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
             var divId = this._model.id;
             var currentContainer = $('#' + divId);
             this._container = currentContainer;
-
+            this.getBoundingBox().fromTopLeft(new Point(0, 0), currentContainer.width(), currentContainer.height());
             this.getModel().accept(this);
             var self = this;
 
