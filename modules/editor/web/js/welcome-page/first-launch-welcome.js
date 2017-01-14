@@ -137,7 +137,7 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
                     "parentContainer": "#innerSamples",
                     "firstItem": true,
                     "clickEventCallback": function () {
-                        command.dispatch("create-new-tab", echoSampleAST);
+                        command.dispatch("create-new-tab", {tabOptions:{astRoot:echoSampleAST}});
                         browserStorage.put("pref:passedFirstLaunch", true);
                     }
                 };
@@ -150,7 +150,7 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
                     "sampleName": "helloFunction.bal",
                     "parentContainer": "#innerSamples",
                     "clickEventCallback": function () {
-                        command.dispatch("create-new-tab", helloFunctionSampleAST);
+                        command.dispatch("create-new-tab", {tabOptions:{astRoot:helloFunctionSampleAST}});
                         browserStorage.put("pref:passedFirstLaunch", true);
                     }
                 };
@@ -163,7 +163,7 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
                     "sampleName": "passthrough.bal",
                     "parentContainer": "#innerSamples",
                     "clickEventCallback": function () {
-                        command.dispatch("create-new-tab", passthroughSampleAST);
+                        command.dispatch("create-new-tab", {tabOptions:{astRoot:passthroughSampleAST}});
                         browserStorage.put("pref:passedFirstLaunch", true);
                     }
                 };
@@ -176,7 +176,7 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
                     "sampleName": "routingServices.bal",
                     "parentContainer": "#innerSamples",
                     "clickEventCallback": function () {
-                        command.dispatch("create-new-tab", contentBasedRoutingSampleAST);
+                        command.dispatch("create-new-tab", {tabOptions:{astRoot:contentBasedRoutingSampleAST}});
                         browserStorage.put("pref:passedFirstLaunch", true);
                     }
                 };

@@ -27,6 +27,9 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             } else {
                 this._file = _.get(options, 'file');
             }
+            if (_.has(options, 'astRoot')) {
+                this._astRoot = _.get(options, 'astRoot');
+            }
         },
 
         getFile: function () {
@@ -42,8 +45,16 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
                 workspaceManager.getParsedTree(this._file, function(astRoot){
                     self.renderAST(astRoot);
                 })
+            } else if(!_.isNil(this._astRoot)) {
+                this.renderAST(this._astRoot);
+                var updatedContent = this.getBallerinaFileEditor().generateSource();
+                this._file.setContent(updatedContent);
+                this._file.save();
             } else {
                 this.renderAST(this.createEmptyBallerinaRoot());
+                var updatedContent = this.getBallerinaFileEditor().generateSource();
+                this._file.setContent(updatedContent);
+                this._file.save();
             }
         },
 
