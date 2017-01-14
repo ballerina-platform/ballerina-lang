@@ -44,7 +44,9 @@
                 <exclude>**/*.ipr</exclude>
                 <exclude>**/*.iwr</exclude>
                 <exclude>**/*.eclipse</exclude>
-                <exclude>bin/*.sh</exclude>
+                <exclude>bin/ballerina</exclude>
+                <exclude>bin/ballerinaserver</exclude>
+                <exclude>bin/editor</exclude>
                 <exclude>bin/*.bat</exclude>
                 <exclude>bin/*.txt</exclude>
             </excludes>
@@ -78,7 +80,9 @@
             <directory>carbon-home/bin</directory>
             <outputDirectory>bin</outputDirectory>
             <includes>
-                <include>**/*.sh</include>
+                <include>**/ballerina</include>
+                <include>**/ballerinaserver</include>
+                <include>**/editor</include>
             </includes>
             <fileMode>755</fileMode>
         </fileSet>
