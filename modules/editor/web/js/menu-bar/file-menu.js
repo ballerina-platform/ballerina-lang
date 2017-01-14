@@ -24,19 +24,37 @@ define(([],function (){
             {
                 id: "new",
                 label: "New",
-                action: "create-new-tab",
+                command: {
+                    id: "create-new-tab",
+                    shortcuts: {
+                        mac: "command+ctrl+n",
+                        other: "ctrl+alt+n"
+                    }
+                },
                 disabled: false
             },
             {
                 id: "open",
                 label: "Open",
-                action: "open-file-open-dialog",
+                command: {
+                    id: "open-file-open-dialog",
+                    shortcuts: {
+                        mac: "command+o",
+                        other: "ctrl+o"
+                    }
+                },
                 disabled: false
             },
             {
                 id: "save",
                 label: "Save",
-                action: "open-file-save-dialog",
+                command: {
+                    id: "open-file-save-dialog",
+                    shortcuts: {
+                        mac: "command+s",
+                        other: "ctrl+s"
+                    }
+                },
                 disabled: false
             }
 

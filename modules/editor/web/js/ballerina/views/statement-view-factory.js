@@ -64,13 +64,21 @@ define(['lodash', 'log', 'event_channel', '../ast/module', './try-catch-statemen
                 // TODO : This logic needs to be refactored.
                 var children  = _.get(statement, "children");
                 var assignmenStatement;
-                _.each(children, function (child) {
-                    if(AST.BallerinaASTFactory.isActionInvocationExpression(child)){
-                        _.set(args, 'model', child);
-                        assignmenStatement = new ActionInvocationStatementView(args);
-                    }else if(AST.BallerinaASTFactory.isAssignment(child)){
-                        _.set(args, 'model', child);
-                        assignmenStatement = new AssignmentStatementView(args);
+                _.each(children, function (statementChild) {
+                    if(AST.BallerinaASTFactory.isRightOperandExpression(statementChild)) {
+                        var operands  = _.get(statementChild, "children");
+                        _.each(operands, function (child) {
+                            if (AST.BallerinaASTFactory.isActionInvocationExpression(child)) {
+                                _.set(args, 'model', child);
+                                assignmenStatement = new ActionInvocationStatementView(args);
+                            } else if (AST.BallerinaASTFactory.isAssignment(child)) {
+                                _.set(args, 'model', child);
+                                assignmenStatement = new AssignmentStatementView(args);
+                            } else if (AST.BallerinaASTFactory.isVariableReferenceExpression(child)) {
+                                _.set(args, 'model', child);
+                                assignmenStatement = new AssignmentStatementView(args);
+                            }
+                        });
                     }
                 });
                 return assignmenStatement;

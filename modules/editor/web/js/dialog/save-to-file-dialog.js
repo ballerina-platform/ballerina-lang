@@ -177,7 +177,12 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
                         success: function (data, textStatus, xhr) {
                             if (xhr.status == 200) {
                                 activeTab.setTitle(configName.val());
-                                activeTab.getFile().setPath(location.val()).setName(configName.val());
+                                activeTab.getFile()
+                                            .setPath(location.val())
+                                            .setName(configName.val())
+                                            .setContent(config)
+                                            .setPersisted(true)
+                                            .save();
                                 app.breadcrumbController.setPath(location.val(), configName.val());
                                 alertSuccess();
                             } else {

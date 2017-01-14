@@ -30,13 +30,13 @@ import java.util.List;
  * @since 1.0.0
  */
 public class ReturnStmt extends AbstractStatement {
-    private Expression expr;
+//    private Expression expr;
 
     private Expression[] exprs;
 
-    public ReturnStmt(Expression expr) {
-        this.expr = expr;
-    }
+//    public ReturnStmt(Expression expr) {
+//        this.expr = expr;
+//    }
 
     private ReturnStmt(Expression[] exprs) {
         this.exprs = exprs;
@@ -71,9 +71,9 @@ public class ReturnStmt extends AbstractStatement {
             this.expressionList = expressionList;
         }
 
-        public void addExpression(Expression expr) {
-            expressionList.add(expr);
-        }
+//        public void addExpression(Expression expr) {
+//            expressionList.add(expr);
+//        }
 
         public ReturnStmt build() {
             return new ReturnStmt(expressionList.toArray(new Expression[expressionList.size()]));
