@@ -82,6 +82,11 @@ define(['log', 'jquery', 'lodash', './tab-list', './file-tab',  'workspace'],
                 });
                 this.getBrowserStorage().destroy(tab.getFile());
                 this.getBrowserStorage().put('workingFileSet', this._workingFileSet);
+                // open welcome page upon last tab close
+                if(_.isEmpty(this.getTabList())){
+                    var commandManager = _.get(this, 'options.application.commandManager');
+                    commandManager.dispatch("go-to-welcome-page");
+                }
             }
         },
         newTab: function(opts) {
