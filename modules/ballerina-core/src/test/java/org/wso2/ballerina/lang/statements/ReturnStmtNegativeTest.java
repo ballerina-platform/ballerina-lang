@@ -21,13 +21,11 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.exception.SemanticException;
 import org.wso2.ballerina.core.interpreter.SymScope;
-import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.runtime.internal.BuiltInNativeConstructLoader;
 import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 import org.wso2.ballerina.core.utils.ParserUtils;
 
 public class ReturnStmtNegativeTest {
-    private BallerinaFile bFile;
     private SymScope globalSymScope;
 
     @BeforeClass
@@ -37,24 +35,70 @@ public class ReturnStmtNegativeTest {
     }
 
     @Test(description = "Test return statement in resource",
-            expectedExceptions = {SemanticException.class },
+            expectedExceptions = {SemanticException.class},
             expectedExceptionsMessageRegExp = "return-in-resource.bal:14: return statement cannot be used " +
                     "in a resource definition")
     public void testReturnInResource() {
         ParserUtils.parseBalFile("lang/statements/returnstmt/return-in-resource.bal", globalSymScope);
     }
 
-    @Test(description = "Test invoking an undefined function",
-            expectedExceptions = {SemanticException.class },
+    @Test(description = "Test not enough arguments to return",
+            expectedExceptions = {SemanticException.class},
             expectedExceptionsMessageRegExp = "not-enough-args-to-return-1.bal:2: not enough arguments to return")
-    public void testNotEnoughArgsToReturn() {
+    public void testNotEnoughArgsToReturn1() {
         ParserUtils.parseBalFile("lang/statements/returnstmt/not-enough-args-to-return-1.bal", globalSymScope);
     }
 
-    public static void n(String[] args) {
-        ReturnStmtNegativeTest test = new ReturnStmtNegativeTest();
-        test.setup();
-//        test.testReturnInResource();
-        test.testNotEnoughArgsToReturn();
+    @Test(description = "Test not enough arguments to return",
+            expectedExceptions = {SemanticException.class},
+            expectedExceptionsMessageRegExp = "not-enough-args-to-return-2.bal:2: not enough arguments to return")
+    public void testNotEnoughArgsToReturn2() {
+        ParserUtils.parseBalFile("lang/statements/returnstmt/not-enough-args-to-return-2.bal", globalSymScope);
     }
+
+    @Test(description = "Test not enough arguments to return",
+            expectedExceptions = {SemanticException.class},
+            expectedExceptionsMessageRegExp = "not-enough-args-to-return-3.bal:2: not enough arguments to return")
+    public void testNotEnoughArgsToReturn3() {
+        ParserUtils.parseBalFile("lang/statements/returnstmt/not-enough-args-to-return-3.bal", globalSymScope);
+    }
+
+    @Test(description = "Test too many arguments to return",
+            expectedExceptions = {SemanticException.class},
+            expectedExceptionsMessageRegExp = "too-many-args-to-return-1.bal:2: too many arguments to return")
+    public void testTooManyArgsToReturn1() {
+        ParserUtils.parseBalFile("lang/statements/returnstmt/too-many-args-to-return-1.bal", globalSymScope);
+    }
+
+    @Test(description = "Test too many arguments to return",
+            expectedExceptions = {SemanticException.class},
+            expectedExceptionsMessageRegExp = "too-many-args-to-return-2.bal:2: too many arguments to return")
+    public void testTooManyArgsToReturn2() {
+        ParserUtils.parseBalFile("lang/statements/returnstmt/too-many-args-to-return-2.bal", globalSymScope);
+    }
+
+    @Test(description = "Test type mismatch",
+            expectedExceptions = {SemanticException.class},
+            expectedExceptionsMessageRegExp = "return-type-mismatch-1.bal:2: cannot use string as type " +
+                    "int in return statement")
+    public void testInputTypeMismatch1() {
+        ParserUtils.parseBalFile("lang/statements/returnstmt/return-type-mismatch-1.bal", globalSymScope);
+    }
+
+    @Test(description = "Test type mismatch",
+            expectedExceptions = {SemanticException.class},
+            expectedExceptionsMessageRegExp = "return-type-mismatch-2.bal:2: cannot use int as type " +
+                    "string in return statement")
+    public void testInputTypeMismatch2() {
+        ParserUtils.parseBalFile("lang/statements/returnstmt/return-type-mismatch-2.bal", globalSymScope);
+    }
+
+//    @Test(description = "Test type mismatch",
+//            expectedExceptions = {SemanticException.class},
+//            expectedExceptionsMessageRegExp = "multi-value-in-single-context.bal:2: multiple-value " +
+//                    "split() in single-value context")
+//    public void testMultiValueInSingleContext() {
+//        ParserUtils.parseBalFile("lang/statements/returnstmt/multi-value-in-single-context.bal",
+//                globalSymScope);
+//    }
 }
