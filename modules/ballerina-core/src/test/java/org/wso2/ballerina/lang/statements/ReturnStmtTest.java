@@ -119,7 +119,7 @@ public class ReturnStmtTest {
         BValue[] returns = Functions.invoke(bFile, "testSplitString", args);
 
         Assert.assertEquals(returns.length, 3);
-        Assert.assertEquals("section1", ((BString)  returns[0]).stringValue());
+        Assert.assertEquals("section1", ((BString) returns[0]).stringValue());
         Assert.assertEquals("section2", ((BString) returns[1]).stringValue());
         Assert.assertEquals("section3", ((BString) returns[2]).stringValue());
     }
@@ -130,7 +130,7 @@ public class ReturnStmtTest {
         BValue[] returns = Functions.invoke(bFile, "testToUpperUtil", args);
 
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals("NAME1", ((BString)  returns[0]).stringValue());
+        Assert.assertEquals("NAME1", ((BString) returns[0]).stringValue());
     }
 
     @Test(description = "Test one parameter and one return value")
@@ -139,7 +139,7 @@ public class ReturnStmtTest {
         BValue[] returns = Functions.invoke(bFile, "testToUpperUtilDouble", args);
 
         Assert.assertEquals(returns.length, 2);
-        Assert.assertEquals("NAME1", ((BString)  returns[0]).stringValue());
+        Assert.assertEquals("NAME1", ((BString) returns[0]).stringValue());
         Assert.assertEquals("NAME2", ((BString) returns[1]).stringValue());
     }
 
@@ -149,7 +149,7 @@ public class ReturnStmtTest {
         BValue[] returns = Functions.invoke(bFile, "testToUpper", args);
 
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals("SECTION", ((BString)  returns[0]).stringValue());
+        Assert.assertEquals("SECTION", ((BString) returns[0]).stringValue());
     }
 
     @Test(description = "Test one parameter and one return value")
@@ -158,7 +158,7 @@ public class ReturnStmtTest {
         BValue[] returns = Functions.invoke(bFile, "testToUpper1", args);
 
         Assert.assertEquals(returns.length, 2);
-        Assert.assertEquals("NAME1", ((BString)  returns[0]).stringValue());
+        Assert.assertEquals("NAME1", ((BString) returns[0]).stringValue());
         Assert.assertEquals("name2", ((BString) returns[1]).stringValue());
     }
 
@@ -168,7 +168,7 @@ public class ReturnStmtTest {
         BValue[] returns = Functions.invoke(bFile, "testToUpper2", args);
 
         Assert.assertEquals(returns.length, 2);
-        Assert.assertEquals("name1", ((BString)  returns[0]).stringValue());
+        Assert.assertEquals("name1", ((BString) returns[0]).stringValue());
         Assert.assertEquals("NAME2", ((BString) returns[1]).stringValue());
     }
 
@@ -178,7 +178,7 @@ public class ReturnStmtTest {
         BValue[] returns = Functions.invoke(bFile, "testToUpper3", args);
 
         Assert.assertEquals(returns.length, 2);
-        Assert.assertEquals("NAME1", ((BString)  returns[0]).stringValue());
+        Assert.assertEquals("NAME1", ((BString) returns[0]).stringValue());
         Assert.assertEquals("NAME2", ((BString) returns[1]).stringValue());
     }
 
@@ -188,7 +188,24 @@ public class ReturnStmtTest {
         BValue[] returns = Functions.invoke(bFile, "testToUpper4", args);
 
         Assert.assertEquals(returns.length, 2);
-        Assert.assertEquals("NAME1", ((BString)  returns[0]).stringValue());
+        Assert.assertEquals("NAME1", ((BString) returns[0]).stringValue());
         Assert.assertEquals("NAME2", ((BString) returns[1]).stringValue());
+    }
+
+    @Test(description = "Test return with three return arguments")
+    public void testReturnWithThreeArguments() {
+        BValue[] args = {};
+        BValue[] returns = Functions.invoke(bFile, "testReturnWithThreeArguments", args);
+
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertEquals(10, ((BInteger) returns[0]).intValue());
+        Assert.assertEquals("foo", ((BString) returns[1]).stringValue());
+        Assert.assertEquals(4, ((BInteger) returns[2]).intValue());
+    }
+
+    public static void main(String[] args) {
+        ReturnStmtTest test = new ReturnStmtTest();
+        test.setup();
+        test.testReturnWithThreeArguments();
     }
 }
