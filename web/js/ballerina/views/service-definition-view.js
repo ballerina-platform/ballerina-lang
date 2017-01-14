@@ -163,6 +163,9 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
             this._model.on('child-added', function (child) {
                 self.visit(child);
                 self._model.trigger("child-visited", child);
+
+                // Show/Hide scrolls.
+                self._showHideScrolls(self._container, self.getChildContainer().node().ownerSVGElement);
             });
 
             var variableButton = VariablesView.createVariableButton(this.getChildContainer().node(), 14, 10);
@@ -176,7 +179,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
                         x: parseInt(this.getChildContainer().attr("x")) + 17,
                         y: parseInt(this.getChildContainer().attr("y")) + 6
                     },
-                    width: parseInt(this.getChildContainer().node().parentElement.getBoundingClientRect().width) - 36
+                    width: $(this.getChildContainer().node().ownerSVGElement.parentElement).width() - (2 * $(variableButton).width())
                 }
             };
 
@@ -203,7 +206,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
                 paneAppendElement: this.getChildContainer().node().ownerSVGElement.parentElement,
                 viewOptions: {
                     position: {
-                        left: parseInt(this.getChildContainer().node().parentElement.getBoundingClientRect().width),
+                        left: parseInt($(this.getChildContainer().node().ownerSVGElement.parentElement).width()),
                         top: 0
                     }
                 }
@@ -211,6 +214,49 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
 
             this.setServiceContainerWidth(this._container.width());
             AnnotationView.createAnnotationPane(annotationProperties);
+        };
+
+        /**
+         * Shows and hide the custom scrolls depending on the amount scrolled.
+         * @param {Element} container - The container of the SVG. i.e the parent of the SVG.
+         * @param {Element} svgElement - The SVG element.
+         */
+        ServiceDefinitionView.prototype._showHideScrolls = function (container, svgElement) {
+            // Creating scroll panes.
+            var leftScroll = $(this.getChildContainer().node().ownerSVGElement.parentElement)
+                .find(".service-left-scroll").get(0);
+            var rightScroll = $(this.getChildContainer().node().ownerSVGElement.parentElement)
+                .find(".service-right-scroll").get(0);
+
+            // Setting heights of the scrolls.
+            $(leftScroll).height($(container).height());
+            $(rightScroll).height($(container).height());
+
+            // Positioning the arrows of the scrolls to the middle.
+            $(leftScroll).find("i").css("padding-top", ($(container).height() / 2) - (parseInt($(leftScroll).find("i").css("font-size"), 10) / 2) + "px");
+            $(rightScroll).find("i").css("padding-top", ($(container).height() / 2) - (parseInt($(rightScroll).find("i").css("font-size"), 10) / 2) + "px");
+
+            // Showing/Hiding scrolls.
+            if (Math.abs($(container).width() - $(svgElement).width()) < 5) {
+                // If the svg width is less than or equal to the container, then no need to show the arrows.
+                $(leftScroll).hide();
+                $(rightScroll).hide();
+            } else {
+                // If the svg width is greater than the width of the container...
+                if ($(container).scrollLeft() == 0) {
+                    // When scrollLeft is 0, means that it is already scrolled to the left corner.
+                    $(rightScroll).show();
+                    $(leftScroll).hide();
+                } else if (Math.abs(parseInt($(container).scrollLeft()) -
+                        (parseInt($(svgElement).width(), 10) -
+                        parseInt($(container).width(), 10))) < 5) {
+                    $(leftScroll).show();
+                    $(rightScroll).hide();
+                } else {
+                    $(leftScroll).show();
+                    $(rightScroll).show();
+                }
+            }
         };
 
         ServiceDefinitionView.prototype.canVisitServiceDefinition = function (serviceDefinition) {
