@@ -36,7 +36,8 @@ define(['lodash', './ballerina-ast-factory'], function (_, BallerinaASTFactory) 
 
         _.each(node, function (childNode) {
             var child = BallerinaASTFactory.createFromJson(childNode);
-            astRoot.addChild(child)
+            astRoot.addChild(child);
+            child.initFromJson(childNode);
         });
         return astRoot;
     }

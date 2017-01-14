@@ -30,7 +30,7 @@ import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.connectors.http.client.HTTPConnector;
 import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
-import org.wso2.ballerina.core.utils.Connectors;
+import org.wso2.ballerina.core.runtime.registry.PackageRegistry;
 import org.wso2.ballerina.core.utils.ParserUtils;
 import org.wso2.ballerina.lang.util.Functions;
 
@@ -41,7 +41,7 @@ public class ConnectorActionTest {
     @BeforeClass()
     public void setup() {
         symScope = GlobalScopeHolder.getInstance().getScope();
-        Connectors.addNativeConnector(symScope, new HTTPConnector());
+        PackageRegistry.getInstance().registerNativeConnector(new HTTPConnector());
         bFile = ParserUtils.parseBalFile("lang/connectors/connector-actions.bal");
     }
 
@@ -131,7 +131,6 @@ public class ConnectorActionTest {
             expectedExceptionsMessageRegExp = "Connector : ballerina.net.http:HTTPConnector not found in " +
             "undefined-action-stmt.bal:4")
     public void testUndefinedConnector() {
-        // symScope is not parsed, hence the connector is not available
         ParserUtils.parseBalFile("lang/statements/undefined-action-stmt.bal");
     }
     

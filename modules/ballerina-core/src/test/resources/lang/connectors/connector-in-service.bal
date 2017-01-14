@@ -8,6 +8,8 @@ const string myConst = "MyParam1";
 
 connector TestConnector(string param1, string param2, int param3) {
 
+    test:EchoConnector echoConnector = new test:EchoConnector(param1);
+
     boolean action2Invoked;
 
     action action1(TestConnector testConnector) (boolean){
@@ -25,6 +27,30 @@ connector TestConnector(string param1, string param2, int param3) {
     action action4(TestConnector testConnector, string actionParam) (string, string, int) {
         return actionParam, param2, param3;
     }
+
+    action action5(TestConnector testConnector, string actionParam) (string) {
+        string s;
+        s = test:EchoConnector.echoAction(echoConnector, actionParam);
+        return s;
+    }
+
+    action action6(TestConnector testConnector, string echoConnectorParam, string actionParam) (string) {
+        test:EchoConnector localEchoConnector = new test:EchoConnector(echoConnectorParam);
+        string s;
+
+        system:println("hello");
+        system:println(echoConnectorParam);
+        s =  test:EchoConnector.echoAction(localEchoConnector, actionParam);
+        return s;
+    }
+}
+
+connector EchoConnector(string greeting) {
+
+    action echoAction(EchoConnector echoConnector, string name) (string) {
+        return greeting + ", " + name;
+    }
+
 }
 
 @BasePath ("/invoke")
@@ -66,5 +92,31 @@ service actionInvokeService {
 
         test:TestConnector.action2(testConnector);
         reply m;
+    }
+
+    @GET
+    @Path ("/action5")
+    resource action5Resource (message m) {
+
+        string actionResponse;
+        message response;
+
+        actionResponse = test:TestConnector.action5(testConnector, myConst);
+        response = new message;
+        message:setStringPayload(response, actionResponse);
+        reply response;
+    }
+
+    @GET
+    @Path ("/action6")
+    resource action6Resource (message m) {
+
+        string actionResponse;
+        message response;
+
+        actionResponse = test:TestConnector.action6(testConnector, "Hello", "World");
+        response = new message;
+        message:setStringPayload(response, actionResponse);
+        reply response;
     }
 }

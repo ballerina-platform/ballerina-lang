@@ -52,7 +52,7 @@ import org.wso2.ballerina.core.model.expressions.AddExpression;
 import org.wso2.ballerina.core.model.expressions.AndExpression;
 import org.wso2.ballerina.core.model.expressions.ArrayInitExpr;
 import org.wso2.ballerina.core.model.expressions.ArrayMapAccessExpr;
-import org.wso2.ballerina.core.model.expressions.BackquoteExpr;
+import org.wso2.ballerina.core.model.expressions.BacktickExpr;
 import org.wso2.ballerina.core.model.expressions.BasicLiteral;
 import org.wso2.ballerina.core.model.expressions.BinaryArithmeticExpression;
 import org.wso2.ballerina.core.model.expressions.BinaryExpression;
@@ -91,10 +91,13 @@ import org.wso2.ballerina.core.model.types.BMapType;
 import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.model.util.LangModelUtils;
+import org.wso2.ballerina.core.model.values.BString;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * {@code SemanticAnalyzer} analyzes semantic properties of a Ballerina program
@@ -105,11 +108,11 @@ public class SemanticAnalyzer implements NodeVisitor {
     private int stackFrameOffset = -1;
     private int staticMemAddrOffset = -1;
     private int connectorMemAddrOffset = -1;
-
     private SymTable symbolTable;
-
     private String currentPkg;
     private CallableUnit currentCallableUnit = null;
+    private static final String patternString = "\\$\\{([a-zA-Z_][a-zA-Z0-9_]*)\\}";
+    private static final Pattern compiledPattern = Pattern.compile(patternString);
 
     // We need to keep a map of import packages.
     // This is useful when analyzing import functions, actions and types.
@@ -178,13 +181,6 @@ public class SemanticAnalyzer implements NodeVisitor {
         if (symbol != null && isSymbolInCurrentScope(symbol)) {
             throw new SemanticException("Duplicate constant name: " + symName.getName() + " in " +
                     constant.getLocation().getFileName() + ":" + constant.getLocation().getLine());
-        }
-
-        // Constants values must be basic literals
-        if (!(constant.getValueExpr() instanceof BasicLiteral)) {
-            throw new SemanticException("Invalid value in constant definition: constant name: " +
-                    constant.getName().getName() + " in " + constant.getLocation().getFileName() + ":" +
-                    constant.getLocation().getLine());
         }
 
         BasicLiteral basicLiteral = (BasicLiteral) constant.getValueExpr();
@@ -546,8 +542,8 @@ public class SemanticAnalyzer implements NodeVisitor {
             return;
         }
 
-        // If the rExpr typ is not set, then check whether it is a BackquoteExpr
-        if (rExpr.getType() == null && rExpr instanceof BackquoteExpr) {
+        // If the rExpr typ is not set, then check whether it is a BacktickExpr
+        if (rExpr.getType() == null && rExpr instanceof BacktickExpr) {
 
             // In this case, type of the lExpr should be either xml or json
             if (lExpr.getType() != BTypes.JSON_TYPE && lExpr.getType() != BTypes.XML_TYPE) {
@@ -1158,18 +1154,8 @@ public class SemanticAnalyzer implements NodeVisitor {
                     + mapInitExpr.getLocation().getFileName() + ":" + mapInitExpr.getLocation().getLine());
         }
 
-        argExprs[0].accept(this);
-        BType typeOfMap = ((KeyValueExpression) argExprs[0]).getValueExpression().getType();
-
-        for (int i = 1; i < argExprs.length; i++) {
+        for (int i = 0; i < argExprs.length; i++) {
             argExprs[i].accept(this);
-
-            Expression valueExpression = ((KeyValueExpression) argExprs[i]).getValueExpression();
-            if (valueExpression.getType() != typeOfMap) {
-                throw new SemanticException("Incompatible types used in map initializer: All arguments must have " +
-                        "the same type." + " in " + valueExpression.getLocation().getFileName() + ":" +
-                        valueExpression.getLocation().getLine());
-            }
         }
 
         // Type of this expression is map and internal data type cannot be identifier from declaration
@@ -1207,9 +1193,35 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     @Override
-    public void visit(BackquoteExpr backquoteExpr) {
+    public void visit(BacktickExpr backtickExpr) {
+        // Analyze the string and create relevant tokens
+        // First check the literals
+        String[] literals = backtickExpr.getTemplateStr().split(patternString);
+        // Split will always have at least one matching literal
+        int i = 0;
+        if (literals.length > i) {
+            BasicLiteral basicLiteral = new BasicLiteral(new BString(literals[i]));
+            visit(basicLiteral);
+            backtickExpr.addExpression(basicLiteral);
+            i++;
+        }
+        // Then get the variable references
+        Matcher m = compiledPattern.matcher(backtickExpr.getTemplateStr());
+
+        while (m.find()) {
+            VariableRefExpr variableRefExpr = new VariableRefExpr(new SymbolName(m.group(1)));
+            variableRefExpr.setLocation(backtickExpr.getLocation());
+            visit(variableRefExpr);
+            backtickExpr.addExpression(variableRefExpr);
+            if (literals.length > i) {
+                BasicLiteral basicLiteral = new BasicLiteral(new BString(literals[i]));
+                visit(basicLiteral);
+                backtickExpr.addExpression(basicLiteral);
+                i++;
+            }
+        }
         // TODO If the type is not set then just return
-        visitExpr(backquoteExpr);
+        visitExpr(backtickExpr);
     }
 
     @Override

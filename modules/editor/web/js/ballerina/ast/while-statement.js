@@ -45,5 +45,23 @@ define(['lodash', 'log', './conditional-statement'], function (_, log, Condition
         return this._condition;
     };
 
+    /**
+     * initialize from json
+     * @param jsonNode
+     */
+    WhileStatement.prototype.initFromJson = function (jsonNode) {
+        var self = this;
+        _.each(jsonNode.children, function (childNode) {
+            var child = self.getFactory().createFromJson(childNode);
+            if (self.getFactory().isExpression(child)) {
+                child.initFromJson(childNode);
+                this._condition = child.getExpression();
+            } else {
+                self.addChild(child);
+                child.initFromJson(childNode);
+            }
+        });
+    };
+
     return WhileStatement;
 });

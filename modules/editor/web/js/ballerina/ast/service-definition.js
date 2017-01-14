@@ -154,7 +154,8 @@ define(['lodash', './node'],
      */
     ServiceDefinition.prototype.canBeParentOf = function (node) {
         return this.BallerinaASTFactory.isResourceDefinition(node)
-            || this.BallerinaASTFactory.isVariableDeclaration(node);
+            || this.BallerinaASTFactory.isVariableDeclaration(node)
+            || this.BallerinaASTFactory.isConnectorDeclaration(node);
     };
 
     /**
@@ -172,7 +173,29 @@ define(['lodash', './node'],
         _.each(jsonNode.children, function (childNode) {
             var child = self.BallerinaASTFactory.createFromJson(childNode);
             self.addChild(child);
+            child.initFromJson(childNode);
         });
+    };
+
+    /**
+     * Override the super call to addChild
+     * @param {ASTNode} child
+     * @param {number} index
+     */
+    ServiceDefinition.prototype.addChild = function (child, index) {
+        var self = this;
+        var newIndex = index;
+        // Always the connector declarations should be the first children
+        if (this.BallerinaASTFactory.isConnectorDeclaration(child)) {
+            newIndex = _.findLastIndex(this.getChildren(), function (node) {
+                return self.BallerinaASTFactory.isConnectorDeclaration(node);
+            });
+        }
+        if (newIndex === -1) {
+            Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, 0);
+        } else {
+            Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, newIndex);
+        }
     };
 
     return ServiceDefinition;

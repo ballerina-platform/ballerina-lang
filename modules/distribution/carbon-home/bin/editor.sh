@@ -200,5 +200,6 @@ status=$START_EXIT_STATUS
     -Deditor.port=9091 \
     -DenableCloud=false \
     -Dworkspace.port=8289 \
+    -Dtransports.netty.conf=./resources/editor/services/netty-transports.yml \
     org.wso2.ballerina.tooling.service.workspace.app.WorkspaceServiceRunner
 

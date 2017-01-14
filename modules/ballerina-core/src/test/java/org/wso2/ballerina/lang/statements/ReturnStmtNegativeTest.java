@@ -51,7 +51,7 @@ public class ReturnStmtNegativeTest {
         ParserUtils.parseBalFile("lang/statements/returnstmt/not-enough-args-to-return-1.bal", globalSymScope);
     }
 
-    public static void main(String[] args) {
+    public static void n(String[] args) {
         ReturnStmtNegativeTest test = new ReturnStmtNegativeTest();
         test.setup();
 //        test.testReturnInResource();
