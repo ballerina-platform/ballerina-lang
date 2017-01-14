@@ -33,15 +33,45 @@ import org.wso2.ballerina.core.model.types.BType;
  */
 public interface CallableUnitInvocationExpr<T extends CallableUnit> extends ExecutableMultiReturnExpr {
 
+    /**
+     * Returns the symbol name of this callable unit invocation expression
+     *
+     * @return the symbol name
+     */
     SymbolName getCallableUnitName();
 
+    /**
+     * Returns an array of arguments of this callable unit invocation expression
+     *
+     * @return the array of arguments
+     */
     Expression[] getArgExprs();
 
+    /**
+     * Returns the {@code CallableUnit} linked with this callable unit invocation expression
+     *
+     * @return the linked {@code CallableUnit}
+     */
     T getCallableUnit();
 
+    /**
+     * Sets the {@code CallableUnit}
+     *
+     * @param callableUnit type of the callable unit
+     */
     void setCallableUnit(T callableUnit);
 
+    /**
+     * Returns an array of argument types of this callable unit invocation expression
+     *
+     * @return an array of argument types
+     */
     BType[] getTypes();
 
+    /**
+     * Sets an array of argument types
+     *
+     * @param types array of argument types
+     */
     void setTypes(BType[] types);
 }

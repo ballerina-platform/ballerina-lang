@@ -20,11 +20,11 @@ define(['./ballerina-ast-factory', './ballerina-ast-root', './conditional-statem
     './return-statement', './service-definition', './statement', './throw-statement', './type-definition', './type-converter-definition', './type-element',
     './variable-declaration', './while-statement', './worker-declaration', './package-definition',
         './import-declaration', './assignment', './assignment-statement', './function-invocation','./action-invocation-statement','./action-invocation-statement',
-        './arithmetic-expression', './logical-expression', './ballerina-ast-deserializer'],
+        './arithmetic-expression', './logical-expression', './ballerina-ast-deserializer', './function-invocation-expression'],
     function (BallerinaASTFactory, BallerinaASTRoot, ConditionalStatement, ConnectorDeclaration, ConnectorDefinition, ConstantDefinition,
                 Expression, FunctionDefinition, IfElseStatement, IfStatement, ElseStatement, ElseIfStatement, TryCatchStatement, TryStatement, CatchStatement, ASTNode, ReplyStatement, ResourceDefinition, ReturnStatement, ServiceDefinition,
                 Statement, ThrowStatement, TypeConverterDefinition, TypeDefinition, TypeElement, VariableDeclaration, WhileStatement, WorkerDeclaration, PackageDefinition, ImportDeclaration, Assignment, AssignmentStatement, FunctionInvocation,
-              ActionInvocationStatement, ArithmeticExpression, LogicalExpression, ActionInvocationExpression, BallerinaASTDeserializer) {
+              ActionInvocationStatement, ArithmeticExpression, LogicalExpression, ActionInvocationExpression, BallerinaASTDeserializer, FunctionInvocationExpression) {
 
         return  {
             BallerinaASTFactory: BallerinaASTFactory,
@@ -60,6 +60,7 @@ define(['./ballerina-ast-factory', './ballerina-ast-root', './conditional-statem
             Assignment: Assignment,
             AssignmentStatement: AssignmentStatement,
             FunctionInvocation: FunctionInvocation,
+            FunctionInvocationExpression: FunctionInvocationExpression,
             ArithmeticExpression: ArithmeticExpression,
             LogicalExpression: LogicalExpression,
             ActionInvocationStatement: ActionInvocationStatement,

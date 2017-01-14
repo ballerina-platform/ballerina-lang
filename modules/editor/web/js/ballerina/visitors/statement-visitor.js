@@ -144,6 +144,16 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
     StatementVisitor.prototype.endVisitFuncInvocationStatement = function (statement) {
     };
 
+    StatementVisitor.prototype.canVisitFuncInvocationExpression = function (expression) {
+        return false;
+    };
+    StatementVisitor.prototype.beginVisitFuncInvocationExpression = function (expression) {
+    };
+    StatementVisitor.prototype.visitFuncInvocationExpression= function (expression) {
+    };
+    StatementVisitor.prototype.endVisitFuncInvocationExpression = function (expression) {
+    };
+
     StatementVisitor.prototype.canVisitTryCatchStatement = function (statement) {
         return false;
     };
@@ -206,6 +216,8 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
             return this.visitReturnStatement(node);
         }  else if (node instanceof AST.FunctionInvocation) {
             return this.visitFuncInvocationStatement(node);
+        }  else if (node instanceof AST.FunctionInvocationExpression) {
+            return this.visitFuncInvocationExpression(node);
         }
     };
 
@@ -241,6 +253,8 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
             return this.canVisitReturnStatement(node);
         }  else if (node instanceof AST.FunctionInvocation) {
             return this.canVisitFuncInvocationStatement(node);
+        }  else if (node instanceof AST.FunctionInvocationExpression) {
+            return this.canVisitFuncInvocationExpression(node);
         }
     };
 
@@ -276,6 +290,8 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
             return this.beginVisitReturnStatement(node);
         }  else if (node instanceof AST.FunctionInvocation) {
             return this.beginVisitFuncInvocationStatement(node);
+        }  else if (node instanceof AST.FunctionInvocationExpression) {
+            return this.beginVisitFuncInvocationExpression(node);
         }
     };
 
@@ -311,6 +327,8 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
             return this.endVisitReturnStatement(node);
         }  else if (node instanceof AST.FunctionInvocation) {
             return this.endVisitFuncInvocationStatement(node);
+        }  else if (node instanceof AST.FunctionInvocationExpression) {
+            return this.endVisitFuncInvocationExpression(node);
         }
     };
 
