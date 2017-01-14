@@ -107,3 +107,18 @@ function testToUpper4(string s1, string s2) (string, string) {
     return testToUpperUtilDouble(s1, s2);
 }
 
+function testReturnWithThreeArguments() (int, string, int) {
+    int x;
+    x = 10;
+
+    return x, foo(1, 4), bar(5, "john", 6);
+}
+
+function foo(int a, int b) (string) {
+    return "foo";
+}
+
+function bar(int a, string s, int b) (int) {
+    return 4;
+}
+
