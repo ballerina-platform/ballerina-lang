@@ -45,8 +45,8 @@
 }
 
 .panel-icon, .service-icon, .connector-icon, .function-icon{
-    padding:10px;
-    background-color:black;
+    padding: 10px;
+    background-color: black;
 }
 
 .title-link {
@@ -86,7 +86,7 @@
 }
 
 .text-editor{
-    height: 90%;
+    height: 100%;
 }
 
 .view-source-btn{
