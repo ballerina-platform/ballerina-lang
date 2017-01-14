@@ -21,6 +21,7 @@ define(['lodash', './node'], function(_, ASTNode){
      * Constructor for ThenBody
      * @param {Object} args - Arguments to create the ThenBody
      * @constructor
+     * @augments ASTNode
      */
     var ThenBody = function (args) {
         ASTNode.call(this, 'ThenBody');
