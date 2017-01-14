@@ -75,6 +75,10 @@ public class Functions {
             throw new RuntimeException("Function '" + functionName + "' is not defined");
         }
 
+        if (function.getParameters().length != args.length) {
+            throw new RuntimeException("Size of input argument array is not equal to size of function parameters");
+        }
+
         // 2) Create variable reference expressions for each argument value;
         Expression[] exprs = new Expression[args.length];
         for (int i = 0; i < args.length; i++) {

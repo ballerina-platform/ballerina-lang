@@ -21,6 +21,7 @@ import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.SymbolName;
+import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.values.BValue;
 
 /**
@@ -33,6 +34,7 @@ public class FunctionInvocationExpr extends AbstractExpression implements Callab
     private SymbolName functionName;
     private Expression[] exprs;
     private Function calleeFunction;
+    private BType[] types = new BType[0];
 
     public FunctionInvocationExpr(SymbolName functionName, Expression[] exprs) {
         this.functionName = functionName;
@@ -57,6 +59,16 @@ public class FunctionInvocationExpr extends AbstractExpression implements Callab
     @Override
     public void setCallableUnit(Function callableUnit) {
         this.calleeFunction = callableUnit;
+    }
+
+    @Override
+    public BType[] getTypes() {
+        return this.types;
+    }
+
+    @Override
+    public void setTypes(BType[] types) {
+        this.types = types;
     }
 
     @Override

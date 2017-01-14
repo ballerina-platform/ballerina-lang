@@ -138,7 +138,7 @@ public class BalProgramExecutor {
                 bContext.getControlStack().pushFrame(currentStackFrame);
                 RuntimeEnvironment runtimeEnv = RuntimeEnvironment.get(balFile);
                 BLangExecutor executor = new BLangExecutor(runtimeEnv, bContext);
-                funcIExpr.execute(executor);
+                funcIExpr.executeMultiReturn(executor);
 
                 bContext.getControlStack().popFrame();
             }

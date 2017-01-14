@@ -17,6 +17,8 @@
 */
 package org.wso2.ballerina.core.model;
 
+import org.wso2.ballerina.core.model.statements.BlockStmt;
+
 /**
  * {@code CallableUnit} represents Functions, Action or Resources
  *
@@ -46,6 +48,8 @@ public interface CallableUnit {
     int getStackFrameSize();
 
     void setStackFrameSize(int frameSize);
+
+    BlockStmt getCallableUnitBody();
 
     /**
      * Get the location of this function in the ballerina source file.

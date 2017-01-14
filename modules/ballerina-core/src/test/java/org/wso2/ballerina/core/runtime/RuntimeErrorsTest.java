@@ -56,10 +56,10 @@ public class RuntimeErrorsTest {
     public void testStackTraceOnError() {
         Exception ex = null;
         Context bContext = new Context();
-        String expectedStackTrace = "\t at test.lang:getApple(runtime-errors.bal:23)\n" +
-                "\t at test.lang:getFruit2(runtime-errors.bal:19)\n" +
-                "\t at test.lang:getFruit1(runtime-errors.bal:15)\n" +
-                "\t at test.lang:testStackTrace(runtime-errors.bal:12)\n";
+        String expectedStackTrace = "\t at test.lang:getApple(runtime-errors.bal:26)\n" +
+                "\t at test.lang:getFruit2(runtime-errors.bal:22)\n" +
+                "\t at test.lang:getFruit1(runtime-errors.bal:18)\n" +
+                "\t at test.lang:testStackTrace(runtime-errors.bal:15)\n";
         try {
             Functions.invoke(bFile, "testStackTrace", bContext);
         } catch (BallerinaException e) {

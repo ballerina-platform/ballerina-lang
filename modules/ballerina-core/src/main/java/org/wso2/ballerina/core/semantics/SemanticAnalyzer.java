@@ -109,7 +109,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     private SymTable symbolTable;
 
     private String currentPkg;
-    private CallableUnit currentCallableUnit;
+    private CallableUnit currentCallableUnit = null;
 
     // We need to keep a map of import packages.
     // This is useful when analyzing import functions, actions and types.
@@ -261,6 +261,9 @@ public class SemanticAnalyzer implements NodeVisitor {
         openScope(SymScope.Name.RESOURCE);
         currentCallableUnit = resource;
 
+        // Check whether the return statement is missing. Ignore if the function does not return anything.
+        //checkForMissingReplyStmt(resource);
+
         for (Parameter parameter : resource.getParameters()) {
             stackFrameOffset++;
             visit(parameter);
@@ -294,6 +297,10 @@ public class SemanticAnalyzer implements NodeVisitor {
         openScope(SymScope.Name.FUNCTION);
         currentCallableUnit = function;
 
+        // Check whether the return statement is missing. Ignore if the function does not return anything.
+        // TODO Define proper error message codes
+        //checkForMissingReturnStmt(function, "missing return statement at end of function");
+
         for (Parameter parameter : function.getParameters()) {
             stackFrameOffset++;
             visit(parameter);
@@ -320,7 +327,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             visit(parameter);
         }
 
-        BlockStmt blockStmt = function.getFunctionBody();
+        BlockStmt blockStmt = function.getCallableUnitBody();
         blockStmt.accept(this);
 
         // Here we need to calculate size of the BValue array which will be created in the stack frame
@@ -344,6 +351,10 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Open a new symbol scope
         openScope(SymScope.Name.ACTION);
         currentCallableUnit = action;
+
+        // Check whether the return statement is missing. Ignore if the function does not return anything.
+        // TODO Define proper error message codes
+        //checkForMissingReturnStmt(action, "missing return statement at end of action");
 
         for (Parameter parameter : action.getParameters()) {
             stackFrameOffset++;
@@ -371,7 +382,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             visit(parameter);
         }
 
-        BlockStmt blockStmt = action.getActionBody();
+        BlockStmt blockStmt = action.getCallableUnitBody();
         blockStmt.accept(this);
 
         // Here we need to calculate size of the BValue array which will be created in the stack frame
@@ -406,8 +417,8 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         Symbol symbol = symbolTable.lookup(symName);
         if (symbol != null && isSymbolInCurrentScope(symbol)) {
-            throw new SemanticException("Duplicate parameter name: " + symName.getName() + " in " +
-                    parameter.getLocation().getFileName() + ":" + parameter.getLocation().getLine());
+            throw new SemanticException(parameter.getLocation().getFileName() + ":" +
+                    parameter.getLocation().getLine() + ": duplicate parameter '" + symName.getName() + "'");
         }
 
         MemoryLocation location;
@@ -646,26 +657,130 @@ public class SemanticAnalyzer implements NodeVisitor {
                     ": reply statement cannot be used in a action definition");
         }
 
+        if (replyStmt.getReplyExpr() instanceof ActionInvocationExpr) {
+            throw new SemanticException(currentCallableUnit.getLocation().getFileName() + ":" +
+                    currentCallableUnit.getLocation().getLine() +
+                    ": action invocation is not allowed in a reply statement");
+        }
+
         replyStmt.getReplyExpr().accept(this);
     }
 
     @Override
     public void visit(ReturnStmt returnStmt) {
         if (currentCallableUnit instanceof Resource) {
-            throw new SemanticException(currentCallableUnit.getLocation().getFileName() + ":" +
-                    currentCallableUnit.getLocation().getLine() +
+            throw new SemanticException(returnStmt.getLocation().getFileName() + ":" +
+                    returnStmt.getLocation().getLine() +
                     ": return statement cannot be used in a resource definition");
         }
 
-        Expression[] exprs = returnStmt.getExprs();
-        if (exprs.length == 0) {
+        // Expressions that this return statement contains.
+        Expression[] returnArgExprs = returnStmt.getExprs();
+
+        // Return parameters of the current function or actions
+        Parameter[] returnParamsOfCU = currentCallableUnit.getReturnParameters();
+
+        if (returnArgExprs.length == 0 && returnParamsOfCU.length == 0) {
+            // Return stmt has no expressions and function/action does not return anything. Just return.
             return;
         }
 
-//        if (exprs[0]
+        // Return stmt has no expressions, but function/action has returns. Check whether they are named returns
+        if (returnArgExprs.length == 0 && returnParamsOfCU[0].getName() != null) {
+            // This function/action has named return parameters.
+            Expression[] returnExprs = new Expression[returnParamsOfCU.length];
+            for (int i = 0; i < returnParamsOfCU.length; i++) {
+                VariableRefExpr variableRefExpr = new VariableRefExpr(returnParamsOfCU[i].getName());
+                visit(variableRefExpr);
+                returnExprs[i] = variableRefExpr;
+            }
+            returnStmt.setExprs(returnExprs);
+            return;
 
-        for (Expression expr : exprs) {
-            expr.accept(this);
+        } else if (returnArgExprs.length == 0) {
+            // This function/action does not contain named return parameters.
+            // Therefore this is a semantic error.
+            throw new SemanticException(returnStmt.getLocation().getFileName() + ":" +
+                    returnStmt.getLocation().getLine() +
+                    ": not enough arguments to return");
+        }
+
+        BType[] typesOfReturnExprs = new BType[returnArgExprs.length];
+        for (int i = 0; i < returnArgExprs.length; i++) {
+            Expression returnArgExpr = returnArgExprs[i];
+            returnArgExpr.accept(this);
+            typesOfReturnExprs[i] = returnArgExpr.getType();
+        }
+
+        // Now check whether this return contains a function invocation expression which returns multiple values
+        if (returnArgExprs.length == 1 && returnArgExprs[0] instanceof FunctionInvocationExpr) {
+            FunctionInvocationExpr funcIExpr = (FunctionInvocationExpr) returnArgExprs[0];
+            // Return types of the function invocations expression
+            BType[] funcIExprReturnTypes = funcIExpr.getTypes();
+            if (funcIExprReturnTypes.length > returnParamsOfCU.length) {
+                throw new SemanticException(returnStmt.getLocation().getFileName() + ":" +
+                        returnStmt.getLocation().getLine() +
+                        ": too many arguments to return");
+
+            } else if (funcIExprReturnTypes.length < returnParamsOfCU.length) {
+                throw new SemanticException(returnStmt.getLocation().getFileName() + ":" +
+                        returnStmt.getLocation().getLine() +
+                        ": not enough arguments to return");
+
+            }
+
+            for (int i = 0; i < returnParamsOfCU.length; i++) {
+                if (!funcIExprReturnTypes[i].equals(returnParamsOfCU[i].getType())) {
+                    throw new SemanticException(returnStmt.getLocation().getFileName() + ":" +
+                            returnStmt.getLocation().getLine() +
+                            ": cannot use " + funcIExprReturnTypes[i] + " as type " +
+                            returnParamsOfCU[i].getType() + " in return statement");
+                }
+            }
+
+            return;
+        }
+
+        if (typesOfReturnExprs.length > returnParamsOfCU.length) {
+            throw new SemanticException(returnStmt.getLocation().getFileName() + ":" +
+                    returnStmt.getLocation().getLine() +
+                    ": too many arguments to return");
+
+        } else if (typesOfReturnExprs.length < returnParamsOfCU.length) {
+            throw new SemanticException(returnStmt.getLocation().getFileName() + ":" +
+                    returnStmt.getLocation().getLine() +
+                    ": not enough arguments to return");
+
+        } else {
+            // Now we know that lengths for both arrays are equal.
+            // Let's check their types
+            for (int i = 0; i < returnParamsOfCU.length; i++) {
+                // Check for ActionInvocationExprs in return arguments
+                if (returnArgExprs.length > i && returnArgExprs[i] instanceof ActionInvocationExpr) {
+                    throw new SemanticException(returnStmt.getLocation().getFileName() + ":" +
+                            returnStmt.getLocation().getLine() +
+                            ": action invocation is not allowed in a return statement");
+                }
+
+                // Except for the first argument in return statement, fheck for FunctionInvocationExprs which return
+                // multiple values.
+                if (i > 0 && returnArgExprs.length > i && returnArgExprs[i] instanceof FunctionInvocationExpr) {
+                    FunctionInvocationExpr funcIExpr = ((FunctionInvocationExpr) returnArgExprs[i]);
+                    if (funcIExpr.getTypes().length > 1) {
+                        throw new SemanticException(returnStmt.getLocation().getFileName() + ":" +
+                                returnStmt.getLocation().getLine() +
+                                ": multiple-value " + funcIExpr.getCallableUnit().getFunctionName() +
+                                "() in single-value context");
+                    }
+                }
+
+                if (!typesOfReturnExprs[i].equals(returnParamsOfCU[i].getType())) {
+                    throw new SemanticException(returnStmt.getLocation().getFileName() + ":" +
+                            returnStmt.getLocation().getLine() +
+                            ": cannot use " + typesOfReturnExprs[i] + " as type " +
+                            returnParamsOfCU[i].getType() + " in return statement");
+                }
+            }
         }
     }
 
@@ -688,8 +803,6 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(FunctionInvocationExpr funcIExpr) {
-        visitExpr(funcIExpr);
-
         Expression[] exprs = funcIExpr.getArgExprs();
         for (Expression expr : exprs) {
             expr.accept(this);
@@ -697,33 +810,18 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         linkFunction(funcIExpr);
 
-        // Can we do this bit in the linker
-//        SymbolName symbolName = funcIExpr.getFunctionName();
-//        String pkgPath = getPackagePath(symbolName);
-//
-//        BType[] paramTypes = new BType[exprs.length];
-//        for (int i = 0; i < exprs.length; i++) {
-//            paramTypes[i] = exprs[i].getType();
-//        }
-//
-//        symbolName = LangModelUtils.getSymNameWithParams(symbolName.getName(), pkgPath, paramTypes);
-
-
-//        funcIExpr.setFunctionName(symbolName);
-
-//        bFile.addFuncInvocationExpr(funcIExpr);
-
-        // TODO store the types of each func argument expression
-        // Implement semantic analysis for function invocations
-
-        // Identify the package of the function to be invoked.
+        //Find the return types of this function invocation expression.
+        Parameter[] returnParams = funcIExpr.getCallableUnit().getReturnParameters();
+        BType[] returnTypes = new BType[returnParams.length];
+        for (int i = 0; i < returnParams.length; i++) {
+            returnTypes[i] = returnParams[i].getType();
+        }
+        funcIExpr.setTypes(returnTypes);
     }
 
     // TODO Duplicate code. fix me
     @Override
     public void visit(ActionInvocationExpr actionIExpr) {
-        visitExpr(actionIExpr);
-
         Expression[] exprs = actionIExpr.getArgExprs();
         for (Expression expr : exprs) {
             expr.accept(this);
@@ -731,26 +829,13 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         linkAction(actionIExpr);
 
-        // TODO Check whether first argument is of type Connector (with connector name). e.g. HttpConnector
-
-//        // Can we do this bit in the linker
-//        SymbolName symName = actionIExpr.getActionName();
-//        if (symName.getConnectorName() == null) {
-//            throw new SemanticException("Connector type is not associated with the action invocation");
-//        }
-//
-//        String pkgPath = getPackagePath(symName);
-//
-//        BType[] paramTypes = new BType[exprs.length];
-//        for (int i = 0; i < exprs.length; i++) {
-//            paramTypes[i] = exprs[i].getType();
-//        }
-//
-//        symName = LangModelUtils.getActionSymName(symName.getName(), symName.getConnectorName(),
-//                pkgPath, paramTypes);
-//        actionIExpr.setActionName(symName);
-//
-//        bFile.addActionIExpr(actionIExpr);
+        //Find the return types of this function invocation expression.
+        Parameter[] returnParams = actionIExpr.getCallableUnit().getReturnParameters();
+        BType[] returnTypes = new BType[returnParams.length];
+        for (int i = 0; i < returnParams.length; i++) {
+            returnTypes[i] = returnParams[i].getType();
+        }
+        actionIExpr.setTypes(returnTypes);
     }
 
     @Override
@@ -1206,8 +1291,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         function.setSymbolName(symbolName);
 
         if (symbolTable.lookup(symbolName) != null) {
-            throw new SemanticException("Duplicate function definition: " + function.getFunctionName() + " in "
-                    + function.getLocation().getFileName() + ":" + function.getLocation().getLine());
+            throw new SemanticException(function.getLocation().getFileName() + ":" + function.getLocation().getLine() +
+                    ": duplicate function '" + function.getFunctionName() + "'");
         }
 
         Symbol symbol = new Symbol(function);
@@ -1263,9 +1348,9 @@ public class SemanticAnalyzer implements NodeVisitor {
         Expression lExpr = binaryExpr.getLExpr();
 
         if (lExpr.getType() != rExpr.getType()) {
-            throw new SemanticException("Incompatible types in binary expression: " + lExpr.getType()
-                    + " vs " + rExpr.getType() + " in " + binaryExpr.getLocation().getFileName() + ":"
-                    + binaryExpr.getLocation().getLine());
+            throw new SemanticException(binaryExpr.getLocation().getFileName() + ":" +
+                    binaryExpr.getLocation().getLine() +
+                    ": incompatible types in binary expression: " + lExpr.getType() + " vs " + rExpr.getType());
         }
 
         return lExpr.getType();
@@ -1322,12 +1407,36 @@ public class SemanticAnalyzer implements NodeVisitor {
         Symbol symbol = symbolTable.lookup(symName);
 
         if (symbol == null) {
-            throw new SemanticException("Undeclared variable '" + symName.getName() + "' in " +
-                    sourceLocation.getFileName() + ":" + sourceLocation.getLine());
+            throw new SemanticException(sourceLocation.getFileName() + ":" + sourceLocation.getLine() +
+                    ": undeclared variable '" + symName.getName() + "'");
         }
 
         return symbol;
     }
+
+//    private void checkForMissingReturnStmt(CallableUnit callableUnit, String errorMsg) {
+//        Statement[] stmt = callableUnit.getCallableUnitBody().getStatements();
+//        int lastStmtIndex = stmt.length - 1;
+//        Statement lastStmt = stmt[lastStmtIndex];
+//        if (callableUnit.getReturnParameters().length > 0 &&
+//                !(lastStmt instanceof ReturnStmt)) {
+//            throw new SemanticException(currentCallableUnit.getLocation().getFileName() + ":" +
+//                    currentCallableUnit.getLocation().getLine() +
+//                    ": " + errorMsg);
+//        }
+//    }
+//
+//    private void checkForMissingReplyStmt(Resource resource) {
+//        Statement[] stmt = resource.getCallableUnitBody().getStatements();
+//        int lastStmtIndex = stmt.length - 1;
+//        Statement lastStmt = stmt[lastStmtIndex];
+//        if (resource.getReturnParameters().length > 0 &&
+//                !(lastStmt instanceof ReplyStmt)) {
+//            throw new SemanticException(currentCallableUnit.getLocation().getFileName() + ":" +
+//                    currentCallableUnit.getLocation().getLine() +
+//                    ": missing reply statement at end of resource");
+//        }
+//    }
 
     private void linkFunction(FunctionInvocationExpr funcIExpr) {
 
@@ -1345,8 +1454,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         SymbolName symbolName = LangModelUtils.getSymNameWithParams(funcName.getName(), pkgPath, paramTypes);
         Symbol symbol = symbolTable.lookup(symbolName);
         if (symbol == null) {
-            throw new LinkerException("Undefined function '" + funcIExpr.getCallableUnitName().getName() + "' in "
-                    + funcIExpr.getLocation().getFileName() + ":" + funcIExpr.getLocation().getLine());
+            throw new LinkerException(funcIExpr.getLocation().getFileName() + ":" + funcIExpr.getLocation().getLine() +
+                    ": undefined function '" + funcIExpr.getCallableUnitName().getName() + "'");
         }
 
         // Package name null means the function is defined in the same bal file. 

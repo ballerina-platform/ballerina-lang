@@ -118,6 +118,11 @@ public class BallerinaAction implements Action, Node {
         this.stackFrameSize = stackFrameSize;
     }
 
+    @Override
+    public BlockStmt getCallableUnitBody() {
+        return actionBody;
+    }
+
     public VariableDcl[] getVariableDcls() {
         return variableDcls;
     }
@@ -129,14 +134,6 @@ public class BallerinaAction implements Action, Node {
 
     public ConnectorDcl[] getConnectorDcls() {
         return connectorDcls;
-    }
-
-    public BlockStmt getActionBody() {
-        return actionBody;
-    }
-
-    public void setActionBody(BlockStmt actionBody) {
-        this.actionBody = actionBody;
     }
 
     /**

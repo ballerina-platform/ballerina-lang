@@ -20,6 +20,7 @@ package org.wso2.ballerina.core.model.expressions;
 import org.wso2.ballerina.core.model.CallableUnit;
 import org.wso2.ballerina.core.model.ExecutableMultiReturnExpr;
 import org.wso2.ballerina.core.model.SymbolName;
+import org.wso2.ballerina.core.model.types.BType;
 
 /**
  * {@code CallableUnitInvocationExpr} represent function, action and resource invocation expressions
@@ -39,4 +40,8 @@ public interface CallableUnitInvocationExpr<T extends CallableUnit> extends Exec
     T getCallableUnit();
 
     void setCallableUnit(T callableUnit);
+
+    BType[] getTypes();
+
+    void setTypes(BType[] types);
 }

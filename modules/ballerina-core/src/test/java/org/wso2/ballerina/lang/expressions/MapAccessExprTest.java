@@ -50,6 +50,11 @@ public class MapAccessExprTest {
         bFile = ParserUtils.parseBalFile("lang/expressions/map-access-expr.bal", symScope);
     }
 
+    public static void main(String[] args) {
+        MapAccessExprTest test = new MapAccessExprTest();
+        test.setup();
+    }
+
     @Test(description = "Test map access expression")
     public void testMapAccessExpr() {
         BValue[] args = {new BInteger(100), new BInteger(5)};

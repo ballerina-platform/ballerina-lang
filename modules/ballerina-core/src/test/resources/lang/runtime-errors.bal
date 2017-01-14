@@ -4,9 +4,12 @@ import ballerina.lang.json;
 import ballerina.net.http;
 
 function arrayIndexOutOfBoundTest() {
+    string name;
     string[] animals;
+
     animals = ["Lion", "Cat"];
-    return animals[5];
+    name = animals[5];
+    return;
 }
 
 function testStackTrace() {
@@ -15,19 +18,19 @@ function testStackTrace() {
   apple = getFruit1(fruits);
 }
 
-function getFruit1(string[] fruits) {
+function getFruit1(string[] fruits) (string) {
   return getFruit2(fruits);
 }
 
-function getFruit2(string[] fruits) {
+function getFruit2(string[] fruits) (string) {
   return getApple(fruits);
 }
 
-function getApple(string[] fruits) {
+function getApple(string[] fruits) (string) {
   return fruits[24];
 }
 
-function nativeFunctionErrorTest() {
+function nativeFunctionErrorTest() (string) {
     json j;
     j = `{"name":"wso2"}`;
     return json:getString(j, "malformed/jsontpath/.");

@@ -249,8 +249,8 @@ public class BLangModelBuilder {
     public void createType(String typeName, Position sourceLocation) {
         BType type = BTypes.getType(typeName);
         if (type == null) {
-            throw new ParserException("Unsupported type '" + typeName + "' in " +
-                    sourceLocation.getFileName() + ":" + sourceLocation.getLine());
+            throw new ParserException(sourceLocation.getFileName() + ":" + sourceLocation.getLine() +
+                    ": unsupported type '" + typeName + "'");
         }
         typeQueue.add(type);
     }
