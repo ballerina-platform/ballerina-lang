@@ -24,14 +24,26 @@ define(([],function (){
             {
                 id: "undo",
                 label: "Undo",
-                action: "undo",
-                disabled: false
+                command: {
+                    id: "undo",
+                    shortcuts: {
+                        mac: "command+z",
+                        other: "ctrl+z"
+                    }
+                },
+                disabled: true
             },
             {
                 id: "redo",
                 label: "Redo",
-                action: "Redo",
-                disabled: false
+                command: {
+                    id: "redo",
+                    shortcuts: {
+                        mac: "command+shift+z",
+                        other: "ctrl+shift+z"
+                    }
+                },
+                disabled: true
             },
             {
                 id: "cut",

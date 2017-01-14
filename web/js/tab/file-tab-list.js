@@ -34,9 +34,8 @@ define(['log', 'jquery', 'lodash', './tab-list', './file-tab',  'workspace'],
             this._workingFileSet = [];
             var self = this;
             if(!_.isNil(lastWorkedFiles)){
-                lastWorkedFiles.forEach(function(fileData){
-                    var file = new Workspace.File(fileData);
-                    self._workingFileSet.push(file);
+                lastWorkedFiles.forEach(function(fileID){
+                    self._workingFileSet.push(fileID);
                 });
             }
         },
@@ -44,31 +43,58 @@ define(['log', 'jquery', 'lodash', './tab-list', './file-tab',  'workspace'],
             TabList.prototype.render.call(this);
             if(!_.isEmpty(this._workingFileSet)){
                 var self = this;
-                this._workingFileSet.forEach(function(file){
+                this._workingFileSet.forEach(function(fileID){
+                    var fileData = self.getBrowserStorage().get(fileID);
+                    var file = new Workspace.File(fileData, {storage:self.getBrowserStorage()});
                     self.newTab(_.set({}, 'tabOptions.file', file));
                 });
+            }
+        },
+        setActiveTab: function(tab) {
+            TabList.prototype.setActiveTab.call(this, tab);
+            if(tab instanceof ServiceTab){
+                var app = _.get(this, 'options.application'),
+                    workspaceManager = app.workspaceManager;
+                workspaceManager.updateUndoRedoMenus();
             }
         },
         addTab: function(tab) {
             TabList.prototype.addTab.call(this, tab);
             // avoid re-addition of init time files
-            if(tab instanceof ServiceTab && !_.includes(this._workingFileSet, tab.getFile())){
-                this._workingFileSet.push(tab.getFile());
+            if(tab instanceof ServiceTab && !_.includes(this._workingFileSet, tab.getFile().id)){
+                tab.getFile().save();
+                this._workingFileSet.push(tab.getFile().id);
                 this.getBrowserStorage().put('workingFileSet', this._workingFileSet);
             }
+            tab.on("tab-content-modified", function(){
+                if (tab.isActive()) {
+                    var app = _.get(this, 'options.application'),
+                        workspaceManager = app.workspaceManager;
+                    workspaceManager.updateUndoRedoMenus();
+                }
+            }, this)
         },
         removeTab: function (tab) {
             TabList.prototype.removeTab.call(this, tab);
             if(tab instanceof ServiceTab){
-                _.remove(this._workingFileSet, tab.getFile());
-                if(tab.getFile().get('isTemp')){
-                    this.getBrowserStorage().destroy(tab.getFile());
-                }
+                _.remove(this._workingFileSet, function(fileID){
+                    return _.isEqual(fileID, tab.getFile().id);
+                });
+                this.getBrowserStorage().destroy(tab.getFile());
                 this.getBrowserStorage().put('workingFileSet', this._workingFileSet);
+                // open welcome page upon last tab close
+                if(_.isEmpty(this.getTabList())){
+                    var commandManager = _.get(this, 'options.application.commandManager');
+                    commandManager.dispatch("go-to-welcome-page");
+                }
             }
         },
         newTab: function(opts) {
             var options = opts || {};
+            if(_.has(options, 'tabOptions.file')){
+                var file = _.get(options, 'tabOptions.file');
+                file.setStorage(this.getBrowserStorage());
+            }
             return TabList.prototype.newTab.call(this, options);
         },
         getBrowserStorage: function(){

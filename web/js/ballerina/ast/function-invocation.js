@@ -66,9 +66,12 @@ define(['lodash', './statement'], function (_, Statement) {
      * @param jsonNode
      */
     FunctionInvocation.prototype.initFromJson = function (jsonNode) {
-        this._packageName = jsonNode.package_name;
-        this._functionName = jsonNode.function_name;
-        this._params = jsonNode.params;
+        var self = this;
+        _.each(jsonNode.children, function (childNode) {
+            var child = self.getFactory().createFromJson(childNode);
+            self.addChild(child);
+            child.initFromJson(childNode);
+        });
     };
 
     return FunctionInvocation;

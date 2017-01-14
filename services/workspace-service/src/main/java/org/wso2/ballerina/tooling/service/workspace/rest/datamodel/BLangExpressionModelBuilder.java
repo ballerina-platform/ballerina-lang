@@ -41,7 +41,7 @@ import org.wso2.ballerina.core.model.expressions.AddExpression;
 import org.wso2.ballerina.core.model.expressions.AndExpression;
 import org.wso2.ballerina.core.model.expressions.ArrayInitExpr;
 import org.wso2.ballerina.core.model.expressions.ArrayMapAccessExpr;
-import org.wso2.ballerina.core.model.expressions.BackquoteExpr;
+import org.wso2.ballerina.core.model.expressions.BacktickExpr;
 import org.wso2.ballerina.core.model.expressions.BasicLiteral;
 import org.wso2.ballerina.core.model.expressions.DivideExpr;
 import org.wso2.ballerina.core.model.expressions.EqualExpression;
@@ -522,10 +522,10 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
     }
 
     @Override
-    public void visit(BackquoteExpr backquoteExpr) {
+    public void visit(BacktickExpr backtickExpr) {
         StringBuffer buffer = new StringBuffer();
         bufferStack.push(buffer);
-        buffer.append("'"+backquoteExpr.getTemplateStr()+"'").append(";");
+        buffer.append("'"+ backtickExpr.getTemplateStr()+"'").append(";");
     }
 
     @Override
