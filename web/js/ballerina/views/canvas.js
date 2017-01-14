@@ -182,16 +182,16 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
         var leftScroll = $("<div class='service-left-scroll'/>").appendTo(svgContainer);
         var rightScroll = $("<div class='service-right-scroll'/>").appendTo(svgContainer);
 
-        $("<i class='fw fw-left'></i>").appendTo(leftScroll);
-        $("<i class='fw fw-right'></i>").appendTo(rightScroll);
+        var leftArrow = $("<i class='fw fw-left'></i>").appendTo(leftScroll);
+        var rightArrow = $("<i class='fw fw-right'></i>").appendTo(rightScroll);
 
         // Setting heights of the scrolls.
         $(leftScroll).height($(svgContainer).height());
         $(rightScroll).height($(svgContainer).height());
 
-        // Positioning the arrows of the scrolls.
-        $(leftScroll).find("i").css("padding-top", ($(svgContainer).height() / 2) - 22 + "px");
-        $(rightScroll).find("i").css("padding-top", ($(svgContainer).height() / 2) - 22 + "px");
+        // Positioning the arrows of the scrolls to the middle.
+        $(leftScroll).find("i").css("padding-top", ($(svgContainer).height() / 2) - (parseInt($(leftScroll).find("i").css("font-size"), 10) / 2) + "px");
+        $(rightScroll).find("i").css("padding-top", ($(svgContainer).height() / 2) - (parseInt($(rightScroll).find("i").css("font-size"), 10) / 2) + "px");
 
         // Positioning scrolls when scrolling the container.
         $(svgContainer).scroll(function () {
