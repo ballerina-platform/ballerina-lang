@@ -347,7 +347,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
     @Override
     public void exitNamedParameter(BallerinaParser.NamedParameterContext ctx) {
         // Value of the ctx.exception is not null, if there are any parser level issues.
-        if (ctx.exception != null || ctx.Identifier() == null) {
+        if (ctx.exception != null) {
             return;
         }
 
