@@ -75,6 +75,10 @@ public class Functions {
             throw new RuntimeException("Function '" + functionName + "' is not defined");
         }
 
+        if (function.getParameters().length != args.length) {
+            throw new RuntimeException("Size of input argument array is not equal to size of function parameters");
+        }
+
         // 2) Create variable reference expressions for each argument value;
         Expression[] exprs = new Expression[args.length];
         for (int i = 0; i < args.length; i++) {
@@ -91,13 +95,13 @@ public class Functions {
         FunctionInvocationExpr funcIExpr = new FunctionInvocationExpr(new SymbolName(functionName, 
                 bFile.getPackageName()), exprs);
         funcIExpr.setOffset(args.length);
-        funcIExpr.setFunction(function);
+        funcIExpr.setCallableUnit(function);
         funcIExpr.setLocation(function.getLocation());
 
         // 4) Prepare function arguments
         BValue[] functionArgs = args;
-        if (function.getReturnTypes().length != 0) {
-            functionArgs = Arrays.copyOf(args, args.length + function.getReturnTypes().length);
+        if (function.getReturnParameters().length != 0) {
+            functionArgs = Arrays.copyOf(args, args.length + function.getReturnParameters().length);
         }
 
         // 5) Create the RuntimeEnvironment

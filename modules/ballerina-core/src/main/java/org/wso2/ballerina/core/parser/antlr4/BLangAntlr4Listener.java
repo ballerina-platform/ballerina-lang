@@ -346,7 +346,12 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitNamedParameter(BallerinaParser.NamedParameterContext ctx) {
+        // Value of the ctx.exception is not null, if there are any parser level issues.
+        if (ctx.exception != null) {
+            return;
+        }
 
+        modelBuilder.createNamedReturnParams(ctx.Identifier().getText(), getCurrentLocation(ctx));
     }
 
     @Override
@@ -356,9 +361,11 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitReturnTypeList(BallerinaParser.ReturnTypeListContext ctx) {
-        if (ctx.exception == null) {
-            modelBuilder.createReturnTypes();
+        if (ctx.exception != null) {
+            return;
         }
+
+        modelBuilder.createReturnTypes(getCurrentLocation(ctx));
     }
 
     @Override
@@ -1332,7 +1339,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
             }
         }
     }
-    
+
     private Position getCurrentLocation(ParserRuleContext ctx) {
         String fileName = ctx.getStart().getInputStream().getSourceName();
         int lineNo = ctx.getStart().getLine();

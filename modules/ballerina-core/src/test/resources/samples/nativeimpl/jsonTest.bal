@@ -15,7 +15,7 @@ function getFloat(json msg, string jsonPath) (float){
     return ballerina.lang.json:getFloat(msg, jsonPath);
 }
 
-function getDouble(json msg, string jsonPath) (float){
+function getDouble(json msg, string jsonPath) (double){
     return ballerina.lang.json:getDouble(msg, jsonPath);
 }
 

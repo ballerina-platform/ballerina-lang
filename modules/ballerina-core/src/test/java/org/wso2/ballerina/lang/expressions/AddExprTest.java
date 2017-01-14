@@ -128,8 +128,8 @@ public class AddExprTest {
     
     @Test(description = "Test adding values of two types",
             expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "Incompatible types in binary expression: int vs boolean in " +
-                "add-incompatible-types.bal:5")
+            expectedExceptionsMessageRegExp = "add-incompatible-types.bal:5: incompatible types " +
+                    "in binary expression: int vs boolean")
     public void testAddIncompatibleTypes() {
         ParserUtils.parseBalFile("lang/expressions/add-incompatible-types.bal");
     }

@@ -114,8 +114,8 @@ public class DivideExprTest {
     
     @Test(description = "Test dividing values of two types",
             expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "Incompatible types in binary expression: string vs float in " +
-                "divide-incompatible-types.bal:5")
+            expectedExceptionsMessageRegExp = "divide-incompatible-types.bal:5: incompatible types in " +
+                    "binary expression: string vs float")
     public void testAddIncompatibleTypes() {
         ParserUtils.parseBalFile("lang/expressions/divide-incompatible-types.bal");
     }
