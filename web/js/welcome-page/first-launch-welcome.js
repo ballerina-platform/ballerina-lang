@@ -240,7 +240,7 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
 
                 serviceDefinition_passthroughService2.addChild(resource_passthrough2);
 
-                return ballerinaAstRoot1;
+                return _.cloneDeep(ballerinaAstRoot1);
             },
 
             generateHelloFunctionSampleAST : function () {
@@ -276,7 +276,7 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
                 functionInvocation.setParams('"Hello world"');
                 functionDefinition1.addChild(functionInvocation);
 
-                return ballerinaAstRoot1;
+                return _.cloneDeep(ballerinaAstRoot1);
             },
 
             generatePassthroughSampleAST : function () {
@@ -376,7 +376,7 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
 
                 serviceDefinition_NYSEStockQuote.addChild(resource_stocks);
 
-                return ballerinaAstRoot1;
+                return _.cloneDeep(ballerinaAstRoot1);
             },
 
             generateContentBasedRoutingSampleAST : function () {
@@ -757,7 +757,7 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
 
                 serviceDefinition_NASDAQStockQuote.addChild(resource_stocks);
 
-                return ballerinaAstRoot1;
+                return _.cloneDeep(ballerinaAstRoot1);
             },
 
 
