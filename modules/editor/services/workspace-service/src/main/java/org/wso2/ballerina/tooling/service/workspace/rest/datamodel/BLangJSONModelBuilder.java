@@ -520,25 +520,8 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         tempJsonArrayRef.push(new JsonArray());
         if (ifElseStmt.getThenBody() != null) {
             tempJsonArrayRef.push(new JsonArray());
-
-            JsonObject thenBodyObj = new JsonObject();
-            thenBodyObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
-                    BLangJSONModelConstants.IF_STATEMENT_THEN_BODY);
-            tempJsonArrayRef.push(new JsonArray());
             ifElseStmt.getThenBody().accept(this);
-            thenBodyObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
-            tempJsonArrayRef.pop();
-            tempJsonArrayRef.peek().add(thenBodyObj);
-
-            JsonObject ifConditionObj = new JsonObject();
-            ifConditionObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
-                    BLangJSONModelConstants.IF_STATEMENT_IF_CONDITION);
-            tempJsonArrayRef.push(new JsonArray());
             ifElseStmt.getCondition().accept(this);
-            ifConditionObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
-            tempJsonArrayRef.pop();
-            tempJsonArrayRef.peek().add(ifConditionObj);
-
             ifElseStmtObj.add(BLangJSONModelConstants.IF_STATEMENT, tempJsonArrayRef.peek());
             tempJsonArrayRef.pop();
         }
@@ -623,7 +606,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         funcInvcObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
                 BLangJSONModelConstants.FUNCTION_INVOCATION_EXPRESSION);
         funcInvcObj.addProperty(BLangJSONModelConstants.FUNCTIONS_NAME,
-                funcIExpr.getFunctionName().getName());
+                funcIExpr.getFunctionName().toString());
         tempJsonArrayRef.push(new JsonArray());
         if (funcIExpr.getExprs() != null) {
             for (Expression expression : funcIExpr.getExprs()) {

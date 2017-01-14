@@ -578,9 +578,6 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             this._model.off('child-added');
             this._model.on('child-added', function(child){
                 self.visit(child);
-
-                // Show/Hide scrolls.
-                self._showHideScrolls(self.getChildContainer().node().ownerSVGElement.parentElement, self.getChildContainer().node().ownerSVGElement);
             });
 
             this._variableButton = VariablesView.createVariableButton(this.getChildContainer().node(),
@@ -595,7 +592,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                         x: parseInt(this.getChildContainer().attr("x")) + 17,
                         y: parseInt(this.getChildContainer().attr("y")) + 6
                     },
-                    width: parseInt(this.getChildContainer().node().getBBox().width) - (2 * $(this._variableButton).width())
+                    width: parseInt(this.getChildContainer().node().getBBox().width) - 36
                 }
             };
 
@@ -666,48 +663,6 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 var newVPanePositionVertical = parseInt($(self._variablePane).css("top")) + offset.dy;
                 $(self._variablePane).css("top", newVPanePositionVertical + "px");
             }, this);
-        };
-
-        /**
-         * Shows and hide the custom scrolls depending on the amount scrolled.
-         * @param {Element} container - The container of the SVG. i.e the parent of the SVG.
-         * @param {Element} svgElement - The SVG element.
-         */
-        ResourceDefinitionView.prototype._showHideScrolls = function (container, svgElement) {
-            // Creating scroll panes.
-            var leftScroll = $(container).find(".service-left-scroll").get(0);
-            var rightScroll = $(container).find(".service-right-scroll").get(0);
-
-            // Setting heights of the scrolls.
-            $(leftScroll).height($(container).height());
-            $(rightScroll).height($(container).height());
-
-            // Positioning the arrows of the scrolls.
-            $(leftScroll).find("i").css("padding-top", ($(container).height() / 2) - (parseInt($(leftScroll).find("i").css("font-size"), 10) / 2) + "px");
-            $(rightScroll).find("i").css("padding-top", ($(container).height() / 2) - (parseInt($(rightScroll).find("i").css("font-size"), 10) / 2) + "px");
-
-            // Showing/Hiding scrolls.
-            if (Math.abs($(container).width() - $(svgElement).width()) < 5) {
-                // If the svg width is less than or equal to the container, then no need to show the arrows.
-                $(leftScroll).hide();
-                $(rightScroll).hide();
-            } else {
-                // If the svg width is greater than the width of the container...
-                if ($(container).scrollLeft() == 0) {
-                    // When scrollLeft is 0, means that it is already scrolled to the left corner.
-                    $(rightScroll).show();
-                    $(leftScroll).hide();
-                } else if ($(container).scrollLeft() == parseInt($(svgElement).width(), 10) -
-                    parseInt($(container).width(), 10)) {
-                    // When scrolled all the way to the right.
-                    $(leftScroll).show();
-                    $(rightScroll).hide();
-                } else {
-                    // When scrolled to the middle.
-                    $(leftScroll).show();
-                    $(rightScroll).show();
-                }
-            }
         };
 
         /**

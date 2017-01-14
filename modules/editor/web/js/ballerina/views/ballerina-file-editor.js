@@ -246,7 +246,8 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 //@todo
                 var root = self.deserializer.getASTModel(response);
                 self._model = root;
-                //canvas should be visible before you can call reDraw. drawing dependednt on attr:offsetWidth
+                self.reDraw();
+
                 self.toolPalette.show();
                 sourceViewContainer.hide();
                 self._$designViewContainer.show();
@@ -254,7 +255,6 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 designViewBtn.hide();
                 self.trigger('design-view-activated');
                 self.trigger('source-view-deactivated');
-                self.reDraw();
             });
             // activate design view by default
             designViewBtn.hide();
@@ -407,7 +407,8 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 var packageTextBox = propertyPane.find(".package-name-wrapper input[type=text]");
 
                 // Setting package name to text box.
-                packageTextBox.val(currentASTRoot.getPackageDefinition().getPackageName());
+                packageTextBox.val((!_.isUndefined(currentASTRoot.getPackageDefinition())) ?
+                    currentASTRoot.getPackageDefinition().getPackageName() : "");
 
                 // Updating model along with text change on package text box.
                 packageTextBox.on("change keyup input", function () {

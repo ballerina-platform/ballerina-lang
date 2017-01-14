@@ -85,15 +85,12 @@ define(['lodash', 'log','./statement', './else-statement', './else-if-statement'
 
         _.each(jsonNode.if_statement, function (childNode) {
             var child = self.getFactory().createFromJson(childNode);
-            if (self.getFactory().isIfCondition(child)) {
+            if (self.getFactory().isExpression(child)) {
                 child.initFromJson(childNode);
-                this._condition = 'condition';
-            } else if(self.getFactory().isThenBody(child)){
-                _.each(childNode.children, function (childStatement) {
-                    var child = self.getFactory().createFromJson(childStatement);
-                    self._ifStatement.addChild(child);
-                    child.initFromJson(childStatement);
-                });
+                this._condition = child.getExpression();
+            } else {
+                self._ifStatement.addChild(child);
+                child.initFromJson(childNode);
             }
         });
 
