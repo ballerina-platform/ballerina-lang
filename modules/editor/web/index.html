@@ -347,7 +347,7 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content clearfix">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="fw fw-cancel"></i></button>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="fw fw-cancel  about-dialog-close"></i></button>
                 <h3 class="modal-title" id="aboutModalLabel">Welcome to Ballerina Editor</h3>
             </div>
             <div class="modal-body add-margin-top-2x add-margin-bottom-2x">
@@ -362,7 +362,7 @@
 <!--End: About Modal-->
 
 <!--Start: About Modal-->
-<div class="modal fade" id="modalError" tabindex="-1" role="dialog">
+<div class="modal fade" id="parserErrorModel" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
         <div class="modal-content clearfix">
             <div class="modal-header">
@@ -488,6 +488,9 @@
             services:   {
                 workspace:  {
                     endpoint: "http://localhost:8289/service/workspace"
+                },
+                parser:  {
+                    endpoint: "http://localhost:8289/ballerina/model/content"
                 }
             },
             alerts: {
@@ -503,6 +506,8 @@
                 menu_group: {
                     menu_item: {
                         cssClass: {
+                            label: "menu-label pull-left",
+                            shortcut: "shortcut-label pull-right",
                             active: "menu-item-enabled",
                             inactive: "menu-item-disabled"
                         }
@@ -614,6 +619,9 @@
                             },
                             backend:{
                                 url:"http://localhost:8289/ballerina/model/content"
+                            },
+                            dialog_boxes:{
+                                parser_error: "#parserErrorModel"
                             }
                         }
                     }
@@ -629,7 +637,10 @@
                 }
             },
             dialog: {
-                container: $('body'),
+                container: $('body')
+            },
+            about_dialog:{
+                selector: "#modalAbout"
             }
         };
         app = new Application(config);
