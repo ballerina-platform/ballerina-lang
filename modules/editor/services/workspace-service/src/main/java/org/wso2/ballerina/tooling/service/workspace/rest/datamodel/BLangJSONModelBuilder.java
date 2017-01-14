@@ -606,7 +606,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         funcInvcObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
                 BLangJSONModelConstants.FUNCTION_INVOCATION_EXPRESSION);
         funcInvcObj.addProperty(BLangJSONModelConstants.FUNCTIONS_NAME,
-                funcIExpr.getFunctionName().getName());
+                funcIExpr.getFunctionName().toString());
         tempJsonArrayRef.push(new JsonArray());
         if (funcIExpr.getExprs() != null) {
             for (Expression expression : funcIExpr.getExprs()) {

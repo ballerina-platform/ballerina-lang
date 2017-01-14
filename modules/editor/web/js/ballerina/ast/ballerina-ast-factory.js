@@ -19,7 +19,7 @@
 /**
  * A module representing the factory for Ballerina AST
  */
-define(['./ballerina-ast-root', './service-definition', './function-definition', './connector-definition', './resource-definition',
+define(['lodash', './ballerina-ast-root', './service-definition', './function-definition', './connector-definition', './resource-definition',
         './worker-declaration', './statement', './conditional-statement', './connector-declaration', './expression',
         './if-else-statement', './if-statement', './else-statement', './else-if-statement', './trycatch-statement', './try-statement',
         './catch-statement', './reply-statement', './while-statement', './return-statement',
@@ -27,7 +27,7 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
         './package-definition', './import-declaration', './resource-arg', './assignment', './assignment-statement', './function-invocation', './function-invocation-expression', './variable-reference-expression',
         './action-invocation-statement', './arithmetic-expression', './logical-expression', './action-invocation-expression',
         './return-type', './type-name', './argument', './back-quote-expression', './basic-literal-expression', './left-operand-expression', './right-operand-expression'],
-    function (ballerinaAstRoot, serviceDefinition, functionDefinition, connectorDefinition, resourceDefinition,
+    function (_, ballerinaAstRoot, serviceDefinition, functionDefinition, connectorDefinition, resourceDefinition,
               workerDeclaration, statement, conditionalStatement, connectorDeclaration, expression,
               ifElseStatement, ifStatement, elseStatement, elseIfStatement, tryCatchStatement, tryStatement, catchStatement, replyStatement,
               whileStatement, returnStatement, typeConverterDefinition, typeDefinition, typeElement, variableDeclaration,
@@ -235,8 +235,13 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
          * creates FunctionInvocationStatement
          * @param args
          */
-        BallerinaASTFactory.createFunctionInvocationStatement = function (args) {
-            return new functionInvocation(args);
+        BallerinaASTFactory.createFunctionInvocationStatement = function (args, withChild) {
+            var funcInvocationStatement = new functionInvocation(args);
+            // TODO: Fix this check properly
+            if (withChild) {
+                funcInvocationStatement.addChild(new functionInvocationExpression(args));
+            }
+            return funcInvocationStatement;
         };
 
         /**

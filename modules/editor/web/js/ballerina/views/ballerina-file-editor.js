@@ -407,7 +407,8 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 var packageTextBox = propertyPane.find(".package-name-wrapper input[type=text]");
 
                 // Setting package name to text box.
-                packageTextBox.val(currentASTRoot.getPackageDefinition().getPackageName());
+                packageTextBox.val((!_.isUndefined(currentASTRoot.getPackageDefinition())) ?
+                    currentASTRoot.getPackageDefinition().getPackageName() : "");
 
                 // Updating model along with text change on package text box.
                 packageTextBox.on("change keyup input", function () {

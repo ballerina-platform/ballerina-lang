@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './expression'], function (_, Expression) {
+define(['lodash', './statement'], function (_, Statement) {
 
     /**
      * Constructor for FunctionInvocationExpression
@@ -23,11 +23,11 @@ define(['lodash', './expression'], function (_, Expression) {
      * @constructor
      */
     var FunctionInvocationExpression = function (args) {
-        Expression.call(this, 'FunctionInvocationExpression');
+        Statement.call(this, 'FunctionInvocationExpression');
         this._functionName = _.get(args, 'functionName', 'newFunction');
-    }
+    };
 
-    FunctionInvocationExpression.prototype = Object.create(Expression.prototype);
+    FunctionInvocationExpression.prototype = Object.create(Statement.prototype);
     FunctionInvocationExpression.prototype.constructor = FunctionInvocationExpression;
 
     FunctionInvocationExpression.prototype.setFunctionName = function (functionName) {
@@ -43,14 +43,18 @@ define(['lodash', './expression'], function (_, Expression) {
      * @param jsonNode
      */
     FunctionInvocationExpression.prototype.initFromJson = function (jsonNode) {
+        var functionNameSplit = jsonNode.function_name.split(":");
+        var params = "";
+        this.getParent().setFunctionName(functionNameSplit[1]);
+        this.getParent().setPackageName(functionNameSplit[0]);
         this.setFunctionName(jsonNode.function_name);
-
-        var self = this;
-        _.each(jsonNode.children, function (childNode) {
-            var child = self.getFactory().createFromJson(childNode);
-            self.addChild(child);
-            child.initFromJson(childNode);
-        });
+        for (var itr = 0; itr < jsonNode.children.length; itr ++) {
+            params += jsonNode.children[itr].variable_reference_name;
+            if (itr !== jsonNode.children.length - 1) {
+                params += ",";
+            }
+        }
+        this.getParent().setParams(params);
     };
 
     return FunctionInvocationExpression;
