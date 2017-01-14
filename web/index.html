@@ -361,6 +361,25 @@
 </div>
 <!--End: About Modal-->
 
+<!--Start: About Modal-->
+<div class="modal fade" id="modalError" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content clearfix">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">x</button>
+                <h3 class="modal-title" id="errorModalLabel">Error</h3>
+            </div>
+            <div class="modal-body add-margin-top-2x add-margin-bottom-2x">
+                <p>Unable to render design view due to a parser error</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--End: About Modal-->
+
 <script src="lib/requirejs-2.3.2/require.js"></script>
 <script type="text/javascript">
     requirejs.config({
@@ -592,6 +611,9 @@
                             },
                             notifications: {
                                 container: '#notification-container'
+                            },
+                            backend:{
+                                url:"http://localhost:8289/ballerina/model/content"
                             }
                         }
                     }
