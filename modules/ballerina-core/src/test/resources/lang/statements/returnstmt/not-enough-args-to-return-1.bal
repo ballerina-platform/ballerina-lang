@@ -1,3 +1,3 @@
-function testNotEnoughArgsToReturn() (int, int){
+function testNotEnoughArgsToReturn1() (int, int){
     return;
 }

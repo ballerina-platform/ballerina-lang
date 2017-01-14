@@ -130,17 +130,4 @@ public class NamedReturnParameterTest {
         Assert.assertEquals(0, ((BInteger) returns[0]).intValue());
         Assert.assertEquals("", returns[1].stringValue());
     }
-
-    public static void main(String[] args) {
-        NamedReturnParameterTest test = new NamedReturnParameterTest();
-        test.setup();
-        test.testSingleNamedReturnParam();
-        test.testSingleNamedReturnParamDefaultValue();
-        test.testSingleNamedReturnParamZeroReturnArgs();
-        test.testSingleNamedReturnParamDefaultValueZeroReturnArgs();
-        test.testTwoNamedReturnParam();
-        test.testTwoNamedReturnParamDefaultValue();
-        test.testTwoNamedReturnParamZeroReturnArgs();
-        test.testTwoNamedReturnParamZeroReturnArgsDefaultValue();
-    }
 }

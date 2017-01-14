@@ -191,25 +191,4 @@ public class ReturnStmtTest {
         Assert.assertEquals("NAME1", ((BString)  returns[0]).stringValue());
         Assert.assertEquals("NAME2", ((BString) returns[1]).stringValue());
     }
-
-    public static void main(String[] args) {
-        ReturnStmtTest test = new ReturnStmtTest();
-        test.setup();
-        test.testReturn();
-        test.testReturnOneVarDcl();
-        test.testReturnOneReturnArg();
-        test.testReturnOneParam();
-        test.testReturnOneParamOneReturnArg();
-        test.testReturnOneParamOneVarDclOneReturnArg();
-        test.testReturnTwoVarDclsTwoReturnArgs();
-        test.testReturnThreeVarDclsThreeReturnArgs();
-        test.testSplitString();
-        test.testToUpperUtil();
-        test.testToUpperUtilDouble();
-        test.testToUpper();
-        test.testToUpper1();
-        test.testToUpper2();
-        test.testToUpper3();
-        test.testToUpper4();
-    }
 }

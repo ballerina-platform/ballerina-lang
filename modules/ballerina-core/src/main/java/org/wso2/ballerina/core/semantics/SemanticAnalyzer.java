@@ -752,7 +752,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             // Let's check their types
             for (int i = 0; i < returnParamsOfCU.length; i++) {
                 // Check for ActionInvocationExprs in return arguments
-                if (returnArgExprs.length > i && returnArgExprs[i] instanceof ActionInvocationExpr) {
+                if (returnArgExprs[i] instanceof ActionInvocationExpr) {
                     throw new SemanticException(returnStmt.getLocation().getFileName() + ":" +
                             returnStmt.getLocation().getLine() +
                             ": action invocation is not allowed in a return statement");
@@ -760,7 +760,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
                 // Except for the first argument in return statement, fheck for FunctionInvocationExprs which return
                 // multiple values.
-                if (i > 0 && returnArgExprs.length > i && returnArgExprs[i] instanceof FunctionInvocationExpr) {
+                if (returnArgExprs[i] instanceof FunctionInvocationExpr) {
                     FunctionInvocationExpr funcIExpr = ((FunctionInvocationExpr) returnArgExprs[i]);
                     if (funcIExpr.getTypes().length > 1) {
                         throw new SemanticException(returnStmt.getLocation().getFileName() + ":" +
