@@ -246,8 +246,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 //@todo
                 var root = self.deserializer.getASTModel(response);
                 self._model = root;
-                self.reDraw();
-
+                //canvas should be visible before you can call reDraw. drawing dependednt on attr:offsetWidth
                 self.toolPalette.show();
                 sourceViewContainer.hide();
                 self._$designViewContainer.show();
@@ -255,6 +254,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 designViewBtn.hide();
                 self.trigger('design-view-activated');
                 self.trigger('source-view-deactivated');
+                self.reDraw();
             });
             // activate design view by default
             designViewBtn.hide();
