@@ -26,14 +26,14 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
         './type-converter-definition', './type-definition', './type-element', './variable-declaration',
         './package-definition', './import-declaration', './resource-arg', './assignment', './assignment-statement', './function-invocation', './function-invocation-expression', './variable-reference-expression',
         './action-invocation-statement', './arithmetic-expression', './logical-expression', './action-invocation-expression',
-        './return-type', './type-name', './argument', './back-quote-expression', './basic-literal-expression', './left-operand-expression', './right-operand-expression', './instance-creation-expression'],
+        './return-type', './type-name', './argument', './back-quote-expression', './basic-literal-expression', './left-operand-expression', './right-operand-expression', './instance-creation-expression', './then-body', './if-condition'],
     function (ballerinaAstRoot, serviceDefinition, functionDefinition, connectorDefinition, resourceDefinition,
               workerDeclaration, statement, conditionalStatement, connectorDeclaration, expression,
               ifElseStatement, ifStatement, elseStatement, elseIfStatement, tryCatchStatement, tryStatement, catchStatement, replyStatement,
               whileStatement, returnStatement, typeConverterDefinition, typeDefinition, typeElement, variableDeclaration,
               packageDefinition, importDeclaration, resourceArgument, assignment, assignmentStatement, functionInvocation, functionInvocationExpression, variableReferenceExpression,
               actionInvocationStatement, arithmeticExpression, logicalExpression, actionInvocationExpression, returnType,
-              typeName, argument, backQuoteExpression, basicLiteralExpression, leftOperandExpression, rightOperandExpression, instanceCreationExpression) {
+              typeName, argument, backQuoteExpression, basicLiteralExpression, leftOperandExpression, rightOperandExpression, instanceCreationExpression, thenBody, ifCondition) {
 
 
         /**
@@ -400,6 +400,24 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
         };
 
         /**
+         * creates ThenBody
+         * @param {Object} args - Arguments for creating a new instance creation.
+         * @returns {ThenBody}
+         */
+        BallerinaASTFactory.createThenBody = function (args) {
+            return new thenBody(args);
+        };
+
+        /**
+         * creates IfCondition
+         * @param {Object} args - Arguments for creating a new instance creation.
+         * @returns {IfCondition}
+         */
+        BallerinaASTFactory.createIfCondition = function (args) {
+            return new ifCondition(args);
+        };
+
+        /**
          * instanceof check for BallerinaAstRoot
          * @param {Object} child
          * @returns {boolean}
@@ -726,6 +744,24 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
             return child instanceof instanceCreationExpression;
         };
 
+        /**
+         * instanceof check for ThenBody
+         * @param {ASTNode} child - The ast node.
+         * @returns {boolean} - true if same type, else false
+         */
+        BallerinaASTFactory.isThenBody = function (child) {
+            return child instanceof thenBody;
+        };
+
+        /**
+         * instanceof check for IfCondition
+         * @param {ASTNode} child - The ast node.
+         * @returns {boolean} - true if same type, else false
+         */
+        BallerinaASTFactory.isIfCondition = function (child) {
+            return child instanceof ifCondition;
+        };
+
         BallerinaASTFactory.createFromJson = function (jsonNode) {
             var node;
             var nodeType = jsonNode.type;
@@ -812,6 +848,12 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
                         break;
                     case 'instance_creation_expression':
                         node = BallerinaASTFactory.createAssignment();
+                        break;
+                    case 'then_body':
+                        node = BallerinaASTFactory.createThenBody();
+                        break;
+                    case 'if_condition':
+                        node = BallerinaASTFactory.createIfCondition();
                         break;
                     default:
                         throw "Unknown node definition for " + jsonNode.type;
