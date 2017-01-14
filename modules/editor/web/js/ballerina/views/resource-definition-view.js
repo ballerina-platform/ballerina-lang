@@ -595,7 +595,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                         x: parseInt(this.getChildContainer().attr("x")) + 17,
                         y: parseInt(this.getChildContainer().attr("y")) + 6
                     },
-                    width: parseInt(this.getChildContainer().node().getBBox().width) - 42
+                    width: parseInt(this.getChildContainer().node().getBBox().width) - (2 * $(this._variableButton).width())
                 }
             };
 
@@ -683,8 +683,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             $(rightScroll).height($(container).height());
 
             // Positioning the arrows of the scrolls.
-            $(leftScroll).find("i").css("padding-top", ($(container).height() / 2) - 22 + "px");
-            $(rightScroll).find("i").css("padding-top", ($(container).height() / 2) - 22 + "px");
+            $(leftScroll).find("i").css("padding-top", ($(container).height() / 2) - (parseInt($(leftScroll).find("i").css("font-size"), 10) / 2) + "px");
+            $(rightScroll).find("i").css("padding-top", ($(container).height() / 2) - (parseInt($(rightScroll).find("i").css("font-size"), 10) / 2) + "px");
 
             // Showing/Hiding scrolls.
             if (Math.abs($(container).width() - $(svgElement).width()) < 5) {
