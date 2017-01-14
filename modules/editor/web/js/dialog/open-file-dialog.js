@@ -16,7 +16,9 @@
  * under the License.
  */
 
-define(['require', 'jquery', 'log', 'backbone', 'file_browser', 'ballerina', 'ballerina/diagram-render/diagram-render-context', 'ballerina/views/source-view'], function (require, $, log, Backbone, FileBrowser, Ballerina, DiagramRenderContext, SourceView) {
+define(['require', 'lodash','jquery', 'log', 'backbone', 'file_browser', 'ballerina', 'ballerina/diagram-render/diagram-render-context',
+        'ballerina/views/source-view', 'workspace/file'],
+    function (require, _, $, log, Backbone, FileBrowser, Ballerina, DiagramRenderContext, SourceView, File) {
     var OpenFileDialog = Backbone.View.extend(
         /** @lends SaveToFileDialog.prototype */
         {
@@ -36,6 +38,7 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser', 'ballerina', 'ba
 
             render: function () {
                 //TODO : this render method should be rewritten with improved UI
+                var self = this;
                 var fileBrowser;
                 var fileContent;
                 var app = this.app;
@@ -196,7 +199,6 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser', 'ballerina', 'ba
                     var saveServiceURL = workspaceServiceURL + "/read";
 
                     var path = defaultView.configLocation;
-
                     $.ajax({
                         url: saveServiceURL,
                         type: "POST",
@@ -205,7 +207,18 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser', 'ballerina', 'ba
                         async: false,
                         success: function (data, textStatus, xhr) {
                             if (xhr.status == 200) {
-                                openModel(data);
+                                var pathArray = _.split(path, self.app.getPathSeperator()),
+                                    fileName = _.last(pathArray),
+                                    folderPath = _.join(_.take(pathArray, pathArray.length -1), self.app.getPathSeperator());
+
+                                var file = new File({
+                                    name: fileName,
+                                    path: folderPath,
+                                    content: data,
+                                    isPersisted: true
+                                });
+                                app.commandManager.dispatch("create-new-tab", {tabOptions: {file: file}});
+                                alertSuccess();
                             } else {
                                 alertError();
                             }

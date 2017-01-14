@@ -81,9 +81,8 @@ define(['lodash', 'backbone', 'log', 'mousetrap'], function (_, Backbone, log, M
          */
         this.registerHandler = function (cmd, handler) {
             if(!_.has(commands, cmd)){
-                var error = "No such registered command found. Command: " + cmd;
-                log.error(error);
-                throw error;
+                var message = "No such registered command found. Command: " + cmd;
+                log.debug(message);
             }
             commandBus.on(cmd, handler, app);
         };
