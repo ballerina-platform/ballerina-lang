@@ -178,7 +178,8 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
                             if (xhr.status == 200) {
                                 activeTab.setTitle(configName.val());
                                 activeTab.getFile()
-                                            .setPath(location.val() + "/" + configName.val())
+                                            .setPath(location.val())
+                                            .setName(configName.val())
                                             .setContent(config)
                                             .setPersisted(true)
                                             .save();
