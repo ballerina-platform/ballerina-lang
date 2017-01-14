@@ -248,7 +248,6 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 self._model = root;
                 self.reDraw();
 
-
                 self.toolPalette.show();
                 sourceViewContainer.hide();
                 self._$designViewContainer.show();
@@ -491,8 +490,8 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             // this._viewOptions.container is the root div for tab content
             var container = $(this._container).find(_.get(this._viewOptions, 'design_view.container'));
             //remove the old canves before creating a new one.
-            var canves = container.find('div.canvas-container');
-            canves.remove();
+            var canvas = container.find('div.canvas-container');
+            canvas.remove();
 
             this._$designViewContainer = container;
             var canvasContainer = $('<div></div>');
