@@ -290,6 +290,9 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitConstantDefinition(BallerinaParser.ConstantDefinitionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
         createBasicLiteral(ctx.literalValue());
         if (ctx.Identifier() != null) {
             modelBuilder.createConstant(ctx.Identifier().getText(), getCurrentLocation(ctx));
@@ -961,7 +964,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
     @Override
     public void exitBacktickString(BallerinaParser.BacktickStringContext ctx) {
         if (ctx.exception == null) {
-            modelBuilder.createBackquoteExpr(ctx.BacktickStringLiteral().getText(), getCurrentLocation(ctx));
+            modelBuilder.createBacktickExpr(ctx.BacktickStringLiteral().getText(), getCurrentLocation(ctx));
         }
     }
 

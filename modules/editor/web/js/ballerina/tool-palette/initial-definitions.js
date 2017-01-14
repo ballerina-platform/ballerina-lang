@@ -84,7 +84,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
         var createWhileStatementTool = {
             id: "while",
             name: "While",
-            icon: "images/tool-icons/dgm-if-else.svg",
+            icon: "images/tool-icons/dgm-while.svg",
             title: "While",
             nodeFactoryMethod: BallerinaASTFactory.createWhileStatement
         };
@@ -102,7 +102,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
             name: "Assignment",
             icon: "images/tool-icons/assign.svg",
             title: "Assignment",
-            nodeFactoryMethod: BallerinaASTFactory.createAssignmentStatement
+            nodeFactoryMethod: BallerinaASTFactory.createAssignment
         };
 
         var createFunctionInvocationTool = {

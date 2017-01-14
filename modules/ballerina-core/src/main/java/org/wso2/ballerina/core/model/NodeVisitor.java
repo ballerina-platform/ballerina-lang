@@ -26,7 +26,7 @@ import org.wso2.ballerina.core.model.expressions.AddExpression;
 import org.wso2.ballerina.core.model.expressions.AndExpression;
 import org.wso2.ballerina.core.model.expressions.ArrayInitExpr;
 import org.wso2.ballerina.core.model.expressions.ArrayMapAccessExpr;
-import org.wso2.ballerina.core.model.expressions.BackquoteExpr;
+import org.wso2.ballerina.core.model.expressions.BacktickExpr;
 import org.wso2.ballerina.core.model.expressions.BasicLiteral;
 import org.wso2.ballerina.core.model.expressions.DivideExpr;
 import org.wso2.ballerina.core.model.expressions.EqualExpression;
@@ -153,7 +153,7 @@ public interface NodeVisitor {
 
     void visit(KeyValueExpression keyValueExpr);
 
-    void visit(BackquoteExpr backquoteExpr);
+    void visit(BacktickExpr backtickExpr);
 
     void visit(VariableRefExpr variableRefExpr);
 

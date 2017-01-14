@@ -39,14 +39,14 @@ define(['require', 'log', 'jquery', 'lodash', 'event_channel', './menu-definitio
             var parent = this._$parent_el;
             var self = this;
             var _options = this._options;
-            var commandManager = _options.application.commandManager;
+            var application = _.get(this._options, "application");
 
             // Iterate over menu groups
             _.forEach(menuDefinitions, function (menuGroupDefinition) {
                     var menuGroupOpts = {definition: _.cloneDeep(menuGroupDefinition)};
                     _.set(menuGroupOpts, 'options', _.cloneDeep(_.get(_options, 'menu_group')));
                     _.set(menuGroupOpts, 'options.parent', parent);
-                    _.set(menuGroupOpts, 'options.commandManager', commandManager);
+                    _.set(menuGroupOpts, 'options.application', application);
                     var menuGroup = new MenuGroup(menuGroupOpts);
                     menuGroup.render();
                     _.set(self._menuGroups, menuGroup.getID(), menuGroup);

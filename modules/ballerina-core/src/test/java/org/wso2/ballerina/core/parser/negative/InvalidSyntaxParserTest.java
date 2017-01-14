@@ -37,13 +37,13 @@ public class InvalidSyntaxParserTest {
     */
     
     @Test(expectedExceptions = {ParseCancellationException.class },
-            expectedExceptionsMessageRegExp = "Missing ';' before 'reply' in SemicolonMissingService.bal\\[13:6\\]")
+            expectedExceptionsMessageRegExp = "SemicolonMissingService.bal:13:6: Missing ';' before 'reply'")
     public void testParseSemicolonMissingSerivce() {
         getParserForFile("samples/parser/invalidSyntax/SemicolonMissingService.bal").compilationUnit();
     }
 
     @Test(expectedExceptions = {ParseCancellationException.class },
-            expectedExceptionsMessageRegExp = "Missing ';' before 'reply' in SemicolonMissingMainFunc.bal\\[7:1\\]")
+            expectedExceptionsMessageRegExp = "SemicolonMissingMainFunc.bal:7:1: Missing ';' before 'reply'")
     public void testParseSemicolonMissingMainFunc() {
         getParserForFile("samples/parser/invalidSyntax/SemicolonMissingMainFunc.bal").compilationUnit();
     }
@@ -54,19 +54,19 @@ public class InvalidSyntaxParserTest {
      */
     
     @Test(expectedExceptions = {ParseCancellationException.class },
-            expectedExceptionsMessageRegExp = "Invalid identifier 'int' in IdentifierMissingService.bal\\[12:6\\]")
+            expectedExceptionsMessageRegExp = "IdentifierMissingService.bal:12:6: Invalid identifier 'int'")
     public void testParseIdentifierMissingSerivce() {
         getParserForFile("samples/parser/invalidSyntax/IdentifierMissingService.bal").compilationUnit();
     }
 
     @Test(expectedExceptions = {ParseCancellationException.class },
-            expectedExceptionsMessageRegExp = "Invalid identifier 'b' in IdentifierMissingMainFunc.bal\\[5:1\\]")
+            expectedExceptionsMessageRegExp = "IdentifierMissingMainFunc.bal:5:1: Invalid identifier 'b'")
     public void testParseIdentifierMissingMainFunc() {
         getParserForFile("samples/parser/invalidSyntax/IdentifierMissingMainFunc.bal").compilationUnit();
     }
     
     @Test(expectedExceptions = {ParseCancellationException.class },
-            expectedExceptionsMessageRegExp = "Invalid identifier 'string' in ReservedWordVariable.bal\\[5:1\\]")
+            expectedExceptionsMessageRegExp = "ReservedWordVariable.bal:5:1: Invalid identifier 'string'")
     public void testReservedWordVariable() {
         getParserForFile("samples/parser/invalidSyntax/ReservedWordVariable.bal").compilationUnit();
     }
@@ -78,13 +78,13 @@ public class InvalidSyntaxParserTest {
      */
     
     @Test(expectedExceptions = {ParseCancellationException.class },
-            expectedExceptionsMessageRegExp = "Unwanted token '\\{' in ServiceWithoutResourceName.bal\\[7:11\\]")
+            expectedExceptionsMessageRegExp = "ServiceWithoutResourceName.bal:7:11: Unwanted token '\\{'")
     public void testServiceWithoutResourceName() {
         getParserForFile("samples/parser/invalidSyntax/ServiceWithoutResourceName.bal").compilationUnit();
     }
 
     @Test(expectedExceptions = {ParseCancellationException.class },
-            expectedExceptionsMessageRegExp = "Unwanted token '\\{' in MainFuncWithoutName.bal\\[4:9\\]")
+            expectedExceptionsMessageRegExp = "MainFuncWithoutName.bal:4:9: Unwanted token '\\{'")
     public void testParseMainFuncWithoutName() {
         getParserForFile("samples/parser/invalidSyntax/MainFuncWithoutName.bal").compilationUnit();
     }
@@ -95,17 +95,25 @@ public class InvalidSyntaxParserTest {
      */
     
     @Test(expectedExceptions = {ParseCancellationException.class },
-            expectedExceptionsMessageRegExp = "Mismatched input '\\{' in ServiceWithoutResourceParams.bal\\[7:17\\]." +
-                " Expecting one of '\\('")
+            expectedExceptionsMessageRegExp = "ServiceWithoutResourceParams.bal:7:17: Mismatched input '\\{'. " +
+            "Expecting one of '\\('")
     public void testServiceWithoutResourceParams() {
         getParserForFile("samples/parser/invalidSyntax/ServiceWithoutResourceParams.bal").compilationUnit();
     }
 
     @Test(expectedExceptions = {ParseCancellationException.class },
-            expectedExceptionsMessageRegExp = "Mismatched input '\\{' in MainFuncWithoutParams.bal\\[4:14\\]. " +
-                "Expecting one of '\\('")
+            expectedExceptionsMessageRegExp = "MainFuncWithoutParams.bal:4:14: Mismatched input '\\{'. Expecting " +
+            "one of '\\('")
     public void testParseMainFuncWithoutParams() {
         getParserForFile("samples/parser/invalidSyntax/MainFuncWithoutParams.bal").compilationUnit();
+    }
+    
+    @Test(expectedExceptions = {ParseCancellationException.class },
+            expectedExceptionsMessageRegExp = "ResourceWithEmptyReply.bal:11:6: Mismatched input ';'. " +
+            "Expecting one of \\{'new', '\\(', '\\{', '\\[', '!', '\\+', '-', IntegerLiteral, FloatingPointLiteral, " +
+            "BooleanLiteral, QuotedStringLiteral, BacktickStringLiteral, 'null', Identifier}")
+    public void testResourceWithEmptyReply() {
+        getParserForFile("samples/parser/invalidSyntax/ResourceWithEmptyReply.bal").compilationUnit();
     }
     
     

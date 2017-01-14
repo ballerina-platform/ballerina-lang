@@ -18,9 +18,9 @@
 define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-view',  './function-definition-view', './../ast/ballerina-ast-root',
         './../ast/ballerina-ast-factory', './../ast/package-definition', './source-view',
         './../visitors/source-gen/ballerina-ast-root-visitor', './../tool-palette/tool-palette',
-        './../undo-manager/undo-manager'],
+        './../undo-manager/undo-manager','./backend', './../ast/ballerina-ast-deserializer'],
     function (_, $, log, BallerinaView, ServiceDefinitionView, FunctionDefinitionView, BallerinaASTRoot, BallerinaASTFactory,
-              PackageDefinition, SourceView, SourceGenVisitor, ToolPalette, UndoManager) {
+              PackageDefinition, SourceView, SourceGenVisitor, ToolPalette, UndoManager, Backend, BallerinaASTDeserializer) {
 
         /**
          * The view to represent a ballerina file editor which is an AST visitor.
@@ -39,6 +39,14 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 log.error("Ballerina AST Root is undefined or is of different type." + this._model);
                 throw "Ballerina AST Root is undefined or is of different type." + this._model;
             }
+
+
+            if (!_.has(args, 'viewOptions.backend')){
+                log.error("Backend is not defined.");
+                // not throwing an exception for now since we need to work without a backend.
+            }
+            this.backend = new Backend(_.get(args, 'viewOptions.backend', {}));
+            this.deserializer = BallerinaASTDeserializer;
             this.init();
         };
 
@@ -175,7 +183,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
 
             this._createPackagePropertyPane(canvasContainer);
             // init undo manager
-            this.undoManager = new UndoManager();
+            this._undoManager = new UndoManager();
 
             //Registering event listeners
             this.listenTo(this._model, 'child-removed', this.childViewRemovedCallback);
@@ -226,6 +234,20 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
 
             var designViewBtn = $(this._container).find(_.get(this._viewOptions, 'controls.view_design_btn'));
             designViewBtn.click(function () {
+                var source = self._sourceView._editor.getValue();
+                var response = self.backend.parse(source);
+                //if there are errors display the error.
+                //@todo: proper error handling need to get the service specs
+                if(response.error != undefined && response.error){
+                    $(_.get(self._viewOptions, 'dialog_boxes.parser_error')).modal();
+                    return;
+                }
+                //if no errors display the design.
+                //@todo
+                var root = self.deserializer.getASTModel(response);
+                self._model = root;
+                self.reDraw();
+
                 self.toolPalette.show();
                 sourceViewContainer.hide();
                 self._$designViewContainer.show();
@@ -246,7 +268,8 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
 
             // make undo-manager capture all tree modifications after initial rendering
             this._model.on('tree-modified', function(event){
-                self.undoManager.onUndoableOperation(event);
+                self.getUndoManager().onUndoableOperation(event);
+                self.trigger("content-modified");
             });
     };
 
@@ -466,6 +489,10 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             }
             // this._viewOptions.container is the root div for tab content
             var container = $(this._container).find(_.get(this._viewOptions, 'design_view.container'));
+            //remove the old canves before creating a new one.
+            var canvas = container.find('div.canvas-container');
+            canvas.remove();
+
             this._$designViewContainer = container;
             var canvasContainer = $('<div></div>');
             canvasContainer.addClass(_.get(this._viewOptions, 'cssClass.canvas_container'));
@@ -484,6 +511,10 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             this._model.accept(this);
 
             this.initDropTarget();
+        };
+
+        BallerinaFileEditor.prototype.getUndoManager = function(){
+            return this._undoManager;
         };
 
         return BallerinaFileEditor;

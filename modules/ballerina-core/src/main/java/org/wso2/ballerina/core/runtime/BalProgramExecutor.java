@@ -20,7 +20,6 @@ package org.wso2.ballerina.core.runtime;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.BLangExecutor;
 import org.wso2.ballerina.core.interpreter.CallableUnitInfo;
 import org.wso2.ballerina.core.interpreter.Context;
@@ -59,20 +58,16 @@ public class BalProgramExecutor {
 
     public static void execute(CarbonMessage cMsg, CarbonCallback callback, Resource resource, Service service,
                                Context balContext) {
-        try {
-            SymbolName symbolName = service.getSymbolName();
-            balContext.setServiceInfo(
-                    new CallableUnitInfo(symbolName.getName(), symbolName.getPkgName(), service.getServiceLocation()));
+        SymbolName symbolName = service.getSymbolName();
+        balContext.setServiceInfo(
+            new CallableUnitInfo(symbolName.getName(), symbolName.getPkgName(), service.getServiceLocation()));
 
-            balContext.setBalCallback(new DefaultBalCallback(callback));
+        balContext.setBalCallback(new DefaultBalCallback(callback));
 
-            // Create the interpreter and Execute
-            RuntimeEnvironment runtimeEnv = resource.getApplication().getRuntimeEnv();
-            BLangExecutor executor = new BLangExecutor(runtimeEnv, balContext);
-            new ResourceInvocationExpr(resource).executeMultiReturn(executor);
-        } catch (Throwable e) {
-            throw new BallerinaException(e.getMessage(), balContext);
-        }
+        // Create the interpreter and Execute
+        RuntimeEnvironment runtimeEnv = resource.getApplication().getRuntimeEnv();
+        BLangExecutor executor = new BLangExecutor(runtimeEnv, balContext);
+        new ResourceInvocationExpr(resource).executeMultiReturn(executor);
     }
 
     /**
@@ -143,9 +138,9 @@ public class BalProgramExecutor {
                 bContext.getControlStack().popFrame();
             }
         } catch (Throwable ex) {
-            String stackTrace = ErrorHandlerUtils.getMainFunctionStackTrace(bContext);
-            log.error("Error while executing ballerina program. " + ex.getMessage() +
-                    (stackTrace.length() != 0 ? "\n" + stackTrace : ""));
+            String errorMsg = ErrorHandlerUtils.getErrorMessage(ex);
+            String stacktrace = ErrorHandlerUtils.getMainFuncStackTrace(bContext, ex);
+            log.error(errorMsg + "\n" + stacktrace);
         }
     }
 }

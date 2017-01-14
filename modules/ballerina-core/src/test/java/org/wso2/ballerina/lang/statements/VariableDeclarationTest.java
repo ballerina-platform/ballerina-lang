@@ -49,4 +49,10 @@ public class VariableDeclarationTest {
     public void testUnsupportedTypeVariable() {
         ParserUtils.parseBalFile("lang/statements/unsupported-type-variable.bal");
     }
+
+    @Test(expectedExceptions = SemanticException.class,
+          expectedExceptionsMessageRegExp = "Duplicate constant name: b in duplicate-constant-variables.bal:4")
+    public void testDuplicateConstantVariable() {
+        ParserUtils.parseBalFile("lang/statements/duplicate-constant-variables.bal");
+    }
 }
