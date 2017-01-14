@@ -179,7 +179,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
                         x: parseInt(this.getChildContainer().attr("x")) + 17,
                         y: parseInt(this.getChildContainer().attr("y")) + 6
                     },
-                    width: $(this.getChildContainer().node().ownerSVGElement.parentElement).width() - (2 * 36)
+                    width: $(this.getChildContainer().node().ownerSVGElement.parentElement).width() - (2 * $(variableButton).width())
                 }
             };
 
@@ -232,9 +232,9 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
             $(leftScroll).height($(container).height());
             $(rightScroll).height($(container).height());
 
-            // Positioning the arrows of the scrolls.
-            $(leftScroll).find("i").css("padding-top", ($(container).height() / 2) - 22 + "px");
-            $(rightScroll).find("i").css("padding-top", ($(container).height() / 2) - 22 + "px");
+            // Positioning the arrows of the scrolls to the middle.
+            $(leftScroll).find("i").css("padding-top", ($(container).height() / 2) - (parseInt($(leftScroll).find("i").css("font-size"), 10) / 2) + "px");
+            $(rightScroll).find("i").css("padding-top", ($(container).height() / 2) - (parseInt($(rightScroll).find("i").css("font-size"), 10) / 2) + "px");
 
             // Showing/Hiding scrolls.
             if (Math.abs($(container).width() - $(svgElement).width()) < 5) {
