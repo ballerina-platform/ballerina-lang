@@ -30,7 +30,7 @@
 .outer-box{
     border: 1px solid;
     border-top: none;
-    overflow-x: scroll;
+    overflow-x: hidden;
 }
 
 .panel-title{
