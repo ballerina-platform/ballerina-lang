@@ -21,6 +21,7 @@ define(['lodash', './node'], function(_, ASTNode){
      * Constructor for IfCondition
      * @param {Object} args - Arguments to create the IfCondition
      * @constructor
+     * @augments ASTNode
      */
     var IfCondition = function (args) {
         ASTNode.call(this, 'IfCondition');
