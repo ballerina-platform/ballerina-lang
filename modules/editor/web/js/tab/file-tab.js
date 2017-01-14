@@ -32,6 +32,10 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             }
         },
 
+        getTitle: function(){
+            return _.isNil(this._file) ? "untitled" :  this._file.getName();
+        },
+
         getFile: function () {
             return this._file;
         },

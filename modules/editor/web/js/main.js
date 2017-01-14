@@ -135,6 +135,10 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'app/menu-bar/menu-bar
 
         isRunningOnMacOS: function(){
             return _.isEqual(this.getOperatingSystem(), 'MacOS');
+        },
+
+        getPathSeperator: function(){
+            return _.isEqual(this.getOperatingSystem(), 'Windows') ? '\\' : '/' ;
         }
 
     });
