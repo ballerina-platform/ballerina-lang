@@ -22,5 +22,7 @@ native function convertToRequest(message m);
 
 native function convertToRequest(message m, string protocolVersion);
 
+native function acceptAndReturn(int statusCode);
+
 
 
