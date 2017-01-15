@@ -92,7 +92,7 @@ define(['jquery', 'backbone', 'lodash', 'tree_view', /** void module - jquery pl
                     },
                     'types': {
                         'default': {
-                            'icon': 'fw-right'
+                            'icon': 'fw fw-folder'
                         },
                         'folder': {
                             'icon': 'fw fw-folder'
@@ -114,7 +114,7 @@ define(['jquery', 'backbone', 'lodash', 'tree_view', /** void module - jquery pl
                 }).on('open_node.jstree', function (e, data) {
                     data.instance.set_icon(data.node, "fw fw-folder");
                 }).on('close_node.jstree', function (e, data) {
-                    data.instance.set_icon(data.node, "fw-right");
+                    data.instance.set_icon(data.node, "fw fw-folder");
                 }).on('ready', function(){
                     self.trigger("ready");
                 });
