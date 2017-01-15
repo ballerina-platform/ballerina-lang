@@ -59,7 +59,7 @@ public class BLangJSONModelTest {
                                   "\"parameter_type\":\"message\",\"children\":[]},{\"type\":\"reply_statement\"," +
                                   "\"expression\":\"m\",\"children\":[{\"type\":\"variable_reference_expression\"," +
                                   "\"variable_reference_name\":\"m\"}]}]}]},{\"type\":\"function_definition\"," +
-                                  "\"function_name\":\"test_int\",\"is_public_function\":false,\"annotations\":[]," +
+                                  "\"function_name\":\"test\",\"is_public_function\":false,\"annotations\":[]," +
                                   "\"children\":[{\"type\":\"argument_declaration\",\"parameter_name\":\"a\"," +
                                   "\"parameter_type\":\"int\",\"children\":[]},{\"type\":\"return_type\"," +
                                   "\"children\":[{\"type\":\"type_name\",\"type_name\":\"int\"}]}," +
