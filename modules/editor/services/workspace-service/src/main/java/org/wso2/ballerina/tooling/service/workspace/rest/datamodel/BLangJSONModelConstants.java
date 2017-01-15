@@ -158,7 +158,7 @@ public class BLangJSONModelConstants {
 
     public static final String BACK_QUOTE_EXPRESSION = "back_quote_expression";
 
-    public static final String BACK_QUOTE_ENCLOSED_STRING = "back_quate_enclosed_string";
+    public static final String BACK_QUOTE_ENCLOSED_STRING = "back_quote_enclosed_string";
 
     public static final String INSTANCE_CREATION_EXPRESSION = "instance_creation_expression";
 
