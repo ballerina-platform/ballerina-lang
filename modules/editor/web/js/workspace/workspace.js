@@ -122,7 +122,6 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab/t
 
         this.getParsedTree = function (file, onSuccessCallBack) {
             var content = { "content" : file.getContent() };
-            console.log(JSON.stringify(content));
             $.ajax({
                 url: _.get(app, 'config.services.parser.endpoint'),
                 type: "POST",
