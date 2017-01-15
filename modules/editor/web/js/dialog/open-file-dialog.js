@@ -36,6 +36,10 @@ define(['require', 'lodash','jquery', 'log', 'backbone', 'file_browser', 'baller
                 this.ballerina_editor = _.get(options.config.tab_controller.tabs.tab, 'ballerina_editor');
             },
 
+            show: function(){
+                this._fileOpenModal.modal('show');
+            },
+
             render: function () {
                 //TODO : this render method should be rewritten with improved UI
                 var self = this;
@@ -149,7 +153,7 @@ define(['require', 'lodash','jquery', 'log', 'backbone', 'file_browser', 'baller
 
                 $(this.dialog_container).append(fileOpen);
                 openFileWizardError.hide();
-                fileOpen.modal('show');
+                this._fileOpenModal = fileOpen;
 
                 function alertSuccess() {
                     $(notification_container).append(successNotification);
