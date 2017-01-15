@@ -30,8 +30,8 @@ define(['require','lodash', 'log', 'event_channel', './abstract-statement-source
     };
 
     RightOperandExpressionVisitor.prototype.beginVisitRightOperandExpression = function(rightOperandExpression){
-        if (!_.isUndefined(rightOperandExpression.getBackQuoteEnclosedString())) {
-            this.appendSource(rightOperandExpression.getBackQuoteEnclosedString());
+        if (!_.isUndefined(rightOperandExpression.getRightOperandExpressionString())) {
+            this.appendSource(rightOperandExpression.getRightOperandExpressionString());
         }
         log.debug('Begin Visit Right Operand Expression');
     };
