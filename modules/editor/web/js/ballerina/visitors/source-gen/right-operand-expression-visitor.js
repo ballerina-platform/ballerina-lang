@@ -48,5 +48,12 @@ define(['require','lodash', 'log', 'event_channel', './abstract-statement-source
         statement.accept(statementVisitor);
     };
 
+    RightOperandExpressionVisitor.prototype.visitFuncInvocationStatement = function(statement){
+        var StatementVisitorFactory = require('./statement-visitor-factory');
+        var statementVisitorFactory = new StatementVisitorFactory();
+        var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
+        statement.accept(statementVisitor);
+    };
+
     return RightOperandExpressionVisitor;
 });
