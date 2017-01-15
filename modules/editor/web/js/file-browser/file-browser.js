@@ -92,13 +92,13 @@ define(['jquery', 'backbone', 'lodash', 'tree_view', /** void module - jquery pl
                     },
                     'types': {
                         'default': {
-                            'icon': 'fw fw-folder'
+                            'icon': 'glyphicon glyphicon-folder-close'
                         },
                         'folder': {
-                            'icon': 'fw fw-folder'
+                            'icon': 'glyphicon glyphicon-folder-close'
                         },
                         'file': {
-                            'icon': 'fw fw-blank-document'
+                            'icon': 'fw fw-folder'
                         }
                     },
                     'plugins': ['types']
@@ -112,9 +112,9 @@ define(['jquery', 'backbone', 'lodash', 'tree_view', /** void module - jquery pl
                         self.trigger("selected", null);
                     }
                 }).on('open_node.jstree', function (e, data) {
-                    data.instance.set_icon(data.node, "fw fw-folder");
+                    data.instance.set_icon(data.node, "glyphicon glyphicon-folder-open");
                 }).on('close_node.jstree', function (e, data) {
-                    data.instance.set_icon(data.node, "fw fw-folder");
+                    data.instance.set_icon(data.node, "glyphicon glyphicon-folder-close");
                 }).on('ready', function(){
                     self.trigger("ready");
                 });
