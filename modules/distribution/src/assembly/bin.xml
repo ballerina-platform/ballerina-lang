@@ -44,9 +44,7 @@
                 <exclude>**/*.ipr</exclude>
                 <exclude>**/*.iwr</exclude>
                 <exclude>**/*.eclipse</exclude>
-                <exclude>bin/ballerina</exclude>
-                <exclude>bin/ballerinaserver</exclude>
-                <exclude>bin/editor</exclude>
+                <exclude>bin/*.sh</exclude>
                 <exclude>bin/*.bat</exclude>
                 <exclude>bin/*.txt</exclude>
             </excludes>
