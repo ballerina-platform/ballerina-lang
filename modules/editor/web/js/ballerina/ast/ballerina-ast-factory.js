@@ -872,7 +872,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
                         node = BallerinaASTFactory.createWhileStatement();
                         break;
                     case 'basic_literal_expression' :
-                        node = BallerinaASTFactory.createAssignment();
+                        node = BallerinaASTFactory.createBasicLiteralExpression();
                         break;
                     case 'left_operand_expression':
                         node = BallerinaASTFactory.createLeftOperandExpression();
