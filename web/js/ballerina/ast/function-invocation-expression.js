@@ -39,23 +39,57 @@ define(['lodash', './statement'], function (_, Statement) {
     };
 
     /**
-     * setting parameters from json
-     * @param jsonNode
+     * Creating the function invocation statement which invoked by the parsed code.
+     * @param {Object} jsonNode - A node explaining the structure of a function invocation.
+     * @param {string} jsonNode.type - The type of this current node. The value would be
+     * "function_invocation_expression";
+     * @param {string} jsonNode.function_name - The body of the function information. Example : "system:println".
+     * @param {Object[]} jsonNode.children - The arguments of the function invocation.
      */
     FunctionInvocationExpression.prototype.initFromJson = function (jsonNode) {
         var functionNameSplit = jsonNode.function_name.split(":");
-        var params = "";
+        var argsString = "";
         this.getParent().setFunctionName(functionNameSplit[1]);
         this.getParent().setPackageName(functionNameSplit[0]);
         this.setFunctionName(jsonNode.function_name);
 
-        for (var itr = 0; itr < jsonNode.children.length; itr ++) {
-            params += jsonNode.children[itr].variable_reference_name;
+        argsString += this._generateArgsString(jsonNode, argsString, ", ");
+        this.getParent().setParams(argsString);
+    };
+
+    /**
+     * Generates the arguments passed to a function as a string.
+     * @param {Object} jsonNode - A node explaining the structure function argument.
+     * @param {string} argsString - The argument string. This string is used for appending the generated arg strings.
+     * @param {string} separator - The separator between args.
+     * @return {string} - Arguments as a string.
+     * @private
+     */
+    FunctionInvocationExpression.prototype._generateArgsString = function (jsonNode, argsString, separator) {
+        var self = this;
+
+        for (var itr = 0; itr < jsonNode.children.length; itr++) {
+            var childJsonNode = jsonNode.children[itr];
+            if (childJsonNode.type == "basic_literal_expression") {
+                if(childJsonNode.basic_literal_type == "string") {
+                    // Adding double quotes if it is a string.
+                    argsString += "\"" + childJsonNode.basic_literal_value + "\"";
+                } else {
+                    argsString += childJsonNode.basic_literal_value;
+                }
+            } else if (childJsonNode.type == "variable_reference_expression") {
+                argsString += childJsonNode.variable_reference_name;
+            } else if (childJsonNode.type == "add_expression") {
+                argsString += self._generateArgsString(childJsonNode, argsString, " + ");
+            } else if (childJsonNode.type == "subtract_expression") {
+                argsString += self._generateArgsString(childJsonNode, argsString, " - ");
+            }
+
             if (itr !== jsonNode.children.length - 1) {
-                params += ",";
+                argsString += separator;
             }
         }
-        this.getParent().setParams(params);
+        return argsString;
     };
 
     return FunctionInvocationExpression;
