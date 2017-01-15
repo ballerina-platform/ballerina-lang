@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './node'], function(_, ASTNode){
+define(['lodash', './statement'], function(_, Statement){
 
     /**
      * Constructor for RightOperandExpression
@@ -23,23 +23,44 @@ define(['lodash', './node'], function(_, ASTNode){
      * @constructor
      */
     var RightOperandExpression = function (args) {
-        ASTNode.call(this, 'RightOperandExpression');
-    }
+        Statement.call(this, 'RightOperandExpression');
+        this._back_quate_enclosed_string = undefined;
+    };
 
-    RightOperandExpression.prototype = Object.create(ASTNode.prototype);
+    RightOperandExpression.prototype = Object.create(Statement.prototype);
     RightOperandExpression.prototype.constructor = RightOperandExpression;
+
+    /**
+     * Get BackQuote String
+     * @returns {undefined|string}
+     */
+    RightOperandExpression.prototype.getBackQuoteEnclosedString = function () {
+        return this._back_quate_enclosed_string;
+    };
+
+    /**
+     * Set Back Quote String value
+     * @param {string} backQuoteStr
+     */
+    RightOperandExpression.prototype.setBackQuoteEnclosedString = function (backQuoteStr) {
+        this._back_quate_enclosed_string = backQuoteStr;
+    };
 
     /**
      * setting parameters from json
      * @param jsonNode
      */
     RightOperandExpression.prototype.initFromJson = function (jsonNode) {
-
         var self = this;
         _.each(jsonNode.children, function (childNode) {
-            var child = self.getFactory().createFromJson(childNode);
-            self.addChild(child);
-            child.initFromJson(childNode);
+            // TODO: Handle this Properly
+            if (childNode.type === 'back_quote_expression') {
+                self.setBackQuoteEnclosedString('`' + childNode.back_quate_enclosed_string + '`');
+            } else {
+                var child = self.getFactory().createFromJson(childNode);
+                self.addChild(child);
+                child.initFromJson(childNode);
+            }
         });
     };
 

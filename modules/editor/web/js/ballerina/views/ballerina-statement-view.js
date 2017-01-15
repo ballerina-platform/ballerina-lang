@@ -41,7 +41,6 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
         this._topCenter.on("moved", function(offset){
             self._bottomCenter(offset.dx, offset.dy);
         });
-        StatementVisitor.call(this);
         this.init();
     };
 
