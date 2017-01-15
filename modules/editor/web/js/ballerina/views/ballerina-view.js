@@ -30,7 +30,7 @@ define(['lodash', 'log', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
         var BallerinaView = function (args) {
             ASTVisitor.call(this, args);
             this._parent = _.get(args, "parent");
-            this._model = _.get(args, "model");
+            this.setModel(_.get(args, "model"));
             this._container = _.get(args, "container");
             this._viewOptions = _.get(args, "viewOptions", {});
             this._boundingBox = new BBox();
@@ -40,6 +40,10 @@ define(['lodash', 'log', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
 
         BallerinaView.prototype = Object.create(ASTVisitor.prototype);
         BallerinaView.prototype.constructor = BallerinaView;
+
+        BallerinaView.prototype.setModel = function (model) {
+            this._model = model;
+        };
 
         BallerinaView.prototype.setParent = function (parent) {
             this._parent = parent;
