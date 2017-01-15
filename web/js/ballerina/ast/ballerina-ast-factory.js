@@ -866,7 +866,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
                         node = BallerinaASTFactory.createAssignmentStatement();
                         break;
                     case 'back_quote_expression':
-                        node = BallerinaASTFactory.createAssignment();
+                        node = BallerinaASTFactory.createBackQuoteExpression();
                         break;
                     case 'while_statement' :
                         node = BallerinaASTFactory.createWhileStatement();
@@ -884,7 +884,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
                         node = BallerinaASTFactory.createIfElseStatement();
                         break;
                     case 'instance_creation_expression':
-                        node = BallerinaASTFactory.createAssignment();
+                        node = BallerinaASTFactory.createInstanceCreationExpression();
                         break;
                     case 'then_body':
                         node = BallerinaASTFactory.createThenBody();
