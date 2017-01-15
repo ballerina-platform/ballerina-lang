@@ -236,13 +236,8 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          * creates FunctionInvocationStatement
          * @param args
          */
-        BallerinaASTFactory.createFunctionInvocationStatement = function (args, withChild) {
-            var funcInvocationStatement = new functionInvocation(args);
-            // TODO: Fix this check properly
-            if (withChild) {
-                funcInvocationStatement.addChild(new functionInvocationExpression(args));
-            }
-            return funcInvocationStatement;
+        BallerinaASTFactory.createFunctionInvocationStatement = function (args) {
+            return new functionInvocation(args);
         };
 
         /**
@@ -850,7 +845,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
                         node = BallerinaASTFactory.createFunctionInvocationStatement();
                         break;
                     case 'function_invocation_expression':
-                        node = BallerinaASTFactory.createAssignment();
+                        node = BallerinaASTFactory.createFunctionInvocationExpression();
                         break;
                     case 'variable_reference_expression':
                         node = BallerinaASTFactory.createAssignment();
