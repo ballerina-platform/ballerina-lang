@@ -23,6 +23,7 @@ define(['lodash', './node'], function(_, ASTNode){
         this._connectorVariable = '';
         this._connectorType = '';
         this._timeout = '';
+        this._connectorPkgName = '';
         this._uri = '';
         ASTNode.call(this, "ConnectorDeclaration");
     };
@@ -52,11 +53,15 @@ define(['lodash', './node'], function(_, ASTNode){
     ConnectorDeclaration.prototype.setConnectorType = function (type) {
         this._connectorType = type;
     };
+    ConnectorDeclaration.prototype.setConnectorPkgName = function (pkgName) {
+        this._connectorPkgName = pkgName;
+    };
     ConnectorDeclaration.prototype.setUri = function (uri) {
         // TODO: need a proper way of extracting the protocol
         if (this.validateUri(uri)) {
             var tokens = uri.split(":");
-            this.setConnectorType( 'http:HTTPConnector');
+            this.setConnectorPkgName(tokens[0]);
+            this.setConnectorName('HTTPConnector');
         }
         this._uri = uri;
     };
@@ -78,6 +83,9 @@ define(['lodash', './node'], function(_, ASTNode){
     ConnectorDeclaration.prototype.getUri = function () {
         return this._uri;
     };
+    ConnectorDeclaration.prototype.getConnectorPkgName = function () {
+        return this._connectorPkgName;
+    };
     ConnectorDeclaration.prototype.getTimeout = function () {
         return this._timeout;
     };
@@ -92,10 +100,11 @@ define(['lodash', './node'], function(_, ASTNode){
      * @param {Object} jsonNode to initialize from
      */
     ConnectorDeclaration.prototype.initFromJson = function (jsonNode) {
-        this.setConnectorName('connectorName');
+        this._connectorName = jsonNode.connector_name;
+        this._connectorPkgName = jsonNode.connector_pkg_name;
+        this._connectorVariable = jsonNode.connector_variable;
+        this._uri = jsonNode.children[0].basic_literal_value;
         this.setConnectorType('connectorType');
-        this.setConnectorVariable(jsonNode.connector_variable);
-        this.setUri('http://localhost');
     };
 
     return ConnectorDeclaration;

@@ -63,7 +63,7 @@ define(['lodash', 'log', 'event_channel', '../ast/module', './try-catch-statemen
             } else if (statement instanceof AST.AssignmentStatement){
                 // TODO : This logic needs to be refactored.
                 var children  = _.get(statement, "children");
-                var assignmenStatement;
+                var assignmenStatement = undefined;
                 _.each(children, function (statementChild) {
                     if(AST.BallerinaASTFactory.isRightOperandExpression(statementChild)) {
                         var operands  = _.get(statementChild, "children");
@@ -90,6 +90,10 @@ define(['lodash', 'log', 'event_channel', '../ast/module', './try-catch-statemen
                         });
                     }
                 });
+                if (_.isUndefined(assignmenStatement)) {
+                    _.set(args, 'model', AST.BallerinaASTFactory.createAssignment());
+                    assignmenStatement = new AssignmentStatementView(args);
+                }
                 return assignmenStatement;
             }
         };
