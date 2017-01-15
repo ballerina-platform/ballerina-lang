@@ -266,6 +266,7 @@
             com.jayway.jsonpath.*;version="${jayway.jsonpath.import.version.range}",
             org.jaxen.*;version="${jaxen.import.version.range}",
             net.sf.saxon.*;version="${saxon.import.version.range}",
+            org.apache.commons.lang.*;version="${commons.lang.version}",
             org.apache.commons.io.*;version="${commons.io.version}",
             org.apache.commons.vfs2.*;version="${commons.vfs.version}"
         </import.package>

@@ -33,8 +33,11 @@ import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
 @BallerinaConnector(
         packageName = "ballerina.net.file",
         connectorName = org.wso2.ballerina.core.nativeimpl.connectors.file.client.FileConnector.CONNECTOR_NAME,
-        args = {
-                @Argument(name = "fileUri", type = TypeEnum.STRING)
+        args = {@Argument(name = "timeout", type = TypeEnum.INT),
+                @Argument(name = "passiveMode", type = TypeEnum.BOOLEAN),
+                @Argument(name = "soTimeout", type = TypeEnum.INT),
+                @Argument(name = "strictHostKeyChecking", type = TypeEnum.STRING),
+                @Argument(name = "userDirIsRoot", type = TypeEnum.BOOLEAN)
         })
 @Component(
         name = "ballerina.net.connectors.file",
@@ -43,12 +46,20 @@ import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
 public class FileConnector extends AbstractNativeConnector implements ServiceFactory {
 
     public static final String CONNECTOR_NAME = "FileConnector";
-    private String fileUri;
+    private String timeout;
+    private String passiveMode;
+    private String soTimeout;
+    private String strictHostKeyChecking;
+    private String userDirIsRoot;
 
     @Override
     public boolean init(BValue[] bValueRefs) {
-        if (bValueRefs != null && bValueRefs.length == 1) {
-            fileUri = bValueRefs[0].stringValue();
+        if (bValueRefs != null && bValueRefs.length == 5) {
+            timeout = bValueRefs[0].stringValue();
+            passiveMode = bValueRefs[1].stringValue();
+            soTimeout = bValueRefs[2].stringValue();
+            strictHostKeyChecking = bValueRefs[3].stringValue();
+            userDirIsRoot = bValueRefs[4].stringValue();
         }
         return true;
     }
@@ -57,11 +68,6 @@ public class FileConnector extends AbstractNativeConnector implements ServiceFac
     public FileConnector getInstance() {
         return new FileConnector();
     }
-
-    public String getFileUri() {
-        return fileUri;
-    }
-
     @Override
     public String getPackageName() {
         return null;
@@ -74,5 +80,25 @@ public class FileConnector extends AbstractNativeConnector implements ServiceFac
 
     @Override
     public void ungetService(Bundle bundle, ServiceRegistration serviceRegistration, Object o) {
+    }
+
+    public String getTimeout() {
+        return timeout;
+    }
+
+    public String getPassiveMode() {
+        return passiveMode;
+    }
+
+    public String getSoTimeout() {
+        return soTimeout;
+    }
+
+    public String getStrictHostKeyChecking() {
+        return strictHostKeyChecking;
+    }
+
+    public String getUserDirIsRoot() {
+        return userDirIsRoot;
     }
 }

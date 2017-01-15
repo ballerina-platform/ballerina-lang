@@ -20,6 +20,7 @@ package org.wso2.ballerina.core.nativeimpl.connectors.file.client;
 import org.apache.axiom.om.OMElement;
 import org.apache.commons.io.output.CountingOutputStream;
 import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.FileSystemOptions;
 import org.apache.commons.vfs2.FileType;
 import org.apache.commons.vfs2.impl.StandardFileSystemManager;
 import org.osgi.service.component.annotations.Component;
@@ -27,9 +28,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
+import org.wso2.ballerina.core.message.BallerinaMessageDataSource;
+import org.wso2.ballerina.core.message.StringDataSource;
 import org.wso2.ballerina.core.model.Connector;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BConnector;
+import org.wso2.ballerina.core.model.values.BJSON;
 import org.wso2.ballerina.core.model.values.BMessage;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BXML;
@@ -39,12 +43,14 @@ import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.file.util.FileConnectorUtils;
 import org.wso2.ballerina.core.nativeimpl.connectors.file.util.FileConstants;
 import org.wso2.ballerina.core.nativeimpl.connectors.file.util.ResultPayloadCreate;
-import org.wso2.ballerina.core.nativeimpl.connectors.http.Constants;
 import org.wso2.ballerina.core.nativeimpl.connectors.http.client.Get;
 import org.wso2.ballerina.core.nativeimpl.connectors.http.client.HTTPConnector;
 import org.wso2.carbon.messaging.CarbonMessage;
 
+import java.io.File;
 import java.io.IOException;
+import java.sql.Timestamp;
+import java.time.Instant;
 import javax.xml.stream.XMLStreamException;
 
 /**
@@ -58,6 +64,7 @@ import javax.xml.stream.XMLStreamException;
                 @Argument(name = "connector",
                         type = TypeEnum.CONNECTOR),
                 @Argument(name = "path", type = TypeEnum.STRING),
+                @Argument(name = "append", type = TypeEnum.BOOLEAN),
                 @Argument(name = "message", type = TypeEnum.MESSAGE)
         })
 @Component(
@@ -77,7 +84,8 @@ public class Send extends AbstractFileAction {
             // Extract Argument values
             BConnector bConnector = (BConnector) getArgument(context, 0);
             String path = getArgument(context, 1).stringValue();
-            BMessage bMessage = (BMessage) getArgument(context, 2);
+            String strAppend = getArgument(context, 2).stringValue();
+            BMessage bMessage = (BMessage) getArgument(context, 3);
 
             Connector connector = bConnector.value();
             if (!(connector instanceof FileConnector)) {
@@ -85,21 +93,21 @@ public class Send extends AbstractFileAction {
             }
             // Prepare the message
             CarbonMessage cMsg = bMessage.value();
-            prepareRequest(connector, path, cMsg);
-            cMsg.setProperty(Constants.HTTP_METHOD,
-                    Constants.HTTP_METHOD_GET);
 
             // Execute the file related operation
             boolean append = false;
-            String[] params = new String[2];
-            String address = getArgument(context, 1).stringValue();
-            String strAppend = getArgument(context, 2).stringValue();
-            params[0] = address;
-            params[1] = strAppend;
+            String[] params = new String[5];
+            params[0] = ((FileConnector) connector).getTimeout();
+            params[1] = ((FileConnector) connector).getPassiveMode();
+            params[2] = ((FileConnector) connector).getSoTimeout();
+            params[3] = ((FileConnector) connector).getStrictHostKeyChecking();
+            params[4] = ((FileConnector) connector).getUserDirIsRoot();
+
             if (strAppend != null) {
                 append = Boolean.parseBoolean(strAppend);
             }
-            boolean resultStatus = sendResponseFile(address, context, append, bMessage, params);
+
+            boolean resultStatus = sendResponseFile(path, context, append, bMessage, params);
             generateResults(context, resultStatus);
 
             // Execute the operation
@@ -148,18 +156,41 @@ public class Send extends AbstractFileAction {
         }
         try {
             manager = FileConnectorUtils.getManager();
-            fileObj = manager.resolveFile(address, FileConnectorUtils.init(messageContext, params));
+            FileSystemOptions opts = FileConnectorUtils.init(messageContext, params);
+            fileObj = manager.resolveFile(address, opts);
             if (fileObj.getType() == FileType.FOLDER) {
-                address = address.concat(FileConstants.DEFAULT_RESPONSE_FILE);
-                fileObj = manager.resolveFile(address, FileConnectorUtils.init(messageContext, params));
+                if (!address.endsWith(File.separator)) {
+                    address = address.concat(File.separator);
+                }
+                // Use the timestamp for filename
+                Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+                Instant instant = timestamp.toInstant();
+                address = address.concat(instant.toString());
+                fileObj = manager.resolveFile(address, opts);
             }
 
             // Creating output stream and give the content to that.
             os = new CountingOutputStream(fileObj.getContent().getOutputStream(append));
             if (messageContext != null) {
-                BXML bxml = new BXML();
-                bxml.setOutputStream(os);
-                bxml.serializeData();
+                BallerinaMessageDataSource value = null;
+                // Evaluate the content-type and use the correct builder
+                String contentType = message.getHeader("Content-Type");
+                if (contentType != null) {
+                    if (contentType.contains("application/xml") ||
+                            contentType.contains("text/xml") ||
+                            contentType.contains("application/soap+xml")) {
+                        value = new BXML(message.stringValue());
+                    } else if (contentType.contains("application/json")) {
+                        value = new BJSON(message.stringValue());
+                    } else {
+                        value = new StringDataSource(message.stringValue());
+                    }
+
+                } else {
+                    value = new StringDataSource(message.stringValue());
+                }
+                value.setOutputStream(os);
+                value.serializeData();
                 resultStatus = true;
                 if (logger.isDebugEnabled()) {
                     logger.debug("File send completed to " + address);

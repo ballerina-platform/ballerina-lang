@@ -59,12 +59,12 @@ public class FileConnectorUtils {
         return fsm;
     }
 
-    public static FileSystemOptions init(Context context, String[]params) {
-        String setTimeout = params[0];
-        String setPassiveMode = params[1];
-        String setSoTimeout = params[2];
-        String setStrictHostKeyChecking = params[3];
-        String setUserDirIsRoot = params[4];
+    public static FileSystemOptions init(Context context, String[] params) {
+        String setTimeout = params[0] != null ? params[0] : "30000";
+        String setPassiveMode = params[1] != null ? params[1] : "true";
+        String setSoTimeout = params[2] != null ? params[2] : "60000";
+        String setStrictHostKeyChecking = params[3] != null ? params[3] : "yes";
+        String setUserDirIsRoot = params[4] != null ? params[4] : "false";
 
         if (logger.isDebugEnabled()) {
             logger.debug("File init starts with " + setTimeout + "," + setPassiveMode + "," +
