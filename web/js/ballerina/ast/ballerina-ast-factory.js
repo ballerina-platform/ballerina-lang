@@ -790,6 +790,15 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
             return child instanceof functionInvocationExpression;
         };
 
+        /**
+         * instanceof check for functionInvocationStatement
+         * @param {ASTNode} child - The ast node.
+         * @returns {boolean} - true if same type, else false
+         */
+        BallerinaASTFactory.isFunctionInvocationStatement = function (child) {
+            return child instanceof functionInvocation;
+        };
+
         BallerinaASTFactory.createFromJson = function (jsonNode) {
             var node;
             var nodeType = jsonNode.type;
