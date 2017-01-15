@@ -100,13 +100,20 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab/t
         };
 
         this.openFileSaveDialog = function openFileSaveDialog() {
-            var dialog = new Dialogs.save_to_file_dialog(app);
-            dialog.render();
+            if(_.isNil(this._saveFileDialog)){
+                this._saveFileDialog = new Dialogs.save_to_file_dialog(app);
+                this._saveFileDialog.render();
+            }
+            this._saveFileDialog.show();
+
         };
 
         this.openFileOpenDialog = function openFileOpenDialog() {
-            var dialog = new Dialogs.open_file_dialog(app);
-            dialog.render();
+            if(_.isNil(this._openFileDialog)){
+                this._openFileDialog = new Dialogs.open_file_dialog(app);
+                this._openFileDialog.render();
+            }
+            this._openFileDialog.show();
         };
 
         this.goToWelcomePage = function goToWelcomePage() {
