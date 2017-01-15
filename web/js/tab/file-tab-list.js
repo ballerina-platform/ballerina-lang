@@ -66,13 +66,13 @@ define(['log', 'jquery', 'lodash', './tab-list', './file-tab',  'workspace'],
                 this._workingFileSet.push(tab.getFile().id);
                 this.getBrowserStorage().put('workingFileSet', this._workingFileSet);
             }
+            var app = _.get(this, 'options.application'),
+                workspaceManager = app.workspaceManager;
             tab.on("tab-content-modified", function(){
                 if (tab.isActive()) {
-                    var app = _.get(this, 'options.application'),
-                        workspaceManager = app.workspaceManager;
                     workspaceManager.updateUndoRedoMenus();
                 }
-            }, this)
+            }, this);
         },
         removeTab: function (tab) {
             TabList.prototype.removeTab.call(this, tab);
