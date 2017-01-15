@@ -24,26 +24,26 @@ define(['lodash', './statement'], function(_, Statement){
      */
     var RightOperandExpression = function (args) {
         Statement.call(this, 'RightOperandExpression');
-        this._back_quate_enclosed_string = undefined;
+        this._right_operand_expression_string = undefined;
     };
 
     RightOperandExpression.prototype = Object.create(Statement.prototype);
     RightOperandExpression.prototype.constructor = RightOperandExpression;
 
     /**
-     * Get BackQuote String
+     * Get Right Operand Expression String
      * @returns {undefined|string}
      */
     RightOperandExpression.prototype.getRightOperandExpressionString = function () {
-        return this._back_quate_enclosed_string;
+        return this._right_operand_expression_string;
     };
 
     /**
-     * Set Back Quote String value
-     * @param {string} backQuoteStr
+     * Set Right Operand Expression String
+     * @param {string} rightOperandExpStr
      */
-    RightOperandExpression.prototype.setRightOperandExpressionString = function (backQuoteStr) {
-        this._back_quate_enclosed_string = backQuoteStr;
+    RightOperandExpression.prototype.setRightOperandExpressionString = function (rightOperandExpStr) {
+        this._right_operand_expression_string = rightOperandExpStr;
     };
 
     /**
