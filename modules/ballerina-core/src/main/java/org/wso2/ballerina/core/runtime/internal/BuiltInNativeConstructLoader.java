@@ -25,6 +25,7 @@ import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.util.LangModelUtils;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
+import org.wso2.ballerina.core.nativeimpl.connectors.http.function.AcceptAndReturn;
 import org.wso2.ballerina.core.nativeimpl.connectors.http.function.ConvertToResponse;
 import org.wso2.ballerina.core.nativeimpl.connectors.http.function.GetMethod;
 import org.wso2.ballerina.core.nativeimpl.lang.array.DoubleArrayCopyOf;
@@ -314,6 +315,7 @@ public class BuiltInNativeConstructLoader {
         //http
         registerFunction(scope, new ConvertToResponse());
         registerFunction(scope, new GetMethod());
+        registerFunction(scope, new AcceptAndReturn());
 
     }
 
