@@ -17,7 +17,6 @@
  */
 package org.wso2.ballerina.core.nativeimpl.connectors.http.function;
 
-import org.osgi.service.component.annotations.Component;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BValue;
@@ -36,17 +35,17 @@ import org.wso2.carbon.messaging.Headers;
         args = {@Argument(name = "message", type = TypeEnum.MESSAGE)},
         isPublic = true
 )
-
-@Component(
-        name = "func.net.http_convertToResponse",
-        immediate = true,
-        service = AbstractNativeFunction.class
-)
 public class ConvertToResponse extends AbstractNativeFunction {
     public BValue[] execute(Context ctx) {
         if (!org.wso2.carbon.messaging.Constants.DIRECTION_RESPONSE.
                 equals(ctx.getCarbonMessage().getProperty(org.wso2.carbon.messaging.Constants.DIRECTION))) {
+            // getting the Content-Type of request message
+            String requestContentType = ctx.getCarbonMessage().getHeader(
+                    org.wso2.ballerina.core.nativeimpl.lang.utils.Constants.CONTENT_TYPE);
             ctx.getCarbonMessage().getHeaders().clear();
+            // setting the request Content-Type for response message
+            ctx.getCarbonMessage().setHeader(org.wso2.ballerina.core.nativeimpl.lang.utils.Constants.CONTENT_TYPE
+                    , requestContentType);
             // Set any intermediate headers set during ballerina execution
             if (ctx.getCarbonMessage().getProperty(Constants.INTERMEDIATE_HEADERS) != null) {
                 Headers headers = (Headers) ctx.getCarbonMessage().getProperty(Constants.INTERMEDIATE_HEADERS);

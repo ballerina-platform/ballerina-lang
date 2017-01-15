@@ -25,6 +25,8 @@ import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.util.LangModelUtils;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
+import org.wso2.ballerina.core.nativeimpl.connectors.http.function.ConvertToResponse;
+import org.wso2.ballerina.core.nativeimpl.connectors.http.function.GetMethod;
 import org.wso2.ballerina.core.nativeimpl.lang.array.DoubleArrayCopyOf;
 import org.wso2.ballerina.core.nativeimpl.lang.array.DoubleArrayLength;
 import org.wso2.ballerina.core.nativeimpl.lang.array.DoubleArrayRangeCopy;
@@ -124,6 +126,8 @@ import org.wso2.ballerina.core.nativeimpl.lang.system.PrintBoolean;
 import org.wso2.ballerina.core.nativeimpl.lang.system.PrintDouble;
 import org.wso2.ballerina.core.nativeimpl.lang.system.PrintFloat;
 import org.wso2.ballerina.core.nativeimpl.lang.system.PrintInt;
+import org.wso2.ballerina.core.nativeimpl.lang.system.PrintLong;
+import org.wso2.ballerina.core.nativeimpl.lang.system.PrintString;
 import org.wso2.ballerina.core.nativeimpl.lang.system.PrintlnBoolean;
 import org.wso2.ballerina.core.nativeimpl.lang.system.PrintlnDouble;
 import org.wso2.ballerina.core.nativeimpl.lang.system.PrintlnFloat;
@@ -131,9 +135,13 @@ import org.wso2.ballerina.core.nativeimpl.lang.system.PrintlnInt;
 import org.wso2.ballerina.core.nativeimpl.lang.system.PrintlnLong;
 import org.wso2.ballerina.core.nativeimpl.lang.system.PrintlnString;
 import org.wso2.ballerina.core.nativeimpl.lang.xml.AddAttribute;
+import org.wso2.ballerina.core.nativeimpl.lang.xml.AddAttributeWithNamespaces;
 import org.wso2.ballerina.core.nativeimpl.lang.xml.AddElement;
+import org.wso2.ballerina.core.nativeimpl.lang.xml.AddElementWithNamespaces;
 import org.wso2.ballerina.core.nativeimpl.lang.xml.GetXML;
+import org.wso2.ballerina.core.nativeimpl.lang.xml.GetXMLWithNamespaces;
 import org.wso2.ballerina.core.nativeimpl.lang.xml.SetXML;
+import org.wso2.ballerina.core.nativeimpl.lang.xml.SetXMLWithNamespaces;
 import org.wso2.ballerina.core.nativeimpl.net.uri.Encode;
 import org.wso2.ballerina.core.nativeimpl.net.uri.GetQueryParam;
 
@@ -145,11 +153,13 @@ import org.wso2.ballerina.core.nativeimpl.net.uri.GetQueryParam;
  * All the external native constructs are plugged into the core through osgi services.
  * Making built-in constructs also plugged through osgi increases the boot-up time.
  * That's the main reason for doing this in this fashion.
+ *
+ * @since 1.0.0
  */
 public class BuiltInNativeConstructLoader {
 
 
-    static void loadConstructs() {
+    public static void loadConstructs() {
         loadNativeFunctions();
     }
 
@@ -272,17 +282,24 @@ public class BuiltInNativeConstructLoader {
         registerFunction(scope, new PrintlnInt());
         registerFunction(scope, new PrintlnLong());
         registerFunction(scope, new PrintlnString());
-        registerFunction(scope, new PrintlnLong());
-        registerFunction(scope, new PrintlnString());
+        registerFunction(scope, new PrintLong());
+        registerFunction(scope, new PrintString());
 
         // lang.xml
         registerFunction(scope, new AddAttribute());
+        registerFunction(scope, new AddAttributeWithNamespaces());
         registerFunction(scope, new AddElement());
+        registerFunction(scope, new AddElementWithNamespaces());
         registerFunction(scope, new org.wso2.ballerina.core.nativeimpl.lang.xml.GetString());
+        registerFunction(scope, new org.wso2.ballerina.core.nativeimpl.lang.xml.GetStringWithNamespaces());
         registerFunction(scope, new GetXML());
+        registerFunction(scope, new GetXMLWithNamespaces());
         registerFunction(scope, new org.wso2.ballerina.core.nativeimpl.lang.xml.Remove());
+        registerFunction(scope, new org.wso2.ballerina.core.nativeimpl.lang.xml.RemoveWithNamespaces());
         registerFunction(scope, new org.wso2.ballerina.core.nativeimpl.lang.xml.SetString());
+        registerFunction(scope, new org.wso2.ballerina.core.nativeimpl.lang.xml.SetStringWithNamespaces());
         registerFunction(scope, new SetXML());
+        registerFunction(scope, new SetXMLWithNamespaces());
         registerFunction(scope, new org.wso2.ballerina.core.nativeimpl.lang.xml.ToString());
 
         // net.uri
@@ -293,6 +310,10 @@ public class BuiltInNativeConstructLoader {
         registerFunction(scope, new GetKeys());
         registerFunction(scope, new org.wso2.ballerina.core.nativeimpl.lang.map.Length());
         registerFunction(scope, new org.wso2.ballerina.core.nativeimpl.lang.map.Remove());
+
+        //http
+        registerFunction(scope, new ConvertToResponse());
+        registerFunction(scope, new GetMethod());
 
     }
 
@@ -311,10 +332,8 @@ public class BuiltInNativeConstructLoader {
 
         SymbolName symbolName =
                 LangModelUtils.getSymNameWithParams(function.getPackageName() + ":" +
-                                                    functionNameAnnotation.functionName(), function.getParameters());
-        Symbol symbol = new Symbol(function,
-                                   LangModelUtils.getTypesOfParams(function.getParameters()),
-                                   function.getReturnTypes());
+                        functionNameAnnotation.functionName(), function.getParameters());
+        Symbol symbol = new Symbol(function);
         symScope.insert(symbolName, symbol);
     }
 

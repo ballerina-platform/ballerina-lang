@@ -23,8 +23,13 @@ define(['lodash', 'log', './conditional-statement'], function (_, log, Condition
      * @param statements The statements list of a while statement.
      * @constructor
      */
-    var WhileStatement = function () {
+    var WhileStatement = function (args) {
         ConditionalStatement.call(this);
+        if(!_.isNil(_.get(args,'condition'))){
+            this._condition = _.get(args,'condition');
+        }
+        this._statements = _.get(args,'statements') || [];
+        this.type = "WhileStatement";
     };
 
     WhileStatement.prototype = Object.create(ConditionalStatement.prototype);
@@ -38,6 +43,24 @@ define(['lodash', 'log', './conditional-statement'], function (_, log, Condition
 
     WhileStatement.prototype.getCondition = function(){
         return this._condition;
+    };
+
+    /**
+     * initialize from json
+     * @param jsonNode
+     */
+    WhileStatement.prototype.initFromJson = function (jsonNode) {
+        var self = this;
+        _.each(jsonNode.children, function (childNode) {
+            var child = self.getFactory().createFromJson(childNode);
+            if (self.getFactory().isExpression(child)) {
+                child.initFromJson(childNode);
+                this._condition = child.getExpression();
+            } else {
+                self.addChild(child);
+                child.initFromJson(childNode);
+            }
+        });
     };
 
     return WhileStatement;

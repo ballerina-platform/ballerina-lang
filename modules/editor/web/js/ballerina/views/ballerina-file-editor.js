@@ -16,8 +16,11 @@
  * under the License.
  */
 define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-view',  './function-definition-view', './../ast/ballerina-ast-root',
-        './../ast/ballerina-ast-factory', './../ast/package-definition', './source-view', './../visitors/source-gen/ballerina-ast-root-visitor', './../tool-palette/tool-palette'],
-    function (_, $, log, BallerinaView, ServiceDefinitionView, FunctionDefinitionView, BallerinaASTRoot, BallerinaASTFactory, PackageDefinition, SourceView, SourceGenVisitor, ToolPalette) {
+        './../ast/ballerina-ast-factory', './../ast/package-definition', './source-view',
+        './../visitors/source-gen/ballerina-ast-root-visitor', './../tool-palette/tool-palette',
+        './../undo-manager/undo-manager','./backend', './../ast/ballerina-ast-deserializer'],
+    function (_, $, log, BallerinaView, ServiceDefinitionView, FunctionDefinitionView, BallerinaASTRoot, BallerinaASTFactory,
+              PackageDefinition, SourceView, SourceGenVisitor, ToolPalette, UndoManager, Backend, BallerinaASTDeserializer) {
 
         /**
          * The view to represent a ballerina file editor which is an AST visitor.
@@ -36,6 +39,14 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 log.error("Ballerina AST Root is undefined or is of different type." + this._model);
                 throw "Ballerina AST Root is undefined or is of different type." + this._model;
             }
+
+
+            if (!_.has(args, 'viewOptions.backend')){
+                log.error("Backend is not defined.");
+                // not throwing an exception for now since we need to work without a backend.
+            }
+            this.backend = new Backend(_.get(args, 'viewOptions.backend', {}));
+            this.deserializer = BallerinaASTDeserializer;
             this.init();
         };
 
@@ -116,10 +127,6 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
 
         };
 
-        BallerinaFileEditor.prototype.childVisitedCallback = function (child) {
-            this.trigger("childViewAddedEvent", child);
-        };
-
         /**
          * Visits FunctionDefinition
          * @param functionDefinition
@@ -175,10 +182,11 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             });
 
             this._createPackagePropertyPane(canvasContainer);
+            // init undo manager
+            this._undoManager = new UndoManager();
 
             //Registering event listeners
-            this.listenTo(this._model, 'childVisitedEvent', this.childVisitedCallback);
-            this.listenTo(this._model, 'childRemovedEvent', this.childViewRemovedCallback);
+            this.listenTo(this._model, 'child-removed', this.childViewRemovedCallback);
         };
 
         /**
@@ -226,6 +234,19 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
 
             var designViewBtn = $(this._container).find(_.get(this._viewOptions, 'controls.view_design_btn'));
             designViewBtn.click(function () {
+                var source = self._sourceView._editor.getValue();
+                var response = self.backend.parse(source);
+                //if there are errors display the error.
+                //@todo: proper error handling need to get the service specs
+                if(response.error != undefined && response.error){
+                    $(_.get(self._viewOptions, 'dialog_boxes.parser_error')).modal();
+                    return;
+                }
+                //if no errors display the design.
+                //@todo
+                var root = self.deserializer.getASTModel(response);
+                self._model = root;
+                //canvas should be visible before you can call reDraw. drawing dependednt on attr:offsetWidth
                 self.toolPalette.show();
                 sourceViewContainer.hide();
                 self._$designViewContainer.show();
@@ -233,19 +254,26 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 designViewBtn.hide();
                 self.trigger('design-view-activated');
                 self.trigger('source-view-deactivated');
+                self.reDraw();
             });
             // activate design view by default
             designViewBtn.hide();
             sourceViewContainer.hide();
-            this.initResourceLevelDropTarget();
+            this.initDropTarget();
 
             this._model.on('child-added', function(child){
                 self.visit(child);
-                self._model.trigger("childVisitedEvent", child);
+                self._model.trigger("child-visited", child);
+            });
+
+            // make undo-manager capture all tree modifications after initial rendering
+            this._model.on('tree-modified', function(event){
+                self.getUndoManager().onUndoableOperation(event);
+                self.trigger("content-modified");
             });
     };
 
-    BallerinaFileEditor.prototype.initResourceLevelDropTarget = function() {
+    BallerinaFileEditor.prototype.initDropTarget = function() {
         var self = this,
             dropActiveClass = _.get(this._viewOptions, 'cssClass.design_view_drop');
 
@@ -262,9 +290,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
 
                 // register this as a drop target and validate possible types of nodes to drop - second arg is a call back to validate
                 // tool view will use this to provide feedback on impossible drop zones
-                self.toolPalette.dragDropManager.setActivatedDropTarget(self._model, function(nodeBeingDragged){
-                        return self._model.canBeParentOf(nodeBeingDragged) && nodeBeingDragged.canBeAChildOf(self._model);
-                });
+                self.toolPalette.dragDropManager.setActivatedDropTarget(self._model);
 
                 // indicate drop area
                 self._$canvasContainer.addClass(dropActiveClass);
@@ -381,7 +407,8 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 var packageTextBox = propertyPane.find(".package-name-wrapper input[type=text]");
 
                 // Setting package name to text box.
-                packageTextBox.val(currentASTRoot.getPackageDefinition().getPackageName());
+                packageTextBox.val((!_.isUndefined(currentASTRoot.getPackageDefinition())) ?
+                    currentASTRoot.getPackageDefinition().getPackageName() : "");
 
                 // Updating model along with text change on package text box.
                 packageTextBox.on("change keyup input", function () {
@@ -463,6 +490,10 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             }
             // this._viewOptions.container is the root div for tab content
             var container = $(this._container).find(_.get(this._viewOptions, 'design_view.container'));
+            //remove the old canves before creating a new one.
+            var canvas = container.find('div.canvas-container');
+            canvas.remove();
+
             this._$designViewContainer = container;
             var canvasContainer = $('<div></div>');
             canvasContainer.addClass(_.get(this._viewOptions, 'cssClass.canvas_container'));
@@ -476,12 +507,15 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             }
 
             //Registering event listeners
-            this.listenTo(this._model, 'childVisitedEvent', this.childVisitedCallback);
-            this.listenTo(this._model, 'childRemovedEvent', this.childViewRemovedCallback);
+            this.listenTo(this._model, 'child-removed', this.childViewRemovedCallback);
 
             this._model.accept(this);
 
-            this.initResourceLevelDropTarget();
+            this.initDropTarget();
+        };
+
+        BallerinaFileEditor.prototype.getUndoManager = function(){
+            return this._undoManager;
         };
 
         return BallerinaFileEditor;

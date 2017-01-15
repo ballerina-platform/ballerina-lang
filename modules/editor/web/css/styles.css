@@ -6,7 +6,7 @@ body {
     display: none
 }
 
-#right-container {
+.right-container {
     background-color: #232323;
 }
 
@@ -128,14 +128,13 @@ ol#breadcrumbList {
 }
 
 /** Menu Bar **/
-.dropdown-menu{
+.dropdown-menu {
     background: #1e1e1e;
     top: 50%;
     font-size: 11px;
 }
 
-
-    /** Breadcrumbs related styles | -> End**/
+/** Breadcrumbs related styles | -> End**/
 /*//////////////////////////////////////////////////*/
 .settings-icon {
     padding-top: 5px;
@@ -189,7 +188,7 @@ ol#breadcrumbList {
     stroke-width: 1;
 }
 
-.background-empty-rect{
+.background-empty-rect {
     fill: #ffffff;
     fill-opacity: 0;
     stroke: #000000;
@@ -200,6 +199,7 @@ ol#breadcrumbList {
     text-anchor: middle;
     dominant-baseline: central;
 }
+
 /*//////////////////////////////////////////////////*/
 /** Service container related styles | Start -> **/
 
@@ -211,7 +211,7 @@ ol#breadcrumbList {
 .service-variable-button {
     float: right;
     position: relative;
-    display:block;
+    display: block;
 }
 
 .service-variable-typebutton {
@@ -234,8 +234,6 @@ ol#breadcrumbList {
     padding: 7px 7px 0 7px;
     height: 38px;
     position: absolute;
-    /*top: 125px;*/
-    /*right: 740px;*/
     display: none;
     margin: auto;
 }
@@ -243,7 +241,6 @@ ol#breadcrumbList {
 .resource-variable-pane input {
     padding-left: 5px;
     height: 25px;
-    /*margin-right: 5px;*/
 }
 
 .resource-variable-pane select {
@@ -258,7 +255,6 @@ ol#breadcrumbList {
 .resource-variable-pane input {
     padding-left: 5px;
     height: 25px;
-    /*margin-right: 5px;*/
 }
 
 .resource-variable-pane form > input {
@@ -272,7 +268,7 @@ button.variable-list {
 }
 
 .variable-wrapper i {
-    padding:6px;
+    padding: 6px;
     font-size: 8px;
     background-color: #fff;
     color: #8a8a8a;
@@ -293,7 +289,7 @@ button.variable-list {
 
 .variable-identifier {
     float: left;
-    padding-left:5px;
+    padding-left: 5px;
     height: 22px;
 }
 
@@ -475,9 +471,9 @@ button.variable-list {
 }
 
 .property-panel-svg {
-     width: 100%;
-     min-height: 500px;
-     background: none;
+    width: 100%;
+    min-height: 500px;
+    background: none;
 }
 
 .property-pane-action-button-wrapper {
@@ -501,7 +497,7 @@ button.variable-list {
     padding-bottom: 23px;
 }
 
-.property-pane-form-heading-icon{
+.property-pane-form-heading-icon {
     padding-left: 10px;
     padding-top: 5px;
     padding-bottom: 5px;
@@ -531,7 +527,7 @@ button.variable-list {
     padding: 7px 7px 2px 7px;
 }
 
-.property-pane-form-body-property-wrapper input{
+.property-pane-form-body-property-wrapper input {
     width: 100%;
 }
 
@@ -581,7 +577,7 @@ button.variable-list {
     position: absolute;
     right: 0;
     top: 3px;
-    z-index:30;
+    z-index: 30;
 }
 
 .variable-btn {
@@ -635,10 +631,10 @@ button.variable-list {
 
 .action-content-wrapper-body {
     background-color: white;
-    padding:10px;
+    padding: 10px;
 }
 
-.action-content-wrapper-heading{
+.action-content-wrapper-heading {
     height: 37px;
     padding-left: 10px;
     padding-top: 6px;
@@ -709,7 +705,7 @@ button.variable-list {
     background-color: #3d3d3d
 }
 
-.service-annotation-wrapper-heading input[type=text]{
+.service-annotation-wrapper-heading input[type=text] {
     width: 224px;
     margin-left: 5px;
 }
@@ -803,7 +799,6 @@ button.variable-list {
 .variable-add-icon-wrapper {
     margin-left: 2px;
     height: 20px;
-    margin-top: 0;
     position: static;
     width: 19px;
     font-size: 7px;
@@ -812,11 +807,8 @@ button.variable-list {
 }
 
 .variable-add-action-wrapper {
-    height: auto;
     display: none;
     width: 340px;
-    padding-left: inherit;
-    padding-top: inherit;
     background-color: #efefef;
     height: 30px;
     padding: 3px 8px;
@@ -829,8 +821,6 @@ button.variable-list {
     height: 22px;
     padding-left: 5px;
 }
-
-
 
 .variable-add-complete-action-wrapper {
     height: 22px;
@@ -853,10 +843,7 @@ button.variable-list {
 .variable-pane-collapser-wrapper {
     font-size: 14px;
     padding: 9px;
-    z-index: 1000;
-    /* opacity: 0.4; */
-    /* float: right; */
-    background-color:#efefef;
+    background-color: #efefef;
     height: 27px;
     width: 23px;
     margin-left: 4px;
@@ -864,9 +851,10 @@ button.variable-list {
     right: -23px;
     top: 0;
 }
-.variable-pane-collapser-wrapper:hover{
-    background-color:#333;
-    color:#fff;
+
+.variable-pane-collapser-wrapper:hover {
+    background-color: #333;
+    color: #fff;
 }
 
 .variable-pane-collapser-wrapper:hover {
@@ -944,12 +932,12 @@ button.variable-list {
     width: 30px;
 }
 
-.if-else-title-rect {
+.statement-title-rect {
     fill: #FFFFFF;
     stroke: #818181;
 }
 
-.if-else-title-polyline {
+.statement-title-polyline {
     fill: none;
     stroke: #000000;
 }
@@ -965,7 +953,7 @@ button.variable-list {
     background-color: #3d3d3d
 }
 
-.arguments-wrapper-heading input[type=text]{
+.arguments-wrapper-heading input[type=text] {
     width: 224px;
     margin-left: 5px;
 }
@@ -1051,11 +1039,11 @@ button.variable-list {
 }
 
 .return-type-wrapper-heading {
-    height:32px;
+    height: 32px;
     background-color: #3d3d3d
 }
 
-.return-type-wrapper-heading input[type=text]{
+.return-type-wrapper-heading input[type=text] {
     width: 224px;
     margin-left: 5px;
 }
@@ -1089,15 +1077,87 @@ button.variable-list {
     cursor: text;
 }
 
+.service-left-scroll {
+    cursor: pointer;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 50px;
+    background-color: #CCC;
+    opacity: 0.3;
+}
+
+.service-left-scroll:hover {
+    opacity: 0.5;
+}
+
+.service-left-scroll i {
+    font-size: 45px;
+    padding-left: 13px;
+}
+
+.service-right-scroll {
+    cursor: pointer;
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 50px;
+    background-color: #CCC;
+    opacity: 0.3;
+}
+
+.service-right-scroll:hover {
+    opacity: 0.5;
+}
+
+.service-right-scroll i {
+    font-size: 45px;
+    padding-left: 13px;
+}
+
 /** Service container related styles | -> End **/
 /*//////////////////////////////////////////////////*/
 
-#breadcrumb-container > .breadcrumb{
+#breadcrumb-container > .breadcrumb {
     text-transform: none;
-    padding: 6px 15px 6px 15px;
     background: rgb(35, 35, 35);
 }
+#breadcrumb-container > ol > li.breadcrumb-item {
+    color: grey;
+}
+#breadcrumb-container > ol > li.breadcrumb-item.active {
+    color: white;
+}
 
-#breadcrumb-container {
-    min-height: 32px;
+
+footer {
+    min-height: 30px;
+    line-height: 0;
+}
+
+footer > .container p, footer > .container-fluid p {
+    line-height: 0;
+    font-size: 13px;
+    margin: 0;
+}
+
+header .brand span {
+    font-size: 15px;
+}
+
+a {
+    color: #333;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: none;
+}
+
+.panel-body {
+    padding: 0;
+}
+
+.panel-default {
+    border: 0;
 }

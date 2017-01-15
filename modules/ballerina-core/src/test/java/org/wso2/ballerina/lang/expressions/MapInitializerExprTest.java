@@ -55,7 +55,10 @@ public class MapInitializerExprTest {
         Assert.assertEquals(mapValue.get(new BString("animal1")).stringValue(), "Lion");
         Assert.assertEquals(mapValue.get(new BString("animal2")).stringValue(), "Cat");
         Assert.assertEquals(mapValue.get(new BString("animal4")).stringValue(), "Dog");
-
     }
 
+    @Test(description = "Test map initializing with different types")
+    public void testMultiTypeMapInit() {
+        ParserUtils.parseBalFile("lang/expressions/multi-type-map-initializer.bal");
+    }
 }

@@ -92,8 +92,10 @@ public class RuntimeEnvironment {
             connector = nativeConnector;
 
         } else {
-            bValueRefs = new BValue[argExprs.length];
             BallerinaConnector ballerinaConnector = (BallerinaConnector) connector;
+            // sum of, number of arguments, number of declared variables and declared connectors
+            bValueRefs = new BValue[argExprs.length + ballerinaConnector.getVariableDcls().length + ballerinaConnector
+                    .getConnectorDcls().length];
 
             offset = populateConnectorArgs(staticMemory, argExprs, bValueRefs, offset);
 
@@ -127,9 +129,14 @@ public class RuntimeEnvironment {
 
             } else if (argExpr instanceof VariableRefExpr) {
                 VariableRefExpr variableRefExpr = (VariableRefExpr) argExpr;
-                if (variableRefExpr.getLocation() instanceof ConstantLocation) {
-                    ConstantLocation location = (ConstantLocation) variableRefExpr.getLocation();
+                if (variableRefExpr.getMemoryLocation() instanceof ConstantLocation) {
+                    ConstantLocation location = (ConstantLocation) variableRefExpr.getMemoryLocation();
                     bValueRefs[j] = staticMemory.getValue(location.getStaticMemAddrOffset());
+                    offset++;
+                    continue;
+                } else if (variableRefExpr.getMemoryLocation() instanceof ConnectorVarLocation) {
+                    ConnectorVarLocation location = (ConnectorVarLocation) variableRefExpr.getMemoryLocation();
+                    bValueRefs[j] = staticMemory.getValue(location.getConnectorMemAddrOffset());
                     offset++;
                     continue;
                 }

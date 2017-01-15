@@ -16,7 +16,9 @@
  * under the License.
  */
 
-define(['require', 'jquery', 'log', 'backbone', 'file_browser', 'ballerina', 'ballerina/diagram-render/diagram-render-context', 'ballerina/views/source-view'], function (require, $, log, Backbone, FileBrowser, Ballerina, DiagramRenderContext, SourceView) {
+define(['require', 'lodash','jquery', 'log', 'backbone', 'file_browser', 'ballerina', 'ballerina/diagram-render/diagram-render-context',
+        'ballerina/views/source-view', 'workspace/file'],
+    function (require, _, $, log, Backbone, FileBrowser, Ballerina, DiagramRenderContext, SourceView, File) {
     var OpenFileDialog = Backbone.View.extend(
         /** @lends SaveToFileDialog.prototype */
         {
@@ -36,6 +38,7 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser', 'ballerina', 'ba
 
             render: function () {
                 //TODO : this render method should be rewritten with improved UI
+                var self = this;
                 var fileBrowser;
                 var fileContent;
                 var app = this.app;
@@ -162,12 +165,31 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser', 'ballerina', 'ba
                     });
                 };
 
-                function openModel(data){
-                    var BallerinaASTDeserializer = Ballerina.ast.BallerinaASTDeserializer;
-                    var root = BallerinaASTDeserializer.getASTModel(data);
+                function openModel(source){
+                    $.ajax({
+                        url: "http://localhost:8289/ballerina/model/content",
+                        type: "POST",
+                        data: JSON.stringify(source),
+                        contentType: "application/json; charset=utf-8",
+                        async: false,
+                        dataType:"json",
+                        success: function (data, textStatus, xhr) {
+                            if (xhr.status == 200) {
+                                var BallerinaASTDeserializer = Ballerina.ast.BallerinaASTDeserializer;
+                                var root = BallerinaASTDeserializer.getASTModel(data);
 
-                    var command = app.commandManager;
-                    command.dispatch("create-new-tab", root);
+                                var command = app.commandManager;
+                                command.dispatch("create-new-tab", root);
+
+                                alertSuccess();
+                            } else {
+                                alertError();
+                            }
+                        },
+                        error: function (res, errorCode, error) {
+                            alertError();
+                        }
+                    });
                 }
 
                 function openConfiguration() {
@@ -177,7 +199,6 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser', 'ballerina', 'ba
                     var saveServiceURL = workspaceServiceURL + "/read";
 
                     var path = defaultView.configLocation;
-
                     $.ajax({
                         url: saveServiceURL,
                         type: "POST",
@@ -185,9 +206,18 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser', 'ballerina', 'ba
                         contentType: "text/plain; charset=utf-8",
                         async: false,
                         success: function (data, textStatus, xhr) {
-                            fileContent = $.parseJSON(data.content);
                             if (xhr.status == 200) {
-                                openModel(fileContent);
+                                var pathArray = _.split(path, self.app.getPathSeperator()),
+                                    fileName = _.last(pathArray),
+                                    folderPath = _.join(_.take(pathArray, pathArray.length -1), self.app.getPathSeperator());
+
+                                var file = new File({
+                                    name: fileName,
+                                    path: folderPath,
+                                    content: data,
+                                    isPersisted: true
+                                });
+                                app.commandManager.dispatch("create-new-tab", {tabOptions: {file: file}});
                                 alertSuccess();
                             } else {
                                 alertError();

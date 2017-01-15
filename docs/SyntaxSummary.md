@@ -64,7 +64,7 @@ A Ballerina file is structured as follows:
  ConstantDefinition)+
 ```
 
-
+**Note**: We follow the convention that terminals of the language (i.e. keywords) are lowercase words, non-terminals are uppercase words. 
 
 ### Services & Resources
 
@@ -101,7 +101,7 @@ m1 and m2 are messages that are passed by a client as input to the resource name
 
 ### Functions
 
-The structure of a `function` is as follows:
+A `function` is defined as follows:
 
 ```
 [FunctionAnnotations]
@@ -128,7 +128,7 @@ connector ConnectorName ([ConnectorParamAnnotations]TypeName VariableName[(, Typ
 }
 ```
 
-Note that ConnectorAnnotations are designed to help the editor provide a better user experience for connector users.
+Note that `ConnectorAnnotations` are designed to help the editor provide a better user experience for connector users.
 
 A `connector` defines a set of actions. Actions are operations that can be executed against a connector. The  structure of an `action` definition is as follows:
 
@@ -144,19 +144,21 @@ action ActionName (ConnectorName VariableName[, ([ActionParamAnnotations] TypeNa
 }
 ```
 
-Connectors are instantiated by giving the necessary data as follows:
+Connectors are instantiated (by means of the `new` keyword) as follows:
 ```
-[ConnectorPackageName:]ConnectorName VariableName = new [ConnectorPackageName:]ConnectorName (ValueList[, map]);
+[ConnectorPackageName:]ConnectorName ConnectorInstanceName = new [ConnectorPackageName:]ConnectorName (ValueList[, map]);
 ```
-Once a connector has been created, actions can be invoked against that connector as follows:
+The newly created instance has the `ConnectorInstanceName` assigned. 
+
+Once a connector of name `ConnectorInstanceName` has been instantiated, actions can be invoked against that connector as follows:
 ```
-[ConnectorPackageName:]ConnectorName.ActionName (ConnectorVariableName, ValueList);
+[ConnectorPackageName:]ConnectorName.ActionName (ConnectorInstanceName, ValueList);
 ```
 
 ### Workers
 
 #### Defining & Declaring Workers
-Workers are defined and declared as follows:
+A `worker` is defined and declared as follows:
 ```
 worker WorkerName (message m) {
     VariableDeclaration;*
@@ -202,13 +204,13 @@ The type system is illustrated in the following:
 
 #### Declaring Variables
 
-A VariableDeclaration has the following structure:
+A `VariableDeclaration` has the following structure:
 
 ```
 TypeName VariableName;
 ```
 
-A TypeName may be one of the following built-in primitive types:
+A `TypeName` may be one of the following built-in *primitive types*:
 - boolean
 - int
 - long
@@ -219,17 +221,17 @@ A TypeName may be one of the following built-in primitive types:
 Primitive types do not have to be dynamically allocated as they are always allocated
 on the stack.
 
-A TypeName may also be one of the following built-in non-primitive types:
+A `TypeName` may also be one of the following built-in *non-primitive types*:
 - message
 - map
 - exception
 
-A TypeName may also be the name of a user defined type.
+A `TypeName` may also be the name of a *user defined type*.
 
-#### Constructed Types
+#### Constructed Types (User Defined Types)
 
 ##### Structured Types (Records)
-User defined record types are defined using a TypeDefinition as follows:
+User defined record types are defined using the `struct` keyword as follows:
 ```
 [public] struct TypeName {
     TypeName VariableName;+
@@ -249,10 +251,9 @@ Iterators may be defined using the iterator constructor `~` as follows:
 ```
 TypeName~
 ```
-Iterator typed values  can be navigated through using an `iterate` statement.
+Iterator typed values can be navigated through using an `iterate` statement.
 
 Iterators are currently only available for the built-in types xml and json. In the future we will allow developers to define their own iterators for their types.
-
 
 #### XML & JSON Types
 
@@ -275,7 +276,9 @@ A variable of type `xmlDocument` can hold any XML document and the optional sche
 #### Allocating Variables
 
 Primitive types do not have to be dynamically allocated as they are always allocated
-on the stack. For all non-primitive types, user defined types and array types have to be
+on the stack. 
+
+For all non-primitive types, user defined types and array types have to be
 allocated on the heap using `new` as follows:
 ```
 new TypeName[(ValueList)]
@@ -317,7 +320,7 @@ The following lossless type coercions are pre-defined in Ballerina:
 In addition to these built in type coercions, Ballerina allows one to define
 arbitrary conversions from one non-primitive type to another non-primitive and have the language apply it automatically.
 
-A TypeConvertor is defined as follows:
+A `TypeConvertor` is defined as follows:
 ```
 typeconverter TypeConverterName (TypeName VariableName) (TypeName) {
     VariableDeclaration;*
@@ -367,11 +370,11 @@ A Statement may be one of the following:
 
 #### Assignment Statement
 
-Assignment statements look like the following:
+Assignment statements are encoded as follows:
 ```
 VariableAccessor = Expression;
 ```
-A VariableAccessor is one of:
+A `VariableAccessor` is one of:
 - VariableName
 - VariableAccessor'['ArrayIndex']'
 - VariableAccessor'['MapIndex']'
@@ -379,7 +382,7 @@ A VariableAccessor is one of:
 
 #### If Statement
 
-Provides a way to perform conditional execution.
+An `if` statement provides a way to perform conditional execution.
 ```
 if (BooleanExpression) {
     Statement;*
@@ -402,6 +405,7 @@ iterate (VariableType VariableName : Iterator) {
 
 #### While Statement
 
+A `while` statement provides a way to execute a series of statements as long as a Boolean expression is met. 
 ```
 while (BooleanExpression) {
     Statement;+
@@ -418,7 +422,7 @@ break;
 
 #### Fork/Join Statement
 
-A fork statement allows one to replicate a message to any number of parallel
+A `fork` statement allows one to replicate a message to any number of parallel
 workers and have them independently operate on the copies of the message. The `join`
 part of the `fork` statement allows one to define how the caller of `fork`
 will wait for the parallel workers to complete.
@@ -436,11 +440,13 @@ fork (MessageName) {
   Statement;*  
 }]
 ```
-Note that if the `join` clause is missing then its equivalent to waiting for all to complete and ignorning the results.
+Note that if the `join` clause is missing then it is equivalent to waiting for all workers to complete and ignorning the results.
 
-The JoinCondition is one of the following:
-- any IntegerValue[(, WorkerName)+]): wait for any k (IntegerValue) of the given workers or any of the workers
-- all [WorkerNameList]: wait for all given workers or all of the workers
+The `JoinCondition` is one of the following:
+- `any IntegerValue [(WorkerNameList)]`: wait for any k (i.e. the IntegerValue) of the given workers or any of the workers
+- `all [(WorkerNameList)]`: wait for all given workers or all of the workers
+
+where `WorkerNameList` is a list of comma separated names of workers.
 
 When the `JoinCondition` has been satisfied, the corresponding slots of the message array will be filled with the returned messages from the workers in the order the workers' lexical order. If the condition asks for up to some number of results to be available to satisfy the condition, it may be the case that more than that number are available by the time the statements within the join condition are executed. If a particular worker has completed but not sent a response message, or not yet completed, the corresponding message slot will be null.
 
@@ -453,7 +459,7 @@ Ballerina supports exception handling as a way to address unexpected scenarios i
 
 The built-in `exception` type has three properties: its category (a string), its message (a string) and its properties (a map). These properties are manipulated using the functions defined in `ballerina.lang.exception` package.
 
-Note that there is only one built in exception type - all exceptions use this type with different values for the category property. All standard exception "types" are defined as category string constants in the `ballerina.lang.exception` package.
+Note that there is only one built-in exception type - all exceptions use this type with different values for the category property. All standard exception "types" are defined by category string constants in the `ballerina.lang.exception` package.
 
 The syntax of a `try/catch` is as follows:
 ```
@@ -465,19 +471,20 @@ try {
 ```
 
 The syntax of a `throw` statement is as follows:
-
 ```
 throw Expression;
 ```
 
 #### Return Statement
 
+The syntax of a `return` statement is as follows:
 ```
 return Expression*;
 ```
 
 #### Reply Statement
 
+The syntax of a `reply` statement is as follows:
 ```
 reply Message?;
 ```
@@ -490,6 +497,13 @@ Ballerina has designed, structured mechanisms via annotations to document all Ba
 Any statement that starts with the characters `//` is a comment.
 
 ### Expressions
+Similar to languages such as Java, Go etc, Ballerina supports following expressions. 
+* mathamtical expressions `(e.g. x + y, x/y etc)`
+* function calls `(e.g. foo(a,b))`
+* action calls `(e.g. tweet(twitterActor, "hello"))`
+* complex expressions `(e.g. foo(a,bar(c,d)))`
+
+Please see grammer file for more details. 
 
 ## Disabling Constructs from Execution
 

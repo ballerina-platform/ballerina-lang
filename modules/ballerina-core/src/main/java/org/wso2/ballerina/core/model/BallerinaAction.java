@@ -46,23 +46,27 @@ public class BallerinaAction implements Action, Node {
     private VariableDcl[] variableDcls;
     private Worker[] workers;
     private BType[] returnTypes;
+    private Parameter[] returnParams;
     private BlockStmt actionBody;
+    private Position actionLocation;
 
     private int stackFrameSize;
 
     public BallerinaAction(SymbolName name,
+                           Position location,
                            Annotation[] annotations,
                            Parameter[] parameters,
-                           BType[] returnTypes,
+                           Parameter[] returnParams,
                            ConnectorDcl[] connectorDcls,
                            VariableDcl[] variableDcls,
                            Worker[] workers,
                            BlockStmt actionBody) {
 
         this.name = name;
+        this.actionLocation = location;
         this.annotations = annotations;
         this.parameters = parameters;
-        this.returnTypes = returnTypes;
+        this.returnParams = returnParams;
         this.connectorDcls = connectorDcls;
         this.variableDcls = variableDcls;
         this.workers = workers;
@@ -72,6 +76,11 @@ public class BallerinaAction implements Action, Node {
     @Override
     public String getName() {
         return name.getName();
+    }
+
+    @Override
+    public String getPackageName() {
+        return null;
     }
 
     @Override
@@ -95,8 +104,8 @@ public class BallerinaAction implements Action, Node {
     }
 
     @Override
-    public BType[] getReturnTypes() {
-        return returnTypes;
+    public Parameter[] getReturnParameters() {
+        return returnParams;
     }
 
     @Override
@@ -107,6 +116,11 @@ public class BallerinaAction implements Action, Node {
     @Override
     public void setStackFrameSize(int stackFrameSize) {
         this.stackFrameSize = stackFrameSize;
+    }
+
+    @Override
+    public BlockStmt getCallableUnitBody() {
+        return actionBody;
     }
 
     public VariableDcl[] getVariableDcls() {
@@ -121,12 +135,12 @@ public class BallerinaAction implements Action, Node {
     public ConnectorDcl[] getConnectorDcls() {
         return connectorDcls;
     }
-    
-    public BlockStmt getActionBody() {
-        return actionBody;
-    }
 
-    public void setActionBody(BlockStmt actionBody) {
-        this.actionBody = actionBody;
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Position getLocation() {
+        return actionLocation;
     }
 }

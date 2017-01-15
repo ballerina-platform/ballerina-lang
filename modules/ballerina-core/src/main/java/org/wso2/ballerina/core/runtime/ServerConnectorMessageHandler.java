@@ -45,10 +45,10 @@ public class ServerConnectorMessageHandler {
 
 
     public static void handleInbound(CarbonMessage cMsg, CarbonCallback callback) {
+        // Create the Ballerina Context
+        Context balContext = new Context(cMsg);
+        
         try {
-            // Create the Ballerina Context
-            Context balContext = new Context(cMsg);
-            
             String protocol = (String) cMsg.getProperty(org.wso2.carbon.messaging.Constants.PROTOCOL);
             if (protocol == null) {
                 throw new BallerinaException("Protocol not defined in the incoming request", balContext);
@@ -76,7 +76,13 @@ public class ServerConnectorMessageHandler {
             }
 
             // Find the Resource
-            Resource resource = resourceDispatcher.findResource(service, cMsg, callback, balContext);
+            Resource resource = null;
+            try {
+                resource = resourceDispatcher.findResource(service, cMsg, callback, balContext);
+            } catch (BallerinaException ex) {
+                throw new BallerinaException("No Resource found to handle the request to Service : " +
+                                             service.getSymbolName().getName() + " : " + ex.getMessage());
+            }
             if (resource == null) {
                 throw new BallerinaException("No Resource found to handle the request to Service : " +
                                              service.getSymbolName().getName());
@@ -87,7 +93,7 @@ public class ServerConnectorMessageHandler {
             BalProgramExecutor.execute(cMsg, callback, resource, service, balContext);
 
         } catch (Throwable throwable) {
-            handleError(cMsg, callback, throwable);
+            handleError(cMsg, callback, balContext, throwable);
         }
     }
 
@@ -95,28 +101,28 @@ public class ServerConnectorMessageHandler {
         try {
             callback.done(cMsg);
         } catch (Throwable throwable) {
-            handleError(cMsg, callback, throwable);
+            handleError(cMsg, callback, null, throwable);
         }
     }
 
-    private static void handleError(CarbonMessage cMsg, CarbonCallback callback, Throwable throwable) {
-        String stackTrace = ErrorHandlerUtils.getBallerinaStackTrace(throwable);
-        if (stackTrace != null) {
-            log.error("Error while executing ballerina program. " + throwable.getMessage() + "\n" + stackTrace);
-        } else {
-            log.error("Error while executing ballerina program. " + throwable.getMessage());
-        }
-
+    private static void handleError(CarbonMessage cMsg, CarbonCallback callback, Context balContext, 
+            Throwable throwable) {
+        String errorMsg = ErrorHandlerUtils.getErrorMessage(throwable);
+        String stacktrace = ErrorHandlerUtils.getServiceStackTrace(balContext, throwable);
+        log.error(errorMsg + "\n" + stacktrace);
+        
         Object protocol = cMsg.getProperty("PROTOCOL");
-        Object errorHandler;
+        Object errorHandler = null;
         if (protocol != null) {
             errorHandler = ServiceContextHolder.getInstance().getErrorHandler((String) protocol);
-        } else {
+        }
+
+        if (errorHandler == null) {
             errorHandler = DefaultServerConnectorErrorHandler.getInstance();
         }
 
         ((ServerConnectorErrorHandler) errorHandler)
-            .handleError(new Exception(throwable.getMessage(), throwable.getCause()), cMsg, callback);
+            .handleError(new BallerinaException(errorMsg, throwable.getCause()), cMsg, callback);
     }
 
 }

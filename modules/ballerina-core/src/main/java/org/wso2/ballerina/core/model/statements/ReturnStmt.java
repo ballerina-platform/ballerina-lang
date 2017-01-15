@@ -29,14 +29,8 @@ import java.util.List;
  *
  * @since 1.0.0
  */
-public class ReturnStmt implements Statement {
-    private Expression expr;
-
+public class ReturnStmt extends AbstractStatement {
     private Expression[] exprs;
-
-    public ReturnStmt(Expression expr) {
-        this.expr = expr;
-    }
 
     private ReturnStmt(Expression[] exprs) {
         this.exprs = exprs;
@@ -44,6 +38,10 @@ public class ReturnStmt implements Statement {
 
     public Expression[] getExprs() {
         return exprs;
+    }
+
+    public void setExprs(Expression[] exprs) {
+        this.exprs = exprs;
     }
 
     @Override
@@ -69,10 +67,6 @@ public class ReturnStmt implements Statement {
 
         public void setExpressionList(List<Expression> expressionList) {
             this.expressionList = expressionList;
-        }
-
-        public void addExpression(Expression expr) {
-            expressionList.add(expr);
         }
 
         public ReturnStmt build() {

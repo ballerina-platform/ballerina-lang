@@ -15,14 +15,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './node', './variable-declaration', './connector-declaration'],
-    function (_, ASTNode, VariableDeclaration, ConnectorDeclaration) {
+define(['lodash', './node'],
+    function (_, ASTNode) {
 
+    /**
+     * Constructor for ServiceDefinition
+     * @param {Object} args - The arguments to create the ServiceDefinition
+     * @param {string} [args.serviceName=newService] - Service name
+     * @param {string[]} [args.annotations] - Service annotations
+     * @param {string} [args.annotations.BasePath] - Service annotation for BasePath
+     * @constructor
+     */
     var ServiceDefinition = function (args) {
         this._serviceName = _.get(args, 'serviceName', 'newService');
         this._annotations = _.get(args, 'annotations', []);
-        this._resourceDefinitions = _.get(args, 'resourceDefinitions', []);
-        this._connectionDeclarations = _.get(args, 'connectionDeclarations', []);
 
         // Adding available annotations and their default values.
         if (_.isNil(_.find(this._annotations, function (annotation) {
@@ -54,6 +60,7 @@ define(['lodash', './node', './variable-declaration', './connector-declaration']
 
         // TODO: All the types should be referred from the global constants
         ASTNode.call(this, 'Service');
+        this.BallerinaASTFactory = this.getFactory();
     };
 
     ServiceDefinition.prototype = Object.create(ASTNode.prototype);
@@ -65,25 +72,6 @@ define(['lodash', './node', './variable-declaration', './connector-declaration']
         }
     };
 
-    ServiceDefinition.prototype.setResourceDefinitions = function (resourceDefinitions) {
-        if (!_.isNil(resourceDefinitions)) {
-            this._resourceDefinitions = resourceDefinitions;
-        }
-    };
-
-    ServiceDefinition.prototype.setVariableDeclarations = function (variableDeclarations) {
-        if (!_.isNil(variableDeclarations)) {
-            // TODO : To implement using child array.
-            throw "To be Implemented";
-        }
-    };
-
-    ServiceDefinition.prototype.setConnectionDeclarations = function (connectionDeclarations) {
-        if (!_.isNil(connectionDeclarations)) {
-            this._connectionDeclarations = connectionDeclarations;
-        }
-    };
-
     ServiceDefinition.prototype.getServiceName = function () {
         return this._serviceName;
     };
@@ -92,14 +80,12 @@ define(['lodash', './node', './variable-declaration', './connector-declaration']
         return this._annotations;
     };
 
-    ServiceDefinition.prototype.getResourceDefinitions = function () {
-        return this._resourceDefinitions;
-    };
-
     ServiceDefinition.prototype.getVariableDeclarations = function () {
         var variableDeclarations = [];
+        var self = this;
+
         _.forEach(this.getChildren(), function (child) {
-            if (child instanceof VariableDeclaration) {
+            if (self.BallerinaASTFactory.isVariableDeclaration(child)) {
                 variableDeclarations.push(child);
             }
         });
@@ -114,16 +100,18 @@ define(['lodash', './node', './variable-declaration', './connector-declaration']
      * Adds new variable declaration.
      */
     ServiceDefinition.prototype.addVariableDeclaration = function (newVariableDeclaration) {
+        var self = this;
+
         // Get the index of the last variable declaration.
         var index = _.findLastIndex(this.getChildren(), function (child) {
-            return child instanceof VariableDeclaration;
+            return self.BallerinaASTFactory.isVariableDeclaration(child);
         });
 
         // index = -1 when there are not any variable declarations, hence get the index for connector
         // declarations.
         if (index == -1) {
             index = _.findLastIndex(this.getChildren(), function (child) {
-                return child instanceof ConnectorDeclaration;
+                return self.BallerinaASTFactory.isConnectorDeclaration(child);
             });
         }
 
@@ -133,12 +121,8 @@ define(['lodash', './node', './variable-declaration', './connector-declaration']
     /**
      * Adds new variable declaration.
      */
-    ServiceDefinition.prototype.removeVariableDeclaration = function (newVariableDeclaration) {
-        // Deleting the variable from the children.
-        _.remove(this.getChildren(), function (child) {
-            return child instanceof VariableDeclaration &&
-                child.getIdentifier() === newVariableDeclaration;
-        });
+    ServiceDefinition.prototype.removeVariableDeclaration = function (variableDeclaration) {
+        this.removeChild(variableDeclaration)
     };
 
     /**
@@ -169,26 +153,56 @@ define(['lodash', './node', './variable-declaration', './connector-declaration']
      * @return {boolean}
      */
     ServiceDefinition.prototype.canBeParentOf = function (node) {
-        var BallerinaASTFactory = this.getFactory();
-        return BallerinaASTFactory.isResourceDefinition(node)
-            || BallerinaASTFactory.isVariableDeclaration(node);
+        return this.BallerinaASTFactory.isResourceDefinition(node)
+            || this.BallerinaASTFactory.isVariableDeclaration(node)
+            || this.BallerinaASTFactory.isConnectorDeclaration(node);
     };
 
     /**
-     * initialize from json
-     * @param jsonNode
+     * initialize ServiceDefinition from json object
+     * @param {Object} jsonNode to initialize from
+     * @param {string} [jsonNode.service_name] - Name of the service definition
+     * @param {string} [jsonNode.annotations] - Annotations of the function definition
      */
     ServiceDefinition.prototype.initFromJson = function (jsonNode) {
-        this._serviceName = jsonNode.service_name;
-        this._annotations = jsonNode.annotations;
-
         var self = this;
-        var BallerinaASTFactory = this.getFactory();
+        this._serviceName = jsonNode.service_name;
 
+        // Populate the annotations array
+        for (var itr = 0; itr < this._annotations.length; itr ++) {
+            var key = this._annotations[itr].key;
+            for (var itrInner = 0; itrInner < jsonNode.annotations.length; itrInner ++) {
+                if (jsonNode.annotations[itrInner].annotation_name === key) {
+                    this._annotations[itr].value = jsonNode.annotations[itrInner].annotation_value;
+                }
+            }
+        }
         _.each(jsonNode.children, function (childNode) {
-            var child = BallerinaASTFactory.createFromJson(childNode);
+            var child = self.BallerinaASTFactory.createFromJson(childNode);
             self.addChild(child);
+            child.initFromJson(childNode);
         });
+    };
+
+    /**
+     * Override the super call to addChild
+     * @param {ASTNode} child
+     * @param {number} index
+     */
+    ServiceDefinition.prototype.addChild = function (child, index) {
+        var self = this;
+        var newIndex = index;
+        // Always the connector declarations should be the first children
+        if (this.BallerinaASTFactory.isConnectorDeclaration(child)) {
+            newIndex = _.findLastIndex(this.getChildren(), function (node) {
+                return self.BallerinaASTFactory.isConnectorDeclaration(node);
+            });
+        }
+        if (newIndex === -1) {
+            Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, 0);
+        } else {
+            Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, newIndex);
+        }
     };
 
     return ServiceDefinition;

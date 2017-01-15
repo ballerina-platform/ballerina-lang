@@ -78,7 +78,7 @@ div[class*="col-sm-"] {
     position: fixed;
 }
 
-#right-container{
+.right-container{
     height: 100%;
     margin-left: 32px;
 }
@@ -332,16 +332,7 @@ div[class*="col-sm-"] {
     background-color: white;
 }
 
-/** ace editor (source view) related styles | -> End **/
-/*//////////////////////////////////////////////////*/
-/*
-.breadcrumb{
-    min-height: 20px;
+.about-dialog-close {
+    margin-top: 12px;
+    margin-right: 12px;
 }
-footer.footer {
-    min-height: 25px;
-    height: 25px;
-}
-footer > .container p, footer > .container-fluid p {
-    line-height: 28px;
-}*/

@@ -24,6 +24,7 @@ define(['lodash', './statement'], function (_, Statement) {
     var LogicalExpression = function (args) {
         Statement.call(this, 'LogicalExpression');
         this._expression = 'a > b';
+        this.type = "LogicalExpression";
     };
 
     LogicalExpression.prototype = Object.create(Statement.prototype);

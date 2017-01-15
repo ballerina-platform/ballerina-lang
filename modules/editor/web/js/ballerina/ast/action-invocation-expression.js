@@ -25,6 +25,11 @@ define(['lodash', 'log', './action-invocation-statement'], function (_, log, Act
     var ActionInvocationExpression = function (args) {
         ActionInvocationStatement.call(this, args);
         this._variableAccessor = _.get(args, 'accessor');
+        this._actionName = _.get(args, 'actionName');
+        this._actionPackageName = _.get(args, 'actionPackageName');
+        this._actionConnectorName = _.get(args, 'actionConnectorName');
+        this._actionInvocationReference = _.get(args, 'actionInvocationReference');
+        this.type = "ActionInvocationExpression";
     };
 
     ActionInvocationExpression.prototype = Object.create(ActionInvocationStatement.prototype);
@@ -36,6 +41,36 @@ define(['lodash', 'log', './action-invocation-statement'], function (_, log, Act
 
     ActionInvocationExpression.prototype.getVariableAccessor = function () {
         return this._variableAccessor;
+    };
+
+    /**
+     * initialize ActionInvocationExpression from json object
+     * @param {Object} jsonNode to initialize from
+     */
+    ActionInvocationExpression.prototype.initFromJson = function (jsonNode) {
+        //TODO : Need to refactor the whole method
+        this.setConnector(_.head(this.getInvocationConnector(_.head(jsonNode.children).variable_reference_name)));
+        this.setAction("post");
+        this.setVariableAccessor("response");
+        this.setMessage("m");
+        this.setPath("/");
+    };
+
+    ActionInvocationExpression.prototype.getInvocationConnector = function (variable_reference_name) {
+        //TODO : Need to refactor the whole method
+        var parent = this.getParent();
+        var factory = this.getFactory();
+        while (!factory.isBallerinaAstRoot(parent)) {
+            if (factory.isResourceDefinition(parent) || factory.isFunctionDefinition(parent) || factory.isServiceDefinition(parent)) {
+                break;
+            }
+            parent = parent.getParent();
+        }
+        var self = this;
+        var connectorReference = _.filter(parent.getChildren(), function (child) {
+            return (factory.isConnectorDeclaration(child) && (child.getConnectorVariable() === variable_reference_name));
+        });
+        return connectorReference;
     };
 
     return ActionInvocationExpression;

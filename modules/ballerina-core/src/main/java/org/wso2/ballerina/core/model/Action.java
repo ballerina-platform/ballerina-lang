@@ -16,58 +16,10 @@
 
 package org.wso2.ballerina.core.model;
 
-import org.wso2.ballerina.core.model.types.BType;
-
 /**
  * {@code {@link Action}} represents any Ballerina Action.
+ *
+ * @since 1.0.0
  */
-public interface Action {
-
-    /**
-     * Get Name of the Action.
-     *
-     * @return name of the function.
-     */
-    String getName();
-
-    /**
-     * Get all the Annotations associated with a BallerinaAction
-     *
-     * @return list of Annotations
-     */
-    Annotation[] getAnnotations();
-
-    /**
-     * Get list of Arguments associated with the action definition
-     *
-     * @return list of Arguments
-     */
-    Parameter[] getParameters();
-
-    VariableDcl[] getVariableDcls();
-
-    /**
-     * Get list of return Types associated with action definition.
-     *
-     * @return list of Return types.
-     */
-    BType[] getReturnTypes();
-
-    int getStackFrameSize();
-
-    void setStackFrameSize(int stackFrameSize);
-
-    /**
-     * Get the action Identifier
-     *
-     * @return action identifier
-     */
-    SymbolName getSymbolName();
-
-    /**
-     * Set the action identifier
-     *
-     * @param symbolName identifier
-     */
-    void setSymbolName(SymbolName symbolName);
+public interface Action extends CallableUnit {
 }

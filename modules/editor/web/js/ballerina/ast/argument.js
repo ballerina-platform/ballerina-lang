@@ -17,10 +17,17 @@
  */
 define(['lodash', './node'], function (_, ASTNode) {
 
-    var Argument = function (type, identifier) {
-        this.type = type;
-        this.identifier = identifier;
-    };
+    /**
+     * Constructor for Argument
+     * @param {Object} args - The arguments to create the Argument
+     * @param {string} args.type - Type of the argument
+     * @param {string} args.identifier - Identifier of the argument
+     * @constructor
+     */
+    var Argument = function (args) {
+        this.type = _.get(args, 'type');
+        this.identifier = _.get(args, 'identifier');
+    }
 
     Argument.prototype = Object.create(ASTNode.prototype);
     Argument.prototype.constructor = Argument;
@@ -46,8 +53,10 @@ define(['lodash', './node'], function (_, ASTNode) {
     };
 
     /**
-     * initialize from json
-     * @param jsonNode
+     * initialize Argument from json object
+     * @param {Object} jsonNode to initialize from
+     * @param {string} jsonNode.parameter_type - Type of the argument
+     * @param {string} jsonNode.parameter_name - Identifier of the argument
      */
     Argument.prototype.initFromJson = function (jsonNode) {
         this.type = jsonNode.parameter_type;

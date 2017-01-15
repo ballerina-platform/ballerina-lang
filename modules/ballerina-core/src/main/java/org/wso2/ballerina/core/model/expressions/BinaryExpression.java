@@ -18,8 +18,8 @@
 package org.wso2.ballerina.core.model.expressions;
 
 import org.wso2.ballerina.core.model.NodeExecutor;
-import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.Operator;
+import org.wso2.ballerina.core.model.Position;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BValueType;
 
@@ -38,9 +38,9 @@ public class BinaryExpression extends UnaryExpression {
 
     protected Expression lExpr;
     protected BiFunction<BValueType, BValueType, BValueType> evalFuncNewNew;
-
-    public BinaryExpression(Expression lExpr, Operator op, Expression rExpr) {
-        super(op, rExpr);
+    
+    public BinaryExpression(Expression lExpr, Operator op, Expression rExpr, Position location) {
+        super(op, rExpr, location);
         this.lExpr = lExpr;
     }
 
@@ -54,11 +54,6 @@ public class BinaryExpression extends UnaryExpression {
 
     public void setEvalFunc(BiFunction<BValueType, BValueType, BValueType> evalFuncNewNew) {
         this.evalFuncNewNew = evalFuncNewNew;
-    }
-
-    @Override
-    public void accept(NodeVisitor visitor) {
-        visitor.visit(this);
     }
 
     public BValue execute(NodeExecutor executor) {

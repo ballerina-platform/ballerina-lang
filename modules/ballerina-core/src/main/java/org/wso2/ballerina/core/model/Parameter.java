@@ -25,7 +25,7 @@ import java.util.List;
 
 /**
  * {@code Parameter} represent a Parameter in various signatures.
- *
+ * <p>
  * This can be a part of {@link Function}, {@link Resource}
  * or {@link BallerinaAction} signature
  *
@@ -37,10 +37,16 @@ public class Parameter implements Node {
     private BType type;
     private SymbolName name;
     private List<Annotation> annotations;
+    protected Position location;
 
     public Parameter(BType type, SymbolName name) {
+        this(type, name, null);
+    }
+
+    public Parameter(BType type, SymbolName name, Position location) {
         this.type = type;
         this.name = name;
+        this.location = location;
     }
 
     /**
@@ -94,5 +100,24 @@ public class Parameter implements Node {
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    /**
+     * Get the source location of this parameter.
+     * Return the source file and the line number of this parameter.
+     *
+     * @return Source location of this parameter
+     */
+    public Position getLocation() {
+        return location;
+    }
+
+    /**
+     * Set the source location of this parameter.
+     *
+     * @param location Source location of this parameter.
+     */
+    public void setLocation(Position location) {
+        this.location = location;
     }
 }

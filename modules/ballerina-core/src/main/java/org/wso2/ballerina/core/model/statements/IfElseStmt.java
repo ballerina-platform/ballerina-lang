@@ -29,17 +29,11 @@ import java.util.List;
  *
  * @since 1.0.0
  */
-public class IfElseStmt implements Statement {
+public class IfElseStmt extends AbstractStatement {
     private Expression ifCondition;
     private Statement thenBody;
     private ElseIfBlock[] elseIfBlocks;
     private Statement elseBody;
-
-    public IfElseStmt(Expression ifCondition, Statement thenBody, Statement elseBody) {
-        this.ifCondition = ifCondition;
-        this.thenBody = thenBody;
-        this.elseBody = elseBody;
-    }
 
     private IfElseStmt(Expression ifCondition, Statement thenBody, ElseIfBlock[] elseIfBlocks, Statement elseBody) {
         this.ifCondition = ifCondition;

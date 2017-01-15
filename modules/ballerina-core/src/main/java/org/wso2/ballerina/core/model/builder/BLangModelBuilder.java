@@ -40,7 +40,7 @@ import org.wso2.ballerina.core.model.expressions.AddExpression;
 import org.wso2.ballerina.core.model.expressions.AndExpression;
 import org.wso2.ballerina.core.model.expressions.ArrayInitExpr;
 import org.wso2.ballerina.core.model.expressions.ArrayMapAccessExpr;
-import org.wso2.ballerina.core.model.expressions.BackquoteExpr;
+import org.wso2.ballerina.core.model.expressions.BacktickExpr;
 import org.wso2.ballerina.core.model.expressions.BasicLiteral;
 import org.wso2.ballerina.core.model.expressions.BinaryExpression;
 import org.wso2.ballerina.core.model.expressions.DivideExpr;
@@ -72,8 +72,10 @@ import org.wso2.ballerina.core.model.statements.WhileStmt;
 import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.model.values.BBoolean;
+import org.wso2.ballerina.core.model.values.BDouble;
 import org.wso2.ballerina.core.model.values.BFloat;
 import org.wso2.ballerina.core.model.values.BInteger;
+import org.wso2.ballerina.core.model.values.BLong;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValueType;
 
@@ -114,7 +116,6 @@ public class BLangModelBuilder {
     private Stack<KeyValueExpression> keyValueStack = new Stack<>();
 
     private static final Logger log = LoggerFactory.getLogger(BLangModelBuilder.class);
-
 
     // Holds ExpressionLists required for return statements, function/action invocations and connector declarations
     private Stack<List<Expression>> exprListStack = new Stack<>();
@@ -160,27 +161,28 @@ public class BLangModelBuilder {
         bFileBuilder.setPkgName(pkgName);
     }
 
-    public void addImportPackage(String pkgName) {
+    public void addImportPackage(String pkgName, Position sourceLocation) {
         String pkgPath = getPkgName();
-
         if (pkgName != null) {
-            bFileBuilder.addImportPackage(new ImportPackage(pkgPath, pkgName));
+            bFileBuilder.addImportPackage(new ImportPackage(pkgPath, pkgName, sourceLocation));
         } else {
-            bFileBuilder.addImportPackage(new ImportPackage(pkgPath));
+            bFileBuilder.addImportPackage(new ImportPackage(pkgPath, sourceLocation));
         }
     }
 
     // Annotations
 
-    public void createInstanceCreaterExpr(String typeName) {
+    public void createInstanceCreaterExpr(String typeName, Position sourceLocation) {
         InstanceCreationExpr expression = new InstanceCreationExpr(null);
         BType type = BTypes.getType(typeName);
 
         if (type == null) {
-            throw new ParserException("Unknown type: " + typeName);
+            throw new ParserException("Unknown type: " + typeName + " in " + sourceLocation.getFileName() + ":" +
+                    sourceLocation.getLine());
         }
 
         expression.setType(type);
+        expression.setLocation(sourceLocation);
         exprStack.push(expression);
     }
 
@@ -198,7 +200,7 @@ public class BLangModelBuilder {
         log.warn("Warning: Key/Value pairs in annotations are not supported");
     }
 
-    public void endAnnotation(String name, boolean valueAvailable) {
+    public void endAnnotation(String name, boolean valueAvailable, Position sourceLocation) {
         Annotation.AnnotationBuilder annotationBuilder = annotationBuilderStack.pop();
         annotationBuilder.setName(new SymbolName(name));
 
@@ -210,14 +212,16 @@ public class BLangModelBuilder {
                 String value = ((BasicLiteral) expr).getBValue().stringValue();
                 annotationBuilder.setValue(value);
             } else {
-                throw new RuntimeException("Annotations with key/value pars are not support at the moment");
+                throw new RuntimeException("Annotations with key/value pars are not support at the moment" + " in " +
+                        sourceLocation.getFileName() + ":" + sourceLocation.getLine());
             }
         }
 
         List<Annotation> annotationList = annotationListStack.peek();
-        annotationList.add(annotationBuilder.build());
+        Annotation annotation = annotationBuilder.build();
+        annotation.setLocation(sourceLocation);
+        annotationList.add(annotation);
     }
-
 
     // Function parameters and types
 
@@ -229,12 +233,10 @@ public class BLangModelBuilder {
      *
      * @param paramName name of the function parameter
      */
-    public void createParam(String paramName) {
-        //        paramIndex++;
-
+    public void createParam(String paramName, Position sourceLocation) {
         SymbolName paramNameId = new SymbolName(paramName);
         BType paramType = typeQueue.remove();
-        Parameter param = new Parameter(paramType, paramNameId);
+        Parameter param = new Parameter(paramType, paramNameId, sourceLocation);
 
         if (currentCUBuilder != null) {
             // Add the parameter to callableUnitBuilder.
@@ -244,13 +246,21 @@ public class BLangModelBuilder {
         }
     }
 
-    public void createType(String typeName) {
+    public void createType(String typeName, Position sourceLocation) {
         BType type = BTypes.getType(typeName);
+        if (type == null) {
+            throw new ParserException(sourceLocation.getFileName() + ":" + sourceLocation.getLine() +
+                    ": unsupported type '" + typeName + "'");
+        }
         typeQueue.add(type);
     }
 
-    public void createArrayType(String typeName) {
+    public void createArrayType(String typeName, Position sourceLocation) {
         BType type = BTypes.getArrayType(typeName);
+        /*if (type == null) {
+            throw new ParserException("Unsupported type: " + typeName + " in " + 
+                    sourceLocation.getFileName() + ":" + sourceLocation.getLine());
+        }*/
         typeQueue.add(type);
     }
 
@@ -259,16 +269,25 @@ public class BLangModelBuilder {
         BTypes.addConnectorType(typeName);
     }
 
-    public void createReturnTypes() {
+    public void createReturnTypes(Position sourceLocation) {
         while (!typeQueue.isEmpty()) {
-            currentCUBuilder.addReturnType(typeQueue.remove());
+            BType paramType = typeQueue.remove();
+            Parameter param = new Parameter(paramType, null, sourceLocation);
+            currentCUBuilder.addReturnParameter(param);
         }
     }
 
+    public void createNamedReturnParams(String paramName, Position sourceLocation) {
+        SymbolName paramNameId = new SymbolName(paramName);
+        BType paramType = typeQueue.remove();
+
+        Parameter param = new Parameter(paramType, paramNameId, sourceLocation);
+        currentCUBuilder.addReturnParameter(param);
+    }
 
     // Variable declarations, reference expressions
 
-    public void createConstant(String constName) {
+    public void createConstant(String constName, Position sourceLocation) {
         SymbolName symbolName = new SymbolName(constName);
         BType type = typeQueue.remove();
 
@@ -278,14 +297,16 @@ public class BLangModelBuilder {
         builder.setValueExpr(exprStack.pop());
 
         Const constant = builder.build();
+        constant.setLocation(sourceLocation);
         bFileBuilder.addConst(constant);
     }
 
-    public void createVariableDcl(String varName) {
+    public void createVariableDcl(String varName, Position sourceLocation) {
         // Create a variable declaration
         SymbolName localVarId = new SymbolName(varName);
         BType localVarType = typeQueue.remove();
         VariableDcl variableDcl = new VariableDcl(localVarType, localVarId);
+        variableDcl.setLocation(sourceLocation);
 
         // Add this variable declaration to the current callable unit or callable unit group
         if (currentCUBuilder != null) {
@@ -297,14 +318,15 @@ public class BLangModelBuilder {
 
     }
 
-    public void createConnectorDcl(String varName) {
+    public void createConnectorDcl(String varName, Position sourceLocation) {
         // Here we build the object model for the following line
 
         // Here we need to pop the symbolName stack twice as the connector name appears twice in the declaration.
         if (symbolNameStack.size() < 2) {
             IllegalStateException ex = new IllegalStateException("symbol stack size should be " +
                     "greater than or equal to two");
-            throw new ParserException("Failed to parse connector declaration", ex);
+            throw new ParserException("Failed to parse connector declaration" + varName + " in " +
+                    sourceLocation.getFileName() + ":" + sourceLocation.getLine(), ex);
         }
 
         symbolNameStack.pop();
@@ -317,6 +339,7 @@ public class BLangModelBuilder {
         builder.setExprList(exprList);
 
         ConnectorDcl connectorDcl = builder.build();
+        connectorDcl.setLocation(sourceLocation);
         if (currentCUBuilder != null) {
             // This connector declaration should added to the relevant function/action or resource
             currentCUBuilder.addConnectorDcl(connectorDcl);
@@ -333,17 +356,19 @@ public class BLangModelBuilder {
      * 2) Map or array access a[1], m["key"]
      * 3) Struct field access  Person.name
      */
-    public void createVarRefExpr(String varName) {
+    public void createVarRefExpr(String varName, Position sourceLocation) {
         SymbolName symName = new SymbolName(varName);
 
         VariableRefExpr variableRefExpr = new VariableRefExpr(symName);
+        variableRefExpr.setLocation(sourceLocation);
         exprStack.push(variableRefExpr);
     }
 
-    public void createMapArrayVarRefExpr(String varName) {
+    public void createMapArrayVarRefExpr(String varName, Position sourceLocation) {
         SymbolName symName = new SymbolName(varName);
         Expression indexExpr = exprStack.pop();
         VariableRefExpr arrayVarRefExpr = new VariableRefExpr(symName);
+        arrayVarRefExpr.setLocation(sourceLocation);
 
         ArrayMapAccessExpr.ArrayMapAccessExprBuilder builder = new ArrayMapAccessExpr.ArrayMapAccessExprBuilder();
         builder.setVarName(symName);
@@ -351,103 +376,106 @@ public class BLangModelBuilder {
         builder.setArrayMapVarRefExpr(arrayVarRefExpr);
 
         ArrayMapAccessExpr accessExpr = builder.build();
+        accessExpr.setLocation(sourceLocation);
         exprStack.push(accessExpr);
     }
 
     // Expressions
 
-    public void createBinaryExpr(String opStr) {
+    public void createBinaryExpr(String opStr, Position sourceLocation) {
         Expression rExpr = exprStack.pop();
         Expression lExpr = exprStack.pop();
 
         BinaryExpression expr;
         switch (opStr) {
             case "+":
-                expr = new AddExpression(lExpr, rExpr);
+                expr = new AddExpression(lExpr, rExpr, sourceLocation);
                 break;
 
             case "-":
-                expr = new SubtractExpression(lExpr, rExpr);
+                expr = new SubtractExpression(lExpr, rExpr, sourceLocation);
                 break;
 
             case "*":
-                expr = new MultExpression(lExpr, rExpr);
+                expr = new MultExpression(lExpr, rExpr, sourceLocation);
                 break;
 
             case "/":
-                expr = new DivideExpr(lExpr, rExpr);
+                expr = new DivideExpr(lExpr, rExpr, sourceLocation);
                 break;
 
             case "&&":
-                expr = new AndExpression(lExpr, rExpr);
+                expr = new AndExpression(lExpr, rExpr, sourceLocation);
                 break;
 
             case "||":
-                expr = new OrExpression(lExpr, rExpr);
+                expr = new OrExpression(lExpr, rExpr, sourceLocation);
                 break;
 
             case "==":
-                expr = new EqualExpression(lExpr, rExpr);
+                expr = new EqualExpression(lExpr, rExpr, sourceLocation);
                 break;
 
             case "!=":
-                expr = new NotEqualExpression(lExpr, rExpr);
+                expr = new NotEqualExpression(lExpr, rExpr, sourceLocation);
                 break;
 
             case ">=":
-                expr = new GreaterEqualExpression(lExpr, rExpr);
+                expr = new GreaterEqualExpression(lExpr, rExpr, sourceLocation);
                 break;
 
             case ">":
-                expr = new GreaterThanExpression(lExpr, rExpr);
+                expr = new GreaterThanExpression(lExpr, rExpr, sourceLocation);
                 break;
 
             case "<":
-                expr = new LessThanExpression(lExpr, rExpr);
+                expr = new LessThanExpression(lExpr, rExpr, sourceLocation);
                 break;
 
             case "<=":
-                expr = new LessEqualExpression(lExpr, rExpr);
+                expr = new LessEqualExpression(lExpr, rExpr, sourceLocation);
                 break;
 
             default:
-                throw new ParserException("Unsupported operator: " + opStr);
+                throw new ParserException("Unsupported operator '" + opStr + "' in " +
+                        sourceLocation.getFileName() + ":" + sourceLocation.getLine());
         }
 
         exprStack.push(expr);
     }
 
-    public void createUnaryExpr(String op) {
+    public void createUnaryExpr(String op, Position sourceLocation) {
         Expression rExpr = exprStack.pop();
 
         UnaryExpression expr;
         switch (op) {
             case "+":
-                expr = new UnaryExpression(Operator.ADD, rExpr);
+                expr = new UnaryExpression(Operator.ADD, rExpr, sourceLocation);
                 break;
 
             case "-":
-                expr = new UnaryExpression(Operator.SUB, rExpr);
+                expr = new UnaryExpression(Operator.SUB, rExpr, sourceLocation);
                 break;
 
             case "!":
-                expr = new UnaryExpression(Operator.NOT, rExpr);
+                expr = new UnaryExpression(Operator.NOT, rExpr, sourceLocation);
                 break;
 
             default:
-                throw new ParserException("Unsupported operator: " + op);
+                throw new ParserException("Unsupported operator '" + op + "' in " +
+                        sourceLocation.getFileName() + ":" + sourceLocation.getLine());
         }
 
         exprStack.push(expr);
     }
 
-    public void createBackquoteExpr(String stringContent) {
+    public void createBacktickExpr(String stringContent, Position sourceLocation) {
         String templateStr = getValueWithinBackquote(stringContent);
-
-        BackquoteExpr.BackquoteExprBuilder builder = new BackquoteExpr.BackquoteExprBuilder();
+        BacktickExpr.BacktickExprBuilder builder = new BacktickExpr.BacktickExprBuilder();
         builder.setTemplateStr(templateStr);
-
-        exprStack.push(builder.build());
+        BacktickExpr expr = builder.build();
+        expr.setLocation(sourceLocation);
+        exprStack.push(expr);
     }
 
     public void startExprList() {
@@ -459,27 +487,27 @@ public class BLangModelBuilder {
         addExprToList(exprList, exprCount);
     }
 
-    public void createFunctionInvocationExpr(Position invokedLocation) {
+    public void createFunctionInvocationExpr(Position sourceLocation) {
         CallableUnitInvocationExprBuilder cIExprBuilder = new CallableUnitInvocationExprBuilder();
         cIExprBuilder.setExpressionList(exprListStack.pop());
         cIExprBuilder.setName(symbolNameStack.pop());
 
         FunctionInvocationExpr invocationExpr = cIExprBuilder.buildFuncInvocExpr();
-        invocationExpr.setInvokedLocation(invokedLocation);
+        invocationExpr.setLocation(sourceLocation);
         exprStack.push(invocationExpr);
     }
 
-    public void createActionInvocationExpr(Position invokedLocation) {
+    public void createActionInvocationExpr(Position sourceLocation) {
         CallableUnitInvocationExprBuilder cIExprBuilder = new CallableUnitInvocationExprBuilder();
         cIExprBuilder.setExpressionList(exprListStack.pop());
         cIExprBuilder.setName(symbolNameStack.pop());
 
         ActionInvocationExpr invocationExpr = cIExprBuilder.buildActionInvocExpr();
-        invocationExpr.setInvokedLocation(invokedLocation);
+        invocationExpr.setLocation(sourceLocation);
         exprStack.push(invocationExpr);
     }
 
-    public void createArrayInitExpr() {
+    public void createArrayInitExpr(Position sourceLocation) {
         ArrayInitExpr.ArrayInitExprBuilder builder = new ArrayInitExpr.ArrayInitExprBuilder();
 
         if (!exprListStack.isEmpty()) {
@@ -488,10 +516,11 @@ public class BLangModelBuilder {
         }
 
         ArrayInitExpr arrayInitExpr = builder.build();
+        arrayInitExpr.setLocation(sourceLocation);
         exprStack.push(arrayInitExpr);
     }
 
-    public void createMapInitExpr() {
+    public void createMapInitExpr(Position sourceLocation) {
         MapInitExpr.MapInitExprBuilder builder = new MapInitExpr.MapInitExprBuilder();
 
         if (!mapInitKeyValueListStack.isEmpty()) {
@@ -500,6 +529,7 @@ public class BLangModelBuilder {
         }
 
         MapInitExpr mapInitExpr = builder.build();
+        mapInitExpr.setLocation(sourceLocation);
         exprStack.push(mapInitExpr);
     }
 
@@ -512,12 +542,12 @@ public class BLangModelBuilder {
         addKeyValueToList(keyValueList, exprCount);
     }
 
-    public void createMapInitKeyValue(String key) {
+    public void createMapInitKeyValue(String key, Position sourceLocation) {
         if (!exprStack.isEmpty()) {
             Expression currentExpression = exprStack.pop();
-            keyValueStack.push(new KeyValueExpression(key, currentExpression));
+            keyValueStack.push(new KeyValueExpression(key, currentExpression, sourceLocation));
         } else {
-            keyValueStack.push(new KeyValueExpression(key, null));
+            keyValueStack.push(new KeyValueExpression(key, null, sourceLocation));
         }
 
 
@@ -541,10 +571,10 @@ public class BLangModelBuilder {
         annotationListStack.push(new ArrayList<>());
     }
 
-    public void createFunction(String name, boolean isPublic, Position location, int position) {
+    public void createFunction(String name, boolean isPublic, Position sourceLocation, int position) {
         currentCUBuilder.setName(new SymbolName(name, pkgName));
         currentCUBuilder.setPublic(isPublic);
-        currentCUBuilder.setPosition(location);
+        currentCUBuilder.setPosition(sourceLocation);
 
         List<Annotation> annotationList = annotationListStack.pop();
         // TODO Improve this implementation
@@ -557,9 +587,9 @@ public class BLangModelBuilder {
         currentCUBuilder = null;
     }
 
-    public void createResource(String name, Position location) {
+    public void createResource(String name, Position sourceLocation) {
         currentCUBuilder.setName(new SymbolName(name, pkgName));
-        currentCUBuilder.setPosition(location);
+        currentCUBuilder.setPosition(sourceLocation);
 
         List<Annotation> annotationList = annotationListStack.pop();
         // TODO Improve this implementation
@@ -571,9 +601,9 @@ public class BLangModelBuilder {
         currentCUBuilder = null;
     }
 
-    public void createAction(String name, Position location) {
+    public void createAction(String name, Position sourceLocation) {
         currentCUBuilder.setName(new SymbolName(name, pkgName));
-//        currentCUBuilder.setPosition(location);
+        currentCUBuilder.setPosition(sourceLocation);
 
         List<Annotation> annotationList = annotationListStack.pop();
         // TODO Improve this implementation
@@ -592,9 +622,9 @@ public class BLangModelBuilder {
         annotationListStack.push(new ArrayList<>());
     }
 
-    public void createService(String name, Position location, int position) {
+    public void createService(String name, Position sourceLocation, int position) {
         currentCUGroupBuilder.setName(new SymbolName(name, pkgName));
-        currentCUGroupBuilder.setLocation(location);
+        currentCUGroupBuilder.setLocation(sourceLocation);
 
         List<Annotation> annotationList = annotationListStack.pop();
         // TODO Improve this implementation
@@ -607,9 +637,9 @@ public class BLangModelBuilder {
         currentCUGroupBuilder = null;
     }
 
-    public void createConnector(String name, Position location, int position) {
+    public void createConnector(String name, Position sourceLocation, int position) {
         currentCUGroupBuilder.setName(new SymbolName(name, pkgName));
-        currentCUGroupBuilder.setLocation(location);
+        currentCUGroupBuilder.setLocation(sourceLocation);
 
         List<Annotation> annotationList = annotationListStack.pop();
         // TODO Improve this implementation
@@ -624,15 +654,16 @@ public class BLangModelBuilder {
 
     // Statements
 
-    public void createAssignmentExpr() {
+    public void createAssignmentExpr(Position sourceLocation) {
         Expression rExpr = exprStack.pop();
         Expression lExpr = exprStack.pop();
 
         AssignStmt assignStmt = new AssignStmt(lExpr, rExpr);
+        assignStmt.setLocation(sourceLocation);
         addToBlockStmt(assignStmt);
     }
 
-    public void createReturnStmt() {
+    public void createReturnStmt(Position sourceLocation) {
         ReturnStmt.ReturnStmtBuilder returnStmtBuilder = new ReturnStmt.ReturnStmtBuilder();
 
         // Get the expression list from the expression list stack
@@ -643,13 +674,15 @@ public class BLangModelBuilder {
         }
 
         ReturnStmt returnStmt = returnStmtBuilder.build();
+        returnStmt.setLocation(sourceLocation);
         addToBlockStmt(returnStmt);
     }
 
-    public void createReplyStmt() {
+    public void createReplyStmt(Position sourceLocation) {
         ReplyStmt.ReplyStmtBuilder replyStmtBuilder = new ReplyStmt.ReplyStmtBuilder();
         replyStmtBuilder.setExpression(exprStack.pop());
         ReplyStmt replyStmt = replyStmtBuilder.build();
+        replyStmt.setLocation(sourceLocation);
         addToBlockStmt(replyStmt);
     }
 
@@ -657,7 +690,7 @@ public class BLangModelBuilder {
         blockStmtBuilderStack.push(new BlockStmt.BlockStmtBuilder());
     }
 
-    public void endWhileStmt() {
+    public void endWhileStmt(Position sourceLocation) {
         // Create a while statement builder
         WhileStmt.WhileStmtBuilder whileStmtBuilder = new WhileStmt.WhileStmtBuilder();
 
@@ -668,7 +701,9 @@ public class BLangModelBuilder {
         whileStmtBuilder.setWhileBody(blockStmtBuilderStack.pop().build());
 
         // Add the while statement to the statement block which is at the top of the stack.
-        blockStmtBuilderStack.peek().addStmt(whileStmtBuilder.build());
+        WhileStmt whileStmt = whileStmtBuilder.build();
+        whileStmt.setLocation(sourceLocation);
+        blockStmtBuilderStack.peek().addStmt(whileStmt);
     }
 
     public void startIfElseStmt() {
@@ -680,24 +715,28 @@ public class BLangModelBuilder {
         blockStmtBuilderStack.push(new BlockStmt.BlockStmtBuilder());
     }
 
-    public void endElseIfClause() {
+    public void endElseIfClause(Position sourceLocation) {
         IfElseStmt.IfElseStmtBuilder ifElseStmtBuilder = ifElseStmtBuilderStack.peek();
 
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
-        ifElseStmtBuilder.addElseIfBlock(exprStack.pop(), blockStmtBuilder.build());
+        BlockStmt elseIfStmt = blockStmtBuilder.build();
+        elseIfStmt.setLocation(sourceLocation);
+        ifElseStmtBuilder.addElseIfBlock(exprStack.pop(), elseIfStmt);
     }
 
     public void startElseClause() {
         blockStmtBuilderStack.push(new BlockStmt.BlockStmtBuilder());
     }
 
-    public void endElseClause() {
+    public void endElseClause(Position sourceLocation) {
         IfElseStmt.IfElseStmtBuilder ifElseStmtBuilder = ifElseStmtBuilderStack.peek();
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
-        ifElseStmtBuilder.setElseBody(blockStmtBuilder.build());
+        BlockStmt elseStmt = blockStmtBuilder.build();
+        elseStmt.setLocation(sourceLocation);
+        ifElseStmtBuilder.setElseBody(elseStmt);
     }
 
-    public void endIfElseStmt() {
+    public void endIfElseStmt(Position sourceLocation) {
         IfElseStmt.IfElseStmtBuilder ifElseStmtBuilder = ifElseStmtBuilderStack.pop();
         ifElseStmtBuilder.setIfCondition(exprStack.pop());
 
@@ -705,16 +744,17 @@ public class BLangModelBuilder {
         ifElseStmtBuilder.setThenBody(blockStmtBuilder.build());
 
         IfElseStmt ifElseStmt = ifElseStmtBuilder.build();
+        ifElseStmt.setLocation(sourceLocation);
         addToBlockStmt(ifElseStmt);
     }
 
-    public void createFunctionInvocationStmt(Position invokedLocation) {
+    public void createFunctionInvocationStmt(Position sourceLocation) {
         CallableUnitInvocationExprBuilder cIExprBuilder = new CallableUnitInvocationExprBuilder();
         cIExprBuilder.setExpressionList(exprListStack.pop());
         cIExprBuilder.setName(symbolNameStack.pop());
 
         FunctionInvocationExpr invocationExpr = cIExprBuilder.buildFuncInvocExpr();
-        invocationExpr.setInvokedLocation(invokedLocation);
+        invocationExpr.setLocation(sourceLocation);
 
         FunctionInvocationStmt.FunctionInvokeStmtBuilder stmtBuilder =
                 new FunctionInvocationStmt.FunctionInvokeStmtBuilder();
@@ -724,13 +764,13 @@ public class BLangModelBuilder {
         blockStmtBuilderStack.peek().addStmt(functionInvocationStmt);
     }
 
-    public void createActionInvocationStmt(Position invokedLocation) {
+    public void createActionInvocationStmt(Position sourceLocation) {
         CallableUnitInvocationExprBuilder cIExprBuilder = new CallableUnitInvocationExprBuilder();
         cIExprBuilder.setExpressionList(exprListStack.pop());
         cIExprBuilder.setName(symbolNameStack.pop());
 
         ActionInvocationExpr invocationExpr = cIExprBuilder.buildActionInvocExpr();
-        invocationExpr.setInvokedLocation(invokedLocation);
+        invocationExpr.setLocation(sourceLocation);
 
         ActionInvocationStmt.ActionInvocationStmtBuilder stmtBuilder =
                 new ActionInvocationStmt.ActionInvocationStmtBuilder();
@@ -740,31 +780,41 @@ public class BLangModelBuilder {
         blockStmtBuilderStack.peek().addStmt(actionInvocationStmt);
     }
 
-
     // Literal Values
 
-    public void createIntegerLiteral(String value) {
+    public void createIntegerLiteral(String value, Position sourceLocation) {
         BValueType bValue = new BInteger(Integer.parseInt(value));
-        createLiteral(bValue, BTypes.INT_TYPE);
+        createLiteral(bValue, BTypes.INT_TYPE, sourceLocation);
     }
 
-    public void createFloatLiteral(String value) {
+    public void createLongLiteral(String value, Position sourceLocation) {
+        BValueType bValue = new BLong(Long.parseLong(value));
+        createLiteral(bValue, BTypes.LONG_TYPE, sourceLocation);
+    }
+
+    public void createFloatLiteral(String value, Position sourceLocation) {
         BValueType bValue = new BFloat(Float.parseFloat(value));
-        createLiteral(bValue, BTypes.FLOAT_TYPE);
+        createLiteral(bValue, BTypes.FLOAT_TYPE, sourceLocation);
     }
 
-    public void createStringLiteral(String value) {
+    public void createDoubleLiteral(String value, Position sourceLocation) {
+        BValueType bValue = new BDouble(Double.parseDouble(value));
+        createLiteral(bValue, BTypes.DOUBLE_TYPE, sourceLocation);
+    }
+
+    public void createStringLiteral(String value, Position sourceLocation) {
         BValueType bValue = new BString(value);
-        createLiteral(bValue, BTypes.STRING_TYPE);
+        createLiteral(bValue, BTypes.STRING_TYPE, sourceLocation);
     }
 
-    public void createBooleanLiteral(String value) {
+    public void createBooleanLiteral(String value, Position sourceLocation) {
         BValueType bValue = new BBoolean(Boolean.parseBoolean(value));
-        createLiteral(bValue, BTypes.BOOLEAN_TYPE);
+        createLiteral(bValue, BTypes.BOOLEAN_TYPE, sourceLocation);
     }
 
-    public void createNullLiteral(String value) {
-        throw new RuntimeException("Null values are not yet supported in Ballerina");
+    public void createNullLiteral(String value, Position sourceLocation) {
+        throw new RuntimeException("Null values are not yet supported in Ballerina in " + sourceLocation.getFileName()
+                + ":" + sourceLocation.getLine());
     }
 
     // Private methods
@@ -774,9 +824,10 @@ public class BLangModelBuilder {
         blockStmtBuilder.addStmt(stmt);
     }
 
-    private void createLiteral(BValueType bValueType, BType type) {
+    private void createLiteral(BValueType bValueType, BType type, Position sourceLocation) {
         BasicLiteral basicLiteral = new BasicLiteral(bValueType);
         basicLiteral.setType(type);
+        basicLiteral.setLocation(sourceLocation);
         exprStack.push(basicLiteral);
     }
 

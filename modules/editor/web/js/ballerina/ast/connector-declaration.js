@@ -20,10 +20,11 @@ define(['lodash', './node'], function(_, ASTNode){
     var ConnectorDeclaration = function(options) {
         this._connectionOptions = options || {};
         this._connectorName = '';
+        this._connectorVariable = '';
         this._connectorType = '';
         this._timeout = '';
         this._uri = '';
-        ASTNode.call(this);
+        ASTNode.call(this, "ConnectorDeclaration");
     };
 
     ConnectorDeclaration.prototype = Object.create(ASTNode.prototype);
@@ -43,6 +44,11 @@ define(['lodash', './node'], function(_, ASTNode){
     ConnectorDeclaration.prototype.setConnectorName = function (name) {
         this._connectorName = name;
     };
+
+    ConnectorDeclaration.prototype.setConnectorVariable = function (connectorVariable) {
+        this._connectorVariable = connectorVariable;
+    };
+
     ConnectorDeclaration.prototype.setConnectorType = function (type) {
         this._connectorType = type;
     };
@@ -61,6 +67,11 @@ define(['lodash', './node'], function(_, ASTNode){
     ConnectorDeclaration.prototype.getConnectorName = function () {
         return this._connectorName;
     };
+
+    ConnectorDeclaration.prototype.getConnectorVariable = function () {
+        return this._connectorVariable;
+    }
+
     ConnectorDeclaration.prototype.getConnectorType = function () {
         return this._connectorType;
     };
@@ -74,6 +85,17 @@ define(['lodash', './node'], function(_, ASTNode){
     ConnectorDeclaration.prototype.validateUri = function (uri) {
         var response = uri.search(/^http[s]?\:\/\//);
         return response !== -1;
+    };
+
+    /**
+     * initialize ConnectorDeclaration from json object
+     * @param {Object} jsonNode to initialize from
+     */
+    ConnectorDeclaration.prototype.initFromJson = function (jsonNode) {
+        this.setConnectorName('connectorName');
+        this.setConnectorType('connectorType');
+        this.setConnectorVariable(jsonNode.connector_variable);
+        this.setUri('http://localhost');
     };
 
     return ConnectorDeclaration;

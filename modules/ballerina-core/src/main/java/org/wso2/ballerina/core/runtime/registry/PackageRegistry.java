@@ -47,13 +47,13 @@ public class PackageRegistry {
         return instance;
     }
 
-    public void registerPackage(Package aPackage) {
-        packages.put(aPackage.getFullyQualifiedName(), aPackage);
-    }
+//    public void registerPackage(Package aPackage) {
+//        packages.put(aPackage.getFullyQualifiedName(), aPackage);
+//    }
 
-    public Package getPackage(String fqn) {
-        return packages.get(fqn);
-    }
+//    public Package getPackage(String fqn) {
+//        return packages.get(fqn);
+//    }
 
     /**
      * Register Native Function.
@@ -72,15 +72,9 @@ public class PackageRegistry {
 
         String funcName = function.getName();
         SymbolName symbolName = LangModelUtils.getSymNameWithParams(funcName, function.getParameters());
-        Symbol symbol = new Symbol(function, LangModelUtils.getTypesOfParams(function.getParameters()),
-                                   function.getReturnTypes());
+        Symbol symbol = new Symbol(function);
 
         GlobalScopeHolder.getInstance().insert(symbolName, symbol);
-
-//        CallableUnitType callableUnitType = new CallableUnitType(CallableUnit.FUNCTION, function.getSymbolName());
-//        callableUnitType.setParamType(function.getSymbolName().getParameters());
-//        callableUnitType.setReturnType(function.getReturnTypes());
-//        GlobalScopeHolder.getInstance().insert(function.getSymbolName(), new Symbol(callableUnitType, 0));
     }
 
     /**
@@ -95,8 +89,7 @@ public class PackageRegistry {
 
         String actionName = action.getSymbolName().getName();
         SymbolName symbolName = LangModelUtils.getSymNameWithParams(actionName, action.getParameters());
-        Symbol symbol = new Symbol(action, LangModelUtils.getTypesOfParams(action.getParameters()),
-                action.getReturnTypes());
+        Symbol symbol = new Symbol(action);
 
         GlobalScopeHolder.getInstance().insert(symbolName, symbol);
 
@@ -143,23 +136,23 @@ public class PackageRegistry {
 
         String connectorName = connector.getSymbolName().getName();
         //SymbolName symbolName = SymbolUtils.getSymNameWithParams(CONNECTOR_NAME, connector.getParameters());
-        Symbol symbol = new Symbol(connector, LangModelUtils.getTypesOfParams(connector.getParameters()));
+        Symbol symbol = new Symbol(connector);
 
         GlobalScopeHolder.getInstance().insert(new SymbolName(connectorName), symbol);
 
     }
 
-    /**
-     * Unregister Native Action.
-     *
-     * @param action AbstractNativeAction instance.
-     */
-    public void unregisterNativeConnector(AbstractNativeAction action) {
-        Package aPackage = packages.get(action.getPackageName());
-        if (aPackage == null) {
-            // Nothing to do.
-            return;
-        }
-        aPackage.getActions().remove(action.getName());
-    }
+//    /**
+//     * Unregister Native Action.
+//     *
+//     * @param action AbstractNativeAction instance.
+//     */
+//    public void unregisterNativeConnector(AbstractNativeAction action) {
+//        Package aPackage = packages.get(action.getPackageName());
+//        if (aPackage == null) {
+//            // Nothing to do.
+//            return;
+//        }
+//        aPackage.getActions().remove(action.getName());
+//    }
 }
