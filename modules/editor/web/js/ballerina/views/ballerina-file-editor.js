@@ -56,6 +56,16 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
         BallerinaFileEditor.prototype.setModel = function (model) {
             if (!_.isNil(model) && model instanceof BallerinaASTRoot) {
                 this._model = model;
+                //Registering event listeners
+                this._model.on('child-removed', this.childViewRemovedCallback, this);
+                this._model.on('child-added', function(child){
+                     this.visit(child);
+                }, this);
+                // make undo-manager capture all tree modifications after initial rendering
+                this._model.on('tree-modified', function(event){
+                    this.getUndoManager().onUndoableOperation(event);
+                    this.trigger("content-modified");
+                }, this);
             } else {
                 log.error("Ballerina AST Root is undefined or is of different type." + model);
                 throw "Ballerina AST Root is undefined or is of different type." + model;
@@ -184,9 +194,6 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             this._createPackagePropertyPane(canvasContainer);
             // init undo manager
             this._undoManager = new UndoManager();
-
-            //Registering event listeners
-            this.listenTo(this._model, 'child-removed', this.childViewRemovedCallback);
         };
 
         /**
@@ -234,18 +241,24 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
 
             var designViewBtn = $(this._container).find(_.get(this._viewOptions, 'controls.view_design_btn'));
             designViewBtn.click(function () {
-                var source = self._sourceView._editor.getValue();
-                var response = self.backend.parse(source);
-                //if there are errors display the error.
-                //@todo: proper error handling need to get the service specs
-                if(response.error != undefined && response.error){
-                    $(_.get(self._viewOptions, 'dialog_boxes.parser_error')).modal();
-                    return;
+                // re-parse if there are modifications to source
+                var isSourceChanged = !self._sourceView._editor.getSession().getUndoManager().isClean();
+                if (isSourceChanged) {
+                    var source = self._sourceView._editor.getValue();
+                    var response = self.backend.parse(source);
+                    //if there are errors display the error.
+                    //@todo: proper error handling need to get the service specs
+                    if (response.error != undefined && response.error) {
+                        $(_.get(self._viewOptions, 'dialog_boxes.parser_error')).modal();
+                        return;
+                    }
+                    //if no errors display the design.
+                    //@todo
+                    var root = self.deserializer.getASTModel(response);
+                    self.setModel(root);
+                    // reset source editor delta stack
+                    self._sourceView._editor.getSession().getUndoManager().markClean();
                 }
-                //if no errors display the design.
-                //@todo
-                var root = self.deserializer.getASTModel(response);
-                self._model = root;
                 //canvas should be visible before you can call reDraw. drawing dependednt on attr:offsetWidth
                 self.toolPalette.show();
                 sourceViewContainer.hide();
@@ -254,23 +267,16 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 designViewBtn.hide();
                 self.trigger('design-view-activated');
                 self.trigger('source-view-deactivated');
-                self.reDraw();
+                if(isSourceChanged){
+                    // reset undo manager for the design view
+                    self.getUndoManager().reset();
+                    self.reDraw();
+                }
             });
             // activate design view by default
             designViewBtn.hide();
             sourceViewContainer.hide();
             this.initDropTarget();
-
-            this._model.on('child-added', function(child){
-                self.visit(child);
-                self._model.trigger("child-visited", child);
-            });
-
-            // make undo-manager capture all tree modifications after initial rendering
-            this._model.on('tree-modified', function(event){
-                self.getUndoManager().onUndoableOperation(event);
-                self.trigger("content-modified");
-            });
     };
 
     BallerinaFileEditor.prototype.initDropTarget = function() {
@@ -505,13 +511,9 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 log.error(errMsg);
                 throw errMsg;
             }
-
-            //Registering event listeners
-            this.listenTo(this._model, 'child-removed', this.childViewRemovedCallback);
-
             this._model.accept(this);
-
             this.initDropTarget();
+            this.trigger('redraw');
         };
 
         BallerinaFileEditor.prototype.getUndoManager = function(){
