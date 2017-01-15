@@ -24,11 +24,14 @@ define(['lodash', 'log', './action-invocation-statement'], function (_, log, Act
      */
     var ActionInvocationExpression = function (args) {
         ActionInvocationStatement.call(this, args);
-        this._variableAccessor = _.get(args, 'accessor');
-        this._actionName = _.get(args, 'actionName');
-        this._actionPackageName = _.get(args, 'actionPackageName');
-        this._actionConnectorName = _.get(args, 'actionConnectorName');
-        this._actionInvocationReference = _.get(args, 'actionInvocationReference');
+        this._variableAccessor = _.get(args, 'accessor', '');
+        this._actionName = _.get(args, 'actionName', '');
+        this._actionPackageName = _.get(args, 'actionPackageName', '');
+        this._actionConnectorName = _.get(args, 'actionConnectorName', '');
+        this._actionInvocationReference = _.get(args, 'actionInvocationReference', '');
+        this._connectorVariableReference = _.get(args, 'connectorVariableReference', '');
+        this._path = _.get(args, 'path', '/');
+        this._messageVariableReference = _.get(args, 'messageRef', 'm');
         this.type = "ActionInvocationExpression";
     };
 
@@ -43,17 +46,60 @@ define(['lodash', 'log', './action-invocation-statement'], function (_, log, Act
         return this._variableAccessor;
     };
 
+    ActionInvocationExpression.prototype.setActionName = function (actionName) {
+        this._actionName = actionName;
+    };
+    ActionInvocationExpression.prototype.getActionName = function () {
+        return this._actionName;
+    };
+
+    ActionInvocationExpression.prototype.setActionPackageName = function (actionPackageName) {
+        this._actionPackageName = actionPackageName;
+    };
+    ActionInvocationExpression.prototype.getActionPackageName = function () {
+        return this._actionPackageName;
+    };
+
+    ActionInvocationExpression.prototype.setActionConnectorName = function (actionConnectorName) {
+        this._actionConnectorName = actionConnectorName;
+    };
+    ActionInvocationExpression.prototype.getActionConnectorName = function () {
+        return this._actionConnectorName;
+    };
+
+    ActionInvocationExpression.prototype.setConnectorVariableReference = function (connectorVariableReference) {
+        this._connectorVariableReference = connectorVariableReference;
+    };
+    ActionInvocationExpression.prototype.getConnectorVariableReference = function () {
+        return this._connectorVariableReference;
+    };
+
+    ActionInvocationExpression.prototype.setPath = function (path) {
+        this._path = path;
+    };
+    ActionInvocationExpression.prototype.getPath = function () {
+        return this._path;
+    };
+
+    ActionInvocationExpression.prototype.setMessageVariableReference = function (messageVariableReference) {
+        this._messageVariableReference = messageVariableReference;
+    };
+
+    ActionInvocationExpression.prototype.getMessageVariableReference = function () {
+        return this._messageVariableReference;
+    };
+
     /**
      * initialize ActionInvocationExpression from json object
      * @param {Object} jsonNode to initialize from
      */
     ActionInvocationExpression.prototype.initFromJson = function (jsonNode) {
-        //TODO : Need to refactor the whole method
-        this.setConnector(_.head(this.getInvocationConnector(_.head(jsonNode.children).variable_reference_name)));
-        this.setAction("post");
-        this.setVariableAccessor("response");
-        this.setMessage("m");
-        this.setPath("/");
+        this._actionName = jsonNode.action_name;
+        this._actionPackageName = jsonNode.action_pkg_name;
+        this._actionConnectorName = jsonNode.action_connector_name;
+        this._connectorVariableReference = jsonNode.children[0].variable_reference_name;
+        this._path = jsonNode.children[1].basic_literal_value;
+        this._messageVariableReference = jsonNode.children[2].variable_reference_name;
     };
 
     ActionInvocationExpression.prototype.getInvocationConnector = function (variable_reference_name) {
