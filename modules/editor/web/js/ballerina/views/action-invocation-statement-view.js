@@ -176,8 +176,9 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
             this.processorConnectPoint.on("mousedown", function () {
                 d3.event.preventDefault();
                 d3.event.stopPropagation();
-                var m = d3.mouse(this);
-                var sourcePoint = self.toGlobalCoordinates(new Point(m[0], m[1]));
+                var x =  parseFloat(self.processorConnectPoint.attr('cx'));
+                var y = self.toGlobalCoordinates(new Point(0, parseFloat(self.processorConnectPoint.attr('cy')))).y();
+                var sourcePoint = self.toGlobalCoordinates(new Point(x, y));
 
                 self.messageManager.startDrawMessage(self._model, sourcePoint);
                 self.messageManager.setTypeBeingDragged(true);
