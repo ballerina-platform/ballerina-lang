@@ -28,6 +28,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -168,7 +169,41 @@ public class WorkspaceService {
 
 	}
 
+	@POST
+	@Path("/createLocation")
+	@Produces("application/json")
+	public Response createLocation(String payload) {
 
+		Response response = null;
+		String location = "";
+		String createdNode = "";
+		Matcher locationMatcher = Pattern.compile("location=(.*?)&").matcher(payload);
+		while (locationMatcher.find()) {
+			location = locationMatcher.group(1);
+		}
+		createdNode = payload.split("createdNode=")[1];
+		byte[] base64Node = Base64.getDecoder().decode(createdNode);
+		byte[] base64Location = Base64.getDecoder().decode(location);
+
+		File newDir = new File(new String(base64Location) + System.getProperty(FILE_SEPARATOR) + new String(base64Node));
+
+		// if the directory does not exist, create it
+		if (!newDir.exists()) {
+			try {
+				newDir.mkdir();
+				JsonObject entity = new JsonObject();
+				entity.addProperty(STATUS, SUCCESS);
+				response = Response.status(Response.Status.OK).entity(entity)
+						.header("Access-Control-Allow-Origin", '*').type(MediaType.APPLICATION_JSON).build();
+			} catch (SecurityException e) {
+				logger.error("/create folder service error", e);
+				response = getErrorResponse(e);
+			}
+
+		}
+		return response;
+	}
+	
     @POST
     @Path("/log")
     @Produces("application/json")

@@ -77,7 +77,7 @@ define(['jquery', 'backbone', 'lodash', 'tree_view', /** void module - jquery pl
                             }
                         },
                         'multiple': false,
-                        'check_callback': false,
+                        'check_callback': true,
                         'force_text': true,
                         'themes': {
                             'responsive': false,
@@ -110,7 +110,11 @@ define(['jquery', 'backbone', 'lodash', 'tree_view', /** void module - jquery pl
                     data.instance.set_icon(data.node, "glyphicon glyphicon-folder-open");
                 }).on('close_node.jstree', function (e, data) {
                     data.instance.set_icon(data.node, "glyphicon glyphicon-folder-close");
-                });
+                }).on('create_node.jstree', function(e, data) {
+                }).on('rename_node.jstree', function (e, data){
+                    $(data).addClass('intro');
+                    self.trigger("changedName",data.text);
+            });
             return this;
         }
     });
