@@ -51,6 +51,10 @@ define(['jquery', 'backbone', 'lodash', 'tree_view', /** void module - jquery pl
             this.action = _.get(config, 'action');
         },
 
+        select: function(nodeID){
+            this._$parent_el.jstree(true).select_node({id: nodeID});
+        },
+
         render: function () {
             var self = this;
             var action = this.action;
@@ -79,6 +83,7 @@ define(['jquery', 'backbone', 'lodash', 'tree_view', /** void module - jquery pl
                         'multiple': false,
                         'check_callback': false,
                         'force_text': true,
+                        'expand_selected_onload': true,
                         'themes': {
                             'responsive': false,
                             'variant': 'small',
@@ -110,6 +115,8 @@ define(['jquery', 'backbone', 'lodash', 'tree_view', /** void module - jquery pl
                     data.instance.set_icon(data.node, "glyphicon glyphicon-folder-open");
                 }).on('close_node.jstree', function (e, data) {
                     data.instance.set_icon(data.node, "glyphicon glyphicon-folder-close");
+                }).on('ready', function(){
+                    self.trigger("ready");
                 });
             return this;
         }

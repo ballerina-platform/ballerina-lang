@@ -32,6 +32,10 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
                 this.notification_container = _.get(options.config.tab_controller.tabs.tab.ballerina_editor.notifications, 'container');
             },
 
+            show: function(){
+                this._fileSaveModal.modal('show');
+            },
+
             render: function () {
                 //TODO : this render method should be rewritten with improved UI
                 var fileBrowser;
@@ -115,7 +119,6 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
                 fileBrowser = new FileBrowser({container: treeContainer, application:app, action:'saveFile'});
 
                 fileBrowser.render();
-
                 //Gets the selected location from tree and sets the value as location
                 this.listenTo(fileBrowser, 'selected', function (selectedLocation) {
                     if(selectedLocation){
@@ -141,10 +144,9 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
                     saveConfiguration({location: location, configName:configName});
                 });
 
-
                 $(this.dialog_container).append(fileSave);
                 newWizardError.hide();
-                fileSave.modal('show');
+                this._fileSaveModal = fileSave;
 
                 function alertSuccess(){
                     $(notification_container).append(successNotification);
