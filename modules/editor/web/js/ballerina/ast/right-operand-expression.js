@@ -58,7 +58,15 @@ define(['lodash', './statement'], function(_, Statement){
                 self.setBackQuoteEnclosedString('`' + childNode.back_quate_enclosed_string + '`');
             } else {
                 var child = self.getFactory().createFromJson(childNode);
-                self.addChild(child);
+                // TODO: Need to handle the function expressions and statements differently. Need Refactor the bellow
+                if (self.getFactory().isFunctionInvocationExpression(child) &&
+                    !self.getFactory().isFunctionInvocationStatement(child.getParent())) {
+                    var newParent = self.getFactory().createFunctionInvocationStatement();
+                    newParent.addChild(child);
+                    self.addChild(newParent);
+                } else {
+                    self.addChild(child);
+                }
                 child.initFromJson(childNode);
             }
         });
