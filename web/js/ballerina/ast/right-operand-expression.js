@@ -32,7 +32,7 @@ define(['lodash', './statement'], function(_, Statement){
 
     /**
      * Get Right Operand Expression String
-     * @returns {undefined|string}
+     * @returns {string} - The expression
      */
     RightOperandExpression.prototype.getRightOperandExpressionString = function () {
         return this._right_operand_expression_string;
@@ -40,7 +40,7 @@ define(['lodash', './statement'], function(_, Statement){
 
     /**
      * Set Right Operand Expression String
-     * @param {string} rightOperandExpStr
+     * @param {string} rightOperandExpStr - The expression
      */
     RightOperandExpression.prototype.setRightOperandExpressionString = function (rightOperandExpStr) {
         this._right_operand_expression_string = rightOperandExpStr;
@@ -55,7 +55,7 @@ define(['lodash', './statement'], function(_, Statement){
         _.each(jsonNode.children, function (childNode) {
             // TODO: Handle this Properly
             if (childNode.type === 'back_quote_expression') {
-                self.setRightOperandExpressionString('`' + childNode.back_quate_enclosed_string + '`');
+                self.setRightOperandExpressionString('`' + childNode.back_quote_enclosed_string + '`');
             } else if (childNode.type === 'instance_creation_expression'){
                 self.setRightOperandExpressionString("new " + childNode.instance_type);
             } else if (childNode.type === 'basic_literal_expression'){
