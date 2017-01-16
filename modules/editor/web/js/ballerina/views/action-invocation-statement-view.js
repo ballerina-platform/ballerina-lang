@@ -177,7 +177,7 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
                 d3.event.preventDefault();
                 d3.event.stopPropagation();
                 var x =  parseFloat(self.processorConnectPoint.attr('cx'));
-                var y = self.toGlobalCoordinates(new Point(0, parseFloat(self.processorConnectPoint.attr('cy')))).y();
+                var y =  parseFloat(self.processorConnectPoint.attr('cy'));
                 var sourcePoint = self.toGlobalCoordinates(new Point(x, y));
 
                 self.messageManager.startDrawMessage(self._model, sourcePoint);
