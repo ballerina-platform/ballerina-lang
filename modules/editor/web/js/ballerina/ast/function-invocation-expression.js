@@ -55,8 +55,13 @@ define(['lodash', './expression', './function-invocation'], function (_, Express
 
         // TODO : need to remove following if/else by delegating this logic to parent(FunctionInvocation)
         if( this.getParent() instanceof FunctionInvocation){
-            this.getParent().setFunctionName(functionNameSplit[1]);
-            this.getParent().setPackageName(functionNameSplit[0]);
+            if(functionNameSplit.length < 2){
+                //there is only a function name
+                this.getParent().setFunctionName(functionNameSplit[0]);
+            } else {
+                this.getParent().setFunctionName(functionNameSplit[1]);
+                this.getParent().setPackageName(functionNameSplit[0]);
+            }
             this.getParent().setParams(argsString);
         }else{
             this.setExpression(jsonNode.function_name + '(' + argsString +')');
