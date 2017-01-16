@@ -69,7 +69,7 @@ define(['lodash', 'log', 'event_channel', '../ast/module', './try-catch-statemen
                         var operands  = _.get(statementChild, "children");
                         _.each(operands, function (child) {
                             if (AST.BallerinaASTFactory.isActionInvocationExpression(child)) {
-                                _.set(args, 'model', child);
+                                _.set(args, 'model', statement);
                                 assignmenStatement = new ActionInvocationStatementView(args);
                             } else if (AST.BallerinaASTFactory.isAssignment(child)) {
                                 _.set(args, 'model', child);
