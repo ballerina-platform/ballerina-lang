@@ -919,7 +919,17 @@ public class BLangJSONModelBuilder implements NodeVisitor {
 
     @Override
     public void visit(ArrayMapAccessExpr arrayMapAccessExpr) {
-        //TODO
+        JsonObject arrayMapAccessExprObj = new JsonObject();
+        arrayMapAccessExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
+                                   BLangJSONModelConstants.ARRAY_MAP_ACCESS_EXPRESSION);
+        arrayMapAccessExprObj.addProperty(BLangJSONModelConstants.ARRAY_MAP_ACCESS_EXPRESSION_NAME,
+                                   arrayMapAccessExpr.getSymbolName().getName());
+
+        tempJsonArrayRef.push(new JsonArray());
+        arrayMapAccessExpr.getIndexExpr().accept(this);
+        arrayMapAccessExprObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(arrayMapAccessExprObj);
     }
 
     @Override
