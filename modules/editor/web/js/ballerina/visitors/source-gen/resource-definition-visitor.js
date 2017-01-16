@@ -57,7 +57,7 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './st
                     _.forEach(methods, function(method){
                         var cleanedMethod = method.trim();
                         if (!_.isEmpty(cleanedMethod)) {
-                            constructedPathAnnotation += "@" + cleanedMethod + "\n";
+                            constructedPathAnnotation += "@" + cleanedMethod + " \n";
                         }
                     });
                 }
