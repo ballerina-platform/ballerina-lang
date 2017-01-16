@@ -63,16 +63,38 @@ define(['lodash', 'log', 'event_channel', '../ast/module', './try-catch-statemen
             } else if (statement instanceof AST.AssignmentStatement){
                 // TODO : This logic needs to be refactored.
                 var children  = _.get(statement, "children");
-                var assignmenStatement;
-                _.each(children, function (child) {
-                    if(AST.BallerinaASTFactory.isActionInvocationExpression(child)){
-                        _.set(args, 'model', child);
-                        assignmenStatement = new ActionInvocationStatementView(args);
-                    }else if(AST.BallerinaASTFactory.isAssignment(child)){
-                        _.set(args, 'model', child);
-                        assignmenStatement = new AssignmentStatementView(args);
+                var assignmenStatement = undefined;
+                _.each(children, function (statementChild) {
+                    if(AST.BallerinaASTFactory.isRightOperandExpression(statementChild)) {
+                        var operands  = _.get(statementChild, "children");
+                        _.each(operands, function (child) {
+                            if (AST.BallerinaASTFactory.isActionInvocationExpression(child)) {
+                                _.set(args, 'model', child);
+                                assignmenStatement = new ActionInvocationStatementView(args);
+                            } else if (AST.BallerinaASTFactory.isAssignment(child)) {
+                                _.set(args, 'model', child);
+                                assignmenStatement = new AssignmentStatementView(args);
+                            } else if (AST.BallerinaASTFactory.isVariableReferenceExpression(child)) {
+                                _.set(args, 'model', child);
+                                assignmenStatement = new AssignmentStatementView(args);
+                            } else if (AST.BallerinaASTFactory.isInstanceCreationExpression(child)){
+                                _.set(args, 'model', child);
+                                assignmenStatement = new AssignmentStatementView(args);
+                            } else if(AST.BallerinaASTFactory.isBasicLiteralExpression(child)){
+                                _.set(args, 'model', child);
+                                assignmenStatement = new AssignmentStatementView(args);
+                            } else if (AST.BallerinaASTFactory.isFunctionInvocationExpression(child)){
+                                _.set(args, 'model', child);
+                                assignmenStatement = new AssignmentStatementView(args);
+                            }
+                        });
                     }
                 });
+                if (_.isUndefined(assignmenStatement)) {
+                    _.set(args, 'model', AST.BallerinaASTFactory.createAssignment());
+                    _.get(args, 'model').setExpression(children[0].getVariableReferenceName() + " = " + children[1].getRightOperandExpressionString());
+                    assignmenStatement = new AssignmentStatementView(args);
+                }
                 return assignmenStatement;
             }
         };

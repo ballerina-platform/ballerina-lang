@@ -26,6 +26,7 @@ import org.wso2.ballerina.core.model.Connector;
 import org.wso2.ballerina.core.model.ConnectorDcl;
 import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.model.NodeExecutor;
+import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.VariableDcl;
@@ -35,14 +36,15 @@ import org.wso2.ballerina.core.model.expressions.ArrayMapAccessExpr;
 import org.wso2.ballerina.core.model.expressions.BacktickExpr;
 import org.wso2.ballerina.core.model.expressions.BasicLiteral;
 import org.wso2.ballerina.core.model.expressions.BinaryExpression;
+import org.wso2.ballerina.core.model.expressions.CallableUnitInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.Expression;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.InstanceCreationExpr;
 import org.wso2.ballerina.core.model.expressions.KeyValueExpression;
 import org.wso2.ballerina.core.model.expressions.MapInitExpr;
+import org.wso2.ballerina.core.model.expressions.ResourceInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.UnaryExpression;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
-import org.wso2.ballerina.core.model.invokers.ResourceInvocationExpr;
 import org.wso2.ballerina.core.model.statements.ActionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
@@ -103,51 +105,28 @@ public class BLangExecutor implements NodeExecutor {
     public void visit(AssignStmt assignStmt) {
         // TODO WARN: Implementation of this method is inefficient
         // TODO We are in the process of refactoring this method, please bear with us.
+        BValue[] rValues;
         Expression rExpr = assignStmt.getRExpr();
-        BValue rValue = rExpr.execute(this);
 
-        Expression lExpr = assignStmt.getLExpr();
-
-        if (lExpr instanceof VariableRefExpr) {
-
-            VariableRefExpr variableRefExpr = (VariableRefExpr) lExpr;
-            MemoryLocation memoryLocation = variableRefExpr.getMemoryLocation();
-            if (memoryLocation instanceof LocalVarLocation) {
-                int stackFrameOffset = ((LocalVarLocation) memoryLocation).getStackFrameOffset();
-                controlStack.setValue(stackFrameOffset, rValue);
-
-            } else if (memoryLocation instanceof ServiceVarLocation) {
-                int staticMemOffset = ((ServiceVarLocation) memoryLocation).getStaticMemAddrOffset();
-                runtimeEnv.getStaticMemory().setValue(staticMemOffset, rValue);
-
-            } else if (memoryLocation instanceof ConnectorVarLocation) {
-                // Fist the get the BConnector object. In an action invocation first argument is always the connector
-                BConnector bConnector = (BConnector) controlStack.getValue(0);
-                if (bConnector == null) {
-                    throw new BallerinaException("Connector argument value is null");
-                }
-
-                int connectorMemOffset = ((ConnectorVarLocation) memoryLocation).getConnectorMemAddrOffset();
-                bConnector.setValue(connectorMemOffset, rValue);
-            }
-
-        } else if (lExpr instanceof ArrayMapAccessExpr) {
-
-            ArrayMapAccessExpr accessExpr = (ArrayMapAccessExpr) lExpr;
-            if (!(accessExpr.getType() == BTypes.MAP_TYPE)) {
-                BArray arrayVal = (BArray) accessExpr.getRExpr().execute(this);
-                BInteger indexVal = (BInteger) accessExpr.getIndexExpr().execute(this);
-                arrayVal.add(indexVal.intValue(), rValue);
-
-            } else {
-                BMap<BString, BValue> mapVal = (BMap<BString, BValue>) accessExpr.getRExpr().execute(this);
-                BString indexVal = (BString) accessExpr.getIndexExpr().execute(this);
-                mapVal.put(indexVal, rValue);
-                // set the type of this expression here
-                // accessExpr.setType(rExpr.getType());
-            }
+        Expression[] lExprs = assignStmt.getLExprs();
+        if (lExprs.length > 1) {
+            // This statement contains multiple assignments
+            rValues = ((CallableUnitInvocationExpr) rExpr).executeMultiReturn(this);
+        } else {
+            rValues = new BValue[]{rExpr.execute(this)};
         }
 
+        for (int i = 0; i < lExprs.length; i++) {
+            Expression lExpr = lExprs[i];
+            BValue rValue = rValues[i];
+
+            if (lExpr instanceof VariableRefExpr) {
+                assignValueToVarRefExpr(rValue, (VariableRefExpr) lExpr);
+
+            } else if (lExpr instanceof ArrayMapAccessExpr) {
+                assignValueToArrayMapAccessExpr(rValue, (ArrayMapAccessExpr) lExpr);
+            }
+        }
     }
 
     @Override
@@ -204,10 +183,22 @@ public class BLangExecutor implements NodeExecutor {
     public void visit(ReturnStmt returnStmt) {
         Expression[] exprs = returnStmt.getExprs();
 
+        // Check whether the first argument is a multi-return function
+        if (exprs.length == 1 && exprs[0] instanceof FunctionInvocationExpr) {
+            FunctionInvocationExpr funcIExpr = (FunctionInvocationExpr) exprs[0];
+            if (funcIExpr.getTypes().length > 1) {
+                BValue[] returnVals = funcIExpr.executeMultiReturn(this);
+                for (int i = 0; i < returnVals.length; i++) {
+                    controlStack.setReturnValue(i, returnVals[i]);
+                }
+                return;
+            }
+        }
+
         for (int i = 0; i < exprs.length; i++) {
             Expression expr = exprs[i];
-            BValue value = expr.execute(this);
-            controlStack.setReturnValue(i, value);
+            BValue returnVal = expr.execute(this);
+            controlStack.setReturnValue(i, returnVal);
         }
     }
 
@@ -223,33 +214,43 @@ public class BLangExecutor implements NodeExecutor {
     public BValue[] visit(FunctionInvocationExpr funcIExpr) {
 
         // Create the Stack frame
-        Function function = funcIExpr.getFunction();
+        Function function = funcIExpr.getCallableUnit();
 
         int sizeOfValueArray = function.getStackFrameSize();
         BValue[] localVals = new BValue[sizeOfValueArray];
 
         // Get values for all the function arguments
-        int valuesCounter = populateArgumentValues(funcIExpr.getExprs(), localVals);
-
-        // Create default values for all declared local variables
-        VariableDcl[] variableDcls = function.getVariableDcls();
-        for (VariableDcl variableDcl : variableDcls) {
-            localVals[valuesCounter] = variableDcl.getType().getDefaultValue();
-            valuesCounter++;
-        }
+        int valueCounter = populateArgumentValues(funcIExpr.getArgExprs(), localVals);
 
         // Populate values for Connector declarations
         if (function instanceof BallerinaFunction) {
             BallerinaFunction ballerinaFunction = (BallerinaFunction) function;
-            populateConnectorDclValues(ballerinaFunction.getConnectorDcls(), localVals, valuesCounter);
+            valueCounter = populateConnectorDclValues(ballerinaFunction.getConnectorDcls(), localVals, valueCounter);
+        }
+
+        // Create default values for all declared local variables
+        for (VariableDcl variableDcl : function.getVariableDcls()) {
+            localVals[valueCounter] = variableDcl.getType().getDefaultValue();
+            valueCounter++;
+        }
+
+        for (Parameter returnParam : function.getReturnParameters()) {
+            // Check whether these are unnamed set of return types.
+            // If so break the loop. You can't have a mix of unnamed and named returns parameters.
+            if (returnParam.getName() == null) {
+                break;
+            }
+
+            localVals[valueCounter] = returnParam.getType().getDefaultValue();
+            valueCounter++;
         }
 
         // Create an array in the stack frame to hold return values;
-        BValue[] returnVals = new BValue[function.getReturnTypes().length];
+        BValue[] returnVals = new BValue[function.getReturnParameters().length];
 
         // Create a new stack frame with memory locations to hold parameters, local values, temp expression value,
         // return values and function invocation location;
-        SymbolName functionSymbolName = funcIExpr.getFunctionName();
+        SymbolName functionSymbolName = funcIExpr.getCallableUnitName();
         CallableUnitInfo functionInfo = new CallableUnitInfo(functionSymbolName.getName(),
                 functionSymbolName.getPkgName(), funcIExpr.getLocation());
 
@@ -259,7 +260,7 @@ public class BLangExecutor implements NodeExecutor {
         // Check whether we are invoking a native function or not.
         if (function instanceof BallerinaFunction) {
             BallerinaFunction bFunction = (BallerinaFunction) function;
-            bFunction.getFunctionBody().execute(this);
+            bFunction.getCallableUnitBody().execute(this);
         } else {
             AbstractNativeFunction nativeFunction = (AbstractNativeFunction) function;
             nativeFunction.executeNative(bContext);
@@ -274,32 +275,42 @@ public class BLangExecutor implements NodeExecutor {
     @Override
     public BValue[] visit(ActionInvocationExpr actionIExpr) {
         // Create the Stack frame
-        Action action = actionIExpr.getAction();
+        Action action = actionIExpr.getCallableUnit();
 
         BValue[] localVals = new BValue[action.getStackFrameSize()];
 
         // Create default values for all declared local variables
-        int valueCounter = populateArgumentValues(actionIExpr.getExprs(), localVals);
-
-        // Create default values for all declared local variables
-        VariableDcl[] variableDcls = action.getVariableDcls();
-        for (VariableDcl variableDcl : variableDcls) {
-            localVals[valueCounter] = variableDcl.getType().getDefaultValue();
-            valueCounter++;
-        }
+        int valueCounter = populateArgumentValues(actionIExpr.getArgExprs(), localVals);
 
         // Populate values for Connector declarations
         if (action instanceof BallerinaAction) {
             BallerinaAction ballerinaAction = (BallerinaAction) action;
-            populateConnectorDclValues(ballerinaAction.getConnectorDcls(), localVals, valueCounter);
+            valueCounter = populateConnectorDclValues(ballerinaAction.getConnectorDcls(), localVals, valueCounter);
+        }
+
+        // Create default values for all declared local variables
+        for (VariableDcl variableDcl : action.getVariableDcls()) {
+            localVals[valueCounter] = variableDcl.getType().getDefaultValue();
+            valueCounter++;
+        }
+
+        for (Parameter returnParam : action.getReturnParameters()) {
+            // Check whether these are unnamed set of return types.
+            // If so break the loop. You can't have a mix of unnamed and named returns parameters.
+            if (returnParam.getName() == null) {
+                break;
+            }
+
+            localVals[valueCounter] = returnParam.getType().getDefaultValue();
+            valueCounter++;
         }
 
         // Create an array in the stack frame to hold return values;
-        BValue[] returnVals = new BValue[action.getReturnTypes().length];
+        BValue[] returnVals = new BValue[action.getReturnParameters().length];
 
         // Create a new stack frame with memory locations to hold parameters, local values, temp expression values and
         // return values;
-        SymbolName actionSymbolName = actionIExpr.getActionName();
+        SymbolName actionSymbolName = actionIExpr.getCallableUnitName();
         CallableUnitInfo actionInfo = new CallableUnitInfo(actionSymbolName.getName(), actionSymbolName.getPkgName(),
                 actionIExpr.getLocation());
         StackFrame stackFrame = new StackFrame(localVals, returnVals, actionInfo);
@@ -308,7 +319,7 @@ public class BLangExecutor implements NodeExecutor {
         // Check whether we are invoking a native action or not.
         if (action instanceof BallerinaAction) {
             BallerinaAction bAction = (BallerinaAction) action;
-            bAction.getActionBody().execute(this);
+            bAction.getCallableUnitBody().execute(this);
         } else {
             AbstractNativeAction nativeAction = (AbstractNativeAction) action;
             nativeAction.execute(bContext);
@@ -333,22 +344,22 @@ public class BLangExecutor implements NodeExecutor {
 
         valueParams[0] = messageValue;
 
-        int valuesCounter = 1;
+        int valueCounter = 1;
         // Create default values for all declared local variables
         VariableDcl[] variableDcls = resource.getVariableDcls();
         for (VariableDcl variableDcl : variableDcls) {
-            valueParams[valuesCounter] = variableDcl.getType().getDefaultValue();
-            valuesCounter++;
+            valueParams[valueCounter] = variableDcl.getType().getDefaultValue();
+            valueCounter++;
         }
 
         // Populate values for Connector declarations
-        populateConnectorDclValues(resource.getConnectorDcls(), valueParams, valuesCounter);
+        populateConnectorDclValues(resource.getConnectorDcls(), valueParams, valueCounter);
 
         BValue[] ret = new BValue[1];
 
         SymbolName resourceSymbolName = resource.getSymbolName();
         CallableUnitInfo resourceInfo = new CallableUnitInfo(resourceSymbolName.getName(),
-                resourceSymbolName.getPkgName(), resource.getResourceLocation());
+                resourceSymbolName.getPkgName(), resource.getLocation());
 
         StackFrame stackFrame = new StackFrame(valueParams, ret, resourceInfo);
         controlStack.pushFrame(stackFrame);
@@ -528,7 +539,7 @@ public class BLangExecutor implements NodeExecutor {
         return i;
     }
 
-    private int populateConnectorDclValues(ConnectorDcl[] connectorDcls, BValue[] valueParams, int valuesCounter) {
+    private int populateConnectorDclValues(ConnectorDcl[] connectorDcls, BValue[] valueParams, int valueCounter) {
         for (ConnectorDcl connectorDcl : connectorDcls) {
 
             BValue[] connectorMemBlock;
@@ -567,11 +578,11 @@ public class BLangExecutor implements NodeExecutor {
             }
 
             BConnector connectorValue = new BConnector(connector, connectorMemBlock);
-            valueParams[valuesCounter] = connectorValue;
-            valuesCounter++;
+            valueParams[valueCounter] = connectorValue;
+            valueCounter++;
         }
 
-        return valuesCounter;
+        return valueCounter;
     }
 
     private String evaluteBacktickString(BacktickExpr backtickExpr) {
@@ -580,5 +591,44 @@ public class BLangExecutor implements NodeExecutor {
             varString = varString + expression.execute(this).stringValue();
         }
         return varString;
+    }
+
+    private void assignValueToArrayMapAccessExpr(BValue rValue, ArrayMapAccessExpr lExpr) {
+        ArrayMapAccessExpr accessExpr = lExpr;
+        if (!(accessExpr.getType() == BTypes.MAP_TYPE)) {
+            BArray arrayVal = (BArray) accessExpr.getRExpr().execute(this);
+            BInteger indexVal = (BInteger) accessExpr.getIndexExpr().execute(this);
+            arrayVal.add(indexVal.intValue(), rValue);
+
+        } else {
+            BMap<BString, BValue> mapVal = (BMap<BString, BValue>) accessExpr.getRExpr().execute(this);
+            BString indexVal = (BString) accessExpr.getIndexExpr().execute(this);
+            mapVal.put(indexVal, rValue);
+            // set the type of this expression here
+            // accessExpr.setType(rExpr.getType());
+        }
+    }
+
+    private void assignValueToVarRefExpr(BValue rValue, VariableRefExpr lExpr) {
+        VariableRefExpr variableRefExpr = lExpr;
+        MemoryLocation memoryLocation = variableRefExpr.getMemoryLocation();
+        if (memoryLocation instanceof LocalVarLocation) {
+            int stackFrameOffset = ((LocalVarLocation) memoryLocation).getStackFrameOffset();
+            controlStack.setValue(stackFrameOffset, rValue);
+
+        } else if (memoryLocation instanceof ServiceVarLocation) {
+            int staticMemOffset = ((ServiceVarLocation) memoryLocation).getStaticMemAddrOffset();
+            runtimeEnv.getStaticMemory().setValue(staticMemOffset, rValue);
+
+        } else if (memoryLocation instanceof ConnectorVarLocation) {
+            // Fist the get the BConnector object. In an action invocation first argument is always the connector
+            BConnector bConnector = (BConnector) controlStack.getValue(0);
+            if (bConnector == null) {
+                throw new BallerinaException("Connector argument value is null");
+            }
+
+            int connectorMemOffset = ((ConnectorVarLocation) memoryLocation).getConnectorMemAddrOffset();
+            bConnector.setValue(connectorMemOffset, rValue);
+        }
     }
 }

@@ -21,16 +21,14 @@ define(['lodash', 'event_channel'],
 
     var MenuItem = function(args){
         _.assign(this, args);
+        this._application = _.get(this, 'options.application');
     };
 
     MenuItem.prototype = Object.create(EventChannel.prototype);
     MenuItem.prototype.constructor = MenuItem;
 
     MenuItem.prototype.render = function(){
-        var self = this;
         var parent = _.get(this, 'options.parent');
-        this._commandManager = _.get(this, 'options.commandManager');
-        this._commandID = _.get(this, 'definition.action');
 
         var item = $('<li></li>');
         var link = $('<a></a>');
@@ -38,47 +36,65 @@ define(['lodash', 'event_channel'],
         item.append(link);
 
         link.text(_.get(this, 'definition.label'));
-        this._labelElement = link;
-        _.forEach(_.get(this, 'definition.attributes'), function(attribute){
-            link.attr(attribute.key, attribute.value);
-        });
+        this._linkElement = link;
+        this._listItemElement = item;
+
+        var shortcuts = _.get(this, 'definition.command.shortcuts'),
+            commandId = _.get(this, 'definition.command.id');
+        if (!_.isNil(shortcuts)) {
+            this._application.commandManager.registerCommand(commandId, {shortcuts: shortcuts});
+            this.renderShortcutLabel();
+        } else {
+            this._application.commandManager.registerCommand(commandId, {});
+        }
 
         if (_.get(this, 'definition.disabled')) {
             this.disable();
         } else {
             this.enable();
         }
+
     };
 
     MenuItem.prototype.getID = function(){
         return _.get(this, 'definition.id');
     };
 
+    MenuItem.prototype.renderShortcutLabel = function(){
+        var shortcuts = _.get(this, 'definition.command.shortcuts'),
+            shortcutLabel = $('<span></span>'),
+            shortcut = this._application.isRunningOnMacOS() ? shortcuts.mac : shortcuts.other;
+        shortcutLabel.addClass(_.get(this, 'options.cssClass.shortcut'));
+        shortcutLabel.text(shortcut);
+        this._linkElement.append(shortcutLabel);
+    };
+
     MenuItem.prototype.disable = function(){
-        this._labelElement.addClass(_.get(this, 'options.cssClass.inactive'));
-        this._labelElement.removeClass(_.get(this, 'options.cssClass.active'));
-        this._labelElement.on("click", function (e) {
-            e.preventDefault();
-        });
+        this._listItemElement.addClass(_.get(this, 'options.cssClass.inactive'));
+        this._listItemElement.removeClass(_.get(this, 'options.cssClass.active'));
+        this._linkElement.off("click");
     };
 
     MenuItem.prototype.enable = function(){
-        this._labelElement.addClass(_.get(this, 'options.cssClass.active'));
-        this._labelElement.removeClass(_.get(this, 'options.cssClass.inactive'));
+        this._listItemElement.addClass(_.get(this, 'options.cssClass.active'));
+        this._listItemElement.removeClass(_.get(this, 'options.cssClass.inactive'));
         var self = this;
-        this._labelElement.click(function () {
-            self._commandManager.dispatch(self._commandID);
+        this._linkElement.off("click");
+        this._linkElement.click(function () {
+            self._application.commandManager.dispatch(self.definition.command.id);
         });
     };
 
     MenuItem.prototype.addLabelSuffix = function(labelSuffix){
        if(!_.isNil(labelSuffix)){
-           this._labelElement.text(_.get(this, 'definition.label') + " " + labelSuffix)
+           this._linkElement.text(_.get(this, 'definition.label') + " " + labelSuffix)
+           this.renderShortcutLabel();
        }
     };
 
-    MenuItem.prototype.clearLabelSuffix = function(){
-           this._labelElement.text(_.get(this, 'definition.label'))
+    MenuItem.prototype.clearLabelSuffix = function () {
+        this._linkElement.text(_.get(this, 'definition.label'))
+        this.renderShortcutLabel();
     };
 
     return MenuItem;

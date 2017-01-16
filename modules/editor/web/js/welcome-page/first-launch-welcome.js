@@ -122,66 +122,59 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
 
                 var command = this._options.application.commandManager;
                 var browserStorage = this._options.application.browserStorage;
-                var echoSampleAST = this.generateEchoSampleAST();
-                var helloFunctionSampleAST = this.generateHelloFunctionSampleAST();
-                var passthroughSampleAST = this.generatePassthroughSampleAST();
-                var contentBasedRoutingSampleAST = this.generateContentBasedRoutingSampleAST();
+
+                var samples = _.get(this._options, "samples", []);
                 
                 var config;
                 var servicePreview;
 
-                // Rendering echo sample preview
-                config =
-                {
-                    "sampleName": "echo.bal",
-                    "parentContainer": "#innerSamples",
-                    "firstItem": true,
-                    "clickEventCallback": function () {
-                        command.dispatch("create-new-tab", echoSampleAST);
-                        browserStorage.put("pref:passedFirstLaunch", true);
-                    }
-                };
-                servicePreview = new Ballerina.views.ServicePreviewView(config);
-                servicePreview.render();
+                var self = this;
 
-                // Rendering hello function sample preview
-                config =
-                {
-                    "sampleName": "helloFunction.bal",
-                    "parentContainer": "#innerSamples",
-                    "clickEventCallback": function () {
-                        command.dispatch("create-new-tab", helloFunctionSampleAST);
-                        browserStorage.put("pref:passedFirstLaunch", true);
-                    }
-                };
-                servicePreview = new Ballerina.views.ServicePreviewView(config);
-                servicePreview.render();
-
-                // Rendering passthrough sample preview
-                config =
-                {
-                    "sampleName": "passthrough.bal",
-                    "parentContainer": "#innerSamples",
-                    "clickEventCallback": function () {
-                        command.dispatch("create-new-tab", passthroughSampleAST);
-                        browserStorage.put("pref:passedFirstLaunch", true);
-                    }
-                };
-                servicePreview = new Ballerina.views.ServicePreviewView(config);
-                servicePreview.render();
-
-                // Rendering CBR sample preview
-                config =
-                {
-                    "sampleName": "routingServices.bal",
-                    "parentContainer": "#innerSamples",
-                    "clickEventCallback": function () {
-                        command.dispatch("create-new-tab", contentBasedRoutingSampleAST);
-                        browserStorage.put("pref:passedFirstLaunch", true);
-                    }
-                };
-                servicePreview = new Ballerina.views.ServicePreviewView(config);
-                servicePreview.render();
+                for (var i = 0; i < samples.length; i++) {
+                    $.ajax({
+                        url: samples[i],
+                        type: "GET",
+                        async: false,
+                        success: function(fileContentAsString) {
+                            var content = {"content": fileContentAsString};
+                            var config =
+                                {
+                                    "sampleName": samples[i].replace(/^.*[\\\/]/, ''),
+                                    "parentContainer": "#innerSamples",
+                                    "firstItem": i === 0,
+                                    "clickEventCallback": function () {
+                                        var root = "";
+                                        $.ajax({
+                                            url: _.get(self._options.application, "config.services.parser.endpoint"),
+                                            type: "POST",
+                                            data: JSON.stringify(content),
+                                            contentType: "application/json; charset=utf-8",
+                                            async: false,
+                                            dataType: "json",
+                                            success: function (data, textStatus, xhr) {
+                                                if (xhr.status == 200) {
+                                                    var BallerinaASTDeserializer = Ballerina.ast.BallerinaASTDeserializer;
+                                                    root = BallerinaASTDeserializer.getASTModel(data);
+                                                } else {
+                                                    log.error("Error while parsing the source. " + JSON.stringify(xhr));
+                                                }
+                                            },
+                                            error: function (res, errorCode, error) {
+                                                log.error("Error while parsing the source. " + JSON.stringify(res));
+                                            }
+                                        });
+                                        command.dispatch("create-new-tab", {tabOptions: {astRoot: root}});
+                                        browserStorage.put("pref:passedFirstLaunch", true);
+                                    }
+                                };
+                            servicePreview = new Ballerina.views.ServicePreviewView(config);
+                            servicePreview.render();
+                        },
+                        error: function() {
+                            throw "Unable to read a sample file.";
+                        }
+                    });
+                }
 
                 var command = this._options.application.commandManager;
                 var browserStorage = this._options.application.browserStorage;
@@ -240,7 +233,7 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
 
                 serviceDefinition_passthroughService2.addChild(resource_passthrough2);
 
-                return ballerinaAstRoot1;
+                return _.cloneDeep(ballerinaAstRoot1);
             },
 
             generateHelloFunctionSampleAST : function () {
@@ -276,7 +269,7 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
                 functionInvocation.setParams('"Hello world"');
                 functionDefinition1.addChild(functionInvocation);
 
-                return ballerinaAstRoot1;
+                return _.cloneDeep(ballerinaAstRoot1);
             },
 
             generatePassthroughSampleAST : function () {
@@ -376,7 +369,7 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
 
                 serviceDefinition_NYSEStockQuote.addChild(resource_stocks);
 
-                return ballerinaAstRoot1;
+                return _.cloneDeep(ballerinaAstRoot1);
             },
 
             generateContentBasedRoutingSampleAST : function () {
@@ -757,7 +750,7 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
 
                 serviceDefinition_NASDAQStockQuote.addChild(resource_stocks);
 
-                return ballerinaAstRoot1;
+                return _.cloneDeep(ballerinaAstRoot1);
             },
 
 

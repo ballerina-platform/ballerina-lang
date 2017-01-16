@@ -28,7 +28,7 @@ function testBooleanAssignStmt(boolean a) (boolean) {
     return x;
 }
 
-function testStringAssignStmt(string a) (int) {
+function testStringAssignStmt(string a) (string) {
     string x;
     x = a;
     return x;
@@ -44,6 +44,20 @@ function testArrayIndexToIntAssignStmt(int[] arr) (int) {
     int a;
     a = arr[0];
     return a;
+}
+
+function testMultiReturn() (int, string, int) {
+    int a;
+    string name;
+    int b;
+    message r;
+
+    a, name, b = testMultiReturnInternal();
+    return a, name, b;
+}
+
+function testMultiReturnInternal() (int, string, int) {
+    return 5, "john", 6;
 }
 
 

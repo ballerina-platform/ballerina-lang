@@ -28,7 +28,7 @@ public class CustomFunctionTest {
 
     @Test(description = "Test defining duplicate ballerina function",
             expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "Duplicate function definition: foo in duplicate-function.bal:5")
+            expectedExceptionsMessageRegExp = "duplicate-function.bal:5: duplicate function 'foo'")
     public void testDuplicateAction() {
         ParserUtils.parseBalFile("lang/functions/duplicate-function.bal");
     }

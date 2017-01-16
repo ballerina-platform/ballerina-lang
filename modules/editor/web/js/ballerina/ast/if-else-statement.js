@@ -73,5 +73,36 @@ define(['lodash', 'log','./statement', './else-statement', './else-if-statement'
         return newElseIfStatement;
     };
 
+    /**
+     * initialize IfElseStatement from json object
+     * @param {Object} jsonNode to initialize from
+     * @param {Object} [jsonNode.if_statement] - If statement block
+     * @param {Object} [jsonNode.else_statement] - Else statement block
+     */
+    IfElseStatement.prototype.initFromJson = function (jsonNode) {
+
+        var self = this;
+
+        _.each(jsonNode.if_statement, function (childNode) {
+            var child = self.getFactory().createFromJson(childNode);
+            if (self.getFactory().isIfCondition(child)) {
+                child.initFromJson(childNode);
+                self.getIfStatement().setCondition(child.getChildren()[0].getExpression());
+            } else if(self.getFactory().isThenBody(child)){
+                _.each(childNode.children, function (childStatement) {
+                    var child = self.getFactory().createFromJson(childStatement);
+                    self._ifStatement.addChild(child);
+                    child.initFromJson(childStatement);
+                });
+            }
+        });
+
+        _.each(jsonNode.else_statement, function (childNode) {
+            var child = self.getFactory().createFromJson(childNode);
+            self._elseStatement.addChild(child);
+            child.initFromJson(childNode);
+        });
+    };
+
     return IfElseStatement;
 });

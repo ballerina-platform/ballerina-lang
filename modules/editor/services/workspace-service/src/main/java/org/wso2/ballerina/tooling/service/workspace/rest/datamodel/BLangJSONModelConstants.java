@@ -158,11 +158,21 @@ public class BLangJSONModelConstants {
 
     public static final String BACK_QUOTE_EXPRESSION = "back_quote_expression";
 
-    public static final String BACK_QUOTE_ENCLOSED_STRING = "back_quate_enclosed_string";
+    public static final String BACK_QUOTE_ENCLOSED_STRING = "back_quote_enclosed_string";
 
     public static final String INSTANCE_CREATION_EXPRESSION = "instance_creation_expression";
 
+    public static final String INSTANCE_CREATION_EXPRESSION_INSTANCE_TYPE = "instance_type";
+
     public static final String IF_ELSE_STATEMENT = "if_else_statement";
+
+    public static final String IF_STATEMENT = "if_statement";
+
+    public static final String IF_STATEMENT_THEN_BODY = "then_body";
+
+    public static final String IF_STATEMENT_IF_CONDITION = "if_condition";
+
+    public static final String ELSE_STATEMENT = "else_statement";
 
     public static final String STATEMENT = "statement";
 

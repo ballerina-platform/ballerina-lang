@@ -52,8 +52,8 @@ define(['lodash', './node'], function(_, ASTNode){
      * @param {Object} jsonNode to initialize from
      */
     VariableDeclaration.prototype.initFromJson = function (jsonNode) {
-        this.setType('message');
-        this.setIdentifier('response');
+        this.setType(jsonNode.variable_type);
+        this.setIdentifier(jsonNode.variable_name);
     };
 
     return VariableDeclaration;
