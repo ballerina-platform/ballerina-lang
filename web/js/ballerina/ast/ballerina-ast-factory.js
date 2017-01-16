@@ -258,6 +258,18 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         };
 
         /**
+         * creates FunctionInvocationStatement
+         * @param args
+         * @returns {FunctionInvocation}
+         */
+        BallerinaASTFactory.createAggregatedFunctionInvocationStatement = function (args) {
+            var funcInvocationStatement = new functionInvocation(args);
+            var funcInvocationExpression = BallerinaASTFactory.createFunctionInvocationExpression(args);
+            funcInvocationStatement.addChild(funcInvocationExpression);
+            return funcInvocationStatement;
+        };
+
+        /**
          * creates FunctionInvocationExpression
          * @param {Object} args
          * @returns {FunctionInvocationExpression}
