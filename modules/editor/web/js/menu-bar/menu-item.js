@@ -42,11 +42,10 @@ define(['lodash', 'event_channel'],
         var shortcuts = _.get(this, 'definition.command.shortcuts'),
             commandId = _.get(this, 'definition.command.id');
         if (!_.isNil(shortcuts)) {
-            var shortcut = this._application.isRunningOnMacOS() ? shortcuts.mac : shortcuts.other;
-            this._application.commandManager.registerCommand(commandId, {key: shortcut});
+            this._application.commandManager.registerCommand(commandId, {shortcuts: shortcuts});
             this.renderShortcutLabel();
         } else {
-            this._application.commandManager.registerCommand(commandId, {key: ""});
+            this._application.commandManager.registerCommand(commandId, {});
         }
 
         if (_.get(this, 'definition.disabled')) {
