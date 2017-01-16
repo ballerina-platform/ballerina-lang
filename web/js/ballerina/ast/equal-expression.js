@@ -63,7 +63,7 @@ define(['lodash', './expression'], function (_, Expression) {
             }
 
             if (itr !== jsonNode.children.length - 1) {
-                equalString += " = ";
+                equalString += " == ";
             }
         }
         return equalString;
