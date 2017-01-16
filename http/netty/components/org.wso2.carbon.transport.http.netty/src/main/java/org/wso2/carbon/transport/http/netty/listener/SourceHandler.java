@@ -21,6 +21,7 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.FullHttpMessage;
 import io.netty.handler.codec.http.HttpContent;
@@ -35,24 +36,21 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
-import org.wso2.carbon.messaging.websocket.WebSocketHandshaker;
-import org.wso2.carbon.messaging.websocket.WebSocketResponder;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
-import org.wso2.carbon.transport.http.netty.internal.WebSocketHandshakerImpl;
-import org.wso2.carbon.transport.http.netty.internal.WebSocketResponderImpl;
+import org.wso2.carbon.transport.http.netty.internal.WebSocketSessionImpl;
 import org.wso2.carbon.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 
 import java.net.InetSocketAddress;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
+import javax.websocket.Session;
 
 /**
  * A Class responsible for handle  incoming message through netty inbound pipeline.
@@ -109,6 +107,36 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             }
 
         } else if (msg instanceof HttpRequest) {
+            /*
+            Checks whether the given connection is a WebSocketUpgrade and add necessary components to it.
+             */
+            HttpRequest httpRequest = (HttpRequest) msg;
+            HttpHeaders headers = httpRequest.headers();
+            if (headers.get("Connection").equalsIgnoreCase("Upgrade")) {
+                if (headers.get("Upgrade").equalsIgnoreCase("WebSocket")) {
+                    log.info("Upgrading the connection from Http to WebSocket for " +
+                                     "channel : " + ctx.channel());
+
+                    try {
+                        handleWebSocketHandshake(ctx, httpRequest);
+
+                        //Replace HTTP handlers  with  new Handlers for WebSocket in the pipeline
+                        ChannelPipeline pipeline = ctx.pipeline();
+                        pipeline.replace("handler",
+                                         "ws_handler",
+                                         new WebSocketSourceHandler(generateWebSocketChannelID(),
+                                                                    this.connectionManager,
+                                                                    this.listenerConfiguration,
+                                                                    httpRequest.getUri()));
+
+                        log.info("WebSocket upgrade is successful");
+                    } catch (Exception e) {
+                        log.error(e.toString());
+                    }
+                }
+            }
+
+            //Publish message to CarbonMessageProcessor
             publishToMessageProcessor(msg);
         } else {
             if (cMsg != null) {
@@ -136,14 +164,10 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(getWebSocketURL(req),
                                                                                           null, true);
         handshaker = wsFactory.newHandshaker(req);
-        if (handshaker == null) {
-            WebSocketServerHandshakerFactory.sendUnsupportedVersionResponse(ctx.channel());
-        } else {
-            handshaker.handshake(ctx.channel(), req);
-        }
+        handshaker.handshake(ctx.channel(), req);
     }
 
-
+    /* Get the URL of the given connection */
     private String getWebSocketURL(HttpRequest req) {
         String url =  "ws://" + req.headers().get("Host") + req.getUri();
         return url;
@@ -254,36 +278,33 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         cMsg.setProperty(Constants.REMOTE_PORT, ((InetSocketAddress) ctx.channel().remoteAddress()).getPort());
         cMsg.setProperty(Constants.REQUEST_URL, httpRequest.getUri());
         ChannelHandler handler = ctx.handler();
-
-
+        cMsg.setProperty(Constants.CHANNEL_ID, ((SourceHandler) handler).getListenerConfiguration().getId());
+        cMsg.setProperty(Constants.TO, httpRequest.getUri());
         cMsg.setHeaders(Util.getHeaders(httpRequest).getAll());
+        HttpHeaders headers = httpRequest.headers();
+
+        //Added protocol name as a string
+        cMsg.setProperty(Constants.PROTOCOL, Constants.HTTP_PROTOCOL);
 
         /*
-        Checks whether the given connection is a WebSocketUpgrade and add necessary components to it.
+        If the connection is a WebSocket upgrade add the needful headers to CarbonMessage
          */
-        HttpHeaders headers = httpRequest.headers();
         if (headers.get("Connection").equalsIgnoreCase("Upgrade")) {
-            if (headers.get("Upgrade").equalsIgnoreCase("websocket")) {
-                handleWebSocketHandshake(ctx, httpRequest);
-                WebSocketHandshaker webSocketHandshaker = new WebSocketHandshakerImpl(
-                    handshaker, ctx, httpRequest, connectionManager, listenerConfiguration
-                );
-                WebSocketResponder webSocketResponder = new WebSocketResponderImpl(ctx);
-
+            if (headers.get("Upgrade").equalsIgnoreCase("WebSocket")) {
+                Session session = new WebSocketSessionImpl(ctx);
+                cMsg.setProperty(Constants.WEBSOCKET_SESSION, session);
+                cMsg.setProperty(Constants.CHANNEL_ID, generateWebSocketChannelID());
                 cMsg.setProperty(Constants.CONNECTION, headers.get("Connection"));
-                cMsg.setProperty(Constants.UPGRADE, headers.get("upgrade"));
-                cMsg.setProperty(Constants.CHANNEL_ID, ctx.channel().toString());
-                cMsg.setProperty(Constants.WEBSOCKET_HANDSHAKER, webSocketHandshaker);
-                cMsg.setProperty(Constants.WEBSOCKET_RESPONDER, webSocketResponder);
-                //Here TO is separately handled since all the implementations of WebSocket uses URI
-                cMsg.setProperty(Constants.TO, new URI(httpRequest.getUri()));
+                cMsg.setProperty(Constants.UPGRADE, headers.get("Upgrade"));
             }
-        } else {
-            cMsg.setProperty(Constants.CONNECTION, null);
-            cMsg.setProperty(Constants.CHANNEL_ID, ((SourceHandler) handler).getListenerConfiguration().getId());
-            cMsg.setProperty(Constants.TO, httpRequest.getUri());
         }
 
         return cMsg;
+    }
+    /*
+    Generate a ChannelId for WebSocket
+     */
+    protected String generateWebSocketChannelID() {
+        return ctx.channel().toString();
     }
 }

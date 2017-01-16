@@ -124,6 +124,8 @@ public final class Constants {
 
     public static final String PROTOCOL_NAME = "http";
 
+    public static final String HTTP_PROTOCOL = "HTTP_PROTOCOL";
+
     public static final String HTTP_VERSION = "HTTP_VERSION";
 
     public static final String HTTP_METHOD = "HTTP_METHOD";
@@ -179,9 +181,9 @@ public final class Constants {
 
     public static final String CONNECTION = "CONNECTION";
     public static final String UPGRADE = "UPGRADE";
-    public static final String WEBSOCKET_HANDSHAKER = "WEBSOCKET_HANDSHAKER";
-    public static final String WEBSOCKET_RESPONDER = "WEBSOCKET_RESPONDER";
 
+    public static final String WEBSOCKET_SESSION = "WEBSOCKET_SESSION";
+    public static final String WEBSOCKET_PROTOCOL = "WEBSOCKET_PROTOCOL";
     private Constants() {
     }
 }
