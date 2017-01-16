@@ -28,8 +28,8 @@ define(([],function (){
                     id: "create-new-tab",
                     shortcuts: {
                         mac: {
-                            key: "command+option+n",
-                            label: "\u2318\u2325N"
+                            key: "command+control+n",
+                            label: "\u2318\u2303N"
                         },
                         other: {
                             key: "ctrl+alt+n",
