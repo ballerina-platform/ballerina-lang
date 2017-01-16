@@ -27,8 +27,14 @@ define(([],function (){
                 command: {
                     id: "create-new-tab",
                     shortcuts: {
-                        mac: "command+ctrl+n",
-                        other: "ctrl+alt+n"
+                        mac: {
+                            key: "command+option+n",
+                            label: "\u2318\u2325N"
+                        },
+                        other: {
+                            key: "ctrl+alt+n",
+                            label: "Ctrl+Alt+N"
+                        }
                     }
                 },
                 disabled: false
@@ -39,8 +45,14 @@ define(([],function (){
                 command: {
                     id: "open-file-open-dialog",
                     shortcuts: {
-                        mac: "command+o",
-                        other: "ctrl+o"
+                        mac: {
+                            key: "command+o",
+                            label: "\u2318O"
+                        },
+                        other: {
+                            key: "ctrl+o",
+                            label: "Ctrl+O"
+                        }
                     }
                 },
                 disabled: false
@@ -51,8 +63,14 @@ define(([],function (){
                 command: {
                     id: "open-file-save-dialog",
                     shortcuts: {
-                        mac: "command+s",
-                        other: "ctrl+s"
+                        mac: {
+                            key: "command+s",
+                            label: "\u2318S"
+                        },
+                        other: {
+                            key: "ctrl+s",
+                            label: "Ctrl+S"
+                        }
                     }
                 },
                 disabled: false

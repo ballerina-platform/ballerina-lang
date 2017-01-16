@@ -63,7 +63,7 @@ define(['lodash', 'event_channel'],
     MenuItem.prototype.renderShortcutLabel = function(){
         var shortcuts = _.get(this, 'definition.command.shortcuts'),
             shortcutLabel = $('<span></span>'),
-            shortcut = this._application.isRunningOnMacOS() ? shortcuts.mac : shortcuts.other;
+            shortcut = this._application.isRunningOnMacOS() ? shortcuts.mac.label : shortcuts.other.label;
         shortcutLabel.addClass(_.get(this, 'options.cssClass.shortcut'));
         shortcutLabel.text(shortcut);
         this._linkElement.append(shortcutLabel);
