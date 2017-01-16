@@ -267,14 +267,14 @@ public class BLangJSONModelBuilder implements NodeVisitor {
                 }
             });
         }
-        if (resource.getVariableDcls() != null) {
-            for (VariableDcl variableDcl : resource.getVariableDcls()) {
-                variableDcl.accept(BLangJSONModelBuilder.this);
-            }
-        }
         if (resource.getConnectorDcls() != null) {
             for (ConnectorDcl connectDcl : resource.getConnectorDcls()) {
                 connectDcl.accept(this);
+            }
+        }
+        if (resource.getVariableDcls() != null) {
+            for (VariableDcl variableDcl : resource.getVariableDcls()) {
+                variableDcl.accept(BLangJSONModelBuilder.this);
             }
         }
         if(resource.getResourceBody() != null) {
