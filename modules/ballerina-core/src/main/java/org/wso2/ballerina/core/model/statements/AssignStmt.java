@@ -27,16 +27,16 @@ import org.wso2.ballerina.core.model.expressions.Expression;
  * @since 1.0.0
  */
 public class AssignStmt extends AbstractStatement {
-    private Expression lhsExpr;
+    private Expression[] lhsExprs;
     private Expression rhsExpr;
 
-    public AssignStmt(Expression lhsExpr, Expression rhsExpr) {
-        this.lhsExpr = lhsExpr;
+    public AssignStmt(Expression[] lhsExprs, Expression rhsExpr) {
+        this.lhsExprs = lhsExprs;
         this.rhsExpr = rhsExpr;
     }
 
-    public Expression getLExpr() {
-        return lhsExpr;
+    public Expression[] getLExprs() {
+        return lhsExprs;
     }
 
     public Expression getRExpr() {

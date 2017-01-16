@@ -93,9 +93,9 @@ import java.util.regex.Pattern;
  * @since 1.0.0
  */
 public class BLangModelBuilder {
+    private static final Logger log = LoggerFactory.getLogger(BLangModelBuilder.class);
 
     private String pkgName;
-
     private BallerinaFile.BFileBuilder bFileBuilder = new BallerinaFile.BFileBuilder();
 
     // Builds connectors and services.
@@ -106,22 +106,16 @@ public class BLangModelBuilder {
 
     private Stack<Annotation.AnnotationBuilder> annotationBuilderStack = new Stack<>();
     private Stack<BlockStmt.BlockStmtBuilder> blockStmtBuilderStack = new Stack<>();
-
     private Stack<IfElseStmt.IfElseStmtBuilder> ifElseStmtBuilderStack = new Stack<>();
     private Queue<BType> typeQueue = new LinkedList<>();
     private Stack<String> pkgNameStack = new Stack<>();
     private Stack<SymbolName> symbolNameStack = new Stack<>();
     private Stack<Expression> exprStack = new Stack<>();
-
     private Stack<KeyValueExpression> keyValueStack = new Stack<>();
-
-    private static final Logger log = LoggerFactory.getLogger(BLangModelBuilder.class);
 
     // Holds ExpressionLists required for return statements, function/action invocations and connector declarations
     private Stack<List<Expression>> exprListStack = new Stack<>();
-
     private Stack<List<Annotation>> annotationListStack = new Stack<>();
-
     private Stack<List<KeyValueExpression>> mapInitKeyValueListStack = new Stack<>();
 
     public BallerinaFile build() {
@@ -172,13 +166,18 @@ public class BLangModelBuilder {
 
     // Annotations
 
-    public void createInstanceCreaterExpr(String typeName, Position sourceLocation) {
+    public void createInstanceCreaterExpr(String typeName, boolean exprListAvailable, Position sourceLocation) {
         InstanceCreationExpr expression = new InstanceCreationExpr(null);
         BType type = BTypes.getType(typeName);
 
         if (type == null) {
-            throw new ParserException("Unknown type: " + typeName + " in " + sourceLocation.getFileName() + ":" +
-                    sourceLocation.getLine());
+            throw new ParserException(sourceLocation.getFileName() + ":" + sourceLocation.getLine() +
+                    ": unknown type '" + typeName + "'");
+        }
+
+        if (exprListAvailable) {
+            // This is not yet supported. Therefore ignoring for the moment.
+            exprListStack.pop();
         }
 
         expression.setType(type);
@@ -346,6 +345,15 @@ public class BLangModelBuilder {
         } else {
             currentCUGroupBuilder.addConnectorDcl(connectorDcl);
         }
+    }
+
+    public void startVarRefList() {
+        exprListStack.push(new ArrayList<>());
+    }
+
+    public void endVarRefList(int exprCount) {
+        List<Expression> exprList = exprListStack.peek();
+        addExprToList(exprList, exprCount);
     }
 
     /**
@@ -654,11 +662,11 @@ public class BLangModelBuilder {
 
     // Statements
 
-    public void createAssignmentExpr(Position sourceLocation) {
+    public void createAssignmentStmt(Position sourceLocation) {
         Expression rExpr = exprStack.pop();
-        Expression lExpr = exprStack.pop();
+        List<Expression> lExprList = exprListStack.pop();
 
-        AssignStmt assignStmt = new AssignStmt(lExpr, rExpr);
+        AssignStmt assignStmt = new AssignStmt(lExprList.toArray(new Expression[lExprList.size()]), rExpr);
         assignStmt.setLocation(sourceLocation);
         addToBlockStmt(assignStmt);
     }

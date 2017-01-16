@@ -66,7 +66,7 @@ define(['require', 'lodash','jquery', 'log', 'backbone', 'file_browser', 'baller
                     "<button type='button' class='close' data-dismiss='modal' aria-label='Close'>" +
                     "<span aria-hidden='true'>&times;</span>" +
                     "</button>" +
-                    "<h4 class='modal-title file-dialog-title'>Ballerina Service Open Wizard</h4>" +
+                    "<h4 class='modal-title file-dialog-title'>Ballerina File Open Wizard</h4>" +
                     "<hr class='style1'>"+
                     "</div>" +
                     "<div class='modal-body'>" +
@@ -218,7 +218,7 @@ define(['require', 'lodash','jquery', 'log', 'backbone', 'file_browser', 'baller
                                 var file = new File({
                                     name: fileName,
                                     path: folderPath,
-                                    content: data,
+                                    content: data.content,
                                     isPersisted: true
                                 });
                                 app.commandManager.dispatch("create-new-tab", {tabOptions: {file: file}});
