@@ -130,4 +130,36 @@ public class GreaterLessThanExprTest {
     public void testIncompatibleLessThanEqual() {
         ParserUtils.parseBalFile("lang/expressions/incompatible-type-less-than-equal.bal");
     }
+    
+    @Test(description = "Test less-than check for unsupported types (json)",
+            expectedExceptions = {SemanticException.class },
+            expectedExceptionsMessageRegExp = "Less than operation is not supported for type: json in " +
+            "unsupported-type-less-than.bal:9")
+    public void testUnsupportedTypeLessThan() {
+        ParserUtils.parseBalFile("lang/expressions/unsupported-type-less-than.bal");
+    }
+    
+    @Test(description = "Test greater-than check for unsupported types (json)",
+            expectedExceptions = {SemanticException.class },
+            expectedExceptionsMessageRegExp = "Greater than operation is not supported for type: json in " +
+            "unsupported-type-greater-than.bal:9")
+    public void testUnsupportedTypeGreaterThan() {
+        ParserUtils.parseBalFile("lang/expressions/unsupported-type-greater-than.bal");
+    }
+    
+    @Test(description = "Test greater-than-equal check for unsupported types (json)",
+            expectedExceptions = {SemanticException.class },
+            expectedExceptionsMessageRegExp = "Greater than equal operation is not supported for type: json in " +
+            "unsupported-type-greater-than-equal.bal:9")
+    public void testUnsupportedTypeGreaterThanEqual() {
+        ParserUtils.parseBalFile("lang/expressions/unsupported-type-greater-than-equal.bal");
+    }
+    
+    @Test(description = "Test less-than-equal check for unsupported types (json)",
+            expectedExceptions = {SemanticException.class },
+            expectedExceptionsMessageRegExp = "Less than equal operation is not supported for type: json in " +
+            "unsupported-type-less-than-equal.bal:9")
+    public void testUnsupportedTypeLessThanEqual() {
+        ParserUtils.parseBalFile("lang/expressions/unsupported-type-less-than-equal.bal");
+    }
 }

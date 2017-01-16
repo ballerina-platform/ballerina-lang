@@ -119,4 +119,12 @@ public class DivideExprTest {
     public void testAddIncompatibleTypes() {
         ParserUtils.parseBalFile("lang/expressions/divide-incompatible-types.bal");
     }
+    
+    @Test(description = "Test dividing values of unsupported types (json)",
+            expectedExceptions = {SemanticException.class },
+            expectedExceptionsMessageRegExp = "Divide operation is not supported for type: json in " +
+            "divide-unsupported-types.bal:10")
+    public void testAddUnsupportedTypes() {
+        ParserUtils.parseBalFile("lang/expressions/divide-unsupported-types.bal");
+    }
 }
