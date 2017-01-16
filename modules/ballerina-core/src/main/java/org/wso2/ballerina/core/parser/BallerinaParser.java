@@ -33,7 +33,7 @@ public class BallerinaParser extends Parser {
 		RULE_serviceDefinition = 3, RULE_serviceBody = 4, RULE_serviceBodyDeclaration = 5, 
 		RULE_resourceDefinition = 6, RULE_functionDefinition = 7, RULE_functionBody = 8, 
 		RULE_connectorDefinition = 9, RULE_connectorBody = 10, RULE_actionDefinition = 11, 
-		RULE_connectorDeclaration = 12, RULE_typeDefinition = 13, RULE_typeDefinitionBody = 14, 
+		RULE_connectorDeclaration = 12, RULE_structDefinition = 13, RULE_structDefinitionBody = 14, 
 		RULE_typeConvertorDefinition = 15, RULE_typeConvertorBody = 16, RULE_constantDefinition = 17, 
 		RULE_variableDeclaration = 18, RULE_workerDeclaration = 19, RULE_returnParameters = 20, 
 		RULE_namedParameterList = 21, RULE_namedParameter = 22, RULE_returnTypeList = 23, 
@@ -61,7 +61,7 @@ public class BallerinaParser extends Parser {
 		"compilationUnit", "packageDeclaration", "importDeclaration", "serviceDefinition", 
 		"serviceBody", "serviceBodyDeclaration", "resourceDefinition", "functionDefinition", 
 		"functionBody", "connectorDefinition", "connectorBody", "actionDefinition", 
-		"connectorDeclaration", "typeDefinition", "typeDefinitionBody", "typeConvertorDefinition", 
+		"connectorDeclaration", "structDefinition", "structDefinitionBody", "typeConvertorDefinition", 
 		"typeConvertorBody", "constantDefinition", "variableDeclaration", "workerDeclaration", 
 		"returnParameters", "namedParameterList", "namedParameter", "returnTypeList", 
 		"qualifiedTypeName", "typeConvertorTypes", "unqualifiedTypeName", "simpleType", 
@@ -184,11 +184,11 @@ public class BallerinaParser extends Parser {
 		public ConnectorDefinitionContext connectorDefinition(int i) {
 			return getRuleContext(ConnectorDefinitionContext.class,i);
 		}
-		public List<TypeDefinitionContext> typeDefinition() {
-			return getRuleContexts(TypeDefinitionContext.class);
+		public List<StructDefinitionContext> structDefinition() {
+			return getRuleContexts(StructDefinitionContext.class);
 		}
-		public TypeDefinitionContext typeDefinition(int i) {
-			return getRuleContext(TypeDefinitionContext.class,i);
+		public StructDefinitionContext structDefinition(int i) {
+			return getRuleContext(StructDefinitionContext.class,i);
 		}
 		public List<TypeConvertorDefinitionContext> typeConvertorDefinition() {
 			return getRuleContexts(TypeConvertorDefinitionContext.class);
@@ -275,7 +275,7 @@ public class BallerinaParser extends Parser {
 				case 4:
 					{
 					setState(180);
-					typeDefinition();
+					structDefinition();
 					}
 					break;
 				case 5:
@@ -1276,28 +1276,28 @@ public class BallerinaParser extends Parser {
 		return _localctx;
 	}
 
-	public static class TypeDefinitionContext extends ParserRuleContext {
+	public static class StructDefinitionContext extends ParserRuleContext {
 		public TerminalNode Identifier() { return getToken(BallerinaParser.Identifier, 0); }
-		public TypeDefinitionBodyContext typeDefinitionBody() {
-			return getRuleContext(TypeDefinitionBodyContext.class,0);
+		public StructDefinitionBodyContext structDefinitionBody() {
+			return getRuleContext(StructDefinitionBodyContext.class,0);
 		}
-		public TypeDefinitionContext(ParserRuleContext parent, int invokingState) {
+		public StructDefinitionContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
-		@Override public int getRuleIndex() { return RULE_typeDefinition; }
+		@Override public int getRuleIndex() { return RULE_structDefinition; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).enterTypeDefinition(this);
+			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).enterStructDefinition(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitTypeDefinition(this);
+			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitStructDefinition(this);
 		}
 	}
 
-	public final TypeDefinitionContext typeDefinition() throws RecognitionException {
-		TypeDefinitionContext _localctx = new TypeDefinitionContext(_ctx, getState());
-		enterRule(_localctx, 26, RULE_typeDefinition);
+	public final StructDefinitionContext structDefinition() throws RecognitionException {
+		StructDefinitionContext _localctx = new StructDefinitionContext(_ctx, getState());
+		enterRule(_localctx, 26, RULE_structDefinition);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
@@ -1316,7 +1316,7 @@ public class BallerinaParser extends Parser {
 			setState(365);
 			match(Identifier);
 			setState(366);
-			typeDefinitionBody();
+			structDefinitionBody();
 			}
 		}
 		catch (RecognitionException re) {
@@ -1330,7 +1330,7 @@ public class BallerinaParser extends Parser {
 		return _localctx;
 	}
 
-	public static class TypeDefinitionBodyContext extends ParserRuleContext {
+	public static class StructDefinitionBodyContext extends ParserRuleContext {
 		public List<TypeNameContext> typeName() {
 			return getRuleContexts(TypeNameContext.class);
 		}
@@ -1341,23 +1341,23 @@ public class BallerinaParser extends Parser {
 		public TerminalNode Identifier(int i) {
 			return getToken(BallerinaParser.Identifier, i);
 		}
-		public TypeDefinitionBodyContext(ParserRuleContext parent, int invokingState) {
+		public StructDefinitionBodyContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
-		@Override public int getRuleIndex() { return RULE_typeDefinitionBody; }
+		@Override public int getRuleIndex() { return RULE_structDefinitionBody; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).enterTypeDefinitionBody(this);
+			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).enterStructDefinitionBody(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitTypeDefinitionBody(this);
+			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitStructDefinitionBody(this);
 		}
 	}
 
-	public final TypeDefinitionBodyContext typeDefinitionBody() throws RecognitionException {
-		TypeDefinitionBodyContext _localctx = new TypeDefinitionBodyContext(_ctx, getState());
-		enterRule(_localctx, 28, RULE_typeDefinitionBody);
+	public final StructDefinitionBodyContext structDefinitionBody() throws RecognitionException {
+		StructDefinitionBodyContext _localctx = new StructDefinitionBodyContext(_ctx, getState());
+		enterRule(_localctx, 28, RULE_structDefinitionBody);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
@@ -5549,24 +5549,6 @@ public class BallerinaParser extends Parser {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitBinaryGTExpression(this);
 		}
 	}
-	public static class TypeInitializeExpressionContext extends ExpressionContext {
-		public TerminalNode Identifier() { return getToken(BallerinaParser.Identifier, 0); }
-		public PackageNameContext packageName() {
-			return getRuleContext(PackageNameContext.class,0);
-		}
-		public ExpressionListContext expressionList() {
-			return getRuleContext(ExpressionListContext.class,0);
-		}
-		public TypeInitializeExpressionContext(ExpressionContext ctx) { copyFrom(ctx); }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).enterTypeInitializeExpression(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitTypeInitializeExpression(this);
-		}
-	}
 	public static class TemplateExpressionContext extends ExpressionContext {
 		public BacktickStringContext backtickString() {
 			return getRuleContext(BacktickStringContext.class,0);
@@ -5855,6 +5837,24 @@ public class BallerinaParser extends Parser {
 			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitTypeCastingExpression(this);
 		}
 	}
+	public static class StructInitializeExpressionContext extends ExpressionContext {
+		public TerminalNode Identifier() { return getToken(BallerinaParser.Identifier, 0); }
+		public PackageNameContext packageName() {
+			return getRuleContext(PackageNameContext.class,0);
+		}
+		public ExpressionListContext expressionList() {
+			return getRuleContext(ExpressionListContext.class,0);
+		}
+		public StructInitializeExpressionContext(ExpressionContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).enterStructInitializeExpression(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof BallerinaListener ) ((BallerinaListener)listener).exitStructInitializeExpression(this);
+		}
+	}
 	public static class BinaryMultiplicationExpressionContext extends ExpressionContext {
 		public List<ExpressionContext> expression() {
 			return getRuleContexts(ExpressionContext.class);
@@ -6062,7 +6062,7 @@ public class BallerinaParser extends Parser {
 				break;
 			case 11:
 				{
-				_localctx = new TypeInitializeExpressionContext(_localctx);
+				_localctx = new StructInitializeExpressionContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
 				setState(952);
