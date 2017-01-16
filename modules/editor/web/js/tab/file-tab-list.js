@@ -43,7 +43,7 @@ define(['log', 'jquery', 'lodash', './tab-list', './file-tab',  'workspace'],
                 shortcuts: {
                     mac: {
                         key: "command+right",
-                        label: "??"
+                        label: "\u2318\u2192"
                     },
                     other: {
                         key: "ctrl+right",
@@ -57,7 +57,7 @@ define(['log', 'jquery', 'lodash', './tab-list', './file-tab',  'workspace'],
                 shortcuts: {
                     mac: {
                         key: "command+left",
-                        label: "??"
+                        label: "\u2318\u2190"
                     },
                     other: {
                         key: "ctrl+left",
