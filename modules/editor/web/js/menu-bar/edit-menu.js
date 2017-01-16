@@ -29,7 +29,7 @@ define(([],function (){
                     shortcuts: {
                         mac: {
                             key: "command+z",
-                            label: "?Z"
+                            label: "\u2318Z"
                         },
                         other: {
                             key: "ctrl+z",
@@ -47,7 +47,7 @@ define(([],function (){
                     shortcuts: {
                         mac: {
                             key: "command+shift+z",
-                            label: "??Z"
+                            label: "\u2318\u21E7Z"
                         },
                         other: {
                             key: "ctrl+shift+z",
