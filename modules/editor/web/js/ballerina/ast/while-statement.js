@@ -19,16 +19,16 @@ define(['lodash', 'log', './conditional-statement'], function (_, log, Condition
 
     /**
      * Class for while statement in ballerina.
-     * @param condition The condition of an while statement.
-     * @param statements The statements list of a while statement.
+     * @param {Object} args - Argument object for creating an if statement.
+     * @param {string} [args.condition="true"] - The condition for "while".
+     * @param {Statement} [args.statements="[]] - Statements of the "while".
      * @constructor
+     * @augments ConditionalStatement
      */
     var WhileStatement = function (args) {
         ConditionalStatement.call(this);
-        if(!_.isNil(_.get(args,'condition'))){
-            this._condition = _.get(args,'condition');
-        }
-        this._statements = _.get(args,'statements') || [];
+        this._condition = _.get(args, "condition", "true");
+        this._statements = _.get(args, "statements", []);
         this.type = "WhileStatement";
     };
 
