@@ -941,7 +941,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
                         node = BallerinaASTFactory.createFunctionInvocationExpression();
                         break;
                     case 'variable_reference_expression':
-                        node = BallerinaASTFactory.createAssignment();
+                        node = BallerinaASTFactory.createVariableReferenceExpression();
                         break;
                     case 'action_invocation_expression':
                         node = BallerinaASTFactory.createActionInvocationExpression();
