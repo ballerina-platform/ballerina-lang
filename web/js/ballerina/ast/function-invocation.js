@@ -22,8 +22,8 @@ define(['lodash', './statement'], function (_, Statement) {
      * @constructor
      */
     var FunctionInvocation = function (args) {
-        this._packageName = _.get(args, 'package', 'pkg');
-        this._functionName = _.get(args, 'function', 'default');
+        this._packageName = _.get(args, 'package', '');
+        this._functionName = _.get(args, 'function', '');
         this._params = _.get(args, 'params');
         Statement.call(this, 'FunctionInvocation');
     };
