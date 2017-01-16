@@ -38,6 +38,11 @@ define(['log', 'jquery', 'lodash', './tab-list', './file-tab',  'workspace'],
                     self._workingFileSet.push(fileID);
                 });
             }
+            var commandManager = _.get(this, 'options.application.commandManager');
+            commandManager.registerCommand("next-tab", {shortcuts: {mac: "command+right", other: "ctrl+right"}});
+            commandManager.registerHandler("next-tab", this.goToNextTab, this);
+            commandManager.registerCommand("previous-tab", {shortcuts: {mac: "command+left", other: "ctrl+left"}});
+            commandManager.registerHandler("previous-tab", this.goToPreviousTab, this);
         },
         render: function() {
             TabList.prototype.render.call(this);
@@ -102,6 +107,33 @@ define(['log', 'jquery', 'lodash', './tab-list', './file-tab',  'workspace'],
         },
         hasFilesInWorkingSet: function(){
             return !_.isEmpty(this._workingFileSet);
+        },
+        goToNextTab: function(){
+            if(!_.isEmpty(this._tabs)){
+                var nextTabIndex = 0,
+                    currentActiveIndex = _.findIndex(this._tabs, this.activeTab);
+                if(currentActiveIndex >= 0){
+                    if(currentActiveIndex < (this._tabs.length - 1)){
+                       nextTabIndex = currentActiveIndex + 1;
+                    }
+                }
+                var nextTab = _.nth(this._tabs, nextTabIndex);
+                this.setActiveTab(nextTab);
+            }
+        },
+
+        goToPreviousTab: function(){
+            if(!_.isEmpty(this._tabs)){
+                var currentActiveIndex = _.findIndex(this._tabs, this.activeTab),
+                    prevTabIndex = 0;
+                if(currentActiveIndex == 0){
+                    prevTabIndex = this._tabs.length - 1;
+                } else{
+                    prevTabIndex = currentActiveIndex - 1;
+                }
+                var previousTab = _.nth(this._tabs, prevTabIndex);
+                this.setActiveTab(previousTab);
+            }
         }
     });
 
