@@ -149,7 +149,7 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
                 topCenter = new Point(childX, childY);
             }
             var args = {model: statement, container: this._statementGroup.node(), viewOptions: {},
-                parent:this, topCenter: topCenter, toolPalette: this.toolPalette, messageManager: this.messageManager};
+                parent:this, topCenter: topCenter, toolPalette: this.toolPalette};
             var statementView = statementViewFactory.getStatementView(args);
             this._diagramRenderingContext.getViewModelMap()[statement.id] = statementView;
             var lastChildView = _.last(this._childrenViewsList);
