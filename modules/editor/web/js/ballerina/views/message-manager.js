@@ -156,9 +156,12 @@ define(['log', 'lodash','d3','./point', 'backbone','event_channel'], function (l
             var endPoint = new Point(tempLine.attr("x2"),tempLine.attr("y2"));
 
             if(self.isAtValidDropTarget()){
-
                 var connectorReference = self.getActivatedDropTarget();
                 self.getMessageSource().setConnector(connectorReference);
+                self.getMessageSource().setActionName(self.getMessageSource().getAction());
+                self.getMessageSource().setActionPackageName(connectorReference.getConnectorPkgName());
+                self.getMessageSource().setActionConnectorName(connectorReference.getConnectorName());
+                self.getMessageSource().setConnectorVariableReference(connectorReference.getConnectorVariable());
             }
             tempLine.remove();
             arrowPoint.remove();
