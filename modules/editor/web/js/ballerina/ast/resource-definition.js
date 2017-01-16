@@ -296,7 +296,10 @@ define(['lodash', 'require', 'log', './node'],
         var indexNew;
         var self = this;
         if (self.BallerinaASTFactory.isConnectorDeclaration(child)) {
-            indexNew = index;
+            indexNew = _.findLastIndex(this.getChildren(), function (node) {
+                self.BallerinaASTFactory.isConnectorDeclaration(node);
+            });
+            indexNew = (indexNew === -1) ? 0 : (indexNew + 1);
         } else if (this.BallerinaASTFactory.isWorkerDeclaration(child)) {
             var firstConnector = _.findIndex(this.getChildren(), function (node) {
                 self.BallerinaASTFactory.isConnectorDeclaration(node);
