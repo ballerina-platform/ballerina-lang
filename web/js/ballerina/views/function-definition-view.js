@@ -241,6 +241,8 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
             // Creating arguments pane.
             ArgumentsView.createArgumentsPane(argumentsProperties);
 
+            this.setServiceContainerWidth(this._container.width());
+
             // Creating return type icon.
             var panelReturnTypeIcon = $("<i/>", {
                 class: "fw fw-export pull-right right-icon-clickable hoverable"

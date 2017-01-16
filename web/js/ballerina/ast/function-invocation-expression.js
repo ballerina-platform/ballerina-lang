@@ -26,7 +26,7 @@ define(['lodash', './expression', './function-invocation'], function (_, Express
     var FunctionInvocationExpression = function (args) {
         Expression.call(this, 'FunctionInvocationExpression');
         this._functionName = _.get(args, 'functionName', 'newFunction');
-    }
+    };
 
     FunctionInvocationExpression.prototype = Object.create(Expression.prototype);
     FunctionInvocationExpression.prototype.constructor = FunctionInvocationExpression;
@@ -95,6 +95,10 @@ define(['lodash', './expression', './function-invocation'], function (_, Express
                 argsString += self._generateArgsString(childJsonNode, argsString, " + ");
             } else if (childJsonNode.type == "subtract_expression") {
                 argsString += self._generateArgsString(childJsonNode, argsString, " - ");
+            } else if (childJsonNode.type == "function_invocation_expression") {
+                var child = self.getFactory().createFromJson(childJsonNode);
+                child.initFromJson(childJsonNode);
+                argsString += self._generateArgsString(childJsonNode, child.getExpression(), " - ");
             }
 
             if (itr !== jsonNode.children.length - 1) {

@@ -25,7 +25,7 @@ define(['lodash', 'log', './action-invocation-statement'], function (_, log, Act
     var ActionInvocationExpression = function (args) {
         ActionInvocationStatement.call(this, args);
         this._variableAccessor = _.get(args, 'accessor', '');
-        this._actionName = _.get(args, 'actionName', '');
+        this._actionName = _.get(args, 'action', '');
         this._actionPackageName = _.get(args, 'actionPackageName', '');
         this._actionConnectorName = _.get(args, 'actionConnectorName', '');
         this._actionInvocationReference = _.get(args, 'actionInvocationReference', '');
@@ -155,7 +155,24 @@ define(['lodash', 'log', './action-invocation-statement'], function (_, log, Act
         this.setActionPackageName(jsonNode.action_pkg_name);
         this.setActionConnectorName(jsonNode.action_connector_name);
         this.setConnectorVariableReference(jsonNode.children[0].variable_reference_name);
-        this.setPath(jsonNode.children[1].basic_literal_value);
+
+        var pathNode = jsonNode.children[1];
+        //TODO : Need to remove this if/else ladder by delegating expression string calculation to child classes
+        if (pathNode.type == "basic_literal_expression") {
+            if(pathNode.basic_literal_type == "string") {
+                // Adding double quotes if it is a string.
+                this.setPath("\"" + pathNode.basic_literal_value + "\"");
+            } else {
+                this.setPath(pathNode.basic_literal_value);
+            }
+        } else if (pathNode.type == "variable_reference_expression") {
+            this.setPath(pathNode.variable_reference_name);
+        } else {
+            var child = self.getFactory().createFromJson(pathNode);
+            child.initFromJson(pathNode);
+            this.setPath(child.getExpression());
+        }
+
         this.setMessageVariableReference(jsonNode.children[2].variable_reference_name);
     };
 
