@@ -148,4 +148,10 @@ public class AssignStmtTest {
     public void testIncompatibleTypeAssignment() {
         ParserUtils.parseBalFile("lang/expressions/incompatible-type-assignment.bal");
     }
+    
+    @Test(expectedExceptions = {SemanticException.class },
+            expectedExceptionsMessageRegExp = "Cannot assign a value to constant: a in constant-assignment.bal:6")
+    public void testAssignmentToConst() {
+        ParserUtils.parseBalFile("lang/expressions/constant-assignment.bal");
+    }
 }

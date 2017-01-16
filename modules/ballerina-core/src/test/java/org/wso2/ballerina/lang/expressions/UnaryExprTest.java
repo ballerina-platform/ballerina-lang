@@ -20,6 +20,7 @@ package org.wso2.ballerina.lang.expressions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerina.core.exception.SemanticException;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.values.BBoolean;
 import org.wso2.ballerina.core.model.values.BDouble;
@@ -196,6 +197,31 @@ public class UnaryExprTest {
         BBoolean x = (BBoolean) returns[0];
         Assert.assertSame(x.getClass(), BBoolean.class, "Invalid class type returned.");
         Assert.assertEquals(x.booleanValue(), true, "Invalid value returned.");
-
+    }
+    
+    /* negative Tests */
+    
+    @Test(description = "Test unary positive for unsupported types (json)",
+            expectedExceptions = {SemanticException.class },
+            expectedExceptionsMessageRegExp = "Incompatible type in unary expression: json in " +
+            "unsupported-types-unary-positive.bal:5")
+    public void testUnaryPositiveForUnsupportedTypes() {
+        ParserUtils.parseBalFile("lang/expressions/unsupported-types-unary-positive.bal");
+    }
+    
+    @Test(description = "Test unary negative for unsupported types (json)",
+            expectedExceptions = {SemanticException.class },
+            expectedExceptionsMessageRegExp = "Incompatible type in unary expression: json in " +
+            "unsupported-types-unary-negative.bal:5")
+    public void testUnaryNegativeForUnsupportedTypes() {
+        ParserUtils.parseBalFile("lang/expressions/unsupported-types-unary-negative.bal");
+    }
+    
+    @Test(description = "Test unary not for unsupported types (json)",
+            expectedExceptions = {SemanticException.class },
+            expectedExceptionsMessageRegExp = "Incompatible type in unary expression: json in " +
+            "unsupported-types-unary-not.bal:5 'Not' operation only supports boolean")
+    public void testUnaryNotForUnsupportedTypes() {
+        ParserUtils.parseBalFile("lang/expressions/unsupported-types-unary-not.bal");
     }
 }
