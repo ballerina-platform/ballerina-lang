@@ -484,7 +484,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         JsonObject LExprObj = new JsonObject();
         LExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, "left_operand_expression");
         tempJsonArrayRef.push(new JsonArray());
-        assignStmt.getLExpr().accept(this);
+        assignStmt.getLExprs()[0].accept(this);
         LExprObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
         tempJsonArrayRef.pop();
         tempJsonArrayRef.peek().add(LExprObj);
