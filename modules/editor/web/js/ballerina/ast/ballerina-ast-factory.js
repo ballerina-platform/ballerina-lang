@@ -27,7 +27,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         './package-definition', './import-declaration', './resource-arg', './assignment', './assignment-statement', './function-invocation', './function-invocation-expression', './variable-reference-expression',
         './action-invocation-statement', './arithmetic-expression', './logical-expression', './action-invocation-expression',
         './return-type', './type-name', './argument', './back-quote-expression', './basic-literal-expression', './left-operand-expression', './right-operand-expression', './instance-creation-expression', './then-body',
-        './if-condition', './equal-expression', './greater-than-expression', './add-expression'],
+        './if-condition', './equal-expression', './greater-than-expression', './add-expression', './array-map-access-expression'],
     function (_, ballerinaAstRoot, serviceDefinition, functionDefinition, connectorDefinition, resourceDefinition,
               workerDeclaration, statement, conditionalStatement, connectorDeclaration, expression,
               ifElseStatement, ifStatement, elseStatement, elseIfStatement, tryCatchStatement, tryStatement, catchStatement, replyStatement,
@@ -35,7 +35,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
               packageDefinition, importDeclaration, resourceArgument, assignment, assignmentStatement, functionInvocation, functionInvocationExpression, variableReferenceExpression,
               actionInvocationStatement, arithmeticExpression, logicalExpression, actionInvocationExpression, returnType,
               typeName, argument, backQuoteExpression, basicLiteralExpression, leftOperandExpression, rightOperandExpression, instanceCreationExpression, thenBody, ifCondition,
-              equalExpression, greaterThanExpression, addExpression) {
+              equalExpression, greaterThanExpression, addExpression, arrayMapAccessExpression) {
 
 
         /**
@@ -174,6 +174,22 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         };
 
         /**
+         * Create the particular assignment statement for the action invocation
+         * @param args
+         * @returns {AssignmentStatement}
+         */
+        BallerinaASTFactory.createAggregatedActionInvocationExpression = function(args) {
+            var assignmentStmt = BallerinaASTFactory.createAssignmentStatement();
+            var leftOp = BallerinaASTFactory.createLeftOperandExpression();
+            var rightOp = BallerinaASTFactory.createRightOperandExpression();
+            var actionInExp = BallerinaASTFactory.createActionInvocationExpression(args);
+            rightOp.addChild(actionInExp);
+            assignmentStmt.addChild(leftOp);
+            assignmentStmt.addChild(rightOp);
+            return assignmentStmt;
+        };
+
+        /**
          * creates If-Else Statement
          * @param args
          */
@@ -239,6 +255,18 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          */
         BallerinaASTFactory.createFunctionInvocationStatement = function (args) {
             return new functionInvocation(args);
+        };
+
+        /**
+         * creates FunctionInvocationStatement
+         * @param args
+         * @returns {FunctionInvocation}
+         */
+        BallerinaASTFactory.createAggregatedFunctionInvocationStatement = function (args) {
+            var funcInvocationStatement = new functionInvocation(args);
+            var funcInvocationExpression = BallerinaASTFactory.createFunctionInvocationExpression(args);
+            funcInvocationStatement.addChild(funcInvocationExpression);
+            return funcInvocationStatement;
         };
 
         /**
@@ -444,6 +472,15 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          */
         BallerinaASTFactory.createAddExpression = function (args) {
             return new addExpression(args);
+        };
+
+        /**
+         * creates ArrayMapAccessExpression
+         * @param {Object} args - Arguments for creating a new instance creation.
+         * @returns {ArrayMapAccessExpression}
+         */
+        BallerinaASTFactory.createArrayMapAccessExpression = function (args) {
+            return new arrayMapAccessExpression(args);
         };
 
         /**
@@ -818,6 +855,15 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
             return child instanceof addExpression;
         };
 
+        /**
+         * instanceof check for arrayMapAccessExpression
+         * @param {ASTNode} child - The ast node.
+         * @returns {boolean} - true if same type, else false
+         */
+        BallerinaASTFactory.isArrayMapAccessExpression = function (child) {
+            return child instanceof arrayMapAccessExpression;
+        };
+
 
         /**
          * instanceof check for functionInvocationExpression
@@ -938,6 +984,9 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
                         break;
                     case 'add_expression':
                         node = BallerinaASTFactory.createAddExpression();
+                        break;
+                    case 'array_map_access_expression':
+                        node = BallerinaASTFactory.createArrayMapAccessExpression();
                         break;
                     default:
                         throw "Unknown node definition for " + jsonNode.type;

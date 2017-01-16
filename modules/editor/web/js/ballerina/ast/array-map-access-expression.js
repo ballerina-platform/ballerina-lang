@@ -18,35 +18,35 @@
 define(['lodash', './expression'], function (_, Expression) {
 
     /**
-     * Constructor for AddExpression
-     * @param {Object} args - Arguments to create the AddExpression
+     * Constructor for ArrayMapAccessExpression
+     * @param {Object} args - Arguments to create the ArrayMapAccessExpression
      * @constructor
      * @augments Expression
      */
-    var AddExpression = function (args) {
-        Expression.call(this, 'AddExpression');
+    var ArrayMapAccessExpression = function (args) {
+        Expression.call(this, 'ArrayMapAccessExpression');
     };
 
-    AddExpression.prototype = Object.create(Expression.prototype);
-    AddExpression.prototype.constructor = AddExpression;
+    ArrayMapAccessExpression.prototype = Object.create(Expression.prototype);
+    ArrayMapAccessExpression.prototype.constructor = ArrayMapAccessExpression;
 
     /**
      * setting parameters from json
      * @param {Object} jsonNode to initialize from
      */
-    AddExpression.prototype.initFromJson = function (jsonNode) {
-        this.setExpression(this.generateAddExpressionString(jsonNode));
+    ArrayMapAccessExpression.prototype.initFromJson = function (jsonNode) {
+        this.setExpression(this.generateArrayMapAccessExpressionString(jsonNode));
     };
 
     /**
-     * Generates the add expression as a string.
-     * @param {Object} jsonNode - A node explaining the structure of add expression.
+     * Generates the array map access expression as a string.
+     * @param {Object} jsonNode - A node explaining the structure of array map access expression.
      * @return {string} - Arguments as a string.
      * @private
      */
-    AddExpression.prototype.generateAddExpressionString = function (jsonNode) {
+    ArrayMapAccessExpression.prototype.generateArrayMapAccessExpressionString = function (jsonNode) {
         var self = this;
-        var addString = "";
+        var indexString = "";
 
         for (var itr = 0; itr < jsonNode.children.length; itr++) {
             var childJsonNode = jsonNode.children[itr];
@@ -54,24 +54,16 @@ define(['lodash', './expression'], function (_, Expression) {
             if (childJsonNode.type == "basic_literal_expression") {
                 if(childJsonNode.basic_literal_type == "string") {
                     // Adding double quotes if it is a string.
-                    addString += "\"" + childJsonNode.basic_literal_value + "\"";
+                    indexString += "\"" + childJsonNode.basic_literal_value + "\"";
                 } else {
-                    addString += childJsonNode.basic_literal_value;
+                    indexString += childJsonNode.basic_literal_value;
                 }
             } else if (childJsonNode.type == "variable_reference_expression") {
-                addString += childJsonNode.variable_reference_name;
-            } else {
-                var child = self.getFactory().createFromJson(childJsonNode);
-                child.initFromJson(childJsonNode);
-                addString += child.getExpression();
-            }
-
-            if (itr !== jsonNode.children.length - 1) {
-                addString += " + ";
+                indexString += childJsonNode.variable_reference_name;
             }
         }
-        return addString;
+        return jsonNode.array_map_access_expression_name + "[" + indexString + "]";
     };
 
-    return AddExpression;
+    return ArrayMapAccessExpression;
 });

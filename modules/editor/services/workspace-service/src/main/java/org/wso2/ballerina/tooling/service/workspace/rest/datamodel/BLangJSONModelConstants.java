@@ -156,6 +156,12 @@ public class BLangJSONModelConstants {
 
     public static final String ARRAY_INIT_EXPRESSION = "array_init_expression";
 
+    public static final String ARRAY_MAP_ACCESS_EXPRESSION = "array_map_access_expression";
+
+    public static final String ARRAY_MAP_ACCESS_EXPRESSION_NAME = "array_map_access_expression_name";
+
+    public static final String ARRAY_MAP_ACCESS_EXPRESSION_INDEX = "array_map_access_expression_index";
+
     public static final String BACK_QUOTE_EXPRESSION = "back_quote_expression";
 
     public static final String BACK_QUOTE_ENCLOSED_STRING = "back_quote_enclosed_string";
