@@ -39,9 +39,33 @@ define(['log', 'jquery', 'lodash', './tab-list', './file-tab',  'workspace'],
                 });
             }
             var commandManager = _.get(this, 'options.application.commandManager');
-            commandManager.registerCommand("next-tab", {shortcuts: {mac: "command+right", other: "ctrl+right"}});
+            var optionsNextTab = {
+                shortcuts: {
+                    mac: {
+                        key: "command+right",
+                        label: "??"
+                    },
+                    other: {
+                        key: "ctrl+right",
+                        label: "Ctrl+Right"
+                    }
+                }
+            };
+            commandManager.registerCommand("next-tab", optionsNextTab);
             commandManager.registerHandler("next-tab", this.goToNextTab, this);
-            commandManager.registerCommand("previous-tab", {shortcuts: {mac: "command+left", other: "ctrl+left"}});
+            var optionsPrevTab = {
+                shortcuts: {
+                    mac: {
+                        key: "command+left",
+                        label: "??"
+                    },
+                    other: {
+                        key: "ctrl+left",
+                        label: "Ctrl+Left"
+                    }
+                }
+            };
+            commandManager.registerCommand("previous-tab", optionsPrevTab);
             commandManager.registerHandler("previous-tab", this.goToPreviousTab, this);
         },
         render: function() {
