@@ -139,4 +139,20 @@ public class NotEqualExprTest {
     public void testIncompatibleEquality() {
         ParserUtils.parseBalFile("lang/expressions/incompatible-type-equal-expr.bal");
     }
+    
+    @Test(description = "Test checking equality of unsupported types (json)",
+            expectedExceptions = {SemanticException.class },
+            expectedExceptionsMessageRegExp = "Equals operation is not supported for type: json in " +
+            "unsupported-type-equal-expr.bal:9")
+    public void testUnsupportedTypeEquality() {
+        ParserUtils.parseBalFile("lang/expressions/unsupported-type-equal-expr.bal");
+    }
+    
+    @Test(description = "Test checking not-equality of unsupported types (json)",
+            expectedExceptions = {SemanticException.class },
+            expectedExceptionsMessageRegExp = "NotEqual operation is not supported for type: json in " +
+            "unsupported-type-not-equal-expr.bal:9")
+    public void testUnsupportedTypeNotEquality() {
+        ParserUtils.parseBalFile("lang/expressions/unsupported-type-not-equal-expr.bal");
+    }
 }
