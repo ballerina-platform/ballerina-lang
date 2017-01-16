@@ -28,7 +28,7 @@ define(([],function (){
                     id: "create-new-tab",
                     shortcuts: {
                         mac: {
-                            key: "command+control+n",
+                            key: "command+ctrl+n",
                             label: "\u2318\u2303N"
                         },
                         other: {
