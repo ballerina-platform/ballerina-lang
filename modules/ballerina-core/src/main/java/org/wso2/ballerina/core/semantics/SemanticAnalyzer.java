@@ -57,6 +57,7 @@ import org.wso2.ballerina.core.model.expressions.BasicLiteral;
 import org.wso2.ballerina.core.model.expressions.BinaryArithmeticExpression;
 import org.wso2.ballerina.core.model.expressions.BinaryExpression;
 import org.wso2.ballerina.core.model.expressions.BinaryLogicalExpression;
+import org.wso2.ballerina.core.model.expressions.CallableUnitInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.DivideExpr;
 import org.wso2.ballerina.core.model.expressions.EqualExpression;
 import org.wso2.ballerina.core.model.expressions.Expression;
@@ -95,7 +96,9 @@ import org.wso2.ballerina.core.model.values.BString;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -517,21 +520,8 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(AssignStmt assignStmt) {
-        Expression lExpr = assignStmt.getLExpr();
-
-        if (lExpr instanceof ArrayMapAccessExpr) {
-            ((ArrayMapAccessExpr) lExpr).setLHSExpr(true);
-        }
-
-        lExpr.accept(this);
-
-        // Check whether someone is trying to change the values of a constant
-        if (lExpr instanceof VariableRefExpr &&
-                ((VariableRefExpr) lExpr).getMemoryLocation() instanceof ConstantLocation) {
-            throw new SemanticException("Cannot assign a value to constant: " +
-                    ((VariableRefExpr) lExpr).getSymbolName() + " in " + lExpr.getLocation().getFileName() + ":"
-                    + lExpr.getLocation().getLine());
-        }
+        Expression[] lExprs = assignStmt.getLExprs();
+        visitLExprsOfAssignment(assignStmt, lExprs);
 
         Expression rExpr = assignStmt.getRExpr();
         rExpr.accept(this);
@@ -539,30 +529,32 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Return types of the function or action invoked are only available during the linking phase
         // There type compatibility check is impossible during the semantic analysis phase.
         if (rExpr instanceof FunctionInvocationExpr || rExpr instanceof ActionInvocationExpr) {
+            checkForMultiAssignmentErrors(assignStmt, lExprs, (CallableUnitInvocationExpr) rExpr);
             return;
         }
+
+        // Now we know that this is a single value assignment statement.
+        Expression lExpr = assignStmt.getLExprs()[0];
 
         // If the rExpr typ is not set, then check whether it is a BacktickExpr
         if (rExpr.getType() == null && rExpr instanceof BacktickExpr) {
 
             // In this case, type of the lExpr should be either xml or json
             if (lExpr.getType() != BTypes.JSON_TYPE && lExpr.getType() != BTypes.XML_TYPE) {
-                throw new SemanticException("Incompatible types: string template " +
-                        "cannot be converted to " + lExpr.getType() + " in " + lExpr.getLocation().getFileName() + ":"
-                        + lExpr.getLocation().getLine() + ": required xml or json");
+                throw new SemanticException(lExpr.getLocation().getFileName() + ":"
+                        + lExpr.getLocation().getLine() + ": incompatible types: expected json or xml on " +
+                        "the left side of assignment");
             }
 
             rExpr.setType(lExpr.getType());
-            // TODO Visit the rExpr again after the setting the type.
-            //rExpr.accept(this);
-
         }
+
         // TODO Remove the MAP related logic when type casting is implemented
         if ((lExpr.getType() != BTypes.MAP_TYPE) && (rExpr.getType() != BTypes.MAP_TYPE) &&
                 (lExpr.getType() != rExpr.getType())) {
-            throw new SemanticException("Incompatible types: " + rExpr.getType() +
-                    " cannot be converted to " + lExpr.getType() + " in " + lExpr.getLocation().getFileName() + ":"
-                    + lExpr.getLocation().getLine());
+            throw new SemanticException(lExpr.getLocation().getFileName() + ":"
+                    + lExpr.getLocation().getLine() + ": incompatible types: " + rExpr.getType() +
+                    " cannot be converted to " + lExpr.getType());
         }
     }
 
@@ -1424,6 +1416,71 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         return symbol;
+    }
+
+    private String getVarNameFromExpression(Expression expr) {
+        if (expr instanceof ArrayMapAccessExpr) {
+            return ((ArrayMapAccessExpr) expr).getSymbolName().getName();
+        } else {
+            return ((VariableRefExpr) expr).getSymbolName().getName();
+        }
+    }
+
+    private void checkForConstAssignment(AssignStmt assignStmt, Expression lExpr) {
+        if (lExpr instanceof VariableRefExpr &&
+                ((VariableRefExpr) lExpr).getMemoryLocation() instanceof ConstantLocation) {
+            throw new SemanticException(assignStmt.getLocation().getFileName() + ":"
+                    + assignStmt.getLocation().getLine() + ": cannot assign a value to constant '" +
+                    ((VariableRefExpr) lExpr).getSymbolName() + "'");
+        }
+    }
+
+    private void checkForMultiAssignmentErrors(AssignStmt assignStmt, Expression[] lExprs,
+                                               CallableUnitInvocationExpr rExpr) {
+        BType[] returnTypes = rExpr.getTypes();
+        if (lExprs.length != returnTypes.length) {
+            throw new SemanticException(assignStmt.getLocation().getFileName() + ":"
+                    + assignStmt.getLocation().getLine() + ": assignment count mismatch: " +
+                    lExprs.length + " = " + returnTypes.length);
+        }
+
+        //cannot assign string to b (type int) in multiple assignment
+
+        for (int i = 0; i < lExprs.length; i++) {
+            Expression lExpr = lExprs[i];
+            BType returnType = returnTypes[i];
+            if (!lExpr.getType().equals(returnType)) {
+                String varName = getVarNameFromExpression(lExpr);
+                throw new SemanticException(assignStmt.getLocation().getFileName() + ":"
+                        + assignStmt.getLocation().getLine() + ": cannot assign " + returnType + " to '" +
+                        varName + "' (type " + lExpr.getType() + ") in multiple assignment");
+            }
+        }
+    }
+
+    private void visitLExprsOfAssignment(AssignStmt assignStmt, Expression[] lExprs) {
+        // This set data structure is used to check for repeated variable names in the assignment statement
+        Set<String> varNameSet = new HashSet<>();
+
+        for (Expression lExpr : lExprs) {
+            String varName = getVarNameFromExpression(lExpr);
+            if (!varNameSet.add(varName)) {
+                throw new SemanticException(assignStmt.getLocation().getFileName() + ":"
+                        + assignStmt.getLocation().getLine() + ": '" + varName + "' is repeated " +
+                        "on the left side of assignment");
+            }
+
+            // First mark all left side ArrayMapAccessExpr. This is to skip some processing which is applicable only
+            // for right side expressions.
+            if (lExpr instanceof ArrayMapAccessExpr) {
+                ((ArrayMapAccessExpr) lExpr).setLHSExpr(true);
+            }
+
+            lExpr.accept(this);
+
+            // Check whether someone is trying to change the values of a constant
+            checkForConstAssignment(assignStmt, lExpr);
+        }
     }
 
 //    private void checkForMissingReturnStmt(CallableUnit callableUnit, String errorMsg) {
