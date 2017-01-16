@@ -218,7 +218,7 @@ define(['require', 'lodash','jquery', 'log', 'backbone', 'file_browser', 'baller
                                 var file = new File({
                                     name: fileName,
                                     path: folderPath,
-                                    content: data,
+                                    content: data.content,
                                     isPersisted: true
                                 });
                                 app.commandManager.dispatch("create-new-tab", {tabOptions: {file: file}});
