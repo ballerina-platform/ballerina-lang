@@ -63,6 +63,7 @@ import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.statements.ActionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
+import org.wso2.ballerina.core.model.statements.BreakStmt;
 import org.wso2.ballerina.core.model.statements.FunctionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.IfElseStmt;
 import org.wso2.ballerina.core.model.statements.ReplyStmt;
@@ -754,6 +755,13 @@ public class BLangModelBuilder {
         IfElseStmt ifElseStmt = ifElseStmtBuilder.build();
         ifElseStmt.setLocation(sourceLocation);
         addToBlockStmt(ifElseStmt);
+    }
+
+    public void endBreakStmt(Position currentLocation) {
+        BreakStmt.BreakStmtBuilder breakStmtBuilder = new BreakStmt.BreakStmtBuilder();
+        BreakStmt breakStmt = breakStmtBuilder.build();
+        breakStmt.setLocation(currentLocation);
+        blockStmtBuilderStack.peek().addStmt(breakStmt);
     }
 
     public void createFunctionInvocationStmt(Position sourceLocation) {
