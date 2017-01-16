@@ -22,11 +22,6 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
             BallerinaStatementView.call(this, args);
             this._connectorView = {};
 
-            if (_.isNil(this._model) || !(this._model.getFactory().isActionInvocationStatement(this._model))) {
-                log.error("Action invocation statement definition is undefined or is of different type." + this._model);
-                throw "Action invocation statement is undefined or is of different type." + this._model;
-            }
-
             if (_.isNil(this._container)) {
                 log.error("Container for action statement is undefined." + this._container);
                 throw "Container for action statement is undefined." + this._container;
@@ -55,18 +50,21 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
 
         // TODO : Please revisit this method. Needs a refactor
         ActionInvocationStatementView.prototype.drawActionConnections = function(startPoint){
+            // Action invocation model is the child of the right operand
+            var actionInvocationModel = this._model.getChildren()[1].getChildren()[0];
             log.debug("Drawing connections for http connector actions");
             // TODO : Please alter this logic
             if(!_.isNil(this.getModel().getConnector())) {
                 var connector = this.getDiagramRenderingContext().getViewModelMap()[this.messageManager.getActivatedDropTarget().id];
-                this._model.setConnector(this.messageManager.getActivatedDropTarget());
+                actionInvocationModel.setConnector(this.messageManager.getActivatedDropTarget());
                 this.DrawArrow(this.getDiagramRenderingContext());
             }
         };
 
         ActionInvocationStatementView.prototype.setModel = function (model) {
+            var actionInvocationModel = this._model.getChildren()[1].getChildren()[0];
             if (!_.isNil(model) && model instanceof ActionInvocationExpression) {
-                this._model = model;
+                actionInvocationModel = model;
             } else {
                 log.error("Action statement definition is undefined or is of different type." + model);
                 throw "Action statement definition is undefined or is of different type." + model;
@@ -87,7 +85,7 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
         };
 
         ActionInvocationStatementView.prototype.getModel = function () {
-            return this._model;
+            return this._model.getChildren()[1].getChildren()[0];;
         };
 
         ActionInvocationStatementView.prototype.getContainer = function () {
@@ -113,7 +111,10 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
         ActionInvocationStatementView.prototype.render = function (renderingContext) {
             // TODO : Please revisit this method. Needs a refactor
             this.setDiagramRenderingContext(renderingContext);
-            var connectorModel =  this._model.getConnector();
+            // Action invocation statement is generally an assignment statement. Where the action invocation model is the child of the right operand
+            var actionInvocationModel = this._model.getChildren()[1].getChildren()[0];
+            var leftOperandModel = this._model.getChildren()[0];
+            var connectorModel =  actionInvocationModel.getConnector();
 
             if(!_.isUndefined(connectorModel)) {
                 this.connector = this.getDiagramRenderingContext().getViewOfModel(connectorModel);
@@ -121,7 +122,7 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
 
             var assignmentStatementGroup = D3Utils.group(d3.select(this._container));
             var parentGroup = this._container;
-            assignmentStatementGroup.attr("id", "_" + this._model.id);//added attribute 'id' starting with '_' to be compatible with HTML4
+            assignmentStatementGroup.attr("id", "_" + actionInvocationModel.id);//added attribute 'id' starting with '_' to be compatible with HTML4
             var width = this.getBoundingBox().w();
             var height = this.getBoundingBox().h();
             var x = this.getBoundingBox().getLeft();
@@ -133,38 +134,38 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
             processorConnectorPoint.attr("fill-opacity", 0.01);
 
             this.processorConnectPoint = processorConnectorPoint;
-            var assignmentText = "HTTP:" + this.getModel().getAction();
+            var assignmentText = "HTTP:" + actionInvocationModel.getActionName();
             // TODO : Please revisit these calculations.
             var expressionText = D3Utils.textElement(x + width / 2, y + height / 2, assignmentText, assignmentStatementGroup)
                 .classed('statement-text', true);
-            this._model.accept(this);
+            actionInvocationModel.accept(this);
 
             // Creating property pane
             var editableProperties = [
                 {
                     propertyType: "text",
                     key: "Assign To",
-                    model: this._model,
-                    getterMethod: this._model.getVariableAccessor,
-                    setterMethod: this._model.setVariableAccessor
+                    model: leftOperandModel,
+                    getterMethod: leftOperandModel.getVariableReferenceName,
+                    setterMethod: leftOperandModel.setVariableReferenceName
                 },
                 {
                     propertyType: "text",
                     key: "Path Parameter",
-                    model: this._model,
-                    getterMethod: this._model.getPath,
-                    setterMethod: this._model.setPath
+                    model: actionInvocationModel,
+                    getterMethod: actionInvocationModel.getPath,
+                    setterMethod: actionInvocationModel.setPath
                 },
                 {
                     propertyType: "text",
                     key: "Message Parameter",
-                    model: this._model,
-                    getterMethod: this._model.getMessage,
-                    setterMethod: this._model.setMessage
+                    model: actionInvocationModel,
+                    getterMethod: actionInvocationModel.getMessageVariableReference,
+                    setterMethod: actionInvocationModel.setMessageVariableReference
                 }
             ];
             this._createPropertyPane({
-                model: this._model,
+                model: actionInvocationModel,
                 statementGroup: assignmentStatementGroup,
                 editableProperties: editableProperties
             });
@@ -180,7 +181,7 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
                 var y =  parseFloat(self.processorConnectPoint.attr('cy'));
                 var sourcePoint = self.toGlobalCoordinates(new Point(x, y));
 
-                self.messageManager.startDrawMessage(self._model, sourcePoint);
+                self.messageManager.startDrawMessage(actionInvocationModel, sourcePoint);
                 self.messageManager.setTypeBeingDragged(true);
             });
 
@@ -193,7 +194,6 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
                 processorConnectorPoint.style("fill", "#2c3e50").style("fill-opacity", 0.01);
             });
 
-            var self = this;
             this.getBoundingBox().on('top-edge-moved', function(dy){
                 assignmentRect.attr('y',  parseFloat(assignmentRect.attr('y')) + dy);
                 expressionText.attr('y',  parseFloat(expressionText.attr('y')) + dy);
@@ -225,7 +225,8 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
             var processorConnector2 = undefined;
 
             this.setDiagramRenderingContext(context);
-            var connectorModel = this._model.getConnector();
+            var actionInvocationModel = this._model.getChildren()[1].getChildren()[0];
+            var connectorModel = actionInvocationModel.getConnector();
 
             if(!_.isUndefined(connectorModel)) {
                 this.connector = this.getDiagramRenderingContext().getViewOfModel(connectorModel);

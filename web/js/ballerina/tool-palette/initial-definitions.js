@@ -168,7 +168,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
             meta: {
                 action: "get"
             },
-            nodeFactoryMethod: BallerinaASTFactory.createActionInvocationExpression
+            nodeFactoryMethod: BallerinaASTFactory.createAggregatedActionInvocationExpression
         };
 
         var createPostActionTool = {
@@ -179,7 +179,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
             meta: {
                 action: "post"
             },
-            nodeFactoryMethod: BallerinaASTFactory.createActionInvocationExpression
+            nodeFactoryMethod: BallerinaASTFactory.createAggregatedActionInvocationExpression
         };
 
         var createPutActionTool = {
@@ -190,7 +190,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
             meta: {
                 action: "put"
             },
-            nodeFactoryMethod: BallerinaASTFactory.createActionInvocationExpression
+            nodeFactoryMethod: BallerinaASTFactory.createAggregatedActionInvocationExpression
         };
 
         var createDeleteActionTool = {
@@ -201,7 +201,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
             meta: {
                 action: "delete"
             },
-            nodeFactoryMethod: BallerinaASTFactory.createActionInvocationExpression
+            nodeFactoryMethod: BallerinaASTFactory.createAggregatedActionInvocationExpression
         };
 
         var createPatchActionTool = {
@@ -212,7 +212,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
             meta: {
                 action: "patch"
             },
-            nodeFactoryMethod: BallerinaASTFactory.createActionInvocationExpression
+            nodeFactoryMethod: BallerinaASTFactory.createAggregatedActionInvocationExpression
         };
 
         var httpConnectorToolArray = [createGetActionTool, createPostActionTool, createPutActionTool, createDeleteActionTool/*, createPatchActionTool*/];
