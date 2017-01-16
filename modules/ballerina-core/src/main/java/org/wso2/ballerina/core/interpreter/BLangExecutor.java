@@ -47,6 +47,7 @@ import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.statements.ActionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
+import org.wso2.ballerina.core.model.statements.BreakStmt;
 import org.wso2.ballerina.core.model.statements.FunctionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.IfElseStmt;
 import org.wso2.ballerina.core.model.statements.ReplyStmt;
@@ -91,11 +92,14 @@ public class BLangExecutor implements NodeExecutor {
 
     @Override
     public void visit(BlockStmt blockStmt) {
-        //TODO Improve this to support non-blocking behaviour.
-        //TODO Possibly a linked set of statements would do.
+        // TODO Improve this to support non-blocking behaviour.
+        // TODO Possibly a linked set of statements would do.
 
         Statement[] stmts = blockStmt.getStatements();
         for (Statement stmt : stmts) {
+            if (bContext.getControlStack().isInterruptFlow()) {
+                return;
+            }
             stmt.execute(this);
         }
     }
@@ -185,7 +189,11 @@ public class BLangExecutor implements NodeExecutor {
         while (condition.booleanValue()) {
             // Interpret the statements in the while body.
             whileStmt.getBody().execute(this);
-
+            if (bContext.getControlStack().isInterruptFlow()) {
+                //reset once the break happens, so it won't effect other scopes
+                bContext.getControlStack().setInterruptFlow(false);
+                break;
+            }
             // Now evaluate the condition again to decide whether to continue the loop or not.
             condition = (BBoolean) expr.execute(this);
         }
@@ -231,6 +239,12 @@ public class BLangExecutor implements NodeExecutor {
         Expression expr = replyStmt.getReplyExpr();
         BMessage bMessage = (BMessage) expr.execute(this);
         bContext.getBalCallback().done(bMessage.value());
+    }
+
+    @Override
+    public void visit(BreakStmt breakStmt) {
+        // update the context with flow interruption
+        bContext.getControlStack().setInterruptFlow(true);
     }
 
     @Override

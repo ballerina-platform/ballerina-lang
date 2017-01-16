@@ -716,6 +716,9 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitBreakStatement(BallerinaParser.BreakStatementContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.endBreakStmt(getCurrentLocation(ctx));
+        }
     }
 
     @Override
