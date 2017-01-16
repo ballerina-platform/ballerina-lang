@@ -174,6 +174,22 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         };
 
         /**
+         * Create the particular assignment statement for the action invocation
+         * @param args
+         * @returns {AssignmentStatement}
+         */
+        BallerinaASTFactory.createAggregatedActionInvocationExpression = function(args) {
+            var assignmentStmt = BallerinaASTFactory.createAssignmentStatement();
+            var leftOp = BallerinaASTFactory.createLeftOperandExpression();
+            var rightOp = BallerinaASTFactory.createRightOperandExpression();
+            var actionInExp = BallerinaASTFactory.createActionInvocationExpression(args);
+            rightOp.addChild(actionInExp);
+            assignmentStmt.addChild(leftOp);
+            assignmentStmt.addChild(rightOp);
+            return assignmentStmt;
+        };
+
+        /**
          * creates If-Else Statement
          * @param args
          */
@@ -239,6 +255,18 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          */
         BallerinaASTFactory.createFunctionInvocationStatement = function (args) {
             return new functionInvocation(args);
+        };
+
+        /**
+         * creates FunctionInvocationStatement
+         * @param args
+         * @returns {FunctionInvocation}
+         */
+        BallerinaASTFactory.createAggregatedFunctionInvocationStatement = function (args) {
+            var funcInvocationStatement = new functionInvocation(args);
+            var funcInvocationExpression = BallerinaASTFactory.createFunctionInvocationExpression(args);
+            funcInvocationStatement.addChild(funcInvocationExpression);
+            return funcInvocationStatement;
         };
 
         /**

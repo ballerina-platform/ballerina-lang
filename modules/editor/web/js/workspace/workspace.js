@@ -105,6 +105,13 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab/t
                 this._saveFileDialog.render();
             }
             this._saveFileDialog.show();
+            var activeTab = app.tabController.getActiveTab();
+            if(!_.isNil(activeTab) && _.isFunction(activeTab.getFile)){
+                var activeFile = activeTab.getFile();
+                if(activeFile.isPersisted()){
+                    this._saveFileDialog.setSelectedFile(activeFile.getPath(), activeFile.getName());
+                }
+            }
 
         };
 
@@ -206,10 +213,10 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab/t
         app.commandManager.registerHandler('redo', this.handleRedo);
 
         // Open file save dialog
-        app.commandManager.registerHandler('open-file-save-dialog', this.openFileSaveDialog);
+        app.commandManager.registerHandler('open-file-save-dialog', this.openFileSaveDialog, this);
 
         // Open file open dialog
-        app.commandManager.registerHandler('open-file-open-dialog', this.openFileOpenDialog);
+        app.commandManager.registerHandler('open-file-open-dialog', this.openFileOpenDialog, this);
 
         // Go to Welcome Page.
         app.commandManager.registerHandler('go-to-welcome-page', this.goToWelcomePage);

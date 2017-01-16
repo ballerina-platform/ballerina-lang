@@ -26,7 +26,7 @@ define(['lodash', './expression', './function-invocation'], function (_, Express
     var FunctionInvocationExpression = function (args) {
         Expression.call(this, 'FunctionInvocationExpression');
         this._functionName = _.get(args, 'functionName', 'newFunction');
-    }
+    };
 
     FunctionInvocationExpression.prototype = Object.create(Expression.prototype);
     FunctionInvocationExpression.prototype.constructor = FunctionInvocationExpression;
