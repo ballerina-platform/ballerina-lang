@@ -51,8 +51,12 @@ define(['jquery', 'backbone', 'lodash', 'tree_view', /** void module - jquery pl
             this.action = _.get(config, 'action');
         },
 
-        select: function(nodeID){
-            this._$parent_el.jstree(true).select_node({id: nodeID});
+        /**
+         * @param path a single path or an array of folder paths to select
+         */
+        select: function(path){
+            this._$parent_el.jstree(true).deselect_all();
+            this._$parent_el.jstree(true).select_node(path);
         },
 
         render: function () {
