@@ -34,8 +34,14 @@ define(([],function (){
                 command: {
                     id: "show-about-dialog",
                     shortcuts: {
-                        mac: "f1",
-                        other: "f1"
+                        mac: {
+                            key: "f1",
+                            label: "F1"
+                        },
+                        other: {
+                            key: "f1",
+                            label: "F1"
+                        }
                     }
                 }
             }

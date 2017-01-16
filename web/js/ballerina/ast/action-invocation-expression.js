@@ -25,7 +25,7 @@ define(['lodash', 'log', './action-invocation-statement'], function (_, log, Act
     var ActionInvocationExpression = function (args) {
         ActionInvocationStatement.call(this, args);
         this._variableAccessor = _.get(args, 'accessor', '');
-        this._actionName = _.get(args, 'actionName', '');
+        this._actionName = _.get(args, 'action', '');
         this._actionPackageName = _.get(args, 'actionPackageName', '');
         this._actionConnectorName = _.get(args, 'actionConnectorName', '');
         this._actionInvocationReference = _.get(args, 'actionInvocationReference', '');
