@@ -3,11 +3,11 @@ Ballerina is a new programming language for integration built on a sequence diag
 This command is mainly used to start the ballerina in server mode.
 
 Usage:
-    ballerinaserver.sh [option] command ballerina-file1 ballerina-file2 ...
+    ballerinaserver [option] command ballerina-file1 ballerina-file2 ...
 
 Examples:
-    ballerinaserver.sh passthrough.bal
-    ballerinaserver.sh passthrough.bal echo.bal
+    ballerinaserver passthrough.bal
+    ballerinaserver passthrough.bal echo.bal
 
 
 Available Commands

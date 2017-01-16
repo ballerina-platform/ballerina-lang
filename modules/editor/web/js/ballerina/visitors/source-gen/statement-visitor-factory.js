@@ -31,11 +31,15 @@ define(['lodash', 'log', 'event_channel', '../../ast/module',
 './arithmetic-expression-visitor',
 './return-statement-visitor',
 './function-invocation-visitor',
-'./function-invocation-expression-visitor', './assignment-visitor'],
+'./function-invocation-expression-visitor',
+'./assignment-visitor',
+'./left-operand-expression-visitor',
+'./right-operand-expression-visitor'],
 function (_, log, EventChannel, AST,
 TryCatchStatementVisitor, TryStatementVisitor, CatchStatementVisitor, IfElseStatementVisitor, IfStatementVisitor,
 ElseStatementVisitor, ElseIfStatementVisitor, WhileStatementVisitor, AssignmentStatementVisitor, ActionInvocationStatement,
-ReplyStatementVisitor,LogicalExpressionVisitor, ArithmeticExpression, ReturnStatementVisitor, FunctionInvocationVisitor, FunctionInvocationExpressionVisitor, AssignmentVisitor) {
+ReplyStatementVisitor,LogicalExpressionVisitor, ArithmeticExpression, ReturnStatementVisitor, FunctionInvocationVisitor, FunctionInvocationExpressionVisitor, AssignmentVisitor,
+LeftOperandExpressionVisitor, RightOperandExpressionVisitor) {
 
     var StatementVisitorFactor = function () {
     };
@@ -73,6 +77,10 @@ ReplyStatementVisitor,LogicalExpressionVisitor, ArithmeticExpression, ReturnStat
             return new FunctionInvocationExpressionVisitor(parent);
         } else if(statement instanceof AST.Assignment){
             return new AssignmentVisitor(parent);
+        } else if (statement instanceof AST.LeftOperandExpression) {
+            return new LeftOperandExpressionVisitor(parent);
+        } else if (statement instanceof AST.RightOperandExpression) {
+            return new RightOperandExpressionVisitor(parent);
         }
     };
 

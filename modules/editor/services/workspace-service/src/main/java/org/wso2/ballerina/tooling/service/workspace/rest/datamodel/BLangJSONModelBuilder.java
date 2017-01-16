@@ -289,7 +289,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     public void visit(BallerinaFunction function) {
         JsonObject jsonFunc = new JsonObject();
         jsonFunc.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.FUNCTION_DEFINITION);
-        jsonFunc.addProperty(BLangJSONModelConstants.FUNCTIONS_NAME, function.getName());
+        jsonFunc.addProperty(BLangJSONModelConstants.FUNCTIONS_NAME, function.getFunctionName());
         jsonFunc.addProperty(BLangJSONModelConstants.IS_PUBLIC_FUNCTION, function.isPublic());
         this.tempJsonArrayRef.push(new JsonArray());
         this.tempJsonArrayRef.push(new JsonArray());

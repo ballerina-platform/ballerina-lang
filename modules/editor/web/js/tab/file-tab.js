@@ -83,7 +83,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             this._fileEditor = fileEditor;
             fileEditor.render(diagramRenderingContext);
 
-            fileEditor.on("content-modified", function(){
+            fileEditor.on("content-modified redraw", function(){
                 this.trigger("tab-content-modified");
                 var updatedContent = this.getBallerinaFileEditor().generateSource();
                 this._file.setContent(updatedContent);

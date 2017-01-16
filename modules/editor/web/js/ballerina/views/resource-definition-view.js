@@ -845,8 +845,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                     propertyType: "text",
                     key: "Name",
                     model: connectorDeclarationView._model,
-                    getterMethod: connectorDeclarationView._model.getConnectorName,
-                    setterMethod: connectorDeclarationView._model.setConnectorName
+                    getterMethod: connectorDeclarationView._model.getConnectorVariable,
+                    setterMethod: connectorDeclarationView._model.setConnectorVariable
                 },
                 {
                     propertyType: "text",

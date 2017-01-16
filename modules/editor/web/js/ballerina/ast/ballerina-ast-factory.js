@@ -236,13 +236,8 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          * creates FunctionInvocationStatement
          * @param args
          */
-        BallerinaASTFactory.createFunctionInvocationStatement = function (args, withChild) {
-            var funcInvocationStatement = new functionInvocation(args);
-            // TODO: Fix this check properly
-            if (withChild) {
-                funcInvocationStatement.addChild(new functionInvocationExpression(args));
-            }
-            return funcInvocationStatement;
+        BallerinaASTFactory.createFunctionInvocationStatement = function (args) {
+            return new functionInvocation(args);
         };
 
         /**
@@ -795,6 +790,15 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
             return child instanceof functionInvocationExpression;
         };
 
+        /**
+         * instanceof check for functionInvocationStatement
+         * @param {ASTNode} child - The ast node.
+         * @returns {boolean} - true if same type, else false
+         */
+        BallerinaASTFactory.isFunctionInvocationStatement = function (child) {
+            return child instanceof functionInvocation;
+        };
+
         BallerinaASTFactory.createFromJson = function (jsonNode) {
             var node;
             var nodeType = jsonNode.type;
@@ -850,7 +854,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
                         node = BallerinaASTFactory.createFunctionInvocationStatement();
                         break;
                     case 'function_invocation_expression':
-                        node = BallerinaASTFactory.createAssignment();
+                        node = BallerinaASTFactory.createFunctionInvocationExpression();
                         break;
                     case 'variable_reference_expression':
                         node = BallerinaASTFactory.createAssignment();
@@ -862,13 +866,13 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
                         node = BallerinaASTFactory.createAssignmentStatement();
                         break;
                     case 'back_quote_expression':
-                        node = BallerinaASTFactory.createAssignment();
+                        node = BallerinaASTFactory.createBackQuoteExpression();
                         break;
                     case 'while_statement' :
                         node = BallerinaASTFactory.createWhileStatement();
                         break;
                     case 'basic_literal_expression' :
-                        node = BallerinaASTFactory.createAssignment();
+                        node = BallerinaASTFactory.createBasicLiteralExpression();
                         break;
                     case 'left_operand_expression':
                         node = BallerinaASTFactory.createLeftOperandExpression();
@@ -880,7 +884,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
                         node = BallerinaASTFactory.createIfElseStatement();
                         break;
                     case 'instance_creation_expression':
-                        node = BallerinaASTFactory.createAssignment();
+                        node = BallerinaASTFactory.createInstanceCreationExpression();
                         break;
                     case 'then_body':
                         node = BallerinaASTFactory.createThenBody();

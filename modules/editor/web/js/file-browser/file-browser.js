@@ -51,6 +51,10 @@ define(['jquery', 'backbone', 'lodash', 'tree_view', /** void module - jquery pl
             this.action = _.get(config, 'action');
         },
 
+        select: function(nodeID){
+            this._$parent_el.jstree(true).select_node({id: nodeID});
+        },
+
         render: function () {
             var self = this;
             var action = this.action;
@@ -79,6 +83,7 @@ define(['jquery', 'backbone', 'lodash', 'tree_view', /** void module - jquery pl
                         'multiple': false,
                         'check_callback': false,
                         'force_text': true,
+                        'expand_selected_onload': true,
                         'themes': {
                             'responsive': false,
                             'variant': 'small',
@@ -87,13 +92,13 @@ define(['jquery', 'backbone', 'lodash', 'tree_view', /** void module - jquery pl
                     },
                     'types': {
                         'default': {
-                            'icon': 'glyphicon glyphicon-folder-close'
+                            'icon': 'fw-right'
                         },
                         'folder': {
-                            'icon': 'glyphicon glyphicon-folder-close'
+                            'icon': 'fw fw-folder'
                         },
                         'file': {
-                            'icon': 'fw fw-folder'
+                            'icon': 'fw-document'
                         }
                     },
                     'plugins': ['types']
@@ -107,9 +112,11 @@ define(['jquery', 'backbone', 'lodash', 'tree_view', /** void module - jquery pl
                         self.trigger("selected", null);
                     }
                 }).on('open_node.jstree', function (e, data) {
-                    data.instance.set_icon(data.node, "glyphicon glyphicon-folder-open");
+                    data.instance.set_icon(data.node, "fw fw-folder");
                 }).on('close_node.jstree', function (e, data) {
-                    data.instance.set_icon(data.node, "glyphicon glyphicon-folder-close");
+                    data.instance.set_icon(data.node, "fw-right");
+                }).on('ready', function(){
+                    self.trigger("ready");
                 });
             return this;
         }

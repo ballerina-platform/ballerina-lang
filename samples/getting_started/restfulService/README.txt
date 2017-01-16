@@ -18,7 +18,7 @@ ToDo: Once we have the support for service and resource level annotations, this 
 
 How to run this sample
 ======================
-bin$ ./ballerinaserver.sh ../samples/restfulService/ecommerceService.bal
+bin$ ./ballerinaserver ../samples/restfulService/ecommerceService.bal
 
 This starts the EcommerceService as well as the other backend services required to run the sample.
 
