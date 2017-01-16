@@ -70,6 +70,10 @@ define(['lodash', './statement'], function(_, Statement){
                     var newParent = self.getFactory().createFunctionInvocationStatement();
                     newParent.addChild(child);
                     self.addChild(newParent);
+                    var funcInvocationExpDummy = self.getFactory().createFunctionInvocationExpression();
+                    var args = "";
+                    args += funcInvocationExpDummy._generateArgsString(childNode, args, ", ");
+                    self.setRightOperandExpressionString(childNode.function_name + "(" + args + ")") ;
                 } else {
                     self.addChild(child);
                 }
