@@ -631,19 +631,30 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitAssignmentStatement(BallerinaParser.AssignmentStatementContext ctx) {
-        if (ctx.exception == null) {
-            modelBuilder.createAssignmentExpr(getCurrentLocation(ctx));
+        if (ctx.exception != null) {
+            return;
         }
+
+        modelBuilder.createAssignmentStmt(getCurrentLocation(ctx));
     }
 
     @Override
     public void enterVariableReferenceList(BallerinaParser.VariableReferenceListContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
 
+        modelBuilder.startVarRefList();
     }
 
     @Override
     public void exitVariableReferenceList(BallerinaParser.VariableReferenceListContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
 
+        int noOfArguments = getNoOfArgumentsInList(ctx);
+        modelBuilder.endVarRefList(noOfArguments);
     }
 
     @Override
@@ -896,31 +907,12 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitExpressionList(BallerinaParser.ExpressionListContext ctx) {
-        // Here is the production for the argument list
-        // argumentList
-        //    :   '(' expressionList ')'
-        //    ;
-        //
-        // expressionList
-        //    :   expression (',' expression)*
-        //    ;
-
-        // Now we need to calculate the number of arguments in a function or an action.
-        // We can do the by getting the children of expressionList from the ctx
-        // The following count includes the token for the ","  as well.
-        int childCountExprList = ctx.getChildCount();
-
-        // Therefore we need to subtract the numer of ","
-        // e.g. (a, b)          => childCount = 3, noOfArguments = 2;
-        //      (a, b, c)       => childCount = 5, noOfArguments = 3;
-        //      (a, b, c, d)    => childCount = 7, noOfArguments = 4;
-        // Here childCount is always an odd number.
-        // noOfarguments = childCount mod 2 + 1
-
-        if (ctx.exception == null) {
-            int noOfArguments = childCountExprList / 2 + 1;
-            modelBuilder.endExprList(noOfArguments);
+        if (ctx.exception != null) {
+            return;
         }
+
+        int noOfArguments = getNoOfArgumentsInList(ctx);
+        modelBuilder.endExprList(noOfArguments);
     }
 
     @Override
@@ -998,9 +990,13 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitTypeInitializeExpression(BallerinaParser.TypeInitializeExpressionContext ctx) {
-        if (ctx.exception == null) {
-            modelBuilder.createInstanceCreaterExpr(ctx.Identifier().getText(), getCurrentLocation(ctx));
+        if (ctx.exception != null) {
+            return;
         }
+
+        boolean exprListAvailable = ctx.expressionList() != null;
+        modelBuilder.createInstanceCreaterExpr(ctx.Identifier().getText(), exprListAvailable,
+                getCurrentLocation(ctx));
     }
 
     @Override
@@ -1347,5 +1343,29 @@ public class BLangAntlr4Listener implements BallerinaListener {
         String fileName = ctx.getStart().getInputStream().getSourceName();
         int lineNo = ctx.getStart().getLine();
         return new Position(fileName, lineNo);
+    }
+
+    private int getNoOfArgumentsInList(ParserRuleContext ctx) {
+        // Here is the production for the argument list
+        // argumentList
+        //    :   '(' expressionList ')'
+        //    ;
+        //
+        // expressionList
+        //    :   expression (',' expression)*
+        //    ;
+
+        // Now we need to calculate the number of arguments in a function or an action.
+        // We can do the by getting the children of expressionList from the ctx
+        // The following count includes the token for the ","  as well.
+        int childCountExprList = ctx.getChildCount();
+
+        // Therefore we need to subtract the number of ","
+        // e.g. (a, b)          => childCount = 3, noOfArguments = 2;
+        //      (a, b, c)       => childCount = 5, noOfArguments = 3;
+        //      (a, b, c, d)    => childCount = 7, noOfArguments = 4;
+        // Here childCount is always an odd number.
+        // noOfArguments = childCount mod 2 + 1
+        return childCountExprList / 2 + 1;
     }
 }

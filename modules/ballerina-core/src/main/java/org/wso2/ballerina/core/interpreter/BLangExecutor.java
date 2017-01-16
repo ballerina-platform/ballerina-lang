@@ -36,6 +36,7 @@ import org.wso2.ballerina.core.model.expressions.ArrayMapAccessExpr;
 import org.wso2.ballerina.core.model.expressions.BacktickExpr;
 import org.wso2.ballerina.core.model.expressions.BasicLiteral;
 import org.wso2.ballerina.core.model.expressions.BinaryExpression;
+import org.wso2.ballerina.core.model.expressions.CallableUnitInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.Expression;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.InstanceCreationExpr;
@@ -108,51 +109,28 @@ public class BLangExecutor implements NodeExecutor {
     public void visit(AssignStmt assignStmt) {
         // TODO WARN: Implementation of this method is inefficient
         // TODO We are in the process of refactoring this method, please bear with us.
+        BValue[] rValues;
         Expression rExpr = assignStmt.getRExpr();
-        BValue rValue = rExpr.execute(this);
 
-        Expression lExpr = assignStmt.getLExpr();
-
-        if (lExpr instanceof VariableRefExpr) {
-
-            VariableRefExpr variableRefExpr = (VariableRefExpr) lExpr;
-            MemoryLocation memoryLocation = variableRefExpr.getMemoryLocation();
-            if (memoryLocation instanceof LocalVarLocation) {
-                int stackFrameOffset = ((LocalVarLocation) memoryLocation).getStackFrameOffset();
-                controlStack.setValue(stackFrameOffset, rValue);
-
-            } else if (memoryLocation instanceof ServiceVarLocation) {
-                int staticMemOffset = ((ServiceVarLocation) memoryLocation).getStaticMemAddrOffset();
-                runtimeEnv.getStaticMemory().setValue(staticMemOffset, rValue);
-
-            } else if (memoryLocation instanceof ConnectorVarLocation) {
-                // Fist the get the BConnector object. In an action invocation first argument is always the connector
-                BConnector bConnector = (BConnector) controlStack.getValue(0);
-                if (bConnector == null) {
-                    throw new BallerinaException("Connector argument value is null");
-                }
-
-                int connectorMemOffset = ((ConnectorVarLocation) memoryLocation).getConnectorMemAddrOffset();
-                bConnector.setValue(connectorMemOffset, rValue);
-            }
-
-        } else if (lExpr instanceof ArrayMapAccessExpr) {
-
-            ArrayMapAccessExpr accessExpr = (ArrayMapAccessExpr) lExpr;
-            if (!(accessExpr.getType() == BTypes.MAP_TYPE)) {
-                BArray arrayVal = (BArray) accessExpr.getRExpr().execute(this);
-                BInteger indexVal = (BInteger) accessExpr.getIndexExpr().execute(this);
-                arrayVal.add(indexVal.intValue(), rValue);
-
-            } else {
-                BMap<BString, BValue> mapVal = (BMap<BString, BValue>) accessExpr.getRExpr().execute(this);
-                BString indexVal = (BString) accessExpr.getIndexExpr().execute(this);
-                mapVal.put(indexVal, rValue);
-                // set the type of this expression here
-                // accessExpr.setType(rExpr.getType());
-            }
+        Expression[] lExprs = assignStmt.getLExprs();
+        if (lExprs.length > 1) {
+            // This statement contains multiple assignments
+            rValues = ((CallableUnitInvocationExpr) rExpr).executeMultiReturn(this);
+        } else {
+            rValues = new BValue[]{rExpr.execute(this)};
         }
 
+        for (int i = 0; i < lExprs.length; i++) {
+            Expression lExpr = lExprs[i];
+            BValue rValue = rValues[i];
+
+            if (lExpr instanceof VariableRefExpr) {
+                assignValueToVarRefExpr(rValue, (VariableRefExpr) lExpr);
+
+            } else if (lExpr instanceof ArrayMapAccessExpr) {
+                assignValueToArrayMapAccessExpr(rValue, (ArrayMapAccessExpr) lExpr);
+            }
+        }
     }
 
     @Override
@@ -230,7 +208,6 @@ public class BLangExecutor implements NodeExecutor {
             BValue returnVal = expr.execute(this);
             controlStack.setReturnValue(i, returnVal);
         }
-
     }
 
     @Override
@@ -628,5 +605,44 @@ public class BLangExecutor implements NodeExecutor {
             varString = varString + expression.execute(this).stringValue();
         }
         return varString;
+    }
+
+    private void assignValueToArrayMapAccessExpr(BValue rValue, ArrayMapAccessExpr lExpr) {
+        ArrayMapAccessExpr accessExpr = lExpr;
+        if (!(accessExpr.getType() == BTypes.MAP_TYPE)) {
+            BArray arrayVal = (BArray) accessExpr.getRExpr().execute(this);
+            BInteger indexVal = (BInteger) accessExpr.getIndexExpr().execute(this);
+            arrayVal.add(indexVal.intValue(), rValue);
+
+        } else {
+            BMap<BString, BValue> mapVal = (BMap<BString, BValue>) accessExpr.getRExpr().execute(this);
+            BString indexVal = (BString) accessExpr.getIndexExpr().execute(this);
+            mapVal.put(indexVal, rValue);
+            // set the type of this expression here
+            // accessExpr.setType(rExpr.getType());
+        }
+    }
+
+    private void assignValueToVarRefExpr(BValue rValue, VariableRefExpr lExpr) {
+        VariableRefExpr variableRefExpr = lExpr;
+        MemoryLocation memoryLocation = variableRefExpr.getMemoryLocation();
+        if (memoryLocation instanceof LocalVarLocation) {
+            int stackFrameOffset = ((LocalVarLocation) memoryLocation).getStackFrameOffset();
+            controlStack.setValue(stackFrameOffset, rValue);
+
+        } else if (memoryLocation instanceof ServiceVarLocation) {
+            int staticMemOffset = ((ServiceVarLocation) memoryLocation).getStaticMemAddrOffset();
+            runtimeEnv.getStaticMemory().setValue(staticMemOffset, rValue);
+
+        } else if (memoryLocation instanceof ConnectorVarLocation) {
+            // Fist the get the BConnector object. In an action invocation first argument is always the connector
+            BConnector bConnector = (BConnector) controlStack.getValue(0);
+            if (bConnector == null) {
+                throw new BallerinaException("Connector argument value is null");
+            }
+
+            int connectorMemOffset = ((ConnectorVarLocation) memoryLocation).getConnectorMemAddrOffset();
+            bConnector.setValue(connectorMemOffset, rValue);
+        }
     }
 }
