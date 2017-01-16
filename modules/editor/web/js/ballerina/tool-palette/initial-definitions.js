@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
-    function (log, $, BallerinaASTFactory, ToolGroup) {
+define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group', './../ast/defaults-added-ballerina-ast-factory'],
+    function (log, $, BallerinaASTFactory, ToolGroup, DefaultsAddedBallerinaASTFactory) {
 
         var initialToolGroups = [];
 
@@ -25,7 +25,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
             name: "Resource",
             icon: "images/tool-icons/resource.svg",
             title: "Resource",
-            nodeFactoryMethod: BallerinaASTFactory.createResourceDefinition
+            nodeFactoryMethod: DefaultsAddedBallerinaASTFactory.createResourceDefinition
         };
 
         var createServiceDefTool = {
@@ -33,7 +33,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
             name: "Service",
             icon: "images/tool-icons/service.svg",
             title: "Service",
-            nodeFactoryMethod: BallerinaASTFactory.createServiceDefinition
+            nodeFactoryMethod: DefaultsAddedBallerinaASTFactory.createServiceDefinition
         };
 
         var createFunctionDefTool = {
