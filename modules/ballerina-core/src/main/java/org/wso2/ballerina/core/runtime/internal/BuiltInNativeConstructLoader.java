@@ -115,6 +115,7 @@ import org.wso2.ballerina.core.nativeimpl.lang.string.Trim;
 import org.wso2.ballerina.core.nativeimpl.lang.string.Unescape;
 import org.wso2.ballerina.core.nativeimpl.lang.string.XmlValueOf;
 import org.wso2.ballerina.core.nativeimpl.lang.system.CurrentTimeMillis;
+import org.wso2.ballerina.core.nativeimpl.lang.system.DateFormat;
 import org.wso2.ballerina.core.nativeimpl.lang.system.EpochTime;
 import org.wso2.ballerina.core.nativeimpl.lang.system.LogBoolean;
 import org.wso2.ballerina.core.nativeimpl.lang.system.LogDouble;
@@ -145,7 +146,12 @@ import org.wso2.ballerina.core.nativeimpl.lang.xml.SetXML;
 import org.wso2.ballerina.core.nativeimpl.lang.xml.SetXMLWithNamespaces;
 import org.wso2.ballerina.core.nativeimpl.net.uri.Encode;
 import org.wso2.ballerina.core.nativeimpl.net.uri.GetQueryParam;
-
+import org.wso2.ballerina.core.nativeimpl.util.Base64Decode;
+import org.wso2.ballerina.core.nativeimpl.util.Base64Encode;
+import org.wso2.ballerina.core.nativeimpl.util.DigestMessage;
+import org.wso2.ballerina.core.nativeimpl.util.GetHmac;
+import org.wso2.ballerina.core.nativeimpl.util.GetHmacBase16;
+import org.wso2.ballerina.core.nativeimpl.util.GetRandomString;
 
 /**
  * {@code BuiltInNativeConstructLoader} is responsible for loading built-in native constructs in the ballerina core
@@ -265,6 +271,7 @@ public class BuiltInNativeConstructLoader {
 
         // lang.system
         registerFunction(scope, new CurrentTimeMillis());
+        registerFunction(scope, new DateFormat());
         registerFunction(scope, new EpochTime());
         registerFunction(scope, new LogBoolean());
         registerFunction(scope, new LogDouble());
@@ -316,6 +323,14 @@ public class BuiltInNativeConstructLoader {
         registerFunction(scope, new ConvertToResponse());
         registerFunction(scope, new GetMethod());
         registerFunction(scope, new AcceptAndReturn());
+
+        //util
+        registerFunction(scope, new Base64Decode());
+        registerFunction(scope, new Base64Encode());
+        registerFunction(scope, new DigestMessage());
+        registerFunction(scope, new GetHmac());
+        registerFunction(scope, new GetHmacBase16());
+        registerFunction(scope, new GetRandomString());
 
     }
 
