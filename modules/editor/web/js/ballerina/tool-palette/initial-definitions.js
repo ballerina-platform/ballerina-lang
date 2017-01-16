@@ -110,7 +110,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
             name: "FunctionInvocation",
             icon: "images/tool-icons/actioninvoke.svg",
             title: "FunctionInvocation",
-            nodeFactoryMethod: BallerinaASTFactory.createFunctionInvocationStatement
+            nodeFactoryMethod: BallerinaASTFactory.createAggregatedFunctionInvocationStatement
         };
 
         var createReplyStatementTool = {
