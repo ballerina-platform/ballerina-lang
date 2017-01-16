@@ -48,6 +48,8 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
             return this.canVisitConnectorDeclaration(node);
         } else if( node instanceof AST.Assignment){
             return this.canVisitAssignment(node);
+        } else if( node instanceof AST.FunctionInvocationExpression){
+            return this.canVisitFuncInvocationExpression(node);
         } else if( node instanceof AST.Expression){
             return this.canVisitExpression(node);
         } else if(node instanceof AST.VariableDeclaration){
@@ -79,6 +81,8 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
             return this.beginVisitConnectorDeclaration(node);
         } else if( node instanceof AST.Assignment){
             return this.beginVisitAssignment(node);
+        } else if(node instanceof AST.FunctionInvocationExpression){
+            return this.beginVisitFuncInvocationExpression(node);
         } else if (node instanceof AST.Expression) {
             return this.beginVisitExpression(node);
         } else if(node instanceof AST.VariableDeclaration){
@@ -110,6 +114,8 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
             return this.visitConnectorDeclaration(node);
         } else if( node instanceof AST.Assignment){
             return this.visitAssignment(node);
+        } else if(node instanceof  AST.FunctionInvocationExpression){
+            return this.visitFuncInvocationExpression(node);
         } else if(node instanceof AST.Expression){
             return this.visitExpression(node);
         } else if(node instanceof AST.VariableDeclaration){
@@ -142,6 +148,8 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
             return this.endVisitConnectorDeclaration(node);
         } else if( node instanceof AST.Assignment){
             return this.endVisitAssignment(node);
+        } else if(node instanceof AST.FunctionInvocationExpression){
+            return this.endVisitFuncInvocationExpression(node);
         } else if(node instanceof AST.Expression){
             return this.endVisitExpression(node);
         } else if(node instanceof AST.VariableDeclaration){
@@ -258,6 +266,33 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
     ASTVisitor.prototype.visitExpression = function(statement){
     };
     ASTVisitor.prototype.endVisitExpression = function(statement){
+    };
+
+    /**
+     *
+     * @param statement - statement which should be checked
+     * @returns {boolean}
+     */
+    ASTVisitor.prototype.canVisitFuncInvocationExpression = function(statement){
+        return false;
+    };
+    /**
+     *
+     * @param statement - statement to begin visitFuncInvocationExpression with
+     */
+    ASTVisitor.prototype.beginVisitFuncInvocationExpression = function(statement){
+    };
+    /**
+     *
+     * @param statement - statement to visit FuncInvocationExpression with
+     */
+    ASTVisitor.prototype.visitFuncInvocationExpression = function(statement){
+    };
+    /**
+     *
+     * @param statement - statement to end visitFuncInvocationExpression with
+     */
+    ASTVisitor.prototype.endVisitFuncInvocationExpression = function(statement){
     };
 
     ASTVisitor.prototype.canVisitConnectorDeclaration = function(connectorDeclaration){
