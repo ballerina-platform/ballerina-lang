@@ -40,6 +40,10 @@ define(['require', 'lodash','jquery', 'log', 'backbone', 'file_browser', 'baller
                 this._fileOpenModal.modal('show');
             },
 
+            select: function(path){
+                this._fileBrowser.select('path');
+            },
+
             render: function () {
                 //TODO : this render method should be rewritten with improved UI
                 var self = this;
@@ -128,6 +132,7 @@ define(['require', 'lodash','jquery', 'log', 'backbone', 'file_browser', 'baller
                 fileBrowser = new FileBrowser({container: treeContainer, application:app, action:'openFile'});
 
                 fileBrowser.render();
+                this._fileBrowser = fileBrowser;
 
                 //Gets the selected location from tree and sets the value as location
                 this.listenTo(fileBrowser, 'selected', function (selectedLocation) {
