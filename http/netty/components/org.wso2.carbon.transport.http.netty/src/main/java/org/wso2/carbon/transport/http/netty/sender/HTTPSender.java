@@ -35,7 +35,7 @@ import org.wso2.carbon.transport.http.netty.sender.channel.ChannelUtils;
 import org.wso2.carbon.transport.http.netty.sender.channel.TargetChannel;
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 
-import java.util.Iterator;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -46,34 +46,26 @@ import java.util.stream.Collectors;
 public class HTTPSender implements TransportSender {
 
     private static final Logger log = LoggerFactory.getLogger(HTTPSender.class);
-    private String id;
-    private SenderConfiguration defaultSenderConfiguration;
     private ConnectionManager connectionManager;
-    private Set<SenderConfiguration> senderConfiguration;
     private Map<String, SenderConfiguration> senderConfigurationMap;
-    private Set<TransportProperty> transportProperties;
 
     public HTTPSender(Set<SenderConfiguration> senderConfiguration, Set<TransportProperty> transportProperties) {
         if (senderConfiguration.isEmpty()) {
             log.error("Please specify at least one sender configuration");
             return;
         }
-        this.senderConfiguration = senderConfiguration;
-        this.transportProperties = transportProperties;
-        senderConfigurationMap = senderConfiguration.stream()
-                .collect(Collectors.toMap(SenderConfiguration::getId, config -> config));
-        Iterator itr = senderConfiguration.iterator();
-        if (itr.hasNext()) {
-            defaultSenderConfiguration = (SenderConfiguration) itr.next();
-            this.id = defaultSenderConfiguration.getId();
-        }
+        senderConfigurationMap = senderConfiguration.stream().collect(Collectors
+                .toMap(senderConf -> senderConf.getScheme().toLowerCase(Locale.getDefault()), config -> config));
 
-        BootstrapConfiguration.createBootStrapConfiguration(this.transportProperties);
-        this.connectionManager = ConnectionManager.getInstance(this.transportProperties);
+        BootstrapConfiguration.createBootStrapConfiguration(transportProperties);
+        this.connectionManager = ConnectionManager.getInstance(transportProperties);
     }
 
     @Override
     public boolean send(CarbonMessage msg, CarbonCallback callback) throws MessageProcessorException {
+        String protocol = (String) msg.getProperty(Constants.PROTOCOL);
+        SenderConfiguration defaultSenderConfiguration = senderConfigurationMap
+                .get(protocol.toLowerCase(Locale.getDefault()));
 
         final HttpRequest httpRequest = Util.createHttpRequest(msg);
 
@@ -126,7 +118,8 @@ public class HTTPSender implements TransportSender {
 
     @Override
     public String getId() {
-        return id;
+        //hardcoded because there is always one sender with set of configurations
+        return "http/s";
     }
 
 }
