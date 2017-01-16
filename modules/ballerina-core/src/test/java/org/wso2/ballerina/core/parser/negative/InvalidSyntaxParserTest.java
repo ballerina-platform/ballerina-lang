@@ -37,13 +37,13 @@ public class InvalidSyntaxParserTest {
     */
     
     @Test(expectedExceptions = {ParseCancellationException.class },
-            expectedExceptionsMessageRegExp = "SemicolonMissingService.bal:13:6: Missing ';' before 'reply'")
+            expectedExceptionsMessageRegExp = "SemicolonMissingService.bal:12:6: Invalid identifier 'int'")
     public void testParseSemicolonMissingSerivce() {
         getParserForFile("samples/parser/invalidSyntax/SemicolonMissingService.bal").compilationUnit();
     }
 
     @Test(expectedExceptions = {ParseCancellationException.class },
-            expectedExceptionsMessageRegExp = "SemicolonMissingMainFunc.bal:7:1: Missing ';' before 'reply'")
+            expectedExceptionsMessageRegExp = "SemicolonMissingMainFunc.bal:6:1: Invalid identifier 'int'")
     public void testParseSemicolonMissingMainFunc() {
         getParserForFile("samples/parser/invalidSyntax/SemicolonMissingMainFunc.bal").compilationUnit();
     }

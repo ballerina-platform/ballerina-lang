@@ -193,7 +193,7 @@ typeName
     ;
 
 qualifiedReference
-    :   packageName ':' Identifier
+    :   (packageName ':')? Identifier
     ;
 
 parameterList
@@ -382,7 +382,7 @@ functionName
     ;
 
 actionInvocation
-    :   packageName ':' Identifier '.' Identifier
+    :   (packageName ':')? Identifier '.' Identifier
     ;
 
 backtickString
