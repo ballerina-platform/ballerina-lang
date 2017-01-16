@@ -40,8 +40,9 @@ define(['lodash', 'backbone', 'log', 'mousetrap'], function (_, Backbone, log, M
                 log.debug("Command: " + cmd +
                     " is registered.");
                 // do shortcut key bindings
-                if(_.has(options, 'key')){
-                    var key = _.get(options, 'key');
+                if(_.has(options, 'shortcuts')){
+                    var shortcuts = _.get(options, 'shortcuts'),
+                        key = app.isRunningOnMacOS() ? shortcuts.mac : shortcuts.other;
                     Mousetrap.bind(key, function(e) {
                         commandBus.trigger(cmd);
                         e.preventDefault();
