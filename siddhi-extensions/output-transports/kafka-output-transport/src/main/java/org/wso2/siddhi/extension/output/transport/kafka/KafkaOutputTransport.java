@@ -61,6 +61,7 @@ public class KafkaOutputTransport extends OutputTransport {
     private ProducerConfig config;
     private Producer<String, Object> producer;
     private Map<String, String> options;
+    private String topic = null;
 
     @Override
     public void init(Transport transportOptions, Map<String, String> unmappedDynamicOptions) throws OutputTransportException {
@@ -121,17 +122,20 @@ public class KafkaOutputTransport extends OutputTransport {
         }
         config = new ProducerConfig(props);
         producer = new Producer<String, Object>(config);
+        topic = options.get(ADAPTOR_PUBLISH_TOPIC);
     }
 
     @Override
     public void publish(Object event, Map<String, String> dynamicOptions) throws ConnectionUnavailableException {
-        //By default auto.create.topics.enable is true, then no need to create topic explicitly
-        String topic = dynamicOptions.get(ADAPTOR_PUBLISH_TOPIC);
-        topic = "page_visits";
+        String topic;
+        if(this.topic == null) {
+            topic = dynamicOptions.get(ADAPTOR_PUBLISH_TOPIC);
+        } else {
+            topic = this.topic;
+        }
         try {
             threadPoolExecutor.submit(new KafkaSender(topic, event));
         } catch (RejectedExecutionException e) {
-//            EventAdapterUtil.logAndDrop(eventAdapterConfiguration.getName(), event, "Job queue is full", e, log, tenantId);
             log.error("Job queue is full : " + e.getMessage(), e);
         }
     }
@@ -179,7 +183,7 @@ public class KafkaOutputTransport extends OutputTransport {
                 KeyedMessage<String, Object> data = new KeyedMessage<String, Object>(topic, message.toString());
                 producer.send(data);
             } catch (Throwable e) {
-                log.error("Unexpected error when sending event via Kafka Output Adatper:" + e.getMessage(), e);
+                log.error("Unexpected error when sending event via Kafka Output Adapter:" + e.getMessage(), e);
             }
         }
     }

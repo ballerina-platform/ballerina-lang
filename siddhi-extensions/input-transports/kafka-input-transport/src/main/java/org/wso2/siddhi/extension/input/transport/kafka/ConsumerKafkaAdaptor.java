@@ -30,9 +30,6 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-/**
- * Created by ramindu on 1/11/17.
- */
 public class ConsumerKafkaAdaptor {
     private final ConsumerConnector consumer;
     private final String topic;
@@ -60,10 +57,8 @@ public class ConsumerKafkaAdaptor {
             topicCountMap.put(topic, numThreads);
             Map<String, List<KafkaStream<byte[], byte[]>>> consumerMap = consumer.createMessageStreams(topicCountMap);
             List<KafkaStream<byte[], byte[]>> streams = consumerMap.get(topic);
-
             // now launch all the threads
             executor = Executors.newFixedThreadPool(numThreads);
-
             // now create an object to consume the messages
             for (final KafkaStream stream : streams) {
                 executor.submit(new KafkaConsumer(stream, inputCallback));

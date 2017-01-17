@@ -44,7 +44,6 @@ public class KafkaConsumer implements Runnable {
                 if (log.isDebugEnabled()) {
                     log.debug("Event received in Kafka Event Adaptor - " + evento);
                 }
-                System.out.println("\n\n\n" +evento + "\n\n\n");
                 inputCallback.onEvent(evento);
             }
         } catch (Throwable t) {
