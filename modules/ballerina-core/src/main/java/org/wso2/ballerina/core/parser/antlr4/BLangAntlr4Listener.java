@@ -253,19 +253,23 @@ public class BLangAntlr4Listener implements BallerinaListener {
     }
 
     @Override
-    public void enterTypeDefinition(BallerinaParser.TypeDefinitionContext ctx) {
+    public void enterStructDefinition(BallerinaParser.StructDefinitionContext ctx) {
+
     }
 
     @Override
-    public void exitTypeDefinition(BallerinaParser.TypeDefinitionContext ctx) {
+    public void exitStructDefinition(BallerinaParser.StructDefinitionContext ctx) {
+
     }
 
     @Override
-    public void enterTypeDefinitionBody(BallerinaParser.TypeDefinitionBodyContext ctx) {
+    public void enterStructDefinitionBody(BallerinaParser.StructDefinitionBodyContext ctx) {
+
     }
 
     @Override
-    public void exitTypeDefinitionBody(BallerinaParser.TypeDefinitionBodyContext ctx) {
+    public void exitStructDefinitionBody(BallerinaParser.StructDefinitionBodyContext ctx) {
+
     }
 
     @Override
@@ -982,21 +986,6 @@ public class BLangAntlr4Listener implements BallerinaListener {
     }
 
     @Override
-    public void enterTypeInitializeExpression(BallerinaParser.TypeInitializeExpressionContext ctx) {
-    }
-
-    @Override
-    public void exitTypeInitializeExpression(BallerinaParser.TypeInitializeExpressionContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        boolean exprListAvailable = ctx.expressionList() != null;
-        modelBuilder.createInstanceCreaterExpr(ctx.Identifier().getText(), exprListAvailable,
-                getCurrentLocation(ctx));
-    }
-
-    @Override
     public void enterTemplateExpression(BallerinaParser.TemplateExpressionContext ctx) {
     }
 
@@ -1082,6 +1071,22 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitTypeCastingExpression(BallerinaParser.TypeCastingExpressionContext ctx) {
+    }
+
+    @Override
+    public void enterStructInitializeExpression(BallerinaParser.StructInitializeExpressionContext ctx) {
+
+    }
+
+    @Override
+    public void exitStructInitializeExpression(BallerinaParser.StructInitializeExpressionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        boolean exprListAvailable = ctx.expressionList() != null;
+        modelBuilder.createInstanceCreaterExpr(ctx.Identifier().getText(), exprListAvailable, getCurrentLocation(ctx));
+
     }
 
     @Override
