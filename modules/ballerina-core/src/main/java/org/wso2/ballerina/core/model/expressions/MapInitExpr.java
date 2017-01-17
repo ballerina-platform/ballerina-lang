@@ -32,7 +32,7 @@ import java.util.List;
  * <p>
  * Extends {@code NaryExpression} because can be considered as an operation with multiple arguments.
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class MapInitExpr extends NaryExpression {
 
@@ -52,7 +52,7 @@ public class MapInitExpr extends NaryExpression {
     /**
      * {@code MapInitExprBuilder} represents a map initializer expression builder
      *
-     * @since 1.0.0
+     * @since 0.8.0
      */
     public static class MapInitExprBuilder {
         List<KeyValueExpression> argList = new ArrayList<>();

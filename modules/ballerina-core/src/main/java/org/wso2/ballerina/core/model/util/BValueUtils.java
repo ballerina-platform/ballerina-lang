@@ -25,7 +25,7 @@ import org.wso2.ballerina.core.model.values.BValue;
 /**
  * BValue utility methods
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class BValueUtils {
 
