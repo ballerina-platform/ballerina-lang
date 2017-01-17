@@ -34,17 +34,47 @@ define(['log', 'jquery', 'lodash', './tab-list', './file-tab',  'workspace'],
             this._workingFileSet = [];
             var self = this;
             if(!_.isNil(lastWorkedFiles)){
-                lastWorkedFiles.forEach(function(fileData){
-                    var file = new Workspace.File(fileData);
-                    self._workingFileSet.push(file);
+                lastWorkedFiles.forEach(function(fileID){
+                    self._workingFileSet.push(fileID);
                 });
             }
+            var commandManager = _.get(this, 'options.application.commandManager');
+            var optionsNextTab = {
+                shortcuts: {
+                    mac: {
+                        key: "command+right",
+                        label: "\u2318\u2192"
+                    },
+                    other: {
+                        key: "ctrl+right",
+                        label: "Ctrl+Right"
+                    }
+                }
+            };
+            commandManager.registerCommand("next-tab", optionsNextTab);
+            commandManager.registerHandler("next-tab", this.goToNextTab, this);
+            var optionsPrevTab = {
+                shortcuts: {
+                    mac: {
+                        key: "command+left",
+                        label: "\u2318\u2190"
+                    },
+                    other: {
+                        key: "ctrl+left",
+                        label: "Ctrl+Left"
+                    }
+                }
+            };
+            commandManager.registerCommand("previous-tab", optionsPrevTab);
+            commandManager.registerHandler("previous-tab", this.goToPreviousTab, this);
         },
         render: function() {
             TabList.prototype.render.call(this);
             if(!_.isEmpty(this._workingFileSet)){
                 var self = this;
-                this._workingFileSet.forEach(function(file){
+                this._workingFileSet.forEach(function(fileID){
+                    var fileData = self.getBrowserStorage().get(fileID);
+                    var file = new Workspace.File(fileData, {storage:self.getBrowserStorage()});
                     self.newTab(_.set({}, 'tabOptions.file', file));
                 });
             }
@@ -60,30 +90,40 @@ define(['log', 'jquery', 'lodash', './tab-list', './file-tab',  'workspace'],
         addTab: function(tab) {
             TabList.prototype.addTab.call(this, tab);
             // avoid re-addition of init time files
-            if(tab instanceof ServiceTab && !_.includes(this._workingFileSet, tab.getFile())){
-                this._workingFileSet.push(tab.getFile());
+            if(tab instanceof ServiceTab && !_.includes(this._workingFileSet, tab.getFile().id)){
+                tab.getFile().save();
+                this._workingFileSet.push(tab.getFile().id);
                 this.getBrowserStorage().put('workingFileSet', this._workingFileSet);
             }
+            var app = _.get(this, 'options.application'),
+                workspaceManager = app.workspaceManager;
             tab.on("tab-content-modified", function(){
                 if (tab.isActive()) {
-                    var app = _.get(this, 'options.application'),
-                        workspaceManager = app.workspaceManager;
                     workspaceManager.updateUndoRedoMenus();
                 }
-            }, this)
+            }, this);
         },
         removeTab: function (tab) {
             TabList.prototype.removeTab.call(this, tab);
             if(tab instanceof ServiceTab){
-                _.remove(this._workingFileSet, tab.getFile());
-                if(tab.getFile().get('isTemp')){
-                    this.getBrowserStorage().destroy(tab.getFile());
-                }
+                _.remove(this._workingFileSet, function(fileID){
+                    return _.isEqual(fileID, tab.getFile().id);
+                });
+                this.getBrowserStorage().destroy(tab.getFile());
                 this.getBrowserStorage().put('workingFileSet', this._workingFileSet);
+                // open welcome page upon last tab close
+                if(_.isEmpty(this.getTabList())){
+                    var commandManager = _.get(this, 'options.application.commandManager');
+                    commandManager.dispatch("go-to-welcome-page");
+                }
             }
         },
         newTab: function(opts) {
             var options = opts || {};
+            if(_.has(options, 'tabOptions.file')){
+                var file = _.get(options, 'tabOptions.file');
+                file.setStorage(this.getBrowserStorage());
+            }
             return TabList.prototype.newTab.call(this, options);
         },
         getBrowserStorage: function(){
@@ -91,6 +131,33 @@ define(['log', 'jquery', 'lodash', './tab-list', './file-tab',  'workspace'],
         },
         hasFilesInWorkingSet: function(){
             return !_.isEmpty(this._workingFileSet);
+        },
+        goToNextTab: function(){
+            if(!_.isEmpty(this._tabs)){
+                var nextTabIndex = 0,
+                    currentActiveIndex = _.findIndex(this._tabs, this.activeTab);
+                if(currentActiveIndex >= 0){
+                    if(currentActiveIndex < (this._tabs.length - 1)){
+                       nextTabIndex = currentActiveIndex + 1;
+                    }
+                }
+                var nextTab = _.nth(this._tabs, nextTabIndex);
+                this.setActiveTab(nextTab);
+            }
+        },
+
+        goToPreviousTab: function(){
+            if(!_.isEmpty(this._tabs)){
+                var currentActiveIndex = _.findIndex(this._tabs, this.activeTab),
+                    prevTabIndex = 0;
+                if(currentActiveIndex == 0){
+                    prevTabIndex = this._tabs.length - 1;
+                } else{
+                    prevTabIndex = currentActiveIndex - 1;
+                }
+                var previousTab = _.nth(this._tabs, prevTabIndex);
+                this.setActiveTab(previousTab);
+            }
         }
     });
 

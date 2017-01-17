@@ -51,6 +51,14 @@ define(['jquery', 'backbone', 'lodash', 'tree_view', /** void module - jquery pl
             this.action = _.get(config, 'action');
         },
 
+        /**
+         * @param path a single path or an array of folder paths to select
+         */
+        select: function(path){
+            this._$parent_el.jstree(true).deselect_all();
+            this._$parent_el.jstree(true).select_node(path);
+        },
+
         render: function () {
             var self = this;
             var action = this.action;
@@ -79,6 +87,7 @@ define(['jquery', 'backbone', 'lodash', 'tree_view', /** void module - jquery pl
                         'multiple': false,
                         'check_callback': false,
                         'force_text': true,
+                        'expand_selected_onload': true,
                         'themes': {
                             'responsive': false,
                             'variant': 'small',
@@ -87,13 +96,13 @@ define(['jquery', 'backbone', 'lodash', 'tree_view', /** void module - jquery pl
                     },
                     'types': {
                         'default': {
-                            'icon': 'glyphicon glyphicon-folder-close'
+                            'icon': 'fw fw-folder'
                         },
                         'folder': {
-                            'icon': 'glyphicon glyphicon-folder-close'
+                            'icon': 'fw fw-folder'
                         },
                         'file': {
-                            'icon': 'glyphicon glyphicon-file'
+                            'icon': 'fw-document'
                         }
                     },
                     'plugins': ['types']
@@ -107,9 +116,11 @@ define(['jquery', 'backbone', 'lodash', 'tree_view', /** void module - jquery pl
                         self.trigger("selected", null);
                     }
                 }).on('open_node.jstree', function (e, data) {
-                    data.instance.set_icon(data.node, "glyphicon glyphicon-folder-open");
+                    data.instance.set_icon(data.node, "fw fw-folder");
                 }).on('close_node.jstree', function (e, data) {
-                    data.instance.set_icon(data.node, "glyphicon glyphicon-folder-close");
+                    data.instance.set_icon(data.node, "fw fw-folder");
+                }).on('ready', function(){
+                    self.trigger("ready");
                 });
             return this;
         }

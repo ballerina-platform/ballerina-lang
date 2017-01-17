@@ -24,19 +24,55 @@ define(([],function (){
             {
                 id: "new",
                 label: "New",
-                action: "create-new-tab",
+                command: {
+                    id: "create-new-tab",
+                    shortcuts: {
+                        mac: {
+                            key: "command+ctrl+n",
+                            label: "\u2318\u2303N"
+                        },
+                        other: {
+                            key: "ctrl+alt+n",
+                            label: "Ctrl+Alt+N"
+                        }
+                    }
+                },
                 disabled: false
             },
             {
                 id: "open",
                 label: "Open",
-                action: "open-file-open-dialog",
+                command: {
+                    id: "open-file-open-dialog",
+                    shortcuts: {
+                        mac: {
+                            key: "command+o",
+                            label: "\u2318O"
+                        },
+                        other: {
+                            key: "ctrl+o",
+                            label: "Ctrl+O"
+                        }
+                    }
+                },
                 disabled: false
             },
             {
                 id: "save",
                 label: "Save",
-                action: "open-file-save-dialog",
+                command: {
+                    id: "open-file-save-dialog",
+                    shortcuts: {
+                        mac: {
+                            key: "command+s",
+                            label: "\u2318S"
+                        },
+                        other: {
+                            key: "ctrl+s",
+                            label: "Ctrl+S"
+                        }
+                    }
+                },
                 disabled: false
             }
 

@@ -23,7 +23,10 @@ function arrayArgTest(int[] arr) (int) {
 }
 
 function arrayIndexOutOfBoundTest() {
+    string name;
     string[] animals;
+
     animals = ["Lion", "Cat"];
-    return animals[5];
+    name = animals[5];
+    return;
 }

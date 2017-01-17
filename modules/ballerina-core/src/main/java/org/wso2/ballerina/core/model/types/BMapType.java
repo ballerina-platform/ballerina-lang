@@ -33,18 +33,6 @@ import org.wso2.ballerina.core.model.values.BValue;
  */
 public class BMapType extends BType {
 
-    private BType elementType;
-
-    /**
-     * Create a type from the given name
-     *
-     * @param typeName string name of the type
-     */
-    BMapType(String typeName, String elementType) {
-        super(typeName, BMap.class);
-        this.elementType = BTypes.getType(elementType);
-    }
-
     /**
      * Create a type from the given name
      *
@@ -54,21 +42,8 @@ public class BMapType extends BType {
         super(typeName, BMap.class);
     }
 
-    public BType getElementType() {
-        return elementType;
-    }
-
     @Override
     public <V extends BValue> V getDefaultValue() {
         return (V) new BMap<BString, V>();
-    }
-
-    public boolean equals(Object obj) {
-        if (obj instanceof BMapType) {
-            BMapType other = (BMapType) obj;
-            return this.elementType.equals(other.elementType);
-        }
-
-        return false;
     }
 }

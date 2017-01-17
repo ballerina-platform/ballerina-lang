@@ -26,7 +26,7 @@ import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.Position;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.VariableDcl;
-import org.wso2.ballerina.core.model.types.BType;
+import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.NativeConstruct;
@@ -50,14 +50,14 @@ public abstract class AbstractNativeAction implements Action, NativeConstruct {
     private SymbolName symbolName;
     private List<Annotation> annotations;
     private List<Parameter> parameters;
-    private List<BType> returnTypes;
+    private List<Parameter> returnParams;
     private List<Const> constants;
     private int stackFrameSize;
     private Position actionLocation;
 
     public AbstractNativeAction() {
         parameters = new ArrayList<>();
-        returnTypes = new ArrayList<>();
+        returnParams = new ArrayList<>();
         annotations = new ArrayList<>();
         constants = new ArrayList<>();
         buildModel();
@@ -88,7 +88,7 @@ public abstract class AbstractNativeAction implements Action, NativeConstruct {
                 });
         Arrays.stream(action.returnType()).forEach(returnType -> {
             try {
-                returnTypes.add(BTypes.getType(returnType.getName()));
+                returnParams.add(new Parameter(BTypes.getType(returnType.getName()), null));
             } catch (BallerinaException e) {
                 // TODO: Fix this when TypeC.getType method is improved.
                 log.error("Internal Error..! Error while processing ReturnTypes for Native ballerina" +
@@ -139,8 +139,8 @@ public abstract class AbstractNativeAction implements Action, NativeConstruct {
     }
 
     @Override
-    public BType[] getReturnTypes() {
-        return returnTypes.toArray(new BType[returnTypes.size()]);
+    public Parameter[] getReturnParameters() {
+        return returnParams.toArray(new Parameter[returnParams.size()]);
     }
 
     public int getStackFrameSize() {
@@ -183,11 +183,8 @@ public abstract class AbstractNativeAction implements Action, NativeConstruct {
         return actionLocation;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public void setLocation(Position location) {
-        this.actionLocation = location;
+    public BlockStmt getCallableUnitBody() {
+        return null;
     }
 }

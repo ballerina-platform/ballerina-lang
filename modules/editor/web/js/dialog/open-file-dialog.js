@@ -16,7 +16,9 @@
  * under the License.
  */
 
-define(['require', 'jquery', 'log', 'backbone', 'file_browser', 'ballerina', 'ballerina/diagram-render/diagram-render-context', 'ballerina/views/source-view'], function (require, $, log, Backbone, FileBrowser, Ballerina, DiagramRenderContext, SourceView) {
+define(['require', 'lodash','jquery', 'log', 'backbone', 'file_browser', 'ballerina', 'ballerina/diagram-render/diagram-render-context',
+        'ballerina/views/source-view', 'workspace/file'],
+    function (require, _, $, log, Backbone, FileBrowser, Ballerina, DiagramRenderContext, SourceView, File) {
     var OpenFileDialog = Backbone.View.extend(
         /** @lends SaveToFileDialog.prototype */
         {
@@ -34,8 +36,17 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser', 'ballerina', 'ba
                 this.ballerina_editor = _.get(options.config.tab_controller.tabs.tab, 'ballerina_editor');
             },
 
+            show: function(){
+                this._fileOpenModal.modal('show');
+            },
+
+            select: function(path){
+                this._fileBrowser.select('path');
+            },
+
             render: function () {
                 //TODO : this render method should be rewritten with improved UI
+                var self = this;
                 var fileBrowser;
                 var fileContent;
                 var app = this.app;
@@ -59,7 +70,7 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser', 'ballerina', 'ba
                     "<button type='button' class='close' data-dismiss='modal' aria-label='Close'>" +
                     "<span aria-hidden='true'>&times;</span>" +
                     "</button>" +
-                    "<h4 class='modal-title file-dialog-title'>Ballerina Service Open Wizard</h4>" +
+                    "<h4 class='modal-title file-dialog-title'>Ballerina File Open Wizard</h4>" +
                     "<hr class='style1'>"+
                     "</div>" +
                     "<div class='modal-body'>" +
@@ -121,6 +132,7 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser', 'ballerina', 'ba
                 fileBrowser = new FileBrowser({container: treeContainer, application:app, action:'openFile'});
 
                 fileBrowser.render();
+                this._fileBrowser = fileBrowser;
 
                 //Gets the selected location from tree and sets the value as location
                 this.listenTo(fileBrowser, 'selected', function (selectedLocation) {
@@ -146,7 +158,7 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser', 'ballerina', 'ba
 
                 $(this.dialog_container).append(fileOpen);
                 openFileWizardError.hide();
-                fileOpen.modal('show');
+                this._fileOpenModal = fileOpen;
 
                 function alertSuccess() {
                     $(notification_container).append(successNotification);
@@ -196,7 +208,6 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser', 'ballerina', 'ba
                     var saveServiceURL = workspaceServiceURL + "/read";
 
                     var path = defaultView.configLocation;
-
                     $.ajax({
                         url: saveServiceURL,
                         type: "POST",
@@ -205,7 +216,18 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser', 'ballerina', 'ba
                         async: false,
                         success: function (data, textStatus, xhr) {
                             if (xhr.status == 200) {
-                                openModel(data);
+                                var pathArray = _.split(path, self.app.getPathSeperator()),
+                                    fileName = _.last(pathArray),
+                                    folderPath = _.join(_.take(pathArray, pathArray.length -1), self.app.getPathSeperator());
+
+                                var file = new File({
+                                    name: fileName,
+                                    path: folderPath,
+                                    content: data.content,
+                                    isPersisted: true
+                                });
+                                app.commandManager.dispatch("create-new-tab", {tabOptions: {file: file}});
+                                alertSuccess();
                             } else {
                                 alertError();
                             }

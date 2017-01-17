@@ -21,7 +21,7 @@ function testSetStringPayload(message msg, string payload) (message){
     return msg;
 }
 
-function testGetStringPayload(message msg) (string){
+function testGetStringPayload(message msg) (message){
     ballerina.lang.message:getStringPayload(msg);
     return msg;
 }

@@ -1077,6 +1077,44 @@ button.variable-list {
     cursor: text;
 }
 
+.service-left-scroll {
+    cursor: pointer;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 50px;
+    background-color: #CCC;
+    opacity: 0.3;
+}
+
+.service-left-scroll:hover {
+    opacity: 0.5;
+}
+
+.service-left-scroll i {
+    font-size: 45px;
+    padding-left: 13px;
+}
+
+.service-right-scroll {
+    cursor: pointer;
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 50px;
+    background-color: #CCC;
+    opacity: 0.3;
+}
+
+.service-right-scroll:hover {
+    opacity: 0.5;
+}
+
+.service-right-scroll i {
+    font-size: 45px;
+    padding-left: 13px;
+}
+
 /** Service container related styles | -> End **/
 /*//////////////////////////////////////////////////*/
 
@@ -1084,6 +1122,13 @@ button.variable-list {
     text-transform: none;
     background: rgb(35, 35, 35);
 }
+#breadcrumb-container > ol > li.breadcrumb-item {
+    color: grey;
+}
+#breadcrumb-container > ol > li.breadcrumb-item.active {
+    color: white;
+}
+
 
 footer {
     min-height: 30px;
