@@ -20,7 +20,7 @@ package org.wso2.ballerina.test;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.wso2.ballerina.test.context.ServerInstance;
-import org.wso2.ballerina.test.listner.TestExecutionListener;
+import org.wso2.ballerina.test.listener.TestExecutionListener;
 
 /**
  * Parent test class of all integration test and this will provide basic functionality for integration
