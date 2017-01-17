@@ -37,7 +37,7 @@ public class ServerInstance implements Server {
     private static final Logger log = LoggerFactory.getLogger(ServerInstance.class);
     private String serverHome;
     private String serverDistribution;
-    private String[] serviceFiles;
+    private String[] args;
     private Process process;
     private ServerLogReader serverInfoLogReader;
     private ServerLogReader serverErrorLogReader;
@@ -59,11 +59,11 @@ public class ServerInstance implements Server {
             log.info("Server Home " + serverHome);
             configServer();
         }
-        if (serviceFiles == null | serviceFiles.length == 0) {
-            throw new IllegalArgumentException("No Service files are available to deploy.");
+        if (args == null | args.length == 0) {
+            throw new IllegalArgumentException("No Argument provided for server startup.");
         }
         log.info("Starting server..");
-        startProcess(serviceFiles);
+        startProcess(args);
         serverInfoLogReader = new ServerLogReader("inputStream", process.getInputStream());
         serverInfoLogReader.start();
         serverErrorLogReader = new ServerLogReader("errorStream", process.getErrorStream());
@@ -125,11 +125,11 @@ public class ServerInstance implements Server {
     }
 
     /**
-     * setting the list of service files to be deployed while server startup
-     * @param serviceFiles list of service files
+     * setting the list of command line argument while server startup
+     * @param args list of service files
      */
-    public void setServiceFiles(String[] serviceFiles) {
-        this.serviceFiles = serviceFiles;
+    public void setArguments(String[] args) {
+        this.args = args;
     }
 
     /**

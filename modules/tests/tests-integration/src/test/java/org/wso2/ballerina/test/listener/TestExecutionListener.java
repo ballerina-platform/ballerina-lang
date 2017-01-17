@@ -53,7 +53,7 @@ public class TestExecutionListener implements IExecutionListener {
                 String serviceSampleDir = this.getServerHome() + File.separator + Constant.SERVICE_SAMPLE_DIR;
                 //list of sample bal files to be deploy
                 String[] serviceFilesArr = listFiles(serviceSampleDir, new ArrayList<>());
-                setServiceFiles(serviceFilesArr);
+                setArguments(serviceFilesArr);
             }
         };
         try {
