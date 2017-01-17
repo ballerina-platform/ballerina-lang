@@ -23,7 +23,7 @@ import org.wso2.ballerina.core.model.NodeVisitor;
 /**
  * {@code TryCatchStmt} represents a try/catch statement
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class TryCatchStmt extends AbstractStatement {
     private Statement tryBlock;

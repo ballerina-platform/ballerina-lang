@@ -29,7 +29,7 @@ import static org.wso2.ballerina.core.model.Operator.LESS_THAN;
 /**
  * {@code LessThanExpression} represents a less than (<) expression in Ballerina
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class LessThanExpression extends BinaryCompareExpression {
 

@@ -37,7 +37,7 @@ import java.util.Arrays;
 /**
  * This contains test utils related to Ballerina function invocations
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class Functions {
 

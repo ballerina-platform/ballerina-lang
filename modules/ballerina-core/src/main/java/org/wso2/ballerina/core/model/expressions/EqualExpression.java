@@ -29,7 +29,7 @@ import static org.wso2.ballerina.core.model.Operator.EQUAL;
 /**
  * {@code EqualExpression} represents a equal expression(==) in Ballerina
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class EqualExpression extends BinaryEqualityExpression {
 
