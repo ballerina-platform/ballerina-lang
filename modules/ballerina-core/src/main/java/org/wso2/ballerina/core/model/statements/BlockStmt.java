@@ -26,7 +26,7 @@ import java.util.List;
 /**
  * A BlockStmt represents a list of statements between balanced braces.
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class BlockStmt extends AbstractStatement {
 
@@ -53,7 +53,7 @@ public class BlockStmt extends AbstractStatement {
     /**
      * Builds a {@code BlockStmt}
      *
-     * @since 1.0.0
+     * @since 0.8.0
      */
     public static class BlockStmtBuilder {
 

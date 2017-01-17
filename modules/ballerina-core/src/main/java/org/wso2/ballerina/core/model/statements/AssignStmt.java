@@ -24,7 +24,7 @@ import org.wso2.ballerina.core.model.expressions.Expression;
 /**
  * An {@code AssignStmt} represents an assignment.
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class AssignStmt extends AbstractStatement {
     private Expression[] lhsExprs;

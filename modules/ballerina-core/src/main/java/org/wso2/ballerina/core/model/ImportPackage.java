@@ -32,7 +32,7 @@ package org.wso2.ballerina.core.model;
  * Package path: ballerina.lang.system
  * Package name: system
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class ImportPackage implements Node {
 

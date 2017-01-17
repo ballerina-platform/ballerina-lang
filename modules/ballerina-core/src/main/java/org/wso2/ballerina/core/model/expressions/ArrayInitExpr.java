@@ -32,7 +32,7 @@ import java.util.List;
  * <p>
  * Extends {@code NaryExpression} because can be considered as an operation with multiple arguments.
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class ArrayInitExpr extends NaryExpression {
 
@@ -52,7 +52,7 @@ public class ArrayInitExpr extends NaryExpression {
     /**
      * {@code ArrayInitExprBuilder} represents an array initializer expression builder
      *
-     * @since 1.0.0
+     * @since 0.8.0
      */
     public static class ArrayInitExprBuilder {
         List<Expression> argList = new ArrayList<>();

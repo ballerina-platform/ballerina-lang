@@ -25,7 +25,7 @@ import org.wso2.ballerina.core.model.types.BType;
  * {@code Symbol} represents a data structure that simply defines the type of variables,
  * function invocation exprs etc
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class Symbol {
 
