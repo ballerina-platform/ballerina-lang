@@ -69,8 +69,7 @@ public class Utils {
                         socket.close();
                     }
                 } catch (IOException e) {
-                    log.error("Can not close the socket with is used to check the server status ",
-                              e);
+                    log.error("Can not close the socket with is used to check the server status ", e);
                 }
             }
         }
@@ -78,7 +77,31 @@ public class Utils {
     }
 
     /**
+     * wait until port is closed within given timeout value in mills
+     *
+     * @param port    - port number
+     * @param timeout - mat time to wait
+     */
+    public static void waitForPortToClosed(int port, int timeout) {
+        long time = System.currentTimeMillis() + timeout;
+        boolean portOpen = Utils.isPortOpen(port);
+        while (portOpen && System.currentTimeMillis() < time) {
+            // wait until server shutdown is completed
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException ignored) {
+                //ignore
+            }
+            portOpen = Utils.isPortOpen(port);
+        }
+        if (portOpen) {
+            throw new RuntimeException("Port not closed properly when stopping server");
+        }
+    }
+
+    /**
      * Check whether given port is in use or not
+     *
      * @param port - port number
      * @throws Exception if port is already in use
      */
@@ -124,8 +147,9 @@ public class Utils {
 
     /**
      * Unzip a zip file into a given location
+     *
      * @param sourceFilePath - zip file need to extract
-     * @param extractedDir - destination path given file to extract
+     * @param extractedDir   - destination path given file to extract
      * @throws IOException
      */
     public static void extractFile(String sourceFilePath, String extractedDir) throws IOException {

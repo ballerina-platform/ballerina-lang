@@ -97,6 +97,8 @@ public class ServerInstance implements Server {
             serverInfoLogReader.stop();
             serverErrorLogReader.stop();
             process = null;
+            //wait until port to close
+            Utils.waitForPortToClosed(Constant.DEFAULT_HTTP_PORT, 30000);
             log.info("Server Stopped Successfully");
         }
     }
