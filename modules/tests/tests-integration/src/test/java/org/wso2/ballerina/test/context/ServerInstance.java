@@ -43,9 +43,8 @@ public class ServerInstance implements Server {
     private ServerLogReader serverErrorLogReader;
     private boolean isServerRunning;
 
-    public ServerInstance(String serverDistributionPath, String[] serviceFiles) {
+    public ServerInstance(String serverDistributionPath) {
         this.serverDistribution = serverDistributionPath;
-        this.serviceFiles = serviceFiles;
     }
 
     /**
@@ -54,14 +53,14 @@ public class ServerInstance implements Server {
      */
     @Override
     public void start() throws Exception {
-        if (serviceFiles == null | serviceFiles.length == 0) {
-            throw new IllegalArgumentException("No Service files are available to deploy.");
-        }
         Utils.checkPortAvailability(Constant.DEFAULT_HTTP_PORT);
         if (serverHome == null) {
             serverHome = setUpServerHome(serverDistribution);
             log.info("Server Home " + serverHome);
             configServer();
+        }
+        if (serviceFiles == null | serviceFiles.length == 0) {
+            throw new IllegalArgumentException("No Service files are available to deploy.");
         }
         log.info("Starting server..");
         startProcess(serviceFiles);
@@ -121,6 +120,14 @@ public class ServerInstance implements Server {
     @Override
     public boolean isRunning() {
         return isServerRunning;
+    }
+
+    /**
+     * setting the list of service files to be deployed while server startup
+     * @param serviceFiles list of service files
+     */
+    public void setServiceFiles(String[] serviceFiles) {
+        this.serviceFiles = serviceFiles;
     }
 
     /**
@@ -201,7 +208,7 @@ public class ServerInstance implements Server {
             process = Runtime.getRuntime().exec(cmdArgs, null, commandDir);
 
         } else {
-            cmdArray = new String[]{"sh", "bin/" + scriptName + ".sh"};
+            cmdArray = new String[]{"sh", "bin/" + scriptName};
             String[] cmdArgs = Stream.concat(Arrays.stream(cmdArray), Arrays.stream(args))
                     .toArray(String[]::new);
             process = Runtime.getRuntime().exec(cmdArgs, null, commandDir);

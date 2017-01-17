@@ -26,31 +26,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 public class Utils {
 
     private static final Logger log = LoggerFactory.getLogger(Utils.class);
-
-    /**
-     * List the file in a given directory
-     * @param path of the directory
-     * @return String array of file absolute paths
-     */
-    public static String[] listFiles(String path) {
-        File folder = new File(path);
-        File[] listOfFiles = folder.listFiles();
-        List<String> list = new ArrayList<>();
-        for (int i = 0; i < listOfFiles.length; i++) {
-            if (listOfFiles[i].getPath().endsWith(Constant.SERVICE_FILE_EXTENSION)) {
-                list.add(listOfFiles[i].getAbsolutePath());
-            }
-        }
-        return list.toArray(new String[]{});
-    }
 
     /**
      * @param port    The port that needs to be checked

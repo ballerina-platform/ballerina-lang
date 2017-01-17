@@ -17,8 +17,6 @@
 */
 package org.wso2.ballerina.test.context;
 
-import java.io.File;
-
 public class Constant {
     //Name of the system property define the location of the service distribution
     public static final String SYSTEM_PROP_SERVER_ZIP = "server.zip";
@@ -32,8 +30,6 @@ public class Constant {
     public static final String SERVICE_FILE_EXTENSION = ".bal";
     //Default HTTP port of the server
     public static final int DEFAULT_HTTP_PORT = 9090;
-    //Service file location
-    //ToDO need to load all samples from target directory by extracting the distribution
-    public static final String SERVICE_RESOURCE_DIR = "src" + File.separator + "test" + File.separator +
-                               "resources" + File.separator + "service" + File.separator + "bal";
+    //Service samples file location
+    public static final String SERVICE_SAMPLE_DIR = "samples";
 }
