@@ -27,16 +27,30 @@ import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import java.util.Map;
 
 public class JSONOutputMapper extends OutputMapper {
-    StreamDefinition streamDefinition;
+    private StreamDefinition streamDefinition;
     public static final String EVENT_PARENT_TAG = "event";
     public static final String EVENT_ARBITRARY_DATA_MAP_TAG = "arbitraryDataMap";
     public static final String EVENT_ATTRIBUTE_SEPARATOR = ",";
 
+    /**
+     * Initialize the mapper and the mapping configurations.
+     *
+     * @param streamDefinition       The stream definition
+     * @param options                Additional mapping options
+     * @param unmappedDynamicOptions Unmapped dynamic options
+     */
     @Override
     public void init(StreamDefinition streamDefinition, Map<String, String> options, Map<String, String> unmappedDynamicOptions) {
         this.streamDefinition = streamDefinition;
     }
 
+    /**
+     * Convert the given {@link Event} to JSON string
+     *
+     * @param event          Event object
+     * @param dynamicOptions Dynamic options
+     * @return the constructed JSON string
+     */
     @Override
     public Object convertToTypedInputEvent(Event event, Map<String, String> dynamicOptions) {
         Object[] data = event.getData();
@@ -83,6 +97,14 @@ public class JSONOutputMapper extends OutputMapper {
         return eventText;
     }
 
+    /**
+     * Convert the given Event mapping to JSON string
+     *
+     * @param event            Event object
+     * @param mappedAttributes Event mapping string array
+     * @param dynamicOptions   Dynamic options
+     * @return the mapped JSON string
+     */
     @Override
     public Object convertToMappedInputEvent(Event event, String[] mappedAttributes, Map<String, String> dynamicOptions) {
         StringBuilder eventText = new StringBuilder();
