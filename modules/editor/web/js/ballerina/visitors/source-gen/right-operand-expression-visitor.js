@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require','lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor'],
-    function(require, _, log, EventChannel, AbstractStatementSourceGenVisitor) {
+define(['require','lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor', '../../ast/module'],
+    function(require, _, log, EventChannel, AbstractStatementSourceGenVisitor, AST) {
 
     var RightOperandExpressionVisitor = function(parent){
         AbstractStatementSourceGenVisitor.call(this,parent);
@@ -30,8 +30,11 @@ define(['require','lodash', 'log', 'event_channel', './abstract-statement-source
     };
 
     RightOperandExpressionVisitor.prototype.beginVisitRightOperandExpression = function(rightOperandExpression){
-        if (!_.isUndefined(rightOperandExpression.getBackQuoteEnclosedString())) {
-            this.appendSource(rightOperandExpression.getBackQuoteEnclosedString());
+        //FIXME: Need to refactor this if logic
+        if (!_.isUndefined(rightOperandExpression.getRightOperandExpressionString()) &&
+            (!_.isUndefined(rightOperandExpression.getChildren()) &&
+            !AST.BallerinaASTFactory.isFunctionInvocationStatement(rightOperandExpression.getChildren()[0]))) {
+            this.appendSource(rightOperandExpression.getRightOperandExpressionString());
         }
         log.debug('Begin Visit Right Operand Expression');
     };

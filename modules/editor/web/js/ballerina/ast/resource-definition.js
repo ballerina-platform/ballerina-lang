@@ -250,6 +250,34 @@ define(['lodash', 'require', 'log', './node'],
         this._annotations = jsonNode.annotations;
 
         var self = this;
+        _.each(this._annotations, function (annotation) {
+            if (annotation.annotation_name === "POST") {
+                self._annotations.push({
+                    key: "Method",
+                    value: "POST"
+                });
+            } else if (annotation.annotation_name === "GET") {
+                self._annotations.push({
+                    key: "Method",
+                    value: "GET"
+                });
+            } else if (annotation.annotation_name === "PUT") {
+                self._annotations.push({
+                    key: "Method",
+                    value: "PUT"
+                });
+            } else if (annotation.annotation_name === "DELETE") {
+                self._annotations.push({
+                    key: "Method",
+                    value: "DELETE"
+                });
+            } else if (annotation.annotation_name === "Path") {
+                self._annotations.push({
+                    key: "Path",
+                    value: annotation.annotation_value
+                });
+            }
+        });
 
         _.each(jsonNode.children, function (childNode) {
             var child = self.BallerinaASTFactory.createFromJson(childNode);
@@ -268,7 +296,10 @@ define(['lodash', 'require', 'log', './node'],
         var indexNew;
         var self = this;
         if (self.BallerinaASTFactory.isConnectorDeclaration(child)) {
-            indexNew = index;
+            indexNew = _.findLastIndex(this.getChildren(), function (node) {
+                self.BallerinaASTFactory.isConnectorDeclaration(node);
+            });
+            indexNew = (indexNew === -1) ? 0 : (indexNew + 1);
         } else if (this.BallerinaASTFactory.isWorkerDeclaration(child)) {
             var firstConnector = _.findIndex(this.getChildren(), function (node) {
                 self.BallerinaASTFactory.isConnectorDeclaration(node);

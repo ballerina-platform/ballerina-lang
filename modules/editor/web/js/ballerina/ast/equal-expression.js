@@ -25,7 +25,7 @@ define(['lodash', './expression'], function (_, Expression) {
      */
     var EqualExpression = function (args) {
         Expression.call(this, 'EqualExpression');
-    }
+    };
 
     EqualExpression.prototype = Object.create(Expression.prototype);
     EqualExpression.prototype.constructor = EqualExpression;
@@ -33,15 +33,40 @@ define(['lodash', './expression'], function (_, Expression) {
     /**
      * setting parameters from json
      * @param {Object} jsonNode to initialize from
-     * @param {Array} [jsonNode.children] - children array
      */
     EqualExpression.prototype.initFromJson = function (jsonNode) {
+        this.setExpression(this.generateEqualExpressionString(jsonNode));
+    };
+
+    /**
+     * Generates the equal expression as a string.
+     * @param {Object} jsonNode - A node explaining the structure of equal expression.
+     * @return {string} - Arguments as a string.
+     * @private
+     */
+    EqualExpression.prototype.generateEqualExpressionString = function (jsonNode) {
         var self = this;
-        _.each(jsonNode.children, function (childNode) {
-            var child = self.getFactory().createFromJson(childNode);
-            self.addChild(child);
-            child.initFromJson(childNode);
-        });
+        var equalString = "";
+
+        for (var itr = 0; itr < jsonNode.children.length; itr++) {
+            var childJsonNode = jsonNode.children[itr];
+            //TODO : Need to remove this if/else ladder by delegating expression string calculation to child classes
+            if (childJsonNode.type == "basic_literal_expression") {
+                if(childJsonNode.basic_literal_type == "string") {
+                    // Adding double quotes if it is a string.
+                    equalString += "\"" + childJsonNode.basic_literal_value + "\"";
+                } else {
+                    equalString += childJsonNode.basic_literal_value;
+                }
+            } else if (childJsonNode.type == "variable_reference_expression") {
+                equalString += childJsonNode.variable_reference_name;
+            }
+
+            if (itr !== jsonNode.children.length - 1) {
+                equalString += " == ";
+            }
+        }
+        return equalString;
     };
 
     return EqualExpression;

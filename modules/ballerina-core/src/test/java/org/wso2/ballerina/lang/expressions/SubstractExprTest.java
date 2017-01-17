@@ -38,4 +38,12 @@ public class SubstractExprTest {
     public void testAddIncompatibleTypes() {
         ParserUtils.parseBalFile("lang/expressions/substract-incompatible-types.bal");
     }
+    
+    @Test(description = "Test substracting values of unsupported types (json)",
+            expectedExceptions = {SemanticException.class },
+            expectedExceptionsMessageRegExp = "Subtract operation is not supported for type: json in " +
+            "substract-unsupported-types.bal:10")
+    public void testSubtractUnsupportedTypes() {
+        ParserUtils.parseBalFile("lang/expressions/substract-unsupported-types.bal");
+    }
 }

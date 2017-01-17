@@ -122,72 +122,72 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
 
                 var command = this._options.application.commandManager;
                 var browserStorage = this._options.application.browserStorage;
-                var echoSampleAST = this.generateEchoSampleAST();
-                var helloFunctionSampleAST = this.generateHelloFunctionSampleAST();
-                var passthroughSampleAST = this.generatePassthroughSampleAST();
-                var contentBasedRoutingSampleAST = this.generateContentBasedRoutingSampleAST();
+
+                var samples = _.get(this._options, "samples", []);
                 
                 var config;
                 var servicePreview;
 
-                // Rendering echo sample preview
-                config =
-                {
-                    "sampleName": "echo.bal",
-                    "parentContainer": "#innerSamples",
-                    "firstItem": true,
-                    "clickEventCallback": function () {
-                        command.dispatch("create-new-tab", {tabOptions:{astRoot:echoSampleAST}});
-                        browserStorage.put("pref:passedFirstLaunch", true);
-                    }
-                };
-                servicePreview = new Ballerina.views.ServicePreviewView(config);
-                servicePreview.render();
+                var self = this;
 
-                // Rendering hello function sample preview
-                config =
-                {
-                    "sampleName": "helloFunction.bal",
-                    "parentContainer": "#innerSamples",
-                    "clickEventCallback": function () {
-                        command.dispatch("create-new-tab", {tabOptions:{astRoot:helloFunctionSampleAST}});
-                        browserStorage.put("pref:passedFirstLaunch", true);
-                    }
-                };
-                servicePreview = new Ballerina.views.ServicePreviewView(config);
-                servicePreview.render();
-
-                // Rendering passthrough sample preview
-                config =
-                {
-                    "sampleName": "passthrough.bal",
-                    "parentContainer": "#innerSamples",
-                    "clickEventCallback": function () {
-                        command.dispatch("create-new-tab", {tabOptions:{astRoot:passthroughSampleAST}});
-                        browserStorage.put("pref:passedFirstLaunch", true);
-                    }
-                };
-                servicePreview = new Ballerina.views.ServicePreviewView(config);
-                servicePreview.render();
-
-                // Rendering CBR sample preview
-                config =
-                {
-                    "sampleName": "routingServices.bal",
-                    "parentContainer": "#innerSamples",
-                    "clickEventCallback": function () {
-                        command.dispatch("create-new-tab", {tabOptions:{astRoot:contentBasedRoutingSampleAST}});
-                        browserStorage.put("pref:passedFirstLaunch", true);
-                    }
-                };
-                servicePreview = new Ballerina.views.ServicePreviewView(config);
-                servicePreview.render();
+                for (var i = 0; i < samples.length; i++) {
+                    $.ajax({
+                        url: samples[i],
+                        type: "GET",
+                        async: false,
+                        success: function(fileContentAsString) {
+                            var content = {"content": fileContentAsString};
+                            var config =
+                                {
+                                    "sampleName": samples[i].replace(/^.*[\\\/]/, ''),
+                                    "parentContainer": "#innerSamples",
+                                    "firstItem": i === 0,
+                                    "clickEventCallback": function () {
+                                        var root = "";
+                                        $.ajax({
+                                            url: _.get(self._options.application, "config.services.parser.endpoint"),
+                                            type: "POST",
+                                            data: JSON.stringify(content),
+                                            contentType: "application/json; charset=utf-8",
+                                            async: false,
+                                            dataType: "json",
+                                            success: function (data, textStatus, xhr) {
+                                                if (xhr.status == 200) {
+                                                    var BallerinaASTDeserializer = Ballerina.ast.BallerinaASTDeserializer;
+                                                    root = BallerinaASTDeserializer.getASTModel(data);
+                                                } else {
+                                                    log.error("Error while parsing the source. " + JSON.stringify(xhr));
+                                                }
+                                            },
+                                            error: function (res, errorCode, error) {
+                                                log.error("Error while parsing the source. " + JSON.stringify(res));
+                                            }
+                                        });
+                                        command.dispatch("create-new-tab", {tabOptions: {astRoot: root}});
+                                        browserStorage.put("pref:passedFirstLaunch", true);
+                                    }
+                                };
+                            servicePreview = new Ballerina.views.ServicePreviewView(config);
+                            servicePreview.render();
+                        },
+                        error: function() {
+                            throw "Unable to read a sample file.";
+                        }
+                    });
+                }
 
                 var command = this._options.application.commandManager;
                 var browserStorage = this._options.application.browserStorage;
 
+                // When "new" is clicked, open up an empty workspace.
                 $(newButton).on('click', function () {
                     command.dispatch("create-new-tab");
+                    browserStorage.put("pref:passedFirstLaunch", true);
+                });
+
+                // Show the open file dialog when "open" is clicked.
+                $(openButton).click(function(){
+                    command.dispatch("open-file-open-dialog");
                     browserStorage.put("pref:passedFirstLaunch", true);
                 });
 
@@ -195,572 +195,7 @@ define(['require', 'log', 'jquery', 'backbone', 'command', 'ballerina'],
                 this._tab.on('removed', function(){
                     browserStorage.put("pref:passedFirstLaunch", true);
                 });
-            },
-
-            
-            generateEchoSampleAST : function () {
-                var BallerinaASTFactory = Ballerina.ast.BallerinaASTFactory;
-                var ballerinaAstRoot1 = BallerinaASTFactory.createBallerinaAstRoot();
-
-                //package definition
-                var packageDefinition = BallerinaASTFactory.createPackageDefinition();
-                packageDefinition.setPackageName("");
-                ballerinaAstRoot1.addChild(packageDefinition);
-                ballerinaAstRoot1.setPackageDefinition(packageDefinition);
-
-                //import declarations
-                var importDeclaration_langMessage = BallerinaASTFactory.createImportDeclaration();
-                importDeclaration_langMessage.setPackageName("ballerina.lang.message");
-                importDeclaration_langMessage.setParent(ballerinaAstRoot1);
-                var importDeclaration_netHttp = BallerinaASTFactory.createImportDeclaration();
-                importDeclaration_netHttp.setPackageName("ballerina.net.http");
-                importDeclaration_netHttp.setParent(ballerinaAstRoot1);
-                ballerinaAstRoot1.addImport(importDeclaration_netHttp);
-
-                //service definition
-                var serviceDefinition_passthroughService2 = BallerinaASTFactory.createServiceDefinition();
-                serviceDefinition_passthroughService2.setServiceName("EchoService");
-                serviceDefinition_passthroughService2.addAnnotation("BasePath", "/echo");
-                ballerinaAstRoot1.addChild(serviceDefinition_passthroughService2);
-                // Adding Resources
-                var resource_passthrough2 = BallerinaASTFactory.createResourceDefinition();
-                resource_passthrough2.setResourceName('echo');
-                resource_passthrough2.addAnnotation("Method", "POST");
-
-                var functionInvocation = BallerinaASTFactory.createFunctionInvocationStatement();
-                functionInvocation.setPackageName("http");
-                functionInvocation.setFunctionName("convertToResponse");
-                functionInvocation.setParams("m");
-                resource_passthrough2.addChild(functionInvocation);
-
-                //Adding reply statement
-                var statement_reply = BallerinaASTFactory.createReplyStatement();
-                statement_reply.setReplyMessage("m");
-                resource_passthrough2.addChild(statement_reply);
-
-                serviceDefinition_passthroughService2.addChild(resource_passthrough2);
-
-                return _.cloneDeep(ballerinaAstRoot1);
-            },
-
-            generateHelloFunctionSampleAST : function () {
-                var BallerinaASTFactory = Ballerina.ast.BallerinaASTFactory;
-                var ballerinaAstRoot1 = BallerinaASTFactory.createBallerinaAstRoot();
-
-                //package definition
-                var packageDefinition = BallerinaASTFactory.createPackageDefinition();
-                packageDefinition.setPackageName("");
-                ballerinaAstRoot1.addChild(packageDefinition);
-                ballerinaAstRoot1.setPackageDefinition(packageDefinition);
-
-                //import declarations
-                var importDeclaration_langSystem = BallerinaASTFactory.createImportDeclaration();
-                importDeclaration_langSystem.setPackageName("ballerina.lang.system");
-                importDeclaration_langSystem.setParent(ballerinaAstRoot1);
-                var importDeclaration_netHttp = BallerinaASTFactory.createImportDeclaration();
-                importDeclaration_netHttp.setPackageName("ballerina.net.http");
-                importDeclaration_netHttp.setParent(ballerinaAstRoot1);
-                ballerinaAstRoot1.addImport(importDeclaration_langSystem);
-                // ballerinaAstRoot1.addImport(importDeclaration_netHttp);
-
-                //function definition
-
-                var functionDefinition1 = BallerinaASTFactory.createFunctionDefinition();
-                functionDefinition1.setFunctionName("main");
-                functionDefinition1.addArgument("string[]", "args");
-                ballerinaAstRoot1.addChild(functionDefinition1);
-
-                var functionInvocation = BallerinaASTFactory.createFunctionInvocationStatement();
-                functionInvocation.setPackageName("system");
-                functionInvocation.setFunctionName("println");
-                functionInvocation.setParams('"Hello world"');
-                functionDefinition1.addChild(functionInvocation);
-
-                return _.cloneDeep(ballerinaAstRoot1);
-            },
-
-            generatePassthroughSampleAST : function () {
-                var BallerinaASTFactory = Ballerina.ast.BallerinaASTFactory;
-                var ballerinaAstRoot1 = BallerinaASTFactory.createBallerinaAstRoot();
-
-                //package definition
-                var packageDefinition = BallerinaASTFactory.createPackageDefinition();
-                packageDefinition.setPackageName("");
-                ballerinaAstRoot1.addChild(packageDefinition);
-                ballerinaAstRoot1.setPackageDefinition(packageDefinition);
-
-                //import declarations
-                var importDeclaration_langMessage = BallerinaASTFactory.createImportDeclaration();
-                importDeclaration_langMessage.setPackageName("ballerina.lang.message");
-                importDeclaration_langMessage.setParent(ballerinaAstRoot1);
-                var importDeclaration_netHttp = BallerinaASTFactory.createImportDeclaration();
-                importDeclaration_netHttp.setPackageName("ballerina.net.http");
-                importDeclaration_netHttp.setParent(ballerinaAstRoot1);
-                ballerinaAstRoot1.addImport(importDeclaration_langMessage);
-                ballerinaAstRoot1.addImport(importDeclaration_netHttp);
-
-                //service definition
-
-                //service definition
-                var serviceDefinition_passthroughService2 = BallerinaASTFactory.createServiceDefinition();
-                serviceDefinition_passthroughService2.setServiceName("passthroughService");
-                serviceDefinition_passthroughService2.addAnnotation("BasePath", "/passthrough");
-                ballerinaAstRoot1.addChild(serviceDefinition_passthroughService2);
-                // Adding Resources
-                var resource_passthrough2 = BallerinaASTFactory.createResourceDefinition();
-                resource_passthrough2.setResourceName('passthrough');
-                resource_passthrough2.addAnnotation("Method", "GET");
-
-                var connector_declaration = BallerinaASTFactory.createConnectorDeclaration();
-                connector_declaration.setConnectorName("nyseEP");
-                connector_declaration.setConnectorType("http:HTTPConnector");
-                connector_declaration.setUri("http://localhost:9090");
-                connector_declaration.setTimeout("100");
-                resource_passthrough2.addChild(connector_declaration);
-
-                var variable1 = BallerinaASTFactory.createVariableDeclaration();
-                variable1.setType('message');
-                variable1.setIdentifier('response');
-                resource_passthrough2.addChild(variable1);
-
-                var actionOpts = {connector:connector_declaration, isUserDropped:false};
-                var getActionStatement1 = BallerinaASTFactory.createActionInvocationExpression(actionOpts);
-                getActionStatement1.setConnector(connector_declaration);
-                getActionStatement1.setAction("get");
-                getActionStatement1.setVariableAccessor("response");
-                getActionStatement1.setMessage("m");
-                getActionStatement1.setPath("/nyseStock");
-                resource_passthrough2.addChild(getActionStatement1);
-
-                //Adding reply statement
-                var statement_reply = BallerinaASTFactory.createReplyStatement();
-                statement_reply.setReplyMessage("response");
-                resource_passthrough2.addChild(statement_reply);
-
-                serviceDefinition_passthroughService2.addChild(resource_passthrough2);
-
-                //service definition
-                var serviceDefinition_NYSEStockQuote = BallerinaASTFactory.createServiceDefinition();
-                serviceDefinition_NYSEStockQuote.setServiceName("nyseStockQuoteService");
-                serviceDefinition_NYSEStockQuote.addAnnotation("BasePath", "/nyseStock");
-                ballerinaAstRoot1.addChild(serviceDefinition_NYSEStockQuote);
-                // Adding Resources
-                var resource_stocks = BallerinaASTFactory.createResourceDefinition();
-                resource_stocks.setResourceName('stocks');
-                resource_stocks.addAnnotation("Method", "GET");
-
-                var variableResponse = BallerinaASTFactory.createVariableDeclaration();
-                variableResponse.setType('message');
-                variableResponse.setIdentifier('response');
-                resource_stocks.addChild(variableResponse);
-
-                var variablePayload = BallerinaASTFactory.createVariableDeclaration();
-                variablePayload.setType('json');
-                variablePayload.setIdentifier('payload');
-                resource_stocks.addChild(variablePayload);
-
-                var payloadAssignmentStatement = BallerinaASTFactory.createAssignment();
-                payloadAssignmentStatement.setExpression('payload = `{"exchange":"nyse", "name":"IBM", "value":"127.50"}`');
-                resource_stocks.addChild(payloadAssignmentStatement);
-
-                var functionInvocation = BallerinaASTFactory.createFunctionInvocationStatement();
-                functionInvocation.setPackageName("message");
-                functionInvocation.setFunctionName("setJsonPayload");
-                functionInvocation.setParams('response, payload');
-                resource_stocks.addChild(functionInvocation);
-
-                //Adding reply statement
-                var statement_reply = BallerinaASTFactory.createReplyStatement();
-                statement_reply.setReplyMessage("response");
-                resource_stocks.addChild(statement_reply);
-
-                serviceDefinition_NYSEStockQuote.addChild(resource_stocks);
-
-                return _.cloneDeep(ballerinaAstRoot1);
-            },
-
-            generateContentBasedRoutingSampleAST : function () {
-                var BallerinaASTFactory = Ballerina.ast.BallerinaASTFactory;
-                var ballerinaAstRoot1 = BallerinaASTFactory.createBallerinaAstRoot();
-
-                //package definition
-                var packageDefinition = BallerinaASTFactory.createPackageDefinition();
-                packageDefinition.setPackageName("");
-                ballerinaAstRoot1.addChild(packageDefinition);
-                ballerinaAstRoot1.setPackageDefinition(packageDefinition);
-
-                //import declarations
-                var importDeclaration_langMessage = BallerinaASTFactory.createImportDeclaration();
-                importDeclaration_langMessage.setPackageName("ballerina.lang.message");
-                importDeclaration_langMessage.setParent(ballerinaAstRoot1);
-
-                var importDeclaration_langJson = BallerinaASTFactory.createImportDeclaration();
-                importDeclaration_langJson.setPackageName("ballerina.lang.json");
-                importDeclaration_langJson.setParent(ballerinaAstRoot1);
-
-                var importDeclaration_netHttp = BallerinaASTFactory.createImportDeclaration();
-                importDeclaration_netHttp.setPackageName("ballerina.net.http");
-                importDeclaration_netHttp.setParent(ballerinaAstRoot1);
-
-                var importDeclaration_langSystem = BallerinaASTFactory.createImportDeclaration();
-                importDeclaration_langSystem.setPackageName("ballerina.lang.system");
-                importDeclaration_langSystem.setParent(ballerinaAstRoot1);
-
-                ballerinaAstRoot1.addImport(importDeclaration_netHttp);
-                ballerinaAstRoot1.addImport(importDeclaration_langJson);
-                ballerinaAstRoot1.addImport(importDeclaration_langMessage);
-                ballerinaAstRoot1.addImport(importDeclaration_langSystem);
-
-                //service definition
-                var serviceDefinition_passthroughService2 = BallerinaASTFactory.createServiceDefinition();
-                serviceDefinition_passthroughService2.setServiceName("contentBasedRouting");
-                serviceDefinition_passthroughService2.addAnnotation("BasePath", "/cbr");
-                ballerinaAstRoot1.addChild(serviceDefinition_passthroughService2);
-                // Adding Resources
-                var resource_passthrough2 = BallerinaASTFactory.createResourceDefinition();
-                resource_passthrough2.setResourceName('cbrResource');
-                resource_passthrough2.addAnnotation("Method", "POST");
-
-                var nyseEPConnectorDeclaration = BallerinaASTFactory.createConnectorDeclaration();
-                nyseEPConnectorDeclaration.setConnectorName("nyseEP");
-                nyseEPConnectorDeclaration.setConnectorType("http:HTTPConnector");
-                nyseEPConnectorDeclaration.setUri("http://localhost:9090/nyseStocks");
-                resource_passthrough2.addChild(nyseEPConnectorDeclaration);
-
-                var nasdaqEPConnectorDeclaration = BallerinaASTFactory.createConnectorDeclaration();
-                nasdaqEPConnectorDeclaration.setConnectorName("nasdaqEP");
-                nasdaqEPConnectorDeclaration.setConnectorType("http:HTTPConnector");
-                nasdaqEPConnectorDeclaration.setUri("http://localhost:9090/nasdaqStocks");
-                resource_passthrough2.addChild(nasdaqEPConnectorDeclaration);
-
-                var variable1 = BallerinaASTFactory.createVariableDeclaration();
-                variable1.setType('message');
-                variable1.setIdentifier('response');
-                resource_passthrough2.addChild(variable1);
-
-                var jsonMsgVariable = BallerinaASTFactory.createVariableDeclaration();
-                jsonMsgVariable.setType('json');
-                jsonMsgVariable.setIdentifier('jsonMsg');
-                resource_passthrough2.addChild(jsonMsgVariable);
-
-                var errorMsgVariable = BallerinaASTFactory.createVariableDeclaration();
-                errorMsgVariable.setType('json');
-                errorMsgVariable.setIdentifier('errorMsg');
-                //resource_passthrough2.addChild(errorMsgVariable);
-
-                var resultVariable = BallerinaASTFactory.createVariableDeclaration();
-                resultVariable.setType('string');
-                resultVariable.setIdentifier('result');
-                //resource_passthrough2.addChild(resultVariable);
-
-                var nameStringVariable = BallerinaASTFactory.createVariableDeclaration();
-                nameStringVariable.setType('string');
-                nameStringVariable.setIdentifier('nameString');
-                resource_passthrough2.addChild(nameStringVariable);
-
-                var nyseStringVariable = BallerinaASTFactory.createVariableDeclaration();
-                nyseStringVariable.setType('string');
-                nyseStringVariable.setIdentifier('nyseString');
-                resource_passthrough2.addChild(nyseStringVariable);
-
-                var requestVariable = BallerinaASTFactory.createVariableDeclaration();
-                requestVariable.setType('message');
-                requestVariable.setIdentifier('request');
-                //resource_passthrough2.addChild(requestVariable);
-
-                var requestJsonVariable = BallerinaASTFactory.createVariableDeclaration();
-                requestJsonVariable.setType('json');
-                requestJsonVariable.setIdentifier('requestJson');
-                //resource_passthrough2.addChild(requestJsonVariable);
-
-                var nyseStringAssignmentStatement = BallerinaASTFactory.createAssignment();
-                nyseStringAssignmentStatement.setExpression('nyseString = "nyse"');
-                resource_passthrough2.addChild(nyseStringAssignmentStatement);
-
-                var jsonMsgAssignmentStatement = BallerinaASTFactory.createAssignment();
-                jsonMsgAssignmentStatement.setExpression('jsonMsg = message:getJsonPayload(m)');
-                resource_passthrough2.addChild(jsonMsgAssignmentStatement);
-
-                var resultAssignmentStatement = BallerinaASTFactory.createAssignment();
-                resultAssignmentStatement.setExpression('nameString = json:getString(jsonMsg, "$.name")');
-                resource_passthrough2.addChild(resultAssignmentStatement);
-
-                var functionInvocation = BallerinaASTFactory.createFunctionInvocationStatement();
-                functionInvocation.setPackageName("system");
-                functionInvocation.setFunctionName("println");
-                functionInvocation.setParams('result');
-                //resource_passthrough2.addChild(functionInvocation);
-
-                var nameStringAssignmentStatement = BallerinaASTFactory.createAssignment();
-                nameStringAssignmentStatement.setExpression('nameString = json:getString(jsonMsg, "$.name")');
-                //resource_passthrough2.addChild(nameStringAssignmentStatement);
-
-                var printlnFunctionInvocation = BallerinaASTFactory.createFunctionInvocationStatement();
-                printlnFunctionInvocation.setPackageName("system");
-                printlnFunctionInvocation.setFunctionName("println");
-                printlnFunctionInvocation.setParams('nameString');
-                //resource_passthrough2.addChild(printlnFunctionInvocation);
-
-                var requestJsonAssignmentStatement = BallerinaASTFactory.createAssignment();
-                requestJsonAssignmentStatement.setExpression('requestJson = json:getJson(jsonMsg, "$")');
-                //resource_passthrough2.addChild(requestJsonAssignmentStatement);
-
-                var setJsonPayloadFunctionInvocation = BallerinaASTFactory.createFunctionInvocationStatement();
-                setJsonPayloadFunctionInvocation.setPackageName("message");
-                setJsonPayloadFunctionInvocation.setFunctionName("setJsonPayload");
-                setJsonPayloadFunctionInvocation.setParams('m, requestJson');
-                //resource_passthrough2.addChild(setJsonPayloadFunctionInvocation);
-
-                var ifelse1 = BallerinaASTFactory.createIfElseStatement();
-
-                var actionOpts = {connector:nyseEPConnectorDeclaration, isUserDropped:false};
-                var getActionStatement1 = BallerinaASTFactory.createActionInvocationExpression(actionOpts);
-                getActionStatement1.setConnector(nyseEPConnectorDeclaration);
-                getActionStatement1.setAction("post");
-                getActionStatement1.setVariableAccessor("response");
-                getActionStatement1.setMessage("m");
-                getActionStatement1.setPath("/");
-                ifelse1.getIfStatement().addChild(getActionStatement1);
-
-                ifelse1.getIfStatement().setCondition("nameString == nyseString");
-
-                var actionOpts = {connector:nasdaqEPConnectorDeclaration, isUserDropped:false};
-                var getActionStatement2 = BallerinaASTFactory.createActionInvocationExpression(actionOpts);
-                getActionStatement2.setConnector(nasdaqEPConnectorDeclaration);
-                getActionStatement2.setAction("post");
-                getActionStatement2.setVariableAccessor("response");
-                getActionStatement2.setMessage("m");
-                getActionStatement2.setPath("/");
-                ifelse1.getElseStatement().addChild(getActionStatement2);
-
-                resource_passthrough2.addChild(ifelse1);
-
-                //Adding reply statement
-                var statement_reply = BallerinaASTFactory.createReplyStatement();
-                statement_reply.setReplyMessage("response");
-                resource_passthrough2.addChild(statement_reply);
-
-                serviceDefinition_passthroughService2.addChild(resource_passthrough2);
-                
-                //service definition
-                var serviceDefinition_headerBasedRouting = BallerinaASTFactory.createServiceDefinition();
-                serviceDefinition_headerBasedRouting.setServiceName("headerBasedRouting");
-                serviceDefinition_headerBasedRouting.addAnnotation("BasePath", "/hbr");
-                ballerinaAstRoot1.addChild(serviceDefinition_headerBasedRouting);
-                // Adding Resources
-                var resource_passthrough2 = BallerinaASTFactory.createResourceDefinition();
-                resource_passthrough2.setResourceName('cbrResource');
-                resource_passthrough2.addAnnotation("Method", "GET");
-
-                var nyseEPConnectorDeclaration = BallerinaASTFactory.createConnectorDeclaration();
-                nyseEPConnectorDeclaration.setConnectorName("nyseEP");
-                nyseEPConnectorDeclaration.setConnectorType("http:HTTPConnector");
-                nyseEPConnectorDeclaration.setUri("http://localhost:9090/nyseStocks");
-                resource_passthrough2.addChild(nyseEPConnectorDeclaration);
-
-                var nasdaqEPConnectorDeclaration = BallerinaASTFactory.createConnectorDeclaration();
-                nasdaqEPConnectorDeclaration.setConnectorName("nasdaqEP");
-                nasdaqEPConnectorDeclaration.setConnectorType("http:HTTPConnector");
-                nasdaqEPConnectorDeclaration.setUri("http://localhost:9090/nasdaqStocks");
-                resource_passthrough2.addChild(nasdaqEPConnectorDeclaration);
-
-                var variable1 = BallerinaASTFactory.createVariableDeclaration();
-                variable1.setType('message');
-                variable1.setIdentifier('response');
-                resource_passthrough2.addChild(variable1);
-
-                var jsonMsgVariable = BallerinaASTFactory.createVariableDeclaration();
-                jsonMsgVariable.setType('json');
-                jsonMsgVariable.setIdentifier('jsonMsg');
-                //resource_passthrough2.addChild(jsonMsgVariable);
-
-                var errorMsgVariable = BallerinaASTFactory.createVariableDeclaration();
-                errorMsgVariable.setType('json');
-                errorMsgVariable.setIdentifier('errorMsg');
-                //resource_passthrough2.addChild(errorMsgVariable);
-
-                var resultVariable = BallerinaASTFactory.createVariableDeclaration();
-                resultVariable.setType('string');
-                resultVariable.setIdentifier('result');
-                //resource_passthrough2.addChild(resultVariable);
-
-                var nameStringVariable = BallerinaASTFactory.createVariableDeclaration();
-                nameStringVariable.setType('string');
-                nameStringVariable.setIdentifier('nameString');
-                resource_passthrough2.addChild(nameStringVariable);
-
-                var nyseStringVariable = BallerinaASTFactory.createVariableDeclaration();
-                nyseStringVariable.setType('string');
-                nyseStringVariable.setIdentifier('nyseString');
-                resource_passthrough2.addChild(nyseStringVariable);
-
-                var requestVariable = BallerinaASTFactory.createVariableDeclaration();
-                requestVariable.setType('message');
-                requestVariable.setIdentifier('request');
-                //resource_passthrough2.addChild(requestVariable);
-
-                var requestJsonVariable = BallerinaASTFactory.createVariableDeclaration();
-                requestJsonVariable.setType('json');
-                requestJsonVariable.setIdentifier('requestJson');
-                //resource_passthrough2.addChild(requestJsonVariable);
-
-                var nyseStringAssignmentStatement = BallerinaASTFactory.createAssignment();
-                nyseStringAssignmentStatement.setExpression('nyseString = "nyse"');
-                resource_passthrough2.addChild(nyseStringAssignmentStatement);
-
-                var jsonMsgAssignmentStatement = BallerinaASTFactory.createAssignment();
-                jsonMsgAssignmentStatement.setExpression('nameString = message:getHeader(m, "name")');
-                resource_passthrough2.addChild(jsonMsgAssignmentStatement);
-
-                var resultAssignmentStatement = BallerinaASTFactory.createAssignment();
-                resultAssignmentStatement.setExpression('nameString = json:getString(jsonMsg, "$.name")');
-                //resource_passthrough2.addChild(resultAssignmentStatement);
-
-                var functionInvocation = BallerinaASTFactory.createFunctionInvocationStatement();
-                functionInvocation.setPackageName("system");
-                functionInvocation.setFunctionName("println");
-                functionInvocation.setParams('result');
-                //resource_passthrough2.addChild(functionInvocation);
-
-                var nameStringAssignmentStatement = BallerinaASTFactory.createAssignment();
-                nameStringAssignmentStatement.setExpression('nameString = json:getString(jsonMsg, "$.name")');
-                //resource_passthrough2.addChild(nameStringAssignmentStatement);
-
-                var printlnFunctionInvocation = BallerinaASTFactory.createFunctionInvocationStatement();
-                printlnFunctionInvocation.setPackageName("system");
-                printlnFunctionInvocation.setFunctionName("println");
-                printlnFunctionInvocation.setParams('nameString');
-                //resource_passthrough2.addChild(printlnFunctionInvocation);
-
-                var requestJsonAssignmentStatement = BallerinaASTFactory.createAssignment();
-                requestJsonAssignmentStatement.setExpression('requestJson = json:getJson(jsonMsg, "$")');
-                //resource_passthrough2.addChild(requestJsonAssignmentStatement);
-
-                var setJsonPayloadFunctionInvocation = BallerinaASTFactory.createFunctionInvocationStatement();
-                setJsonPayloadFunctionInvocation.setPackageName("message");
-                setJsonPayloadFunctionInvocation.setFunctionName("setJsonPayload");
-                setJsonPayloadFunctionInvocation.setParams('m, requestJson');
-                //resource_passthrough2.addChild(setJsonPayloadFunctionInvocation);
-
-                var ifelse1 = BallerinaASTFactory.createIfElseStatement();
-
-                var actionOpts = {connector:nyseEPConnectorDeclaration, isUserDropped:false};
-                var getActionStatement1 = BallerinaASTFactory.createActionInvocationExpression(actionOpts);
-                getActionStatement1.setConnector(nyseEPConnectorDeclaration);
-                getActionStatement1.setAction("post");
-                getActionStatement1.setVariableAccessor("response");
-                getActionStatement1.setMessage("m");
-                getActionStatement1.setPath("/");
-                ifelse1.getIfStatement().addChild(getActionStatement1);
-
-                ifelse1.getIfStatement().setCondition("nameString == nyseString");
-
-                var actionOpts = {connector:nasdaqEPConnectorDeclaration, isUserDropped:false};
-                var getActionStatement2 = BallerinaASTFactory.createActionInvocationExpression(actionOpts);
-                getActionStatement2.setConnector(nasdaqEPConnectorDeclaration);
-                getActionStatement2.setAction("post");
-                getActionStatement2.setVariableAccessor("response");
-                getActionStatement2.setMessage("m");
-                getActionStatement2.setPath("/");
-                ifelse1.getElseStatement().addChild(getActionStatement2);
-
-                resource_passthrough2.addChild(ifelse1);
-
-                //Adding reply statement
-                var statement_reply = BallerinaASTFactory.createReplyStatement();
-                statement_reply.setReplyMessage("response");
-                resource_passthrough2.addChild(statement_reply);
-
-                serviceDefinition_headerBasedRouting.addChild(resource_passthrough2);
-
-                //service definition
-                var serviceDefinition_NYSEStockQuote = BallerinaASTFactory.createServiceDefinition();
-                serviceDefinition_NYSEStockQuote.setServiceName("nyseStockQuote");
-                serviceDefinition_NYSEStockQuote.addAnnotation("BasePath", "/nyseStocks");
-                ballerinaAstRoot1.addChild(serviceDefinition_NYSEStockQuote);
-                // Adding Resources
-                var resource_stocks = BallerinaASTFactory.createResourceDefinition();
-                resource_stocks.setResourceName('stocks');
-                resource_stocks.addAnnotation("Method", "POST");
-                //resource_stocks.addAnnotation("Path", "/*");
-
-                var variableResponse = BallerinaASTFactory.createVariableDeclaration();
-                variableResponse.setType('message');
-                variableResponse.setIdentifier('response');
-                resource_stocks.addChild(variableResponse);
-
-                var variablePayload = BallerinaASTFactory.createVariableDeclaration();
-                variablePayload.setType('json');
-                variablePayload.setIdentifier('payload');
-                resource_stocks.addChild(variablePayload);
-
-                var responseAssignmentStatement = BallerinaASTFactory.createAssignment();
-                responseAssignmentStatement.setExpression("response = new message");
-                //resource_stocks.addChild(responseAssignmentStatement);
-
-                var payloadAssignmentStatement = BallerinaASTFactory.createAssignment();
-                payloadAssignmentStatement.setExpression('payload = `{"exchange":"nyse", "name":"IBM", "value":"127.50"}`');
-                resource_stocks.addChild(payloadAssignmentStatement);
-
-                var functionInvocation = BallerinaASTFactory.createFunctionInvocationStatement();
-                functionInvocation.setPackageName("message");
-                functionInvocation.setFunctionName("setJsonPayload");
-                functionInvocation.setParams('response, payload');
-                resource_stocks.addChild(functionInvocation);
-
-                //Adding reply statement
-                var statement_reply = BallerinaASTFactory.createReplyStatement();
-                statement_reply.setReplyMessage("response");
-                resource_stocks.addChild(statement_reply);
-
-                serviceDefinition_NYSEStockQuote.addChild(resource_stocks);
-
-                //service definition
-                var serviceDefinition_NASDAQStockQuote = BallerinaASTFactory.createServiceDefinition();
-                serviceDefinition_NASDAQStockQuote.setServiceName("nasdaqStocksQuote");
-                serviceDefinition_NASDAQStockQuote.addAnnotation("BasePath", "/nasdaqStocks");
-                ballerinaAstRoot1.addChild(serviceDefinition_NASDAQStockQuote);
-                // Adding Resources
-                var resource_stocks = BallerinaASTFactory.createResourceDefinition();
-                resource_stocks.setResourceName('stocks');
-                resource_stocks.addAnnotation("Method", "POST");
-                //resource_stocks.addAnnotation("Path", "/*");
-
-                var variableResponse = BallerinaASTFactory.createVariableDeclaration();
-                variableResponse.setType('message');
-                variableResponse.setIdentifier('response');
-                resource_stocks.addChild(variableResponse);
-
-                var variablePayload = BallerinaASTFactory.createVariableDeclaration();
-                variablePayload.setType('json');
-                variablePayload.setIdentifier('payload');
-                resource_stocks.addChild(variablePayload);
-
-                var responseAssignmentStatement = BallerinaASTFactory.createAssignment();
-                responseAssignmentStatement.setExpression("response = new message");
-                //resource_stocks.addChild(responseAssignmentStatement);
-
-                var payloadAssignmentStatement = BallerinaASTFactory.createAssignment();
-                payloadAssignmentStatement.setExpression('payload = `{"exchange":"nasdaq", "name":"IBM", "value":"127.50"}`');
-                resource_stocks.addChild(payloadAssignmentStatement);
-
-                var functionInvocation = BallerinaASTFactory.createFunctionInvocationStatement();
-                functionInvocation.setPackageName("message");
-                functionInvocation.setFunctionName("setJsonPayload");
-                functionInvocation.setParams('response, payload');
-                resource_stocks.addChild(functionInvocation);
-
-                //Adding reply statement
-                var statement_reply = BallerinaASTFactory.createReplyStatement();
-                statement_reply.setReplyMessage("response");
-                resource_stocks.addChild(statement_reply);
-
-                serviceDefinition_NASDAQStockQuote.addChild(resource_stocks);
-
-                return _.cloneDeep(ballerinaAstRoot1);
-            },
-
-
+            }
         });
 
         return FirstLaunchWelcomePage;

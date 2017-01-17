@@ -36,6 +36,13 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
                 this._fileSaveModal.modal('show');
             },
 
+            setSelectedFile: function(path, fileName){
+                this._fileBrowser.select(path);
+                if(!_.isNil(this._configNameInput)){
+                    this._configNameInput.val(fileName);
+                }
+            },
+
             render: function () {
                 //TODO : this render method should be rewritten with improved UI
                 var fileBrowser;
@@ -50,7 +57,7 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
                     "<button type='button' class='close' data-dismiss='modal' aria-label='Close'>" +
                     "<span aria-hidden='true'>&times;</span>" +
                     "</button>" +
-                    "<h4 class='modal-title file-dialog-title' id='newConfigModalLabel'>Ballerina Service Save Wizard</h4>" +
+                    "<h4 class='modal-title file-dialog-title' id='newConfigModalLabel'>Ballerina File Save Wizard</h4>" +
                     "<hr class='style1'>"+
                     "</div>" +
                     "<div class='modal-body'>" +
@@ -119,6 +126,9 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
                 fileBrowser = new FileBrowser({container: treeContainer, application:app, action:'saveFile'});
 
                 fileBrowser.render();
+                this._fileBrowser = fileBrowser;
+                this._configNameInput = configName;
+
                 //Gets the selected location from tree and sets the value as location
                 this.listenTo(fileBrowser, 'selected', function (selectedLocation) {
                     if(selectedLocation){

@@ -38,8 +38,6 @@ connector TestConnector(string param1, string param2, int param3) {
         test:EchoConnector localEchoConnector = new test:EchoConnector(echoConnectorParam);
         string s;
 
-        system:println("hello");
-        system:println(echoConnectorParam);
         s =  test:EchoConnector.echoAction(localEchoConnector, actionParam);
         return s;
     }

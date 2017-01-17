@@ -46,5 +46,19 @@ function testArrayIndexToIntAssignStmt(int[] arr) (int) {
     return a;
 }
 
+function testMultiReturn() (int, string, int) {
+    int a;
+    string name;
+    int b;
+    message r;
+
+    a, name, b = testMultiReturnInternal();
+    return a, name, b;
+}
+
+function testMultiReturnInternal() (int, string, int) {
+    return 5, "john", 6;
+}
+
 
 
