@@ -103,4 +103,12 @@ public class ArrayAccessExprTest {
     public void testArrayAccessWithKey() {
         ParserUtils.parseBalFile("lang/expressions/incorrect-array-access.bal");
     }
+    
+    @Test(description = "Test access a primitive a an array",
+            expectedExceptions = {SemanticException.class },
+            expectedExceptionsMessageRegExp = "Attempt to index non-array, non-map variable: animal in " +
+            "access-primitive-as-array.bal:3")
+    public void testAccessPrimitiveAsArray() {
+        ParserUtils.parseBalFile("lang/expressions/access-primitive-as-array.bal");
+    }
 }

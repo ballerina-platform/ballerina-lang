@@ -179,7 +179,7 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
     public void visit(AssignStmt assignStmt) {
         StringBuffer buffer = new StringBuffer();
         bufferStack.push(buffer);
-        assignStmt.getLExpr().accept(this);
+        assignStmt.getLExprs()[0].accept(this);
         buffer.append(bufferStack.peek());
         bufferStack.pop();
         buffer.append(" = ");

@@ -417,7 +417,8 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                     currentASTRoot.getPackageDefinition().getPackageName() : "");
 
                 // Updating model along with text change on package text box.
-                packageTextBox.on("change keyup input", function () {
+                // @todo: need to bring the for loop out of the event.
+                packageTextBox.on("change", function () {
                     log.debug("Saving package name : " + $(packageTextBox).val());
 
                     //TODO - this for loop needs to be replaced to get the package definition
