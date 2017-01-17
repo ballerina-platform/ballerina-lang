@@ -4,7 +4,7 @@ function getString(xml msg, string xPath, map namespaces) (string) {
     return xml:getString(msg, xPath, namespaces);
 }
 
-function getXML(xml msg, string xPath, map namespaces) (string) {
+function getXML(xml msg, string xPath, map namespaces) (xml) {
     return xml:getXml(msg, xPath, namespaces);
 }
 
@@ -28,7 +28,7 @@ function addAttribute(xml msg, string xPath, string name, string value, map name
     return msg;
 }
 
-function remove(xml msg, string xPath, map namespaces) (string) {
+function remove(xml msg, string xPath, map namespaces) (xml) {
     xml:remove(msg, xPath, namespaces);
     return msg;
 }

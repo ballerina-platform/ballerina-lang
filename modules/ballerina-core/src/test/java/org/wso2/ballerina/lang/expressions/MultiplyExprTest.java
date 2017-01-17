@@ -101,9 +101,17 @@ public class MultiplyExprTest {
     
     @Test(description = "Test multiplying values of two types",
             expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "Incompatible types in binary expression: float vs int in " +
-                "multiply-incompatible-types.bal:5")
+            expectedExceptionsMessageRegExp = "multiply-incompatible-types.bal:5: incompatible " +
+                    "types in binary expression: float vs int")
     public void testAddIncompatibleTypes() {
         ParserUtils.parseBalFile("lang/expressions/multiply-incompatible-types.bal");
+    }
+    
+    @Test(description = "Test multiplying values of unsupported types (json)",
+            expectedExceptions = {SemanticException.class },
+            expectedExceptionsMessageRegExp = "Multiply operation is not supported for type: json in " +
+            "multiply-unsupported-types.bal:10")
+    public void testMultiplyUnsupportedTypes() {
+        ParserUtils.parseBalFile("lang/expressions/multiply-unsupported-types.bal");
     }
 }

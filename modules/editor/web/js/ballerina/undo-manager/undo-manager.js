@@ -37,6 +37,7 @@ define(['log', 'lodash', 'event_channel', './undoable-operation-factory'],
         UndoManager.prototype.reset = function(){
             this._undoStack = [];
             this._redoStack = [];
+            this.trigger('reset');
         };
 
         UndoManager.prototype._push = function(undoableOperation){

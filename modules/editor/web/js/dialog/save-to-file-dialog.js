@@ -32,6 +32,17 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
                 this.notification_container = _.get(options.config.tab_controller.tabs.tab.ballerina_editor.notifications, 'container');
             },
 
+            show: function(){
+                this._fileSaveModal.modal('show');
+            },
+
+            setSelectedFile: function(path, fileName){
+                this._fileBrowser.select(path);
+                if(!_.isNil(this._configNameInput)){
+                    this._configNameInput.val(fileName);
+                }
+            },
+
             render: function () {
                 //TODO : this render method should be rewritten with improved UI
                 var fileBrowser;
@@ -46,7 +57,7 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
                     "<button type='button' class='close' data-dismiss='modal' aria-label='Close'>" +
                     "<span aria-hidden='true'>&times;</span>" +
                     "</button>" +
-                    "<h4 class='modal-title file-dialog-title' id='newConfigModalLabel'>Ballerina Service Save Wizard</h4>" +
+                    "<h4 class='modal-title file-dialog-title' id='newConfigModalLabel'>Ballerina File Save Wizard</h4>" +
                     "<hr class='style1'>"+
                     "</div>" +
                     "<div class='modal-body'>" +
@@ -115,6 +126,8 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
                 fileBrowser = new FileBrowser({container: treeContainer, application:app, action:'saveFile'});
 
                 fileBrowser.render();
+                this._fileBrowser = fileBrowser;
+                this._configNameInput = configName;
 
                 //Gets the selected location from tree and sets the value as location
                 this.listenTo(fileBrowser, 'selected', function (selectedLocation) {
@@ -141,10 +154,9 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
                     saveConfiguration({location: location, configName:configName});
                 });
 
-
                 $(this.dialog_container).append(fileSave);
                 newWizardError.hide();
-                fileSave.modal('show');
+                this._fileSaveModal = fileSave;
 
                 function alertSuccess(){
                     $(notification_container).append(successNotification);
@@ -177,7 +189,12 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
                         success: function (data, textStatus, xhr) {
                             if (xhr.status == 200) {
                                 activeTab.setTitle(configName.val());
-                                activeTab.getFile().setPath(location.val()).setName(configName.val());
+                                activeTab.getFile()
+                                            .setPath(location.val())
+                                            .setName(configName.val())
+                                            .setContent(config)
+                                            .setPersisted(true)
+                                            .save();
                                 app.breadcrumbController.setPath(location.val(), configName.val());
                                 alertSuccess();
                             } else {

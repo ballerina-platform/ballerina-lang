@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.ballerina.core.model.invokers;
+package org.wso2.ballerina.core.model.expressions;
 
 import org.wso2.ballerina.core.model.ExecutableMultiReturnExpr;
 import org.wso2.ballerina.core.model.Node;
@@ -32,7 +32,7 @@ import org.wso2.ballerina.core.model.values.BValue;
  */
 public class ResourceInvocationExpr implements Node, ExecutableMultiReturnExpr {
 
-    Resource resource;
+    private Resource resource;
 
     public ResourceInvocationExpr(Resource resource) {
         this.resource = resource;

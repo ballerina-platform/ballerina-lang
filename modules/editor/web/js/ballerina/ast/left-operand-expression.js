@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './node'], function(_, ASTNode){
+define(['lodash', './statement'], function(_, Statement){
 
     /**
      * Constructor for LeftOperandExpression
@@ -23,23 +23,44 @@ define(['lodash', './node'], function(_, ASTNode){
      * @constructor
      */
     var LeftOperandExpression = function (args) {
-        ASTNode.call(this, 'LeftOperandExpression');
-    }
+        Statement.call(this, 'LeftOperandExpression');
+        this.variable_reference_name = _.get(args, "variableReferenceName", "var1");
+    };
 
-    LeftOperandExpression.prototype = Object.create(ASTNode.prototype);
+    LeftOperandExpression.prototype = Object.create(Statement.prototype);
     LeftOperandExpression.prototype.constructor = LeftOperandExpression;
+
+    /**
+     * Get Variable Reference Name
+     * @returns {undefined|string}
+     */
+    LeftOperandExpression.prototype.getVariableReferenceName = function () {
+        return this.variable_reference_name;
+    };
+
+    /**
+     * Set Variable Reference Name
+     * @param {string} variableRefName
+     */
+    LeftOperandExpression.prototype.setVariableReferenceName = function (variableRefName) {
+        this.variable_reference_name = variableRefName;
+    };
 
     /**
      * setting parameters from json
      * @param jsonNode
      */
     LeftOperandExpression.prototype.initFromJson = function (jsonNode) {
-
         var self = this;
         _.each(jsonNode.children, function (childNode) {
-            var child = self.getFactory().createFromJson(childNode);
-            self.addChild(child);
-            child.initFromJson(childNode);
+            // TODO: Handle this Properly
+            if (childNode.type === 'variable_reference_expression') {
+                self.setVariableReferenceName(childNode.variable_reference_name);
+            } else {
+                var child = self.getFactory().createFromJson(childNode);
+                self.addChild(child);
+                child.initFromJson(childNode);
+            }
         });
     };
 
