@@ -23,7 +23,7 @@ import org.wso2.ballerina.core.model.values.BValue;
 /**
  * {@code BConnectorType} represents a {@link org.wso2.ballerina.core.model.Connector} in Ballerina
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class BConnectorType extends BType {
 

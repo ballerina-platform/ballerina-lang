@@ -19,7 +19,7 @@ package org.wso2.ballerina.core.model;
 /**
  * {@code {@link Action}} represents any Ballerina Action.
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public interface Action extends CallableUnit {
 }

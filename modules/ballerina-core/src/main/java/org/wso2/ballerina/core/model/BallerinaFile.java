@@ -36,7 +36,7 @@ import java.util.List;
  * (ServiceDefinition | FunctionDefinition | ConnectorDefinition | TypeDefinition | TypeConvertorDefinition |
  * ConstantDefinition)+
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 @SuppressWarnings("unused")
 public class BallerinaFile implements Node {

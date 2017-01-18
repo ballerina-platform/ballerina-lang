@@ -32,7 +32,7 @@ import java.util.HashMap;
 /**
  * The place where all the package definitions are stored
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class PackageRegistry {
 

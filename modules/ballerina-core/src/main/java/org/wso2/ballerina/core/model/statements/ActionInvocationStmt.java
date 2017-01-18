@@ -24,7 +24,7 @@ import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
 /**
  * An {@code ActionInvocationStmt} represents a action invocation statement
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class ActionInvocationStmt extends AbstractStatement {
 
@@ -51,7 +51,7 @@ public class ActionInvocationStmt extends AbstractStatement {
     /**
      * Builds a {@code ActionInvocationStmt} statement
      *
-     * @since 1.0.0
+     * @since 0.8.0
      */
     public static class ActionInvocationStmtBuilder {
         private ActionInvocationExpr actionInvocationExpr;
