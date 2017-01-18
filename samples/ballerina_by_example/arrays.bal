@@ -6,10 +6,10 @@ function main (string[] args) {
     //Creating an array.
     int[] arr;
 
-    //Adding values to the array.
+    //Initializing an array with values.
     arr = [ 1, 2, 3];
 
-    //Initializing an array with values.
+    //Adding values to the array.
     arr[3] = 4;
 
     //Accessing values in array
