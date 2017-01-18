@@ -31,9 +31,11 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             if (_.has(options, 'astRoot')) {
                 this._astRoot = _.get(options, 'astRoot');
             }
-            this.backend = new Backend({"url" : "http://localhost:8289/ballerina/model/content"});
-            this.deserializer = BallerinaASTDeserializer;
+            //TODO convert Backend to a singleton
             this.app = options.application;
+            this.backend = new Backend({"url" : this.app.config.services.parser.endpoint});
+            this.deserializer = BallerinaASTDeserializer;
+
         },
 
         getTitle: function(){
@@ -51,7 +53,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
                 var response = this.backend.parse(this._file.getContent());
 
                 if (response.error != undefined && response.error) {
-                    $('#parserErrorModel').modal();
+                    $(this.app.config.tab_controller.tabs.tab.ballerina_editor.dialog_boxes.parser_error).modal();
                     //remove the created tab at parse error
                     this.app.tabController.removeTab(this);
                     return;
