@@ -26,7 +26,7 @@ import java.util.Map;
 /**
  * {@code SymScope} represents a data structure which allows us to manage scopes.
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class SymScope {
     private Name scopeName;
@@ -84,7 +84,7 @@ public class SymScope {
      * <p>
      * These names defined names and cannot add random names
      *
-     * @since 1.0.0
+     * @since 0.8.0
      */
     public enum Name {
         GLOBAL("_global"),

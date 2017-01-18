@@ -29,7 +29,7 @@ import static org.wso2.ballerina.core.model.Operator.AND;
 /**
  * {@code AndExpression} represents an boolean AND('&&') expression in Ballerina
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class AndExpression extends BinaryLogicalExpression {
 

@@ -27,7 +27,7 @@ import java.util.List;
 /**
  * {@code ReturnStmt} represents a return statement
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class ReturnStmt extends AbstractStatement {
     private Expression[] exprs;
@@ -57,7 +57,7 @@ public class ReturnStmt extends AbstractStatement {
     /**
      * Builds a {@code ReturnStmt} statement
      *
-     * @since 1.0.0
+     * @since 0.8.0
      */
     public static class ReturnStmtBuilder {
         List<Expression> expressionList = new ArrayList<>();

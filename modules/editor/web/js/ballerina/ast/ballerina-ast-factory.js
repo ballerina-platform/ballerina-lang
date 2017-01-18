@@ -87,6 +87,8 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
             printHelloWorldStatement.setPackageName("system");
             printHelloWorldStatement.setFunctionName("println");
             printHelloWorldStatement.setParams('"Hello world"');
+            var functionInvocationExpr = BallerinaASTFactory.createFunctionInvocationExpression();
+            printHelloWorldStatement.addChild(functionInvocationExpr);
             functionDefinition.addChild(printHelloWorldStatement);
             return functionDefinition;
         };
@@ -462,33 +464,6 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         };
 
         /**
-         * creates EqualExpression
-         * @param {Object} args - Arguments for creating a new instance creation.
-         * @returns {EqualExpression}
-         */
-        BallerinaASTFactory.createEqualExpression = function (args) {
-            return new equalExpression(args);
-        };
-
-        /**
-         * creates GreaterThanExpression
-         * @param {Object} args - Arguments for creating a new instance creation.
-         * @returns {GreaterThanExpression}
-         */
-        BallerinaASTFactory.createGreaterThanExpression = function (args) {
-            return new greaterThanExpression(args);
-        };
-
-        /**
-         * creates AddExpression
-         * @param {Object} args - Arguments for creating a new instance creation.
-         * @returns {AddExpression}
-         */
-        BallerinaASTFactory.createAddExpression = function (args) {
-            return new addExpression(args);
-        };
-
-        /**
          * creates BinaryExpression
          * @param {Object} args - Arguments for creating a new instance creation.
          * @returns {BinaryExpression}
@@ -853,33 +828,6 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         };
 
         /**
-         * instanceof check for equalExpression
-         * @param {ASTNode} child - The ast node.
-         * @returns {boolean} - true if same type, else false
-         */
-        BallerinaASTFactory.isEqualExpression = function (child) {
-            return child instanceof equalExpression;
-        };
-
-        /**
-         * instanceof check for greaterThanExpression
-         * @param {ASTNode} child - The ast node.
-         * @returns {boolean} - true if same type, else false
-         */
-        BallerinaASTFactory.isGreaterThanExpression = function (child) {
-            return child instanceof greaterThanExpression;
-        };
-
-        /**
-         * instanceof check for addExpression
-         * @param {ASTNode} child - The ast node.
-         * @returns {boolean} - true if same type, else false
-         */
-        BallerinaASTFactory.isAddExpression = function (child) {
-            return child instanceof addExpression;
-        };
-
-        /**
          * instanceof check for binaryExpression
          * @param {ASTNode} child - The ast node.
          * @returns {boolean} - true if same type, else false
@@ -1019,13 +967,13 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
                         node = BallerinaASTFactory.createIfCondition();
                         break;
                     case 'equal_expression':
-                        node = BallerinaASTFactory.createEqualExpression();
+                        node = BallerinaASTFactory.createBinaryExpression({"operator" : "=="});
                         break;
                     case 'greater_than_expression':
-                        node = BallerinaASTFactory.createGreaterThanExpression();
+                        node = BallerinaASTFactory.createBinaryExpression({"operator" : ">"});
                         break;
                     case 'add_expression':
-                        node = BallerinaASTFactory.createAddExpression();
+                        node = BallerinaASTFactory.createBinaryExpression({"operator" : "+"});
                         break;
                     case 'multiplication_expression':
                         node = BallerinaASTFactory.createBinaryExpression({"operator" : "*"});

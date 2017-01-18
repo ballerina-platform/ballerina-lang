@@ -24,7 +24,7 @@ import org.wso2.ballerina.core.model.expressions.Expression;
 /**
  * {@code ForeachStmt} Represents a foreach statement.
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class ForeachStmt extends AbstractStatement {
     private Expression condition;

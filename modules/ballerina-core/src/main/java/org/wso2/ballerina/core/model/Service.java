@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
  * ResourceDefinition;+
  * }
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 @SuppressWarnings("unused")
 public class Service extends PositionAwareNode implements Node {
