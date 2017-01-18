@@ -313,9 +313,14 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
 
             // Set the lifelineMargin
             this.setLifelineMargin(resourceDefinitionView.getBoundingBox().getRight());
-            // If the lifeline margin is changed then accordingly the resource should move the bounding box
+
+            // If the lifeline margin is changed then accordingly the resource should move the bounding box,
             this.getLifeLineMargin().on('moved', function (offset) {
-                resourceDefinitionView.getBoundingBox().w(resourceDefinitionView.getBoundingBox().w() + offset);
+                // resource bounding box should not shrink than min width
+                var newWidth = resourceDefinitionView.getBoundingBox().w() + offset;
+                if (newWidth > resourceDefinitionView.getContentMinWidth()) {
+                    resourceDefinitionView.getBoundingBox().w(newWidth);
+                }
             });
 
             //setting height of the service view
