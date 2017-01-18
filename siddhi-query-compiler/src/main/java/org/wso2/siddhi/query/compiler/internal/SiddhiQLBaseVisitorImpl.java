@@ -29,6 +29,7 @@ import org.wso2.siddhi.query.api.definition.TableDefinition;
 import org.wso2.siddhi.query.api.definition.TriggerDefinition;
 import org.wso2.siddhi.query.api.definition.WindowDefinition;
 import org.wso2.siddhi.query.api.definition.io.Store;
+import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import org.wso2.siddhi.query.api.execution.ExecutionElement;
 import org.wso2.siddhi.query.api.execution.Subscription;
 import org.wso2.siddhi.query.api.execution.io.Transport;
@@ -707,7 +708,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
     public Mapping visitMapping(@NotNull SiddhiQLParser.MappingContext ctx) {
 
 //        mapping
-//        :type (OPTIONS '(' option (',' option)* ')')? (map_attribute (',' map_attribute)*)?
+//        :type (OPTIONS '(' option (',' option)* ')')? (map_attribute (AS map_rename)? (',' map_attribute (AS map_rename)?)*)?
 //        ;
 
         Mapping mapping = Mapping.format((String) visit(ctx.type()));
@@ -716,10 +717,18 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
                 mapping.option((String) visit(optionContext.property_name()), ((StringConstant) visit(optionContext.property_value())).getValue());
             }
         }
-        if (ctx.map_attribute().size() != 0) {
-            for (SiddhiQLParser.Map_attributeContext map_attributeContext : ctx.map_attribute()) {
-                mapping.map(((StringConstant) visit(map_attributeContext)).getValue());
+        if ((ctx.map_attribute().size() == ctx.map_rename().size()) &&  ctx.map_attribute().size() != 0) {
+            for (int i=0;i<ctx.map_attribute().size();i++){
+                mapping.map(((StringConstant) visit(ctx.map_rename(i))).getValue(), ((StringConstant) visit(ctx.map_attribute(i))).getValue());
             }
+        } else if (ctx.map_attribute().size() != 0 && ctx.map_rename().size() == 0) {
+            for (int i=0;i<ctx.map_attribute().size();i++){
+                mapping.map(((StringConstant) visit(ctx.map_attribute(i))).getValue());
+            }
+        } else if (ctx.map_attribute().size() != 0) {
+            throw new ExecutionPlanValidationException("Subscription mapping cannot have both named mapping " +
+                    "and positional mapping together but " + mapping.getFormat() +
+                    " mapping uses both of them");
         }
         return mapping;
     }

@@ -30,7 +30,7 @@ public class DefineSubscriptionTestCase {
     public void testCreatingHttpSubscriptionXmlMapping() throws SiddhiParserException{
         Subscription subscription = SiddhiCompiler.parseSubscription("subscribe http options(context '/test', transport 'http,https') " +
                                                         "map xml " +
-                                                        "options( xmlns \"http://www.w3.org/TR/html4/\") " +
+                                                        "options( xmlns:h \"http://www.w3.org/TR/html4/\") " +
                                                         "\"//h:time\", \"//h:data\" " +
                                                         "Insert into FooStream;");
         Assert.assertNotNull(subscription);

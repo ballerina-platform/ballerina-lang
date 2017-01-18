@@ -160,7 +160,7 @@ transport
     ;
 
 mapping
-    :type (OPTIONS '(' option (',' option)* ')')? (map_attribute (',' map_attribute)*)?
+    :type (OPTIONS '(' option (',' option)* ')')? (map_attribute (AS map_rename)? (',' map_attribute (AS map_rename)?)*)?
     ;
 
 standard_stream
@@ -401,12 +401,16 @@ map_attribute
     :string_value
     ;
 
+map_rename
+    :string_value
+    ;
+
 property_value
     :string_value
     ;
 
 property_separator
-    : DOT | MINUS
+    : DOT | MINUS | COL
     ;
 
 source

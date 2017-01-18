@@ -69,8 +69,6 @@ public class TextInputMapperTestCase {
 
         executionPlanRuntime.start();
 
-        Thread.sleep(5000);
-
         InMemoryBroker.publish("stock", "WSO2,55.6,100");
         InMemoryBroker.publish("stock", "IBM,75.6,10");
 
@@ -85,7 +83,7 @@ public class TextInputMapperTestCase {
     public void subscriptionTest8() throws InterruptedException {
         log.info("Subscription Test 8: Test an in memory transport with custom text mapping");
 
-        Subscription subscription = Subscription.Subscribe(Transport.transport("inMemory"));
+        Subscription subscription = Subscription.Subscribe(Transport.transport("inMemory").option("topic", "stock"));
         subscription.map(Mapping.format("text").map("regex1[1]").map("regex1[2]").map("regex1[3]").option("regex1", "" +
                 "([^,;]+),([^,;]+),([^,;]+),([^,;]+)"));
         subscription.insertInto("FooStream");
@@ -109,7 +107,8 @@ public class TextInputMapperTestCase {
 
         executionPlanRuntime.start();
 
-        Thread.sleep(5000);
+        InMemoryBroker.publish("stock", "WSO2,56.75,5,Sri Lanka");
+        InMemoryBroker.publish("stock", "IBM,75.6,10,USA");
 
         executionPlanRuntime.shutdown();
     }
@@ -122,7 +121,7 @@ public class TextInputMapperTestCase {
     public void subscriptionTest9() throws InterruptedException {
         log.info("Subscription Test 9: Test an in memory transport with custom text mapping");
 
-        Subscription subscription = Subscription.Subscribe(Transport.transport("inMemory"));
+        Subscription subscription = Subscription.Subscribe(Transport.transport("inMemory").option("topic","stock"));
         subscription.map(Mapping.format("text").map("regex1[2]").map("regex2[2]").map("regex3[2]")
                 .option("regex1", "(symbol=)([^,;]+)")
                 .option("regex2", "(price=)([^,;]+)")
@@ -148,7 +147,7 @@ public class TextInputMapperTestCase {
 
         executionPlanRuntime.start();
 
-        Thread.sleep(5000);
+        InMemoryBroker.publish("stock", "price=56.75, volume=5, symbol=WSO2, country=Sri Lanka");
 
         executionPlanRuntime.shutdown();
     }
