@@ -10,7 +10,7 @@ function main (string[] args) {
     string value;
     string[] keys;
 
-    //Adding key/value pairs to the map.
+    //Initializing a map.
     dataMap = { "country" : "US", "currency" : "Dollar" , "states" : "50"};
 
     //Obtaining a value corresponding to a key.

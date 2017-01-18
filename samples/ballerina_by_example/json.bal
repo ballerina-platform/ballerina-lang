@@ -8,6 +8,12 @@ function main (string[] args) {
     json jsonStringArray;
     string jsonPath;
 
+    json message;
+    string fname;
+    string lname;
+    string name;
+    json msg2;
+
     msg = `{"name":{"fname":"Jack","lname":"Taylor"}, "state":"CA", "age":20}`;
     msg1 = `{"name":{"fname":"Jack","lname":"Taylor"}, "state":"CA", "age":20}`;
     jsonStringArray = `{"users":["Jack", "Peter"]}`;
@@ -32,7 +38,31 @@ function main (string[] args) {
     //rename an object in a json.
     json:rename(msg1, "$.name", "fname", "firstName");
     jsonPath = "$.name.firstName";
-    json:getString(msg1, jsonPath);
+    system:println(json:getString(msg1, jsonPath));
+
+
+
+    fname = "John";
+    lname = "Smith";
+    name = "name";
+
+    //variable access within json value (string or int) template.
+    message = `{"name":${fname}}`;
+    system:println(json:toString(message));
+
+    //enrich json with a json expression.
+    msg2 = `{"name":"John"}`;
+    message = `${msg2}`;
+    system:println(json:toString(message));
+
+    //multiple variable access.
+    msg2 = `{"name":{"first_name":${fname}, "last_name":${lname}}}`;
+    message = `${msg2}`;
+    system:println(json:toString(message));
+
+    //json variable parts access.
+    message = `${name}${lname}`;
+    system:println(json:toString(message));
 
     //convert a json to string.
     system:println(json:toString(msg1));

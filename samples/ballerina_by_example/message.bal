@@ -1,5 +1,7 @@
 import ballerina.lang.system;
 import ballerina.lang.message;
+import ballerina.lang.json;
+import ballerina.lang.xml;
 
 function main (string[] args) {
 
@@ -19,7 +21,7 @@ function main (string[] args) {
     message:setJsonPayload(jsonMsg, jsonPayload);
 
     //get a json payload from a message.
-    message:getJsonPayload(jsonMsg);
+    system:println((json:toString(message:getJsonPayload(jsonMsg))));
 
     //set a header to a message.
     message:setHeader(jsonMsg, "Country", "Sri Lanka");
@@ -37,5 +39,5 @@ function main (string[] args) {
     message:setXmlPayload(xmlMsg, xmlPayload);
 
     //get a xml payload from a message.
-    message:getXmlPayload(xmlMsg);
+    system:println(xml:toString(message:getXmlPayload(xmlMsg)));
 }
