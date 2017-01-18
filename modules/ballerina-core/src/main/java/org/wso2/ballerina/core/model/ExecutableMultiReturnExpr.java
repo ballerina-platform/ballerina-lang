@@ -23,7 +23,7 @@ import org.wso2.ballerina.core.model.values.BValue;
  * {@code ExecutableMultiReturnExpr} interface makes an {@link org.wso2.ballerina.core.model.expressions.Expression}
  * which returns multiple values executable
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public interface ExecutableMultiReturnExpr {
 

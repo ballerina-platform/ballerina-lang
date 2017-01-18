@@ -30,7 +30,7 @@ import java.util.Map;
  * All variables of primitive types are allocated on the stack while all non-primitive types are
  * allocated on a heap using new.
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public abstract class BType {
 

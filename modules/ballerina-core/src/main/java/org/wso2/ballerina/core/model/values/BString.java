@@ -20,7 +20,7 @@ package org.wso2.ballerina.core.model.values;
 /**
  * The {@code BString} represents a string in Ballerina
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public final class BString extends BValueType {
 
