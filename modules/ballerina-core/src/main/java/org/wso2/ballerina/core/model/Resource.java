@@ -42,7 +42,7 @@ import java.util.Map;
  * Statement;+
  * }*
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 @SuppressWarnings("unused")
 public class Resource implements Node, CallableUnit {

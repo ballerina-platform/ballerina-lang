@@ -33,7 +33,7 @@ import java.util.List;
  * Build the Ballerina language model using the listener events from antlr4 parser
  *
  * @see BLangModelBuilder
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class BLangAntlr4Listener implements BallerinaListener {
 
