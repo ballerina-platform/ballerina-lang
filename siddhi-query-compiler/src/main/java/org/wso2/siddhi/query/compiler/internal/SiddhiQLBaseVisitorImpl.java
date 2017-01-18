@@ -141,6 +141,9 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
             } else if (executionElement instanceof Query) {
                 executionPlan.addQuery((Query) executionElement);
 
+            } else if (executionElement instanceof Subscription) {
+                executionPlan.addSubscription((Subscription) executionElement);
+
             } else {
                 throw newSiddhiParserException(ctx);
             }
