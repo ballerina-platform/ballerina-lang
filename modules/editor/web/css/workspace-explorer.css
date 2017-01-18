@@ -1,12 +1,16 @@
 .workspace-explorer-activate-btn{
     color: white;
-    margin-left: 6px;
-    padding-top: 6px;
+    margin: 11px;
     opacity: 0.4;
 }
+
+.workspace-explorer-activate-btn:hover{
+    opacity: 1;
+    cursor: pointer;
+}
+
 .workspace-explorer-container{
     width: 120px;
-    margin-left: 20px;
     color: white;
 }
 
