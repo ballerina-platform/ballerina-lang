@@ -59,7 +59,7 @@ import org.wso2.ballerina.core.model.statements.WhileStmt;
 /**
  * {@code NodeVisitor} responsible for executing a Ballerina applications by traversing statements and expressions
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public interface NodeVisitor {
 

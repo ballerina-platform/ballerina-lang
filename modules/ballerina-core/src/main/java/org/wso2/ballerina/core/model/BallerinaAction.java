@@ -34,7 +34,7 @@ import org.wso2.ballerina.core.model.types.BType;
  * Statement;+
  * }
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 @SuppressWarnings("unused")
 public class BallerinaAction implements Action, Node {

@@ -34,7 +34,7 @@ import org.wso2.ballerina.core.model.statements.BlockStmt;
  * Statement;+
  * }
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class BallerinaFunction extends PositionAwareNode implements Function, Node {
 

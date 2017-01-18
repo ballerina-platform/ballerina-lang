@@ -53,8 +53,7 @@ define(['log', 'lodash', 'jquery', 'event_channel'],
             error: function(xhr, textStatus, errorThrown){
                 data = {"error":true, "message":"Unable to render design view due to parser errors."};
             }
-        });   
-        console.log(data);
+        });
         return data;
     };
 

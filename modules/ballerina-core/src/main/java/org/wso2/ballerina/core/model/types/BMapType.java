@@ -29,7 +29,7 @@ import org.wso2.ballerina.core.model.values.BValue;
  * <p>
  * All maps are unbounded in length and support key based indexing.
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class BMapType extends BType {
 

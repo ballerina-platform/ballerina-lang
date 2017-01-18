@@ -189,8 +189,6 @@ define(['require', 'lodash','jquery', 'log', 'backbone', 'file_browser', 'baller
 
                                 var command = app.commandManager;
                                 command.dispatch("create-new-tab", root);
-
-                                alertSuccess();
                             } else {
                                 alertError();
                             }
@@ -227,7 +225,6 @@ define(['require', 'lodash','jquery', 'log', 'backbone', 'file_browser', 'baller
                                     isPersisted: true
                                 });
                                 app.commandManager.dispatch("create-new-tab", {tabOptions: {file: file}});
-                                alertSuccess();
                             } else {
                                 alertError();
                             }
