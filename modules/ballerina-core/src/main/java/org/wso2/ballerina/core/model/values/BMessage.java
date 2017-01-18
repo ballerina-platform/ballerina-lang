@@ -32,7 +32,7 @@ import java.util.List;
 /**
  * {@code BMessage} represents a Carbon Message in Ballerina.
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public final class BMessage implements BRefType<CarbonMessage> {
     private CarbonMessage value;

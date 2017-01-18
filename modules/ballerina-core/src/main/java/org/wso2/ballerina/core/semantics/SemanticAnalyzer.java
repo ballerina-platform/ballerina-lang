@@ -105,7 +105,7 @@ import java.util.regex.Pattern;
 /**
  * {@code SemanticAnalyzer} analyzes semantic properties of a Ballerina program
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class SemanticAnalyzer implements NodeVisitor {
     private int stackFrameOffset = -1;
