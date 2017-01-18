@@ -40,6 +40,10 @@ define(['require', 'lodash','jquery', 'log', 'backbone', 'file_browser', 'baller
                 this._fileOpenModal.modal('show');
             },
 
+            select: function(path){
+                this._fileBrowser.select('path');
+            },
+
             render: function () {
                 //TODO : this render method should be rewritten with improved UI
                 var self = this;
@@ -66,7 +70,7 @@ define(['require', 'lodash','jquery', 'log', 'backbone', 'file_browser', 'baller
                     "<button type='button' class='close' data-dismiss='modal' aria-label='Close'>" +
                     "<span aria-hidden='true'>&times;</span>" +
                     "</button>" +
-                    "<h4 class='modal-title file-dialog-title'>Ballerina Service Open Wizard</h4>" +
+                    "<h4 class='modal-title file-dialog-title'>Ballerina File Open Wizard</h4>" +
                     "<hr class='style1'>"+
                     "</div>" +
                     "<div class='modal-body'>" +
@@ -128,6 +132,7 @@ define(['require', 'lodash','jquery', 'log', 'backbone', 'file_browser', 'baller
                 fileBrowser = new FileBrowser({container: treeContainer, application:app, action:'openFile'});
 
                 fileBrowser.render();
+                this._fileBrowser = fileBrowser;
 
                 //Gets the selected location from tree and sets the value as location
                 this.listenTo(fileBrowser, 'selected', function (selectedLocation) {
@@ -184,8 +189,6 @@ define(['require', 'lodash','jquery', 'log', 'backbone', 'file_browser', 'baller
 
                                 var command = app.commandManager;
                                 command.dispatch("create-new-tab", root);
-
-                                alertSuccess();
                             } else {
                                 alertError();
                             }
@@ -218,11 +221,10 @@ define(['require', 'lodash','jquery', 'log', 'backbone', 'file_browser', 'baller
                                 var file = new File({
                                     name: fileName,
                                     path: folderPath,
-                                    content: data,
+                                    content: data.content,
                                     isPersisted: true
                                 });
                                 app.commandManager.dispatch("create-new-tab", {tabOptions: {file: file}});
-                                alertSuccess();
                             } else {
                                 alertError();
                             }

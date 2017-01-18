@@ -29,7 +29,7 @@ import java.util.List;
  * This can be a part of {@link Function}, {@link Resource}
  * or {@link BallerinaAction} signature
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 @SuppressWarnings("unused")
 public class Parameter implements Node {

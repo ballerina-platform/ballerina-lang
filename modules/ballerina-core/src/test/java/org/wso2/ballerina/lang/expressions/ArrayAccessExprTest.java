@@ -32,7 +32,7 @@ import org.wso2.ballerina.lang.util.Functions;
 /**
  * Array access expression test
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class ArrayAccessExprTest {
 
@@ -102,5 +102,13 @@ public class ArrayAccessExprTest {
             "incorrect-array-access.bal:4")
     public void testArrayAccessWithKey() {
         ParserUtils.parseBalFile("lang/expressions/incorrect-array-access.bal");
+    }
+    
+    @Test(description = "Test access a primitive a an array",
+            expectedExceptions = {SemanticException.class },
+            expectedExceptionsMessageRegExp = "Attempt to index non-array, non-map variable: animal in " +
+            "access-primitive-as-array.bal:3")
+    public void testAccessPrimitiveAsArray() {
+        ParserUtils.parseBalFile("lang/expressions/access-primitive-as-array.bal");
     }
 }

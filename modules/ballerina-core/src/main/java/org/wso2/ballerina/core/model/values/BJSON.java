@@ -31,7 +31,7 @@ import java.nio.charset.StandardCharsets;
 /**
  * {@code BJSON} represents a JSON value in Ballerina.
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public final class BJSON extends BallerinaMessageDataSource implements BRefType<JsonElement> {
 

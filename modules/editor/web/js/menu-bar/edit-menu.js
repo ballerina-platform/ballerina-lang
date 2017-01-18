@@ -27,8 +27,14 @@ define(([],function (){
                 command: {
                     id: "undo",
                     shortcuts: {
-                        mac: "command+z",
-                        other: "ctrl+z"
+                        mac: {
+                            key: "command+z",
+                            label: "\u2318Z"
+                        },
+                        other: {
+                            key: "ctrl+z",
+                            label: "Ctrl+Z"
+                        }
                     }
                 },
                 disabled: true
@@ -39,8 +45,14 @@ define(([],function (){
                 command: {
                     id: "redo",
                     shortcuts: {
-                        mac: "command+shift+z",
-                        other: "ctrl+shift+z"
+                        mac: {
+                            key: "command+shift+z",
+                            label: "\u2318\u21E7Z"
+                        },
+                        other: {
+                            key: "ctrl+shift+z",
+                            label: "Ctrl+Shift+Z"
+                        }
                     }
                 },
                 disabled: true

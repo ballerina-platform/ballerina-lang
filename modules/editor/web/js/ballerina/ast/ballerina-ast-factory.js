@@ -27,14 +27,16 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         './package-definition', './import-declaration', './resource-arg', './assignment', './assignment-statement', './function-invocation', './function-invocation-expression', './variable-reference-expression',
         './action-invocation-statement', './arithmetic-expression', './logical-expression', './action-invocation-expression',
         './return-type', './type-name', './argument', './back-quote-expression', './basic-literal-expression', './left-operand-expression', './right-operand-expression', './instance-creation-expression', './then-body',
-        './if-condition', './equal-expression'],
+        './if-condition', './equal-expression', './greater-than-expression', './add-expression', './array-map-access-expression',
+        './binary-expression'],
     function (_, ballerinaAstRoot, serviceDefinition, functionDefinition, connectorDefinition, resourceDefinition,
               workerDeclaration, statement, conditionalStatement, connectorDeclaration, expression,
               ifElseStatement, ifStatement, elseStatement, elseIfStatement, tryCatchStatement, tryStatement, catchStatement, replyStatement,
               whileStatement, returnStatement, typeConverterDefinition, typeDefinition, typeElement, variableDeclaration,
               packageDefinition, importDeclaration, resourceArgument, assignment, assignmentStatement, functionInvocation, functionInvocationExpression, variableReferenceExpression,
               actionInvocationStatement, arithmeticExpression, logicalExpression, actionInvocationExpression, returnType,
-              typeName, argument, backQuoteExpression, basicLiteralExpression, leftOperandExpression, rightOperandExpression, instanceCreationExpression, thenBody, ifCondition, equalExpression) {
+              typeName, argument, backQuoteExpression, basicLiteralExpression, leftOperandExpression, rightOperandExpression, instanceCreationExpression, thenBody, ifCondition,
+              equalExpression, greaterThanExpression, addExpression, arrayMapAccessExpression, binaryExpression) {
 
 
         /**
@@ -173,6 +175,22 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         };
 
         /**
+         * Create the particular assignment statement for the action invocation
+         * @param args
+         * @returns {AssignmentStatement}
+         */
+        BallerinaASTFactory.createAggregatedActionInvocationExpression = function(args) {
+            var assignmentStmt = BallerinaASTFactory.createAssignmentStatement();
+            var leftOp = BallerinaASTFactory.createLeftOperandExpression();
+            var rightOp = BallerinaASTFactory.createRightOperandExpression();
+            var actionInExp = BallerinaASTFactory.createActionInvocationExpression(args);
+            rightOp.addChild(actionInExp);
+            assignmentStmt.addChild(leftOp);
+            assignmentStmt.addChild(rightOp);
+            return assignmentStmt;
+        };
+
+        /**
          * creates If-Else Statement
          * @param args
          */
@@ -238,6 +256,18 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          */
         BallerinaASTFactory.createFunctionInvocationStatement = function (args) {
             return new functionInvocation(args);
+        };
+
+        /**
+         * creates FunctionInvocationStatement
+         * @param args
+         * @returns {FunctionInvocation}
+         */
+        BallerinaASTFactory.createAggregatedFunctionInvocationStatement = function (args) {
+            var funcInvocationStatement = new functionInvocation(args);
+            var funcInvocationExpression = BallerinaASTFactory.createFunctionInvocationExpression(args);
+            funcInvocationStatement.addChild(funcInvocationExpression);
+            return funcInvocationStatement;
         };
 
         /**
@@ -425,6 +455,43 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          */
         BallerinaASTFactory.createEqualExpression = function (args) {
             return new equalExpression(args);
+        };
+
+        /**
+         * creates GreaterThanExpression
+         * @param {Object} args - Arguments for creating a new instance creation.
+         * @returns {GreaterThanExpression}
+         */
+        BallerinaASTFactory.createGreaterThanExpression = function (args) {
+            return new greaterThanExpression(args);
+        };
+
+        /**
+         * creates AddExpression
+         * @param {Object} args - Arguments for creating a new instance creation.
+         * @returns {AddExpression}
+         */
+        BallerinaASTFactory.createAddExpression = function (args) {
+            return new addExpression(args);
+        };
+
+        /**
+         * creates BinaryExpression
+         * @param {Object} args - Arguments for creating a new instance creation.
+         * @returns {BinaryExpression}
+         */
+        BallerinaASTFactory.createBinaryExpression = function (args) {
+            return new binaryExpression(args);
+        };
+
+
+        /**
+         * creates ArrayMapAccessExpression
+         * @param {Object} args - Arguments for creating a new instance creation.
+         * @returns {ArrayMapAccessExpression}
+         */
+        BallerinaASTFactory.createArrayMapAccessExpression = function (args) {
+            return new arrayMapAccessExpression(args);
         };
 
         /**
@@ -782,6 +849,43 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         };
 
         /**
+         * instanceof check for greaterThanExpression
+         * @param {ASTNode} child - The ast node.
+         * @returns {boolean} - true if same type, else false
+         */
+        BallerinaASTFactory.isGreaterThanExpression = function (child) {
+            return child instanceof greaterThanExpression;
+        };
+
+        /**
+         * instanceof check for addExpression
+         * @param {ASTNode} child - The ast node.
+         * @returns {boolean} - true if same type, else false
+         */
+        BallerinaASTFactory.isAddExpression = function (child) {
+            return child instanceof addExpression;
+        };
+
+        /**
+         * instanceof check for binaryExpression
+         * @param {ASTNode} child - The ast node.
+         * @returns {boolean} - true if same type, else false
+         */
+        BallerinaASTFactory.isBinaryExpression = function (child) {
+            return child instanceof binaryExpression;
+        };
+
+        /**
+         * instanceof check for arrayMapAccessExpression
+         * @param {ASTNode} child - The ast node.
+         * @returns {boolean} - true if same type, else false
+         */
+        BallerinaASTFactory.isArrayMapAccessExpression = function (child) {
+            return child instanceof arrayMapAccessExpression;
+        };
+
+
+        /**
          * instanceof check for functionInvocationExpression
          * @param {ASTNode} child - The ast node.
          * @returns {boolean} - true if same type, else false
@@ -857,7 +961,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
                         node = BallerinaASTFactory.createFunctionInvocationExpression();
                         break;
                     case 'variable_reference_expression':
-                        node = BallerinaASTFactory.createAssignment();
+                        node = BallerinaASTFactory.createVariableReferenceExpression();
                         break;
                     case 'action_invocation_expression':
                         node = BallerinaASTFactory.createActionInvocationExpression();
@@ -894,6 +998,42 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
                         break;
                     case 'equal_expression':
                         node = BallerinaASTFactory.createEqualExpression();
+                        break;
+                    case 'greater_than_expression':
+                        node = BallerinaASTFactory.createGreaterThanExpression();
+                        break;
+                    case 'add_expression':
+                        node = BallerinaASTFactory.createAddExpression();
+                        break;
+                    case 'multiplication_expression':
+                        node = BallerinaASTFactory.createBinaryExpression({"operator" : "*"});
+                        break;
+                    case 'division_expression':
+                        node = BallerinaASTFactory.createBinaryExpression({"operator" : "/"});
+                        break;
+                    case 'and_expression':
+                        node = BallerinaASTFactory.createBinaryExpression({"operator" : "&&"});
+                        break;
+                    case 'subtract_expression':
+                        node = BallerinaASTFactory.createBinaryExpression({"operator" : "-"});
+                        break;
+                    case 'or_expression':
+                        node = BallerinaASTFactory.createBinaryExpression({"operator" : "||"});
+                        break;
+                    case 'greater_equal_expression':
+                        node = BallerinaASTFactory.createBinaryExpression({"operator" : ">="});
+                        break;
+                    case 'less_than_expression':
+                        node = BallerinaASTFactory.createBinaryExpression({"operator" : "<"});
+                        break;
+                    case 'less_equal_expression':
+                        node = BallerinaASTFactory.createBinaryExpression({"operator" : "<="});
+                        break;
+                    case 'not_equal_expression':
+                        node = BallerinaASTFactory.createBinaryExpression({"operator" : "!="});
+                        break;
+                    case 'array_map_access_expression':
+                        node = BallerinaASTFactory.createArrayMapAccessExpression();
                         break;
                     default:
                         throw "Unknown node definition for " + jsonNode.type;

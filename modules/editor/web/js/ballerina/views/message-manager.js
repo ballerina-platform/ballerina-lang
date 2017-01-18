@@ -141,9 +141,9 @@ define(['log', 'lodash','d3','./point', 'backbone','event_channel'], function (l
             var m = d3.mouse(this);
             //setting an offset of 5 to avoid the mouse pointer overlapping with the arrow
             tempLine.attr("x2", m[0] - 5);
-            tempLine.attr("y2", m[1] - 5);
-            var newPoints = "" +  (m[0] - 5) + "," + (m[1] - 10) + " " + ( m[0]) + ","
-                + (m[1] - 5) + " " +  (m[0]- 5) + "," + ( m[1]);
+            tempLine.attr("y2", sourcePoint.y());
+            var newPoints = "" +  (m[0] - 5) + "," + (sourcePoint.y() - 5) + " " + ( m[0]) + ","
+                + (sourcePoint.y()) + " " +  (m[0]- 5) + "," + ( sourcePoint.y() + 5);
             arrowPoint.attr("points",newPoints);
         });
 
@@ -156,9 +156,12 @@ define(['log', 'lodash','d3','./point', 'backbone','event_channel'], function (l
             var endPoint = new Point(tempLine.attr("x2"),tempLine.attr("y2"));
 
             if(self.isAtValidDropTarget()){
-
                 var connectorReference = self.getActivatedDropTarget();
                 self.getMessageSource().setConnector(connectorReference);
+                self.getMessageSource().setActionName(self.getMessageSource().getAction());
+                self.getMessageSource().setActionPackageName(connectorReference.getConnectorPkgName());
+                self.getMessageSource().setActionConnectorName(connectorReference.getConnectorName());
+                self.getMessageSource().setConnectorVariableReference(connectorReference.getConnectorVariable());
             }
             tempLine.remove();
             arrowPoint.remove();

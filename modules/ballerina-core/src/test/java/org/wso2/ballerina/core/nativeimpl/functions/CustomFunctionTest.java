@@ -29,8 +29,15 @@ public class CustomFunctionTest {
     @Test(description = "Test defining duplicate ballerina function",
             expectedExceptions = {SemanticException.class },
             expectedExceptionsMessageRegExp = "duplicate-function.bal:5: duplicate function 'foo'")
-    public void testDuplicateAction() {
+    public void testDuplicateFunction() {
         ParserUtils.parseBalFile("lang/functions/duplicate-function.bal");
+    }
+    
+    @Test(description = "Test defining ballerina function with duplicate parameters",
+            expectedExceptions = {SemanticException.class },
+            expectedExceptionsMessageRegExp = "duplicate-parameters.bal:1: duplicate parameter 'param'")
+    public void testDuplicateParameters() {
+        ParserUtils.parseBalFile("lang/functions/duplicate-parameters.bal");
     }
 
 }
