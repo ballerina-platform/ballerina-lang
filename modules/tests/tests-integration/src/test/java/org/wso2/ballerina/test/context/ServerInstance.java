@@ -49,6 +49,7 @@ public class ServerInstance implements Server {
 
     /**
      * Start a server instance y extracting a server zip distribution
+     *
      * @throws Exception
      */
     @Override
@@ -76,6 +77,7 @@ public class ServerInstance implements Server {
 
     /**
      * Stop the server instance which is started by start method
+     *
      * @throws InterruptedException
      */
     @Override
@@ -86,12 +88,16 @@ public class ServerInstance implements Server {
             try {
                 pid = getServerPID();
                 if (System.getProperty("os.name").toLowerCase().contains("windows")) {
-                    Runtime.getRuntime().exec("TASKKILL /PID " + pid);
+                    Process killServer = Runtime.getRuntime().exec("TASKKILL -F /PID " + pid);
+                    killServer.waitFor();
+                    killServer.destroy();
                 } else {
-                    Runtime.getRuntime().exec("kill -9 " + pid);
+                    Process killServer = Runtime.getRuntime().exec("kill -9 " + pid);
+                    killServer.waitFor();
+                    killServer.destroy();
                 }
             } catch (IOException e) {
-                log.error(e.getMessage());
+                log.error("Error while getting the server process id", e);
             }
             process.destroy();
             serverInfoLogReader.stop();
@@ -105,6 +111,7 @@ public class ServerInstance implements Server {
 
     /**
      * Restart the server instance
+     *
      * @throws Exception
      */
     @Override
@@ -117,6 +124,7 @@ public class ServerInstance implements Server {
 
     /**
      * Checking whether server instance is up and running
+     *
      * @return true if the server is up and running
      */
     @Override
@@ -126,6 +134,7 @@ public class ServerInstance implements Server {
 
     /**
      * setting the list of command line argument while server startup
+     *
      * @param args list of service files
      */
     public void setArguments(String[] args) {
@@ -141,6 +150,7 @@ public class ServerInstance implements Server {
 
     /**
      * Return server home path
+     *
      * @return absolute path of the server location
      */
     public String getServerHome() {
@@ -148,7 +158,8 @@ public class ServerInstance implements Server {
     }
 
     /**
-     *  Return the service URL
+     * Return the service URL
+     *
      * @param servicePath - http url of the given service
      * @return
      */
@@ -194,6 +205,7 @@ public class ServerInstance implements Server {
 
     /**
      * Executing the sh or bat file to start the server
+     *
      * @param args - command line arguments to pass when executing the sh or bat file
      * @throws IOException
      */
@@ -218,36 +230,96 @@ public class ServerInstance implements Server {
     }
 
     /**
-     * reading the server process id from the carbon.pid file
+     * reading the server process id
+     *
      * @return process id
      * @throws IOException
      */
     private String getServerPID() throws IOException {
+        String pid = null;
+        if (System.getProperty("os.name").toLowerCase().contains("windows")) {
+            //reading the process id from netstat
+            Process tmp = Runtime.getRuntime().exec("netstat -a -n -o");
+            String outPut = readProcessInputStream(tmp.getInputStream());
+            String[] lines = outPut.split("\r\n");
+            for (String line : lines) {
+                String[] column = line.trim().split("\\s+");
+                if (column != null && column.length != 5) {
+                    continue;
+                }
+                if (column[1].contains(":" + Constant.DEFAULT_HTTP_PORT)) {
+                    pid = column[4];
+                    break;
+                }
+            }
+            tmp.destroy();
+        } else {
+            BufferedReader bufferedReader = null;
+            FileReader fileReader = null;
+
+            try {
+                //reading the pid form  carbon.pid file in server home dir
+                fileReader = new FileReader(serverHome + File.separator + Constant.SERVER_PID_FILE_NAME);
+                bufferedReader = new BufferedReader(fileReader);
+                pid = bufferedReader.readLine();
+            } finally {
+                if (fileReader != null) {
+                    try {
+                        fileReader.close();
+                    } catch (IOException e) {
+                        //ignore
+                    }
+                }
+                if (bufferedReader != null) {
+                    try {
+                        bufferedReader.close();
+                    } catch (IOException e) {
+                        //ignore
+                    }
+                }
+            }
+
+        }
+        return pid;
+    }
+
+    /**
+     * reading output from input stream
+     *
+     * @param inputStream input steam of a process
+     * @return the output string generated by java process
+     */
+    private String readProcessInputStream(InputStream inputStream) {
+        InputStreamReader inputStreamReader = null;
         BufferedReader bufferedReader = null;
-        FileReader fileReader = null;
-        String pid;
+        StringBuilder stringBuilder = new StringBuilder();
         try {
-            //reading the pid form  carbon.pid file in server home dir
-            fileReader = new FileReader(serverHome + File.separator + Constant.SERVER_PID_FILE_NAME);
-            bufferedReader = new BufferedReader(fileReader);
-            pid = bufferedReader.readLine();
-            return pid;
+            inputStreamReader = new InputStreamReader(inputStream, Charset.defaultCharset());
+            bufferedReader = new BufferedReader(inputStreamReader);
+            int x;
+            while ((x = bufferedReader.read()) != -1) {
+                stringBuilder.append((char) x);
+            }
+        } catch (Exception ex) {
+            log.error("Error reading process id", ex);
         } finally {
-            if (fileReader != null) {
+            if (inputStreamReader != null) {
                 try {
-                    fileReader.close();
+                    inputStream.close();
+                    inputStreamReader.close();
                 } catch (IOException e) {
-                    //ignore
+                    log.error("Error occurred while closing stream: " + e.getMessage(), e);
                 }
             }
             if (bufferedReader != null) {
                 try {
                     bufferedReader.close();
                 } catch (IOException e) {
-                    //ignore
+                    log.error("Error occurred while closing stream: " + e.getMessage(), e);
                 }
             }
         }
+        return stringBuilder.toString();
     }
 
     /**
