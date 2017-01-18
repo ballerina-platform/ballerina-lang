@@ -74,11 +74,17 @@
             <!-- Start: file explorer and editor area row -->
             <div class="row">
                 <!-- Start: left container -->
-                <div id="left-container">
-                    <!-- Start: file explorer -->
-                    <div id="workspace-explorer">
+                <div class="left-container">
+                    <!-- Start: left tool bar -->
+                    <div class="left-tool-bar" data-toggle="tooltip" title="Toggle File Explorer">
+                        <i class="fw fw-file-browse fw-2x workspace-explorer-activate-btn"></i>
                     </div>
-                    <!-- End: file explorer -->
+                    <!-- End: left tool bar -->
+                    <!-- Start: left side-bar -->
+                    <div class="sidebar-left">
+                    </div>
+                    <div class="sidebar-left-separator"  draggable="true"></div>
+                    <!-- End: left side-bar -->
                 </div>
                 <!-- End: left container -->
                 <!-- Start: right container -->
@@ -633,11 +639,32 @@
 
             },
             workspace_explorer: {
-                container: "#workspace-explorer",
+                container: ".sidebar-left",
+                activateBtn: '.workspace-explorer-activate-btn',
+                separator: '.sidebar-left-separator',
+                containerToAdjust: ".right-container",
+                command: {
+                    id: "toggle-file-explorer",
+                    shortcuts: {
+                        mac: {
+                            key: "command+shift+e",
+                            label: "\u2318\u21E7E"
+                        },
+                        other: {
+                            key: "ctrl+shift+e",
+                            label: "Ctrl+Shift+E"
+                        }
+                    }
+                },
+                leftOffset: 50,
+                separatorOffset: 5,
+                defaultWidth: 250,
+                resizeLimits:{
+                    minX: 150,
+                    maxX: 450
+                },
                 cssClass: {
-                    activateBtn: 'fw fw-file-browse fw-lg workspace-explorer-activate-btn',
-                    container: 'workspace-explorer-container',
-                    separator: 'workspace-explorer-separator'
+                    container: 'workspace-explorer-container'
                 }
             },
             dialog: {
