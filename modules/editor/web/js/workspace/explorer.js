@@ -1,4 +1,4 @@
-/**
+    /**
  * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
@@ -45,39 +45,57 @@ define(['log', 'jquery', 'backbone', 'lodash', 'tree_view', /** void module - jq
             this._options = config;
             this.workspaceServiceURL = _.get(this._options, 'application.config.services.workspace.endpoint');
             this._isActive = false;
+            this._lastWidth = undefined;
+            this._verticalSeparator = $(_.get(this._options, 'separator'));
+            this._containerToAdjust = $(_.get(this._options, 'containerToAdjust'));
+
+            // register command
+            this.application.commandManager.registerCommand(config.command.id, {shortcuts: config.command.shortcuts});
+            this.application.commandManager.registerHandler(config.command.id, this.toggleExplorer, this);
+        },
+
+        toggleExplorer: function(){
+            if(this._isActive){
+                this._$parent_el.parent().width('0px');
+                this._containerToAdjust.css('margin-left', _.get(this._options, 'leftOffset'));
+                this._verticalSeparator.css('left', _.get(this._options, 'leftOffset') - _.get(this._options, 'separatorOffset'));
+                this._isActive = false;
+            } else {
+                var width = this._lastWidth || _.get(this._options, 'defaultWidth');
+                this._$parent_el.parent().width(width);
+                this._containerToAdjust.css('margin-left', width + _.get(this._options, 'leftOffset'));
+                this._verticalSeparator.css('left',  width + _.get(this._options, 'leftOffset') - _.get(this._options, 'separatorOffset'));
+                this._isActive = true;
+            }
         },
 
         render: function () {
             var self = this;
-            var activateBtn = $('<i></i>');
-            this._$parent_el.append(activateBtn);
-            activateBtn.addClass(_.get(this._options, 'cssClass.activateBtn'));
+            var activateBtn = $(_.get(this._options, 'activateBtn'));
 
             var sliderContainer = $('<div></div>');
             sliderContainer.addClass(_.get(this._options, 'cssClass.container'));
             this._$parent_el.append(sliderContainer);
 
-            var verticalSeparator = $('<div></div>');
-            verticalSeparator.addClass(_.get(this._options, 'cssClass.separator'));
-            sliderContainer.append(verticalSeparator);
-
             activateBtn.on('click', function(){
-                if(self._isActive){
-                    self._$parent_el.parent().width('32px');
-                    self._isActive = false;
-                } else {
-                    self._$parent_el.parent().width('200px');
-                    self._isActive = true;
-                }
+                self.application.commandManager.dispatch(_.get(self._options, 'command.id'));
             });
 
-            this._$parent_el.addClass('nano');
-            //this._$parent_el.css('overflow', 'scroll');
-            sliderContainer.addClass('nano-content');
-            this._$parent_el.nanoScroller();
+            this._verticalSeparator.on('drag', function(event){
+                if( event.originalEvent.clientX >= _.get(self._options, 'resizeLimits.minX')
+                    && event.originalEvent.clientX <= _.get(self._options, 'resizeLimits.maxX')){
+                    self._verticalSeparator.css('left', event.originalEvent.clientX - _.get(self._options, 'separatorOffset'));
+                    self._verticalSeparator.css('cursor', 'ew-resize');
+                    var newWidth = event.originalEvent.clientX -  _.get(self._options, 'leftOffset');
+                    self._$parent_el.parent().width(newWidth);
+                    self._containerToAdjust.css('margin-left', event.originalEvent.clientX);
+                    self._lastWidth = newWidth;
+                    self._isActive = true;
+                }
+                event.preventDefault();
+                event.stopPropagation();
+            });
 
-
-            var self = this;
             sliderContainer
                 .jstree({
                     'core' : {
