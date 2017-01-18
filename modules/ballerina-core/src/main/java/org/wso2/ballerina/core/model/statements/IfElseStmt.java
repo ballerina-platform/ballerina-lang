@@ -27,19 +27,13 @@ import java.util.List;
 /**
  * {@code IfElseStmt} represents a if/else if/else statement.
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class IfElseStmt extends AbstractStatement {
     private Expression ifCondition;
     private Statement thenBody;
     private ElseIfBlock[] elseIfBlocks;
     private Statement elseBody;
-
-    public IfElseStmt(Expression ifCondition, Statement thenBody, Statement elseBody) {
-        this.ifCondition = ifCondition;
-        this.thenBody = thenBody;
-        this.elseBody = elseBody;
-    }
 
     private IfElseStmt(Expression ifCondition, Statement thenBody, ElseIfBlock[] elseIfBlocks, Statement elseBody) {
         this.ifCondition = ifCondition;
@@ -98,7 +92,7 @@ public class IfElseStmt extends AbstractStatement {
     /**
      * Builds a {@code IfElseStmt} statement
      *
-     * @since 1.0.0
+     * @since 0.8.0
      */
     public static class IfElseStmtBuilder {
 

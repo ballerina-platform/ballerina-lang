@@ -19,12 +19,13 @@ define(['./ballerina-ast-factory', './ballerina-ast-root', './conditional-statem
     './constant-definition', './expression', './function-definition', './if-else-statement', './if-statement', './else-statement', './else-if-statement', './trycatch-statement', './try-statement', './catch-statement', './node', './reply-statement', './resource-definition',
     './return-statement', './service-definition', './statement', './throw-statement', './type-definition', './type-converter-definition', './type-element',
     './variable-declaration', './while-statement', './worker-declaration', './package-definition',
-        './import-declaration', './assignment', './function-invocation','./action-invocation-statement','./action-invocation-statement',
-        './arithmetic-expression', './logical-expression', './ballerina-ast-deserializer'],
+        './import-declaration', './assignment', './assignment-statement', './function-invocation','./action-invocation-statement','./action-invocation-statement',
+        './arithmetic-expression', './logical-expression', './ballerina-ast-deserializer', './function-invocation-expression', './left-operand-expression', './right-operand-expression'],
     function (BallerinaASTFactory, BallerinaASTRoot, ConditionalStatement, ConnectorDeclaration, ConnectorDefinition, ConstantDefinition,
                 Expression, FunctionDefinition, IfElseStatement, IfStatement, ElseStatement, ElseIfStatement, TryCatchStatement, TryStatement, CatchStatement, ASTNode, ReplyStatement, ResourceDefinition, ReturnStatement, ServiceDefinition,
-                Statement, ThrowStatement, TypeConverterDefinition, TypeDefinition, TypeElement, VariableDeclaration, WhileStatement, WorkerDeclaration, PackageDefinition, ImportDeclaration, Assignment, FunctionInvocation,
-              ActionInvocationStatement, ArithmeticExpression, LogicalExpression, ActionInvocationExpression, BallerinaASTDeserializer) {
+                Statement, ThrowStatement, TypeConverterDefinition, TypeDefinition, TypeElement, VariableDeclaration, WhileStatement, WorkerDeclaration, PackageDefinition, ImportDeclaration, Assignment, AssignmentStatement, FunctionInvocation,
+              ActionInvocationStatement, ArithmeticExpression, LogicalExpression, ActionInvocationExpression, BallerinaASTDeserializer, FunctionInvocationExpression,
+              LeftOperandExpression, RightOperandExpression) {
 
         return  {
             BallerinaASTFactory: BallerinaASTFactory,
@@ -58,7 +59,11 @@ define(['./ballerina-ast-factory', './ballerina-ast-root', './conditional-statem
             PackageDefinition: PackageDefinition,
             ImportDeclaration: ImportDeclaration,
             Assignment: Assignment,
+            AssignmentStatement: AssignmentStatement,
+            LeftOperandExpression: LeftOperandExpression,
+            RightOperandExpression: RightOperandExpression,
             FunctionInvocation: FunctionInvocation,
+            FunctionInvocationExpression: FunctionInvocationExpression,
             ArithmeticExpression: ArithmeticExpression,
             LogicalExpression: LogicalExpression,
             ActionInvocationStatement: ActionInvocationStatement,

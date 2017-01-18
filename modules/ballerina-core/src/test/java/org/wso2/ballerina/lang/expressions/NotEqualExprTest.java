@@ -21,6 +21,7 @@ package org.wso2.ballerina.lang.expressions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerina.core.exception.SemanticException;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.values.BBoolean;
 import org.wso2.ballerina.core.model.values.BFloat;
@@ -125,5 +126,33 @@ public class NotEqualExprTest {
         actual = ((BInteger) returns[0]).intValue();
         expected = 2;
         Assert.assertEquals(actual, expected);
+    }
+    
+    /*
+     * Negative tests
+     */
+
+    @Test(description = "Test checking equality of two types",
+            expectedExceptions = {SemanticException.class },
+            expectedExceptionsMessageRegExp = "incompatible-type-equal-expr.bal:6: incompatible " +
+                    "types in binary expression: int vs boolean")
+    public void testIncompatibleEquality() {
+        ParserUtils.parseBalFile("lang/expressions/incompatible-type-equal-expr.bal");
+    }
+    
+    @Test(description = "Test checking equality of unsupported types (json)",
+            expectedExceptions = {SemanticException.class },
+            expectedExceptionsMessageRegExp = "Equals operation is not supported for type: json in " +
+            "unsupported-type-equal-expr.bal:9")
+    public void testUnsupportedTypeEquality() {
+        ParserUtils.parseBalFile("lang/expressions/unsupported-type-equal-expr.bal");
+    }
+    
+    @Test(description = "Test checking not-equality of unsupported types (json)",
+            expectedExceptions = {SemanticException.class },
+            expectedExceptionsMessageRegExp = "NotEqual operation is not supported for type: json in " +
+            "unsupported-type-not-equal-expr.bal:9")
+    public void testUnsupportedTypeNotEquality() {
+        ParserUtils.parseBalFile("lang/expressions/unsupported-type-not-equal-expr.bal");
     }
 }

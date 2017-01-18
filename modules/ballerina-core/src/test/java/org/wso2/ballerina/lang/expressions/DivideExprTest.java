@@ -22,6 +22,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.exception.BallerinaException;
+import org.wso2.ballerina.core.exception.SemanticException;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.values.BDouble;
 import org.wso2.ballerina.core.model.values.BFloat;
@@ -105,5 +106,25 @@ public class DivideExprTest {
         double actual = ((BDouble) returns[0]).doubleValue();
         double expected = 4;
         Assert.assertEquals(actual, expected);
+    }
+    
+    /*
+     * Negative tests
+     */
+    
+    @Test(description = "Test dividing values of two types",
+            expectedExceptions = {SemanticException.class },
+            expectedExceptionsMessageRegExp = "divide-incompatible-types.bal:5: incompatible types in " +
+                    "binary expression: string vs float")
+    public void testAddIncompatibleTypes() {
+        ParserUtils.parseBalFile("lang/expressions/divide-incompatible-types.bal");
+    }
+    
+    @Test(description = "Test dividing values of unsupported types (json)",
+            expectedExceptions = {SemanticException.class },
+            expectedExceptionsMessageRegExp = "Divide operation is not supported for type: json in " +
+            "divide-unsupported-types.bal:10")
+    public void testAddUnsupportedTypes() {
+        ParserUtils.parseBalFile("lang/expressions/divide-unsupported-types.bal");
     }
 }

@@ -31,15 +31,12 @@ define(['require','lodash', 'log', 'event_channel', './abstract-statement-source
 
         ActionInvocationStatementVisitor.prototype.beginVisitActionInvocationStatement = function(action){
             var self = action;
-            var connectorType = true === _.isUndefined(self._connector) ? undefined : self._connector._connectorType;
-            var connectorName = true === _.isUndefined(self._connector) ? undefined : self._connector._connectorName;
-            this.appendSource(self._variableAccessor + "=" + connectorType + "." +self._action +
-                "(" + connectorName +",\"" +self._path +"\"," +self._message +")");
+            this.appendSource(self.getActionPackageName() + ':' + self.getActionConnectorName() + '.' + self.getActionName() +
+                '(' + self.getConnectorVariableReference() + ',' + self.getPath() + ',' + self.getMessageVariableReference() + ')');
             log.debug('Begin Visit action invocation expression');
         };
 
         ActionInvocationStatementVisitor.prototype.endVisitActionInvocationStatement = function(action){
-            this.appendSource(";\n");
             this.getParent().appendSource(this.getGeneratedSource());
             log.debug('End Visit action Invocation Expression');
         };

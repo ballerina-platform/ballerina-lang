@@ -15,91 +15,48 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'log', 'jquery', 'lodash', 'backbone', 'menu_bar_provider'],
+define(['require', 'log', 'jquery', 'lodash', 'event_channel', './menu-definitions', './menu-group'],
 
-    function (require, log, $, _, Backbone, MenuBarProvider) {
+    function (require, log, $, _, EventChannel, menuDefinitions, MenuGroup) {
 
+        var MenuBar = function (options) {
+            var errMsg;
+            if(!_.has(options, 'container')){
+                errMsg = 'Unable to find configuration for container';
+                log.error(errMsg);
+                throw errMsg;
+            }
+            var container = $(_.get(options, 'container'));
+            this._$parent_el = container;
+            this._options = options;
+            this._menuGroups = {};
+        };
 
-        var MenuBar = Backbone.View.extend(
-            /** @lends ToolBar.prototype */
-            {
-                /**
-                 * @augments Backbone.View
-                 * @constructs
-                 * @class ToolBar
-                 * @param {Object} config configuration options for the ToolBar
-                 */
-                initialize: function (options) {
+        MenuBar.prototype = Object.create(EventChannel.prototype);
+        MenuBar.prototype.constructor = MenuBar;
 
-                    var errMsg;
-                    if(!_.has(options, 'container')){
-                        errMsg = 'Unable to find configuration for container';
-                        log.error(errMsg);
-                        throw errMsg;
-                    }
-                    var container = $(_.get(options, 'container'));
-                    this._$parent_el = container;
-                    this._options = options;
-                },
+        MenuBar.prototype.render = function () {
+            var parent = this._$parent_el;
+            var self = this;
+            var _options = this._options;
+            var application = _.get(this._options, "application");
 
-                render: function () {
-                    var parent = this._$parent_el;
-                    var self = this;
-                    var _options = this._options;
-                    var command = _options.application.commandManager;
-
-                    //Iterate over menu groups
-                    _.forEach(MenuBarProvider, function (menuGroupDefinition, menuGroupId) {
-                            var toolBarDiv = $('<div></div>');
-                            toolBarDiv.addClass(_.get(_options, 'cssClass.menu_group'));
-                            parent.append(toolBarDiv);
-
-                            var title = $('<a></a>');
-                            title.text(menuGroupDefinition.label);
-                            title.addClass(_.get(_options, 'cssClass.item'));
-                            title.attr("data-toggle", "dropdown");
-                            toolBarDiv.append(title);
-
-                            var menu = $('<ul></ul>');
-                            menu.addClass(_.get(_options, 'cssClass.menu'));
-                            toolBarDiv.append(menu);
-
-                            //Iterate over menu items
-                            _.forEach(menuGroupDefinition.items, function (menuItem, menuItemId) {
-                                var item = $('<li></li>');
-                                var link = $('<a></a>');
-                                if (menuItem.disabled) {
-                                    link.addClass("menu-item-disabled");
-                                    link.on("click", function (e) {
-                                        e.preventDefault();
-                                    });
-                                } else {
-                                    link.addClass("menu-item-enabled");
-                                    link.click(function () {
-                                        command.dispatch(menuItem.action);
-                                    });
-                                }
-                                link.text(menuItem.label);
-
-                                _.forEach(menuItem.attributes, function(attribute){
-                                    link.attr(attribute.key, attribute.value);
-                                });
-                                item.append(link);
-                                menu.append(item);
-                            });
-                        }
-                    );
-                },
-
-                show: function(){
-                    $(this._$parent_el).show();
-                },
-
-                hide: function(){
-                    $(this._$parent_el).hide();
+            // Iterate over menu groups
+            _.forEach(menuDefinitions, function (menuGroupDefinition) {
+                    var menuGroupOpts = {definition: _.cloneDeep(menuGroupDefinition)};
+                    _.set(menuGroupOpts, 'options', _.cloneDeep(_.get(_options, 'menu_group')));
+                    _.set(menuGroupOpts, 'options.parent', parent);
+                    _.set(menuGroupOpts, 'options.application', application);
+                    var menuGroup = new MenuGroup(menuGroupOpts);
+                    menuGroup.render();
+                    _.set(self._menuGroups, menuGroup.getID(), menuGroup);
                 }
+            );
+        };
 
-            });
+        MenuBar.prototype.getMenuItemByID = function (id) {
+            return _.get(this._menuGroups, id);
+        };
 
         return MenuBar;
 });

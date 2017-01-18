@@ -38,7 +38,8 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
     private static final Logger log = LoggerFactory.getLogger(HTTPResourceDispatcher.class);
 
     @Override
-    public Resource findResource(Service service, CarbonMessage cMsg, CarbonCallback callback, Context balContext) {
+    public Resource findResource(Service service, CarbonMessage cMsg, CarbonCallback callback, Context balContext)
+            throws BallerinaException {
 
         String method = (String) cMsg.getProperty(Constants.HTTP_METHOD);
         String subPath = (String) cMsg.getProperty(Constants.SUB_PATH);
@@ -60,8 +61,8 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
                     subPathAnnotationVal = subPathAnnotationVal.substring(1, subPathAnnotationVal.length() - 1);
                 }
 
-                if ((subPath.startsWith(subPathAnnotationVal) || 
-                        Constants.DEFAULT_SUB_PATH.equals(subPathAnnotationVal)) && 
+                if ((subPath.startsWith(subPathAnnotationVal) ||
+                        Constants.DEFAULT_SUB_PATH.equals(subPathAnnotationVal)) &&
                         (resource.getAnnotation(method) != null)) {
                     return resource;
                 }
@@ -69,11 +70,9 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
         } catch (Throwable e) {
             throw new BallerinaException(e.getMessage(), balContext);
         }
-        
+
         // Throw an exception if the resource is not found.
-        throw new BallerinaException("No matching Resource found to dispatch the request with Path : " + subPath +
-            " , Method : " + method + " in Service : " + service.getSymbolName().getName(), balContext);
-        
+        throw new BallerinaException("No matching Resource found for Path : " + subPath + " , Method : " + method);
     }
 
     @Override

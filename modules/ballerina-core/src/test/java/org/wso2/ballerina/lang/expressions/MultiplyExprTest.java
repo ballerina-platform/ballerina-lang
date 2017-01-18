@@ -21,6 +21,7 @@ package org.wso2.ballerina.lang.expressions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerina.core.exception.SemanticException;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.values.BDouble;
 import org.wso2.ballerina.core.model.values.BFloat;
@@ -92,5 +93,25 @@ public class MultiplyExprTest {
         double actual = ((BDouble) returns[0]).doubleValue();
         double expected = 16;
         Assert.assertEquals(actual, expected);
+    }
+    
+    /*
+     * Negative tests
+     */
+    
+    @Test(description = "Test multiplying values of two types",
+            expectedExceptions = {SemanticException.class },
+            expectedExceptionsMessageRegExp = "multiply-incompatible-types.bal:5: incompatible " +
+                    "types in binary expression: float vs int")
+    public void testAddIncompatibleTypes() {
+        ParserUtils.parseBalFile("lang/expressions/multiply-incompatible-types.bal");
+    }
+    
+    @Test(description = "Test multiplying values of unsupported types (json)",
+            expectedExceptions = {SemanticException.class },
+            expectedExceptionsMessageRegExp = "Multiply operation is not supported for type: json in " +
+            "multiply-unsupported-types.bal:10")
+    public void testMultiplyUnsupportedTypes() {
+        ParserUtils.parseBalFile("lang/expressions/multiply-unsupported-types.bal");
     }
 }

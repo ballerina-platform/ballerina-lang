@@ -10,7 +10,7 @@ compilationUnit
     (   serviceDefinition
     |   functionDefinition
     |   connectorDefinition
-    |   typeDefinition
+    |   structDefinition
     |   typeConvertorDefinition
     |   constantDefinition
     )+
@@ -43,7 +43,7 @@ resourceDefinition
     ;
 
 functionDefinition
-    :   annotation* 'public'? 'function' Identifier '(' parameterList? ')' returnTypeList? ('throws' Identifier)? functionBody
+    :   annotation* 'public'? 'function' Identifier '(' parameterList? ')' returnParameters? ('throws' Identifier)? functionBody
     ;
 
 //todo rename, this is used in resource, action and funtion
@@ -60,18 +60,18 @@ connectorBody
     ;
 
 actionDefinition
-    :   annotation* 'action' Identifier '(' parameterList ')' returnTypeList?  ('throws' Identifier)? functionBody
+    :   annotation* 'action' Identifier '(' parameterList ')' returnParameters?  ('throws' Identifier)? functionBody
     ;
 
 connectorDeclaration
     :   qualifiedReference Identifier '=' 'new' qualifiedReference '(' expressionList? ')'';'
     ;
 
-typeDefinition
-    :   'public'? 'type' Identifier typeDefinitionBody
+structDefinition
+    :   'public'? 'type' Identifier structDefinitionBody
     ;
 
-typeDefinitionBody
+structDefinitionBody
     :   '{' (typeName Identifier ';')+ '}'
     ;
 
@@ -96,11 +96,19 @@ workerDeclaration
     :   'worker' Identifier '(' typeName Identifier ')'  '{' variableDeclaration* statement+ '}'
     ;
 
-returnTypeList
-    : '(' typeNameList ')'
+returnParameters
+    : '(' (namedParameterList | returnTypeList) ')'
     ;
 
-typeNameList
+namedParameterList
+    :   namedParameter (',' namedParameter)*
+    ;
+
+namedParameter
+    :   typeName Identifier
+    ;
+
+returnTypeList
     :   typeName (',' typeName)*
     ;
 
@@ -325,7 +333,7 @@ returnStatement
 
 // below Identifier is only a type of 'message'
 replyStatement
-    :   'reply' expression? ';'
+    :   'reply' expression ';'
     ;
 
 workerInteractionStatement
@@ -406,7 +414,7 @@ expression
     |   expression ('!=') expression                                        # binaryNotEqualExpression
     |   '[' expressionList ']'                                              # arrayInitializerExpression
     |   '{' mapInitKeyValueList '}'                                         # mapInitializerExpression
-    |   'new' (packageName ':' )? Identifier ('(' expressionList? ')')?     # typeInitializeExpression
+    |   'new' (packageName ':' )? Identifier ('(' expressionList? ')')?     # structInitializeExpression
     ;
 
 mapInitKeyValueList

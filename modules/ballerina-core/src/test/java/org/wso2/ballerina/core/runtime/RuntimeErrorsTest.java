@@ -25,10 +25,12 @@ import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.nativeimpl.connectors.http.client.Get;
+import org.wso2.ballerina.core.nativeimpl.connectors.http.client.HTTPConnector;
 import org.wso2.ballerina.core.nativeimpl.lang.json.GetString;
 import org.wso2.ballerina.core.runtime.errors.handler.ErrorHandlerUtils;
 import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
-import org.wso2.ballerina.core.utils.FunctionUtils;
+import org.wso2.ballerina.core.runtime.registry.PackageRegistry;
 import org.wso2.ballerina.core.utils.ParserUtils;
 import org.wso2.ballerina.lang.util.Functions;
 
@@ -43,24 +45,20 @@ public class RuntimeErrorsTest {
     @BeforeClass
     public void setup() {
         SymScope symScope = GlobalScopeHolder.getInstance().getScope();
-        FunctionUtils.addNativeFunction(symScope, new GetString());
+        PackageRegistry.getInstance().registerNativeFunction(new GetString());
+        PackageRegistry.getInstance().registerNativeConnector(new HTTPConnector());
+        PackageRegistry.getInstance().registerNativeAction(new Get());
         bFile = ParserUtils.parseBalFile("lang/runtime-errors.bal", symScope);
     }
 
-    @Test(expectedExceptions = {BallerinaException.class },
-            expectedExceptionsMessageRegExp = "Array index out of range: Index: 5, Size: 2")
-    public void testArrayIndexOutOfBoundError() {
-        Functions.invoke(bFile, "arrayIndexOutOfBoundTest");
-    }
-    
     @Test
     public void testStackTraceOnError() {
         Exception ex = null;
         Context bContext = new Context();
-        String expectedStackTrace = "\t at test.lang:getApple(runtime-errors.bal:23)\n" +
-                "\t at test.lang:getFruit2(runtime-errors.bal:19)\n" +
-                "\t at test.lang:getFruit1(runtime-errors.bal:15)\n" +
-                "\t at test.lang:testStackTrace(runtime-errors.bal:12)\n";
+        String expectedStackTrace = "\t at test.lang:getApple(runtime-errors.bal:26)\n" +
+                "\t at test.lang:getFruit2(runtime-errors.bal:22)\n" +
+                "\t at test.lang:getFruit1(runtime-errors.bal:18)\n" +
+                "\t at test.lang:testStackTrace(runtime-errors.bal:15)\n";
         try {
             Functions.invoke(bFile, "testStackTrace", bContext);
         } catch (BallerinaException e) {
@@ -75,7 +73,7 @@ public class RuntimeErrorsTest {
             bContext.getControlStack().getStack().remove(0);
             
             // Check the stack trace
-            String stackTrace = ErrorHandlerUtils.getBallerinaStackTrace(bContext);
+            String stackTrace = ErrorHandlerUtils.getServiceStackTrace(bContext, ex);
             Assert.assertEquals(stackTrace, expectedStackTrace);
         }
     }
@@ -87,4 +85,46 @@ public class RuntimeErrorsTest {
         Functions.invoke(bFile, "nativeFunctionErrorTest");
     }
 
+    @Test(expectedExceptions = {BallerinaException.class},
+            expectedExceptionsMessageRegExp = "Failed to invoke 'Get' action in HTTPConnector. Malformed url " +
+            "specified. no protocol: malformed/url/context")
+    public void testNativeConnectorError() {
+        Functions.invoke(bFile, "nativeConnectorErrorTest");
+    }
+    
+    @Test
+    public void testStackOverflowError() {
+        Throwable ex = null;
+        Context bContext = new Context();
+        String expectedStackTrace = getStackOverflowTrace();
+        try {
+            Functions.invoke(bFile, "testStackOverflow", bContext);
+        } catch (Throwable e) {
+            ex = e;
+        } finally {
+            Assert.assertTrue(ex instanceof StackOverflowError, "Expected a " + StackOverflowError.class.getName() +
+                ", but found: " + ex + ".");
+            
+            // removing the first element since we are not invoking a main function
+            bContext.getControlStack().getStack().remove(0);
+            
+            // Check the stack trace
+            String stackTrace = ErrorHandlerUtils.getServiceStackTrace(bContext, ex);
+            Assert.assertEquals(stackTrace, expectedStackTrace);
+        }
+    }
+    
+    private static String getStackOverflowTrace() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < 40; i++) {
+            if (i == 20 || i == 21) {
+                sb.append("\t ...\n");
+            } else {
+                sb.append("\t at test.lang:infiniteRecurse(runtime-errors.bal:51)\n");
+            }
+        }
+        sb.append("\t at test.lang:infiniteRecurse(runtime-errors.bal:47)\n");
+        sb.append("\t at test.lang:testStackOverflow(runtime-errors.bal:46)\n");
+        return sb.toString();
+    }
 }

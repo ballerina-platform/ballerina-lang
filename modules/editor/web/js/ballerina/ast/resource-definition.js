@@ -15,16 +15,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './node'],
-    function (_, log, ASTNode) {
+define(['lodash', 'require', 'log', './node'],
+    function (_, require, log, ASTNode) {
 
     /**
      * Constructor for ResourceDefinition
      * @param {Object} args - The arguments to create the ServiceDefinition
-     * @param {string} args.resourceName [args.resourceName=newResource] - Service name
-     * @param {string[]} args.annotations - Resource annotations
-     * @param {string} args.annotations.Method - Resource annotation for Method
-     * @param {string} args.annotations.Path - Resource annotation for Path
+     * @param {string} [args.resourceName=newResource] - Service name
+     * @param {string[]} [args.annotations] - Resource annotations
+     * @param {string} [args.annotations.Method] - Resource annotation for Method
+     * @param {string} [args.annotations.Path] - Resource annotation for Path
      * @constructor
      */
     var ResourceDefinition = function (args) {
@@ -242,19 +242,89 @@ define(['lodash', 'log', './node'],
     /**
      * initialize ResourceDefinition from json object
      * @param {Object} jsonNode to initialize from
-     * @param {string} jsonNode.resource_name - Name of the resource definition
-     * @param {string} jsonNode.annotations - Annotations of the resource definition
+     * @param {string} [jsonNode.resource_name] - Name of the resource definition
+     * @param {string} [jsonNode.annotations] - Annotations of the resource definition
      */
     ResourceDefinition.prototype.initFromJson = function (jsonNode) {
         this._resourceName = jsonNode.resource_name;
         this._annotations = jsonNode.annotations;
 
         var self = this;
+        _.each(this._annotations, function (annotation) {
+            if (annotation.annotation_name === "POST") {
+                self._annotations.push({
+                    key: "Method",
+                    value: "POST"
+                });
+            } else if (annotation.annotation_name === "GET") {
+                self._annotations.push({
+                    key: "Method",
+                    value: "GET"
+                });
+            } else if (annotation.annotation_name === "PUT") {
+                self._annotations.push({
+                    key: "Method",
+                    value: "PUT"
+                });
+            } else if (annotation.annotation_name === "DELETE") {
+                self._annotations.push({
+                    key: "Method",
+                    value: "DELETE"
+                });
+            } else if (annotation.annotation_name === "Path") {
+                self._annotations.push({
+                    key: "Path",
+                    value: annotation.annotation_value
+                });
+            }
+        });
 
         _.each(jsonNode.children, function (childNode) {
             var child = self.BallerinaASTFactory.createFromJson(childNode);
             self.addChild(child);
+            child.initFromJson(childNode);
         });
+    };
+
+        /**
+         * Override the addChild method for ordering the child elements as
+         * [Statements, Workers, Connectors]
+         * @param {ASTNode} child
+         * @param {number|undefined} index
+         */
+    ResourceDefinition.prototype.addChild = function (child, index) {
+        var indexNew;
+        var self = this;
+        if (self.BallerinaASTFactory.isConnectorDeclaration(child)) {
+            indexNew = _.findLastIndex(this.getChildren(), function (node) {
+                self.BallerinaASTFactory.isConnectorDeclaration(node);
+            });
+            indexNew = (indexNew === -1) ? 0 : (indexNew + 1);
+        } else if (this.BallerinaASTFactory.isWorkerDeclaration(child)) {
+            var firstConnector = _.findIndex(this.getChildren(), function (node) {
+                self.BallerinaASTFactory.isConnectorDeclaration(node);
+            });
+            if (firstConnector !== -1) {
+                indexNew = firstConnector - 1;
+            }
+        } else {
+            var firstConnector = _.findIndex(this.getChildren(), function (node) {
+                self.BallerinaASTFactory.isConnectorDeclaration(node);
+            });
+            var firstWorker = _.findIndex(this.getChildren(), function (node) {
+                self.BallerinaASTFactory.isConnectorDeclaration(node);
+            });
+
+            if (firstWorker !== -1) {
+                indexNew = firstWorker - 1;
+            } else if (firstConnector !== -1) {
+                indexNew = index
+            } else {
+                indexNew = index
+            }
+        }
+
+        Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, indexNew);
     };
 
     return ResourceDefinition;

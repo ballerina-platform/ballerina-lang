@@ -22,8 +22,8 @@ define(['lodash', './statement'], function (_, Statement) {
      * @constructor
      */
     var FunctionInvocation = function (args) {
-        this._packageName = _.get(args, 'package', 'pkg');
-        this._functionName = _.get(args, 'function', 'default');
+        this._packageName = _.get(args, 'package', '');
+        this._functionName = _.get(args, 'function', 'callFunction');
         this._params = _.get(args, 'params');
         Statement.call(this, 'FunctionInvocation');
     };
@@ -66,9 +66,12 @@ define(['lodash', './statement'], function (_, Statement) {
      * @param jsonNode
      */
     FunctionInvocation.prototype.initFromJson = function (jsonNode) {
-        this._packageName = jsonNode.package_name;
-        this._functionName = jsonNode.function_name;
-        this._params = jsonNode.params;
+        var self = this;
+        _.each(jsonNode.children, function (childNode) {
+            var child = self.getFactory().createFromJson(childNode);
+            self.addChild(child);
+            child.initFromJson(childNode);
+        });
     };
 
     return FunctionInvocation;

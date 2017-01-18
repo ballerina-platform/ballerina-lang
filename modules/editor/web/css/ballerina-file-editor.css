@@ -1,5 +1,4 @@
 .service-container {
-    width: 100%;
     background: none;
 }
 
@@ -31,6 +30,7 @@
 .outer-box{
     border: 1px solid;
     border-top: none;
+    overflow-x: hidden;
 }
 
 .panel-title{
@@ -45,8 +45,8 @@
 }
 
 .panel-icon, .service-icon, .connector-icon, .function-icon{
-    padding:10px;
-    background-color:black;
+    padding: 10px;
+    background-color: black;
 }
 
 .title-link {
@@ -86,7 +86,7 @@
 }
 
 .text-editor{
-    height: 90%;
+    height: 91%;
 }
 
 .view-source-btn{

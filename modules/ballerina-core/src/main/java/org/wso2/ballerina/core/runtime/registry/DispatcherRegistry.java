@@ -29,7 +29,7 @@ import java.util.Map;
 /**
  * The place where protocol specific dispatchers are stored
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class DispatcherRegistry {
 
@@ -66,6 +66,19 @@ public class DispatcherRegistry {
 
     public void registerResourceDispatcher(ResourceDispatcher dispatcher) {
         resourceDispatchers.put(dispatcher.getProtocol(), dispatcher);
+    }
+
+    public void clearDispatchers() {
+        serviceDispatchers.clear();
+        resourceDispatchers.clear();
+    }
+
+    public void unregisterServiceDispatcher(String name) {
+        serviceDispatchers.remove(name);
+    }
+
+    public void unregisterResourceDispatcher(String name) {
+        resourceDispatchers.remove(name);
     }
 
 }

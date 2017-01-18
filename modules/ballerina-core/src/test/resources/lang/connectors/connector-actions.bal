@@ -1,7 +1,5 @@
 package samples.connectors.test;
 
-import ballerina.lang.system;
-
 connector TestConnector(string param1, string param2, int param3) {
 
     boolean action2Invoked;
@@ -30,7 +28,10 @@ connector TestConnector(string param1, string param2, int param3) {
 
 function testAction1() (boolean) {
     test:TestConnector testConnector = new test:TestConnector("MyParam1", "MyParam2", 5);
-    return test:TestConnector.action1(testConnector);
+    boolean value;
+
+    value = test:TestConnector.action1(testConnector);
+    return value;
 }
 
 function testAction2() {
@@ -40,24 +41,34 @@ function testAction2() {
 
 function testAction3() (boolean) {
     test:TestConnector testConnector = new test:TestConnector("MyParam1", "MyParam2", 5);
-    return test:TestConnector.action3(testConnector);
+    boolean value;
+
+    value = test:TestConnector.action3(testConnector);
+    return value;
 }
 
 function testAction2andAction3() (boolean) {
     test:TestConnector testConnector = new test:TestConnector("MyParam1", "MyParam2", 5);
+    boolean value;
 
     test:TestConnector.action2(testConnector);
-    return test:TestConnector.action3(testConnector);
+
+    value = test:TestConnector.action3(testConnector);
+    return value;
 }
 
 function testAction4(string inputParam) (string) {
     test:TestConnector testConnector = new test:TestConnector(inputParam, "MyParam2", 5);
-    return test:TestConnector.action4(testConnector);
+    string value;
+
+    value = test:TestConnector.action4(testConnector);
+    return value;
 }
 
-function testAction5(string functionArg1, string functionArg2, int functionArg3, string functionArg4) (string, string, int) {
-
-    test:TestConnector testConnector = new test:TestConnector(functionArg1, functionArg2, functionArg3);
-
-    return test:TestConnector.action5(testConnector, functionArg4);
-}
+//function testAction5(string functionArg1, string functionArg2, int functionArg3, string functionArg4) (string, string, int) {
+//    test:TestConnector testConnector = new test:TestConnector(functionArg1, functionArg2, functionArg3);
+//    boolean value;
+//
+//    value = test:TestConnector.action5(testConnector, functionArg4);
+//    return value;
+//}

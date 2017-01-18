@@ -29,7 +29,7 @@
     <groupId>org.wso2.ballerina</groupId>
     <artifactId>ballerina</artifactId>
     <packaging>pom</packaging>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>0.8.0-SNAPSHOT</version>
     <name>WSO2 Ballerina - Parent</name>
 
     <url>http://wso2.org</url>
@@ -298,8 +298,8 @@
     </build>
 
     <properties>
-        <ballerina.version>1.0.0-SNAPSHOT</ballerina.version>
-        <ballerina.package.export.version>1.0.0</ballerina.package.export.version>
+        <ballerina.version>0.8.0-SNAPSHOT</ballerina.version>
+        <ballerina.package.export.version>0.8.0</ballerina.package.export.version>
 
         <!-- Maven plugins -->
         <!--Bundle Plugin - Overridden from parent due to a bug in latest version related to capability providers-->
@@ -325,7 +325,7 @@
         <carbon.kernel.package.import.version.range>[5.0.0, 6.0.0)</carbon.kernel.package.import.version.range>
         <carbon.kernel.pax.version>5.2.0-m2</carbon.kernel.pax.version>
 
-        <carbon.transport.version>3.0.0</carbon.transport.version>
+        <carbon.transport.version>3.0.1</carbon.transport.version>
         <carbon.transport.package.import.version.range>[3.0.0, 3.1.0)</carbon.transport.package.import.version.range>
 
         <carbon.messaging.version>1.0.11</carbon.messaging.version>
@@ -366,6 +366,7 @@
         <pax.exam.link.mvn.version>4.6.0</pax.exam.link.mvn.version>
         <ow2.jta.spec.version>1.0.12</ow2.jta.spec.version>
         <jacoco.version>0.7.5.201505241946</jacoco.version>
+        <cobertura.version>2.7</cobertura.version>
         <maven.paxexam.plugin.version>1.2.4</maven.paxexam.plugin.version>
         <mockito.version>1.9.0</mockito.version>
 

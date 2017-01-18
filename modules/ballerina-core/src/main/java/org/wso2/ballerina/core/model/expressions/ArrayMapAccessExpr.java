@@ -28,7 +28,7 @@ import org.wso2.ballerina.core.model.values.BValue;
  * e.g. x[0] = 5;
  * y = x[0]
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class ArrayMapAccessExpr extends UnaryExpression {
 
@@ -71,7 +71,7 @@ public class ArrayMapAccessExpr extends UnaryExpression {
     /**
      * {@code ArrayMapAccessExprBuilder} represents an array access expression builder
      *
-     * @since 1.0.0
+     * @since 0.8.0
      */
     public static class ArrayMapAccessExprBuilder {
         private SymbolName varName;

@@ -17,7 +17,6 @@
 */
 package org.wso2.ballerina.core.model.expressions;
 
-import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.Operator;
 import org.wso2.ballerina.core.model.Position;
 
@@ -27,20 +26,11 @@ import org.wso2.ballerina.core.model.Position;
  * @see AddExpression
  * @see SubtractExpression
  * @see MultExpression
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class BinaryArithmeticExpression extends BinaryExpression {
 
-    public BinaryArithmeticExpression(Expression lExpr, Operator op, Expression rExpr) {
-        super(lExpr, op, rExpr);
-    }
-    
     public BinaryArithmeticExpression(Expression lExpr, Operator op, Expression rExpr, Position location) {
         super(lExpr, op, rExpr, location);
-    }
-
-    @Override
-    public void accept(NodeVisitor visitor) {
-        visitor.visit(this);
     }
 }

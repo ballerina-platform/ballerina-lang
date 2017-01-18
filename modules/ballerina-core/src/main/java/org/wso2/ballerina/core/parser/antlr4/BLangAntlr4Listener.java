@@ -33,7 +33,7 @@ import java.util.List;
  * Build the Ballerina language model using the listener events from antlr4 parser
  *
  * @see BLangModelBuilder
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class BLangAntlr4Listener implements BallerinaListener {
 
@@ -253,19 +253,23 @@ public class BLangAntlr4Listener implements BallerinaListener {
     }
 
     @Override
-    public void enterTypeDefinition(BallerinaParser.TypeDefinitionContext ctx) {
+    public void enterStructDefinition(BallerinaParser.StructDefinitionContext ctx) {
+
     }
 
     @Override
-    public void exitTypeDefinition(BallerinaParser.TypeDefinitionContext ctx) {
+    public void exitStructDefinition(BallerinaParser.StructDefinitionContext ctx) {
+
     }
 
     @Override
-    public void enterTypeDefinitionBody(BallerinaParser.TypeDefinitionBodyContext ctx) {
+    public void enterStructDefinitionBody(BallerinaParser.StructDefinitionBodyContext ctx) {
+
     }
 
     @Override
-    public void exitTypeDefinitionBody(BallerinaParser.TypeDefinitionBodyContext ctx) {
+    public void exitStructDefinitionBody(BallerinaParser.StructDefinitionBodyContext ctx) {
+
     }
 
     @Override
@@ -290,6 +294,9 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitConstantDefinition(BallerinaParser.ConstantDefinitionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
         createBasicLiteral(ctx.literalValue());
         if (ctx.Identifier() != null) {
             modelBuilder.createConstant(ctx.Identifier().getText(), getCurrentLocation(ctx));
@@ -317,22 +324,52 @@ public class BLangAntlr4Listener implements BallerinaListener {
     }
 
     @Override
+    public void enterReturnParameters(BallerinaParser.ReturnParametersContext ctx) {
+
+    }
+
+    @Override
+    public void exitReturnParameters(BallerinaParser.ReturnParametersContext ctx) {
+
+    }
+
+    @Override
+    public void enterNamedParameterList(BallerinaParser.NamedParameterListContext ctx) {
+
+    }
+
+    @Override
+    public void exitNamedParameterList(BallerinaParser.NamedParameterListContext ctx) {
+
+    }
+
+    @Override
+    public void enterNamedParameter(BallerinaParser.NamedParameterContext ctx) {
+
+    }
+
+    @Override
+    public void exitNamedParameter(BallerinaParser.NamedParameterContext ctx) {
+        // Value of the ctx.exception is not null, if there are any parser level issues.
+        if (ctx.exception != null) {
+            return;
+        }
+
+        modelBuilder.createNamedReturnParams(ctx.Identifier().getText(), getCurrentLocation(ctx));
+    }
+
+    @Override
     public void enterReturnTypeList(BallerinaParser.ReturnTypeListContext ctx) {
+
     }
 
     @Override
     public void exitReturnTypeList(BallerinaParser.ReturnTypeListContext ctx) {
-        if (ctx.exception == null) {
-            modelBuilder.createReturnTypes();
+        if (ctx.exception != null) {
+            return;
         }
-    }
 
-    @Override
-    public void enterTypeNameList(BallerinaParser.TypeNameListContext ctx) {
-    }
-
-    @Override
-    public void exitTypeNameList(BallerinaParser.TypeNameListContext ctx) {
+        modelBuilder.createReturnTypes(getCurrentLocation(ctx));
     }
 
     @Override
@@ -598,19 +635,30 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitAssignmentStatement(BallerinaParser.AssignmentStatementContext ctx) {
-        if (ctx.exception == null) {
-            modelBuilder.createAssignmentExpr(getCurrentLocation(ctx));
+        if (ctx.exception != null) {
+            return;
         }
+
+        modelBuilder.createAssignmentStmt(getCurrentLocation(ctx));
     }
 
     @Override
     public void enterVariableReferenceList(BallerinaParser.VariableReferenceListContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
 
+        modelBuilder.startVarRefList();
     }
 
     @Override
     public void exitVariableReferenceList(BallerinaParser.VariableReferenceListContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
 
+        int noOfArguments = getNoOfArgumentsInList(ctx);
+        modelBuilder.endVarRefList(noOfArguments);
     }
 
     @Override
@@ -860,31 +908,12 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitExpressionList(BallerinaParser.ExpressionListContext ctx) {
-        // Here is the production for the argument list
-        // argumentList
-        //    :   '(' expressionList ')'
-        //    ;
-        //
-        // expressionList
-        //    :   expression (',' expression)*
-        //    ;
-
-        // Now we need to calculate the number of arguments in a function or an action.
-        // We can do the by getting the children of expressionList from the ctx
-        // The following count includes the token for the ","  as well.
-        int childCountExprList = ctx.getChildCount();
-
-        // Therefore we need to subtract the numer of ","
-        // e.g. (a, b)          => childCount = 3, noOfArguments = 2;
-        //      (a, b, c)       => childCount = 5, noOfArguments = 3;
-        //      (a, b, c, d)    => childCount = 7, noOfArguments = 4;
-        // Here childCount is always an odd number.
-        // noOfarguments = childCount mod 2 + 1
-
-        if (ctx.exception == null) {
-            int noOfArguments = childCountExprList / 2 + 1;
-            modelBuilder.endExprList(noOfArguments);
+        if (ctx.exception != null) {
+            return;
         }
+
+        int noOfArguments = getNoOfArgumentsInList(ctx);
+        modelBuilder.endExprList(noOfArguments);
     }
 
     @Override
@@ -931,7 +960,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
     @Override
     public void exitBacktickString(BallerinaParser.BacktickStringContext ctx) {
         if (ctx.exception == null) {
-            modelBuilder.createBackquoteExpr(ctx.BacktickStringLiteral().getText(), getCurrentLocation(ctx));
+            modelBuilder.createBacktickExpr(ctx.BacktickStringLiteral().getText(), getCurrentLocation(ctx));
         }
     }
 
@@ -954,17 +983,6 @@ public class BLangAntlr4Listener implements BallerinaListener {
     @Override
     public void exitBinaryGTExpression(BallerinaParser.BinaryGTExpressionContext ctx) {
         createBinaryExpr(ctx);
-    }
-
-    @Override
-    public void enterTypeInitializeExpression(BallerinaParser.TypeInitializeExpressionContext ctx) {
-    }
-
-    @Override
-    public void exitTypeInitializeExpression(BallerinaParser.TypeInitializeExpressionContext ctx) {
-        if (ctx.exception == null) {
-            modelBuilder.createInstanceCreaterExpr(ctx.Identifier().getText(), getCurrentLocation(ctx));
-        }
     }
 
     @Override
@@ -1053,6 +1071,22 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitTypeCastingExpression(BallerinaParser.TypeCastingExpressionContext ctx) {
+    }
+
+    @Override
+    public void enterStructInitializeExpression(BallerinaParser.StructInitializeExpressionContext ctx) {
+
+    }
+
+    @Override
+    public void exitStructInitializeExpression(BallerinaParser.StructInitializeExpressionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        boolean exprListAvailable = ctx.expressionList() != null;
+        modelBuilder.createInstanceCreaterExpr(ctx.Identifier().getText(), exprListAvailable, getCurrentLocation(ctx));
+
     }
 
     @Override
@@ -1268,12 +1302,24 @@ public class BLangAntlr4Listener implements BallerinaListener {
         if (ctx.exception == null) {
             TerminalNode terminalNode = ctx.IntegerLiteral();
             if (terminalNode != null) {
-                modelBuilder.createIntegerLiteral(terminalNode.getText(), getCurrentLocation(ctx));
+                if (terminalNode.getText().endsWith("l") || terminalNode.getText().endsWith("L")) {
+                    //dropping the last character L
+                    String longValue = terminalNode.getText().substring(0, terminalNode.getText().length() - 1);
+                    modelBuilder.createLongLiteral(longValue, getCurrentLocation(ctx));
+                } else {
+                    modelBuilder.createIntegerLiteral(terminalNode.getText(), getCurrentLocation(ctx));
+                }
             }
 
             terminalNode = ctx.FloatingPointLiteral();
             if (terminalNode != null) {
-                modelBuilder.createFloatLiteral(terminalNode.getText(), getCurrentLocation(ctx));
+                if (terminalNode.getText().endsWith("d") || terminalNode.getText().endsWith("D")) {
+                    //dropping the last character D
+                    String doubleValue = terminalNode.getText().substring(0, terminalNode.getText().length() - 1);
+                    modelBuilder.createDoubleLiteral(doubleValue, getCurrentLocation(ctx));
+                } else {
+                    modelBuilder.createFloatLiteral(terminalNode.getText(), getCurrentLocation(ctx));
+                }
             }
 
             terminalNode = ctx.QuotedStringLiteral();
@@ -1294,10 +1340,34 @@ public class BLangAntlr4Listener implements BallerinaListener {
             }
         }
     }
-    
+
     private Position getCurrentLocation(ParserRuleContext ctx) {
         String fileName = ctx.getStart().getInputStream().getSourceName();
         int lineNo = ctx.getStart().getLine();
         return new Position(fileName, lineNo);
+    }
+
+    private int getNoOfArgumentsInList(ParserRuleContext ctx) {
+        // Here is the production for the argument list
+        // argumentList
+        //    :   '(' expressionList ')'
+        //    ;
+        //
+        // expressionList
+        //    :   expression (',' expression)*
+        //    ;
+
+        // Now we need to calculate the number of arguments in a function or an action.
+        // We can do the by getting the children of expressionList from the ctx
+        // The following count includes the token for the ","  as well.
+        int childCountExprList = ctx.getChildCount();
+
+        // Therefore we need to subtract the number of ","
+        // e.g. (a, b)          => childCount = 3, noOfArguments = 2;
+        //      (a, b, c)       => childCount = 5, noOfArguments = 3;
+        //      (a, b, c, d)    => childCount = 7, noOfArguments = 4;
+        // Here childCount is always an odd number.
+        // noOfArguments = childCount mod 2 + 1
+        return childCountExprList / 2 + 1;
     }
 }

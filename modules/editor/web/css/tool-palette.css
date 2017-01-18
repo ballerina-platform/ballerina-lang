@@ -16,7 +16,9 @@
 
 .tool-group-header{
     cursor: pointer;
-    padding: 10px 1px;
+    padding: 5px 1px;
+    background: whitesmoke;
+    border-bottom: 1px solid #e4e4e4;
 }
 
 .tool-group-header-title{
@@ -35,7 +37,7 @@
 
 .tool-group-body{
     overflow: hidden;
-    padding: 0 9px 10px 9px;
+    padding:10px 9px;
 }
 
 .collapse-icon{
@@ -47,8 +49,8 @@
 }
 
 .tool-container {
-    width: 25px;
-    height: 25px;
+    width: 39px;
+    height: 39px;
     margin: 3px;
     float: left;
     cursor: pointer;
@@ -80,13 +82,6 @@
     white-space: nowrap;
     text-align: center;
     float: left;
-}
-
-.tool-image {
-    max-width: 18px;
-    max-height: 18px;
-    display : block;
-    margin : auto;
 }
 
 .tool-title {
@@ -132,4 +127,14 @@
     position: absolute;
     right: 0px;
     top: 0px;
+}
+.tool-container > .tool-image{
+    max-width: 23px;
+    max-height: 24px;
+    display: block;
+    margin: 4px 0 0 4px;
+    opacity: 0.7;
+}
+.tool-container > .tool-image:hover {
+    opacity: 1;
 }

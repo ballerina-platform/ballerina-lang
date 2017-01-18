@@ -33,6 +33,7 @@ import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 import org.wso2.ballerina.core.semantics.SemanticAnalyzer;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.OPTIONS;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.GET;
@@ -81,15 +82,35 @@ public class BLangFileRestService {
         try {
             InputStream stream = new ByteArrayInputStream(content.getContent().getBytes(StandardCharsets.UTF_8));
             String response = parseJsonDataModel(stream);
-            return Response.ok(response, MediaType.APPLICATION_JSON).build();
+            return Response.ok(response, MediaType.APPLICATION_JSON).header("Access-Control-Allow-Origin", '*').build();
         } catch (IOException ex) {
             logger.error("IOException occured while generating JSON data model for ballerina file", ex);
             JsonObject entity = new JsonObject();
             entity.addProperty("Error", ex.toString());
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(entity)
+            return Response.status(Response.Status.BAD_REQUEST).entity(entity)
                     .header("Access-Control-Allow-Origin", '*')
                     .type(MediaType.APPLICATION_JSON).build();
+        } catch (Exception e) {
+            logger.error("Exception occured while generating JSON data model for ballerina file", e);
+            JsonObject entity = new JsonObject();
+            entity.addProperty("Error", e.toString());
+            return Response.status(Response.Status.BAD_REQUEST).entity(entity)
+                           .header("Access-Control-Allow-Origin", '*')
+                           .type(MediaType.APPLICATION_JSON).build();
         }
+    }
+
+    @OPTIONS
+    @Path("/model/content")
+    @Consumes("application/json")
+    @Produces("application/json")
+    public Response options() {
+        return Response.ok()
+                       .header("Access-Control-Allow-Origin", "*")
+                       .header("Access-Control-Allow-Credentials", "true")
+                       .header("Access-Control-Allow-Methods", "POST, GET, PUT, UPDATE, DELETE, OPTIONS, HEAD")
+                       .header("Access-Control-Allow-Headers", "Content-Type, Accept, X-Requested-With")
+                       .build();
     }
 
     private String parseJsonDataModel(InputStream stream) throws IOException {
@@ -110,7 +131,8 @@ public class BLangFileRestService {
 
         SymScope globalScope = GlobalScopeHolder.getInstance().getScope();
         SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(bFile, globalScope);
-        bFile.accept(semanticAnalyzer);
+        // TODO: There is a bug in SemanticAnalyzer of the Ballerina engine. Temporary avoiding Semantic Analyzing due to that issue.
+        //bFile.accept(semanticAnalyzer);
 
         JsonObject response = new JsonObject();
         BLangJSONModelBuilder jsonModelBuilder = new BLangJSONModelBuilder(response);

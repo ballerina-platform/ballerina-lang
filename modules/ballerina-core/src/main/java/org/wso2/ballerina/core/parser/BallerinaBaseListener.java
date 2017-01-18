@@ -172,25 +172,25 @@ public class BallerinaBaseListener implements BallerinaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterTypeDefinition(BallerinaParser.TypeDefinitionContext ctx) { }
+	@Override public void enterStructDefinition(BallerinaParser.StructDefinitionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitTypeDefinition(BallerinaParser.TypeDefinitionContext ctx) { }
+	@Override public void exitStructDefinition(BallerinaParser.StructDefinitionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterTypeDefinitionBody(BallerinaParser.TypeDefinitionBodyContext ctx) { }
+	@Override public void enterStructDefinitionBody(BallerinaParser.StructDefinitionBodyContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitTypeDefinitionBody(BallerinaParser.TypeDefinitionBodyContext ctx) { }
+	@Override public void exitStructDefinitionBody(BallerinaParser.StructDefinitionBodyContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -256,6 +256,42 @@ public class BallerinaBaseListener implements BallerinaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterReturnParameters(BallerinaParser.ReturnParametersContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitReturnParameters(BallerinaParser.ReturnParametersContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterNamedParameterList(BallerinaParser.NamedParameterListContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitNamedParameterList(BallerinaParser.NamedParameterListContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterNamedParameter(BallerinaParser.NamedParameterContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitNamedParameter(BallerinaParser.NamedParameterContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterReturnTypeList(BallerinaParser.ReturnTypeListContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -263,18 +299,6 @@ public class BallerinaBaseListener implements BallerinaListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitReturnTypeList(BallerinaParser.ReturnTypeListContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterTypeNameList(BallerinaParser.TypeNameListContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitTypeNameList(BallerinaParser.TypeNameListContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -1012,18 +1036,6 @@ public class BallerinaBaseListener implements BallerinaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterTypeInitializeExpression(BallerinaParser.TypeInitializeExpressionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitTypeInitializeExpression(BallerinaParser.TypeInitializeExpressionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterTemplateExpression(BallerinaParser.TemplateExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1235,6 +1247,18 @@ public class BallerinaBaseListener implements BallerinaListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitTypeCastingExpression(BallerinaParser.TypeCastingExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterStructInitializeExpression(BallerinaParser.StructInitializeExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitStructInitializeExpression(BallerinaParser.StructInitializeExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

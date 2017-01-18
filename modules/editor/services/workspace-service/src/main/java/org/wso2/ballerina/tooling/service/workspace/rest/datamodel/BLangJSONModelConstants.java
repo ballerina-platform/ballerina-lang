@@ -76,6 +76,8 @@ public class BLangJSONModelConstants {
 
     public static final String CONNECTOR_DCL_NAME = "connector_name";
 
+    public static final String CONNECTOR_DCL_PKG_NAME = "connector_pkg_name";
+
     public static final String CONNECTOR_DCL_VARIABLE = "connector_variable";
 
     public static final String VARIABLE_NAME = "variable_name";
@@ -87,6 +89,10 @@ public class BLangJSONModelConstants {
     public static final String CONNECTOR_NAME = "connector_name";
 
     public static final String ACTION_NAME = "action_name";
+
+    public static final String ACTION_PKG_NAME = "action_pkg_name";
+
+    public static final String ACTION_CONNECTOR_NAME = "action_connector_name";
 
     public static final String STATEMENT_TYPE = "type";
 
@@ -126,7 +132,9 @@ public class BLangJSONModelConstants {
 
     public static final String SUBTRACT_EXPRESSION = "subtract_expression";
 
-    public static final String MULTIPLY_EXPRESSION = "subtract_expression";
+    public static final String MULTIPLY_EXPRESSION = "multiplication_expression";
+
+    public static final String DIVISION_EXPRESSION = "division_expression";
 
     public static final String AND_EXPRESSION = "and_expression";
 
@@ -140,9 +148,9 @@ public class BLangJSONModelConstants {
 
     public static final String GREATER_THAN_EXPRESSION = "greater_than_expression";
 
-    public static final String LESS_EQUAL_EXPRESSION = "greater_equal_expression";
+    public static final String LESS_EQUAL_EXPRESSION = "less_equal_expression";
 
-    public static final String LESS_THAN_EXPRESSION = "greater_than_expression";
+    public static final String LESS_THAN_EXPRESSION = "less_than_expression";
 
     public static final String VARIABLE_REFERENCE_EXPRESSION = "variable_reference_expression";
 
@@ -150,12 +158,32 @@ public class BLangJSONModelConstants {
 
     public static final String ARRAY_INIT_EXPRESSION = "array_init_expression";
 
+    public static final String ARRAY_MAP_ACCESS_EXPRESSION = "array_map_access_expression";
+
+    public static final String ARRAY_MAP_ACCESS_EXPRESSION_NAME = "array_map_access_expression_name";
+
+    public static final String ARRAY_MAP_ACCESS_EXPRESSION_INDEX = "array_map_access_expression_index";
+
     public static final String BACK_QUOTE_EXPRESSION = "back_quote_expression";
 
-    public static final String BACK_QUOTE_ENCLOSED_STRING = "back_quate_enclosed_string";
+    public static final String BACK_QUOTE_ENCLOSED_STRING = "back_quote_enclosed_string";
 
     public static final String INSTANCE_CREATION_EXPRESSION = "instance_creation_expression";
 
+    public static final String INSTANCE_CREATION_EXPRESSION_INSTANCE_TYPE = "instance_type";
+
     public static final String IF_ELSE_STATEMENT = "if_else_statement";
+
+    public static final String IF_STATEMENT = "if_statement";
+
+    public static final String IF_STATEMENT_THEN_BODY = "then_body";
+
+    public static final String IF_STATEMENT_IF_CONDITION = "if_condition";
+
+    public static final String ELSE_STATEMENT = "else_statement";
+
+    public static final String STATEMENT = "statement";
+
+    public static final String EXPRESSION = "expression";
 
 }

@@ -72,4 +72,8 @@ public class EnvironmentInitializer {
         ApplicationRegistry.getInstance().registerApplication(app);
     }
 
+    public static void cleanup() {
+        DispatcherRegistry.getInstance().clearDispatchers();
+    }
+
 }

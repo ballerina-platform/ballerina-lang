@@ -30,7 +30,7 @@ import org.wso2.ballerina.lang.util.Functions;
 /**
  * Test map initializer expression
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class MapInitializerExprTest {
 
@@ -55,7 +55,10 @@ public class MapInitializerExprTest {
         Assert.assertEquals(mapValue.get(new BString("animal1")).stringValue(), "Lion");
         Assert.assertEquals(mapValue.get(new BString("animal2")).stringValue(), "Cat");
         Assert.assertEquals(mapValue.get(new BString("animal4")).stringValue(), "Dog");
-
     }
 
+    @Test(description = "Test map initializing with different types")
+    public void testMultiTypeMapInit() {
+        ParserUtils.parseBalFile("lang/expressions/multi-type-map-initializer.bal");
+    }
 }

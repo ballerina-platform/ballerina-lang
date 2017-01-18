@@ -17,7 +17,6 @@
 */
 package org.wso2.ballerina.core.model.expressions;
 
-import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.Operator;
 
 /**
@@ -26,7 +25,7 @@ import org.wso2.ballerina.core.model.Operator;
  * Refer: https://en.wikipedia.org/wiki/Arity#n-ary
  *
  * @see ArrayInitExpr
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class NaryExpression extends UnaryExpression {
 
@@ -39,10 +38,5 @@ public class NaryExpression extends UnaryExpression {
 
     public Expression[] getArgExprs() {
         return argExprs;
-    }
-
-    @Override
-    public void accept(NodeVisitor visitor) {
-        visitor.visit(this);
     }
 }

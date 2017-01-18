@@ -34,7 +34,7 @@ import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
 /**
  * {@code RuntimeEnvironment} represents the runtime environment of a Ballerina application
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class RuntimeEnvironment {
     private StaticMemory staticMemory;
@@ -92,8 +92,10 @@ public class RuntimeEnvironment {
             connector = nativeConnector;
 
         } else {
-            bValueRefs = new BValue[argExprs.length];
             BallerinaConnector ballerinaConnector = (BallerinaConnector) connector;
+            // sum of, number of arguments, number of declared variables and declared connectors
+            bValueRefs = new BValue[argExprs.length + ballerinaConnector.getVariableDcls().length + ballerinaConnector
+                    .getConnectorDcls().length];
 
             offset = populateConnectorArgs(staticMemory, argExprs, bValueRefs, offset);
 
@@ -132,6 +134,11 @@ public class RuntimeEnvironment {
                     bValueRefs[j] = staticMemory.getValue(location.getStaticMemAddrOffset());
                     offset++;
                     continue;
+                } else if (variableRefExpr.getMemoryLocation() instanceof ConnectorVarLocation) {
+                    ConnectorVarLocation location = (ConnectorVarLocation) variableRefExpr.getMemoryLocation();
+                    bValueRefs[j] = staticMemory.getValue(location.getConnectorMemAddrOffset());
+                    offset++;
+                    continue;
                 }
             }
 
@@ -145,7 +152,7 @@ public class RuntimeEnvironment {
      * {@code StaticMemory} represents an statically allocated block of memory which is used to store data
      * which does not change when the program executes
      *
-     * @since 1.0.0
+     * @since 0.8.0
      */
     public static class StaticMemory {
         BValue[] memSlots;

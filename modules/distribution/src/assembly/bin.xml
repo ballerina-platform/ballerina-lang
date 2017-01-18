@@ -78,10 +78,19 @@
             <directory>carbon-home/bin</directory>
             <outputDirectory>bin</outputDirectory>
             <includes>
-                <include>**/*.sh</include>
-                <include>**/*.bat</include>
+                <include>**/ballerina</include>
+                <include>**/ballerinaserver</include>
+                <include>**/editor</include>
             </includes>
             <fileMode>755</fileMode>
+        </fileSet>
+        <fileSet>
+            <directory>carbon-home/bin</directory>
+            <outputDirectory>bin</outputDirectory>
+            <includes>
+                <include>**/*.bat</include>
+            </includes>
+            <fileMode>644</fileMode>
         </fileSet>
         <fileSet>
             <directory>carbon-home/resources/help</directory>
@@ -133,6 +142,14 @@
             <outputDirectory>resources/editor/services</outputDirectory>
             <includes>
                 <include>workspace-service*.jar</include>
+            </includes>
+            <fileMode>644</fileMode>
+        </fileSet>
+        <fileSet>
+            <directory>../editor/services/workspace-service/src/main/resources/</directory>
+            <outputDirectory>resources/editor/services</outputDirectory>
+            <includes>
+                <include>netty-transports.yml</include>
             </includes>
             <fileMode>644</fileMode>
         </fileSet>

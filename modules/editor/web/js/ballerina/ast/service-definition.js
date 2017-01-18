@@ -21,9 +21,9 @@ define(['lodash', './node'],
     /**
      * Constructor for ServiceDefinition
      * @param {Object} args - The arguments to create the ServiceDefinition
-     * @param {string} args.serviceName [args.serviceName=newService] - Service name
-     * @param {string[]} args.annotations - Service annotations
-     * @param {string} args.annotations.BasePath - Service annotation for BasePath
+     * @param {string} [args.serviceName=newService] - Service name
+     * @param {string[]} [args.annotations] - Service annotations
+     * @param {string} [args.annotations.BasePath] - Service annotation for BasePath
      * @constructor
      */
     var ServiceDefinition = function (args) {
@@ -154,25 +154,55 @@ define(['lodash', './node'],
      */
     ServiceDefinition.prototype.canBeParentOf = function (node) {
         return this.BallerinaASTFactory.isResourceDefinition(node)
-            || this.BallerinaASTFactory.isVariableDeclaration(node);
+            || this.BallerinaASTFactory.isVariableDeclaration(node)
+            || this.BallerinaASTFactory.isConnectorDeclaration(node);
     };
 
     /**
      * initialize ServiceDefinition from json object
      * @param {Object} jsonNode to initialize from
-     * @param {string} jsonNode.service_name - Name of the service definition
-     * @param {string} jsonNode.annotations - Annotations of the function definition
+     * @param {string} [jsonNode.service_name] - Name of the service definition
+     * @param {string} [jsonNode.annotations] - Annotations of the function definition
      */
     ServiceDefinition.prototype.initFromJson = function (jsonNode) {
-        this._serviceName = jsonNode.service_name;
-        this._annotations = jsonNode.annotations;
-
         var self = this;
+        this._serviceName = jsonNode.service_name;
 
+        // Populate the annotations array
+        for (var itr = 0; itr < this._annotations.length; itr ++) {
+            var key = this._annotations[itr].key;
+            for (var itrInner = 0; itrInner < jsonNode.annotations.length; itrInner ++) {
+                if (jsonNode.annotations[itrInner].annotation_name === key) {
+                    this._annotations[itr].value = jsonNode.annotations[itrInner].annotation_value;
+                }
+            }
+        }
         _.each(jsonNode.children, function (childNode) {
             var child = self.BallerinaASTFactory.createFromJson(childNode);
             self.addChild(child);
+            child.initFromJson(childNode);
         });
+    };
+
+    /**
+     * Override the super call to addChild
+     * @param {ASTNode} child
+     * @param {number} index
+     */
+    ServiceDefinition.prototype.addChild = function (child, index) {
+        var self = this;
+        var newIndex = index;
+        // Always the connector declarations should be the first children
+        if (this.BallerinaASTFactory.isConnectorDeclaration(child)) {
+            newIndex = _.findLastIndex(this.getChildren(), function (node) {
+                return self.BallerinaASTFactory.isConnectorDeclaration(node);
+            });
+        }
+        if (newIndex === -1) {
+            Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, 0);
+        } else {
+            Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, newIndex);
+        }
     };
 
     return ServiceDefinition;
