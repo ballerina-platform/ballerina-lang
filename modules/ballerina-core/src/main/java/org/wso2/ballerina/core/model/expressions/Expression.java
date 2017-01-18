@@ -28,7 +28,7 @@ import org.wso2.ballerina.core.model.types.BType;
  * @see AddExpression
  * @see VariableRefExpr
  * @see FunctionInvocationExpr
- * @since 1.0.0
+ * @since 0.8.0
  */
 public interface Expression extends Node, ExecutableExpr {
 

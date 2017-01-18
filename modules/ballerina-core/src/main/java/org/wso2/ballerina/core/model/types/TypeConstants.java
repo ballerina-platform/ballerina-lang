@@ -20,7 +20,7 @@ package org.wso2.ballerina.core.model.types;
 /**
  * This class contains all the supported type names as string
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class TypeConstants {
 

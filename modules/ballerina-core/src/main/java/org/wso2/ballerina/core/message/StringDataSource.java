@@ -26,7 +26,7 @@ import java.nio.charset.Charset;
 /**
  * {@code StringValue} represents a string value in Ballerina
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class StringDataSource extends BallerinaMessageDataSource {
     private String value;

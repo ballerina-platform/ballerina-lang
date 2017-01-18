@@ -34,7 +34,7 @@ import java.util.function.BiFunction;
 /**
  * {@code UnaryExpression} represents a unary expression
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class UnaryExpression extends AbstractExpression {
 
