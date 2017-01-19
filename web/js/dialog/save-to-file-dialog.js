@@ -123,7 +123,7 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
                 var configName = fileSave.find("input").filter("#configName");
 
                 var treeContainer  = fileSave.find("div").filter("#fileTree")
-                fileBrowser = new FileBrowser({container: treeContainer, application:app, action:'saveFile'});
+                fileBrowser = new FileBrowser({container: treeContainer, application:app, fetchFiles:false});
 
                 fileBrowser.render();
                 this._fileBrowser = fileBrowser;
