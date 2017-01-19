@@ -198,7 +198,7 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
                                 if(app.workspaceExplorer.isEmpty()){
                                     app.commandManager.dispatch("open-folder", location.val());
                                     if(!app.workspaceExplorer.isActive()){
-                                        app.commandManager.dispatch("toggle-file-explorer", location.val());
+                                        app.commandManager.dispatch("toggle-file-explorer");
                                     }
                                 }
                                 app.breadcrumbController.setPath(location.val(), configName.val());
