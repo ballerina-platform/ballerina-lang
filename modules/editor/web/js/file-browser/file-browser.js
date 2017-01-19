@@ -40,15 +40,11 @@ define(['jquery', 'backbone', 'lodash', 'tree_view', /** void module - jquery pl
                 log.error('Cannot init file browser. config: application not found.')
             }
 
-            if (!_.has(config, 'action')) {
-                log.error('Cannot init file browser. config: action not found.')
-            }
-
             this.application = _.get(config, 'application');
             this._options = config;
             this.workspaceServiceURL = _.get(this._options, 'application.config.services.workspace.endpoint');
             this._isActive = false;
-            this.action = _.get(config, 'action');
+            this._fetchFiles = _.get(config, 'fetchFiles', false);
         },
 
         /**
@@ -61,7 +57,6 @@ define(['jquery', 'backbone', 'lodash', 'tree_view', /** void module - jquery pl
 
         render: function () {
             var self = this;
-            var action = this.action;
             this._$parent_el
                 .jstree({
                     'core': {
@@ -71,10 +66,10 @@ define(['jquery', 'backbone', 'lodash', 'tree_view', /** void module - jquery pl
                                     return self.workspaceServiceURL + "/root";
                                 }
                                 else {
-                                    if (action === 'saveFile') {
-                                        return self.workspaceServiceURL + "/list?path=" + btoa(node.id);
-                                    } else if (action == 'openFile') {
+                                    if (self._fetchFiles) {
                                         return self.workspaceServiceURL + "/listFiles?path=" + btoa(node.id);
+                                    } else {
+                                        return self.workspaceServiceURL + "/list?path=" + btoa(node.id);
                                     }
                                 }
 
