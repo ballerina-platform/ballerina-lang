@@ -45,6 +45,7 @@ public class Constants {
     public static final String HTTP_METHOD_GET = "GET";
     public static final String HTTP_METHOD_POST = "POST";
     public static final String HTTP_METHOD_PUT = "PUT";
+    public static final String HTTP_METHOD_PATCH = "PATCH";
     public static final String HTTP_METHOD_DELETE = "DELETE";
     public static final String HTTP_METHOD_OPTIONS = "OPTIONS";
 
@@ -55,6 +56,7 @@ public class Constants {
     public static final String ANNOTATION_METHOD_GET = HTTP_METHOD_GET;
     public static final String ANNOTATION_METHOD_POST = HTTP_METHOD_POST;
     public static final String ANNOTATION_METHOD_PUT = HTTP_METHOD_PUT;
+    public static final String ANNOTATION_METHOD_PATCH = HTTP_METHOD_PATCH;
     public static final String ANNOTATION_METHOD_DELETE = HTTP_METHOD_DELETE;
     public static final String ANNOTATION_METHOD_OPTIONS = HTTP_METHOD_OPTIONS;
 
