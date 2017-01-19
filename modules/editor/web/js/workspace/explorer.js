@@ -16,9 +16,9 @@
  * under the License.
  */
 
-define(['log', 'jquery', 'backbone', 'lodash', 'file_browser', 'nano_scroller'],
+define(['log', 'jquery', 'backbone', 'lodash', './explorer-item', 'nano_scroller'],
 
-    function (log, $, Backbone, _, FileBrowser) {
+    function (log, $, Backbone, _, ExplorerItem) {
 
     var WorkspaceExplorer = Backbone.View.extend({
 
@@ -49,7 +49,7 @@ define(['log', 'jquery', 'backbone', 'lodash', 'file_browser', 'nano_scroller'],
             this._verticalSeparator = $(_.get(this._options, 'separator'));
             this._containerToAdjust = $(_.get(this._options, 'containerToAdjust'));
             this._openedFolders = this.application.browserStorage.get("file-explorer:openedFolders")||[];
-            this._fileBrowsers = [];
+            this._items = [];
 
             // register command
             this.application.commandManager.registerCommand(config.command.id, {shortcuts: config.command.shortcuts});
@@ -59,43 +59,25 @@ define(['log', 'jquery', 'backbone', 'lodash', 'file_browser', 'nano_scroller'],
             this.application.commandManager.registerHandler("open-folder", this.openFolder, this);
         },
 
-        getFolderName: function (folderPath) {
-            var splitArr = _.split(folderPath, this.application.getPathSeperator()),
-                folderName = _.gt(_.last(splitArr).length, 0) ? _.last(splitArr) :
-                    _.nth(splitArr, splitArr.length - 2);
-            return folderName;
-        },
-
         openFolder: function(folderPath){
             // this is the first folder to open
             if(_.isEmpty(this._openedFolders)){
                 this._openFolderBtn.hide();
             }
             this._openedFolders.push(folderPath);
-            this.renderFolderTree(folderPath);
+            this.createExplorerItem(folderPath);
             this.persistState();
         },
 
-        renderFolderTree: function(folderPath){
-            var container = $('<div class="folder-tree"><div>'),
-                folderName = this.getFolderName(folderPath),
-                id = "folder-tree_" + _.findIndex(this._openedFolders, function(path){
-                        return _.isEqual(path, folderPath)
-                    }),
-                header = $('<div class="folder-tree-header" role="button" href="#' + id +
-                    '"+ data-toggle="collapse" aria-expanded="true" aria-controls="' +
-                    id + '">' + folderName + '</div>'),
-                body = $('<div class="collapse" id="' + id +
-                    '"></div>');
-
-            container.append(header);
-            container.append(body);
-
-            this._explorerContainer.append(container);
-            var fileBrowser = new FileBrowser({container: body, application: this.application, root: folderPath,
-                fetchFiles: true});
-            fileBrowser.render();
-            this._fileBrowsers.push(fileBrowser);
+        createExplorerItem: function(folderPath){
+            var opts = {};
+            _.set(opts, "application", this.application);
+            _.set(opts, "path", folderPath);
+            _.set(opts, "index", this._items.length - 1);
+            _.set(opts, "container", this._explorerContainer);
+            var explorerItem = new ExplorerItem(opts);
+            explorerItem.render();
+            this._items.push(explorerItem);
         },
 
         persistState: function(){
@@ -164,7 +146,7 @@ define(['log', 'jquery', 'backbone', 'lodash', 'file_browser', 'nano_scroller'],
 
             if(!_.isEmpty(this._openedFolders)){
                 this._openedFolders.forEach(function(folder){
-                    self.renderFolderTree(folder);
+                    self.createExplorerItem(folder);
                 })
             }
             return this;
