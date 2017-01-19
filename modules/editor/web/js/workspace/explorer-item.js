@@ -59,7 +59,9 @@ define(['lodash', 'log', 'file_browser', 'event_channel'],
             fetchFiles: true});
         fileBrowser.render();
         fileBrowser.on("double-click-node", function(node){
-            log.debug("openfile " + JSON.stringify(node))
+            if(_.isEqual('file', node.type)){
+                this.application.commandManager.dispatch("open-file", node.id);
+            }
         }, this);
         this._fileBrowser = fileBrowser;
     };

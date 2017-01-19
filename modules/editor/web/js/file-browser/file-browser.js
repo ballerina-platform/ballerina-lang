@@ -127,9 +127,9 @@ define(['jquery', 'backbone', 'lodash', 'tree_view', /** void module - jquery pl
                 }).on('ready', function(){
                     self.trigger("ready");
                 }).on("dblclick.jstree", function (event) {
-                    var node = $(event.target).closest("li");
-                    var id = node[0].id;
-                    self.trigger("double-click-node", id);
+                    var item = $(event.target).closest("li");
+                    var node = self._$parent_el.jstree(true).get_node(item[0].id);
+                    self.trigger("double-click-node", node);
                 });
             return this;
         }

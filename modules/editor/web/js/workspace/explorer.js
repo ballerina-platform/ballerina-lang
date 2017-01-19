@@ -16,9 +16,9 @@
  * under the License.
  */
 
-define(['log', 'jquery', 'backbone', 'lodash', './explorer-item', 'nano_scroller'],
+define(['log', 'jquery', 'backbone', 'lodash', './explorer-item', './service-client', 'nano_scroller'],
 
-    function (log, $, Backbone, _, ExplorerItem) {
+    function (log, $, Backbone, _, ExplorerItem, ServiceClient) {
 
     var WorkspaceExplorer = Backbone.View.extend({
 
@@ -51,12 +51,17 @@ define(['log', 'jquery', 'backbone', 'lodash', './explorer-item', 'nano_scroller
             this._openedFolders = this.application.browserStorage.get("file-explorer:openedFolders")||[];
             this._items = [];
 
+            this._serviceClient = new ServiceClient({application: this.application});
+
             // register command
             this.application.commandManager.registerCommand(config.command.id, {shortcuts: config.command.shortcuts});
             this.application.commandManager.registerHandler(config.command.id, this.toggleExplorer, this);
 
             this.application.commandManager.registerCommand("open-folder", {});
             this.application.commandManager.registerHandler("open-folder", this.openFolder, this);
+
+            this.application.commandManager.registerCommand("open-file", {});
+            this.application.commandManager.registerHandler("open-file", this.openFile, this);
         },
 
         openFolder: function(folderPath){
@@ -67,6 +72,16 @@ define(['log', 'jquery', 'backbone', 'lodash', './explorer-item', 'nano_scroller
             this._openedFolders.push(folderPath);
             this.createExplorerItem(folderPath);
             this.persistState();
+        },
+
+        openFile: function(filePath){
+            var file = this._serviceClient.readFile(filePath);
+            var currentTabForFile = this.application.tabController.getTabForFile(file);
+            if(!_.isNil(currentTabForFile)){
+                this.application.tabController.setActiveTab(currentTabForFile);
+                return;
+            }
+            this.application.commandManager.dispatch("create-new-tab", {tabOptions: {file: file}});
         },
 
         createExplorerItem: function(folderPath){
