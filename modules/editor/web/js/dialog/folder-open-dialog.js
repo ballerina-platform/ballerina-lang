@@ -52,7 +52,7 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
                 var location = openFolderModal.find("input").filter(_.get(options, 'location_input'));
                 var treeContainer = openFolderModal.find("div").filter(_.get(options, 'tree_container'));
 
-                fileBrowser = new FileBrowser({container: treeContainer, application: app, action: 'saveFile'});
+                fileBrowser = new FileBrowser({container: treeContainer, application: app, fetchFiles: false});
                 fileBrowser.render();
                 this._fileBrowser = fileBrowser;
 

@@ -129,7 +129,7 @@ define(['require', 'lodash','jquery', 'log', 'backbone', 'file_browser', 'baller
                 var location = fileOpen.find("input").filter("#location");
 
                 var treeContainer  = fileOpen.find("div").filter("#fileTree")
-                fileBrowser = new FileBrowser({container: treeContainer, application:app, action:'openFile'});
+                fileBrowser = new FileBrowser({container: treeContainer, application:app, fetchFiles:true});
 
                 fileBrowser.render();
                 this._fileBrowser = fileBrowser;
