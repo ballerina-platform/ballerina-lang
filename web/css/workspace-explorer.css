@@ -10,8 +10,9 @@
 }
 
 .workspace-explorer-container{
-    width: 120px;
+    width: 100%;
     color: white;
+    position: relative;
 }
 
 .tree-highlight{
@@ -22,4 +23,14 @@
 
 .workspace-explorer-separator{
 
+}
+
+.open-folder-button{
+    max-height: 25px;
+    padding-top: 3px;
+    position: absolute;
+    top: 15px;
+    left: 50%;
+    margin-right: -50%;
+    transform: translate(-50%, -50%);
 }
