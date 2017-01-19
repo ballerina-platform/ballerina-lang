@@ -34,17 +34,27 @@ define(['lodash', 'file_browser', 'event_channel'],
 
     ExplorerItem.prototype.render = function(){
         var item = $('<div class="folder-tree"><div>'),
-            folderName = this.getFolderName(this.path),
+            folderName = $("<span>" + this.getFolderName(this.path) +  "</span>"),
             id = "folder-tree_" + this.index,
             header = $('<div class="folder-tree-header" role="button" href="#' + id +
                 '"+ data-toggle="collapse" aria-expanded="true" aria-controls="' +
-                id + '">' + folderName + '</div>'),
-            body = $('<div class="collapse" id="' + id +
-                '"></div>');
+                id + '"></div>'),
+            body = $('<div class="collapse folder-tree-body" id="' + id +
+                '"></div>'),
+            folderIcon = $("<i class='fw fw-folder item-icon'></i>"),
+            arrowHeadIcon = $("<i class='fw fw-right expand-icon'></i>");
 
+        header.append(arrowHeadIcon);
+        header.append(folderIcon);
+        header.append(folderName);
         item.append(header);
         item.append(body);
         this.container.append(item);
+
+        header.click(function(){
+            arrowHeadIcon.toggleClass("fw-rotate-90");
+        });
+
         var fileBrowser = new FileBrowser({container: body, application: this.application, root: this.path,
             fetchFiles: true});
         fileBrowser.render();
