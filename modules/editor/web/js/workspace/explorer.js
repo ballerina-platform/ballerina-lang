@@ -48,10 +48,15 @@ define(['log', 'jquery', 'backbone', 'lodash', 'tree_view', /** void module - jq
             this._lastWidth = undefined;
             this._verticalSeparator = $(_.get(this._options, 'separator'));
             this._containerToAdjust = $(_.get(this._options, 'containerToAdjust'));
+            this._openedFolders = this.application.browserStorage.get("file-explorer:openedFolders")| [];
 
             // register command
             this.application.commandManager.registerCommand(config.command.id, {shortcuts: config.command.shortcuts});
             this.application.commandManager.registerHandler(config.command.id, this.toggleExplorer, this);
+        },
+
+        persistState: function(){
+            this.application.browserStorage.put("file-explorer:openedFolders", this._openedFolders);
         },
 
         toggleExplorer: function(){
@@ -73,13 +78,18 @@ define(['log', 'jquery', 'backbone', 'lodash', 'tree_view', /** void module - jq
             var self = this;
             var activateBtn = $(_.get(this._options, 'activateBtn'));
 
-            var sliderContainer = $('<div></div>');
-            sliderContainer.addClass(_.get(this._options, 'cssClass.container'));
-            this._$parent_el.append(sliderContainer);
+            var explorerContainer = $('<div></div>');
+            explorerContainer.addClass(_.get(this._options, 'cssClass.container'));
+            this._$parent_el.append(explorerContainer);
 
             activateBtn.on('click', function(){
                 self.application.commandManager.dispatch(_.get(self._options, 'command.id'));
             });
+            if (this.application.isRunningOnMacOS()) {
+                activateBtn.attr("title", "Open file explorer (" + _.get(self._options, 'command.shortcuts.mac.label') + ") ")
+            } else {
+                activateBtn.attr("title", "Open file explorer  (" + _.get(self._options, 'command.shortcuts.other.label') + ") ")
+            }
 
             this._verticalSeparator.on('drag', function(event){
                 if( event.originalEvent.clientX >= _.get(self._options, 'resizeLimits.minX')
@@ -96,41 +106,16 @@ define(['log', 'jquery', 'backbone', 'lodash', 'tree_view', /** void module - jq
                 event.stopPropagation();
             });
 
-            sliderContainer
-                .jstree({
-                    'core' : {
-                        'data' : {
-                            'url': function (node) {
-                                if(node.id === '#') {
-                                    return self.workspaceServiceURL + "/root";
-                                }
-                                else {
-                                    return self.workspaceServiceURL + "/list?path=" + btoa(node.id);
-                                }
-                            },
-                            'dataType': "json",
-                            'data' : function (node) {
-                                return { 'id' : node.id };
-                            }
-                        },
-                        'multiple' : false,
-                        'check_callback' : false,
-                        'force_text' : true,
-                        'themes' : {
-                            'stripes' : true
-                        },
-                        "plugins" : [ "contextmenu", "dnd", "search", "state", "types", "wholerow" ]
-
-                    }
-                })
-                .on('changed.jstree', function (e, data) {
-                    if(data && data.selected && data.selected.length) {
-                        self.selected = data.selected[0];
-                    }
-                    else {
-                        self.selected = false;
-                    }
-                });
+            if(_.isEmpty(this._openedFolders)){
+                var openFolderBtn = $("<button></button>");
+                    openFolderBtn.attr("type", "button");
+                    openFolderBtn.text("Open Folder");
+                    openFolderBtn.addClass(_.get(this._options, 'cssClass.openFolderButton'));
+                    openFolderBtn.click(function(){
+                        self.application.commandManager.dispatch("show-folder-open-dialog");
+                    });
+                explorerContainer.append(openFolderBtn);
+            }
             return this;
         }
     });

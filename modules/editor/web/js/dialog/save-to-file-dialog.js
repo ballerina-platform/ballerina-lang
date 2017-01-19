@@ -28,7 +28,7 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
              */
             initialize: function (options) {
                 this.app = options;
-                this.dialog_container = _.get(options.config.dialog, 'container');
+                this.dialog_container = $(_.get(options.config.dialog, 'container'));
                 this.notification_container = _.get(options.config.tab_controller.tabs.tab.ballerina_editor.notifications, 'container');
             },
 
