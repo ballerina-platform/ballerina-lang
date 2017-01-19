@@ -28,6 +28,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 /**
@@ -89,11 +90,11 @@ public class ServerInstance implements Server {
                 pid = getServerPID();
                 if (System.getProperty("os.name").toLowerCase().contains("windows")) {
                     Process killServer = Runtime.getRuntime().exec("TASKKILL -F /PID " + pid);
-                    killServer.waitFor();
+                    killServer.waitFor(15, TimeUnit.SECONDS);
                     killServer.destroy();
                 } else {
                     Process killServer = Runtime.getRuntime().exec("kill -9 " + pid);
-                    killServer.waitFor();
+                    killServer.waitFor(15, TimeUnit.SECONDS);
                     killServer.destroy();
                 }
             } catch (IOException e) {

@@ -29,35 +29,23 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Testing the Echo service sample located in
- * ballerina_home/samples/echoService/echoService.bal.
- * Request message should be returned as response message
+ * Testing the Service Chaining sample located in
+ * ballerina_home/samples/serviceChaining/ATMLocatorService.bal.
  */
-public class EchoServiceSampleTestCase extends IntegrationTestCase {
-    private final String requestMessage = "{\"exchange\":\"nyse\",\"name\":\"WSO2\",\"value\":\"127.50\"}";
+public class ServiceChainingSampleTestCase extends IntegrationTestCase {
+    private static final String requestMessage = "{\"ATMLocator\": {\"ZipCode\": \"95999\"}}";
+    private static final String responseMessage = "{\"ABC Bank\":{\"Address\":\"111 River Oaks Pkwy" +
+                                                  ", San Jose, CA 95999\"}}";
 
-    @Test(description = "Test echo service sample test case invoking base path")
+    @Test(description = "Test service chaining sample")
     public void testEchoServiceByBasePath() throws IOException {
         Map<String, String> headers = new HashMap<>();
         headers.put(TestConstant.HEADER_CONTENT_TYPE, TestConstant.CONTENT_TYPE_JSON);
-        HttpResponse response = HttpClientRequest.doPost(getServiceURLHttp("echo"), requestMessage, headers);
-        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-        Assert.assertEquals(response.getHeaders().get(TestConstant.HEADER_CONTENT_TYPE)
-                , TestConstant.CONTENT_TYPE_JSON, "Content-Type mismatched");
-        //request should be returned as response
-        Assert.assertEquals(response.getData(), requestMessage, "Message content mismatched");
-    }
-
-    @Test(description = "Test echo service sample test case")
-    public void testEchoServiceByResourcePath() throws IOException {
-        Map<String, String> headers = new HashMap<>();
-        headers.put(TestConstant.HEADER_CONTENT_TYPE, TestConstant.CONTENT_TYPE_JSON);
-        HttpResponse response = HttpClientRequest.doPost(getServiceURLHttp("echo/resource"), requestMessage
+        HttpResponse response = HttpClientRequest.doPost(getServiceURLHttp("ABCBank/locator"), requestMessage
                 , headers);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getHeaders().get(TestConstant.HEADER_CONTENT_TYPE)
                 , TestConstant.CONTENT_TYPE_JSON, "Content-Type mismatched");
-        //request should be returned as response
-        Assert.assertEquals(response.getData(), requestMessage, "Message content mismatched");
+        Assert.assertEquals(response.getData(), responseMessage, "Message content mismatched");
     }
 }

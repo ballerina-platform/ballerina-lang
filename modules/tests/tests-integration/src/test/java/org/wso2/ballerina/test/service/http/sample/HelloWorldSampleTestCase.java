@@ -27,27 +27,26 @@ import org.wso2.ballerina.test.util.TestConstant;
 import java.io.IOException;
 
 /**
- * Testing the passthrough service sample located in
- * ballerina_home/samples/passthroughService/passthroughService.bal.
+ * Testing the HelloWorld sample located in
+ * ballerina_home/samples/helloWorldService/helloWorldService.bal.
  */
-public class PassthroughServiceSampleTestCase extends IntegrationTestCase {
-    private final String responseMessage = "{\"exchange\":\"nyse\",\"name\":\"IBM\",\"value\":\"127.50\"}";
+public class HelloWorldSampleTestCase extends IntegrationTestCase {
 
-    @Test(description = "Test Passthrough sample test case invoking base path")
-    public void testPassthroughServiceByBasePath() throws IOException {
-        HttpResponse response = HttpClientRequest.doGet(getServiceURLHttp("passthrough"));
+    @Test(description = "Test hello world sample test case invoking base path")
+    public void testHelloWorldServiceByBasePath() throws IOException {
+        HttpResponse response = HttpClientRequest.doGet(getServiceURLHttp("hello"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getHeaders().get(TestConstant.HEADER_CONTENT_TYPE)
-                , TestConstant.CONTENT_TYPE_JSON, "Content-Type mismatched");
-        Assert.assertEquals(response.getData(), responseMessage, "Message content mismatched");
+                , TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
+        Assert.assertEquals(response.getData(), "Hello, World!", "Message content mismatched");
     }
 
-    @Test(description = "Test Passthrough sample test case")
-    public void testPassthroughServiceByResourcePath() throws IOException {
-        HttpResponse response = HttpClientRequest.doGet(getServiceURLHttp("passthrough/resource"));
+    @Test(description = "Test hello world sample test case")
+    public void testHelloWorldServiceByResourcePath() throws IOException {
+        HttpResponse response = HttpClientRequest.doGet(getServiceURLHttp("hello/resource"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getHeaders().get(TestConstant.HEADER_CONTENT_TYPE)
-                , TestConstant.CONTENT_TYPE_JSON, "Content-Type mismatched");
-        Assert.assertEquals(response.getData(), responseMessage, "Message content mismatched");
+                , TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
+        Assert.assertEquals(response.getData(), "Hello, World!", "Message content mismatched");
     }
 }
