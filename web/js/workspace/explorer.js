@@ -84,6 +84,14 @@ define(['log', 'jquery', 'backbone', 'lodash', './explorer-item', 'nano_scroller
             this.application.browserStorage.put("file-explorer:openedFolders", this._openedFolders);
         },
 
+        isEmpty: function(){
+              return _.isEmpty(this._openedFolders);
+        },
+
+        isActive: function(){
+              return this._isActive;
+        },
+
         toggleExplorer: function(){
             if(this._isActive){
                 this._$parent_el.parent().width('0px');
