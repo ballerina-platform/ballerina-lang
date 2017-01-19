@@ -13,7 +13,7 @@ import ballerina.util;
 connector AmazonLambda(string accessKeyId, string secretAccessKey,
                 string region, string serviceName, string terminationString) {
 
-    sample:AmazonAuthConnector amazonAuthConnector = new sample:AmazonAuthConnector("AKIAIJ2IBQUCKKAL72IA", "AeUD3+Ic9BWH6ZEq+3K7zhxJ/zjzXkuicA883dPd", "us-east-1", "lambda", "aws4_request", endpoint);
+    sample:AmazonAuthConnector amazonAuthConnector = new sample:AmazonAuthConnector("AKIAIJ2IBQUCKKAL72IA", "AeUD3+Ic9BWH6ZEq+3K7zhxJ/zjzXkuicA883dPd", "us-east-1", "lambda", "aws4_request", "https://lambda.us-east-1.amazonaws.com");
 
     action invokeFunction(AmazonLambda amz, string arn) (message) throws exception {
 
@@ -34,7 +34,7 @@ connector AmazonLambda(string accessKeyId, string secretAccessKey,
         message:setHeader(requestMsg, "Host", host);
 
 
-        response = amazonAuthConnector.req(amazonAuthConnector, requestMsg, httpMethod, requestURI, "");
+        response = sample:AmazonAuthConnector.req(amazonAuthConnector, requestMsg, httpMethod, requestURI, "");
 
         return response;
 
@@ -45,20 +45,21 @@ connector AmazonLambda(string accessKeyId, string secretAccessKey,
 connector AmazonAuthConnector(string accessKeyId, string secretAccessKey,
                 string region, string serviceName, string terminationString, string endpoint) {
 
-    http:HTTPConnector awsEP = new http:HTTPConnector(endpoint);
+    http:HTTPConnector awsEP = new http:HTTPConnector("https://lambda.us-east-1.amazonaws.com");
 
-    action req(AmazonAuthConnector amz, message msg, string httpMethod, string requestURI, string payload) (message) throws exception {
+    action req(AmazonAuthConnector amz, message requestMsg, string httpMethod, string requestURI, string payload) (message) throws exception {
 
+        message response;
 
         requestMsg = generateSignature(requestMsg, accessKeyId, secretAccessKey, region, serviceName, terminationString, httpMethod, requestURI, "");
 
-        if(string:equalsIgnoreCase(httpMethod,"POST"){
+        if(string:equalsIgnoreCase(httpMethod,"POST")){
             response = http:HTTPConnector.post(awsEP, requestURI, requestMsg);
-        }else if(string:equalsIgnoreCase(httpMethod,"GET"){
+        }else if(string:equalsIgnoreCase(httpMethod,"GET")){
             response = http:HTTPConnector.get(awsEP, requestURI, requestMsg);
-        }else if(string:equalsIgnoreCase(httpMethod,"PUT"){
+        }else if(string:equalsIgnoreCase(httpMethod,"PUT")){
             response = http:HTTPConnector.put(awsEP, requestURI, requestMsg);
-        }else if(string:equalsIgnoreCase(httpMethod,"DELETE"){
+        }else if(string:equalsIgnoreCase(httpMethod,"DELETE")){
             response = http:HTTPConnector.delete(awsEP, requestURI, requestMsg);
         }
 
@@ -76,7 +77,7 @@ function main (string[] args) {
     message lambdaResponse;
     json lambdaJSONResponse;
 
-    lambdaResponse = sample:AmazonLambda.req(amzLamConnector, "arn:aws:lambda:us-east-1:141896495686:function:testFunction");
+    lambdaResponse = sample:AmazonLambda.invokeFunction(amzLamConnector, "arn:aws:lambda:us-east-1:141896495686:function:testFunction");
 
     lambdaJSONResponse = message:getJsonPayload(lambdaResponse);
     system:println(json:toString(lambdaJSONResponse));
@@ -217,7 +218,7 @@ function generateSignature(message msg, string accessKeyId, string secretAccessK
     authHeader = authHeader + (",");
     authHeader = authHeader + (" Signature");
     authHeader = authHeader + ("=");
-    authHeader = authHeader + string:toLowerCase(util:getHmacFromBase64Base16(stringToSign, signingKey, algorithm));
+    authHeader = authHeader + string:toLowerCase(util:getHmacBase16(stringToSign, signingKey, algorithm));
 
     message:setHeader(msg, "Authorization", authHeader);
     return msg;
