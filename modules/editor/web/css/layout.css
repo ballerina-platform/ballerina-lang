@@ -88,6 +88,7 @@ div[class*="col-sm-"] {
     height: 100%;
     width: 100%;
     margin-left: 50px;
+    overflow: scroll;
 }
 
 .right-container{
