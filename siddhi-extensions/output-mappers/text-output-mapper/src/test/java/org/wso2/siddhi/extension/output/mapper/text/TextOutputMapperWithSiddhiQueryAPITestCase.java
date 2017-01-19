@@ -38,10 +38,12 @@ import org.wso2.siddhi.query.api.execution.query.output.stream.OutputStream;
 import org.wso2.siddhi.query.api.execution.query.selection.Selector;
 import org.wso2.siddhi.query.api.expression.Variable;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class TextOutputMapperTestCase {
-    static final Logger log = Logger.getLogger(TextOutputMapperTestCase.class);
+public class TextOutputMapperWithSiddhiQueryAPITestCase {
+    static final Logger log = Logger.getLogger(TextOutputMapperWithSiddhiQueryAPITestCase.class);
     private AtomicInteger wso2Count = new AtomicInteger(0);
     private AtomicInteger ibmCount = new AtomicInteger(0);
 
@@ -57,12 +59,12 @@ public class TextOutputMapperTestCase {
     //    map text
     @Test
     public void testTextOutputMapperWithDefaultMapping() throws InterruptedException {
+        log.info("Test default text mapping with Siddhi Query API");
 
         InMemoryBroker.Subscriber subscriberWSO2 = new InMemoryBroker.Subscriber() {
             @Override
             public void onMessage(Object msg) {
                 wso2Count.incrementAndGet();
-                log.info(msg);
             }
 
             @Override
@@ -75,7 +77,6 @@ public class TextOutputMapperTestCase {
             @Override
             public void onMessage(Object msg) {
                 ibmCount.incrementAndGet();
-                log.info(msg);
             }
 
             @Override
@@ -98,7 +99,7 @@ public class TextOutputMapperTestCase {
                 InputStream.stream("FooStream")
         );
         query.select(
-                Selector.selector().select(new Variable("symbol")).select(new Variable("price")).select(new Variable("volume"))
+                Selector.selector().select(new Variable("symbol"))
         );
         query.publish(
                 Transport.transport("inMemory").option("topic", "{{symbol}}"), OutputStream.OutputEventType.CURRENT_EVENTS,
@@ -119,6 +120,7 @@ public class TextOutputMapperTestCase {
         stockStream.send(new Object[]{"WSO2", 57.6f, 100L});
         Thread.sleep(100);
 
+        //assert event count
         Assert.assertEquals("Number of WSO2 events", 2, wso2Count.get());
         Assert.assertEquals("Number of IBM events", 1, ibmCount.get());
         executionPlanRuntime.shutdown();
@@ -134,12 +136,14 @@ public class TextOutputMapperTestCase {
     //    map text custom
     @Test
     public void testTextOutputMapperWithCustomMapping() throws InterruptedException {
+        log.info("Test custom text mapping with Siddhi Query API");
+        List<Object> onMessageList = new ArrayList<Object>();
 
         InMemoryBroker.Subscriber subscriberWSO2 = new InMemoryBroker.Subscriber() {
             @Override
             public void onMessage(Object msg) {
                 wso2Count.incrementAndGet();
-                log.info(msg);
+                onMessageList.add(msg);
             }
 
             @Override
@@ -152,7 +156,7 @@ public class TextOutputMapperTestCase {
             @Override
             public void onMessage(Object msg) {
                 ibmCount.incrementAndGet();
-                log.info(msg);
+                onMessageList.add(msg);
             }
 
             @Override
@@ -179,9 +183,7 @@ public class TextOutputMapperTestCase {
         );
         query.publish(
                 Transport.transport("inMemory").option("topic", "{{symbol}}"), OutputStream.OutputEventType.CURRENT_EVENTS,
-                Mapping.format("text").map("\nStock Data\n" +
-                        "Symbol : {{symbol}}\n" +
-                        "Price : {{price}}")
+                Mapping.format("text").map("Stock price of {{symbol}} is {{price}}")
         );
 
         SiddhiManager siddhiManager = new SiddhiManager();
@@ -198,8 +200,13 @@ public class TextOutputMapperTestCase {
         stockStream.send(new Object[]{"WSO2", 57.6f, 100L});
         Thread.sleep(100);
 
+        //assert event count
         Assert.assertEquals("Number of WSO2 events", 2, wso2Count.get());
         Assert.assertEquals("Number of IBM events", 1, ibmCount.get());
+        //assert custom text
+        Assert.assertEquals("Stock price of WSO2 is 55.6", onMessageList.get(0).toString());
+        Assert.assertEquals("Stock price of IBM is 75.6", onMessageList.get(1).toString());
+        Assert.assertEquals("Stock price of WSO2 is 57.6", onMessageList.get(2).toString());
         executionPlanRuntime.shutdown();
 
         //unsubscribe from "inMemory" broker per topic
