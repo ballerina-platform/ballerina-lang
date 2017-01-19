@@ -72,7 +72,7 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
                         return;
                     }
                     openFolderModal.modal('hide');
-                    app.commandManager.dispatch("open-folder", {path:path});
+                    app.commandManager.dispatch("open-folder", path);
                 });
 
                 this._dialogContainer.append(openFolderModal);

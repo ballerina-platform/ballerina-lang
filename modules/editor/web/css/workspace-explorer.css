@@ -13,6 +13,7 @@
     width: 100%;
     color: white;
     position: relative;
+    padding: 0;
 }
 
 .tree-highlight{
@@ -29,8 +30,19 @@
     max-height: 25px;
     padding-top: 3px;
     position: absolute;
-    top: 15px;
+    top: 25px;
     left: 50%;
     margin-right: -50%;
     transform: translate(-50%, -50%);
+}
+
+.folder-tree-header{
+    color: white;
+    padding: 5px;
+
+}
+.folder-tree-header:hover{
+    color: white;
+    cursor: pointer;
+    background-color: #232323;
 }

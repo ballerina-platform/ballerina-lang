@@ -45,6 +45,7 @@ define(['jquery', 'backbone', 'lodash', 'tree_view', /** void module - jquery pl
             this.workspaceServiceURL = _.get(this._options, 'application.config.services.workspace.endpoint');
             this._isActive = false;
             this._fetchFiles = _.get(config, 'fetchFiles', false);
+            this._root = _.get(config, 'root');
         },
 
         /**
@@ -63,6 +64,13 @@ define(['jquery', 'backbone', 'lodash', 'tree_view', /** void module - jquery pl
                         'data': {
                             'url': function (node) {
                                 if (node.id === '#') {
+                                    if(!_.isNil(self._root)){
+                                        if (self._fetchFiles) {
+                                            return self.workspaceServiceURL + "/listFiles?path=" + btoa(self._root);
+                                        } else {
+                                            return self.workspaceServiceURL + "/list?path=" + btoa(self._root);
+                                        }
+                                    }
                                     return self.workspaceServiceURL + "/root";
                                 }
                                 else {
