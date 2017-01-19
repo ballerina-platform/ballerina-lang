@@ -16,7 +16,7 @@
  * under the License.
  */
 
-define(['lodash', 'log', 'file_browser', 'event_channel'],
+define(['lodash', 'log', 'file_browser', 'event_channel', 'theme_wso2'],
     function (_, log, FileBrowser, EventChannel){
 
     var ExplorerItem = function(args){
@@ -50,6 +50,12 @@ define(['lodash', 'log', 'file_browser', 'event_channel'],
         item.append(header);
         item.append(body);
         this.container.append(item);
+
+        header.attr('title', this.path);
+        header.tooltip({
+            'delay': { show: 1000, hide: 0 },
+            'placement': 'bottom'
+        });
 
         header.click(function(){
             arrowHeadIcon.toggleClass("fw-rotate-90");
