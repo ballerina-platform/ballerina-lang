@@ -16,8 +16,8 @@
  * under the License.
  */
 
-define(['lodash', 'file_browser', 'event_channel'],
-    function (_, FileBrowser, EventChannel){
+define(['lodash', 'log', 'file_browser', 'event_channel'],
+    function (_, log, FileBrowser, EventChannel){
 
     var ExplorerItem = function(args){
         _.assign(this, args);
@@ -58,6 +58,10 @@ define(['lodash', 'file_browser', 'event_channel'],
         var fileBrowser = new FileBrowser({container: body, application: this.application, root: this.path,
             fetchFiles: true});
         fileBrowser.render();
+        fileBrowser.on("double-click-node", function(node){
+            log.debug("openfile " + JSON.stringify(node))
+        }, this);
+        this._fileBrowser = fileBrowser;
     };
 
     return ExplorerItem;

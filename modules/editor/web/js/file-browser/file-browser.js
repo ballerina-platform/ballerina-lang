@@ -94,7 +94,9 @@ define(['jquery', 'backbone', 'lodash', 'tree_view', /** void module - jquery pl
                         'themes': {
                             'responsive': false,
                             'variant': 'small',
-                            'stripes': true
+                            'stripes': false,
+                            'dots': false,
+
                         }
                     },
                     'types': {
@@ -124,6 +126,10 @@ define(['jquery', 'backbone', 'lodash', 'tree_view', /** void module - jquery pl
                     data.instance.set_icon(data.node, "fw fw-folder");
                 }).on('ready', function(){
                     self.trigger("ready");
+                }).on("dblclick.jstree", function (event) {
+                    var node = $(event.target).closest("li");
+                    var id = node[0].id;
+                    self.trigger("double-click-node", id);
                 });
             return this;
         }
