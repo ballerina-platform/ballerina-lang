@@ -36,11 +36,30 @@
     transform: translate(-50%, -50%);
 }
 
-.folder-tree-header{
+.folder-tree-header {
     color: white;
-    padding: 5px;
-
+    padding: 8px 15px 8px 15px;
 }
+
+.folder-tree-header > span{
+    padding-left: 5px;
+    vertical-align:middle;
+}
+
+.folder-tree-header > i.expand-icon{
+   margin-right: 8px;
+   font-size: 8px;
+   vertical-align:middle;
+}
+
+.folder-tree-header > i.item-icon{
+   vertical-align:middle;
+}
+
+.folder-tree-body{
+    margin-left: 15px;
+}
+
 .folder-tree-header:hover{
     color: white;
     cursor: pointer;
