@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', '../ballerina/ast/node'], function (_, log, ASTNode) {
+define(['lodash', 'log'], function (_, log) {
 
     /**
      * Represents the constructs elements from BallerinaSDK
