@@ -19,12 +19,12 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
         './default-worker', './point', './connector-declaration-view', './statement-view-factory',
         'ballerina/ast/ballerina-ast-factory', './expression-view-factory','./message', './statement-container',
         './../ast/variable-declaration', './variables-view', './annotation-view',
-        './function-arguments-view', './return-type-view'],
+        './function-arguments-view', './return-types-pane-view'],
     function (_, log, d3, $, D3utils, BallerinaView, ConnectorAction,
               DefaultWorkerView, Point, ConnectorDeclarationView, StatementViewFactory,
               BallerinaASTFactory, ExpressionViewFactory, MessageView, StatementContainer,
               VariableDeclaration, VariablesView, AnnotationView,
-              ArgumentsView, ReturnTypeView) {
+              ArgumentsView, ReturnTypesPaneView) {
 
         /**
          * The view to represent a connector action which is an AST visitor.
@@ -602,22 +602,24 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
             ArgumentsView.createArgumentsPane(argumentsProperties);
 
+            // Creating return type pane.
             var returnTypeProperties = {
                 model: this._model,
                 activatorElement: headingReturnTypesIcon.node(),
                 paneAppendElement: this.getChildContainer().node().ownerSVGElement.parentElement,
                 viewOptions: {
-                    position: {
-                        left: parseFloat(this.getChildContainer().attr("x")) + parseFloat(this.getChildContainer().attr("width")) - 1,
-                        top: this.getChildContainer().attr("y")
-                    }
-                }
+                    position: new Point(parseFloat(this.getChildContainer().attr("x")) + parseFloat(this.getChildContainer().attr("width")) - 1,
+                        this.getChildContainer().attr("y"))
+                },
+                view: this
             };
 
-            // Creating return type pane.
-            ReturnTypeView.createReturnTypePane(returnTypeProperties);
+            this._returnTypePaneView = new ReturnTypesPaneView(returnTypeProperties);
 
-            var operationButtons = [headingAnnotationIcon.node(), headingArgumentsIcon.node()];
+            this._returnTypePaneView.createReturnTypePane();
+
+            var operationButtons = [headingAnnotationIcon.node(), headingArgumentsIcon.node(),
+                headingReturnTypesIcon.node()];
 
             // Closing the shown pane when another operation button is clicked.
             _.forEach(operationButtons, function (button) {
