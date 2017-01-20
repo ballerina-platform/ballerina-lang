@@ -30,7 +30,7 @@ define(['require', 'lodash','jquery', 'log', 'backbone', 'file_browser', 'baller
              */
             initialize: function (options) {
                 this.app = options;
-                this.dialog_container = _.get(options.config.dialog, 'container');
+                this.dialog_container = $(_.get(options.config.dialog, 'container'));
                 this.notification_container = _.get(options.config.tab_controller.tabs.tab.ballerina_editor.notifications, 'container');
                 this.source_view_container = _.get(options.config.tab_controller.tabs.tab.ballerina_editor, 'source_view.container');
                 this.ballerina_editor = _.get(options.config.tab_controller.tabs.tab, 'ballerina_editor');
@@ -129,7 +129,7 @@ define(['require', 'lodash','jquery', 'log', 'backbone', 'file_browser', 'baller
                 var location = fileOpen.find("input").filter("#location");
 
                 var treeContainer  = fileOpen.find("div").filter("#fileTree")
-                fileBrowser = new FileBrowser({container: treeContainer, application:app, action:'openFile'});
+                fileBrowser = new FileBrowser({container: treeContainer, application:app, fetchFiles:true});
 
                 fileBrowser.render();
                 this._fileBrowser = fileBrowser;
