@@ -112,6 +112,7 @@ button.close {
 #tabs-container > div.tab-headers.tab-headers-bar > ul > li.active {
     background: white;
     color: #555;
+    border-left: 3px solid #f17b31;
 }
 
 #tabs-container > div.tab-headers.tab-headers-bar > ul > li.active.inverse {
@@ -150,8 +151,8 @@ button.close {
     opacity: 1;
     color: #333;
 }
-li > button.close{
-    top:2px;
+#tabs-container > div.tab-headers.tab-headers-bar > ul > li > button.close{
+    top:0px;
     right: 2px;
     font-size: 20px;
 }
