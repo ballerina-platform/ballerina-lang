@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './callable-definition'],
-    function (_, CallableDefinition) {
+define(['lodash', 'log', './callable-definition'],
+    function (_, log, CallableDefinition) {
 
     /**
      * Constructor for FunctionDefinition
@@ -173,87 +173,137 @@ define(['lodash', './callable-definition'],
         });
     };
 
+    //// Start of return type functions.
+
     /**
      * Gets the return type as a string separated by commas.
      * @return {string} - Return types.
      */
-    FunctionDefinition.prototype.getReturnTypesAsString = function(){
+    FunctionDefinition.prototype.getReturnTypesAsString = function () {
         var returnTypes = [];
-        var self = this;
-
-        _.forEach(this.getChildren(), function(child) {
-            if (self.BallerinaASTFactory.isReturnType(child)) {
-                _.forEach(child.getChildren(), function(returnTypeChild){
-                    returnTypes.push(returnTypeChild.getType())
-                });
-                // break;
-                return false;
-            }
+        _.forEach(this.getReturnTypes(), function (returnTypeChild) {
+            returnTypes.push(returnTypeChild.getArgumentAsString())
         });
 
         return _.join(returnTypes, ", ");
     };
 
     /**
-     * Gets return types.
+     * Gets the defined return types.
+     * @return {Argument[]} - Array of args.
      */
     FunctionDefinition.prototype.getReturnTypes = function () {
-        var returnTypes = [];
-        var self = this;
-        _.forEach(this.getChildren(), function(child) {
-            if (self.BallerinaASTFactory.isReturnType(child)) {
-                _.forEach(child.getChildren(), function(returnTypeChild){
-                    returnTypes.push(returnTypeChild)
-                });
-                // break;
-                return false;
-            }
-        });
-
-        return returnTypes;
+        var returnTypeModel = this.getReturnTypeModel();
+        return !_.isUndefined(returnTypeModel) ? this.getReturnTypeModel().getChildren().slice(0) : [];
     };
 
     /**
-     * Adds new return type.
+     * Adds a new argument to return type model.
+     * @param {string} type - The type of the argument.
+     * @param {string} identifier - The identifier of the argument.
      */
-    FunctionDefinition.prototype.addReturnType = function (newReturnType) {
+    FunctionDefinition.prototype.addReturnType = function (type, identifier) {
         var self = this;
-        var typeName = this.BallerinaASTFactory.createTypeName();
-        typeName.setTypeName(newReturnType);
 
-        var existingReturnType = _.find(this.getChildren(), function(child){
-            return self.BallerinaASTFactory.isReturnType(child)
-        });
+        // Adding return type mode if it doesn't exists.
+        if (_.isUndefined(this.getReturnTypeModel())) {
+            this.addChild(this.BallerinaASTFactory.createReturnType());
+        }
 
+        // Check if there is already a return type with the same identifier.
+        if (!_.isUndefined(identifier)) {
+            _.forEach(this.getReturnTypeModel().getChildren(), function(child) {
+                if (child.getIdentifier() === identifier) {
+                    var errorString = "An argument with identifier '" + identifier + "' already exists.";
+                    log.error(errorString);
+                    throw errorString;
+                }
+            });
+        }
+
+        // Validating whether return type can be added based on identifiers of other return types.
+        if (!_.isUndefined(identifier)) {
+            var indexWithoutIdentifiers = _.findIndex(this.getReturnTypeModel().getChildren(), function (child) {
+                return _.isUndefined(child.getIdentifier());
+            });
+            if (indexWithoutIdentifiers !== -1) {
+                var errorStringWithoutIdentifiers = "Return types without identifiers already exists. Remove them to " +
+                    "add return types with identifiers.";
+                log.error(errorStringWithoutIdentifiers);
+                throw errorStringWithoutIdentifiers;
+            }
+        } else {
+            var indexWithIdentifiers = _.findIndex(this.getReturnTypeModel().getChildren(), function (child) {
+                return !_.isUndefined(child.getIdentifier());
+            });
+            if (indexWithIdentifiers !== -1) {
+                var errorStringWithIdentifiers = "Return types with identifiers already exists. Remove them to add " +
+                    "return types without identifiers.";
+                log.error(errorStringWithIdentifiers);
+                throw errorStringWithIdentifiers;
+            }
+        }
+
+        var argument = this.BallerinaASTFactory.createArgument({type: type, identifier: identifier});
+
+        var existingReturnType = self.getReturnTypeModel();
+
+        // Adding the new argument input position.
         if (!_.isNil(existingReturnType)) {
-            existingReturnType.addChild(typeName, existingReturnType.length + 1);
+            existingReturnType.addChild(argument, existingReturnType.getChildren().length + 1);
         } else {
             var returnType = this.BallerinaASTFactory.createReturnType();
-            returnType.addChild(typeName, 0);
+            returnType.addChild(argument, 0);
             this.addChild(returnType);
         }
     };
 
     /**
-     * Remove return type declaration.
+     * Removes return type argument from the return type model.
+     * @param {string} modelID - The id of an {Argument} which resides in the return type model.
      */
-    FunctionDefinition.prototype.removeReturnType = function (returnType) {
+    FunctionDefinition.prototype.removeReturnType = function (modelID) {
         var self = this;
-        _.forEach(this.getChildren(), function (child) {
-            if (self.BallerinaASTFactory.isReturnType(child)) {
-                var childrenOfReturnType = child.getChildren();
-                _.forEach(childrenOfReturnType, function(type, index){
-                    if (type.getType() == returnType) {
-                        childrenOfReturnType.splice(index, 1);
-                        // break
-                        return false;
-                    }
-                });
+        var argumentToRemove = undefined;
+
+        // Find the argument to remove/delete.
+        _.forEach(self.getReturnTypeModel().getChildren(), function (argument) {
+            if (argument.getID() == modelID) {
+                argumentToRemove = argument;
                 // break
                 return false;
             }
         });
+
+        // Deleting the argument from the AST.
+        if (!_.isUndefined(argumentToRemove)) {
+            self.getReturnTypeModel().removeChild(argumentToRemove);
+        } else {
+            var exceptionString = "Could not find a return type with ID: " + modelID;
+            log.error(exceptionString);
+            throw exceptionString;
+        }
     };
+
+    /**
+     * Gets the return type model. A function definition can have only one {ReturnType} model.
+     * @return {ReturnType|undefined} - The return type model.
+     */
+    FunctionDefinition.prototype.getReturnTypeModel = function() {
+        var self = this;
+        var returnTypeModel = undefined;
+        _.forEach(this.getChildren(), function (child) {
+            if (self.BallerinaASTFactory.isReturnType(child)) {
+                returnTypeModel = child;
+                // break
+                return false;
+            }
+        });
+
+        return returnTypeModel;
+    };
+
+    //// End of return type functions.
 
     /**
      * Override the super call to addChild

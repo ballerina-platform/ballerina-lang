@@ -240,7 +240,7 @@ define(['lodash', 'log', 'jquery', 'alerts', './resource-parameter-view', './../
                     model: parameter,
                     container: wrapper,
                     toolPalette: self._viewOfModel.getToolPalette(),
-                    messageManager: this.getMessageManager,
+                    messageManager: self._viewOfModel.getMessageManager(),
                     parentView: self._viewOfModel
                 });
 

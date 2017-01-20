@@ -1031,36 +1031,6 @@ button.variable-list {
     width: 30px;
 }
 
-.return-type-main-action-wrapper {
-    width: 210px;
-    overflow: auto;
-    display: none;
-    background: #fff;
-}
-
-.return-type-wrapper-heading {
-    height: 32px;
-    background-color: #3d3d3d
-}
-
-.return-type-wrapper-heading input[type=text] {
-    width: 224px;
-    margin-left: 5px;
-}
-
-.return-type-wrapper-heading select {
-    width: 160px;
-}
-
-.return-type-action-icon {
-    top: 5px;
-    right: 6px;
-}
-
-.return-type-action-icon-i {
-    background-color: #818181;
-}
-
 #modalAbout a {
     color: #337ab7;
 }
