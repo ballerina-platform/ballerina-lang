@@ -474,11 +474,13 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             var contentGroup = D3utils.group(resourceGroup);
             contentGroup.attr('id', "contentGroup");
 
-            nameSpan.on("change paste keydown", function (e) {
-                if (e.which == 13) {
+            nameSpan.on("change paste keyup", function (e) {
+                self._model.setResourceName($(this).text());
+            }).on("keydown", function (e) {
+                // Check whether the Enter key has been pressed. If so return false. Won't type the character
+                if (e.keyCode === 13) {
                     return false;
                 }
-                self._model.setResourceName($(this).text());
             });
 
             this._contentGroup = contentGroup;

@@ -18,7 +18,7 @@
 define(['lodash', './node', 'log'], function(_, ASTNode, log){
 
     /**
-     * Constructor for ConnectorDefinition
+     * Constructor for ConnectorAction
      * @param {object} args - Constructor arguments
      * @constructor
      */
@@ -70,7 +70,7 @@ define(['lodash', './node', 'log'], function(_, ASTNode, log){
      * @param {string} name - Action Name
      */
     ConnectorAction.prototype.setActionName = function (name) {
-        this.connector_name = name;
+        this.action_name = name;
     };
 
     /**
