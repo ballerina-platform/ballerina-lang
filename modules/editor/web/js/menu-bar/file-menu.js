@@ -41,7 +41,7 @@ define(([],function (){
             },
             {
                 id: "open",
-                label: "Open",
+                label: "Open File",
                 command: {
                     id: "open-file-open-dialog",
                     shortcuts: {
@@ -52,24 +52,6 @@ define(([],function (){
                         other: {
                             key: "ctrl+o",
                             label: "Ctrl+O"
-                        }
-                    }
-                },
-                disabled: false
-            },
-            {
-                id: "save",
-                label: "Save",
-                command: {
-                    id: "open-file-save-dialog",
-                    shortcuts: {
-                        mac: {
-                            key: "command+s",
-                            label: "\u2318S"
-                        },
-                        other: {
-                            key: "ctrl+s",
-                            label: "Ctrl+S"
                         }
                     }
                 },
@@ -88,6 +70,42 @@ define(([],function (){
                         other: {
                             key: "ctrl+shift+o",
                             label: "Ctrl+Shift+O"
+                        }
+                    }
+                },
+                disabled: false
+            },
+            {
+                id: "save",
+                label: "Save",
+                command: {
+                    id: "save",
+                    shortcuts: {
+                        mac: {
+                            key: "command+s",
+                            label: "\u2318S"
+                        },
+                        other: {
+                            key: "ctrl+s",
+                            label: "Ctrl+S"
+                        }
+                    }
+                },
+                disabled: false
+            },
+            {
+                id: "saveAs",
+                label: "Save As",
+                command: {
+                    id: "open-file-save-dialog",
+                    shortcuts: {
+                        mac: {
+                            key: "command+shift+s",
+                            label: "\u2318\u21E7S"
+                        },
+                        other: {
+                            key: "ctrl+shift+s",
+                            label: "Ctrl+Shift+S"
                         }
                     }
                 },
