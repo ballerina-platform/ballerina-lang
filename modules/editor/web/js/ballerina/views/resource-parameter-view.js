@@ -29,8 +29,6 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/argum
          */
         var ResourceParameterView = function (args) {
             BallerinaView.call(this, args);
-            this._supportedParameterTypes = ['message', 'connection', 'string', 'int', 'exception', 'json', 'xml',
-                'map', 'string[]', 'int[]'];
             this._parameterWrapper = undefined;
             this._deleteButton = undefined;
         };
@@ -72,7 +70,7 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/argum
         /**
          * Render the editing view of a resource parameter.
          */
-        ResourceParameterView.prototype.renderEditView = function () {
+        ResourceParameterView.prototype.renderEditView = function (diagramRenderingContext) {
             var self = this;
 
             $(this._parameterWrapper).empty();
@@ -170,6 +168,7 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/argum
             // Creating parameter type dropdown.
             var parameterTypeDropDown = $("<select/>").appendTo(parameterWrapper);
 
+            this._supportedParameterTypes = diagramRenderingContext.getEnvironment().getTypes();
             // Adding dropdown elements.
             _.forEach(this._supportedParameterTypes, function (type) {
                 // Adding supported parameter types to the type dropdown.
