@@ -15,12 +15,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(["../../../ballerina/visitors/source-gen-visitor"], function(sourceGenVisitor) {
+//define(["../../../ballerina/visitors/source-gen-visitor"], function(sourceGenVisitor) {
+//  describe("Ballerina Tests", function() {
+//
+//  });
+//
+//	return {
+//		name: sourceGenVisitor
+//	}
+//});
+
+define(["../../../ballerina/visitors/source-gen-visitor","BaseTest"], function(sourceGenVisitor, baseTest) {
   describe("Ballerina Tests", function() {
 
   });
 
 	return {
-		name: sourceGenVisitor
+		name: baseTest
 	}
 });
