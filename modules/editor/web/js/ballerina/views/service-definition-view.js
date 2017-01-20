@@ -151,14 +151,16 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
             var self = this;
 
             $("#title-" + this._model.id).addClass("service-title-text").text(this._model.getServiceName())
-                .on("change paste keydown", function (e) {
-                    if (e.which == 13) {
-                        return false;
-                    }
+                .on("change paste keyup", function (e) {
                     self._model.setServiceName($(this).text());
                 }).on("click", function (event) {
-                event.stopPropagation();
-            });
+                    event.stopPropagation();
+                }).on("keydown", function (e) {
+                    // Check whether the Enter key has been pressed. If so return false. Won't type the character
+                    if (e.keyCode === 13) {
+                        return false;
+                    }
+                });
 
             this._model.on('child-added', function (child) {
                 self.visit(child);
