@@ -56,11 +56,6 @@ define(([],function (){
                     }
                 },
                 disabled: true
-            },
-            {
-                id: "cut",
-                label: "Cut",
-                disabled: true
             }
 
         ]
