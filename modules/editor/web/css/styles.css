@@ -128,7 +128,7 @@ ol#breadcrumbList {
 }
 
 /** Menu Bar **/
-.dropdown-menu {
+.file-dropdown-menu {
     background: #1e1e1e;
     top: 50%;
     font-size: 11px;
