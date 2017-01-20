@@ -302,12 +302,12 @@ define(['lodash', 'require', 'log', './node'],
         });
     };
 
-        /**
-         * Override the addChild method for ordering the child elements as
-         * [Statements, Workers, Connectors]
-         * @param {ASTNode} child
-         * @param {number|undefined} index
-         */
+    /**
+     * Override the addChild method for ordering the child elements as
+     * [Statements, Workers, Connectors]
+     * @param {ASTNode} child
+     * @param {number|undefined} index
+     */
     ResourceDefinition.prototype.addChild = function (child, index) {
         var indexNew;
         var self = this;
