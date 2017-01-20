@@ -19,16 +19,16 @@ define(['lodash', 'log', './conditional-statement'], function (_, log, Condition
 
     /**
      * Class for if conditions in ballerina. Extended from Conditional-Statement
-     * @param elseStatements The 'else' statements of an IF condition.
-     * @param elseIfStatements The 'else if' statements of an IF condition.
+     * @param {Object} args - Argument object for creating an if statement.
+     * @param {string} [args.condition="true"] - The condition for "if".
+     * @param {Statement} [args.statements="[]] - Statements of the "if".
      * @constructor
+     * @augments ConditionalStatement
      */
-    var IfStatement = function (condition,statements) {
+    var IfStatement = function (args) {
         ConditionalStatement.call(this);
-        if(!_.isNil(condition)){
-            this._condition = condition;
-        }
-        this._statements = statements || [];
+        this._condition = _.get(args, "condition", "true");
+        this._statements = _.get(args, "statements", []);
         this.type = "IfStatement";
     };
 

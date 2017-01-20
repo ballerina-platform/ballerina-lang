@@ -670,7 +670,15 @@ public class BLangJSONModelBuilder implements NodeVisitor {
 
     @Override
     public void visit(DivideExpr divideExpr) {
-
+        JsonObject divideExprObj = new JsonObject();
+        divideExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
+                                 BLangJSONModelConstants.DIVISION_EXPRESSION);
+        tempJsonArrayRef.push(new JsonArray());
+        divideExpr.getLExpr().accept(this);
+        divideExpr.getRExpr().accept(this);
+        divideExprObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(divideExprObj);
     }
 
     @Override

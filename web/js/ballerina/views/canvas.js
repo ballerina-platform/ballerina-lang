@@ -82,6 +82,10 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
         } else if (canvas[0].getAttribute('name') == "function") {
             panelIcon.addClass(_.get(options, 'cssClass.function_icon'));
         }
+        // TODO: Add the specific icon for the connector definition
+        else if (canvas[0].getAttribute('name') == "connectordefinition") {
+            panelIcon.addClass(_.get(options, 'cssClass.connector_icon'));
+        }
         panelTitle.append(panelIcon);
         var titleLink = $('<a></a>');
         titleLink.attr('id', 'title-' + id);
