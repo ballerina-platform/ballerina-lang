@@ -190,6 +190,12 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/argum
                 val: this.getModel().getIdentifier()
             }).keypress(function (e) {
                 var enteredKey = e.which || e.charCode || e.keyCode;
+                // Disabling enter key
+                if (enteredKey == 13) {
+                    event.stopPropagation();
+                    return false;
+                }
+
                 var newIdentifier = $(this).val() + String.fromCharCode(enteredKey);
 
                 // Validation the identifier against grammar.
