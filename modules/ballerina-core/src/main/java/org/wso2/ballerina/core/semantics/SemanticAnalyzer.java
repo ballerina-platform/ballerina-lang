@@ -551,7 +551,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         // TODO Remove the MAP related logic when type casting is implemented
         if ((lExpr.getType() != BTypes.MAP_TYPE) && (rExpr.getType() != BTypes.MAP_TYPE) &&
-                (lExpr.getType() != rExpr.getType())) {
+                (lExpr.getType() != rExpr.getType()) && !checkWideningPossible(lExpr.getType(), rExpr.getType())) {
             throw new SemanticException(lExpr.getLocation().getFileName() + ":"
                     + lExpr.getLocation().getLine() + ": incompatible types: " + rExpr.getType() +
                     " cannot be converted to " + lExpr.getType());
@@ -1587,5 +1587,16 @@ public class SemanticAnalyzer implements NodeVisitor {
         // TODO improve this once multiple return types are supported
         actionIExpr.setType((action.getReturnParameters().length != 0) ?
                 action.getReturnParameters()[0].getType() : null);
+    }
+
+    // Function to check whether implicit widening (casting) is possible
+    private boolean checkWideningPossible(BType lhsType, BType rhsType) {
+        if ((rhsType == BTypes.INT_TYPE && (lhsType == BTypes.LONG_TYPE || lhsType == BTypes.FLOAT_TYPE
+                || lhsType == BTypes.DOUBLE_TYPE)) || (rhsType == BTypes.LONG_TYPE && (lhsType == BTypes.FLOAT_TYPE
+                || lhsType == BTypes.DOUBLE_TYPE)) || (rhsType == BTypes.FLOAT_TYPE && lhsType == BTypes.DOUBLE_TYPE)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }
