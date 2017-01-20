@@ -116,6 +116,8 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/argum
                 if ($(allowAnnotationCheckBox).is(":checked")) {
                     self.getModel().setAnnotationText(newIdentifier);
                 }
+            }).keyup(function(){
+                self.getModel().setAnnotationText($(this).val());
             }).appendTo(annotationWrapper);
 
             // Setting a default value for @PathParam and updating model when changed.
@@ -198,17 +200,15 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/argum
 
                 var newIdentifier = $(this).val() + String.fromCharCode(enteredKey);
 
-                // Validation the identifier against grammar.
-                if (!Argument.isValidIdentifier(newIdentifier)) {
-                    var errorString = "Invalid identifier for a parameter: " + newIdentifier;
-                    log.error(errorString);
-                    Alerts.error(errorString);
+                try {
+                    self.getModel().setIdentifier(newIdentifier);
+                } catch (error) {
+                    Alerts.error(error);
                     event.stopPropagation();
                     return false;
                 }
-
-                self.getModel().setIdentifier(newIdentifier);
-
+            }).keyup(function(){
+                self.getModel().setIdentifier($(this).val());
             }).appendTo(parameterWrapper);
 
             //// End of parameter section
