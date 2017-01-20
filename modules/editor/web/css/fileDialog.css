@@ -34,6 +34,15 @@
     margin-right: 43px;
 }
 
+.folder-dialog-form-btn{
+    float: right;
+    margin-right: 100px;
+}
+
+.errors-container{
+    margin: 50px 20px 20px 20px;
+}
+
 hr.style1 {
     border-top: 1px solid #2C2C2C;
     width: 92%;

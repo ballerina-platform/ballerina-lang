@@ -27,7 +27,7 @@ import org.wso2.ballerina.core.model.types.BType;
  * Ballerina has variables of various types. The type system includes built-in primitives,
  * a collection of built-in structured types and array and record type constructors.
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class VariableDcl implements Node {
 

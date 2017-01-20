@@ -25,7 +25,7 @@ import java.util.Stack;
 /**
  * {@code ControlStack} represents function call stack.
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class ControlStack {
 

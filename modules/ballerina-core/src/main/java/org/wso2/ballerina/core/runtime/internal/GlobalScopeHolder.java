@@ -26,7 +26,7 @@ import org.wso2.ballerina.core.model.SymbolName;
  * {@code GlobalScopeHolder} is the place where Ballerina Global symbol information is maintain.
  * <p>
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class GlobalScopeHolder {
 

@@ -27,7 +27,7 @@ import org.wso2.ballerina.core.model.values.BValue;
  * <p>
  * Provides the common behaviour of expressions.
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public abstract class AbstractExpression implements Expression {
 

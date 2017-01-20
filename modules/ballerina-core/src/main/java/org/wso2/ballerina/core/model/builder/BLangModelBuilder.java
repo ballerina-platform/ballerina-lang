@@ -90,7 +90,7 @@ import java.util.regex.Pattern;
 /**
  * {@code BLangModelBuilder} provides an high-level API to create Ballerina language object model.
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class BLangModelBuilder {
     private static final Logger log = LoggerFactory.getLogger(BLangModelBuilder.class);

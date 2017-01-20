@@ -34,7 +34,7 @@ import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
 /**
  * {@code RuntimeEnvironment} represents the runtime environment of a Ballerina application
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class RuntimeEnvironment {
     private StaticMemory staticMemory;
@@ -152,7 +152,7 @@ public class RuntimeEnvironment {
      * {@code StaticMemory} represents an statically allocated block of memory which is used to store data
      * which does not change when the program executes
      *
-     * @since 1.0.0
+     * @since 0.8.0
      */
     public static class StaticMemory {
         BValue[] memSlots;

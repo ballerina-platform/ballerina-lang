@@ -27,7 +27,7 @@ import java.util.Map;
  * Annotation can be associated with various Ballerina concepts like Service, Resource, Functions, etc.
  *
  * @see <a href="https://github.com/wso2/ballerina/blob/master/docs/SyntaxSummary.md">Ballerina Syntax Summary</a>
- * @since 1.0.0
+ * @since 0.8.0
  */
 @SuppressWarnings("unused")
 public class Annotation implements Node {
