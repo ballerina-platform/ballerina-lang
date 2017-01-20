@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -24,7 +24,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         './expression', './if-else-statement', './if-statement', './else-statement', './else-if-statement', './trycatch-statement',
         './try-statement', './catch-statement', './reply-statement', './while-statement', './return-statement',
         './type-converter-definition', './type-definition', './type-element', './variable-declaration',
-        './package-definition', './import-declaration', './resource-arg', './assignment', './assignment-statement',
+        './package-definition', './import-declaration', './resource-parameter', './assignment', './assignment-statement',
         './function-invocation', './function-invocation-expression', './variable-reference-expression',
         './action-invocation-statement', './arithmetic-expression', './logical-expression', './action-invocation-expression',
         './return-type', './type-name', './argument', './back-quote-expression', './basic-literal-expression',
@@ -34,7 +34,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
               workerDeclaration, statement, conditionalStatement, connectorDeclaration, expression, ifElseStatement,
               ifStatement, elseStatement, elseIfStatement, tryCatchStatement, tryStatement, catchStatement, replyStatement,
               whileStatement, returnStatement, typeConverterDefinition, typeDefinition, typeElement, variableDeclaration,
-              packageDefinition, importDeclaration, resourceArgument, assignment, assignmentStatement, functionInvocation,
+              packageDefinition, importDeclaration, resourceParameter, assignment, assignmentStatement, functionInvocation,
               functionInvocationExpression, variableReferenceExpression, actionInvocationStatement, arithmeticExpression,
               logicalExpression, actionInvocationExpression, returnType, typeName, argument, backQuoteExpression,
               basicLiteralExpression, leftOperandExpression, rightOperandExpression, instanceCreationExpression,
@@ -364,8 +364,8 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          * @param args
          * @returns {ResourceArgument}
          */
-        BallerinaASTFactory.createResourceArgument = function (args) {
-            return new resourceArgument(args);
+        BallerinaASTFactory.createResourceParameter = function (args) {
+            return new resourceParameter(args);
         };
 
         /**
@@ -696,12 +696,12 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         };
 
         /**
-         * instanceof check for ResourceArgument
+         * instanceof check for ResourceParameter.
          * @param child - Object for instanceof check
          * @returns {boolean} - true if same type, else false
          */
-        BallerinaASTFactory.isResourceArgument = function (child) {
-            return child instanceof resourceArgument;
+        BallerinaASTFactory.isResourceParameter = function (child) {
+            return child instanceof resourceParameter;
         };
 
         /**
@@ -908,7 +908,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
                         node = BallerinaASTFactory.createVariableDeclaration();
                         break;
                     case 'argument_declaration':
-                        node = BallerinaASTFactory.createResourceArgument();
+                        node = BallerinaASTFactory.createResourceParameter();
                         break;
                     case 'reply_statement':
                         node = BallerinaASTFactory.createReplyStatement();

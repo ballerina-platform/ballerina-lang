@@ -19,7 +19,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
         './default-worker', './point', './connector-declaration-view', './statement-view-factory',
         'ballerina/ast/ballerina-ast-factory', './expression-view-factory','./message', './statement-container',
         './../ast/variable-declaration', './variables-view', './annotation-view',
-        './arguments-view', './return-type-view'],
+        './function-arguments-view', './return-type-view'],
     function (_, log, d3, $, D3utils, BallerinaView, ConnectorAction,
               DefaultWorkerView, Point, ConnectorDeclarationView, StatementViewFactory,
               BallerinaASTFactory, ExpressionViewFactory, MessageView, StatementContainer,
