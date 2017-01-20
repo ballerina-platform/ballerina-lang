@@ -226,7 +226,7 @@ define(['lodash', './node', 'log'], function(_, ASTNode, log){
     };
 
     /**
-     * Adds new argument to the function definition.
+     * Adds new argument to the connector action.
      * @param type - The type of the argument.
      * @param identifier - The identifier of the argument.
      */
@@ -255,6 +255,24 @@ define(['lodash', './node', 'log'], function(_, ASTNode, log){
         var self = this;
         _.remove(this.getChildren(), function (child) {
             return self.BallerinaASTFactory.isArgument(child) && child.getIdentifier() === identifier;
+        });
+    };
+
+    /**
+     * initialize ConnectorAction from json object
+     * @param {Object} jsonNode to initialize from
+     * @param {string} [jsonNode.resource_name] - Name of the resource definition
+     * @param {string} [jsonNode.annotations] - Annotations of the resource definition
+     */
+    ConnectorAction.prototype.initFromJson = function (jsonNode) {
+        var self = this;
+        this.setActionName(jsonNode.action_name);
+        this.setAnnotations(jsonNode.annotations);
+
+        _.each(jsonNode.children, function (childNode) {
+            var child = self.BallerinaASTFactory.createFromJson(childNode);
+            self.addChild(child);
+            child.initFromJson(childNode);
         });
     };
 

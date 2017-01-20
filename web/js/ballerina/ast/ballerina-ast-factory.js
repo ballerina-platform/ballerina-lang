@@ -1003,6 +1003,12 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
                     case 'array_map_access_expression':
                         node = BallerinaASTFactory.createArrayMapAccessExpression();
                         break;
+                    case 'connector':
+                        node = BallerinaASTFactory.createConnectorDefinition();
+                        break;
+                    case 'action':
+                        node = BallerinaASTFactory.createConnectorAction();
+                        break;
                     default:
                         throw "Unknown node definition for " + jsonNode.type;
                 }
