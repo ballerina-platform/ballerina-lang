@@ -74,25 +74,25 @@ div[class*="col-sm-"] {
     height: 100%;
     padding: 0;
     /*Adjust when implementing file explorer*/
-    min-width: 50px;
+    min-width: 40px;
     position: fixed;
 }
 .left-tool-bar{
     height: 100%;
     padding: 0;
-    min-width: 50px;
+    min-width: 40px;
     position: fixed;
 }
 .sidebar-left{
     height: 100%;
     width: 100%;
-    margin-left: 50px;
+    margin-left: 40px;
     overflow: scroll;
 }
 
 .right-container{
     height: 100%;
-    margin-left: 50px;
+    margin-left: 40px;
 }
 
 /*//////////////////////////////////////////////////*/
