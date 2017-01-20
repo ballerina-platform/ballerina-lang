@@ -358,9 +358,18 @@ public class BLangJSONModelBuilder implements NodeVisitor {
                 variableDcl.accept(this);
             }
         }
+        if (action.getConnectorDcls() != null) {
+            for (ConnectorDcl connectDcl : action.getConnectorDcls()) {
+                connectDcl.accept(this);
+            }
+        }
+        action.getCallableUnitBody().accept(this);
         jsonAction.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
         tempJsonArrayRef.pop();
         tempJsonArrayRef.peek().add(jsonAction);
+
+        JsonObject returnTypeObj = new JsonObject();
+        returnTypeObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.RETURN_TYPE);
     }
 
     @Override
