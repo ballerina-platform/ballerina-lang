@@ -1161,3 +1161,7 @@ a:hover {
 .panel-default {
     border: 0;
 }
+
+.sidebar-left{
+    background: #333333;
+}

@@ -40,15 +40,12 @@ define(['jquery', 'backbone', 'lodash', 'tree_view', /** void module - jquery pl
                 log.error('Cannot init file browser. config: application not found.')
             }
 
-            if (!_.has(config, 'action')) {
-                log.error('Cannot init file browser. config: action not found.')
-            }
-
             this.application = _.get(config, 'application');
             this._options = config;
             this.workspaceServiceURL = _.get(this._options, 'application.config.services.workspace.endpoint');
             this._isActive = false;
-            this.action = _.get(config, 'action');
+            this._fetchFiles = _.get(config, 'fetchFiles', false);
+            this._root = _.get(config, 'root');
         },
 
         /**
@@ -61,20 +58,26 @@ define(['jquery', 'backbone', 'lodash', 'tree_view', /** void module - jquery pl
 
         render: function () {
             var self = this;
-            var action = this.action;
             this._$parent_el
                 .jstree({
                     'core': {
                         'data': {
                             'url': function (node) {
                                 if (node.id === '#') {
+                                    if(!_.isNil(self._root)){
+                                        if (self._fetchFiles) {
+                                            return self.workspaceServiceURL + "/listFiles?path=" + btoa(self._root);
+                                        } else {
+                                            return self.workspaceServiceURL + "/list?path=" + btoa(self._root);
+                                        }
+                                    }
                                     return self.workspaceServiceURL + "/root";
                                 }
                                 else {
-                                    if (action === 'saveFile') {
-                                        return self.workspaceServiceURL + "/list?path=" + btoa(node.id);
-                                    } else if (action == 'openFile') {
+                                    if (self._fetchFiles) {
                                         return self.workspaceServiceURL + "/listFiles?path=" + btoa(node.id);
+                                    } else {
+                                        return self.workspaceServiceURL + "/list?path=" + btoa(node.id);
                                     }
                                 }
 
@@ -91,7 +94,9 @@ define(['jquery', 'backbone', 'lodash', 'tree_view', /** void module - jquery pl
                         'themes': {
                             'responsive': false,
                             'variant': 'small',
-                            'stripes': true
+                            'stripes': false,
+                            'dots': false,
+
                         }
                     },
                     'types': {
@@ -121,6 +126,10 @@ define(['jquery', 'backbone', 'lodash', 'tree_view', /** void module - jquery pl
                     data.instance.set_icon(data.node, "fw fw-folder");
                 }).on('ready', function(){
                     self.trigger("ready");
+                }).on("dblclick.jstree", function (event) {
+                    var item = $(event.target).closest("li");
+                    var node = self._$parent_el.jstree(true).get_node(item[0].id);
+                    self.trigger("double-click-node", node);
                 });
             return this;
         }

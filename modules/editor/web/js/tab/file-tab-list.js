@@ -158,6 +158,15 @@ define(['log', 'jquery', 'lodash', './tab-list', './file-tab',  'workspace'],
                 var previousTab = _.nth(this._tabs, prevTabIndex);
                 this.setActiveTab(previousTab);
             }
+        },
+
+        getTabForFile: function(file){
+            return _.find(this._tabs, function(tab){
+                if(tab instanceof ServiceTab){
+                    var tabFile = tab.getFile();
+                    return _.isEqual(tabFile.getPath(), file.getPath()) &&  _.isEqual(tabFile.getName(), file.getName());
+                }
+            });
         }
     });
 
