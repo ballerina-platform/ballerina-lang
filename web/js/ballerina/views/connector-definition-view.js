@@ -17,10 +17,11 @@
  */
 define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './../ast/connector-definition',
         './client-life-line', './connector-action-view', 'ballerina/ast/ballerina-ast-factory', './axis',
-        './connector-declaration-view', './../ast/variable-declaration', './variables-view', './annotation-view'],
+        './connector-declaration-view', './../ast/variable-declaration', './variables-view', './annotation-view',
+        './function-arguments-view'],
     function (_, log, d3, D3utils, $, Canvas, Point, ConnectorDefinition,
               ClientLifeLine, ConnectorActionView, BallerinaASTFactory, Axis,
-              ConnectorDeclarationView, VariableDeclaration, VariablesView, AnnotationView) {
+              ConnectorDeclarationView, VariableDeclaration, VariablesView, AnnotationView, ArgumentsView) {
 
         /**
          * The view to represent a connector definition which is an AST visitor.
@@ -221,7 +222,36 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
 
             VariablesView.createVariablePane(variableProperties);
 
+            var operationsPane = this.getOperationsPane();
+
+            // Creating arguments icon.
+            var panelArgumentsIcon = $("<i/>", {
+                class: "fw fw-import pull-right right-icon-clickable hoverable"
+            }).appendTo(operationsPane);
+
+            // Stopping event propagation to the elements behind.
+            panelArgumentsIcon.click(function (event) {
+                event.stopPropagation();
+            });
+
+            // Adding separator for arguments icon.
+            $("<span class='pull-right canvas-operations-separator'>|</span>").appendTo(operationsPane);
+
+            var argumentsProperties = {
+                model: this._model,
+                activatorElement: panelArgumentsIcon,
+                paneAppendElement: this.getChildContainer().node().ownerSVGElement.parentElement,
+                viewOptions: {
+                    position: {
+                        // "-1" to remove the svg stroke line
+                        left: parseInt($(this.getChildContainer().node().ownerSVGElement.parentElement).width()),
+                        top: 0
+                    }
+                }
+            };
+
             this.setServiceContainerWidth(this._container.width());
+            ArgumentsView.createArgumentsPane(argumentsProperties);
         };
 
         /**
