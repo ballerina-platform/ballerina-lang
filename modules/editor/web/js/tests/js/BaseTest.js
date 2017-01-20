@@ -15,43 +15,68 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lib/module-b'], function(moduleB){
-  return {
+define(['lodash','jquery', ], function(_, $ ){
 
-var workspaceServiceURL = "http://localhost:8289/service/workspace";
-var saveServiceURL = workspaceServiceURL + "/read";
-var defaultView = {configLocation: location.val()};
+return {
+ value: myFunction2()
+ }
 
-var saveServiceURL = workspaceServiceURL + "/read";
 
-var path = defaultView.configLocation;
-$.ajax({
-    url: saveServiceURL,
-    type: "POST",
-    data: path,
-    contentType: "text/plain; charset=utf-8",
-    async: false,
-    success: function (data, textStatus, xhr) {
-    if (xhr.status == 200) {
-        var pathArray = _.split(path, self.app.getPathSeperator()),
-        fileName = _.last(pathArray),
-        folderPath = _.join(_.take(pathArray, pathArray.length -1), self.app.getPathSeperator());
 
-        var file = new File({
-            name: fileName,
-            path: folderPath,
-            content: data.content,
-            isPersisted: true
-        });
-        app.commandManager.dispatch("create-new-tab", {tabOptions: {file: file}});
-        alertSuccess();
-    } else {
-        alertError();
-    }
-   },
-    error: function (res, errorCode, error) {
-        alertError();
-    }
-    });
+function myFunction(p1, p2) {
+    var workspaceServiceURL = "http://localhost:8289/service/workspace";
+    var saveServiceURL = workspaceServiceURL + "/read";
+
+    var path = "/home/malintha/projects/wso2/myBallerina/ballerina/samples/getting_started/echoService/echoService.bal";
+    var fileName = "echoService.bal";
+    $.ajax({
+        url: saveServiceURL,
+        type: "POST",
+        data: path,
+        contentType: "text/plain; charset=utf-8",
+        async: false,
+        success: function (data, textStatus, xhr) {
+        if (xhr.status == 200) {
+              var file = new File({
+                name: 'echoService.bal',
+                path: '/home/malintha/projects/wso2/myBallerina/ballerina/samples/getting_started/echoService',
+                content: data.content
+              });
+
+        } else {
+            alertError();
+        }
+       },
+        error: function (res, errorCode, error) {
+            alertError();
+        }
+});
+}
+
+function myFunction2(){
+
+    $.ajax({
+        url: "http://localhost:8289/ballerina/model/content",
+        type: "POST",
+                            data: "import ballerina.net.http;@BasePath (\"/echo\")service echo {    @POST    resource echo (message m) {        http:convertToResponse(m);        reply m;    }}",
+                            contentType: "application/json; charset=utf-8",
+                            async: false,
+                            dataType: "json",
+                            success: function (data, textStatus, xhr) {
+                                if (xhr.status == 200) {
+            //                        var BallerinaASTDeserializer = Ballerina.ast.BallerinaASTDeserializer;
+            //                        var root = BallerinaASTDeserializer.getASTModel(data);
+            //                        onSuccessCallBack(root);
+                                } else {
+                                    log.error("Error while parsing the source. " + JSON.stringify(xhr));
+                                }
+                            },
+                            error: function (res, errorCode, error) {
+                                log.error("Error while parsing the source. " + JSON.stringify(res));
+                            }
+                        });
+}
+
 
 });
+
