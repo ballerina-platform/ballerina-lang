@@ -154,14 +154,16 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
             var self = this;
 
             $("#title-" + this._model.id).addClass("function-title-text").text(this._model.getFunctionName())
-                .on("change paste keydown", function (e) {
-                    if (e.which == 13) {
-                        return false;
-                    }
+                .on("change paste keyup", function (e) {
                     self._model.setFunctionName($(this).text());
                 }).on("click", function (event) {
-                event.stopPropagation();
-            });
+                    event.stopPropagation();
+                }).on("keydown", function (e) {
+                    // Check whether the Enter key has been pressed. If so return false. Won't type the character
+                    if (e.keyCode === 13) {
+                        return false;
+                    }
+                });
 
             // Creating default worker
             var defaultWorkerOpts = {};
