@@ -56,10 +56,6 @@
    vertical-align:middle;
 }
 
-.folder-tree-body{
-    margin-left: 25px;
-}
-
 .folder-tree-header:hover{
     color: white;
     cursor: pointer;
@@ -90,3 +86,20 @@
 }
 
 .nano .workspace-explorer-container.nano-content { padding: 0px; }
+
+.jstree-default-small .jstree-wholerow{
+    height: 28px;
+}
+
+.jstree-default .jstree-wholerow-clicked{
+    background-color: #232323;
+    background: linear-gradient(to bottom, #232323 0%, #232323 100%);
+}
+
+.jstree-default .jstree-wholerow-hovered{
+    background-color: #232323;
+}
+
+.jstree-default-small > .jstree-container-ul > .jstree-node{
+    margin-left: 10px;
+}
