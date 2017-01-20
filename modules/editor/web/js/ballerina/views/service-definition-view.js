@@ -279,6 +279,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
          */
         ServiceDefinitionView.prototype.visitResourceDefinition = function (resourceDefinition) {
             log.debug("Visiting resource definition");
+            var self = this;
             var resourceContainer = this.getChildContainer();
             // If more than 1 resource
             if (this.getResourceViewList().length > 0) {
@@ -396,7 +397,12 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
             // We render the service level connector first. Then call the ShrinkOrExpand of the resource
             // This will change the resource BBox if needed. If changed, we move the connector/ reposition it
             this.getLifeLineMargin().on('moved', function (offset) {
-                connectorDeclarationView.getBoundingBox().move(offset, 0);
+                var widestResource = self.getWidestResource();
+                // move the connector
+                if (widestResource && (widestResource.getBoundingBox().getRight() >= connectorDeclarationView.getBoundingBox().getRight())) {
+                    connectorDeclarationView.getBoundingBox().move(Math.abs(offset), 0);
+                }
+
                 // After moving the connector, if it go beyond the svg's width, we need to increase the parent svg width
                 if (connectorDeclarationView.getBoundingBox().getRight() > self.getServiceContainer().width()) {
                     // Add an offset of 60 to the current connector's BBox's right value
