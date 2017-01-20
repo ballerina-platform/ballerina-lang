@@ -26,7 +26,7 @@ import org.wso2.ballerina.core.model.values.BValue;
 /**
  * {@code MemoryLocation} represents a location where a variable or constant is stored at runtime
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class MemoryLocation implements Node, ExecutableExpr {
 

@@ -32,7 +32,7 @@ define(['require','lodash', 'log', 'event_channel', './abstract-statement-source
         ActionInvocationStatementVisitor.prototype.beginVisitActionInvocationStatement = function(action){
             var self = action;
             this.appendSource(self.getActionPackageName() + ':' + self.getActionConnectorName() + '.' + self.getActionName() +
-                '(' + self.getConnectorVariableReference() + ',' + self.getPath() + ',' + self.getMessageVariableReference() + ')');
+                '(' + self.getConnectorVariableReference() + ',\"' + self.getPath() + '\",' + self.getMessageVariableReference() + ')');
             log.debug('Begin Visit action invocation expression');
         };
 

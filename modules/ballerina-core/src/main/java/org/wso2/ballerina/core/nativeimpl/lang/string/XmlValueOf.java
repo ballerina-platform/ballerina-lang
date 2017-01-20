@@ -32,7 +32,7 @@ import org.wso2.ballerina.core.nativeimpl.lang.utils.ErrorHandler;
 /**
  * Native function ballerina.lang.string:valueOf.
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.string",

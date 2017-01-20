@@ -12,11 +12,11 @@ button.close {
     text-shadow: 0 0 0;
     font-weight: 100;
     opacity: 0.5;
-    font-size: 20px;
+    font-size: 26px;
     line-height: 15px;
     position: absolute;
-    top: -1px;
-    right: 5px;
+    top: 6px;
+    right: 9px;
     color: inherit;
 }
 
@@ -149,4 +149,9 @@ button.close {
 #tabs-container > div.tab-headers.tab-headers-bar > ul > .active > a {
     opacity: 1;
     color: #333;
+}
+li > button.close{
+    top:2px;
+    right: 2px;
+    font-size: 20px;
 }

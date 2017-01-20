@@ -31,7 +31,7 @@ import java.util.Locale;
 /**
  * Util Class contains method for generating a message
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class MessageUtils {
 

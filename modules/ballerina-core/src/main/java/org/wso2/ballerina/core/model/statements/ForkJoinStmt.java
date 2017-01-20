@@ -27,7 +27,7 @@ import java.util.List;
 /**
  * {@code ForkJoinStmt} represents a fork/join statement
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class ForkJoinStmt extends AbstractStatement {
     private List<Worker> workers;
