@@ -24,7 +24,7 @@ define(['lodash', './statement'], function(_, Statement){
      */
     var LeftOperandExpression = function (args) {
         Statement.call(this, 'LeftOperandExpression');
-        this.variable_reference_name = undefined;
+        this.variable_reference_name = _.get(args, "variableReferenceName", "var1");
     };
 
     LeftOperandExpression.prototype = Object.create(Statement.prototype);

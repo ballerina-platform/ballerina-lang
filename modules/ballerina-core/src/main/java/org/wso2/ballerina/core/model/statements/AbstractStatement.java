@@ -26,7 +26,7 @@ import org.wso2.ballerina.core.model.Position;
  * A statement is a tree consisting of one or more of the concrete implementations
  * of {@link Statement} interface.
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public abstract class AbstractStatement implements Statement {
     protected Position expressionLocation;

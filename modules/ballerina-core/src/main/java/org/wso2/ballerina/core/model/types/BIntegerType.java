@@ -23,7 +23,7 @@ import org.wso2.ballerina.core.model.values.BValue;
 /**
  * {@code BIntegerType} represents an integer which is a 32-bit signed number
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 class BIntegerType extends BType {
 

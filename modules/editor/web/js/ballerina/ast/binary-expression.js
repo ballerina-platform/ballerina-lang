@@ -18,35 +18,36 @@
 define(['lodash', './expression'], function (_, Expression) {
 
     /**
-     * Constructor for GreaterThanExpression
-     * @param {Object} args - Arguments to create the GreaterThanExpression
+     * Constructor for BinaryExpression
+     * @param {Object} args - Arguments to create the BinaryExpression
      * @constructor
      * @augments Expression
      */
-    var GreaterThanExpression = function (args) {
-        Expression.call(this, 'GreaterThanExpression');
+    var BinaryExpression = function (args) {
+        Expression.call(this, 'BinaryExpression');
+        this._operator = _.get(args, 'operator');
     };
 
-    GreaterThanExpression.prototype = Object.create(Expression.prototype);
-    GreaterThanExpression.prototype.constructor = GreaterThanExpression;
+    BinaryExpression.prototype = Object.create(Expression.prototype);
+    BinaryExpression.prototype.constructor = BinaryExpression;
 
     /**
      * setting parameters from json
      * @param {Object} jsonNode to initialize from
      */
-    GreaterThanExpression.prototype.initFromJson = function (jsonNode) {
-        this.setExpression(this.generateGreaterThanExpressionString(jsonNode));
+    BinaryExpression.prototype.initFromJson = function (jsonNode) {
+        this.setExpression(this.generateExpressionString(jsonNode));
     };
 
     /**
-     * Generates the greater than expression as a string.
-     * @param {Object} jsonNode - A node explaining the structure of greater than expression.
+     * Generates the binary expression as a string.
+     * @param {Object} jsonNode - A node explaining the structure of binary expression.
      * @return {string} - Arguments as a string.
      * @private
      */
-    GreaterThanExpression.prototype.generateGreaterThanExpressionString = function (jsonNode) {
+    BinaryExpression.prototype.generateExpressionString = function (jsonNode) {
         var self = this;
-        var greaterThanString = "";
+        var expString = "";
 
         for (var itr = 0; itr < jsonNode.children.length; itr++) {
             var childJsonNode = jsonNode.children[itr];
@@ -54,20 +55,24 @@ define(['lodash', './expression'], function (_, Expression) {
             if (childJsonNode.type == "basic_literal_expression") {
                 if(childJsonNode.basic_literal_type == "string") {
                     // Adding double quotes if it is a string.
-                    greaterThanString += "\"" + childJsonNode.basic_literal_value + "\"";
+                    expString += "\"" + childJsonNode.basic_literal_value + "\"";
                 } else {
-                    greaterThanString += childJsonNode.basic_literal_value;
+                    expString += childJsonNode.basic_literal_value;
                 }
             } else if (childJsonNode.type == "variable_reference_expression") {
-                greaterThanString += childJsonNode.variable_reference_name;
+                expString += childJsonNode.variable_reference_name;
             }
 
             if (itr !== jsonNode.children.length - 1) {
-                greaterThanString += " < ";
+                expString += " " + this.getOperator() + " ";
             }
         }
-        return greaterThanString;
+        return expString;
     };
 
-    return GreaterThanExpression;
+    BinaryExpression.prototype.getOperator = function (){
+        return this._operator;
+    };
+
+    return BinaryExpression;
 });

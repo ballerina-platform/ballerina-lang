@@ -76,7 +76,7 @@ import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
 /**
  * {@code BLangExecutor} executes a Ballerina application
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class BLangExecutor implements NodeExecutor {
 
@@ -345,15 +345,16 @@ public class BLangExecutor implements NodeExecutor {
         valueParams[0] = messageValue;
 
         int valueCounter = 1;
+
+        // Populate values for Connector declarations
+        valueCounter = populateConnectorDclValues(resource.getConnectorDcls(), valueParams, valueCounter);
+
         // Create default values for all declared local variables
         VariableDcl[] variableDcls = resource.getVariableDcls();
         for (VariableDcl variableDcl : variableDcls) {
             valueParams[valueCounter] = variableDcl.getType().getDefaultValue();
             valueCounter++;
         }
-
-        // Populate values for Connector declarations
-        populateConnectorDclValues(resource.getConnectorDcls(), valueParams, valueCounter);
 
         BValue[] ret = new BValue[1];
 

@@ -23,7 +23,7 @@ import org.wso2.ballerina.core.model.values.BXML;
 /**
  * {@code BXMLType} represents an XML Element
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 class BXMLType extends BType {
 

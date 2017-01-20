@@ -132,7 +132,9 @@ public class BLangJSONModelConstants {
 
     public static final String SUBTRACT_EXPRESSION = "subtract_expression";
 
-    public static final String MULTIPLY_EXPRESSION = "subtract_expression";
+    public static final String MULTIPLY_EXPRESSION = "multiplication_expression";
+
+    public static final String DIVISION_EXPRESSION = "division_expression";
 
     public static final String AND_EXPRESSION = "and_expression";
 
@@ -146,9 +148,9 @@ public class BLangJSONModelConstants {
 
     public static final String GREATER_THAN_EXPRESSION = "greater_than_expression";
 
-    public static final String LESS_EQUAL_EXPRESSION = "greater_equal_expression";
+    public static final String LESS_EQUAL_EXPRESSION = "less_equal_expression";
 
-    public static final String LESS_THAN_EXPRESSION = "greater_than_expression";
+    public static final String LESS_THAN_EXPRESSION = "less_than_expression";
 
     public static final String VARIABLE_REFERENCE_EXPRESSION = "variable_reference_expression";
 

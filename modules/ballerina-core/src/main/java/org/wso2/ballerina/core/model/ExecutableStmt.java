@@ -20,7 +20,7 @@ package org.wso2.ballerina.core.model;
 /**
  * {@code ExecutableStmt} interface makes a {@link org.wso2.ballerina.core.model.statements.Statement} executable
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public interface ExecutableStmt {
 
