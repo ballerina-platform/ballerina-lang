@@ -57,7 +57,7 @@
 }
 
 .folder-tree-body{
-    margin-left: 15px;
+    margin-left: 25px;
 }
 
 .folder-tree-header:hover{
@@ -88,3 +88,5 @@
 .workspace-explorer-container .jstree-default-small > .jstree-no-dots .jstree-closed > .jstree-ocl {
     margin-top: 5px;
 }
+
+.nano .workspace-explorer-container.nano-content { padding: 0px; }
