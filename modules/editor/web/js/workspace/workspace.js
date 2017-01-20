@@ -115,6 +115,16 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab/t
 
         };
 
+        this.showFolderOpenDialog = function() {
+            if(_.isNil(this._folderOpenDialog)){
+                var opts = _.cloneDeep(_.get(app.config, 'open_folder_dialog'));
+                _.set(opts, "application", app);
+                this._folderOpenDialog = new Dialogs.FolderOpenDialog(opts);
+                this._folderOpenDialog.render();
+            }
+            this._folderOpenDialog.show();
+        };
+
         this.openFileOpenDialog = function openFileOpenDialog() {
             if(_.isNil(this._openFileDialog)){
                 this._openFileDialog = new Dialogs.open_file_dialog(app);
@@ -217,6 +227,8 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab/t
 
         // Open file open dialog
         app.commandManager.registerHandler('open-file-open-dialog', this.openFileOpenDialog, this);
+
+        app.commandManager.registerHandler('show-folder-open-dialog', this.showFolderOpenDialog, this);
 
         // Go to Welcome Page.
         app.commandManager.registerHandler('go-to-welcome-page', this.goToWelcomePage);
