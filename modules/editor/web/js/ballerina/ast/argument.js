@@ -19,9 +19,9 @@ define(['lodash', 'log', './node'], function (_, log, ASTNode) {
 
     /**
      * Constructor for Argument
-     * @param {Object} args - The arguments to create the Argument.
-     * @param {string} args.type - Type of the argument.
-     * @param {string} args.identifier - Identifier of the argument.
+     * @param {Object} [args] - The arguments to create the Argument.
+     * @param {string} [args.type=undefined] - Type of the argument.
+     * @param {string} [args.identifier=undefined] - Identifier of the argument.
      * @constructor
      * @augments ASTNode
      */
@@ -50,6 +50,13 @@ define(['lodash', 'log', './node'], function (_, log, ASTNode) {
 
     Argument.prototype.getType = function () {
         return this.type;
+    };
+
+    Argument.prototype.getArgumentAsString = function() {
+        var argAsString = "";
+        argAsString += this.type;
+        argAsString += !_.isUndefined(this.identifier) ? " " + this.identifier : "";
+        return argAsString;
     };
 
     Argument.prototype.setIdentifier = function (identifier) {
