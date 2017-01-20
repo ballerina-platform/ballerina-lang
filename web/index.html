@@ -74,11 +74,17 @@
             <!-- Start: file explorer and editor area row -->
             <div class="row">
                 <!-- Start: left container -->
-                <div id="left-container">
-                    <!-- Start: file explorer -->
-                    <div id="workspace-explorer">
+                <div class="left-container">
+                    <!-- Start: left tool bar -->
+                    <div class="left-tool-bar" data-toggle="tooltip">
+                        <i class="fw fw-file-browse fw-2x workspace-explorer-activate-btn"></i>
                     </div>
-                    <!-- End: file explorer -->
+                    <!-- End: left tool bar -->
+                    <!-- Start: left side-bar -->
+                    <div class="sidebar-left nano">
+                    </div>
+                    <div class="sidebar-left-separator"  draggable="true"></div>
+                    <!-- End: left side-bar -->
                 </div>
                 <!-- End: left container -->
                 <!-- Start: right container -->
@@ -382,6 +388,54 @@
 </div>
 <!--End: About Modal-->
 
+<!--Start: Open Folder Modal-->
+<div class='modal fade' id='open-folder-modal' tabindex='-1' role='dialog' aria-tydden='true'>
+    <div class='modal-dialog file-dialog' role='document'>
+        <div class='modal-content'>
+            <div class='modal-header'>
+                <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+                    <span aria-hidden='true'>&times;</span>
+                </button>
+                <h4 class='modal-title file-dialog-title'>Open Folder</h4>
+                <hr class='style1'>
+            </div>
+            <div class='modal-body'>
+                <div class='container-fluid'>
+                    <form class='form-horizontal'>
+                        <div class='form-group'>
+                            <label for='location' class='col-sm-2 file-dialog-label'>Location :</label>
+                            <div class='col-sm-9'>
+                                <input type='text' class='file-dialog-form-control location-input'
+                                       placeholder='eg: /home/user/wso2-integration-server/ballerina-configs'>
+                            </div>
+                        </div>
+                        <div class='form-group'>
+                            <div class='file-dialog-form-scrollable-block'>
+                                <div class='file-tree'>
+                                </div>
+                                <div class='alert alert-danger file-browser-error' style='display: none;'>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='form-group'>
+                            <div class='folder-dialog-form-btn'>
+                                <button type='button' class='btn btn-file-dialog open-button'>open
+                                </button>
+                                <div class='divider'/>
+                                <button type='button' class='btn btn-file-dialog' data-dismiss='modal'>cancel</button>
+                            </div>
+                        </div>
+                    </form>
+                    <div class='alert alert-danger errors-container'>
+                        <strong>Error!</strong> Something went wrong.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--End: Open Folder Modal-->
+
 <script src="lib/requirejs-2.3.2/require.js"></script>
 <script type="text/javascript">
     requirejs.config({
@@ -418,7 +472,6 @@
             main_elements: "js/main-elements/module",
             processors: "js/processors/module",
             file_browser: "js/file-browser/file-browser",
-            dialogs: "js/dialog/module",
             menu_bar: "js/menu-bar/menu-bar",
             tool_bar: "js/tool-bar/tool-bar",
             tab: "js/tab/",
@@ -461,6 +514,11 @@
                 name: 'antlr',
                 location: 'lib/antlr_v4.5.3',
                 main: 'index'
+            },
+            {
+                name: 'dialogs',
+                location: 'js/dialog',
+                main: 'module'
             }
         ]
     });
@@ -633,18 +691,50 @@
 
             },
             workspace_explorer: {
-                container: "#workspace-explorer",
+                container: ".sidebar-left",
+                activateBtn: '.workspace-explorer-activate-btn',
+                separator: '.sidebar-left-separator',
+                containerToAdjust: ".right-container",
+                command: {
+                    id: "toggle-file-explorer",
+                    shortcuts: {
+                        mac: {
+                            key: "command+shift+e",
+                            label: "\u2318\u21E7E"
+                        },
+                        other: {
+                            key: "ctrl+shift+e",
+                            label: "Ctrl+Shift+E"
+                        }
+                    }
+                },
+                leftOffset: 50,
+                separatorOffset: 5,
+                defaultWidth: 250,
+                resizeLimits:{
+                    minX: 200,
+                    maxX: 800
+                },
                 cssClass: {
-                    activateBtn: 'fw fw-file-browse fw-lg workspace-explorer-activate-btn',
-                    container: 'workspace-explorer-container',
-                    separator: 'workspace-explorer-separator'
+                    container: 'workspace-explorer-container nano-content',
+                    openFolderButton: 'btn  btn-default open-folder-button'
                 }
             },
+            notifications:{
+                container: "#notification-container"
+            },
             dialog: {
-                container: $('body')
+                container: 'body'
             },
             about_dialog:{
                 selector: "#modalAbout"
+            },
+            open_folder_dialog:{
+                modal_selector: "#open-folder-modal",
+                tree_container: ".file-tree",
+                errors_container: ".errors-container",
+                location_input: ".location-input",
+                submit_button: ".open-button"
             }
         };
         app = new Application(config);
