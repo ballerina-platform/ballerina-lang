@@ -61,6 +61,10 @@ define(['lodash', './expression'], function (_, Expression) {
                 }
             } else if (childJsonNode.type == "variable_reference_expression") {
                 expString += childJsonNode.variable_reference_name;
+            } else {
+                var child = self.getFactory().createFromJson(childJsonNode);
+                child.initFromJson(childJsonNode);
+                expString += child.getExpression();
             }
 
             if (itr !== jsonNode.children.length - 1) {
