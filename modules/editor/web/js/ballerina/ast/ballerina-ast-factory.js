@@ -19,23 +19,26 @@
 /**
  * A module representing the factory for Ballerina AST
  */
-define(['lodash', './ballerina-ast-root', './service-definition', './function-definition', './connector-definition', './resource-definition',
-        './worker-declaration', './statement', './conditional-statement', './connector-declaration', './expression',
-        './if-else-statement', './if-statement', './else-statement', './else-if-statement', './trycatch-statement', './try-statement',
-        './catch-statement', './reply-statement', './while-statement', './return-statement',
+define(['lodash', './ballerina-ast-root', './service-definition', './function-definition', './connector-definition',
+        './resource-definition', './worker-declaration', './statement', './conditional-statement', './connector-declaration',
+        './expression', './if-else-statement', './if-statement', './else-statement', './else-if-statement', './trycatch-statement',
+        './try-statement', './catch-statement', './reply-statement', './while-statement', './return-statement',
         './type-converter-definition', './type-definition', './type-element', './variable-declaration',
-        './package-definition', './import-declaration', './resource-arg', './assignment', './assignment-statement', './function-invocation', './function-invocation-expression', './variable-reference-expression',
+        './package-definition', './import-declaration', './resource-arg', './assignment', './assignment-statement',
+        './function-invocation', './function-invocation-expression', './variable-reference-expression',
         './action-invocation-statement', './arithmetic-expression', './logical-expression', './action-invocation-expression',
-        './return-type', './type-name', './argument', './back-quote-expression', './basic-literal-expression', './left-operand-expression', './right-operand-expression', './instance-creation-expression', './then-body',
-        './if-condition', './equal-expression', './greater-than-expression', './add-expression', './array-map-access-expression'],
+        './return-type', './type-name', './argument', './back-quote-expression', './basic-literal-expression',
+        './left-operand-expression', './right-operand-expression', './instance-creation-expression', './then-body',
+        './if-condition', './array-map-access-expression', './binary-expression', './connector-action'],
     function (_, ballerinaAstRoot, serviceDefinition, functionDefinition, connectorDefinition, resourceDefinition,
-              workerDeclaration, statement, conditionalStatement, connectorDeclaration, expression,
-              ifElseStatement, ifStatement, elseStatement, elseIfStatement, tryCatchStatement, tryStatement, catchStatement, replyStatement,
+              workerDeclaration, statement, conditionalStatement, connectorDeclaration, expression, ifElseStatement,
+              ifStatement, elseStatement, elseIfStatement, tryCatchStatement, tryStatement, catchStatement, replyStatement,
               whileStatement, returnStatement, typeConverterDefinition, typeDefinition, typeElement, variableDeclaration,
-              packageDefinition, importDeclaration, resourceArgument, assignment, assignmentStatement, functionInvocation, functionInvocationExpression, variableReferenceExpression,
-              actionInvocationStatement, arithmeticExpression, logicalExpression, actionInvocationExpression, returnType,
-              typeName, argument, backQuoteExpression, basicLiteralExpression, leftOperandExpression, rightOperandExpression, instanceCreationExpression, thenBody, ifCondition,
-              equalExpression, greaterThanExpression, addExpression, arrayMapAccessExpression) {
+              packageDefinition, importDeclaration, resourceArgument, assignment, assignmentStatement, functionInvocation,
+              functionInvocationExpression, variableReferenceExpression, actionInvocationStatement, arithmeticExpression,
+              logicalExpression, actionInvocationExpression, returnType, typeName, argument, backQuoteExpression,
+              basicLiteralExpression, leftOperandExpression, rightOperandExpression, instanceCreationExpression,
+              thenBody, ifCondition, arrayMapAccessExpression, binaryExpression, connectorAction) {
 
 
         /**
@@ -82,6 +85,8 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
             printHelloWorldStatement.setPackageName("system");
             printHelloWorldStatement.setFunctionName("println");
             printHelloWorldStatement.setParams('"Hello world"');
+            var functionInvocationExpr = BallerinaASTFactory.createFunctionInvocationExpression();
+            printHelloWorldStatement.addChild(functionInvocationExpr);
             functionDefinition.addChild(printHelloWorldStatement);
             return functionDefinition;
         };
@@ -171,6 +176,15 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
 
         BallerinaASTFactory.createActionInvocationExpression = function(args) {
             return new actionInvocationExpression(args);
+        };
+
+        /**
+         * creates a connector action
+         * @param args
+         * @return {ConnectorAction} Connector Action
+         */
+        BallerinaASTFactory.createConnectorAction = function(args) {
+            return new connectorAction(args);
         };
 
         /**
@@ -448,31 +462,14 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         };
 
         /**
-         * creates EqualExpression
+         * creates BinaryExpression
          * @param {Object} args - Arguments for creating a new instance creation.
-         * @returns {EqualExpression}
+         * @returns {BinaryExpression}
          */
-        BallerinaASTFactory.createEqualExpression = function (args) {
-            return new equalExpression(args);
+        BallerinaASTFactory.createBinaryExpression = function (args) {
+            return new binaryExpression(args);
         };
 
-        /**
-         * creates GreaterThanExpression
-         * @param {Object} args - Arguments for creating a new instance creation.
-         * @returns {GreaterThanExpression}
-         */
-        BallerinaASTFactory.createGreaterThanExpression = function (args) {
-            return new greaterThanExpression(args);
-        };
-
-        /**
-         * creates AddExpression
-         * @param {Object} args - Arguments for creating a new instance creation.
-         * @returns {AddExpression}
-         */
-        BallerinaASTFactory.createAddExpression = function (args) {
-            return new addExpression(args);
-        };
 
         /**
          * creates ArrayMapAccessExpression
@@ -829,30 +826,12 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         };
 
         /**
-         * instanceof check for equalExpression
+         * instanceof check for binaryExpression
          * @param {ASTNode} child - The ast node.
          * @returns {boolean} - true if same type, else false
          */
-        BallerinaASTFactory.isEqualExpression = function (child) {
-            return child instanceof equalExpression;
-        };
-
-        /**
-         * instanceof check for greaterThanExpression
-         * @param {ASTNode} child - The ast node.
-         * @returns {boolean} - true if same type, else false
-         */
-        BallerinaASTFactory.isGreaterThanExpression = function (child) {
-            return child instanceof greaterThanExpression;
-        };
-
-        /**
-         * instanceof check for addExpression
-         * @param {ASTNode} child - The ast node.
-         * @returns {boolean} - true if same type, else false
-         */
-        BallerinaASTFactory.isAddExpression = function (child) {
-            return child instanceof addExpression;
+        BallerinaASTFactory.isBinaryExpression = function (child) {
+            return child instanceof binaryExpression;
         };
 
         /**
@@ -881,6 +860,15 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          */
         BallerinaASTFactory.isFunctionInvocationStatement = function (child) {
             return child instanceof functionInvocation;
+        };
+
+        /**
+         * instanceof check for connectorAction
+         * @param {ASTNode} child - The ast node.
+         * @returns {boolean} - true if same type, else false
+         */
+        BallerinaASTFactory.isConnectorAction = function (child) {
+            return child instanceof connectorAction;
         };
 
         BallerinaASTFactory.createFromJson = function (jsonNode) {
@@ -977,13 +965,40 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
                         node = BallerinaASTFactory.createIfCondition();
                         break;
                     case 'equal_expression':
-                        node = BallerinaASTFactory.createEqualExpression();
+                        node = BallerinaASTFactory.createBinaryExpression({"operator" : "=="});
                         break;
                     case 'greater_than_expression':
-                        node = BallerinaASTFactory.createGreaterThanExpression();
+                        node = BallerinaASTFactory.createBinaryExpression({"operator" : ">"});
                         break;
                     case 'add_expression':
-                        node = BallerinaASTFactory.createAddExpression();
+                        node = BallerinaASTFactory.createBinaryExpression({"operator" : "+"});
+                        break;
+                    case 'multiplication_expression':
+                        node = BallerinaASTFactory.createBinaryExpression({"operator" : "*"});
+                        break;
+                    case 'division_expression':
+                        node = BallerinaASTFactory.createBinaryExpression({"operator" : "/"});
+                        break;
+                    case 'and_expression':
+                        node = BallerinaASTFactory.createBinaryExpression({"operator" : "&&"});
+                        break;
+                    case 'subtract_expression':
+                        node = BallerinaASTFactory.createBinaryExpression({"operator" : "-"});
+                        break;
+                    case 'or_expression':
+                        node = BallerinaASTFactory.createBinaryExpression({"operator" : "||"});
+                        break;
+                    case 'greater_equal_expression':
+                        node = BallerinaASTFactory.createBinaryExpression({"operator" : ">="});
+                        break;
+                    case 'less_than_expression':
+                        node = BallerinaASTFactory.createBinaryExpression({"operator" : "<"});
+                        break;
+                    case 'less_equal_expression':
+                        node = BallerinaASTFactory.createBinaryExpression({"operator" : "<="});
+                        break;
+                    case 'not_equal_expression':
+                        node = BallerinaASTFactory.createBinaryExpression({"operator" : "!="});
                         break;
                     case 'array_map_access_expression':
                         node = BallerinaASTFactory.createArrayMapAccessExpression();

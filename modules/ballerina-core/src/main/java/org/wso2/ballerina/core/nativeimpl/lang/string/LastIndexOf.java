@@ -30,7 +30,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 /**
  * Native function ballerina.lang.string:lastIndexOf.
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.string",

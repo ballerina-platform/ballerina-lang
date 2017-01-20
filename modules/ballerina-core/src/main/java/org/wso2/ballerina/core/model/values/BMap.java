@@ -25,7 +25,7 @@ import java.util.Set;
  * {@code MapType} represents a map
  * @param <BString> Key
  * @param <V> Value
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class BMap<BString, V extends BValue> implements BRefType {
 

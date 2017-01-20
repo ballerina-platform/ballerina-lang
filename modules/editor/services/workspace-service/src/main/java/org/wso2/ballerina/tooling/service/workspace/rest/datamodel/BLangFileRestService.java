@@ -87,9 +87,16 @@ public class BLangFileRestService {
             logger.error("IOException occured while generating JSON data model for ballerina file", ex);
             JsonObject entity = new JsonObject();
             entity.addProperty("Error", ex.toString());
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(entity)
+            return Response.status(Response.Status.BAD_REQUEST).entity(entity)
                     .header("Access-Control-Allow-Origin", '*')
                     .type(MediaType.APPLICATION_JSON).build();
+        } catch (Exception e) {
+            logger.error("Exception occured while generating JSON data model for ballerina file", e);
+            JsonObject entity = new JsonObject();
+            entity.addProperty("Error", e.toString());
+            return Response.status(Response.Status.BAD_REQUEST).entity(entity)
+                           .header("Access-Control-Allow-Origin", '*')
+                           .type(MediaType.APPLICATION_JSON).build();
         }
     }
 

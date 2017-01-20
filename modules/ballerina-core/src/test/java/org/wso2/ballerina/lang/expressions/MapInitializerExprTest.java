@@ -30,7 +30,7 @@ import org.wso2.ballerina.lang.util.Functions;
 /**
  * Test map initializer expression
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class MapInitializerExprTest {
 
