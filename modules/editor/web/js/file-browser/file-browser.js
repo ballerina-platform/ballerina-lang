@@ -110,7 +110,7 @@ define(['jquery', 'backbone', 'lodash', 'tree_view', /** void module - jquery pl
                             'icon': 'fw-document'
                         }
                     },
-                    'plugins': ['types']
+                    'plugins': ['types', 'wholerow']
                 }).on('changed.jstree', function (e, data) {
                     if (data && data.selected && data.selected.length) {
                         self.selected = data.selected[0];
