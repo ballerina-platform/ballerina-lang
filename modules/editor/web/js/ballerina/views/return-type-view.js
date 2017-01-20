@@ -29,8 +29,6 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view'],
          */
         var ReturnTypeView = function (args) {
             BallerinaView.call(this, args);
-            this._supportedReturnTypes = ['message', 'connection', 'string', 'int', 'exception', 'json', 'xml',
-                'map', 'string[]', 'int[]'];
 
             this._returnTypeWrapper = undefined;
             this._deleteButton = undefined;
@@ -73,7 +71,7 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view'],
         /**
          * Render the editing view of a return type.
          */
-        ReturnTypeView.prototype.renderEditView = function () {
+        ReturnTypeView.prototype.renderEditView = function (diagramRenderingContext) {
             var self = this;
 
             $(this._returnTypeWrapper).empty();
@@ -82,6 +80,7 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view'],
             var returnTypeDropdown = $("<select/>").appendTo(this._returnTypeWrapper);
 
             // Adding dropdown elements.
+            this._supportedReturnTypes = diagramRenderingContext.getEnvironment().getTypes();
             _.forEach(this._supportedReturnTypes, function (type) {
                 // Adding supported return types to the type dropdown.
                 returnTypeDropdown.append(
