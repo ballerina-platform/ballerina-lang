@@ -30,8 +30,8 @@ define(['require','lodash', 'log', 'event_channel', './abstract-statement-source
     };
 
     LeftOperandExpressionVisitor.prototype.beginVisitLeftOperandExpression = function(leftOperandExpression){
-        if (!_.isUndefined(leftOperandExpression.getVariableReferenceName())) {
-            this.appendSource(leftOperandExpression.getVariableReferenceName());
+        if (!_.isUndefined(leftOperandExpression.getLeftOperandExpressionString())) {
+            this.appendSource(leftOperandExpression.getLeftOperandExpressionString());
         }
         log.debug('Begin Visit Left Operand Expression');
     };
