@@ -221,35 +221,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
 
             VariablesView.createVariablePane(variableProperties);
 
-            var operationsPane = this.getOperationsPane();
-
-            // Creating annotation icon.
-            var panelAnnotationIcon = $("<i/>", {
-                class: "fw fw-annotation pull-right right-icon-clickable hoverable"
-            }).appendTo(operationsPane);
-
-            // Stopping event propagation to the elements behind.
-            panelAnnotationIcon.click(function (event) {
-                event.stopPropagation();
-            });
-
-            // Adding separator for annotation icon.
-            $("<span class='pull-right canvas-operations-separator'>|</span>").appendTo(operationsPane);
-
-            var annotationProperties = {
-                model: this._model,
-                activatorElement: panelAnnotationIcon,
-                paneAppendElement: this.getChildContainer().node().ownerSVGElement.parentElement,
-                viewOptions: {
-                    position: {
-                        left: parseInt($(this.getChildContainer().node().ownerSVGElement.parentElement).width()),
-                        top: 0
-                    }
-                }
-            };
-
             this.setServiceContainerWidth(this._container.width());
-            AnnotationView.createAnnotationPane(annotationProperties);
         };
 
         /**
