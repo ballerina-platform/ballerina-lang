@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['log', 'lodash', 'jquery', 'event_channel', './file'],
-    function(log, _, $, EventChannel, File ) {
+define(['log', 'lodash', 'jquery', 'event_channel', './file', 'alerts'],
+    function(log, _, $, EventChannel, File, alerts ) {
 
         /**
          * @class ServiceClient
@@ -88,8 +88,32 @@ define(['log', 'lodash', 'jquery', 'event_channel', './file'],
                 name: fileName,
                 path: folderPath,
                 content: fileData.content,
-                isPersisted: true
+                isPersisted: true,
+                isDirty: false
             });
+        };
+
+        ServiceClient.prototype.writeFile = function (file) {
+            var data = {};
+            $.ajax({
+                type: "POST",
+                context: this,
+                url: _.get(this.application, 'config.services.workspace.endpoint') + "/write",
+                data: "location=" + btoa(file.getPath()) + "&configName=" + btoa(file.getName()) +
+                                                        "&config=" + (btoa(file.getContent())),
+                contentType: "text/plain; charset=utf-8",
+                async: false,
+                success: function (response) {
+                    data = response;
+                    file.setDirty(false);
+                    alerts.success("File " + file.getName() + ' saved successfully at '+ file.getPath());
+                },
+                error: function(xhr, textStatus, errorThrown){
+                    data = {"error":true, "message":"Unable to write file " + file.getName() + ' at '+ file.getPath()};
+                    alerts.error(data.message);
+                }
+            });
+            return data;
         };
 
         return ServiceClient;

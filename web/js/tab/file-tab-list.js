@@ -15,9 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['log', 'jquery', 'lodash', './tab-list', './file-tab',  'workspace'],
+define(['log', 'jquery', 'lodash', './tab-list', './file-tab',  'workspace/file'],
 
-    function (log, $, _, TabList, ServiceTab, Workspace) {
+    function (log, $, _, TabList, FileTab, File) {
 
     var FileTabList = TabList.extend(
     /** @lends FileTabList.prototype */
@@ -28,7 +28,7 @@ define(['log', 'jquery', 'lodash', './tab-list', './file-tab',  'workspace'],
          * @class FileTabList represents service tab list.
          */
         initialize: function (options) {
-            _.set(options, 'tabModel', ServiceTab);
+            _.set(options, 'tabModel', FileTab);
             TabList.prototype.initialize.call(this, options);
             var lastWorkedFiles = this.getBrowserStorage().get('workingFileSet');
             this._workingFileSet = [];
@@ -74,23 +74,18 @@ define(['log', 'jquery', 'lodash', './tab-list', './file-tab',  'workspace'],
                 var self = this;
                 this._workingFileSet.forEach(function(fileID){
                     var fileData = self.getBrowserStorage().get(fileID);
-                    var file = new Workspace.File(fileData, {storage:self.getBrowserStorage()});
+                    var file = new File(fileData, {storage:self.getBrowserStorage()});
                     self.newTab(_.set({}, 'tabOptions.file', file));
                 });
             }
         },
         setActiveTab: function(tab) {
             TabList.prototype.setActiveTab.call(this, tab);
-            if(tab instanceof ServiceTab){
-                var app = _.get(this, 'options.application'),
-                    workspaceManager = app.workspaceManager;
-                workspaceManager.updateUndoRedoMenus();
-            }
         },
         addTab: function(tab) {
             TabList.prototype.addTab.call(this, tab);
             // avoid re-addition of init time files
-            if(tab instanceof ServiceTab && !_.includes(this._workingFileSet, tab.getFile().id)){
+            if(tab instanceof FileTab && !_.includes(this._workingFileSet, tab.getFile().id)){
                 tab.getFile().save();
                 this._workingFileSet.push(tab.getFile().id);
                 this.getBrowserStorage().put('workingFileSet', this._workingFileSet);
@@ -99,13 +94,13 @@ define(['log', 'jquery', 'lodash', './tab-list', './file-tab',  'workspace'],
                 workspaceManager = app.workspaceManager;
             tab.on("tab-content-modified", function(){
                 if (tab.isActive()) {
-                    workspaceManager.updateUndoRedoMenus();
+                    workspaceManager.updateMenuItems();
                 }
             }, this);
         },
         removeTab: function (tab) {
             TabList.prototype.removeTab.call(this, tab);
-            if(tab instanceof ServiceTab){
+            if(tab instanceof FileTab){
                 _.remove(this._workingFileSet, function(fileID){
                     return _.isEqual(fileID, tab.getFile().id);
                 });
@@ -162,7 +157,7 @@ define(['log', 'jquery', 'lodash', './tab-list', './file-tab',  'workspace'],
 
         getTabForFile: function(file){
             return _.find(this._tabs, function(tab){
-                if(tab instanceof ServiceTab){
+                if(tab instanceof FileTab){
                     var tabFile = tab.getFile();
                     return _.isEqual(tabFile.getPath(), file.getPath()) &&  _.isEqual(tabFile.getName(), file.getName());
                 }

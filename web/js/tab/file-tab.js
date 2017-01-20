@@ -15,16 +15,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace', 'ballerina/diagram-render/diagram-render-context',
+define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace/file', 'ballerina/diagram-render/diagram-render-context',
         'ballerina/views/backend', 'ballerina/ast/ballerina-ast-deserializer'],
-    function (require, log, $, _, Tab, Ballerina, Workspace, DiagramRenderContext, Backend, BallerinaASTDeserializer) {
+    function (require, log, $, _, Tab, Ballerina, File, DiagramRenderContext, Backend, BallerinaASTDeserializer) {
     var FileTab;
 
     FileTab = Tab.extend({
         initialize: function (options) {
             Tab.prototype.initialize.call(this, options);
             if (!_.has(options, 'file')) {
-                this._file = new Workspace.File({isTemp: true}, {storage: this.getParent().getBrowserStorage()});
+                this._file = new File({isTemp: true}, {storage: this.getParent().getBrowserStorage()});
             } else {
                 this._file = _.get(options, 'file');
             }
@@ -35,7 +35,6 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             this.app = options.application;
             this.backend = new Backend({"url" : this.app.config.services.parser.endpoint});
             this.deserializer = BallerinaASTDeserializer;
-
         },
 
         getTitle: function(){
@@ -100,6 +99,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
                 this.trigger("tab-content-modified");
                 var updatedContent = this.getBallerinaFileEditor().generateSource();
                 this._file.setContent(updatedContent);
+                this._file.setDirty(true);
                 this._file.save();
             }, this);
         },
