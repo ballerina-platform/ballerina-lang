@@ -17,6 +17,7 @@
  */
 define(['lodash', 'event_channel', './package'], function(_, EventChannel, Package){
 
+    var instance;
     /**
      * @class BallerinaEnvironment
      * @augments EventChannel
@@ -66,6 +67,5 @@ define(['lodash', 'event_channel', './package'], function(_, EventChannel, Packa
         return this._packages;
     };
 
-
-    return BallerinaEnvironment;
+    return (instance = (instance || new BallerinaEnvironment()));
 });
