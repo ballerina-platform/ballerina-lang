@@ -40,5 +40,29 @@
 }
 
 .menu-item-disabled > a > .shortcut-label {
-    color: #333;
+    color: #777;
+}
+.file-menu-group.open {
+    background-color: #f17b31;
+}
+.file-dropdown-menu > li > a:hover, .file-dropdown-menu > li > a:focus {
+    text-decoration: none;
+    color: #f47b20;
+    background-color: #000000;
+}
+.file-menu-group{
+    min-height: 27px;
+}
+.file-dropdown-menu {
+    background-color: #333;
+    margin-top: 13px;
+}
+li.menu-item-disabled > a {
+    color: #777;
+}
+
+.file-dropdown-menu > li.menu-item-disabled > a:hover{
+    color: #777;
+    background-color: #444;
+
 }
