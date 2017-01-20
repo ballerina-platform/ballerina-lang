@@ -30,7 +30,7 @@ define(['lodash', 'log', './action-invocation-statement'], function (_, log, Act
         this._actionConnectorName = _.get(args, 'actionConnectorName', '');
         this._actionInvocationReference = _.get(args, 'actionInvocationReference', '');
         this._connectorVariableReference = _.get(args, 'connectorVariableReference', '');
-        this._path = _.get(args, 'path', '/');
+        this._path = _.get(args, 'path', '\"/\"');
         this._messageVariableReference = _.get(args, 'messageRef', 'm');
         this.type = "ActionInvocationExpression";
     };
