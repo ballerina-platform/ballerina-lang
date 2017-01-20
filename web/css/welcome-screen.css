@@ -62,6 +62,7 @@
     height: 80%;
     background-color: #FFFFFF;
     cursor: pointer;
+    overflow: hidden;
 }
 
 .preview-img {
@@ -81,9 +82,9 @@
 
 .file-name {
     color: #FFFFFF;
-    font-size: 12px;
+    font-size: 14px;
     width: 85%;
-    margin-left: auto;
+    margin-left: 10px;
     padding-top: 10px;
 }
 /** Regular Welcome Screen related styles | End -> **/
@@ -102,7 +103,7 @@
     width: 1000px;
     border: solid 2px #e9e9e9;
     position: relative;
-    top: 30px;
+    top: 10%;
     margin: 0 auto;
 }
 
@@ -147,7 +148,7 @@
 
 .body-welcome-container {
     background-color: #f5f5f5;
-    height: 270px;
+    height: 300px;
     width: 996px;
 }
 
@@ -157,7 +158,7 @@
     left: 80px;
     font-size: 20px;
     color: #222222;
-    font-weight: bold;
+    font-weight: 400;
 }
 
 .welcome-samples {

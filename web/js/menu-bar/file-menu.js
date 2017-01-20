@@ -74,6 +74,24 @@ define(([],function (){
                     }
                 },
                 disabled: false
+            },
+            {
+                id: "open_folder",
+                label: "Open Folder",
+                command: {
+                    id: "show-folder-open-dialog",
+                    shortcuts: {
+                        mac: {
+                            key: "command+shift+o",
+                            label: "\u2318\u21E7O"
+                        },
+                        other: {
+                            key: "ctrl+shift+o",
+                            label: "Ctrl+Shift+O"
+                        }
+                    }
+                },
+                disabled: false
             }
 
             ]

@@ -62,8 +62,7 @@ define(['lodash', './statement'], function(_, Statement){
                 self.setRightOperandExpressionString('"' + childNode.basic_literal_value + '"');
             } else if(childNode.type === 'variable_reference_expression'){
                 self.setRightOperandExpressionString(childNode.variable_reference_name);
-            } else if((childNode.type === 'array_map_access_expression')
-                      |(childNode.type === 'add_expression')){
+            } else if(childNode.type === 'array_map_access_expression'){
                 var child = self.getFactory().createFromJson(childNode);
                 child.initFromJson(childNode);
                 self.setRightOperandExpressionString(child.getExpression());

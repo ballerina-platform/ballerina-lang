@@ -15,8 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace', 'ballerina/diagram-render/diagram-render-context'],
-    function (require, log, jquery, _, Tab, Ballerina, Workspace, DiagramRenderContext) {
+define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace', 'ballerina/diagram-render/diagram-render-context',
+        'ballerina/views/backend', 'ballerina/ast/ballerina-ast-deserializer'],
+    function (require, log, $, _, Tab, Ballerina, Workspace, DiagramRenderContext, Backend, BallerinaASTDeserializer) {
     var FileTab;
 
     FileTab = Tab.extend({
@@ -30,6 +31,11 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             if (_.has(options, 'astRoot')) {
                 this._astRoot = _.get(options, 'astRoot');
             }
+            //TODO convert Backend to a singleton
+            this.app = options.application;
+            this.backend = new Backend({"url" : this.app.config.services.parser.endpoint});
+            this.deserializer = BallerinaASTDeserializer;
+
         },
 
         getTitle: function(){
@@ -44,11 +50,18 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace',
             Tab.prototype.render.call(this);
             // if file already has content
             if(!_.isNil(this._file.getContent())){
-                var workspaceManager = _.get(this, 'options.application.workspaceManager'),
-                    self = this;
-                workspaceManager.getParsedTree(this._file, function(astRoot){
-                    self.renderAST(astRoot);
-                })
+                var response = this.backend.parse(this._file.getContent());
+
+                if (response.error != undefined && response.error) {
+                    $(this.app.config.tab_controller.tabs.tab.ballerina_editor.dialog_boxes.parser_error).modal();
+                    //remove the created tab at parse error
+                    this.app.tabController.removeTab(this);
+                    return;
+                }
+
+                //if no errors display the design.
+                var root = this.deserializer.getASTModel(response);
+                this.renderAST(root);
             } else if(!_.isNil(this._astRoot)) {
                 this.renderAST(this._astRoot);
                 var updatedContent = this.getBallerinaFileEditor().generateSource();
