@@ -168,7 +168,7 @@ define(['lodash', 'log', './action-invocation-statement'], function (_, log, Act
         } else if (pathNode.type == "variable_reference_expression") {
             this.setPath(pathNode.variable_reference_name);
         } else {
-            var child = self.getFactory().createFromJson(pathNode);
+            var child = this.getFactory().createFromJson(pathNode);
             child.initFromJson(pathNode);
             this.setPath(child.getExpression());
         }
