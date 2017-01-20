@@ -21,6 +21,7 @@ package org.wso2.ballerina.lang.statements;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerina.core.exception.SemanticException;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.values.BArray;
 import org.wso2.ballerina.core.model.values.BBoolean;
@@ -148,5 +149,11 @@ public class AssignStmtTest {
         Assert.assertEquals(5, ((BInteger) returns[0]).intValue());
         Assert.assertEquals("john", ((BString) returns[1]).stringValue());
         Assert.assertEquals(6, ((BInteger) returns[2]).intValue());
+    }
+    
+    @Test(expectedExceptions = {SemanticException.class },
+            expectedExceptionsMessageRegExp = "constant-assignment.bal:6: cannot assign a value to constant 'a'")
+    public void testAssignmentToConst() {
+        ParserUtils.parseBalFile("lang/expressions/constant-assignment.bal");
     }
 }

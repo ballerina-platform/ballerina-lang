@@ -161,7 +161,7 @@ import org.wso2.ballerina.core.nativeimpl.util.GetRandomString;
  * Making built-in constructs also plugged through osgi increases the boot-up time.
  * That's the main reason for doing this in this fashion.
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class BuiltInNativeConstructLoader {
 

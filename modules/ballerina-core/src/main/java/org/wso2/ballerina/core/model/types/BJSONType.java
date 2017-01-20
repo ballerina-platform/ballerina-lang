@@ -23,7 +23,7 @@ import org.wso2.ballerina.core.model.values.BValue;
 /**
  * {@code BJSONType} represents a JSON document
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 class BJSONType extends BType {
 

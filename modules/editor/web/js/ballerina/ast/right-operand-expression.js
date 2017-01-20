@@ -62,14 +62,26 @@ define(['lodash', './statement'], function(_, Statement){
                 self.setRightOperandExpressionString('"' + childNode.basic_literal_value + '"');
             } else if(childNode.type === 'variable_reference_expression'){
                 self.setRightOperandExpressionString(childNode.variable_reference_name);
+            } else if(childNode.type === 'array_map_access_expression'){
+                var child = self.getFactory().createFromJson(childNode);
+                child.initFromJson(childNode);
+                self.setRightOperandExpressionString(child.getExpression());
             } else {
                 var child = self.getFactory().createFromJson(childNode);
+                if(self.getFactory().isBinaryExpression(child)){
+                    child.initFromJson(childNode);
+                    self.setRightOperandExpressionString(child.getExpression());
+                }
                 // TODO: Need to handle the function expressions and statements differently. Need Refactor the bellow
-                if (self.getFactory().isFunctionInvocationExpression(child) &&
+                else if (self.getFactory().isFunctionInvocationExpression(child) &&
                     !self.getFactory().isFunctionInvocationStatement(child.getParent())) {
                     var newParent = self.getFactory().createFunctionInvocationStatement();
                     newParent.addChild(child);
                     self.addChild(newParent);
+                    var funcInvocationExpDummy = self.getFactory().createFunctionInvocationExpression();
+                    var args = "";
+                    args += funcInvocationExpDummy._generateArgsString(childNode, args, ", ");
+                    self.setRightOperandExpressionString(childNode.function_name + "(" + args + ")") ;
                 } else {
                     self.addChild(child);
                 }

@@ -18,35 +18,36 @@
 define(['lodash', './expression'], function (_, Expression) {
 
     /**
-     * Constructor for EqualExpression
-     * @param {Object} args - Arguments to create the EqualExpression
+     * Constructor for BinaryExpression
+     * @param {Object} args - Arguments to create the BinaryExpression
      * @constructor
      * @augments Expression
      */
-    var EqualExpression = function (args) {
-        Expression.call(this, 'EqualExpression');
+    var BinaryExpression = function (args) {
+        Expression.call(this, 'BinaryExpression');
+        this._operator = _.get(args, 'operator');
     };
 
-    EqualExpression.prototype = Object.create(Expression.prototype);
-    EqualExpression.prototype.constructor = EqualExpression;
+    BinaryExpression.prototype = Object.create(Expression.prototype);
+    BinaryExpression.prototype.constructor = BinaryExpression;
 
     /**
      * setting parameters from json
      * @param {Object} jsonNode to initialize from
      */
-    EqualExpression.prototype.initFromJson = function (jsonNode) {
-        this.setExpression(this.generateEqualExpressionString(jsonNode));
+    BinaryExpression.prototype.initFromJson = function (jsonNode) {
+        this.setExpression(this.generateExpressionString(jsonNode));
     };
 
     /**
-     * Generates the equal expression as a string.
-     * @param {Object} jsonNode - A node explaining the structure of equal expression.
+     * Generates the binary expression as a string.
+     * @param {Object} jsonNode - A node explaining the structure of binary expression.
      * @return {string} - Arguments as a string.
      * @private
      */
-    EqualExpression.prototype.generateEqualExpressionString = function (jsonNode) {
+    BinaryExpression.prototype.generateExpressionString = function (jsonNode) {
         var self = this;
-        var equalString = "";
+        var expString = "";
 
         for (var itr = 0; itr < jsonNode.children.length; itr++) {
             var childJsonNode = jsonNode.children[itr];
@@ -54,20 +55,24 @@ define(['lodash', './expression'], function (_, Expression) {
             if (childJsonNode.type == "basic_literal_expression") {
                 if(childJsonNode.basic_literal_type == "string") {
                     // Adding double quotes if it is a string.
-                    equalString += "\"" + childJsonNode.basic_literal_value + "\"";
+                    expString += "\"" + childJsonNode.basic_literal_value + "\"";
                 } else {
-                    equalString += childJsonNode.basic_literal_value;
+                    expString += childJsonNode.basic_literal_value;
                 }
             } else if (childJsonNode.type == "variable_reference_expression") {
-                equalString += childJsonNode.variable_reference_name;
+                expString += childJsonNode.variable_reference_name;
             }
 
             if (itr !== jsonNode.children.length - 1) {
-                equalString += " = ";
+                expString += " " + this.getOperator() + " ";
             }
         }
-        return equalString;
+        return expString;
     };
 
-    return EqualExpression;
+    BinaryExpression.prototype.getOperator = function (){
+        return this._operator;
+    };
+
+    return BinaryExpression;
 });

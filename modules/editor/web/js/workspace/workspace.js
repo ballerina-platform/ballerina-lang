@@ -105,7 +105,24 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab/t
                 this._saveFileDialog.render();
             }
             this._saveFileDialog.show();
+            var activeTab = app.tabController.getActiveTab();
+            if(!_.isNil(activeTab) && _.isFunction(activeTab.getFile)){
+                var activeFile = activeTab.getFile();
+                if(activeFile.isPersisted()){
+                    this._saveFileDialog.setSelectedFile(activeFile.getPath(), activeFile.getName());
+                }
+            }
 
+        };
+
+        this.showFolderOpenDialog = function() {
+            if(_.isNil(this._folderOpenDialog)){
+                var opts = _.cloneDeep(_.get(app.config, 'open_folder_dialog'));
+                _.set(opts, "application", app);
+                this._folderOpenDialog = new Dialogs.FolderOpenDialog(opts);
+                this._folderOpenDialog.render();
+            }
+            this._folderOpenDialog.show();
         };
 
         this.openFileOpenDialog = function openFileOpenDialog() {
@@ -206,10 +223,12 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab/t
         app.commandManager.registerHandler('redo', this.handleRedo);
 
         // Open file save dialog
-        app.commandManager.registerHandler('open-file-save-dialog', this.openFileSaveDialog);
+        app.commandManager.registerHandler('open-file-save-dialog', this.openFileSaveDialog, this);
 
         // Open file open dialog
-        app.commandManager.registerHandler('open-file-open-dialog', this.openFileOpenDialog);
+        app.commandManager.registerHandler('open-file-open-dialog', this.openFileOpenDialog, this);
+
+        app.commandManager.registerHandler('show-folder-open-dialog', this.showFolderOpenDialog, this);
 
         // Go to Welcome Page.
         app.commandManager.registerHandler('go-to-welcome-page', this.goToWelcomePage);

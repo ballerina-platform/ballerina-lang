@@ -31,7 +31,7 @@ import javax.xml.stream.XMLStreamException;
 /**
  * {@code BXML} represents a XML value in Ballerina.
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public final class BXML extends BallerinaMessageDataSource implements BRefType<OMElement> {
 

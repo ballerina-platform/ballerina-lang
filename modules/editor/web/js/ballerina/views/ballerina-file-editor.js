@@ -18,9 +18,10 @@
 define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-view',  './function-definition-view', './../ast/ballerina-ast-root',
         './../ast/ballerina-ast-factory', './../ast/package-definition', './source-view',
         './../visitors/source-gen/ballerina-ast-root-visitor', './../tool-palette/tool-palette',
-        './../undo-manager/undo-manager','./backend', './../ast/ballerina-ast-deserializer'],
+        './../undo-manager/undo-manager','./backend', './../ast/ballerina-ast-deserializer', './connector-definition-view'],
     function (_, $, log, BallerinaView, ServiceDefinitionView, FunctionDefinitionView, BallerinaASTRoot, BallerinaASTFactory,
-              PackageDefinition, SourceView, SourceGenVisitor, ToolPalette, UndoManager, Backend, BallerinaASTDeserializer) {
+              PackageDefinition, SourceView, SourceGenVisitor, ToolPalette, UndoManager, Backend, BallerinaASTDeserializer,
+              ConnectorDefinitionView) {
 
         /**
          * The view to represent a ballerina file editor which is an AST visitor.
@@ -135,6 +136,22 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             this.diagramRenderingContext.getViewModelMap()[serviceDefinition.id] = serviceDefinitionView;
             serviceDefinitionView.render(this.diagramRenderingContext);
 
+        };
+
+        /**
+         * Creates a connector definition view for a connector definition model and calls it's render.
+         * @param connectorDefinition
+         */
+        BallerinaFileEditor.prototype.visitConnectorDefinition = function (connectorDefinition) {
+            var connectorDefinitionView = new ConnectorDefinitionView({
+                viewOptions: this._viewOptions,
+                container: this._$canvasContainer,
+                model: connectorDefinition,
+                parentView: this,
+                toolPalette: this.toolPalette
+            });
+            this.diagramRenderingContext.getViewModelMap()[connectorDefinition.id] = connectorDefinitionView;
+            connectorDefinitionView.render(this.diagramRenderingContext);
         };
 
         /**
@@ -417,7 +434,8 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                     currentASTRoot.getPackageDefinition().getPackageName() : "");
 
                 // Updating model along with text change on package text box.
-                packageTextBox.on("change keyup input", function () {
+                // @todo: need to bring the for loop out of the event.
+                packageTextBox.on("change", function () {
                     log.debug("Saving package name : " + $(packageTextBox).val());
 
                     //TODO - this for loop needs to be replaced to get the package definition

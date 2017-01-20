@@ -105,7 +105,7 @@ import java.util.regex.Pattern;
 /**
  * {@code SemanticAnalyzer} analyzes semantic properties of a Ballerina program
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class SemanticAnalyzer implements NodeVisitor {
     private int stackFrameOffset = -1;
@@ -847,7 +847,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             divideExpr.setEvalFunc(DivideExpr.DIV_LONG_FUNC);
 
         } else {
-            throw new SemanticException("Div operation is not supported for type: " + arithmeticExprType + " in " +
+            throw new SemanticException("Divide operation is not supported for type: " + arithmeticExprType + " in " +
                     divideExpr.getLocation().getFileName() + ":" + divideExpr.getLocation().getLine());
         }
     }
@@ -867,7 +867,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             } else if (unaryExpr.getType() == BTypes.FLOAT_TYPE) {
                 unaryExpr.setEvalFunc(UnaryExpression.NEGATIVE_FLOAT_FUNC);
             } else {
-                throw new SemanticException("Incompatible type in unary expression " + unaryExpr.getType() + " in " +
+                throw new SemanticException("Incompatible type in unary expression: " + unaryExpr.getType() + " in " +
                         unaryExpr.getLocation().getFileName() + ":" + unaryExpr.getLocation().getLine());
             }
         } else if (Operator.ADD.equals(unaryExpr.getOperator())) {
@@ -880,7 +880,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             } else if (unaryExpr.getType() == BTypes.FLOAT_TYPE) {
                 unaryExpr.setEvalFunc(UnaryExpression.POSITIVE_FLOAT_FUNC);
             } else {
-                throw new SemanticException("Incompatible type in unary expression " + unaryExpr.getType() + " in " +
+                throw new SemanticException("Incompatible type in unary expression: " + unaryExpr.getType() + " in " +
                         unaryExpr.getLocation().getFileName() + ":" + unaryExpr.getLocation().getLine());
             }
 
@@ -888,7 +888,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             if (unaryExpr.getType() == BTypes.BOOLEAN_TYPE) {
                 unaryExpr.setEvalFunc(UnaryExpression.NOT_BOOLEAN_FUNC);
             } else {
-                throw new SemanticException("Incompatible type in unary expression " + unaryExpr.getType() + " in " +
+                throw new SemanticException("Incompatible type in unary expression: " + unaryExpr.getType() + " in " +
                         unaryExpr.getLocation().getFileName() + ":" + unaryExpr.getLocation().getLine()
                         + " 'Not' operation only supports boolean");
             }
@@ -943,7 +943,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             multExpr.setEvalFunc(MultExpression.MULT_LONG_FUNC);
 
         } else {
-            throw new SemanticException("Mult operation is not supported for type: " + binaryExprType + " in " +
+            throw new SemanticException("Multiply operation is not supported for type: " + binaryExprType + " in " +
                     multExpr.getLocation().getFileName() + ":" + multExpr.getLocation().getLine());
         }
     }
@@ -965,7 +965,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             subtractExpr.setEvalFunc(SubtractExpression.SUB_LONG_FUNC);
 
         } else {
-            throw new SemanticException("Subtraction operation is not supported for type: " + binaryExprType + " in " +
+            throw new SemanticException("Subtract operation is not supported for type: " + binaryExprType + " in " +
                     subtractExpr.getLocation().getFileName() + ":" + subtractExpr.getLocation().getLine());
         }
     }

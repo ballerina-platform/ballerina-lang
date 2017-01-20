@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -57,7 +57,7 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './st
                     _.forEach(methods, function(method){
                         var cleanedMethod = method.trim();
                         if (!_.isEmpty(cleanedMethod)) {
-                            constructedPathAnnotation += "@" + cleanedMethod + "\n";
+                            constructedPathAnnotation += "@" + cleanedMethod + " \n";
                         }
                     });
                 }
@@ -68,7 +68,7 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './st
 
         var constructedSourceSegment = 'resource ' + resourceDefinition.getResourceName() + '(';
 
-        constructedSourceSegment += resourceDefinition.getArgumentsAsString() + ') {';
+        constructedSourceSegment += resourceDefinition.getParametersAsString() + ') {';
         this.appendSource(constructedSourceSegment);
         log.debug('Begin Visit ResourceDefinition');
     };

@@ -133,4 +133,12 @@ public class AddExprTest {
     public void testAddIncompatibleTypes() {
         ParserUtils.parseBalFile("lang/expressions/add-incompatible-types.bal");
     }
+    
+    @Test(description = "Test adding values of unsupported types (json)",
+            expectedExceptions = {SemanticException.class },
+            expectedExceptionsMessageRegExp = "Add operation is not supported for type: json in " +
+            "add-unsupported-types.bal:10")
+    public void testAddUnsupportedTypes() {
+        ParserUtils.parseBalFile("lang/expressions/add-unsupported-types.bal");
+    }
 }
