@@ -19,7 +19,6 @@ package org.wso2.ballerina.core.model.values;
 
 import org.wso2.ballerina.core.message.BallerinaMessageDataSource;
 import org.wso2.ballerina.core.message.StringDataSource;
-import org.wso2.ballerina.core.model.Null;
 import org.wso2.ballerina.core.model.util.MessageUtils;
 import org.wso2.ballerina.core.runtime.Constants;
 import org.wso2.carbon.messaging.CarbonMessage;
@@ -209,10 +208,5 @@ public final class BMessage implements BRefType<CarbonMessage> {
         }
 
         return MessageUtils.getStringFromInputStream(this.value.getInputStream());
-    }
-
-    @Override
-    public Null nullValue() {
-        return null;
     }
 }

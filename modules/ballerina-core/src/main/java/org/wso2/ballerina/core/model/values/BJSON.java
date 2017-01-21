@@ -21,7 +21,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.message.BallerinaMessageDataSource;
-import org.wso2.ballerina.core.model.Null;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -165,10 +164,5 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
     @Override
     public String stringValue() {
         return this.value.toString();
-    }
-
-    @Override
-    public Null nullValue() {
-        return null;
     }
 }

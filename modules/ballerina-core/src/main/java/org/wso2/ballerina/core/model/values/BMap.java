@@ -17,8 +17,6 @@
  */
 package org.wso2.ballerina.core.model.values;
 
-import org.wso2.ballerina.core.model.Null;
-
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -133,11 +131,6 @@ public class BMap<BString, V extends BValue> implements BRefType {
 
     @Override
     public String stringValue() {
-        return null;
-    }
-
-    @Override
-    public Null nullValue() {
         return null;
     }
 
