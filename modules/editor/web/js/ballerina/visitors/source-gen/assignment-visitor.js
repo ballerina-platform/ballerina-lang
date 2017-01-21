@@ -25,19 +25,19 @@ define(['require','lodash', 'log', 'event_channel', './abstract-statement-source
         AssignmentVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
         AssignmentVisitor.prototype.constructor = AssignmentVisitor;
 
-        AssignmentVisitor.prototype.canVisitAssignmentStatement = function(assignmentStatement){
+        AssignmentVisitor.prototype.canVisitAssignment = function(assignmentStatement){
             return assignmentStatement instanceof AssignmentStatement;
         };
 
-        AssignmentVisitor.prototype.beginVisitAssignmentStatement = function(assignmentStatement){
+        AssignmentVisitor.prototype.beginVisitAssignment = function(assignmentStatement){
             this.appendSource(assignmentStatement.getExpression());
-            log.debug('Begin Visit assignment Statement Definition');
+            log.debug('Begin Visit assignment Definition');
         };
 
-        AssignmentVisitor.prototype.endVisitAssignmentStatement = function(assignmentStatement){
+        AssignmentVisitor.prototype.endVisitAssignment = function(assignmentStatement){
             this.appendSource(";\n");
             this.getParent().appendSource(this.getGeneratedSource());
-            log.debug('End Visit assignment Statement Definition');
+            log.debug('End Visit assignment Definition');
         };
 
         return AssignmentVisitor;

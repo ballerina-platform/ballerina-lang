@@ -27,7 +27,7 @@ import org.wso2.ballerina.core.model.Position;
  * @see GreaterThanExpression
  * @see LessEqualExpression
  * @see LessThanExpression
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class BinaryCompareExpression extends BinaryExpression {
 

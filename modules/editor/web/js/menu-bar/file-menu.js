@@ -27,8 +27,14 @@ define(([],function (){
                 command: {
                     id: "create-new-tab",
                     shortcuts: {
-                        mac: "command+ctrl+n",
-                        other: "ctrl+alt+n"
+                        mac: {
+                            key: "command+ctrl+n",
+                            label: "\u2318\u2303N"
+                        },
+                        other: {
+                            key: "ctrl+alt+n",
+                            label: "Ctrl+Alt+N"
+                        }
                     }
                 },
                 disabled: false
@@ -39,8 +45,14 @@ define(([],function (){
                 command: {
                     id: "open-file-open-dialog",
                     shortcuts: {
-                        mac: "command+o",
-                        other: "ctrl+o"
+                        mac: {
+                            key: "command+o",
+                            label: "\u2318O"
+                        },
+                        other: {
+                            key: "ctrl+o",
+                            label: "Ctrl+O"
+                        }
                     }
                 },
                 disabled: false
@@ -51,8 +63,32 @@ define(([],function (){
                 command: {
                     id: "open-file-save-dialog",
                     shortcuts: {
-                        mac: "command+s",
-                        other: "ctrl+s"
+                        mac: {
+                            key: "command+s",
+                            label: "\u2318S"
+                        },
+                        other: {
+                            key: "ctrl+s",
+                            label: "Ctrl+S"
+                        }
+                    }
+                },
+                disabled: false
+            },
+            {
+                id: "open_folder",
+                label: "Open Folder",
+                command: {
+                    id: "show-folder-open-dialog",
+                    shortcuts: {
+                        mac: {
+                            key: "command+shift+o",
+                            label: "\u2318\u21E7O"
+                        },
+                        other: {
+                            key: "ctrl+shift+o",
+                            label: "Ctrl+Shift+O"
+                        }
                     }
                 },
                 disabled: false

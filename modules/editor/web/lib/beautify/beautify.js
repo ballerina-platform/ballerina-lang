@@ -1233,7 +1233,7 @@ if (!Object.values) {
                     }
 
                     if (!flags.inline_frame) {
-                        print_newline();
+                        //print_newline(); To avoid new-line after comma at all times
                     }
                 } else if (opt.comma_first) {
                     // EXPR or DO_BLOCK

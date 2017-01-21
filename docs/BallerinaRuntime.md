@@ -1,4 +1,4 @@
-# Working with Ballerina v1.0.0-M1
+# Working with Ballerina v0.8.0-SNAPSHOT
 
 Ballerina is a new programming language for integration built on a sequence diagram metaphor. 
 

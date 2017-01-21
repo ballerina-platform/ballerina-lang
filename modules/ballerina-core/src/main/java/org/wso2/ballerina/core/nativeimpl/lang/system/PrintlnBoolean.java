@@ -29,7 +29,7 @@ import java.io.PrintStream;
 /**
  * Native function ballerina.lang.system:println
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.system",

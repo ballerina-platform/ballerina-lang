@@ -54,6 +54,10 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
             return this.canVisitExpression(node);
         } else if(node instanceof AST.VariableDeclaration){
             return this.canVisitVariableDeclaration(node);
+        } else if(node instanceof AST.ConnectorDefinition){
+            return this.canVisitConnectorDefinition(node);
+        } else if(node instanceof AST.ConnectorAction){
+            return this.canVisitConnectorAction(node);
         }
     };
 
@@ -87,6 +91,10 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
             return this.beginVisitExpression(node);
         } else if(node instanceof AST.VariableDeclaration){
             return this.beginVisitVariableDeclaration(node);
+        } else if(node instanceof AST.ConnectorDefinition){
+            return this.beginVisitConnectorDefinition(node);
+        } else if(node instanceof AST.ConnectorAction){
+            return this.beginVisitConnectorAction(node);
         }
     };
 
@@ -120,6 +128,10 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
             return this.visitExpression(node);
         } else if(node instanceof AST.VariableDeclaration){
             return this.visitVariableDeclaration(node);
+        } else if(node instanceof AST.ConnectorDefinition){
+            return this.visitConnectorDefinition(node);
+        } else if(node instanceof AST.ConnectorAction){
+            return this.visitConnectorAction(node);
         }
 
     };
@@ -154,6 +166,10 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
             return this.endVisitExpression(node);
         } else if(node instanceof AST.VariableDeclaration){
             return this.endVisitVariableDeclaration(node);
+        } else if(node instanceof AST.ConnectorDefinition){
+            return this.endVisitConnectorDefinition(node);
+        } else if(node instanceof AST.ConnectorAction){
+            return this.endVisitConnectorAction(node);
         }
 
     };
@@ -266,6 +282,16 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
     ASTVisitor.prototype.visitExpression = function(statement){
     };
     ASTVisitor.prototype.endVisitExpression = function(statement){
+    };
+
+    ASTVisitor.prototype.canVisitConnectorAction = function(connectorAction){
+        return false;
+    };
+    ASTVisitor.prototype.beginVisitConnectorAction = function(connectorAction){
+    };
+    ASTVisitor.prototype.visitConnectorAction = function(connectorAction){
+    };
+    ASTVisitor.prototype.endVisitConnectorAction = function(connectorAction){
     };
 
     /**

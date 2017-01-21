@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
-    function (log, $, BallerinaASTFactory, ToolGroup) {
+define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group', './../ast/defaults-added-ballerina-ast-factory'],
+    function (log, $, BallerinaASTFactory, ToolGroup, DefaultsAddedBallerinaASTFactory) {
 
         var initialToolGroups = [];
 
@@ -25,7 +25,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
             name: "Resource",
             icon: "images/tool-icons/resource.svg",
             title: "Resource",
-            nodeFactoryMethod: BallerinaASTFactory.createResourceDefinition
+            nodeFactoryMethod: DefaultsAddedBallerinaASTFactory.createResourceDefinition
         };
 
         var createServiceDefTool = {
@@ -33,7 +33,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
             name: "Service",
             icon: "images/tool-icons/service.svg",
             title: "Service",
-            nodeFactoryMethod: BallerinaASTFactory.createServiceDefinition
+            nodeFactoryMethod: DefaultsAddedBallerinaASTFactory.createServiceDefinition
         };
 
         var createFunctionDefTool = {
@@ -61,7 +61,24 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
             nodeFactoryMethod:  BallerinaASTFactory.createMainFunctionDefinition
         };
 
-        var mainToolDefArray = [createServiceDefTool, createResourceDefTool, createFunctionDefTool, createMainFunctionDefTool];
+        var createConnectorDefTool = {
+            id: "connectorDefinition",
+            name: "Connector Definition",
+            icon: "images/tool-icons/service.svg",
+            title: "Connector Definition",
+            nodeFactoryMethod:  BallerinaASTFactory.createConnectorDefinition
+        };
+
+        var createConnectorActionTool = {
+            id: "connectorAction",
+            name: "Connector Action",
+            icon: "images/tool-icons/resource.svg",
+            title: "Connector Action",
+            nodeFactoryMethod:  BallerinaASTFactory.createConnectorAction
+        };
+
+        var mainToolDefArray = [createServiceDefTool, createResourceDefTool, createFunctionDefTool,
+            createMainFunctionDefTool, createConnectorDefTool, createConnectorActionTool];
 
         var mainToolGroup = new ToolGroup({
             toolGroupName: "Elements",
@@ -110,7 +127,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
             name: "FunctionInvocation",
             icon: "images/tool-icons/actioninvoke.svg",
             title: "FunctionInvocation",
-            nodeFactoryMethod: BallerinaASTFactory.createFunctionInvocationStatement
+            nodeFactoryMethod: BallerinaASTFactory.createAggregatedFunctionInvocationStatement
         };
 
         var createReplyStatementTool = {
@@ -168,7 +185,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
             meta: {
                 action: "get"
             },
-            nodeFactoryMethod: BallerinaASTFactory.createActionInvocationExpression
+            nodeFactoryMethod: BallerinaASTFactory.createAggregatedActionInvocationExpression
         };
 
         var createPostActionTool = {
@@ -179,7 +196,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
             meta: {
                 action: "post"
             },
-            nodeFactoryMethod: BallerinaASTFactory.createActionInvocationExpression
+            nodeFactoryMethod: BallerinaASTFactory.createAggregatedActionInvocationExpression
         };
 
         var createPutActionTool = {
@@ -190,7 +207,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
             meta: {
                 action: "put"
             },
-            nodeFactoryMethod: BallerinaASTFactory.createActionInvocationExpression
+            nodeFactoryMethod: BallerinaASTFactory.createAggregatedActionInvocationExpression
         };
 
         var createDeleteActionTool = {
@@ -201,7 +218,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
             meta: {
                 action: "delete"
             },
-            nodeFactoryMethod: BallerinaASTFactory.createActionInvocationExpression
+            nodeFactoryMethod: BallerinaASTFactory.createAggregatedActionInvocationExpression
         };
 
         var createPatchActionTool = {
@@ -212,7 +229,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
             meta: {
                 action: "patch"
             },
-            nodeFactoryMethod: BallerinaASTFactory.createActionInvocationExpression
+            nodeFactoryMethod: BallerinaASTFactory.createAggregatedActionInvocationExpression
         };
 
         var httpConnectorToolArray = [createGetActionTool, createPostActionTool, createPutActionTool, createDeleteActionTool/*, createPatchActionTool*/];

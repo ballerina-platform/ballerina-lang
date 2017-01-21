@@ -61,11 +61,11 @@ import org.wso2.ballerina.core.model.expressions.MapInitExpr;
 import org.wso2.ballerina.core.model.expressions.MultExpression;
 import org.wso2.ballerina.core.model.expressions.NotEqualExpression;
 import org.wso2.ballerina.core.model.expressions.OrExpression;
+import org.wso2.ballerina.core.model.expressions.ResourceInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.SubtractExpression;
 import org.wso2.ballerina.core.model.expressions.UnaryExpression;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.invokers.MainInvoker;
-import org.wso2.ballerina.core.model.expressions.ResourceInvocationExpr;
 import org.wso2.ballerina.core.model.statements.ActionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
@@ -267,14 +267,14 @@ public class BLangJSONModelBuilder implements NodeVisitor {
                 }
             });
         }
-        if (resource.getVariableDcls() != null) {
-            for (VariableDcl variableDcl : resource.getVariableDcls()) {
-                variableDcl.accept(BLangJSONModelBuilder.this);
-            }
-        }
         if (resource.getConnectorDcls() != null) {
             for (ConnectorDcl connectDcl : resource.getConnectorDcls()) {
                 connectDcl.accept(this);
+            }
+        }
+        if (resource.getVariableDcls() != null) {
+            for (VariableDcl variableDcl : resource.getVariableDcls()) {
+                variableDcl.accept(BLangJSONModelBuilder.this);
             }
         }
         if(resource.getResourceBody() != null) {
@@ -358,9 +358,18 @@ public class BLangJSONModelBuilder implements NodeVisitor {
                 variableDcl.accept(this);
             }
         }
+        if (action.getConnectorDcls() != null) {
+            for (ConnectorDcl connectDcl : action.getConnectorDcls()) {
+                connectDcl.accept(this);
+            }
+        }
+        action.getCallableUnitBody().accept(this);
         jsonAction.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
         tempJsonArrayRef.pop();
         tempJsonArrayRef.peek().add(jsonAction);
+
+        JsonObject returnTypeObj = new JsonObject();
+        returnTypeObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.RETURN_TYPE);
     }
 
     @Override
@@ -484,7 +493,9 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         JsonObject LExprObj = new JsonObject();
         LExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, "left_operand_expression");
         tempJsonArrayRef.push(new JsonArray());
-        assignStmt.getLExprs()[0].accept(this);
+        for (Expression expression : assignStmt.getLExprs()) {
+            expression.accept(this);
+        }
         LExprObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
         tempJsonArrayRef.pop();
         tempJsonArrayRef.peek().add(LExprObj);
@@ -670,7 +681,15 @@ public class BLangJSONModelBuilder implements NodeVisitor {
 
     @Override
     public void visit(DivideExpr divideExpr) {
-
+        JsonObject divideExprObj = new JsonObject();
+        divideExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
+                                 BLangJSONModelConstants.DIVISION_EXPRESSION);
+        tempJsonArrayRef.push(new JsonArray());
+        divideExpr.getLExpr().accept(this);
+        divideExpr.getRExpr().accept(this);
+        divideExprObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(divideExprObj);
     }
 
     @Override
@@ -919,7 +938,17 @@ public class BLangJSONModelBuilder implements NodeVisitor {
 
     @Override
     public void visit(ArrayMapAccessExpr arrayMapAccessExpr) {
-        //TODO
+        JsonObject arrayMapAccessExprObj = new JsonObject();
+        arrayMapAccessExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
+                                   BLangJSONModelConstants.ARRAY_MAP_ACCESS_EXPRESSION);
+        arrayMapAccessExprObj.addProperty(BLangJSONModelConstants.ARRAY_MAP_ACCESS_EXPRESSION_NAME,
+                                   arrayMapAccessExpr.getSymbolName().getName());
+
+        tempJsonArrayRef.push(new JsonArray());
+        arrayMapAccessExpr.getIndexExpr().accept(this);
+        arrayMapAccessExprObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(arrayMapAccessExprObj);
     }
 
     @Override

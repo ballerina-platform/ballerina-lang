@@ -36,7 +36,7 @@ import java.util.List;
  *      [reply MessageName;]
  *  }
  *
- *  @since 1.0.0
+ *  @since 0.8.0
  */
 @SuppressWarnings("unused")
 public class Worker implements Node {
