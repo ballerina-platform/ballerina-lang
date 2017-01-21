@@ -48,7 +48,6 @@ public class BTypes {
     public static final BType MAP_TYPE = new BMapType(MAP_TNAME);
     public static final BType NULL_TYPE = new BNullType(NULL_TNAME);
 
-
     private BTypes() {
     }
 
