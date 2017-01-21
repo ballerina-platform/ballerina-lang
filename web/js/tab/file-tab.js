@@ -96,12 +96,26 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace/f
             fileEditor.render(diagramRenderingContext);
 
             fileEditor.on("content-modified redraw", function(){
-                this.trigger("tab-content-modified");
                 var updatedContent = this.getBallerinaFileEditor().generateSource();
                 this._file.setContent(updatedContent);
                 this._file.setDirty(true);
                 this._file.save();
+                this.app.workspaceManager.updateMenuItems();
+                this.trigger("tab-content-modified");
             }, this);
+
+            this._file.on("dirty-state-change", function () {
+                this.app.workspaceManager.updateSaveMenuItem();
+                this.updateHeader();
+            }, this);
+        },
+
+        updateHeader: function(){
+            if (this._file.isDirty()) {
+                this.getHeader().setText('* ' + this.getTitle());
+            } else {
+                this.getHeader().setText(this.getTitle());
+            }
         },
 
         createEmptyBallerinaRoot: function() {
