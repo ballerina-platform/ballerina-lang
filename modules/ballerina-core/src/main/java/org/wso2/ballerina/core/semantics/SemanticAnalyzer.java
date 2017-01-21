@@ -998,7 +998,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         } else if (compareExprType == BTypes.STRING_TYPE) {
             expr.setEvalFunc(EqualExpression.EQUAL_STRING_FUNC);
 
-        }else if (compareExprType == BTypes.DOUBLE_TYPE) {
+        } else if (compareExprType == BTypes.DOUBLE_TYPE) {
             expr.setEvalFunc(EqualExpression.EQUAL_DOUBLE_FUNC);
 
         } else {

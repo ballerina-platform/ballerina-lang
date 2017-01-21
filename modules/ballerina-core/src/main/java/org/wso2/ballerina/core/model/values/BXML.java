@@ -21,6 +21,7 @@ import org.apache.axiom.om.impl.builder.StAXOMBuilder;
 import org.apache.axiom.om.util.AXIOMUtil;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.message.BallerinaMessageDataSource;
+import org.wso2.ballerina.core.model.Null;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -111,5 +112,10 @@ public final class BXML extends BallerinaMessageDataSource implements BRefType<O
         }
 
         return "";
+    }
+
+    @Override
+    public Null nullValue() {
+        return null;
     }
 }

@@ -17,6 +17,7 @@
 package org.wso2.ballerina.core.model.values;
 
 import org.wso2.ballerina.core.model.Connector;
+import org.wso2.ballerina.core.model.Null;
 
 /**
  * The {@code BConnector} represents a Connector in Ballerina
@@ -52,6 +53,11 @@ public final class BConnector implements BRefType<Connector> {
 
     @Override
     public String stringValue() {
+        return null;
+    }
+
+    @Override
+    public Null nullValue() {
         return null;
     }
 }
