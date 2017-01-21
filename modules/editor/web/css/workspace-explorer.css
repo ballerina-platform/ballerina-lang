@@ -4,6 +4,10 @@
     opacity: 0.4;
 }
 
+.workspace-explorer-activate-btn.active{
+    opacity: 1;
+}
+
 .workspace-explorer-activate-btn:hover{
     opacity: 1;
     cursor: pointer;
