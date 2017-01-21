@@ -208,7 +208,7 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
                 }
             };
 
-            VariablesView.createVariablePane(variableProperties);
+            VariablesView.createVariablePane(variableProperties, diagramRenderingContext);
 
             var operationsPane = this.getOperationsPane();
 
@@ -241,7 +241,7 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
             };
 
             // Creating arguments pane.
-            ArgumentsView.createArgumentsPane(argumentsProperties);
+            ArgumentsView.createArgumentsPane(argumentsProperties, diagramRenderingContext);
 
             this.setServiceContainerWidth(this._container.width());
 
@@ -273,7 +273,7 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
             this._returnTypePaneView = new ReturnTypePaneView(returnTypeProperties);
 
             // Creating return type pane.
-            this._returnTypePaneView.createReturnTypePane();
+            this._returnTypePaneView.createReturnTypePane(diagramRenderingContext);
 
             // Closing the shown pane when another operation button is clicked.
             _.forEach(operationButtons, function (button) {

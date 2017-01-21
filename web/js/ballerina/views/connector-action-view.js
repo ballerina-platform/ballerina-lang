@@ -570,7 +570,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 }
             };
 
-            this._variablePane = VariablesView.createVariablePane(variableProperties);
+            this._variablePane = VariablesView.createVariablePane(variableProperties, diagramRenderingContext);
 
             var annotationProperties = {
                 model: this._model,
@@ -600,7 +600,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 }
             };
 
-            ArgumentsView.createArgumentsPane(argumentsProperties);
+            ArgumentsView.createArgumentsPane(argumentsProperties, diagramRenderingContext);
 
             // Creating return type pane.
             var returnTypeProperties = {
@@ -615,8 +615,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             };
 
             this._returnTypePaneView = new ReturnTypesPaneView(returnTypeProperties);
-
-            this._returnTypePaneView.createReturnTypePane();
+            this._returnTypePaneView.createReturnTypePane(diagramRenderingContext);
 
             var operationButtons = [headingAnnotationIcon.node(), headingArgumentsIcon.node(),
                 headingReturnTypesIcon.node()];
