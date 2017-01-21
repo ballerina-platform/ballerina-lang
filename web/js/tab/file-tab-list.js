@@ -113,7 +113,11 @@ define(['log', 'jquery', 'lodash', './tab-list', './file-tab',  'workspace/file'
                 var file = _.get(options, 'tabOptions.file');
                 file.setStorage(this.getBrowserStorage());
             }
-            return TabList.prototype.newTab.call(this, options);
+            var tab = TabList.prototype.newTab.call(this, options);
+            if(tab instanceof FileTab){
+                tab.updateHeader();
+            }
+            return tab;
         },
         getBrowserStorage: function(){
             return _.get(this, 'options.application.browserStorage');
