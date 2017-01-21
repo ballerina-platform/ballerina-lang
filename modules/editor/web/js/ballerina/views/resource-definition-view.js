@@ -603,7 +603,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 }
             };
 
-            this._variablePane = VariablesView.createVariablePane(variableProperties);
+            this._variablePane = VariablesView.createVariablePane(variableProperties, diagramRenderingContext);
 
             var annotationProperties = {
                 model: this._model,
@@ -620,7 +620,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
             AnnotationView.createAnnotationPane(annotationProperties);
 
-            this._createParametersView(headingArgumentsIcon.node());
+            this._createParametersView(headingArgumentsIcon.node(), diagramRenderingContext);
 
             var operationButtons = [headingAnnotationIcon.node(), headingArgumentsIcon.node()];
 
@@ -966,7 +966,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
          * @param {HTMLElement} headingParametersIcon - The icon which triggers to show the parameters editor.
          * @private
          */
-        ResourceDefinitionView.prototype._createParametersView = function (headingParametersIcon) {
+        ResourceDefinitionView.prototype._createParametersView = function (headingParametersIcon, diagramRenderingContext) {
             var parametersPaneProperties = {
                 model: this._model,
                 activatorElement: headingParametersIcon,
@@ -981,7 +981,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             };
 
             this._resourceParamatersPaneView = new ResourceParametersPaneView(parametersPaneProperties);
-            this._resourceParamatersPaneView.createParametersPane();
+            this._resourceParamatersPaneView.createParametersPane(diagramRenderingContext);
 
         };
 

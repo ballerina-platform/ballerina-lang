@@ -16,7 +16,7 @@
  * under the License.
  */
 
-define([], function () {
+define(['ballerina/env/environment'], function (Environment) {
 
     /**
      * Context data conveyor for diagram rendering.
@@ -25,6 +25,7 @@ define([], function () {
     var DiagramRenderContext = function () {
         // map object for storing view references against models
         this.viewModelMap = {};
+        this.environment = Environment;
     };
 
     /**
@@ -49,6 +50,14 @@ define([], function () {
      */
     DiagramRenderContext.prototype.setViewOfModel = function (model, view) {
         return _.set(this.viewModelMap, model.id, view);
+    };
+
+    /**
+     * get environment
+     * @returns {*}
+     */
+    DiagramRenderContext.prototype.getEnvironment = function () {
+        return this.environment;
     };
 
     return DiagramRenderContext;
