@@ -105,7 +105,8 @@ define(['log', 'lodash', 'jquery', 'event_channel', './file', 'alerts'],
                 async: false,
                 success: function (response) {
                     data = response;
-                    file.setDirty(false);
+                    file.setDirty(false)
+                        .save();
                     alerts.success("File " + file.getName() + ' saved successfully at '+ file.getPath());
                 },
                 error: function(xhr, textStatus, errorThrown){
