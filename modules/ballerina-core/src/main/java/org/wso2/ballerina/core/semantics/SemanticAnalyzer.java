@@ -998,6 +998,9 @@ public class SemanticAnalyzer implements NodeVisitor {
         } else if (compareExprType == BTypes.STRING_TYPE) {
             expr.setEvalFunc(EqualExpression.EQUAL_STRING_FUNC);
 
+        }else if (compareExprType == BTypes.DOUBLE_TYPE) {
+            expr.setEvalFunc(EqualExpression.EQUAL_DOUBLE_FUNC);
+
         } else {
             throw new SemanticException("Equals operation is not supported for type: " + compareExprType + " in " +
                     expr.getLocation().getFileName() + ":" + expr.getLocation().getLine());
@@ -1019,6 +1022,9 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         } else if (compareExprType == BTypes.STRING_TYPE) {
             notEqualExpr.setEvalFunc(NotEqualExpression.NOT_EQUAL_STRING_FUNC);
+
+        } else if (compareExprType == BTypes.DOUBLE_TYPE) {
+            notEqualExpr.setEvalFunc(NotEqualExpression.NOT_EQUAL_DOUBLE_FUNC);
 
         } else {
             throw new SemanticException("NotEqual operation is not supported for type: " + compareExprType + " in " +
