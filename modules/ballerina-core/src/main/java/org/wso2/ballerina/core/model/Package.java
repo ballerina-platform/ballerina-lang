@@ -27,7 +27,7 @@ import java.util.Map;
 /**
  * {@code Package} represents a Package in a Ballerina Program.
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class Package {
 

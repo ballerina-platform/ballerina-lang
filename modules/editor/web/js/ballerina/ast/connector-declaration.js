@@ -17,30 +17,33 @@
  */
 define(['lodash', './node'], function(_, ASTNode){
 
+    /**
+     * Defines a connector declaration AST node.
+     * Default source will be as follows : http:HTTPConnector ep = new http:HTTPConnector("http://localhost:9090");
+     * @param {Object} options - arguments for a connector.
+     * @param {string} [options.connectorName="HTTPConnector"] - The name of the connector.
+     * @param {string} [options.connectorVariable="ep"] - Variable identifier for the connector.
+     * @param {string} [options.connectorPackageName="http"] - Package name of the connector.
+     * @param {number} [options.timeout=""] - Timeout value.
+     * @param {string} [options.uri="http://localhost:9090"] - The endpoint url.
+     * @constructor
+     * @augments ASTNode
+     */
     var ConnectorDeclaration = function(options) {
-        this._connectionOptions = options || {};
-        this._connectorName = '';
-        this._connectorVariable = '';
-        this._connectorType = '';
-        this._timeout = '';
-        this._connectorPkgName = '';
-        this._uri = '';
         ASTNode.call(this, "ConnectorDeclaration");
+        this._connectorName = _.get(options, "connectorName", "HTTPConnector");
+        this._connectorVariable = _.get(options, "connectorVariable", "ep");
+        this._connectorType = _.get(options, "connectorType", "ConnectorDeclaration");
+        this._connectorPkgName = _.get(options, "connectorPackageName", "http");
+        this._timeout = _.get(options, "timeout", "");
+        this._uri = _.get(options, "uri", "http://localhost:9090");
     };
 
     ConnectorDeclaration.prototype = Object.create(ASTNode.prototype);
     ConnectorDeclaration.prototype.constructor = ConnectorDeclaration;
 
-    ConnectorDeclaration.prototype.getOptions = function () {
-        return this._connectionOptions;
-    };
-
     ConnectorDeclaration.prototype.canBeConnectorOf = function (action) {
         var BallerinaASTFactory = this.getFactory();
-    };
-
-    ConnectorDeclaration.prototype.setConnectionOptions = function (opts) {
-        this._connectionOptions = opts;
     };
     ConnectorDeclaration.prototype.setConnectorName = function (name) {
         this._connectorName = name;
@@ -104,7 +107,7 @@ define(['lodash', './node'], function(_, ASTNode){
         this._connectorPkgName = jsonNode.connector_pkg_name;
         this._connectorVariable = jsonNode.connector_variable;
         this._uri = jsonNode.children[0].basic_literal_value;
-        this.setConnectorType('connectorType');
+        this.setConnectorType('ConnectorDeclaration');
     };
 
     return ConnectorDeclaration;

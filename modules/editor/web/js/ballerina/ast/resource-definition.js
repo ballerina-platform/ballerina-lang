@@ -84,16 +84,16 @@ define(['lodash', 'require', 'log', './node'],
         return variableDeclarations;
     };
 
-    ResourceDefinition.prototype.getArguments = function () {
-        var resourceArgs = [];
+    ResourceDefinition.prototype.getParameters = function () {
+        var resourceParameters = [];
         var self = this;
 
         _.forEach(this.getChildren(), function (child) {
-            if (self.BallerinaASTFactory.isResourceArgument(child)) {
-                resourceArgs.push(child);
+            if (self.BallerinaASTFactory.isResourceParameter(child)) {
+                resourceParameters.push(child);
             }
         });
-        return resourceArgs;
+        return resourceParameters;
     };
 
     ResourceDefinition.prototype.getResourceName = function () {
@@ -133,56 +133,72 @@ define(['lodash', 'require', 'log', './node'],
     };
 
     /**
-     * Returns the list of arguments as a string separated by commas.
-     * @return {string} - Arguments as string.
+     * Returns the list of parameters as a string separated by commas.
+     * @return {string} - Parameters as string.
      */
-    ResourceDefinition.prototype.getArgumentsAsString = function () {
-        var argsAsString = "";
-        var args = this.getArguments();
+    ResourceDefinition.prototype.getParametersAsString = function () {
+        var paramsAsString = "";
+        var params = this.getParameters();
 
-        _.forEach(args, function(argument, index){
-            argsAsString += argument.type + " ";
-            argsAsString += argument.identifier;
-            if (args.length - 1 != index) {
-                argsAsString += ", ";
+        _.forEach(params, function(parameter, index){
+            paramsAsString += parameter.getParameterAsString();
+            if (params.length - 1 != index) {
+                paramsAsString += ",";
             }
         });
 
-        return argsAsString;
+        return paramsAsString;
     };
 
     /**
-     * Adds new argument to the resource definition.
-     * @param type - The type of the argument.
-     * @param identifier - The identifier of the argument.
+     * Adds new parameter to a resource.
+     * @param {string|undefined} annotationType - The type of the annotation. Example: @PathParam.
+     * @param {string|undefined} annotationText - The value inside the annotation.
+     * @param {string} parameterType - The type of the parameter. Example : string, int.
+     * @param {string} parameterIdentifier - Identifier for the parameter.
      */
-    ResourceDefinition.prototype.addArgument = function(type, identifier) {
-        //creating resource argument
-        var newResourceArgument = this.BallerinaASTFactory.createResourceArgument();
-        newResourceArgument.setType(type);
-        newResourceArgument.setIdentifier(identifier);
+    ResourceDefinition.prototype.addParameter = function (annotationType, annotationText, parameterType, parameterIdentifier) {
+        // Check if already parameter exists with same identifier.
+        var identifierAlreadyExists = _.findIndex(this.getParameters(), function (parameter) {
+                return parameter.getIdentifier() === parameterIdentifier;
+            }) !== -1;
 
-        var self = this;
+        // If parameter with the same identifier exists, then throw an error. Else create the new parameter.
+        if (identifierAlreadyExists) {
+            var errorString = "A resource parameter with identifier '" + parameterIdentifier + "' already exists.";
+            log.error(errorString);
+            throw errorString;
+        } else {
+            // Creating resource parameter
+            var newParameter = this.BallerinaASTFactory.createResourceParameter();
+            newParameter.setAnnotationType(annotationType);
+            newParameter.setAnnotationText(annotationText);
+            newParameter.setType(parameterType);
+            newParameter.setIdentifier(parameterIdentifier);
 
-        // Get the index of the last resource argument declaration.
-        var index = _.findLastIndex(this.getChildren(), function (child) {
-            return self.BallerinaASTFactory.isResourceArgument(child);
-        });
+            var self = this;
 
-        this.addChild(newResourceArgument, index + 1);
+            // Get the index of the last resource parameter declaration.
+            var index = _.findLastIndex(this.getChildren(), function (child) {
+                return self.BallerinaASTFactory.isResourceParameter(child);
+            });
+
+            this.addChild(newParameter, index + 1);
+        }
     };
 
     /**
-     * Removes an argument from a resource definition.
-     * @param identifier - The identifier of the argument.
-     * @return {Array} - The removed argument.
+     * Removes a parameter from the resource definition.
+     * @param {string} modelID - The id of the parameter model.
      */
-    ResourceDefinition.prototype.removeArgument = function(identifier) {
+    ResourceDefinition.prototype.removeParameter = function(modelID) {
         var self = this;
         // Deleting the variable from the children.
-        _.remove(this.getChildren(), function (child) {
-            return self.BallerinaASTFactory.isResourceArgument(child) && child.getIdentifier() === identifier;
+        var resourceParameter = _.find(this.getChildren(), function (child) {
+            return self.BallerinaASTFactory.isResourceParameter(child) && child.id === modelID;
         });
+
+        this.removeChild(resourceParameter);
     };
 
     ResourceDefinition.prototype.resourceParent = function (parent) {
@@ -250,6 +266,34 @@ define(['lodash', 'require', 'log', './node'],
         this._annotations = jsonNode.annotations;
 
         var self = this;
+        _.each(this._annotations, function (annotation) {
+            if (annotation.annotation_name === "POST") {
+                self._annotations.push({
+                    key: "Method",
+                    value: "POST"
+                });
+            } else if (annotation.annotation_name === "GET") {
+                self._annotations.push({
+                    key: "Method",
+                    value: "GET"
+                });
+            } else if (annotation.annotation_name === "PUT") {
+                self._annotations.push({
+                    key: "Method",
+                    value: "PUT"
+                });
+            } else if (annotation.annotation_name === "DELETE") {
+                self._annotations.push({
+                    key: "Method",
+                    value: "DELETE"
+                });
+            } else if (annotation.annotation_name === "Path") {
+                self._annotations.push({
+                    key: "Path",
+                    value: annotation.annotation_value
+                });
+            }
+        });
 
         _.each(jsonNode.children, function (childNode) {
             var child = self.BallerinaASTFactory.createFromJson(childNode);
@@ -258,17 +302,20 @@ define(['lodash', 'require', 'log', './node'],
         });
     };
 
-        /**
-         * Override the addChild method for ordering the child elements as
-         * [Statements, Workers, Connectors]
-         * @param {ASTNode} child
-         * @param {number|undefined} index
-         */
+    /**
+     * Override the addChild method for ordering the child elements as
+     * [Statements, Workers, Connectors]
+     * @param {ASTNode} child
+     * @param {number|undefined} index
+     */
     ResourceDefinition.prototype.addChild = function (child, index) {
         var indexNew;
         var self = this;
         if (self.BallerinaASTFactory.isConnectorDeclaration(child)) {
-            indexNew = index;
+            indexNew = _.findLastIndex(this.getChildren(), function (node) {
+                self.BallerinaASTFactory.isConnectorDeclaration(node);
+            });
+            indexNew = (indexNew === -1) ? 0 : (indexNew + 1);
         } else if (this.BallerinaASTFactory.isWorkerDeclaration(child)) {
             var firstConnector = _.findIndex(this.getChildren(), function (node) {
                 self.BallerinaASTFactory.isConnectorDeclaration(node);

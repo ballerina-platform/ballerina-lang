@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -17,12 +17,12 @@
  */
 define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-definition', './default-worker', 'd3utils', '' +
         'd3', './worker-declaration-view', './statement-view-factory', './point', './axis',
-        './connector-declaration-view', './statement-container', './variables-view', './arguments-view',
-        './return-type-view'],
+        './connector-declaration-view', './statement-container', './variables-view', './function-arguments-view',
+        './return-types-pane-view'],
     function (_, log, EventChannel, Canvas, FunctionDefinition, DefaultWorkerView, D3Utils,
               d3, WorkerDeclarationView, StatementViewFactory, Point, Axis,
               ConnectorDeclarationView, StatementContainer, VariablesView, ArgumentsView,
-              ReturnTypeView) {
+              ReturnTypePaneView) {
 
         /**
          * The view to represent a function definition which is an AST visitor.
@@ -154,14 +154,16 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
             var self = this;
 
             $("#title-" + this._model.id).addClass("function-title-text").text(this._model.getFunctionName())
-                .on("change paste keydown", function (e) {
-                    if (e.which == 13) {
-                        return false;
-                    }
+                .on("change paste keyup", function (e) {
                     self._model.setFunctionName($(this).text());
                 }).on("click", function (event) {
-                event.stopPropagation();
-            });
+                    event.stopPropagation();
+                }).on("keydown", function (e) {
+                    // Check whether the Enter key has been pressed. If so return false. Won't type the character
+                    if (e.keyCode === 13) {
+                        return false;
+                    }
+                });
 
             // Creating default worker
             var defaultWorkerOpts = {};
@@ -206,7 +208,7 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
                 }
             };
 
-            VariablesView.createVariablePane(variableProperties);
+            VariablesView.createVariablePane(variableProperties, diagramRenderingContext);
 
             var operationsPane = this.getOperationsPane();
 
@@ -239,7 +241,9 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
             };
 
             // Creating arguments pane.
-            ArgumentsView.createArgumentsPane(argumentsProperties);
+            ArgumentsView.createArgumentsPane(argumentsProperties, diagramRenderingContext);
+
+            this.setServiceContainerWidth(this._container.width());
 
             // Creating return type icon.
             var panelReturnTypeIcon = $("<i/>", {
@@ -260,15 +264,16 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
                 activatorElement: panelReturnTypeIcon,
                 paneAppendElement: this.getChildContainer().node().ownerSVGElement.parentElement,
                 viewOptions: {
-                    position: {
-                        left: parseInt($(this.getChildContainer().node().ownerSVGElement.parentElement).width()),
-                        top: 0
-                    }
-                }
+                    position: new Point(parseInt($(this.getChildContainer().node().ownerSVGElement.parentElement).width()),
+                        0)
+                },
+                view: this
             };
 
+            this._returnTypePaneView = new ReturnTypePaneView(returnTypeProperties);
+
             // Creating return type pane.
-            ReturnTypeView.createReturnTypePane(returnTypeProperties);
+            this._returnTypePaneView.createReturnTypePane(diagramRenderingContext);
 
             // Closing the shown pane when another operation button is clicked.
             _.forEach(operationButtons, function (button) {

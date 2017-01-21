@@ -30,7 +30,7 @@ define(['require', 'lodash','jquery', 'log', 'backbone', 'file_browser', 'baller
              */
             initialize: function (options) {
                 this.app = options;
-                this.dialog_container = _.get(options.config.dialog, 'container');
+                this.dialog_container = $(_.get(options.config.dialog, 'container'));
                 this.notification_container = _.get(options.config.tab_controller.tabs.tab.ballerina_editor.notifications, 'container');
                 this.source_view_container = _.get(options.config.tab_controller.tabs.tab.ballerina_editor, 'source_view.container');
                 this.ballerina_editor = _.get(options.config.tab_controller.tabs.tab, 'ballerina_editor');
@@ -38,6 +38,10 @@ define(['require', 'lodash','jquery', 'log', 'backbone', 'file_browser', 'baller
 
             show: function(){
                 this._fileOpenModal.modal('show');
+            },
+
+            select: function(path){
+                this._fileBrowser.select('path');
             },
 
             render: function () {
@@ -125,9 +129,10 @@ define(['require', 'lodash','jquery', 'log', 'backbone', 'file_browser', 'baller
                 var location = fileOpen.find("input").filter("#location");
 
                 var treeContainer  = fileOpen.find("div").filter("#fileTree")
-                fileBrowser = new FileBrowser({container: treeContainer, application:app, action:'openFile'});
+                fileBrowser = new FileBrowser({container: treeContainer, application:app, fetchFiles:true});
 
                 fileBrowser.render();
+                this._fileBrowser = fileBrowser;
 
                 //Gets the selected location from tree and sets the value as location
                 this.listenTo(fileBrowser, 'selected', function (selectedLocation) {
@@ -184,8 +189,6 @@ define(['require', 'lodash','jquery', 'log', 'backbone', 'file_browser', 'baller
 
                                 var command = app.commandManager;
                                 command.dispatch("create-new-tab", root);
-
-                                alertSuccess();
                             } else {
                                 alertError();
                             }
@@ -222,7 +225,6 @@ define(['require', 'lodash','jquery', 'log', 'backbone', 'file_browser', 'baller
                                     isPersisted: true
                                 });
                                 app.commandManager.dispatch("create-new-tab", {tabOptions: {file: file}});
-                                alertSuccess();
                             } else {
                                 alertError();
                             }

@@ -30,7 +30,7 @@ import org.wso2.ballerina.core.model.values.BValue;
  * memory block size during the compilation time.  Therefore we use the StackMemory
  * block to store all the service level variables and connectors
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class ServiceVarLocation extends MemoryLocation implements Node {
     private int staticMemAddrOffset;

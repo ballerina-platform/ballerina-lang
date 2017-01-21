@@ -28,12 +28,19 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
              */
             initialize: function (options) {
                 this.app = options;
-                this.dialog_container = _.get(options.config.dialog, 'container');
+                this.dialog_container = $(_.get(options.config.dialog, 'container'));
                 this.notification_container = _.get(options.config.tab_controller.tabs.tab.ballerina_editor.notifications, 'container');
             },
 
             show: function(){
                 this._fileSaveModal.modal('show');
+            },
+
+            setSelectedFile: function(path, fileName){
+                this._fileBrowser.select(path);
+                if(!_.isNil(this._configNameInput)){
+                    this._configNameInput.val(fileName);
+                }
             },
 
             render: function () {
@@ -116,9 +123,12 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
                 var configName = fileSave.find("input").filter("#configName");
 
                 var treeContainer  = fileSave.find("div").filter("#fileTree")
-                fileBrowser = new FileBrowser({container: treeContainer, application:app, action:'saveFile'});
+                fileBrowser = new FileBrowser({container: treeContainer, application:app, fetchFiles:false});
 
                 fileBrowser.render();
+                this._fileBrowser = fileBrowser;
+                this._configNameInput = configName;
+
                 //Gets the selected location from tree and sets the value as location
                 this.listenTo(fileBrowser, 'selected', function (selectedLocation) {
                     if(selectedLocation){
@@ -185,6 +195,12 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
                                             .setContent(config)
                                             .setPersisted(true)
                                             .save();
+                                if(app.workspaceExplorer.isEmpty()){
+                                    app.commandManager.dispatch("open-folder", location.val());
+                                    if(!app.workspaceExplorer.isActive()){
+                                        app.commandManager.dispatch("toggle-file-explorer");
+                                    }
+                                }
                                 app.breadcrumbController.setPath(location.val(), configName.val());
                                 alertSuccess();
                             } else {

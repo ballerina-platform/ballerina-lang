@@ -32,7 +32,7 @@ import static org.wso2.ballerina.core.model.Operator.MUL;
 /**
  * {@code MultExpression} represents a binary multiply expression
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class MultExpression extends BinaryArithmeticExpression {
 

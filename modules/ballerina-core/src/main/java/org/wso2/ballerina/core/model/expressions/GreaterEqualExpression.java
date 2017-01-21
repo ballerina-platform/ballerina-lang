@@ -29,7 +29,7 @@ import static org.wso2.ballerina.core.model.Operator.GREATER_EQUAL;
 /**
  * {@code GreaterEqualExpression} represents a greater than or equal (>=) expression in Ballerina
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class GreaterEqualExpression extends BinaryCompareExpression {
 

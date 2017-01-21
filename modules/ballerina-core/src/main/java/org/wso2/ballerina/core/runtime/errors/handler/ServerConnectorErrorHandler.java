@@ -23,7 +23,7 @@ import org.wso2.carbon.messaging.CarbonMessage;
 /**
  * {@code ServerConnectorErrorHandler} is the interface for protocol specific error handlers in ballerina.
  *
- * @since 1.0.0
+ * @since 0.8.0
  *
  */
 public interface ServerConnectorErrorHandler {

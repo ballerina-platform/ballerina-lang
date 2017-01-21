@@ -25,7 +25,7 @@ import java.util.List;
 /**
  * A {@code Connection} represents the instantiation of a connector with a particular configuration.
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 @SuppressWarnings("unused")
 public class ConnectorDcl implements Node {

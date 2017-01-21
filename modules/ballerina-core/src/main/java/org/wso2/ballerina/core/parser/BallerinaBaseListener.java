@@ -172,25 +172,25 @@ public class BallerinaBaseListener implements BallerinaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterTypeDefinition(BallerinaParser.TypeDefinitionContext ctx) { }
+	@Override public void enterStructDefinition(BallerinaParser.StructDefinitionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitTypeDefinition(BallerinaParser.TypeDefinitionContext ctx) { }
+	@Override public void exitStructDefinition(BallerinaParser.StructDefinitionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterTypeDefinitionBody(BallerinaParser.TypeDefinitionBodyContext ctx) { }
+	@Override public void enterStructDefinitionBody(BallerinaParser.StructDefinitionBodyContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitTypeDefinitionBody(BallerinaParser.TypeDefinitionBodyContext ctx) { }
+	@Override public void exitStructDefinitionBody(BallerinaParser.StructDefinitionBodyContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -904,6 +904,18 @@ public class BallerinaBaseListener implements BallerinaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterStructFieldIdentifier(BallerinaParser.StructFieldIdentifierContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitStructFieldIdentifier(BallerinaParser.StructFieldIdentifierContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterSimpleVariableIdentifier(BallerinaParser.SimpleVariableIdentifierContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -923,18 +935,6 @@ public class BallerinaBaseListener implements BallerinaListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitMapArrayVariableIdentifier(BallerinaParser.MapArrayVariableIdentifierContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterStructFieldIdentifier(BallerinaParser.StructFieldIdentifierContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitStructFieldIdentifier(BallerinaParser.StructFieldIdentifierContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -1031,18 +1031,6 @@ public class BallerinaBaseListener implements BallerinaListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitBinaryGTExpression(BallerinaParser.BinaryGTExpressionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterTypeInitializeExpression(BallerinaParser.TypeInitializeExpressionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitTypeInitializeExpression(BallerinaParser.TypeInitializeExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -1259,6 +1247,18 @@ public class BallerinaBaseListener implements BallerinaListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitTypeCastingExpression(BallerinaParser.TypeCastingExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterStructInitializeExpression(BallerinaParser.StructInitializeExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitStructInitializeExpression(BallerinaParser.StructInitializeExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

@@ -17,6 +17,7 @@
  */
 define(['lodash', 'event_channel', './package'], function(_, EventChannel, Package){
 
+    var instance;
     /**
      * @class BallerinaEnvironment
      * @augments EventChannel
@@ -25,6 +26,7 @@ define(['lodash', 'event_channel', './package'], function(_, EventChannel, Packa
      */
     var BallerinaEnvironment = function(args) {
         this._packages = _.get(args, 'packages', []);
+        this._types = _.get(args, 'types', ['message', 'connection', 'string', 'int', 'exception', 'json', 'xml', 'map', 'string[]', 'int[]']);
     };
 
     BallerinaEnvironment.prototype = Object.create(EventChannel.prototype);
@@ -66,6 +68,13 @@ define(['lodash', 'event_channel', './package'], function(_, EventChannel, Packa
         return this._packages;
     };
 
+    /**
+     * get available types for this environment
+     * @returns {*}
+     */
+    BallerinaEnvironment.prototype.getTypes = function () {
+      return this._types;
+    };
 
-    return BallerinaEnvironment;
+    return (instance = (instance || new BallerinaEnvironment()));
 });
