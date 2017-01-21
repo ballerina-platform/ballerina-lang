@@ -21,7 +21,7 @@ import org.wso2.ballerina.core.model.values.BNull;
 import org.wso2.ballerina.core.model.values.BValue;
 
 /**
- * {@code Null} represents a JSON document
+ * {@code Null} represents null
  *
  * @since 1.0.0
  */
