@@ -17,6 +17,8 @@
 */
 package org.wso2.ballerina.core.model.values;
 
+import org.wso2.ballerina.core.model.Null;
+
 /**
  * The {@code BValueType} represents a value type value in Ballerina
  *
@@ -61,4 +63,7 @@ public abstract class BValueType implements BValue {
     public abstract double doubleValue();
 
     public abstract boolean booleanValue();
+
+    public abstract Null nullValue();
+
 }

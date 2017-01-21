@@ -17,19 +17,19 @@
 */
 package org.wso2.ballerina.core.model.values;
 
+
 import org.wso2.ballerina.core.model.Null;
 
 /**
- * The {@code BLong} represents a long value in Ballerina
+ * The {@code BNull} represents null value in Ballerina
  *
- * @since 0.8.0
+ * @since 1.0.0
  */
-public final class BLong extends BValueType {
+public final class BNull extends BValueType {
+    private Null value;
 
-    private long value;
-
-    public BLong(long value) {
-        this.value = value;
+    public BNull() {
+        this.value = null;
     }
 
     @Override
@@ -39,7 +39,7 @@ public final class BLong extends BValueType {
 
     @Override
     public long longValue() {
-        return value;
+        return 0;
     }
 
     @Override
@@ -59,16 +59,16 @@ public final class BLong extends BValueType {
 
     @Override
     public String stringValue() {
-        return Long.toString(value);
+        return "null";
     }
 
     @Override
     public Null nullValue() {
-        return null;
+        return this.value;
     }
 
     @Override
     public boolean equals(Object obj) {
-        return ((BLong) obj).longValue() == value;
+        return ((BNull) obj).nullValue().equals(value);
     }
 }

@@ -76,9 +76,9 @@ import org.wso2.ballerina.core.model.values.BDouble;
 import org.wso2.ballerina.core.model.values.BFloat;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BLong;
+import org.wso2.ballerina.core.model.values.BNull;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValueType;
-
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -821,8 +821,8 @@ public class BLangModelBuilder {
     }
 
     public void createNullLiteral(String value, Position sourceLocation) {
-        throw new RuntimeException("Null values are not yet supported in Ballerina in " + sourceLocation.getFileName()
-                + ":" + sourceLocation.getLine());
+        BValueType bValue = new BNull();
+        createLiteral(bValue, BTypes.NULL_TYPE, sourceLocation);
     }
 
     // Private methods

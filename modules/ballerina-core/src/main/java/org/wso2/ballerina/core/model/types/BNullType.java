@@ -17,34 +17,27 @@
 */
 package org.wso2.ballerina.core.model.types;
 
+import org.wso2.ballerina.core.model.values.BNull;
+import org.wso2.ballerina.core.model.values.BValue;
+
 /**
- * {@code TypeEnum} represents all the types names in Ballerina
+ * {@code Null} represents a JSON document
  *
- * @since 0.8.0
+ * @since 1.0.0
  */
-public enum TypeEnum {
-    INT("int"),
-    LONG("long"),
-    FLOAT("float"),
-    DOUBLE("double"),
-    BOOLEAN("boolean"),
-    STRING("string"),
-    MESSAGE("message"),
-    XML("xml"),
-    JSON("json"),
-    MAP("map"),
-    ARRAY("array"),
-    CONNECTOR("connector"),
-    NULL("null"),
-    EMPTY("");
+public class BNullType extends BType {
 
-    private String name;
-
-    TypeEnum(String name) {
-        this.name = name;
+    /**
+     * Create a {@code Null} which represents the null type
+     *
+     * @param typeName string name of the type
+     */
+    BNullType(String typeName) {
+        super(typeName, BNull.class);
     }
 
-    public String getName() {
-        return name;
+    @SuppressWarnings("unchecked")
+    public <V extends BValue> V getDefaultValue() {
+        return (V) new BNull();
     }
 }

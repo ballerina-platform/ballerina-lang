@@ -551,7 +551,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         // TODO Remove the MAP related logic when type casting is implemented
         if ((lExpr.getType() != BTypes.MAP_TYPE) && (rExpr.getType() != BTypes.MAP_TYPE) &&
-                (lExpr.getType() != rExpr.getType())) {
+                (rExpr.getType() != BTypes.NULL_TYPE) && (lExpr.getType() != rExpr.getType())) {
             throw new SemanticException(lExpr.getLocation().getFileName() + ":"
                     + lExpr.getLocation().getLine() + ": incompatible types: " + rExpr.getType() +
                     " cannot be converted to " + lExpr.getType());
@@ -1351,7 +1351,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         Expression rExpr = binaryExpr.getRExpr();
         Expression lExpr = binaryExpr.getLExpr();
 
-        if (lExpr.getType() != rExpr.getType()) {
+        if (lExpr.getType() != rExpr.getType() &&  lExpr.getType() != BTypes.NULL_TYPE
+                && rExpr.getType() != BTypes.NULL_TYPE) {
             throw new SemanticException(binaryExpr.getLocation().getFileName() + ":" +
                     binaryExpr.getLocation().getLine() +
                     ": incompatible types in binary expression: " + lExpr.getType() + " vs " + rExpr.getType());

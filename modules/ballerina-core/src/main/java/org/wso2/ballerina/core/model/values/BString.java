@@ -17,6 +17,8 @@
 */
 package org.wso2.ballerina.core.model.values;
 
+import org.wso2.ballerina.core.model.Null;
+
 /**
  * The {@code BString} represents a string in Ballerina
  *
@@ -58,6 +60,11 @@ public final class BString extends BValueType {
     @Override
     public String stringValue() {
         return this.value;
+    }
+
+    @Override
+    public Null nullValue() {
+        return null;
     }
 
     @Override
