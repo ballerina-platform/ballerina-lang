@@ -75,7 +75,8 @@ define(['log', 'jquery', 'lodash', './tab-list', './file-tab',  'workspace/file'
                 this._workingFileSet.forEach(function(fileID){
                     var fileData = self.getBrowserStorage().get(fileID);
                     var file = new File(fileData, {storage:self.getBrowserStorage()});
-                    self.newTab(_.set({}, 'tabOptions.file', file));
+                    var tab = self.newTab(_.set({}, 'tabOptions.file', file));
+                    tab.updateHeader();
                 });
             }
         },
@@ -90,13 +91,6 @@ define(['log', 'jquery', 'lodash', './tab-list', './file-tab',  'workspace/file'
                 this._workingFileSet.push(tab.getFile().id);
                 this.getBrowserStorage().put('workingFileSet', this._workingFileSet);
             }
-            var app = _.get(this, 'options.application'),
-                workspaceManager = app.workspaceManager;
-            tab.on("tab-content-modified", function(){
-                if (tab.isActive()) {
-                    workspaceManager.updateMenuItems();
-                }
-            }, this);
         },
         removeTab: function (tab) {
             TabList.prototype.removeTab.call(this, tab);

@@ -66,6 +66,7 @@ define(['jquery', 'lodash', 'backbone', 'log'], function ($, _, Backbone, log) {
 
             setDirty: function(isDirty){
                 this.set('isDirty', isDirty);
+                this.trigger('dirty-state-change', isDirty);
                 return this;
             },
 
