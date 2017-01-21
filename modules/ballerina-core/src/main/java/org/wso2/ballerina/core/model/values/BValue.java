@@ -17,6 +17,8 @@
 */
 package org.wso2.ballerina.core.model.values;
 
+import org.wso2.ballerina.core.model.Null;
+
 /**
  * {@code BValue} represents a value in Ballerina
  *
@@ -26,4 +28,5 @@ public interface BValue {
 
     String stringValue();
 
+    Null nullValue();
 }
