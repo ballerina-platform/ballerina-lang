@@ -309,6 +309,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
          */
         ConnectorDefinitionView.prototype.visitConnectorAction = function (connectorAction) {
             log.debug("Visiting connector action");
+            var self = this;
             var actionContainer = this.getChildContainer();
             var connectorActionView = undefined;
             // If more than one action
@@ -347,7 +348,15 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
             this.setLifelineMargin(connectorActionView.getBoundingBox().getRight());
             // If the lifeline margin is changed then accordingly the action should move the bounding box
             this.getLifeLineMargin().on('moved', function (offset) {
-                connectorActionView.getBoundingBox().w(connectorActionView.getBoundingBox().w() + offset);
+                var newWidth = connectorActionView.getBoundingBox().w() + offset;
+                var minWidth = connectorActionView.getContentMinWidth();
+                if (newWidth > minWidth) {
+                    connectorActionView.getBoundingBox().w(newWidth);
+                } else {
+                    // reset lifeline margin position
+                    self.setLifelineMargin(minWidth + self._viewOptions.offsetTop);
+                    connectorActionView.getBoundingBox().w(minWidth);
+                }
             });
 
             //setting height of the connector definition view
