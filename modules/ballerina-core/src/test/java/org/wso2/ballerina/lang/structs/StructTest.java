@@ -18,6 +18,7 @@
 package org.wso2.ballerina.lang.structs;
 
 import org.testng.Assert;
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.exception.SemanticException;
@@ -36,12 +37,12 @@ public class StructTest {
 
     private BallerinaFile bFile;
     
-    @Test
-    public void testStructs() {
+    @BeforeTest
+    public void setup() {
         bFile = ParserUtils.parseBalFile("lang/structs/struct.bal");
     }
     
-    @Test(description = "Test Basic struct operations", dependsOnMethods = { "testStructs" })
+    @Test(description = "Test Basic struct operations")
     public void testBasicStruct() {
         BValue[] returns = Functions.invoke(bFile, "testCreateStruct");
 
@@ -57,14 +58,14 @@ public class StructTest {
         Assert.assertEquals(((BInteger) returns[2]).intValue(), 25);
     }
 
-    @Test(description = "Test using expressions as index for struct arrays", dependsOnMethods = { "testStructs" })
+    @Test(description = "Test using expressions as index for struct arrays")
     public void testExpressionAsIndex() {
         BValue[] returns = Functions.invoke(bFile, "testExpressionAsIndex");
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "Jane");
     }
     
-    @Test(description = "Test struct operations inside a connector", dependsOnMethods = { "testStructs" })
+    @Test(description = "Test struct operations inside a connector")
     public void testStructInConnector() {
         BValue[] returns = Functions.invoke(bFile, "testAction1");
         Assert.assertEquals(returns.length, 1);
@@ -72,7 +73,7 @@ public class StructTest {
         Assert.assertEquals(returns[0].stringValue(), "Jack");
     }
     
-    @Test(description = "Test using structs inside structs", dependsOnMethods = { "testStructs" })
+    @Test(description = "Test using structs inside structs")
     public void testStructOfStructs() {
         BValue[] returns = Functions.invoke(bFile, "testStructOfStruct");
 
@@ -80,7 +81,7 @@ public class StructTest {
         Assert.assertEquals(returns[0].stringValue(), "USA");
     }
     
-    @Test(description = "Test returning attributes of a struct", dependsOnMethods = { "testStructs" })
+    @Test(description = "Test returning attributes of a struct")
     public void testReturnStructAttributes() {
         BValue[] returns = Functions.invoke(bFile, "testReturnStructAttributes");
 
@@ -88,8 +89,7 @@ public class StructTest {
         Assert.assertEquals(returns[0].stringValue(), "emily");
     }
     
-    @Test(description = "Test using struct expression as a index in another struct expression",
-            dependsOnMethods = { "testStructs" })
+    @Test(description = "Test using struct expression as a index in another struct expression")
     public void testStructExpressionAsIndex() {
         BValue[] returns = Functions.invoke(bFile, "testStructExpressionAsIndex");
         Assert.assertTrue(returns[0] instanceof BString);
@@ -100,28 +100,28 @@ public class StructTest {
      *  Negative tests
      */
     
-    @Test(description = "Test accessing an attribute of a noninitialized struct", dependsOnMethods = { "testStructs" },
+    @Test(description = "Test accessing an attribute of a noninitialized struct",
             expectedExceptions = {BallerinaException.class},
             expectedExceptionsMessageRegExp = "Cannot access attribute 'employees' of non-initialized variable 'dpt'.")
     public void testGetNonInitAttribute() {
         Functions.invoke(bFile, "testGetNonInitAttribute");
     }
     
-    @Test(description = "Test accessing the attribute of a noninitialized struct", dependsOnMethods = { "testStructs" },
+    @Test(description = "Test accessing the attribute of a noninitialized struct",
             expectedExceptions = {BallerinaException.class},
             expectedExceptionsMessageRegExp = "Cannot access attribute 'employees' of non-initialized variable 'dpt'.")
     public void testGetNonInitLastAttribute() {
         Functions.invoke(bFile, "testGetNonInitLastAttribute");
     }
     
-    @Test(description = "Test setting an attribute of a noninitialized struct", dependsOnMethods = { "testStructs" },
+    @Test(description = "Test setting an attribute of a noninitialized struct",
             expectedExceptions = {BallerinaException.class},
             expectedExceptionsMessageRegExp = "Cannot access attribute 'employees' of non-initialized variable 'dpt'.")
     public void testSetNonInitAttribute() {
         Functions.invoke(bFile, "testGetNonInitAttribute");
     }
     
-    @Test(description = "Test setting the attribute of a noninitialized struct", dependsOnMethods = { "testStructs" },
+    @Test(description = "Test setting the attribute of a noninitialized struct",
             expectedExceptions = {BallerinaException.class},
             expectedExceptionsMessageRegExp = "Cannot set attribute 'dptName' of non-initialized variable 'dpt'.")
     public void testSetNonInitLastAttribute() {
