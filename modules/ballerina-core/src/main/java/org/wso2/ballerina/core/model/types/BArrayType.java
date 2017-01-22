@@ -30,7 +30,7 @@ import org.wso2.ballerina.core.model.values.BValue;
  *
  * @since 0.8.0
  */
-public class BArrayType extends BType {
+public class BArrayType extends BType implements BIndexedType {
 
     private BType elementType;
 
@@ -41,7 +41,10 @@ public class BArrayType extends BType {
      */
     BArrayType(String typeName, String elementType) {
         super(typeName, BArray.class);
-        this.elementType = BTypes.getType(elementType);
+        
+        // if the type does not exists, treat it as a user defined struct type
+        BType tmpType = BTypes.getType(elementType);
+        this.elementType = tmpType == null ? new BStructType(elementType) : tmpType;
     }
 
     public BType getElementType() {
@@ -56,7 +59,7 @@ public class BArrayType extends BType {
     public boolean equals(Object obj) {
         if (obj instanceof BArrayType) {
             BArrayType other = (BArrayType) obj;
-            return this.elementType.equals(other.elementType);
+            return this.typeName.equals(other.typeName);
         }
 
         return false;

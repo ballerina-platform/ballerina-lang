@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -15,39 +15,28 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerina.core.model.expressions;
+package org.wso2.ballerina.core.interpreter;
 
-import org.wso2.ballerina.core.interpreter.MemoryLocation;
+import org.wso2.ballerina.core.model.Node;
 import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.NodeVisitor;
-import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.values.BValue;
 
 /**
- * {@code VariableRefExpr} represents a variable reference in Ballerina
+ * {@code StructVarLocation} represents a location where a variable declared in a
+ * {@link org.wso2.ballerina.core.model.BallerinaStruct} is stored at runtime
  *
- * @since 0.8.0
+ * @since 1.0.0
  */
-public class VariableRefExpr extends AbstractExpression implements ReferenceExpr {
+public class StructVarLocation extends MemoryLocation implements Node {
+    private int structMemAddrOffset;
 
-    private SymbolName symbolName;
-
-    private MemoryLocation memoryLocation;
-
-    public VariableRefExpr(SymbolName symbolName) {
-        this.symbolName = symbolName;
+    public StructVarLocation(int structMemAddrOffset) {
+        this.structMemAddrOffset = structMemAddrOffset;
     }
 
-    public SymbolName getSymbolName() {
-        return symbolName;
-    }
-
-    public MemoryLocation getMemoryLocation() {
-        return memoryLocation;
-    }
-
-    public void setMemoryLocation(MemoryLocation location) {
-        this.memoryLocation = location;
+    public int getStructMemAddrOffset() {
+        return structMemAddrOffset;
     }
 
     @Override
@@ -55,6 +44,7 @@ public class VariableRefExpr extends AbstractExpression implements ReferenceExpr
         visitor.visit(this);
     }
 
+    @Override
     public BValue execute(NodeExecutor executor) {
         return executor.visit(this);
     }

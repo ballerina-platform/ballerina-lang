@@ -20,6 +20,7 @@ package org.wso2.ballerina.core.model.builder;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.BallerinaConnector;
+import org.wso2.ballerina.core.model.BallerinaStruct;
 import org.wso2.ballerina.core.model.ConnectorDcl;
 import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.Position;
@@ -90,6 +91,11 @@ class CallableUnitGroupBuilder {
                 connectorDclList.toArray(new ConnectorDcl[connectorDclList.size()]),
                 variableDclList.toArray(new VariableDcl[variableDclList.size()]),
                 actionList.toArray(new BallerinaAction[actionList.size()]));
+    }
+    
+    BallerinaStruct buildStruct() {
+        return new BallerinaStruct(name, position,
+                variableDclList.toArray(new VariableDcl[variableDclList.size()]));
     }
 
     public Position getLocation() {

@@ -25,6 +25,7 @@ import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.BallerinaConnector;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
+import org.wso2.ballerina.core.model.BallerinaStruct;
 import org.wso2.ballerina.core.model.ConnectorDcl;
 import org.wso2.ballerina.core.model.Const;
 import org.wso2.ballerina.core.model.ImportPackage;
@@ -33,6 +34,7 @@ import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.Position;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
+import org.wso2.ballerina.core.model.StructDcl;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.VariableDcl;
 import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
@@ -57,6 +59,9 @@ import org.wso2.ballerina.core.model.expressions.MapInitExpr;
 import org.wso2.ballerina.core.model.expressions.MultExpression;
 import org.wso2.ballerina.core.model.expressions.NotEqualExpression;
 import org.wso2.ballerina.core.model.expressions.OrExpression;
+import org.wso2.ballerina.core.model.expressions.ReferenceExpr;
+import org.wso2.ballerina.core.model.expressions.StructAttributeAccessExpr;
+import org.wso2.ballerina.core.model.expressions.StructInitExpr;
 import org.wso2.ballerina.core.model.expressions.SubtractExpression;
 import org.wso2.ballerina.core.model.expressions.UnaryExpression;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
@@ -69,8 +74,10 @@ import org.wso2.ballerina.core.model.statements.ReplyStmt;
 import org.wso2.ballerina.core.model.statements.ReturnStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
+import org.wso2.ballerina.core.model.types.BStructType;
 import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.types.BTypes;
+import org.wso2.ballerina.core.model.util.LangModelUtils;
 import org.wso2.ballerina.core.model.values.BBoolean;
 import org.wso2.ballerina.core.model.values.BDouble;
 import org.wso2.ballerina.core.model.values.BFloat;
@@ -92,6 +99,7 @@ import java.util.regex.Pattern;
  *
  * @since 0.8.0
  */
+@SuppressWarnings("javadoc")
 public class BLangModelBuilder {
     private static final Logger log = LoggerFactory.getLogger(BLangModelBuilder.class);
 
@@ -117,7 +125,7 @@ public class BLangModelBuilder {
     private Stack<List<Expression>> exprListStack = new Stack<>();
     private Stack<List<Annotation>> annotationListStack = new Stack<>();
     private Stack<List<KeyValueExpression>> mapInitKeyValueListStack = new Stack<>();
-
+    
     public BallerinaFile build() {
         return bFileBuilder.build();
     }
@@ -167,19 +175,19 @@ public class BLangModelBuilder {
     // Annotations
 
     public void createInstanceCreaterExpr(String typeName, boolean exprListAvailable, Position sourceLocation) {
-        InstanceCreationExpr expression = new InstanceCreationExpr(null);
         BType type = BTypes.getType(typeName);
-
-        if (type == null) {
-            throw new ParserException(sourceLocation.getFileName() + ":" + sourceLocation.getLine() +
-                    ": unknown type '" + typeName + "'");
+        if (type == null || type instanceof BStructType) {
+            // if the type is undefined or of struct type, treat it as a user defined struct
+            createStructInitExpr(typeName, sourceLocation);
+            return;
         }
 
         if (exprListAvailable) {
             // This is not yet supported. Therefore ignoring for the moment.
             exprListStack.pop();
         }
-
+        
+        InstanceCreationExpr expression = new InstanceCreationExpr(null);
         expression.setType(type);
         expression.setLocation(sourceLocation);
         exprStack.push(expression);
@@ -248,18 +256,13 @@ public class BLangModelBuilder {
     public void createType(String typeName, Position sourceLocation) {
         BType type = BTypes.getType(typeName);
         if (type == null) {
-            throw new ParserException(sourceLocation.getFileName() + ":" + sourceLocation.getLine() +
-                    ": unsupported type '" + typeName + "'");
+            type = new BStructType(typeName);
         }
         typeQueue.add(type);
     }
 
     public void createArrayType(String typeName, Position sourceLocation) {
         BType type = BTypes.getArrayType(typeName);
-        /*if (type == null) {
-            throw new ParserException("Unsupported type: " + typeName + " in " + 
-                    sourceLocation.getFileName() + ":" + sourceLocation.getLine());
-        }*/
         typeQueue.add(type);
     }
 
@@ -304,6 +307,7 @@ public class BLangModelBuilder {
         // Create a variable declaration
         SymbolName localVarId = new SymbolName(varName);
         BType localVarType = typeQueue.remove();
+        
         VariableDcl variableDcl = new VariableDcl(localVarType, localVarId);
         variableDcl.setLocation(sourceLocation);
 
@@ -366,7 +370,6 @@ public class BLangModelBuilder {
      */
     public void createVarRefExpr(String varName, Position sourceLocation) {
         SymbolName symName = new SymbolName(varName);
-
         VariableRefExpr variableRefExpr = new VariableRefExpr(symName);
         variableRefExpr.setLocation(sourceLocation);
         exprStack.push(variableRefExpr);
@@ -374,6 +377,7 @@ public class BLangModelBuilder {
 
     public void createMapArrayVarRefExpr(String varName, Position sourceLocation) {
         SymbolName symName = new SymbolName(varName);
+        
         Expression indexExpr = exprStack.pop();
         VariableRefExpr arrayVarRefExpr = new VariableRefExpr(symName);
         arrayVarRefExpr.setLocation(sourceLocation);
@@ -900,6 +904,99 @@ public class BLangModelBuilder {
             return m.group(1);
         }
         return null;
+    }
+
+    /**
+     * Creates a {@link BallerinaStruct}.
+     * 
+     * @param name              Name of the {@link BallerinaStruct}
+     * @param isPublic          Flag indicating whether the {@link BallerinaStruct} is public
+     * @param sourceLocation    Location of this {@link BallerinaStruct} in the source file
+     */
+    public void createStructDefinition(String name, boolean isPublic, Position sourceLocation) {
+        currentCUGroupBuilder.setName(new SymbolName(name, pkgName));
+        currentCUGroupBuilder.setLocation(sourceLocation);
+        BallerinaStruct struct = currentCUGroupBuilder.buildStruct();
+        struct.setLocation(sourceLocation);
+        
+        if (isPublic) {
+            struct.makePublic();
+        }
+        
+        bFileBuilder.addStruct(struct);
+        currentCUGroupBuilder = null;
+        registerStructType(name);
+    }
+
+    /**
+     * Add an attribute of the {@link BallerinaStruct}.
+     * 
+     * @param attributename     Name of the attribute in the {@link BallerinaStruct}
+     * @param sourceLocation    Location of the attribute in the source file
+     */
+    public void createStructAttribute(String attributename, String structname, Position sourceLocation) {
+        createVariableDcl(LangModelUtils.getStructAttributeSymName(attributename, structname, pkgName).getName(),
+                sourceLocation);
+    }
+    
+    /** 
+     * Register the user defined struct type as a data type
+     * 
+     * @param typeName  Name of the Struct 
+     */
+    private void registerStructType(String typeName) {
+        BTypes.addStructType(typeName);
+    }
+    
+    /**
+     * Create a struct initializing expression
+     * 
+     * @param structName        Name of the struct type 
+     * @param sourceLocation    Location of the initialization in the source bal file
+     */
+    public void createStructInitExpr(String structName, Position sourceLocation) {
+        // Create the Struct declaration
+        SymbolName structSymName = new SymbolName(structName);
+        StructDcl.StructDclBuilder structDclBuilder = new StructDcl.StructDclBuilder();
+        structDclBuilder.setStructName(structSymName);
+        StructDcl structDcl = structDclBuilder.build();
+        structDcl.setLocation(sourceLocation);
+
+        // Create the RHS of the expression
+        StructInitExpr.StructInitExprBuilder structExprBuilder = new StructInitExpr.StructInitExprBuilder();
+        structExprBuilder.setStructDcl(structDcl);
+
+        StructInitExpr structInitExpr = structExprBuilder.build();
+        structInitExpr.setLocation(sourceLocation);
+        structInitExpr.setType(new BStructType(structName));
+        exprStack.push(structInitExpr);
+    }
+    
+    /**
+     * Create an expression for accessing attributes of user defined struct types.
+     * 
+     * @param sourceLocation    Source location of the ballerina file
+     */
+    public void createStructAttributeRefExpr(Position sourceLocation) {
+        if (exprStack.size() < 2) {
+            return;
+        }
+        ReferenceExpr attribute = (ReferenceExpr) exprStack.pop();
+        StructAttributeAccessExpr attributeExpr;
+        if (attribute instanceof StructAttributeAccessExpr) {
+            attributeExpr = (StructAttributeAccessExpr) attribute;
+        } else {
+            attributeExpr = new StructAttributeAccessExpr(attribute.getSymbolName(), attribute);
+        }
+        attributeExpr.setLocation(sourceLocation);
+        
+        ReferenceExpr parent = (ReferenceExpr) exprStack.pop();
+        StructAttributeAccessExpr parentExpr = new StructAttributeAccessExpr(parent.getSymbolName(), parent);
+        parentExpr.setLocation(sourceLocation);
+        
+        parentExpr.setAttributeExpr(attributeExpr);
+        attributeExpr.setParent(parentExpr);
+        exprStack.push(parentExpr);
     }
 
 }
