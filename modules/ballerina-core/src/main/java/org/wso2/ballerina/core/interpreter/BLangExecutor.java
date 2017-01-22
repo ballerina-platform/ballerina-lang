@@ -22,12 +22,14 @@ import org.wso2.ballerina.core.model.Action;
 import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.BallerinaConnector;
 import org.wso2.ballerina.core.model.BallerinaFunction;
+import org.wso2.ballerina.core.model.BallerinaStruct;
 import org.wso2.ballerina.core.model.Connector;
 import org.wso2.ballerina.core.model.ConnectorDcl;
 import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.Resource;
+import org.wso2.ballerina.core.model.StructDcl;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.VariableDcl;
 import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
@@ -43,6 +45,8 @@ import org.wso2.ballerina.core.model.expressions.InstanceCreationExpr;
 import org.wso2.ballerina.core.model.expressions.KeyValueExpression;
 import org.wso2.ballerina.core.model.expressions.MapInitExpr;
 import org.wso2.ballerina.core.model.expressions.ResourceInvocationExpr;
+import org.wso2.ballerina.core.model.expressions.StructAttributeAccessExpr;
+import org.wso2.ballerina.core.model.expressions.StructInitExpr;
 import org.wso2.ballerina.core.model.expressions.UnaryExpression;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.statements.ActionInvocationStmt;
@@ -65,6 +69,7 @@ import org.wso2.ballerina.core.model.values.BJSON;
 import org.wso2.ballerina.core.model.values.BMap;
 import org.wso2.ballerina.core.model.values.BMessage;
 import org.wso2.ballerina.core.model.values.BString;
+import org.wso2.ballerina.core.model.values.BStruct;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BValueType;
 import org.wso2.ballerina.core.model.values.BXML;
@@ -122,9 +127,10 @@ public class BLangExecutor implements NodeExecutor {
 
             if (lExpr instanceof VariableRefExpr) {
                 assignValueToVarRefExpr(rValue, (VariableRefExpr) lExpr);
-
             } else if (lExpr instanceof ArrayMapAccessExpr) {
                 assignValueToArrayMapAccessExpr(rValue, (ArrayMapAccessExpr) lExpr);
+            } else if (lExpr instanceof StructAttributeAccessExpr) {
+                assignValueToStructAttributeAccessExpr(rValue, (StructAttributeAccessExpr) lExpr);
             }
         }
     }
@@ -504,8 +510,14 @@ public class BLangExecutor implements NodeExecutor {
     }
 
     @Override
+    public BValue visit(StructVarLocation structLocation) {
+        BStruct bStruct = (BStruct) controlStack.getValue(structLocation.getStructMemAddrOffset());
+        return bStruct.getValue(structLocation.getStructMemAddrOffset());
+    }
+
+    @Override
     public BValue visit(ConnectorVarLocation connectorVarLocation) {
-        // Fist the get the BConnector object. In an action invocation first argument is always the connector
+     // Fist the get the BConnector object. In an action invocation first argument is always the connector
         BConnector bConnector = (BConnector) controlStack.getValue(0);
         if (bConnector == null) {
             throw new BallerinaException("Connector argument value is null");
@@ -514,7 +526,6 @@ public class BLangExecutor implements NodeExecutor {
         // Now get the connector variable value from the memory block allocated to the BConnector instance.
         return bConnector.getValue(connectorVarLocation.getConnectorMemAddrOffset());
     }
-
 
     // Private methods
 
@@ -616,7 +627,6 @@ public class BLangExecutor implements NodeExecutor {
         if (memoryLocation instanceof LocalVarLocation) {
             int stackFrameOffset = ((LocalVarLocation) memoryLocation).getStackFrameOffset();
             controlStack.setValue(stackFrameOffset, rValue);
-
         } else if (memoryLocation instanceof ServiceVarLocation) {
             int staticMemOffset = ((ServiceVarLocation) memoryLocation).getStaticMemAddrOffset();
             runtimeEnv.getStaticMemory().setValue(staticMemOffset, rValue);
@@ -630,6 +640,207 @@ public class BLangExecutor implements NodeExecutor {
 
             int connectorMemOffset = ((ConnectorVarLocation) memoryLocation).getConnectorMemAddrOffset();
             bConnector.setValue(connectorMemOffset, rValue);
+        }
+    }
+
+    /**
+     * Initialize a user defined struct type.
+     */
+    @Override
+    public BValue visit(StructInitExpr structInitExpr) {
+        StructDcl structDcl = structInitExpr.getStructDcl();
+        BValue[] structMemBlock;
+        int offset = 0;
+        BallerinaStruct struct = structDcl.getStruct();
+        structMemBlock = new BValue[struct.getStructMemorySize()];
+
+        // create a memory block to hold attributes of the struct, and populate it with default values
+        VariableDcl[] attributes = struct.getVariableAttributes();
+        for (VariableDcl attribute : attributes) {
+            structMemBlock[offset] = attribute.getType().getDefaultValue();
+            offset++;
+        }
+        return new BStruct(struct, structMemBlock);
+    }
+
+    /**
+     * Evaluate and return the value of a struct attribute accessing expression.
+     */
+    @Override
+    public BValue visit(StructAttributeAccessExpr structAttributeAccessExpr) {
+        MemoryLocation memoryLocation = structAttributeAccessExpr.getMemoryLocation();
+        BValue value = null;
+        // Value stored in the memory location is always a struct type.
+        value = memoryLocation.execute(this);
+        
+        return getAttributeExprValue(structAttributeAccessExpr, value);
+    }
+    
+    /**
+     * Assign a value to an attribute of a struct, represented by a {@link StructAttributeAccessExpr}.
+     * 
+     * @param rValue    Value to be assigned
+     * @param lExpr     {@link StructAttributeAccessExpr} which represents the attribute of the struct
+     */
+    private void assignValueToStructAttributeAccessExpr(BValue rValue, StructAttributeAccessExpr lExpr) {
+        MemoryLocation memoryLocation = lExpr.getMemoryLocation();
+        BValue value = null;
+        // Value stored in the memory location is always a struct type.
+        value = memoryLocation.execute(this);
+        setAttributeValue(rValue, lExpr, value);
+
+    }
+    
+    /**
+     * Recursively traverse and set the value of the access expression of an attribute of a struct.
+     * 
+     * @param rValue        Value to be set  
+     * @param attributeExpr StructAttributeAccessExpr of the current attribute
+     * @param currentVal    Value of the expression evaluated so far.
+     */
+    private void setAttributeValue(BValue rValue, StructAttributeAccessExpr expr, BValue currentVal) {
+        // currentVal is a BStruct or array/map of BStruct. hence get the element value of it.
+        BStruct currentStructVal =  (BStruct) getUnitValue(currentVal, expr);
+        
+        StructAttributeAccessExpr attributeExpr = expr.getAttributeExpr();
+        int attributeLocation = ((StructVarLocation) attributeExpr.getMemoryLocation()).getStructMemAddrOffset();
+        
+        if (attributeExpr.getAttributeExpr() == null) {
+            if (currentStructVal.value() == null) {
+                throw new BallerinaException("Cannot set attribute '" + attributeExpr.getSymbolName().getName() +
+                    "' of non-initialized variable '" + attributeExpr.getParent().getSymbolName().getName() + "'.");
+            }
+            setUnitValue(rValue, currentStructVal, attributeLocation, attributeExpr);
+            return;
+        }
+        
+        // At this point, attribute of the attribute is not null. Means current element,
+        // and its attribute are both struct types.
+
+        if (currentStructVal.value() == null) {
+            throw new BallerinaException("Cannot set attribute '" + attributeExpr.getSymbolName().getName() +
+                "' of non-initialized variable '" + attributeExpr.getParent().getSymbolName().getName() + "'.");
+        }
+        
+        // get the unit value of the struct attribute,
+        BValue value = currentStructVal.getValue(attributeLocation);
+        
+        setAttributeValue(rValue, attributeExpr, value);
+    }
+    
+    
+    /**
+     * Set the unit value of the current value.
+     * <br/>
+     * i.e: Value represented by an Attribute access expression can be one of:
+     * <ul>
+     * <li>A variable</li>
+     * <li>An element of an array/map variable.</li>
+     * </ul>
+     * But the value get after evaluating the attribute access expression (<b>lExprValue</b>) contains the whole 
+     * variable. This methods set the unit value (either the complete array/map or the referenced element of an 
+     * array/map), using the index expression of the 'attributeExpr'.
+     * 
+     * @param rValue            Value to be set
+     * @param lExprValue        Value of the attribute access expression evaluated so far. This is always of struct 
+     *                          type.
+     * @param memoryLocation    Location of the attribute to be set, in the struct 'lExprValue'
+     * @param attributeExpr     Attribute Access Expression of the current attribute
+     */
+    private void setUnitValue(BValue rValue, BStruct lExprValue, int memoryLocation, 
+            StructAttributeAccessExpr attributeExpr) {
+        Expression indexExpr = attributeExpr.getIndexExpr();
+        
+        // If the lExprValue value is not a struct array/map, then set the value to the struct
+        if (indexExpr == null) {
+            lExprValue.setValue(memoryLocation, rValue);
+            return;
+        }
+        
+        // Evaluate the index expression and get the value.
+        BValue indexValue = indexExpr.execute(this);
+        
+        // Get the array/map value from the mermory location
+        BValue arrayMapValue = lExprValue.getValue(memoryLocation);
+        
+        // Set the value to array/map's index location
+        if (attributeExpr.getRefVarType() == BTypes.MAP_TYPE) {
+            ((BMap) arrayMapValue).put(indexValue, rValue);
+        } else {
+            ((BArray) arrayMapValue).add(((BInteger) indexValue).intValue(), rValue);
+        }
+    }
+    
+    /**
+     * Recursively traverse and get the value of the access expression of an attribute of a struct.
+     * 
+     * @param attributeExpr StructAttributeAccessExpr of the current attribute
+     * @param currentVal    Value of the expression evaluated so far.
+     * @return              Value of the expression after evaluating the current attribute.
+     */
+    private BValue getAttributeExprValue(StructAttributeAccessExpr expr, BValue currentVal) {
+        // currentVal is a BStruct or array/map of BStruct. hence get the element value of it.
+        BStruct currentStructVal =  (BStruct) getUnitValue(currentVal, expr);
+        
+        StructAttributeAccessExpr attributeExpr = expr.getAttributeExpr();
+        int attributeLocation = ((StructVarLocation) attributeExpr.getMemoryLocation()).getStructMemAddrOffset();
+        
+        // If this is the last attribute, return the value from memory location
+        if (attributeExpr.getAttributeExpr() == null) {
+            if (currentStructVal.value() == null) {
+                throw new BallerinaException("Cannot access attribute '" + attributeExpr.getSymbolName().getName() +
+                    "' of non-initialized variable '" + attributeExpr.getParent().getSymbolName().getName() + "'.");
+            }
+            // Value stored in the struct can be also an array. Hence if its an arrray access, 
+            // get the aray element value
+            return getUnitValue(currentStructVal.getValue(attributeLocation), attributeExpr);
+        }
+        
+        if (currentStructVal.value() == null) {
+            throw new BallerinaException("Cannot access attribute '" + attributeExpr.getSymbolName().getName() +
+                "' of non-initialized variable '" + attributeExpr.getParent().getSymbolName().getName() + "'.");
+        }
+        BValue value = currentStructVal.getValue(attributeLocation);
+        
+        // Recursively travel through the struct and get the value
+        return getAttributeExprValue(attributeExpr, value);
+    }
+    
+    /**
+     * Get the unit value of the current value.
+     * <br/>
+     * i.e: Value represented by an Attribute access expression can be one of:
+     * <ul>
+     * <li>A variable</li>
+     * <li>An element of an array/map variable.</li>
+     * </ul>
+     * But the value stored in memory (<b>currentVal</b>) contains the entire variable. This methods
+     * retrieves the unit value (either the complete array/map or the referenced element of an array/map),
+     * using the index expression of the 'attributeExpr'.
+     * 
+     * @param currentVal    Value of the attribute expression evaluated so far
+     * @param attributeExpr Attribute access expression for the current value
+     * @return              Unit value of the current value
+     */
+    private BValue getUnitValue(BValue currentVal, StructAttributeAccessExpr attributeExpr) {
+        if (!(currentVal instanceof BArray || currentVal instanceof BMap<?, ?>)) {
+            return currentVal;
+        }
+        
+        // If the lExprValue value is not a struct array/map, then the unit value us same as the struct
+        Expression indexExpr = attributeExpr.getIndexExpr();
+        if (indexExpr == null) {
+            return currentVal;
+        }
+        
+        // Evaluate the index expression and get the value
+        BValue indexValue = indexExpr.execute(this);
+        
+        // Get the value from array/map's index location
+        if (attributeExpr.getRefVarType() == BTypes.MAP_TYPE) {
+            return ((BMap) currentVal).get(indexValue);
+        } else {
+            return ((BArray) currentVal).get(((BInteger) indexValue).intValue());
         }
     }
 }

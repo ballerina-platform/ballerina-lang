@@ -34,9 +34,9 @@ public class Symbol {
     private MemoryLocation location;
 
     private Function function;
-
     private Action action;
     private Connector connector;
+    private BallerinaStruct struct;
 
     public Symbol(BType type, SymScope.Name scopeName, MemoryLocation location) {
         this.type = type;
@@ -56,6 +56,9 @@ public class Symbol {
         this.connector = connector;
     }
 
+    public Symbol(BallerinaStruct struct) {
+        this.struct = struct;
+    }
 
     public BType getType() {
         return type;
@@ -79,6 +82,10 @@ public class Symbol {
 
     public Connector getConnector() {
         return connector;
+    }
+    
+    public BallerinaStruct getStruct() {
+        return struct;
     }
 }
 
