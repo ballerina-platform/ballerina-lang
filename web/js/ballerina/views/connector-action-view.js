@@ -78,8 +78,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             this._viewOptions.collapseIconWidth = _.get(args, "viewOptions.collaspeIconWidth", this._container.node().ownerSVGElement.parentElement.offsetWidth - 95);
             this._viewOptions.deleteIconWidth = _.get(args, "viewOptions.deleteIconWidth", this._container.node().ownerSVGElement.parentElement.offsetWidth - 125);
 
-            this._viewOptions.heading.minWidth = 1000;
-            this._viewOptions.contentMinWidth = 1000;
+            this._viewOptions.heading.minWidth = 700;
+            this._viewOptions.contentMinWidth = 700;
 
             this._viewOptions.totalHeightGap = 50;
             this._viewOptions.LifeLineCenterGap = 180;
