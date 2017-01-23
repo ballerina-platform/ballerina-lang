@@ -98,7 +98,7 @@ public class BalProgramExecutor {
                 String balArgs = System.getProperty(SYSTEM_PROP_BAL_ARGS);
                 String[] arguments;
 
-                if (balArgs.trim().length() == 0) {
+                if (balArgs == null || balArgs.trim().length() == 0) {
                     arguments = new String[0];
                 } else {
                     arguments = balArgs.split(";");
