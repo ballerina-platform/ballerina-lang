@@ -222,20 +222,31 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             var toolPaletteContainer = $(this._container).find(_.get(this._viewOptions, 'design_view.tool_palette.container')).get(0);
             var toolPaletteOpts = _.clone(_.get(this._viewOptions, 'design_view.tool_palette'));
             toolPaletteOpts.container = toolPaletteContainer;
+            toolPaletteOpts.ballerinaFileEditor = this;
             this.toolPalette = new ToolPalette(toolPaletteOpts);
-            //TODO adding a temporary tool
-            this.toolPalette.addConnectorTool({
-                id: "http-connector-declaration",
-                name: "HTTPConnector",
-                icon: "images/tool-icons/http-connector.svg",
-                title: "HTTPConnector",
-                nodeFactoryMethod: this._model.getFactory().createConnectorDeclaration
-            });
 
             this._createPackagePropertyPane(canvasContainer);
+
             // init undo manager
             this._undoManager = new UndoManager();
         };
+
+        BallerinaFileEditor.prototype.importPackage = function(packageName){
+            if (packageName != undefined && packageName != "") {
+                log.debug("Adding new import");
+                var backend = new Backend({ url : "" });
+                var package = backend.searchPackage(packageName,[]);
+                if(package == undefined){
+                    log.error("Unable to find the package.");
+                    return;
+                }
+                // Creating new import.
+                var newImportDeclaration = BallerinaASTFactory.createImportDeclaration();
+                newImportDeclaration.setPackageName(packageName);
+                this._model.addImport(newImportDeclaration);
+                //this.toolPalette.addImport(package);
+            }
+        }
 
         /**
          * Rendering the view for each canvas in {@link BallerinaFileEditor#_canvasList}.
