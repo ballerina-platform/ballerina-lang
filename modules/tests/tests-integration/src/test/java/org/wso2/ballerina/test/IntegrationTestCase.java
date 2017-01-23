@@ -23,8 +23,7 @@ import org.wso2.ballerina.test.context.ServerInstance;
 import org.wso2.ballerina.test.listener.TestExecutionListener;
 
 /**
- * Parent test class of all integration test and this will provide basic functionality for integration
- * Test
+ * Parent test class of all integration test and this will provide basic functionality for integration test.
  */
 public abstract class IntegrationTestCase {
     private ServerInstance serverInstance;

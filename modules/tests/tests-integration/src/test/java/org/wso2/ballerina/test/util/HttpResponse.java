@@ -20,7 +20,7 @@ package org.wso2.ballerina.test.util;
 import java.util.Map;
 
 /**
- * This class is a simple representation of an HTTP response
+ * This class is a simple representation of an HTTP response.
  */
 public class HttpResponse {
     private String data;

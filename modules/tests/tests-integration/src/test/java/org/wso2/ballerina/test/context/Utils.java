@@ -29,11 +29,16 @@ import java.net.Socket;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+/**
+ * Utility class for test integration common functions.
+ */
 public class Utils {
 
     private static final Logger log = LoggerFactory.getLogger(Utils.class);
 
     /**
+     * Wait for port to open until given timeout period.
+     *
      * @param port    The port that needs to be checked
      * @param timeout The timeout waiting for the port to open
      * @param verbose if verbose is set to true,
@@ -77,7 +82,7 @@ public class Utils {
     }
 
     /**
-     * wait until port is closed within given timeout value in mills
+     * wait until port is closed within given timeout value in mills.
      *
      * @param port    - port number
      * @param timeout - mat time to wait
@@ -100,7 +105,7 @@ public class Utils {
     }
 
     /**
-     * Check whether given port is in use or not
+     * Check whether given port is in use or not.
      *
      * @param port - port number
      * @throws Exception if port is already in use
@@ -115,7 +120,7 @@ public class Utils {
     }
 
     /**
-     * Check whether the provided <code>port</code> is open
+     * Check whether the provided port is open.
      *
      * @param port The port that needs to be checked
      * @return true if the <code>port</code> is open & false otherwise
@@ -146,7 +151,7 @@ public class Utils {
     }
 
     /**
-     * Unzip a zip file into a given location
+     * Unzip a zip file into a given location.
      *
      * @param sourceFilePath - zip file need to extract
      * @param extractedDir   - destination path given file to extract

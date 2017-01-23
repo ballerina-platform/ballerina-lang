@@ -18,6 +18,9 @@
 
 package org.wso2.ballerina.test.context;
 
+/**
+ * Interface for test Server implementation.
+ */
 public interface Server {
     public void start() throws Exception;
     public void stop() throws Exception;

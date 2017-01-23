@@ -32,11 +32,12 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * This class can be used to send http request
+ * This class can be used to send http request.
  */
 public class HttpClientRequest {
     /**
-     * Sends an HTTP GET request to a url
+     * Sends an HTTP GET request to a url.
+     *
      * @param requestUrl - The URL of the service. (Example: "http://www.yahoo.com/search?params=value")
      * @param headers - http request header map
      * @return - HttpResponse from the end point
@@ -88,7 +89,8 @@ public class HttpClientRequest {
     }
 
     /**
-     * Sends an HTTP GET request to a url
+     * Sends an HTTP GET request to a url.
+     *
      * @param requestUrl - The URL of the service. (Example: "http://www.yahoo.com/search?params=value")
      * @return - HttpResponse from the end point
      * @throws java.io.IOException If an error occurs while sending the GET request
@@ -98,7 +100,8 @@ public class HttpClientRequest {
     }
 
     /**
-     * Send a Http POST request to a service
+     * Send a Http POST request to a service.
+     *
      * @param endpoint - service endpoint
      * @param postBody - message payload
      * @param headers http request headers map

@@ -17,6 +17,9 @@
 */
 package org.wso2.ballerina.test.util;
 
+/**
+ * Constants used in test cases.
+ */
 public class TestConstant {
     public static final String HEADER_CONTENT_TYPE = "Content-Type";
     public static final String CONTENT_TYPE_JSON = "application/json";
