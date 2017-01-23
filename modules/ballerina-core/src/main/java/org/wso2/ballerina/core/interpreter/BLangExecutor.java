@@ -546,7 +546,6 @@ public class BLangExecutor implements NodeExecutor {
         return i;
     }
 
-<<<<<<< HEAD
 
     private int populateUriParameters(Parameter[] parameters, CarbonMessage message, BValue[] valueParams,
                                       int valuesCounter) {
@@ -571,10 +570,7 @@ public class BLangExecutor implements NodeExecutor {
         return valuesCounter;
     }
 
-    private int populateConnectorDclValues(ConnectorDcl[] connectorDcls, BValue[] valueParams, int valuesCounter) {
-=======
     private int populateConnectorDclValues(ConnectorDcl[] connectorDcls, BValue[] valueParams, int valueCounter) {
->>>>>>> ca9ca5f04e1668da4cfbb5edc9964f65b912a2d6
         for (ConnectorDcl connectorDcl : connectorDcls) {
 
             BValue[] connectorMemBlock;
