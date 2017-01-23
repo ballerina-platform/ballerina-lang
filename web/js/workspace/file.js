@@ -23,7 +23,8 @@ define(['jquery', 'lodash', 'backbone', 'log'], function ($, _, Backbone, log) {
                 path: 'temp',
                 name: 'untitled',
                 content: undefined,
-                isPersisted: false
+                isPersisted: false,
+                isDirty: true
             },
 
             initialize: function (attrs, options) {
@@ -63,6 +64,12 @@ define(['jquery', 'lodash', 'backbone', 'log'], function ($, _, Backbone, log) {
                 return this;
             },
 
+            setDirty: function(isDirty){
+                this.set('isDirty', isDirty);
+                this.trigger('dirty-state-change', isDirty);
+                return this;
+            },
+
             setName: function(name){
                 this.set('name', name);
                 return this;
@@ -87,6 +94,10 @@ define(['jquery', 'lodash', 'backbone', 'log'], function ($, _, Backbone, log) {
 
             isPersisted: function(){
                 return this.get('isPersisted')
+            },
+
+            isDirty: function(){
+                return this.get('isDirty')
             }
 
         });
