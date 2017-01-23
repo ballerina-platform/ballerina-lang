@@ -28,6 +28,7 @@
         <!-- Add your extensions here -->
         <fileTypeFactory implementation="org.ballerinalang.BallerinaFileTypeFactory"/>
         <lang.parserDefinition language="Ballerina" implementationClass="org.ballerinalang.BallerinaParserDefinition"/>
+        <lang.commenter language="Ballerina" implementationClass="org.ballerinalang.BallerinaCommenter"/>
     </extensions>
 
     <actions>
