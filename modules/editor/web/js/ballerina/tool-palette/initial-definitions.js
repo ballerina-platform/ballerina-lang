@@ -64,7 +64,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group', './..
         var createConnectorDefTool = {
             id: "connectorDefinition",
             name: "Connector Definition",
-            icon: "images/tool-icons/service.svg",
+            icon: "images/tool-icons/connector.svg",
             title: "Connector Definition",
             nodeFactoryMethod:  BallerinaASTFactory.createConnectorDefinition
         };
