@@ -149,4 +149,14 @@ public class LocalFSWorkspace implements Workspace {
 		}
 		return dirs;
 	}
+
+    @Override
+    public JsonObject exists(String path) throws IOException {
+        Path ioPath = Paths.get(path);
+        JsonObject result = new JsonObject();
+        boolean exists = Files.exists(ioPath);
+        result.addProperty("file", path);
+        result.addProperty("exists", exists);
+        return result;
+    }
 }
