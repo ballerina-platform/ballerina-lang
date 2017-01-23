@@ -54,7 +54,7 @@ public class Const implements Node {
     }
 
     /**
-     * Get the type of the constant
+     * Get the type of the constant.
      *
      * @return type of the constant
      */
@@ -63,7 +63,7 @@ public class Const implements Node {
     }
 
     /**
-     * Get the identifier of the constant declaration
+     * Get the identifier of the constant declaration.
      *
      * @return identifier of the constant declaration
      */
@@ -76,7 +76,7 @@ public class Const implements Node {
     }
 
     /**
-     * Get the bValue of the constant
+     * Get the bValue of the constant.
      *
      * @return bValue of the constant
      */

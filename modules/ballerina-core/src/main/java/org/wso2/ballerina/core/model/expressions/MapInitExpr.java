@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * {@code MapInitExpr} represents a map initializer expression
+ * {@code MapInitExpr} represents a map initializer expression.
  * <p>
  * e.g.  map a;
  * a = {"name":"wso2", "employees":"500"}

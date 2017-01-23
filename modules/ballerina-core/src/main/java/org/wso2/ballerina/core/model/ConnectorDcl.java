@@ -50,7 +50,7 @@ public class ConnectorDcl implements Node {
     }
 
     /**
-     * Get the name of the {@code Connector} which Connection is instantiated against
+     * Get the name of the {@code Connector} which Connection is instantiated against.
      *
      * @return name of the Connector
      */
@@ -59,7 +59,7 @@ public class ConnectorDcl implements Node {
     }
 
     /**
-     * Get the {@code Identifier} of the Connection instance
+     * Get the {@code Identifier} of the Connection instance.
      *
      * @return identifier of the Connection instance
      */
@@ -72,7 +72,7 @@ public class ConnectorDcl implements Node {
     }
 
     /**
-     * Get values of the arguments
+     * Get values of the arguments.
      *
      * @return list of argument values
      */
@@ -81,7 +81,7 @@ public class ConnectorDcl implements Node {
     }
 
     /**
-     * Set the reference to the connector instance which is referred by the declaration
+     * Set the reference to the connector instance which is referred by the declaration.
      *
      * @param connector reference to the connector instance
      */
@@ -90,7 +90,7 @@ public class ConnectorDcl implements Node {
     }
 
     /**
-     * Get the reference to the connector instance which is referred by the declaration
+     * Get the reference to the connector instance which is referred by the declaration.
      *
      * @return reference to the connector instance
      */
@@ -132,7 +132,7 @@ public class ConnectorDcl implements Node {
     }
     
     /**
-     * Get the source location of this connector declaration.
+     * Get the source location ois connector declaration.
      * Return the source file and the line number of this connector declaration.
      * 
      * @return  Source location of this connector declaration

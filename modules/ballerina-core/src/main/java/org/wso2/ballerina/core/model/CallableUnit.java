@@ -30,14 +30,14 @@ import org.wso2.ballerina.core.model.statements.BlockStmt;
 public interface CallableUnit {
 
     /**
-     * Returns the name of the callable unit
+     * Returns the name of the callable unit.
      *
      * @return the name
      */
     String getName();
 
     /**
-     * Returns the symbol name of the callable unit
+     * Returns the symbol name of the callable unit.
      *
      * @return the symbol name
      */
@@ -51,56 +51,56 @@ public interface CallableUnit {
     void setSymbolName(SymbolName symbolName);
 
     /**
-     * Returns the package name of this callable unit
+     * Returns the package name of this callable unit.
      *
      * @return the package name
      */
     String getPackageName();
 
     /**
-     * Returns an array of annotations attached this callable unit
+     * Returns an array of annotations attached this callable unit.
      *
      * @return an array of annotations
      */
     Annotation[] getAnnotations();
 
     /**
-     * Returns an array of parameters of this callable unit
+     * Returns an array of parameters of this callable unit.
      *
      * @return an array of parameters
      */
     Parameter[] getParameters();
 
     /**
-     * Returns an array of variable declarations of this callable unit
+     * Returns an array of variable declarations of this callable unit.
      *
      * @return an array of variable declarations
      */
     VariableDcl[] getVariableDcls();
 
     /**
-     * Returns an array of return parameters (values) of this callable unit
+     * Returns an array of return parameters (values) of this callable unit.
      *
      * @return an array of return parameters
      */
     Parameter[] getReturnParameters();
 
     /**
-     * Returns size of the stack frame which should be allocated for each invocations
+     * Returns size of the stack frame which should be allocated for each invocations.
      *
      * @return size of the stack frame
      */
     int getStackFrameSize();
 
     /**
-     * Replaces the size of the current stack frame with the specified size
+     * Replaces the size of the current stack frame with the specified size.
      *
      * @param frameSize size of the stack frame
      */
     void setStackFrameSize(int frameSize);
 
     /**
-     * Returns the body of the callable unit as a {@code BlockStmt}
+     * Returns the body of the callable unit as a {@code BlockStmt}.
      *
      * @return body of the callable unit
      */

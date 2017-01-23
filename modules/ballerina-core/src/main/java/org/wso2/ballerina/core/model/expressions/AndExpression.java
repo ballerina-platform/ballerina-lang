@@ -27,7 +27,7 @@ import java.util.function.BiFunction;
 import static org.wso2.ballerina.core.model.Operator.AND;
 
 /**
- * {@code AndExpression} represents an boolean AND('&&') expression in Ballerina
+ * {@code AndExpression} represents an boolean AND('&&') expression in Ballerina.
  *
  * @since 0.8.0
  */

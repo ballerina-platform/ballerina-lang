@@ -50,7 +50,7 @@ public class FunctionInvocationStmt extends AbstractStatement {
     }
 
     /**
-     * Builds a {@code FunctionInvokeStmt} statement
+     * Builds a {@code FunctionInvokeStmt} statement.
      *
      * @since 0.8.0
      */

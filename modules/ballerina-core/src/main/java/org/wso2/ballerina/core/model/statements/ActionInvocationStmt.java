@@ -49,7 +49,7 @@ public class ActionInvocationStmt extends AbstractStatement {
     }
 
     /**
-     * Builds a {@code ActionInvocationStmt} statement
+     * Builds a {@code ActionInvocationStmt} statement.
      *
      * @since 0.8.0
      */

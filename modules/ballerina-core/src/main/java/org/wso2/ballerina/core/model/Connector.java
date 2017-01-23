@@ -22,7 +22,7 @@ package org.wso2.ballerina.core.model;
 public interface Connector {
 
     /**
-     * Get list of Arguments associated with the action definition
+     * Get list of Arguments associated with the action definition.
      *
      * @return list of Arguments
      */

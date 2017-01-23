@@ -146,11 +146,10 @@ public class RuntimeEnvironment {
             throw new IllegalStateException("Invalid argument in connector declaration");
         }
         return offset;
-    }
 
     /**
      * {@code StaticMemory} represents an statically allocated block of memory which is used to store data
-     * which does not change when the program executes
+     * which does not change when the program executes.
      *
      * @since 0.8.0
      */

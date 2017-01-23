@@ -27,7 +27,7 @@ import org.wso2.ballerina.core.model.values.BValue;
 public interface ExecutableExpr {
 
     /**
-     * Executes and Returns the result of this expression
+     * Executes and Returns the result of this expression.
      *
      * @param executor instance of a {@code NodeExecutor}
      * @return result of the expression

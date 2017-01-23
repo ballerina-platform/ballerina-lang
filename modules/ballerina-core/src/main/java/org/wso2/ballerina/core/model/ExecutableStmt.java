@@ -25,7 +25,7 @@ package org.wso2.ballerina.core.model;
 public interface ExecutableStmt {
 
     /**
-     * Executes the statement
+     * Executes the statement.
      *
      * @param executor instance of a {@code NodeExecutor}
      */
