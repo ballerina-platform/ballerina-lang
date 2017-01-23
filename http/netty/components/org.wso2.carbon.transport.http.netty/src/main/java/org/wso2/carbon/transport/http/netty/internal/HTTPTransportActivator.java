@@ -31,6 +31,7 @@ import org.wso2.carbon.transport.http.netty.config.YAMLTransportConfigurationBui
 import org.wso2.carbon.transport.http.netty.listener.HTTPTransportListener;
 import org.wso2.carbon.transport.http.netty.sender.HTTPSender;
 
+import java.util.Collections;
 import java.util.Set;
 
 /**
@@ -40,7 +41,7 @@ public class HTTPTransportActivator implements BundleActivator {
 
     @Override
     public void start(BundleContext bundleContext) throws Exception {
-        bundleContext.registerService(CarbonTransport.class, createServerBootstrapper(), null);
+        registerTransport(bundleContext);
         bundleContext.registerService(TransportSender.class, createClientBootstrapper(), null);
         HTTPTransportContextHolder.getInstance().setBundleContext(bundleContext);
         HandlerExecutor handlerExecutor = new HandlerExecutor();
@@ -52,18 +53,17 @@ public class HTTPTransportActivator implements BundleActivator {
      *
      * @return Netty transport instances
      */
-    private HTTPTransportListener createServerBootstrapper() {
-        int bossSize = 0;
-        int workerSize = 0;
+    private void registerTransport(BundleContext bundleContext) {
         TransportsConfiguration trpConfig = YAMLTransportConfigurationBuilder.build();
         Set<ListenerConfiguration> listenerConfigurations = trpConfig.getListenerConfigurations();
-        listenerConfigurations.forEach(listenerConfiguration -> HTTPTransportContextHolder.getInstance()
-                .setListenerConfiguration(listenerConfiguration.getId(), listenerConfiguration));
         Set<TransportProperty> transportProperties = trpConfig.getTransportProperties();
-
-        HTTPTransportListener httpTransportListener = new HTTPTransportListener(transportProperties,
-                listenerConfigurations);
-        return httpTransportListener;
+        listenerConfigurations.forEach(listenerConfiguration -> {
+            HTTPTransportContextHolder.getInstance()
+                                      .setListenerConfiguration(listenerConfiguration.getId(), listenerConfiguration);
+            HTTPTransportListener httpTransportListener =
+                    new HTTPTransportListener(transportProperties, Collections.singleton(listenerConfiguration));
+            bundleContext.registerService(CarbonTransport.class, httpTransportListener, null);
+        });
     }
 
     /**

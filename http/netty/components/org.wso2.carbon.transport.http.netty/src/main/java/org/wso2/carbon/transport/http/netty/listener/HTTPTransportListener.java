@@ -50,9 +50,6 @@ import java.util.stream.Collectors;
 public class HTTPTransportListener extends TransportListener {
     private static final Logger log = LoggerFactory.getLogger(HTTPTransportListener.class);
 
-    private EventLoopGroup bossGroup;
-    private EventLoopGroup workerGroup;
-
     private int bossGroupSize;
     private int workerGroupSize;
 
@@ -71,7 +68,8 @@ public class HTTPTransportListener extends TransportListener {
 
     public HTTPTransportListener(Set<TransportProperty> transportProperties,
             Set<ListenerConfiguration> listenerConfigurationSet) {
-        super("ServerBootStrapper");
+        super(listenerConfigurationSet.iterator().next().getId());
+
         if (listenerConfigurationSet.isEmpty()) {
             log.error("Cannot find registered listener configurations  hence cannot start the transport listeners");
             return;
@@ -112,11 +110,19 @@ public class HTTPTransportListener extends TransportListener {
         ServerBootstrapConfiguration.createBootStrapConfiguration(transportProperties);
         ServerBootstrapConfiguration serverBootstrapConfiguration = ServerBootstrapConfiguration.getInstance();
         //boss group is for accepting channels
-        bossGroup = new NioEventLoopGroup(
-                bossGroupSize != 0 ? bossGroupSize : Runtime.getRuntime().availableProcessors());
+        EventLoopGroup bossGroup = HTTPTransportContextHolder.getInstance().getBossGroup();
+        if (bossGroup == null) {
+            bossGroup = new NioEventLoopGroup(
+                    bossGroupSize != 0 ? bossGroupSize : Runtime.getRuntime().availableProcessors());
+            HTTPTransportContextHolder.getInstance().setBossGroup(bossGroup);
+        }
         //worker group is for processing IO
-        workerGroup = new NioEventLoopGroup(
-                workerGroupSize != 0 ? workerGroupSize : Runtime.getRuntime().availableProcessors() * 2);
+        EventLoopGroup workerGroup = HTTPTransportContextHolder.getInstance().getWorkerGroup();
+        if (workerGroup == null) {
+            workerGroup = new NioEventLoopGroup(
+                    workerGroupSize != 0 ? workerGroupSize : Runtime.getRuntime().availableProcessors() * 2);
+            HTTPTransportContextHolder.getInstance().setWorkerGroup(workerGroup);
+        }
         log.debug("Netty Boss group size " + bossGroup);
         log.debug("Netty Worker group Size" + workerGroup);
         bootstrap = new ServerBootstrap();
@@ -187,18 +193,25 @@ public class HTTPTransportListener extends TransportListener {
     public void endMaintenance() {
         log.info("Ending maintenance mode for HTTP transport " + id + " running on port " + defaultListenerConfig
                 .getPort());
-        bossGroup = new NioEventLoopGroup(
-                bossGroupSize != 0 ? bossGroupSize : Runtime.getRuntime().availableProcessors());
-        workerGroup = new NioEventLoopGroup(
-                workerGroupSize != 0 ? workerGroupSize : Runtime.getRuntime().availableProcessors());
+        HTTPTransportContextHolder.getInstance().setBossGroup(new NioEventLoopGroup(
+                bossGroupSize != 0 ? bossGroupSize : Runtime.getRuntime().availableProcessors()));
+        HTTPTransportContextHolder.getInstance().setWorkerGroup(new NioEventLoopGroup(
+                workerGroupSize != 0 ? workerGroupSize : Runtime.getRuntime().availableProcessors()));
         startTransport();
     }
 
     private void shutdownEventLoops() {
         try {
-            bossGroup.shutdownGracefully().sync();
-            workerGroup.shutdownGracefully().sync();
-
+            EventLoopGroup bossGroup = HTTPTransportContextHolder.getInstance().getBossGroup();
+            if (bossGroup != null) {
+                bossGroup.shutdownGracefully().sync();
+                HTTPTransportContextHolder.getInstance().setBossGroup(null);
+            }
+            EventLoopGroup workerGroup = HTTPTransportContextHolder.getInstance().getWorkerGroup();
+            if (workerGroup != null) {
+                workerGroup.shutdownGracefully().sync();
+                HTTPTransportContextHolder.getInstance().setWorkerGroup(null);
+            }
             log.info("HTTP transport " + id + " on port " + defaultListenerConfig.getPort() +
                     " stopped successfully");
         } catch (InterruptedException e) {
