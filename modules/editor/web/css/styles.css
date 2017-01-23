@@ -167,7 +167,14 @@ header .brand h1 {
 }
 
 ol#breadcrumbList {
-    background-color: #444;
+    background-color: #131313;
+}
+#breadcrumb-container{
+    background-color: #131313;
+    height: 28px;
+    overflow: hidden;
+    line-height: 15px;
+
 }
 
 #icon-toggle-source {
@@ -1039,6 +1046,37 @@ button.variable-list {
     width: 30%;
 }
 
+#modalSearch .modal-dialog {
+    width: 30%;
+}
+
+#modalSearch input {
+    color:black !important;
+}
+
+.modal-search-icon{
+    position: absolute;
+    right: 20px;
+    top: 8px;
+    color: #7b7b7b;
+}
+
+.search-results {
+    height: 50%;
+    overflow: auto;
+    background-color: #2C2C2C;
+}
+
+.search-results ul li{
+    background-color: #2C2C2C !important;
+    border: 1px solid #6f6f6f !important;
+    cursor: pointer;
+}
+
+.search-results ul li:hover{
+    background-color: #6f6f6f !important;
+}
+
 .service-title-text:hover {
     cursor: text;
 }
@@ -1090,13 +1128,15 @@ button.variable-list {
 
 #breadcrumb-container > .breadcrumb {
     text-transform: none;
-    background: rgb(35, 35, 35);
+    background: #131313;
 }
 #breadcrumb-container > ol > li.breadcrumb-item {
     color: grey;
+    cursor: pointer;
 }
 #breadcrumb-container > ol > li.breadcrumb-item.active {
     color: white;
+    cursor: pointer;
 }
 
 
