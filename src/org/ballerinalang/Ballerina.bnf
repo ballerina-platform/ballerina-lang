@@ -94,7 +94,7 @@
 
       BooleanLiteral="regexp:true|false"
 
-      QuotedStringLiteral ='regexp:"(?:[^"\\]|\\.)*"'
+      QuotedStringLiteral ='regexp:\"([^\\\"\r\n]|\\[^\r\n])*(\"|\\)?'
 
       ValidBackTickStringCharacters ='regexp:`[^`]*`'
 

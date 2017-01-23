@@ -27,6 +27,7 @@
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
         <fileTypeFactory implementation="org.ballerinalang.BallerinaFileTypeFactory"/>
+        <lang.parserDefinition language="Ballerina" implementationClass="org.ballerinalang.BallerinaParserDefinition"/>
     </extensions>
 
     <actions>

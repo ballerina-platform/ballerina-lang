@@ -18,7 +18,7 @@ package org.ballerinalang;
 
 import com.intellij.openapi.util.IconLoader;
 
-import javax.swing.*;
+import javax.swing.Icon;
 
 public class BallerinaIcons {
     public static final Icon FILE = IconLoader.findIcon("/icons/flag.png");
