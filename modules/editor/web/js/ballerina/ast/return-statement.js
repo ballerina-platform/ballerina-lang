@@ -75,7 +75,7 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
             }
 
             if (itr !== jsonNode.children.length - 1) {
-                expression += " + ";
+                expression += " , ";
             }
         }
         this._expression = expression;
