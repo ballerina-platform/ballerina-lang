@@ -100,6 +100,7 @@ public interface BallerinaTypes {
   IElementType ANY = new BallerinaTokenType("any");
   IElementType AS = new BallerinaTokenType("as");
   IElementType ASSIGN = new BallerinaTokenType("=");
+  IElementType AT = new BallerinaTokenType("@");
   IElementType BACKTICK = new BallerinaTokenType("`");
   IElementType BANG = new BallerinaTokenType("!");
   IElementType BITAND = new BallerinaTokenType("&");

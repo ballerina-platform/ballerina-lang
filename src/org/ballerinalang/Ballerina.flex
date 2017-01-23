@@ -95,6 +95,7 @@ LINE_COMMENT="//"[^\r\n]*
   "^"                                  { return BallerinaTypes.CARET; }
   "%"                                  { return BallerinaTypes.MOD; }
   "$"                                  { return BallerinaTypes.DOLLAR_SIGN; }
+  "@"                                  { return BallerinaTypes.AT; }
   "null"                               { return BallerinaTypes.NULLLITERAL; }
 
   {INTEGERLITERAL}                     { return BallerinaTypes.INTEGERLITERAL; }

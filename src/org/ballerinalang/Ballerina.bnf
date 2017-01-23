@@ -84,6 +84,7 @@
       CARET           = '^';
       MOD             = '%';
       DOLLAR_SIGN     = '$';
+      AT              = '@';
 
       NullLiteral = "null"
 

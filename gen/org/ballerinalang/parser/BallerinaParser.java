@@ -301,6 +301,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   // annotation* 'action' Identifier '(' parameterList ')' returnParameters?  ('throws' Identifier)? functionBody
   public static boolean actionDefinition(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "actionDefinition")) return false;
+    if (!nextTokenIs(b, "<action definition>", AT, ACTION)) return false;
     boolean r;
     Marker m = enter_section_(b, l, _NONE_, ACTION_DEFINITION, "<action definition>");
     r = actionDefinition_0(b, l + 1);
@@ -381,12 +382,13 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   // '@' annotationName ( '(' ( elementValuePairs | elementValue )? ')' )?
   public static boolean annotation(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "annotation")) return false;
+    if (!nextTokenIs(b, AT)) return false;
     boolean r;
-    Marker m = enter_section_(b, l, _NONE_, ANNOTATION, "<annotation>");
-    r = consumeToken(b, "@");
+    Marker m = enter_section_(b);
+    r = consumeToken(b, AT);
     r = r && annotationName(b, l + 1);
     r = r && annotation_2(b, l + 1);
-    exit_section_(b, l, m, r, false, null);
+    exit_section_(b, m, ANNOTATION, r);
     return r;
   }
 
@@ -837,6 +839,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   // annotation* 'connector' Identifier '(' parameterList ')' connectorBody
   public static boolean connectorDefinition(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "connectorDefinition")) return false;
+    if (!nextTokenIs(b, "<connector definition>", AT, CONNECTOR)) return false;
     boolean r;
     Marker m = enter_section_(b, l, _NONE_, CONNECTOR_DEFINITION, "<connector definition>");
     r = connectorDefinition_0(b, l + 1);
@@ -1879,6 +1882,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   // annotation* typeName Identifier
   public static boolean parameter(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "parameter")) return false;
+    if (!nextTokenIs(b, "<parameter>", AT, IDENTIFIER)) return false;
     boolean r;
     Marker m = enter_section_(b, l, _NONE_, PARAMETER, "<parameter>");
     r = parameter_0(b, l + 1);
@@ -1904,6 +1908,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   // parameter  (',' parameter )*
   public static boolean parameterList(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "parameterList")) return false;
+    if (!nextTokenIs(b, "<parameter list>", AT, IDENTIFIER)) return false;
     boolean r;
     Marker m = enter_section_(b, l, _NONE_, PARAMETER_LIST, "<parameter list>");
     r = parameter(b, l + 1);
@@ -1980,6 +1985,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   // annotation* 'resource' Identifier '(' parameterList ')' functionBody
   public static boolean resourceDefinition(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "resourceDefinition")) return false;
+    if (!nextTokenIs(b, "<resource definition>", AT, RESOURCE)) return false;
     boolean r;
     Marker m = enter_section_(b, l, _NONE_, RESOURCE_DEFINITION, "<resource definition>");
     r = resourceDefinition_0(b, l + 1);
@@ -2156,6 +2162,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   // annotation* 'service' Identifier serviceBody
   public static boolean serviceDefinition(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "serviceDefinition")) return false;
+    if (!nextTokenIs(b, "<service definition>", AT, SERVICE)) return false;
     boolean r;
     Marker m = enter_section_(b, l, _NONE_, SERVICE_DEFINITION, "<service definition>");
     r = serviceDefinition_0(b, l + 1);
