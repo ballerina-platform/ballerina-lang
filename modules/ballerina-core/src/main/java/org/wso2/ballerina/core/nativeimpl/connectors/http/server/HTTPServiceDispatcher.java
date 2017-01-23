@@ -26,9 +26,11 @@ import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.nativeimpl.connectors.http.Constants;
 import org.wso2.ballerina.core.runtime.dispatching.ServiceDispatcher;
+import org.wso2.ballerina.core.runtime.dispatching.uri.URIUtil;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -60,57 +62,40 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
                 throw new BallerinaException("No services found for interface : " + interfaceId);
             }
 
-            String uri = (String) cMsg.getProperty(org.wso2.carbon.messaging.Constants.TO);
-            if (uri == null) {
-                throw new BallerinaException("URI not found in the message");
-            }
-            uri = uri.split("\\?")[0]; //remove if any query parameters, before matching a service
-            if (!uri.startsWith("/")) {
-                uri = "/".concat(uri);
+            String uriStr = (String) cMsg.getProperty(org.wso2.carbon.messaging.Constants.TO);
+            URI requestUri = URI.create(uriStr);
+            if (requestUri == null) {
+                throw new BallerinaException("URI not found in the message or found an invalid URI.");
+
             }
 
-            String[] path = uri.split("/");
-            String basePath;
-            if (path.length > 1) {
-                basePath = "/".concat(path[1]);
-            } else {
-                basePath = Constants.DEFAULT_BASE_PATH;
-            }
-            String subPath = "";
+            String basePath = URIUtil.getFirstPathSegment(requestUri.getPath());
+            String subPath = URIUtil.getSubPath(requestUri.getPath());
 
-            //TODO: Add regex support
-            Service service = servicesOnInterface.get(basePath);  // 90% of the time we will find service from here
-            if (service == null) {
-                for (int i = 2; i < path.length; i++) {
-                    basePath = basePath.concat("/").concat(path[i]);
-                    service = servicesOnInterface.get(basePath);
-                    if (service != null) {
-                        break;
-                    }
-                }
-            }
+            // Most of the time we will find service from here
+            Service service = servicesOnInterface.get("/" + basePath);
 
             // Check if there is a service with default base path ("/")
             if (service == null) {
                 service = servicesOnInterface.get(Constants.DEFAULT_BASE_PATH);
                 basePath = Constants.DEFAULT_BASE_PATH;
-                subPath = uri;
-            } else {
-                subPath = uri.substring(basePath.length());
             }
 
             if (service == null) {
-                throw new BallerinaException("No Service found to handle incoming request recieved to : " + uri);
+                throw new BallerinaException("No Service found to handle incoming request recieved to : " + uriStr);
             }
 
             cMsg.setProperty(Constants.BASE_PATH, basePath);
             cMsg.setProperty(Constants.SUB_PATH, subPath);
+            cMsg.setProperty(Constants.QUERY_STR, requestUri.getQuery());
 
             return service;
         } catch (Throwable e) {
             throw new BallerinaException(e.getMessage(), balContext);
         }
     }
+
+
 
     @Override
     public String getProtocol() {
