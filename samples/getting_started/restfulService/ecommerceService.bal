@@ -7,17 +7,24 @@ import ballerina.lang.string;
 service Ecommerce {
 
     @GET
-    @Path ("/products")
-    resource passthrough (message m) {
+    @Path ("/products/{productId}/{regId}")
+    resource productsInfo (message m, @PathParam("productId") string productId, @PathParam("regId") string regId, @QueryParam("geoloc") string location)  {
         http:HTTPConnector productsService = new http:HTTPConnector("http://localhost:9090");
         message response;
+
+        system:println("Product ID " + productId);
+        system:println("Reg ID " + regId);
+        system:println("Query Param " + location);
+
         response = http:HTTPConnector.get(productsService, "/productsservice", m);
+
+
         reply response;
     }
 
     @POST
     @Path ("/products")
-    resource passthrough (message m) {
+    resource productMgt (message m) {
         http:HTTPConnector productsService = new http:HTTPConnector("http://localhost:9090");
         message response;
         response = http:HTTPConnector.post(productsService, "/productsservice", m);
@@ -27,7 +34,7 @@ service Ecommerce {
 
     @GET
     @Path ("/orders")
-    resource passthrough (message m) {
+    resource ordersInfo (message m) {
         http:HTTPConnector productsService = new http:HTTPConnector("http://localhost:9090");
         message response;
         response = http:HTTPConnector.get(productsService, "/orderservice", m);
@@ -36,7 +43,7 @@ service Ecommerce {
 
     @POST
     @Path ("/orders")
-    resource passthrough (message m) {
+    resource ordersMgt (message m) {
         http:HTTPConnector productsService = new http:HTTPConnector("http://localhost:9090");
         message response;
         response = http:HTTPConnector.post(productsService, "/orderservice", m);
@@ -45,7 +52,7 @@ service Ecommerce {
 
     @GET
     @Path ("/customers")
-    resource passthrough (message m) {
+    resource customersInfo (message m) {
         http:HTTPConnector productsService = new http:HTTPConnector("http://localhost:9090");
         message response;
         response = http:HTTPConnector.get(productsService, "/customerservice", m);
@@ -54,7 +61,7 @@ service Ecommerce {
 
     @POST
     @Path ("/customers")
-    resource passthrough (message m) {
+    resource customerMgt (message m) {
         http:HTTPConnector productsService = new http:HTTPConnector("http://localhost:9090");
         message response;
         response = http:HTTPConnector.post(productsService, "/customerservice", m);

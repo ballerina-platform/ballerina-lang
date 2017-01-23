@@ -225,6 +225,16 @@ public class BLangModelBuilder {
     }
 
 
+    public void startParamList() {
+        annotationListStack.push(new ArrayList<>());
+    }
+
+
+    public void endParamList() {
+        annotationListStack.pop();
+    }
+
+
     // Function parameters and types
 
     /**
@@ -242,6 +252,12 @@ public class BLangModelBuilder {
         BType paramType = typeQueue.remove();
         Parameter param = new Parameter(paramType, paramNameId);
         param.setLocation(sourceLocation);
+
+        if (!annotationListStack.isEmpty() && !annotationListStack.peek().isEmpty()) {
+            Annotation paramAnnotation = annotationListStack.peek().get(0);
+            annotationListStack.peek().remove(0);
+            param.addAnnotation(paramAnnotation);
+        }
 
         if (currentCUBuilder != null) {
             // Add the parameter to callableUnitBuilder.
