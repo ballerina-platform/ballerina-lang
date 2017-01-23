@@ -204,6 +204,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         ConstantLocation location = new ConstantLocation(staticMemAddrOffset);
         BType type = constant.getType();
+        validateType(type, constant.getLocation());
         symbol = new Symbol(type, SymScope.Name.PACKAGE, location);
 
         symbolTable.insert(symName, symbol);
@@ -280,6 +281,10 @@ public class SemanticAnalyzer implements NodeVisitor {
             stackFrameOffset++;
             visit(parameter);
         }
+        
+        for (Parameter parameter : resource.getReturnParameters()) {
+            validateType(parameter.getType(), parameter.getLocation());
+        }
 
         for (ConnectorDcl connectorDcl : resource.getConnectorDcls()) {
             stackFrameOffset++;
@@ -317,7 +322,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             stackFrameOffset++;
             visit(parameter);
         }
-
+        
         for (ConnectorDcl connectorDcl : function.getConnectorDcls()) {
             stackFrameOffset++;
             visit(connectorDcl);
@@ -372,7 +377,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             stackFrameOffset++;
             visit(parameter);
         }
-
+        
         for (ConnectorDcl connectorDcl : action.getConnectorDcls()) {
             stackFrameOffset++;
             visit(connectorDcl);
@@ -447,6 +452,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         BType type = parameter.getType();
+        validateType(type, parameter.getLocation());
         symbol = new Symbol(type, currentScopeName(), location);
         symbolTable.insert(symName, symbol);
     }
