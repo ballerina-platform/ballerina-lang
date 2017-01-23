@@ -80,7 +80,7 @@ public class Patch extends AbstractHTTPAction {
             // Execute the operation
             return executeAction(context, cMsg);
         } catch (Throwable t) {
-            throw new BallerinaException("Failed to invoke 'Patch' action in " + HTTPConnector.CONNECTOR_NAME
+            throw new BallerinaException("Failed to invoke 'patch' action in " + HTTPConnector.CONNECTOR_NAME
                     + ". " + t.getMessage(), context);
         }
     }
