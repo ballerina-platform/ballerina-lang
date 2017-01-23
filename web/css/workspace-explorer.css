@@ -107,3 +107,32 @@
 .workspace-explorer-container .jstree-default-small > .jstree-container-ul > .jstree-node{
     margin-left: 25px;
 }
+
+
+.vakata-context li > a {
+    display: block;
+    padding: 0 1em 0 1em;
+    text-decoration: none;
+    width: auto;
+    color: #dedede;
+    white-space: nowrap;
+    text-shadow: none;
+    border-radius: 0px;
+}
+
+.vakata-context li > a:hover {
+    position: relative;
+    background-color: #dde4ec;
+    color: black;
+}
+
+.vakata-context, .vakata-context ul {
+    background: #333333;
+    border: none;
+    color: black;
+    box-shadow: none;
+}
+
+.vakata-context li > a .vakata-contextmenu-sep{
+    display: none;
+}
