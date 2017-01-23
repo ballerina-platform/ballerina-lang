@@ -1,0 +1,44 @@
+/**
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+define(['lodash', './node'], function (_, ASTNode) {
+    var StructDefinition = function (args) {
+        ASTNode.call(this, 'StructDefinition');
+        this._structName = _.get(args, 'structName', 'newStruct');
+    };
+
+    StructDefinition.prototype = Object.create(ASTNode.prototype);
+    StructDefinition.prototype.constructor = StructDefinition;
+
+    /**
+     * setter for struct name
+     * @param structName - name of the struct
+     */
+    StructDefinition.prototype.setStructName = function (structName) {
+        this._structName = structName;
+    };
+
+    /**
+     * getter for struct name
+     * @returns {string} struct name
+     */
+    StructDefinition.prototype.getStructName = function () {
+        return this._structName;
+    };
+
+    return StructDefinition;
+});
