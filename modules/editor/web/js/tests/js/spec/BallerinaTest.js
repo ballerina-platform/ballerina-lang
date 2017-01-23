@@ -18,13 +18,17 @@
 
 define(['lodash','jquery', 'ballerina'], function(_, $, Ballerina) {
 
-    function ballerinaTestRunner(val){
+var getModelBackend = "http://localhost:8289/ballerina/model/content";
+var getFileContentBackend = "http://localhost:8289/service/workspace";
 
-        var expectedSource = readTestFile(val);
+    //Test running function
+    function ballerinaTestRunner(sourceList){
+
+        var expectedSource = readFile(sourceList);
         var generatedSource = ballerinaASTDeserializer(expectedSource);
 
         describe("Ballerina Tests", function() {
-            it(val + " Service Test", function() {
+            it(sourceList + " Service Test", function() {
                 expectedSource = expectedSource.replace(/\s/g, '');
                 generatedSource = generatedSource.replace(/(\r\n|\n|\r)/gm,"");
                 generatedSource = generatedSource.replace(/\s/g, '');
@@ -33,8 +37,9 @@ define(['lodash','jquery', 'ballerina'], function(_, $, Ballerina) {
         });
     }
 
+    //Ballerina AST Deserializer
     function ballerinaASTDeserializer(fileContent){
-        var backend = new Ballerina.views.Backend({"url" : "http://localhost:8289/ballerina/model/content"})
+        var backend = new Ballerina.views.Backend({"url" : getModelBackend})
         var response = backend.parse(fileContent);
         var ASTModel = Ballerina.ast.BallerinaASTDeserializer.getASTModel(response);
         var sourceGenVisitor = new Ballerina.visitors.SourceGen.BallerinaASTRootVisitor();
@@ -43,16 +48,22 @@ define(['lodash','jquery', 'ballerina'], function(_, $, Ballerina) {
         return source;
     }
 
-    function readTestFile(file){
-        var workspaceServiceURL = "http://localhost:8289/service/workspace";
+    function getTestResourceLocation(){
+        var resourcePath = document.location.pathname;
+        return resourcePath.substring(resourcePath.indexOf('/'), resourcePath.lastIndexOf('/')) + "/resources/";
+    }
+
+    function readFile(filePath){
+        var workspaceServiceURL = getFileContentBackend;
         var saveServiceURL = workspaceServiceURL + "/read";
-        var path = "/home/malintha/projects/wso2/myBallerina/ballerina/samples/getting_started/" + file +"/" + file + ".bal";
+
+        //TODO remove picking folder location and get file content from ajax call running test on http server
         var fileContent;
 
         $.ajax({
             url: saveServiceURL,
             type: "POST",
-            data: path,
+            data: filePath,
             contentType: "text/plain; charset=utf-8",
             async: false,
             success: function (data, textStatus, xhr) {
@@ -63,13 +74,14 @@ define(['lodash','jquery', 'ballerina'], function(_, $, Ballerina) {
 
             error: function (res, errorCode, error) {}
         });
-
         return fileContent;
     }
 
-    var testFileList = ['echoService', 'helloWorldService'];
+    var testFileList = readFile(getTestResourceLocation() + "BalList.json");
+    var sourceList = JSON.parse(testFileList)["sources"]["source"];
 
-        testFileList.forEach(function(testFile) {
-        ballerinaTestRunner(testFile);
+    //Running test for provide source list
+    sourceList.forEach(function(testFile) {
+        ballerinaTestRunner(getTestResourceLocation() + "BalSource/" +testFile);
     });
 });
