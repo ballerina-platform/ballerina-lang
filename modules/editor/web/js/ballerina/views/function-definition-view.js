@@ -39,6 +39,8 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
             this._statementExpressionViewList = [];
             // TODO: Instead of using the parentView use the parent. Fix this from BallerinaView.js and bellow
             this._parentView = _.get(args, "parentView");
+            //set panel icon for the function
+            this._viewOptions.panelIcon = _.get(args.viewOptions, "cssClass.function_icon");
             //set initial height for the service container svg
             this._totalHeight = 170;
             this._statementContainer = undefined;

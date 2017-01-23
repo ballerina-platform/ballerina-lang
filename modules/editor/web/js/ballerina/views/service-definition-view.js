@@ -39,6 +39,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
             this._parentView = _.get(args, "parentView");
             this._viewOptions.offsetTop = _.get(args, "viewOptionsOffsetTop", 50);
             this._viewOptions.topBottomTotalGap = _.get(args, "viewOptionsTopBottomTotalGap", 100);
+            this._viewOptions.panelIcon = _.get(args.viewOptions, "cssClass.service_icon");
             //set initial height for the service container svg
             this._totalHeight = 170;
             //set initial connector margin for the service
