@@ -21,7 +21,7 @@ import org.wso2.ballerina.core.model.values.BJSON;
 import org.wso2.ballerina.core.model.values.BValue;
 
 /**
- * {@code BJSONType} represents a JSON document
+ * {@code BJSONType} represents a JSON document.
  *
  * @since 0.8.0
  */

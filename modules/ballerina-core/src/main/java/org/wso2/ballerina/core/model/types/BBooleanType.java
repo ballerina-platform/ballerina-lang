@@ -21,7 +21,7 @@ import org.wso2.ballerina.core.model.values.BBoolean;
 import org.wso2.ballerina.core.model.values.BValue;
 
 /**
- * {@code BBooleanType} represents boolean type in Ballerina
+ * {@code BBooleanType} represents boolean type in Ballerina.
  *
  * @since 0.8.0
  */

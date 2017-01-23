@@ -23,7 +23,7 @@ import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 
 /**
- * An {@code FunctionInvocationStmt} represents a function invocation statement
+ * An {@code FunctionInvocationStmt} represents a function invocation statement.
  *
  * @since 0.8.0
  */

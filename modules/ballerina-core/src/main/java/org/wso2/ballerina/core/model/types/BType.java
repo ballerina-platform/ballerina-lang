@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * {@code BType} represents a type in Ballerina
+ * {@code BType} represents a type in Ballerina.
  * <p>
  * Ballerina has variables of various types. The type system includes built-in primitive or value types,
  * a collection of built-in structured types, and array, record and iterator type constructors.

@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * {@code BallerinaFile} represent a content of a Ballerina source file
+ * {@code BallerinaFile} represent a content of a Ballerina source file.
  * <p>
  * A Ballerina file is structured as follows:
  * <p>

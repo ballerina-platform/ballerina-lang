@@ -32,7 +32,7 @@ import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
 
 /**
- * {@code RuntimeEnvironment} represents the runtime environment of a Ballerina application
+ * {@code RuntimeEnvironment} represents the runtime environment of a Ballerina application.
  *
  * @since 0.8.0
  */

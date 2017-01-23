@@ -18,7 +18,7 @@
 package org.wso2.ballerina.core.model;
 
 /**
- * {@code SymbolName} represents an identifier in Ballerina
+ * {@code SymbolName} represents an identifier in Ballerina.
  *
  * @since 0.8.0
  */

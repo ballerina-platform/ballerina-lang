@@ -21,7 +21,7 @@ import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
 
 /**
- * {@code BStringType} represents a String
+ * {@code BStringType} represents a String.
  *
  * @since 0.8.0
  */

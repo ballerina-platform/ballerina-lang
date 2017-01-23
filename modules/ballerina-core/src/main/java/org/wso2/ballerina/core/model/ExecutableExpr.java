@@ -20,7 +20,7 @@ package org.wso2.ballerina.core.model;
 import org.wso2.ballerina.core.model.values.BValue;
 
 /**
- * {@code ExecutableExpr} interface makes an {@link org.wso2.ballerina.core.model.expressions.Expression} executable
+ * {@code ExecutableExpr} interface makes an {@link org.wso2.ballerina.core.model.expressions.Expression} executable.
  *
  * @since 0.8.0
  */

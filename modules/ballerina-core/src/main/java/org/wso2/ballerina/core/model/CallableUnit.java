@@ -20,7 +20,7 @@ package org.wso2.ballerina.core.model;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 
 /**
- * {@code CallableUnit} represents Functions, Action or Resources
+ * {@code CallableUnit} represents Functions, Action or Resources.
  *
  * @see Function
  * @see Action

@@ -21,7 +21,7 @@ import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BXML;
 
 /**
- * {@code BXMLType} represents an XML Element
+ * {@code BXMLType} represents an XML Element.
  *
  * @since 0.8.0
  */

@@ -21,7 +21,7 @@ import org.wso2.ballerina.core.model.values.BArray;
 import org.wso2.ballerina.core.model.values.BValue;
 
 /**
- * {@code BArrayType} represents a type of an array in Ballerina
+ * {@code BArrayType} represents a type of an array in Ballerina.
  * <p>
  * Arrays are defined using the array constructor [] as follows:
  * TypeName[]

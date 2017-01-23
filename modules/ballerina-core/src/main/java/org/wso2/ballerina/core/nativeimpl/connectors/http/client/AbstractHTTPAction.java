@@ -37,7 +37,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 /**
- * {@code AbstractHTTPAction} is the base class for all HTTP Connector Actions
+ * {@code AbstractHTTPAction} is the base class for all HTTP Connector Actions.
  */
 public abstract class AbstractHTTPAction extends AbstractNativeAction {
 

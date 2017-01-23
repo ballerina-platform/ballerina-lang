@@ -22,7 +22,7 @@ import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.expressions.Expression;
 
 /**
- * {@code ReplyStmt} represents a reply statement
+ * {@code ReplyStmt} represents a reply statement.
  *
  * @since 0.8.0
  */

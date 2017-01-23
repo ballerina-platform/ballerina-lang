@@ -22,7 +22,7 @@ import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.values.BValue;
 
 /**
- * {@code Const} represent a Constant declaration
+ * {@code Const} represent a Constant declaration.
  *
  * @since 0.8.0
  */

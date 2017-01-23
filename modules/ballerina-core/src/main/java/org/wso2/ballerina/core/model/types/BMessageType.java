@@ -21,7 +21,7 @@ import org.wso2.ballerina.core.model.values.BMessage;
 import org.wso2.ballerina.core.model.values.BValue;
 
 /**
- * {@code MessageType} represents a message in Ballerina
+ * {@code MessageType} represents a message in Ballerina.
  *
  * @since 0.8.0
  */
