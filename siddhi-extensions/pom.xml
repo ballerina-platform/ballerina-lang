@@ -40,9 +40,7 @@
         <module>output-mappers/json-output-mapper</module>
         <module>input-mappers/text-input-mapper</module>
         <module>input-mappers/json-input-mapper</module>
-        <module>input-mappers/xml-input-mapper</module>
         <module>input-mappers/map-input-mapper</module>
-        <module>input-mappers/wso2event-input-mapper</module>
         <module>input-transports/kafka-input-transport</module>
     </modules>
 
