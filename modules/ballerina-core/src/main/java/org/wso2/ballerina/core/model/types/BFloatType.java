@@ -22,7 +22,7 @@ import org.wso2.ballerina.core.model.values.BValue;
 
 /**
  * {@code BFloatType} represents a integer which is a 32-bit floating-point number according to the
- * standard IEEE 754 specifications
+ * standard IEEE 754 specifications.
  *
  * @since 0.8.0
  */

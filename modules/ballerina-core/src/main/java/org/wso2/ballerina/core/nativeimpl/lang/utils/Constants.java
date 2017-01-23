@@ -17,7 +17,7 @@
 package org.wso2.ballerina.core.nativeimpl.lang.utils;
 
 /**
- * Constants related to Ballerina lang packages
+ * Constants related to Ballerina lang packages.
  */
 public class Constants {
     
