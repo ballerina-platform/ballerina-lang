@@ -222,7 +222,8 @@ define(['require', 'lodash','jquery', 'log', 'backbone', 'file_browser', 'baller
                                     name: fileName,
                                     path: folderPath,
                                     content: data.content,
-                                    isPersisted: true
+                                    isPersisted: true,
+                                    isDirty: false
                                 });
                                 app.commandManager.dispatch("create-new-tab", {tabOptions: {file: file}});
                             } else {

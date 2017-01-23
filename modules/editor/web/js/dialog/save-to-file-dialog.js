@@ -194,6 +194,7 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
                                             .setName(configName.val())
                                             .setContent(config)
                                             .setPersisted(true)
+                                            .setDirty(false)
                                             .save();
                                 if(app.workspaceExplorer.isEmpty()){
                                     app.commandManager.dispatch("open-folder", location.val());
