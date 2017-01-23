@@ -27,7 +27,7 @@ import org.wso2.ballerina.core.model.values.BValueType;
  * <p>
  * This class is used to hold IntegerLiterals, FloatingPointLiterals, QuotedStringLiterals, BooleanLiterals and 'nil'
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class BasicLiteral extends AbstractExpression {
 

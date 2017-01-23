@@ -24,18 +24,37 @@ define(([],function (){
             {
                 id: "undo",
                 label: "Undo",
-                action: "undo",
+                command: {
+                    id: "undo",
+                    shortcuts: {
+                        mac: {
+                            key: "command+z",
+                            label: "\u2318Z"
+                        },
+                        other: {
+                            key: "ctrl+z",
+                            label: "Ctrl+Z"
+                        }
+                    }
+                },
                 disabled: true
             },
             {
                 id: "redo",
                 label: "Redo",
-                action: "redo",
-                disabled: true
-            },
-            {
-                id: "cut",
-                label: "Cut",
+                command: {
+                    id: "redo",
+                    shortcuts: {
+                        mac: {
+                            key: "command+shift+z",
+                            label: "\u2318\u21E7Z"
+                        },
+                        other: {
+                            key: "ctrl+shift+z",
+                            label: "Ctrl+Shift+Z"
+                        }
+                    }
+                },
                 disabled: true
             }
 

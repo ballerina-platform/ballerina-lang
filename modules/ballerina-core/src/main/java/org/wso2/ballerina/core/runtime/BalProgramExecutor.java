@@ -35,8 +35,8 @@ import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.expressions.Expression;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
+import org.wso2.ballerina.core.model.expressions.ResourceInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
-import org.wso2.ballerina.core.model.invokers.ResourceInvocationExpr;
 import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.model.values.BArray;
 import org.wso2.ballerina.core.model.values.BString;
@@ -50,7 +50,7 @@ import static org.wso2.ballerina.core.runtime.Constants.SYSTEM_PROP_BAL_ARGS;
 /**
  * {@code BalProgramExecutor} is responsible for executing a BallerinaProgram
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class BalProgramExecutor {
 
@@ -98,7 +98,7 @@ public class BalProgramExecutor {
                 String balArgs = System.getProperty(SYSTEM_PROP_BAL_ARGS);
                 String[] arguments;
 
-                if (balArgs.trim().length() == 0) {
+                if (balArgs == null || balArgs.trim().length() == 0) {
                     arguments = new String[0];
                 } else {
                     arguments = balArgs.split(";");
@@ -122,10 +122,10 @@ public class BalProgramExecutor {
                 FunctionInvocationExpr funcIExpr = new FunctionInvocationExpr(
                         new SymbolName("main", balFile.getPackageName()), exprs);
                 funcIExpr.setOffset(1);
-                funcIExpr.setFunction(mainFunction);
+                funcIExpr.setCallableUnit(mainFunction);
                 funcIExpr.setLocation(mainFuncLocation);
 
-                SymbolName functionSymbolName = funcIExpr.getFunctionName();
+                SymbolName functionSymbolName = funcIExpr.getCallableUnitName();
                 CallableUnitInfo functionInfo = new CallableUnitInfo(functionSymbolName.getName(),
                         functionSymbolName.getPkgName(), mainFuncLocation);
 
@@ -133,7 +133,7 @@ public class BalProgramExecutor {
                 bContext.getControlStack().pushFrame(currentStackFrame);
                 RuntimeEnvironment runtimeEnv = RuntimeEnvironment.get(balFile);
                 BLangExecutor executor = new BLangExecutor(runtimeEnv, bContext);
-                funcIExpr.execute(executor);
+                funcIExpr.executeMultiReturn(executor);
 
                 bContext.getControlStack().popFrame();
             }

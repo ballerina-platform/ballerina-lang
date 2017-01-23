@@ -26,7 +26,7 @@ import org.wso2.ballerina.core.model.Position;
  * @see AddExpression
  * @see SubtractExpression
  * @see MultExpression
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class BinaryArithmeticExpression extends BinaryExpression {
 

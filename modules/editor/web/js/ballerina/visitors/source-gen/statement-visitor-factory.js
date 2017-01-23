@@ -30,11 +30,16 @@ define(['lodash', 'log', 'event_channel', '../../ast/module',
 './logical-expression-visitor',
 './arithmetic-expression-visitor',
 './return-statement-visitor',
-'./function-invocation-visitor'],
+'./function-invocation-visitor',
+'./function-invocation-expression-visitor',
+'./assignment-visitor',
+'./left-operand-expression-visitor',
+'./right-operand-expression-visitor'],
 function (_, log, EventChannel, AST,
 TryCatchStatementVisitor, TryStatementVisitor, CatchStatementVisitor, IfElseStatementVisitor, IfStatementVisitor,
 ElseStatementVisitor, ElseIfStatementVisitor, WhileStatementVisitor, AssignmentStatementVisitor, ActionInvocationStatement,
-ReplyStatementVisitor,LogicalExpressionVisitor, ArithmeticExpression, ReturnStatementVisitor, FunctionInvocationVisitor) {
+ReplyStatementVisitor,LogicalExpressionVisitor, ArithmeticExpression, ReturnStatementVisitor, FunctionInvocationVisitor, FunctionInvocationExpressionVisitor, AssignmentVisitor,
+LeftOperandExpressionVisitor, RightOperandExpressionVisitor) {
 
     var StatementVisitorFactor = function () {
     };
@@ -56,7 +61,7 @@ ReplyStatementVisitor,LogicalExpressionVisitor, ArithmeticExpression, ReturnStat
             return new ElseIfStatementVisitor(parent.getParent());
         } else if (statement instanceof AST.WhileStatement) {
             return new WhileStatementVisitor(parent);
-        } else if (statement instanceof AST.Assignment) {
+        } else if (statement instanceof AST.AssignmentStatement) {
             return new AssignmentStatementVisitor(parent);
         } else if (statement instanceof AST.ActionInvocationStatement) {
             return new ActionInvocationStatement(parent);
@@ -68,6 +73,14 @@ ReplyStatementVisitor,LogicalExpressionVisitor, ArithmeticExpression, ReturnStat
             return new LogicalExpressionVisitor(parent);
         } else if (statement instanceof AST.FunctionInvocation) {
             return new FunctionInvocationVisitor(parent);
+        }else if (statement instanceof AST.FunctionInvocationExpression) {
+            return new FunctionInvocationExpressionVisitor(parent);
+        } else if(statement instanceof AST.Assignment){
+            return new AssignmentVisitor(parent);
+        } else if (statement instanceof AST.LeftOperandExpression) {
+            return new LeftOperandExpressionVisitor(parent);
+        } else if (statement instanceof AST.RightOperandExpression) {
+            return new RightOperandExpressionVisitor(parent);
         }
     };
 

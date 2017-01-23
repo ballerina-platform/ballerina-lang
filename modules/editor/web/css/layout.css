@@ -70,17 +70,29 @@ div[class*="col-sm-"] {
     margin-left: 0;
     margin-right: 0;
 }
-#left-container{
+.left-container{
     height: 100%;
     padding: 0;
     /*Adjust when implementing file explorer*/
-    width: 32px;
+    min-width: 40px;
     position: fixed;
+}
+.left-tool-bar{
+    height: 100%;
+    padding: 0;
+    min-width: 40px;
+    position: fixed;
+}
+.sidebar-left{
+    height: 100%;
+    width: 100%;
+    margin-left: 40px;
+    overflow: scroll;
 }
 
 .right-container{
     height: 100%;
-    margin-left: 32px;
+    margin-left: 40px;
 }
 
 /*//////////////////////////////////////////////////*/
@@ -332,5 +344,20 @@ div[class*="col-sm-"] {
     background-color: white;
 }
 
-/** ace editor (source view) related styles | -> End **/
-/*//////////////////////////////////////////////////*/
+.about-dialog-close {
+    margin-top: 12px;
+    margin-right: 12px;
+}
+
+.sidebar-left-separator{
+    position: absolute;
+    height: 100%;
+    width: 5px;
+    background: none;
+    top: 0;
+    left: 45px;
+}
+
+.sidebar-left-separator:hover{
+    cursor: ew-resize;
+}

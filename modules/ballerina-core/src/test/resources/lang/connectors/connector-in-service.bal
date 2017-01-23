@@ -29,15 +29,17 @@ connector TestConnector(string param1, string param2, int param3) {
     }
 
     action action5(TestConnector testConnector, string actionParam) (string) {
-        return test:EchoConnector.echoAction(echoConnector, actionParam);
+        string s;
+        s = test:EchoConnector.echoAction(echoConnector, actionParam);
+        return s;
     }
 
     action action6(TestConnector testConnector, string echoConnectorParam, string actionParam) (string) {
         test:EchoConnector localEchoConnector = new test:EchoConnector(echoConnectorParam);
+        string s;
 
-        system:println("hello");
-        system:println(echoConnectorParam);
-        return test:EchoConnector.echoAction(localEchoConnector, actionParam);
+        s =  test:EchoConnector.echoAction(localEchoConnector, actionParam);
+        return s;
     }
 }
 

@@ -10,7 +10,7 @@ compilationUnit
     (   serviceDefinition
     |   functionDefinition
     |   connectorDefinition
-    |   typeDefinition
+    |   structDefinition
     |   typeConvertorDefinition
     |   constantDefinition
     )+
@@ -67,11 +67,11 @@ connectorDeclaration
     :   qualifiedReference Identifier '=' 'new' qualifiedReference '(' expressionList? ')'';'
     ;
 
-typeDefinition
-    :   'public'? 'type' Identifier typeDefinitionBody
+structDefinition
+    :   'public'? 'type' Identifier structDefinitionBody
     ;
 
-typeDefinitionBody
+structDefinitionBody
     :   '{' (typeName Identifier ';')+ '}'
     ;
 
@@ -360,9 +360,9 @@ actionInvocationStatement
     ;
 
 variableReference
-    :   Identifier                          # simpleVariableIdentifier// simple identifier
-    |   Identifier '['expression']'         # mapArrayVariableIdentifier// array and map reference
-    |   Identifier ('.' variableReference)+ # structFieldIdentifier// struct field reference
+    :   Identifier                                  # simpleVariableIdentifier// simple identifier
+    |   Identifier '['expression']'                 # mapArrayVariableIdentifier// array and map reference
+    |   variableReference ('.' variableReference)+  # structFieldIdentifier// struct field reference
     ;
 
 argumentList
@@ -414,7 +414,7 @@ expression
     |   expression ('!=') expression                                        # binaryNotEqualExpression
     |   '[' expressionList ']'                                              # arrayInitializerExpression
     |   '{' mapInitKeyValueList '}'                                         # mapInitializerExpression
-    |   'new' (packageName ':' )? Identifier ('(' expressionList? ')')?     # typeInitializeExpression
+    |   'new' (packageName ':' )? Identifier ('(' expressionList? ')')?     # structInitializeExpression
     ;
 
 mapInitKeyValueList

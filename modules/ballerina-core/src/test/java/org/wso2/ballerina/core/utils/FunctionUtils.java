@@ -27,7 +27,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 /**
  * Utility functions for Function Invocations.
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class FunctionUtils {
 

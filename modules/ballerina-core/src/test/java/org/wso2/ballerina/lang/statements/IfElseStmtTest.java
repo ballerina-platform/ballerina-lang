@@ -31,7 +31,7 @@ import org.wso2.ballerina.lang.util.Functions;
 /**
  * This contains methods to test different behaviours of the if-else statement
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class IfElseStmtTest {
 
@@ -146,7 +146,15 @@ public class IfElseStmtTest {
             expectedExceptions = {SemanticException.class },
             expectedExceptionsMessageRegExp = "Incompatible types: expected a boolean expression in " +
             "if-stmnt-with-incompatible-types.bal:2")
-    public void testMapAccessWithIndex() {
+    public void testIfStmtWithIncompatibleTypes() {
         ParserUtils.parseBalFile("lang/statements/if-stmnt-with-incompatible-types.bal");
+    }
+    
+    @Test(description = "Test else-if statement with incompatible types",
+            expectedExceptions = {SemanticException.class },
+            expectedExceptionsMessageRegExp = "Incompatible types: expected a boolean expression in " +
+            "elseif-stmnt-with-incompatible-types.bal:4")
+    public void testElseIfStmtWithIncompatibleTypes() {
+        ParserUtils.parseBalFile("lang/statements/elseif-stmnt-with-incompatible-types.bal");
     }
 }

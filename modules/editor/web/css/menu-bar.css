@@ -15,13 +15,58 @@
 }
 
 .menu-bar{
-    height: 27px;
+    height: 30px;
 }
 
 .dropdown-menu{
     font-size: 14px;
 }
 
-.dropdown-menu>li>a.menu-item-enabled {
+.dropdown-menu > .menu-item-enabled {
     color: #959595;
+    cursor: pointer;
+}
+
+.dropdown-menu > .menu-item-enabled > a{
+    color: #959595;
+}
+
+#menu-bar-container > div.menu-group > ul > li{
+    min-width: 200px;
+}
+
+div#header-container{
+    Padding-top:5px;
+}
+
+.shortcut-label {
+    margin-left: 30px;
+}
+
+.menu-item-disabled > a > .shortcut-label {
+    color: #777;
+}
+.file-menu-group.open {
+    background-color: #f17b31;
+}
+.file-dropdown-menu > li > a:hover, .file-dropdown-menu > li > a:focus {
+    text-decoration: none;
+    color: #f47b20;
+    background-color: #000000;
+}
+.file-menu-group{
+    min-height: 27px;
+}
+.file-dropdown-menu {
+    background-color: #333;
+    margin-top: 13px;
+}
+li.menu-item-disabled > a {
+    color: #777;
+}
+
+.file-dropdown-menu > li.menu-item-disabled > a:hover{
+    color: #777;
+    background-color: #444;
+
 }

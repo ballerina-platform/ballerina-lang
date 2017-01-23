@@ -12,10 +12,11 @@ button.close {
     text-shadow: 0 0 0;
     font-weight: 100;
     opacity: 0.5;
-    font-size: 20px;
+    font-size: 26px;
+    line-height: 15px;
     position: absolute;
-    top: 0px;
-    right: 5px;
+    top: 6px;
+    right: 9px;
     color: inherit;
 }
 
@@ -101,15 +102,17 @@ button.close {
     min-width: 120px;
     color: rgb(153, 153, 153);
     font-weight: 100;
-    margin: 0px;
+    margin: 0;
     padding-right: 17px;
     padding-left: 5px;
     border-right: 1px;
+    background: #555
 }
 
 #tabs-container > div.tab-headers.tab-headers-bar > ul > li.active {
     background: white;
     color: #555;
+    border-left: 3px solid #f17b31;
 }
 
 #tabs-container > div.tab-headers.tab-headers-bar > ul > li.active.inverse {
@@ -142,10 +145,14 @@ button.close {
 
 #tabs-container > div.tab-headers.tab-headers-bar > ul > li > a:active {
     opacity: 1;
-    color: red;
 }
 
 #tabs-container > div.tab-headers.tab-headers-bar > ul > .active > a {
     opacity: 1;
     color: #333;
+}
+#tabs-container > div.tab-headers.tab-headers-bar > ul > li > button.close{
+    top:0px;
+    right: 2px;
+    font-size: 20px;
 }

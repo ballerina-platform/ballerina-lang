@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './node'], function(_, ASTNode){
+define(['lodash', './statement'], function(_, Statement){
 
     /**
      * Constructor for LeftOperandExpression
@@ -23,24 +23,51 @@ define(['lodash', './node'], function(_, ASTNode){
      * @constructor
      */
     var LeftOperandExpression = function (args) {
-        ASTNode.call(this, 'LeftOperandExpression');
-    }
+        Statement.call(this, 'LeftOperandExpression');
+        this._left_operand_expression_string = _.get(args, "variableReferenceName", "var1");
+    };
 
-    LeftOperandExpression.prototype = Object.create(ASTNode.prototype);
+    LeftOperandExpression.prototype = Object.create(Statement.prototype);
     LeftOperandExpression.prototype.constructor = LeftOperandExpression;
+
+    /**
+     * Get Variable Reference Name
+     * @returns {undefined|string}
+     */
+    LeftOperandExpression.prototype.getLeftOperandExpressionString = function () {
+        return this._left_operand_expression_string;
+    };
+
+    /**
+     * Set Variable Reference Name
+     * @param {string} variableRefName
+     */
+    LeftOperandExpression.prototype.setLeftOperandExpressionString = function (leftOperandExpStr) {
+        this._left_operand_expression_string = leftOperandExpStr;
+    };
 
     /**
      * setting parameters from json
      * @param jsonNode
      */
     LeftOperandExpression.prototype.initFromJson = function (jsonNode) {
-
         var self = this;
-        _.each(jsonNode.children, function (childNode) {
-            var child = self.getFactory().createFromJson(childNode);
-            self.addChild(child);
-            child.initFromJson(childNode);
-        });
+        var expression = "";
+        for (var itr = 0; itr < jsonNode.children.length; itr++) {
+            var childJsonNode = jsonNode.children[itr];
+            if (childJsonNode.type === 'variable_reference_expression') {
+                expression += childJsonNode.variable_reference_name;
+            } else {
+                var child = self.getFactory().createFromJson(childNode);
+                self.addChild(child);
+                child.initFromJson(childJsonNode);
+                expression += child.getExpression();
+            }
+            if (itr !== jsonNode.children.length - 1) {
+                expression += " , ";
+            }
+        };
+        this.setLeftOperandExpressionString(expression);
     };
 
     return LeftOperandExpression;

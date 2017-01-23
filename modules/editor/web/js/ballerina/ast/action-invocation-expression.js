@@ -24,23 +24,125 @@ define(['lodash', 'log', './action-invocation-statement'], function (_, log, Act
      */
     var ActionInvocationExpression = function (args) {
         ActionInvocationStatement.call(this, args);
-        this._variableAccessor = _.get(args, 'accessor');
-        this._actionName = _.get(args, 'actionName');
-        this._actionPackageName = _.get(args, 'actionPackageName');
-        this._actionConnectorName = _.get(args, 'actionConnectorName');
-        this._actionInvocationReference = _.get(args, 'actionInvocationReference');
+        this._variableAccessor = _.get(args, 'accessor', '');
+        this._actionName = _.get(args, 'action', '');
+        this._actionPackageName = _.get(args, 'actionPackageName', '');
+        this._actionConnectorName = _.get(args, 'actionConnectorName', '');
+        this._actionInvocationReference = _.get(args, 'actionInvocationReference', '');
+        this._connectorVariableReference = _.get(args, 'connectorVariableReference', '');
+        this._path = _.get(args, 'path', '\"/\"');
+        this._messageVariableReference = _.get(args, 'messageRef', 'm');
         this.type = "ActionInvocationExpression";
     };
 
     ActionInvocationExpression.prototype = Object.create(ActionInvocationStatement.prototype);
     ActionInvocationExpression.prototype.constructor = ActionInvocationExpression;
 
+    /**
+     * Set variable accessor
+     * @param {string} accessor
+     */
     ActionInvocationExpression.prototype.setVariableAccessor = function (accessor) {
         this._variableAccessor = accessor;
     };
 
+    /**
+     * Get the variable accessor
+     * @returns {string}
+     */
     ActionInvocationExpression.prototype.getVariableAccessor = function () {
         return this._variableAccessor;
+    };
+
+    /**
+     * Set action name
+     * @param {string} actionName
+     */
+    ActionInvocationExpression.prototype.setActionName = function (actionName) {
+        this._actionName = actionName;
+    };
+    /**
+     * Get action name
+     * @returns {string}
+     */
+    ActionInvocationExpression.prototype.getActionName = function () {
+        return this._actionName;
+    };
+
+    /**
+     * Set Action package name
+     * @param {string} actionPackageName
+     */
+    ActionInvocationExpression.prototype.setActionPackageName = function (actionPackageName) {
+        this._actionPackageName = actionPackageName;
+    };
+    /**
+     * Get Action Package Name
+     * @returns {string}
+     */
+    ActionInvocationExpression.prototype.getActionPackageName = function () {
+        return this._actionPackageName;
+    };
+
+    /**
+     * Set Action Connector name
+     * @param {string} actionConnectorName
+     */
+    ActionInvocationExpression.prototype.setActionConnectorName = function (actionConnectorName) {
+        this._actionConnectorName = actionConnectorName;
+    };
+    /**
+     * Get action connector Name
+     * @returns {string}
+     */
+    ActionInvocationExpression.prototype.getActionConnectorName = function () {
+        return this._actionConnectorName;
+    };
+
+    /**
+     * set Connector variable reference
+     * @param {string} connectorVariableReference
+     */
+    ActionInvocationExpression.prototype.setConnectorVariableReference = function (connectorVariableReference) {
+        this._connectorVariableReference = connectorVariableReference;
+    };
+    /**
+     * Get Connector variable reference
+     * @returns {string}
+     */
+    ActionInvocationExpression.prototype.getConnectorVariableReference = function () {
+        return this._connectorVariableReference;
+    };
+
+    /**
+     * Set Path
+     * @param {string} path
+     */
+    ActionInvocationExpression.prototype.setPath = function (path) {
+        this._path = path;
+    };
+    /**
+     * Get Path
+     * @returns {string}
+     */
+    ActionInvocationExpression.prototype.getPath = function () {
+        return this._path;
+    };
+
+    /**
+     * Set Message Variable Reference
+     * @param {string} messageVariableReference
+     */
+    ActionInvocationExpression.prototype.setMessageVariableReference = function (messageVariableReference) {
+        this._messageVariableReference = messageVariableReference;
+    };
+
+    /**
+     * Get Message variable reference
+     * @returns {string}
+     */
+    ActionInvocationExpression.prototype.getMessageVariableReference = function () {
+        return this._messageVariableReference;
     };
 
     /**
@@ -48,12 +150,30 @@ define(['lodash', 'log', './action-invocation-statement'], function (_, log, Act
      * @param {Object} jsonNode to initialize from
      */
     ActionInvocationExpression.prototype.initFromJson = function (jsonNode) {
-        //TODO : Need to refactor the whole method
         this.setConnector(_.head(this.getInvocationConnector(_.head(jsonNode.children).variable_reference_name)));
-        this.setAction("post");
-        this.setVariableAccessor("response");
-        this.setMessage("m");
-        this.setPath("/");
+        this.setActionName(jsonNode.action_name);
+        this.setActionPackageName(jsonNode.action_pkg_name);
+        this.setActionConnectorName(jsonNode.action_connector_name);
+        this.setConnectorVariableReference(jsonNode.children[0].variable_reference_name);
+
+        var pathNode = jsonNode.children[1];
+        //TODO : Need to remove this if/else ladder by delegating expression string calculation to child classes
+        if (pathNode.type == "basic_literal_expression") {
+            if(pathNode.basic_literal_type == "string") {
+                // Adding double quotes if it is a string.
+                this.setPath("\"" + pathNode.basic_literal_value + "\"");
+            } else {
+                this.setPath(pathNode.basic_literal_value);
+            }
+        } else if (pathNode.type == "variable_reference_expression") {
+            this.setPath(pathNode.variable_reference_name);
+        } else {
+            var child = this.getFactory().createFromJson(pathNode);
+            child.initFromJson(pathNode);
+            this.setPath(child.getExpression());
+        }
+
+        this.setMessageVariableReference(jsonNode.children[2].variable_reference_name);
     };
 
     ActionInvocationExpression.prototype.getInvocationConnector = function (variable_reference_name) {

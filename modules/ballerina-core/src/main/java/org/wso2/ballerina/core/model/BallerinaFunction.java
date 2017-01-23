@@ -19,7 +19,6 @@
 package org.wso2.ballerina.core.model;
 
 import org.wso2.ballerina.core.model.statements.BlockStmt;
-import org.wso2.ballerina.core.model.types.BType;
 
 /**
  * A {@code BallerinaFunction} is an operation that is executed by a {@code Worker}.
@@ -35,7 +34,7 @@ import org.wso2.ballerina.core.model.types.BType;
  * Statement;+
  * }
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class BallerinaFunction extends PositionAwareNode implements Function, Node {
 
@@ -49,12 +48,10 @@ public class BallerinaFunction extends PositionAwareNode implements Function, No
     private ConnectorDcl[] connectorDcls;
     private VariableDcl[] variableDcls;
     private Worker[] workers;
-
-    private BType[] returnTypes;
+    private Parameter[] returnParams;
     private BlockStmt functionBody;
 
     private boolean publicFunc;
-
     private int stackFrameSize;
 
     public BallerinaFunction(SymbolName name,
@@ -62,7 +59,7 @@ public class BallerinaFunction extends PositionAwareNode implements Function, No
                              Boolean isPublic,
                              Annotation[] annotations,
                              Parameter[] parameters,
-                             BType[] returnTypes,
+                             Parameter[] returnParams,
                              ConnectorDcl[] connectorDcls,
                              VariableDcl[] variableDcls,
                              Worker[] workers,
@@ -74,7 +71,7 @@ public class BallerinaFunction extends PositionAwareNode implements Function, No
         this.publicFunc = isPublic;
         this.annotations = annotations;
         this.parameters = parameters;
-        this.returnTypes = returnTypes;
+        this.returnParams = returnParams;
         this.connectorDcls = connectorDcls;
         this.variableDcls = variableDcls;
         this.workers = workers;
@@ -163,8 +160,8 @@ public class BallerinaFunction extends PositionAwareNode implements Function, No
         return workers;
     }
 
-    public BType[] getReturnTypes() {
-        return returnTypes;
+    public Parameter[] getReturnParameters() {
+        return returnParams;
     }
 
     /**
@@ -183,10 +180,6 @@ public class BallerinaFunction extends PositionAwareNode implements Function, No
         publicFunc = true;
     }
 
-    public BlockStmt getFunctionBody() {
-        return this.functionBody;
-    }
-
     public int getStackFrameSize() {
         return stackFrameSize;
     }
@@ -194,6 +187,11 @@ public class BallerinaFunction extends PositionAwareNode implements Function, No
 
     public void setStackFrameSize(int stackFrameSize) {
         this.stackFrameSize = stackFrameSize;
+    }
+
+    @Override
+    public BlockStmt getCallableUnitBody() {
+        return this.functionBody;
     }
 
     @Override
@@ -208,13 +206,4 @@ public class BallerinaFunction extends PositionAwareNode implements Function, No
     public Position getLocation() {
         return functionLocation;
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setLocation(Position location) {
-        this.functionLocation = location;
-    }
-
 }

@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './node'], function(_, ASTNode){
+define(['lodash', './statement'], function(_, Statement){
 
     /**
      * Constructor for RightOperandExpression
@@ -23,23 +23,68 @@ define(['lodash', './node'], function(_, ASTNode){
      * @constructor
      */
     var RightOperandExpression = function (args) {
-        ASTNode.call(this, 'RightOperandExpression');
-    }
+        Statement.call(this, 'RightOperandExpression');
+        this._right_operand_expression_string = undefined;
+    };
 
-    RightOperandExpression.prototype = Object.create(ASTNode.prototype);
+    RightOperandExpression.prototype = Object.create(Statement.prototype);
     RightOperandExpression.prototype.constructor = RightOperandExpression;
+
+    /**
+     * Get Right Operand Expression String
+     * @returns {string} - The expression
+     */
+    RightOperandExpression.prototype.getRightOperandExpressionString = function () {
+        return this._right_operand_expression_string;
+    };
+
+    /**
+     * Set Right Operand Expression String
+     * @param {string} rightOperandExpStr - The expression
+     */
+    RightOperandExpression.prototype.setRightOperandExpressionString = function (rightOperandExpStr) {
+        this._right_operand_expression_string = rightOperandExpStr;
+    };
+
+    /**
+     * Override the removeChild function
+     * @param {ASTNode} child - child node
+     */
+    RightOperandExpression.prototype.removeChild = function (child) {
+        this.getParent().removeChild(this);
+    };
 
     /**
      * setting parameters from json
      * @param jsonNode
      */
     RightOperandExpression.prototype.initFromJson = function (jsonNode) {
-
         var self = this;
         _.each(jsonNode.children, function (childNode) {
-            var child = self.getFactory().createFromJson(childNode);
-            self.addChild(child);
-            child.initFromJson(childNode);
+            // TODO: Handle this Properly
+            if (childNode.type === 'back_quote_expression') {
+                self.setRightOperandExpressionString('`' + childNode.back_quote_enclosed_string + '`');
+            } else if (childNode.type === 'instance_creation_expression'){
+                self.setRightOperandExpressionString("new " + childNode.instance_type);
+            } else if (childNode.type === 'basic_literal_expression'){
+                self.setRightOperandExpressionString('"' + childNode.basic_literal_value + '"');
+            } else if(childNode.type === 'variable_reference_expression'){
+                self.setRightOperandExpressionString(childNode.variable_reference_name);
+            } else if(childNode.type === 'array_map_access_expression'){
+                var child = self.getFactory().createFromJson(childNode);
+                child.initFromJson(childNode);
+                self.setRightOperandExpressionString(child.getExpression());
+            } else {
+                var child = self.getFactory().createFromJson(childNode);
+                if (self.getFactory().isBinaryExpression(child)
+                    ||self.getFactory().isFunctionInvocationExpression(child)) {
+                    child.initFromJson(childNode);
+                    self.setRightOperandExpressionString(child.getExpression());
+                } else {
+                    self.addChild(child);
+                }
+                child.initFromJson(childNode);
+            }
         });
     };
 

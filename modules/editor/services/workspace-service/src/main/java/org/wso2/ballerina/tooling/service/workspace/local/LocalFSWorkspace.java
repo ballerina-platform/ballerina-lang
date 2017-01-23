@@ -49,8 +49,8 @@ public class LocalFSWorkspace implements Workspace {
                     Iterator<Path> rootItr = Files.list(root).iterator();
                     while (rootItr.hasNext()){
                         Path next = rootItr.next();
-                        JsonObject childObj = getJsonObjForFile(next, true);
-                        if(Files.isDirectory(next)){
+                        if(Files.isDirectory(next) && !Files.isHidden(next)){
+                            JsonObject childObj = getJsonObjForFile(next, true);
                             children.add(childObj);
                         }
                     }
@@ -74,7 +74,7 @@ public class LocalFSWorkspace implements Workspace {
         Iterator<Path> iterator = Files.list(ioPath).iterator();
         while (iterator.hasNext()){
             Path next = iterator.next();
-            if(Files.isDirectory(next)){
+            if(Files.isDirectory(next) && !Files.isHidden(next)){
                 JsonObject jsnObj = getJsonObjForFile(next, true);
                 dirs.add(jsnObj);
             }
@@ -135,7 +135,7 @@ public class LocalFSWorkspace implements Workspace {
 		Iterator<Path> iterator = Files.list(ioPath).iterator();
 		while (iterator.hasNext()) {
 			Path next = iterator.next();
-			if (Files.isDirectory(next) || Files.isRegularFile(next)) {
+			if ((Files.isDirectory(next) || Files.isRegularFile(next))  && !Files.isHidden(next)) {
 				JsonObject jsnObj = getJsonObjForFile(next, true);
 				if (Files.isRegularFile(next)) {
 					if (next.getFileName().toString().endsWith(FILE_EXTENSION)) {

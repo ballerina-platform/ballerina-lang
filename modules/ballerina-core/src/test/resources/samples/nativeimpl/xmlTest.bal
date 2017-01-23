@@ -4,7 +4,7 @@ function getString(xml msg, string xPath) (string) {
     return xml:getString(msg, xPath);
 }
 
-function getXML(xml msg, string xPath) (string) {
+function getXML(xml msg, string xPath) (xml) {
     return xml:getXml(msg, xPath);
 }
 
@@ -28,7 +28,7 @@ function addAttribute(xml msg, string xPath, string name, string value) (xml) {
     return msg;
 }
 
-function remove(xml msg, string xPath) (string) {
+function remove(xml msg, string xPath) (xml) {
     xml:remove(msg, xPath);
     return msg;
 }

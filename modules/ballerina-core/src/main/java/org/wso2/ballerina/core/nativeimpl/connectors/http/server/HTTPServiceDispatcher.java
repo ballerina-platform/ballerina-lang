@@ -37,7 +37,7 @@ import java.util.Map;
 /**
  * Service Dispatcher for HTTP Protocol
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class HTTPServiceDispatcher implements ServiceDispatcher {
 

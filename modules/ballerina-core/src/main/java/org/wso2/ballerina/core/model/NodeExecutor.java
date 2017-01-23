@@ -30,9 +30,9 @@ import org.wso2.ballerina.core.model.expressions.BinaryExpression;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.InstanceCreationExpr;
 import org.wso2.ballerina.core.model.expressions.MapInitExpr;
+import org.wso2.ballerina.core.model.expressions.ResourceInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.UnaryExpression;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
-import org.wso2.ballerina.core.model.invokers.ResourceInvocationExpr;
 import org.wso2.ballerina.core.model.statements.ActionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
@@ -46,7 +46,7 @@ import org.wso2.ballerina.core.model.values.BValue;
 /**
  * {@code NodeExecutor} responsible for executing a Ballerina applications by traversing statements and expressions
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public interface NodeExecutor {
 

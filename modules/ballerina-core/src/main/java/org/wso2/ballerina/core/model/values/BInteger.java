@@ -20,7 +20,7 @@ package org.wso2.ballerina.core.model.values;
 /**
  * The {@code BInteger} represents a int value in Ballerina
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public final class BInteger extends BValueType {
 

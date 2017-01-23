@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require','lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor', '../../ast/assignment'],
+define(['require','lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor', '../../ast/assignment-statement'],
     function(require, _, log, EventChannel, AbstractStatementSourceGenVisitor, AssignmentStatement) {
 
         var AssignmentStatementVisitor = function(parent){
@@ -30,14 +30,26 @@ define(['require','lodash', 'log', 'event_channel', './abstract-statement-source
         };
 
         AssignmentStatementVisitor.prototype.beginVisitAssignmentStatement = function(assignmentStatement){
-            this.appendSource(assignmentStatement.getExpression());
-            log.debug('Begin Visit assignment Statement Definition');
+            log.debug('Begin Visit Assignment Statement');
+        };
+
+        AssignmentStatementVisitor.prototype.visitLeftOperandExpression = function(expression){
+            var StatementVisitorFactory = require('./statement-visitor-factory');
+            var statementVisitorFactory = new StatementVisitorFactory();
+            var statementVisitor = statementVisitorFactory.getStatementVisitor(expression, this);
+            expression.accept(statementVisitor);
+        };
+
+        AssignmentStatementVisitor.prototype.visitRightOperandExpression = function(expression){
+            var StatementVisitorFactory = require('./statement-visitor-factory');
+            var statementVisitorFactory = new StatementVisitorFactory();
+            var statementVisitor = statementVisitorFactory.getStatementVisitor(expression, this);
+            expression.accept(statementVisitor);
         };
 
         AssignmentStatementVisitor.prototype.endVisitAssignmentStatement = function(assignmentStatement){
-            this.appendSource(";\n");
-            this.getParent().appendSource(this.getGeneratedSource());
-            log.debug('End Visit assignment Statement Definition');
+            this.getParent().appendSource(this.getGeneratedSource() + ";\n");
+            log.debug('End Visit Assignment Statement');
         };
 
         return AssignmentStatementVisitor;
