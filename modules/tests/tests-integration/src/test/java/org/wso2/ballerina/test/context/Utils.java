@@ -219,4 +219,13 @@ public class Utils {
             }
         }
     }
+
+    /**
+     * Return the system property value of os.name.
+     * System.getProperty("os.name").
+     * @return Operating System name
+     */
+    public static String getOSName() {
+        return System.getProperty("os.name");
+    }
 }

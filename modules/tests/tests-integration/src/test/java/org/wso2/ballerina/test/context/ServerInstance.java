@@ -88,7 +88,7 @@ public class ServerInstance implements Server {
             String pid;
             try {
                 pid = getServerPID();
-                if (System.getProperty("os.name").toLowerCase().contains("windows")) {
+                if (Utils.getOSName().toLowerCase().contains("windows")) {
                     Process killServer = Runtime.getRuntime().exec("TASKKILL -F /PID " + pid);
                     log.info(readProcessInputStream(killServer.getInputStream()));
                     killServer.waitFor(15, TimeUnit.SECONDS);
@@ -216,7 +216,7 @@ public class ServerInstance implements Server {
         String scriptName = Constant.BALLERINA_SERVER_SCRIPT_NAME;
         String[] cmdArray;
         File commandDir = new File(serverHome);
-        if (System.getProperty("os.name").toLowerCase().contains("windows")) {
+        if (Utils.getOSName().toLowerCase().contains("windows")) {
             commandDir = new File(serverHome + File.separator + "bin");
             cmdArray = new String[]{"cmd.exe", "/c", scriptName + ".bat"};
             String[] cmdArgs = Stream.concat(Arrays.stream(cmdArray), Arrays.stream(args))
@@ -239,7 +239,7 @@ public class ServerInstance implements Server {
      */
     private String getServerPID() throws IOException {
         String pid = null;
-        if (System.getProperty("os.name").toLowerCase().contains("windows")) {
+        if (Utils.getOSName().toLowerCase().contains("windows")) {
             //reading the process id from netstat
             Process tmp = Runtime.getRuntime().exec("netstat -a -n -o");
             String outPut = readProcessInputStream(tmp.getInputStream());
@@ -283,7 +283,7 @@ public class ServerInstance implements Server {
             }
 
         }
-        log.info("Server process id in " + System.getProperty("os.name") + " : " + pid);
+        log.info("Server process id in " + Utils.getOSName() + " : " + pid);
         return pid;
     }
 
