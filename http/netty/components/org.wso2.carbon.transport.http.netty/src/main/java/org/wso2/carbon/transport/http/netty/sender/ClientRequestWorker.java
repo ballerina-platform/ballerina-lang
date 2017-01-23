@@ -139,7 +139,7 @@ public class ClientRequestWorker implements Runnable {
                 return targetChannel;
             }
         } catch (Exception e) {
-            String msg = "Cannot borrow free channel from pool";
+            String msg = e.getMessage();
             log.error(msg, e);
             MessagingException messagingException = new MessagingException(msg, 101503);
             carbonMessage.setMessagingException(messagingException);

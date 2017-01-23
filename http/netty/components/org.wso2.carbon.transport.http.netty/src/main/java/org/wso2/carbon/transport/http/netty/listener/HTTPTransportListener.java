@@ -153,9 +153,9 @@ public class HTTPTransportListener extends TransportListener {
             bindInterface(defaultListenerConfig);
         }
 
-        TransportListenerManager artifactDeployer = HTTPTransportContextHolder.getInstance().getManager();
-        if (artifactDeployer != null) {
-            artifactDeployer.registerTransportListener(this);
+        TransportListenerManager transportListenerManager = HTTPTransportContextHolder.getInstance().getManager();
+        if (transportListenerManager != null) {
+            transportListenerManager.registerTransportListener(this);
         }
 
     }
