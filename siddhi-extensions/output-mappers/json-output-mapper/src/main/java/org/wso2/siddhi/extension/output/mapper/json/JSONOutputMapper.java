@@ -28,9 +28,9 @@ import java.util.Map;
 
 public class JSONOutputMapper extends OutputMapper {
     private StreamDefinition streamDefinition;
-    public static final String EVENT_PARENT_TAG = "event";
-    public static final String EVENT_ARBITRARY_DATA_MAP_TAG = "arbitraryDataMap";
-    public static final String EVENT_ATTRIBUTE_SEPARATOR = ",";
+    private static final String EVENT_PARENT_TAG = "event";
+    private static final String EVENT_ARBITRARY_DATA_MAP_TAG = "arbitraryDataMap";
+    private static final String EVENT_ATTRIBUTE_SEPARATOR = ",";
 
     /**
      * Initialize the mapper and the mapping configurations.

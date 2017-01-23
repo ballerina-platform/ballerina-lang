@@ -26,8 +26,8 @@ import java.util.Map;
 
 public class TextOutputMapper extends OutputMapper {
     private StreamDefinition streamDefinition;
-    public static final String EVENT_ATTRIBUTE_SEPARATOR = ",";
-    public static final String EVENT_ATTRIBUTE_VALUE_SEPARATOR = ":";
+    private static final String EVENT_ATTRIBUTE_SEPARATOR = ",";
+    private static final String EVENT_ATTRIBUTE_VALUE_SEPARATOR = ":";
 
     /**
      * Initialize the mapper and the mapping configurations
