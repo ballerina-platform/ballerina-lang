@@ -18,10 +18,6 @@
 
 package org.wso2.ballerina.core.model;
 
-import org.wso2.ballerina.core.model.expressions.Expression;
-
-import java.util.List;
-
 /**
  * A {@code Connection} represents the instantiation of a struct with a particular configuration.
  *
@@ -106,12 +102,11 @@ public class StructDcl implements Node {
     }
 
     /**
-     *
+     * Builder calls to collect information and build a struct declaration.
      */
     public static class StructDclBuilder {
         private SymbolName structName;
         private SymbolName varName;
-        private List<Expression> exprList;
 
         public void setStructName(SymbolName structName) {
             this.structName = structName;

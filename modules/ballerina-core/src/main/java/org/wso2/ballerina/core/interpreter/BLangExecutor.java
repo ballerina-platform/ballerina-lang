@@ -669,10 +669,7 @@ public class BLangExecutor implements NodeExecutor {
     @Override
     public BValue visit(StructAttributeAccessExpr structAttributeAccessExpr) {
         MemoryLocation memoryLocation = structAttributeAccessExpr.getMemoryLocation();
-        BValue value = null;
-        // Value stored in the memory location is always a struct type.
-        value = memoryLocation.execute(this);
-        
+        BValue value = memoryLocation.execute(this);
         return getAttributeExprValue(structAttributeAccessExpr, value);
     }
     
@@ -684,11 +681,8 @@ public class BLangExecutor implements NodeExecutor {
      */
     private void assignValueToStructAttributeAccessExpr(BValue rValue, StructAttributeAccessExpr lExpr) {
         MemoryLocation memoryLocation = lExpr.getMemoryLocation();
-        BValue value = null;
-        // Value stored in the memory location is always a struct type.
-        value = memoryLocation.execute(this);
+        BValue value = memoryLocation.execute(this);
         setAttributeValue(rValue, lExpr, value);
-
     }
     
     /**

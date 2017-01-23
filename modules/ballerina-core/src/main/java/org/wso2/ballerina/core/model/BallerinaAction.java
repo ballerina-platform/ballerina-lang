@@ -59,7 +59,6 @@ public class BallerinaAction implements Action, Node {
                            Parameter[] returnParams,
                            ConnectorDcl[] connectorDcls,
                            VariableDcl[] variableDcls,
-                           StructDcl[] structDcls,
                            Worker[] workers,
                            BlockStmt actionBody) {
 
