@@ -242,8 +242,12 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab',
             aboutModal.modal('show')
         };
 
-        this.handleCreateNewFIleAtPath = function(){
-            //TOD0
+        this.handleCreateNewItemAtPath = function(data){
+            if(_.isNil(this._newItemDialog)){
+                this._newItemDialog = new Dialogs.NewItemDialog({application: app});
+                this._newItemDialog.render();
+            }
+            this._newItemDialog.displayWizard(data);
         };
 
         this.handleRemoveFile = function(){
@@ -271,7 +275,7 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab',
 
         app.commandManager.registerHandler('show-about-dialog', this.showAboutDialog);
 
-        app.commandManager.registerHandler('create-new-file-at-path', this.handleCreateNewFIleAtPath, this);
+        app.commandManager.registerHandler('create-new-item-at-path', this.handleCreateNewItemAtPath, this);
 
         app.commandManager.registerHandler('remove-file', this.handleRemoveFile, this);
 
