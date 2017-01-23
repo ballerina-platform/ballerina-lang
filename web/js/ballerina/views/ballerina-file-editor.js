@@ -47,12 +47,36 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 // not throwing an exception for now since we need to work without a backend.
             }
             this.backend = new Backend(_.get(args, 'viewOptions.backend', {}));
+            this._isInSourceView = false;
             this.deserializer = BallerinaASTDeserializer;
             this.init();
         };
 
         BallerinaFileEditor.prototype = Object.create(BallerinaView.prototype);
         BallerinaFileEditor.prototype.constructor = BallerinaFileEditor;
+
+        BallerinaFileEditor.prototype.getContent = function(){
+            if (this.isInSourceView()) {
+                return this._sourceView.getContent();
+            } else {
+                return this.generateSource();
+            }
+        };
+
+        BallerinaFileEditor.prototype.isInSourceView = function(){
+                    return this._isInSourceView;
+        };
+
+        BallerinaFileEditor.prototype.setInSourceView = function(isInSourceView){
+            this._isInSourceView = isInSourceView;
+            if(isInSourceView){
+                this.trigger('source-view-activated');
+                this.trigger('design-view-deactivated');
+            } else {
+                this.trigger('design-view-activated');
+                this.trigger('source-view-deactivated');
+            }
+        };
 
         BallerinaFileEditor.prototype.setModel = function (model) {
             if (!_.isNil(model) && model instanceof BallerinaASTRoot) {
@@ -252,8 +276,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 self._$designViewContainer.hide();
                 designViewBtn.show();
                 sourceViewBtn.hide();
-                self.trigger('source-view-activated');
-                self.trigger('design-view-deactivated');
+                self.setInSourceView(true);
             });
 
             var designViewBtn = $(this._container).find(_.get(this._viewOptions, 'controls.view_design_btn'));
@@ -261,7 +284,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 // re-parse if there are modifications to source
                 var isSourceChanged = !self._sourceView._editor.getSession().getUndoManager().isClean();
                 if (isSourceChanged) {
-                    var source = self._sourceView._editor.getValue();
+                    var source = self._sourceView.getContent();
                     var response = self.backend.parse(source);
                     //if there are errors display the error.
                     //@todo: proper error handling need to get the service specs
@@ -282,8 +305,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 self._$designViewContainer.show();
                 sourceViewBtn.show();
                 designViewBtn.hide();
-                self.trigger('design-view-activated');
-                self.trigger('source-view-deactivated');
+                self.setInSourceView(false);
                 if(isSourceChanged){
                     // reset undo manager for the design view
                     self.getUndoManager().reset();
