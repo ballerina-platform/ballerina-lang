@@ -50,7 +50,7 @@ public class LocalFSWorkspace implements Workspace {
                     while (rootItr.hasNext()){
                         Path next = rootItr.next();
                         JsonObject childObj = getJsonObjForFile(next, true);
-                        if(Files.isDirectory(next)){
+                        if(Files.isDirectory(next) && !Files.isHidden(next)){
                             children.add(childObj);
                         }
                     }
