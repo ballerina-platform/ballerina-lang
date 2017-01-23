@@ -1039,6 +1039,37 @@ button.variable-list {
     width: 30%;
 }
 
+#modalSearch .modal-dialog {
+    width: 30%;
+}
+
+#modalSearch input {
+    color:black !important;
+}
+
+.modal-search-icon{
+    position: absolute;
+    right: 20px;
+    top: 8px;
+    color: #7b7b7b;
+}
+
+.search-results {
+    height: 50%;
+    overflow: auto;
+    background-color: #2C2C2C;
+}
+
+.search-results ul li{
+    background-color: #2C2C2C !important;
+    border: 1px solid #6f6f6f !important;
+    cursor: pointer;
+}
+
+.search-results ul li:hover{
+    background-color: #6f6f6f !important;
+}
+
 .service-title-text:hover {
     cursor: text;
 }
