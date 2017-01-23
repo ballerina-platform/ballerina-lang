@@ -146,8 +146,8 @@ define(['lodash', 'd3','log', './ballerina-statement-view', './../ast/action-inv
                     propertyType: "text",
                     key: "Assign To",
                     model: leftOperandModel,
-                    getterMethod: leftOperandModel.getVariableReferenceName,
-                    setterMethod: leftOperandModel.setVariableReferenceName
+                    getterMethod: leftOperandModel.getLeftOperandExpressionString,
+                    setterMethod: leftOperandModel.setLeftOperandExpressionString
                 },
                 {
                     propertyType: "text",

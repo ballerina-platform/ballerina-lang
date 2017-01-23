@@ -151,14 +151,16 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
             var self = this;
 
             $("#title-" + this._model.id).addClass("service-title-text").text(this._model.getServiceName())
-                .on("change paste keydown", function (e) {
-                    if (e.which == 13) {
-                        return false;
-                    }
+                .on("change paste keyup", function (e) {
                     self._model.setServiceName($(this).text());
                 }).on("click", function (event) {
-                event.stopPropagation();
-            });
+                    event.stopPropagation();
+                }).on("keydown", function (e) {
+                    // Check whether the Enter key has been pressed. If so return false. Won't type the character
+                    if (e.keyCode === 13) {
+                        return false;
+                    }
+                });
 
             this._model.on('child-added', function (child) {
                 self.visit(child);
@@ -183,7 +185,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
                 }
             };
 
-            VariablesView.createVariablePane(variableProperties);
+            VariablesView.createVariablePane(variableProperties, diagramRenderingContext);
 
             var operationsPane = this.getOperationsPane();
 
@@ -277,6 +279,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
          */
         ServiceDefinitionView.prototype.visitResourceDefinition = function (resourceDefinition) {
             log.debug("Visiting resource definition");
+            var self = this;
             var resourceContainer = this.getChildContainer();
             // If more than 1 resource
             if (this.getResourceViewList().length > 0) {
@@ -313,7 +316,16 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
             this.setLifelineMargin(resourceDefinitionView.getBoundingBox().getRight());
             // If the lifeline margin is changed then accordingly the resource should move the bounding box
             this.getLifeLineMargin().on('moved', function (offset) {
-                resourceDefinitionView.getBoundingBox().w(resourceDefinitionView.getBoundingBox().w() + offset);
+                var newWidth = resourceDefinitionView.getBoundingBox().w() + offset;
+                var minWidth = resourceDefinitionView.getContentMinWidth();
+                // resource bounding box should not shrink than min width
+                if (newWidth > minWidth) {
+                    resourceDefinitionView.getBoundingBox().w(newWidth);
+                } else {
+                    // reset lifeline margin position
+                    self.setLifelineMargin(minWidth + self._viewOptions.offsetTop);
+                    resourceDefinitionView.getBoundingBox().w(minWidth);
+                }
             });
 
             //setting height of the service view

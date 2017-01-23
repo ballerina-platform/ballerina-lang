@@ -40,15 +40,76 @@ define(['jquery', 'backbone', 'lodash', 'tree_view', /** void module - jquery pl
                 log.error('Cannot init file browser. config: application not found.')
             }
 
-            if (!_.has(config, 'action')) {
-                log.error('Cannot init file browser. config: action not found.')
-            }
-
             this.application = _.get(config, 'application');
             this._options = config;
-            this.workspaceServiceURL = _.get(this._options, 'application.config.services.workspace.endpoint');
+            this._workspaceServiceURL = _.get(this._options, 'application.config.services.workspace.endpoint');
             this._isActive = false;
-            this.action = _.get(config, 'action');
+            this._fetchFiles = _.get(config, 'fetchFiles', false);
+            this._root = _.get(config, 'root');
+
+            this._treeConfig = {
+                'core': {
+                    'data': {
+                        'url': this.getURLProvider(),
+                        'dataType': "json",
+                        'data': function (node) {
+                            return {'id': node.id};
+                        }
+                    },
+                    'multiple': false,
+                    'check_callback': false,
+                    'force_text': true,
+                    'expand_selected_onload': true,
+                    'themes': {
+                        'responsive': false,
+                        'variant': 'small',
+                        'stripes': false,
+                        'dots': false
+                    }
+                },
+                'types': {
+                    'default': {
+                        'icon': 'fw fw-folder'
+                    },
+                    'folder': {
+                        'icon': 'fw fw-folder'
+                    },
+                    'file': {
+                        'icon': 'fw-document'
+                    }
+                }
+            };
+
+            this._plugins = ['types', 'wholerow'];
+            this._contextMenuProvider = _.get(config, 'contextMenuProvider');
+            if(!_.isNil(this._contextMenuProvider)){
+                this._plugins.push('contextmenu');
+                _.set(this._treeConfig, 'contextmenu.items', this._contextMenuProvider);
+            }
+            _.set(this._treeConfig, 'plugins', this._plugins);
+        },
+
+        getURLProvider: function(){
+            var self = this;
+            return function (node) {
+                if (node.id === '#') {
+                    if(!_.isNil(self._root)){
+                        if (self._fetchFiles) {
+                            return self._workspaceServiceURL + "/listFiles?path=" + btoa(self._root);
+                        } else {
+                            return self._workspaceServiceURL + "/list?path=" + btoa(self._root);
+                        }
+                    }
+                    return self._workspaceServiceURL + "/root";
+                }
+                else {
+                    if (self._fetchFiles) {
+                        return self._workspaceServiceURL + "/listFiles?path=" + btoa(node.id);
+                    } else {
+                        return self._workspaceServiceURL + "/list?path=" + btoa(node.id);
+                    }
+                }
+            }
         },
 
         /**
@@ -61,52 +122,8 @@ define(['jquery', 'backbone', 'lodash', 'tree_view', /** void module - jquery pl
 
         render: function () {
             var self = this;
-            var action = this.action;
             this._$parent_el
-                .jstree({
-                    'core': {
-                        'data': {
-                            'url': function (node) {
-                                if (node.id === '#') {
-                                    return self.workspaceServiceURL + "/root";
-                                }
-                                else {
-                                    if (action === 'saveFile') {
-                                        return self.workspaceServiceURL + "/list?path=" + btoa(node.id);
-                                    } else if (action == 'openFile') {
-                                        return self.workspaceServiceURL + "/listFiles?path=" + btoa(node.id);
-                                    }
-                                }
-
-                            },
-                            'dataType': "json",
-                            'data': function (node) {
-                                return {'id': node.id};
-                            }
-                        },
-                        'multiple': false,
-                        'check_callback': false,
-                        'force_text': true,
-                        'expand_selected_onload': true,
-                        'themes': {
-                            'responsive': false,
-                            'variant': 'small',
-                            'stripes': true
-                        }
-                    },
-                    'types': {
-                        'default': {
-                            'icon': 'fw fw-folder'
-                        },
-                        'folder': {
-                            'icon': 'fw fw-folder'
-                        },
-                        'file': {
-                            'icon': 'fw-document'
-                        }
-                    },
-                    'plugins': ['types']
-                }).on('changed.jstree', function (e, data) {
+                .jstree(self._treeConfig).on('changed.jstree', function (e, data) {
                     if (data && data.selected && data.selected.length) {
                         self.selected = data.selected[0];
                         self.trigger("selected", data.selected[0]);
@@ -121,6 +138,10 @@ define(['jquery', 'backbone', 'lodash', 'tree_view', /** void module - jquery pl
                     data.instance.set_icon(data.node, "fw fw-folder");
                 }).on('ready', function(){
                     self.trigger("ready");
+                }).on("dblclick.jstree", function (event) {
+                    var item = $(event.target).closest("li");
+                    var node = self._$parent_el.jstree(true).get_node(item[0].id);
+                    self.trigger("double-click-node", node);
                 });
             return this;
         }
