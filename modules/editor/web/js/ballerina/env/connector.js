@@ -19,17 +19,15 @@ define(['log', 'lodash', 'event_channel'],
     function(log, _, EventChannel ){
 
     /**
-     * @class Package
-     * @augments EventChannel
+     * @class Connector
+     * @augments 
      * @param args {Object} - args.name: name of the package
      * @constructor
      */
-    var Package = function(args){
+    var Connector = function(args){
         this.name = _.get(args, 'name', []);
-        this.functions = _.get(args, 'functions', []);
-        this.connectors = _.get(args, 'functions', []);
-        this.structs = _.get(args, 'functions', []);
+        this.actions = _.get(args, 'actions', []);
     };
 
-    return Package;
+    return Connector;
 });
