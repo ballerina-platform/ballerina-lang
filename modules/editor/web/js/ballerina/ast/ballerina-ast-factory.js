@@ -370,9 +370,9 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
 
         /**
          * creates Argument
-         * @param {Object} args - The arguments to create the Argument
-         * @param {string} args.type - Type of the argument
-         * @param {string} args.identifier - Identifier of the argument
+         * @param {Object} [args] - The arguments to create the Argument
+         * @param {string} [args.type] - Type of the argument
+         * @param {string} [args.identifier] - Identifier of the argument
          * @returns {Argument}
          */
         BallerinaASTFactory.createArgument = function (args) {
