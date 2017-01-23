@@ -76,20 +76,10 @@ define(['lodash', './statement'], function(_, Statement){
                 self.setRightOperandExpressionString(child.getExpression());
             } else {
                 var child = self.getFactory().createFromJson(childNode);
-                if(self.getFactory().isBinaryExpression(child)){
+                if (self.getFactory().isBinaryExpression(child)
+                    ||self.getFactory().isFunctionInvocationExpression(child)) {
                     child.initFromJson(childNode);
                     self.setRightOperandExpressionString(child.getExpression());
-                }
-                // TODO: Need to handle the function expressions and statements differently. Need Refactor the bellow
-                else if (self.getFactory().isFunctionInvocationExpression(child) &&
-                    !self.getFactory().isFunctionInvocationStatement(child.getParent())) {
-                    var newParent = self.getFactory().createFunctionInvocationStatement();
-                    newParent.addChild(child);
-                    self.addChild(newParent);
-                    var funcInvocationExpDummy = self.getFactory().createFunctionInvocationExpression();
-                    var args = "";
-                    args += funcInvocationExpDummy._generateArgsString(childNode, args, ", ");
-                    self.setRightOperandExpressionString(childNode.function_name + "(" + args + ")") ;
                 } else {
                     self.addChild(child);
                 }
