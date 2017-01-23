@@ -1,4 +1,4 @@
-# Working with Ballerina v1.0.0-M1
+# Working with Ballerina v0.8.0-SNAPSHOT
 
 Ballerina is a new programming language for integration built on a sequence diagram metaphor. 
 
@@ -25,11 +25,9 @@ function main (string[] args) {
 
 ####Usage:
 ```
-    ballerina.sh ballerina-file [args...]
-    ballerina.sh command
+    ballerina ballerina-file [args...]
+    ballerina command
 ```
-
-_**Note**: Use `ballerina.bat` in Windows environment._ 
 
 **Available Commands:**
 
@@ -40,28 +38,28 @@ _**Note**: Use `ballerina.bat` in Windows environment._
 
 1) Execute the main function of the `say-hello-world.bal` Ballerina program with no arguments.
 ```
-    ballerina.sh say-hello-world.bal
+    ballerina say-hello-world.bal
 ```
 
 2) Execute the main function of the `hello-world.bal` Ballerina program with argument `WSO2`.
 ```
-    ballerina.sh hello-world.bal WSO2
+    ballerina hello-world.bal WSO2
 ```
 3) Execute the main function of the `hello-world.bal` Ballerina program with argument `WSO2 Inc`. If the argument value contains a space, use double quote to enclose it
 ```
-    ballerina.sh hello-world.bal "WSO2 Inc" 
+    ballerina hello-world.bal "WSO2 Inc" 
 ```
 4) Execute the main function of the `multiplier.bal` Ballerina program with arguments `5` and `10`.
 ```
-    ballerina.sh multiplier.bal 5 10
+    ballerina multiplier.bal 5 10
 ```
 5) Print Ballerina version. 
 ```
-    ballerina.sh version
+    ballerina version
 ```
 6) Print `ballerina` help message. 
 ```
-    ballerina.sh help
+    ballerina help
 ```
 
 ### **Server Mode** 
@@ -71,11 +69,9 @@ and start accepting requests for deployed services.
 
 ####Usage:
 ```
-    ballerinaserver.sh [option] ballerina-file1 ballerina-file2 ...
-    ballerinaserver.sh command
+    ballerinaserver [option] ballerina-file1 ballerina-file2 ...
+    ballerinaserver command
 ```
-
-_**Note**: Use `ballerinaserver.bat` in Windows environment._ 
 
 **Available Options (Unix/Linux Only)**
 
@@ -92,33 +88,27 @@ _**Note**: Use `ballerinaserver.bat` in Windows environment._
 
 1) Deploy `passthrough.bal` Ballerina program. 
 ```
-    ballerinaserver.sh passthrough.bal
+    ballerinaserver passthrough.bal
 ```
 2) Deploy `passthrough.bal` and `echo.bal` Ballerina programs. 
 ```
-    ballerinaserver.sh passthrough.bal echo.bal
+    ballerinaserver passthrough.bal echo.bal
 ```
 3) Print Ballerina version.
 ```
-    ballerinaserver.sh version
+    ballerinaserver version
 ```
 4) Print `ballerinaserver` help message.
 ```
-    ballerinaserver.sh help
+    ballerinaserver help
 ```
 
 ## Working with Ballerina Editor. 
 
 Start Ballerina editor using,
 
-* **Unix/Linux**
 ```
-editor.sh
-```
-
-* **Windows**
-```
-editor.bat
+editor
 ```
 
 Access Ballerina editor via [http://localhost:9091](http://localhost:9091)

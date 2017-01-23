@@ -60,7 +60,7 @@ public class FunctionStmtTest {
 
     @Test(description = "Test invoking an undefined function",
             expectedExceptions = {LinkerException.class },
-            expectedExceptionsMessageRegExp = "Undefined function 'foo' in undefined-function-stmt.bal:2")
+            expectedExceptionsMessageRegExp = "undefined-function-stmt.bal:2: undefined function 'foo'")
     public void testUndefinedFunction() {
         ParserUtils.parseBalFile("lang/statements/undefined-function-stmt.bal");
     }

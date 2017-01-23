@@ -32,7 +32,7 @@ import java.util.UUID;
 /**
  * Native function ballerina.util:getRandomString.
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 @BallerinaFunction(
         packageName = "ballerina.util",

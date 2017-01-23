@@ -136,12 +136,12 @@ do
           PORT=$c
     elif [ "$CMD" = "help" ] && [ -z "$PORT" ]; then
         echo "  "
-        echo "Usage : Start Ballerina Editor using './editor.sh'"
+        echo "Usage : Start Ballerina Editor using './editor'"
         exit 0
     else
         echo "Not supported command : $c"
         echo "  "
-        echo "Usage : Start Ballerina Editor using './editor.sh'"
+        echo "Usage : Start Ballerina Editor using './editor'"
         exit 1
     fi
 done

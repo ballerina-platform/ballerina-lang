@@ -25,37 +25,21 @@ define(['require','lodash', 'log', 'event_channel', './abstract-statement-source
         FunctionInvocationVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
         FunctionInvocationVisitor.prototype.constructor = FunctionInvocationVisitor;
 
-        FunctionInvocationVisitor.prototype.canVisitStatement = function(functionInvocation){
-            return functionInvocation instanceof FunctionInvocation;
+        FunctionInvocationVisitor.prototype.canVisitFuncInvocationStatement = function(functionInvocation){
+            return true;
         };
 
-        FunctionInvocationVisitor.prototype.beginVisitStatement = function(functionInvocation){
-            var source = "";
-            if (!_.isNil(functionInvocation.getPackageName()) && functionInvocation.getPackageName() !== "") {
-                source += functionInvocation.getPackageName() + ':';
-            }
-            source += functionInvocation.getFunctionName() + '(';
-            var params = functionInvocation.getParams();
-            for (var id = 0; id < params.length; id ++) {
-                if (id > 0) {
-                    source += ',' + params[id];
-                } else {
-                    source += params[id];
-                }
-            }
-            source += ')';
-            this.appendSource(source);
-            log.debug('Begin Visit Function Invocation expression');
+        FunctionInvocationVisitor.prototype.visitFuncInvocationExpression = function (expression) {
+            var StatementVisitorFactory = require('./statement-visitor-factory');
+            var statementVisitorFactory = new StatementVisitorFactory();
+            var statementVisitor = statementVisitorFactory.getStatementVisitor(expression, this);
+            expression.accept(statementVisitor);
         };
 
-        FunctionInvocationVisitor.prototype.visitFuncInvocationStatement = function(functionInvocation){
-            log.debug('Visit Function Invocation expression');
-        };
-
-        FunctionInvocationVisitor.prototype.endVisitStatement = function(functionInvocation){
+        FunctionInvocationVisitor.prototype.endVisitFuncInvocationStatement = function(functionInvocation){
             this.appendSource(";\n");
             this.getParent().appendSource(this.getGeneratedSource());
-            log.debug('End Visit Function Invocation expression');
+            log.debug('End Visit Function Invocation Statement');
         };
 
         return FunctionInvocationVisitor;

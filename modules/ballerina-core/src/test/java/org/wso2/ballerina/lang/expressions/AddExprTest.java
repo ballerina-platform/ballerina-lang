@@ -128,9 +128,17 @@ public class AddExprTest {
     
     @Test(description = "Test adding values of two types",
             expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "Incompatible types in binary expression: int vs boolean in " +
-                "add-incompatible-types.bal:5")
+            expectedExceptionsMessageRegExp = "add-incompatible-types.bal:5: incompatible types " +
+                    "in binary expression: int vs boolean")
     public void testAddIncompatibleTypes() {
         ParserUtils.parseBalFile("lang/expressions/add-incompatible-types.bal");
+    }
+    
+    @Test(description = "Test adding values of unsupported types (json)",
+            expectedExceptions = {SemanticException.class },
+            expectedExceptionsMessageRegExp = "Add operation is not supported for type: json in " +
+            "add-unsupported-types.bal:10")
+    public void testAddUnsupportedTypes() {
+        ParserUtils.parseBalFile("lang/expressions/add-unsupported-types.bal");
     }
 }

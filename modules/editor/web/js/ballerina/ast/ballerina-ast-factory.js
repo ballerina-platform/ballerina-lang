@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -19,21 +19,26 @@
 /**
  * A module representing the factory for Ballerina AST
  */
-define(['./ballerina-ast-root', './service-definition', './function-definition', './connector-definition', './resource-definition',
-        './worker-declaration', './statement', './conditional-statement', './connector-declaration', './expression',
-        './if-else-statement', './if-statement', './else-statement', './else-if-statement', './trycatch-statement', './try-statement',
-        './catch-statement', './reply-statement', './while-statement', './return-statement',
+define(['lodash', './ballerina-ast-root', './service-definition', './function-definition', './connector-definition',
+        './resource-definition', './worker-declaration', './statement', './conditional-statement', './connector-declaration',
+        './expression', './if-else-statement', './if-statement', './else-statement', './else-if-statement', './trycatch-statement',
+        './try-statement', './catch-statement', './reply-statement', './while-statement', './return-statement',
         './type-converter-definition', './type-definition', './type-element', './variable-declaration',
-        './package-definition', './import-declaration', './resource-arg', './assignment', './assignment-statement', './function-invocation', './function-invocation-expression', './variable-reference-expression',
+        './package-definition', './import-declaration', './resource-parameter', './assignment', './assignment-statement',
+        './function-invocation', './function-invocation-expression', './variable-reference-expression',
         './action-invocation-statement', './arithmetic-expression', './logical-expression', './action-invocation-expression',
-        './return-type', './type-name', './argument', './back-quote-expression', './basic-literal-expression', './left-operand-expression', './right-operand-expression'],
-    function (ballerinaAstRoot, serviceDefinition, functionDefinition, connectorDefinition, resourceDefinition,
-              workerDeclaration, statement, conditionalStatement, connectorDeclaration, expression,
-              ifElseStatement, ifStatement, elseStatement, elseIfStatement, tryCatchStatement, tryStatement, catchStatement, replyStatement,
+        './return-type', './type-name', './argument', './back-quote-expression', './basic-literal-expression',
+        './left-operand-expression', './right-operand-expression', './instance-creation-expression', './then-body',
+        './if-condition', './array-map-access-expression', './binary-expression', './connector-action'],
+    function (_, ballerinaAstRoot, serviceDefinition, functionDefinition, connectorDefinition, resourceDefinition,
+              workerDeclaration, statement, conditionalStatement, connectorDeclaration, expression, ifElseStatement,
+              ifStatement, elseStatement, elseIfStatement, tryCatchStatement, tryStatement, catchStatement, replyStatement,
               whileStatement, returnStatement, typeConverterDefinition, typeDefinition, typeElement, variableDeclaration,
-              packageDefinition, importDeclaration, resourceArgument, assignment, assignmentStatement, functionInvocation, functionInvocationExpression, variableReferenceExpression,
-              actionInvocationStatement, arithmeticExpression, logicalExpression, actionInvocationExpression, returnType,
-              typeName, argument, backQuoteExpression, basicLiteralExpression, leftOperandExpression, rightOperandExpression) {
+              packageDefinition, importDeclaration, resourceParameter, assignment, assignmentStatement, functionInvocation,
+              functionInvocationExpression, variableReferenceExpression, actionInvocationStatement, arithmeticExpression,
+              logicalExpression, actionInvocationExpression, returnType, typeName, argument, backQuoteExpression,
+              basicLiteralExpression, leftOperandExpression, rightOperandExpression, instanceCreationExpression,
+              thenBody, ifCondition, arrayMapAccessExpression, binaryExpression, connectorAction) {
 
 
         /**
@@ -80,6 +85,8 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
             printHelloWorldStatement.setPackageName("system");
             printHelloWorldStatement.setFunctionName("println");
             printHelloWorldStatement.setParams('"Hello world"');
+            var functionInvocationExpr = BallerinaASTFactory.createFunctionInvocationExpression();
+            printHelloWorldStatement.addChild(functionInvocationExpr);
             functionDefinition.addChild(printHelloWorldStatement);
             return functionDefinition;
         };
@@ -172,6 +179,31 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
         };
 
         /**
+         * creates a connector action
+         * @param args
+         * @return {ConnectorAction} Connector Action
+         */
+        BallerinaASTFactory.createConnectorAction = function(args) {
+            return new connectorAction(args);
+        };
+
+        /**
+         * Create the particular assignment statement for the action invocation
+         * @param args
+         * @returns {AssignmentStatement}
+         */
+        BallerinaASTFactory.createAggregatedActionInvocationExpression = function(args) {
+            var assignmentStmt = BallerinaASTFactory.createAssignmentStatement();
+            var leftOp = BallerinaASTFactory.createLeftOperandExpression();
+            var rightOp = BallerinaASTFactory.createRightOperandExpression();
+            var actionInExp = BallerinaASTFactory.createActionInvocationExpression(args);
+            rightOp.addChild(actionInExp);
+            assignmentStmt.addChild(leftOp);
+            assignmentStmt.addChild(rightOp);
+            return assignmentStmt;
+        };
+
+        /**
          * creates If-Else Statement
          * @param args
          */
@@ -240,6 +272,18 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
         };
 
         /**
+         * creates FunctionInvocationStatement
+         * @param args
+         * @returns {FunctionInvocation}
+         */
+        BallerinaASTFactory.createAggregatedFunctionInvocationStatement = function (args) {
+            var funcInvocationStatement = new functionInvocation(args);
+            var funcInvocationExpression = BallerinaASTFactory.createFunctionInvocationExpression(args);
+            funcInvocationStatement.addChild(funcInvocationExpression);
+            return funcInvocationStatement;
+        };
+
+        /**
          * creates FunctionInvocationExpression
          * @param {Object} args
          * @returns {FunctionInvocationExpression}
@@ -294,12 +338,7 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
          * @param args
          */
         BallerinaASTFactory.createResourceDefinition = function (args) {
-            var resourceDef = new resourceDefinition(args);
-            var resourceArg = BallerinaASTFactory.createResourceArgument();
-            resourceArg.setType("message");
-            resourceArg.setIdentifier("m");
-            resourceDef.addChild(resourceArg);
-            return resourceDef;
+            return new resourceDefinition(args);
         };
 
         /**
@@ -325,15 +364,15 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
          * @param args
          * @returns {ResourceArgument}
          */
-        BallerinaASTFactory.createResourceArgument = function (args) {
-            return new resourceArgument(args);
+        BallerinaASTFactory.createResourceParameter = function (args) {
+            return new resourceParameter(args);
         };
 
         /**
          * creates Argument
-         * @param {Object} args - The arguments to create the Argument
-         * @param {string} args.type - Type of the argument
-         * @param {string} args.identifier - Identifier of the argument
+         * @param {Object} [args] - The arguments to create the Argument
+         * @param {string} [args.type] - Type of the argument
+         * @param {string} [args.identifier] - Identifier of the argument
          * @returns {Argument}
          */
         BallerinaASTFactory.createArgument = function (args) {
@@ -392,6 +431,53 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
          */
         BallerinaASTFactory.createRightOperandExpression = function (args) {
             return new rightOperandExpression(args);
+        };
+
+        /**
+         * creates InstanceCreationExpression
+         * @param {Object} args - Arguments for creating a new instance creation.
+         * @param {Object} args.typeName - Type of the new instance creation.
+         * @returns {InstanceCreationExpression} - New instance creation node.
+         */
+        BallerinaASTFactory.createInstanceCreationExpression = function (args) {
+            return new instanceCreationExpression(args);
+        };
+
+        /**
+         * creates ThenBody
+         * @param {Object} args - Arguments for creating a new instance creation.
+         * @returns {ThenBody}
+         */
+        BallerinaASTFactory.createThenBody = function (args) {
+            return new thenBody(args);
+        };
+
+        /**
+         * creates IfCondition
+         * @param {Object} args - Arguments for creating a new instance creation.
+         * @returns {IfCondition}
+         */
+        BallerinaASTFactory.createIfCondition = function (args) {
+            return new ifCondition(args);
+        };
+
+        /**
+         * creates BinaryExpression
+         * @param {Object} args - Arguments for creating a new instance creation.
+         * @returns {BinaryExpression}
+         */
+        BallerinaASTFactory.createBinaryExpression = function (args) {
+            return new binaryExpression(args);
+        };
+
+
+        /**
+         * creates ArrayMapAccessExpression
+         * @param {Object} args - Arguments for creating a new instance creation.
+         * @returns {ArrayMapAccessExpression}
+         */
+        BallerinaASTFactory.createArrayMapAccessExpression = function (args) {
+            return new arrayMapAccessExpression(args);
         };
 
         /**
@@ -610,12 +696,12 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
         };
 
         /**
-         * instanceof check for ResourceArgument
+         * instanceof check for ResourceParameter.
          * @param child - Object for instanceof check
          * @returns {boolean} - true if same type, else false
          */
-        BallerinaASTFactory.isResourceArgument = function (child) {
-            return child instanceof resourceArgument;
+        BallerinaASTFactory.isResourceParameter = function (child) {
+            return child instanceof resourceParameter;
         };
 
         /**
@@ -710,7 +796,80 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
          */
         BallerinaASTFactory.isRightOperandExpression = function (child) {
             return child instanceof rightOperandExpression;
-        }
+        };
+
+        /**
+         * instanceof check for InstanceCreationExpression
+         * @param {ASTNode} child - The ast node.
+         * @returns {boolean} - True if node is an instance creation, else false.
+         */
+        BallerinaASTFactory.isInstanceCreationExpression = function (child) {
+            return child instanceof instanceCreationExpression;
+        };
+
+        /**
+         * instanceof check for ThenBody
+         * @param {ASTNode} child - The ast node.
+         * @returns {boolean} - true if same type, else false
+         */
+        BallerinaASTFactory.isThenBody = function (child) {
+            return child instanceof thenBody;
+        };
+
+        /**
+         * instanceof check for IfCondition
+         * @param {ASTNode} child - The ast node.
+         * @returns {boolean} - true if same type, else false
+         */
+        BallerinaASTFactory.isIfCondition = function (child) {
+            return child instanceof ifCondition;
+        };
+
+        /**
+         * instanceof check for binaryExpression
+         * @param {ASTNode} child - The ast node.
+         * @returns {boolean} - true if same type, else false
+         */
+        BallerinaASTFactory.isBinaryExpression = function (child) {
+            return child instanceof binaryExpression;
+        };
+
+        /**
+         * instanceof check for arrayMapAccessExpression
+         * @param {ASTNode} child - The ast node.
+         * @returns {boolean} - true if same type, else false
+         */
+        BallerinaASTFactory.isArrayMapAccessExpression = function (child) {
+            return child instanceof arrayMapAccessExpression;
+        };
+
+
+        /**
+         * instanceof check for functionInvocationExpression
+         * @param {ASTNode} child - The ast node.
+         * @returns {boolean} - true if same type, else false
+         */
+        BallerinaASTFactory.isFunctionInvocationExpression = function (child) {
+            return child instanceof functionInvocationExpression;
+        };
+
+        /**
+         * instanceof check for functionInvocationStatement
+         * @param {ASTNode} child - The ast node.
+         * @returns {boolean} - true if same type, else false
+         */
+        BallerinaASTFactory.isFunctionInvocationStatement = function (child) {
+            return child instanceof functionInvocation;
+        };
+
+        /**
+         * instanceof check for connectorAction
+         * @param {ASTNode} child - The ast node.
+         * @returns {boolean} - true if same type, else false
+         */
+        BallerinaASTFactory.isConnectorAction = function (child) {
+            return child instanceof connectorAction;
+        };
 
         BallerinaASTFactory.createFromJson = function (jsonNode) {
             var node;
@@ -749,7 +908,7 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
                         node = BallerinaASTFactory.createVariableDeclaration();
                         break;
                     case 'argument_declaration':
-                        node = BallerinaASTFactory.createResourceArgument();
+                        node = BallerinaASTFactory.createResourceParameter();
                         break;
                     case 'reply_statement':
                         node = BallerinaASTFactory.createReplyStatement();
@@ -770,7 +929,7 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
                         node = BallerinaASTFactory.createFunctionInvocationExpression();
                         break;
                     case 'variable_reference_expression':
-                        node = BallerinaASTFactory.createAssignment();
+                        node = BallerinaASTFactory.createVariableReferenceExpression();
                         break;
                     case 'action_invocation_expression':
                         node = BallerinaASTFactory.createActionInvocationExpression();
@@ -779,7 +938,7 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
                         node = BallerinaASTFactory.createAssignmentStatement();
                         break;
                     case 'back_quote_expression':
-                        node = BallerinaASTFactory.createAssignment();
+                        node = BallerinaASTFactory.createBackQuoteExpression();
                         break;
                     case 'while_statement' :
                         node = BallerinaASTFactory.createWhileStatement();
@@ -795,6 +954,60 @@ define(['./ballerina-ast-root', './service-definition', './function-definition',
                         break;
                     case 'if_else_statement' :
                         node = BallerinaASTFactory.createIfElseStatement();
+                        break;
+                    case 'instance_creation_expression':
+                        node = BallerinaASTFactory.createInstanceCreationExpression();
+                        break;
+                    case 'then_body':
+                        node = BallerinaASTFactory.createThenBody();
+                        break;
+                    case 'if_condition':
+                        node = BallerinaASTFactory.createIfCondition();
+                        break;
+                    case 'equal_expression':
+                        node = BallerinaASTFactory.createBinaryExpression({"operator" : "=="});
+                        break;
+                    case 'greater_than_expression':
+                        node = BallerinaASTFactory.createBinaryExpression({"operator" : ">"});
+                        break;
+                    case 'add_expression':
+                        node = BallerinaASTFactory.createBinaryExpression({"operator" : "+"});
+                        break;
+                    case 'multiplication_expression':
+                        node = BallerinaASTFactory.createBinaryExpression({"operator" : "*"});
+                        break;
+                    case 'division_expression':
+                        node = BallerinaASTFactory.createBinaryExpression({"operator" : "/"});
+                        break;
+                    case 'and_expression':
+                        node = BallerinaASTFactory.createBinaryExpression({"operator" : "&&"});
+                        break;
+                    case 'subtract_expression':
+                        node = BallerinaASTFactory.createBinaryExpression({"operator" : "-"});
+                        break;
+                    case 'or_expression':
+                        node = BallerinaASTFactory.createBinaryExpression({"operator" : "||"});
+                        break;
+                    case 'greater_equal_expression':
+                        node = BallerinaASTFactory.createBinaryExpression({"operator" : ">="});
+                        break;
+                    case 'less_than_expression':
+                        node = BallerinaASTFactory.createBinaryExpression({"operator" : "<"});
+                        break;
+                    case 'less_equal_expression':
+                        node = BallerinaASTFactory.createBinaryExpression({"operator" : "<="});
+                        break;
+                    case 'not_equal_expression':
+                        node = BallerinaASTFactory.createBinaryExpression({"operator" : "!="});
+                        break;
+                    case 'array_map_access_expression':
+                        node = BallerinaASTFactory.createArrayMapAccessExpression();
+                        break;
+                    case 'connector':
+                        node = BallerinaASTFactory.createConnectorDefinition();
+                        break;
+                    case 'action':
+                        node = BallerinaASTFactory.createConnectorAction();
                         break;
                     default:
                         throw "Unknown node definition for " + jsonNode.type;

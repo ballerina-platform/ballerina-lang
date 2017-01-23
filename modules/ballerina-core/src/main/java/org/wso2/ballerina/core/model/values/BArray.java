@@ -26,7 +26,7 @@ import java.util.Arrays;
  * {@code BArray} represents an array in Ballerina
  *
  * @param <V> Ballerina value stored in this array value
- * @since 1.0.0
+ * @since 0.8.0
  */
 public final class BArray<V extends BValue> implements BRefType {
 

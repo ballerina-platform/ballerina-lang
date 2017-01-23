@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -15,19 +15,29 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './node'], function (_, ASTNode) {
+define(['lodash', 'log', './node'], function (_, log, ASTNode) {
 
     /**
      * Constructor for Argument
-     * @param {Object} args - The arguments to create the Argument
-     * @param {string} args.type - Type of the argument
-     * @param {string} args.identifier - Identifier of the argument
+     * @param {Object} [args] - The arguments to create the Argument.
+     * @param {string} [args.type=undefined] - Type of the argument.
+     * @param {string} [args.identifier=undefined] - Identifier of the argument.
      * @constructor
+     * @augments ASTNode
      */
     var Argument = function (args) {
-        this.type = _.get(args, 'type');
-        this.identifier = _.get(args, 'identifier');
-    }
+        ASTNode.call(this, "Argument");
+        this.type = _.get(args, "type");
+        this.identifier = _.get(args, "identifier");
+
+        // Validating the argument.
+        if (!_.isUndefined(this.identifier) && !Argument.isValidIdentifier(this.identifier)) {
+            var exceptionString = "Invalid identifier: \'" + this.identifier + "\'. An identifier must match the regex " +
+                "^[a-zA-Z$_][a-zA-Z0-9$_]*$";
+            log.error(exceptionString);
+            throw exceptionString;
+        }
+    };
 
     Argument.prototype = Object.create(ASTNode.prototype);
     Argument.prototype.constructor = Argument;
@@ -38,9 +48,25 @@ define(['lodash', './node'], function (_, ASTNode) {
         }
     };
 
+    Argument.prototype.getType = function () {
+        return this.type;
+    };
+
+    Argument.prototype.getArgumentAsString = function() {
+        var argAsString = "";
+        argAsString += this.type;
+        argAsString += !_.isUndefined(this.identifier) ? " " + this.identifier : "";
+        return argAsString;
+    };
+
     Argument.prototype.setIdentifier = function (identifier) {
-        if (!_.isNil(identifier)) {
+        if (!_.isNil(identifier) && Argument.isValidIdentifier(identifier)) {
             this.identifier = identifier;
+        } else {
+            var exceptionString = "Invalid identifier: \'" + identifier + "\'. An identifier must match the regex " +
+                "^[a-zA-Z$_][a-zA-Z0-9$_]*$";
+            log.error(exceptionString);
+            throw exceptionString;
         }
     };
 
@@ -61,6 +87,16 @@ define(['lodash', './node'], function (_, ASTNode) {
     Argument.prototype.initFromJson = function (jsonNode) {
         this.type = jsonNode.parameter_type;
         this.identifier = jsonNode.parameter_name;
+    };
+
+    /**
+     * Checks whether the identifier is valid or not.
+     * @param {string} identifier - The identifier
+     * @return {boolean} - True if valid identifier, else false.
+     * @static
+     */
+    Argument.isValidIdentifier = function (identifier) {
+        return identifier === undefined ? false : /^[a-zA-Z$_][a-zA-Z0-9$_]*$/.test(identifier);
     };
 
     return Argument;

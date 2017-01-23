@@ -24,19 +24,91 @@ define(([],function (){
             {
                 id: "new",
                 label: "New",
-                action: "create-new-tab",
+                command: {
+                    id: "create-new-tab",
+                    shortcuts: {
+                        mac: {
+                            key: "command+ctrl+n",
+                            label: "\u2318\u2303N"
+                        },
+                        other: {
+                            key: "ctrl+alt+n",
+                            label: "Ctrl+Alt+N"
+                        }
+                    }
+                },
                 disabled: false
             },
             {
                 id: "open",
-                label: "Open",
-                action: "open-file-open-dialog",
+                label: "Open File",
+                command: {
+                    id: "open-file-open-dialog",
+                    shortcuts: {
+                        mac: {
+                            key: "command+o",
+                            label: "\u2318O"
+                        },
+                        other: {
+                            key: "ctrl+o",
+                            label: "Ctrl+O"
+                        }
+                    }
+                },
+                disabled: false
+            },
+            {
+                id: "open_folder",
+                label: "Open Folder",
+                command: {
+                    id: "show-folder-open-dialog",
+                    shortcuts: {
+                        mac: {
+                            key: "command+shift+o",
+                            label: "\u2318\u21E7O"
+                        },
+                        other: {
+                            key: "ctrl+shift+o",
+                            label: "Ctrl+Shift+O"
+                        }
+                    }
+                },
                 disabled: false
             },
             {
                 id: "save",
                 label: "Save",
-                action: "open-file-save-dialog",
+                command: {
+                    id: "save",
+                    shortcuts: {
+                        mac: {
+                            key: "command+s",
+                            label: "\u2318S"
+                        },
+                        other: {
+                            key: "ctrl+s",
+                            label: "Ctrl+S"
+                        }
+                    }
+                },
+                disabled: false
+            },
+            {
+                id: "saveAs",
+                label: "Save As",
+                command: {
+                    id: "open-file-save-dialog",
+                    shortcuts: {
+                        mac: {
+                            key: "command+shift+s",
+                            label: "\u2318\u21E7S"
+                        },
+                        other: {
+                            key: "ctrl+shift+s",
+                            label: "Ctrl+Shift+S"
+                        }
+                    }
+                },
                 disabled: false
             }
 

@@ -20,10 +20,11 @@ define(['jquery', 'lodash', 'backbone', 'log'], function ($, _, Backbone, log) {
     var File = Backbone.Model.extend(
         {
             defaults: {
-                path: '*',
+                path: 'temp',
                 name: 'untitled',
-                isTemp: true,
-                isPersisted: false
+                content: undefined,
+                isPersisted: false,
+                isDirty: true
             },
 
             initialize: function (attrs, options) {
@@ -34,10 +35,18 @@ define(['jquery', 'lodash', 'backbone', 'log'], function ($, _, Backbone, log) {
                         log.error(errMsg);
                         throw errMsg;
                     }
-                    var storage = _.get(options, 'storage');
-                    this.set('isPersisted', true);
-                    storage.create(this);
+                    this._storage = _.get(options, 'storage');
+                    this._storage .create(this);
                 }
+            },
+
+            save: function(){
+                if(!_.isNil(this._storage.get(this.id))){
+                    this._storage.update(this);
+                } else {
+                    this._storage.create(this);
+                }
+                return this;
             },
 
             setPath: function(path){
@@ -45,8 +54,29 @@ define(['jquery', 'lodash', 'backbone', 'log'], function ($, _, Backbone, log) {
                 return this;
             },
 
+            setStorage: function(storage){
+                this._storage = storage;
+                return this;
+            },
+
+            setPersisted: function(isPersisted){
+                this.set('isPersisted', isPersisted);
+                return this;
+            },
+
+            setDirty: function(isDirty){
+                this.set('isDirty', isDirty);
+                this.trigger('dirty-state-change', isDirty);
+                return this;
+            },
+
             setName: function(name){
                 this.set('name', name);
+                return this;
+            },
+
+            setContent: function(name){
+                this.set('content', name);
                 return this;
             },
 
@@ -56,6 +86,18 @@ define(['jquery', 'lodash', 'backbone', 'log'], function ($, _, Backbone, log) {
 
             getName: function(){
                 return this.get('name')
+            },
+
+            getContent: function(){
+                return this.get('content')
+            },
+
+            isPersisted: function(){
+                return this.get('isPersisted')
+            },
+
+            isDirty: function(){
+                return this.get('isDirty')
             }
 
         });

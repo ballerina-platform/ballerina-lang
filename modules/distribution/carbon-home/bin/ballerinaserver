@@ -204,7 +204,7 @@ elif [ "$CMD" = "start" ]; then
   fi
   export CARBON_HOME=$CARBON_HOME
 # using nohup bash to avoid erros in solaris OS.TODO
-  nohup bash $CARBON_HOME/bin/ballerinaserver.sh $args > /dev/null 2>&1 &
+  nohup bash $CARBON_HOME/bin/ballerinaserver $args > /dev/null 2>&1 &
   exit 0
 elif [ "$CMD" = "restart" ]; then
   export CARBON_HOME=$CARBON_HOME
@@ -221,7 +221,7 @@ elif [ "$CMD" = "restart" ]; then
   fi
 
 # using nohup bash to avoid erros in solaris OS.TODO
-  nohup bash $CARBON_HOME/bin/ballerinaserver.sh $args > /dev/null 2>&1 &
+  nohup bash $CARBON_HOME/bin/ballerinaserver $args > /dev/null 2>&1 &
   exit 0
 fi
 

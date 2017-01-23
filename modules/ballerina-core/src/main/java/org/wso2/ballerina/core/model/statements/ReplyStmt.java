@@ -24,7 +24,7 @@ import org.wso2.ballerina.core.model.expressions.Expression;
 /**
  * {@code ReplyStmt} represents a reply statement
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class ReplyStmt extends AbstractStatement {
 
@@ -51,7 +51,7 @@ public class ReplyStmt extends AbstractStatement {
     /**
      * Builds a {@code ReturnStmt} statement
      *
-     * @since 1.0.0
+     * @since 0.8.0
      */
     public static class ReplyStmtBuilder {
         Expression replyExpr;

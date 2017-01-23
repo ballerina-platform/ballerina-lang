@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -17,12 +17,12 @@
  */
 define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-definition', './default-worker', 'd3utils', '' +
         'd3', './worker-declaration-view', './statement-view-factory', './point', './axis',
-        './connector-declaration-view', './statement-container', './variables-view', './arguments-view',
-        './return-type-view'],
+        './connector-declaration-view', './statement-container', './variables-view', './function-arguments-view',
+        './return-types-pane-view'],
     function (_, log, EventChannel, Canvas, FunctionDefinition, DefaultWorkerView, D3Utils,
               d3, WorkerDeclarationView, StatementViewFactory, Point, Axis,
               ConnectorDeclarationView, StatementContainer, VariablesView, ArgumentsView,
-              ReturnTypeView) {
+              ReturnTypePaneView) {
 
         /**
          * The view to represent a function definition which is an AST visitor.
@@ -154,14 +154,16 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
             var self = this;
 
             $("#title-" + this._model.id).addClass("function-title-text").text(this._model.getFunctionName())
-                .on("change paste keydown", function (e) {
-                    if (e.which == 13) {
-                        return false;
-                    }
+                .on("change paste keyup", function (e) {
                     self._model.setFunctionName($(this).text());
                 }).on("click", function (event) {
-                event.stopPropagation();
-            });
+                    event.stopPropagation();
+                }).on("keydown", function (e) {
+                    // Check whether the Enter key has been pressed. If so return false. Won't type the character
+                    if (e.keyCode === 13) {
+                        return false;
+                    }
+                });
 
             // Creating default worker
             var defaultWorkerOpts = {};
@@ -186,6 +188,9 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
             this._model.on('child-added', function (child) {
                 self.visit(child);
                 self._model.trigger("child-visited", child);
+
+                // Show/Hide scrolls.
+                self._showHideScrolls(self._container, self.getChildContainer().node().ownerSVGElement);
             });
 
             var variableButton = VariablesView.createVariableButton(this.getChildContainer().node(), 14, 10);
@@ -199,11 +204,11 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
                         x: parseInt(this.getChildContainer().attr("x")) + 17,
                         y: parseInt(this.getChildContainer().attr("y")) + 6
                     },
-                    width: parseInt(this.getChildContainer().node().parentElement.getBoundingClientRect().width) - 36
+                    width: $(this.getChildContainer().node().ownerSVGElement.parentElement).width() - (2 * $(variableButton).width())
                 }
             };
 
-            VariablesView.createVariablePane(variableProperties);
+            VariablesView.createVariablePane(variableProperties, diagramRenderingContext);
 
             var operationsPane = this.getOperationsPane();
 
@@ -229,14 +234,16 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
                 paneAppendElement: this.getChildContainer().node().ownerSVGElement.parentElement,
                 viewOptions: {
                     position: {
-                        left: parseInt(this.getChildContainer().node().parentElement.getBoundingClientRect().width),
+                        left: parseInt($(this.getChildContainer().node().ownerSVGElement.parentElement).width()),
                         top: 0
                     }
                 }
             };
 
             // Creating arguments pane.
-            ArgumentsView.createArgumentsPane(argumentsProperties);
+            ArgumentsView.createArgumentsPane(argumentsProperties, diagramRenderingContext);
+
+            this.setServiceContainerWidth(this._container.width());
 
             // Creating return type icon.
             var panelReturnTypeIcon = $("<i/>", {
@@ -257,15 +264,16 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
                 activatorElement: panelReturnTypeIcon,
                 paneAppendElement: this.getChildContainer().node().ownerSVGElement.parentElement,
                 viewOptions: {
-                    position: {
-                        left: parseInt(this.getChildContainer().node().parentElement.getBoundingClientRect().width),
-                        top: 0
-                    }
-                }
+                    position: new Point(parseInt($(this.getChildContainer().node().ownerSVGElement.parentElement).width()),
+                        0)
+                },
+                view: this
             };
 
+            this._returnTypePaneView = new ReturnTypePaneView(returnTypeProperties);
+
             // Creating return type pane.
-            ReturnTypeView.createReturnTypePane(returnTypeProperties);
+            this._returnTypePaneView.createReturnTypePane(diagramRenderingContext);
 
             // Closing the shown pane when another operation button is clicked.
             _.forEach(operationButtons, function (button) {
@@ -277,6 +285,49 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
                     });
                 });
             });
+        };
+
+        /**
+         * Shows and hide the custom scrolls depending on the amount scrolled.
+         * @param {Element} container - The container of the SVG. i.e the parent of the SVG.
+         * @param {Element} svgElement - The SVG element.
+         */
+        FunctionDefinitionView.prototype._showHideScrolls = function (container, svgElement) {
+            // Creating scroll panes.
+            var leftScroll = $(this.getChildContainer().node().ownerSVGElement.parentElement)
+                .find(".service-left-scroll").get(0);
+            var rightScroll = $(this.getChildContainer().node().ownerSVGElement.parentElement)
+                .find(".service-right-scroll").get(0);
+
+            // Setting heights of the scrolls.
+            $(leftScroll).height($(container).height());
+            $(rightScroll).height($(container).height());
+
+            // Positioning the arrows of the scrolls to the middle.
+            $(leftScroll).find("i").css("padding-top", ($(container).height() / 2) - (parseInt($(leftScroll).find("i").css("font-size"), 10) / 2) + "px");
+            $(rightScroll).find("i").css("padding-top", ($(container).height() / 2) - (parseInt($(rightScroll).find("i").css("font-size"), 10) / 2) + "px");
+
+            // Showing/Hiding scrolls.
+            if (parseInt($(container).width(), 10) >= parseInt($(svgElement).width(), 10)) {
+                // If the svg width is less than or equal to the container, then no need to show the arrows.
+                $(leftScroll).hide();
+                $(rightScroll).hide();
+            } else {
+                // If the svg width is greater than the width of the container...
+                if ($(container).scrollLeft() == 0) {
+                    // When scrollLeft is 0, means that it is already scrolled to the left corner.
+                    $(rightScroll).show();
+                    $(leftScroll).hide();
+                } else if (Math.abs(parseInt($(container).scrollLeft()) -
+                        (parseInt($(svgElement).width(), 10) -
+                        parseInt($(container).width(), 10))) < 5) {
+                    $(leftScroll).show();
+                    $(rightScroll).hide();
+                } else {
+                    $(leftScroll).show();
+                    $(rightScroll).show();
+                }
+            }
         };
 
         FunctionDefinitionView.prototype.init = function(){
@@ -361,8 +412,8 @@ define(['lodash', 'log', 'event_channel',  './canvas', './../ast/function-defini
                     propertyType: "text",
                     key: "Name",
                     model: connectorDeclarationView._model,
-                    getterMethod: connectorDeclarationView._model.getConnectorName,
-                    setterMethod: connectorDeclarationView._model.setConnectorName
+                    getterMethod: connectorDeclarationView._model.getConnectorVariable,
+                    setterMethod: connectorDeclarationView._model.setConnectorVariable
                 },
                 {
                     propertyType: "text",

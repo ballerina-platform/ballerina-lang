@@ -32,7 +32,7 @@ import java.util.function.BiFunction;
 /**
  * {@code DivideExpr} represents a binary divide expression
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class DivideExpr extends BinaryArithmeticExpression {
 

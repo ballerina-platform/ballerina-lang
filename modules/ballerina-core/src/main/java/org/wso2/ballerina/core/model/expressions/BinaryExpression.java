@@ -32,7 +32,7 @@ import java.util.function.BiFunction;
  * @see BinaryArithmeticExpression
  * @see BinaryLogicalExpression
  * @see BinaryEqualityExpression
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class BinaryExpression extends UnaryExpression {
 

@@ -15,17 +15,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
-    function (log, $, BallerinaASTFactory, ToolGroup) {
+define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group', './../ast/defaults-added-ballerina-ast-factory'],
+    function (log, $, BallerinaASTFactory, ToolGroup, DefaultsAddedBallerinaASTFactory) {
 
-        var initialToolGroups = [];
+        var ToolPalette = {};
 
         var createResourceDefTool = {
             id: "resource",
             name: "Resource",
             icon: "images/tool-icons/resource.svg",
             title: "Resource",
-            nodeFactoryMethod: BallerinaASTFactory.createResourceDefinition
+            nodeFactoryMethod: DefaultsAddedBallerinaASTFactory.createResourceDefinition
         };
 
         var createServiceDefTool = {
@@ -33,7 +33,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
             name: "Service",
             icon: "images/tool-icons/service.svg",
             title: "Service",
-            nodeFactoryMethod: BallerinaASTFactory.createServiceDefinition
+            nodeFactoryMethod: DefaultsAddedBallerinaASTFactory.createServiceDefinition
         };
 
         var createFunctionDefTool = {
@@ -61,17 +61,31 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
             nodeFactoryMethod:  BallerinaASTFactory.createMainFunctionDefinition
         };
 
-        var mainToolDefArray = [createServiceDefTool, createResourceDefTool, createFunctionDefTool, createMainFunctionDefTool];
+        var createConnectorDefTool = {
+            id: "connectorDefinition",
+            name: "Connector Definition",
+            icon: "images/tool-icons/connector.svg",
+            title: "Connector Definition",
+            nodeFactoryMethod:  BallerinaASTFactory.createConnectorDefinition
+        };
 
-        var mainToolGroup = new ToolGroup({
+        var createConnectorActionTool = {
+            id: "connectorAction",
+            name: "Connector Action",
+            icon: "images/tool-icons/resource.svg",
+            title: "Connector Action",
+            nodeFactoryMethod:  BallerinaASTFactory.createConnectorAction
+        };
+
+        var mainToolDefArray = [createServiceDefTool, createResourceDefTool, createFunctionDefTool,
+            createMainFunctionDefTool, createConnectorDefTool, createConnectorActionTool];
+
+        ToolPalette.elements = new ToolGroup({
             toolGroupName: "Elements",
             toolOrder: "horizontal",
             toolGroupID: "main-tool-group",
             toolDefinitions: mainToolDefArray
         });
-
-        initialToolGroups.push(mainToolGroup);
-
 
         var createIfStatementTool = {
             id: "if",
@@ -110,7 +124,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
             name: "FunctionInvocation",
             icon: "images/tool-icons/actioninvoke.svg",
             title: "FunctionInvocation",
-            nodeFactoryMethod: BallerinaASTFactory.createFunctionInvocationStatement
+            nodeFactoryMethod: BallerinaASTFactory.createAggregatedFunctionInvocationStatement
         };
 
         var createReplyStatementTool = {
@@ -133,98 +147,68 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group'],
             createFunctionInvocationTool, createReturnStatementTool, createReplyStatementTool, createWhileStatementTool];
 
         // Create statements tool group
-        var statementsToolGroup = new ToolGroup({
+        ToolPalette.statements = new ToolGroup({
             toolGroupName: "Statements",
             toolGroupID: "statements-tool-group",
             toolOrder: "horizontal",
             toolDefinitions: statementToolDefArray
         });
 
-        initialToolGroups.push(statementsToolGroup);
-
-        // Create functions tool group
-        var functionsToolGroup = new ToolGroup({
-            toolGroupName: "Functions",
+        ToolPalette.package = new ToolGroup({
+            toolGroupName: "Package",
+            toolGroupID: "package-tool-group",
             toolOrder: "horizontal",
-            toolGroupID: "functions-tool-group",
             toolDefinitions: []
         });
-        initialToolGroups.push(functionsToolGroup);
 
-        // Create connectors tool group
-        var connectorsToolGroup = new ToolGroup({
-            toolGroupName: "Connectors",
-            toolOrder: "horizontal",
-            toolGroupID: "connectors-tool-group",
-            toolDefinitions: []
-        });
-        initialToolGroups.push(connectorsToolGroup);
+        ToolPalette.imports = [];
 
-        var createGetActionTool = {
-            id: "get",
-            name: "Get",
-            icon: "images/tool-icons/http.svg",
-            title: "GET",
-            meta: {
-                action: "get"
-            },
-            nodeFactoryMethod: BallerinaASTFactory.createActionInvocationExpression
-        };
 
-        var createPostActionTool = {
-            id: "post",
-            name: "Post",
-            icon: "images/tool-icons/http.svg",
-            title: "POST",
-            meta: {
-                action: "post"
-            },
-            nodeFactoryMethod: BallerinaASTFactory.createActionInvocationExpression
-        };
+        var http_connector = {
+            name : "ballerina.net.http",
+            connectors:[{
+                id: 'http',
+                name: "HTTPConnector",
+                title: "HTTPConnector",
+                icon: "images/tool-icons/http-connector.svg",
+                actions:[{
+                    id: "get",
+                    name: "Get",
+                    icon: "images/tool-icons/http.svg",
+                    title: "GET",
+                    meta: {
+                        action: "get"
+                    },
+                },{
+                    id: "post",
+                    name: "Post",
+                    icon: "images/tool-icons/http.svg",
+                    title: "POST",
+                    meta: {
+                        action: "post"
+                    },
+                },{
+                    id: "put",
+                    name: "Put",
+                    icon: "images/tool-icons/http.svg",
+                    title: "PUT",
+                    meta: {
+                        action: "put"
+                    }
+                },{
+                    id: "delete",
+                    name: "Delete",
+                    icon: "images/tool-icons/http.svg",
+                    title: "DELETE",
+                    meta: {
+                        action: "delete"
+                    }
+                }]
+            }]
+        }
 
-        var createPutActionTool = {
-            id: "put",
-            name: "Put",
-            icon: "images/tool-icons/http.svg",
-            title: "PUT",
-            meta: {
-                action: "put"
-            },
-            nodeFactoryMethod: BallerinaASTFactory.createActionInvocationExpression
-        };
+        ToolPalette.imports.push(http_connector);
+        
 
-        var createDeleteActionTool = {
-            id: "delete",
-            name: "Delete",
-            icon: "images/tool-icons/http.svg",
-            title: "DELETE",
-            meta: {
-                action: "delete"
-            },
-            nodeFactoryMethod: BallerinaASTFactory.createActionInvocationExpression
-        };
-
-        var createPatchActionTool = {
-            id: "patch",
-            name: "Patch",
-            icon: "images/tool-icons/http.svg",
-            title: "PATCH",
-            meta: {
-                action: "patch"
-            },
-            nodeFactoryMethod: BallerinaASTFactory.createActionInvocationExpression
-        };
-
-        var httpConnectorToolArray = [createGetActionTool, createPostActionTool, createPutActionTool, createDeleteActionTool/*, createPatchActionTool*/];
-
-        // Create http-connectors tool group
-        var httpConnectorsToolGroup = new ToolGroup({
-            toolGroupName: "HTTP-Connector Actions",
-            toolOrder: "vertical",
-            toolGroupID: "http-connector-tool-group",
-            toolDefinitions: httpConnectorToolArray
-        });
-        initialToolGroups.push(httpConnectorsToolGroup);
-
-        return initialToolGroups;
+        return ToolPalette;
 });

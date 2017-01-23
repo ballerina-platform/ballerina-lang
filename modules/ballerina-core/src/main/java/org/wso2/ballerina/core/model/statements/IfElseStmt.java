@@ -27,7 +27,7 @@ import java.util.List;
 /**
  * {@code IfElseStmt} represents a if/else if/else statement.
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class IfElseStmt extends AbstractStatement {
     private Expression ifCondition;
@@ -92,7 +92,7 @@ public class IfElseStmt extends AbstractStatement {
     /**
      * Builds a {@code IfElseStmt} statement
      *
-     * @since 1.0.0
+     * @since 0.8.0
      */
     public static class IfElseStmtBuilder {
 

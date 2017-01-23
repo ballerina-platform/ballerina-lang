@@ -42,7 +42,7 @@ import javax.crypto.spec.SecretKeySpec;
 /**
  * Native function ballerina.util:getHmac.
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 @BallerinaFunction(
         packageName = "ballerina.util",

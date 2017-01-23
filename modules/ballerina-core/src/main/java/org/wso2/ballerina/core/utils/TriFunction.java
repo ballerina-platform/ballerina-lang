@@ -26,7 +26,7 @@ package org.wso2.ballerina.core.utils;
  * @param <S> the type of the third argument to the function
  * @param <R> the type of the result of the function
  * @see java.util.function.Function
- * @since 1.0.0
+ * @since 0.8.0
  */
 @FunctionalInterface
 public interface TriFunction<T, U, S, R> {

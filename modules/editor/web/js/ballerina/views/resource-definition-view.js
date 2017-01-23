@@ -19,12 +19,12 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
         './default-worker', './point', './connector-declaration-view', './statement-view-factory',
         'ballerina/ast/ballerina-ast-factory', './expression-view-factory','./message', './statement-container',
         './../ast/variable-declaration', './variables-view', './client-life-line', './annotation-view',
-        './arguments-view'],
+        './resource-parameters-pane-view'],
     function (_, log, d3, $, D3utils, BallerinaView, ResourceDefinition,
               DefaultWorkerView, Point, ConnectorDeclarationView, StatementViewFactory,
               BallerinaASTFactory, ExpressionViewFactory, MessageView, StatementContainer,
               VariableDeclaration, VariablesView, ClientLifeLine, AnnotationView,
-              ArgumentsView) {
+              ResourceParametersPaneView) {
 
         /**
          * The view to represent a resource definition which is an AST visitor.
@@ -43,6 +43,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             this._statementExpressionViewList = [];
             // TODO: Instead of using the parentView use the parent. Fix this from BallerinaView.js and bellow
             this._parentView = _.get(args, "parentView");
+
+            this._resourceParamatersView_ = undefined;
 
             if (_.isNil(this._model) || !(this._model instanceof ResourceDefinition)) {
                 log.error("Resource definition is undefined or is of different type." + this._model);
@@ -92,8 +94,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 cssClass: 'start-action'
             });
 
-            this._viewOptions.heading.minWidth = 1000;
-            this._viewOptions.contentMinWidth = 1000;
+            this._viewOptions.heading.minWidth = 700;
+            this._viewOptions.contentMinWidth = 700;
 
             this._viewOptions.totalHeightGap = 50;
             this._viewOptions.LifeLineCenterGap = 180;
@@ -472,11 +474,13 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             var contentGroup = D3utils.group(resourceGroup);
             contentGroup.attr('id', "contentGroup");
 
-            nameSpan.on("change paste keydown", function (e) {
-                if (e.which == 13) {
+            nameSpan.on("change paste keyup", function (e) {
+                self._model.setResourceName($(this).text());
+            }).on("keydown", function (e) {
+                // Check whether the Enter key has been pressed. If so return false. Won't type the character
+                if (e.keyCode === 13) {
                     return false;
                 }
-                self._model.setResourceName($(this).text());
             });
 
             this._contentGroup = contentGroup;
@@ -578,6 +582,9 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             this._model.off('child-added');
             this._model.on('child-added', function(child){
                 self.visit(child);
+
+                // Show/Hide scrolls.
+                self._showHideScrolls(self.getChildContainer().node().ownerSVGElement.parentElement, self.getChildContainer().node().ownerSVGElement);
             });
 
             this._variableButton = VariablesView.createVariableButton(this.getChildContainer().node(),
@@ -592,11 +599,11 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                         x: parseInt(this.getChildContainer().attr("x")) + 17,
                         y: parseInt(this.getChildContainer().attr("y")) + 6
                     },
-                    width: parseInt(this.getChildContainer().node().getBBox().width) - 36
+                    width: parseInt(this.getChildContainer().node().getBBox().width) - (2 * $(this._variableButton).width())
                 }
             };
 
-            this._variablePane = VariablesView.createVariablePane(variableProperties);
+            this._variablePane = VariablesView.createVariablePane(variableProperties, diagramRenderingContext);
 
             var annotationProperties = {
                 model: this._model,
@@ -613,20 +620,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
             AnnotationView.createAnnotationPane(annotationProperties);
 
-            var argumentsProperties = {
-                model: this._model,
-                activatorElement: headingArgumentsIcon.node(),
-                paneAppendElement: this.getChildContainer().node().ownerSVGElement.parentElement,
-                viewOptions: {
-                    position: {
-                        // "-1" to remove the svg stroke line
-                        left: parseFloat(this.getChildContainer().attr("x")) + parseFloat(this.getChildContainer().attr("width")) - 1,
-                        top: this.getChildContainer().attr("y")
-                    }
-                }
-            };
-
-            ArgumentsView.createArgumentsPane(argumentsProperties);
+            this._createParametersView(headingArgumentsIcon.node(), diagramRenderingContext);
 
             var operationButtons = [headingAnnotationIcon.node(), headingArgumentsIcon.node()];
 
@@ -663,6 +657,48 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 var newVPanePositionVertical = parseInt($(self._variablePane).css("top")) + offset.dy;
                 $(self._variablePane).css("top", newVPanePositionVertical + "px");
             }, this);
+        };
+
+        /**
+         * Shows and hide the custom scrolls depending on the amount scrolled.
+         * @param {Element} container - The container of the SVG. i.e the parent of the SVG.
+         * @param {Element} svgElement - The SVG element.
+         */
+        ResourceDefinitionView.prototype._showHideScrolls = function (container, svgElement) {
+            // Creating scroll panes.
+            var leftScroll = $(container).find(".service-left-scroll").get(0);
+            var rightScroll = $(container).find(".service-right-scroll").get(0);
+
+            // Setting heights of the scrolls.
+            $(leftScroll).height($(container).height());
+            $(rightScroll).height($(container).height());
+
+            // Positioning the arrows of the scrolls.
+            $(leftScroll).find("i").css("padding-top", ($(container).height() / 2) - (parseInt($(leftScroll).find("i").css("font-size"), 10) / 2) + "px");
+            $(rightScroll).find("i").css("padding-top", ($(container).height() / 2) - (parseInt($(rightScroll).find("i").css("font-size"), 10) / 2) + "px");
+
+            // Showing/Hiding scrolls.
+            if (Math.abs($(container).width() - $(svgElement).width()) < 5) {
+                // If the svg width is less than or equal to the container, then no need to show the arrows.
+                $(leftScroll).hide();
+                $(rightScroll).hide();
+            } else {
+                // If the svg width is greater than the width of the container...
+                if ($(container).scrollLeft() == 0) {
+                    // When scrollLeft is 0, means that it is already scrolled to the left corner.
+                    $(rightScroll).show();
+                    $(leftScroll).hide();
+                } else if ($(container).scrollLeft() == parseInt($(svgElement).width(), 10) -
+                    parseInt($(container).width(), 10)) {
+                    // When scrolled all the way to the right.
+                    $(leftScroll).show();
+                    $(rightScroll).hide();
+                } else {
+                    // When scrolled to the middle.
+                    $(leftScroll).show();
+                    $(rightScroll).show();
+                }
+            }
         };
 
         /**
@@ -800,8 +836,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                     propertyType: "text",
                     key: "Name",
                     model: connectorDeclarationView._model,
-                    getterMethod: connectorDeclarationView._model.getConnectorName,
-                    setterMethod: connectorDeclarationView._model.setConnectorName
+                    getterMethod: connectorDeclarationView._model.getConnectorVariable,
+                    setterMethod: connectorDeclarationView._model.setConnectorVariable
                 },
                 {
                     propertyType: "text",
@@ -925,8 +961,31 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             }
         };
 
-        return ResourceDefinitionView;
+        /**
+         * Creates the parameter view.
+         * @param {HTMLElement} headingParametersIcon - The icon which triggers to show the parameters editor.
+         * @private
+         */
+        ResourceDefinitionView.prototype._createParametersView = function (headingParametersIcon, diagramRenderingContext) {
+            var parametersPaneProperties = {
+                model: this._model,
+                activatorElement: headingParametersIcon,
+                paneAppendElement: this.getChildContainer().node().ownerSVGElement.parentElement,
+                viewOptions: {
+                    position: new Point(parseFloat(this.getChildContainer().attr("x")) +
+                        parseFloat(this.getChildContainer().attr("width")) - 1,
+                        this.getChildContainer().attr("y"))
+                },
+                enableAnnotations: true,
+                view: this
+            };
 
+            this._resourceParamatersPaneView = new ResourceParametersPaneView(parametersPaneProperties);
+            this._resourceParamatersPaneView.createParametersPane(diagramRenderingContext);
+
+        };
+
+        return ResourceDefinitionView;
 
     });
 

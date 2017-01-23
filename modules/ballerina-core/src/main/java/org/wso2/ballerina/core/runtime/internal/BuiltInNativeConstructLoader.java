@@ -25,6 +25,7 @@ import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.util.LangModelUtils;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
+import org.wso2.ballerina.core.nativeimpl.connectors.http.function.AcceptAndReturn;
 import org.wso2.ballerina.core.nativeimpl.connectors.http.function.ConvertToResponse;
 import org.wso2.ballerina.core.nativeimpl.connectors.http.function.GetMethod;
 import org.wso2.ballerina.core.nativeimpl.lang.array.DoubleArrayCopyOf;
@@ -154,7 +155,7 @@ import org.wso2.ballerina.core.nativeimpl.net.uri.GetQueryParam;
  * Making built-in constructs also plugged through osgi increases the boot-up time.
  * That's the main reason for doing this in this fashion.
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 public class BuiltInNativeConstructLoader {
 
@@ -314,6 +315,7 @@ public class BuiltInNativeConstructLoader {
         //http
         registerFunction(scope, new ConvertToResponse());
         registerFunction(scope, new GetMethod());
+        registerFunction(scope, new AcceptAndReturn());
 
     }
 
