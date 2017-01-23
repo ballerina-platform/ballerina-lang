@@ -48,7 +48,7 @@ define(['require','lodash', 'log', 'event_channel', './abstract-statement-source
         };
 
         AssignmentStatementVisitor.prototype.endVisitAssignmentStatement = function(assignmentStatement){
-            this.getParent().appendSource(this.getGeneratedSource());
+            this.getParent().appendSource(this.getGeneratedSource() + ";\n");
             log.debug('End Visit Assignment Statement');
         };
 
