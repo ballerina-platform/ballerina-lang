@@ -23,12 +23,12 @@
 }
 
 .dropdown-menu > .menu-item-enabled {
-    color: #959595;
+    color: #e2e2e2;
     cursor: pointer;
 }
 
 .dropdown-menu > .menu-item-enabled > a{
-    color: #959595;
+    color: #e2e2e2;
 }
 
 #menu-bar-container > div.menu-group > ul > li{
