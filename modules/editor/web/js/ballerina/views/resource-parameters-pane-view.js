@@ -30,9 +30,6 @@ define(['lodash', 'log', 'jquery', 'alerts', './resource-parameter-view', './../
          * @param {ResourceDefinitionView} args.view - The resource definition view.
          */
         var ResourceParametersPaneView = function (args) {
-            this._supportedParameterTypes = ['message', 'connection', 'string', 'int', 'exception', 'json', 'xml',
-                'map', 'string[]', 'int[]'];
-
             this._activatorElement = _.get(args, "activatorElement");
             this._model = _.get(args, "model");
             this._paneElement = _.get(args, "paneAppendElement");
@@ -43,7 +40,7 @@ define(['lodash', 'log', 'jquery', 'alerts', './resource-parameter-view', './../
 
         ResourceParametersPaneView.prototype.constructor = ResourceParametersPaneView;
 
-        ResourceParametersPaneView.prototype.createParametersPane = function () {
+        ResourceParametersPaneView.prototype.createParametersPane = function (diagramRenderingContext) {
             var self = this;
 
             this._resourceParametersEditorWrapper = $("<div/>", {
@@ -102,6 +99,7 @@ define(['lodash', 'log', 'jquery', 'alerts', './resource-parameter-view', './../
             // Creating parameter type dropdown.
             var parameterTypeDropDown = $("<select/>").appendTo(parameterWrapper);
 
+            this._supportedParameterTypes = diagramRenderingContext.getEnvironment().getTypes();
             // Adding dropdown elements.
             _.forEach(this._supportedParameterTypes, function (type) {
                 // Adding supported parameter types to the type dropdown.
@@ -240,7 +238,7 @@ define(['lodash', 'log', 'jquery', 'alerts', './resource-parameter-view', './../
                     model: parameter,
                     container: wrapper,
                     toolPalette: self._viewOfModel.getToolPalette(),
-                    messageManager: this.getMessageManager,
+                    messageManager: self._viewOfModel.getMessageManager(),
                     parentView: self._viewOfModel
                 });
 
