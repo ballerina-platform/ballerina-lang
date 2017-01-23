@@ -15,7 +15,7 @@
 }
 
 .menu-bar{
-    height: 27px;
+    height: 30px;
 }
 
 .dropdown-menu{
@@ -33,6 +33,10 @@
 
 #menu-bar-container > div.menu-group > ul > li{
     min-width: 200px;
+}
+
+div#header-container{
+    Padding-top:5px;
 }
 
 .shortcut-label {
