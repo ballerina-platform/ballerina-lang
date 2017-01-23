@@ -119,7 +119,9 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab',
             if(!_.isNil(activeTab) && _.isFunction(activeTab.getFile)){
                 var activeFile = activeTab.getFile();
                 if(activeFile.isPersisted()){
-                    this._saveFileDialog.setSelectedFile(activeFile.getPath(), activeFile.getName());
+                    this._saveFileDialog.once('loaded', function(){
+                        this._saveFileDialog.setSelectedFile(activeFile.getPath(), activeFile.getName());
+                    }, this);
                 }
             }
 
