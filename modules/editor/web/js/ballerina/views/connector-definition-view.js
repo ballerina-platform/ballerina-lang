@@ -17,10 +17,11 @@
  */
 define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './../ast/connector-definition',
         './client-life-line', './connector-action-view', 'ballerina/ast/ballerina-ast-factory', './axis',
-        './connector-declaration-view', './../ast/variable-declaration', './variables-view', './annotation-view'],
+        './connector-declaration-view', './../ast/variable-declaration', './variables-view', './annotation-view',
+        './function-arguments-view'],
     function (_, log, d3, D3utils, $, Canvas, Point, ConnectorDefinition,
               ClientLifeLine, ConnectorActionView, BallerinaASTFactory, Axis,
-              ConnectorDeclarationView, VariableDeclaration, VariablesView, AnnotationView) {
+              ConnectorDeclarationView, VariableDeclaration, VariablesView, AnnotationView, ArgumentsView) {
 
         /**
          * The view to represent a connector definition which is an AST visitor.
@@ -187,14 +188,16 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
             var self = this;
 
             $("#title-" + this._model.id).addClass("service-title-text").text(this._model.getConnectorName())
-                .on("change paste keydown", function (e) {
-                    if (e.which == 13) {
-                        return false;
-                    }
+                .on("change paste keyup", function (e) {
                     self._model.setConnectorName($(this).text());
                 }).on("click", function (event) {
-                event.stopPropagation();
-            });
+                    event.stopPropagation();
+                }).on("keydown", function (e) {
+                    // Check whether the Enter key has been pressed. If so return false. Won't type the character
+                    if (e.keyCode === 13) {
+                        return false;
+                    }
+                });
 
             this._model.on('child-added', function (child) {
                 self.visit(child);
@@ -219,29 +222,30 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
                 }
             };
 
-            VariablesView.createVariablePane(variableProperties);
+            VariablesView.createVariablePane(variableProperties, diagramRenderingContext);
 
             var operationsPane = this.getOperationsPane();
 
-            // Creating annotation icon.
-            var panelAnnotationIcon = $("<i/>", {
-                class: "fw fw-annotation pull-right right-icon-clickable hoverable"
+            // Creating arguments icon.
+            var panelArgumentsIcon = $("<i/>", {
+                class: "fw fw-import pull-right right-icon-clickable hoverable"
             }).appendTo(operationsPane);
 
             // Stopping event propagation to the elements behind.
-            panelAnnotationIcon.click(function (event) {
+            panelArgumentsIcon.click(function (event) {
                 event.stopPropagation();
             });
 
-            // Adding separator for annotation icon.
+            // Adding separator for arguments icon.
             $("<span class='pull-right canvas-operations-separator'>|</span>").appendTo(operationsPane);
 
-            var annotationProperties = {
+            var argumentsProperties = {
                 model: this._model,
-                activatorElement: panelAnnotationIcon,
+                activatorElement: panelArgumentsIcon,
                 paneAppendElement: this.getChildContainer().node().ownerSVGElement.parentElement,
                 viewOptions: {
                     position: {
+                        // "-1" to remove the svg stroke line
                         left: parseInt($(this.getChildContainer().node().ownerSVGElement.parentElement).width()),
                         top: 0
                     }
@@ -249,7 +253,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
             };
 
             this.setServiceContainerWidth(this._container.width());
-            AnnotationView.createAnnotationPane(annotationProperties);
+            ArgumentsView.createArgumentsPane(argumentsProperties, diagramRenderingContext);
         };
 
         /**
@@ -305,6 +309,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
          */
         ConnectorDefinitionView.prototype.visitConnectorAction = function (connectorAction) {
             log.debug("Visiting connector action");
+            var self = this;
             var actionContainer = this.getChildContainer();
             var connectorActionView = undefined;
             // If more than one action
@@ -343,7 +348,15 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', './canvas', './point', './..
             this.setLifelineMargin(connectorActionView.getBoundingBox().getRight());
             // If the lifeline margin is changed then accordingly the action should move the bounding box
             this.getLifeLineMargin().on('moved', function (offset) {
-                connectorActionView.getBoundingBox().w(connectorActionView.getBoundingBox().w() + offset);
+                var newWidth = connectorActionView.getBoundingBox().w() + offset;
+                var minWidth = connectorActionView.getContentMinWidth();
+                if (newWidth > minWidth) {
+                    connectorActionView.getBoundingBox().w(newWidth);
+                } else {
+                    // reset lifeline margin position
+                    self.setLifelineMargin(minWidth + self._viewOptions.offsetTop);
+                    connectorActionView.getBoundingBox().w(minWidth);
+                }
             });
 
             //setting height of the connector definition view

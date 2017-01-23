@@ -94,7 +94,8 @@ define(['lodash', 'log', 'event_channel', '../ast/module', './try-catch-statemen
                     _.set(args, 'model', AST.BallerinaASTFactory.createAssignment());
                     _.set(args, 'model.parent', statement.parent);
                     _.set(args, 'model.id', statement.id);
-                    _.get(args, 'model').setExpression(children[0].getVariableReferenceName() + " = " + children[1].getRightOperandExpressionString());
+                    _.get(args, 'model').setExpression(children[0].getLeftOperandExpressionString()+ " = "
+                        + children[1].getRightOperandExpressionString());
                     assignmenStatement = new AssignmentStatementView(args);
                 }
                 return assignmenStatement;

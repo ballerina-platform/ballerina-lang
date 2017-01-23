@@ -19,12 +19,12 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
         './default-worker', './point', './connector-declaration-view', './statement-view-factory',
         'ballerina/ast/ballerina-ast-factory', './expression-view-factory','./message', './statement-container',
         './../ast/variable-declaration', './variables-view', './annotation-view',
-        './arguments-view', './return-type-view'],
+        './function-arguments-view', './return-types-pane-view'],
     function (_, log, d3, $, D3utils, BallerinaView, ConnectorAction,
               DefaultWorkerView, Point, ConnectorDeclarationView, StatementViewFactory,
               BallerinaASTFactory, ExpressionViewFactory, MessageView, StatementContainer,
               VariableDeclaration, VariablesView, AnnotationView,
-              ArgumentsView, ReturnTypeView) {
+              ArgumentsView, ReturnTypesPaneView) {
 
         /**
          * The view to represent a connector action which is an AST visitor.
@@ -78,8 +78,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             this._viewOptions.collapseIconWidth = _.get(args, "viewOptions.collaspeIconWidth", this._container.node().ownerSVGElement.parentElement.offsetWidth - 95);
             this._viewOptions.deleteIconWidth = _.get(args, "viewOptions.deleteIconWidth", this._container.node().ownerSVGElement.parentElement.offsetWidth - 125);
 
-            this._viewOptions.heading.minWidth = 1000;
-            this._viewOptions.contentMinWidth = 1000;
+            this._viewOptions.heading.minWidth = 700;
+            this._viewOptions.contentMinWidth = 700;
 
             this._viewOptions.totalHeightGap = 50;
             this._viewOptions.LifeLineCenterGap = 180;
@@ -452,11 +452,13 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             var contentGroup = D3utils.group(connectorActionGroup);
             contentGroup.attr('id', "contentGroup");
 
-            nameSpan.on("change paste keydown", function (e) {
-                if (e.which == 13) {
+            nameSpan.on("change paste keyup", function (e) {
+                self._model.setActionName($(this).text());
+            }).on("keydown", function (e) {
+                // Check whether the Enter key has been pressed. If so return false. Won't type the character
+                if (e.keyCode === 13) {
                     return false;
                 }
-                self._model.getActionName($(this).text());
             });
 
             this._contentGroup = contentGroup;
@@ -568,7 +570,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 }
             };
 
-            this._variablePane = VariablesView.createVariablePane(variableProperties);
+            this._variablePane = VariablesView.createVariablePane(variableProperties, diagramRenderingContext);
 
             var annotationProperties = {
                 model: this._model,
@@ -598,24 +600,25 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 }
             };
 
-            ArgumentsView.createArgumentsPane(argumentsProperties);
+            ArgumentsView.createArgumentsPane(argumentsProperties, diagramRenderingContext);
 
+            // Creating return type pane.
             var returnTypeProperties = {
                 model: this._model,
                 activatorElement: headingReturnTypesIcon.node(),
                 paneAppendElement: this.getChildContainer().node().ownerSVGElement.parentElement,
                 viewOptions: {
-                    position: {
-                        left: parseFloat(this.getChildContainer().attr("x")) + parseFloat(this.getChildContainer().attr("width")) - 1,
-                        top: this.getChildContainer().attr("y")
-                    }
-                }
+                    position: new Point(parseFloat(this.getChildContainer().attr("x")) + parseFloat(this.getChildContainer().attr("width")) - 1,
+                        this.getChildContainer().attr("y"))
+                },
+                view: this
             };
 
-            // Creating return type pane.
-            ReturnTypeView.createReturnTypePane(returnTypeProperties);
+            this._returnTypePaneView = new ReturnTypesPaneView(returnTypeProperties);
+            this._returnTypePaneView.createReturnTypePane(diagramRenderingContext);
 
-            var operationButtons = [headingAnnotationIcon.node(), headingArgumentsIcon.node()];
+            var operationButtons = [headingAnnotationIcon.node(), headingArgumentsIcon.node(),
+                headingReturnTypesIcon.node()];
 
             // Closing the shown pane when another operation button is clicked.
             _.forEach(operationButtons, function (button) {
