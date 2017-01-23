@@ -18,6 +18,7 @@
  */
 package org.wso2.carbon.transport.http.netty.internal;
 
+import io.netty.channel.EventLoopGroup;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +42,24 @@ public class HTTPTransportContextHolder {
     private HandlerExecutor handlerExecutor;
     private Map<String, ListenerConfiguration> listenerConfigurations = new HashMap<>();
     private TransportListenerManager manager;
+    private EventLoopGroup bossGroup;
+    private EventLoopGroup workerGroup;
+
+    public EventLoopGroup getBossGroup() {
+        return bossGroup;
+    }
+
+    public void setBossGroup(EventLoopGroup bossGroup) {
+        this.bossGroup = bossGroup;
+    }
+
+    public EventLoopGroup getWorkerGroup() {
+        return workerGroup;
+    }
+
+    public void setWorkerGroup(EventLoopGroup workerGroup) {
+        this.workerGroup = workerGroup;
+    }
 
     public ListenerConfiguration getListenerConfiguration(String id) {
         return listenerConfigurations.get(id);

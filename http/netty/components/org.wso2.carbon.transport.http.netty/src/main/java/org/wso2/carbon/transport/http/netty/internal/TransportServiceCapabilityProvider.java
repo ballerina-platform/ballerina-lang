@@ -22,6 +22,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.wso2.carbon.kernel.startupresolver.CapabilityProvider;
+import org.wso2.carbon.transport.http.netty.config.YAMLTransportConfigurationBuilder;
 
 /**
  * Component which registers the CarbonTransport capability information.
@@ -42,6 +43,6 @@ public class TransportServiceCapabilityProvider implements CapabilityProvider {
     @Override
     public int getCount() {
         //Only one Listener configuration is needed for server startup.
-        return 1;
+        return YAMLTransportConfigurationBuilder.build().getListenerConfigurations().size();
     }
 }
