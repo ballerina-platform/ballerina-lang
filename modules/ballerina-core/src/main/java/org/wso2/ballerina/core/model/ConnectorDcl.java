@@ -132,7 +132,7 @@ public class ConnectorDcl implements Node {
     }
     
     /**
-     * Get the source location ois connector declaration.
+     * Get the source location of this connector declaration.
      * Return the source file and the line number of this connector declaration.
      * 
      * @return  Source location of this connector declaration
