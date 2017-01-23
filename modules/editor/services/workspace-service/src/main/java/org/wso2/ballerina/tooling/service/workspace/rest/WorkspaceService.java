@@ -86,6 +86,22 @@ public class WorkspaceService {
             return getErrorResponse(e);
         }
     }
+
+	@GET
+    @Path("/exists")
+    @Produces("application/json")
+    public Response pathExists(@QueryParam("path") String path) {
+        try {
+            return Response.status(Response.Status.OK)
+                    .entity(workspace.exists(new String(Base64.getDecoder().decode(path))))
+                    .header("Access-Control-Allow-Origin", '*')
+                    .type(MediaType.APPLICATION_JSON)
+                    .build();
+        } catch (Exception e) {
+            logger.error("/exists service error", e);
+            return getErrorResponse(e);
+        }
+    }
     
 	@GET
 	@Path("/listFiles")

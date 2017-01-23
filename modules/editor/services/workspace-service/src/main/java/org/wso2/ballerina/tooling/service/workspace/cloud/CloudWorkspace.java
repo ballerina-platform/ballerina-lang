@@ -17,6 +17,7 @@ package org.wso2.ballerina.tooling.service.workspace.cloud;
 
 import com.google.gson.JsonArray;
 
+import com.google.gson.JsonObject;
 import org.wso2.ballerina.tooling.service.workspace.Workspace;
 
 import java.io.IOException;
@@ -49,7 +50,12 @@ public class CloudWorkspace  implements Workspace {
 	public JsonArray listFilesInPath(String path) throws IOException {
 		return null;
 	}
-    
+
+    @Override
+    public JsonObject exists(String path) throws IOException {
+        return null;
+    }
+
     // TODO: This is just for future use.
 
 	
