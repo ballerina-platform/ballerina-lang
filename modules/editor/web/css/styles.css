@@ -167,7 +167,14 @@ header .brand h1 {
 }
 
 ol#breadcrumbList {
-    background-color: #444;
+    background-color: #131313;
+}
+#breadcrumb-container{
+    background-color: #131313;
+    height: 28px;
+    overflow: hidden;
+    line-height: 15px;
+
 }
 
 #icon-toggle-source {
@@ -1090,13 +1097,15 @@ button.variable-list {
 
 #breadcrumb-container > .breadcrumb {
     text-transform: none;
-    background: rgb(35, 35, 35);
+    background: #131313;
 }
 #breadcrumb-container > ol > li.breadcrumb-item {
     color: grey;
+    cursor: pointer;
 }
 #breadcrumb-container > ol > li.breadcrumb-item.active {
     color: white;
+    cursor: pointer;
 }
 
 
