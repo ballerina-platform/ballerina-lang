@@ -29,7 +29,7 @@ import org.wso2.ballerina.core.model.values.BValue;
 class BDoubleType extends BType {
 
     /**
-     * Create a {@code BDoubleType} which represents the boolean type
+     * Create a {@code BDoubleType} which represents the boolean type.
      *
      * @param typeName string name of the type
      */

@@ -29,7 +29,7 @@ import org.wso2.ballerina.core.model.values.BValue;
 class BFloatType extends BType {
 
     /**
-     * Create a {@code BFloatType} which represents the boolean type
+     * Create a {@code BFloatType} which represents the boolean type.
      *
      * @param typeName string name of the type
      */

@@ -32,7 +32,7 @@ import org.wso2.ballerina.core.utils.ParserUtils;
 import org.wso2.ballerina.lang.util.Functions;
 
 /**
- * Test Unary expression
+ * Test Unary expression.
  *
  * @since 0.8.0
  */

@@ -55,7 +55,7 @@ public class WhileStmt extends AbstractStatement {
     }
 
     /**
-     * Builds a {@code WhileStmt} statement
+     * Builds a {@code WhileStmt} statement.
      *
      * @since 0.8.0
      */

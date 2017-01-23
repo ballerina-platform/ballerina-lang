@@ -34,6 +34,9 @@ import org.wso2.ballerina.core.runtime.registry.PackageRegistry;
 import org.wso2.ballerina.core.utils.ParserUtils;
 import org.wso2.ballerina.lang.util.Functions;
 
+/**
+ * Test class for Connector actions.
+ */
 public class ConnectorActionTest {
     private BallerinaFile bFile;
     private SymScope symScope;

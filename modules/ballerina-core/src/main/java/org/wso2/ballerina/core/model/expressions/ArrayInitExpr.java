@@ -50,7 +50,7 @@ public class ArrayInitExpr extends NaryExpression {
     }
 
     /**
-     * {@code ArrayInitExprBuilder} represents an array initializer expression builder
+     * {@code ArrayInitExprBuilder} represents an array initializer expression builder.
      *
      * @since 0.8.0
      */

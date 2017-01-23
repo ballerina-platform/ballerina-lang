@@ -49,7 +49,7 @@ public class ReplyStmt extends AbstractStatement {
     }
 
     /**
-     * Builds a {@code ReturnStmt} statement
+     * Builds a {@code ReturnStmt} statement.
      *
      * @since 0.8.0
      */

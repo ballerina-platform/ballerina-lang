@@ -148,7 +148,7 @@ import org.wso2.ballerina.core.nativeimpl.net.uri.GetQueryParam;
 
 
 /**
- * {@code BuiltInNativeConstructLoader} is responsible for loading built-in native constructs in the ballerina core
+ * {@code BuiltInNativeConstructLoader} is responsible for loading built-in native constructs in the ballerina core.
  * itself.
  * <p>
  * All the external native constructs are plugged into the core through osgi services.
@@ -165,7 +165,7 @@ public class BuiltInNativeConstructLoader {
     }
 
     /**
-     * Load native functions to the runtime
+     * Load native functions to the runtime.
      */
     private static void loadNativeFunctions() {
         SymScope scope = GlobalScopeHolder.getInstance().getScope();

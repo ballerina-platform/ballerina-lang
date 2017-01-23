@@ -31,6 +31,9 @@ import org.wso2.ballerina.core.utils.MessageUtils;
 import org.wso2.ballerina.lang.util.Services;
 import org.wso2.carbon.messaging.CarbonMessage;
 
+/**
+ * Test class for Connector service.
+ */
 public class ConnectorServiceTest {
 
     @BeforeClass()

@@ -30,7 +30,7 @@ import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 import java.util.HashMap;
 
 /**
- * The place where all the package definitions are stored
+ * The place where all the package definitions are stored.
  *
  * @since 0.8.0
  */

@@ -42,7 +42,7 @@ public abstract class BType {
     private static final Map<String, BType> TYPE_MAP = new HashMap<>(20);
 
     /**
-     * Create a type from the given name
+     * Create a type from the given name.
      *
      * @param typeName string name of the type
      */

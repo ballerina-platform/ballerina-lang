@@ -35,7 +35,7 @@ public class BArrayType extends BType {
     private BType elementType;
 
     /**
-     * Create a type from the given name
+     * Create a type from the given name.
      *
      * @param typeName string name of the type
      */

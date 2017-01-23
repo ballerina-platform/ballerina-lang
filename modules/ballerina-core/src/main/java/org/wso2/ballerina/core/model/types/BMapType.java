@@ -34,7 +34,7 @@ import org.wso2.ballerina.core.model.values.BValue;
 public class BMapType extends BType {
 
     /**
-     * Create a type from the given name
+     * Create a type from the given name.
      *
      * @param typeName string name of the type
      */

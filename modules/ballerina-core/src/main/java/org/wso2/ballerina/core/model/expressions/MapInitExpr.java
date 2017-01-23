@@ -50,7 +50,7 @@ public class MapInitExpr extends NaryExpression {
     }
 
     /**
-     * {@code MapInitExprBuilder} represents a map initializer expression builder
+     * {@code MapInitExprBuilder} represents a map initializer expression builder.
      *
      * @since 0.8.0
      */

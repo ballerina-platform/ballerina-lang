@@ -28,7 +28,7 @@ import org.wso2.ballerina.core.model.values.BValue;
 public class BConnectorType extends BType {
 
     /**
-     * Create a {@code BConnectorType} which represents the boolean type
+     * Create a {@code BConnectorType} which represents the boolean type.
      *
      * @param typeName string name of the type
      */

@@ -25,6 +25,9 @@ import org.wso2.ballerina.core.runtime.internal.BuiltInNativeConstructLoader;
 import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 import org.wso2.ballerina.core.utils.ParserUtils;
 
+/**
+ * Test class for return statement negative cases.
+ */
 public class ReturnStmtNegativeTest {
     private SymScope globalSymScope;
 

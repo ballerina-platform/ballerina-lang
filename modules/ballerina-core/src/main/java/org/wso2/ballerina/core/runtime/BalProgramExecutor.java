@@ -48,7 +48,7 @@ import org.wso2.carbon.messaging.CarbonMessage;
 import static org.wso2.ballerina.core.runtime.Constants.SYSTEM_PROP_BAL_ARGS;
 
 /**
- * {@code BalProgramExecutor} is responsible for executing a BallerinaProgram
+ * {@code BalProgramExecutor} is responsible for executing a BallerinaProgram.
  *
  * @since 0.8.0
  */
