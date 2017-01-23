@@ -24,7 +24,6 @@ import org.wso2.ballerina.core.model.ConnectorDcl;
 import org.wso2.ballerina.core.model.Parameter;
 import org.wso2.ballerina.core.model.Position;
 import org.wso2.ballerina.core.model.Resource;
-import org.wso2.ballerina.core.model.StructDcl;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.VariableDcl;
 import org.wso2.ballerina.core.model.Worker;
@@ -50,7 +49,6 @@ class CallableUnitBuilder {
     private List<Parameter> returnParamList = new ArrayList<>();
     private List<ConnectorDcl> connectorDclList = new ArrayList<>();
     private List<VariableDcl> variableDclList = new ArrayList<>();
-    private List<StructDcl> structDclList = new ArrayList<>();
     private List<Worker> workerList = new ArrayList<>();
     private BlockStmt body;
 
@@ -121,16 +119,7 @@ class CallableUnitBuilder {
                 returnParamList.toArray(new Parameter[returnParamList.size()]),
                 connectorDclList.toArray(new ConnectorDcl[connectorDclList.size()]),
                 variableDclList.toArray(new VariableDcl[variableDclList.size()]),
-                structDclList.toArray(new StructDcl[structDclList.size()]),
                 workerList.toArray(new Worker[workerList.size()]), body);
     }
 
-    /**
-     * Add a struct declaration to this callable unit
-     * 
-     * @param structDcl Struct declaration
-     */
-    public void addStructDcl(StructDcl structDcl) {
-        this.structDclList.add(structDcl);
-    }
 }
