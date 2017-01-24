@@ -28,7 +28,7 @@ define(['log', 'lodash', 'event_channel', './../ast/service-definition', './../a
          * @constructor
          */
         var Package = function(args){
-            this.setName(_.get(args, 'name', null));
+            this.setName(_.get(args, 'name', ''));
             this.addServiceDefinitions(_.get(args, 'serviceDefinitions', []));
             this.addFunctionDefinitions(_.get(args, 'functionDefinitions', []));
             this.addConnectorDefinitions(_.get(args, 'connectorDefinitions', []));
@@ -355,6 +355,10 @@ define(['log', 'lodash', 'event_channel', './../ast/service-definition', './../a
          */
         Package.prototype.getFunctionDefinitions = function() {
             return this._functionDefinitions;
+        };
+
+        Package.prototype.initFromJson = function(jsonNode) {
+            this.setName(jsonNode.name);
         };
 
         return Package;
