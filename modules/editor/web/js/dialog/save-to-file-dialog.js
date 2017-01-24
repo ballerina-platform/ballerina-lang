@@ -141,12 +141,12 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
                     var _location = location.val();
                     var _configName = configName.val();
                     if (_.isEmpty(_location)) {
-                        newWizardError.text("Invalid Value for Location.");
+                        newWizardError.text("Please enter valid file location");
                         newWizardError.show();
                         return;
                     }
                     if (_.isEmpty(_configName)) {
-                        newWizardError.text("Invalid Value for File Name.");
+                        newWizardError.text("Please enter valid file name");
                         newWizardError.show();
                         return;
                     }
