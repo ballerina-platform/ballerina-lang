@@ -19,6 +19,7 @@ define(['lodash', './node'], function (_, ASTNode) {
     var StructDefinition = function (args) {
         ASTNode.call(this, 'StructDefinition');
         this._structName = _.get(args, 'structName', 'newStruct');
+        this.BallerinaASTFactory = this.getFactory();
     };
 
     StructDefinition.prototype = Object.create(ASTNode.prototype);
@@ -38,6 +39,40 @@ define(['lodash', './node'], function (_, ASTNode) {
      */
     StructDefinition.prototype.getStructName = function () {
         return this._structName;
+    };
+
+
+    StructDefinition.prototype.getVariableDeclarations = function () {
+        var variableDeclarations = [];
+        var self = this;
+
+        _.forEach(this.getChildren(), function (child) {
+            if (self.BallerinaASTFactory.isVariableDeclaration(child)) {
+                variableDeclarations.push(child);
+            }
+        });
+        return variableDeclarations;
+    };
+
+    /**
+     * Adds new variable declaration.
+     */
+    StructDefinition.prototype.addVariableDeclaration = function (newVariableDeclaration) {
+        var self = this;
+
+        // Get the index of the last variable declaration.
+        var index = _.findLastIndex(this.getChildren(), function (child) {
+            return self.BallerinaASTFactory.isVariableDeclaration(child);
+        });
+
+        this.addChild(newVariableDeclaration, index + 1);
+    };
+
+    /**
+     * Removes new variable declaration.
+     */
+    StructDefinition.prototype.removeVariableDeclaration = function (variableDeclaration) {
+        this.removeChild(variableDeclaration)
     };
 
     return StructDefinition;
