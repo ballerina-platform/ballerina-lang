@@ -21,14 +21,14 @@ import org.wso2.ballerina.core.model.values.BBoolean;
 import org.wso2.ballerina.core.model.values.BValue;
 
 /**
- * {@code BBooleanType} represents boolean type in Ballerina
+ * {@code BBooleanType} represents boolean type in Ballerina.
  *
  * @since 0.8.0
  */
 class BBooleanType extends BType {
 
     /**
-     * Create a {@code BBooleanType} which represents the boolean type
+     * Create a {@code BBooleanType} which represents the boolean type.
      *
      * @param typeName string name of the type
      */

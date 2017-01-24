@@ -31,7 +31,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Error handler for HTTP Protocol
+ * Error handler for HTTP Protocol.
  */
 @Component(
         name = "ballerina.net.http.error.handler",

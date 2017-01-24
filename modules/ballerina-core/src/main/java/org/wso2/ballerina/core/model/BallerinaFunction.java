@@ -100,7 +100,7 @@ public class BallerinaFunction extends PositionAwareNode implements Function, No
     }
 
     /**
-     * Get the function Identifier
+     * Get the function Identifier.
      *
      * @return function identifier
      */
@@ -114,7 +114,7 @@ public class BallerinaFunction extends PositionAwareNode implements Function, No
     }
 
     /**
-     * Get all the Annotations associated with a BallerinaFunction
+     * Get all the Annotations associated with a BallerinaFunction.
      *
      * @return list of Annotations
      */
@@ -123,7 +123,7 @@ public class BallerinaFunction extends PositionAwareNode implements Function, No
     }
 
     /**
-     * Get list of Arguments associated with the function definition
+     * Get list of Arguments associated with the function definition.
      *
      * @return list of Arguments
      */
@@ -133,7 +133,7 @@ public class BallerinaFunction extends PositionAwareNode implements Function, No
 
 
     /**
-     * Get all Connections declared within the BallerinaFunction scope
+     * Get all Connections declared within the BallerinaFunction scope.
      *
      * @return list of all the Connections belongs to a BallerinaFunction
      */
@@ -143,7 +143,7 @@ public class BallerinaFunction extends PositionAwareNode implements Function, No
 
 
     /**
-     * Get all the variableDcls declared in the scope of BallerinaFunction
+     * Get all the variableDcls declared in the scope of BallerinaFunction.
      *
      * @return list of all BallerinaFunction scoped variableDcls
      */
@@ -152,7 +152,7 @@ public class BallerinaFunction extends PositionAwareNode implements Function, No
     }
 
     /**
-     * Get all the Workers associated with a BallerinaFunction
+     * Get all the Workers associated with a BallerinaFunction.
      *
      * @return list of Workers
      */
@@ -165,7 +165,7 @@ public class BallerinaFunction extends PositionAwareNode implements Function, No
     }
 
     /**
-     * Check whether function is public, which means function is visible outside the package
+     * Check whether function is public, which means function is visible outside the package.
      *
      * @return whether function is public
      */
@@ -174,7 +174,7 @@ public class BallerinaFunction extends PositionAwareNode implements Function, No
     }
 
     /**
-     * Mark function as public
+     * Mark function as public.
      */
     public void makePublic() {
         publicFunc = true;

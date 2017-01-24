@@ -33,7 +33,7 @@ import org.wso2.ballerina.core.nativeimpl.connectors.http.Constants;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
- * {@code Delete} is the DELETE action implementation of the HTTP Connector
+ * {@code Delete} is the DELETE action implementation of the HTTP Connector.
  *
  */
 @BallerinaAction(

@@ -18,7 +18,7 @@
 package org.wso2.ballerina.core.model;
 
 /**
- *
+ * Node interface.
  */
 public interface Node {
     void accept(NodeVisitor visitor);
