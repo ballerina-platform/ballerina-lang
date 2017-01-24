@@ -158,6 +158,8 @@ public final class Constants {
 
     public static final String HTTP_STATUS_CODE = "HTTP_STATUS_CODE";
 
+    public static final String HTTP_REASON_PHRASE = "HTTP_REASON_PHRASE";
+
     public static final String CHNL_HNDLR_CTX = "CHNL_HNDLR_CTX";
 
     public static final String SRC_HNDLR = "SRC_HNDLR";
