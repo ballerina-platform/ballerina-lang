@@ -74,7 +74,7 @@ import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
 
 
 /**
- * {@code BLangExecutor} executes a Ballerina application
+ * {@code BLangExecutor} executes a Ballerina application.
  *
  * @since 0.8.0
  */

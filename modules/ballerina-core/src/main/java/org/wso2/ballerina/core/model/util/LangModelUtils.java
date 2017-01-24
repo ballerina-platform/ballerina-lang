@@ -22,7 +22,7 @@ import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.types.BType;
 
 /**
- *
+ * Language model utils.
  */
 public class LangModelUtils {
 

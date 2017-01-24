@@ -27,7 +27,7 @@ import org.wso2.ballerina.core.runtime.Constants;
 import org.wso2.carbon.messaging.Headers;
 
 /**
- * Convert the message into an HTTP Response
+ * Convert the message into an HTTP Response.
  */
 @BallerinaFunction(
         packageName = "ballerina.net.http",

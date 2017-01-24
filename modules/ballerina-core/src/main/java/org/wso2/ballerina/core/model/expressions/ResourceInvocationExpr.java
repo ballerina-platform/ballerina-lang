@@ -26,7 +26,7 @@ import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.values.BValue;
 
 /**
- * {@code ResourceInvoker} is the entity which invokes a particular resource
+ * {@code ResourceInvoker} is the entity which invokes a particular resource.
  *
  * @since 0.8.0
  */

@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * {@code BType} represents a type in Ballerina
+ * {@code BType} represents a type in Ballerina.
  * <p>
  * Ballerina has variables of various types. The type system includes built-in primitive or value types,
  * a collection of built-in structured types, and array, record and iterator type constructors.
@@ -42,7 +42,7 @@ public abstract class BType {
     private static final Map<String, BType> TYPE_MAP = new HashMap<>(20);
 
     /**
-     * Create a type from the given name
+     * Create a type from the given name.
      *
      * @param typeName string name of the type
      */

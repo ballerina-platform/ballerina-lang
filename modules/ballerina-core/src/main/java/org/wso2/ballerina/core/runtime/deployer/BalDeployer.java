@@ -50,7 +50,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * {@code BalDeployer} is responsible for all ballerina file deployment tasks
+ * {@code BalDeployer} is responsible for all ballerina file deployment tasks.
  *
  * @since 0.8.0
  */

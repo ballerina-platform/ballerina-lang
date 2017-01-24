@@ -28,7 +28,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 import java.io.PrintStream;
 
 /**
- * Native function ballerina.lang.system:println
+ * Native function ballerina.lang.system:println.
  *
  * @since 0.8.0
  */

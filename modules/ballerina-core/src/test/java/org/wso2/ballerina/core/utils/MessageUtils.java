@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * Util Class contains method for generating a message
+ * Util Class contains method for generating a message.
  *
  * @since 0.8.0
  */

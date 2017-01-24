@@ -29,7 +29,7 @@ import org.wso2.ballerina.core.utils.ParserUtils;
 import org.wso2.ballerina.lang.util.Functions;
 
 /**
- * This contains methods to test different behaviours of the if-else statement
+ * This contains methods to test different behaviours of the if-else statement.
  *
  * @since 0.8.0
  */
