@@ -31,6 +31,8 @@
     color: #e2e2e2;
     padding: 3px 10px;
     font-weight: 300;
+    height: 27px;
+    float: inherit;
 }
 
 #menu-bar-container > div.menu-group > ul > li{
@@ -68,6 +70,7 @@ div#header-container{
 li.menu-item-disabled > a {
     color: #777;
     padding: 3px 10px;
+    height: 27px;
 }
 
 .file-dropdown-menu > li.menu-item-disabled > a:hover{
