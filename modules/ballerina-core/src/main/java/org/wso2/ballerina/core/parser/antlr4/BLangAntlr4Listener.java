@@ -275,27 +275,49 @@ public class BLangAntlr4Listener implements BallerinaListener {
     @Override
     public void enterTypeConvertorDefinition(BallerinaParser.TypeConvertorDefinitionContext ctx) {
         if (ctx.exception == null) {
-            modelBuilder.startCallableUnitBody();
+            modelBuilder.startCallableUnit();
         }
     }
 
     @Override
     public void exitTypeConvertorDefinition(BallerinaParser.TypeConvertorDefinitionContext ctx) {
         if (ctx.exception == null) {
-            // Create the input parameter for type convertor
-            modelBuilder.createParam(ctx.Identifier(1).getText(), getCurrentLocation(ctx));
             // Create the return type of the type convertor
             modelBuilder.createReturnTypes(getCurrentLocation(ctx));
             boolean isPublic = true;
             // Set the location info needed to generate the stack trace
-            TerminalNode identifier = ctx.Identifier(0);
+            TerminalNode identifier = ctx.Identifier();
             if (identifier != null) {
                 String fileName = identifier.getSymbol().getInputStream().getSourceName();
                 int lineNo = identifier.getSymbol().getLine();
                 Position functionLocation = new Position(fileName, lineNo);
-                modelBuilder.createTypeConverter(identifier.getText(), isPublic, functionLocation, childPosition);
+                String typeConverterName = "_" + ctx.typeConvertorInput().typeConvertorType().getText() + "->" + "_" +
+                        ctx.typeConvertorType().getText();
+                modelBuilder.createTypeConverter(typeConverterName, isPublic, functionLocation, childPosition);
                 childPosition++;
             }
+        }
+    }
+
+    /**
+     * Enter a parse tree produced by {@link BallerinaParser#typeConvertorInput}.
+     *
+     * @param ctx the parse tree
+     */
+    @Override
+    public void enterTypeConvertorInput(BallerinaParser.TypeConvertorInputContext ctx) {
+    }
+
+    /**
+     * Exit a parse tree produced by {@link BallerinaParser#typeConvertorInput}.
+     *
+     * @param ctx the parse tree
+     */
+    @Override
+    public void exitTypeConvertorInput(BallerinaParser.TypeConvertorInputContext ctx) {
+        if (ctx.exception == null) {
+            // Create the input parameter for type convertor
+            modelBuilder.createParam(ctx.Identifier().getText(), getCurrentLocation(ctx));
         }
     }
 
@@ -406,11 +428,12 @@ public class BLangAntlr4Listener implements BallerinaListener {
     }
 
     @Override
-    public void enterTypeConvertorTypes(BallerinaParser.TypeConvertorTypesContext ctx) {
+    public void enterTypeConvertorType(BallerinaParser.TypeConvertorTypeContext ctx) {
     }
 
     @Override
-    public void exitTypeConvertorTypes(BallerinaParser.TypeConvertorTypesContext ctx) {
+    public void exitTypeConvertorType(BallerinaParser.TypeConvertorTypeContext ctx) {
+
     }
 
     @Override

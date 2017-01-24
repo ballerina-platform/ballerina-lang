@@ -137,6 +137,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             addConnectorSymbol(connector);
             Arrays.asList(connector.getActions()).forEach(this::addActionSymbol);
         });
+        Arrays.asList(bFile.getTypeConverters()).forEach(this::addTypeConverterSymbol);
     }
 
     @Override
@@ -162,6 +163,11 @@ public class SemanticAnalyzer implements NodeVisitor {
         for (Function function : bFile.getFunctions()) {
             BallerinaFunction bFunction = (BallerinaFunction) function;
             bFunction.accept(this);
+        }
+
+        for (TypeConverter tConverter : bFile.getTypeConverters()) {
+            BTypeConverter typeConverter = (BTypeConverter) tConverter;
+            typeConverter.accept(this);
         }
 
         int setSizeOfStaticMem = staticMemAddrOffset + 1;
@@ -1362,6 +1368,21 @@ public class SemanticAnalyzer implements NodeVisitor {
         symbolTable.insert(symbolName, symbol);
     }
 
+    private void addTypeConverterSymbol(TypeConverter typeConverter) {
+        SymbolName symbolName = LangModelUtils.getTypeConverterSymName(typeConverter.getPackageName(),
+                typeConverter.getParameters(),
+                typeConverter.getReturnParameters());
+        typeConverter.setSymbolName(symbolName);
+
+        if (symbolTable.lookup(symbolName) != null) {
+            throw new SemanticException(typeConverter.getLocation().getFileName() + ":" + typeConverter.getLocation().getLine() +
+                    ": duplicate typeConvertor '" + typeConverter.getTypeConverterName() + "'");
+        }
+
+        Symbol symbol = new Symbol(typeConverter);
+        symbolTable.insert(symbolName, symbol);
+    }
+
     private void addActionSymbol(BallerinaAction action) {
         SymbolName actionSymbolName = action.getSymbolName();
         BType[] paramTypes = LangModelUtils.getTypesOfParams(action.getParameters());
@@ -1652,11 +1673,19 @@ public class SemanticAnalyzer implements NodeVisitor {
     private void linkTypeConverter(TypeCastingExpression typeCastingExpression) {
         // Evaluate the expression and set the type
         typeCastingExpression.getSourceExpression().accept(this);
-        // Invoke with casting expression
-        SymbolName symbolName = LangModelUtils.getTypeConverterSymNameWithoutPackage
-                (typeCastingExpression.getSourceExpression().getType(), typeCastingExpression.getTargetType());
+        // Check on the same package
+        SymbolName symbolName = new SymbolName(currentPkg + ":" + "_" + typeCastingExpression.
+                getSourceExpression().getType() + "->" + "_" + typeCastingExpression.getTargetType());
         typeCastingExpression.setTypeConverterName(symbolName);
         Symbol symbol = symbolTable.lookup(symbolName);
+
+        if (symbol == null) {
+            // Check on the global scope for native type converters
+            symbolName = LangModelUtils.getTypeConverterSymNameWithoutPackage
+                    (typeCastingExpression.getSourceExpression().getType(), typeCastingExpression.getTargetType());
+            typeCastingExpression.setTypeConverterName(symbolName);
+            symbol = symbolTable.lookup(symbolName);
+        }
         if (symbol == null) {
             throw new LinkerException(typeCastingExpression.getLocation().getFileName() + ":" +
                     typeCastingExpression.getLocation().getLine() +

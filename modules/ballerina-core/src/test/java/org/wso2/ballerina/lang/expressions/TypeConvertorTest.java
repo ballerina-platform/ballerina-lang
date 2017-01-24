@@ -46,11 +46,11 @@ public class TypeConvertorTest {
     }
 
     @Test
-    public void testXMLToJSON() {
-        BValue[] args = {new BXML("<name>chanaka</name>")};
-        BValue[] returns = Functions.invoke(bFile, "jsonToXmlConvertor", args);
-        Assert.assertTrue(returns[0] instanceof BJSON);
-        final String expected = "{\"name\":\"chanaka\"}";
+    public void testJSONToXML() {
+        BValue[] args = {new BJSON("{\"name\":\"chanaka\"}")};
+        BValue[] returns = Functions.invoke(bFile, "testBalConvertor", args);
+        Assert.assertTrue(returns[0] instanceof BXML);
+        final String expected = "<name>chanaka</name>";
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 }

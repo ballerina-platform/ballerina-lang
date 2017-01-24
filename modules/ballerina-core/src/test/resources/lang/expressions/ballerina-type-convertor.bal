@@ -2,6 +2,12 @@ import ballerina.lang.converters;
 
 typeconvertor jsonToXmlConvertor(json input) (xml) {
     xml result;
-    result = (xml)input;
+    result = `<name>chanaka</name>`;
     return result;
+}
+
+function testBalConvertor(json in)(xml) {
+    xml res;
+    res = (xml)in;
+    return res;
 }
