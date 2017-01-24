@@ -1,17 +1,18 @@
 <idea-plugin version="2">
-    <id>org.wso2</id>
+    <id>org.ballerinalang</id>
     <name>Ballerina</name>
     <version>0.1</version>
     <vendor email="support@wso2.org" url="http://wso2.org">WSO2</vendor>
 
     <description><![CDATA[
-      Enter short description for your plugin here.<br>
-      <em>most HTML tags may be used</em>
+      Plugin for Ballerina language support.<br>
     ]]></description>
 
     <change-notes><![CDATA[
-      Add change notes here.<br>
-      <em>most HTML tags may be used</em>
+      <ul>
+        <li>Syntax highlighting.</li>
+        <li>Commenter support.</li>
+      </ul>
     ]]>
     </change-notes>
 
