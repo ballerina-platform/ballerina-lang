@@ -181,7 +181,7 @@ public interface BallerinaTypes {
   IElementType TRY = new BallerinaTokenType("try");
   IElementType TYPE = new BallerinaTokenType("type");
   IElementType TYPECONVERTOR = new BallerinaTokenType("typeconvertor");
-  IElementType VALIDBACKTICKSTRINGCHARACTERS = new BallerinaTokenType("ValidBackTickStringCharacters");
+  IElementType VALIDBACKTICKSTRING = new BallerinaTokenType("ValidBackTickString");
   IElementType VERSION = new BallerinaTokenType("version");
   IElementType WHILE = new BallerinaTokenType("while");
   IElementType WORKER = new BallerinaTokenType("worker");

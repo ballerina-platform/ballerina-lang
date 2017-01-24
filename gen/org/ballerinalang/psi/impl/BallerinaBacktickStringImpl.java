@@ -44,8 +44,8 @@ public class BallerinaBacktickStringImpl extends ASTWrapperPsiElement implements
 
   @Override
   @NotNull
-  public PsiElement getValidBackTickStringCharacters() {
-    return findNotNullChildByType(VALIDBACKTICKSTRINGCHARACTERS);
+  public PsiElement getValidBackTickString() {
+    return findNotNullChildByType(VALIDBACKTICKSTRING);
   }
 
 }

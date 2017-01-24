@@ -22,7 +22,7 @@ INTEGERLITERAL=0|[1-9][0-9]*
 FLOATINGPOINTLITERAL=(([0-9]+\.[0-9]*)|(\.[0-9]+)|([0-9]+))([eE][+-]?[0-9]+)?[fF]
 BOOLEANLITERAL=true|false
 QUOTEDSTRINGLITERAL=\"([^\\\"\r\n]|\\[^\r\n])*\"
-VALIDBACKTICKSTRINGCHARACTERS=`[^`]*`
+VALIDBACKTICKSTRING=`[^`]*`
 IDENTIFIER=[a-zA-Z$_][a-zA-Z0-9$_]*
 LINE_COMMENT="//"[^\r\n]*
 
@@ -102,7 +102,7 @@ LINE_COMMENT="//"[^\r\n]*
   {FLOATINGPOINTLITERAL}               { return BallerinaTypes.FLOATINGPOINTLITERAL; }
   {BOOLEANLITERAL}                     { return BallerinaTypes.BOOLEANLITERAL; }
   {QUOTEDSTRINGLITERAL}                { return BallerinaTypes.QUOTEDSTRINGLITERAL; }
-  {VALIDBACKTICKSTRINGCHARACTERS}      { return BallerinaTypes.VALIDBACKTICKSTRINGCHARACTERS; }
+  {VALIDBACKTICKSTRING}                { return BallerinaTypes.VALIDBACKTICKSTRING; }
   {IDENTIFIER}                         { return BallerinaTypes.IDENTIFIER; }
   {WHITE_SPACE}                        { return BallerinaTypes.WHITE_SPACE; }
   {LINE_COMMENT}                       { return BallerinaTypes.LINE_COMMENT; }

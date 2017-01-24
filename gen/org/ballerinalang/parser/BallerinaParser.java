@@ -494,13 +494,13 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // ValidBackTickStringCharacters
+  // ValidBackTickString
   public static boolean backtickString(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "backtickString")) return false;
-    if (!nextTokenIs(b, VALIDBACKTICKSTRINGCHARACTERS)) return false;
+    if (!nextTokenIs(b, VALIDBACKTICKSTRING)) return false;
     boolean r;
     Marker m = enter_section_(b);
-    r = consumeToken(b, VALIDBACKTICKSTRINGCHARACTERS);
+    r = consumeToken(b, VALIDBACKTICKSTRING);
     exit_section_(b, m, BACKTICK_STRING, r);
     return r;
   }

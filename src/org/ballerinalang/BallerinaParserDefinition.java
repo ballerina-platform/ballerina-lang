@@ -34,7 +34,7 @@ public class BallerinaParserDefinition implements ParserDefinition {
     public static final TokenSet WHITE_SPACES = TokenSet.create(TokenType.WHITE_SPACE);
     public static final TokenSet COMMENTS = TokenSet.create(BallerinaTypes.LINE_COMMENT);
 
-    public static final TokenSet STRING_LITERALS = TokenSet.create(QUOTEDSTRINGLITERAL);
+    public static final TokenSet STRING_LITERALS = TokenSet.create(QUOTEDSTRINGLITERAL, VALIDBACKTICKSTRING);
     public static final TokenSet NUMBERS = TokenSet.create(INTEGERLITERAL, FLOATINGPOINTLITERAL);
     public static final TokenSet KEYWORDS = TokenSet.create(
             ACTION, BREAK, CATCH, CONNECTOR, CONST, ELSE, FORK, FUNCTION, IF, IMPORT, ITERATE, JOIN, NEW, PACKAGE,

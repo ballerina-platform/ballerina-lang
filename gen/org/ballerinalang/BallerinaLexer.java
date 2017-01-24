@@ -883,7 +883,7 @@ class BallerinaLexer implements FlexLexer {
             }
           case 110: break;
           case 35: 
-            { return BallerinaTypes.VALIDBACKTICKSTRINGCHARACTERS;
+            { return BallerinaTypes.VALIDBACKTICKSTRING;
             }
           case 111: break;
           case 36: 

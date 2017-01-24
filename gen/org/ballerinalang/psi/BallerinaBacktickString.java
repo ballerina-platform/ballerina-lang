@@ -24,6 +24,6 @@ import com.intellij.psi.PsiElement;
 public interface BallerinaBacktickString extends PsiElement {
 
   @NotNull
-  PsiElement getValidBackTickStringCharacters();
+  PsiElement getValidBackTickString();
 
 }

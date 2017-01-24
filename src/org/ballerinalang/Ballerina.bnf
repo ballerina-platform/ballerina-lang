@@ -99,7 +99,7 @@
 
       QuotedStringLiteral ='regexp:\"([^\\\"\r\n]|\\[^\r\n])*(\"|\\)?'
 
-      ValidBackTickStringCharacters ='regexp:`[^`]*`'
+      ValidBackTickString ='regexp:`[^`]*`'
 
       Identifier = "regexp:[a-zA-Z$_][a-zA-Z0-9$_]*"
 //
@@ -423,7 +423,7 @@ actionInvocation
     ::=   packageName ':' Identifier '.' Identifier
 
 backtickString
-   ::=     ValidBackTickStringCharacters
+   ::=     ValidBackTickString
 
 
 // 1 ------------------------------------------
