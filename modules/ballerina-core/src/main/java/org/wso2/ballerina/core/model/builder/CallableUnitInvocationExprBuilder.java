@@ -21,6 +21,7 @@ import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.Expression;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
+import org.wso2.ballerina.core.model.expressions.TypeCastingExpression;
 
 import java.util.ArrayList;
 import java.util.List;

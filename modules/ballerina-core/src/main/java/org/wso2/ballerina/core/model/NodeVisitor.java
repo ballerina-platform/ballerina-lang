@@ -43,6 +43,7 @@ import org.wso2.ballerina.core.model.expressions.NotEqualExpression;
 import org.wso2.ballerina.core.model.expressions.OrExpression;
 import org.wso2.ballerina.core.model.expressions.ResourceInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.SubtractExpression;
+import org.wso2.ballerina.core.model.expressions.TypeCastingExpression;
 import org.wso2.ballerina.core.model.expressions.UnaryExpression;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.invokers.MainInvoker;
@@ -76,6 +77,8 @@ public interface NodeVisitor {
     void visit(Resource resource);
 
     void visit(BallerinaFunction function);
+
+    void visit(BTypeConverter typeConverter);
 
     void visit(BallerinaAction action);
 
@@ -156,6 +159,8 @@ public interface NodeVisitor {
     void visit(BacktickExpr backtickExpr);
 
     void visit(VariableRefExpr variableRefExpr);
+
+    void visit(TypeCastingExpression typeCastingExpression);
 
     void visit(LocalVarLocation localVarLocation);
 
