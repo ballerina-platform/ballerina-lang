@@ -35,6 +35,8 @@ public class Symbol {
 
     private Function function;
 
+    private TypeConverter typeConverter;
+
     private Action action;
     private Connector connector;
 
@@ -46,6 +48,10 @@ public class Symbol {
 
     public Symbol(Function function) {
         this.function = function;
+    }
+
+    public Symbol(TypeConverter typeConverter) {
+        this.typeConverter = typeConverter;
     }
 
     public Symbol(Action action) {
@@ -71,6 +77,10 @@ public class Symbol {
 
     public Function getFunction() {
         return function;
+    }
+
+    public TypeConverter getTypeConverter() {
+        return typeConverter;
     }
 
     public Action getAction() {

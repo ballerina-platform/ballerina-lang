@@ -25,6 +25,7 @@ import org.wso2.ballerina.core.interpreter.ConstantLocation;
 import org.wso2.ballerina.core.interpreter.LocalVarLocation;
 import org.wso2.ballerina.core.interpreter.ServiceVarLocation;
 import org.wso2.ballerina.core.model.Annotation;
+import org.wso2.ballerina.core.model.BTypeConverter;
 import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.BallerinaConnector;
 import org.wso2.ballerina.core.model.BallerinaFile;
@@ -62,6 +63,7 @@ import org.wso2.ballerina.core.model.expressions.MultExpression;
 import org.wso2.ballerina.core.model.expressions.NotEqualExpression;
 import org.wso2.ballerina.core.model.expressions.OrExpression;
 import org.wso2.ballerina.core.model.expressions.SubtractExpression;
+import org.wso2.ballerina.core.model.expressions.TypeCastingExpression;
 import org.wso2.ballerina.core.model.expressions.UnaryExpression;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.invokers.MainInvoker;
@@ -332,6 +334,11 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         jsonFunc.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
         tempJsonArrayRef.pop();
         tempJsonArrayRef.peek().add(jsonFunc);
+    }
+
+    @Override
+    public void visit(BTypeConverter typeConverter) {
+
     }
 
     @Override
@@ -844,6 +851,11 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         variableRefObj.addProperty(BLangJSONModelConstants.VARIABLE_REFERENCE_NAME,
                 variableRefExpr.getSymbolName().getName());
         tempJsonArrayRef.peek().add(variableRefObj);
+    }
+
+    @Override
+    public void visit(TypeCastingExpression typeCastingExpression) {
+
     }
 
     @Override

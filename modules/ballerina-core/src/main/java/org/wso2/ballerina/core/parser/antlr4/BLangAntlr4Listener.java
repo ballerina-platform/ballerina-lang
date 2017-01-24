@@ -274,18 +274,43 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void enterTypeConvertorDefinition(BallerinaParser.TypeConvertorDefinitionContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.startCallableUnitBody();
+        }
     }
 
     @Override
     public void exitTypeConvertorDefinition(BallerinaParser.TypeConvertorDefinitionContext ctx) {
+        if (ctx.exception == null) {
+            // Create the input parameter for type convertor
+            modelBuilder.createParam(ctx.Identifier(1).getText(), getCurrentLocation(ctx));
+            // Create the return type of the type convertor
+            modelBuilder.createReturnTypes(getCurrentLocation(ctx));
+            boolean isPublic = true;
+            // Set the location info needed to generate the stack trace
+            TerminalNode identifier = ctx.Identifier(0);
+            if (identifier != null) {
+                String fileName = identifier.getSymbol().getInputStream().getSourceName();
+                int lineNo = identifier.getSymbol().getLine();
+                Position functionLocation = new Position(fileName, lineNo);
+                modelBuilder.createTypeConverter(identifier.getText(), isPublic, functionLocation, childPosition);
+                childPosition++;
+            }
+        }
     }
 
     @Override
     public void enterTypeConvertorBody(BallerinaParser.TypeConvertorBodyContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.startCallableUnitBody();
+        }
     }
 
     @Override
     public void exitTypeConvertorBody(BallerinaParser.TypeConvertorBodyContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.endCallableUnitBody();
+        }
     }
 
     @Override
@@ -1071,6 +1096,9 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitTypeCastingExpression(BallerinaParser.TypeCastingExpressionContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.createTypeCastInvocationExpr(ctx.typeName().getText(), getCurrentLocation(ctx));
+        }
     }
 
     @Override

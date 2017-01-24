@@ -23,6 +23,7 @@ import org.wso2.ballerina.core.interpreter.ConstantLocation;
 import org.wso2.ballerina.core.interpreter.LocalVarLocation;
 import org.wso2.ballerina.core.interpreter.ServiceVarLocation;
 import org.wso2.ballerina.core.model.Annotation;
+import org.wso2.ballerina.core.model.BTypeConverter;
 import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.BallerinaConnector;
 import org.wso2.ballerina.core.model.BallerinaFile;
@@ -58,6 +59,7 @@ import org.wso2.ballerina.core.model.expressions.MultExpression;
 import org.wso2.ballerina.core.model.expressions.NotEqualExpression;
 import org.wso2.ballerina.core.model.expressions.OrExpression;
 import org.wso2.ballerina.core.model.expressions.SubtractExpression;
+import org.wso2.ballerina.core.model.expressions.TypeCastingExpression;
 import org.wso2.ballerina.core.model.expressions.UnaryExpression;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.invokers.MainInvoker;
@@ -113,6 +115,11 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
 
     @Override
     public void visit(BallerinaFunction function) {
+    }
+
+    @Override
+    public void visit(BTypeConverter typeConverter) {
+
     }
 
     @Override
@@ -504,6 +511,11 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
         StringBuffer buffer = new StringBuffer();
         bufferStack.push(buffer);
         buffer.append(variableRefExpr.getSymbolName().getName());
+    }
+
+    @Override
+    public void visit(TypeCastingExpression typeCastingExpression) {
+
     }
 
     @Override

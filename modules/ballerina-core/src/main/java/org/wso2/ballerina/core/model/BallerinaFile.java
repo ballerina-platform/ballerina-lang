@@ -216,6 +216,7 @@ public class BallerinaFile implements Node {
         private List<Service> serviceList = new ArrayList<>();
         private List<BallerinaConnector> connectorList = new ArrayList<>();
         private List<Function> functionList = new ArrayList<>();
+        private List<TypeConverter> typeConverterList = new ArrayList<>();
         private Function mainFunction;
 
         private List<FunctionInvocationExpr> funcIExprList = new ArrayList<>();
@@ -261,6 +262,10 @@ public class BallerinaFile implements Node {
 
         public void addConst(Const constant) {
             this.constList.add(constant);
+        }
+
+        public void addTypeConverter(TypeConverter typeConverter) {
+            this.typeConverterList.add(typeConverter);
         }
 
         public BallerinaFile build() {
