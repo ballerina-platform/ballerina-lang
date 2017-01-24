@@ -23,7 +23,7 @@ import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.values.BValue;
 
 /**
- * {@code LocalVarLocation} represents a location of a local variable stored in the stack frame
+ * {@code LocalVarLocation} represents a location of a local variable stored in the stack frame.
  *
  * @since 0.8.0
  */

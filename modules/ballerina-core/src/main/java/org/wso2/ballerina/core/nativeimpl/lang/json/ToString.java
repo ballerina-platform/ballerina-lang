@@ -31,7 +31,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 import org.wso2.ballerina.core.nativeimpl.lang.utils.ErrorHandler;
 
 /**
- * Native function ballerina.lang.json:toString
+ * Native function ballerina.lang.json:toString.
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.json",

@@ -165,7 +165,7 @@ public abstract class AbstractNativeFunction implements NativeConstruct, Functio
     }
 
     /**
-     * Get all the variableDcls declared in the scope of BallerinaFunction
+     * Get all the variableDcls declared in the scope of BallerinaFunction.
      *
      * @return list of all BallerinaFunction scoped variableDcls
      */

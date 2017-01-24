@@ -34,7 +34,7 @@ import org.wso2.ballerina.core.runtime.registry.DispatcherRegistry;
 import org.wso2.ballerina.core.utils.ParserUtils;
 
 /**
- * {@code EnvironmentInitializr} is responsible for initializing an environment for a particular ballerina file
+ * {@code EnvironmentInitializr} is responsible for initializing an environment for a particular ballerina file.
  */
 public class EnvironmentInitializer {
 

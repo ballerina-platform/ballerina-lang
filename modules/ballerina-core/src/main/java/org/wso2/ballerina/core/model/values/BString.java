@@ -18,7 +18,7 @@
 package org.wso2.ballerina.core.model.values;
 
 /**
- * The {@code BString} represents a string in Ballerina
+ * The {@code BString} represents a string in Ballerina.
  *
  * @since 0.8.0
  */

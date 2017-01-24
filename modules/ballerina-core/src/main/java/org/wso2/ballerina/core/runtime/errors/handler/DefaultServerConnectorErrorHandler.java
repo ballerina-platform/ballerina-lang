@@ -25,7 +25,7 @@ import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
- * {@code DefaultServerConnectorErrorHandler} is the default error handler implementation
+ * {@code DefaultServerConnectorErrorHandler} is the default error handler implementation.
  */
 public class DefaultServerConnectorErrorHandler implements ServerConnectorErrorHandler {
 

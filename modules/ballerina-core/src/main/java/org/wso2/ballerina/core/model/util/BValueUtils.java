@@ -23,7 +23,7 @@ import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.model.values.BValue;
 
 /**
- * BValue utility methods
+ * BValue utility methods.
  *
  * @since 0.8.0
  */

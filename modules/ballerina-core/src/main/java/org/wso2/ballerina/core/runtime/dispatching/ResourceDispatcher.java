@@ -32,7 +32,7 @@ import org.wso2.carbon.messaging.CarbonMessage;
 public interface ResourceDispatcher {
 
     /**
-     * Find the resource which can handle a given cMsg
+     * Find the resource which can handle a given cMsg.
      *
      * @param service  Ballerina Service which resources are belongs to
      * @param cMsg     Carbon Message

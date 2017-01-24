@@ -110,7 +110,7 @@ public class BLangJSONModelConstants {
 
     public static final String RETURN_TYPE = "return_type";
 
-    public static final String RETURN_TYPE_NAME = "type_name";
+    public static final String RETURN_ARGUMENT = "return_argument";
 
     public static final String REPLY_STATEMENT = "reply_statement";
 
