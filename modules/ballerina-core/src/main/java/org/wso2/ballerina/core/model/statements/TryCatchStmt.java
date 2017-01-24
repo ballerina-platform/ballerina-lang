@@ -21,7 +21,7 @@ import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.NodeVisitor;
 
 /**
- * {@code TryCatchStmt} represents a try/catch statement
+ * {@code TryCatchStmt} represents a try/catch statement.
  *
  * @since 0.8.0
  */

@@ -937,6 +937,9 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
                     case 'return_type':
                         node = BallerinaASTFactory.createReturnType();
                         break;
+                    case 'return_argument':
+                        node = BallerinaASTFactory.createArgument();
+                        break;
                     case 'type_name':
                         node = BallerinaASTFactory.createTypeName();
                         break;

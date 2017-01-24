@@ -18,7 +18,7 @@
 package org.wso2.ballerina.core.model.values;
 
 /**
- * The {@code BFloat} represents a float value in Ballerina
+ * The {@code BFloat} represents a float value in Ballerina.
  *
  * @since 0.8.0
  */

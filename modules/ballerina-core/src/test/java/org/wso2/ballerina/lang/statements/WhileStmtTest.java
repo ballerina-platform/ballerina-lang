@@ -28,7 +28,7 @@ import org.wso2.ballerina.core.utils.ParserUtils;
 import org.wso2.ballerina.lang.util.Functions;
 
 /**
- * This contains methods to test different behaviours of the while loop statement
+ * This contains methods to test different behaviours of the while loop statement.
  *
  * @since 0.8.0
  */

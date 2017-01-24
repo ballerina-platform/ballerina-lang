@@ -18,7 +18,7 @@
 package org.wso2.ballerina.core.model.types;
 
 /**
- * This class contains all the supported type names as string
+ * This class contains all the supported type names as string.
  *
  * @since 0.8.0
  */

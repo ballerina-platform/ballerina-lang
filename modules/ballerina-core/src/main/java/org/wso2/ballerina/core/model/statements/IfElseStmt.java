@@ -69,7 +69,7 @@ public class IfElseStmt extends AbstractStatement {
     }
 
     /**
-     * Represent an else if block of an if statement
+     * Represent an else if block of an if statement.
      */
     public static class ElseIfBlock {
         Expression elseIfCondition;
@@ -90,7 +90,7 @@ public class IfElseStmt extends AbstractStatement {
     }
 
     /**
-     * Builds a {@code IfElseStmt} statement
+     * Builds a {@code IfElseStmt} statement.
      *
      * @since 0.8.0
      */
