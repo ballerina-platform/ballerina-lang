@@ -22,7 +22,7 @@ import org.wso2.ballerina.core.runtime.BalCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
- * Callback for testing service/resource invocations
+ * Callback for testing service/resource invocations.
  */
 public class TestCallback implements BalCallback {
 

@@ -37,7 +37,7 @@ import org.wso2.carbon.messaging.Header;
 import java.util.List;
 
 /**
- * Test Native function in ballerina.lang.message
+ * Test Native function in ballerina.lang.message.
  */
 public class MessageTest {
 

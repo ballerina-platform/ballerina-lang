@@ -31,7 +31,7 @@ import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
- * Resource level dispatching handler for HTTP protocol
+ * Resource level dispatching handler for HTTP protocol.
  */
 public class HTTPResourceDispatcher implements ResourceDispatcher {
 

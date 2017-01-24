@@ -26,7 +26,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 
 
 /**
- * Native function ballerina.lang.system:print
+ * Native function ballerina.lang.system:print.
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.system",

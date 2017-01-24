@@ -28,7 +28,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 
 /**
- * Native function ballerina.lang.string:unescape
+ * Native function ballerina.lang.string:unescape.
  *
  * @since 0.8.0
  */

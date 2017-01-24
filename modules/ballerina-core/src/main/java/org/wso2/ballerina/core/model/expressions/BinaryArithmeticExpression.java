@@ -21,7 +21,7 @@ import org.wso2.ballerina.core.model.Operator;
 import org.wso2.ballerina.core.model.Position;
 
 /**
- * {@code BinaryArithmeticExpression} is the base class for any binary arithmetic expression
+ * {@code BinaryArithmeticExpression} is the base class for any binary arithmetic expression.
  *
  * @see AddExpression
  * @see SubtractExpression

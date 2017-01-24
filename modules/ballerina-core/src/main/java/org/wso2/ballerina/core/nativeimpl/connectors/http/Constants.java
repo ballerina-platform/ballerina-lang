@@ -19,7 +19,7 @@
 package org.wso2.ballerina.core.nativeimpl.connectors.http;
 
 /**
- * Constants for HTTP
+ * Constants for HTTP.
  *
  * @since 0.8.0
  */

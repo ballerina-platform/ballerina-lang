@@ -25,7 +25,7 @@ import org.wso2.ballerina.core.model.expressions.Expression;
 import java.util.List;
 
 /**
- * {@code ForkJoinStmt} represents a fork/join statement
+ * {@code ForkJoinStmt} represents a fork/join statement.
  *
  * @since 0.8.0
  */

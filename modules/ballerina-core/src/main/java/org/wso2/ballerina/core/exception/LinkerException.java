@@ -18,7 +18,7 @@
 package org.wso2.ballerina.core.exception;
 
 /**
- * Class to represent errors occur at linking phase
+ * Class to represent errors occur at linking phase.
  */
 public class LinkerException extends BallerinaException {
     /**
