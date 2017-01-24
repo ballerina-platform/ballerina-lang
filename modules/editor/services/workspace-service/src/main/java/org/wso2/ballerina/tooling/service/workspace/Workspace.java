@@ -33,6 +33,8 @@ public interface Workspace {
 
       JsonObject exists(String path) throws IOException;
 
+      void create(String path, String type) throws IOException;
+
       void write(String path, String content) throws IOException;
 
       void log(String logger, String timestamp, String level, String URL, String message, String layout) throws IOException;

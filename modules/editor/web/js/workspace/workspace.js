@@ -33,6 +33,10 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab',
             throw error;
         }
 
+        this.getServiceClient = function(){
+            return this._serviceClient;
+        };
+
         this.listenToTabController = function(){
             app.tabController.on("active-tab-changed", this.onTabChange, this);
         };
