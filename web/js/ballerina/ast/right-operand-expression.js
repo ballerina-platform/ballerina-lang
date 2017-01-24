@@ -67,7 +67,12 @@ define(['lodash', './statement'], function(_, Statement){
             } else if (childNode.type === 'instance_creation_expression'){
                 self.setRightOperandExpressionString("new " + childNode.instance_type);
             } else if (childNode.type === 'basic_literal_expression'){
-                self.setRightOperandExpressionString('"' + childNode.basic_literal_value + '"');
+                if(childNode.basic_literal_type == "string") {
+                    // Adding double quotes if it is a string.
+                    self.setRightOperandExpressionString("\"" + childNode.basic_literal_value + "\"");
+                } else {
+                    self.setRightOperandExpressionString(childNode.basic_literal_value);
+                }
             } else if(childNode.type === 'variable_reference_expression'){
                 self.setRightOperandExpressionString(childNode.variable_reference_name);
             } else if(childNode.type === 'array_map_access_expression'){
