@@ -514,6 +514,9 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   //     |   'new' (packageName ':' )? Identifier ('(' expressionList? ')')?     // structInitializeExpression
   //     |    literalValue                                                        // literalExpression
   //     |   variableReference
+  //     |   '(' typeName ')' basicExpression
+  //     |   ('+'|'-'|'!') basicExpression
+  //     |   '(' basicExpression ')'
   static boolean basicExpression(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "basicExpression")) return false;
     boolean r;
@@ -526,6 +529,9 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     if (!r) r = basicExpression_5(b, l + 1);
     if (!r) r = literalValue(b, l + 1);
     if (!r) r = variableReference(b, l + 1);
+    if (!r) r = basicExpression_8(b, l + 1);
+    if (!r) r = basicExpression_9(b, l + 1);
+    if (!r) r = basicExpression_10(b, l + 1);
     exit_section_(b, m, null, r);
     return r;
   }
@@ -631,6 +637,54 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     if (!recursion_guard_(b, l, "basicExpression_5_3_0_1")) return false;
     expressionList(b, l + 1);
     return true;
+  }
+
+  // '(' typeName ')' basicExpression
+  private static boolean basicExpression_8(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "basicExpression_8")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeToken(b, LPAREN);
+    r = r && typeName(b, l + 1);
+    r = r && consumeToken(b, RPAREN);
+    r = r && basicExpression(b, l + 1);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  // ('+'|'-'|'!') basicExpression
+  private static boolean basicExpression_9(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "basicExpression_9")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = basicExpression_9_0(b, l + 1);
+    r = r && basicExpression(b, l + 1);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  // '+'|'-'|'!'
+  private static boolean basicExpression_9_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "basicExpression_9_0")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeToken(b, ADD);
+    if (!r) r = consumeToken(b, SUB);
+    if (!r) r = consumeToken(b, BANG);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  // '(' basicExpression ')'
+  private static boolean basicExpression_10(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "basicExpression_10")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeToken(b, LPAREN);
+    r = r && basicExpression(b, l + 1);
+    r = r && consumeToken(b, RPAREN);
+    exit_section_(b, m, null, r);
+    return r;
   }
 
   /* ********************************************************** */
@@ -2568,7 +2622,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   /* ********************************************************** */
   // Identifier '['expression']'                 // mapArrayVariableIdentifier// array and map reference
   // //    |   variableReference ('.' variableReference)+  // structFieldIdentifier// struct field reference
-  // | Identifier
+  //           |      Identifier
   public static boolean variableReference(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "variableReference")) return false;
     if (!nextTokenIs(b, IDENTIFIER)) return false;

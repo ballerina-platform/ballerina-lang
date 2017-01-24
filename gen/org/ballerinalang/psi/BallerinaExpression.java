@@ -47,8 +47,8 @@ public interface BallerinaExpression extends PsiElement {
   @NotNull
   List<BallerinaPackageName> getPackageNameList();
 
-  @Nullable
-  BallerinaTypeName getTypeName();
+  @NotNull
+  List<BallerinaTypeName> getTypeNameList();
 
   @NotNull
   List<BallerinaVariableReference> getVariableReferenceList();

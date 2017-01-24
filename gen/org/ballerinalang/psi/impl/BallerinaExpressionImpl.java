@@ -91,9 +91,9 @@ public class BallerinaExpressionImpl extends ASTWrapperPsiElement implements Bal
   }
 
   @Override
-  @Nullable
-  public BallerinaTypeName getTypeName() {
-    return findChildByClass(BallerinaTypeName.class);
+  @NotNull
+  public List<BallerinaTypeName> getTypeNameList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaTypeName.class);
   }
 
   @Override
