@@ -21,12 +21,32 @@ define(['require', 'jquery', 'lodash', './modal-dialog', 'alerts'], function (re
     var NewItemDialog = function (options) {
         _.set(options, 'class', 'create-new-item-wizard');
         ModalDialog.call(this, options);
+        this._serviceClient = _.get(options, 'application.workspaceManager').getServiceClient();
     };
 
     NewItemDialog.prototype = Object.create(ModalDialog.prototype);
     NewItemDialog.prototype.constructor = NewItemDialog;
 
-    NewItemDialog.prototype.onSubmit = function () {
+    NewItemDialog.prototype.onSubmit = function (data, itemName) {
+        var app = this._options.application,
+            path = data.path + app.getPathSeperator() + itemName,
+            existsResponse = this._serviceClient.exists(path);
+        if (existsResponse.exists) {
+            this.showError(itemName + " already exists at " + data.path);
+        } else {
+            this.clearError();
+            var response = this._serviceClient.create(path, data.type);
+            if (response.error) {
+                this.showError(response.message);
+            } else {
+                this.hide();
+                alerts.success(path + " created successfully");
+                if(!_.isEqual('folder', data.type)){
+                    var file = this._serviceClient.readFile(path);
+                    app.commandManager.dispatch("create-new-tab", {tabOptions: {file: file}});
+                }
+            }
+        }
     };
 
     NewItemDialog.prototype.displayWizard = function (data) {
@@ -34,6 +54,7 @@ define(['require', 'jquery', 'lodash', './modal-dialog', 'alerts'], function (re
         this.setSubmitBtnText("create");
         var body = this.getBody();
         body.empty();
+        this.clearError();
         var modalBody = $("<div class='container-fluid'>" +
                                 "<div class='form-group'>" +
                                     "<label for='item-name' class='col-sm-2 file-dialog-label'>Enter Name</label>" +
@@ -52,16 +73,15 @@ define(['require', 'jquery', 'lodash', './modal-dialog', 'alerts'], function (re
         });
 
         this.getSubmitBtn().click(function(e){
-            self.onSubmit();
+            self.onSubmit(data, input.val());
         });
         input.keyup(function(e){
-            if(e.keyCode == 13)
-            {
-               self.onSubmit();
+            if(e.keyCode == 13) {
+               self.onSubmit(data, input.val());
+            } else {
+                self.clearError();
             }
         });
-
-        this._itemNameInput = input;
     };
 
 
