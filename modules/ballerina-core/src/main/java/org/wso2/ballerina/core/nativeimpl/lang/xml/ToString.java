@@ -32,7 +32,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 import org.wso2.ballerina.core.nativeimpl.lang.utils.ErrorHandler;
 
 /**
- * Native function ballerina.lang.xml:toString
+ * Native function ballerina.lang.xml:toString.
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.xml",

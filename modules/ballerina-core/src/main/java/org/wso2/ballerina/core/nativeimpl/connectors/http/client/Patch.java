@@ -33,7 +33,7 @@ import org.wso2.ballerina.core.nativeimpl.connectors.http.Constants;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
- * {@code Patch} is the PATCH action implementation of the HTTP Connector
+ * {@code Patch} is the PATCH action implementation of the HTTP Connector.
  *
  */
 @BallerinaAction(

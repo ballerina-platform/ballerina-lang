@@ -17,27 +17,27 @@
 package org.wso2.ballerina.core.nativeimpl.lang.utils;
 
 /**
- * Constants related to Ballerina lang packages
+ * Constants related to Ballerina lang packages.
  */
 public class Constants {
     
     /**
-     * Content type HTTP header
+     * Content type HTTP header.
      */
     public static final String CONTENT_TYPE = "Content-Type";
     
     /**
-     * HTTP content-type application/json
+     * HTTP content-type application/json.
      */
     public static final String APPLICATION_JSON = "application/json";
     
     /**
-     * HTTP content-type application/xml
+     * HTTP content-type application/xml.
      */
     public static final String APPLICATION_XML = "application/xml";
     
     /**
-     * HTTP content-type text/plain
+     * HTTP content-type text/plain.
      */
     public static final String TEXT_PLAIN = "text/plain";
 }

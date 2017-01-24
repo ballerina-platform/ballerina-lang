@@ -34,7 +34,7 @@ import org.wso2.ballerina.core.utils.ParserUtils;
 import org.wso2.ballerina.lang.util.Functions;
 
 /**
- * Map access expression test
+ * Map access expression test.
  *
  * @since 0.8.0
  */

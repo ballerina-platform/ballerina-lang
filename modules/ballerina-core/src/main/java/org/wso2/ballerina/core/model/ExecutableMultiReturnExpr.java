@@ -20,15 +20,15 @@ package org.wso2.ballerina.core.model;
 import org.wso2.ballerina.core.model.values.BValue;
 
 /**
- * {@code ExecutableMultiReturnExpr} interface makes an {@link org.wso2.ballerina.core.model.expressions.Expression}
- * which returns multiple values executable
+ * {@code ExecutableMultiReturnExpr} interface makes an {@link org.wso2.ballerina.core.model.expressions.Expression}.
+ * which returns multiple values executable.
  *
  * @since 0.8.0
  */
 public interface ExecutableMultiReturnExpr {
 
     /**
-     * Executes and Returns all the results of this expression
+     * Executes and Returns all the results of this expression.
      *
      * @param executor instance of a {@code NodeExecutor}
      * @return results of this expression
