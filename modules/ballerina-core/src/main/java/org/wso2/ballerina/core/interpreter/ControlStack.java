@@ -31,6 +31,7 @@ public class ControlStack {
 
     private Stack<StackFrame> stack;
     private StackFrame currentFrame;
+    private Boolean interruptFlow = false;
 
     public ControlStack() {
         stack = new Stack<>();
@@ -62,12 +63,20 @@ public class ControlStack {
     public void setReturnValue(int offset, BValue bValue) {
         currentFrame.returnValues[offset] = bValue;
     }
-    
+
     public Iterator<StackFrame> iterator() {
         return this.stack.iterator();
     }
-    
+
     public Stack<StackFrame> getStack() {
         return this.stack;
+    }
+
+    public Boolean isInterruptFlow() {
+        return interruptFlow;
+    }
+
+    public void setInterruptFlow(Boolean interruptFlow) {
+        this.interruptFlow = interruptFlow;
     }
 }

@@ -80,6 +80,7 @@ import org.wso2.ballerina.core.model.invokers.MainInvoker;
 import org.wso2.ballerina.core.model.statements.ActionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
+import org.wso2.ballerina.core.model.statements.BreakStmt;
 import org.wso2.ballerina.core.model.statements.CommentStmt;
 import org.wso2.ballerina.core.model.statements.FunctionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.IfElseStmt;
@@ -770,6 +771,12 @@ public class SemanticAnalyzer implements NodeVisitor {
                 }
             }
         }
+    }
+
+    @Override
+    public void visit(BreakStmt breakStmt) {
+        // TODO Auto-generated method stub
+
     }
 
     // Expressions
@@ -1588,4 +1595,5 @@ public class SemanticAnalyzer implements NodeVisitor {
         actionIExpr.setType((action.getReturnParameters().length != 0) ?
                 action.getReturnParameters()[0].getType() : null);
     }
+
 }
