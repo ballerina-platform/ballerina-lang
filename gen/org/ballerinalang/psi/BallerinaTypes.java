@@ -52,6 +52,7 @@ public interface BallerinaTypes {
   IElementType FUNCTION_DEFINITION = new BallerinaElementType("FUNCTION_DEFINITION");
   IElementType FUNCTION_INVOCATION_STATEMENT = new BallerinaElementType("FUNCTION_INVOCATION_STATEMENT");
   IElementType FUNCTION_NAME = new BallerinaElementType("FUNCTION_NAME");
+  IElementType IF_ELSE_IF_CLAUSE_BODY = new BallerinaElementType("IF_ELSE_IF_CLAUSE_BODY");
   IElementType IF_ELSE_STATEMENT = new BallerinaElementType("IF_ELSE_STATEMENT");
   IElementType IMPORT_DECLARATION = new BallerinaElementType("IMPORT_DECLARATION");
   IElementType ITERATE_STATEMENT = new BallerinaElementType("ITERATE_STATEMENT");
@@ -272,6 +273,9 @@ public interface BallerinaTypes {
       }
       else if (type == FUNCTION_NAME) {
         return new BallerinaFunctionNameImpl(node);
+      }
+      else if (type == IF_ELSE_IF_CLAUSE_BODY) {
+        return new BallerinaIfElseIfClauseBodyImpl(node);
       }
       else if (type == IF_ELSE_STATEMENT) {
         return new BallerinaIfElseStatementImpl(node);

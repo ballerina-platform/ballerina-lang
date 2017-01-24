@@ -27,14 +27,14 @@ import static org.ballerinalang.psi.BallerinaTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import org.ballerinalang.psi.*;
 
-public class BallerinaElseIfClauseImpl extends ASTWrapperPsiElement implements BallerinaElseIfClause {
+public class BallerinaIfElseIfClauseBodyImpl extends ASTWrapperPsiElement implements BallerinaIfElseIfClauseBody {
 
-  public BallerinaElseIfClauseImpl(ASTNode node) {
+  public BallerinaIfElseIfClauseBodyImpl(ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitElseIfClause(this);
+    visitor.visitIfElseIfClauseBody(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -44,14 +44,8 @@ public class BallerinaElseIfClauseImpl extends ASTWrapperPsiElement implements B
 
   @Override
   @NotNull
-  public BallerinaExpression getExpression() {
-    return findNotNullChildByClass(BallerinaExpression.class);
-  }
-
-  @Override
-  @NotNull
-  public BallerinaIfElseIfClauseBody getIfElseIfClauseBody() {
-    return findNotNullChildByClass(BallerinaIfElseIfClauseBody.class);
+  public List<BallerinaStatement> getStatementList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaStatement.class);
   }
 
 }

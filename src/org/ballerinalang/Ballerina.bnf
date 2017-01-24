@@ -141,31 +141,31 @@ importDeclaration
     ::=   'import' packageName ('as' Identifier)? ';'
 
 serviceDefinition
-    ::=   annotation* 'service' Identifier serviceBody
+    ::=   annotation* 'service' Identifier '{' serviceBody '}'
 
 serviceBody
-    ::=   '{' serviceBodyDeclaration '}'
+    ::=   serviceBodyDeclaration
 
 serviceBodyDeclaration
     ::=  connectorDeclaration* variableDeclaration* resourceDefinition+
 
 resourceDefinition
-    ::=   annotation* 'resource' Identifier '(' parameterList ')' functionBody
+    ::=   annotation* 'resource' Identifier '(' parameterList ')' '{' functionBody '}'
 
 functionDefinition
-    ::=   annotation* 'public'? 'function' Identifier '(' parameterList? ')' returnParameters? ('throws' Identifier)? functionBody
+    ::=   annotation* 'public'? 'function' Identifier '(' parameterList? ')' returnParameters? ('throws' Identifier)? '{' functionBody '}'
 
 functionBody
-    ::= '{' connectorDeclaration* variableDeclaration* workerDeclaration* statement+ '}'
+    ::=  connectorDeclaration* variableDeclaration* workerDeclaration* statement+
 
 connectorDefinition
-    ::=   annotation* 'connector' Identifier '(' parameterList ')' connectorBody
+    ::=   annotation* 'connector' Identifier '(' parameterList ')' '{' connectorBody '}'
 
 connectorBody
-    ::=   '{' connectorDeclaration* variableDeclaration* actionDefinition+ '}'
+    ::=    connectorDeclaration* variableDeclaration* actionDefinition+
 
 actionDefinition
-    ::=   annotation* 'action' Identifier '(' parameterList ')' returnParameters?  ('throws' Identifier)? functionBody
+    ::=   annotation* 'action' Identifier '(' parameterList ')' returnParameters?  ('throws' Identifier)? '{' functionBody '}'
 
 connectorDeclaration
     ::=   qualifiedReference Identifier '=' 'new' qualifiedReference '(' expressionList? ')'';'
@@ -334,13 +334,17 @@ variableReferenceList
     ::=   variableReference (',' variableReference)*
 
 ifElseStatement
-    ::=   'if' '(' expression ')' '{' statement* '}' elseIfClause* elseClause?
+    ::=   'if' '(' expression ')' '{' ifElseIfClauseBody '}' (elseIfClause '}')* (elseClause '}')?
 
 elseIfClause
-    ::=   'else' 'if' '(' expression ')' '{' statement* '}'
+    ::=   'else' 'if' '(' expression ')' '{' ifElseIfClauseBody
 
 elseClause
-    ::=   'else' '{' statement*'}'
+    ::=   'else' '{' ifElseIfClauseBody
+
+ifElseIfClauseBody::=  statement*
+
+
 
 iterateStatement
     ::=   'iterate' '(' typeName Identifier ':' expression ')' '{' statement+ '}'

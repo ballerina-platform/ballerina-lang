@@ -139,6 +139,10 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
+  public void visitIfElseIfClauseBody(@NotNull BallerinaIfElseIfClauseBody o) {
+    visitPsiElement(o);
+  }
+
   public void visitIfElseStatement(@NotNull BallerinaIfElseStatement o) {
     visitPsiElement(o);
   }

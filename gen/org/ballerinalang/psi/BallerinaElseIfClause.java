@@ -27,6 +27,6 @@ public interface BallerinaElseIfClause extends PsiElement {
   BallerinaExpression getExpression();
 
   @NotNull
-  List<BallerinaStatement> getStatementList();
+  BallerinaIfElseIfClauseBody getIfElseIfClauseBody();
 
 }

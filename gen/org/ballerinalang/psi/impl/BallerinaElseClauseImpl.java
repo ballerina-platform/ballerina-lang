@@ -44,8 +44,8 @@ public class BallerinaElseClauseImpl extends ASTWrapperPsiElement implements Bal
 
   @Override
   @NotNull
-  public List<BallerinaStatement> getStatementList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaStatement.class);
+  public BallerinaIfElseIfClauseBody getIfElseIfClauseBody() {
+    return findNotNullChildByClass(BallerinaIfElseIfClauseBody.class);
   }
 
 }

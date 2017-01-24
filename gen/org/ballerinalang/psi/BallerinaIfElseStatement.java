@@ -33,6 +33,6 @@ public interface BallerinaIfElseStatement extends PsiElement {
   BallerinaExpression getExpression();
 
   @NotNull
-  List<BallerinaStatement> getStatementList();
+  BallerinaIfElseIfClauseBody getIfElseIfClauseBody();
 
 }
