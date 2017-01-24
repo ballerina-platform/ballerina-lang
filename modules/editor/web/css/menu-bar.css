@@ -23,12 +23,16 @@
 }
 
 .dropdown-menu > .menu-item-enabled {
-    color: #959595;
+    color: #e2e2e2;
     cursor: pointer;
 }
 
 .dropdown-menu > .menu-item-enabled > a{
-    color: #959595;
+    color: #e2e2e2;
+    padding: 3px 10px;
+    font-weight: 300;
+    height: 27px;
+    float: inherit;
 }
 
 #menu-bar-container > div.menu-group > ul > li{
@@ -56,13 +60,17 @@ div#header-container{
 }
 .file-menu-group{
     min-height: 27px;
+
 }
 .file-dropdown-menu {
     background-color: #333;
     margin-top: 13px;
+    width: 210px;
 }
 li.menu-item-disabled > a {
     color: #777;
+    padding: 3px 10px;
+    height: 27px;
 }
 
 .file-dropdown-menu > li.menu-item-disabled > a:hover{

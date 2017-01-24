@@ -42,7 +42,7 @@ import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
 
 /**
- * Test cases for ballerina.lang.array
+ * Test cases for ballerina.lang.array.
  */
 public class ArrayTest {
 

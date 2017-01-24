@@ -21,6 +21,9 @@ import org.testng.annotations.Test;
 import org.wso2.ballerina.core.exception.SemanticException;
 import org.wso2.ballerina.core.utils.ParserUtils;
 
+/**
+ * Test class for assignment statement.
+ */
 public class AssignStmtNegativeTest {
 
     @Test(expectedExceptions = {SemanticException.class},

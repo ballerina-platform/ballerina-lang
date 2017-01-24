@@ -22,14 +22,14 @@ import org.wso2.ballerina.core.model.values.BValue;
 
 /**
  * {@code BDoubleType} represents a integer which is a 64-bit floating-point number according to the
- * standard IEEE 754 specifications
+ * standard IEEE 754 specifications.
  *
  * @since 0.8.0
  */
 class BDoubleType extends BType {
 
     /**
-     * Create a {@code BDoubleType} which represents the boolean type
+     * Create a {@code BDoubleType} which represents the boolean type.
      *
      * @param typeName string name of the type
      */
