@@ -80,6 +80,7 @@ import org.wso2.ballerina.core.model.invokers.MainInvoker;
 import org.wso2.ballerina.core.model.statements.ActionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
+import org.wso2.ballerina.core.model.statements.BreakStmt;
 import org.wso2.ballerina.core.model.statements.CommentStmt;
 import org.wso2.ballerina.core.model.statements.FunctionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.IfElseStmt;
@@ -770,6 +771,13 @@ public class SemanticAnalyzer implements NodeVisitor {
                 }
             }
         }
+    }
+
+    @Override
+    public void visit(BreakStmt breakStmt) {
+        // TODO need to look at the semantic analysis part of the break statement as well. E.g. A While statement node
+        // should be an ancestor node of the 'break' statement node, otherwise it's a semantic error.
+
     }
 
     // Expressions
