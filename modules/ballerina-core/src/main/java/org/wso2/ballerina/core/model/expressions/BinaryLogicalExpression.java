@@ -21,7 +21,7 @@ import org.wso2.ballerina.core.model.Operator;
 import org.wso2.ballerina.core.model.Position;
 
 /**
- * {@code BinaryLogicalExpression} represents a logical expression in Ballerina
+ * {@code BinaryLogicalExpression} represents a logical expression in Ballerina.
  *
  * @see AndExpression
  * @see OrExpression

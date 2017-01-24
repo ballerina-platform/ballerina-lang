@@ -28,7 +28,7 @@ import org.wso2.carbon.messaging.DefaultCarbonMessage;
 import org.wso2.carbon.messaging.Headers;
 
 /**
- * Accept the message and return with status code
+ * Accept the message and return with status code.
  */
 @BallerinaFunction(
         packageName = "ballerina.net.http",

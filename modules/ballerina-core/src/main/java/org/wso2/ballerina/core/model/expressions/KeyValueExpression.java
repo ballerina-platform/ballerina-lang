@@ -21,7 +21,7 @@ import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.Position;
 
 /**
- * Class to hold map initialization data
+ * Class to hold map initialization data.
  */
 public class KeyValueExpression extends AbstractExpression {
     String key;

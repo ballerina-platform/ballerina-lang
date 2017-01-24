@@ -23,7 +23,7 @@ import java.lang.reflect.Array;
 import java.util.Arrays;
 
 /**
- * {@code BArray} represents an array in Ballerina
+ * {@code BArray} represents an array in Ballerina.
  *
  * @param <V> Ballerina value stored in this array value
  * @since 0.8.0
