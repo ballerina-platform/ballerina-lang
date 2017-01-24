@@ -18,6 +18,7 @@
 define(['lodash', './node'], function(_, ASTNode){
 
     var VariableDeclaration = function (type, identifier) {
+        ASTNode.call(this, "VariableDeclaration");
         this._type = type;
         this._identifier = identifier;
         this.initialValue = undefined;
