@@ -49,6 +49,10 @@
 .headingRectIcon {
     fill: url(#resourceIcon);
 }
+
+.actionHeadingRectIcon {
+    fill: url(#connectorActionIcon);
+}
 .resourceHeadingIconHolder{
     fill:#000000;
 }
