@@ -86,16 +86,34 @@ define(['lodash', 'log', 'file_browser', 'event_channel', 'theme_wso2'],
                     label: "new file",
                     action: function () {
                         self.application.commandManager.dispatch("create-new-item-at-path",
-                            {path: node.id, type: 'ballerina-file'});
+                            {
+                                path: node.id,
+                                type: 'ballerina-file',
+                                onSuccess: function(){
+                                    self._fileBrowser.refresh(node);
+                                }
+                            });
                     }
                 };
                 items.createNewFolder = {
                     label: "new folder",
                     action: function () {
                         self.application.commandManager.dispatch("create-new-item-at-path",
-                            {path: node.id, type: 'folder'});
+                            {
+                                path: node.id,
+                                type: 'folder',
+                                onSuccess: function(){
+                                    self._fileBrowser.refresh(node);
+                                }
+                            });
                     }
-                }
+                };
+                items.refreshBtn = {
+                    label: "refresh",
+                    action: function () {
+                        self._fileBrowser.refresh(node);
+                    }
+                };
             }
             else if(_.isEqual('file', node.type)){
                 items.deleteFile = {
