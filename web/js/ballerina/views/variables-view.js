@@ -136,31 +136,32 @@ define(['require', 'lodash', 'jquery', 'log', 'd3utils', 'd3', './point', 'balle
                 var typeOfNewVariable = variableSelect.val();
                 var identifierOfNewVariable = variableText.val();
 
-                // Validate whether there already a variable with the same identifier.
-                var alreadyDeclaredVariable = _.find(declaredVariables, function (declaredVariable) {
-                    return declaredVariable.getIdentifier() == identifierOfNewVariable;
-                });
+                if (!_.isEmpty(identifierOfNewVariable)) {
+                    // Validate whether there already a variable with the same identifier.
+                    var alreadyDeclaredVariable = _.find(declaredVariables, function (declaredVariable) {
+                        return declaredVariable.getIdentifier() == identifierOfNewVariable;
+                    });
 
-                if (_.isNil(alreadyDeclaredVariable)) {
-                    var newVariableDeclaration = BallerinaASTFactory.createVariableDeclaration();
+                    if (_.isNil(alreadyDeclaredVariable)) {
+                        var newVariableDeclaration = BallerinaASTFactory.createVariableDeclaration();
 
-                    // Pushing new variable declaration
-                    newVariableDeclaration.setType(typeOfNewVariable);
-                    newVariableDeclaration.setIdentifier(identifierOfNewVariable);
+                        // Pushing new variable declaration
+                        newVariableDeclaration.setType(typeOfNewVariable);
+                        newVariableDeclaration.setIdentifier(identifierOfNewVariable);
 
-                    model.addVariableDeclaration(newVariableDeclaration);
+                        model.addVariableDeclaration(newVariableDeclaration);
 
-                    // Rendering the variables after adding a new variable.
-                    _renderVariables(variablesContentWrapper, model, collapserWrapper, variablesContentWrapper);
+                        // Rendering the variables after adding a new variable.
+                        _renderVariables(variablesContentWrapper, model, collapserWrapper, variablesContentWrapper);
 
-                    // Changing the content of the collapser.
-                    collapserWrapper.empty();
-                    collapserWrapper.data("collapsed", "false");
-                    $("<i class='fw fw-left'></i>").appendTo(collapserWrapper);
-                } else {
-                    // TODO : Show alert of error.
+                        // Changing the content of the collapser.
+                        collapserWrapper.empty();
+                        collapserWrapper.data("collapsed", "false");
+                        $("<i class='fw fw-left'></i>").appendTo(collapserWrapper);
+                    } else {
+                        // TODO : Show alert of error.
+                    }
                 }
-
                 variableText.val("");
             });
 
