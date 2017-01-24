@@ -20,8 +20,8 @@ package org.wso2.ballerina.core.nativeimpl.lang.dataframe;
 
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
-import org.wso2.ballerina.core.model.values.BBoolean;
 import org.wso2.ballerina.core.model.values.BDataframe;
+import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
@@ -29,20 +29,22 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 
 /**
- * Native function to check record availability in dataframe.
- * ballerina.lang.dataframe:next(dataframe)
+ * Native function to get long value of a given column index.
+ * ballerina.lang.dataframe:getLong(dataframe, int)
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.dataframe",
-        functionName = "next",
-        args = {@Argument(name = "dataframe", type = TypeEnum.DATAFRAME)},
-        returnType = {@ReturnType(type = TypeEnum.BOOLEAN)},
+        functionName = "getLong",
+        args = {@Argument(name = "dataframe", type = TypeEnum.DATAFRAME),
+                @Argument(name = "index", type = TypeEnum.INT)},
+        returnType = {@ReturnType(type = TypeEnum.LONG)},
         isPublic = true
 )
-public class Next extends AbstractNativeFunction {
+public class GetLong extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
         BDataframe dataframe = (BDataframe) getArgument(ctx, 0);
-        return getBValues(new BBoolean(dataframe.next()));
+        int index = ((BInteger) getArgument(ctx, 1)).intValue();
+        return getBValues(new BInteger(dataframe.getInt(index)));
     }
 }

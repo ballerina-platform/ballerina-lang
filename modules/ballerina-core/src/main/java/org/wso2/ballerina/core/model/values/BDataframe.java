@@ -18,6 +18,8 @@
 
 package org.wso2.ballerina.core.model.values;
 
+import java.util.Map;
+
 /**
  * The {@code BDataframe} represents a data set in Ballerina
  *
@@ -26,9 +28,11 @@ package org.wso2.ballerina.core.model.values;
 public class BDataframe implements BRefType {
 
     private DataIterator iterator;
+    private Map<String, Object> properties;
 
-    public BDataframe(DataIterator dataIterator) {
+    public BDataframe(DataIterator dataIterator, Map<String, Object> properties) {
         this.iterator = dataIterator;
+        this.properties = properties;
     }
 
     @Override
@@ -41,13 +45,8 @@ public class BDataframe implements BRefType {
         return null;
     }
 
-    /**
-     * Check whether is there anymore result or not.
-     *
-     * @return whether ResultSet have more data or not
-     */
-    public boolean hasNext() {
-        return iterator.hasNext();
+    public boolean next() {
+        return iterator.next();
     }
 
     public Object getColumnValue(int columnIndex) {

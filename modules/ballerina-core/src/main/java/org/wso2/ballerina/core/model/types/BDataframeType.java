@@ -22,6 +22,8 @@ import org.wso2.ballerina.core.model.values.BDataframe;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.EmptyDataIterator;
 
+import java.util.HashMap;
+
 /**
  * {@code BDataframeType} represents a output data set of a SQL select query in Ballerina
  *
@@ -40,6 +42,6 @@ public class BDataframeType extends BType {
 
     @Override
     public <V extends BValue> V getDefaultValue() {
-        return (V) new BDataframe(new EmptyDataIterator());
+        return (V) new BDataframe(new EmptyDataIterator(), new HashMap<>());
     }
 }

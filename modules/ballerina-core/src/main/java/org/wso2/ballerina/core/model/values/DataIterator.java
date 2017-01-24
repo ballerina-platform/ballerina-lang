@@ -19,12 +19,13 @@
 package org.wso2.ballerina.core.model.values;
 
 import java.io.Closeable;
-import java.util.Iterator;
 
 /**
- * Created on 1/18/17.
+ *  This interface represents an data iterator operations which is also capable of closing and releasing its resources.
  */
-public interface DataIterator extends Iterator, Closeable {
+public interface DataIterator extends Closeable {
+
+    boolean next();
 
     Object getColumnValue(int columnIndex);
 

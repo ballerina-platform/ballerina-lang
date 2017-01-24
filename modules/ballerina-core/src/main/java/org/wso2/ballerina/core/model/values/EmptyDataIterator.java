@@ -26,17 +26,11 @@ import java.io.IOException;
 public class EmptyDataIterator implements DataIterator {
     @Override
     public void close() throws IOException {
-
     }
 
     @Override
-    public boolean hasNext() {
+    public boolean next() {
         return false;
-    }
-
-    @Override
-    public Object next() {
-        return null;
     }
 
     @Override
@@ -47,5 +41,35 @@ public class EmptyDataIterator implements DataIterator {
     @Override
     public Object getColumnValue(String columnName) {
         return new Object();
+    }
+
+    @Override
+    public String getString(int index) {
+        return null;
+    }
+
+    @Override
+    public long getLong(int index) {
+        return 0;
+    }
+
+    @Override
+    public int getInt(int index) {
+        return 0;
+    }
+
+    @Override
+    public float getFloat(int index) {
+        return 0;
+    }
+
+    @Override
+    public double getDouble(int index) {
+        return 0;
+    }
+
+    @Override
+    public boolean getBoolean(int index) {
+        return false;
     }
 }

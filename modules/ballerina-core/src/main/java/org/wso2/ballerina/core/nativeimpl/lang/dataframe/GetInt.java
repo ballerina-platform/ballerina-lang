@@ -22,7 +22,6 @@ import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BDataframe;
 import org.wso2.ballerina.core.model.values.BInteger;
-import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
@@ -30,15 +29,15 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 
 /**
- * Native function to check record availability in dataframe.
- * ballerina.lang.dataframe:next(dataframe)
+ * Native function to get integer value of a given column index.
+ * ballerina.lang.dataframe:getInt(dataframe, int)
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.dataframe",
         functionName = "getInt",
         args = {@Argument(name = "dataframe", type = TypeEnum.DATAFRAME),
                 @Argument(name = "index", type = TypeEnum.INT)},
-        returnType = {@ReturnType(type = TypeEnum.STRING)},
+        returnType = {@ReturnType(type = TypeEnum.INT)},
         isPublic = true
 )
 public class GetInt extends AbstractNativeFunction {

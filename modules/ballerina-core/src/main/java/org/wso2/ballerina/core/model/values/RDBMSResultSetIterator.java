@@ -27,7 +27,6 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Types;
 
 /**
  * This iterator mainly wrap Java ResultSet.
@@ -88,43 +87,34 @@ public class RDBMSResultSetIterator implements DataIterator {
     }
 
     @Override
-    public boolean hasNext() {
-        try {
-            return rs.next();
-        } catch (SQLException e) {
-            return false;
-        }
-    }
-
-    @Override
-    public Object next() {
-        for (int i = 0; i < columnCount; i++) {
+    public boolean next() {
+        /*for (int i = 0; i < columnCount; i++) {
             try {
                 Object obj = null;
                 switch (records[i].getColumnTypes()) {
-                /* handle string types */
+                *//* handle string types *//*
                 case Types.VARCHAR:
-                /* fall through */
+                *//* fall through *//*
                 case Types.LONGVARCHAR:
-                /* fall through */
+                *//* fall through *//*
                 case Types.CHAR:
-                /* fall through */
+                *//* fall through *//*
                 case Types.CLOB:
-                /* fall through */
+                *//* fall through *//*
                 case Types.NCHAR:
-                /* fall through */
+                *//* fall through *//*
                 case Types.NCLOB:
-                /* fall through */
+                *//* fall through *//*
                 case Types.NVARCHAR:
-                /* fall through */
+                *//* fall through *//*
                 case Types.LONGNVARCHAR:
                     obj = rs.getString(i);
                     break;
-                /* handle numbers */
+                *//* handle numbers *//*
                 case Types.INTEGER:
-                /* fall through */
+                *//* fall through *//*
                 case Types.TINYINT:
-                /* fall through */
+                *//* fall through *//*
                 case Types.SMALLINT:
                     obj = rs.getInt(i);
                     break;
@@ -135,37 +125,37 @@ public class RDBMSResultSetIterator implements DataIterator {
                     obj = rs.getFloat(i);
                     break;
                 case Types.BOOLEAN:
-                /* fall through */
+                *//* fall through *//*
                 case Types.BIT:
                     obj = rs.getBoolean(i);
                     break;
                 case Types.DECIMAL:
                     obj = rs.getBigDecimal(i);
                     break;
-                /* handle data/time values */
+                *//* handle data/time values *//*
                 case Types.TIME:
-                /* handle time data type */
+                *//* handle time data type *//*
                     obj = rs.getTime(i);
                     break;
                 case Types.DATE:
-                /* handle date data type */
+                *//* handle date data type *//*
                     obj = rs.getDate(i);
                     break;
                 case Types.TIMESTAMP:
                     obj = rs.getTimestamp(i);
                     break;
-                /* handle binary types */
+                *//* handle binary types *//*
                 case Types.BLOB:
                     obj = rs.getBlob(i);
                     break;
                 case Types.BINARY:
-                /* fall through */
+                *//* fall through *//*
                 case Types.LONGVARBINARY:
-                /* fall through */
+                *//* fall through *//*
                 case Types.VARBINARY:
                     obj = rs.getBinaryStream(i);
                     break;
-                /* handling User Defined Types */
+                *//* handling User Defined Types *//*
                 case Types.STRUCT:
                     obj = rs.getObject(i);
                     break;
@@ -183,8 +173,13 @@ public class RDBMSResultSetIterator implements DataIterator {
             } catch (SQLException e) {
                 logger.error(e.getMessage(), e);
             }
+        }*/
+        try {
+            return rs.next();
+        } catch (SQLException e) {
+            logger.error(e.getMessage(), e);
+            return false;
         }
-        return records;
     }
 
     public String getString(int index) {

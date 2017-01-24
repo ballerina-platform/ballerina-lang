@@ -30,8 +30,8 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 
 /**
- * Native function to check record availability in dataframe.
- * ballerina.lang.dataframe:next(dataframe)
+ * Native function to get string value of a given column index.
+ * ballerina.lang.dataframe:getString(dataframe, int)
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.dataframe",
