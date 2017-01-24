@@ -64,6 +64,12 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
                     "<div class='container-fluid'>" +
                     "<form class='form-horizontal'>" +
                     "<div class='form-group'>" +
+                    "<label for='configName' class='col-sm-2 file-dialog-label'>File Name :</label>" +
+                    "<div class='col-sm-9'>" +
+                    "<input class='file-dialog-form-control' id='configName' placeholder='eg: sample.bal'>" +
+                    "</div>" +
+                    "</div>" +
+                    "<div class='form-group'>" +
                     "<label for='location' class='col-sm-2 file-dialog-label'>Location :</label>" +
                     "<div class='col-sm-9'>" +
                     "<input type='text' class='file-dialog-form-control' id='location' placeholder='eg: /home/user/wso2-integration-server/ballerina-configs'>" +
@@ -75,12 +81,6 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
                     "</div>" +
                     "<div id='file-browser-error' class='alert alert-danger' style='display: none;'>" +
                     "</div>" +
-                    "</div>" +
-                    "</div>" +
-                    "<div class='form-group'>" +
-                    "<label for='configName' class='col-sm-2 file-dialog-label'>File Name :</label>" +
-                    "<div class='col-sm-9'>" +
-                    "<input class='file-dialog-form-control' id='configName' placeholder='eg: sample.bal'>" +
                     "</div>" +
                     "</div>" +
                     "<div class='form-group'>" +
@@ -141,12 +141,12 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
                     var _location = location.val();
                     var _configName = configName.val();
                     if (_.isEmpty(_location)) {
-                        newWizardError.text("Invalid Value for Location.");
+                        newWizardError.text("Please enter valid file location");
                         newWizardError.show();
                         return;
                     }
                     if (_.isEmpty(_configName)) {
-                        newWizardError.text("Invalid Value for File Name.");
+                        newWizardError.text("Please enter valid file name");
                         newWizardError.show();
                         return;
                     }
