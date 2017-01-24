@@ -32,6 +32,7 @@
         <lang.commenter language="Ballerina" implementationClass="org.ballerinalang.BallerinaCommenter"/>
         <lang.syntaxHighlighterFactory language="Ballerina"
                                        implementationClass="org.ballerinalang.highlighting.BallerinaSyntaxHighlighterFactory"/>
+        <colorSettingsPage implementation="org.ballerinalang.highlighting.BallerinaColorSettingsPage"/>
     </extensions>
 
     <actions>
