@@ -25,7 +25,7 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', 'ballerin
         //set panel icon for the struct
         this._viewOptions.panelIcon = _.get(args.viewOptions, "cssClass.struct_icon");
         //set initial height for the struct container svg
-        this._totalHeight = 50;
+        this._totalHeight = 30;
 
         if (_.isNil(this._model) || !(BallerinaASTFactory.isStructDefinition(this._model))) {
             log.error("Struct definition is undefined or is of different type." + this._model);
@@ -80,10 +80,24 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', 'ballerin
         this._model.on('child-added', function (child) {
             self.visit(child);
             self._model.trigger("child-visited", child);
-
-            // Show/Hide scrolls.
-            self._showHideScrolls(self._container, self.getChildContainer().node().ownerSVGElement);
         });
+
+        var variableButton = VariablesView.createVariableButton(this.getChildContainer().node(), 14, 10);
+
+        var variableProperties = {
+            model: this._model,
+            activatorElement: variableButton,
+            paneAppendElement: this.getChildContainer().node().ownerSVGElement.parentElement,
+            viewOptions: {
+                position: {
+                    x: parseInt(this.getChildContainer().attr("x")) + 17,
+                    y: parseInt(this.getChildContainer().attr("y")) + 6
+                },
+                width: $(this.getChildContainer().node().ownerSVGElement.parentElement).width() - (2 * $(variableButton).width())
+            }
+        };
+
+        VariablesView.createVariablePane(variableProperties, diagramRenderingContext);
 
         var operationsPane = this.getOperationsPane();
 
