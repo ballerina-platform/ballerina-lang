@@ -30,6 +30,8 @@
         <fileTypeFactory implementation="org.ballerinalang.BallerinaFileTypeFactory"/>
         <lang.parserDefinition language="Ballerina" implementationClass="org.ballerinalang.BallerinaParserDefinition"/>
         <lang.commenter language="Ballerina" implementationClass="org.ballerinalang.BallerinaCommenter"/>
+        <lang.syntaxHighlighterFactory language="Ballerina"
+                                       implementationClass="org.ballerinalang.highlighting.BallerinaSyntaxHighlighterFactory"/>
     </extensions>
 
     <actions>
