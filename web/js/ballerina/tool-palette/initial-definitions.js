@@ -72,7 +72,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group', './..
         var createConnectorActionTool = {
             id: "connectorAction",
             name: "Connector Action",
-            icon: "images/tool-icons/resource.svg",
+            icon: "images/tool-icons/action.svg",
             title: "Connector Action",
             nodeFactoryMethod:  BallerinaASTFactory.createConnectorAction
         };
