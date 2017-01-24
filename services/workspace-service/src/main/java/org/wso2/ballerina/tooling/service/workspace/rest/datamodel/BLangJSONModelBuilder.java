@@ -321,8 +321,11 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         if (function.getReturnParameters() != null) {
             for (Parameter parameter : function.getReturnParameters()) {
                 JsonObject typeObj = new JsonObject();
-                typeObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.RETURN_TYPE_NAME);
-                typeObj.addProperty(BLangJSONModelConstants.RETURN_TYPE_NAME, parameter.getType().toString());
+                typeObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.RETURN_ARGUMENT);
+                typeObj.addProperty(BLangJSONModelConstants.PARAMETER_TYPE, parameter.getType().toString());
+                if (parameter.getName() != null) {
+                    typeObj.addProperty(BLangJSONModelConstants.PARAMETER_NAME, parameter.getName().toString());
+                }
                 returnTypeArray.add(typeObj);
             }
         }
