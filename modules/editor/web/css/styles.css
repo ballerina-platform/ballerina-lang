@@ -1083,6 +1083,10 @@ button.variable-list {
     cursor: text;
 }
 
+.struct-title-text:hover {
+    cursor: text;
+}
+
 .function-title-text:hover {
     cursor: text;
 }
@@ -1176,4 +1180,7 @@ a:hover {
 
 .sidebar-left{
     background: #333333;
+}
+.modal-dialog.file-dialog {
+    margin: 100px auto 0;
 }

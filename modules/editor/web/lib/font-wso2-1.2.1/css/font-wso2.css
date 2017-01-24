@@ -17,13 +17,13 @@
 
 @font-face {
 	font-family:"font-wso2";
-	src:local("font-wso2"), url("../fonts/font-wso2.eot?cbfd3c5fdcdc6493e67be73fa5dd0ac0");
+	src:local("font-wso2"), url("../fonts/font-wso2.eot?01d275fb1d6848d51fa8b7d7a524cacc");
 	src:local("font-wso2"),
         url("../fonts/font-wso2.eot?#iefix") format("embedded-opentype"),
-		url("../fonts/font-wso2.woff2?cbfd3c5fdcdc6493e67be73fa5dd0ac0") format("woff2"),
-		url("../fonts/font-wso2.woff?cbfd3c5fdcdc6493e67be73fa5dd0ac0") format("woff"),
-		url("../fonts/font-wso2.ttf?cbfd3c5fdcdc6493e67be73fa5dd0ac0") format("truetype"),
-		url("../fonts/font-wso2.svg?cbfd3c5fdcdc6493e67be73fa5dd0ac0#font-wso2") format("svg");
+		url("../fonts/font-wso2.woff2?01d275fb1d6848d51fa8b7d7a524cacc") format("woff2"),
+		url("../fonts/font-wso2.woff?01d275fb1d6848d51fa8b7d7a524cacc") format("woff"),
+		url("../fonts/font-wso2.ttf?01d275fb1d6848d51fa8b7d7a524cacc") format("truetype"),
+		url("../fonts/font-wso2.svg?01d275fb1d6848d51fa8b7d7a524cacc#font-wso2") format("svg");
 	font-weight:normal;
 	font-style:normal;
 }
@@ -292,6 +292,10 @@
     content:"\e6fe";
 }
 
+.fw-action:before {
+    content:"\e709";
+}
+
 .fw-activate:before {
     content:"\e6cf";
 }
@@ -552,6 +556,10 @@
     content:"\e6f9";
 }
 
+.fw-dgm-while:before {
+    content:"\e707";
+}
+
 .fw-dial-up:before {
     content:"\e627";
 }
@@ -562,14 +570,6 @@
 
 .fw-display:before {
     content:"\e626";
-}
-
-.fw-dmg-resource:before {
-    content:"\e707";
-}
-
-.fw-dmg-service:before {
-    content:"\e708";
 }
 
 .fw-document:before {
@@ -908,7 +908,7 @@
     content:"\e6ce";
 }
 
-.fw-minus:before {
+.fw-minus:before, .fw-hyphen:before, .fw-dash:before {
     content:"\e616";
 }
 
@@ -1048,6 +1048,10 @@
     content:"\e664";
 }
 
+.fw-run:before {
+    content:"\e708";
+}
+
 .fw-save:before {
     content:"\e665";
 }
@@ -1088,11 +1092,11 @@
     content:"\e66e";
 }
 
-.fw-service:before, .fw-cogwheels:before, .fw-gears:before {
+.fw-service:before, .fw-cogwheels:before, .fw-gears:before, .fw-sprockets:before {
     content:"\e66d";
 }
 
-.fw-settings:before, .fw-cogwheel:before, .fw-gear:before {
+.fw-settings:before, .fw-cogwheel:before, .fw-gear:before, .fw-sprocket:before {
     content:"\e66f";
 }
 
@@ -1148,7 +1152,7 @@
     content:"\e675";
 }
 
-.fw-store:before {
+.fw-store:before, .fw-cart:before {
     content:"\e676";
 }
 

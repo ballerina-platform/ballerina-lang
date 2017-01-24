@@ -80,7 +80,7 @@ public class Post extends AbstractHTTPAction {
             // Execute the operation
             return executeAction(context, cMsg);
         } catch (Throwable t) {
-            throw new BallerinaException("Failed to invoke 'Post' action in " + HTTPConnector.CONNECTOR_NAME 
+            throw new BallerinaException("Failed to invoke 'post' action in " + HTTPConnector.CONNECTOR_NAME
                 + ". " + t.getMessage(), context);
         }
     }

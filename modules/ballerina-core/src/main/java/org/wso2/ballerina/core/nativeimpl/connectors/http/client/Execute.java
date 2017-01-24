@@ -88,7 +88,7 @@ public class Execute extends AbstractHTTPAction {
             // Execute the operation
             return executeAction(context, cMsg);
         } catch (Throwable t) {
-            throw new BallerinaException("Failed to invoke 'Execute' action in " + HTTPConnector.CONNECTOR_NAME 
+            throw new BallerinaException("Failed to invoke 'execute' action in " + HTTPConnector.CONNECTOR_NAME
                 + ". " + t.getMessage(), context);
         }
     }

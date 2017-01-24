@@ -58,6 +58,8 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
             return this.canVisitConnectorDefinition(node);
         } else if(node instanceof AST.ConnectorAction){
             return this.canVisitConnectorAction(node);
+        } else if(node instanceof AST.StructDefinition){
+            return this.canVisitStructDefinition(node);
         }
     };
 
@@ -95,6 +97,8 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
             return this.beginVisitConnectorDefinition(node);
         } else if(node instanceof AST.ConnectorAction){
             return this.beginVisitConnectorAction(node);
+        } else if(node instanceof AST.StructDefinition){
+            return this.beginVisitStructDefinition(node);
         }
     };
 
@@ -132,6 +136,8 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
             return this.visitConnectorDefinition(node);
         } else if(node instanceof AST.ConnectorAction){
             return this.visitConnectorAction(node);
+        } else if(node instanceof AST.StructDefinition){
+            return this.visitStructDefinition(node);
         }
 
     };
@@ -170,6 +176,8 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
             return this.endVisitConnectorDefinition(node);
         } else if(node instanceof AST.ConnectorAction){
             return this.endVisitConnectorAction(node);
+        } else if(node instanceof AST.StructDefinition){
+            return this.endVisitStructDefinition(node);
         }
 
     };
@@ -232,6 +240,16 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
     ASTVisitor.prototype.visitFunctionDefinition = function(resourceDefinition){
     };
     ASTVisitor.prototype.endVisitFunctionDefinition = function(resourceDefinition){
+    };
+
+    ASTVisitor.prototype.canVisitStructDefinition = function(structDefinition){
+        return false;
+    };
+    ASTVisitor.prototype.beginVisitStructDefinition = function(structDefinition){
+    };
+    ASTVisitor.prototype.visitStructDefinition = function(structDefinition){
+    };
+    ASTVisitor.prototype.endVisitStructDefinition = function(structDefinition){
     };
 
     ASTVisitor.prototype.canVisitPackageDefinition = function(packageDefinition){

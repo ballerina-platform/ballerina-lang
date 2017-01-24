@@ -229,8 +229,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             // Creating connector action icon for SVG definitions.
             var connectorActionIconSVGPattern = def.append("pattern").attr("id", "connectorActionIcon").attr("width", "100%")
                 .attr("height", "100%");
-            // TODO: Change the icon for the connector action
-            connectorActionIconSVGPattern.append("image").attr("xlink:href", "images/resource.svg").attr("x", 5)
+            // Connector action icon
+            connectorActionIconSVGPattern.append("image").attr("xlink:href", "images/action.svg").attr("x", 5)
                 .attr("y", 5).attr("width", iconSizeSideLength).attr("height", iconSizeSideLength);
 
             // Creating delete icon for SVG definitions.
@@ -295,8 +295,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 headingStart.y(), this._viewOptions.heading.icon.width,
                 this._viewOptions.heading.icon.height, 0, 0, headerGroup).classed("connectorActionHeadingIconHolder",true);
 
-            var headingRectIcon = D3utils.rect(headingStart.x(), headingStart.y(), this._viewOptions.heading.icon.width,
-                this._viewOptions.heading.icon.height, 0, 0, headerGroup).classed("headingRectIcon", true);
+            var actionHeadingRectIcon = D3utils.rect(headingStart.x(), headingStart.y(), this._viewOptions.heading.icon.width,
+                this._viewOptions.heading.icon.height, 0, 0, headerGroup).classed("actionHeadingRectIcon", true);
 
             var xEndOfHeadingRect = parseFloat(headingRect.attr("x")) + parseFloat(headingRect.attr("width")) ;
             var yForIcons = parseFloat(headingRect.attr("y")) + (((this._viewOptions.heading.icon.height) / 2) - (14 / 2));
