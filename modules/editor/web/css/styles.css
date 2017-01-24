@@ -1175,3 +1175,6 @@ a:hover {
 .sidebar-left{
     background: #333333;
 }
+.modal-dialog.file-dialog {
+    margin: 100px auto 0;
+}
