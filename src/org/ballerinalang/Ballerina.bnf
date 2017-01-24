@@ -1,4 +1,6 @@
 {
+
+  classHeader='CopyrightHeader'
   parserClass="org.ballerinalang.parser.BallerinaParser"
 
   extends="com.intellij.extapi.psi.ASTWrapperPsiElement"
