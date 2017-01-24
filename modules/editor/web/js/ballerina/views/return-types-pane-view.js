@@ -65,7 +65,8 @@ define(['lodash', 'log', 'jquery', 'alerts', './return-type-view', './../ast/arg
 
             // Checkbox to enable/disable named return types.
             var allowNamedReturnCheckBox = $("<input/>", {
-                type: "checkbox"
+                type: "checkbox",
+                checked : this._model.hasNamedReturnTypes()
             }).appendTo(returnTypeWrapper);
 
             // The "Named Return Types" text.
@@ -106,16 +107,32 @@ define(['lodash', 'log', 'jquery', 'alerts', './return-type-view', './../ast/arg
                     event.stopPropagation();
                     return false;
                 }
-            }).hide().appendTo(returnTypeWrapper);
+            }).toggle(self._model.hasNamedReturnTypes()).appendTo(returnTypeWrapper);
+
+            if(self._model.hasNamedReturnTypes() && self._model.hasReturnTypes()){
+                $(self._returnTypeEditorWrapper).css("width", "+=125").css("left", "-=125");
+            }
 
             // Show/Hide return type name text box when the checkbox is clicked.
             $(allowNamedReturnCheckBox).change(function () {
                 if ($(this).is(":checked")) {
-                    $(returnTypeNameInput).show();
-                    $(self._returnTypeEditorWrapper).css("width", "+=125").css("left", "-=125");
+                    if(!self._model.hasNamedReturnTypes() && self._model.hasReturnTypes()){
+                        Alerts.error("Return types without identifiers already exists. Remove them to " +
+                        "add return types with identifiers");
+                        allowNamedReturnCheckBox.prop('checked', false);
+                    } else {
+                        $(returnTypeNameInput).show();
+                        $(self._returnTypeEditorWrapper).css("width", "+=125").css("left", "-=125");
+                    }
                 } else {
-                    $(returnTypeNameInput).hide();
-                    $(self._returnTypeEditorWrapper).css("width", "-=125").css("left", "+=125");
+                    if(self._model.hasNamedReturnTypes() && self._model.hasReturnTypes()){
+                        Alerts.error("Return types with identifiers already exists. Remove them to " +
+                            "add return types without identifiers");
+                        allowNamedReturnCheckBox.prop('checked', true);
+                    } else {
+                        $(returnTypeNameInput).hide();
+                        $(self._returnTypeEditorWrapper).css("width", "-=125").css("left", "+=125");
+                    }
                 }
             });
 
