@@ -317,6 +317,15 @@ public class BuiltInNativeConstructLoader {
         registerFunction(scope, new GetMethod());
         registerFunction(scope, new AcceptAndReturn());
 
+        // lang.dataframe
+        registerFunction(scope, new org.wso2.ballerina.core.nativeimpl.lang.dataframe.GetBoolean());
+        registerFunction(scope, new org.wso2.ballerina.core.nativeimpl.lang.dataframe.GetDouble());
+        registerFunction(scope, new org.wso2.ballerina.core.nativeimpl.lang.dataframe.GetFloat());
+        registerFunction(scope, new org.wso2.ballerina.core.nativeimpl.lang.dataframe.GetInt());
+        registerFunction(scope, new org.wso2.ballerina.core.nativeimpl.lang.dataframe.GetLong());
+        registerFunction(scope, new org.wso2.ballerina.core.nativeimpl.lang.dataframe.GetString());
+        registerFunction(scope, new org.wso2.ballerina.core.nativeimpl.lang.dataframe.Next());
+
     }
 
     /**
