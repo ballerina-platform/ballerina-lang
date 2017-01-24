@@ -2,10 +2,7 @@
     "sources":{
         "source":[
             "ATMLocatorService.bal",
-            "echoService.bal",
-            "helloWorldService.bal",
-            "helloWorld.bal",
-            "passthroughService.bal"
+            "echoService.bal"
         ]
     }
 }
