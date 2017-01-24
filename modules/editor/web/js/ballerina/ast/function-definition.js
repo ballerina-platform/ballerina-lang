@@ -118,8 +118,14 @@ define(['lodash', 'log', './callable-definition'],
     /**
      * Adds new variable declaration.
      */
-    FunctionDefinition.prototype.removeVariableDeclaration = function (variableDeclaration) {
-       this.removeChild(variableDeclaration)
+    FunctionDefinition.prototype.removeVariableDeclaration = function (variableDeclarationIdentifier) {
+        var self = this;
+        // Removing the variable from the children.
+        var variableDeclarationChild = _.filter(this.getChildren(), function (child) {
+            return self.BallerinaASTFactory.isVariableDeclaration(child)
+                && child.getIdentifier() === variableDeclarationIdentifier;
+        });
+        this.removeChild(variableDeclarationChild[0])
     };
 
     /**
