@@ -40,6 +40,10 @@ define(['require', 'jquery', 'lodash', './modal-dialog', 'alerts'], function (re
                 this.showError(response.message);
             } else {
                 this.hide();
+                var successCallBack = _.get(data, 'onSuccess');
+                if(_.isFunction(successCallBack)){
+                    successCallBack.call();
+                }
                 alerts.success(path + " created successfully");
                 if(!_.isEqual('folder', data.type)){
                     var file = this._serviceClient.readFile(path);

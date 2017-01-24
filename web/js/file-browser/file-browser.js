@@ -129,6 +129,9 @@ define(['jquery', 'backbone', 'lodash', 'tree_view', /** void module - jquery pl
 
             this._$parent_el.jstree(true).select_node(path);
         },
+        refresh: function(node){
+            this._$parent_el.jstree(true).load_node(node);
+        },
 
         render: function () {
             var self = this;
