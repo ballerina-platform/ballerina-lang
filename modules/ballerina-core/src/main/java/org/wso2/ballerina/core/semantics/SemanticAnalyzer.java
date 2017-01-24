@@ -1375,8 +1375,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         typeConverter.setSymbolName(symbolName);
 
         if (symbolTable.lookup(symbolName) != null) {
-            throw new SemanticException(typeConverter.getLocation().getFileName() + ":" + typeConverter.getLocation().getLine() +
-                    ": duplicate typeConvertor '" + typeConverter.getTypeConverterName() + "'");
+            throw new SemanticException(typeConverter.getLocation().getFileName() + ":" + typeConverter.getLocation()
+                    .getLine() + ": duplicate typeConvertor '" + typeConverter.getTypeConverterName() + "'");
         }
 
         Symbol symbol = new Symbol(typeConverter);
