@@ -281,6 +281,16 @@ public class BLangAntlr4Listener implements BallerinaListener {
     }
 
     @Override
+    public void enterTypeConvertorInput(BallerinaParser.TypeConvertorInputContext ctx) {
+
+    }
+
+    @Override
+    public void exitTypeConvertorInput(BallerinaParser.TypeConvertorInputContext ctx) {
+
+    }
+
+    @Override
     public void enterTypeConvertorBody(BallerinaParser.TypeConvertorBodyContext ctx) {
     }
 
@@ -381,11 +391,13 @@ public class BLangAntlr4Listener implements BallerinaListener {
     }
 
     @Override
-    public void enterTypeConvertorTypes(BallerinaParser.TypeConvertorTypesContext ctx) {
+    public void enterTypeConvertorType(BallerinaParser.TypeConvertorTypeContext ctx) {
+
     }
 
     @Override
-    public void exitTypeConvertorTypes(BallerinaParser.TypeConvertorTypesContext ctx) {
+    public void exitTypeConvertorType(BallerinaParser.TypeConvertorTypeContext ctx) {
+
     }
 
     @Override
