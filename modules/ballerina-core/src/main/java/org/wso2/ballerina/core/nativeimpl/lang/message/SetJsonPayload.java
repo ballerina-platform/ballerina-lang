@@ -29,7 +29,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 import org.wso2.ballerina.core.nativeimpl.lang.utils.Constants;
 
 /**
- * Set the payload of the Message as a JSON
+ * Set the payload of the Message as a JSON.
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.message",

@@ -23,7 +23,7 @@ import org.wso2.ballerina.core.model.Position;
 import org.wso2.ballerina.core.model.types.BType;
 
 /**
- * {@code Expression} represents a generic expression in Ballerina
+ * {@code Expression} represents a generic expression in Ballerina.
  *
  * @see AddExpression
  * @see VariableRefExpr

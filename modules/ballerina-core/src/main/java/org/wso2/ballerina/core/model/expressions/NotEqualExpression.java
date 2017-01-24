@@ -27,7 +27,7 @@ import java.util.function.BiFunction;
 import static org.wso2.ballerina.core.model.Operator.NOT_EQUAL;
 
 /**
- * {@code NotEqualExpression} represents a not equal (!=) expression in Ballerina
+ * {@code NotEqualExpression} represents a not equal (!=) expression in Ballerina.
  *
  * @since 0.8.0
  */

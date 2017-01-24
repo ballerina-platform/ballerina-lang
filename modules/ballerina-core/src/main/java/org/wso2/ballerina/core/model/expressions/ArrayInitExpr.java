@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * {@code ArrayInitExpr} represents an array initializer expression
+ * {@code ArrayInitExpr} represents an array initializer expression.
  * <p>
  * e.g.  int[] a;
  * a = [1, 2, 3, 4, 5, 6, 7, 8, 9]
@@ -50,7 +50,7 @@ public class ArrayInitExpr extends NaryExpression {
     }
 
     /**
-     * {@code ArrayInitExprBuilder} represents an array initializer expression builder
+     * {@code ArrayInitExprBuilder} represents an array initializer expression builder.
      *
      * @since 0.8.0
      */

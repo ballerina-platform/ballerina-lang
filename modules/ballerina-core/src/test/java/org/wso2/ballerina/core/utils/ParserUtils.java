@@ -44,7 +44,7 @@ public class ParserUtils {
     }
 
     /**
-     * Get parsed, analyzed and linked Ballerina object model
+     * Get parsed, analyzed and linked Ballerina object model.
      *
      * @param sourceFilePath Path to Bal file.
      * @return BallerinaFile instance.
@@ -54,7 +54,7 @@ public class ParserUtils {
     }
 
     /**
-     * Get parsed, analyzed and linked Ballerina object model
+     * Get parsed, analyzed and linked Ballerina object model.
      *
      * @param sourceFilePath Path to Bal file.
      * @param globalSymScope Global symbol scope which includes all the native functions and actions

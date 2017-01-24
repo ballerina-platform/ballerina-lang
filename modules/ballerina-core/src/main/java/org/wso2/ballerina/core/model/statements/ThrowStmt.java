@@ -22,7 +22,7 @@ import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.expressions.Expression;
 
 /**
- * {@code ThrowStmt} represents a throw statement
+ * {@code ThrowStmt} represents a throw statement.
  *
  * @since 0.8.0
  */
