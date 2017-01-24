@@ -72,13 +72,21 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './tool-group', './..
         var createConnectorActionTool = {
             id: "connectorAction",
             name: "Connector Action",
-            icon: "images/tool-icons/resource.svg",
+            icon: "images/tool-icons/action.svg",
             title: "Connector Action",
             nodeFactoryMethod:  BallerinaASTFactory.createConnectorAction
         };
 
+        var createStructsDefTool = {
+            id: "struct",
+            name: "Struct",
+            icon: "images/tool-icons/assign.svg",
+            title: "Struct",
+            nodeFactoryMethod: BallerinaASTFactory.createStructDefinition
+        };
+
         var mainToolDefArray = [createServiceDefTool, createResourceDefTool, createFunctionDefTool,
-            createMainFunctionDefTool, createConnectorDefTool, createConnectorActionTool];
+            createMainFunctionDefTool, createConnectorDefTool, createConnectorActionTool, createStructsDefTool];
 
         ToolPalette.elements = new ToolGroup({
             toolGroupName: "Elements",

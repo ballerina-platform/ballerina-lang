@@ -104,8 +104,14 @@ define(['lodash', './node', 'log'], function(_, ASTNode, log){
     /**
      * Remove variable declaration.
      */
-    ConnectorAction.prototype.removeVariableDeclaration = function (variableDeclaration) {
-        this.removeChild(variableDeclaration);
+    ConnectorAction.prototype.removeVariableDeclaration = function (variableDeclarationIdentifier) {
+        var self = this;
+        // Removing the variable from the children.
+        var variableDeclarationChild = _.find(this.getChildren(), function (child) {
+            return self.BallerinaASTFactory.isVariableDeclaration(child)
+                && child.getIdentifier() === variableDeclarationIdentifier;
+        });
+        this.removeChild(variableDeclarationChild);
     };
 
     /**
@@ -179,20 +185,14 @@ define(['lodash', './node', 'log'], function(_, ASTNode, log){
 
         // Validating whether return type can be added based on identifiers of other return types.
         if (!_.isUndefined(identifier)) {
-            var indexWithoutIdentifiers = _.findIndex(this.getReturnTypeModel().getChildren(), function (child) {
-                return _.isUndefined(child.getIdentifier());
-            });
-            if (indexWithoutIdentifiers !== -1) {
+            if (!this.hasNamedReturnTypes() && this.hasReturnTypes()) {
                 var errorStringWithoutIdentifiers = "Return types without identifiers already exists. Remove them to " +
                     "add return types with identifiers.";
                 log.error(errorStringWithoutIdentifiers);
                 throw errorStringWithoutIdentifiers;
             }
         } else {
-            var indexWithIdentifiers = _.findIndex(this.getReturnTypeModel().getChildren(), function (child) {
-                return !_.isUndefined(child.getIdentifier());
-            });
-            if (indexWithIdentifiers !== -1) {
+            if (this.hasNamedReturnTypes() && this.hasReturnTypes()) {
                 var errorStringWithIdentifiers = "Return types with identifiers already exists. Remove them to add " +
                     "return types without identifiers.";
                 log.error(errorStringWithIdentifiers);
@@ -211,6 +211,35 @@ define(['lodash', './node', 'log'], function(_, ASTNode, log){
             var returnType = this.BallerinaASTFactory.createReturnType();
             returnType.addChild(argument, 0);
             this.addChild(returnType);
+        }
+    };
+
+    ConnectorAction.prototype.hasNamedReturnTypes = function () {
+        if (_.isUndefined(this.getReturnTypeModel())) {
+            return false;
+        } else {
+            //check if any of the return types have identifiers
+            var indexWithoutIdentifiers = _.findIndex(this.getReturnTypeModel().getChildren(), function (child) {
+                return _.isUndefined(child.getIdentifier());
+            });
+
+            if (indexWithoutIdentifiers !== -1) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+    };
+
+    ConnectorAction.prototype.hasReturnTypes = function () {
+        if (_.isUndefined(this.getReturnTypeModel())) {
+            return false;
+        } else {
+            if (this.getReturnTypeModel().getChildren().length > 0) {
+                return true;
+            } else {
+                return false;
+            }
         }
     };
 
