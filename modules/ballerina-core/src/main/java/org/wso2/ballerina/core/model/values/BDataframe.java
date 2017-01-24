@@ -18,6 +18,8 @@
 
 package org.wso2.ballerina.core.model.values;
 
+import org.wso2.ballerina.core.model.DataIterator;
+
 import java.util.Map;
 
 /**
@@ -49,14 +51,6 @@ public class BDataframe implements BRefType {
         return iterator.next();
     }
 
-    public Object getColumnValue(int columnIndex) {
-        return iterator.getColumnValue(columnIndex);
-    }
-
-    public Object getColumnValue(String columnName) {
-        return getColumnValue(columnName);
-    }
-
     public String getString(int index) {
         return iterator.getString(index);
     }
@@ -81,4 +75,11 @@ public class BDataframe implements BRefType {
         return iterator.getBoolean(index);
     }
 
+    public String[] getAvailableProprtyNames() {
+        return properties.keySet().toArray(new String[properties.keySet().size()]);
+    }
+
+    public Object getProperty(String key) {
+        return properties.get(key);
+    }
 }

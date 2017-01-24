@@ -16,7 +16,9 @@
  *  under the License.
  */
 
-package org.wso2.ballerina.core.model.values;
+package org.wso2.ballerina.core.data;
+
+import org.wso2.ballerina.core.model.DataIterator;
 
 import java.io.IOException;
 
@@ -31,16 +33,6 @@ public class EmptyDataIterator implements DataIterator {
     @Override
     public boolean next() {
         return false;
-    }
-
-    @Override
-    public Object getColumnValue(int columnIndex) {
-        return new Object();
-    }
-
-    @Override
-    public Object getColumnValue(String columnName) {
-        return new Object();
     }
 
     @Override

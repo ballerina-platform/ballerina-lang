@@ -22,6 +22,7 @@ import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BDataframe;
 import org.wso2.ballerina.core.model.values.BInteger;
+import org.wso2.ballerina.core.model.values.BLong;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
@@ -45,6 +46,6 @@ public class GetLong extends AbstractNativeFunction {
     public BValue[] execute(Context ctx) {
         BDataframe dataframe = (BDataframe) getArgument(ctx, 0);
         int index = ((BInteger) getArgument(ctx, 1)).intValue();
-        return getBValues(new BInteger(dataframe.getInt(index)));
+        return getBValues(new BLong(dataframe.getLong(index)));
     }
 }

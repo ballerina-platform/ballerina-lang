@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.wso2.ballerina.core.model.values;
+package org.wso2.ballerina.core.model;
 
 import java.io.Closeable;
 
@@ -26,10 +26,6 @@ import java.io.Closeable;
 public interface DataIterator extends Closeable {
 
     boolean next();
-
-    Object getColumnValue(int columnIndex);
-
-    Object getColumnValue(String columnName);
 
     String getString(int index);
 
