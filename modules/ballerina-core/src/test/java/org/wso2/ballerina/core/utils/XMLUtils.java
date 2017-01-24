@@ -25,6 +25,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 
+/**
+ * Util class for read xml files.
+ */
 public class XMLUtils {
     public static String readFileToString(String path) {
         InputStream is = null;

@@ -21,7 +21,7 @@ import org.wso2.ballerina.core.model.values.BArray;
 import org.wso2.ballerina.core.model.values.BValue;
 
 /**
- * {@code BArrayType} represents a type of an array in Ballerina
+ * {@code BArrayType} represents a type of an array in Ballerina.
  * <p>
  * Arrays are defined using the array constructor [] as follows:
  * TypeName[]
@@ -35,7 +35,7 @@ public class BArrayType extends BType {
     private BType elementType;
 
     /**
-     * Create a type from the given name
+     * Create a type from the given name.
      *
      * @param typeName string name of the type
      */

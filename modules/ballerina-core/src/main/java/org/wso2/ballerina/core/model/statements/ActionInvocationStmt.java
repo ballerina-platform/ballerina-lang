@@ -22,7 +22,7 @@ import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
 
 /**
- * An {@code ActionInvocationStmt} represents a action invocation statement
+ * An {@code ActionInvocationStmt} represents a action invocation statement.
  *
  * @since 0.8.0
  */
@@ -49,7 +49,7 @@ public class ActionInvocationStmt extends AbstractStatement {
     }
 
     /**
-     * Builds a {@code ActionInvocationStmt} statement
+     * Builds a {@code ActionInvocationStmt} statement.
      *
      * @since 0.8.0
      */

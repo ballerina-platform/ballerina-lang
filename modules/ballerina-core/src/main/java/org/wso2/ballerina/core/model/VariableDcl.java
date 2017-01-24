@@ -21,7 +21,7 @@ package org.wso2.ballerina.core.model;
 import org.wso2.ballerina.core.model.types.BType;
 
 /**
- * {@code Variable} represent a Variable declaration
+ * {@code Variable} represent a Variable declaration.
  *
  * <p>
  * Ballerina has variables of various types. The type system includes built-in primitives,
@@ -45,7 +45,7 @@ public class VariableDcl implements Node {
     }
 
     /**
-     * Get the identifier of the variable declaration
+     * Get the identifier of the variable declaration.
      *
      * @return identifier of the variable declaration
      */

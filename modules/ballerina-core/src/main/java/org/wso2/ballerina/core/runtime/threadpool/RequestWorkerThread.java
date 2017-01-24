@@ -23,7 +23,7 @@ import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
- * Worker Thread which is responsible for request processing
+ * Worker Thread which is responsible for request processing.
  */
 public class RequestWorkerThread extends WorkerThread {
 

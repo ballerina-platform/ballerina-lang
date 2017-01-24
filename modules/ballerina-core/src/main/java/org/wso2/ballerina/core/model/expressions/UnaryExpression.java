@@ -32,7 +32,7 @@ import org.wso2.ballerina.core.model.values.BValueType;
 import java.util.function.BiFunction;
 
 /**
- * {@code UnaryExpression} represents a unary expression
+ * {@code UnaryExpression} represents a unary expression.
  *
  * @since 0.8.0
  */
