@@ -36,6 +36,7 @@ public class LocalFSWorkspace implements Workspace {
 
     private static final Logger logger = LoggerFactory.getLogger(LocalFSWorkspace.class);
     private static final String FILE_EXTENSION = ".bal";
+    private static final String FOLDER_TYPE = "folder";
 
     @Override
     public JsonArray listRoots() throws IOException  {
@@ -86,6 +87,16 @@ public class LocalFSWorkspace implements Workspace {
     public void write(String path, String content) throws IOException {
         Path ioPath = Paths.get(path);
         Files.write(ioPath, content.getBytes());
+    }
+
+    @Override
+    public void create(String path, String type) throws IOException {
+        Path ioPath = Paths.get(path);
+        if (FOLDER_TYPE.equals(type)) {
+            Files.createDirectories(ioPath);
+        } else {
+            Files.createFile(ioPath);
+        }
     }
 
     @Override

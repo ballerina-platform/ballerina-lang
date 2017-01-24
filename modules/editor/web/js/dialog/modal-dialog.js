@@ -67,12 +67,23 @@ define(['require', 'jquery', 'event_channel'], function (require, $, EventChanne
         });
     };
 
+    ModalDialog.prototype.showError = function (error) {
+       this.getErrorContainer().text(error);
+       this.getErrorContainer().show();
+    };
+
+    ModalDialog.prototype.clearError = function () {
+       this.getErrorContainer().text("");
+       this.getErrorContainer().hide();
+    };
+
     ModalDialog.prototype.hide = function () {
         var self = this;
         this._$modalContainer.modal('hide').on('hidden.bs.modal', function(){
             self.trigger('unloaded');
         });
     };
+
 
     ModalDialog.prototype.render = function () {
         if(!_.isNil(this._$modalContainer)){
@@ -106,8 +117,9 @@ define(['require', 'jquery', 'event_channel'], function (require, $, EventChanne
         modalContent.append(modalHeader);
         modalHeader.append(modalCloseBtnTop);
         modalHeader.append(modalTitle);
-        modalBody.append(errorContainer);
         modalContent.append(modalBody);
+        modalContent.append(errorContainer);
+        errorContainer.hide();
         modalContent.append(modalFooter);
         modalFooter.append(modalSubmitBtn);
         modalFooter.append(modalCloseBtnBottom);
