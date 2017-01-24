@@ -87,8 +87,10 @@ public class Util {
 
         int statusCode = Util.getIntValue(msg, Constants.HTTP_STATUS_CODE, 200);
 
-        HttpResponseStatus httpResponseStatus = new HttpResponseStatus(statusCode,
+        String reasonPhrase = Util.getStringValue(msg, Constants.HTTP_REASON_PHRASE,
                 HttpResponseStatus.valueOf(statusCode).reasonPhrase());
+
+        HttpResponseStatus httpResponseStatus = new HttpResponseStatus(statusCode, reasonPhrase);
 
         DefaultHttpResponse outgoingResponse = new DefaultHttpResponse(httpVersion, httpResponseStatus, false);
 
