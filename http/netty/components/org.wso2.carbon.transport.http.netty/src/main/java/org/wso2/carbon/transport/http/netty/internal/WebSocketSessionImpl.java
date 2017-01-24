@@ -20,9 +20,13 @@ package org.wso2.carbon.transport.http.netty.internal;
 
 
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.security.Principal;
 import java.util.List;
 import java.util.Map;
@@ -41,11 +45,17 @@ import javax.websocket.WebSocketContainer;
  * @since 1.0.0
  */
 public class WebSocketSessionImpl implements Session {
+    private static final Logger LOGGER = LoggerFactory.getLogger(WebSocketSessionImpl.class);
 
     private final ChannelHandlerContext ctx;
+    private final boolean isSecure;
+    private final String requestedUri;
 
-    public WebSocketSessionImpl(ChannelHandlerContext ctx) {
+    public WebSocketSessionImpl(ChannelHandlerContext ctx, boolean isSecure,
+                                String requestedUri) {
         this.ctx = ctx;
+        this.isSecure = isSecure;
+        this.requestedUri = requestedUri;
     }
 
     /**
@@ -186,8 +196,7 @@ public class WebSocketSessionImpl implements Session {
      */
     @Override
     public boolean isSecure() {
-        //TODO : Implementation when needed
-        return false;
+        return isSecure;
     }
 
     /**
@@ -312,6 +321,7 @@ public class WebSocketSessionImpl implements Session {
      */
     @Override
     public void close() throws IOException {
+        ctx.channel().close();
     }
 
     /**
@@ -330,7 +340,8 @@ public class WebSocketSessionImpl implements Session {
      */
     @Override
     public void close(CloseReason closeReason) throws IOException {
-
+        ctx.channel().write(new CloseWebSocketFrame(closeReason.getCloseCode().getCode(),
+                                                    closeReason.getReasonPhrase()));
     }
 
     /**
@@ -341,7 +352,12 @@ public class WebSocketSessionImpl implements Session {
      */
     @Override
     public URI getRequestURI() {
-        return null;
+        try {
+            return new URI(requestedUri);
+        } catch (URISyntaxException e) {
+            LOGGER.error(e.toString());
+            return null;
+        }
     }
 
     /**

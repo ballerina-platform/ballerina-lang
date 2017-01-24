@@ -68,7 +68,6 @@
         <dependency>
             <groupId>javax.websocket</groupId>
             <artifactId>javax.websocket-api</artifactId>
-            <version>${javax.websocket.version}</version>
         </dependency>
     </dependencies>
 
