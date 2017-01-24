@@ -131,11 +131,11 @@ define(['lodash', 'require', 'log', './node'],
     ResourceDefinition.prototype.removeVariableDeclaration = function (variableDeclarationIdentifier) {
         var self = this;
         // Removing the variable from the children.
-        var variableDeclarationChild = _.filter(this.getChildren(), function (child) {
+        var variableDeclarationChild = _.find(this.getChildren(), function (child) {
             return self.BallerinaASTFactory.isVariableDeclaration(child)
                 && child.getIdentifier() === variableDeclarationIdentifier;
         });
-        this.removeChild(variableDeclarationChild[0])
+        this.removeChild(variableDeclarationChild);
     };
 
     /**
