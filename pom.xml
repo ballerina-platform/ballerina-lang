@@ -213,6 +213,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <!-- <inherited>false</inherited> -->
                 <configuration>
+                    <argLine>-Dfile.encoding=UTF-8</argLine>
                     <environmentVariables>
                         <testEnvironmentVariable>EnvironmentVariable</testEnvironmentVariable>
                     </environmentVariables>
