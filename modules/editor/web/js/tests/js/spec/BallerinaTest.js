@@ -69,7 +69,7 @@ var getFileContentBackend = "http://localhost:8289/service/workspace";
             success: function (data, textStatus, xhr) {
                 if (xhr.status == 200) {
                     fileContent = data.content;
-                } else {}
+                }
             },
 
             error: function (res, errorCode, error) {}
