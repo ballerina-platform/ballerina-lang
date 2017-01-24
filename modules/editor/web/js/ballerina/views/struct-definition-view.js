@@ -53,7 +53,7 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', 'ballerin
 
     /**
      * Rendering the view of the Struct definition.
-     * @returns {Object} - The svg group which the struct definition view resides in.
+     * @param {Object} diagramRenderingContext - the object which is carrying data required for rendering
      */
     StructDefinitionView.prototype.render = function (diagramRenderingContext) {
         this.diagramRenderingContext = diagramRenderingContext;
