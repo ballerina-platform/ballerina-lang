@@ -31,11 +31,13 @@ define(['lodash', 'event_channel'],
         var parent = _.get(this, 'options.parent');
 
         var item = $('<li></li>');
+        var title = $('<span class="pull-left"></span>');
         var link = $('<a></a>');
         parent.append(item);
         item.append(link);
+        link.append(title);
 
-        link.text(_.get(this, 'definition.label'));
+        title.text(_.get(this, 'definition.label'));
         this._linkElement = link;
         this._listItemElement = item;
 
