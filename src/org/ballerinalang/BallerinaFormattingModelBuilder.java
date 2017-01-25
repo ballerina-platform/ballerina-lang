@@ -66,6 +66,7 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .around(ELSE_CLAUSE).spaceIf(true)
                 .between(ELSE, IF).spaceIf(true)
                 .between(ELSE, LBRACE).spaceIf(true)
+                .after(WHILE).spaceIf(true)
 
                 .after(NEW).spaceIf(true)
                 .after(RETURN).spaceIf(true)
@@ -82,6 +83,9 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
 
                 .between(PACKAGE_NAME, COLON).spaceIf(false)
                 .between(COLON, IDENTIFIER).spaceIf(false)
+
+                .between(IDENTIFIER, DOT).spaceIf(false)
+                .between(DOT, IDENTIFIER).spaceIf(false)
 
 
                 .between(LPAREN, ELEMENT_VALUE).spaceIf(false)
@@ -101,10 +105,11 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
 
                 .after(IMPORT).spaceIf(true)
 
-                .after(ANNOTATION_NAME).spaceIf(false)
+                .after(ANNOTATION_NAME).spaceIf(true)
                 .between(AT, ANNOTATION_NAME).spaceIf(false)
+
                 .between(TYPE_NAME, IDENTIFIER).spaceIf(true)
-                .between(IDENTIFIER, LPAREN).spaceIf(false)
+                .between(IDENTIFIER, LPAREN).spaceIf(true)
 
 
                 .after(PARAMETER_LIST).spaceIf(false)

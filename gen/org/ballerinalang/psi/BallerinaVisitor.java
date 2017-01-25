@@ -315,6 +315,10 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
+  public void visitWhileStatementBody(@NotNull BallerinaWhileStatementBody o) {
+    visitPsiElement(o);
+  }
+
   public void visitWithFullSchemaType(@NotNull BallerinaWithFullSchemaType o) {
     visitPsiElement(o);
   }

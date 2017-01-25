@@ -106,6 +106,12 @@ public class BallerinaBlock extends AbstractBlock {
                     }
                 }
 
+                if (parentElementType == WHILE_STATEMENT) {
+                    if (childElementType == WHILE_STATEMENT_BODY) {
+                        indent = Indent.getSpaceIndent(4);
+                    }
+                }
+
                 Block block = new BallerinaBlock(
                         child,
                         Alignment.createAlignment(),

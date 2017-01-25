@@ -27,14 +27,14 @@ import static org.ballerinalang.psi.BallerinaTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import org.ballerinalang.psi.*;
 
-public class BallerinaWhileStatementImpl extends ASTWrapperPsiElement implements BallerinaWhileStatement {
+public class BallerinaWhileStatementBodyImpl extends ASTWrapperPsiElement implements BallerinaWhileStatementBody {
 
-  public BallerinaWhileStatementImpl(ASTNode node) {
+  public BallerinaWhileStatementBodyImpl(ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitWhileStatement(this);
+    visitor.visitWhileStatementBody(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -44,14 +44,8 @@ public class BallerinaWhileStatementImpl extends ASTWrapperPsiElement implements
 
   @Override
   @NotNull
-  public BallerinaExpression getExpression() {
-    return findNotNullChildByClass(BallerinaExpression.class);
-  }
-
-  @Override
-  @NotNull
-  public BallerinaWhileStatementBody getWhileStatementBody() {
-    return findNotNullChildByClass(BallerinaWhileStatementBody.class);
+  public List<BallerinaStatement> getStatementList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaStatement.class);
   }
 
 }

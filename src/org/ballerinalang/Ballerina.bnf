@@ -350,7 +350,9 @@ iterateStatement
     ::=   'iterate' '(' typeName Identifier ':' expression ')' '{' statement+ '}'
 
 whileStatement
-    ::=   'while' '(' expression ')' '{' statement+ '}'
+    ::=   'while' '(' expression ')' '{' whileStatementBody '}'
+
+whileStatementBody::=statement+
 
 breakStatement
     ::=   'break' ';'

@@ -258,6 +258,9 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     else if (t == WHILE_STATEMENT) {
       r = whileStatement(b, 0);
     }
+    else if (t == WHILE_STATEMENT_BODY) {
+      r = whileStatementBody(b, 0);
+    }
     else if (t == WITH_FULL_SCHEMA_TYPE) {
       r = withFullSchemaType(b, 0);
     }
@@ -2683,7 +2686,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // 'while' '(' expression ')' '{' statement+ '}'
+  // 'while' '(' expression ')' '{' whileStatementBody '}'
   public static boolean whileStatement(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "whileStatement")) return false;
     if (!nextTokenIs(b, WHILE)) return false;
@@ -2692,25 +2695,26 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     r = consumeTokens(b, 0, WHILE, LPAREN);
     r = r && expression(b, l + 1);
     r = r && consumeTokens(b, 0, RPAREN, LBRACE);
-    r = r && whileStatement_5(b, l + 1);
+    r = r && whileStatementBody(b, l + 1);
     r = r && consumeToken(b, RBRACE);
     exit_section_(b, m, WHILE_STATEMENT, r);
     return r;
   }
 
+  /* ********************************************************** */
   // statement+
-  private static boolean whileStatement_5(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "whileStatement_5")) return false;
+  public static boolean whileStatementBody(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "whileStatementBody")) return false;
     boolean r;
-    Marker m = enter_section_(b);
+    Marker m = enter_section_(b, l, _NONE_, WHILE_STATEMENT_BODY, "<while statement body>");
     r = statement(b, l + 1);
     int c = current_position_(b);
     while (r) {
       if (!statement(b, l + 1)) break;
-      if (!empty_element_parsed_guard_(b, "whileStatement_5", c)) break;
+      if (!empty_element_parsed_guard_(b, "whileStatementBody", c)) break;
       c = current_position_(b);
     }
-    exit_section_(b, m, null, r);
+    exit_section_(b, l, m, r, false, null);
     return r;
   }
 

@@ -97,6 +97,7 @@ public interface BallerinaTypes {
   IElementType VARIABLE_REFERENCE = new BallerinaElementType("VARIABLE_REFERENCE");
   IElementType VARIABLE_REFERENCE_LIST = new BallerinaElementType("VARIABLE_REFERENCE_LIST");
   IElementType WHILE_STATEMENT = new BallerinaElementType("WHILE_STATEMENT");
+  IElementType WHILE_STATEMENT_BODY = new BallerinaElementType("WHILE_STATEMENT_BODY");
   IElementType WITH_FULL_SCHEMA_TYPE = new BallerinaElementType("WITH_FULL_SCHEMA_TYPE");
   IElementType WITH_FULL_SCHEMA_TYPE_ARRAY = new BallerinaElementType("WITH_FULL_SCHEMA_TYPE_ARRAY");
   IElementType WITH_FULL_SCHEMA_TYPE_ITERATE = new BallerinaElementType("WITH_FULL_SCHEMA_TYPE_ITERATE");
@@ -408,6 +409,9 @@ public interface BallerinaTypes {
       }
       else if (type == WHILE_STATEMENT) {
         return new BallerinaWhileStatementImpl(node);
+      }
+      else if (type == WHILE_STATEMENT_BODY) {
+        return new BallerinaWhileStatementBodyImpl(node);
       }
       else if (type == WITH_FULL_SCHEMA_TYPE) {
         return new BallerinaWithFullSchemaTypeImpl(node);
