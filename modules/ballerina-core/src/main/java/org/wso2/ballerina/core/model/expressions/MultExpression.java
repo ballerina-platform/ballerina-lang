@@ -30,7 +30,7 @@ import java.util.function.BiFunction;
 import static org.wso2.ballerina.core.model.Operator.MUL;
 
 /**
- * {@code MultExpression} represents a binary multiply expression
+ * {@code MultExpression} represents a binary multiply expression.
  *
  * @since 0.8.0
  */

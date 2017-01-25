@@ -29,7 +29,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * {@code ServiceContextHolder} is the place where Ballerina Service Component related information is kept
+ * {@code ServiceContextHolder} is the place where Ballerina Service Component related information is kept.
  */
 public class ServiceContextHolder {
 
@@ -76,7 +76,7 @@ public class ServiceContextHolder {
     }
 
     /**
-     * Register a transport specific ErrorHandler
+     * Register a transport specific ErrorHandler.
      *
      * @param errorHandler Error Handler
      */
@@ -85,7 +85,7 @@ public class ServiceContextHolder {
     }
 
     /**
-     * Unregister an ErrorHandler
+     * Unregister an ErrorHandler.
      *
      * @param protocol protocol of the Error Handler
      */
@@ -94,7 +94,7 @@ public class ServiceContextHolder {
     }
 
     /**
-     * Get the error handler associated with a particular protocol
+     * Get the error handler associated with a particular protocol.
      *
      * @param protocol transport protocol
      * @return Error Handler for a given protocol

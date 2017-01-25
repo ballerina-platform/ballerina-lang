@@ -208,6 +208,18 @@ public class BallerinaBaseListener implements BallerinaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterTypeConvertorInput(BallerinaParser.TypeConvertorInputContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitTypeConvertorInput(BallerinaParser.TypeConvertorInputContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterTypeConvertorBody(BallerinaParser.TypeConvertorBodyContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -316,13 +328,13 @@ public class BallerinaBaseListener implements BallerinaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterTypeConvertorTypes(BallerinaParser.TypeConvertorTypesContext ctx) { }
+	@Override public void enterTypeConvertorType(BallerinaParser.TypeConvertorTypeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitTypeConvertorTypes(BallerinaParser.TypeConvertorTypesContext ctx) { }
+	@Override public void exitTypeConvertorType(BallerinaParser.TypeConvertorTypeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

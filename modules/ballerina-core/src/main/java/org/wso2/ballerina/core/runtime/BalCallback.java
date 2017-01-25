@@ -21,7 +21,7 @@ package org.wso2.ballerina.core.runtime;
 import org.wso2.carbon.messaging.CarbonCallback;
 
 /**
- * {@BalCallback} represent the Callback interface for Ballerina
+ * {@BalCallback} represent the Callback interface for Ballerina.
  */
 public interface BalCallback extends CarbonCallback {
 
