@@ -113,18 +113,21 @@ define(['log', 'jquery', 'backbone', 'lodash', './explorer-item', './service-cli
                 this._containerToAdjust.css('margin-left', _.get(this._options, 'leftOffset'));
                 this._verticalSeparator.css('left', _.get(this._options, 'leftOffset') - _.get(this._options, 'separatorOffset'));
                 this._isActive = false;
+                this._activateBtn.removeClass('active');
             } else {
                 var width = this._lastWidth || _.get(this._options, 'defaultWidth');
                 this._$parent_el.parent().width(width);
                 this._containerToAdjust.css('margin-left', width + _.get(this._options, 'leftOffset'));
                 this._verticalSeparator.css('left',  width + _.get(this._options, 'leftOffset') - _.get(this._options, 'separatorOffset'));
                 this._isActive = true;
+                this._activateBtn.addClass('active');
             }
         },
 
         render: function () {
             var self = this;
             var activateBtn = $(_.get(this._options, 'activateBtn'));
+            this._activateBtn = activateBtn;
 
             var explorerContainer = $('<div></div>');
             explorerContainer.addClass(_.get(this._options, 'cssClass.container'));

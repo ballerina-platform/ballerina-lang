@@ -30,7 +30,7 @@ import java.util.function.BiFunction;
 import static org.wso2.ballerina.core.model.Operator.SUB;
 
 /**
- * {@code SubstractExpression} represents a binary substract expression
+ * {@code SubstractExpression} represents a binary substract expression.
  *
  * @since 0.8.0
  */

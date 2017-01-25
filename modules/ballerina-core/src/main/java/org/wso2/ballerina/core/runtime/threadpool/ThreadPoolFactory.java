@@ -22,7 +22,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * {@code ThreadPoolFactory} holds the thread pools in Ballerina engine
+ * {@code ThreadPoolFactory} holds the thread pools in Ballerina engine.
  *
  * @since 0.8.0
  */

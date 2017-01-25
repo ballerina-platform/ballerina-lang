@@ -33,7 +33,7 @@ import org.wso2.ballerina.core.nativeimpl.connectors.http.Constants;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
- * {@code Get} is the GET action implementation of the HTTP Connector
+ * {@code Get} is the GET action implementation of the HTTP Connector.
  */
 @BallerinaAction(
         packageName = "ballerina.net.http",
@@ -78,7 +78,7 @@ public class Get extends AbstractHTTPAction {
             // Execute the operation
             return executeAction(context, cMsg);
         } catch (Throwable t) {
-            throw new BallerinaException("Failed to invoke 'Get' action in " + HTTPConnector.CONNECTOR_NAME 
+            throw new BallerinaException("Failed to invoke 'get' action in " + HTTPConnector.CONNECTOR_NAME
                 + ". " + t.getMessage(), context);
         }
     }

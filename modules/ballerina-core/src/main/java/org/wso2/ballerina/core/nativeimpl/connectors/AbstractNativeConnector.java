@@ -84,7 +84,7 @@ public abstract class AbstractNativeConnector implements Connector, NativeConstr
 
     //TODO Fix Issue#320
     /**
-     * Get an instance of the Connector
+     * Get an instance of the Connector.
      *
      * @return an instance
      */

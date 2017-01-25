@@ -30,7 +30,7 @@ import org.wso2.ballerina.core.model.values.BValueType;
 import java.util.function.BiFunction;
 
 /**
- * {@code DivideExpr} represents a binary divide expression
+ * {@code DivideExpr} represents a binary divide expression.
  *
  * @since 0.8.0
  */

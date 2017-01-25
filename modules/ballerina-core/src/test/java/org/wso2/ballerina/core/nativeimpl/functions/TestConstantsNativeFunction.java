@@ -30,7 +30,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 import org.wso2.ballerina.core.nativeimpl.lang.system.LogUtil;
 
 /**
- * Native function ballerina.lang.system:Log
+ * Native function ballerina.lang.system:Log.
  */
 @BallerinaFunction(
         packageName = "ballerina.test.constant",

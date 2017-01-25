@@ -27,6 +27,9 @@ import java.util.Map;
 
 import static org.testng.Assert.assertEquals;
 
+/**
+ * Test class for ballerina map.
+ */
 public class BMapValueTest   {
 
     @Test
