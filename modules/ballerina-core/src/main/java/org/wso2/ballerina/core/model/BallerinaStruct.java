@@ -18,6 +18,9 @@
 
 package org.wso2.ballerina.core.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Ballerina Struct represents a user defined type in ballerina.
  */
@@ -27,22 +30,23 @@ public class BallerinaStruct implements Node {
     private Position structLocation;
     private boolean isPublic;
     private int structMemorySize;
-    private VariableDcl[] variableDcls;
+    private VariableDcl[] fields;
     
     /**
      * Create a ballerina struct.
      * 
      * @param name          Name of the struct
      * @param position      Boolean indicating whether the struct is public
-     * @param variableDcls  Variables in the struct.
+     * @param fields        Fields in the struct.
      */
     public BallerinaStruct(SymbolName name,
                              Position position,
-                             VariableDcl[] variableDcls) {
+                             VariableDcl[] fields,
+                             boolean isPublic) {
 
         this.symbolName = name;
         this.structLocation = position;
-        this.variableDcls = variableDcls;
+        this.fields = fields;
     }
 
     /**
@@ -84,17 +88,10 @@ public class BallerinaStruct implements Node {
     /**
      * Check whether struct is public, which means function is visible outside the package
      *
-     * @return  Flag idicating whether the struct is public
+     * @return  Flag indicating whether the struct is public
      */
     public boolean isPublic() {
         return isPublic;
-    }
-
-    /**
-     * Mark function as public
-     */
-    public void makePublic() {
-        isPublic = true;
     }
 
     public int getStructMemorySize() {
@@ -113,12 +110,12 @@ public class BallerinaStruct implements Node {
     
 
     /**
-     * Get variable attributes in the struct.
+     * Get variable fields in the struct.
      * 
-     * @return  Variable attributes in the struct
+     * @return  Variable fields in the struct
      */
-    public VariableDcl[] getVariableAttributes() {
-        return variableDcls;
+    public VariableDcl[] getFields() {
+        return fields;
     }
     
     /**
@@ -129,23 +126,15 @@ public class BallerinaStruct implements Node {
     public Position getLocation() {
         return structLocation;
     }
-
-    /**
-     * Set the source location of this struct definition.
-     * 
-     * @param location  Source location of this struct definition.
-     */
-    public void setLocation(Position location) {
-        this.structLocation = location;
-    }
     
     /**
      * Builder class to build a Struct.
      */
     public static class StructBuilder {
         private SymbolName structName;
-        private VariableDcl[] variableDcls;
+        private List<VariableDcl> fields = new ArrayList<VariableDcl>();
         private Position structLocation;
+        private boolean isPublic;
 
         /**
          * Set the symbol name of this struct.
@@ -155,14 +144,23 @@ public class BallerinaStruct implements Node {
         public void setStructName(SymbolName structName) {
             this.structName = structName;
         }
-
+        
         /**
-         * Set the attributes of this struct.
+         * Set the source location of this struct definition.
          * 
-         * @param variableDcls    attributes defined in this struct
+         * @param location  Source location of this struct definition.
          */
-        public void setVariableAttributes(VariableDcl[] variableDcls) {
-            this.variableDcls = variableDcls;
+        public void setLocation(Position location) {
+            this.structLocation = location;
+        }
+        
+        /**
+         * Set the flag indicating whether this struct is a public one.
+         * 
+         * @param isPublic  Flag indicating whether this struct is a public one
+         */
+        public void setPublic(boolean isPublic) {
+            this.isPublic = isPublic;
         }
         
         /**
@@ -171,7 +169,17 @@ public class BallerinaStruct implements Node {
          * @return  Struct
          */
         public BallerinaStruct build() {
-            return new BallerinaStruct(structName, structLocation, variableDcls);
+            return new BallerinaStruct(structName, structLocation, fields.toArray(new VariableDcl[0]),
+                    isPublic);
+        }
+
+        /**
+         * Add a field to the struct.
+         * 
+         * @param field   Field in the struct
+         */
+        public void addField(VariableDcl field) {
+            fields.add(field);
         }
     }
 }

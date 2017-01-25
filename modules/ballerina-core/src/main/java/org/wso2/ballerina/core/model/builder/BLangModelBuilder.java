@@ -60,7 +60,7 @@ import org.wso2.ballerina.core.model.expressions.MultExpression;
 import org.wso2.ballerina.core.model.expressions.NotEqualExpression;
 import org.wso2.ballerina.core.model.expressions.OrExpression;
 import org.wso2.ballerina.core.model.expressions.ReferenceExpr;
-import org.wso2.ballerina.core.model.expressions.StructAttributeAccessExpr;
+import org.wso2.ballerina.core.model.expressions.StructFieldAccessExpr;
 import org.wso2.ballerina.core.model.expressions.StructInitExpr;
 import org.wso2.ballerina.core.model.expressions.SubtractExpression;
 import org.wso2.ballerina.core.model.expressions.UnaryExpression;
@@ -77,7 +77,6 @@ import org.wso2.ballerina.core.model.statements.WhileStmt;
 import org.wso2.ballerina.core.model.types.BStructType;
 import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.types.BTypes;
-import org.wso2.ballerina.core.model.util.LangModelUtils;
 import org.wso2.ballerina.core.model.values.BBoolean;
 import org.wso2.ballerina.core.model.values.BDouble;
 import org.wso2.ballerina.core.model.values.BFloat;
@@ -111,6 +110,9 @@ public class BLangModelBuilder {
 
     // Builds functions, actions and resources.
     private CallableUnitBuilder currentCUBuilder;
+    
+    // Builds user defined structs.
+    private BallerinaStruct.StructBuilder structBuilder;
 
     private Stack<Annotation.AnnotationBuilder> annotationBuilderStack = new Stack<>();
     private Stack<BlockStmt.BlockStmtBuilder> blockStmtBuilderStack = new Stack<>();
@@ -907,6 +909,13 @@ public class BLangModelBuilder {
     }
 
     /**
+     * Start a struct builder.
+     */
+    public void startStruct() {
+        structBuilder = new BallerinaStruct.StructBuilder();
+    }
+    
+    /**
      * Creates a {@link BallerinaStruct}.
      * 
      * @param name              Name of the {@link BallerinaStruct}
@@ -914,29 +923,29 @@ public class BLangModelBuilder {
      * @param sourceLocation    Location of this {@link BallerinaStruct} in the source file
      */
     public void createStructDefinition(String name, boolean isPublic, Position sourceLocation) {
-        currentCUGroupBuilder.setName(new SymbolName(name, pkgName));
-        currentCUGroupBuilder.setLocation(sourceLocation);
-        BallerinaStruct struct = currentCUGroupBuilder.buildStruct();
-        struct.setLocation(sourceLocation);
-        
-        if (isPublic) {
-            struct.makePublic();
-        }
-        
+        structBuilder.setStructName(new SymbolName(name, pkgName));
+        structBuilder.setLocation(sourceLocation);
+        structBuilder.setPublic(isPublic);
+        BallerinaStruct struct = structBuilder.build();
         bFileBuilder.addStruct(struct);
-        currentCUGroupBuilder = null;
+        structBuilder = null;
         registerStructType(name);
     }
 
     /**
-     * Add an attribute of the {@link BallerinaStruct}.
+     * Add an field of the {@link BallerinaStruct}.
      * 
-     * @param attributename     Name of the attribute in the {@link BallerinaStruct}
-     * @param sourceLocation    Location of the attribute in the source file
+     * @param fieldName         Name of the field in the {@link BallerinaStruct}
+     * @param sourceLocation    Location of the field in the source file
      */
-    public void createStructAttribute(String attributename, String structname, Position sourceLocation) {
-        createVariableDcl(LangModelUtils.getStructAttributeSymName(attributename, structname, pkgName).getName(),
-                sourceLocation);
+    public void createStructField(String fieldName, Position sourceLocation) {
+        // Create a struct field declaration
+        SymbolName localVarId = new SymbolName(fieldName);
+        BType localVarType = typeQueue.remove();
+        
+        VariableDcl variableDcl = new VariableDcl(localVarType, localVarId);
+        variableDcl.setLocation(sourceLocation);
+        structBuilder.addField(variableDcl);
     }
     
     /** 
@@ -973,29 +982,29 @@ public class BLangModelBuilder {
     }
     
     /**
-     * Create an expression for accessing attributes of user defined struct types.
+     * Create an expression for accessing fields of user defined struct types.
      * 
      * @param sourceLocation    Source location of the ballerina file
      */
-    public void createStructAttributeRefExpr(Position sourceLocation) {
+    public void createStructFieldRefExpr(Position sourceLocation) {
         if (exprStack.size() < 2) {
             return;
         }
-        ReferenceExpr attribute = (ReferenceExpr) exprStack.pop();
-        StructAttributeAccessExpr attributeExpr;
-        if (attribute instanceof StructAttributeAccessExpr) {
-            attributeExpr = (StructAttributeAccessExpr) attribute;
+        ReferenceExpr field = (ReferenceExpr) exprStack.pop();
+        StructFieldAccessExpr fieldExpr;
+        if (field instanceof StructFieldAccessExpr) {
+            fieldExpr = (StructFieldAccessExpr) field;
         } else {
-            attributeExpr = new StructAttributeAccessExpr(attribute.getSymbolName(), attribute);
+            fieldExpr = new StructFieldAccessExpr(field.getSymbolName(), field);
         }
-        attributeExpr.setLocation(sourceLocation);
+        fieldExpr.setLocation(sourceLocation);
         
         ReferenceExpr parent = (ReferenceExpr) exprStack.pop();
-        StructAttributeAccessExpr parentExpr = new StructAttributeAccessExpr(parent.getSymbolName(), parent);
+        StructFieldAccessExpr parentExpr = new StructFieldAccessExpr(parent.getSymbolName(), parent);
         parentExpr.setLocation(sourceLocation);
         
-        parentExpr.setAttributeExpr(attributeExpr);
-        attributeExpr.setParent(parentExpr);
+        parentExpr.setFieldExpr(fieldExpr);
+        fieldExpr.setParent(parentExpr);
         exprStack.push(parentExpr);
     }
 

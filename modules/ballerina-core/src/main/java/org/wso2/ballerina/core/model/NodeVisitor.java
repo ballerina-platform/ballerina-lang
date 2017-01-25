@@ -43,7 +43,7 @@ import org.wso2.ballerina.core.model.expressions.MultExpression;
 import org.wso2.ballerina.core.model.expressions.NotEqualExpression;
 import org.wso2.ballerina.core.model.expressions.OrExpression;
 import org.wso2.ballerina.core.model.expressions.ResourceInvocationExpr;
-import org.wso2.ballerina.core.model.expressions.StructAttributeAccessExpr;
+import org.wso2.ballerina.core.model.expressions.StructFieldAccessExpr;
 import org.wso2.ballerina.core.model.expressions.StructInitExpr;
 import org.wso2.ballerina.core.model.expressions.SubtractExpression;
 import org.wso2.ballerina.core.model.expressions.UnaryExpression;
@@ -178,9 +178,7 @@ public interface NodeVisitor {
 
     void visit(StructVarLocation structVarLocation);
 
-//    void visit(StructAttribute structAttribute);
-
     void visit(StructInitExpr structInitExpr);
 
-    void visit(StructAttributeAccessExpr structAttributeAccessExpr);
+    void visit(StructFieldAccessExpr structAttributeAccessExpr);
 }

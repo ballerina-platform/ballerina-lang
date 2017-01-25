@@ -54,7 +54,7 @@ public class BallerinaFile implements Node {
     private List<FunctionInvocationExpr> funcIExprList = new ArrayList<>();
     private List<ActionInvocationExpr> actionIExprList = new ArrayList<>();
     private Const[] consts;
-    private List<BallerinaStruct> structs = new ArrayList<>();
+    private BallerinaStruct[] structs;
     //TODO: add TypeConverters
     //TODO: add constants
 
@@ -72,7 +72,7 @@ public class BallerinaFile implements Node {
             List<FunctionInvocationExpr> funcIExprList,
             List<ActionInvocationExpr> actionInvocationExpr,
             Const[] consts,
-            List<BallerinaStruct> structs) {
+            BallerinaStruct[] structs) {
 
         this.packageName = packageName;
         this.importPackages = importPackages;
@@ -172,7 +172,7 @@ public class BallerinaFile implements Node {
         return this.mainFunction;
     }
     
-    public List<BallerinaStruct> getStructs() {
+    public BallerinaStruct[] getStructs() {
         return this.structs;
     }
 
@@ -287,7 +287,7 @@ public class BallerinaFile implements Node {
                     funcIExprList,
                     actionIExprList,
                     constList.toArray(new Const[constList.size()]),
-                    structList);
+                    structList.toArray(new BallerinaStruct[structList.size()]));
         }
 
         /**

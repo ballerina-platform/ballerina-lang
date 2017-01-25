@@ -25,21 +25,16 @@ package org.wso2.ballerina.core.model;
  */
 public class StructDcl implements Node {
 
-    /* Name of the struct which Connection is instantiated against */
+    /* Name of the struct to which this struct instance belongs to*/
     SymbolName structName;
-
-    /* Name of the struct instance */
-    // TODO: remove if unused
-    SymbolName varName;
 
     /* Reference to the struct instance which is referred by the declaration */
     BallerinaStruct struct;
     
     protected Position sourceLocation;
 
-    public StructDcl(SymbolName structName, SymbolName varName) {
+    public StructDcl(SymbolName structName) {
         this.structName = structName;
-        this.varName = varName;
     }
 
     /**
@@ -49,24 +44,6 @@ public class StructDcl implements Node {
      */
     public SymbolName getStructName() {
         return structName;
-    }
-
-    /**
-     * Get the {@code Identifier} of the struct instance
-     *
-     * @return identifier of the struct instance
-     */
-    public SymbolName getVarName() {
-        return varName;
-    }
-    
-    /**
-     * Set the {@code Identifier} of the struct instance
-     *
-     * @param varName   Identifier of the struct instance
-     */
-    public void setVarName(SymbolName varName) {
-        this.varName = varName;
     }
 
     /**
@@ -106,20 +83,14 @@ public class StructDcl implements Node {
      */
     public static class StructDclBuilder {
         private SymbolName structName;
-        private SymbolName varName;
 
         public void setStructName(SymbolName structName) {
             this.structName = structName;
         }
 
-        public void setVarName(SymbolName varName) {
-            this.varName = varName;
-        }
-
         public StructDcl build() {
             return new StructDcl(
-                    structName,
-                    varName);
+                    structName);
         }
     }
     

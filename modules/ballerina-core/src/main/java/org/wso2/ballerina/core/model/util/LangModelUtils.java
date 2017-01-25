@@ -79,19 +79,19 @@ public class LangModelUtils {
     }
     
     /**
-     * Get the symbol name of a struct attribute.
+     * Get the symbol name of a struct field.
      * 
-     * @param attributeName     Local name of the attribute
-     * @param structName        Name os the struct to which this attribute belongs to
+     * @param fieldName         Local name of the field
+     * @param structName        Name os the struct to which this field belongs to
      * @param pkgPath           Package name of the struct
-     * @return                  Symbol name of a struct attribute
+     * @return                  Symbol name of a struct field
      */
-    public static SymbolName getStructAttributeSymName(String attributeName, String structName, String pkgPath) {
+    public static SymbolName getStructFieldSymName(String fieldName, String structName, String pkgPath) {
         String prefix;
         if (pkgPath == null) {
-            prefix = structName + "." + attributeName;
+            prefix = structName + "." + fieldName;
         } else {
-            prefix = pkgPath + ":" + structName + "." + attributeName;
+            prefix = pkgPath + ":" + structName + "." + fieldName;
         }
 
         StringBuilder sBuilder = new StringBuilder(prefix);

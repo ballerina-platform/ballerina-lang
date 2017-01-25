@@ -18,7 +18,7 @@
 package org.wso2.ballerina.lang.structs;
 
 import org.testng.Assert;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.exception.SemanticException;
@@ -37,7 +37,7 @@ public class StructTest {
 
     private BallerinaFile bFile;
     
-    @BeforeTest
+    @BeforeClass
     public void setup() {
         bFile = ParserUtils.parseBalFile("lang/structs/struct.bal");
     }
@@ -81,7 +81,7 @@ public class StructTest {
         Assert.assertEquals(returns[0].stringValue(), "USA");
     }
     
-    @Test(description = "Test returning attributes of a struct")
+    @Test(description = "Test returning fields of a struct")
     public void testReturnStructAttributes() {
         BValue[] returns = Functions.invoke(bFile, "testReturnStructAttributes");
 
@@ -100,59 +100,67 @@ public class StructTest {
      *  Negative tests
      */
     
-    @Test(description = "Test accessing an attribute of a noninitialized struct",
+    @Test(description = "Test accessing an field of a noninitialized struct",
             expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = "Cannot access attribute 'employees' of non-initialized variable 'dpt'.")
-    public void testGetNonInitAttribute() {
+            expectedExceptionsMessageRegExp = "cannot access field 'employees' of non-initialized variable 'dpt'.")
+    public void testGetNonInitField() {
         Functions.invoke(bFile, "testGetNonInitAttribute");
     }
     
-    @Test(description = "Test accessing the attribute of a noninitialized struct",
+    @Test(description = "Test accessing the field of a noninitialized struct",
             expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = "Cannot access attribute 'employees' of non-initialized variable 'dpt'.")
-    public void testGetNonInitLastAttribute() {
+            expectedExceptionsMessageRegExp = "cannot access field 'employees' of non-initialized variable 'dpt'.")
+    public void testGetNonInitLastField() {
         Functions.invoke(bFile, "testGetNonInitLastAttribute");
     }
     
-    @Test(description = "Test setting an attribute of a noninitialized struct",
+    @Test(description = "Test setting an field of a noninitialized struct",
             expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = "Cannot access attribute 'employees' of non-initialized variable 'dpt'.")
-    public void testSetNonInitAttribute() {
+            expectedExceptionsMessageRegExp = "cannot access field 'employees' of non-initialized variable 'dpt'.")
+    public void testSetNonInitField() {
         Functions.invoke(bFile, "testGetNonInitAttribute");
     }
     
-    @Test(description = "Test setting the attribute of a noninitialized struct",
+    @Test(description = "Test setting the field of a noninitialized struct",
             expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = "Cannot set attribute 'dptName' of non-initialized variable 'dpt'.")
-    public void testSetNonInitLastAttribute() {
+            expectedExceptionsMessageRegExp = "cannot set field 'dptName' of non-initialized variable 'dpt'.")
+    public void testSetNonInitLastField() {
         Functions.invoke(bFile, "testSetNonInitLastAttribute");
     }
     
     @Test(description = "Test defining structs with duplicate name",
             expectedExceptions = {SemanticException.class},
-            expectedExceptionsMessageRegExp = "duplicate-structs.bal:7: Duplicate struct 'Department'.")
+            expectedExceptionsMessageRegExp = "duplicate-structs.bal:7: duplicate struct 'Department'.")
     public void testDuplicateStructDefinitions() {
         ParserUtils.parseBalFile("lang/structs/duplicate-structs.bal");
     }
     
+    @Test(description = "Test defining structs with duplicate fields",
+            expectedExceptions = {SemanticException.class},
+            expectedExceptionsMessageRegExp = "duplicate-fields.bal:4: duplicate field 'Department.id'.")
+    public void testStructWithDuplicateFields() {
+        ParserUtils.parseBalFile("lang/structs/duplicate-fields.bal");
+    }
+    
     @Test(description = "Test initializing an undeclraed structs",
             expectedExceptions = {SemanticException.class},
-            expectedExceptionsMessageRegExp = "undeclared-struct-init.bal:4: Struct 'Department' not found.")
+            expectedExceptionsMessageRegExp = "undeclared-struct-init.bal:4: struct 'Department' not found.")
     public void testUndeclaredStructInit() {
         ParserUtils.parseBalFile("lang/structs/undeclared-struct-init.bal");
     }
     
     @Test(description = "Test accessing an undeclared struct",
             expectedExceptions = {SemanticException.class},
-            expectedExceptionsMessageRegExp = "undeclared-struct-access.bal:4: Undeclraed attribute 'dpt1'.")
+            expectedExceptionsMessageRegExp = "undeclared-struct-access.bal:4: undeclraed struct 'dpt1'.")
     public void testUndeclaredStructAccess() {
         ParserUtils.parseBalFile("lang/structs/undeclared-struct-access.bal");
     }
     
-    @Test(description = "Test accessing an undeclared attribute of a struct",
+    @Test(description = "Test accessing an undeclared field of a struct",
             expectedExceptions = {SemanticException.class},
-            expectedExceptionsMessageRegExp = "undeclared-attribute-access.bal:5: Undeclraed attribute 'id'.")
-    public void testUndeclaredAttributeAccess() {
+            expectedExceptionsMessageRegExp = "undeclared-attribute-access.bal:5: undeclraed field 'id' for type " +
+            "'Department'.")
+    public void testUndeclaredFieldAccess() {
         ParserUtils.parseBalFile("lang/structs/undeclared-attribute-access.bal");
     }
 }

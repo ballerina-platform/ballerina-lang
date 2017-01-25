@@ -256,7 +256,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
     @Override
     public void enterStructDefinition(BallerinaParser.StructDefinitionContext ctx) {
         if (ctx.exception == null) {
-            modelBuilder.startCallableUnitGroup();
+            modelBuilder.startStruct();
         }
     }
 
@@ -283,15 +283,11 @@ public class BLangAntlr4Listener implements BallerinaListener {
             return;
         }
         
-        String structName = null;
-        if (ctx.parent instanceof BallerinaParser.StructDefinitionContext) {
-            structName = ((BallerinaParser.StructDefinitionContext) ctx.parent).Identifier().getText();
-        }
-        List<TerminalNode> attributeList = ctx.Identifier();
-        // Each attribute is added separately rather than sending the whole list at once, coz
-        // in future, attributes will have annotations, and there will be a new event for each attribute.
-        for (TerminalNode node : attributeList) {
-            modelBuilder.createStructAttribute(node.getText(), structName, getCurrentLocation(node));
+        List<TerminalNode> fieldList = ctx.Identifier();
+        // Each field is added separately rather than sending the whole list at once, coz
+        // in future, fields will have annotations, and there will be a new event for each field.
+        for (TerminalNode node : fieldList) {
+            modelBuilder.createStructField(node.getText(), getCurrentLocation(node));
         }
     }
 
@@ -912,7 +908,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
         if (ctx.exception != null || ctx.getChild(0) == null) {
             return;
         }
-        modelBuilder.createStructAttributeRefExpr(getCurrentLocation(ctx));
+        modelBuilder.createStructFieldRefExpr(getCurrentLocation(ctx));
     }
 
     @Override
