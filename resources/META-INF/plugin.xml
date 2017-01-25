@@ -2,22 +2,25 @@
     <id>org.ballerinalang</id>
     <name>Ballerina</name>
     <version>0.1</version>
-    <vendor email="support@wso2.org" url="http://wso2.org">WSO2</vendor>
+    <category>Custom Languages</category>
+    <vendor email="support@wso2.org" url="http://wso2.org">WSO2 Inc.</vendor>
 
     <description><![CDATA[
-      Plugin for Ballerina language support.<br>
+      Plugin for Ballerina language.<br>
+      <br>
+      Visit <a href="http://ballerinalang.org">BallerinaLang.org</a> for more details.
     ]]></description>
 
     <change-notes><![CDATA[
       <ul>
-        <li>Syntax highlighting.</li>
-        <li>Commenter support.</li>
+        <li>Syntax highlighting support.</li>
+        <li>Code formatting support.</li>
       </ul>
     ]]>
     </change-notes>
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
-    <idea-version since-build="145.0"/>
+    <idea-version since-build="141.0"/>
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
          on how to target different products -->
