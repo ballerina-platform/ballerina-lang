@@ -380,6 +380,7 @@
         <module>modules/editor/services/workspace-service</module>
         <module>modules/distribution</module>
         <!--<module>modules/tests</module>-->
+        <module>modules/tests/test-integration</module>
     </modules>
 
 </project>
