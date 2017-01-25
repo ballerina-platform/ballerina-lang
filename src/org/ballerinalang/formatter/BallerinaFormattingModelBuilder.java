@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package org.ballerinalang;
+package org.ballerinalang.formatter;
 
 import com.intellij.formatting.FormattingModel;
 import com.intellij.formatting.FormattingModelBuilder;
@@ -26,6 +26,7 @@ import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
+import org.ballerinalang.BallerinaLanguage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -46,6 +47,7 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
     private static SpacingBuilder createSpaceBuilder(CodeStyleSettings settings) {
         return new SpacingBuilder(settings, BallerinaLanguage.INSTANCE)
 
+                //Todo: Add code style settings provider
                 .before(COMMA).spaceIf(false)
                 .after(COMMA).spaceIf(true)
                 .around(ASSIGN).spaceIf(true)

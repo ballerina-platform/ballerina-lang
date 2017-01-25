@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package org.ballerinalang;
+package org.ballerinalang.formatter;
 
 import com.intellij.formatting.Alignment;
 import com.intellij.formatting.Block;
