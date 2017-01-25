@@ -21,6 +21,7 @@ import com.intellij.lexer.FlexAdapter;
 import java.io.Reader;
 
 public class BallerinaLexerAdapter extends FlexAdapter {
+
     public BallerinaLexerAdapter() {
         super(new BallerinaLexer((Reader) null));
     }

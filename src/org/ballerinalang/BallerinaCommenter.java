@@ -16,11 +16,11 @@
 
 package org.ballerinalang;
 
-
 import com.intellij.lang.Commenter;
 import org.jetbrains.annotations.Nullable;
 
 public class BallerinaCommenter implements Commenter {
+
     @Nullable
     @Override
     public String getLineCommentPrefix() {

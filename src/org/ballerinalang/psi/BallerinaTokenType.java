@@ -18,9 +18,11 @@ package org.ballerinalang.psi;
 
 import com.intellij.psi.tree.IElementType;
 import org.ballerinalang.BallerinaLanguage;
-import org.jetbrains.annotations.*;
+import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
 
 public class BallerinaTokenType extends IElementType {
+
     public BallerinaTokenType(@NotNull @NonNls String debugName) {
         super(debugName, BallerinaLanguage.INSTANCE);
     }

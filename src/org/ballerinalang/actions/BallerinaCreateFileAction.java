@@ -35,6 +35,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Map;
 
 public class BallerinaCreateFileAction extends CreateFileFromTemplateAction implements DumbAware {
+
     public static final String FILE_TEMPLATE = "Ballerina File";
     public static final String APPLICATION_TEMPLATE = "Ballerina Application";
 

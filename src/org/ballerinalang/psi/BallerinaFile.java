@@ -26,6 +26,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.Icon;
 
 public class BallerinaFile extends PsiFileBase {
+
     public BallerinaFile(@NotNull FileViewProvider viewProvider) {
         super(viewProvider, BallerinaLanguage.INSTANCE);
     }
