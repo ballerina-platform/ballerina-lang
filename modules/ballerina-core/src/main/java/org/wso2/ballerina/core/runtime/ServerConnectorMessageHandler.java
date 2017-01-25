@@ -35,7 +35,7 @@ import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
- * {@code ServerConnectorMessageHandler} is responsible for bridging Ballerina Program and External Server Connector
+ * {@code ServerConnectorMessageHandler} is responsible for bridging Ballerina Program and External Server Connector.
  *
  * @since 0.8.0
  */

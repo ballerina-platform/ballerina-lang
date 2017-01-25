@@ -24,7 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * The place where all Ballerina Applications are stored
+ * The place where all Ballerina Applications are stored.
  *
  * @since 0.8.0
  */

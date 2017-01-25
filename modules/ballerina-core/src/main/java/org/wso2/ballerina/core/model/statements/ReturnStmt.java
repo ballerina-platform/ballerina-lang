@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * {@code ReturnStmt} represents a return statement
+ * {@code ReturnStmt} represents a return statement.
  *
  * @since 0.8.0
  */
@@ -55,7 +55,7 @@ public class ReturnStmt extends AbstractStatement {
     }
 
     /**
-     * Builds a {@code ReturnStmt} statement
+     * Builds a {@code ReturnStmt} statement.
      *
      * @since 0.8.0
      */

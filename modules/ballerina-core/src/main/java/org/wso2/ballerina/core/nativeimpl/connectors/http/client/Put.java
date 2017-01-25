@@ -33,7 +33,7 @@ import org.wso2.ballerina.core.nativeimpl.connectors.http.Constants;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
- * {@code Put} is the PUT action implementation of the HTTP Connector
+ * {@code Put} is the PUT action implementation of the HTTP Connector.
  *
  */
 @BallerinaAction(
@@ -80,7 +80,7 @@ public class Put extends AbstractHTTPAction {
             // Execute the operation
             return executeAction(context, cMsg);
         } catch (Throwable t) {
-            throw new BallerinaException("Failed to invoke 'Put' action in " + HTTPConnector.CONNECTOR_NAME 
+            throw new BallerinaException("Failed to invoke 'put' action in " + HTTPConnector.CONNECTOR_NAME
                 + ". " + t.getMessage(), context);
         }
     }

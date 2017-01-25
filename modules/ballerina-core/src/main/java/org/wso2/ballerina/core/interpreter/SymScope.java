@@ -80,7 +80,7 @@ public class SymScope {
     }
 
     /**
-     * {@code Name} represents a name of an scope
+     * {@code Name} represents a name of an scope.
      * <p>
      * These names defined names and cannot add random names
      *

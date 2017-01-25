@@ -35,7 +35,7 @@ import org.wso2.carbon.messaging.CarbonMessage;
 import java.util.Locale;
 
 /**
- * {@code Execute} action can be used to invoke execute a http call with any httpVerb
+ * {@code Execute} action can be used to invoke execute a http call with any httpVerb.
  *
  */
 @BallerinaAction(
@@ -88,7 +88,7 @@ public class Execute extends AbstractHTTPAction {
             // Execute the operation
             return executeAction(context, cMsg);
         } catch (Throwable t) {
-            throw new BallerinaException("Failed to invoke 'Execute' action in " + HTTPConnector.CONNECTOR_NAME 
+            throw new BallerinaException("Failed to invoke 'execute' action in " + HTTPConnector.CONNECTOR_NAME
                 + ". " + t.getMessage(), context);
         }
     }

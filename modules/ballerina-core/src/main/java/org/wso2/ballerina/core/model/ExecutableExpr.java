@@ -20,14 +20,14 @@ package org.wso2.ballerina.core.model;
 import org.wso2.ballerina.core.model.values.BValue;
 
 /**
- * {@code ExecutableExpr} interface makes an {@link org.wso2.ballerina.core.model.expressions.Expression} executable
+ * {@code ExecutableExpr} interface makes an {@link org.wso2.ballerina.core.model.expressions.Expression} executable.
  *
  * @since 0.8.0
  */
 public interface ExecutableExpr {
 
     /**
-     * Executes and Returns the result of this expression
+     * Executes and Returns the result of this expression.
      *
      * @param executor instance of a {@code NodeExecutor}
      * @return result of the expression

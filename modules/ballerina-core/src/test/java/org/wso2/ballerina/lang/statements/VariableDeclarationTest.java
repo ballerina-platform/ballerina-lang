@@ -29,7 +29,7 @@ import org.wso2.ballerina.core.utils.ParserUtils;
 public class VariableDeclarationTest {
 
     /*
-     * Negative tests
+     * Negative tests.
      */
     
     @Test(expectedExceptions = {SemanticException.class },

@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * The place where protocol specific dispatchers are stored
+ * The place where protocol specific dispatchers are stored.
  *
  * @since 0.8.0
  */

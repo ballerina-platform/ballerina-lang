@@ -37,7 +37,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Resource level dispatching handler for HTTP protocol
+ * Resource level dispatching handler for HTTP protocol.
  */
 public class HTTPResourceDispatcher implements ResourceDispatcher {
 
