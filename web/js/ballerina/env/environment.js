@@ -133,31 +133,51 @@ define(['lodash', 'event_channel', './ballerina-env-factory'], function(_, Event
             structs: []
         }, {
             name: "ballerina.net.http",
-            connectors: [
-                {
-                    id: "net-http-connector",
-                    name: "HTTP",
-                    icon: "images/tool-icons/http-connector.svg",
-                    title: "HTTP Connector",
-                    actions: [
-                        {
-                            id: "add",
-                            name: "Add",
-                            icon: "images/tool-icons/http.svg",
-                            title: "Add",
-                            meta: {
-                                action: "add"
-                            }
-                        }
-                    ]
-                }
-            ],
+            connectors: [{
+                id: 'http',
+                name: "HTTPConnector",
+                title: "HTTPConnector",
+                icon: "images/tool-icons/http-connector.svg",
+                actions: [{
+                    id: "get",
+                    name: "Get",
+                    icon: "images/tool-icons/http.svg",
+                    title: "GET",
+                    meta: {
+                        action: "get"
+                    },
+                }, {
+                    id: "post",
+                    name: "Post",
+                    icon: "images/tool-icons/http.svg",
+                    title: "POST",
+                    meta: {
+                        action: "post"
+                    },
+                }, {
+                    id: "put",
+                    name: "Put",
+                    icon: "images/tool-icons/http.svg",
+                    title: "PUT",
+                    meta: {
+                        action: "put"
+                    }
+                }, {
+                    id: "delete",
+                    name: "Delete",
+                    icon: "images/tool-icons/http.svg",
+                    title: "DELETE",
+                    meta: {
+                        action: "delete"
+                    }
+                }]
+            }],
             functions: [],
             structs: []
         }];
 
         _.each(packagesJson, function (packageNode) {
-            var package = BallerinaEnvFactory.createEnvElement(packageNode, "package");
+            var package = BallerinaEnvFactory.createPackage(packageNode);
             self._packages.push(package);
         });
     };
