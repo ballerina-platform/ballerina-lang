@@ -17,21 +17,21 @@
  */
 package org.wso2.ballerina.docgen.docs.utils;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.docgen.docs.BallerinaDocDataHolder;
 import org.wso2.ballerina.docgen.docs.model.BallerinaDoc;
 
+import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
 public class BallerinaDocGenTestUtils {
-    private static final Logger log = LoggerFactory.getLogger(BallerinaDocGenTestUtils.class);
 
+    private static final PrintStream out = System.out;
+    
     public static void printDocMap(Map<String, BallerinaDoc> docsMap) {
         for (Entry<String, BallerinaDoc> entry : docsMap.entrySet()) {
-            log.info(entry.getValue().toString());
+            out.println(entry.getValue().toString());
         }
     }
     

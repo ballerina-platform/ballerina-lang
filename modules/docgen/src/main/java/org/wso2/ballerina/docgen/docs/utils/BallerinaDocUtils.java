@@ -21,8 +21,6 @@ package org.wso2.ballerina.docgen.docs.utils;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.misc.ParseCancellationException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.exception.LinkerException;
 import org.wso2.ballerina.core.exception.SemanticException;
 import org.wso2.ballerina.core.interpreter.SymScope;
@@ -40,6 +38,7 @@ import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 import org.wso2.ballerina.core.semantics.SemanticAnalyzer;
 
 import java.io.FileInputStream;
+import java.io.PrintStream;
 import java.nio.file.Path;
 
 /**
@@ -47,8 +46,8 @@ import java.nio.file.Path;
  */
 public class BallerinaDocUtils {
 
-    private static final Logger log = LoggerFactory.getLogger(BallerinaDocUtils.class);
-
+    private static final PrintStream out = System.out;
+    
     /**
      * @return the string representation of a type
      */
@@ -107,11 +106,11 @@ public class BallerinaDocUtils {
 
             return balFile;
         } catch (ParseCancellationException | SemanticException | LinkerException e) {
-            log.error(e.getMessage());
+            out.println(e.getMessage());
 
         } catch (Throwable e) {
             // TODO Fix this error message
-            log.error(e.getMessage());
+            out.println(e.getMessage());
         }
 
         return null;

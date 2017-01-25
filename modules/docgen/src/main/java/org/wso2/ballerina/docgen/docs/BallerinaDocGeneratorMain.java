@@ -18,8 +18,6 @@
 
 package org.wso2.ballerina.docgen.docs;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
@@ -28,6 +26,7 @@ import org.wso2.ballerina.docgen.docs.utils.BallerinaDocUtils;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -36,14 +35,14 @@ import java.util.Map.Entry;
  * Main class to generate a ballerina documentation
  */
 public class BallerinaDocGeneratorMain {
-
-    private static final Logger log = LoggerFactory.getLogger(BallerinaDocGeneratorMain.class);
+    
+    private static final PrintStream out = System.out;
 
     public static void main(String[] args) {
 
         Map<String, BallerinaDoc> docsMap = generateDocsFromBallerina(args[0]);
         for (Entry<String, BallerinaDoc> entry : docsMap.entrySet()) {
-            log.info(entry.getValue().toString());
+            out.println(entry.getValue().toString());
         }
 
     }
@@ -84,7 +83,7 @@ public class BallerinaDocGeneratorMain {
         for (File file : ballerinaFiles) {
             BallerinaFile balFile = BallerinaDocUtils.buildLangModel(file.toPath());
             if (balFile == null) {
-                log.error(String.format("Invalid Ballerina File: %s.", file.getAbsolutePath()));
+                out.println(String.format("Docerina: Invalid Ballerina File: %s.", file.getAbsolutePath()));
                 continue;
             }
             SymScope globalScope = GlobalScopeHolder.getInstance().getScope();
