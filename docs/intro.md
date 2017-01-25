@@ -6,4 +6,4 @@ Ballerina includes a visual editor that allows you to create sequence diagrams t
 
 Ballerina is open source, so you can see exactly how it works and join the growing community of users contributing to its code base. It includes an API that allows you to incorporate its functionality in your own code.
 
-To get started, go to the [Quick Tour](quick-tour) and take Ballerina for a spin!
+To get started, go to the [Quick Tour] and take Ballerina for a spin!
