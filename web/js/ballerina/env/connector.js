@@ -16,18 +16,26 @@
  * under the License.
  */
 define(['log', 'lodash', 'event_channel'],
-    function(log, _, EventChannel ){
+    function (log, _, EventChannel) {
 
-    /**
-     * @class Connector
-     * @augments 
-     * @param args {Object} - args.name: name of the package
-     * @constructor
-     */
-    var Connector = function(args){
-        this.name = _.get(args, 'name', []);
-        this.actions = _.get(args, 'actions', []);
-    };
+        /**
+         * @class Connector
+         * @augments
+         * @param args {Object} - args.name: name of the package
+         * @constructor
+         */
+        var Connector = function (args) {
+            this.name = _.get(args, 'name', []);
+            this.actions = _.get(args, 'actions', []);
+        };
 
-    return Connector;
-});
+        Connector.prototype.setName = function (name) {
+            this.name = name;
+        };
+
+        Connector.prototype.getName = function () {
+            return this.name;
+        };
+
+        return Connector;
+    });
