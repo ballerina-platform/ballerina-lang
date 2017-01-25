@@ -47,6 +47,7 @@ public class BallerinaStruct implements Node {
         this.symbolName = name;
         this.structLocation = position;
         this.fields = fields;
+        this.isPublic = isPublic;
     }
 
     /**
