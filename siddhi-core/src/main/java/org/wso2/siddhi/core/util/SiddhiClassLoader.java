@@ -64,7 +64,7 @@ public class SiddhiClassLoader {
                                                      AbstractExtensionHolder extensionHolder) {
         Class clazz = extensionHolder.getExtension(extension.getNamespace(), extension.getFunction());
         if (clazz == null) {
-            throw new ExecutionPlanCreationException("No extension exist for " + extension, true);
+            throw new ExecutionPlanCreationException("No extension exist for " + extension.getNamespace() + ":" + extension.getFunction() , true);
         }
         try {
             return SiddhiClassLoader.loadClass(clazz);

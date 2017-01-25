@@ -68,7 +68,7 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Export-Package>
-                            org.wso2.siddhi.extension.output.transport.http.*
+                            org.wso2.siddhi.extension.output.transport.kafka.*
                         </Export-Package>
                         <Import-Package>
                             *;resolution:=optional
