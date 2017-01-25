@@ -1,7 +1,4 @@
-# Created by .ignore support plugin (hsz.mobi)
-### Java template
-# BlueJ files
-*.ctxt
+*.class
 
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
