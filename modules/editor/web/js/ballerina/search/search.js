@@ -37,7 +37,7 @@ define(['require', 'log', 'jquery', 'backbone' ,'event_channel'],
 
         this.search_box.on("keydown keyup paste", _.bindKey(this, 'search'));
         this.list.on("click", 'li', _.bindKey(this, 'select'));
-    }
+    };
 
     Search.prototype = Object.create(EventChannel.prototype);
     Search.prototype.constructor = Search;    

@@ -19,8 +19,8 @@
 /**
  * A module representing the factory for Ballerina Env
  */
-define(['./package'],
-    function (Package) {
+define(['./package', './../ast/ballerina-ast-factory'],
+    function (Package, BallerinaASTFactory) {
 
         /**
          * @class BallerinaEnvFactory
@@ -28,26 +28,23 @@ define(['./package'],
         var BallerinaEnvFactory = {};
 
         /**
-         * creates Package
+         * creates Package from json
          * @param args
          */
-        BallerinaEnvFactory.createPackage = function () {
-            return new Package();
+        BallerinaEnvFactory.createPackage = function (jsonNode) {
+            var package = new Package();
+            package.initFromJson(jsonNode);
+            return package;
         };
 
-        BallerinaEnvFactory.createEnvElement = function (jsonNode, type) {
-            var node;
-
-            switch (type) {
-                case 'package':
-                    node = BallerinaEnvFactory.createPackage();
-                    break;
-                default:
-                    throw "Unknown node definition for " + type;
-            }
-
-            node.initFromJson(jsonNode);
-            return node;
+        /**
+         * creates ConnectorDefinition from json
+         * @param args
+         */
+        BallerinaEnvFactory.createConnectorDefinition = function (jsonNode) {
+            var connector = BallerinaASTFactory.createConnectorDefinition();
+            connector.initFromJson(jsonNode);
+            return connector;
         };
 
         return BallerinaEnvFactory;
