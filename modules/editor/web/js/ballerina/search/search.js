@@ -69,7 +69,7 @@ define(['require', 'log', 'jquery', 'backbone' ,'event_channel'],
             var html = "";
             var adapter = this.adapter;
             var self = this;
-            _.forEach(result , function(value, key){
+            _.forEach(this.result , function(value, key){
                 var item = adapter.render(value);
                 html = html + self.template({ 'item':item, 'key':key });
             });
