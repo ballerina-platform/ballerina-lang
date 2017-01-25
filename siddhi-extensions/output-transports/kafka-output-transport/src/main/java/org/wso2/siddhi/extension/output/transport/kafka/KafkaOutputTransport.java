@@ -66,7 +66,6 @@ public class KafkaOutputTransport extends OutputTransport {
     @Override
     public void init(Transport transportOptions, Map<String, String> unmappedDynamicOptions) throws OutputTransportException {
         //ThreadPoolExecutor will be assigned  if it is null
-        Logger.getLogger("kafka").setLevel(Level.WARN); // TODO: 1/9/17 Ramindu
         if (threadPoolExecutor == null) {
             int minThread;
             int maxThread;
@@ -97,11 +96,13 @@ public class KafkaOutputTransport extends OutputTransport {
 
     @Override
     public void testConnect() throws TestConnectionNotSupportedException, ConnectionUnavailableException {
+        log.info("KafkaOutputTransport:testConnect()");
         throw new TestConnectionNotSupportedException("Test connection is not available");
     }
 
     @Override
     public void connect() throws ConnectionUnavailableException {
+        log.info("KafkaOutputTransport:testConnect()");
         String kafkaConnect = options.get(ADAPTOR_META_BROKER_LIST);
         String optionalConfigs = options.get(ADAPTOR_OPTIONAL_CONFIGURATION_PROPERTIES);
         Properties props = new Properties();

@@ -53,7 +53,6 @@ public class KafkaInputTransport extends InputTransport {
 
     @Override
     public void init(Map<String, String> transportOptions, InputCallback inputCallback) {
-        Logger.getLogger("kafka").setLevel(Level.WARN); //todo Ramindu
         this.inputCallback = inputCallback;
         this.transportOptions = transportOptions;
     }
