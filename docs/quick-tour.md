@@ -13,13 +13,13 @@ This sample will show you how easy it is to run Ballerina, send it a request, an
 
 At the command prompt, enter the following line:
 
-```Java
+```
 ballerina run helloworld.bal
 ```
 
 You will see the following response:
 
-```Bash
+```
 Hello, World!
 ```
 
@@ -33,4 +33,4 @@ function main (string[] args) {
 
 Pretty simple and straightforward, right? Now, let's look at something a little more interesting. 
 
-.. Show a sample that requires input, then show how to run the editor and walk through that
+TODO: Show a sample that requires input, then show how to run the editor and walk through that
