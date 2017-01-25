@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package org.ballerinalang;
+package org.ballerinalang.lexer;
 
 import com.intellij.lexer.FlexAdapter;
 

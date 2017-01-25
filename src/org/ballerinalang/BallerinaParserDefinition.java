@@ -29,6 +29,7 @@ import com.intellij.psi.TokenType;
 
 import com.intellij.psi.tree.IFileElementType;
 import com.intellij.psi.tree.TokenSet;
+import org.ballerinalang.lexer.BallerinaLexerAdapter;
 import org.ballerinalang.parser.BallerinaParser;
 import org.ballerinalang.psi.BallerinaFile;
 import org.ballerinalang.psi.BallerinaTypes;

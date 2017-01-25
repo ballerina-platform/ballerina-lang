@@ -1,4 +1,4 @@
-package org.ballerinalang;
+package org.ballerinalang.lexer;
 
 import com.intellij.lexer.FlexLexer;
 import com.intellij.psi.tree.IElementType;
