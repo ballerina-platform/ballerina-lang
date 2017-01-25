@@ -37,10 +37,21 @@
                                        implementationClass="org.ballerinalang.highlighting.BallerinaSyntaxHighlighterFactory"/>
         <colorSettingsPage implementation="org.ballerinalang.highlighting.BallerinaColorSettingsPage"/>
         <lang.formatter language="Ballerina" implementationClass="org.ballerinalang.BallerinaFormattingModelBuilder"/>
+
+        <internalFileTemplate name="Ballerina Application"/>
+        <internalFileTemplate name="Ballerina File"/>
+
+        <defaultTemplatePropertiesProvider
+                implementation="org.ballerinalang.actions.BallerinaTemplatePropertiesProvider"/>
+
     </extensions>
 
     <actions>
         <!-- Add your actions here -->
+        <action id="Ballerina.NewBallerinaFile" class="org.ballerinalang.actions.BallerinaCreateFileAction"
+                text="Ballerina File" description="Create new Ballerina file">
+            <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFile"/>
+        </action>
     </actions>
 
 </idea-plugin>
