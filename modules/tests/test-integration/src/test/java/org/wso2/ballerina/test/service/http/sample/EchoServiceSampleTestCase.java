@@ -38,6 +38,7 @@ public class EchoServiceSampleTestCase extends IntegrationTestCase {
 
     @Test(description = "Test echo service sample test case invoking base path")
     public void testEchoServiceByBasePath() throws IOException {
+        logger.info("Running " + EchoServiceSampleTestCase.class.getSimpleName() + ".testEchoServiceByBasePath()...");
         Map<String, String> headers = new HashMap<>();
         headers.put(TestConstant.HEADER_CONTENT_TYPE, TestConstant.CONTENT_TYPE_JSON);
         HttpResponse response = HttpClientRequest.doPost(getServiceURLHttp("echo"), requestMessage, headers);
@@ -50,6 +51,8 @@ public class EchoServiceSampleTestCase extends IntegrationTestCase {
 
     @Test(description = "Test echo service sample test case")
     public void testEchoServiceByResourcePath() throws IOException {
+        logger.info("Running " + EchoServiceSampleTestCase.class.getSimpleName() +
+                ".testEchoServiceByResourcePath()...");
         Map<String, String> headers = new HashMap<>();
         headers.put(TestConstant.HEADER_CONTENT_TYPE, TestConstant.CONTENT_TYPE_JSON);
         HttpResponse response = HttpClientRequest.doPost(getServiceURLHttp("echo/resource"), requestMessage

@@ -17,21 +17,24 @@
 */
 package org.wso2.ballerina.test;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
-import org.wso2.ballerina.test.context.ServerInstance;
+import org.wso2.ballerina.test.context.Server;
 import org.wso2.ballerina.test.listener.TestExecutionListener;
 
 /**
  * Parent test class of all integration test and this will provide basic functionality for integration test.
  */
 public abstract class IntegrationTestCase {
-    private ServerInstance serverInstance;
+    private Server serverInstance;
+    protected final Logger logger = LoggerFactory.getLogger(IntegrationTestCase.class);
 
     @BeforeClass(alwaysRun = true)
     public void init() {
         // assigning the running server instance started by TestExecutionListener
-        serverInstance = (ServerInstance) TestExecutionListener.getServerInstance();
+        serverInstance = TestExecutionListener.getServerInstance();
     }
 
     @AfterClass(alwaysRun = true)
@@ -39,12 +42,12 @@ public abstract class IntegrationTestCase {
         serverInstance = null;
     }
 
-    public ServerInstance getServerInstance() {
+    public Server getServerInstance() {
         return serverInstance;
     }
 
     public String getServiceURLHttp(String servicePath) {
-        return serverInstance.getServiceURLHttp(servicePath);
+        return serverInstance.getServerHttpUrl() + "/" + servicePath;
     }
 
 }

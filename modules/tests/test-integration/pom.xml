@@ -46,23 +46,147 @@
         </dependency>
     </dependencies>
 
+
+    <!-- Base build configuration -->
     <build>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.18.1</version>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>2.19.1</version>
                 <configuration>
                     <systemPropertyVariables>
-                        <server.zip>
-                            ${basedir}/../../distribution/target/ballerina-${ballerina.version}.zip
-                        </server.zip>
+                        <server.zip>${basedir}/../../distribution/target/ballerina-${ballerina.version}.zip</server.zip>
+                        <ballerina.port>9090</ballerina.port>
                     </systemPropertyVariables>
                     <suiteXmlFiles>
                         <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
                     </suiteXmlFiles>
                 </configuration>
+                <executions>
+                    <execution>
+                        <id>int-test</id>
+                        <phase>integration-test</phase>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <!-- "integration" profile to run Docker based integration tests separately -->
+        <profile>
+            <id>integration</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>io.fabric8</groupId>
+                        <artifactId>docker-maven-plugin</artifactId>
+                        <version>0.18.1</version>
+                        <configuration>
+                            <images>
+                                <image>
+                                    <alias>ballerinaServer</alias>
+                                    <name>ballerina-test:${project.version}</name>
+
+                                    <build>
+                                        <from>openjdk:jre-alpine</from>
+                                        <nocache>true</nocache>
+                                        <assembly>
+                                            <inline>
+                                                <files>
+                                                    <file>
+                                                        <source>${project.parent.parent.basedir}/modules/distribution/target/ballerina-${project.version}.zip</source>
+                                                        <outputDirectory>./</outputDirectory>
+                                                        <destName>ballerina-dist.zip</destName>
+                                                    </file>
+                                                </files>
+                                            </inline>
+                                        </assembly>
+                                        <workdir>/maven</workdir>
+                                        <runCmds>
+                                            <run>apk add --update bash &amp;&amp; rm -rf /var/cache/apk/* &amp;&amp; unzip /maven/ballerina-dist.zip</run>
+                                        </runCmds>
+                                        <ports>
+                                            <port>9090</port>
+                                        </ports>
+                                        <cmd>
+                                            <shell>
+                                                /maven/ballerina-${project.version}/bin/ballerinaserver /maven/ballerina-${project.version}/samples/helloWorldService/helloWorldService.bal \
+                                                /maven/ballerina-${project.version}/samples/helloWorldService/helloWorldService.bal \
+                                                /maven/ballerina-${project.version}/samples/echoService/echoService.bal \
+                                                /maven/ballerina-${project.version}/samples/passthroughService/passthroughService.bal \
+                                                /maven/ballerina-${project.version}/samples/restfulService/ecommerceService.bal \
+                                                /maven/ballerina-${project.version}/samples/routingServices/routingServices.bal \
+                                                /maven/ballerina-${project.version}/samples/serviceChaining/ATMLocatorService.bal
+                                            </shell>
+                                        </cmd>
+                                    </build>
+
+                                    <run>
+                                        <ports>
+                                            <port>ballerina.port:9090</port>
+                                        </ports>
+                                        <wait>
+                                            <log>Ballerina Server Started with </log>
+                                            <time>20000</time>
+                                        </wait>
+                                    </run>
+                                </image>
+                            </images>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>start-docker</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <!-- "build" should be used to create the images with the
+                                         artifact -->
+                                    <goal>build</goal>
+                                    <goal>start</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>stop-docker</id>
+                                <phase>post-integration-test</phase>
+                                <goals>
+                                    <goal>stop</goal>
+                                    <goal>remove</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <!--<version>2.19.1</version>-->
+                        <configuration>
+                            <systemPropertyVariables>
+                                <ballerina.port>${ballerina.port}</ballerina.port>
+                                <profile.name>integration</profile.name>
+                            </systemPropertyVariables>
+                        </configuration>
+                    </plugin>
+                    <!--<plugin>-->
+                        <!--<groupId>org.apache.maven.plugins</groupId>-->
+                        <!--<artifactId>maven-surefire-plugin</artifactId>-->
+                        <!--<configuration>-->
+                            <!--<skip>true</skip>-->
+                        <!--</configuration>-->
+                    <!--</plugin>-->
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

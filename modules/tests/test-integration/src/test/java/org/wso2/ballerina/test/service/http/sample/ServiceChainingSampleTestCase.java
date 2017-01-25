@@ -39,6 +39,8 @@ public class ServiceChainingSampleTestCase extends IntegrationTestCase {
 
     @Test(description = "Test service chaining sample")
     public void testEchoServiceByBasePath() throws IOException {
+        logger.info("Running " + ServiceChainingSampleTestCase.class.getSimpleName() +
+                ".testEchoServiceByBasePath()...");
         Map<String, String> headers = new HashMap<>();
         headers.put(TestConstant.HEADER_CONTENT_TYPE, TestConstant.CONTENT_TYPE_JSON);
         HttpResponse response = HttpClientRequest.doPost(getServiceURLHttp("ABCBank/locator"), requestMessage

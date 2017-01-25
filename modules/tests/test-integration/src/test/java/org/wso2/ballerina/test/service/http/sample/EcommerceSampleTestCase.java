@@ -36,6 +36,7 @@ public class EcommerceSampleTestCase extends IntegrationTestCase {
 
     @Test(description = "Test resource GET products in E-Commerce sample")
     public void testGetProducts() throws IOException {
+        logger.info("Running " + EcommerceSampleTestCase.class.getSimpleName() + ".testGetProducts()...");
         HttpResponse response = HttpClientRequest.doGet(getServiceURLHttp("ecommerceservice/products/123001"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getHeaders().get(TestConstant.HEADER_CONTENT_TYPE), TestConstant.CONTENT_TYPE_JSON,
@@ -47,6 +48,7 @@ public class EcommerceSampleTestCase extends IntegrationTestCase {
 
     @Test(description = "Test resource GET orders in E-Commerce sample")
     public void testGetOrders() throws IOException {
+        logger.info("Running " + EcommerceSampleTestCase.class.getSimpleName() + ".testGetOrders()...");
         HttpResponse response = HttpClientRequest.doGet(getServiceURLHttp("ecommerceservice/orders"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getHeaders().get(TestConstant.HEADER_CONTENT_TYPE)
@@ -58,6 +60,7 @@ public class EcommerceSampleTestCase extends IntegrationTestCase {
 
     @Test(description = "Test resource GET customers in E-Commerce sample")
     public void testGetCustomers() throws IOException {
+        logger.info("Running " + EcommerceSampleTestCase.class.getSimpleName() + ".testGetCustomers()...");
         HttpResponse response = HttpClientRequest.doGet(getServiceURLHttp("ecommerceservice/customers"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getHeaders().get(TestConstant.HEADER_CONTENT_TYPE)
@@ -69,6 +72,7 @@ public class EcommerceSampleTestCase extends IntegrationTestCase {
 
     @Test(description = "Test resource POST orders in E-Commerce sample")
     public void testPostOrder() throws IOException {
+        logger.info("Running " + EcommerceSampleTestCase.class.getSimpleName() + ".testPostOrder()...");
         Map<String, String> headers = new HashMap<>();
         headers.put(TestConstant.HEADER_CONTENT_TYPE, TestConstant.CONTENT_TYPE_JSON);
         HttpResponse response = HttpClientRequest.doPost(getServiceURLHttp("ecommerceservice/orders")
@@ -82,6 +86,8 @@ public class EcommerceSampleTestCase extends IntegrationTestCase {
 
     @Test(description = "Test resource POST products in E-Commerce sample")
     public void testPostProduct() throws IOException {
+        logger.info("Running " + EcommerceSampleTestCase.class.getSimpleName() +
+                ".testPostProduct()...");
         Map<String, String> headers = new HashMap<>();
         headers.put(TestConstant.HEADER_CONTENT_TYPE, TestConstant.CONTENT_TYPE_JSON);
         HttpResponse response = HttpClientRequest.doPost(getServiceURLHttp("ecommerceservice/products")
@@ -95,6 +101,8 @@ public class EcommerceSampleTestCase extends IntegrationTestCase {
 
     @Test(description = "Test resource POST customers in E-Commerce sample")
     public void testPostCustomers() throws IOException {
+        logger.info("Running " + EcommerceSampleTestCase.class.getSimpleName() +
+                ".testPostCustomers()...");
         Map<String, String> headers = new HashMap<>();
         headers.put(TestConstant.HEADER_CONTENT_TYPE, TestConstant.CONTENT_TYPE_JSON);
         HttpResponse response = HttpClientRequest.doPost(getServiceURLHttp("ecommerceservice/customers")

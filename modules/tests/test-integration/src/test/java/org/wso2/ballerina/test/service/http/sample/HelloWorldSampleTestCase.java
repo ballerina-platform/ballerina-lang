@@ -34,6 +34,8 @@ public class HelloWorldSampleTestCase extends IntegrationTestCase {
 
     @Test(description = "Test hello world sample test case invoking base path")
     public void testHelloWorldServiceByBasePath() throws IOException {
+        logger.info("Running " + HelloWorldSampleTestCase.class.getSimpleName() +
+                ".testHelloWorldServiceByBasePath()...");
         HttpResponse response = HttpClientRequest.doGet(getServiceURLHttp("hello"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getHeaders().get(TestConstant.HEADER_CONTENT_TYPE)
@@ -43,6 +45,8 @@ public class HelloWorldSampleTestCase extends IntegrationTestCase {
 
     @Test(description = "Test hello world sample test case")
     public void testHelloWorldServiceByResourcePath() throws IOException {
+        logger.info("Running " + HelloWorldSampleTestCase.class.getSimpleName() +
+                ".testHelloWorldServiceByResourcePath()...");
         HttpResponse response = HttpClientRequest.doGet(getServiceURLHttp("hello/resource"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getHeaders().get(TestConstant.HEADER_CONTENT_TYPE)
