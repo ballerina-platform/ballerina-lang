@@ -15,13 +15,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-view',  './function-definition-view', './../ast/ballerina-ast-root',
-        './../ast/ballerina-ast-factory', './../ast/package-definition', './source-view',
+define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-view',  './function-definition-view',
+        './../ast/ballerina-ast-root', './../ast/ballerina-ast-factory', './../ast/package-definition', './source-view',
         './../visitors/source-gen/ballerina-ast-root-visitor', './../tool-palette/tool-palette',
-        './../undo-manager/undo-manager','./backend', './../ast/ballerina-ast-deserializer', './connector-definition-view', './struct-definition-view'],
+        './../undo-manager/undo-manager','./backend', './../ast/ballerina-ast-deserializer', './connector-definition-view',
+        './struct-definition-view', './../env/environment'],
     function (_, $, log, BallerinaView, ServiceDefinitionView, FunctionDefinitionView, BallerinaASTRoot, BallerinaASTFactory,
               PackageDefinition, SourceView, SourceGenVisitor, ToolPalette, UndoManager, Backend, BallerinaASTDeserializer,
-              ConnectorDefinitionView, StructDefinitionView) {
+              ConnectorDefinitionView, StructDefinitionView, BallerinaEnvironment) {
 
         /**
          * The view to represent a ballerina file editor which is an AST visitor.
@@ -244,11 +245,10 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
         };
 
         BallerinaFileEditor.prototype.importPackage = function(packageName){
-            if (packageName != undefined && packageName != "") {
+            if (!_.isEmpty(packageName)) {
                 log.debug("Adding new import");
-                var backend = new Backend({ url : "" });
-                var package = backend.searchPackage(packageName,[]);
-                if(package == undefined){
+                var package = BallerinaEnvironment.searchPackage(packageName, []);
+                if (_.isUndefined(package)) {
                     log.error("Unable to find the package.");
                     return;
                 }
@@ -258,7 +258,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 this._model.addImport(newImportDeclaration);
                 //this.toolPalette.addImport(package);
             }
-        }
+        };
 
         /**
          * Rendering the view for each canvas in {@link BallerinaFileEditor#_canvasList}.
