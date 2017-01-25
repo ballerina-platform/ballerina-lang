@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package org.ballerinalang.highlighting;
+package org.ballerinalang.highlighter;
 
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.fileTypes.SyntaxHighlighter;
@@ -29,7 +29,7 @@ import javax.swing.Icon;
 
 import java.util.Map;
 
-import static org.ballerinalang.highlighting.BallerinaSyntaxHighlightingColors.*;
+import static org.ballerinalang.highlighter.BallerinaSyntaxHighlightingColors.*;
 
 public class BallerinaColorSettingsPage implements ColorSettingsPage {
     private static final AttributesDescriptor[] DESCRIPTORS = new AttributesDescriptor[]{

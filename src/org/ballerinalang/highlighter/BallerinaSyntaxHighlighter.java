@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package org.ballerinalang.highlighting;
+package org.ballerinalang.highlighter;
 
 import com.intellij.lexer.Lexer;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
