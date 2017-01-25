@@ -24,7 +24,7 @@ import java.io.OutputStream;
 import java.nio.charset.Charset;
 
 /**
- * {@code StringValue} represents a string value in Ballerina
+ * {@code StringValue} represents a string value in Ballerina.
  *
  * @since 0.8.0
  */

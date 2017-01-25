@@ -30,7 +30,7 @@ import org.wso2.ballerina.core.parser.BallerinaParser.AnnotationContext;
 import java.util.List;
 
 /**
- * Build the Ballerina language model using the listener events from antlr4 parser
+ * Build the Ballerina language model using the listener events from antlr4 parser.
  *
  * @see BLangModelBuilder
  * @since 0.8.0
@@ -300,6 +300,16 @@ public class BLangAntlr4Listener implements BallerinaListener {
     }
 
     @Override
+    public void enterTypeConvertorInput(BallerinaParser.TypeConvertorInputContext ctx) {
+
+    }
+
+    @Override
+    public void exitTypeConvertorInput(BallerinaParser.TypeConvertorInputContext ctx) {
+
+    }
+
+    @Override
     public void enterTypeConvertorBody(BallerinaParser.TypeConvertorBodyContext ctx) {
     }
 
@@ -400,11 +410,13 @@ public class BLangAntlr4Listener implements BallerinaListener {
     }
 
     @Override
-    public void enterTypeConvertorTypes(BallerinaParser.TypeConvertorTypesContext ctx) {
+    public void enterTypeConvertorType(BallerinaParser.TypeConvertorTypeContext ctx) {
+
     }
 
     @Override
-    public void exitTypeConvertorTypes(BallerinaParser.TypeConvertorTypesContext ctx) {
+    public void exitTypeConvertorType(BallerinaParser.TypeConvertorTypeContext ctx) {
+
     }
 
     @Override

@@ -235,7 +235,7 @@ public class BLangModelBuilder {
     // Function parameters and types
 
     /**
-     * Create a function parameter and a corresponding variable reference expression
+     * Create a function parameter and a corresponding variable reference expression.
      * <p/>
      * Set the even function to get the value from the function arguments with the correct index.
      * Store the reference in the symbol table.
@@ -363,7 +363,7 @@ public class BLangModelBuilder {
     }
 
     /**
-     * Create variable reference expression
+     * Create variable reference expression.
      * <p/>
      * There are three types of variables references as per the grammar file.
      * 1) Simple variable references. a, b, index etc
@@ -894,7 +894,7 @@ public class BLangModelBuilder {
     }
 
     /**
-     * return value within double quotes
+     * return value within double quotes.
      *
      * @param inputString string with double quotes
      * @return value

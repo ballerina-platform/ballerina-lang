@@ -27,7 +27,7 @@ import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
 
 /**
- * This class contain util methods to add connectors and actions to a given symbol scope
+ * This class contain util methods to add connectors and actions to a given symbol scope.
  *
  * @since 0.8.0
  */

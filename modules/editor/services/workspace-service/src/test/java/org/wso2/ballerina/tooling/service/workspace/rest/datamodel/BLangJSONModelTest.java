@@ -27,7 +27,6 @@ import org.testng.annotations.Test;
 import org.wso2.msf4j.MicroservicesRunner;
 import org.wso2.msf4j.formparam.util.StreamUtil;
 
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,7 +36,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Scanner;
-
 import javax.ws.rs.HttpMethod;
 
 public class BLangJSONModelTest {
@@ -62,7 +60,7 @@ public class BLangJSONModelTest {
                                   "\"function_name\":\"test\",\"is_public_function\":false,\"annotations\":[]," +
                                   "\"children\":[{\"type\":\"argument_declaration\",\"parameter_name\":\"a\"," +
                                   "\"parameter_type\":\"int\",\"children\":[]},{\"type\":\"return_type\"," +
-                                  "\"children\":[{\"type\":\"type_name\",\"type_name\":\"int\"}]}," +
+                                  "\"children\":[{\"type\":\"return_argument\",\"parameter_type\":\"int\"}]}," +
                                   "{\"type\":\"return_statement\",\"children\":[{\"type\":\"add_expression\"," +
                                   "\"children\":[{\"type\":\"variable_reference_expression\"," +
                                   "\"variable_reference_name\":\"a\"},{\"type\":\"basic_literal_expression\"," +

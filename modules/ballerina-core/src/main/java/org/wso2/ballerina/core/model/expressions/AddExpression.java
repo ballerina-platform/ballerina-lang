@@ -30,7 +30,7 @@ import org.wso2.ballerina.core.model.values.BValueType;
 import java.util.function.BiFunction;
 
 /**
- * {@code AddExpression} represents a binary add expression
+ * {@code AddExpression} represents a binary add expression.
  *
  * @since 0.8.0
  */

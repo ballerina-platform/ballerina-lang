@@ -13,7 +13,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 import org.wso2.ballerina.core.nativeimpl.lang.utils.ErrorHandler;
 
 /**
- * Get the Headers of the Message
+ * Get the Headers of the Message.
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.message",

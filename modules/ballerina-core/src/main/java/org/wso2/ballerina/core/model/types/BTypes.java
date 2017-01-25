@@ -31,7 +31,7 @@ import static org.wso2.ballerina.core.model.types.TypeConstants.STRUCT_TNAME;
 import static org.wso2.ballerina.core.model.types.TypeConstants.XML_TNAME;
 
 /**
- * This class contains various methods manipulate {@link BType}s in Ballerina
+ * This class contains various methods manipulate {@link BType}s in Ballerina.
  *
  * @since 0.8.0
  */

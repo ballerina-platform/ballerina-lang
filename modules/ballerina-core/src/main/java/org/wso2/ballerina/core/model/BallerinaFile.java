@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * {@code BallerinaFile} represent a content of a Ballerina source file
+ * {@code BallerinaFile} represent a content of a Ballerina source file.
  * <p>
  * A Ballerina file is structured as follows:
  * <p>
@@ -98,7 +98,7 @@ public class BallerinaFile implements Node {
     }
 
     /**
-     * Set the package name which file belongs to
+     * Set the package name which file belongs to.
      *
      * @param packageName name of the package
      */
@@ -107,7 +107,7 @@ public class BallerinaFile implements Node {
     }
 
     /**
-     * Get {@code Import} statements the file
+     * Get {@code Import} statements the file.
      *
      * @return list of imports
      */
@@ -120,7 +120,7 @@ public class BallerinaFile implements Node {
     }
 
     /**
-     * Get list of Connectors
+     * Get list of Connectors.
      *
      * @return connectors list
      */
@@ -129,7 +129,7 @@ public class BallerinaFile implements Node {
     }
 
     /**
-     * Get {@code BallerinaConnector} defined the file
+     * Get {@code BallerinaConnector} defined the file.
      *
      * @return list of imports
      */
@@ -138,7 +138,7 @@ public class BallerinaFile implements Node {
     }
 
     /**
-     * Get {@code Service} list defined in the file
+     * Get {@code Service} list defined in the file.
      *
      * @return list of Services
      */
@@ -147,7 +147,7 @@ public class BallerinaFile implements Node {
     }
 
     /**
-     * Set {@code Service} list
+     * Set {@code Service} list.
      *
      * @param services list of Services
      */
@@ -156,7 +156,7 @@ public class BallerinaFile implements Node {
     }
 
     /**
-     * Add a {@code Service} to the File
+     * Add a {@code Service} to the File.
      *
      * @param service a Service
      */
@@ -214,7 +214,7 @@ public class BallerinaFile implements Node {
     }
 
     /**
-     * Builds a BFile which represents physical ballerina source file
+     * Builds a BFile which represents physical ballerina source file.
      */
     public static class BFileBuilder {
 

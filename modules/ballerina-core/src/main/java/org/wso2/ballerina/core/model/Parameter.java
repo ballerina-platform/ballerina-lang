@@ -50,7 +50,7 @@ public class Parameter implements Node {
     }
 
     /**
-     * Get CONNECTOR_NAME of the Argument
+     * Get CONNECTOR_NAME of the Argument.
      *
      * @return CONNECTOR_NAME of the Argument
      */
@@ -59,7 +59,7 @@ public class Parameter implements Node {
     }
 
     /**
-     * Get the {@code Type} of the Argument
+     * Get the {@code Type} of the Argument.
      *
      * @return type of the Argument
      */
@@ -68,7 +68,7 @@ public class Parameter implements Node {
     }
 
     /**
-     * Get the {@code Annotation} list of the Argument
+     * Get the {@code Annotation} list of the Argument.
      *
      * @return list of Annotations related to an Argument
      */
@@ -77,7 +77,7 @@ public class Parameter implements Node {
     }
 
     /**
-     * Set {@code Annotation} list to an Argument
+     * Set {@code Annotation} list to an Argument.
      *
      * @param annotations list of Annotations to assigned to the Argument
      */
@@ -86,7 +86,7 @@ public class Parameter implements Node {
     }
 
     /**
-     * Add an {@code Annotation} to the Argument
+     * Add an {@code Annotation} to the Argument.
      *
      * @param annotation Annotation to be added to the Argument
      */
