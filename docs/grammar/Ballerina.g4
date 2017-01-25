@@ -76,7 +76,11 @@ structDefinitionBody
     ;
 
 typeConvertorDefinition
-    :   'typeconvertor' Identifier '(' typeConvertorTypes Identifier ')' '('typeConvertorTypes')' typeConvertorBody
+    :   'typeconvertor' Identifier '(' typeConvertorInput ')' '('typeConvertorType')' typeConvertorBody
+    ;
+
+typeConvertorInput
+    :   typeConvertorType Identifier
     ;
 
 typeConvertorBody
@@ -116,7 +120,7 @@ qualifiedTypeName
     :   packageName ':' unqualifiedTypeName
     ;
 
-typeConvertorTypes
+typeConvertorType
     :   simpleType
     |   withFullSchemaType
     |   withSchemaIdType
