@@ -28,7 +28,7 @@ var getFileContentBackend = "http://localhost:8289/service/workspace";
         var generatedSource = ballerinaASTDeserializer(expectedSource);
 
         describe("Ballerina Tests", function() {
-            it(sourceList + " Service Test", function() {
+            it(sourceList.replace(/^.*[\\\/]/, '') + " Service Test", function() {
                 expectedSource = expectedSource.replace(/\s/g, '');
                 generatedSource = generatedSource.replace(/(\r\n|\n|\r)/gm,"");
                 generatedSource = generatedSource.replace(/\s/g, '');
