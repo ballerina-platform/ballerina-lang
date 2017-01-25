@@ -13,3 +13,5 @@ This documentation will help you get up and running fast and provides a full lan
    :maxdepth: 3
    :caption: Contents:
 
+   intro
+   quick-tour
