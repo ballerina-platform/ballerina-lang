@@ -77,7 +77,7 @@ import org.wso2.ballerina.core.model.expressions.NotEqualExpression;
 import org.wso2.ballerina.core.model.expressions.OrExpression;
 import org.wso2.ballerina.core.model.expressions.ReferenceExpr;
 import org.wso2.ballerina.core.model.expressions.ResourceInvocationExpr;
-import org.wso2.ballerina.core.model.expressions.StructAttributeAccessExpr;
+import org.wso2.ballerina.core.model.expressions.StructFieldAccessExpr;
 import org.wso2.ballerina.core.model.expressions.StructInitExpr;
 import org.wso2.ballerina.core.model.expressions.SubtractExpression;
 import org.wso2.ballerina.core.model.expressions.UnaryExpression;
@@ -138,7 +138,12 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         // TODO We can move this logic to the parser.
         Arrays.asList(bFile.getFunctions()).forEach(this::addFuncSymbol);
-        bFile.getStructs().forEach(this::addStructSymbol);
+        
+        // Add struct symbols to symbol table
+        for (BallerinaStruct struct : bFile.getStructs()) {
+            addStructSymbol(struct);
+        }
+        
         bFile.getConnectorList().forEach(connector -> {
             addConnectorSymbol(connector);
             Arrays.asList(connector.getActions()).forEach(this::addActionSymbol);
@@ -581,7 +586,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
             // In this case, type of the lExpr should be either xml or json
             if (lExpr.getType() != BTypes.JSON_TYPE && lExpr.getType() != BTypes.XML_TYPE) {
-                throw new SemanticException(getLocationStr(lExpr.getLocation()) + "Incompatible types: expected json" +
+                throw new SemanticException(getLocationStr(lExpr.getLocation()) + "incompatible types: expected json" +
                     " or xml on the left side of assignment");
             }
 
@@ -591,7 +596,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         // TODO Remove the MAP related logic when type casting is implemented
         if (lExpr.getType() == null || rExpr.getType() == null || ((lExpr.getType() != BTypes.MAP_TYPE) && 
                 (rExpr.getType() != BTypes.MAP_TYPE) && (!lExpr.getType().equals(rExpr.getType())))) {
-            throw new SemanticException(getLocationStr(lExpr.getLocation()) + "Incompatible types: " + rExpr.getType() 
+            throw new SemanticException(getLocationStr(lExpr.getLocation()) + "incompatible types: " + rExpr.getType() 
                 + " cannot be converted to " + lExpr.getType());
         }
     }
@@ -1469,8 +1474,8 @@ public class SemanticAnalyzer implements NodeVisitor {
     private String getVarNameFromExpression(Expression expr) {
         if (expr instanceof ArrayMapAccessExpr) {
             return ((ArrayMapAccessExpr) expr).getSymbolName().getName();
-        } else if (expr instanceof StructAttributeAccessExpr) {
-            return ((StructAttributeAccessExpr) expr).getSymbolName().getName();
+        } else if (expr instanceof StructFieldAccessExpr) {
+            return ((StructFieldAccessExpr) expr).getSymbolName().getName();
         } else {
             return ((VariableRefExpr) expr).getSymbolName().getName();
         }
@@ -1524,8 +1529,8 @@ public class SemanticAnalyzer implements NodeVisitor {
             // for right side expressions.
             if (lExpr instanceof ArrayMapAccessExpr) {
                 ((ArrayMapAccessExpr) lExpr).setLHSExpr(true);
-            } else  if (lExpr instanceof StructAttributeAccessExpr) {
-                ((StructAttributeAccessExpr) lExpr).setLHSExpr(true);
+            } else  if (lExpr instanceof StructFieldAccessExpr) {
+                ((StructFieldAccessExpr) lExpr).setLHSExpr(true);
             }
 
             lExpr.accept(this);
@@ -1654,9 +1659,24 @@ public class SemanticAnalyzer implements NodeVisitor {
      */
     @Override
     public void visit(BallerinaStruct ballerinaStruct) {
-        for (VariableDcl attribute : ballerinaStruct.getVariableAttributes()) {
+        String structName = ballerinaStruct.getName();
+        String structStructPackage = ballerinaStruct.getPackageName();
+        
+        for (VariableDcl field : ballerinaStruct.getFields()) {
             structMemAddrOffset++;
-            visit(attribute);
+            BType type = field.getType();
+            validateType(type, field.getLocation());
+            
+            SymbolName fieldSym = LangModelUtils.getStructFieldSymName(field.getName().getName(), 
+                structName, structStructPackage);
+            Symbol symbol = symbolTable.lookup(fieldSym);
+            if (symbol != null && isSymbolInCurrentScope(symbol)) {
+                throw new SemanticException(getLocationStr(field.getLocation()) + "duplicate field '" + 
+                        fieldSym.getName() + "'.");
+            }
+            MemoryLocation location = new StructVarLocation(structMemAddrOffset);
+            symbol = new Symbol(type, currentScopeName(), location);
+            symbolTable.insert(fieldSym, symbol);
         }
 
         ballerinaStruct.setStructMemorySize(structMemAddrOffset + 1);
@@ -1670,7 +1690,7 @@ public class SemanticAnalyzer implements NodeVisitor {
      */
     private void addStructSymbol(BallerinaStruct struct) {
         if (symbolTable.lookup(struct.getSymbolName()) != null) {
-            throw new SemanticException(getLocationStr(struct.getLocation()) + "Duplicate struct '" + struct.getName()
+            throw new SemanticException(getLocationStr(struct.getLocation()) + "duplicate struct '" + struct.getName()
                 + "'.");
         }
         Symbol symbol = new Symbol(struct);
@@ -1692,7 +1712,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         Symbol structSymbol = symbolTable.lookup(structName);
         if (structSymbol == null) {
-            throw new SemanticException(getLocationStr(structDcl.getLocation()) + "Struct '" + structName + 
+            throw new SemanticException(getLocationStr(structDcl.getLocation()) + "struct '" + structName + 
                     "' not found.");
         }
         structDcl.setStruct(structSymbol.getStruct());
@@ -1709,77 +1729,104 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     /**
-     * visit and analyze ballerina Struct attribute access expressions.
+     * visit and analyze ballerina struc-field-access-expressions.
      */
     @Override
-    public void visit(StructAttributeAccessExpr structAttributeAccessExpr) {
+    public void visit(StructFieldAccessExpr structFieldAccessExpr) {
         // Check whether this access expression is in left hand side of an assignment expression
         // If yes, skip assigning a stack frame offset
-        if (!structAttributeAccessExpr.isLHSExpr()) {
-            visitExpr(structAttributeAccessExpr);
+        if (!structFieldAccessExpr.isLHSExpr()) {
+            visitExpr(structFieldAccessExpr);
         }
 
-        // Check for variable/attribute existence
-        Symbol attributeSymbol = getAttributeSymbol(structAttributeAccessExpr);
-        if (attributeSymbol == null) {
-            throw new SemanticException(getLocationStr(structAttributeAccessExpr.getLocation()) +
-                "Undeclraed attribute '" + structAttributeAccessExpr.getSymbolName() + "'.");
-        }
+        Symbol fieldSymbol = getFieldSymbol(structFieldAccessExpr);
         
         // Set expression type
-        BType exprType = attributeSymbol.getType();
-        structAttributeAccessExpr.setType(exprType);
-        structAttributeAccessExpr.setMemoryLocation(attributeSymbol.getLocation());
+        BType exprType = fieldSymbol.getType();
+        structFieldAccessExpr.setType(exprType);
 
-        /* Get the actual var representation of this attribute, and semantically analyze. This will check for semantic
-         * errors of array/map accesses, used in this struct attribute.
+        /* Get the actual var representation of this field, and semantically analyze. This will check for semantic
+         * errors of array/map accesses, used in this struct field.
          * eg: in dpt.employee[2].name , below will check for semantics of 'employee[2]',
          * treating them as individual array/map variables.
          */
-        if (structAttributeAccessExpr.getVarRef() instanceof ArrayMapAccessExpr) {
-            ArrayMapAccessExpr arrayMapAcsExpr = (ArrayMapAccessExpr) structAttributeAccessExpr.getVarRef();
+        if (structFieldAccessExpr.getVarRef() instanceof ArrayMapAccessExpr) {
+            ArrayMapAccessExpr arrayMapAcsExpr = (ArrayMapAccessExpr) structFieldAccessExpr.getVarRef();
             arrayMapAcsExpr.getRExpr().setType(exprType);
+            setMemoryLocation(structFieldAccessExpr, fieldSymbol.getLocation());
 
             // Here we only check for array/map type validation, as symbol validation is already done.
-            handleArrayType((ArrayMapAccessExpr) structAttributeAccessExpr.getVarRef());
-        } else if (structAttributeAccessExpr.getVarRef() instanceof VariableRefExpr) {
-            VariableRefExpr varRefExpr = (VariableRefExpr) structAttributeAccessExpr.getVarRef();
+            handleArrayType((ArrayMapAccessExpr) structFieldAccessExpr.getVarRef());
+        } else if (structFieldAccessExpr.getVarRef() instanceof VariableRefExpr) {
+            VariableRefExpr varRefExpr = (VariableRefExpr) structFieldAccessExpr.getVarRef();
             varRefExpr.setType(exprType);
-            varRefExpr.setMemoryLocation(attributeSymbol.getLocation());
+            setMemoryLocation(structFieldAccessExpr, fieldSymbol.getLocation());
         }
         
-        // Go to the referenced attribute of this struct
-        ReferenceExpr attributeExpr = structAttributeAccessExpr.getAttributeExpr();
-        if (attributeExpr != null) {
-            attributeExpr.accept(this);
+        // Go to the referenced field of this struct
+        ReferenceExpr fieldExpr = structFieldAccessExpr.getFieldExpr();
+        if (fieldExpr != null) {
+            fieldExpr.accept(this);
         }
     }
     
     /**
-     * Get the symbol of the parent struct to which this attribute belongs to.
+     * Set the memory location for a expression.
      * 
-     * @param expr  Attribute reference expression
+     * @param expr          Expression to set the memory location
+     * @param memLocation   Memory location
+     */
+    private void setMemoryLocation(Expression expr, MemoryLocation memLocation) {
+        // If the expression is an array-map expression, then set the location to the variable-reference-expression 
+        // of the array-map-access-expression.
+        if (expr instanceof ArrayMapAccessExpr) {
+            setMemoryLocation(((ArrayMapAccessExpr) expr).getRExpr(), memLocation);
+            return;
+        }
+
+        // If the expression is a Struct field access expression, then set the memory location to the variable
+        // referenced by the struct-field-access-expression
+        if (expr instanceof StructFieldAccessExpr) {
+            setMemoryLocation(((StructFieldAccessExpr) expr).getVarRef(), memLocation);
+            return;
+        }
+
+        // Set the memory location to the variable reference expression
+        ((VariableRefExpr) expr).setMemoryLocation(memLocation);
+    }
+    
+    /**
+     * Get the symbol of the parent struct to which this field belongs to.
+     * 
+     * @param expr  Field reference expression
      * @return      Symbol of the parent
      */
-    private Symbol getAttributeSymbol(ReferenceExpr expr) {
-        if (expr instanceof VariableRefExpr || expr instanceof ArrayMapAccessExpr ||
-            ((StructAttributeAccessExpr) expr).getParent() == null) {
-            return symbolTable.lookup(new SymbolName(expr.getSymbolName().getName()));
+    private Symbol getFieldSymbol(StructFieldAccessExpr expr) {
+        Symbol fieldSymbol;
+        if (expr.getParent() == null) {
+            fieldSymbol = symbolTable.lookup(new SymbolName(expr.getSymbolName().getName()));
+            // Check for variable existence
+            if (fieldSymbol == null) {
+                throw new SemanticException(getLocationStr(expr.getLocation()) +
+                    "undeclraed struct '" + expr.getSymbolName() + "'.");
+            }
+            return fieldSymbol;
         }
         // parent is always a StructAttributeAccessExpr
-        StructAttributeAccessExpr parent = ((StructAttributeAccessExpr) expr).getParent();
-        if (parent.getExpressionType() instanceof BArrayType && parent.getIndexExpr() == null) {
-            throw new SemanticException(getLocationStr(expr.getLocation()) + 
-                "Index is not defined for array/map '" + parent.getSymbolName() + "'.");
-        }
-        
-        Symbol parentSymbol = getAttributeSymbol(parent);
-        BType parentType = parentSymbol.getType();
+        StructFieldAccessExpr parent = expr.getParent();
+        BType parentType = parent.getExpressionType();
         if (parentType instanceof BArrayType) {
             parentType = ((BArrayType) parentType).getElementType();
         }
-        SymbolName structAttributeSym = LangModelUtils.getStructAttributeSymName(expr.getSymbolName().getName(), 
+        SymbolName structFieldSym = LangModelUtils.getStructFieldSymName(expr.getSymbolName().getName(), 
                 parentType.toString(), currentPkg);
-        return symbolTable.lookup(structAttributeSym);
+        
+        fieldSymbol = symbolTable.lookup(structFieldSym);
+        // Check for field existence
+        if (fieldSymbol == null) {
+            throw new SemanticException(getLocationStr(expr.getLocation()) +
+                "undeclraed field '" + expr.getSymbolName() + "' for type '" + parentType + "'.");
+        }
+        return fieldSymbol;
     }
 }

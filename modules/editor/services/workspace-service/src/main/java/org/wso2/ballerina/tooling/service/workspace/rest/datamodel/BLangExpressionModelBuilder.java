@@ -568,7 +568,7 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
     }
 
     @Override
-    public void visit(StructAttributeAccessExpr structAttributeAccessExpr) {
+    public void visit(StructFieldAccessExpr structFieldAccessExpr) {
         //TODO
     }
 

@@ -17,9 +17,7 @@
 */
 package org.wso2.ballerina.core.model.expressions;
 
-import org.wso2.ballerina.core.model.Position;
 import org.wso2.ballerina.core.model.SymbolName;
-import org.wso2.ballerina.core.model.types.BType;
 
 /**
  * {@code ReferenceExpr} represents a variable reference in Ballerina
@@ -28,9 +26,10 @@ import org.wso2.ballerina.core.model.types.BType;
  */
 public interface ReferenceExpr extends Expression {
 
+    /**
+     * Get the symbol name of the reference expression.
+     * 
+     * @return  Symbolic name
+     */
     SymbolName getSymbolName();
-    
-    BType getType();
-    
-    Position getLocation();
 }

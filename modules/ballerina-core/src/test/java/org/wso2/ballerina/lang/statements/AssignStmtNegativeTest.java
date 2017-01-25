@@ -24,7 +24,7 @@ import org.wso2.ballerina.core.utils.ParserUtils;
 public class AssignStmtNegativeTest {
 
     @Test(expectedExceptions = {SemanticException.class},
-            expectedExceptionsMessageRegExp = "incompatible-type-assignment.bal:8: Incompatible types: int " +
+            expectedExceptionsMessageRegExp = "incompatible-type-assignment.bal:8: incompatible types: int " +
                     "cannot be converted to boolean")
     public void testIncompatibleTypeAssignment() {
         ParserUtils.parseBalFile("lang/statements/assignment/incompatible-type-assignment.bal");
@@ -77,7 +77,7 @@ public class AssignStmtNegativeTest {
     }
 
     @Test(expectedExceptions = {SemanticException.class},
-            expectedExceptionsMessageRegExp = "backtick-assign-mismatch-1.bal:6: Incompatible types: expected " +
+            expectedExceptionsMessageRegExp = "backtick-assign-mismatch-1.bal:6: incompatible types: expected " +
                     "json or xml on the left side of assignment")
     public void testTemplateJSONAssignTypeMismatch() {
         ParserUtils.parseBalFile("lang/statements/assignment/backtick-assign-mismatch-1.bal");

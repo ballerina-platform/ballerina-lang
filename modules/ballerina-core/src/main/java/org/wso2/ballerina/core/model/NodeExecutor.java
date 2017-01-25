@@ -32,7 +32,7 @@ import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.InstanceCreationExpr;
 import org.wso2.ballerina.core.model.expressions.MapInitExpr;
 import org.wso2.ballerina.core.model.expressions.ResourceInvocationExpr;
-import org.wso2.ballerina.core.model.expressions.StructAttributeAccessExpr;
+import org.wso2.ballerina.core.model.expressions.StructFieldAccessExpr;
 import org.wso2.ballerina.core.model.expressions.StructInitExpr;
 import org.wso2.ballerina.core.model.expressions.UnaryExpression;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
@@ -105,5 +105,5 @@ public interface NodeExecutor {
 
     BValue visit(StructInitExpr structInitExpr);
 
-    BValue visit(StructAttributeAccessExpr structAttributeAccessExpr);
+    BValue visit(StructFieldAccessExpr structAttributeAccessExpr);
 }
