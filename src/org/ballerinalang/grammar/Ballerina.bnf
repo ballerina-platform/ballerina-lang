@@ -17,101 +17,99 @@
   tokens=[
 
       // §3.9 Ballerina keywords
-      ACTION	      =	'action';
-      BREAK	          =	'break';
-      CATCH	          =	'catch';
-      CONNECTOR	      =	'connector';
-      CONST	          =	'const';
-      ELSE	          =	'else';
-      FORK	          =	'fork';
-      FUNCTION	      =	'function';
-      IF	          =	'if';
-      IMPORT	      =	'import';
-      ITERATE	      =	'iterate';
-      JOIN	          =	'join';
-      NEW	          =	'new';
-      PACKAGE	      =	'package';
-      REPLY	          =	'reply';
-      RESOURCE	      =	'resource';
-      RETURN	      =	'return';
-      SERVICE	      =	'service';
-      THROW	          =	'throw';
-      THROWS	      =	'throws';
-      TRY	          =	'try';
-      TYPE	          =	'type';
-      TYPECONVERTOR	  =	'typeconvertor';
-      WHILE	          =	'while';
-      WORKER	      =	'worker';
-      BACKTICK        =   '`';
-      VERSION         =   'version';
-      PUBLIC          =   'public';
-      ANY             =   'any';
-      ALL             =   'all';
-      AS              =   'as';
-      TIMEOUT         =   'timeout';
-      SENDARROW       =   '->';
-      RECEIVEARROW    =   '<-';
+      ACTION                = 'action';
+      BREAK                 = 'break';
+      CATCH                 = 'catch';
+      CONNECTOR             = 'connector';
+      CONST                 = 'const';
+      ELSE                  = 'else';
+      FORK                  = 'fork';
+      FUNCTION              = 'function';
+      IF                    = 'if';
+      IMPORT                = 'import';
+      ITERATE               = 'iterate';
+      JOIN                  = 'join';
+      NEW                   = 'new';
+      PACKAGE               = 'package';
+      REPLY                 = 'reply';
+      RESOURCE              = 'resource';
+      RETURN                = 'return';
+      SERVICE               = 'service';
+      THROW                 = 'throw';
+      THROWS                = 'throws';
+      TRY                   = 'try';
+      TYPE                  = 'type';
+      TYPECONVERTOR         = 'typeconvertor';
+      WHILE                 = 'while';
+      WORKER                = 'worker';
+      BACKTICK              = '`';
+      VERSION               = 'version';
+      PUBLIC                = 'public';
+      ANY                   = 'any';
+      ALL                   = 'all';
+      AS                    = 'as';
+      TIMEOUT               = 'timeout';
+      SENDARROW             = '->';
+      RECEIVEARROW          = '<-';
 
       // §3.11 Separators
-      LPAREN          = '(';
-      RPAREN          = ')';
-      LBRACE          = '{';
-      RBRACE          = '}';
-      LBRACK          = '[';
-      RBRACK          = ']';
-      SEMI            = ';';
-      COMMA           = ',';
-      DOT             = '.';
+      LPAREN                = '(';
+      RPAREN                = ')';
+      LBRACE                = '{';
+      RBRACE                = '}';
+      LBRACK                = '[';
+      RBRACK                = ']';
+      SEMI                  = ';';
+      COMMA                 = ',';
+      DOT                   = '.';
 
       // §3.12 Operators
-      ASSIGN          = '=';
-      GT              = '>';
-      LT              = '<';
-      BANG            = '!';
-      TILDE           = '~';
-      QUESTION        = '?';
-      COLON           = ':';
-      EQUAL           = '==';
-      LE              = '<=';
-      GE              = '>=';
-      NOTEQUAL        = '!=';
-      AND             = '&&';
-      OR              = '||';
-      ADD             = '+';
-      SUB             = '-';
-      MUL             = '*';
-      DIV             = '/';
-      BITAND          = '&';
-      BITOR           = '|';
-      CARET           = '^';
-      MOD             = '%';
-      DOLLAR_SIGN     = '$';
-      AT              = '@';
+      ASSIGN                = '=';
+      GT                    = '>';
+      LT                    = '<';
+      BANG                  = '!';
+      TILDE                 = '~';
+      QUESTION              = '?';
+      COLON                 = ':';
+      EQUAL                 = '==';
+      LE                    = '<=';
+      GE                    = '>=';
+      NOTEQUAL              = '!=';
+      AND                   = '&&';
+      OR                    = '||';
+      ADD                   = '+';
+      SUB                   = '-';
+      MUL                   = '*';
+      DIV                   = '/';
+      BITAND                = '&';
+      BITOR                 = '|';
+      CARET                 = '^';
+      MOD                   = '%';
+      DOLLAR_SIGN           = '$';
 
-      NullLiteral = "null"
+      AT                    = '@';
 
+      NullLiteral           = "null"
 
-      IntegerLiteral = "regexp:0|[1-9][0-9]*"
+      IntegerLiteral        = "regexp:0|[1-9][0-9]*"
 
-      FloatingPointLiteral = "regexp:(([0-9]+\.[0-9]*)|(\.[0-9]+)|([0-9]+))([eE][+-]?[0-9]+)?[fF]"
+      FloatingPointLiteral  = "regexp:(([0-9]+\.[0-9]*)|(\.[0-9]+)|([0-9]+))([eE][+-]?[0-9]+)?[fF]"
 
-      BooleanLiteral="regexp:(true|false)"
+      BooleanLiteral        = "regexp:(true|false)"
 
-      QuotedStringLiteral ='regexp:\"([^\\\"\r\n]|\\[^\r\n])*(\"|\\)?'
+      QuotedStringLiteral   = 'regexp:\"([^\\\"\r\n]|\\[^\r\n])*(\"|\\)?'
 
-      ValidBackTickString ='regexp:`[^`]*`'
+      ValidBackTickString   = 'regexp:`[^`]*`'
 
-      Identifier = "regexp:[a-zA-Z$_][a-zA-Z0-9$_]*"
-//
-      Letter =   "regexp:[a-zA-Z$_]"
-//
-      LetterOrDigit = "regexp:[a-zA-Z0-9$_]"
+      Identifier            = "regexp:[a-zA-Z$_][a-zA-Z0-9$_]*"
 
-      WHITE_SPACE = 'regexp:[ \t\r\n\u000C]+'
+      Letter                = "regexp:[a-zA-Z$_]"
 
-      LINE_COMMENT = 'regexp://[^\r\n]*'
+      LetterOrDigit         = "regexp:[a-zA-Z0-9$_]"
 
+      WHITE_SPACE           = 'regexp:[ \t\r\n\u000C]+'
 
+      LINE_COMMENT          = 'regexp://[^\r\n]*'
 
 //      FloatLiteral  = "regexp:(([0-9]+\.[0-9]*)|(\.[0-9]+)|([0-9]+))([eE][+-]?[0-9]+)?[fF]"
 //      DoubleLiteral =  "regexp:((([0-9]+\.[0-9]*)|(\.[0-9]+)|([0-9]+))([eE][+-]?[0-9]+)?"
@@ -231,37 +229,37 @@ simpleType
     ::=   Identifier
 
 simpleTypeArray
-    ::=   Identifier '[' ']'//todo
+    ::=   Identifier '[' ']'
 
 simpleTypeIterate
     ::= Identifier '~'
 
 withFullSchemaType
-	::=	Identifier '<' '{' QuotedStringLiteral '}' Identifier '>'
+    ::= Identifier '<' '{' QuotedStringLiteral '}' Identifier '>'
 
 withFullSchemaTypeArray
-	::=	Identifier '<' '{' QuotedStringLiteral '}' Identifier '>' '[' ']'//todo
+    ::= Identifier '<' '{' QuotedStringLiteral '}' Identifier '>' '[' ']'
 
 withFullSchemaTypeIterate
-	::=	Identifier '<' '{' QuotedStringLiteral '}' Identifier '>' '~'
+    ::= Identifier '<' '{' QuotedStringLiteral '}' Identifier '>' '~'
 
 withScheamURLType
-	::=	Identifier '<' '{' QuotedStringLiteral '}' '>'
+    ::= Identifier '<' '{' QuotedStringLiteral '}' '>'
 
 withSchemaURLTypeArray
-	::=	Identifier '<' '{' QuotedStringLiteral '}' '>' '[' ']'//todo
+    ::= Identifier '<' '{' QuotedStringLiteral '}' '>' '[' ']'
 
 withSchemaURLTypeIterate
-	::=	Identifier '<' '{' QuotedStringLiteral '}' '>' '~'
+    ::= Identifier '<' '{' QuotedStringLiteral '}' '>' '~'
 
 withSchemaIdType
-	::=	Identifier '<' Identifier '>'
+    ::= Identifier '<' Identifier '>'
 
 withScheamIdTypeArray
-	::=	Identifier '<' Identifier '>' '[' ']' //todo
+    ::= Identifier '<' Identifier '>' '[' ']'
 
 withScheamIdTypeIterate
-	::=	Identifier '<' Identifier '>' '~'
+    ::= Identifier '<' Identifier '>' '~'
 
 typeName
     ::=   unqualifiedTypeName
@@ -344,8 +342,6 @@ elseClause
 
 ifElseIfClauseBody::=  statement*
 
-
-
 iterateStatement
     ::=   'iterate' '(' typeName Identifier ':' expression ')' '{' statement+ '}'
 
@@ -412,7 +408,7 @@ actionInvocationStatement
 variableReference
     ::=   Identifier '['expression']'                 // mapArrayVariableIdentifier// array and map reference
 //    |   variableReference ('.' variableReference)+  // structFieldIdentifier// struct field reference
-          |      Identifier                                // simpleVariableIdentifier// simple identifier
+    |   Identifier                                    // simpleVariableIdentifier// simple identifier
 argumentList
     ::=   '(' expressionList? ')'
 
@@ -430,116 +426,6 @@ actionInvocation
 
 backtickString
    ::=     ValidBackTickString
-
-
-// 1 ------------------------------------------
-//
-////todo 23/01/2017: This was introduce to prevent left recursion
-//private basicExpression::=
-//         functionName argumentList                                         // functionInvocationExpression
-//    |   backtickString                                                      // templateExpression
-//    |   actionInvocation argumentList                                       // actionInvocationExpression
-//    |   '[' expressionList ']'                                              // arrayInitializerExpression
-//    |   '{' mapInitKeyValueList '}'                                         // mapInitializerExpression
-//    |   'new' (packageName ':' )? Identifier ('(' expressionList? ')')?     // structInitializeExpression
-//    |    literalValue                                                       // literalExpression
-//    |   variableReference                                                   // variableReferenceExpression
-//    |   basicExpression_
-//
-//basicExpression_ ::=
-//'(' typeName ')' basicExpression
-// |   ('+'|'-'|'!') basicExpression
-//|   '(' basicExpression ')'
-//  |   basicExpression ('^') basicExpression
-//
-//
-//expression
-//    ::=
-//       '(' typeName ')' basicExpression                                         // typeCastingExpression
-//    |   ('+'|'-'|'!') basicExpression                                            // unaryExpression
-//    |   '(' basicExpression ')'                                                  // bracedExpression
-//    |   basicExpression ('^') basicExpression                                         // binaryPowExpression
-//    |   basicExpression ('/') basicExpression                                         // binaryDivisionExpression
-//    |   basicExpression ('*') basicExpression                                         // binaryMultiplicationExpression
-//    |   basicExpression ('%') basicExpression                                         // binaryModExpression
-//    |   basicExpression ('&&') basicExpression                                        // binaryAndExpression
-//    |   basicExpression ('+') basicExpression                                         // binaryAddExpression
-//    |   basicExpression ('-') basicExpression                                         // binarySubExpression
-//    |   basicExpression ('||') basicExpression                                        // binaryOrExpression
-//    |   basicExpression ('>') basicExpression                                         // binaryGTExpression
-//    |   basicExpression ('>=') basicExpression                                        // binaryGEExpression
-//    |   basicExpression ('<') basicExpression                                         // binaryLTExpression
-//    |   basicExpression ('<=') basicExpression                                        // binaryLEExpression
-//    |   basicExpression ('==') basicExpression                                        // binaryEqualExpression
-//    |   basicExpression ('!=') basicExpression                                        // binaryNotEqualExpression
-//    |   basicExpression
-//
-
-//2--------------------------------------
-//  simpleExpression
-//      ::=
-//               functionName argumentList                                           // functionInvocationExpression
-//
-//      |   backtickString                                                      // templateExpression
-//      |   actionInvocation argumentList                                       // actionInvocationExpression
-//      |   '[' expressionList ']'                                              // arrayInitializerExpression
-//      |   '{' mapInitKeyValueList '}'                                         // mapInitializerExpression
-//      |   'new' (packageName ':' )? Identifier ('(' expressionList? ')')?     // structInitializeExpression
-//      |   literalValue                                                        // literalExpression
-//      |   variableReference                                                    // variableReferenceExpression
-//
-//   expression::=    ('(' typeName ')' simpleExpression+ )  |   (('+'|'-'|'!') simpleExpression+)   |   ('(' simpleExpression+ ')') | (simpleExpression+ ('^' | '/' | '*' | '%' | '&&' | '+' | '-' | '||' | '>' | '>='| '<' | '<=' | '==' | '!='| simpleExpression) simpleExpression+ )
-//
-//
-//
-//
-////basicExpression::=
-////        backtickString                                                      // templateExpression
-////    |   functionName argumentList                                           // functionInvocationExpression
-////    |   actionInvocation argumentList                                       // actionInvocationExpression
-////    |   '[' expressionList ']'                                              // arrayInitializerExpression
-////    |   '{' mapInitKeyValueList '}'                                         // mapInitializerExpression
-////    |   'new' (packageName ':' )? Identifier ('(' expressionList? ')')?     // structInitializeExpression
-////    |    literalValue                                                        // literalExpression
-////    |   variableReference                                                   // variableReferenceExpression
-
-// 3 ---------------------------------------
-
-
-//expression::=
-//
-//       '(' typeName ')' basicExpression                                         // typeCastingExpression
-//    |   ('+'|'-'|'!') basicExpression                                            // unaryExpression
-//    |   '(' basicExpression ')'                                                  // bracedExpression
-//    |   basicExpression ('^') basicExpression                                         // binaryPowExpression
-//    |   basicExpression ('/') basicExpression                                         // binaryDivisionExpression
-//    |   basicExpression ('*') basicExpression                                         // binaryMultiplicationExpression
-//    |   basicExpression ('%') basicExpression                                         // binaryModExpression
-//    |   basicExpression ('&&') basicExpression                                        // binaryAndExpression
-//    |   basicExpression ('+') basicExpression                                         // binaryAddExpression
-//    |   basicExpression ('-') basicExpression                                         // binarySubExpression
-//    |   basicExpression ('||') basicExpression                                        // binaryOrExpression
-//    |   basicExpression ('>') basicExpression                                         // binaryGTExpression
-//    |   basicExpression ('>=') basicExpression                                        // binaryGEExpression
-//    |   basicExpression ('<') basicExpression                                         // binaryLTExpression
-//    |   basicExpression ('<=') basicExpression                                        // binaryLEExpression
-//    |   basicExpression ('==') basicExpression                                        // binaryEqualExpression
-//    |   basicExpression ('!=') basicExpression                                        // binaryNotEqualExpression
-//    |   basicExpression
-//
-//
-//
-//basicExpression::=
-//        backtickString                                                      // templateExpression
-//    |   functionName argumentList                                           // functionInvocationExpression
-//    |   actionInvocation argumentList                                       // actionInvocationExpression
-//    |   '[' expressionList ']'                                              // arrayInitializerExpression
-//    |   '{' mapInitKeyValueList '}'                                         // mapInitializerExpression
-//    |   'new' (packageName ':' )? Identifier ('(' expressionList? ')')?     // structInitializeExpression
-//    |    literalValue                                                        // literalExpression
-//    |   variableReference                                                   // variableReferenceExpression
-
-// 4 ---------------------------
 
 expression::=
        '(' typeName ')' basicExpression
