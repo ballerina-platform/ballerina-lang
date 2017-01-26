@@ -38,7 +38,7 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
             throw "Container for Type Converter definition is undefined." + this._container;
         }
         this.init();
-        TypeMapper.init(this.onAttributesConnect(),this.onAttributesDisConnect());
+        TypeMapper.init(this.onAttributesConnect,this.onAttributesDisConnect);
     };
 
     TypeConverterDefinitionView.prototype = Object.create(Canvas.prototype);
@@ -91,14 +91,11 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
 
             var leftTypeStructDef = BallerinaASTFactory.createTypeStructDefinition();
             //todo set person value dynamically
-            leftTypeStructDef.setTypeStructName("Person");
-            leftTypeStructDef.setIdentifier("p");
+            leftTypeStructDef.setTypeStructName("Employee");
+            leftTypeStructDef.setIdentifier("e");
             leftTypeStructDef.setSchema(employee);
             leftTypeStructDef.setCategory("SOURCE");
             self._model.addChild(leftTypeStructDef);
-            self._model.accept(this);
-
-
         });
 
 //        var assignmentStmt = BallerinaASTFactory.createAssignmentStatement();
@@ -122,12 +119,11 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
             person.addChild(v2);
 
             var rightTypeStructDef = BallerinaASTFactory.createTypeStructDefinition();
-            rightTypeStructDef.setTypeStructName("Employee");
-            rightTypeStructDef.setIdentifier("e");
+            rightTypeStructDef.setTypeStructName("Person");
+            rightTypeStructDef.setIdentifier("p");
             rightTypeStructDef.setSchema(person);
             rightTypeStructDef.setCategory("TARGET");
             self._model.addChild(rightTypeStructDef);
-            self._model.accept(this);
 
             var newVariableDeclaration = BallerinaASTFactory.createVariableDeclaration();
             // Pushing new variable declaration//todo setType
@@ -138,7 +134,6 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
             var newReturnStatement = BallerinaASTFactory.createReturnStatement();
             newReturnStatement.setReturnExpression("p");
             self._model.addChild(newReturnStatement);
-
         });
 
         this._container = currentContainer;
