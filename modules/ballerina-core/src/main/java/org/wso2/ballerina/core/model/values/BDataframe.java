@@ -51,28 +51,56 @@ public class BDataframe implements BRefType {
         return iterator.next();
     }
 
+    public void close() {
+        iterator.close();
+    }
+
     public String getString(int index) {
         return iterator.getString(index);
+    }
+
+    public String getString(String columnName) {
+        return iterator.getString(columnName);
     }
 
     public long getLong(int index) {
         return iterator.getLong(index);
     }
 
+    public long getLong(String columnName) {
+        return iterator.getLong(columnName);
+    }
+
     public int getInt(int index) {
         return iterator.getInt(index);
+    }
+
+    public int getInt(String columnName) {
+        return iterator.getInt(columnName);
     }
 
     public float getFloat(int index) {
         return iterator.getFloat(index);
     }
 
+    public float getFloat(String columnName) {
+        return iterator.getFloat(columnName);
+    }
+
     public double getDouble(int index) {
         return iterator.getDouble(index);
     }
 
+    public double getDouble(String columnName) {
+        return iterator.getDouble(columnName);
+    }
+
     public boolean getBoolean(int index) {
         return iterator.getBoolean(index);
+    }
+
+    public boolean getBoolean(String columnName) {
+        return iterator.getBoolean(columnName);
     }
 
     public String[] getAvailableProprtyNames() {

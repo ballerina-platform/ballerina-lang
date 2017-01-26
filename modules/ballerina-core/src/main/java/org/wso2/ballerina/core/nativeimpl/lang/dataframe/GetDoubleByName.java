@@ -21,7 +21,7 @@ package org.wso2.ballerina.core.nativeimpl.lang.dataframe;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BDataframe;
-import org.wso2.ballerina.core.model.values.BInteger;
+import org.wso2.ballerina.core.model.values.BDouble;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
@@ -29,22 +29,22 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 
 /**
- * Native function to get integer value of a given column index.
- * ballerina.lang.dataframe:getInt(dataframe, int)
+ * Native function to get double value of a given column name.
+ * ballerina.lang.dataframe:getDouble(dataframe, string)
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.dataframe",
-        functionName = "getInt",
+        functionName = "getDouble",
         args = {@Argument(name = "dataframe", type = TypeEnum.DATAFRAME),
-                @Argument(name = "index", type = TypeEnum.INT)},
-        returnType = {@ReturnType(type = TypeEnum.INT)},
+                @Argument(name = "name", type = TypeEnum.STRING)},
+        returnType = {@ReturnType(type = TypeEnum.DOUBLE)},
         isPublic = true
 )
-public class GetInt extends AbstractNativeFunction {
+public class GetDoubleByName extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
         BDataframe dataframe = (BDataframe) getArgument(ctx, 0);
-        int index = ((BInteger) getArgument(ctx, 1)).intValue();
-        return getBValues(new BInteger(dataframe.getInt(index)));
+        String columnName = (getArgument(ctx, 1)).stringValue();
+        return getBValues(new BDouble(dataframe.getDouble(columnName)));
     }
 }

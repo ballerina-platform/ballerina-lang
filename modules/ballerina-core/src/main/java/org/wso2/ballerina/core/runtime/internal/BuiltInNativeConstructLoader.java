@@ -49,6 +49,19 @@ import org.wso2.ballerina.core.nativeimpl.lang.array.StringArrayRangeCopy;
 import org.wso2.ballerina.core.nativeimpl.lang.array.XmlArrayCopyOf;
 import org.wso2.ballerina.core.nativeimpl.lang.array.XmlArrayLength;
 import org.wso2.ballerina.core.nativeimpl.lang.array.XmlArrayRangeCopy;
+import org.wso2.ballerina.core.nativeimpl.lang.dataframe.Close;
+import org.wso2.ballerina.core.nativeimpl.lang.dataframe.GetBooleanByIndex;
+import org.wso2.ballerina.core.nativeimpl.lang.dataframe.GetBooleanByName;
+import org.wso2.ballerina.core.nativeimpl.lang.dataframe.GetDoubleByIndex;
+import org.wso2.ballerina.core.nativeimpl.lang.dataframe.GetDoubleByName;
+import org.wso2.ballerina.core.nativeimpl.lang.dataframe.GetFloatByIndex;
+import org.wso2.ballerina.core.nativeimpl.lang.dataframe.GetFloatByName;
+import org.wso2.ballerina.core.nativeimpl.lang.dataframe.GetIntByIndex;
+import org.wso2.ballerina.core.nativeimpl.lang.dataframe.GetIntByName;
+import org.wso2.ballerina.core.nativeimpl.lang.dataframe.GetLongByIndex;
+import org.wso2.ballerina.core.nativeimpl.lang.dataframe.GetLongByName;
+import org.wso2.ballerina.core.nativeimpl.lang.dataframe.GetStringByIndex;
+import org.wso2.ballerina.core.nativeimpl.lang.dataframe.GetStringByName;
 import org.wso2.ballerina.core.nativeimpl.lang.json.AddBooleanToArray;
 import org.wso2.ballerina.core.nativeimpl.lang.json.AddBooleanToObject;
 import org.wso2.ballerina.core.nativeimpl.lang.json.AddDoubleToArray;
@@ -330,13 +343,20 @@ public class BuiltInNativeConstructLoader {
         registerFunction(scope, new AcceptAndReturn());
 
         // lang.dataframe
-        registerFunction(scope, new org.wso2.ballerina.core.nativeimpl.lang.dataframe.GetBoolean());
-        registerFunction(scope, new org.wso2.ballerina.core.nativeimpl.lang.dataframe.GetDouble());
-        registerFunction(scope, new org.wso2.ballerina.core.nativeimpl.lang.dataframe.GetFloat());
-        registerFunction(scope, new org.wso2.ballerina.core.nativeimpl.lang.dataframe.GetInt());
-        registerFunction(scope, new org.wso2.ballerina.core.nativeimpl.lang.dataframe.GetLong());
-        registerFunction(scope, new org.wso2.ballerina.core.nativeimpl.lang.dataframe.GetString());
+        registerFunction(scope, new GetBooleanByIndex());
+        registerFunction(scope, new GetBooleanByName());
+        registerFunction(scope, new GetDoubleByIndex());
+        registerFunction(scope, new GetDoubleByName());
+        registerFunction(scope, new GetFloatByIndex());
+        registerFunction(scope, new GetFloatByName());
+        registerFunction(scope, new GetIntByIndex());
+        registerFunction(scope, new GetIntByName());
+        registerFunction(scope, new GetLongByIndex());
+        registerFunction(scope, new GetLongByName());
+        registerFunction(scope, new GetStringByIndex());
+        registerFunction(scope, new GetStringByName());
         registerFunction(scope, new org.wso2.ballerina.core.nativeimpl.lang.dataframe.Next());
+        registerFunction(scope, new Close());
 
     }
 

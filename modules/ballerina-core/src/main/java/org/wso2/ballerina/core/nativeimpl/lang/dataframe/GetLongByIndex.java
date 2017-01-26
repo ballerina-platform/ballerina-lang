@@ -41,7 +41,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
         returnType = {@ReturnType(type = TypeEnum.LONG)},
         isPublic = true
 )
-public class GetLong extends AbstractNativeFunction {
+public class GetLongByIndex extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
         BDataframe dataframe = (BDataframe) getArgument(ctx, 0);
