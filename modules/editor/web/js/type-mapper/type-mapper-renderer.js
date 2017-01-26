@@ -16,25 +16,29 @@
  * under the License.
  */
 define(['log', 'require', 'event_channel', 'lodash'], function(log, require, EventChannel, _) {
-    var typeMapper = function() {
-        this.placeHolderName = "data-mapper-container"
-        this.strokeColor = "#414e66";
-        this.strokeWidth = 2;
-        this.pointColor = "#414e66";
-        this.pointSize = 5;
-        this.dashStyle = "3 3";
-        this.idNameSeperator = "-";
 
-        jsPlumb.Defaults.Container = $("#" + this.placeHolderName);
+    var TypeMapper = {};
+
+    var placeHolderName = "data-mapper-container"
+    var strokeColor = "#414e66";
+    var strokeWidth = 2;
+    var pointColor = "#414e66";
+    var pointSize = 5;
+    var dashStyle = "3 3";
+    var idNameSeperator = "-";
+
+    TypeMapper.init = function() {
+
+        jsPlumb.Defaults.Container = $("#" + placeHolderName);
         jsPlumb.Defaults.PaintStyle = {
-            strokeStyle:this.strokeColor,
-            lineWidth:this.strokeWidth,
-            dashstyle: this.dashStyle
+            strokeStyle:strokeColor,
+            lineWidth:strokeWidth,
+            dashstyle: dashStyle
         };
 
         jsPlumb.Defaults.EndpointStyle = {
-            radius:this.pointSize,
-            fillStyle:this.pointColor
+            radius:pointSize,
+            fillStyle:pointColor
         };
         jsPlumb.Defaults.Overlays = [
             [ "Arrow", {
@@ -53,29 +57,29 @@ define(['log', 'require', 'event_channel', 'lodash'], function(log, require, Eve
 
     }
 
-    typeMapper.prototype.removeStruct  = function (name){
+    TypeMapper.removeStruct  = function (name){
         jsPlumb.detachEveryConnection();
         $("#" + name).remove();
     }
 
-    typeMapper.prototype.addConnection  = function (connection) {
+    TypeMapper.addConnection  = function (connection) {
         jsPlumb.connect({
-            source:connection.sourceStruct + this.idNameSeperator + connection.sourceProperty + this.idNameSeperator + connection.sourceType,
-            target:connection.targetStruct + this.idNameSeperator + connection.targetProperty + this.idNameSeperator + connection.targetType
+            source:connection.sourceStruct + idNameSeperator + connection.sourceProperty + idNameSeperator + connection.sourceType,
+            target:connection.targetStruct + idNameSeperator + connection.targetProperty + idNameSeperator + connection.targetType
         });
     }
 
-    typeMapper.prototype.getConnections  = function () {
+    TypeMapper.getConnections  = function () {
         var connections = [];
 
         for (var i = 0; i < jsPlumb.getConnections().length; i++) {
             var connection = {
-                sourceStruct : jsPlumb.getConnections()[i].sourceId.split(this.idNameSeperator)[0],
-                sourceProperty : jsPlumb.getConnections()[i].sourceId.split(this.idNameSeperator)[1],
-                sourceType : jsPlumb.getConnections()[i].sourceId.split(this.idNameSeperator)[2],
-                targetStruct : jsPlumb.getConnections()[i].targetId.split(this.idNameSeperator)[0],
-                targetProperty : jsPlumb.getConnections()[i].targetId.split(this.idNameSeperator)[1],
-                targetType : jsPlumb.getConnections()[i].targetId.split(this.idNameSeperator)[2]
+                sourceStruct : jsPlumb.getConnections()[i].sourceId.split(idNameSeperator)[0],
+                sourceProperty : jsPlumb.getConnections()[i].sourceId.split(idNameSeperator)[1],
+                sourceType : jsPlumb.getConnections()[i].sourceId.split(idNameSeperator)[2],
+                targetStruct : jsPlumb.getConnections()[i].targetId.split(idNameSeperator)[0],
+                targetProperty : jsPlumb.getConnections()[i].targetId.split(idNameSeperator)[1],
+                targetType : jsPlumb.getConnections()[i].targetId.split(idNameSeperator)[2]
             }
             connections.push(connection);
         };
@@ -83,15 +87,15 @@ define(['log', 'require', 'event_channel', 'lodash'], function(log, require, Eve
         return connections;
     }
 
-    typeMapper.prototype.addSourceStruct  = function (struct) {
+    TypeMapper.addSourceStruct  = function (struct) {
         this.makeStruct(struct, 50, 50);
         for (var i = 0; i < struct.properties.length; i++) {
             this.addSourceProperty($('#' + struct.name), struct.properties[i].name, struct.properties[i].type);
         };
     }
 
-    typeMapper.prototype.addTargetStruct  = function (struct) {
-        var placeHolderWidth = document.getElementById(this.placeHolderName).offsetWidth;
+    TypeMapper.addTargetStruct  = function (struct) {
+        var placeHolderWidth = document.getElementById(placeHolderName).offsetWidth;
         var posY = placeHolderWidth - (placeHolderWidth/4);
         this.makeStruct(struct, 50, posY);
         for (var i = 0; i < struct.properties.length; i++) {
@@ -99,7 +103,7 @@ define(['log', 'require', 'event_channel', 'lodash'], function(log, require, Eve
         };
     }
 
-    typeMapper.prototype.makeStruct  = function (struct, posX, posY) {
+    TypeMapper.makeStruct  = function (struct, posX, posY) {
         var newStruct = $('<div>').attr('id', struct.name).addClass('struct');
 
         var structName = $('<div>').addClass('struct-name').text(struct.name);
@@ -110,14 +114,14 @@ define(['log', 'require', 'event_channel', 'lodash'], function(log, require, Eve
             'left': posY
         });
 
-        $("#" + this.placeHolderName).append(newStruct);
+        $("#" + placeHolderName).append(newStruct);
         jsPlumb.draggable(newStruct, {
             containment: 'parent'
         });
     }
 
-    typeMapper.prototype.makeProperty  = function (parentId, name, type) {
-        var id = parentId.selector.replace("#","") + this.idNameSeperator + name + this.idNameSeperator  + type;
+    TypeMapper.makeProperty  = function (parentId, name, type) {
+        var id = parentId.selector.replace("#","") + idNameSeperator + name + idNameSeperator  + type;
         var property = $('<div>').attr('id', id).addClass('property')
         var propertyName = $('<span>').addClass('property-name').text(name);
         var seperator = $('<span>').addClass('property-name').text(":");
@@ -131,19 +135,19 @@ define(['log', 'require', 'event_channel', 'lodash'], function(log, require, Eve
         return property;
     }
 
-    typeMapper.prototype.addSourceProperty  = function (parentId, name, type) {
+    TypeMapper.addSourceProperty  = function (parentId, name, type) {
         jsPlumb.makeSource(this.makeProperty(parentId, name, type), {
             anchor:["Continuous", { faces:["right"] } ]
         });
     }
 
-    typeMapper.prototype.addTargetProperty  = function (parentId, name, type) {
+    TypeMapper.addTargetProperty  = function (parentId, name, type) {
         jsPlumb.makeTarget(this.makeProperty(parentId, name, type), {
             maxConnections:1,
             anchor:["Continuous", { faces:[ "left"] } ],
             beforeDrop: function (params) {
                 //Checks property types are equal
-                return params.sourceId.split(this.idNameSeperator)[2] == params.targetId.split(this.idNameSeperator)[2];
+                return params.sourceId.split(idNameSeperator)[2] == params.targetId.split(idNameSeperator)[2];
             }
         });
     }
