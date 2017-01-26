@@ -70,7 +70,6 @@ public class BalProgramExecutor {
             new CallableUnitInfo(symbolName.getName(), symbolName.getPkgName(), service.getServiceLocation()));
 
         balContext.setBalCallback(new DefaultBalCallback(callback));
-        // ToDo expression length?
         Expression[] exprs = new Expression[resource.getParameters().length];
 
         BValue[] argValues = new BValue[resource.getParameters().length];
