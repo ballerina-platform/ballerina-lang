@@ -369,12 +369,16 @@ joinConditions
 timeoutClause
     ::=   'timeout' '(' expression ')' '(' typeName Identifier ')'  '{' statement+ '}'
 
+//todo: need to rearrange
 tryCatchStatement
-    ::=   'try' '{' statement+ '}' catchClause
+    ::=   'try' '{' tryCatchStatementBody '}' catchClause '}'
 
 // below tyeName is only 'exception'
 catchClause
-    ::=   'catch' '(' typeName Identifier ')' '{' statement+ '}'
+    ::=   'catch' '(' typeName Identifier ')' '{' tryCatchStatementBody
+
+tryCatchStatementBody
+    ::=   statement+
 
 throwStatement
     ::=   'throw' expression ';'

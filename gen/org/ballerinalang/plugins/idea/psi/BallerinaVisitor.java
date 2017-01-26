@@ -279,6 +279,10 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
+  public void visitTryCatchStatementBody(@NotNull BallerinaTryCatchStatementBody o) {
+    visitPsiElement(o);
+  }
+
   public void visitTypeConverterTypes(@NotNull BallerinaTypeConverterTypes o) {
     visitPsiElement(o);
   }

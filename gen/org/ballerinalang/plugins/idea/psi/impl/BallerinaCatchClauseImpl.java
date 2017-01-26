@@ -44,8 +44,8 @@ public class BallerinaCatchClauseImpl extends ASTWrapperPsiElement implements Ba
 
   @Override
   @NotNull
-  public List<BallerinaStatement> getStatementList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaStatement.class);
+  public BallerinaTryCatchStatementBody getTryCatchStatementBody() {
+    return findNotNullChildByClass(BallerinaTryCatchStatementBody.class);
   }
 
   @Override

@@ -231,6 +231,9 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     else if (t == TRY_CATCH_STATEMENT) {
       r = tryCatchStatement(b, 0);
     }
+    else if (t == TRY_CATCH_STATEMENT_BODY) {
+      r = tryCatchStatementBody(b, 0);
+    }
     else if (t == TYPE_CONVERTER_TYPES) {
       r = typeConverterTypes(b, 0);
     }
@@ -708,7 +711,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // 'catch' '(' typeName Identifier ')' '{' statement+ '}'
+  // 'catch' '(' typeName Identifier ')' '{' tryCatchStatementBody
   public static boolean catchClause(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "catchClause")) return false;
     if (!nextTokenIs(b, CATCH)) return false;
@@ -717,25 +720,8 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     r = consumeTokens(b, 0, CATCH, LPAREN);
     r = r && typeName(b, l + 1);
     r = r && consumeTokens(b, 0, IDENTIFIER, RPAREN, LBRACE);
-    r = r && catchClause_6(b, l + 1);
-    r = r && consumeToken(b, RBRACE);
+    r = r && tryCatchStatementBody(b, l + 1);
     exit_section_(b, m, CATCH_CLAUSE, r);
-    return r;
-  }
-
-  // statement+
-  private static boolean catchClause_6(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "catchClause_6")) return false;
-    boolean r;
-    Marker m = enter_section_(b);
-    r = statement(b, l + 1);
-    int c = current_position_(b);
-    while (r) {
-      if (!statement(b, l + 1)) break;
-      if (!empty_element_parsed_guard_(b, "catchClause_6", c)) break;
-      c = current_position_(b);
-    }
-    exit_section_(b, m, null, r);
     return r;
   }
 
@@ -2453,33 +2439,35 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // 'try' '{' statement+ '}' catchClause
+  // 'try' '{' tryCatchStatementBody '}' catchClause '}'
   public static boolean tryCatchStatement(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "tryCatchStatement")) return false;
     if (!nextTokenIs(b, TRY)) return false;
     boolean r;
     Marker m = enter_section_(b);
     r = consumeTokens(b, 0, TRY, LBRACE);
-    r = r && tryCatchStatement_2(b, l + 1);
+    r = r && tryCatchStatementBody(b, l + 1);
     r = r && consumeToken(b, RBRACE);
     r = r && catchClause(b, l + 1);
+    r = r && consumeToken(b, RBRACE);
     exit_section_(b, m, TRY_CATCH_STATEMENT, r);
     return r;
   }
 
+  /* ********************************************************** */
   // statement+
-  private static boolean tryCatchStatement_2(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "tryCatchStatement_2")) return false;
+  public static boolean tryCatchStatementBody(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "tryCatchStatementBody")) return false;
     boolean r;
-    Marker m = enter_section_(b);
+    Marker m = enter_section_(b, l, _NONE_, TRY_CATCH_STATEMENT_BODY, "<try catch statement body>");
     r = statement(b, l + 1);
     int c = current_position_(b);
     while (r) {
       if (!statement(b, l + 1)) break;
-      if (!empty_element_parsed_guard_(b, "tryCatchStatement_2", c)) break;
+      if (!empty_element_parsed_guard_(b, "tryCatchStatementBody", c)) break;
       c = current_position_(b);
     }
-    exit_section_(b, m, null, r);
+    exit_section_(b, l, m, r, false, null);
     return r;
   }
 

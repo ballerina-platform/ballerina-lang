@@ -27,6 +27,6 @@ public interface BallerinaTryCatchStatement extends PsiElement {
   BallerinaCatchClause getCatchClause();
 
   @NotNull
-  List<BallerinaStatement> getStatementList();
+  BallerinaTryCatchStatementBody getTryCatchStatementBody();
 
 }
