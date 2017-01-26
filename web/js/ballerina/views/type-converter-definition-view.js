@@ -61,10 +61,83 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
         this.drawAccordionCanvas(this._container, this._viewOptions, this._model.id, this._model.type.toLowerCase(), this._model._typeConverterName);
         var divId = this._model.id;
         var currentContainer = $('#' + divId);
+        var self = this;
+
+        var selectorContainer = $('<div class="selector"><div class="source-view"><span>Source :</span><select id="sourceStructs">' +
+            '</select></div><div class="target-view"><span>Target :</span><select id="targetStructs"></select></div></div>');
+        var dataMapperContainer = $('<div id="data-mapper-container"></div>');
+
+        currentContainer.find('svg').parent().append(selectorContainer);
+        currentContainer.find('svg').parent().append(dataMapperContainer);
+        currentContainer.find('svg').remove();
+
+        this.loadSchemas("#sourceStructs");
+        this.loadSchemas("#targetStructs");
+
+        $("#sourceStructs").change(function() {
+
+            var person = BallerinaASTFactory.createStructDefinition();
+            person.setStructName("Person");
+            var v1 = BallerinaASTFactory.createVariableDeclaration();
+            v1.setType("string");
+            v1.setIdentifier("name");
+            var v2 = BallerinaASTFactory.createVariableDeclaration();
+            v2.setType("string");
+            v2.setIdentifier("surname");
+
+            person.addChild(v1);
+            person.addChild(v2);
+
+            var leftTypeStructDef = BallerinaASTFactory.createTypeStructDefinition();
+            leftTypeStructDef.setTypeStructName("Left Struct");
+            leftTypeStructDef.setSchema(person);
+            leftTypeStructDef.setType("SOURCE");
+            self._model.addChild(leftTypeStructDef);
+            self._model.accept(this);
+
+            var newVariableDeclaration = BallerinaASTFactory.createVariableDeclaration();
+            // Pushing new variable declaration//todo setType
+            newVariableDeclaration.setType("Person");
+            newVariableDeclaration.setIdentifier("p");
+            self._model.addChild(newVariableDeclaration);
+
+            var newReturnStatement = BallerinaASTFactory.createReturnStatement();
+            newReturnStatement.setReturnExpression("p");
+            self._model.addChild(newReturnStatement);
+
+        });
+
+//        var assignmentStmt = BallerinaASTFactory.createAssignmentStatement();
+//        var leftOp = BallerinaASTFactory.createLeftOperandExpression();
+//        var rightOp = BallerinaASTFactory.createRightOperandExpression();
+//        assignmentStmt.addChild(leftOp);
+//        assignmentStmt.addChild(rightOp);
+
+        $("#targetStructs").change(function() {
+
+            var employee = BallerinaASTFactory.createStructDefinition();
+            employee.setStructName("Employee");
+            var v1 = BallerinaASTFactory.createVariableDeclaration();
+            v1.setType("string");
+            v1.setIdentifier("empName");
+            var v2 = BallerinaASTFactory.createVariableDeclaration();
+            v2.setType("string");
+            v2.setIdentifier("empSurName");
+
+            employee.addChild(v1);
+            employee.addChild(v2);
+
+            var rightTypeStructDef = BallerinaASTFactory.createTypeStructDefinition();
+            rightTypeStructDef.setTypeStructName("Right Struct");
+            rightTypeStructDef.setSchema(employee);
+            rightTypeStructDef.setType("TARGET");
+            self._model.addChild(rightTypeStructDef);
+            self._model.accept(this);
+        });
+
         this._container = currentContainer;
         this.getBoundingBox().fromTopLeft(new Point(0, 0), currentContainer.width(), currentContainer.height());
         this.getModel().accept(this);
-        var self = this;
 
         $("#title-" + this._model.id).addClass("type-converter-title-text").text(this._model.getTypeConverterName())
             .on("change paste keyup", function (e) {
@@ -88,6 +161,18 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', './type-s
 
     TypeConverterDefinitionView.prototype.getChildContainer = function () {
         return this._rootGroup;
+    };
+
+    TypeConverterDefinitionView.prototype.loadSchemas = function (selectId) {
+
+        var types = ['-select-','employee','student','person'];
+
+        for (var i = 0; i < types.length; i++) {
+            $(selectId).append('<option value="'+i+'">'+types[i]+'</option>');
+
+        };
+
+
     };
 
     /**

@@ -16,7 +16,7 @@
  * under the License.
  */
 define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', 'ballerina/ast/ballerina-ast-factory', './canvas',
-            'd3utils'], function (_, log, d3, BallerinaView, VariablesView, BallerinaASTFactory, Canvas, D3Utils) {
+            'typeMapper'], function (_, log, d3, BallerinaView, VariablesView, BallerinaASTFactory, Canvas, TypeMapper) {
     var TypeStructDefinitionView = function (args) {
         Canvas.call(this, args);
 
@@ -38,6 +38,7 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', 'ballerin
             throw "Container for Type Struct definition is undefined." + this._container;
         }
         this.init();
+        TypeMapper.init();
     };
 
     TypeStructDefinitionView.prototype = Object.create(Canvas.prototype);
@@ -58,8 +59,16 @@ define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', 'ballerin
      */
     TypeStructDefinitionView.prototype.render = function (diagramRenderingContext) {
         this._diagramRenderingContext = diagramRenderingContext;
-        //TODO : render the type struct rectangles here
+        console.log("QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ");
+        console.log(diagramRenderingContext);
+        var struct = this._model.getSchemaPropertyObj();
+        var type = this._model.getType();
 
+        if(type == "SOURCE"){
+            TypeMapper.addSourceStruct(struct);
+        }else{
+            TypeMapper.addTargetStruct(struct);
+        }
     };
 
     TypeStructDefinitionView.prototype.getChildContainer = function () {
