@@ -58,7 +58,7 @@ connector BasicAuthConnector (string userName, string password) {
 function constructBasicAuthHeader(message request, string encodedBasicAuthHeader, string userName, string password) (string) {
 
 	if (encodedBasicAuthHeader == "") {
-    	encodedBasicAuthHeader = util:base64encode(userName + ":" + password);
+    		encodedBasicAuthHeader = util:base64encode(userName + ":" + password);
 	}
     
 	message:setHeader(request, "Authorization", "Basic "+ encodedBasicAuthHeader);
