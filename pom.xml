@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+  ~ Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
   ~
   ~ WSO2 Inc. licenses this file to you under the Apache License,
   ~ Version 2.0 (the "License"); you may not use this file except
@@ -204,24 +204,7 @@
         <testng.version>6.9.4</testng.version>
         <plugin.version.antlr>4.5.1</plugin.version.antlr>
 
-        <!-- OSGI -->
-        <osgi.api.version>6.0.0</osgi.api.version>
-        <equinox.osgi.version>3.10.2.v20150203-1939</equinox.osgi.version>
-        <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
-
-        <osgi.framework.import.version.range>[1.8.0, 2.0.0)</osgi.framework.import.version.range>
-        <osgi.service.tracker.import.version.range>[1.5.1, 2.0.0)</osgi.service.tracker.import.version.range>
-
         <slf4j.version>1.7.5</slf4j.version>
-        <slf4j.logging.package.import.version.range>[1.7.1, 2.0.0)
-        </slf4j.logging.package.import.version.range>
-
-        <!-- json dependencies -->
-        <gson.version>2.7</gson.version>
-        <gson.import.version.range>[2.7, 2.8.0)</gson.import.version.range>
-        <jayway.jsonpath.version>2.2.0</jayway.jsonpath.version>
-        <jayway.jsonpath.import.version.range>[2.2.0,2.3.0)</jayway.jsonpath.import.version.range>
-        <tapestry.json.orbit.version>5.4.1.wso2v1</tapestry.json.orbit.version>
 
 	<!--pax-exam dependencies-->
         <javax.inject.version>1</javax.inject.version>
