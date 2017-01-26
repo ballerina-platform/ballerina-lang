@@ -17,8 +17,6 @@
  */
 package org.wso2.ballerina.core.nativeimpl.annotations;
 
-import org.wso2.ballerina.core.nativeimpl.AbstractNativeTypeConvertor;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -32,7 +30,7 @@ import java.lang.annotation.Target;
 public @interface BallerinaTypeConvertor {
 
     /**
-     * Package name of the {@code {@link AbstractNativeTypeConvertor }}.
+     * Package name of the {@code {@link org.wso2.ballerina.core.nativeimpl.AbstractNativeTypeConvertor }}.
      * Default is "".
      *
      * @return package name of the typeConverter.
@@ -40,7 +38,7 @@ public @interface BallerinaTypeConvertor {
     String packageName() default "";
 
     /**
-     * TypeConvertor name of the {@code {@link AbstractNativeTypeConvertor }}.
+     * TypeConvertor name of the {@code {@link org.wso2.ballerina.core.nativeimpl.AbstractNativeTypeConvertor }}.
      *
      * @return typeConverter name.
      */
