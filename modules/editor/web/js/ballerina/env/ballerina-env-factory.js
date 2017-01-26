@@ -46,7 +46,7 @@ define(['./package', './connector', './connector-action'],
             connector.initFromJson(jsonNode);
             return connector;
         };
-
+  
         /**
          * creates ConnectorAction from json
          * @param args
@@ -60,7 +60,6 @@ define(['./package', './connector', './connector-action'],
         BallerinaEnvFactory.isConnector = function (connector) {
             return (connector instanceof Connector);
         };
-
 
         return BallerinaEnvFactory;
 
