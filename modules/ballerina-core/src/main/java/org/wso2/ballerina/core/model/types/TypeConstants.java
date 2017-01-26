@@ -40,6 +40,7 @@ public class TypeConstants {
     static final String CONNECTOR_TNAME = "connector";
     static final String EXCEPTION_TNAME = "exception";
     static final String ITERATOR_TNAME = "iterator";
+    static final String STRUCT_TNAME = "struct";
     static final String DATAFRAME_TNAME = "dataframe";
 }
 

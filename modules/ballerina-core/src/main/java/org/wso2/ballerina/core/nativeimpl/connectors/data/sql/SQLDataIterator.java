@@ -20,12 +20,20 @@ package org.wso2.ballerina.core.nativeimpl.connectors.data.sql;
 
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.model.DataIterator;
+import org.wso2.ballerina.core.model.values.BLong;
+import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
 
+import java.nio.charset.Charset;
+import java.sql.Blob;
+import java.sql.Clob;
 import java.sql.Connection;
+import java.sql.NClob;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
+import java.util.Base64;
 
 /**
  * This iterator mainly wrap java.sql.ResultSet.
@@ -158,11 +166,41 @@ public class SQLDataIterator implements DataIterator {
         }
     }
 
+    // Below method doesn't support streaming.
     @Override
     public BValue get(int columnIndex, String type) {
+        try {
+            // Directly allocating full length array for decode byte array since anyway we are building
+            // new String in memory.
+            switch (type) {
+            case "blob":
+                Blob blob = rs.getBlob(columnIndex);
+                byte[] decode = getBase64Decode(new String(blob.getBytes(1l, (int) blob.length())));
+                return new BString(new String(decode, Charset.defaultCharset()));
+            case "clob":
+                Clob clob = rs.getClob(columnIndex);
+                decode = getBase64Decode(clob.getSubString(0, (int) clob.length()));
+                return new BString(new String(decode, Charset.defaultCharset()));
+            case "nclob":
+                NClob nClob = rs.getNClob(columnIndex);
+                decode = getBase64Decode(nClob.getSubString(0, (int) nClob.length()));
+                return new BString(new String(decode, Charset.defaultCharset()));
+            case "date":
+                return new BLong(rs.getDate(columnIndex).getTime());
+            case "timestamp":
+                return new BLong(rs.getTimestamp(columnIndex).getTime());
+            }
+        } catch (SQLException e) {
+            throw new BallerinaException("Unable to get given column value as " + type + ": " + e.getMessage(), e);
+        }
         return null;
     }
 
+    private byte[] getBase64Decode(String st) {
+        return Base64.getDecoder().decode(st.getBytes(Charset.defaultCharset()));
+    }
+
+    // Below method doesn't support streaming.
     @Override
     public BValue get(String columnName, String type) {
         return null;
