@@ -68,6 +68,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
             if (!uri.startsWith("/")) {
                 uri = "/".concat(uri);
             }
+            //replacing from single slash if multiple slashes are present in path.
             uri = uri.replaceAll("//+", "/");
             String[] path = uri.split("/");
             String basePath;
