@@ -68,7 +68,7 @@ public class ImportPackage implements Node {
     }
 
     /**
-     * Get the name of the import  package
+     * Get the name of the import  package.
      *
      * @return name of the import package
      */
@@ -77,7 +77,7 @@ public class ImportPackage implements Node {
     }
 
     /**
-     * Get the path of the import package
+     * Get the path of the import package.
      *
      * @return name of the import package
      */

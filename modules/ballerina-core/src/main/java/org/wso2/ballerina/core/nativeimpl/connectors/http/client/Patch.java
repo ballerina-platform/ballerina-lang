@@ -33,7 +33,7 @@ import org.wso2.ballerina.core.nativeimpl.connectors.http.Constants;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
- * {@code Patch} is the PATCH action implementation of the HTTP Connector
+ * {@code Patch} is the PATCH action implementation of the HTTP Connector.
  *
  */
 @BallerinaAction(
@@ -80,7 +80,7 @@ public class Patch extends AbstractHTTPAction {
             // Execute the operation
             return executeAction(context, cMsg);
         } catch (Throwable t) {
-            throw new BallerinaException("Failed to invoke 'Patch' action in " + HTTPConnector.CONNECTOR_NAME
+            throw new BallerinaException("Failed to invoke 'patch' action in " + HTTPConnector.CONNECTOR_NAME
                     + ". " + t.getMessage(), context);
         }
     }

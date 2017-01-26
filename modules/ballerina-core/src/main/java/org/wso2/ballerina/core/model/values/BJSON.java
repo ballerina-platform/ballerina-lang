@@ -104,7 +104,7 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
     }
 
     /**
-     * Return the string representation of this json object
+     * Return the string representation of this json object.
      */
     public String toString() {
         return this.value.toString();

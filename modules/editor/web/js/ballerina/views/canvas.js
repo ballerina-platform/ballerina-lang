@@ -75,17 +75,7 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
         panelTitle.addClass(_.get(options, 'cssClass.panel_title'));
         var panelIcon = $('<i></i>');
         panelIcon.addClass(_.get(options, 'cssClass.panel_icon'));
-        if (canvas[0].getAttribute('name') == "service") {
-            panelIcon.addClass(_.get(options, 'cssClass.service_icon'));
-        } else if (canvas[0].getAttribute('name') == "connector") {
-            panelIcon.addClass(_.get(options, 'cssClass.connector_icon'));
-        } else if (canvas[0].getAttribute('name') == "function") {
-            panelIcon.addClass(_.get(options, 'cssClass.function_icon'));
-        }
-        // TODO: Add the specific icon for the connector definition
-        else if (canvas[0].getAttribute('name') == "connectordefinition") {
-            panelIcon.addClass(_.get(options, 'cssClass.connector_icon'));
-        }
+        panelIcon.addClass(_.get(options, 'panelIcon'));
         panelTitle.append(panelIcon);
         var titleLink = $('<a></a>');
         titleLink.attr('id', 'title-' + id);

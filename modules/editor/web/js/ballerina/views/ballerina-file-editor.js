@@ -18,10 +18,10 @@
 define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-view',  './function-definition-view', './../ast/ballerina-ast-root',
         './../ast/ballerina-ast-factory', './../ast/package-definition', './source-view',
         './../visitors/source-gen/ballerina-ast-root-visitor', './../tool-palette/tool-palette',
-        './../undo-manager/undo-manager','./backend', './../ast/ballerina-ast-deserializer', './connector-definition-view'],
+        './../undo-manager/undo-manager','./backend', './../ast/ballerina-ast-deserializer', './connector-definition-view', './struct-definition-view'],
     function (_, $, log, BallerinaView, ServiceDefinitionView, FunctionDefinitionView, BallerinaASTRoot, BallerinaASTFactory,
               PackageDefinition, SourceView, SourceGenVisitor, ToolPalette, UndoManager, Backend, BallerinaASTDeserializer,
-              ConnectorDefinitionView) {
+              ConnectorDefinitionView, StructDefinitionView) {
 
         /**
          * The view to represent a ballerina file editor which is an AST visitor.
@@ -194,6 +194,18 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             functionDefinitionView.render(this.diagramRenderingContext);
         };
 
+        BallerinaFileEditor.prototype.visitStructDefinition = function (structDefinition) {
+            var structDefinitionView = new StructDefinitionView({
+                viewOptions: this._viewOptions,
+                container: this._$canvasContainer,
+                model: structDefinition,
+                parentView: this,
+                toolPalette: this.toolPalette
+            });
+            this.diagramRenderingContext.getViewModelMap()[structDefinition.id] = structDefinitionView;
+            structDefinitionView.render(this.diagramRenderingContext);
+        };
+
         /**
          * Adds the service definitions, function definitions and connector definitions to
          * {@link BallerinaFileEditor#_canvasList} and calls {@link BallerinaFileEditor#render}.
@@ -222,20 +234,31 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             var toolPaletteContainer = $(this._container).find(_.get(this._viewOptions, 'design_view.tool_palette.container')).get(0);
             var toolPaletteOpts = _.clone(_.get(this._viewOptions, 'design_view.tool_palette'));
             toolPaletteOpts.container = toolPaletteContainer;
+            toolPaletteOpts.ballerinaFileEditor = this;
             this.toolPalette = new ToolPalette(toolPaletteOpts);
-            //TODO adding a temporary tool
-            this.toolPalette.addConnectorTool({
-                id: "http-connector-declaration",
-                name: "HTTPConnector",
-                icon: "images/tool-icons/http-connector.svg",
-                title: "HTTPConnector",
-                nodeFactoryMethod: this._model.getFactory().createConnectorDeclaration
-            });
 
             this._createPackagePropertyPane(canvasContainer);
+
             // init undo manager
             this._undoManager = new UndoManager();
         };
+
+        BallerinaFileEditor.prototype.importPackage = function(packageName){
+            if (packageName != undefined && packageName != "") {
+                log.debug("Adding new import");
+                var backend = new Backend({ url : "" });
+                var package = backend.searchPackage(packageName,[]);
+                if(package == undefined){
+                    log.error("Unable to find the package.");
+                    return;
+                }
+                // Creating new import.
+                var newImportDeclaration = BallerinaASTFactory.createImportDeclaration();
+                newImportDeclaration.setPackageName(packageName);
+                this._model.addImport(newImportDeclaration);
+                //this.toolPalette.addImport(package);
+            }
+        }
 
         /**
          * Rendering the view for each canvas in {@link BallerinaFileEditor#_canvasList}.
