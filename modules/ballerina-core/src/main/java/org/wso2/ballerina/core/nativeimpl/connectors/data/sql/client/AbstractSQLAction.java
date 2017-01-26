@@ -27,7 +27,7 @@ import org.wso2.ballerina.core.model.values.BDataframe;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.data.sql.SQLConnector;
-import org.wso2.ballerina.core.nativeimpl.connectors.data.sql.SQLResultSetIterator;
+import org.wso2.ballerina.core.nativeimpl.connectors.data.sql.SQLDataIterator;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;

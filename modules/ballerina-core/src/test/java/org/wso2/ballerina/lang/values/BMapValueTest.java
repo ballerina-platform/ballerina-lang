@@ -17,7 +17,6 @@
  */
 package org.wso2.ballerina.lang.values;
 
-import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BMap;
@@ -32,9 +31,6 @@ import static org.testng.Assert.assertEquals;
  * Test class for ballerina map.
  */
 public class BMapValueTest   {
-    @BeforeTest
-    public void setup() {
-    }
 
     @Test
     public void testStandardJavaMap() {
