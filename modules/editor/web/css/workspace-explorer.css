@@ -120,15 +120,17 @@
     border-radius: 0px;
 }
 
-.vakata-context li > a:hover {
-    position: relative;
-    background-color: #dde4ec;
-    color: black;
+.vakata-context-hover, li.vakata-context-hover > a, .vakata-context li > a:hover {
+    background-color: #232323;
+    color: white;
+    border: none;
+    box-shadow: none;
 }
 
 .vakata-context, .vakata-context ul {
     background: #333333;
-    border: none;
+    border-width: 1px;
+    padding: 0;
     color: black;
     box-shadow: none;
 }
