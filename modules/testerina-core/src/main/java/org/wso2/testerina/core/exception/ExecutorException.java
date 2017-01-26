@@ -17,5 +17,10 @@
  */
 package org.wso2.testerina.core.exception;
 
-public class AssertException {
+/**
+ * Class for capturing assertion errors by Testerina.
+ */
+public class ExecutorException {
+
 }
+

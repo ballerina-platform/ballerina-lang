@@ -6,6 +6,148 @@
 WSO2 Testerina - Core
 
 
+From: 'an unknown organization'
+  - Gson (https://github.com/google/gson/gson) com.google.code.gson:gson:jar:2.7
+    License: Apache 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - Json Path (https://github.com/jayway/JsonPath) com.jayway.jsonpath:json-path:jar:2.2.0
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - commons.pool.wso2 (http://wso2.org) commons-pool.wso2:commons-pool:bundle:1.5.6.wso2v1
+
+  - org.apache.felix.gogo.command  org.apache.felix:org.apache.felix.gogo.command:jar:0.10.0.v201209301215
+
+  - org.apache.felix.gogo.runtime  org.apache.felix:org.apache.felix.gogo.runtime:jar:0.10.0.v201209301036
+
+  - org.apache.felix.gogo.shell  org.apache.felix:org.apache.felix.gogo.shell:jar:0.10.0.v201212101605
+
+  - org.eclipse.equinox.cm  org.wso2.eclipse.equinox:org.eclipse.equinox.cm:jar:1.1.0.v20131021-1936
+
+  - org.eclipse.equinox.common  org.wso2.eclipse.equinox:org.eclipse.equinox.common:jar:3.6.200.v20130402-1505
+
+  - org.eclipse.equinox.concurrent  org.wso2.eclipse.equinox:org.eclipse.equinox.concurrent:jar:1.1.0.v20130327-1442
+
+  - org.eclipse.equinox.console  org.wso2.eclipse.equinox:org.eclipse.equinox.console:jar:1.1.0.v20140131-1639
+
+  - org.eclipse.equinox.ds  org.wso2.eclipse.equinox:org.eclipse.equinox.ds:jar:1.4.200.v20131126-2331
+
+  - org.eclipse.equinox.frameworkadmin  org.wso2.eclipse.equinox:org.eclipse.equinox.frameworkadmin:jar:2.0.100.v20131209-2144
+
+  - org.eclipse.equinox.frameworkadmin.equinox  org.wso2.eclipse.equinox:org.eclipse.equinox.frameworkadmin.equinox:jar:1.0.500.v20131211-1531
+
+  - org.eclipse.equinox.launcher  org.wso2.eclipse.equinox:org.eclipse.equinox.launcher:jar:1.3.0.v20140415-2008
+
+  - org.eclipse.equinox.launcher.gtk.linux.x86  org.wso2.eclipse.equinox:org.eclipse.equinox.launcher.gtk.linux.x86:jar:1.1.200.v20150204-1316
+
+  - org.eclipse.equinox.preferences  org.wso2.eclipse.equinox:org.eclipse.equinox.preferences:jar:3.5.200.v20140224-1527
+
+  - org.eclipse.equinox.simpleconfigurator  org.wso2.eclipse.equinox:org.eclipse.equinox.simpleconfigurator:jar:1.1.0.v20131217-1203
+
+  - org.eclipse.equinox.simpleconfigurator.manipulator  org.wso2.eclipse.equinox:org.eclipse.equinox.simpleconfigurator.manipulator:jar:2.0.0.v20131217-1203
+
+  - org.eclipse.equinox.util  org.wso2.eclipse.equinox:org.eclipse.equinox.util:jar:1.0.500.v20130404-1337
+
+  - org.eclipse.osgi  org.wso2.eclipse.osgi:org.eclipse.osgi:jar:3.10.2.v20150203-1939
+
+  - org.eclipse.osgi.compatibility.state  org.wso2.eclipse.osgi:org.eclipse.osgi.compatibility.state:jar:1.0.1.v20140709-1414
+
+  - org.eclipse.osgi.services  org.wso2.eclipse.osgi:org.eclipse.osgi.services:jar:3.4.0.v20140312-2051
+
+  - WSO2 Carbon - Orbit - LMAX Disruptor (http://wso2.org) org.wso2.orbit.com.lmax:disruptor:bundle:3.3.2.wso2v2
+
+  - WSO2 Carbon Orbit - XPath Library (http://wso2.org) org.wso2.orbit.net.sf.saxon:Saxon-HE:bundle:9.7.0.wso2v1
+
+  - odata-server 4.0.0.wso2v1 Orbit Bundle (http://wso2.org) org.wso2.orbit.org.antlr:antlr4-runtime:bundle:4.5.1.wso2v1
+
+  - WSO2 Carbon Orbit - Tapestry JSON (http://wso2.org) org.wso2.orbit.org.apache.tapestry:tapestry-json:bundle:5.4.1.wso2v1
+
+  - SnakeYAML  org.wso2.orbit.org.yaml:snakeyaml:bundle:1.16.0.wso2v1
+
+
+From: 'Apache Software Foundation' (http://www.apache.org)
+  - Apache Log4j (http://logging.apache.org/log4j/1.2/) log4j:log4j:bundle:1.2.17
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - Streaming API for XML (STAX API 1.0) (http://geronimo.apache.org/specs/geronimo-stax-api_1.0_spec) org.apache.geronimo.specs:geronimo-stax-api_1.0_spec:bundle:1.0.1
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+
+From: 'Chemouni Uriel' (http://www.minidev.net/)
+  - ASM based accessors helper used by json-smart (http://accessors-smart/) net.minidev:accessors-smart:bundle:1.1
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - JSON Small and Fast Parser (http://www.minidev.net/) net.minidev:json-smart:bundle:2.2.1
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+
+From: 'Codehaus' (http://codehaus.org)
+  - jaxen (http://jaxen.codehaus.org/) jaxen:jaxen:bundle:1.1.6
+    License: $license.name  (http://jaxen.codehaus.org/license.html)
+
+From: 'Codehaus' (http://www.codehaus.org/)
+  - Stax2 API (http://woodstox.codehaus.org/StAX2) org.codehaus.woodstox:stax2-api:jar:3.1.1
+    License: The BSD License  (http://www.opensource.org/licenses/bsd-license.php)
+  - Woodstox (http://woodstox.codehaus.org) org.codehaus.woodstox:woodstox-core-asl:jar:4.2.0
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+
+From: 'ObjectWeb' (http://www.objectweb.org/)
+  - ASM Core (http://asm.objectweb.org/asm/) org.ow2.asm:asm:jar:5.0.3
+    License: BSD  (http://asm.objectweb.org/license.html)
+
+From: 'OSGi Alliance' (http://www.osgi.org)
+  - org.osgi.core (http://www.osgi.org) org.osgi:org.osgi.core:jar:6.0.0
+    License: Apache License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0)
+
+From: 'QOS.ch' (http://www.qos.ch)
+  - SLF4J API Module (http://www.slf4j.org) org.slf4j:slf4j-api:jar:1.7.5
+    License: MIT License  (http://www.opensource.org/licenses/mit-license.php)
+  - SLF4J LOG4J-12 Binding (http://www.slf4j.org) org.slf4j:slf4j-log4j12:jar:1.7.5
+    License: MIT License  (http://www.opensource.org/licenses/mit-license.php)
+
+From: 'The Apache Software Foundation' (http://www.apache.org)
+  - Activation 1.1 (http://geronimo.apache.org/maven/specs/geronimo-activation_1.1_spec/1.1) org.apache.geronimo.specs:geronimo-activation_1.1_spec:bundle:1.1
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+
+From: 'The Apache Software Foundation' (http://www.apache.org/)
+  - Apache Commons Logging (http://commons.apache.org/proper/commons-logging/) commons-logging:commons-logging:jar:1.2
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - Commons Pool (http://commons.apache.org/pool/) commons-pool:commons-pool:jar:1.5.6
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - Apache JAMES Mime4j (Core) (http://james.apache.org/mime4j/apache-mime4j-core) org.apache.james:apache-mime4j-core:jar:0.7.2
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - Axiom API (http://ws.apache.org/axiom/) org.apache.ws.commons.axiom:axiom-api:bundle:1.2.20
+    License: Apache License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - LLOM (http://ws.apache.org/axiom/implementations/axiom-impl/) org.apache.ws.commons.axiom:axiom-impl:bundle:1.2.20
+    License: Apache License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+
+From: 'The Netty Project' (http://netty.io/)
+  - Netty/Buffer (http://netty.io/netty-buffer/) io.netty:netty-buffer:jar:4.0.30.Final
+    License: Apache License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0)
+  - Netty/Codec (http://netty.io/netty-codec/) io.netty:netty-codec:jar:4.0.30.Final
+    License: Apache License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0)
+  - Netty/Codec/HTTP (http://netty.io/netty-codec-http/) io.netty:netty-codec-http:jar:4.0.30.Final
+    License: Apache License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0)
+  - Netty/Common (http://netty.io/netty-common/) io.netty:netty-common:jar:4.0.30.Final
+    License: Apache License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0)
+  - Netty/Handler (http://netty.io/netty-handler/) io.netty:netty-handler:jar:4.0.30.Final
+    License: Apache License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0)
+  - Netty/Transport (http://netty.io/netty-transport/) io.netty:netty-transport:jar:4.0.30.Final
+    License: Apache License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0)
+
+From: 'WSO2' (http://www.wso2.org/)
+  - WSO2 Ballerina - Core (http://wso2.org) org.wso2.ballerina:ballerina-core:bundle:0.8.0-SNAPSHOT
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - WSO2 Carbon Kernel - Base Initial Bundle (http://wso2.com) org.wso2.carbon:org.wso2.carbon.base:bundle:5.1.0
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - WSO2 Carbon Kernel - Core (http://wso2.com) org.wso2.carbon:org.wso2.carbon.core:bundle:5.1.0
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - WSO2 Carbon Kernel - Kernel Feature (http://wso2.com) org.wso2.carbon:org.wso2.carbon.kernel.feature:carbon-feature:5.1.0
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - WSO2 Carbon Kernel - Launcher (http://wso2.com) org.wso2.carbon:org.wso2.carbon.launcher:jar:5.1.0
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - WSO2 Carbon Kernel - Runtime Feature (http://wso2.com) org.wso2.carbon:org.wso2.carbon.runtime.feature:carbon-feature:5.1.0
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - WSO2 Carbon Kernel - Tools - Core (http://wso2.com) org.wso2.carbon:org.wso2.carbon.tools.core:jar:5.1.0
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - WSO2 Carbon Messaging Component (http://www.wso2.org/org.wso2.carbon.messaging.parent/org.wso2.carbon.messaging/) org.wso2.carbon.messaging:org.wso2.carbon.messaging:bundle:1.0.11
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - WSO2 Carbon Transport HTTP Netty Component (http://www.wso2.org/org.wso2.carbon.transport.parent/org.wso2.carbon.transport.http.netty.parent/components/org.wso2.carbon.transport.http.netty/) org.wso2.carbon.transport:org.wso2.carbon.transport.http.netty:bundle:3.0.3
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+
 
 
 

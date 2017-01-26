@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-Bnd-LastModified: 1485423169470
+Bnd-LastModified: 1485430019587
 Build-Jdk: 1.8.0_121
 Built-By: Chanuka
 Bundle-Contributors: WSO2 Inc
@@ -16,5 +16,5 @@ Bundle-SymbolicName: testerina-core
 Bundle-Vendor: WSO2 Inc
 Bundle-Version: 0.8.0.SNAPSHOT
 Created-By: Apache Maven Bundle Plugin
-SCM-Revision: a091de098c0fb94148a5b0b64783eee9a497e875
+SCM-Revision: fbba798d26ebec88d2a2ca34518c8cd4f03b7f0c
 Tool: Bnd-3.0.0.201509101326
