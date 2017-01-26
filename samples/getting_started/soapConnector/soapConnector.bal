@@ -21,9 +21,6 @@ connector SoapConnector (string url) {
         message:setHeader(backendServiceReq, "SOAPAction", soapAction);
 
         response = http:HTTPConnector.post(httpConnector, url, backendServiceReq);
-        //resp=message:getXmlPayload(response);
-        //soapBody = xml:getString(resp, "/soapenv:Envelope/soapenv:Body",{"soapenv" : "http://schemas.xmlsoap.org/soap/envelope/"});
-        //system:println(soapBody);
         return response;
     }
 }
