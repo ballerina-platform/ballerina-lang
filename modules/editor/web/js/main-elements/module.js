@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['app/main-elements/life-lines/module'], function (lifeLines) {
+define(['./life-lines/module'], function (lifeLines) {
     return {
         lifelines: lifeLines
     };
