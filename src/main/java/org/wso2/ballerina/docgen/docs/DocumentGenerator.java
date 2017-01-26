@@ -73,6 +73,7 @@ import org.wso2.ballerina.core.model.statements.ReturnStmt;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
 import org.wso2.ballerina.docgen.docs.model.BallerinaDoc;
 import org.wso2.ballerina.docgen.docs.model.BallerinaFunctionDoc;
+import org.wso2.ballerina.docgen.docs.utils.BallerinaDocUtils;
 
 /**
  * {@code DocumentGenerator} generates documents for a Ballerina program
@@ -140,8 +141,32 @@ public class DocumentGenerator implements NodeVisitor {
 
     @Override
     public void visit(BallerinaFunction function) {
-        BallerinaFunctionDoc doc = new BallerinaFunctionDoc(function);
+        BallerinaFunctionDoc doc = new BallerinaFunctionDoc();
         BallerinaDocDataHolder.getInstance().getBallerinaDocsMap().get(currentPkg).addBallerinaFunctionDoc(doc);
+        
+        StringBuilder s = new StringBuilder(function.getFunctionName() + " (");
+        for (Parameter parameter : function.getParameters()) {
+            s.append(BallerinaDocUtils.getType(parameter.getType()) + " " + parameter.getName() + ",");
+        }
+        doc.setSignature(s.substring(0, s.length() - 1).concat(")"));
+
+        s = new StringBuilder();
+        for (Parameter parameter : function.getReturnParameters()) {
+                s.append(BallerinaDocUtils.getType(parameter.getType()) + ",");
+        }
+        doc.setReturnType(s.length() == 0 ? "" : s.substring(0, s.length() - 1));
+        
+        for (Annotation annotation : function.getAnnotations()) {
+            if (annotation.getName().equalsIgnoreCase("param")) {
+                doc.getParameters().add(annotation.getValue());
+            } else if (annotation.getName().equalsIgnoreCase("description")) {
+                doc.setDescription(annotation.getValue());
+            } else if (annotation.getName().equalsIgnoreCase("return")) {
+                doc.getReturnParams().add(annotation.getValue());
+            } else if (annotation.getName().equalsIgnoreCase("throws")) {
+                doc.getThrownExceptions().add(annotation.getValue());
+            }
+        }
     }
 
     @Override

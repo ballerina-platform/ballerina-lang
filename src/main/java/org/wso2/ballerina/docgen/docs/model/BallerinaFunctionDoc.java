@@ -18,11 +18,6 @@
 
 package org.wso2.ballerina.docgen.docs.model;
 
-import org.wso2.ballerina.core.model.Annotation;
-import org.wso2.ballerina.core.model.BallerinaFunction;
-import org.wso2.ballerina.core.model.Parameter;
-import org.wso2.ballerina.docgen.docs.utils.BallerinaDocUtils;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -61,44 +56,10 @@ public class BallerinaFunctionDoc {
      */
     private List<String> thrownExceptions;
 
-    public BallerinaFunctionDoc(BallerinaFunction func) {
+    public BallerinaFunctionDoc() {
         parameters = new ArrayList<String>();
         returnParams = new ArrayList<String>();
         thrownExceptions = new ArrayList<String>();
-        buildSignature(func);
-        buildReturnTypes(func);
-        extractAnnotations(func);
-    }
-
-    private void extractAnnotations(BallerinaFunction func) {
-        for (Annotation annotation : func.getAnnotations()) {
-            if (annotation.getName().equalsIgnoreCase("param")) {
-                parameters.add(annotation.getValue());
-            } else if (annotation.getName().equalsIgnoreCase("description")) {
-                description = annotation.getValue();
-            } else if (annotation.getName().equalsIgnoreCase("return")) {
-                returnParams.add(annotation.getValue());
-            } else if (annotation.getName().equalsIgnoreCase("throws")) {
-                thrownExceptions.add(annotation.getValue());
-            }
-        }
-    }
-
-    private void buildReturnTypes(BallerinaFunction func) {
-        StringBuilder s = new StringBuilder();
-        for (Parameter p : func.getReturnParameters()) {
-            s.append(BallerinaDocUtils.getType(p.getType()) + ",");
-        }
-        this.returnTypes = s.length() == 0 ? "" : s.substring(0, s.length() - 1);
-    }
-
-    private void buildSignature(BallerinaFunction func) {
-
-        StringBuilder s = new StringBuilder(func.getFunctionName() + " (");
-        for (Parameter p : func.getParameters()) {
-            s.append(BallerinaDocUtils.getType(p.getType()) + " " + p.getName() + ",");
-        }
-        this.signature = s.substring(0, s.length() - 1).concat(")");
     }
 
     public String getSignature() {
