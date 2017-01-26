@@ -19,7 +19,7 @@ define(['lodash', './node'], function (_, ASTNode) {
 
     var TypeConverterDefinition = function (args) {
         ASTNode.call(this, 'TypeConverterDefinition');
-        this._typeConverterName = _.get(args, 'typeConverterName', 'TypeConverter1');
+        this._typeConverterName = _.get(args, 'typeConverterName', 'newTypeConverter');
         this.BallerinaASTFactory = this.getFactory();
     };
 
