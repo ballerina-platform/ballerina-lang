@@ -15,9 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './node'], function (_, ASTNode) {
+define(['lodash', 'log', './node'], function (_, log, ASTNode) {
 
-    var ReturnType = function (type) {
+    var ReturnType = function (args) {
         ASTNode.call(this, 'ReturnType');
     };
 

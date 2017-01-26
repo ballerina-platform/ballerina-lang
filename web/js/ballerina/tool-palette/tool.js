@@ -24,6 +24,7 @@ define(['require', 'backbone'], function (require, Backbone) {
             this.icon = _.get(args, 'icon', null);
             this.nodeFactoryMethod = _.get(args, 'nodeFactoryMethod', null);
             this.dragCursorOffset = _.get(args, 'dragCursorOffset', undefined);
+            this.classNames = _.get(args, 'classNames', undefined);
         },
 
         modelName: "Tool",
@@ -31,10 +32,10 @@ define(['require', 'backbone'], function (require, Backbone) {
         defaults: {
             id: "",
             title: "",
-            icon: ""
+            icon: "",
+            classNames:"",
         }
     });
 
     return tool;
 });
-

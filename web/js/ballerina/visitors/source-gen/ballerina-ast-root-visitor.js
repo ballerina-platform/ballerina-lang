@@ -15,8 +15,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './service-definition-visitor', './function-definition-visitor', './package-definition-visitor', './import-declaration-visitor'],
-    function(_, log, EventChannel, AbstractSourceGenVisitor, ServiceDefinitionVisitor, FunctionDefinitionVisitor, PackageDefinitionVisitor, ImportDeclarationVisitor) {
+define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './service-definition-visitor',
+        './function-definition-visitor', './package-definition-visitor', './import-declaration-visitor',
+        './connector-definition-visitor', './struct-definition-visitor'],
+    function(_, log, EventChannel, AbstractSourceGenVisitor, ServiceDefinitionVisitor, FunctionDefinitionVisitor,
+             PackageDefinitionVisitor, ImportDeclarationVisitor, ConnectorDefinitionVisitor, StructDefinitionVisitor) {
 
     var BallerinaASTRootVisitor = function() {
         AbstractSourceGenVisitor.call(this);
@@ -46,9 +49,19 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './se
         serviceDefinition.accept(serviceDefinitionVisitor);
     };
 
+    BallerinaASTRootVisitor.prototype.visitConnectorDefinition = function(connectorDefinition){
+        var connectorDefinitionVisitor = new ConnectorDefinitionVisitor(this);
+        connectorDefinition.accept(connectorDefinitionVisitor);
+    };
+
     BallerinaASTRootVisitor.prototype.visitFunctionDefinition = function(functionDefinition){
         var functionDefinitionVisitor = new FunctionDefinitionVisitor(this);
         functionDefinition.accept(functionDefinitionVisitor);
+    };
+
+    BallerinaASTRootVisitor.prototype.visitStructDefinition = function (structDefinition) {
+        var structDefinitionVisitor = new StructDefinitionVisitor(this);
+        structDefinition.accept(structDefinitionVisitor);
     };
 
     BallerinaASTRootVisitor.prototype.visitPackageDefinition = function(packageDefinition){

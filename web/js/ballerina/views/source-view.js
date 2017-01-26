@@ -75,6 +75,10 @@ define(['log', 'lodash', 'jquery', 'event_channel', 'ace/ace', '../utils/ace-mod
         this._editor.session.setValue(formattedContent);
     };
 
+    SourceView.prototype.getContent = function(){
+        return this._editor.session.getValue();
+    };
+
     SourceView.prototype.show = function(){
         $(this._container).show();
     };
