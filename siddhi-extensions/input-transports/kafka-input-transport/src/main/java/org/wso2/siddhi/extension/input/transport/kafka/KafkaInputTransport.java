@@ -21,6 +21,7 @@ package org.wso2.siddhi.extension.input.transport.kafka;
 import kafka.consumer.ConsumerConfig;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.wso2.siddhi.annotation.SiddhiExtension;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.subscription.InputCallback;
 import org.wso2.siddhi.core.subscription.InputTransport;
@@ -29,6 +30,10 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.*;
 
+@SiddhiExtension(
+        name = "kafka",
+        namespace = "inputtransport"
+)
 public class KafkaInputTransport extends InputTransport {
 
     private InputCallback inputCallback;

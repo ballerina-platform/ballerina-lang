@@ -28,6 +28,7 @@ import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.http.conn.params.ConnRoutePNames;
 import org.apache.log4j.Logger;
+import org.wso2.siddhi.annotation.SiddhiExtension;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.exception.OutputTransportException;
 import org.wso2.siddhi.core.exception.TestConnectionNotSupportedException;
@@ -48,6 +49,9 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+@SiddhiExtension(
+        name = "http",
+        namespace = "outputtransport")
 public class HttpOutputTransport extends OutputTransport {
     public static final String ADAPTER_TYPE_HTTP = "http";
     public static final String ADAPTER_MESSAGE_URL = "http.url";

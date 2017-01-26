@@ -37,6 +37,7 @@ import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.table.holder.EventHolder;
+import org.wso2.siddhi.annotation.SiddhiExtension;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.collection.OverwritingStreamEventExtractor;
 import org.wso2.siddhi.core.util.collection.UpdateAttributeMapper;
@@ -61,6 +62,10 @@ import java.util.Map;
 /**
  * Hazelcast event table implementation of SiddhiQL.
  */
+@SiddhiExtension(
+        name = "hazelcast",
+        namespace = "eventtable"
+)
 public class HazelcastEventTable implements EventTable {
     private static final Logger logger = Logger.getLogger(HazelcastEventTable.class);
     private final ZeroStreamEventConverter eventConverter = new ZeroStreamEventConverter();
@@ -92,7 +97,7 @@ public class HazelcastEventTable implements EventTable {
 
         Store store = tableDefinition.getStore();
         Map<String, String> getStoreOptions = null;
-        if (store != null){
+        if (store != null) {
             getStoreOptions = store.getOptions();
         }
 
@@ -114,7 +119,7 @@ public class HazelcastEventTable implements EventTable {
                 hosts = getStoreOptions.get(
                         HazelcastEventTableConstants.ANNOTATION_ELEMENT_HAZELCAST_WELL_KNOWN_ADDRESSES);
             }
-        }  else {
+        } else {
             clusterName = fromAnnotation.getElement(
                     HazelcastEventTableConstants.ANNOTATION_ELEMENT_HAZELCAST_CLUSTER_NAME);
             clusterPassword = fromAnnotation.getElement(

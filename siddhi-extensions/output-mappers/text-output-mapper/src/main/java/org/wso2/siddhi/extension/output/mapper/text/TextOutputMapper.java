@@ -20,11 +20,15 @@ package org.wso2.siddhi.extension.output.mapper.text;
 
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.publisher.OutputMapper;
+import org.wso2.siddhi.annotation.SiddhiExtension;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
 import java.util.Map;
 
-public class TextOutputMapper extends OutputMapper {
+@SiddhiExtension(
+        name = "text",
+        namespace = "outputmapper"
+)public class TextOutputMapper extends OutputMapper {
     private StreamDefinition streamDefinition;
     private static final String EVENT_ATTRIBUTE_SEPARATOR = ",";
     private static final String EVENT_ATTRIBUTE_VALUE_SEPARATOR = ":";

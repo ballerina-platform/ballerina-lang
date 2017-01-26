@@ -32,13 +32,19 @@ import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.util.SiddhiConstants;
+import org.wso2.siddhi.annotation.SiddhiExtension;
 import org.wso2.siddhi.core.util.collection.OverwritingStreamEventExtractor;
 import org.wso2.siddhi.core.util.collection.UpdateAttributeMapper;
 import org.wso2.siddhi.core.util.collection.operator.Finder;
 import org.wso2.siddhi.core.util.collection.operator.MatchingMetaStateHolder;
 import org.wso2.siddhi.core.util.collection.operator.Operator;
 import org.wso2.siddhi.extension.eventtable.cache.CachingTable;
-import org.wso2.siddhi.extension.eventtable.rdbms.*;
+import org.wso2.siddhi.extension.eventtable.rdbms.DBHandler;
+import org.wso2.siddhi.extension.eventtable.rdbms.DBQueryHelper;
+import org.wso2.siddhi.extension.eventtable.rdbms.PooledDataSource;
+import org.wso2.siddhi.extension.eventtable.rdbms.RDBMSEventTableConstants;
+import org.wso2.siddhi.extension.eventtable.rdbms.RDBMSOperator;
+import org.wso2.siddhi.extension.eventtable.rdbms.RDBMSOperatorParser;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.annotation.Element;
 import org.wso2.siddhi.query.api.definition.Attribute;
@@ -55,6 +61,10 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
+@SiddhiExtension(
+        name = "rdbms",
+        namespace = "eventtable"
+)
 public class RDBMSEventTable implements EventTable {
 
     private TableDefinition tableDefinition;
@@ -100,7 +110,7 @@ public class RDBMSEventTable implements EventTable {
 
         Store store = tableDefinition.getStore();
         Map<String, String> getStoreOptions = null;
-        if (store != null){
+        if (store != null) {
             getStoreOptions = store.getOptions();
         }
 
@@ -110,8 +120,7 @@ public class RDBMSEventTable implements EventTable {
         if (getStoreOptions != null) {
             dataSourceName = getStoreOptions.get(RDBMSEventTableConstants.ANNOTATION_ELEMENT_DATASOURCE_NAME);
             tableName = getStoreOptions.get(RDBMSEventTableConstants.ANNOTATION_ELEMENT_TABLE_NAME);
-        }
-        else {
+        } else {
             dataSourceName = fromAnnotation.getElement(RDBMSEventTableConstants.ANNOTATION_ELEMENT_DATASOURCE_NAME);
             tableName = fromAnnotation.getElement(RDBMSEventTableConstants.ANNOTATION_ELEMENT_TABLE_NAME);
         }

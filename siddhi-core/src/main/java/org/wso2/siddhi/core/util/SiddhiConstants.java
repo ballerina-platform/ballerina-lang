@@ -63,4 +63,5 @@ public final class SiddhiConstants {
     public static final String METRIC_INFIX_WINDOWS = "Windows";
     public static final String METRIC_DELIMITER = ".";
     public static final String METRIC_AGGREGATE_ANNOTATION = "[+]";
+    public static final String EXTENSION_SEPARATOR = ":";
 }

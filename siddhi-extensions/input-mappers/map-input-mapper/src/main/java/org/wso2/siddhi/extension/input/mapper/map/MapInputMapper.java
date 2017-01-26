@@ -19,6 +19,7 @@
 package org.wso2.siddhi.extension.input.mapper.map;
 
 import org.apache.log4j.Logger;
+import org.wso2.siddhi.annotation.SiddhiExtension;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
@@ -43,6 +44,10 @@ import java.util.Map;
 /**
  * This mapper converts hashmap input to {@link ComplexEventChunk}.
  */
+@SiddhiExtension(
+        name = "map",
+        namespace = "inputmapper"
+)
 public class MapInputMapper implements InputMapper {
 
     /**

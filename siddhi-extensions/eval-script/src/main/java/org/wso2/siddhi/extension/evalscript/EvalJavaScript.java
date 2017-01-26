@@ -21,12 +21,17 @@ package org.wso2.siddhi.extension.evalscript;
 import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.exception.ExecutionPlanRuntimeException;
 import org.wso2.siddhi.core.function.EvalScript;
+import org.wso2.siddhi.annotation.SiddhiExtension;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
+@SiddhiExtension(
+        name = "javascript",
+        namespace = "evalscript"
+)
 public class EvalJavaScript implements EvalScript {
 
     private ScriptEngine engine;

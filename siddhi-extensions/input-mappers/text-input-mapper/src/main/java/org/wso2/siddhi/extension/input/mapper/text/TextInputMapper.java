@@ -18,6 +18,7 @@
 package org.wso2.siddhi.extension.input.mapper.text;
 
 import org.apache.log4j.Logger;
+import org.wso2.siddhi.annotation.SiddhiExtension;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
@@ -44,6 +45,10 @@ import java.util.regex.Pattern;
  * This mapper converts TEXT string input to {@link ComplexEventChunk}. This extension accepts optional regex mapping to
  * select specific attributes from the stream.
  */
+@SiddhiExtension(
+        name = "text",
+        namespace = "inputmapper"
+)
 public class TextInputMapper implements InputMapper {
 
     /**

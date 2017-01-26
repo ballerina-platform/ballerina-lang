@@ -45,7 +45,7 @@ public class ExtensionTestCase {
     public void extensionTest1() throws InterruptedException {
         log.info("extension test1");
         SiddhiManager siddhiManager = new SiddhiManager();
-
+        siddhiManager.setExtension("custom:getAll", StringConcatAggregatorString.class);
         String cseEventStream = "define stream cseEventStream (symbol string, price float, volume long);";
         String query = ("@info(name = 'query1') from cseEventStream select price , custom:getAll(symbol) as toConcat " +
                 "group by volume insert into mailOutput;");

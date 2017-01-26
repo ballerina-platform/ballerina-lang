@@ -20,12 +20,17 @@ package org.wso2.siddhi.extension.output.mapper.json;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.wso2.siddhi.annotation.SiddhiExtension;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.publisher.OutputMapper;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
 import java.util.Map;
 
+@SiddhiExtension(
+        name = "json",
+        namespace = "outputmapper"
+)
 public class JSONOutputMapper extends OutputMapper {
     private StreamDefinition streamDefinition;
     private static final String EVENT_PARENT_TAG = "event";
