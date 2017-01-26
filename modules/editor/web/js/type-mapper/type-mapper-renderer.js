@@ -26,8 +26,10 @@ define(['require', 'lodash','jquery','jsPlumb','nano_scroller'], function(requir
     var pointSize = 5;
     var dashStyle = "3 3";
     var idNameSeperator = "-";
+    var onConnection;
 
-    TypeMapper.init = function() {
+    TypeMapper.init = function(onConnectionCallback, onDisconnectCallback) {
+        TypeMapper.onConnection = onConnectionCallback;
 
         jsPlumb.Defaults.Container = $("#" + placeHolderName);
         jsPlumb.Defaults.PaintStyle = {
@@ -51,7 +53,17 @@ define(['require', 'lodash','jquery','jsPlumb','nano_scroller'], function(requir
 
         jsPlumb.importDefaults({Connector : [ "Bezier", { curviness:1 } ]});
         jsPlumb.bind('dblclick', function (connection, e) {
+            var PropertyConnection = {
+                sourceStruct : connection.source.id.split(idNameSeperator)[0],
+                sourceProperty : connection.source.id.split(idNameSeperator)[1],
+                sourceType : connection.source.id.split(idNameSeperator)[2],
+                targetStruct : connection.target.id.split(idNameSeperator)[0],
+                targetProperty : connection.target.id.split(idNameSeperator)[1],
+                targetType : connection.target.id.split(idNameSeperator)[2]
+            }
+
             jsPlumb.detach(connection);
+            onDisconnectCallback(PropertyConnection);
         });
 
 
@@ -60,6 +72,7 @@ define(['require', 'lodash','jquery','jsPlumb','nano_scroller'], function(requir
     TypeMapper.removeStruct  = function (name){
         jsPlumb.detachEveryConnection();
         $("#" + name).remove();
+        onRemoveConnectionCallback();
     }
 
     TypeMapper.addConnection  = function (connection) {
@@ -88,18 +101,18 @@ define(['require', 'lodash','jquery','jsPlumb','nano_scroller'], function(requir
     }
 
     TypeMapper.addSourceStruct  = function (struct) {
-        this.makeStruct(struct, 50, 50);
+        TypeMapper.makeStruct(struct, 50, 50);
         for (var i = 0; i < struct.properties.length; i++) {
-            this.addSourceProperty($('#' + struct.name), struct.properties[i].name, struct.properties[i].type);
+            TypeMapper.addSourceProperty($('#' + struct.name), struct.properties[i].name, struct.properties[i].type);
         };
     }
 
     TypeMapper.addTargetStruct  = function (struct) {
         var placeHolderWidth = document.getElementById(placeHolderName).offsetWidth;
         var posY = placeHolderWidth - (placeHolderWidth/4);
-        this.makeStruct(struct, 50, posY);
+        TypeMapper.makeStruct(struct, 50, posY);
         for (var i = 0; i < struct.properties.length; i++) {
-            this.addTargetProperty($('#' +struct.name), struct.properties[i].name, struct.properties[i].type);
+            TypeMapper.addTargetProperty($('#' +struct.name), struct.properties[i].name, struct.properties[i].type);
         };
     }
 
@@ -136,18 +149,34 @@ define(['require', 'lodash','jquery','jsPlumb','nano_scroller'], function(requir
     }
 
     TypeMapper.addSourceProperty  = function (parentId, name, type) {
-        jsPlumb.makeSource(this.makeProperty(parentId, name, type), {
+        jsPlumb.makeSource(TypeMapper.makeProperty(parentId, name, type), {
             anchor:["Continuous", { faces:["right"] } ]
         });
     }
 
     TypeMapper.addTargetProperty  = function (parentId, name, type) {
-        jsPlumb.makeTarget(this.makeProperty(parentId, name, type), {
+        jsPlumb.makeTarget(TypeMapper.makeProperty(parentId, name, type), {
             maxConnections:1,
             anchor:["Continuous", { faces:[ "left"] } ],
             beforeDrop: function (params) {
                 //Checks property types are equal
-                return params.sourceId.split(idNameSeperator)[2] == params.targetId.split(idNameSeperator)[2];
+                var isValidTypes = params.sourceId.split(idNameSeperator)[2] == params.targetId.split(idNameSeperator)[2];
+
+                if (isValidTypes) {
+
+                    var connection = {
+                        sourceStruct : params.sourceId.split(idNameSeperator)[0],
+                        sourceProperty : params.sourceId.split(idNameSeperator)[1],
+                        sourceType : params.sourceId.split(idNameSeperator)[2],
+                        targetStruct : params.targetId.split(idNameSeperator)[0],
+                        targetProperty : params.targetId.split(idNameSeperator)[1],
+                        targetType : params.targetId.split(idNameSeperator)[2]
+                    }
+
+                    TypeMapper.onConnection(connection);
+                }
+
+                return isValidTypes;
             }
         });
     }
