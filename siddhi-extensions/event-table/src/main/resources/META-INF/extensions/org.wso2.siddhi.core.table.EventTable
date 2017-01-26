@@ -1,0 +1,2 @@
+org.wso2.siddhi.extension.eventtable.RDBMSEventTable
+org.wso2.siddhi.extension.eventtable.HazelcastEventTable
