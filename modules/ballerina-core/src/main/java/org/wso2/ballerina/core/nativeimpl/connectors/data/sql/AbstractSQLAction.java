@@ -33,6 +33,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -54,7 +55,8 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             PreparedStatement stmt = conn.prepareStatement(query);
             ResultSet rs = stmt.executeQuery();
 
-            BDataframe dataframe = new BDataframe(new SQLDataIterator(conn, stmt, rs), new HashMap<>());
+            BDataframe dataframe = new BDataframe(new SQLDataIterator(conn, stmt, rs), 
+                    new HashMap<>(), new ArrayList<>());
             context.getControlStack().setReturnValue(0, dataframe);
             return dataframe;
         } catch (SQLException e) {
@@ -125,7 +127,8 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             boolean hasResult = stmt.execute();
             if (hasResult) {
                 ResultSet rs = stmt.getResultSet(); //TODO:How to return next result sets
-                BDataframe dataframe = new BDataframe(new SQLDataIterator(conn, stmt, rs), new HashMap<>());
+                BDataframe dataframe = new BDataframe(new SQLDataIterator(conn, stmt, rs), 
+                        new HashMap<>(), new ArrayList<>());
                 context.getControlStack().setReturnValue(0, dataframe);
                 return dataframe;
             }
