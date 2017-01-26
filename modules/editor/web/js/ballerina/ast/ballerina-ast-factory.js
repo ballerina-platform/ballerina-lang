@@ -29,7 +29,8 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         './action-invocation-statement', './arithmetic-expression', './logical-expression', './action-invocation-expression',
         './return-type', './type-name', './argument', './back-quote-expression', './basic-literal-expression',
         './left-operand-expression', './right-operand-expression', './instance-creation-expression', './then-body',
-        './if-condition', './array-map-access-expression', './binary-expression', './connector-action', './struct-definition'],
+        './if-condition', './array-map-access-expression', './binary-expression', './connector-action', './struct-definition',
+        './type-struct-definition'],
     function (_, ballerinaAstRoot, serviceDefinition, functionDefinition, connectorDefinition, resourceDefinition,
               workerDeclaration, statement, conditionalStatement, connectorDeclaration, expression, ifElseStatement,
               ifStatement, elseStatement, elseIfStatement, tryCatchStatement, tryStatement, catchStatement, replyStatement,
@@ -38,7 +39,8 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
               functionInvocationExpression, variableReferenceExpression, actionInvocationStatement, arithmeticExpression,
               logicalExpression, actionInvocationExpression, returnType, typeName, argument, backQuoteExpression,
               basicLiteralExpression, leftOperandExpression, rightOperandExpression, instanceCreationExpression,
-              thenBody, ifCondition, arrayMapAccessExpression, binaryExpression, connectorAction, structDefinition) {
+              thenBody, ifCondition, arrayMapAccessExpression, binaryExpression, connectorAction, structDefinition,
+              typeStructDefinition) {
 
 
         /**
@@ -116,14 +118,6 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         };
 
         /**
-         * creates TypeConverterDefinition
-         * @param args
-         */
-        BallerinaASTFactory.createTypeConverterDefinition = function (args) {
-            return new typeConverterDefinition(args);
-        };
-
-        /**
          * creates TypeDefinition
          * @param args
          */
@@ -146,6 +140,24 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          */
         BallerinaASTFactory.createStructDefinition = function (args) {
             return new structDefinition(args);
+        };
+
+        /**
+         * creates typeConverterDefinition
+         * @param {Object} args - object for typeConverterDefinition creation
+         * @returns {TypeConverterDefinition}
+         */
+        BallerinaASTFactory.createTypeConverterDefinition = function (args) {
+            return new typeConverterDefinition(args);
+        };
+
+        /**
+         * creates typeStructDefinition
+         * @param {Object} args - object for typeStructDefinition creation
+         * @returns {TypeStructDefinition}
+         */
+        BallerinaASTFactory.createTypeStructDefinition = function (args) {
+            return new typeStructDefinition(args);
         };
 
         /**
@@ -577,6 +589,24 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          */
         BallerinaASTFactory.isStructDefinition = function (child) {
           return child instanceof structDefinition;
+        };
+
+        /**
+         * instanceof check for TypeConverterDefinition
+         * @param {ASTNode} child - Object for instanceof check
+         * @returns {boolean} - true if same type, else false
+         */
+        BallerinaASTFactory.isTypeConverterDefinition = function (child) {
+            return child instanceof typeConverterDefinition;
+        };
+
+        /**
+         * instanceof check for TypeStructDefinition
+         * @param {ASTNode} child - Object for instanceof check
+         * @returns {boolean} - true if same type, else false
+         */
+        BallerinaASTFactory.isTypeStructDefinition = function (child) {
+            return child instanceof typeStructDefinition;
         };
 
         /**

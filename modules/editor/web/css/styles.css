@@ -1085,6 +1085,14 @@ button.variable-list {
     cursor: text;
 }
 
+.type-converter-title-text:hover {
+    cursor: text;
+}
+
+.type-struct-title-text:hover {
+    cursor: text;
+}
+
 .function-title-text:hover {
     cursor: text;
 }
