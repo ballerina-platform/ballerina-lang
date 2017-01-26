@@ -30,7 +30,7 @@ import org.wso2.ballerina.core.parser.BallerinaParser.AnnotationContext;
 import java.util.List;
 
 /**
- * Build the Ballerina language model using the listener events from antlr4 parser
+ * Build the Ballerina language model using the listener events from antlr4 parser.
  *
  * @see BLangModelBuilder
  * @since 0.8.0

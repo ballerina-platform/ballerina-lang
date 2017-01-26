@@ -106,7 +106,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * {@code SemanticAnalyzer} analyzes semantic properties of a Ballerina program
+ * {@code SemanticAnalyzer} analyzes semantic properties of a Ballerina program.
  *
  * @since 0.8.0
  */

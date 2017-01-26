@@ -34,7 +34,7 @@ import org.wso2.ballerina.core.utils.ParserUtils;
 import org.wso2.ballerina.lang.util.Functions;
 
 /**
- * Test class to validate the backtick based inline xml and json definitions
+ * Test class to validate the backtick based inline xml and json definitions.
  */
 public class TemplateExpressionTest {
     private BallerinaFile bFile;

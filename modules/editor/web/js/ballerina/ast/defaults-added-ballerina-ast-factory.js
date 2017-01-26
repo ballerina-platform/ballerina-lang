@@ -41,7 +41,7 @@ define(['lodash', './ballerina-ast-factory'], function (_, BallerinaASTFactory) 
      */
     DefaultsAddedBallerinaASTFactory.createResourceDefinition = function (args) {
         var resourceDef = BallerinaASTFactory.createResourceDefinition(args);
-        var resourceArg = BallerinaASTFactory.createResourceArgument();
+        var resourceArg = BallerinaASTFactory.createResourceParameter();
         resourceArg.setType("message");
         resourceArg.setIdentifier("m");
         resourceDef.addChild(resourceArg);

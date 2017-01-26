@@ -58,7 +58,7 @@ import org.wso2.ballerina.core.model.statements.ReturnStmt;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
 
 /**
- * {@code NodeVisitor} responsible for executing a Ballerina applications by traversing statements and expressions
+ * {@code NodeVisitor} responsible for executing a Ballerina applications by traversing statements and expressions.
  *
  * @since 0.8.0
  */

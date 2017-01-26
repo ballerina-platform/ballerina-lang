@@ -36,6 +36,7 @@ public class LocalFSWorkspace implements Workspace {
 
     private static final Logger logger = LoggerFactory.getLogger(LocalFSWorkspace.class);
     private static final String FILE_EXTENSION = ".bal";
+    private static final String FOLDER_TYPE = "folder";
 
     @Override
     public JsonArray listRoots() throws IOException  {
@@ -49,8 +50,8 @@ public class LocalFSWorkspace implements Workspace {
                     Iterator<Path> rootItr = Files.list(root).iterator();
                     while (rootItr.hasNext()){
                         Path next = rootItr.next();
-                        JsonObject childObj = getJsonObjForFile(next, true);
-                        if(Files.isDirectory(next)){
+                        if(Files.isDirectory(next) && !Files.isHidden(next)){
+                            JsonObject childObj = getJsonObjForFile(next, true);
                             children.add(childObj);
                         }
                     }
@@ -74,7 +75,7 @@ public class LocalFSWorkspace implements Workspace {
         Iterator<Path> iterator = Files.list(ioPath).iterator();
         while (iterator.hasNext()){
             Path next = iterator.next();
-            if(Files.isDirectory(next)){
+            if(Files.isDirectory(next) && !Files.isHidden(next)){
                 JsonObject jsnObj = getJsonObjForFile(next, true);
                 dirs.add(jsnObj);
             }
@@ -86,6 +87,16 @@ public class LocalFSWorkspace implements Workspace {
     public void write(String path, String content) throws IOException {
         Path ioPath = Paths.get(path);
         Files.write(ioPath, content.getBytes());
+    }
+
+    @Override
+    public void create(String path, String type) throws IOException {
+        Path ioPath = Paths.get(path);
+        if (FOLDER_TYPE.equals(type)) {
+            Files.createDirectories(ioPath);
+        } else {
+            Files.createFile(ioPath);
+        }
     }
 
     @Override
@@ -135,7 +146,7 @@ public class LocalFSWorkspace implements Workspace {
 		Iterator<Path> iterator = Files.list(ioPath).iterator();
 		while (iterator.hasNext()) {
 			Path next = iterator.next();
-			if (Files.isDirectory(next) || Files.isRegularFile(next)) {
+			if ((Files.isDirectory(next) || Files.isRegularFile(next))  && !Files.isHidden(next)) {
 				JsonObject jsnObj = getJsonObjForFile(next, true);
 				if (Files.isRegularFile(next)) {
 					if (next.getFileName().toString().endsWith(FILE_EXTENSION)) {
@@ -149,4 +160,14 @@ public class LocalFSWorkspace implements Workspace {
 		}
 		return dirs;
 	}
+
+    @Override
+    public JsonObject exists(String path) throws IOException {
+        Path ioPath = Paths.get(path);
+        JsonObject result = new JsonObject();
+        boolean exists = Files.exists(ioPath);
+        result.addProperty("file", path);
+        result.addProperty("exists", exists);
+        return result;
+    }
 }

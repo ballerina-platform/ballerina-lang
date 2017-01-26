@@ -26,7 +26,7 @@ import org.wso2.ballerina.core.model.values.BValueType;
 import java.util.function.BiFunction;
 
 /**
- * {@code BinaryExpression} represents a binary expression
+ * {@code BinaryExpression} represents a binary expression.
  *
  * @see BinaryCompareExpression
  * @see BinaryArithmeticExpression

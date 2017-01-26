@@ -33,7 +33,7 @@ import org.wso2.ballerina.core.nativeimpl.connectors.http.Constants;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
- * {@code Delete} is the DELETE action implementation of the HTTP Connector
+ * {@code Delete} is the DELETE action implementation of the HTTP Connector.
  *
  */
 @BallerinaAction(
@@ -78,7 +78,7 @@ public class Delete extends AbstractHTTPAction {
             // Execute the operation
             return executeAction(context, cMsg);
         } catch (Throwable t) {
-            throw new BallerinaException("Failed to invoke 'Delete' action in " + HTTPConnector.CONNECTOR_NAME 
+            throw new BallerinaException("Failed to invoke 'delete' action in " + HTTPConnector.CONNECTOR_NAME
                     + ". " + t.getMessage(), context);
         }
     }

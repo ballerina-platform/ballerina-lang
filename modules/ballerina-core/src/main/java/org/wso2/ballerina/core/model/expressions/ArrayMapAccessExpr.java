@@ -69,7 +69,7 @@ public class ArrayMapAccessExpr extends UnaryExpression {
     }
 
     /**
-     * {@code ArrayMapAccessExprBuilder} represents an array access expression builder
+     * {@code ArrayMapAccessExprBuilder} represents an array access expression builder.
      *
      * @since 0.8.0
      */

@@ -27,9 +27,6 @@ import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeTypeConverter;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaTypeConverter;
-import org.wso2.ballerina.core.nativeimpl.connectors.http.function.AcceptAndReturn;
-import org.wso2.ballerina.core.nativeimpl.connectors.http.function.ConvertToResponse;
-import org.wso2.ballerina.core.nativeimpl.connectors.http.function.GetMethod;
 import org.wso2.ballerina.core.nativeimpl.lang.array.DoubleArrayCopyOf;
 import org.wso2.ballerina.core.nativeimpl.lang.array.DoubleArrayLength;
 import org.wso2.ballerina.core.nativeimpl.lang.array.DoubleArrayRangeCopy;
@@ -175,12 +172,20 @@ import org.wso2.ballerina.core.nativeimpl.lang.xml.GetXML;
 import org.wso2.ballerina.core.nativeimpl.lang.xml.GetXMLWithNamespaces;
 import org.wso2.ballerina.core.nativeimpl.lang.xml.SetXML;
 import org.wso2.ballerina.core.nativeimpl.lang.xml.SetXMLWithNamespaces;
+import org.wso2.ballerina.core.nativeimpl.net.http.AcceptAndReturn;
+import org.wso2.ballerina.core.nativeimpl.net.http.ConvertToResponse;
+import org.wso2.ballerina.core.nativeimpl.net.http.GetContentLength;
+import org.wso2.ballerina.core.nativeimpl.net.http.GetMethod;
+import org.wso2.ballerina.core.nativeimpl.net.http.GetStatusCode;
+import org.wso2.ballerina.core.nativeimpl.net.http.SetContentLength;
+import org.wso2.ballerina.core.nativeimpl.net.http.SetReasonPhrase;
+import org.wso2.ballerina.core.nativeimpl.net.http.SetStatusCode;
 import org.wso2.ballerina.core.nativeimpl.net.uri.Encode;
 import org.wso2.ballerina.core.nativeimpl.net.uri.GetQueryParam;
 
 
 /**
- * {@code BuiltInNativeConstructLoader} is responsible for loading built-in native constructs in the ballerina core
+ * {@code BuiltInNativeConstructLoader} is responsible for loading built-in native constructs in the ballerina core.
  * itself.
  * <p>
  * All the external native constructs are plugged into the core through osgi services.
@@ -198,7 +203,7 @@ public class BuiltInNativeConstructLoader {
     }
 
     /**
-     * Load native functions to the runtime
+     * Load native functions to the runtime.
      */
     private static void loadNativeFunctions() {
         SymScope scope = GlobalScopeHolder.getInstance().getScope();
@@ -343,6 +348,13 @@ public class BuiltInNativeConstructLoader {
         // net.uri
         registerFunction(scope, new Encode());
         registerFunction(scope, new GetQueryParam());
+
+        // net.http
+        registerFunction(scope, new SetStatusCode());
+        registerFunction(scope, new GetStatusCode());
+        registerFunction(scope, new SetContentLength());
+        registerFunction(scope, new GetContentLength());
+        registerFunction(scope, new SetReasonPhrase());
 
         // lang.map
         registerFunction(scope, new GetKeys());
