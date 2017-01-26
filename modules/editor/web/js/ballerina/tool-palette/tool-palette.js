@@ -161,15 +161,15 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
          */
         addImport: function(package){
             var import_pkg = package;
-            if(_.find(this._imports, function(o){ return (o.name == import_pkg.name) }) != undefined){
+            if(_.find(this._imports, function(_import){ return (_import.getName() == import_pkg.getName()) }) != undefined){
                 return false;
             }            
 
             var definitions = [];
-            _.forEach( package.connectors , function(connector) {
-                connector.nodeFactoryMethod = BallerinaASTFactory.createConnectorDeclaration;
+            _.forEach(package.getConnectorDefinitions() , function(connector) {
+                connector.nodeFactoryMethod = BallerinaASTFactory.createConnectorDeclaration();
                 connector.meta = {
-                    connectorName: connector.name,
+                    connectorName: connector.getName(),
                     connectorPackageName: import_pkg.name
                 };               
                 definitions.push(connector);
@@ -188,8 +188,8 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
 
             this._imports.push(package);
             var group = new ToolGroup({
-                toolGroupName: package.name,
-                toolGroupID: package.name + "-tool-group",
+                toolGroupName: package.getName(),
+                toolGroupID: package.getName() + "-tool-group",
                 toolOrder: "vertical",
                 toolDefinitions: definitions
             });

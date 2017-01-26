@@ -15,11 +15,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['log', 'lodash', 'event_channel', './../ast/service-definition', './../ast/function-definition', './../ast/connector-definition',
-        './../ast/type-definition', './../ast/type-converter-definition', './../ast/constant-definition'],
-
-    function(log, _, EventChannel, ServiceDefinition, FunctionDefinition, ConnectorDefinition, TypeDefinition,
-             TypeConverterDefinition, ConstantDefinition){
+define(['log', 'lodash', 'require', 'event_channel', './../ast/service-definition', './../ast/function-definition', './../ast/connector-definition',
+        './../ast/type-definition', './../ast/type-converter-definition', './../ast/constant-definition', './../ast/ballerina-ast-factory'],
+    function(log, _, require, EventChannel, ServiceDefinition, FunctionDefinition, ConnectorDefinition, TypeDefinition,
+             TypeConverterDefinition, ConstantDefinition, BallerinaASTFactory){
 
         /**
          * @class Package
@@ -28,13 +27,14 @@ define(['log', 'lodash', 'event_channel', './../ast/service-definition', './../a
          * @constructor
          */
         var Package = function(args){
-            this.setName(_.get(args, 'name', null));
+            this.setName(_.get(args, 'name', ''));
             this.addServiceDefinitions(_.get(args, 'serviceDefinitions', []));
             this.addFunctionDefinitions(_.get(args, 'functionDefinitions', []));
             this.addConnectorDefinitions(_.get(args, 'connectorDefinitions', []));
             this.addTypeDefinitions(_.get(args, 'typeDefinitions', []));
             this.addTypeConverterDefinitions(_.get(args, 'typeConverterDefinitions', []));
             this.addConstantDefinitions(_.get(args, 'constantDefinitions', []));
+            this.BallerinaEnvFactory = require('./ballerina-env-factory');
         };
 
         Package.prototype = Object.create(EventChannel.prototype);
@@ -355,6 +355,16 @@ define(['log', 'lodash', 'event_channel', './../ast/service-definition', './../a
          */
         Package.prototype.getFunctionDefinitions = function() {
             return this._functionDefinitions;
+        };
+
+        Package.prototype.initFromJson = function(jsonNode) {
+            var self = this;
+            this.setName(jsonNode.name);
+
+            _.each(jsonNode.connectors, function (connectorNode) {
+                var connector = self.BallerinaEnvFactory.createConnectorDefinition(connectorNode);
+                self.addConnectorDefinitions(connector);
+            });
         };
 
         return Package;
