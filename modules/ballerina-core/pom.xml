@@ -108,6 +108,16 @@
             <groupId>org.apache.james</groupId>
             <artifactId>apache-mime4j-core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongo-java-driver</artifactId>
+            <version>3.4.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.datastax.cassandra</groupId>
+            <artifactId>cassandra-driver-core</artifactId>
+            <version>3.1.3</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -276,6 +286,7 @@
             osgi.service; objectClass="org.wso2.carbon.messaging.CarbonMessageProcessor";
             requiredByComponentName="netty-transports-mgt"
         </carbon.component>
+        <dynamic.import.package>*</dynamic.import.package>
     </properties>
 
 </project>
