@@ -21,7 +21,7 @@ package org.wso2.ballerina.docgen.docs;
 import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
-import org.wso2.ballerina.docgen.docs.model.BallerinaDoc;
+import org.wso2.ballerina.docgen.docs.model.BallerinaPackageDoc;
 import org.wso2.ballerina.docgen.docs.utils.BallerinaDocUtils;
 
 import java.io.File;
@@ -40,21 +40,21 @@ public class BallerinaDocGeneratorMain {
 
     public static void main(String[] args) {
 
-        Map<String, BallerinaDoc> docsMap = generateDocsFromBallerina(args[0]);
-        for (Entry<String, BallerinaDoc> entry : docsMap.entrySet()) {
+        Map<String, BallerinaPackageDoc> docsMap = generatePackageDocsFromBallerina(args[0]);
+        for (Entry<String, BallerinaPackageDoc> entry : docsMap.entrySet()) {
             out.println(entry.getValue().toString());
         }
 
     }
     
     /**
-     * Generates {@link BallerinaDoc} objects for each Ballerina package from the given ballerina files.
+     * Generates {@link BallerinaPackageDoc} objects for each Ballerina package from the given ballerina files.
      * @param path should point either to a ballerina file or a folder with ballerina files.
-     * @return a map of {@link BallerinaDoc} objects. 
+     * @return a map of {@link BallerinaPackageDoc} objects.
      *  Key - Ballerina package name
-     *  Value - {@link BallerinaDoc}
+     *  Value - {@link BallerinaPackageDoc}
      */
-    public static Map<String, BallerinaDoc> generateDocsFromBallerina(String path) {
+    public static Map<String, BallerinaPackageDoc> generatePackageDocsFromBallerina(String path) {
         String ballerinaFolder = path;
         File[] ballerinaFiles;
 
@@ -76,7 +76,7 @@ public class BallerinaDocGeneratorMain {
         }
 
         if (ballerinaFiles == null) {
-            return new HashMap<String, BallerinaDoc>();
+            return new HashMap<String, BallerinaPackageDoc>();
         }
         BallerinaDocDataHolder dataHolder = BallerinaDocDataHolder.getInstance();
 
@@ -93,5 +93,4 @@ public class BallerinaDocGeneratorMain {
 
         return dataHolder.getBallerinaDocsMap();
     }
-
 }

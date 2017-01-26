@@ -116,5 +116,4 @@ public class BallerinaFunctionDoc {
                 + description + ", parameters=" + parameters + ", returnParams=" + returnParams + ", thrownExceptions="
                 + thrownExceptions + "]";
     }
-
 }
