@@ -140,6 +140,11 @@
                 <version>${geronimo.stax}</version>
             </dependency>
             <dependency>
+                <groupId>org.wso2.staxon</groupId>
+                <artifactId>staxon-core</artifactId>
+                <version>${staxon.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.apache.james</groupId>
                 <artifactId>apache-mime4j-core</artifactId>
                 <version>${mime4j.version}</version>
@@ -359,6 +364,7 @@
         <geronimo.activation>1.1</geronimo.activation>
         <geronimo.stax>1.0.1</geronimo.stax>
         <mime4j.version>0.7.2</mime4j.version>
+        <staxon.version>1.2.0.wso2v2</staxon.version>
 
         <!--pax-exam dependencies-->
         <javax.inject.version>1</javax.inject.version>

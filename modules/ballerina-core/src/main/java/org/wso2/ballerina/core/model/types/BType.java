@@ -25,9 +25,9 @@ import java.util.Map;
 /**
  * {@code BType} represents a type in Ballerina.
  * <p>
- * Ballerina has variables of various types. The type system includes built-in primitive or value types,
- * a collection of built-in structured types, and array, record and iterator type constructors.
- * All variables of primitive types are allocated on the stack while all non-primitive types are
+ * Ballerina has variables of various converters. The type system includes built-in primitive or value converters,
+ * a collection of built-in structured converters, and array, record and iterator type constructors.
+ * All variables of primitive converters are allocated on the stack while all non-primitive converters are
  * allocated on a heap using new.
  *
  * @since 0.8.0

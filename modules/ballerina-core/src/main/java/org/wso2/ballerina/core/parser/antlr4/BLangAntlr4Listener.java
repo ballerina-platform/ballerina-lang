@@ -293,28 +293,65 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void enterTypeConvertorDefinition(BallerinaParser.TypeConvertorDefinitionContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.startCallableUnit();
+        }
     }
 
     @Override
     public void exitTypeConvertorDefinition(BallerinaParser.TypeConvertorDefinitionContext ctx) {
+        if (ctx.exception == null) {
+            // Create the return type of the type convertor
+            modelBuilder.createReturnTypes(getCurrentLocation(ctx));
+            boolean isPublic = true;
+            // Set the location info needed to generate the stack trace
+            TerminalNode identifier = ctx.Identifier();
+            if (identifier != null) {
+                String fileName = identifier.getSymbol().getInputStream().getSourceName();
+                int lineNo = identifier.getSymbol().getLine();
+                Position functionLocation = new Position(fileName, lineNo);
+                String typeConverterName = "_" + ctx.typeConvertorInput().typeConvertorType().getText() + "->" + "_" +
+                        ctx.typeConvertorType().getText();
+                modelBuilder.createTypeConverter(typeConverterName, isPublic, functionLocation, childPosition);
+                childPosition++;
+            }
+        }
     }
 
+    /**
+     * Enter a parse tree produced by {@link BallerinaParser#typeConvertorInput}.
+     *
+     * @param ctx the parse tree
+     */
     @Override
     public void enterTypeConvertorInput(BallerinaParser.TypeConvertorInputContext ctx) {
-
     }
 
+    /**
+     * Exit a parse tree produced by {@link BallerinaParser#typeConvertorInput}.
+     *
+     * @param ctx the parse tree
+     */
     @Override
     public void exitTypeConvertorInput(BallerinaParser.TypeConvertorInputContext ctx) {
-
+        if (ctx.exception == null) {
+            // Create the input parameter for type convertor
+            modelBuilder.createParam(ctx.Identifier().getText(), getCurrentLocation(ctx));
+        }
     }
 
     @Override
     public void enterTypeConvertorBody(BallerinaParser.TypeConvertorBodyContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.startCallableUnitBody();
+        }
     }
 
     @Override
     public void exitTypeConvertorBody(BallerinaParser.TypeConvertorBodyContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.endCallableUnitBody();
+        }
     }
 
     @Override
@@ -411,7 +448,6 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void enterTypeConvertorType(BallerinaParser.TypeConvertorTypeContext ctx) {
-
     }
 
     @Override
@@ -1106,6 +1142,9 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitTypeCastingExpression(BallerinaParser.TypeCastingExpressionContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.createTypeCastInvocationExpr(ctx.typeName().getText(), getCurrentLocation(ctx));
+        }
     }
 
     @Override

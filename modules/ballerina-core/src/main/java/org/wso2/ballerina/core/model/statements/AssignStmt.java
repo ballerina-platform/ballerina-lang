@@ -29,6 +29,7 @@ import org.wso2.ballerina.core.model.expressions.Expression;
 public class AssignStmt extends AbstractStatement {
     private Expression[] lhsExprs;
     private Expression rhsExpr;
+    private boolean isWideningRequired;
 
     public AssignStmt(Expression[] lhsExprs, Expression rhsExpr) {
         this.lhsExprs = lhsExprs;
@@ -51,5 +52,13 @@ public class AssignStmt extends AbstractStatement {
     @Override
     public void execute(NodeExecutor executor) {
         executor.visit(this);
+    }
+
+    public boolean isWideningRequired() {
+        return isWideningRequired;
+    }
+
+    public void setWideningRequired(boolean wideningRequired) {
+        isWideningRequired = wideningRequired;
     }
 }
