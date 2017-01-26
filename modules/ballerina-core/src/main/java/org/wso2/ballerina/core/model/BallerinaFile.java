@@ -54,6 +54,7 @@ public class BallerinaFile implements Node {
     private List<FunctionInvocationExpr> funcIExprList = new ArrayList<>();
     private List<ActionInvocationExpr> actionIExprList = new ArrayList<>();
     private Const[] consts;
+    private BallerinaStruct[] structs;
     //TODO: add TypeConverters
     //TODO: add constants
 
@@ -70,7 +71,8 @@ public class BallerinaFile implements Node {
             Function mainFunction,
             List<FunctionInvocationExpr> funcIExprList,
             List<ActionInvocationExpr> actionInvocationExpr,
-            Const[] consts) {
+            Const[] consts,
+            BallerinaStruct[] structs) {
 
         this.packageName = packageName;
         this.importPackages = importPackages;
@@ -81,6 +83,7 @@ public class BallerinaFile implements Node {
         this.funcIExprList = funcIExprList;
         this.actionIExprList = actionInvocationExpr;
         this.consts = consts;
+        this.structs = structs;
 
         packageScope = new SymScope(SymScope.Name.PACKAGE);
     }
@@ -168,6 +171,10 @@ public class BallerinaFile implements Node {
     public Function getMainFunction() {
         return this.mainFunction;
     }
+    
+    public BallerinaStruct[] getStructs() {
+        return this.structs;
+    }
 
     public void addFuncInvocationExpr(FunctionInvocationExpr expr) {
         this.funcIExprList.add(expr);
@@ -222,6 +229,8 @@ public class BallerinaFile implements Node {
         private List<ActionInvocationExpr> actionIExprList = new ArrayList<>();
 
         private List<Const> constList = new ArrayList<>();
+        
+        private List<BallerinaStruct> structList = new ArrayList<>();
 
         public BFileBuilder() {
         }
@@ -277,7 +286,15 @@ public class BallerinaFile implements Node {
                     mainFunction,
                     funcIExprList,
                     actionIExprList,
-                    constList.toArray(new Const[constList.size()]));
+                    constList.toArray(new Const[constList.size()]),
+                    structList.toArray(new BallerinaStruct[structList.size()]));
+        }
+
+        /**
+         * Add a ballerina user defined Struct to the ballerina file
+         */
+        public void addStruct(BallerinaStruct struct) {
+            this.structList.add(struct);
         }
     }
 }
