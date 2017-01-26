@@ -19,8 +19,8 @@
 /**
  * A module representing the factory for Ballerina Env
  */
-define(['./package', './../ast/ballerina-ast-factory'],
-    function (Package, BallerinaASTFactory) {
+define(['./package', './connector', './connector-action'],
+    function (Package, Connector, ConnectorAction ) {
 
         /**
          * @class BallerinaEnvFactory
@@ -38,13 +38,27 @@ define(['./package', './../ast/ballerina-ast-factory'],
         };
 
         /**
-         * creates ConnectorDefinition from json
+         * creates Connector from json
          * @param args
          */
-        BallerinaEnvFactory.createConnectorDefinition = function (jsonNode) {
-            var connector = BallerinaASTFactory.createConnectorDefinition();
+        BallerinaEnvFactory.createConnector = function (jsonNode) {
+            var connector = new Connector();
             connector.initFromJson(jsonNode);
             return connector;
+        };
+  
+        /**
+         * creates ConnectorAction from json
+         * @param args
+         */
+        BallerinaEnvFactory.createConnectorAction = function (jsonNode) {
+            var action = new ConnectorAction();
+            action.initFromJson(jsonNode);
+            return action;
+        };
+
+        BallerinaEnvFactory.isConnector = function (connector) {
+            return (connector instanceof Connector);
         };
 
         return BallerinaEnvFactory;

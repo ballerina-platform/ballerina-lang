@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['log', 'lodash', 'event_channel'],
-    function (log, _, EventChannel) {
+define(['log', 'lodash', 'require'],
+    function (log, _, require) {
 
         /**
          * @class Connector
@@ -25,16 +25,56 @@ define(['log', 'lodash', 'event_channel'],
          * @constructor
          */
         var Connector = function (args) {
-            this.name = _.get(args, 'name', []);
-            this.actions = _.get(args, 'actions', []);
+            this._name = _.get(args, 'name', '');
+            this._actions = _.get(args, 'actions', []);
+            this._id = _.get(args, 'id', '');
+            this._title = _.get(args, 'title', '');
+            this.BallerinaEnvFactory = require('./ballerina-env-factory');
         };
 
         Connector.prototype.setName = function (name) {
-            this.name = name;
+            this._name = name;
         };
 
         Connector.prototype.getName = function () {
-            return this.name;
+            return this._name;
+        };
+
+        Connector.prototype.setId = function (id) {
+            this._id = id;
+        };
+
+        Connector.prototype.getId = function () {
+            return this._id;
+        };
+
+        Connector.prototype.setTitle = function (title) {
+            this._title = title;
+        };
+
+        Connector.prototype.getTitle = function () {
+            return this._title;
+        };
+
+        Connector.prototype.addAction = function (action) {
+            this._actions.push(action);
+        };
+
+        Connector.prototype.getActions = function (action) {
+            return this._actions;
+        };
+
+        Connector.prototype.initFromJson = function (jsonNode) {
+            var self = this;
+
+            this.setName(jsonNode.name);
+            this.setId(jsonNode.id);
+            this.setTitle(jsonNode.title);
+
+            _.each(jsonNode.actions, function (actionNode) {
+                var action = self.BallerinaEnvFactory.createConnectorAction(actionNode);
+                self.addAction(action);
+            });
         };
 
         return Connector;
