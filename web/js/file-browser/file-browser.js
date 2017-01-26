@@ -85,6 +85,7 @@ define(['jquery', 'backbone', 'lodash', 'tree_view', 'log', /** void module - jq
             if(!_.isNil(this._contextMenuProvider)){
                 this._plugins.push('contextmenu');
                 _.set(this._treeConfig, 'contextmenu.items', this._contextMenuProvider);
+                _.set(this._treeConfig, 'contextmenu.show_at_node', false);
             }
             _.set(this._treeConfig, 'plugins', this._plugins);
         },
