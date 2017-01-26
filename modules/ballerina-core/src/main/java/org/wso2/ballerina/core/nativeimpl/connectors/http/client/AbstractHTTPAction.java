@@ -102,8 +102,8 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
                             .set(Constants.HTTP_CONTENT_LENGTH, String.valueOf(message.getFullMessageLength()));
 
                 } else {
-                    String errMsg = "Message is already built but cannot find the MessageDataSource";
-                    throw new BallerinaException("FATAL: Internal error.! " + errMsg, context);
+                    message.setEndOfMsgAdded(true);
+                    logger.debug("Sending an empty message");
                 }
             }
             ServiceContextHolder.getInstance().getSender().send(message, balConnectorCallback);

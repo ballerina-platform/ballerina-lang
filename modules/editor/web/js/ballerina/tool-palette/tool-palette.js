@@ -16,10 +16,10 @@
  * under the License.
  */
 define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-group',
-        'main_elements', 'processors', './drag-drop-manager', './../ast/ballerina-ast-factory','./initial-definitions',
+        './drag-drop-manager', './../ast/ballerina-ast-factory','./initial-definitions',
         './../search/search', './../search/import-search-adapter', 'mousetrap' ],
     function (require, log, $, Backbone, ToolGroupView, ToolGroup,
-              MainElements, Processors, DragDropManager, BallerinaASTFactory, initialTools, Search, ImportSearchAdapter, Mousetrap) {
+              DragDropManager, BallerinaASTFactory, initialTools, Search, ImportSearchAdapter, Mousetrap) {
 
     var ToolPalette = Backbone.View.extend({
         initialize: function (options) {
