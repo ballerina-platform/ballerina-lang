@@ -1,5 +1,13 @@
 package org.wso2.ballerina.sample;
 
+import ballerina.lang.json;
+import ballerina.lang.message;
+import ballerina.lang.string;
+import ballerina.lang.system;
+import ballerina.net.http;
+import ballerina.net.uri;
+import ballerina.util;
+
 connector Twitter (string consumerKey, string consumerSecret, string accessToken, string accessTokenSecret) {
 
     http:HTTPConnector tweeterEP = new http:HTTPConnector("https://api.twitter.com");

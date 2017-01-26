@@ -54,4 +54,8 @@ public class SymTable {
     public Symbol lookup(SymbolName symName) {
         return current.lookup(symName);
     }
+
+    public String resolveBallerinaPackageName(SymbolName symName) {
+        return current.resolveBallerinaPackageName(symName);
+    }
 }
