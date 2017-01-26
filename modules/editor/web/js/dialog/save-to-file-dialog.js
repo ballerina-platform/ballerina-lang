@@ -33,7 +33,10 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser'], function (requi
             },
 
             show: function(){
-                this._fileSaveModal.modal('show');
+                var self = this;
+                this._fileSaveModal.modal('show').on('shown.bs.modal', function(){
+                    self.trigger('loaded');
+                });
             },
 
             setSelectedFile: function(path, fileName){
