@@ -615,9 +615,9 @@ public class BLangModelBuilder {
         currentCUBuilder.setName(new SymbolName(name, pkgName));
         currentCUBuilder.setPublic(isPublic);
         currentCUBuilder.setPosition(sourceLocation);
-        BTypeConvertor typeConverter = currentCUBuilder.buildTypeConverter();
-        typeConverter.setRelativePosition(position);
-        bFileBuilder.addTypeConverter(typeConverter);
+        BTypeConvertor typeConvertor = currentCUBuilder.buildTypeConverter();
+        typeConvertor.setRelativePosition(position);
+        bFileBuilder.addTypeConverter(typeConvertor);
         currentCUBuilder = null;
     }
 

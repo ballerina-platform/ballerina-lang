@@ -22,7 +22,7 @@ package org.wso2.ballerina.core.model;
  */
 public interface TypeConvertor extends CallableUnit {
 
-    // TODO Refactor typeConverter name related methods
+    // TODO Refactor typeConvertor name related methods
     String getTypeConverterName();
 
     boolean isPublic();

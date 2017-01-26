@@ -427,19 +427,19 @@ public class BuiltInNativeConstructLoader {
      * Add Native TypeConvertor instance to given SymScope.
      *
      * @param symScope SymScope instance.
-     * @param typeConverter TypeConvertor instance.
+     * @param typeConvertor TypeConvertor instance.
      */
-    private static void registerTypeConverter(SymScope symScope, AbstractNativeTypeConvertor typeConverter) {
-        BallerinaTypeConvertor typeConverterNameAnnotation = typeConverter.getClass()
+    private static void registerTypeConverter(SymScope symScope, AbstractNativeTypeConvertor typeConvertor) {
+        BallerinaTypeConvertor typeConverterNameAnnotation = typeConvertor.getClass()
                 .getAnnotation(BallerinaTypeConvertor.class);
         if (typeConverterNameAnnotation == null) {
             throw new BallerinaException("BallerinaTypeConvertor annotation not found");
         }
 
         SymbolName symbolName =
-                LangModelUtils.getTypeConverterSymName(typeConverter.getPackageName(), typeConverter.getParameters(),
-                        typeConverter.getReturnParameters());
-        Symbol symbol = new Symbol(typeConverter);
+                LangModelUtils.getTypeConverterSymName(typeConvertor.getPackageName(), typeConvertor.getParameters(),
+                        typeConvertor.getReturnParameters());
+        Symbol symbol = new Symbol(typeConvertor);
         symScope.insert(symbolName, symbol);
 
     }

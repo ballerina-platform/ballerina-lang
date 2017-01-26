@@ -184,8 +184,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         for (TypeConvertor tConverter : bFile.getTypeConvertors()) {
-            BTypeConvertor typeConverter = (BTypeConvertor) tConverter;
-            typeConverter.accept(this);
+            BTypeConvertor typeConvertor = (BTypeConvertor) tConverter;
+            typeConvertor.accept(this);
         }
 
         int setSizeOfStaticMem = staticMemAddrOffset + 1;
@@ -378,26 +378,26 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     @Override
-    public void visit(BTypeConvertor typeConverter) {
+    public void visit(BTypeConvertor typeConvertor) {
         // Open a new symbol scope
         openScope(SymScope.Name.FUNCTION);
-        currentCallableUnit = typeConverter;
+        currentCallableUnit = typeConvertor;
 
         // Check whether the return statement is missing. Ignore if the function does not return anything.
         // TODO Define proper error message codes
         //checkForMissingReturnStmt(function, "missing return statement at end of function");
 
-        for (Parameter parameter : typeConverter.getParameters()) {
+        for (Parameter parameter : typeConvertor.getParameters()) {
             stackFrameOffset++;
             visit(parameter);
         }
 
-        for (VariableDcl variableDcl : typeConverter.getVariableDcls()) {
+        for (VariableDcl variableDcl : typeConvertor.getVariableDcls()) {
             stackFrameOffset++;
             visit(variableDcl);
         }
 
-        for (Parameter parameter : typeConverter.getReturnParameters()) {
+        for (Parameter parameter : typeConvertor.getReturnParameters()) {
             // Check whether these are unnamed set of return types.
             // If so break the loop. You can't have a mix of unnamed and named returns parameters.
             if (parameter.getName() == null) {
@@ -408,7 +408,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             visit(parameter);
         }
 
-        BlockStmt blockStmt = typeConverter.getCallableUnitBody();
+        BlockStmt blockStmt = typeConvertor.getCallableUnitBody();
         blockStmt.accept(this);
 
         // Here we need to calculate size of the BValue array which will be created in the stack frame
@@ -419,7 +419,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         // -- Return values    --
         // These temp values are results of intermediate expression evaluations.
         int sizeOfStackFrame = stackFrameOffset + 1;
-        typeConverter.setStackFrameSize(sizeOfStackFrame);
+        typeConvertor.setStackFrameSize(sizeOfStackFrame);
 
         // Close the symbol scope
         stackFrameOffset = -1;

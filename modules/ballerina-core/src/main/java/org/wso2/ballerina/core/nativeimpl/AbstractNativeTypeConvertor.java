@@ -70,17 +70,17 @@ public abstract class AbstractNativeTypeConvertor implements NativeConstruct, Ty
     }
 
     /**
-     * Build Native typeConverter Model using Java annotation.
+     * Build Native typeConvertor Model using Java annotation.
      */
     private void buildModel() {
-        BallerinaTypeConvertor typeConverter = this.getClass().getAnnotation(BallerinaTypeConvertor.class);
-        packageName = typeConverter.packageName();
-        typeConverterName = typeConverter.typeConverterName();
+        BallerinaTypeConvertor typeConvertor = this.getClass().getAnnotation(BallerinaTypeConvertor.class);
+        packageName = typeConvertor.packageName();
+        typeConverterName = typeConvertor.typeConverterName();
 
-        Argument[] methodParams = typeConverter.args();
+        Argument[] methodParams = typeConvertor.args();
         stackFrameSize = methodParams.length;
         symbolName = new SymbolName(packageName + ":" + typeConverterName);
-        isPublicTypeConverter = typeConverter.isPublic();
+        isPublicTypeConverter = typeConvertor.isPublic();
         Arrays.stream(methodParams).
                 forEach(argument -> {
                     try {
@@ -95,10 +95,10 @@ public abstract class AbstractNativeTypeConvertor implements NativeConstruct, Ty
                     } catch (BallerinaException e) {
                         // TODO: Fix this when TypeC.getType method is improved.
                         log.error("Internal Error..! Error while processing Parameters for Native ballerina" +
-                                " typeConverter {}:{}.", packageName, typeConverterName, e);
+                                " typeConvertor {}:{}.", packageName, typeConverterName, e);
                     }
                 });
-        Arrays.stream(typeConverter.returnType()).forEach(
+        Arrays.stream(typeConvertor.returnType()).forEach(
                 returnType -> {
                     try {
                         BType type;
@@ -111,17 +111,17 @@ public abstract class AbstractNativeTypeConvertor implements NativeConstruct, Ty
                     } catch (BallerinaException e) {
                         // TODO: Fix this when TypeC.getType method is improved.
                         log.error("Internal Error..! Error while processing ReturnTypes for Native ballerina " +
-                                "typeConverter {}:{}.", packageName, typeConverterName, e);
+                                "typeConvertor {}:{}.", packageName, typeConverterName, e);
                     }
                 });
 
-        Arrays.stream(typeConverter.consts()).forEach(
+        Arrays.stream(typeConvertor.consts()).forEach(
                 constant -> {
                     try {
                         constants.add(Utils.getConst(constant));
                     } catch (MalformedEntryException e) {
                         log.error("Internal Error..! Error while processing pre defined const {} for Native " +
-                                "ballerina typeConverter {}:{}.", constant.identifier(), packageName,
+                                "ballerina typeConvertor {}:{}.", constant.identifier(), packageName,
                                 typeConverterName, e);
                     }
                 }
@@ -198,7 +198,7 @@ public abstract class AbstractNativeTypeConvertor implements NativeConstruct, Ty
      * Where Native TypeConvertor logic is implemented.
      *
      * @param context Current Context instance
-     * @return Native typeConverter return BValue array
+     * @return Native typeConvertor return BValue array
      */
     public abstract BValue convert(Context context);
 

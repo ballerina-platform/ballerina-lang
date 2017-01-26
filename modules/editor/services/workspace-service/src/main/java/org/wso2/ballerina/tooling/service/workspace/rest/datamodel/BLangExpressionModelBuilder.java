@@ -120,7 +120,7 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
     }
 
     @Override
-    public void visit(BTypeConvertor typeConverter) {
+    public void visit(BTypeConvertor typeConvertor) {
 
     }
 

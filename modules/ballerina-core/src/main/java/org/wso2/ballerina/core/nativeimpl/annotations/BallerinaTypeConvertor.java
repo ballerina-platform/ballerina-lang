@@ -33,40 +33,40 @@ public @interface BallerinaTypeConvertor {
      * Package name of the {@code {@link org.wso2.ballerina.core.nativeimpl.AbstractNativeTypeConvertor }}.
      * Default is "".
      *
-     * @return package name of the typeConverter.
+     * @return package name of the typeConvertor.
      */
     String packageName() default "";
 
     /**
      * TypeConvertor name of the {@code {@link org.wso2.ballerina.core.nativeimpl.AbstractNativeTypeConvertor }}.
      *
-     * @return typeConverter name.
+     * @return typeConvertor name.
      */
     String typeConverterName();
 
     /**
-     * Argument of the typeConverter.
+     * Argument of the typeConvertor.
      *
-     * @return returns arguments of the typeConverter.
+     * @return returns arguments of the typeConvertor.
      */
     Argument[] args() default {};
 
     /**
-     * Return types of the typeConverter.
+     * Return types of the typeConvertor.
      *
      * @return return types.
      */
     ReturnType[] returnType() default {};
 
     /**
-     * Indicate Native typeConverter is public or not.
+     * Indicate Native typeConvertor is public or not.
      *
-     * @return indicate native typeConverter is public or not.
+     * @return indicate native typeConvertor is public or not.
      */
     boolean isPublic() default false;
 
     /**
-     * Constants related this typeConverter.
+     * Constants related this typeConvertor.
      *
      * @return
      */

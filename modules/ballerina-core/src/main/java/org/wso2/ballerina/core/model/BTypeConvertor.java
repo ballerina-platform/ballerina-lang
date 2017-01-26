@@ -78,9 +78,9 @@ public class BTypeConvertor extends PositionAwareNode implements TypeConvertor, 
     }
 
     /**
-     * Get the typeConverter Identifier
+     * Get the typeConvertor Identifier
      *
-     * @return typeConverter identifier
+     * @return typeConvertor identifier
      */
     public SymbolName getSymbolName() {
         return symbolName;
@@ -101,7 +101,7 @@ public class BTypeConvertor extends PositionAwareNode implements TypeConvertor, 
     }
 
     /**
-     * Get list of Arguments associated with the typeConverter definition
+     * Get list of Arguments associated with the typeConvertor definition
      *
      * @return list of Arguments
      */
@@ -137,16 +137,16 @@ public class BTypeConvertor extends PositionAwareNode implements TypeConvertor, 
     }
 
     /**
-     * Check whether typeConverter is public, which means typeConverter is visible outside the package
+     * Check whether typeConvertor is public, which means typeConvertor is visible outside the package
      *
-     * @return whether typeConverter is public
+     * @return whether typeConvertor is public
      */
     public boolean isPublic() {
         return publicFunc;
     }
 
     /**
-     * Mark typeConverter as public
+     * Mark typeConvertor as public
      */
     public void makePublic() {
         publicFunc = true;

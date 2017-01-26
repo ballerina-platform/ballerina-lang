@@ -344,7 +344,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     }
 
     @Override
-    public void visit(BTypeConvertor typeConverter) {
+    public void visit(BTypeConvertor typeConvertor) {
 
     }
 
