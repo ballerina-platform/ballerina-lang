@@ -15,18 +15,40 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['log', 'lodash', 'event_channel'],
-    function(log, _, EventChannel ){
+define(['log', 'lodash'],
+    function (log, _) {
 
-    /**
-     * @class Package
-     * @augments EventChannel
-     * @param args {Object} - args.name: name of the package
-     * @constructor
-     */
-    var ConnectorAction = function(args){
-        this.name = _.get(args, 'name', []);
-    };
+        /**
+         * @class Package
+         * @augments EventChannel
+         * @param args {Object} - args.name: name of the package
+         * @constructor
+         */
+        var ConnectorAction = function (args) {
+            this.name = _.get(args, 'name', '');
+            this.action = _.get(args, 'action', '');
+        };
 
-    return ConnectorAction;
-});
+        ConnectorAction.prototype.setName = function (name) {
+            this.name = name;
+        };
+
+        ConnectorAction.prototype.getName = function () {
+            return this.name;
+        };
+
+        ConnectorAction.prototype.setAction = function (action) {
+            this.action = action;
+        };
+
+        ConnectorAction.prototype.getAction = function () {
+            return this.action;
+        };
+
+        ConnectorAction.prototype.initFromJson = function (jsonNode) {
+            this.setName(jsonNode.name);
+            this.setAction(jsonNode.meta.action);
+        };
+
+        return ConnectorAction;
+    });
