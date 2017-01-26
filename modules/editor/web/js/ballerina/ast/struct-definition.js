@@ -81,5 +81,21 @@ define(['lodash', './node'], function (_, ASTNode) {
         this.removeChild(variableDeclarationChild[0])
     };
 
+    /**
+     * initialize StructDefinition from json object
+     * @param {Object} jsonNode to initialize from
+     * @param {string} [jsonNode.struct_name] - Name of the struct definition
+     */
+    StructDefinition.prototype.initFromJson = function (jsonNode) {
+        var self = this;
+        this._structName = jsonNode.struct_name;
+
+        _.each(jsonNode.children, function (childNode) {
+            var child = self.BallerinaASTFactory.createFromJson(childNode);
+            self.addChild(child);
+            child.initFromJson(childNode);
+        });
+    };
+
     return StructDefinition;
 });

@@ -326,7 +326,7 @@
         <carbon.kernel.package.import.version.range>[5.0.0, 6.0.0)</carbon.kernel.package.import.version.range>
         <carbon.kernel.pax.version>5.2.0-m2</carbon.kernel.pax.version>
 
-        <carbon.transport.version>3.0.2</carbon.transport.version>
+        <carbon.transport.version>3.0.3</carbon.transport.version>
         <carbon.transport.package.import.version.range>[3.0.0, 3.1.0)</carbon.transport.package.import.version.range>
 
         <carbon.messaging.version>1.0.11</carbon.messaging.version>
@@ -380,6 +380,7 @@
         <module>modules/editor/services/workspace-service</module>
         <module>modules/distribution</module>
         <!--<module>modules/tests</module>-->
+        <module>modules/tests/test-integration</module>
     </modules>
 
 </project>
