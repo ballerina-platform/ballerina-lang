@@ -89,6 +89,7 @@ public class InMemoryOutputTransport extends OutputTransport {
             add(MessageType.TEXT);
             add(MessageType.JSON);
             add(MessageType.MAP);
+            add(MessageType.XML);
         }};
     }
 }
