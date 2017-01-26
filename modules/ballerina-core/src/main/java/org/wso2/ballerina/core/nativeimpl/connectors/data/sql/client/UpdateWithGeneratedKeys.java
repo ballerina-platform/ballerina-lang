@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.ballerina.core.nativeimpl.connectors.data.sql;
+package org.wso2.ballerina.core.nativeimpl.connectors.data.sql.client;
 
 import org.osgi.service.component.annotations.Component;
 import org.wso2.ballerina.core.exception.BallerinaException;
@@ -28,29 +28,29 @@ import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
+import org.wso2.ballerina.core.nativeimpl.connectors.data.sql.SQLConnector;
 
 /**
- * {@code Select} is the Select action implementation of the SQL Connector
+ * {@code updateWithGeneratedKeys} is the updateWithGeneratedKeys action implementation of the SQL Connector
  */
 @BallerinaAction(
         packageName = "ballerina.data.sql",
-        actionName = "select",
+        actionName = "updateWithGeneratedKeys",
         connectorName = SQLConnector.CONNECTOR_NAME,
         args = {
                 @Argument(name = "connector",
                           type = TypeEnum.CONNECTOR),
                 @Argument(name = "query",
-                          type = TypeEnum.STRING)/*, //TODO:Add Parameter struct
+                          type = TypeEnum.STRING)/*, //TODO:Add Parameter [],String[]
                 @Argument(name = "optionalProperties",
                           type = TypeEnum.MAP)*/
         },
-        returnType = { TypeEnum.DATAFRAME})
+        returnType = { TypeEnum.INT, TypeEnum.INT }) //TODO:array of generated kyes
 @Component(
-        name = "action.data.sql.select",
+        name = "action.data.sql.updateWithGeneratedKeys",
         immediate = true,
         service = AbstractNativeAction.class)
-public class Select extends AbstractSQLAction {
-
+public class UpdateWithGeneratedKeys extends AbstractSQLAction {
     @Override
     public BValue execute(Context context) {
         BConnector bConnector = (BConnector) getArgument(context, 0);
@@ -61,6 +61,6 @@ public class Select extends AbstractSQLAction {
             throw new BallerinaException("Need to use a SQL Connector as the first argument", context);
         }
 
-        return executeQuery(context, connector, query);
+        return executeUpdate(context, connector, query, true);
     }
 }

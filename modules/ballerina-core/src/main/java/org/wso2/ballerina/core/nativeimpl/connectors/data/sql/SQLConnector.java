@@ -1,9 +1,24 @@
+/*
+ * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package org.wso2.ballerina.core.nativeimpl.connectors.data.sql;
 
 import com.zaxxer.hikari.HikariDataSource;
-import org.apache.axiom.om.OMAbstractFactory;
-import org.apache.axiom.om.OMElement;
-import org.apache.axiom.om.OMFactory;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.ServiceFactory;
 import org.osgi.framework.ServiceRegistration;
@@ -16,15 +31,9 @@ import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaConnector;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
-import org.wso2.ballerina.core.nativeimpl.connectors.data.Constants;
-import org.wso2.carbon.datasource.core.api.DataSourceService;
-import org.wso2.carbon.datasource.core.beans.DataSourceDefinition;
-import org.wso2.carbon.datasource.core.impl.DataSourceServiceImpl;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Set;
-import javax.xml.bind.JAXBContext;
 
 /**
  * Native RDBMS Connector.
@@ -33,7 +42,7 @@ import javax.xml.bind.JAXBContext;
         packageName = "ballerina.data.sql",
         connectorName = SQLConnector.CONNECTOR_NAME,
         args = {
-                @Argument(name = "connectionParameters",
+                @Argument(name = "options",
                           type = TypeEnum.MAP)
         })
 @Component(
@@ -49,8 +58,8 @@ public class SQLConnector extends AbstractNativeConnector implements ServiceFact
     @Override
     public boolean init(BValue[] bValueRefs) {
         if (bValueRefs != null && bValueRefs.length == 1) {
-            BMap connProperties = (BMap) bValueRefs[0];
-            hikariDataSource = getDataSource(connProperties);
+            BMap options = (BMap) bValueRefs[0];
+            buildDataSource(options);
         }
         return true;
     }
@@ -87,40 +96,95 @@ public class SQLConnector extends AbstractNativeConnector implements ServiceFact
         return conn;
     }
 
-    private OMElement buildDataSourceConfig(BMap properties) {
-        OMFactory fac = OMAbstractFactory.getOMFactory();
-        OMElement definitionEl = fac.createOMElement(Constants.DATASOURCE_CONFIG_DEFINITION, null);
-        definitionEl.addAttribute(Constants.DATASOURCE_CONFIG_TYPE, Constants.DATASOURCE_CONFIG_RDBMS, null);
-
-        OMElement configurationEl = fac.createOMElement(Constants.DATASOURCE_CONFIG_CONFIGURATION, null);
-
-        if (properties != null && !properties.isEmpty()) {
-            Set<BString> keySet = properties.keySet();
-            for (BString entry : keySet) {
-                OMElement propEl = fac.createOMElement(entry.stringValue(), null);
-                propEl.setText(properties.get(entry).stringValue());
-                configurationEl.addChild(propEl);
-            }
+    private void buildDataSource(BMap options) {
+        hikariDataSource = new HikariDataSource();
+        BValue value = options.get(new BString(Constants.DATA_SOURCE_CLASSNAME));
+        if (value != null) {
+            hikariDataSource.setDataSourceClassName(value.stringValue());
         }
-        definitionEl.addChild(configurationEl);
-        return definitionEl;
-    }
-
-    private HikariDataSource getDataSource(BMap properties) {
-        OMElement dataSourceDefEl = buildDataSourceConfig(properties);
-        HikariDataSource dataSourceObj = null;
-
-        DataSourceDefinition dataSourceDefinition = new DataSourceDefinition();
-        try {
-            JAXBContext ctx = JAXBContext.newInstance(dataSourceDefinition.getClass());
-            dataSourceDefinition = (DataSourceDefinition) ctx.createUnmarshaller()
-                    .unmarshal(dataSourceDefEl.getXMLStreamReader());
-            DataSourceService dataSourceService = new DataSourceServiceImpl();
-            dataSourceObj = (HikariDataSource) dataSourceService.createDataSource(dataSourceDefinition);
-        } catch (Throwable t) {
-            throw new BallerinaException(
-                    "Error in creating Hikari Data Source in " + SQLConnector.CONNECTOR_NAME + ". " + t.getMessage());
+        value = options.get(new BString(Constants.JDBC_URL));
+        if (value != null) {
+            hikariDataSource.setJdbcUrl(value.stringValue());
         }
-        return dataSourceObj;
+        value = options.get(new BString(Constants.USER_NAME));
+        if (value != null) {
+            hikariDataSource.setUsername(value.stringValue());
+        }
+        value = options.get(new BString(Constants.PASSWORD));
+        if (value != null) {
+            hikariDataSource.setPassword(value.stringValue());
+        }
+        value = options.get(new BString(Constants.AUTO_COMMIT));
+        if (value != null) {
+            hikariDataSource.setAutoCommit(Boolean.parseBoolean(value.stringValue()));
+        }
+        value = options.get(new BString(Constants.CONNECTION_TIMEOUT));
+        if (value != null) {
+            hikariDataSource.setConnectionTimeout(Long.parseLong(value.stringValue()));
+        }
+        value = options.get(new BString(Constants.IDLE_TIMEOUT));
+        if (value != null) {
+            hikariDataSource.setIdleTimeout(Long.parseLong(value.stringValue()));
+        }
+        value = options.get(new BString(Constants.MAX_LIFETIME));
+        if (value != null) {
+            hikariDataSource.setMaxLifetime(Long.parseLong(value.stringValue()));
+        }
+        value = options.get(new BString(Constants.CONNECTION_TEST_QUERY));
+        if (value != null) {
+            hikariDataSource.setConnectionTestQuery(value.stringValue());
+        }
+        value = options.get(new BString(Constants.MINIMUM_IDLE));
+        if (value != null) {
+            hikariDataSource.setMinimumIdle(Integer.parseInt(value.stringValue()));
+        }
+        value = options.get(new BString(Constants.MAXIMUM_POOL_SIZE));
+        if (value != null) {
+            hikariDataSource.setMaximumPoolSize(Integer.parseInt(value.stringValue()));
+        }
+        value = options.get(new BString(Constants.POOOL_NAME));
+        if (value != null) {
+            hikariDataSource.setPoolName(value.stringValue());
+        }
+        value = options.get(new BString(Constants.ISOLATE_INTERNAL_QUERIES));
+        if (value != null) {
+            hikariDataSource.setIsolateInternalQueries(Boolean.parseBoolean(value.stringValue()));
+        }
+        value = options.get(new BString(Constants.ALLOW_POOL_SUSPENSION));
+        if (value != null) {
+            hikariDataSource.setAllowPoolSuspension(Boolean.parseBoolean(value.stringValue()));
+        }
+        value = options.get(new BString(Constants.READ_ONLY));
+        if (value != null) {
+            hikariDataSource.setReadOnly(Boolean.parseBoolean(value.stringValue()));
+        }
+        value = options.get(new BString(Constants.REGISTER_MBEANS));
+        if (value != null) {
+            hikariDataSource.setRegisterMbeans(Boolean.parseBoolean(value.stringValue()));
+        }
+        value = options.get(new BString(Constants.CATALOG));
+        if (value != null) {
+            hikariDataSource.setCatalog(value.stringValue());
+        }
+        value = options.get(new BString(Constants.CONNECTION_INIT_SQL));
+        if (value != null) {
+            hikariDataSource.setConnectionInitSql(value.stringValue());
+        }
+        value = options.get(new BString(Constants.DRIVER_CLASSNAME));
+        if (value != null) {
+            hikariDataSource.setDriverClassName(value.stringValue());
+        }
+        value = options.get(new BString(Constants.TRANSACTION_ISOLATION));
+        if (value != null) {
+            hikariDataSource.setTransactionIsolation(value.stringValue());
+        }
+        value = options.get(new BString(Constants.VALIDATION_TIMEOUT));
+        if (value != null) {
+            hikariDataSource.setValidationTimeout(Long.parseLong(value.stringValue()));
+        }
+        value = options.get(new BString(Constants.LEAK_DETECTION_THRESHOLD));
+        if (value != null) {
+            hikariDataSource.setLeakDetectionThreshold(Long.parseLong(value.stringValue()));
+        }
     }
 }

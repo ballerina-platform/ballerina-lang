@@ -210,6 +210,10 @@
                                     <symbolicName>gson-fragment</symbolicName>
                                     <version>${ballerina.version}</version>
                                 </bundle>
+                                <bundle>
+                                    <symbolicName>com.zaxxer.HikariCP</symbolicName>
+                                    <version>${com.zaxxer.hikaricp.version}</version>
+                                </bundle>
                             </bundles>
                         </configuration>
                     </execution>

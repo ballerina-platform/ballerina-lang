@@ -97,38 +97,38 @@ public class CassandraDataIterator implements DataIterator {
 
     @Override
     public String getString(String columnName) {
-        // TODO Auto-generated method stub
-        return null;
+        this.checkCurrentRow();
+        return this.current.getString(columnName);
     }
 
     @Override
     public long getLong(String columnName) {
-        // TODO Auto-generated method stub
-        return 0;
+        this.checkCurrentRow();
+        return this.current.getLong(columnName);
     }
 
     @Override
     public int getInt(String columnName) {
-        // TODO Auto-generated method stub
-        return 0;
+        this.checkCurrentRow();
+        return this.current.getInt(columnName);
     }
 
     @Override
     public float getFloat(String columnName) {
-        // TODO Auto-generated method stub
-        return 0;
+        this.checkCurrentRow();
+        return this.current.getFloat(columnName);
     }
 
     @Override
     public double getDouble(String columnName) {
-        // TODO Auto-generated method stub
-        return 0;
+        this.checkCurrentRow();
+        return this.current.getDouble(columnName);
     }
 
     @Override
     public boolean getBoolean(String columnName) {
-        // TODO Auto-generated method stub
-        return false;
+        this.checkCurrentRow();
+        return this.current.getBool(columnName);
     }
 
     @Override

@@ -48,8 +48,8 @@ public class BTypes {
     public static final BType JSON_TYPE = new BJSONType(JSON_TNAME);
     public static final BType MESSAGE_TYPE = new BMessageType(MESSAGE_TNAME);
     public static final BType MAP_TYPE = new BMapType(MAP_TNAME);
-    public static final BType STRUCT_TYPE = new BStructType(STRUCT_TNAME);
     public static final BType DATAFRAME_TYPE = new BDataframeType(DATAFRAME_TNAME);
+    public static final BType STRUCT_TYPE = new BStructType(STRUCT_TNAME);
 
     private BTypes() {
     }
