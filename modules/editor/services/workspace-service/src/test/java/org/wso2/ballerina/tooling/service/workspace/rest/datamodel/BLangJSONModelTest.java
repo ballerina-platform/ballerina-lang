@@ -27,7 +27,6 @@ import org.testng.annotations.Test;
 import org.wso2.msf4j.MicroservicesRunner;
 import org.wso2.msf4j.formparam.util.StreamUtil;
 
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,7 +36,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Scanner;
-
 import javax.ws.rs.HttpMethod;
 
 public class BLangJSONModelTest {
