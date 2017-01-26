@@ -31,7 +31,8 @@ define(['lodash', 'require', 'log', './node'],
             this._typeStructName = _.get(args, 'typeStructName', 'newStruct');
             this._annotations = _.get(args, 'annotations', []);
             this._schema;
-            this._type;
+            this._category;
+            this._identifier;
             this.BallerinaASTFactory = this.getFactory();
         };
 
@@ -54,9 +55,9 @@ define(['lodash', 'require', 'log', './node'],
             }
         };
 
-        TypeStructDefinition.prototype.setType = function (type) {
-            if (!_.isNil(type)) {
-                this._type = type;
+        TypeStructDefinition.prototype.setCategory = function (category) {
+            if (!_.isNil(category)) {
+                this._category = category;
             }
         };
 
@@ -64,8 +65,18 @@ define(['lodash', 'require', 'log', './node'],
             return this._schema.getAttributesArray();
         };
 
-        TypeStructDefinition.prototype.getType = function () {
-            return this._type;
+        TypeStructDefinition.prototype.getCategory = function () {
+            return this._category;
+        };
+
+        TypeStructDefinition.prototype.setIdentifier = function (identifier) {
+            if(!_.isUndefined(identifier)){
+                this._identifier = identifier;
+            }
+        };
+
+        TypeStructDefinition.prototype.getIdentifier = function(){
+            return this._identifier;
         };
 
         return TypeStructDefinition;
