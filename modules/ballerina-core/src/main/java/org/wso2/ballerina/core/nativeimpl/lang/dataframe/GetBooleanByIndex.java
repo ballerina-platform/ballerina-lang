@@ -37,11 +37,11 @@ import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
         packageName = "ballerina.lang.dataframe",
         functionName = "getBoolean",
         args = {@Argument(name = "dataframe", type = TypeEnum.DATAFRAME),
-                @Argument(name = "index", type = TypeEnum.LONG)},
+                @Argument(name = "index", type = TypeEnum.INT)},
         returnType = {@ReturnType(type = TypeEnum.BOOLEAN)},
         isPublic = true
 )
-public class GetBoolean extends AbstractNativeFunction {
+public class GetBooleanByIndex extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
         BDataframe dataframe = (BDataframe) getArgument(ctx, 0);

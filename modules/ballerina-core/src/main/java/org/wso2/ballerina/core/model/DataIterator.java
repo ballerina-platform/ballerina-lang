@@ -18,24 +18,36 @@
 
 package org.wso2.ballerina.core.model;
 
-import java.io.Closeable;
-
 /**
- *  This interface represents an data iterator operations which is also capable of closing and releasing its resources.
+ *  This interface represents an data iterator operations.
  */
-public interface DataIterator extends Closeable {
+public interface DataIterator {
 
     boolean next();
 
-    String getString(int index);
+    void close();
 
-    long getLong(int index);
+    String getString(int columnIndex);
 
-    int getInt(int index);
+    String getString(String columnName);
 
-    float getFloat(int index);
+    long getLong(int columnIndex);
 
-    double getDouble(int index);
+    long getLong(String columnName);
 
-    boolean getBoolean(int index);
+    int getInt(int columnIndex);
+
+    int getInt(String columnName);
+
+    float getFloat(int columnIndex);
+
+    float getFloat(String columnName);
+
+    double getDouble(int columnIndex);
+
+    double getDouble(String columnName);
+
+    boolean getBoolean(int columnIndex);
+
+    boolean getBoolean(String columnName);
 }

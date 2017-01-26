@@ -18,11 +18,9 @@
 
 package org.wso2.ballerina.core.data;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.model.DataIterator;
 
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -32,8 +30,6 @@ import java.sql.Statement;
  * This iterator mainly wrap Java ResultSet.
  */
 public class RDBMSResultSetIterator implements DataIterator {
-
-    private static final Logger logger = LoggerFactory.getLogger(RDBMSResultSetIterator.class);
 
     private Connection conn;
     private Statement stmt;
@@ -46,7 +42,7 @@ public class RDBMSResultSetIterator implements DataIterator {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         cleanupConnection(rs, stmt, conn);
     }
 
@@ -55,8 +51,7 @@ public class RDBMSResultSetIterator implements DataIterator {
         try {
             return rs.next();
         } catch (SQLException e) {
-            logger.error(e.getMessage(), e);
-            return false;
+            throw new BallerinaException("Unable to perform next: " + e.getMessage(), e);
         }
     }
 
@@ -64,56 +59,103 @@ public class RDBMSResultSetIterator implements DataIterator {
         try {
             return rs.getString(index);
         } catch (SQLException e) {
-            logger.error(e.getMessage(), e);
+            throw new BallerinaException("Unable to perform getString: " + e.getMessage(), e);
         }
-        return null;
+    }
+
+    @Override
+    public String getString(String columnName) {
+        try {
+            return rs.getString(columnName);
+        } catch (SQLException e) {
+            throw new BallerinaException("Unable to perform getString: " + e.getMessage(), e);
+        }
     }
 
     public long getLong(int index) {
         try {
             return rs.getLong(index);
         } catch (SQLException e) {
-            logger.error(e.getMessage(), e);
+            throw new BallerinaException("Unable to perform getLong: " + e.getMessage(), e);
         }
-        return 0;
+    }
+
+    @Override
+    public long getLong(String columnName) {
+        try {
+            return rs.getLong(columnName);
+        } catch (SQLException e) {
+            throw new BallerinaException("Unable to perform getLong: " + e.getMessage(), e);
+        }
     }
 
     public int getInt(int index) {
         try {
             return rs.getInt(index);
         } catch (SQLException e) {
-            logger.error(e.getMessage(), e);
+            throw new BallerinaException("Unable to perform getInt: " + e.getMessage(), e);
         }
-        return 0;
+    }
+
+    @Override
+    public int getInt(String columnName) {
+        try {
+            return rs.getInt(columnName);
+        } catch (SQLException e) {
+            throw new BallerinaException("Unable to perform getInt: " + e.getMessage(), e);
+        }
     }
 
     public float getFloat(int index) {
         try {
             return rs.getFloat(index);
         } catch (SQLException e) {
-            logger.error(e.getMessage(), e);
+            throw new BallerinaException("Unable to perform getFloat: " + e.getMessage(), e);
         }
-        return 0;
+    }
+
+    @Override
+    public float getFloat(String columnName) {
+        try {
+            return rs.getFloat(columnName);
+        } catch (SQLException e) {
+            throw new BallerinaException("Unable to perform getFloat: " + e.getMessage(), e);
+        }
     }
 
     public double getDouble(int index) {
         try {
             return rs.getDouble(index);
         } catch (SQLException e) {
-            logger.error(e.getMessage(), e);
+            throw new BallerinaException("Unable to perform getDouble: " + e.getMessage(), e);
         }
-        return 0;
+    }
+
+    @Override
+    public double getDouble(String columnName) {
+        try {
+            return rs.getDouble(columnName);
+        } catch (SQLException e) {
+            throw new BallerinaException("Unable to perform getDouble: " + e.getMessage(), e);
+        }
     }
 
     public boolean getBoolean(int index) {
         try {
             return rs.getBoolean(index);
         } catch (SQLException e) {
-            logger.error(e.getMessage(), e);
+            throw new BallerinaException("Unable to perform getBoolean: " + e.getMessage(), e);
         }
-        return false;
     }
 
+    @Override
+    public boolean getBoolean(String columnName) {
+        try {
+            return rs.getBoolean(columnName);
+        } catch (SQLException e) {
+            throw new BallerinaException("Unable to perform getBoolean: " + e.getMessage(), e);
+        }
+    }
 
     @Override
     protected void finalize() throws Throwable {
