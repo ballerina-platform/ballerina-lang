@@ -17,31 +17,19 @@
 */
 package org.wso2.ballerina.core.model.values;
 
+
 import org.wso2.ballerina.core.model.Null;
 
 /**
- * The {@code BBoolean} represents a boolean value in Ballerina.
+ * The {@code BNull} represents null value in Ballerina
  *
- * @since 0.8.0
+ * @since 1.0.0
  */
-public final class BBoolean extends BValueType {
+public final class BNull extends BValueType {
+    private Null value;
 
-    /**
-     * The {@code BBoolean} object corresponding to the primitive.
-     * value {@code true}.
-     */
-    public static final BBoolean TRUE = new BBoolean(true);
-
-    /**
-     * The {@code BBoolean} object corresponding to the primitive.
-     * value {@code true}.
-     */
-    public static final BBoolean FALSE = new BBoolean(false);
-
-    private boolean value;
-
-    public BBoolean(boolean value) {
-        this.value = value;
+    public BNull() {
+        this.value = null;
     }
 
     @Override
@@ -66,21 +54,21 @@ public final class BBoolean extends BValueType {
 
     @Override
     public boolean booleanValue() {
-        return this.value;
+        return false;
     }
 
     @Override
     public String stringValue() {
-        return Boolean.toString(value);
+        return "null";
     }
 
     @Override
     public Null nullValue() {
-        return null;
+        return this.value;
     }
 
     @Override
     public boolean equals(Object obj) {
-        return ((BBoolean) obj).booleanValue() == value;
+        return ((BNull) obj).nullValue().equals(value);
     }
 }

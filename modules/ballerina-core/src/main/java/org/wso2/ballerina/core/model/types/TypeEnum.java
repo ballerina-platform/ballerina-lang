@@ -35,6 +35,7 @@ public enum TypeEnum {
     MAP("map"),
     ARRAY("array"),
     CONNECTOR("connector"),
+    NULL("null"),
     EMPTY("");
 
     private String name;

@@ -17,6 +17,8 @@
 */
 package org.wso2.ballerina.core.model.values;
 
+import org.wso2.ballerina.core.model.Null;
+
 /**
  * The {@code BInteger} represents a int value in Ballerina.
  *
@@ -58,6 +60,11 @@ public final class BInteger extends BValueType {
     @Override
     public String stringValue() {
         return Integer.toString(value);
+    }
+
+    @Override
+    public Null nullValue() {
+        return null;
     }
 
     @Override

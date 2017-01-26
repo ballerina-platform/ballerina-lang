@@ -17,6 +17,8 @@
 */
 package org.wso2.ballerina.core.model.values;
 
+import org.wso2.ballerina.core.model.Null;
+
 /**
  * The {@code BFloat} represents a float value in Ballerina.
  *
@@ -58,6 +60,11 @@ public final class BFloat extends BValueType {
     @Override
     public String stringValue() {
         return Float.toString(value);
+    }
+
+    @Override
+    public Null nullValue() {
+        return null;
     }
 
     @Override

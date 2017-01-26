@@ -15,18 +15,29 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerina.core.model.values;
+package org.wso2.ballerina.core.model.types;
 
-import org.wso2.ballerina.core.model.Null;
+import org.wso2.ballerina.core.model.values.BNull;
+import org.wso2.ballerina.core.model.values.BValue;
 
 /**
- * {@code BValue} represents a value in Ballerina.
+ * {@code Null} represents null
  *
- * @since 0.8.0
+ * @since 1.0.0
  */
-public interface BValue {
+public class BNullType extends BType {
 
-    String stringValue();
+    /**
+     * Create a {@code Null} which represents the null type
+     *
+     * @param typeName string name of the type
+     */
+    BNullType(String typeName) {
+        super(typeName, BNull.class);
+    }
 
-    Null nullValue();
+    @SuppressWarnings("unchecked")
+    public <V extends BValue> V getDefaultValue() {
+        return (V) new BNull();
+    }
 }

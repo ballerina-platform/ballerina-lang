@@ -18,6 +18,7 @@
 package org.wso2.ballerina.core.model.values;
 
 import org.wso2.ballerina.core.exception.BallerinaException;
+import org.wso2.ballerina.core.model.Null;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;
@@ -78,6 +79,11 @@ public final class BArray<V extends BValue> implements BRefType {
 
     @Override
     public String stringValue() {
+        return null;
+    }
+
+    @Override
+    public Null nullValue() {
         return null;
     }
 

@@ -17,6 +17,8 @@
 */
 package org.wso2.ballerina.core.model.values;
 
+import org.wso2.ballerina.core.model.Null;
+
 /**
  * The {@code BLong} represents a long value in Ballerina.
  *
@@ -58,6 +60,11 @@ public final class BLong extends BValueType {
     @Override
     public String stringValue() {
         return Long.toString(value);
+    }
+
+    @Override
+    public Null nullValue() {
+        return null;
     }
 
     @Override

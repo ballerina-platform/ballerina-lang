@@ -551,7 +551,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         // TODO Remove the MAP related logic when type casting is implemented
         if ((lExpr.getType() != BTypes.MAP_TYPE) && (rExpr.getType() != BTypes.MAP_TYPE) &&
-                (lExpr.getType() != rExpr.getType())) {
+                (rExpr.getType() != BTypes.NULL_TYPE) && (lExpr.getType() != rExpr.getType())) {
             throw new SemanticException(lExpr.getLocation().getFileName() + ":"
                     + lExpr.getLocation().getLine() + ": incompatible types: " + rExpr.getType() +
                     " cannot be converted to " + lExpr.getType());
@@ -998,6 +998,9 @@ public class SemanticAnalyzer implements NodeVisitor {
         } else if (compareExprType == BTypes.STRING_TYPE) {
             expr.setEvalFunc(EqualExpression.EQUAL_STRING_FUNC);
 
+        } else if (compareExprType == BTypes.DOUBLE_TYPE) {
+            expr.setEvalFunc(EqualExpression.EQUAL_DOUBLE_FUNC);
+
         } else {
             throw new SemanticException("Equals operation is not supported for type: " + compareExprType + " in " +
                     expr.getLocation().getFileName() + ":" + expr.getLocation().getLine());
@@ -1019,6 +1022,9 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         } else if (compareExprType == BTypes.STRING_TYPE) {
             notEqualExpr.setEvalFunc(NotEqualExpression.NOT_EQUAL_STRING_FUNC);
+
+        } else if (compareExprType == BTypes.DOUBLE_TYPE) {
+            notEqualExpr.setEvalFunc(NotEqualExpression.NOT_EQUAL_DOUBLE_FUNC);
 
         } else {
             throw new SemanticException("NotEqual operation is not supported for type: " + compareExprType + " in " +
@@ -1351,7 +1357,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         Expression rExpr = binaryExpr.getRExpr();
         Expression lExpr = binaryExpr.getLExpr();
 
-        if (lExpr.getType() != rExpr.getType()) {
+        if (lExpr.getType() != rExpr.getType() &&  lExpr.getType() != BTypes.NULL_TYPE
+                && rExpr.getType() != BTypes.NULL_TYPE) {
             throw new SemanticException(binaryExpr.getLocation().getFileName() + ":" +
                     binaryExpr.getLocation().getLine() +
                     ": incompatible types in binary expression: " + lExpr.getType() + " vs " + rExpr.getType());

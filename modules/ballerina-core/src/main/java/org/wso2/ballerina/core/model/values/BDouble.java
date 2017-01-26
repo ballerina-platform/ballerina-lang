@@ -17,6 +17,8 @@
 */
 package org.wso2.ballerina.core.model.values;
 
+import org.wso2.ballerina.core.model.Null;
+
 /**
  * The {@code BDouble} represents a double value in Ballerina.
  *
@@ -58,6 +60,11 @@ public final class BDouble extends BValueType {
     @Override
     public String stringValue() {
         return Double.toString(value);
+    }
+
+    @Override
+    public Null nullValue() {
+        return null;
     }
 
     @Override

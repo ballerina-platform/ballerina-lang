@@ -26,9 +26,9 @@ import static org.wso2.ballerina.core.model.types.TypeConstants.JSON_TNAME;
 import static org.wso2.ballerina.core.model.types.TypeConstants.LONG_TNAME;
 import static org.wso2.ballerina.core.model.types.TypeConstants.MAP_TNAME;
 import static org.wso2.ballerina.core.model.types.TypeConstants.MESSAGE_TNAME;
+import static org.wso2.ballerina.core.model.types.TypeConstants.NULL_TNAME;
 import static org.wso2.ballerina.core.model.types.TypeConstants.STRING_TNAME;
 import static org.wso2.ballerina.core.model.types.TypeConstants.XML_TNAME;
-
 /**
  * This class contains various methods manipulate {@link BType}s in Ballerina.
  *
@@ -46,6 +46,7 @@ public class BTypes {
     public static final BType JSON_TYPE = new BJSONType(JSON_TNAME);
     public static final BType MESSAGE_TYPE = new BMessageType(MESSAGE_TNAME);
     public static final BType MAP_TYPE = new BMapType(MAP_TNAME);
+    public static final BType NULL_TYPE = new BNullType(NULL_TNAME);
 
     private BTypes() {
     }
@@ -71,7 +72,8 @@ public class BTypes {
                 type == BTypes.LONG_TYPE ||
                 type == BTypes.FLOAT_TYPE ||
                 type == BTypes.DOUBLE_TYPE ||
-                type == BTypes.BOOLEAN_TYPE) {
+                type == BTypes.BOOLEAN_TYPE ||
+                type == BTypes.NULL_TYPE) {
             return true;
         }
 
