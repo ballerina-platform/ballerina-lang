@@ -48,7 +48,10 @@ public class DockerServerInstance implements Server {
 
     @Override
     public String getServerHttpUrl() {
-        String ballerinaPort = System.getProperty("ballerina.port");
+        String ballerinaPort = System.getProperty("ballerina.port", "9090");
         return "http://localhost:" + ballerinaPort;
     }
+
+    // TODO: implement getServerHome(). When spawning the Docker container, a volume should be mounted to the
+    // <BALLERINA_HOME> and the local path of the volume should be used as the server home.
 }

@@ -107,11 +107,26 @@
                                             <inline>
                                                 <files>
                                                     <file>
+                                                        <!-- Ballerina distribution -->
                                                         <source>${project.parent.parent.basedir}/modules/distribution/target/ballerina-${project.version}.zip</source>
                                                         <outputDirectory>./</outputDirectory>
                                                         <destName>ballerina-dist.zip</destName>
                                                     </file>
+                                                    <file>
+                                                        <!-- Command script -->
+                                                        <source>${project.basedir}/src/test/resources/docker/cmd.sh</source>
+                                                        <outputDirectory>./</outputDirectory>
+                                                        <fileMode>744</fileMode>
+                                                    </file>
                                                 </files>
+                                                <fileSets>
+                                                    <fileSet>
+                                                        <!-- Ballerina test services -->
+                                                        <directory>${project.basedir}/src/test/resources/ballerina/</directory>
+                                                        <outputDirectory>./services/</outputDirectory>
+                                                        <fileMode>644</fileMode>
+                                                    </fileSet>
+                                                </fileSets>
                                             </inline>
                                         </assembly>
                                         <workdir>/maven</workdir>
@@ -123,18 +138,18 @@
                                         </ports>
                                         <cmd>
                                             <shell>
-                                                /maven/ballerina-${project.version}/bin/ballerinaserver /maven/ballerina-${project.version}/samples/helloWorldService/helloWorldService.bal \
-                                                /maven/ballerina-${project.version}/samples/helloWorldService/helloWorldService.bal \
-                                                /maven/ballerina-${project.version}/samples/echoService/echoService.bal \
-                                                /maven/ballerina-${project.version}/samples/passthroughService/passthroughService.bal \
-                                                /maven/ballerina-${project.version}/samples/restfulService/ecommerceService.bal \
-                                                /maven/ballerina-${project.version}/samples/routingServices/routingServices.bal \
-                                                /maven/ballerina-${project.version}/samples/serviceChaining/ATMLocatorService.bal
+                                                /maven/cmd.sh
                                             </shell>
                                         </cmd>
                                     </build>
 
                                     <run>
+                                        <env>
+                                            <!-- Used by the command script -->
+                                            <project_version>${project.version}</project_version>
+                                            <load_samples>true</load_samples>
+                                            <bal_files_home>/maven/services/</bal_files_home>
+                                        </env>
                                         <ports>
                                             <port>ballerina.port:9090</port>
                                         </ports>
@@ -151,8 +166,6 @@
                                 <id>start-docker</id>
                                 <phase>pre-integration-test</phase>
                                 <goals>
-                                    <!-- "build" should be used to create the images with the
-                                         artifact -->
                                     <goal>build</goal>
                                     <goal>start</goal>
                                 </goals>
@@ -168,23 +181,47 @@
                         </executions>
                     </plugin>
                     <plugin>
+                        <groupId>com.lazerycode.jmeter</groupId>
+                        <artifactId>jmeter-maven-plugin</artifactId>
+                        <version>2.1.0</version>
+                        <executions>
+                            <execution>
+                                <id>jmeter-tests</id>
+                                <phase>integration-test</phase>
+                                <goals>
+                                    <goal>jmeter</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>jmeter-tests-verification</id>
+                                <phase>post-integration-test</phase>
+                                <goals>
+                                    <goal>results</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <propertiesJMeter>
+                                <!-- For the JMeter scripts -->
+                                <ballerina_port>${ballerina.port}</ballerina_port>
+                            </propertiesJMeter>
+                            <!-- Scan results for failures. Otherwise, maven build will continue even on failure -->
+                            <scanResultsForFailedRequests>true</scanResultsForFailedRequests>
+                            <ignoreResultFailures>false</ignoreResultFailures>
+                        </configuration>
+                    </plugin>
+                    <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-failsafe-plugin</artifactId>
-                        <!--<version>2.19.1</version>-->
                         <configuration>
                             <systemPropertyVariables>
+                                <!-- Pass the dynamic port to the integration tests -->
                                 <ballerina.port>${ballerina.port}</ballerina.port>
+                                <!-- To determine which ServerContext to load for the integration tests -->
                                 <profile.name>integration</profile.name>
                             </systemPropertyVariables>
                         </configuration>
                     </plugin>
-                    <!--<plugin>-->
-                        <!--<groupId>org.apache.maven.plugins</groupId>-->
-                        <!--<artifactId>maven-surefire-plugin</artifactId>-->
-                        <!--<configuration>-->
-                            <!--<skip>true</skip>-->
-                        <!--</configuration>-->
-                    <!--</plugin>-->
                 </plugins>
             </build>
         </profile>
