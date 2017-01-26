@@ -32,7 +32,6 @@ import java.sql.NClob;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Timestamp;
 import java.util.Base64;
 
 /**
@@ -175,7 +174,8 @@ public class SQLDataIterator implements DataIterator {
             switch (type) {
             case "blob":
                 Blob blob = rs.getBlob(columnIndex);
-                byte[] decode = getBase64Decode(new String(blob.getBytes(1l, (int) blob.length())));
+                byte[] decode = getBase64Decode(
+                        new String(blob.getBytes(1L, (int) blob.length()), Charset.defaultCharset()));
                 return new BString(new String(decode, Charset.defaultCharset()));
             case "clob":
                 Clob clob = rs.getClob(columnIndex);
