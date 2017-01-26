@@ -34,8 +34,8 @@ define(['./../env/environment'],
 
         setExcludes: function(excludes){
             var self = this;
-            _.forEach(excludes,function(o){
-                self._excludes.push(o.name);
+            _.forEach(excludes,function(exclude){
+                self._excludes.push(exclude.getName());
             });
         }
 
