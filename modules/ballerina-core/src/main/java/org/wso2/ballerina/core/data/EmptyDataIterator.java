@@ -20,14 +20,13 @@ package org.wso2.ballerina.core.data;
 
 import org.wso2.ballerina.core.model.DataIterator;
 
-import java.io.IOException;
-
 /**
  * Empty iterator for default usage. This will represent empty dataframe object in ballerina
  */
 public class EmptyDataIterator implements DataIterator {
     @Override
-    public void close() throws IOException {
+    public void close() {
+        // Do nothing.
     }
 
     @Override
@@ -41,7 +40,17 @@ public class EmptyDataIterator implements DataIterator {
     }
 
     @Override
+    public String getString(String columnName) {
+        return null;
+    }
+
+    @Override
     public long getLong(int index) {
+        return 0;
+    }
+
+    @Override
+    public long getLong(String columnName) {
         return 0;
     }
 
@@ -51,7 +60,17 @@ public class EmptyDataIterator implements DataIterator {
     }
 
     @Override
+    public int getInt(String columnName) {
+        return 0;
+    }
+
+    @Override
     public float getFloat(int index) {
+        return 0;
+    }
+
+    @Override
+    public float getFloat(String columnName) {
         return 0;
     }
 
@@ -61,7 +80,17 @@ public class EmptyDataIterator implements DataIterator {
     }
 
     @Override
+    public double getDouble(String columnName) {
+        return 0;
+    }
+
+    @Override
     public boolean getBoolean(int index) {
+        return false;
+    }
+
+    @Override
+    public boolean getBoolean(String columnName) {
         return false;
     }
 }

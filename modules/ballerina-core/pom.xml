@@ -57,6 +57,10 @@
             </exclusions>
         </dependency>
         <dependency>
+            <groupId>org.wso2.carbon.datasources</groupId>
+            <artifactId>org.wso2.carbon.datasource.core</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.wso2.orbit.org.antlr</groupId>
             <artifactId>antlr4-runtime</artifactId>
         </dependency>
@@ -252,6 +256,9 @@
             org.wso2.carbon.kernel.transports.*;version="${carbon.kernel.package.import.version.range}",
             org.wso2.carbon.kernel.deployment.*;version="${carbon.kernel.package.import.version.range}",
             org.wso2.carbon.kernel.startupresolver.*;version="${carbon.kernel.package.import.version.range}",
+            org.wso2.carbon.datasource.core.*;version="${carbon.datasources.package.import.version.range}",
+            org.wso2.carbon.datasource.core.api.*;version="${carbon.datasources.package.import.version.range}",
+            org.osgi.service.jndi.*;version="${carbon.jndi.package.import.version.range}",
             org.slf4j.*;version="${slf4j.logging.package.import.version.range}",
             org.antlr.v4.runtime.*,
             org.apache.axiom.*;version="0.0.0",
@@ -260,6 +267,7 @@
             com.google.gson.*;version="${gson.import.version.range}",
             com.jayway.jsonpath.*;version="${jayway.jsonpath.import.version.range}",
             org.jaxen.*;version="${jaxen.import.version.range}",
+            com.zaxxer.hikari.*;version="${com.zaxxer.hikari.import.version.range}",
             net.sf.saxon.*;version="${saxon.import.version.range}"
         </import.package>
         <carbon.component>

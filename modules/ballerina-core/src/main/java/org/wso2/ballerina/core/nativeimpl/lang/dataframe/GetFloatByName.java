@@ -22,7 +22,6 @@ import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BDataframe;
 import org.wso2.ballerina.core.model.values.BFloat;
-import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
@@ -30,22 +29,22 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 
 /**
- * Native function to get float value of a given column index.
- * ballerina.lang.dataframe:getFloat(dataframe, int)
+ * Native function to get float value of a given column name.
+ * ballerina.lang.dataframe:getFloat(dataframe, string)
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.dataframe",
         functionName = "getFloat",
         args = {@Argument(name = "dataframe", type = TypeEnum.DATAFRAME),
-                @Argument(name = "index", type = TypeEnum.LONG)},
+                @Argument(name = "name", type = TypeEnum.STRING)},
         returnType = {@ReturnType(type = TypeEnum.FLOAT)},
         isPublic = true
 )
-public class GetFloat extends AbstractNativeFunction {
+public class GetFloatByName extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
         BDataframe dataframe = (BDataframe) getArgument(ctx, 0);
-        int index = ((BInteger) getArgument(ctx, 1)).intValue();
-        return getBValues(new BFloat(dataframe.getFloat(index)));
+        String columnName = (getArgument(ctx, 1)).stringValue();
+        return getBValues(new BFloat(dataframe.getFloat(columnName)));
     }
 }
