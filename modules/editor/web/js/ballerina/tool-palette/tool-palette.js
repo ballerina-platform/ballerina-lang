@@ -109,6 +109,11 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
             this._toolGroups.imports.forEach(function (package){
                 self.addImport(package);
             });
+
+            $(this._$parent_el).mCustomScrollbar({
+                theme: "minimal-dark",
+                scrollInertia: 0
+            });
             return this;
         },
 
