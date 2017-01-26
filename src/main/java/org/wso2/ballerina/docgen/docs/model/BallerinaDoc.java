@@ -29,14 +29,21 @@ public class BallerinaDoc {
     private String packageName;
 
     private List<BallerinaFunctionDoc> ballerinaFunctionDocs;
+
+    private List<BallerinaConnectorDoc> ballerinaConnectorDocs;
     
     public BallerinaDoc(String pkgName) {
         packageName = pkgName;
         ballerinaFunctionDocs = new ArrayList<BallerinaFunctionDoc>();
+        ballerinaConnectorDocs = new ArrayList<BallerinaConnectorDoc>();
     }
     
     public void addBallerinaFunctionDoc(BallerinaFunctionDoc balFuncDoc) {
         ballerinaFunctionDocs.add(balFuncDoc);
+    }
+
+    public void addBallerinaConnectorDoc(BallerinaConnectorDoc balConnectorDoc) {
+        ballerinaConnectorDocs.add(balConnectorDoc);
     }
 
     public List<BallerinaFunctionDoc> getBallerinaFunctionDocs() {
@@ -45,6 +52,14 @@ public class BallerinaDoc {
 
     public void setBallerinaFunctionDocs(List<BallerinaFunctionDoc> ballerinaFunctionDocs) {
         this.ballerinaFunctionDocs = ballerinaFunctionDocs;
+    }
+
+    public List<BallerinaConnectorDoc> getBallerinaConnectorDocs() {
+        return ballerinaConnectorDocs;
+    }
+
+    public void setBallerinaConnectorDocs(List<BallerinaConnectorDoc> ballerinaConnectorDocs) {
+        this.ballerinaConnectorDocs = ballerinaConnectorDocs;
     }
 
     public String getPackageName() {
@@ -57,7 +72,8 @@ public class BallerinaDoc {
 
     @Override
     public String toString() {
-        return "BallerinaDoc [packageName=" + packageName + ", ballerinaFunctionDocs=" + ballerinaFunctionDocs + "]";
+        return "BallerinaDoc [packageName=" + packageName + ", ballerinaFunctionDocs=" + ballerinaFunctionDocs
+                + ", ballerinaConnectorDocs=" + ballerinaConnectorDocs + "]";
     }
 
 }
