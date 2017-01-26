@@ -2,6 +2,8 @@
 
 Currently both Java and JMeter based integration tests are supported. However `default` Maven profile will only run Java based integration tests, while `integration` Maven profile will run both the JMeter and Java based tests. Java based tests in the `default` profile will be run against a Ballerina server spawned as a forked process. This is done differently in `integration` profile where the Ballerina server is spawned as a Docker container. The `integration` profile is targetted to be run with a less frequency than the `default` profile, and will require Docker to be in the build host machine.
 
+> Make sure `docker` can be accessed without using `sudo`. If not follow the steps mentioned in the [Post-installation steps for Linux](https://docs.docker.com/engine/installation/linux/linux-postinstall/) documentation.
+
 ### Java based tests
 
 Java based tests can be found `src/test/java/` folder. The existing ones make calls to the Ballerina sample Services to test Ballerina. To only run the Java based tests, simply invoke the following goals. 
@@ -30,4 +32,4 @@ host: localhost
 port: ${__P(ballerina_port)}
 ```
 
-Make sure that the JMeter tests have proper Assertion Listeners to generate assertion failures in case the tests fail. The Maven run will not fail on test failure, unless proper assertions are present in the JMeter scripts.
+> Make sure that the JMeter tests have proper Assertion Listeners to generate assertion failures in case the tests fail. The Maven run will not fail on test failure, unless proper assertions are present in the JMeter scripts.
