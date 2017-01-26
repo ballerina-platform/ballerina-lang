@@ -256,11 +256,6 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                     log.error("Unable to find the package.");
                     return;
                 }
-                // Creating new import.
-                var newImportDeclaration = BallerinaASTFactory.createImportDeclaration();
-                newImportDeclaration.setPackageName(packageName);
-                this._model.addImport(newImportDeclaration);
-                //this.toolPalette.addImport(package);
             }
         };
 
