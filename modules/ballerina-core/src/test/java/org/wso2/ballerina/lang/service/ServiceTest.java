@@ -27,7 +27,7 @@ import org.wso2.ballerina.core.message.StringDataSource;
 import org.wso2.ballerina.core.nativeimpl.connectors.http.server.HTTPResourceDispatcher;
 import org.wso2.ballerina.core.runtime.registry.DispatcherRegistry;
 import org.wso2.ballerina.core.utils.MessageUtils;
-import org.wso2.ballerina.lang.util.Services;
+import org.wso2.ballerina.core.utils.Services;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 import java.nio.ByteBuffer;

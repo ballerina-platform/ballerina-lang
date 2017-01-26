@@ -28,7 +28,7 @@ import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.runtime.internal.BuiltInNativeConstructLoader;
 import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 import org.wso2.ballerina.core.utils.MessageUtils;
-import org.wso2.ballerina.lang.util.Services;
+import org.wso2.ballerina.core.utils.Services;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 /**

@@ -26,8 +26,8 @@ import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.nativeimpl.lang.system.PrintlnString;
 import org.wso2.ballerina.core.utils.FunctionUtils;
+import org.wso2.ballerina.core.utils.Functions;
 import org.wso2.ballerina.core.utils.ParserUtils;
-import org.wso2.ballerina.lang.util.Functions;
 
 /**
  * Validate Function statement.
