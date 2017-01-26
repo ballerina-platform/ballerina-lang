@@ -117,6 +117,16 @@ define(['jquery', 'backbone', 'lodash', 'tree_view', 'log', /** void module - jq
          */
         select: function(path){
             this._$parent_el.jstree(true).deselect_all();
+            var pathSeparator = this.application.getPathSeperator(),
+                pathParts = _.split(path, pathSeparator),
+                currentPart = "/",
+                self = this;
+            pathParts.forEach(function(part){
+                currentPart += part;
+                self._$parent_el.jstree(true).open_node(currentPart);
+                currentPart += pathSeparator;
+            });
+
             this._$parent_el.jstree(true).select_node(path);
         },
 
