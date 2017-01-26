@@ -93,6 +93,7 @@ import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.model.util.LangModelUtils;
 import org.wso2.ballerina.core.model.values.BString;
+import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -1396,10 +1397,16 @@ public class SemanticAnalyzer implements NodeVisitor {
                 pkgPath = importPkg.getPath();
 
             } else {
-                // Package name is not listed in the imported packages.
-                // User may have used the fully qualified package path.
-                // If this package is not available, linker will throw an error.
-                pkgPath = pkgName;
+                //resolving all ballerina.* packages
+                Symbol symbol = GlobalScopeHolder.getInstance().getScope().lookup(symbolName);
+                if (symbol != null) {
+                    pkgPath = symbol.getFunction().getPackageName();
+                } else {
+                    // Package name is not listed in the imported packages.
+                    // User may have used the fully qualified package path.
+                    // If this package is not available, linker will throw an error.
+                    pkgPath = pkgName;
+                }
             }
         }
 

@@ -1,11 +1,3 @@
-import ballerina.lang.array;
-import ballerina.lang.message;
-import ballerina.lang.string;
-import ballerina.lang.system;
-import ballerina.lang.xml;
-import ballerina.net.http;
-import ballerina.net.uri;
-import ballerina.util;
 
 function main (string[] args) {
 

@@ -76,6 +76,16 @@ public class SymScope {
             }
         }
 
+        // resolving in all ballerina.* packages
+        for (SymScope t = this; t != null; t = t.parent) {
+            for (SymbolName symbolName : t.symbolMap.keySet()) {
+                if (symbolName.getName().contains("." + symName.getPkgName() + ":" + symName.getName() + "_") &&
+                        symbolName.getName().startsWith("ballerina.")) {
+                    return t.symbolMap.get(symbolName);
+                }
+            }
+        }
+
         return null;
     }
 
