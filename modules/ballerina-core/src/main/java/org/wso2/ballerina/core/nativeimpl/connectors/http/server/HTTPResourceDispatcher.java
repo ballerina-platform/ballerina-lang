@@ -76,9 +76,8 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
                         QueryParamProcessor.processQueryParams
                                 ((String) cMsg.getProperty(Constants.QUERY_STR))
                                 .forEach((resourceArgumentValues::put));
-                        cMsg.setProperty(org.wso2.ballerina.core.runtime.Constants.RESOURCE_ARGS,
-                                resourceArgumentValues);
                     }
+                    cMsg.setProperty(org.wso2.ballerina.core.runtime.Constants.RESOURCE_ARGS, resourceArgumentValues);
                     return resource;
                 }
             }
