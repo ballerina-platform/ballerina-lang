@@ -35,6 +35,9 @@ import org.wso2.ballerina.core.utils.ParserUtils;
 import org.wso2.ballerina.core.utils.XMLUtils;
 import org.wso2.ballerina.lang.util.Functions;
 
+/**
+ * Test class for XML with namespaces.
+ */
 public class XMLWithNamespacesTest {
     private BallerinaFile bFile;
     private static String xmlMessage;

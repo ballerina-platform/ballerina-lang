@@ -33,7 +33,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Service Dispatcher for HTTP Protocol
+ * Service Dispatcher for HTTP Protocol.
  *
  * @since 0.8.0
  */

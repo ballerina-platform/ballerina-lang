@@ -21,14 +21,14 @@ import org.wso2.ballerina.core.model.values.BLong;
 import org.wso2.ballerina.core.model.values.BValue;
 
 /**
- * {@code BLongType} represents a long which is a 64-bit signed number
+ * {@code BLongType} represents a long which is a 64-bit signed number.
  *
  * @since 0.8.0
  */
 class BLongType extends BType {
 
     /**
-     * Create a {@code BLongType} which represents the boolean type
+     * Create a {@code BLongType} which represents the boolean type.
      *
      * @param typeName string name of the type
      */

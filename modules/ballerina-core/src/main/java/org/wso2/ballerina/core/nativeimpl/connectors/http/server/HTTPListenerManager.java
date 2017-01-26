@@ -68,7 +68,7 @@ public class HTTPListenerManager implements TransportListenerManager {
     }
 
     /**
-     * Bind Ballerina engine to a particular http listener interface
+     * Bind Ballerina engine to a particular http listener interface.
      *
      * @param interfaceId Listener interface id
      */
@@ -86,7 +86,7 @@ public class HTTPListenerManager implements TransportListenerManager {
     }
 
     /**
-     * Unbind Ballerina from a particular http listener interface
+     * Unbind Ballerina from a particular http listener interface.
      *
      * @param interfaceId Listener interface id
      */

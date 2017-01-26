@@ -37,7 +37,7 @@ import org.wso2.carbon.messaging.Header;
 import java.util.List;
 
 /**
- * Test Native function in ballerina.lang.message
+ * Test Native function in ballerina.lang.message.
  */
 public class MessageTest {
 
@@ -137,6 +137,14 @@ public class MessageTest {
 
         String value = newPayload.stringValue();
         Assert.assertEquals(value, payload);
+    }
+
+    @Test
+    public void testEmptyString() {
+        BValue[] returns = Functions.invoke(bFile, "testEmptyString");
+        Assert.assertEquals(returns.length, 1);
+        String returnString = returns[0].stringValue();
+        Assert.assertEquals(returnString, "");
     }
 
     @Test

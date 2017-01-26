@@ -25,7 +25,7 @@ import org.wso2.ballerina.core.runtime.registry.DispatcherRegistry;
 
 
 /**
- * Test the functionality of HTTP Dispatchers
+ * Test the functionality of HTTP Dispatchers.
  *
  * @since 0.8.0
  */

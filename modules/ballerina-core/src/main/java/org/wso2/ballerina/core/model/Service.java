@@ -69,7 +69,7 @@ public class Service extends PositionAwareNode implements Node {
     }
 
     /**
-     * Get the {@code Identifier} of the Service
+     * Get the {@code Identifier} of the Service.
      *
      * @return Service Identifier
      */
@@ -102,7 +102,7 @@ public class Service extends PositionAwareNode implements Node {
     }
 
     /**
-     * Get all the Resources associated to a Service
+     * Get all the Resources associated to a Service.
      *
      * @return array of Resources belongs to a Service
      */
@@ -111,7 +111,7 @@ public class Service extends PositionAwareNode implements Node {
     }
 
     /**
-     * Assign Resources to the Service
+     * Assign Resources to the Service.
      *
      * @param resources List of Resources
      */
