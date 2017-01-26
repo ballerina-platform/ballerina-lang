@@ -25,12 +25,12 @@ define(['./ballerina-ast-factory', './ballerina-ast-root', './conditional-statem
         './import-declaration', './assignment', './assignment-statement', './function-invocation',
         './action-invocation-statement','./action-invocation-statement', './arithmetic-expression', './logical-expression',
         './ballerina-ast-deserializer', './function-invocation-expression', './left-operand-expression',
-        './right-operand-expression', './connector-action'],
+        './right-operand-expression', './connector-action', './struct-definition'],
     function (BallerinaASTFactory, BallerinaASTRoot, ConditionalStatement, ConnectorDeclaration, ConnectorDefinition, ConstantDefinition,
                 Expression, FunctionDefinition, IfElseStatement, IfStatement, ElseStatement, ElseIfStatement, TryCatchStatement, TryStatement, CatchStatement, ASTNode, ReplyStatement, ResourceDefinition, ReturnStatement, ServiceDefinition,
                 Statement, ThrowStatement, TypeConverterDefinition, TypeDefinition, TypeElement, VariableDeclaration, WhileStatement, WorkerDeclaration, PackageDefinition, ImportDeclaration, Assignment, AssignmentStatement, FunctionInvocation,
               ActionInvocationStatement, ArithmeticExpression, LogicalExpression, ActionInvocationExpression, BallerinaASTDeserializer, FunctionInvocationExpression,
-              LeftOperandExpression, RightOperandExpression, ConnectorAction) {
+              LeftOperandExpression, RightOperandExpression, ConnectorAction, StructDefinition) {
 
         return  {
             BallerinaASTFactory: BallerinaASTFactory,
@@ -74,7 +74,8 @@ define(['./ballerina-ast-factory', './ballerina-ast-root', './conditional-statem
             ActionInvocationStatement: ActionInvocationStatement,
             ActionInvocationExpression: ActionInvocationExpression,
             BallerinaASTDeserializer : BallerinaASTDeserializer,
-            ConnectorAction : ConnectorAction
+            ConnectorAction : ConnectorAction,
+            StructDefinition : StructDefinition
         }
     });
 

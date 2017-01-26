@@ -40,7 +40,7 @@ define(['require','lodash', 'log', 'event_channel', './abstract-statement-source
     };
 
     RightOperandExpressionVisitor.prototype.endVisitRightOperandExpression = function(rightOperandExpression){
-        this.getParent().appendSource(this.getGeneratedSource() + ";\n");
+        this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit Right Operand Expression');
     };
 
