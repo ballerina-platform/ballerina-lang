@@ -161,26 +161,29 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
          */
         addImport: function(package){
             var import_pkg = package;
-            if(_.find(this._imports, function(_import){ return (_import.getName() == import_pkg.getName()) }) != undefined){
+            if (_.find(this._imports, function (_import) {
+                    return (_import.getName() == import_pkg.getName())
+                }) != undefined) {
                 return false;
-            }            
+            }
 
             var definitions = [];
-            _.forEach(package.getConnectorDefinitions() , function(connector) {
+            _.each(package.getConnectors(), function (connector) {
                 connector.nodeFactoryMethod = BallerinaASTFactory.createConnectorDeclaration();
                 connector.meta = {
                     connectorName: connector.getName(),
-                    connectorPackageName: import_pkg.name
-                };               
+                    connectorPackageName: import_pkg.getName()
+                };
+                connector.icon = "images/tool-icons/http.svg";
                 definitions.push(connector);
-                if(connector['actions'] != undefined){
-                    _.forEach(connector.actions , function(action ,index, collection){
+                if (connector['actions'] != undefined) {
+                    _.forEach(connector.getActions(), function (action, index, collection) {
                         /* We need to add a special class to actions to indent them in tool palette. */
                         action.classNames = "tool-connector-action";
-                        if( (index + 1 ) == collection.length){
+                        if ((index + 1 ) == collection.length) {
                             action.classNames = "tool-connector-action tool-connector-last-action";
                         }
-                        action.nodeFactoryMethod = BallerinaASTFactory.createAggregatedActionInvocationExpression
+                        action.nodeFactoryMethod = BallerinaASTFactory.createAggregatedActionInvocationExpression();
                         definitions.push(action);
                     });
                 }
@@ -201,7 +204,7 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
             var group = groupView.render(this.$el.find('.tool-import-wrapper'), _.isEqual('vertical', group.get('toolOrder')));
             this.$el.addClass('non-user-selectable');
 
-            this.ballerinaFileEditor.importPackage(package.name);
+            this.ballerinaFileEditor.importPackage(package.getName());
         },
 
         addConnectorTool: function(toolDef){
